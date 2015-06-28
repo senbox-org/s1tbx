@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.prefs.BackingStoreException;
 
 /**
  * Compute optimum parameters
@@ -90,7 +91,7 @@ public class ConfigurationOptimizer {
         custommisedPerformanceParameters = updatedParams;
     }
 
-    public void saveCustomisedParameters() throws IOException {
+    public void saveCustomisedParameters() throws IOException, BackingStoreException {
         PerformanceParameters.saveConfiguration(custommisedPerformanceParameters);
         actualPerformanceParameters = new PerformanceParameters(custommisedPerformanceParameters);
     }

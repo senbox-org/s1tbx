@@ -17,7 +17,6 @@
 package org.esa.snap.configurator;
 
 
-import org.esa.snap.framework.gpf.internal.OperatorExecutor;
 import org.esa.snap.runtime.Config;
 import org.esa.snap.runtime.EngineConfig;
 import org.esa.snap.util.SystemUtils;
@@ -29,8 +28,8 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 /**
@@ -162,72 +161,6 @@ public class PerformanceParameters {
     }
 
 
-/*
-    public int getReaderTileWidth() {
-        return readerTileWidth;
-    }
-
-    public void setReaderTileWidth(int readerTileWidth) {
-        this.readerTileWidth = readerTileWidth;
-    }
-
-    public int getReaderTileHeight() {
-        return readerTileHeight;
-    }
-
-    public void setReaderTileHeight(int readerTileHeight) {
-        this.readerTileHeight = readerTileHeight;
-    }
-
-    public boolean isPixelGeoCodingFractionAccuracy() {
-        return pixelGeoCodingFractionAccuracy;
-    }
-
-    public void setPixelGeoCodingFractionAccuracy(boolean pixelGeoCodingFractionAccuracy) {
-        this.pixelGeoCodingFractionAccuracy = pixelGeoCodingFractionAccuracy;
-    }
-
-    public boolean isPixelGeoCodingUseTiling() {
-        return pixelGeoCodingUseTiling;
-    }
-
-    public void setPixelGeoCodingUseTiling(boolean pixelGeoCodingUseTiling) {
-        this.pixelGeoCodingUseTiling = pixelGeoCodingUseTiling;
-    }
-
-    public boolean isUseAlternatePixelGeoCoding() {
-        return useAlternatePixelGeoCoding;
-    }
-
-    public void setUseAlternatePixelGeoCoding(boolean useAlternatePixelGeoCoding) {
-        this.useAlternatePixelGeoCoding = useAlternatePixelGeoCoding;
-    }
-
-    public OperatorExecutor.ExecutionOrder getGpfExecutionOrder() {
-        return gpfExecutionOrder;
-    }
-
-    public void setGpfExecutionOrder(OperatorExecutor.ExecutionOrder gpfExecutionOrder) {
-        this.gpfExecutionOrder = gpfExecutionOrder;
-    }
-
-    public boolean isGpfUseFileTileCache() {
-        return gpfUseFileTileCache;
-    }
-
-    public void setGpfUseFileTileCache(boolean gpfUseFileTileCache) {
-        this.gpfUseFileTileCache = gpfUseFileTileCache;
-    }
-
-    public boolean isGpfDisableTileCache() {
-        return gpfDisableTileCache;
-    }
-
-    public void setGpfDisableTileCache(boolean gpfDisableTileCache) {
-        this.gpfDisableTileCache = gpfDisableTileCache;
-    }
-    */
-
     /**
      *
      * Reads the parameters files and system settings to retreive the actual performance parameters.
@@ -247,23 +180,11 @@ public class PerformanceParameters {
         actualParameters.setVMParameters(vmParameters);
         actualParameters.setUserDir(configuration.userDir());
 
-        actualParameters.setNbThreads(preferences.getInt("PROPERTY_JAI_PARALLELISM", 1));
-        actualParameters.setDefaultTileSize(preferences.getInt("PROPERTY_DEFAULT_TILE_SIZE", 1));
-        actualParameters.setCacheSize(preferences.getInt("PROPERTY_JAI_CACHE_SIZE", 1));
+        final int defaultNbThreads = JavaSystemInfos.getInstance().getNbCPUs();
+        actualParameters.setNbThreads(preferences.getInt(PROPERTY_JAI_PARALLELISM, defaultNbThreads));
+        actualParameters.setDefaultTileSize(preferences.getInt(PROPERTY_DEFAULT_TILE_SIZE, 0));
+        actualParameters.setCacheSize(preferences.getInt(PROPERTY_JAI_CACHE_SIZE, 0));
 
-        /* not implemented in this version.
-        actualParameters.setReaderTileWidth(preferences.getInt("snap.dataio.reader.tileWidth", 1));
-        actualParameters.setReaderTileHeight(preferences.getInt("snap.dataio.reader.tileHeight", 1));
-
-        actualParameters.setPixelGeoCodingFractionAccuracy(preferences.getBoolean("snap.pixelGeoCoding.fractionAccuracy", false));
-        actualParameters.setPixelGeoCodingUseTiling(preferences.getBoolean("snap.pixelGeoCoding.useTiling", true));
-        actualParameters.setUseAlternatePixelGeoCoding(preferences.getBoolean("snap.useAlternatePixelGeoCoding", false));
-
-        String executionOrder = preferences.get("snap.gpf.executionOrder", "SCHEDULE_ROW_COLUMN_BAND");
-        actualParameters.setGpfExecutionOrder(OperatorExecutor.ExecutionOrder.valueOf(executionOrder));
-        actualParameters.setGpfUseFileTileCache(preferences.getBoolean("snap.gpf.useFileTileCache", false));
-        actualParameters.setGpfDisableTileCache(preferences.getBoolean("snap.gpf.disableTileCache", false));
-*/
         return actualParameters;
     }
 
@@ -283,8 +204,8 @@ public class PerformanceParameters {
      *
      * @param confToSave The configuration to save
      */
-    synchronized static void saveConfiguration(PerformanceParameters confToSave) throws IOException {
-        Config configuration = Config.instance().load();
+    synchronized static void saveConfiguration(PerformanceParameters confToSave) throws IOException, BackingStoreException {
+        Config configuration = EngineConfig.instance().load();
         Preferences preferences = configuration.preferences();
 
         preferences.put("default_options", confToSave.getVMParameters());
@@ -303,23 +224,10 @@ public class PerformanceParameters {
         }
         preferences.put(EngineConfig.PROPERTY_USER_DIR, userDirString);
 
-
-        preferences.putInt("PROPERTY_JAI_PARALLELISM", confToSave.getNbThreads());
-        preferences.putInt("PROPERTY_DEFAULT_TILE_SIZE", confToSave.getDefaultTileSize());
-        preferences.putInt("PROPERTY_JAI_CACHE_SIZE", confToSave.getCacheSize());
-
-/* not implemented in this version.
-        preferences.putInt("snap.dataio.reader.tileWidth", confToSave.getReaderTileWidth());
-        preferences.putInt("snap.dataio.reader.tileHeight", confToSave.getReaderTileHeight());
-        preferences.putBoolean("snap.pixelGeoCoding.fractionAccuracy", confToSave.isPixelGeoCodingFractionAccuracy());
-        preferences.putBoolean("snap.pixelGeoCoding.ugetiling", confToSave.isPixelGeoCodingUseTiling());
-        preferences.putBoolean("snap.useAlternatePixelGeoCoding", confToSave.isUseAlternatePixelGeoCoding());
-
-        OperatorExecutor.ExecutionOrder executionOrderEnumVal = confToSave.getGpfExecutionOrder();
-        preferences.put("snap.gpf.executionOrder", executionOrderEnumVal.toString());
-        preferences.putBoolean("snap.gpf.useFileTileCache", confToSave.isGpfUseFileTileCache());
-        preferences.putBoolean("snap.gpf.disableTileCache", confToSave.isGpfDisableTileCache());
- */
+        preferences.putInt(PROPERTY_JAI_PARALLELISM, confToSave.getNbThreads());
+        preferences.putInt(PROPERTY_DEFAULT_TILE_SIZE, confToSave.getDefaultTileSize());
+        preferences.putInt(PROPERTY_JAI_CACHE_SIZE, confToSave.getCacheSize());
+        preferences.flush();
     }
 
 

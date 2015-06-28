@@ -29,7 +29,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-
+/**
+ * @deprecated It is wrong to force users to specify a <i>mask name</i> to filter pixels in a ROI.
+ * Instead they should provide any boolean expression
+ * (which also may include mask names).
+ */
+@Deprecated
 class Roi {
 
     private final Set<RenderedImage> maskImageSet = new HashSet<RenderedImage>();

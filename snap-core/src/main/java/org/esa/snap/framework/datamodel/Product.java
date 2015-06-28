@@ -1380,8 +1380,7 @@ public class Product extends ProductNode {
      * @throws ParseException if the expression could not successfully be parsed
      */
     public Term parseExpression(final String expression) throws ParseException {
-        final Parser parser = createBandArithmeticParser();
-        return parser.parse(expression);
+        return BandArithmetic.parseExpression(expression, new Product[]{this}, 0);
     }
 
     /**
@@ -1987,7 +1986,7 @@ public class Product extends ProductNode {
 
         final Term term;
         try {
-            term = createBandArithmeticParser().parse(expr);
+            term = BandArithmetic.parseExpression(expr, new Product[]{this}, 0);
         } catch (ParseException e) {
             return null;
         }

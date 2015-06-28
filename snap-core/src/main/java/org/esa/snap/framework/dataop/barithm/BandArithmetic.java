@@ -104,7 +104,11 @@ public class BandArithmetic {
         Assert.notNull(expression, null);
         final Namespace namespace = createDefaultNamespace(products, defaultProductIndex);
         final Parser parser = new ParserImpl(namespace, false);
-        return parser.parse(expression);
+        final Term term = parser.parse(expression);
+        if (!areReferencedRastersCompatible(term)) {
+            throw new ParseException("Referenced rasters are incompatible");
+        }
+        return term;
     }
 
     /**
@@ -434,11 +438,11 @@ public class BandArithmetic {
     public static boolean areReferencedRastersCompatible(Term term) {
         final RasterDataSymbol[] rasterDataSymbols = getRefRasterDataSymbols(term);
         if (rasterDataSymbols.length > 1) {
-            int referenceWidth = rasterDataSymbols[0].getRaster().getRasterWidth();
-            int referenceHeight = rasterDataSymbols[0].getRaster().getRasterHeight();
+            int referenceWidth = rasterDataSymbols[0].getRaster().getSceneRasterWidth();
+            int referenceHeight = rasterDataSymbols[0].getRaster().getSceneRasterHeight();
             for (int i = 1; i < rasterDataSymbols.length; i++) {
-                if (rasterDataSymbols[i].getRaster().getRasterWidth() != referenceWidth ||
-                        rasterDataSymbols[i].getRaster().getRasterHeight() != referenceHeight) {
+                if (rasterDataSymbols[i].getRaster().getSceneRasterWidth() != referenceWidth ||
+                        rasterDataSymbols[i].getRaster().getSceneRasterHeight() != referenceHeight) {
                     return false;
                 }
             }

@@ -19,7 +19,6 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.runtime.ConfigurableExtension;
 import com.bc.ceres.core.runtime.ConfigurationElement;
-import com.bc.jexp.Parser;
 import org.esa.snap.util.Guardian;
 import org.esa.snap.util.io.FileUtils;
 
@@ -250,11 +249,10 @@ public class RGBImageProfile implements ConfigurableExtension {
         if (!isValid()) {
             return false;
         }
-        final Parser parser = product.createBandArithmeticParser();
         final String[] expressions = getRgbExpressions();
         for (final String expression : expressions) {
             if (!expression.equals("")) {
-                if (!product.isCompatibleBandArithmeticExpression(expression, parser)) {
+                if (!product.isCompatibleBandArithmeticExpression(expression)) {
                     return false;
                 }
             }
