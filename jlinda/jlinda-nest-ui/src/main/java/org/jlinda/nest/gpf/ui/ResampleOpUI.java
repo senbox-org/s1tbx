@@ -62,8 +62,10 @@ public class ResampleOpUI extends BaseOperatorUI {
         cpmAlphaValue.setSelectedItem(paramMap.get("cpmAlphaValue"));
 
         cpmDemRefinement = (Boolean)paramMap.get("cpmDemRefinement");
+        if(cpmDemRefinement == null) {
+            cpmDemRefinement = false;
+        }
         cpmDemRefinementCheckBox.setSelected(cpmDemRefinement);
-
 
         final String demNameParam = (String) paramMap.get("demName");
         if (demNameParam != null) {
