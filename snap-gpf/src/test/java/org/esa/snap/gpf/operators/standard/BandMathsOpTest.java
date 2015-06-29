@@ -21,6 +21,7 @@ import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.core.ProgressMonitor;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.CrsGeoCoding;
 import org.esa.snap.framework.datamodel.GeoCoding;
@@ -39,7 +40,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.io.InputStreamReader;
 import java.text.ParseException;
@@ -47,7 +48,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class BandMathsOpTest {
 
@@ -348,7 +352,7 @@ public class BandMathsOpTest {
         String expectedXML = FileUtils.readText(inputStreamReader).trim();
         DefaultDomElement parameters = new DefaultDomElement("parameters");
         domConverter.convertValueToDom(parameterSet, parameters);
-        assertEquals(expectedXML, parameters.toXml().trim());
+        assertEquals(expectedXML, StringEscapeUtils.unescapeXml(parameters.toXml().trim()));
     }
 
     private static BandMathsOp.BandDescriptor createBandDescription(String bandName, String expression, String type, String unit) {
