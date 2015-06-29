@@ -18,15 +18,10 @@ package org.csa.rstb.classification.rcp.wizards.PolarimetryWizard;
 import org.esa.s1tbx.dat.wizards.WizardDialog;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.util.IconUtils;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionReference;
-import org.openide.awt.ActionReferences;
-import org.openide.awt.ActionRegistration;
-import org.openide.util.NbBundle;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-
+/*
 @ActionID(
         category = "Wizards",
         id = "PolSARWizardAction"
@@ -45,7 +40,7 @@ import java.awt.event.ActionEvent;
 @NbBundle.Messages({
         "CTL_PolSARWizardAction_MenuText=Polarimetric Classification Wizard",
         "CTL_PolSARWizardAction_ShortDescription=Polarimetric Classification Wizard"
-})
+})*/
 public class PolSARWizardAction extends AbstractAction {
 
     @Override
