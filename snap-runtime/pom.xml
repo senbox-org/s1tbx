@@ -12,6 +12,7 @@
     </parent>
 
     <artifactId>snap-runtime</artifactId>
+    <!-- packaging must be "jar", not "nbm" -->
     <packaging>jar</packaging>
     <name>SNAP Runtime</name>
 
@@ -19,12 +20,10 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
         </dependency>
         <!--
-        This module is supposed to not have any other dependencies.
-        WARNING: Don't add any dependencies to this module unless you exactly know what you are doing!
+            WARNING: This module is NOT supposed to have any other dependencies.
+            Don't add any dependencies to this module unless you exactly know what you are doing!
         -->
     </dependencies>
 
