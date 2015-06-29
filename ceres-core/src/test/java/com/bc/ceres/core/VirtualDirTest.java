@@ -92,6 +92,22 @@ public class VirtualDirTest {
         assertFalse(tempDir.isDirectory());
     }
 
+    @Test
+    public void testFinalize_withSubdirectories() throws Throwable {
+        File zipFile = getTestDataDir("VirtualDirTest.zip");
+        final VirtualDir virtualDir = VirtualDir.create(zipFile);
+        final File file3 = virtualDir.getFile("dir1/File3");   // triggers the unzipping
+
+        final File tempDir = virtualDir.getTempDir();
+        assertNotNull(tempDir);
+
+        assertTrue(tempDir.isDirectory());
+
+        virtualDir.finalize();
+
+        assertFalse(tempDir.isDirectory());
+    }
+
     private static File getTestDataDir() {
         File dir = new File("./src/test/data/");
         if (!dir.exists()) {
