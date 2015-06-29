@@ -27,8 +27,11 @@ import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.util.StringUtils;
 import org.esa.snap.util.SystemUtils;
+import org.esa.snap.util.io.FileUtils;
 import org.opengis.feature.type.AttributeDescriptor;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.logging.Level;
@@ -65,7 +68,8 @@ public class CsvProductReader extends AbstractProductReader {
 
     @Override
     protected Product readProductNodesImpl() throws IOException {
-        parser = CsvFile.createCsvSourceParser(getInput().toString());
+        final File inputFile = getInputFile();
+        parser = CsvFile.createCsvSourceParser(inputFile.getAbsolutePath());
         CsvSource source = parser.parseMetadata();
         String sceneRasterWidthProperty = source.getProperties().get(PROPERTY_NAME_SCENE_RASTER_WIDTH);
         final int sceneRasterWidth;
@@ -87,7 +91,7 @@ public class CsvProductReader extends AbstractProductReader {
 
         // todo - get name and type from properties, if existing
 
-        String productName = StringUtils.createValidName(getInput().toString(), null, '_');
+        String productName = StringUtils.createValidName(FileUtils.getFilenameWithoutExtension(inputFile), null, '_');
         final Product product = new Product(productName, "CSV", sceneRasterWidth, sceneRasterHeight);
         product.setPreferredTileSize(sceneRasterWidth, sceneRasterHeight);
         for (AttributeDescriptor descriptor : source.getFeatureType().getAttributeDescriptors()) {
@@ -100,6 +104,15 @@ public class CsvProductReader extends AbstractProductReader {
         // todo - put properties into metadata
         // todo - separation of bands and tiepoint grids?!
         return product;
+    }
+
+    private File getInputFile() throws FileNotFoundException {
+        final File inputFile = new File(getInput().toString());
+        if (!inputFile.exists()) {
+            throw new FileNotFoundException(inputFile.getPath());
+        }
+
+        return inputFile;
     }
 
     @Override
