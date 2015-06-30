@@ -26,23 +26,16 @@ import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.NbBundle;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 
 /**
  * Sigma0toGamma0Action action.
  */
-@ActionID(
-        category = "Tools",
-        id = "Sigma0toGamma0Action"
-)
-@ActionRegistration(
-        displayName = "#CTL_Sigma0toGamma0ActionName"
-)
-@ActionReference(path = "Menu/SAR Processing/Radiometric", position = 700)
-@NbBundle.Messages({
-        "CTL_Sigma0toGamma0ActionName=Convert Sigma0 to Gamma0"
-})
+@ActionID(category = "Tools", id = "Sigma0toGamma0Action" )
+@ActionRegistration(displayName = "#CTL_Sigma0toGamma0ActionName" )
+@ActionReference(path = "Menu/Radar/Radiometric", position = 700)
+@NbBundle.Messages({ "CTL_Sigma0toGamma0ActionName=Convert Sigma0 to Gamma0" })
 public class Sigma0toGamma0Action extends AbstractAction {
 
     @Override

@@ -21,11 +21,10 @@ import org.esa.snap.util.FileFolderUtils;
 import org.esa.snap.util.SystemUtils;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
-import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.NbBundle;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
 import java.io.File;
@@ -34,22 +33,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.prefs.Preferences;
 
-@ActionID(
-        category = "Tools",
-        id = "LaunchPolsarProAction"
-)
+@ActionID(category = "Tools", id = "LaunchPolsarProAction" )
 @ActionRegistration(
         displayName = "#CTL_LaunchPolsarProAction_MenuText",
         popupText = "#CTL_LaunchPolsarProAction_MenuText",
         lazy = true
 )
-@ActionReferences({
-        @ActionReference(
-                path = "Menu/SAR Processing/Polarimetric",
-                position = 50,
-                separatorAfter = 51
-        )
-})
+@ActionReference(path = "Menu/Radar/Polarimetric", position = 50, separatorAfter = 51)
 @NbBundle.Messages({
         "CTL_LaunchPolsarProAction_MenuText=Launch PolSARPro",
         "CTL_LaunchPolsarProAction_ShortDescription=Start PolSARPro application"

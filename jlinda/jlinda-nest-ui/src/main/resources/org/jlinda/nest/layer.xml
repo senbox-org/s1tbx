@@ -136,7 +136,7 @@
     </folder>
 
     <folder name="Menu">
-        <folder name="SAR Processing">
+        <folder name="Radar">
             <folder name="Coregistration">
                 <attr name="position" intvalue="300"/>
                 <file name="org-jlinda-nest-gpf-InSARCoregistrationGraph-Action.shadow">

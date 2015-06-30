@@ -193,7 +193,7 @@
     </folder>
 
     <folder name="Menu">
-        <folder name="SAR Processing">
+        <folder name="Radar">
             <attr name="position" intvalue="510"/>
             <file name="org-esa-s1tbx-sar-gpf-applyOrbitFile-Action.shadow">
                 <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-applyOrbitFile-Action.instance"/>

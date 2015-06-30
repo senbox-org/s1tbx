@@ -106,7 +106,7 @@
     </folder>
 
     <folder name="Menu">
-        <folder name="Tools">
+        <folder name="Raster">
             <folder name="Masks">
                 <attr name="position" intvalue="420"/>
                 <file name="org-esa-s1tbx-fex-gpf-createLandMaskOp-Action.shadow">
@@ -119,7 +119,7 @@
                 </file>
             </folder>
         </folder>
-        <folder name="SAR Processing">
+        <folder name="Radar">
             <attr name="position" intvalue="510"/>
             <folder name="Feature Extraction">
                 <attr name="position" intvalue="900"/>

@@ -33,12 +33,11 @@ import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
-import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.NbBundle;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.AbstractAction;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -56,12 +55,7 @@ import java.util.List;
         popupText = "#CTL_SupervisedTrainingAction_MenuText",
         lazy = true
 )
-@ActionReferences({
-        @ActionReference(
-                path = "Menu/SAR Processing/Polarimetric",
-                position = 600
-        )
-})
+@ActionReference(path = "Menu/Radar/Polarimetric", position = 600)
 @NbBundle.Messages({
         "CTL_SupervisedTrainingAction_MenuText=Supervised Classification Training",
         "CTL_SupervisedTrainingAction_ShortDescription=Supervised Classification Training"

@@ -27,7 +27,7 @@
     </folder>
 
     <folder name="Menu">
-        <folder name="SAR Processing">
+        <folder name="Radar">
             <folder name="Polarimetric">
                 <attr name="position" intvalue="500"/>
                 <file name="org-csa-rstb-classification-gpf-PolarimetricClassificationOp-Action.shadow">
