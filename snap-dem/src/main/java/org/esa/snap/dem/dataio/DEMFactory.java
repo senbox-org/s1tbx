@@ -27,7 +27,9 @@ import org.esa.snap.framework.dataop.resamp.ResamplingFactory;
 import org.esa.snap.gpf.TileGeoreferencing;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * DEM Handling
@@ -38,13 +40,16 @@ public class DEMFactory {
     static final String DELAUNAY_INTERPOLATION = "DELAUNAY_INTERPOLATION";
 
     private static final ElevationModelDescriptor[] descriptors = ElevationModelRegistry.getInstance().getAllDescriptors();
-    private static final String[] demNameList = new String[descriptors.length];
+    private static final String[] demNameList;
     private static final String[] demResamplingList = new String[ResamplingFactory.resamplingNames.length + 1];
 
     static {
-        for (int i = 0; i < descriptors.length; i++) {
-            demNameList[i] = DEMFactory.getDEMDisplayName(descriptors[i]);
+        final List<String> sortedDEMNames = new ArrayList<>(descriptors.length);
+        for (ElevationModelDescriptor descriptor : descriptors) {
+            sortedDEMNames.add(DEMFactory.getDEMDisplayName(descriptor));
         }
+        sortedDEMNames.sort((o1, o2) -> o1.compareTo(o2));
+        demNameList = sortedDEMNames.toArray(new String[sortedDEMNames.size()]);
 
         int i = 0;
         for (String resampleName : ResamplingFactory.resamplingNames) {
