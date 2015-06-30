@@ -95,7 +95,7 @@ public class ImageManagerUncertaintyTest {
         errorBand.getStx(true, ProgressMonitor.NULL);
         errorBand.setImageInfo(errorImageInfo);
 
-        valueBand.setAncillaryBand("error", errorBand);
+        valueBand.addAncillaryVariable(errorBand, "error");
 
         /*
         File file = new File("SNAP-5.dim");

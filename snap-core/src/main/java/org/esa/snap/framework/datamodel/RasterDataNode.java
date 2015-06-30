@@ -15,6 +15,7 @@
  */
 package org.esa.snap.framework.datamodel;
 
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
@@ -28,9 +29,19 @@ import com.bc.ceres.jai.operator.ScalingType;
 import org.esa.snap.framework.dataop.barithm.BandArithmetic;
 import org.esa.snap.jai.ImageManager;
 import org.esa.snap.runtime.Config;
-import org.esa.snap.util.*;
+import org.esa.snap.util.BitRaster;
+import org.esa.snap.util.Debug;
+import org.esa.snap.util.ObjectUtils;
+import org.esa.snap.util.ProductUtils;
+import org.esa.snap.util.StringUtils;
+import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.jai.SingleBandedSampleModel;
-import org.esa.snap.util.math.*;
+import org.esa.snap.util.math.DoubleList;
+import org.esa.snap.util.math.Histogram;
+import org.esa.snap.util.math.IndexValidator;
+import org.esa.snap.util.math.MathUtils;
+import org.esa.snap.util.math.Quantizer;
+import org.esa.snap.util.math.Range;
 import org.geotools.referencing.operation.transform.ConcatenatedTransform;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
@@ -41,17 +52,17 @@ import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ROI;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.prefs.BackingStoreException;
 
 /**
@@ -85,7 +96,12 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public static final String PROPERTY_NAME_VALID_PIXEL_EXPRESSION = "validPixelExpression";
     public static final String PROPERTY_NAME_GEOCODING = Product.PROPERTY_NAME_GEOCODING;
     public static final String PROPERTY_NAME_STX = "stx";
-    public static final String PROPERTY_NAME_ANCILLARY_BANDS = "ancillaryBands";
+    public static final String PROPERTY_NAME_ANCILLARY_VARIABLES = "ancillaryVariables";
+    public static final String PROPERTY_NAME_ANCILLARY_RELATION = "ancillaryRelation";
+    /**
+     * Number of bytes used for internal read buffer.
+     */
+    private static final int READ_BUFFER_MAX_SIZE = 8 * 1024 * 1024; // 8 MB
 
     /**
      * Text returned by the <code>{@link #getPixelString(int, int)}</code> method if no data is available at the given pixel
@@ -135,10 +151,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     @Deprecated
     private final ProductNodeGroup<Mask> roiMasks;
 
-    /**
-     * Number of bytes used for internal read buffer.
-     */
-    private static final int READ_BUFFER_MAX_SIZE = 8 * 1024 * 1024; // 8 MB
     private Pointing pointing;
 
     private MultiLevelImage sourceImage;
@@ -150,10 +162,12 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     private ROI validMaskROI;
 
-    private Map<String, RasterDataNode> ancillaryBands = new HashMap<>();
+    private ProductNodeGroup<RasterDataNode> ancillaryVariables;
 
 
     private SceneRasterTransform sceneRasterTransform;
+    private String ancillaryRelation;
+    private AncillaryBandRemover ancillaryBandRemover;
 
 
     /**
@@ -191,51 +205,137 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
         overlayMasks = new ProductNodeGroup<>(this, "overlayMasks", false);
         roiMasks = new ProductNodeGroup<>(this, "roiMasks", false);
+
+        ancillaryVariables = new ProductNodeGroup<>(this, "ancillaryVariables", false);
     }
 
     /**
-     * Gets associated ancillary bands as a roleName --&gt; band mapping.
+     * Finds the first associated ancillary band for the specified relation.
      *
-     * @return The associated ancillary band map, which may be empty.
-     * @since BEAM 5.1
-     */
-    public Map<String, RasterDataNode> getAncillaryBands() {
-        if (ancillaryBands.isEmpty()) {
-            return Collections.emptyMap();
-        } else {
-            return new HashMap<>(ancillaryBands);
-        }
-    }
-
-
-    /**
-     * Gets an associated ancillary band for the specified role name.
-     *
-     * @param roleName The association role, may be {@code "mean"}, @code "variance"}, etc.
+     * @param relation The name of the relation such as {@code "uncertainty"}, {@code "variance"}, or {@code null} (any).
      * @return The associated ancillary band or {@code null}.
-     * @since BEAM 5.1
+     * @since SNAP 2.0
      */
-    public RasterDataNode getAncillaryBand(String roleName) {
-        return ancillaryBands.get(roleName);
+    public RasterDataNode getAncillaryVariable(String relation) {
+        RasterDataNode[] variables = getAncillaryVariables(relation);
+        return variables.length > 0 ? variables[0] : null;
     }
 
     /**
-     * Sets or removes an associated ancillary band.
+     * Gets all associated ancillary variables.
      *
-     * @param roleName The association role, may be {@code "mean"}, @code "variance"}, etc.
-     * @param band     The associated ancillary band. May be {@code null} in order to remove the role.
-     * @since BEAM 5.1
+     * @return The array of associated ancillary variables which may be empty.
+     * @since SNAP 2.0
      */
-    public void setAncillaryBand(String roleName, RasterDataNode band) {
-        RasterDataNode oldBand = ancillaryBands.get(roleName);
-        if (band != null) {
-            ancillaryBands.put(roleName, band);
-        } else {
-            ancillaryBands.remove(roleName);
+    public RasterDataNode[] getAncillaryVariables() {
+        return getAncillaryVariables(null);
+    }
+
+    /**
+     * Finds any associated ancillary band for the specified relation.
+     *
+     * @param relation The name of the relation such as {@code "uncertainty"}, {@code "variance"}, or {@code null} (any).
+     * @return The associated ancillary bands or an empty array.
+     * @since SNAP 2.0
+     */
+    public RasterDataNode[] getAncillaryVariables(String relation) {
+        if (relation == null) {
+            return ancillaryVariables.toArray(new RasterDataNode[0]);
         }
-        RasterDataNode newBand = ancillaryBands.get(roleName);
-        if (oldBand != newBand) {
-            fireProductNodeChanged(PROPERTY_NAME_ANCILLARY_BANDS, ancillaryBands, ancillaryBands);
+        ArrayList<RasterDataNode> rasterDataNodes = new ArrayList<>();
+        for (RasterDataNode ancillaryRasterDataNode : ancillaryVariables.toArray(new RasterDataNode[ancillaryVariables.getNodeCount()])) {
+            if (equalAncillaryRelations(relation, ancillaryRasterDataNode.getAncillaryRelation())) {
+                rasterDataNodes.add(ancillaryRasterDataNode);
+            }
+        }
+        return rasterDataNodes.toArray(new RasterDataNode[rasterDataNodes.size()]);
+    }
+
+    // Compare "rel" attribute according to NetCDF-U convention
+    private static boolean equalAncillaryRelations(String relation1, String relation2) {
+        if (relation2 == null) {
+            relation2 = "uncertainty";
+        }
+        return relation1.equalsIgnoreCase(relation2);
+    }
+
+    /**
+     * Sets or removes an associated ancillary variable.
+     *
+     * @param variable The associated ancillary variable.
+     * @since SNAP 2.0
+     */
+    public void addAncillaryVariable(RasterDataNode variable) {
+        addAncillaryVariable(variable, null);
+    }
+
+    /**
+     * Adds an associated ancillary variable and sets its relation name.
+     *
+     * @param variable The associated ancillary variable.
+     * @param relation The name of the relation, may be {@code "uncertainty"}, {@code "variance"}, or {@code null} (not set).
+     * @since SNAP 2.0
+     */
+    public void addAncillaryVariable(RasterDataNode variable, String relation) {
+        boolean change = false;
+        if (!ancillaryVariables.contains(variable)) {
+            change = ancillaryVariables.add(variable);
+        }
+        if (relation != null) {
+            if (!equalAncillaryRelations(relation, variable.getAncillaryRelation())) {
+                change = true;
+            }
+            variable.setAncillaryRelation(relation);
+        }
+        if (change) {
+            fireProductNodeChanged(PROPERTY_NAME_ANCILLARY_VARIABLES, ancillaryVariables, ancillaryVariables);
+        }
+
+        Product product = getProduct();
+        if (ancillaryVariables.getNodeCount() > 0 && ancillaryBandRemover == null && product != null) {
+            ancillaryBandRemover = new AncillaryBandRemover();
+            product.addProductNodeListener(ancillaryBandRemover);
+        }
+    }
+
+    /**
+     * Removes an associated ancillary variable.
+     *
+     * @param variable The associated ancillary variable.
+     * @since SNAP 2.0
+     */
+    public void removeAncillaryVariable(RasterDataNode variable) {
+        if (ancillaryVariables.remove(variable)) {
+            fireProductNodeChanged(PROPERTY_NAME_ANCILLARY_VARIABLES, ancillaryVariables, ancillaryVariables);
+        }
+    }
+
+    /**
+     * Gets the name of an ancillary relation to another raster data node.
+     *
+     * @return The name of an ancillary relation to another raster data node, or {@code null}.
+     * @see #addAncillaryVariable(RasterDataNode, String)
+     * @see #removeAncillaryVariable(RasterDataNode)
+     * @see #getAncillaryVariable(String)
+     * @since SNAP 2.0
+     */
+    public String getAncillaryRelation() {
+        return ancillaryRelation;
+    }
+
+    /**
+     * Sets the name of an ancillary relation to another raster data node.
+     *
+     * @param relation The name of an ancillary relation, or {@code null}
+     * @see #addAncillaryVariable(RasterDataNode, String)
+     * @see #getAncillaryVariable(String)
+     * @since SNAP 2.0
+     */
+    public void setAncillaryRelation(String relation) {
+        String oldValue = this.ancillaryRelation;
+        this.ancillaryRelation = relation;
+        if (!ObjectUtils.equalObjects(oldValue, this.ancillaryRelation)) {
+            fireProductNodeChanged(PROPERTY_NAME_ANCILLARY_RELATION, oldValue, this.ancillaryRelation);
         }
     }
 
@@ -332,7 +432,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                         MathTransform ri2m = rgc.getImageToMapTransform();
                         MathTransform pm2i = pgc.getImageToMapTransform().inverse();
                         MathTransform mathTransform = ConcatenatedTransform.create(ri2m, pm2i);
-                        if (mathTransform instanceof MathTransform2D ) {
+                        if (mathTransform instanceof MathTransform2D) {
                             MathTransform2D forward = (MathTransform2D) mathTransform;
                             MathTransform2D inverse = forward.inverse();
                             sceneRasterTransform = new DefaultSceneRasterTransform(forward, inverse);
@@ -969,9 +1069,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         overlayMasks.clearRemovedList();
         roiMasks.removeAll();
         roiMasks.clearRemovedList();
-
-        // don't dispose bands in ancillaryBands, they are only references
-        ancillaryBands.clear();
+        ancillaryVariables.removeAll();
+        ancillaryVariables.clearRemovedList();
 
         super.dispose();
     }
@@ -1695,7 +1794,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     public final ImageInfo createDefaultImageInfo(double[] histoSkipAreas, Histogram histogram) {
         ImageInfo customPalette = loadCustomColorPalette(histogram);
-        if(customPalette != null) {
+        if (customPalette != null) {
             return customPalette;
         }
 
@@ -2301,7 +2400,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         return mli;
     }
 
-
     static final class DelegatingValidator implements IndexValidator {
 
         private final IndexValidator validator1;
@@ -2436,4 +2534,13 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
 
+    private class AncillaryBandRemover extends ProductNodeListenerAdapter {
+
+        @Override
+        public void nodeRemoved(ProductNodeEvent event) {
+            if (event.getGroup() != ancillaryVariables && event.getSourceNode() instanceof RasterDataNode) {
+                ancillaryVariables.remove((RasterDataNode) event.getSourceNode());
+            }
+        }
+    }
 }
