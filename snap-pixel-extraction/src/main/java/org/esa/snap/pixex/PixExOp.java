@@ -106,7 +106,7 @@ import static java.lang.Math.*;
 @SuppressWarnings({"MismatchedReadAndWriteOfArray", "UnusedDeclaration"})
 @OperatorMetadata(
         alias = "PixEx",
-        category = "Tools",
+        category = "Raster",
         version = "1.3",
         authors = "Marco Peters, Thomas Storm, Norman Fomferra",
         copyright = "(c) 2011 by Brockmann Consult",
