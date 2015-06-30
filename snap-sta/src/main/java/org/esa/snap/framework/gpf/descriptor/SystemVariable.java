@@ -69,6 +69,9 @@ public class SystemVariable {
      */
     public void setValue(String value) {
         this.value = value;
+        if (this.value != null && !this.value.isEmpty()) {
+            ToolAdapterIO.saveVariable(this.key, this.value);
+        }
     }
 
     /**
