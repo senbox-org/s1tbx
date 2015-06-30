@@ -96,7 +96,7 @@ import java.util.Set;
  */
 
 @OperatorMetadata(alias = "Terrain-Correction",
-        category = "SAR Processing/Geometric/Terrain Correction",
+        category = "Radar/Geometric/Terrain Correction",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "RD method for orthorectification")

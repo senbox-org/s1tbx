@@ -54,7 +54,7 @@ import java.util.HashMap;
  * that can compute bands independently of each other.
  */
 @OperatorMetadata(alias = "Data-Analysis",
-        category = "Tools",
+        category = "Raster",
         description = "Computes statistics",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",

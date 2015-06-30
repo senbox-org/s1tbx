@@ -34,7 +34,7 @@ import java.awt.Rectangle;
 import java.util.HashMap;
 
 @OperatorMetadata(alias = "Coherence",
-        category = "SAR Processing/Interferometric/Products",
+        category = "Radar/Interferometric/Products",
         authors = "Petar Marinkovic, Jun Lu",
         copyright = "Copyright (C) 2013 by PPO.labs",
         description = "Estimate coherence from stack of coregistered images")

@@ -50,7 +50,7 @@ import java.awt.Rectangle;
  */
 
 @OperatorMetadata(alias = "SRGR",
-        category = "SAR Processing/Geometric",
+        category = "Radar/Geometric",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Converts Slant Range to Ground Range")

@@ -33,7 +33,7 @@ import org.esa.snap.util.ProductUtils;
  */
 
 @OperatorMetadata(alias = "Flip",
-        category = "Tools",
+        category = "Raster",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "flips a product horizontal/vertical")

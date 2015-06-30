@@ -39,7 +39,7 @@ import java.awt.Rectangle;
  */
 
 @OperatorMetadata(alias = "TestPattern",
-        category = "Utilities",
+        category = "Tools",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "For testing only", internal = true)

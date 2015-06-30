@@ -32,7 +32,7 @@ import org.openide.util.NbBundle;
 
 import java.awt.event.ActionEvent;
 
-@ActionID(category = "Tools", id = "org.esa.s1tbx.dat.LinearTodBAction" )
+@ActionID(category = "Raster", id = "org.esa.s1tbx.dat.LinearTodBAction" )
 @ActionRegistration(displayName = "#CTL_LinearTodBAction_Text")
 @ActionReference(path = "Menu/Radar/Utilities/Data Conversion", position = 200 )
 @NbBundle.Messages({"CTL_LinearTodBAction_Text=Linear to/from dB"})

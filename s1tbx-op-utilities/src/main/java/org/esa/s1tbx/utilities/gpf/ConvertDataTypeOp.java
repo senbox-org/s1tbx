@@ -38,7 +38,7 @@ import org.esa.snap.util.math.Range;
  */
 
 @OperatorMetadata(alias = "Convert-Datatype",
-        category = "SAR Processing/Utilities/Data Conversion",
+        category = "Radar/Utilities/Data Conversion",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Convert product data type")

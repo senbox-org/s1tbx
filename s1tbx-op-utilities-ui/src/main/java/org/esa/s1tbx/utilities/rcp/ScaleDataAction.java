@@ -29,7 +29,7 @@ import org.openide.util.NbBundle;
 
 import java.awt.event.ActionEvent;
 
-@ActionID(category = "Tools", id = "org.esa.s1tbx.dat.ScaleDataAction" )
+@ActionID(category = "Raster", id = "org.esa.s1tbx.dat.ScaleDataAction" )
 @ActionRegistration(displayName = "#CTL_ScaleDataAction_Text")
 @ActionReference(path = "Menu/Radar/Utilities/Data Conversion", position = 300 )
 @NbBundle.Messages({"CTL_ScaleDataAction_Text=Scale Data"})

@@ -49,7 +49,7 @@ import java.io.File;
  */
 
 @OperatorMetadata(alias = "Terrain-Mask",
-        category = "Tools/Masks",
+        category = "Raster/Masks",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Terrain Mask Generation")

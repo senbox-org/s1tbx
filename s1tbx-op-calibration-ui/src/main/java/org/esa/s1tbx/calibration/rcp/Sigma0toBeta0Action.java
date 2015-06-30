@@ -32,7 +32,7 @@ import java.awt.event.ActionEvent;
 /**
  * Sigma0toBeta0Action action.
  */
-@ActionID(category = "Tools", id = "Sigma0toBeta0Action" )
+@ActionID(category = "Raster", id = "Sigma0toBeta0Action" )
 @ActionRegistration(displayName = "#CTL_Sigma0toBeta0ActionName" )
 @ActionReference(path = "Menu/Radar/Radiometric", position = 600)
 @NbBundle.Messages({ "CTL_Sigma0toBeta0ActionName=Convert Sigma0 to Beta0" })

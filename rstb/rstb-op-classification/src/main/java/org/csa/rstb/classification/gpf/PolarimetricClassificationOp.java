@@ -48,7 +48,7 @@ import java.util.Map;
  */
 
 @OperatorMetadata(alias = "Polarimetric-Classification",
-        category = "SAR Processing/Polarimetric",
+        category = "Radar/Polarimetric",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Perform Polarimetric classification of a given product")

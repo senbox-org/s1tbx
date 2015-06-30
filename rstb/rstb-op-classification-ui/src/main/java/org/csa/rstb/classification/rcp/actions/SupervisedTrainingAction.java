@@ -47,7 +47,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @ActionID(
-        category = "Tools",
+        category = "Raster",
         id = "SupervisedTrainingAction"
 )
 @ActionRegistration(

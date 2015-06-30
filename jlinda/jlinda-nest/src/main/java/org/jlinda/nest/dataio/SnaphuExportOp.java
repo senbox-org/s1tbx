@@ -45,7 +45,7 @@ import java.io.IOException;
  * Split a stack product into individual products
  */
 @OperatorMetadata(alias = "SnaphuExport",
-        category = "SAR Processing/Interferometric/Unwrapping",
+        category = "Radar/Interferometric/Unwrapping",
         authors = "Petar Marinkovic, Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Export data and prepare conf file for SNAPHU processing")

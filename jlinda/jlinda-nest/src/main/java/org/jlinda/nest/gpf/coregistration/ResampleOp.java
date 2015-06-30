@@ -60,7 +60,7 @@ import java.util.Map;
 import java.util.Set;
 
 @OperatorMetadata(alias = "Resample",
-        category = "SAR Processing/Coregistration",
+        category = "Radar/Coregistration",
         authors = "Petar Marinkovic (with contributions of Jun Lu, Luis Veci)",
         copyright = "PPO.labs and European Space Agency",
         description = "Estimate coregistration polynomial and resample slave images")

@@ -60,7 +60,7 @@ import java.util.Map;
 
 
 @OperatorMetadata(alias = "DEMGeneration",
-        category = "SAR Processing/Interferometric/Products",
+        category = "Radar/Interferometric/Products",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "DEM Generation")

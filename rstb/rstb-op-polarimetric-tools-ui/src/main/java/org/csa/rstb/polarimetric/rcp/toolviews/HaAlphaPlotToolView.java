@@ -36,7 +36,7 @@ import org.openide.windows.TopComponent;
 )
 @ActionID(category = "Window", id = "org.csa.rstb.dat.toolviews.HaAlphaPlotTopComponent")
 @ActionReferences({
-        @ActionReference(path = "Menu/Analysis"),
+        @ActionReference(path = "Menu/Radar/Polarimetric"),
         @ActionReference(path = "Toolbars/Analysis")
 })
 @TopComponent.OpenActionRegistration(

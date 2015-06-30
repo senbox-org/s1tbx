@@ -69,7 +69,7 @@ import java.util.Map;
  */
 
 @OperatorMetadata(alias = "Update-Geo-Reference",
-        category = "SAR Processing/Geometric",
+        category = "Radar/Geometric",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Update Geo Reference")

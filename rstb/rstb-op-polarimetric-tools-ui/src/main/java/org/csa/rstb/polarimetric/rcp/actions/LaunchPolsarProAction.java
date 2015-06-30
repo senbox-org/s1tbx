@@ -33,7 +33,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.prefs.Preferences;
 
-@ActionID(category = "Tools", id = "LaunchPolsarProAction" )
+@ActionID(category = "Raster", id = "LaunchPolsarProAction" )
 @ActionRegistration(
         displayName = "#CTL_LaunchPolsarProAction_MenuText",
         popupText = "#CTL_LaunchPolsarProAction_MenuText",

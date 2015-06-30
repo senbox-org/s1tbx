@@ -52,7 +52,7 @@ import java.util.Map;
  * Merge subswaths of a Sentinel-1 TOPSAR product.
  */
 @OperatorMetadata(alias = "TOPSAR-Merge",
-        category = "SAR Processing/Sentinel-1 TOPS",
+        category = "Radar/Sentinel-1 TOPS",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Merge subswaths of a Sentinel-1 TOPSAR product")
