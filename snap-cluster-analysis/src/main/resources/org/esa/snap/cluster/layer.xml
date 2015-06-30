@@ -33,7 +33,7 @@
     </folder>
 
     <folder name="Menu">
-        <folder name="Processing">
+        <folder name="Raster">
             <folder name="Image Analysis">
                 <file name="org-esa-snap-cluster-EmClusterAnalysis.shadow">
                     <attr name="originalFile"

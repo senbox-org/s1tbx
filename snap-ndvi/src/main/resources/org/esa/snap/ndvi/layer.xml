@@ -16,7 +16,7 @@
     </folder>
 
     <folder name="Menu">
-        <folder name="Processing">
+        <folder name="Optical">
             <folder name="Thematic Land Processing">
                 <file name="org-esa-snap-ndvi-NdviOpAction.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-snap-ndvi-NdviOpAction.instance"/>
