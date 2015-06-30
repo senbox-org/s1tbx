@@ -27,12 +27,7 @@ import org.esa.snap.datamodel.PosVector;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.eo.GeoUtils;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.TiePointGrid;
+import org.esa.snap.framework.datamodel.*;
 import org.esa.snap.framework.dataop.dem.ElevationModel;
 import org.esa.snap.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.snap.framework.dataop.dem.ElevationModelRegistry;
@@ -102,12 +97,12 @@ public final class TerrainFlatteningOp extends Operator {
     private FileElevationModel fileElevationModel = null;
     private TiePointGrid latitudeTPG = null;
     private TiePointGrid longitudeTPG = null;
+    private GeoCoding targetGeoCoding = null;
 
     private int sourceImageWidth = 0;
     private int sourceImageHeight = 0;
     private boolean srgrFlag = false;
     private boolean isElevationModelAvailable = false;
-    private boolean overlapComputed = false;
 
     private double rangeSpacing = 0.0;
     private double azimuthSpacing = 0.0;
@@ -122,8 +117,7 @@ public final class TerrainFlatteningOp extends Operator {
     private double noDataValue = 0;
     private double beta0 = 0;
 
-    private int tileSize = 100;
-    private double tileOverlapPercentage = 0.0f;
+    private int tileSize = 400;
 
     private OrbitStateVector[] orbitStateVectors = null;
     private AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
@@ -288,6 +282,8 @@ public final class TerrainFlatteningOp extends Operator {
             absTgt.setAttributeDouble("external DEM no data value", externalDEMNoDataValue);
         }
 
+        targetGeoCoding = targetProduct.getGeoCoding();
+
         // set the tile width to the image width to reduce tiling effect
         targetProduct.setPreferredTileSize(targetProduct.getSceneRasterWidth(), tileSize);
     }
@@ -380,18 +376,17 @@ public final class TerrainFlatteningOp extends Operator {
                 getElevationModel();
             }
 
-            if (!overlapComputed) {
-                computeTileOverlapPercentage(tileSize);
-            }
-
             final int x0 = targetRectangle.x;
             final int y0 = targetRectangle.y;
             final int w = targetRectangle.width;
             final int h = targetRectangle.height;
-            final double[][] simulatedImage = new double[h][w];
             // System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
-            final boolean validSimulation = generateSimulatedImage(x0, y0, w, h, simulatedImage);
+            double[] tileOverlapPercentage = {0.0, 0.0};
+            computeTileOverlapPercentage(x0, y0, w, h, tileOverlapPercentage);
+
+            final double[][] simulatedImage = new double[h][w];
+            final boolean validSimulation = generateSimulatedImage(x0, y0, w, h, tileOverlapPercentage, simulatedImage);
             if (!validSimulation) {
                 return;
             }
@@ -413,19 +408,13 @@ public final class TerrainFlatteningOp extends Operator {
      * @param simulatedImage The simulated image.
      * @return Boolean flag indicating if the simulation is successful.
      */
-    private boolean generateSimulatedImage(
-            final int x0, final int y0, final int w, final int h, double[][] simulatedImage) {
+    private boolean generateSimulatedImage(final int x0, final int y0, final int w, final int h,
+                                           final double[] tileOverlapPercentage, double[][] simulatedImage) {
 
         try {
-            int ymin = 0;
-            int ymax = 0;
-            if (tileOverlapPercentage >= 0.0f) {
-                ymin = Math.max(y0 - (int) (tileSize * tileOverlapPercentage), 0);
-                ymax = y0 + h;
-            } else {
-                ymin = y0;
-                ymax = y0 + h + (int) (tileSize * Math.abs(tileOverlapPercentage));
-            }
+            final int ymin = Math.max(y0 - (int) (tileSize * tileOverlapPercentage[1]), 0);
+            final int ymax = y0 + h + (int) (tileSize * Math.abs(tileOverlapPercentage[0]));
+            final int xmax = x0 + w;
 
             final TerrainData terrainData = new TerrainData(w, ymax - ymin);
             final boolean valid = getLocalDEM(x0, ymin, w, ymax - ymin, terrainData);
@@ -443,7 +432,7 @@ public final class TerrainFlatteningOp extends Operator {
                 final double[] elevationAngle = new double[w];
                 final boolean[] savePixel = new boolean[w];
 
-                for (int x = x0; x < x0 + w; x++) {
+                for (int x = x0; x < xmax; x++) {
                     final int i = x - x0;
                     final int xx = x - x0 + 1;
                     final int yy = y - ymin + 1;
@@ -649,50 +638,58 @@ public final class TerrainFlatteningOp extends Operator {
         isElevationModelAvailable = true;
     }
 
-    private synchronized void computeTileOverlapPercentage(final int tileSize) throws Exception {
+    private void computeTileOverlapPercentage(final int x0, final int y0, final int w, final int h,
+                                              double[] overlapPercentages)
+            throws Exception {
 
-        if (overlapComputed) {
-            return;
-        }
-
-        final int x = sourceImageWidth / 2;
+        final PixelPos pixPos = new PixelPos();
+        final GeoPos geoPos = new GeoPos();
         final PosVector earthPoint = new PosVector();
         final PosVector sensorPos = new PosVector();
-        final GeoPos geoPos = new GeoPos();
-        int y;
-        double alt = 0.0;
-        for (y = tileSize - 1; y < sourceImageHeight; y++) {
-            geoPos.setLocation(latitudeTPG.getPixelDouble(x, y), longitudeTPG.getPixelDouble(x, y));
+        double tileOverlapPercentageMax = -Double.MAX_VALUE;
+        double tileOverlapPercentageMin = Double.MAX_VALUE;
+        for (int y = y0; y < y0 + h; y += 20) {
+            for (int x = x0; x < x0 + w; x += 20) {
+                pixPos.setLocation(x, y);
+                targetGeoCoding.getGeoPos(pixPos, geoPos);
+                final double alt = dem.getElevation(geoPos);
+                GeoUtils.geo2xyzWGS84(geoPos.getLat(), geoPos.getLon(), alt, earthPoint);
 
-            if (externalDEMFile == null) {
-                alt = dem.getElevation(geoPos);
-            } else {
-                alt = fileElevationModel.getElevation(geoPos);
-            }
+                final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
+                        firstLineUTC, lineTimeInterval, wavelength, earthPoint, orbit.sensorPosition, orbit.sensorVelocity);
 
-            if (alt != demNoDataValue) {
-                break;
+                if (zeroDopplerTime == SARGeocoding.NonValidZeroDopplerTime) {
+                    continue;
+                }
+
+                final double slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, earthPoint, sensorPos);
+
+                final double zeroDopplerTimeWithoutBias = zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
+
+                final int azimuthIndex = (int) ((zeroDopplerTimeWithoutBias - firstLineUTC) / lineTimeInterval + 0.5);
+
+                double tileOverlapPercentage = (azimuthIndex - y) / (double) tileSize;
+
+                if (tileOverlapPercentage > tileOverlapPercentageMax) {
+                    tileOverlapPercentageMax = tileOverlapPercentage;
+                }
+                if (tileOverlapPercentage < tileOverlapPercentageMin) {
+                    tileOverlapPercentageMin = tileOverlapPercentage;
+                }
             }
         }
 
-        GeoUtils.geo2xyzWGS84(latitudeTPG.getPixelDouble(x, y), longitudeTPG.getPixelDouble(x, y), alt, earthPoint);
-
-        final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
-                firstLineUTC, lineTimeInterval, wavelength, earthPoint, orbit.sensorPosition, orbit.sensorVelocity);
-
-        final double slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, earthPoint, sensorPos);
-
-        final double zeroDopplerTimeWithoutBias = zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
-
-        final int azimuthIndex = (int) ((zeroDopplerTimeWithoutBias - firstLineUTC) / lineTimeInterval + 0.5);
-
-        tileOverlapPercentage = (azimuthIndex - y) / (double) tileSize;
-        if (tileOverlapPercentage >= 0.0) {
-            tileOverlapPercentage += 0.05;
+        if (tileOverlapPercentageMin != Double.MAX_VALUE && tileOverlapPercentageMin < 0.0) {
+            overlapPercentages[0] = tileOverlapPercentageMin - 1.0;
         } else {
-            tileOverlapPercentage -= 0.05;
+            overlapPercentages[0] = 0.0;
         }
-        overlapComputed = true;
+
+        if (tileOverlapPercentageMax != -Double.MAX_VALUE && tileOverlapPercentageMax > 0.0) {
+            overlapPercentages[1] = tileOverlapPercentageMax + 1.0;
+        } else {
+            overlapPercentages[1] = 0.0;
+        }
     }
 
     /**
