@@ -217,7 +217,7 @@
         </file>
         <file name="org.jlinda.nest.gpf.ui.SubtRefDemOpUI">
             <attr name="operatorUIClass" stringvalue="org.jlinda.nest.gpf.ui.SubtRefDemOpUI"/>
-            <attr name="operatorName" stringvalue="SubtRefDem"/>
+            <attr name="operatorName" stringvalue="TopoPhaseRemoval"/>
         </file>
     </folder>
 
