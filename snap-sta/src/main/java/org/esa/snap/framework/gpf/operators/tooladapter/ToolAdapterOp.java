@@ -227,7 +227,7 @@ public class ToolAdapterOp extends Operator {
     private void validateDescriptor() throws OperatorException {
 
         //Get the tool file
-        File toolFile = descriptor.getExpandedLocation(descriptor.getMainToolFileLocation());
+        File toolFile = descriptor.resolveVariables(descriptor.getMainToolFileLocation());
         if (toolFile == null) {
             throw new OperatorException("Tool file not defined!");
         }
@@ -237,7 +237,7 @@ public class ToolAdapterOp extends Operator {
         }
 
         //Get the tool's working directory
-        File toolWorkingDirectory = descriptor.getExpandedLocation(descriptor.getWorkingDir());
+        File toolWorkingDirectory = descriptor.resolveVariables(descriptor.getWorkingDir());
         if (toolWorkingDirectory == null) {
             throw new OperatorException("Tool working directory not defined!");
         }
@@ -287,13 +287,13 @@ public class ToolAdapterOp extends Operator {
                 final Product[] selectedProducts = getSourceProducts();
                 String sourceDefaultExtension = writerPlugIn.getDefaultFileExtensions()[0];
                 for (Product selectedProduct : selectedProducts) {
-                    File outFile = new File(descriptor.getExpandedLocation(descriptor.getWorkingDir()), INTERMEDIATE_PRODUCT_NAME + sourceDefaultExtension);
+                    File outFile = new File(descriptor.resolveVariables(descriptor.getWorkingDir()), INTERMEDIATE_PRODUCT_NAME + sourceDefaultExtension);
                     boolean hasDeleted = false;
                     while (outFile.exists() && !hasDeleted) {
                         hasDeleted = outFile.canWrite() && outFile.delete();
                         if (!hasDeleted) {
                             getLogger().warning(String.format("Could not delete previous temporary image %s", outFile.getName()));
-                            outFile = new File(descriptor.getExpandedLocation(descriptor.getWorkingDir()), INTERMEDIATE_PRODUCT_NAME + "_" + new Date().getTime() + sourceDefaultExtension);
+                            outFile = new File(descriptor.resolveVariables(descriptor.getWorkingDir()), INTERMEDIATE_PRODUCT_NAME + "_" + new Date().getTime() + sourceDefaultExtension);
                         }
                     }
                     Product interimProduct = new Product(outFile.getName(), selectedProduct.getProductType(),
@@ -344,7 +344,7 @@ public class ToolAdapterOp extends Operator {
             //redirect the error of the tool to the standard output
             pb.redirectErrorStream(true);
             //set the working directory
-            pb.directory(descriptor.getExpandedLocation(descriptor.getWorkingDir()));
+            pb.directory(descriptor.resolveVariables(descriptor.getWorkingDir()));
             pb.environment().putAll(descriptor.getVariables()
                                                 .stream()
                                                 .collect(Collectors.toMap(
@@ -493,7 +493,7 @@ public class ToolAdapterOp extends Operator {
         final List<String> tokens = new ArrayList<>();
         String templateFile = ((ToolAdapterOperatorDescriptor) (getSpi().getOperatorDescriptor())).getTemplateFileLocation();
         if (templateFile != null) {
-            tokens.add(descriptor.getExpandedLocation(descriptor.getMainToolFileLocation()).getAbsolutePath());
+            tokens.add(descriptor.resolveVariables(descriptor.getMainToolFileLocation()).getAbsolutePath());
             if (templateFile.endsWith(ToolAdapterConstants.TOOL_VELO_TEMPLATE_SUFIX)) {
                 tokens.addAll(transformTemplate(new File(this.adapterFolder, templateFile)));
             } else {
@@ -573,7 +573,7 @@ public class ToolAdapterOp extends Operator {
                 DateFormat.DEFAULT,
                 Locale.ENGLISH).format(new Date()).replace(":", separatorChar);
         dateFormatted = dateFormatted.replace("/", separatorChar).replace(" ", separatorChar);
-        String newFileName = descriptor.getExpandedLocation(descriptor.getWorkingDir()) + templateFile.getName() + "_result_" + dateFormatted;
+        String newFileName = descriptor.resolveVariables(descriptor.getWorkingDir()) + templateFile.getName() + "_result_" + dateFormatted;
         ToolAdapterIO.saveFileContent(new File(newFileName), result);
         this.lastPostContext = veloContext;
         return newFileName;
