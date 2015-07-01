@@ -64,11 +64,11 @@ public class MultiOrderGaussianUncertaintyPropagatorTest  {
         product = new Product("N", "T", 10, 10);
         Band band1 = product.addBand("x", "X");
         Band band1Err = product.addBand("ux", "0.1 * X");
-        band1.setAncillaryBand("uncertainty", band1Err);
+        band1.addAncillaryVariable(band1Err, "uncertainty");
 
         Band band2 = product.addBand("y", "Y");
         Band band2Err = product.addBand("uy", "0.1 * Y");
-        band2.setAncillaryBand("uncertainty", band2Err);
+        band2.addAncillaryVariable(band2Err, "uncertainty");
 
         product.addBand("a", "1.2");
         product.addBand("b", "2.3");

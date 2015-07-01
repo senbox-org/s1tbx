@@ -29,6 +29,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -43,8 +44,8 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
     public static final String SOURCE_PACKAGE = "package";
     public static final String SOURCE_USER = "user";
     public static final Class[] annotatedClasses = new Class[] {
-            ToolAdapterOperatorDescriptor.class, TemplateParameterDescriptor.class,
-            SystemVariable.class, OSDependentProperty.class };
+            ToolAdapterOperatorDescriptor.class, TemplateParameterDescriptor.class, SystemVariable.class, SystemDependentVariable.class
+    };
 
     private String name;
     private Class<? extends Operator> operatorClass;
@@ -72,8 +73,8 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
     private List<TemplateParameterDescriptor> toolParameterDescriptors = new ArrayList<>();
     private String source;
     private boolean isSystem;
-    @XStreamAlias("osdependent")
-    private List<OSDependentProperty> osDependentProperties;
+    /*@XStreamAlias("osdependent")
+    private List<OSDependentProperty> osDependentProperties;*/
 
     private DefaultSourceProductDescriptor[] sourceProductDescriptors;
     private DefaultSourceProductsDescriptor sourceProductsDescriptor;
@@ -91,7 +92,7 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
         }
         this.variables = new ArrayList<>();
         this.toolParameterDescriptors = new ArrayList<>();
-        this.osDependentProperties = new ArrayList<>();
+        /*this.osDependentProperties = new ArrayList<>();*/
     }
 
     public ToolAdapterOperatorDescriptor(String name, Class<? extends Operator> operatorClass) {
@@ -156,12 +157,12 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
             this.targetPropertyDescriptors[i] = ((DefaultTargetPropertyDescriptor) (obj.getTargetPropertyDescriptors()[i]));
         }
 
-        List<OSDependentProperty> propertyList = obj.getOsDependentProperties();
+        /*List<OSDependentProperty> propertyList = obj.getOsDependentProperties();
         if (propertyList != null) {
             this.osDependentProperties.addAll(propertyList.stream()
                     .filter(property -> property != null)
                     .map(OSDependentProperty::createCopy).collect(Collectors.toList()));
-        }
+        }*/
     }
 
     /**
@@ -180,12 +181,12 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
                     .filter(systemVariable -> systemVariable != null)
                     .map(SystemVariable::createCopy).collect(Collectors.toList()));
         }
-        List<OSDependentProperty> propertyList = obj.getOsDependentProperties();
+        /*List<OSDependentProperty> propertyList = obj.getOsDependentProperties();
         if (propertyList != null) {
             this.osDependentProperties.addAll(propertyList.stream()
                     .filter(property -> property != null)
                     .map(OSDependentProperty::createCopy).collect(Collectors.toList()));
-        }
+        }*/
     }
 
     /**
@@ -202,9 +203,7 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
      */
     public void removeParamDescriptors(List<TemplateParameterDescriptor> descriptors) {
         if(descriptors != null && descriptors.size() > 0) {
-            for(TemplateParameterDescriptor descriptor : descriptors) {
-                this.toolParameterDescriptors.remove(descriptor);
-            }
+            descriptors.forEach(this.toolParameterDescriptors::remove);
         }
     }
 
@@ -405,13 +404,21 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
         this.mainToolFileLocation = mainToolFileLocation;
     }
 
-    public File getExpandedLocation(File location) {
+    public File resolveVariables(File location) {
         String expandedValue = null;
         if (location != null) {
             expandedValue = location.getPath();
-            String extVar = getOSDependentPropertyValue(ToolAdapterConstants.SHELL_EXT_PROP);
+            Map<String, String> lookupVars = variables.stream().collect(Collectors.toMap(SystemVariable::getKey, SystemVariable::getValue));
+            for (String key : lookupVars.keySet()) {
+                expandedValue = expandedValue.replace("$" + key, lookupVars.get(key));
+            }
+            /*String extVar = getVariableValue(ToolAdapterConstants.SHELL_EXT_PROP);
             if (extVar != null) {
                 expandedValue = expandedValue.replace(ToolAdapterConstants.SHELL_EXT_VAR, extVar);
+            }
+            String binaryVar = getVariableValue(ToolAdapterConstants.BINARY_PROP);
+            if (binaryVar != null) {
+                expandedValue = expandedValue.replace(ToolAdapterConstants.BINARY_VAR, binaryVar);
             }
             String varKey = null, varVal = null;
             if (expandedValue.contains("$")) {
@@ -437,7 +444,7 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
             }
             if (varKey != null) {
                 expandedValue = expandedValue.replace(varKey, varVal);
-            }
+            }*/
         }
         return expandedValue == null ? null : new File(expandedValue);
     }
@@ -515,6 +522,15 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
         return variables;
     }
 
+    public String getVariableValue(String key) {
+        String value = null;
+        List<SystemVariable> variables = this.variables.stream().filter(v -> v.getKey().equals(key)).collect(Collectors.toList());
+        if (variables != null && variables.size() == 1) {
+            value = variables.get(0).getValue();
+        }
+        return value;
+    }
+
     /**
      *  Returns the number of source products
      */
@@ -554,7 +570,7 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
         this.variables.add(variable);
     }
 
-    public List<OSDependentProperty> getOsDependentProperties() {
+    /*public List<OSDependentProperty> getOsDependentProperties() {
         if (osDependentProperties == null) {
             osDependentProperties = new ArrayList<>();
         }
@@ -572,7 +588,7 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
             value = properties.get(0).getValue();
         }
         return value;
-    }
+    }*/
 
     /**
      * Creates a deep copy of this operator.

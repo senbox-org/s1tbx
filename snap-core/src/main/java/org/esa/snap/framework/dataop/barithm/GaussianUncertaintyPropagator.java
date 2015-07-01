@@ -50,8 +50,8 @@ public class GaussianUncertaintyPropagator implements UncertaintyPropagator {
         ArrayList<Term> uncertaintyContribTerms = new ArrayList<>();
         for (RasterDataSymbol symbol : symbols) {
             Term uncertainty = null;
-            RasterDataNode uncertaintyRaster = symbol.getRaster().getAncillaryBand("uncertainty");
-            RasterDataNode varianceRaster = symbol.getRaster().getAncillaryBand("variance");
+            RasterDataNode uncertaintyRaster = symbol.getRaster().getAncillaryVariable("uncertainty");
+            RasterDataNode varianceRaster = symbol.getRaster().getAncillaryVariable("variance");
             if (uncertaintyRaster != null) {
                 Symbol uncertaintySymbol = namespace.resolveSymbol(uncertaintyRaster.getName());
                 uncertainty = ref(uncertaintySymbol);

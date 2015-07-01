@@ -25,18 +25,18 @@ public abstract class UncertaintyPropagatorTest {
         product = new Product("N", "T", 10, 10);
         Band band1 = product.addBand("B1", "X");
         Band band1Err = product.addBand("B1_unc", "0.1 * X");
-        band1.setAncillaryBand("uncertainty", band1Err);
+        band1.addAncillaryVariable(band1Err, "uncertainty");
 
         Band band2 = product.addBand("B2", "Y");
         Band band2Err = product.addBand("B2_unc", "0.1 * Y");
-        band2.setAncillaryBand("uncertainty", band2Err);
+        band2.addAncillaryVariable(band2Err, "uncertainty");
 
 
         product.addBand("B3", "X+Y");
 
         Band band4 = product.addBand("B4", "X*Y");
         Band band4Err = product.addBand("B4_var", "0.1 * X * X");
-        band4.setAncillaryBand("variance", band4Err);
+        band4.addAncillaryVariable(band4Err, "variance");
 
     }
 

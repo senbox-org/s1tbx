@@ -57,11 +57,11 @@ public class RangeUncertaintyPropagator implements UncertaintyPropagator, TermCo
         if (symbol instanceof RasterDataSymbol) {
             RasterDataSymbol rds = (RasterDataSymbol) symbol;
             RasterDataNode raster = rds.getRaster();
-            RasterDataNode uncertainty = raster.getAncillaryBand("uncertainty");
+            RasterDataNode uncertainty = raster.getAncillaryVariable("uncertainty");
             if (uncertainty != null) {
                 return new Term.Ref(new RasterDataSymbol(uncertainty.getName(), uncertainty, RasterDataSymbol.GEOPHYSICAL));
             }
-            RasterDataNode variance = raster.getAncillaryBand("variance");
+            RasterDataNode variance = raster.getAncillaryVariable("variance");
             if (variance != null) {
                 return new Term.Call(Functions.SQRT,
                                      new Term.Ref(new RasterDataSymbol(variance.getName(), variance, RasterDataSymbol.GEOPHYSICAL)));

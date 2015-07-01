@@ -454,7 +454,7 @@ public class ImageManager {
         final String[] roleNames = {"uncertainty", "error", "variance", "standard_deviation", "confidence"};
         RasterDataNode uncertaintyBand = null;
         for (String roleName : roleNames) {
-            uncertaintyBand = valueBand.getAncillaryBand(roleName);
+            uncertaintyBand = valueBand.getAncillaryVariable(roleName);
             if (uncertaintyBand != null) {
                 break;
             }
