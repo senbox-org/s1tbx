@@ -589,17 +589,18 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
         double sigma = 0.0;
         if (bandUnit == Unit.UnitType.AMPLITUDE) {
-            sigma = v * v;
-        } else if (bandUnit == Unit.UnitType.INTENSITY ||
-                bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
-            sigma = v;
+            sigma = v*v / (lutVal*lutVal);
+        } else if (bandUnit == Unit.UnitType.INTENSITY) {
+            sigma = v / (lutVal*lutVal);
         } else if (bandUnit == Unit.UnitType.INTENSITY_DB) {
-            sigma = FastMath.pow(10, v / 10.0); // convert dB to linear scale
+            sigma = FastMath.pow(10, v / 10.0) / (lutVal * lutVal); // convert dB to linear scale
+        } else if (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
+            sigma = v / lutVal;
         } else {
             throw new OperatorException("Unknown band unit");
         }
 
-        return sigma / lutVal;
+        return sigma;
     }
 
     public double applyRetroCalibration(

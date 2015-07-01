@@ -807,13 +807,13 @@ public final class SARSimulationOp extends Operator {
 
         GeoUtils.geo2xyzWGS84(lat, lon, alt, data.earthPoint);
 
-        final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTimeNewton(
+        //final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTimeNewton(
+        //        firstLineUTC, lineTimeInterval, wavelength, data.earthPoint,
+        //        orbit.sensorPosition, orbit.sensorVelocity);
+
+        final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
                 firstLineUTC, lineTimeInterval, wavelength, data.earthPoint,
                 orbit.sensorPosition, orbit.sensorVelocity);
-
-        //final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
-        //        firstLineUTC, lineTimeInterval, wavelength, data.earthPoint,
-        //        sensorPosition, sensorVelocity);
 
         if (zeroDopplerTime == SARGeocoding.NonValidZeroDopplerTime) {
             return false;

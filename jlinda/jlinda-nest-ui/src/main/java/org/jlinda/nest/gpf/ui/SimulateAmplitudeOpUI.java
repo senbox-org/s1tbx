@@ -10,15 +10,8 @@ import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.DialogUtils;
 
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -31,18 +24,10 @@ import java.util.Map;
  */
 public class SimulateAmplitudeOpUI extends BaseOperatorUI {
 
-    private static final ElevationModelDescriptor[] descriptors = ElevationModelRegistry.getInstance().getAllDescriptors();
-    private static final String[] demValueSet = new String[descriptors.length];
-
-    static {
-        for (int i = 0; i < descriptors.length; i++) {
-            demValueSet[i] = descriptors[i].getName();
-        }
-    }
+    private static final String[] demValueSet = DEMFactory.getDEMNameList();
 
     private final JTextField orbitDegree = new JTextField("");
     private final JComboBox demName = new JComboBox(demValueSet);
-//    private final JComboBox demName = new JComboBox();
 
     private static final String externalDEMStr = "External DEM";
     private final JTextField externalDEMFile = new JTextField("");
@@ -99,7 +84,11 @@ public class SimulateAmplitudeOpUI extends BaseOperatorUI {
     @Override
     public void initParameters() {
         orbitDegree.setText(String.valueOf(paramMap.get("orbitDegree")));
-        demName.setSelectedItem(paramMap.get("demName"));
+        final String demNameParam = (String) paramMap.get("demName");
+        if (demNameParam != null) {
+            ElevationModelDescriptor descriptor = ElevationModelRegistry.getInstance().getDescriptor(demNameParam);
+            demName.setSelectedItem(DEMFactory.getDEMDisplayName(descriptor));
+        }
         final File extFile = (File)paramMap.get("externalDEMFile");
         if(extFile != null) {
             externalDEMFile.setText(extFile.getAbsolutePath());
@@ -119,7 +108,7 @@ public class SimulateAmplitudeOpUI extends BaseOperatorUI {
     @Override
     public void updateParameters() {
         paramMap.put("orbitDegree", Integer.parseInt(orbitDegree.getText()));
-        paramMap.put("demName", demName.getSelectedItem());
+        paramMap.put("demName", (DEMFactory.getProperDEMName((String) demName.getSelectedItem())));
         final String extFileStr = externalDEMFile.getText();
         if(!extFileStr.isEmpty()) {
             paramMap.put("externalDEMFile", new File(extFileStr));
