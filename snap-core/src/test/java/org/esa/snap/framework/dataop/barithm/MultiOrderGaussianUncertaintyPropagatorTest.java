@@ -43,17 +43,17 @@ public class MultiOrderGaussianUncertaintyPropagatorTest  {
                      unc2("0"));
         assertEquals("0.0",
                      unc2("a"));
-        assertEquals("sqrt(sqr(ux))",
+        assertEquals("sqrt(sqr(ux) + sqr(sqr(ux) / 2.0))",
                      unc2("x"));
-        assertEquals("sqrt(sqr(sqr(ux) + 2.0 * x * ux))",
+        assertEquals("sqrt(sqr(2.0 * x * 2.0 * x * ux * ux / 2.0) + sqr(2.0 * x * ux))",  // further simplify me one day!
                      unc2("sqr(x)"));
-        assertEquals("sqrt(sqr(3.0 * x * sqr(ux) + 3.0 * sqr(x) * ux))", // further simplify me one day!
+        assertEquals("sqrt(sqr(3.0 * sqr(x) * 3.0 * sqr(x) * ux * ux / 2.0) + sqr(3.0 * sqr(x) * ux))", // further simplify me one day!
                      unc2("pow(x, 3)"));
-        assertEquals("sqrt(sqr(ux * cos(x) + 0.5 * sqr(ux) * -sin(x)))",
+        assertEquals("sqrt(sqr(ux * sqr(cos(x)) * ux / 2.0) + sqr(ux * cos(x)))",
                      unc2("sin(x)"));
-        assertEquals("sqrt(sqr(ux * exp(x) + 0.5 * exp(x) * sqr(ux)))",
+        assertEquals("sqrt(sqr(ux * exp(2.0 * x) * ux / 2.0) + sqr(ux * exp(x)))",
                      unc2("exp(x)"));
-        assertEquals("sqrt(sqr(ux / x + -0.5 * sqr(ux) / sqr(x)))",
+        assertEquals("sqrt(sqr(ux / x) + sqr(sqr(ux) / (2.0 * sqr(x))))",
                      unc2("log(x)"));
     }
 

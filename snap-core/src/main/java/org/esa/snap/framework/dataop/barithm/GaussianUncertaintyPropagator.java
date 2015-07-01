@@ -11,16 +11,15 @@ import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.RasterDataNode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static com.bc.jexp.impl.TermFactory.add;
 import static com.bc.jexp.impl.TermFactory.c;
 import static com.bc.jexp.impl.TermFactory.derivative;
 import static com.bc.jexp.impl.TermFactory.div;
 import static com.bc.jexp.impl.TermFactory.mul;
-import static com.bc.jexp.impl.TermFactory.pow;
 import static com.bc.jexp.impl.TermFactory.ref;
 import static com.bc.jexp.impl.TermFactory.simplify;
-import static com.bc.jexp.impl.TermFactory.sqrt;
 
 /**
  * @author Norman Fomferra
@@ -47,30 +46,78 @@ public class GaussianUncertaintyPropagator implements UncertaintyPropagator {
         ParserImpl parser = new ParserImpl(namespace);
         Term term = parser.parse(expression);
         RasterDataSymbol[] symbols = BandArithmetic.getRefRasterDataSymbols(term);
-        ArrayList<Term> uncertaintyContribTerms = new ArrayList<>();
-        for (RasterDataSymbol symbol : symbols) {
-            Term uncertainty = null;
-            RasterDataNode uncertaintyRaster = symbol.getRaster().getAncillaryVariable("uncertainty");
-            RasterDataNode varianceRaster = symbol.getRaster().getAncillaryVariable("variance");
+        HashMap<Symbol, Symbol> variables = new HashMap<>();
+
+        for (RasterDataSymbol variable : symbols) {
+            RasterDataNode uncertaintyRaster = variable.getRaster().getAncillaryVariable("uncertainty");
             if (uncertaintyRaster != null) {
-                Symbol uncertaintySymbol = namespace.resolveSymbol(uncertaintyRaster.getName());
-                uncertainty = ref(uncertaintySymbol);
-            } else if (varianceRaster != null) {
-                Symbol varianceSymbol = namespace.resolveSymbol(varianceRaster.getName());
-                uncertainty = sqrt(ref(varianceSymbol));
-            }
-            if (uncertainty != null) {
-                Term partialDerivative = derivative(term, symbol);
-                Term contrib = mul(partialDerivative, uncertainty);
-                double f = 1.0;
-                for (int order = 2; order <= maxOrder; order++) {
-                    f *= order;
-                    partialDerivative = derivative(partialDerivative, symbol);
-                    contrib = add(contrib, mul(div(c(1.0), c(f)), mul(partialDerivative, pow(uncertainty, c(order)))));
-                }
-                uncertaintyContribTerms.add(contrib);
+                Symbol uncertainty = namespace.resolveSymbol(uncertaintyRaster.getName());
+                Assert.notNull(uncertainty, "uncertainty");
+                variables.put(variable, uncertainty);
             }
         }
+
+        ArrayList<Term> uncertaintyContribTerms = new ArrayList<>();
+
+        for (Symbol variable : variables.keySet()) {
+            Symbol uncertaintySymbol = variables.get(variable);
+            Term uncertainty = ref(uncertaintySymbol);
+            Term partialDerivative = derivative(term, variable);
+            Term contrib = mul(partialDerivative, uncertainty);
+            uncertaintyContribTerms.add(contrib);
+        }
+
+        if (maxOrder > 1) {
+            Term contrib = null;
+            for (Symbol variable1 : variables.keySet()) {
+                Symbol uncertaintySymbol1 = variables.get(variable1);
+                Term uncertainty1 = ref(uncertaintySymbol1);
+                Term partialDerivative1 = derivative(term, variable1);
+                for (Symbol variable2 : variables.keySet()) {
+                    Symbol uncertaintySymbol2 = variables.get(variable2);
+                    Term uncertainty2 = ref(uncertaintySymbol2);
+                    Term partialDerivative2 = derivative(term, variable2);
+                    Term singleContrib = mul(mul(mul(partialDerivative1,
+                                                     partialDerivative2),
+                                                 uncertainty1),
+                                             uncertainty2);
+                    contrib = contrib != null ? add(contrib, singleContrib) : singleContrib;
+                }
+            }
+            if (contrib != null) {
+                uncertaintyContribTerms.add(div(contrib, c(2.0)));
+            }
+        }
+
+        if (maxOrder > 2) {
+            Term contrib = null;
+            for (Symbol variable1 : variables.keySet()) {
+                Symbol uncertaintySymbol1 = variables.get(variable1);
+                Term uncertainty1 = ref(uncertaintySymbol1);
+                Term partialDerivative1 = derivative(term, variable1);
+                for (Symbol variable2 : variables.keySet()) {
+                    Symbol uncertaintySymbol2 = variables.get(variable2);
+                    Term uncertainty2 = ref(uncertaintySymbol2);
+                    Term partialDerivative2 = derivative(term, variable2);
+                    for (Symbol variable3 : variables.keySet()) {
+                        Symbol uncertaintySymbol3 = variables.get(variable3);
+                        Term uncertainty3 = ref(uncertaintySymbol3);
+                        Term partialDerivative3 = derivative(term, variable3);
+                        Term singleContrib = mul(mul(mul(mul(mul(partialDerivative1,
+                                                                 partialDerivative2),
+                                                             partialDerivative3),
+                                                         uncertainty1),
+                                                     uncertainty2),
+                                                 uncertainty3);
+                        contrib = contrib != null ? add(contrib, singleContrib) : singleContrib;
+                    }
+                }
+            }
+            if (contrib != null) {
+                uncertaintyContribTerms.add(div(contrib, c(6.0)));
+            }
+        }
+
         if (uncertaintyContribTerms.isEmpty()) {
             return term.isConst() && Double.isNaN(term.evalD(null)) ? Term.ConstD.NAN : Term.ConstD.ZERO;
         }
