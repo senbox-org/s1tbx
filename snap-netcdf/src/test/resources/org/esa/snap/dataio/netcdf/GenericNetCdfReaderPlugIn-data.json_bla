@@ -219,6 +219,11 @@
             "id": "MYD28L2_A2005365_0830_040_2006004132536",
             "relativePath": "sensors_platforms/MODIS/MYD28/HDF4/MYD28L2.A2005365.0830.040.2006004132536.hdf",
             "description": "HDF4_Version: 4.1.5 (NCSA HDF Version 4.1 Release 5, November 5, 2001)"
-        }
+        },
+        {
+              "id": "SM_OPER_MIR_BWSF1C_20150522T124300",
+              "relativePath": "sensors_platforms/SMOS/MIR_BWSF1C/SM_OPER_MIR_BWSF1C_20150522T124300_20150522T133621_620_001_1.nc",
+              "description": "SMOS BWSF1C as Netcdf file, schema version 400"
+            }
     ]
 }
