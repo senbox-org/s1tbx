@@ -26,7 +26,7 @@ import org.openide.windows.TopComponent;
 
 @TopComponent.Description(
         preferredID = "HaAlphaPlotTopComponent",
-        iconBase = "org/csa/rstb/polarimetric/icons/h-a-alpha22.png",
+        iconBase = "org/csa/rstb/polarimetric/icons/h-a-alpha.png",
         persistenceType = TopComponent.PERSISTENCE_ALWAYS //todo define
 )
 @TopComponent.Registration(
