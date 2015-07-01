@@ -16,7 +16,6 @@ public class RangeUncertaintyGeneratorTest extends UncertaintyPropagatorTest {
         assertEquals("B1_unc", uncert("B1"));
         assertEquals("B2_unc", uncert("B2"));
         assertEquals("0.0", uncert("B3"));
-        assertEquals("sqrt(B4_var)", uncert("B4"));
 
         assertEquals("0.0", uncert("false"));
         assertEquals("0.0", uncert("10"));
