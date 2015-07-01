@@ -56,7 +56,7 @@ public class BandArithmeticPerformanceTest extends TestCase {
         namespace.registerSymbol(s3);
         namespace.registerSymbol(r1);
         namespace.registerSymbol(r2);
-        final String code = "(flags.WATER OR flags.LAND) AND NOT flags.CLOUD ? sqr(reflec_5 - 0.2*reflec_4) / sqr(reflec_5 + 0.4*reflec_4) : NaN";
+        final String code = "(flags.WATER OR flags.LAND) AND NOT flags.CLOUD ? sq(reflec_5 - 0.2*reflec_4) / sq(reflec_5 + 0.4*reflec_4) : NaN";
         final Term term = new ParserImpl(namespace, true).parse(code);
 
         final RasterDataEvalEnv evalEnv = new RasterDataEvalEnv(0, 0, 1, 1);

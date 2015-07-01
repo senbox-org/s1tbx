@@ -23,17 +23,17 @@ public class MultiOrderStandardUncertaintyGeneratorTest {
                      unc1("0"));
         assertEquals("0.0",
                      unc1("a"));
-        assertEquals("sqrt(sqr(ux))",
+        assertEquals("sqrt(sq(ux))",
                      unc1("x"));
-        assertEquals("sqrt(sqr(2.0 * x * ux))",
-                     unc1("sqr(x)")); // must further simplify me one day!
-        assertEquals("sqrt(sqr(3.0 * sqr(x) * ux))",
+        assertEquals("sqrt(sq(2.0 * x * ux))",
+                     unc1("sq(x)")); // must further simplify me one day!
+        assertEquals("sqrt(sq(3.0 * sq(x) * ux))",
                      unc1("pow(x, 3)")); // must further simplify me one day!
-        assertEquals("sqrt(sqr(ux * cos(x)))",
+        assertEquals("sqrt(sq(ux * cos(x)))",
                      unc1("sin(x)"));
-        assertEquals("sqrt(sqr(ux * exp(x)))",
+        assertEquals("sqrt(sq(ux * exp(x)))",
                      unc1("exp(x)"));
-        assertEquals("sqrt(sqr(ux / x))",
+        assertEquals("sqrt(sq(ux / x))",
                      unc1("log(x)"));
     }
 
@@ -43,17 +43,17 @@ public class MultiOrderStandardUncertaintyGeneratorTest {
                      unc2("0"));
         assertEquals("0.0",
                      unc2("a"));
-        assertEquals("sqrt(sqr(ux) + sqr(sqr(ux) / 2.0))",
+        assertEquals("sqrt(sq(ux) + sq(sq(ux) / 2.0))",
                      unc2("x"));
-        assertEquals("sqrt(sqr(2.0 * x * 2.0 * x * ux * ux / 2.0) + sqr(2.0 * x * ux))",  // further simplify me one day!
-                     unc2("sqr(x)"));
-        assertEquals("sqrt(sqr(3.0 * sqr(x) * 3.0 * sqr(x) * ux * ux / 2.0) + sqr(3.0 * sqr(x) * ux))", // further simplify me one day!
+        assertEquals("sqrt(sq(2.0 * x * 2.0 * x * ux * ux / 2.0) + sq(2.0 * x * ux))",  // further simplify me one day!
+                     unc2("sq(x)"));
+        assertEquals("sqrt(sq(3.0 * sq(x) * 3.0 * sq(x) * ux * ux / 2.0) + sq(3.0 * sq(x) * ux))", // further simplify me one day!
                      unc2("pow(x, 3)"));
-        assertEquals("sqrt(sqr(ux * sqr(cos(x)) * ux / 2.0) + sqr(ux * cos(x)))",
+        assertEquals("sqrt(sq(ux * sq(cos(x)) * ux / 2.0) + sq(ux * cos(x)))",
                      unc2("sin(x)"));
-        assertEquals("sqrt(sqr(ux * exp(2.0 * x) * ux / 2.0) + sqr(ux * exp(x)))",
+        assertEquals("sqrt(sq(ux * exp(2.0 * x) * ux / 2.0) + sq(ux * exp(x)))",
                      unc2("exp(x)"));
-        assertEquals("sqrt(sqr(ux / x) + sqr(sqr(ux) / (2.0 * sqr(x))))",
+        assertEquals("sqrt(sq(ux / x) + sq(sq(ux) / (2.0 * sq(x))))",
                      unc2("log(x)"));
     }
 

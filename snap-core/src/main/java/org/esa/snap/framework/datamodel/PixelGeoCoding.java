@@ -822,16 +822,16 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
         if (!definitelyOutside) {
             if (w == 2 && h == 2) {
                 final double f = Math.cos(lat * D2R);
-                if (result.update(x1, y1, sqr(lat - lat0, f * (lon - lon0)))) {
+                if (result.update(x1, y1, sq(lat - lat0, f * (lon - lon0)))) {
                     pixelFound = true;
                 }
-                if (result.update(x1, y2, sqr(lat - lat1, f * (lon - lon1)))) {
+                if (result.update(x1, y2, sq(lat - lat1, f * (lon - lon1)))) {
                     pixelFound = true;
                 }
-                if (result.update(x2, y1, sqr(lat - lat2, f * (lon - lon2)))) {
+                if (result.update(x2, y1, sq(lat - lat2, f * (lon - lon2)))) {
                     pixelFound = true;
                 }
-                if (result.update(x2, y2, sqr(lat - lat3, f * (lon - lon3)))) {
+                if (result.update(x2, y2, sq(lat - lat3, f * (lon - lon3)))) {
                     pixelFound = true;
                 }
             } else if (w >= 2 && h >= 2) {
@@ -949,7 +949,7 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
         return (a >= b) ? a : b;
     }
 
-    private static double sqr(final double dx, final double dy) {
+    private static double sq(final double dx, final double dy) {
         return dx * dx + dy * dy;
     }
 

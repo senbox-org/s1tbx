@@ -10,7 +10,7 @@ import static com.bc.jexp.impl.TermFactory.c;
 import static com.bc.jexp.impl.TermFactory.div;
 import static com.bc.jexp.impl.TermFactory.mul;
 import static com.bc.jexp.impl.TermFactory.neg;
-import static com.bc.jexp.impl.TermFactory.sqr;
+import static com.bc.jexp.impl.TermFactory.sq;
 import static com.bc.jexp.impl.TermFactory.sqrt;
 import static com.bc.jexp.impl.TermFactory.sub;
 
@@ -78,7 +78,7 @@ public class TermDerivator implements TermConverter {
 
     @Override
     public Term visit(Term.Call term) {
-        if (is(term, Functions.SQR)) {
+        if (is(term, Functions.SQ)) {
             return mul(mul(c(2.0), term.getArg()),
                        apply(term.getArg()));
         } else if (is(term, Functions.SQRT)) {
@@ -103,7 +103,7 @@ public class TermDerivator implements TermConverter {
             return mul(neg(TermFactory.sin(term.getArg())),
                        apply(term.getArg()));
         } else if (is(term, Functions.TAN)) {
-            return mul(div(c(1.0), sqr(TermFactory.cos(term.getArg()))),
+            return mul(div(c(1.0), sq(TermFactory.cos(term.getArg()))),
                        apply(term.getArg()));
         }
         // add other functions from Functions class here...
@@ -152,7 +152,7 @@ public class TermDerivator implements TermConverter {
         Term t2 = term.getArg(1);
         return div(sub(mul(apply(t1), t2),
                        mul(t1, apply(t2))),
-                   sqr(t2));
+                   sq(t2));
     }
 
     @Override

@@ -67,7 +67,7 @@ public class TermSimplifier implements TermConverter {
             Term arg1 = term.getArg();
             Term arg2 = Term.ConstD.HALF;
             return simpPow(arg1, arg2);
-        } else if (term.getFunction() == Functions.SQR) {
+        } else if (term.getFunction() == Functions.SQ) {
             Term arg1 = term.getArg();
             Term arg2 = Term.ConstD.TWO;
             return simpPow(arg1, arg2);
@@ -175,7 +175,7 @@ public class TermSimplifier implements TermConverter {
                 return simplifyNestedPowButConsiderSign(baseCall, baseCall.getArg(0), baseCall.getArg(1), exp);
             } else if (baseCall.getFunction() == Functions.SQRT) {
                 return simplifyNestedPowButConsiderSign(baseCall, baseCall.getArg(), Term.ConstD.HALF, exp);
-            } else if (baseCall.getFunction() == Functions.SQR) {
+            } else if (baseCall.getFunction() == Functions.SQ) {
                 return simplifyNestedPowButConsiderSign(baseCall, baseCall.getArg(), Term.ConstD.TWO, exp);
             } else if (baseCall.getFunction() == Functions.EXP) {
                 return apply(new Term.Call(Functions.EXP, new Term.Mul(Term.TYPE_D, baseCall.getArg(), exp)));
@@ -208,7 +208,7 @@ public class TermSimplifier implements TermConverter {
             if (eq(v, 0.5)) {
                 return new Term.Call(Functions.SQRT, arg1);
             } else if (eq(v, 2.0)) {
-                return new Term.Call(Functions.SQR, arg1);
+                return new Term.Call(Functions.SQ, arg1);
             }
         }
         return new Term.Call(Functions.POW, arg1, arg2);
@@ -513,8 +513,8 @@ public class TermSimplifier implements TermConverter {
 
         int comp = arg1.compare(arg2);
         if (comp == 0) {
-            // X * X = sqr(X)
-            return apply(new Term.Call(Functions.SQR, arg1));
+            // X * X = sq(X)
+            return apply(new Term.Call(Functions.SQ, arg1));
         } else if (comp > 0 && !(arg1 instanceof Term.Mul)) {
             // Y * X --> X * Y
             return apply(new Term.Mul(term.getRetType(), arg2, arg1));

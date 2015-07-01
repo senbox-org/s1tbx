@@ -80,9 +80,9 @@ public class TermFactory {
         Term result = null;
         for (Term arg : vector) {
             if (result == null) {
-                result = sqr(arg);
+                result = sq(arg);
             } else {
-                result = add(result, sqr(arg));
+                result = add(result, sq(arg));
             }
         }
         return sqrt(result);
@@ -108,8 +108,8 @@ public class TermFactory {
      * @param t The argument.
      * @return The square of argument.
      */
-    public static Term sqr(Term t) {
-        return new Term.Call(Functions.SQR, t);
+    public static Term sq(Term t) {
+        return new Term.Call(Functions.SQ, t);
     }
 
     /**

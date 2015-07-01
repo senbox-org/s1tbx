@@ -58,15 +58,15 @@ public class TermDerivatorTest {
         assertEquals("2.0", derivative("2 * x"));
         assertEquals("A", derivative("x * A"));
         assertEquals("Mul(2.0,x)", derivative("x * x"));
-        assertEquals("Add(sqr(x),Mul(Mul(2.0,x),x))", derivative("x * x * x")); // further simplify me!
+        assertEquals("Add(sq(x),Mul(Mul(2.0,x),x))", derivative("x * x * x")); // further simplify me!
     }
 
     @Test
     public void testDiv() throws Exception {
-        assertEquals("Div(-2.0,sqr(x))", derivative("2 / x"));
-        assertEquals("Div(A,sqr(A))", derivative("x / A")); // improve me!
+        assertEquals("Div(-2.0,sq(x))", derivative("2 / x"));
+        assertEquals("Div(A,sq(A))", derivative("x / A")); // improve me!
         assertEquals("0.0", derivative("x / x"));
-        assertEquals("Div(-1.0,sqr(x))", derivative("x / x / x"));
+        assertEquals("Div(-1.0,sq(x))", derivative("x / x / x"));
     }
 
     @Test
@@ -75,25 +75,25 @@ public class TermDerivatorTest {
 
         assertEquals("Neg(sin(x))", derivative("cos(x)"));
 
-        assertEquals("Div(1.0,sqr(cos(x)))", derivative("tan(x)"));
+        assertEquals("Div(1.0,sq(cos(x)))", derivative("tan(x)"));
 
-        assertEquals("Mul(2.0,x)", derivative("sqr(x)"));
+        assertEquals("Mul(2.0,x)", derivative("sq(x)"));
 
         assertEquals("Div(1.0,Mul(2.0,sqrt(x)))", derivative("sqrt(x)"));
 
         assertEquals("exp(x)", derivative("exp(x)"));
         assertEquals("Mul(2.0,exp(Mul(2,x)))", derivative("exp(2 * x)"));
-        assertEquals("Mul(Mul(2.0,exp(sqr(x))),x)", derivative("exp(x * x)"));
+        assertEquals("Mul(Mul(2.0,exp(sq(x))),x)", derivative("exp(x * x)"));
         assertEquals("Mul(exp(x),exp(exp(x)))", derivative("exp(exp(x))"));
         assertEquals("1.0", derivative("exp(log(x))"));
 
         assertEquals("Div(1.0,x)", derivative("log(x)"));
         assertEquals("Div(2.0,Mul(2,x))", derivative("log(2 * x)")); // further simplify me to "Div(1.0,x)"
-        assertEquals("Div(Mul(2.0,x),sqr(x))", derivative("log(x * x)"));  // further simplify me to "Div(2.0,x)"
+        assertEquals("Div(Mul(2.0,x),sq(x))", derivative("log(x * x)"));  // further simplify me to "Div(2.0,x)"
         assertEquals("Div(1.0,Mul(x,log(x)))", derivative("log(log(x))"));
         assertEquals("1.0", derivative("log(exp(x))"));
 
-        assertEquals("Mul(3.0,sqr(x))", derivative("pow(x,3)"));
+        assertEquals("Mul(3.0,sq(x))", derivative("pow(x,3)"));
         assertEquals("Mul(4.0,pow(x,3.0))", derivative("pow(x,4)"));
         assertEquals("Mul(0.3,pow(x,-0.7))", derivative("pow(x,0.3)"));
         assertEquals("Mul(Mul(0.5,pow(sin(x),-0.5)),cos(x))", derivative("pow(sin(x),0.5)"));
@@ -101,9 +101,9 @@ public class TermDerivatorTest {
 
     @Test
     public void testCond() throws Exception {
-        assertEquals("Cond(GtD(A,5),1.0,Mul(2.0,x))", derivative("A > 5 ? x : sqr(x)"));
-        assertEquals("1.0", derivative("true ? x : sqr(x)"));
-        assertEquals("Mul(2.0,x)", derivative("false ? x : sqr(x)"));
+        assertEquals("Cond(GtD(A,5),1.0,Mul(2.0,x))", derivative("A > 5 ? x : sq(x)"));
+        assertEquals("1.0", derivative("true ? x : sq(x)"));
+        assertEquals("Mul(2.0,x)", derivative("false ? x : sq(x)"));
     }
 
     private Parser parser;

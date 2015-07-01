@@ -41,23 +41,23 @@ public class TermSimplifierTest {
         assertEquals("sqrt(A)", simplify("sqrt(A)"));
         assertEquals("sqrt(A)", simplify("sqrt(A + 0)"));
         assertEquals("pow(A,0.25)", simplify("sqrt(sqrt(A))"));
-        assertEquals("sqrt(sqr(A))", simplify("sqrt(sqr(A))")); // don't suppress sign!
-        assertEquals("sqrt(sqr(A))", simplify("sqrt(pow(A,2))")); // don't suppress sign!
+        assertEquals("sqrt(sq(A))", simplify("sqrt(sq(A))")); // don't suppress sign!
+        assertEquals("sqrt(sq(A))", simplify("sqrt(pow(A,2))")); // don't suppress sign!
         assertEquals("pow(A,0.25)", simplify("sqrt(sqrt(A))")); // don't suppress sign!
         assertEquals("sqrt(pow(A,4))", simplify("sqrt(pow(A, 4))")); // don't suppress sign!
         assertEquals("pow(A,2.5)", simplify("sqrt(pow(A, 5))"));
     }
 
     @Test
-    public void testSqr() throws Exception {
-        assertEquals("0.0", simplify("sqr(0)"));
-        assertEquals("1.0", simplify("sqr(1)"));
-        assertEquals("4.0", simplify("sqr(2)"));
-        assertEquals("sqr(A)", simplify("sqr(-A)"));
-        assertEquals("pow(A,4.0)", simplify("sqr(sqr(A))"));
-        assertEquals("A", simplify("sqr(sqrt(A))"));
-        assertEquals("pow(A,6.0)", simplify("sqr(pow(A,3))"));
-        assertEquals("A", simplify("sqr(pow(A,0.5))"));
+    public void testSq() throws Exception {
+        assertEquals("0.0", simplify("sq(0)"));
+        assertEquals("1.0", simplify("sq(1)"));
+        assertEquals("4.0", simplify("sq(2)"));
+        assertEquals("sq(A)", simplify("sq(-A)"));
+        assertEquals("pow(A,4.0)", simplify("sq(sq(A))"));
+        assertEquals("A", simplify("sq(sqrt(A))"));
+        assertEquals("pow(A,6.0)", simplify("sq(pow(A,3))"));
+        assertEquals("A", simplify("sq(pow(A,0.5))"));
     }
 
     @Test
@@ -68,11 +68,11 @@ public class TermSimplifierTest {
         assertEquals("1.0", simplify("pow(1,A)"));
         assertEquals("exp(A)", simplify("pow(E,A)"));
         assertEquals("A", simplify("pow(E,log(A))"));
-        assertEquals("pow(A,sqr(A))", simplify("pow(A,sqr(A))"));
-        assertEquals("pow(sqr(A),A)", simplify("pow(sqr(A),A)")); // don't suppress sign!
+        assertEquals("pow(A,sq(A))", simplify("pow(A,sq(A))"));
+        assertEquals("pow(sq(A),A)", simplify("pow(sq(A),A)")); // don't suppress sign!
         assertEquals("A", simplify("pow(pow(A,0.5),2)"));
-        assertEquals("sqrt(sqr(A))", simplify("pow(pow(A,2),0.5)")); // don't suppress sign!
-        assertEquals("sqrt(sqr(A))", simplify("pow(sqr(A),0.5)")); // don't suppress sign!
+        assertEquals("sqrt(sq(A))", simplify("pow(pow(A,2),0.5)")); // don't suppress sign!
+        assertEquals("sqrt(sq(A))", simplify("pow(sq(A),0.5)")); // don't suppress sign!
         assertEquals("exp(Mul(3,A))", simplify("pow(exp(A),3)"));
         assertEquals("pow(A,Mul(0.5,A))", simplify("pow(sqrt(A),A)"));
     }
@@ -208,7 +208,7 @@ public class TermSimplifierTest {
         assertEquals("0.0", simplify("0 * A"));
         assertEquals("0", simplify("0 * B"));
         assertEquals("A", simplify("1 * A"));
-        assertEquals("sqr(A)", simplify("A * A"));
+        assertEquals("sq(A)", simplify("A * A"));
         assertEquals("Mul(A,B)", simplify("A * (B * 1)"));
         assertEquals("Mul(A,B)", simplify("(A * 1) * B"));
         assertEquals("Mul(A,B)", simplify("-A * -B"));
