@@ -87,7 +87,7 @@ public class MultiOrderStandardUncertaintyGeneratorTest {
     }
 
     private String propagate(StandardUncertaintyGenerator propagator, String expression) throws ParseException {
-        Term term = propagator.generateUncertainty(getProduct(), expression);
+        Term term = propagator.generateUncertainty(getProduct(), "uncertainty", expression);
         return new TermDecompiler().decompile(term);
     }
 

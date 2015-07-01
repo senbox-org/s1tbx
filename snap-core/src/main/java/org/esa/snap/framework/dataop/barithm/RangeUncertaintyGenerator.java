@@ -20,7 +20,7 @@ public class RangeUncertaintyGenerator implements UncertaintyGenerator, TermConv
     private TermSimplifier simplifier = new TermSimplifier();
 
     @Override
-    public Term generateUncertainty(Product product, String expression) throws ParseException, UnsupportedOperationException {
+    public Term generateUncertainty(Product product, String relation, String expression) throws ParseException, UnsupportedOperationException {
         WritableNamespace namespace = product.createBandArithmeticDefaultNamespace();
         ParserImpl parser = new ParserImpl(namespace);
         Term term = parser.parse(expression);

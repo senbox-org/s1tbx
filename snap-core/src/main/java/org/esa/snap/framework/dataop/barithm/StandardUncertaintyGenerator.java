@@ -44,7 +44,7 @@ public class StandardUncertaintyGenerator implements UncertaintyGenerator {
     }
 
     @Override
-    public Term generateUncertainty(Product product, String expression) throws ParseException, UnsupportedOperationException {
+    public Term generateUncertainty(Product product, String relation, String expression) throws ParseException, UnsupportedOperationException {
         WritableNamespace namespace = product.createBandArithmeticDefaultNamespace();
         ParserImpl parser = new ParserImpl(namespace);
         Term term = parser.parse(expression);
@@ -52,7 +52,7 @@ public class StandardUncertaintyGenerator implements UncertaintyGenerator {
         HashMap<Symbol, Symbol> variables = new HashMap<>();
 
         for (RasterDataSymbol variable : symbols) {
-            RasterDataNode uncertaintyRaster = variable.getRaster().getAncillaryVariable("uncertainty");
+            RasterDataNode uncertaintyRaster = variable.getRaster().getAncillaryVariable(relation);
             if (uncertaintyRaster != null) {
                 Symbol uncertainty = namespace.resolveSymbol(uncertaintyRaster.getName());
                 Assert.notNull(uncertainty, "uncertainty");
