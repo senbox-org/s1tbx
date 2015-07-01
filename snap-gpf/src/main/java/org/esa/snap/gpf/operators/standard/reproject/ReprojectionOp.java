@@ -133,7 +133,7 @@ import java.util.Map;
  * @since BEAM 4.7
  */
 @OperatorMetadata(alias = "Reproject",
-                  category = "Geometric Operations",
+                  category = "Raster/Geometric",
                   version = "1.0",
                   authors = "Marco Zühlke, Marco Peters, Ralf Quast, Norman Fomferra",
                   copyright = "(c) 2009 by Brockmann Consult",

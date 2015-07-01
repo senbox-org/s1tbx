@@ -48,7 +48,7 @@ import java.util.Map;
  */
 
 @OperatorMetadata(alias = "AddElevation",
-        category = "Tools/DEM Tools",
+        category = "Raster/DEM Tools",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Creates a DEM band")

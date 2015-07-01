@@ -48,7 +48,7 @@ import java.awt.Rectangle;
  * @since BEAM 5
  */
 @OperatorMetadata(alias = "PCA",
-        category = "Image Analysis",
+        category = "Raster/Image Analysis",
         version = "1.0",
         authors = "Norman Fomferra",
         copyright = "(c) 2013 by Brockmann Consult",

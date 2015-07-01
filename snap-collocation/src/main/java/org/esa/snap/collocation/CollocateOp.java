@@ -56,7 +56,7 @@ import java.util.Map;
  * @since BEAM 4.1
  */
 @OperatorMetadata(alias = "Collocate",
-                  category = "Geometric Operations",
+                  category = "Raster/Geometric",
                   version = "1.1",
                   authors = "Ralf Quast, Norman Fomferra",
                   copyright = "(c) 2007-2011 by Brockmann Consult",

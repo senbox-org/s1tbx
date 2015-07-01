@@ -95,7 +95,7 @@ todo - address the following BinningOp requirements (nf, 2012-03-09)
  */
 @SuppressWarnings("UnusedDeclaration")
 @OperatorMetadata(alias = "Binning",
-        category = "Geometric Operations",
+        category = "Raster/Geometric",
         version = "1.0",
         authors = "Norman Fomferra, Marco Zühlke, Thomas Storm",
         copyright = "(c) 2014 by Brockmann Consult GmbH",
