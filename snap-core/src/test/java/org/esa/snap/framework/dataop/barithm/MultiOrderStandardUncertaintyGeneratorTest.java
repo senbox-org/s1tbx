@@ -14,7 +14,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by Norman on 13.06.2015.
  */
-public class MultiOrderGaussianUncertaintyPropagatorTest  {
+public class MultiOrderStandardUncertaintyGeneratorTest {
 
 
     @Test
@@ -75,19 +75,19 @@ public class MultiOrderGaussianUncertaintyPropagatorTest  {
     }
 
     protected String unc1(String expression) throws ParseException {
-        return propagate(new GaussianUncertaintyPropagator(1, false), expression);
+        return propagate(new StandardUncertaintyGenerator(1, false), expression);
     }
 
     protected String unc2(String expression) throws ParseException {
-        return propagate(new GaussianUncertaintyPropagator(2, false), expression);
+        return propagate(new StandardUncertaintyGenerator(2, false), expression);
     }
 
     protected String unc3(String expression) throws ParseException {
-        return propagate(new GaussianUncertaintyPropagator(3, false), expression);
+        return propagate(new StandardUncertaintyGenerator(3, false), expression);
     }
 
-    private String propagate(GaussianUncertaintyPropagator propagator, String expression) throws ParseException {
-        Term term = propagator.propagateUncertainties(getProduct(), expression);
+    private String propagate(StandardUncertaintyGenerator propagator, String expression) throws ParseException {
+        Term term = propagator.generateUncertainty(getProduct(), expression);
         return new TermDecompiler().decompile(term);
     }
 

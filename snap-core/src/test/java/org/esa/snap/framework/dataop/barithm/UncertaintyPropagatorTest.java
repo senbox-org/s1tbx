@@ -41,11 +41,11 @@ public abstract class UncertaintyPropagatorTest {
     }
 
     protected String uncert(String expression) throws ParseException {
-        Term term = createUncertaintyPropagator().propagateUncertainties(getProduct(), expression);
+        Term term = createUncertaintyPropagator().generateUncertainty(getProduct(), expression);
         return new TermDecompiler().decompile(term);
     }
 
-    protected abstract UncertaintyPropagator createUncertaintyPropagator();
+    protected abstract UncertaintyGenerator createUncertaintyPropagator();
 
 
     public Product getProduct() {

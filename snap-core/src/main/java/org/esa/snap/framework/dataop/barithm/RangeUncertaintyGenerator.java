@@ -15,12 +15,12 @@ import org.esa.snap.framework.datamodel.RasterDataNode;
  * @author Norman Fomferra
  * @since SNAP 2
  */
-public class RangeUncertaintyPropagator implements UncertaintyPropagator, TermConverter {
+public class RangeUncertaintyGenerator implements UncertaintyGenerator, TermConverter {
 
     private TermSimplifier simplifier = new TermSimplifier();
 
     @Override
-    public Term propagateUncertainties(Product product, String expression) throws ParseException, UnsupportedOperationException {
+    public Term generateUncertainty(Product product, String expression) throws ParseException, UnsupportedOperationException {
         WritableNamespace namespace = product.createBandArithmeticDefaultNamespace();
         ParserImpl parser = new ParserImpl(namespace);
         Term term = parser.parse(expression);

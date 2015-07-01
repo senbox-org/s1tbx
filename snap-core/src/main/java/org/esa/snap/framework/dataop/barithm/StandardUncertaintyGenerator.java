@@ -22,26 +22,29 @@ import static com.bc.jexp.impl.TermFactory.ref;
 import static com.bc.jexp.impl.TermFactory.simplify;
 
 /**
+ * Implementation of an {@link UncertaintyGenerator} which generates the Standard Combined Uncertainty
+ * according to JCGM 100:2008 (GUM 1995), Chapter 5.
+ *
  * @author Norman Fomferra
  * @since SNAP 2
  */
-public class GaussianUncertaintyPropagator implements UncertaintyPropagator {
+public class StandardUncertaintyGenerator implements UncertaintyGenerator {
 
     private final boolean optimize;
     private final int maxOrder;
 
-    public GaussianUncertaintyPropagator() {
+    public StandardUncertaintyGenerator() {
         this(1, false);
     }
 
-    public GaussianUncertaintyPropagator(int maxOrder, boolean optimize) {
-        Assert.argument(maxOrder >= 1, "maxOrder >= 1");
+    public StandardUncertaintyGenerator(int order, boolean optimize) {
+        Assert.argument(order >= 1 && order <= 3, "order >= 1 && order <= 3");
         this.optimize = optimize;
-        this.maxOrder = maxOrder;
+        this.maxOrder = order;
     }
 
     @Override
-    public Term propagateUncertainties(Product product, String expression) throws ParseException, UnsupportedOperationException {
+    public Term generateUncertainty(Product product, String expression) throws ParseException, UnsupportedOperationException {
         WritableNamespace namespace = product.createBandArithmeticDefaultNamespace();
         ParserImpl parser = new ParserImpl(namespace);
         Term term = parser.parse(expression);
@@ -57,17 +60,17 @@ public class GaussianUncertaintyPropagator implements UncertaintyPropagator {
             }
         }
 
-        ArrayList<Term> uncertaintyContribTerms = new ArrayList<>();
+        ArrayList<Term> uncertaintySum = new ArrayList<>();
 
         for (Symbol variable : variables.keySet()) {
             Symbol uncertaintySymbol = variables.get(variable);
             Term uncertainty = ref(uncertaintySymbol);
             Term partialDerivative = derivative(term, variable);
             Term contrib = mul(partialDerivative, uncertainty);
-            uncertaintyContribTerms.add(contrib);
+            uncertaintySum.add(contrib);
         }
 
-        if (maxOrder > 1) {
+        if (maxOrder >= 2) {
             Term contrib = null;
             for (Symbol variable1 : variables.keySet()) {
                 Symbol uncertaintySymbol1 = variables.get(variable1);
@@ -85,11 +88,11 @@ public class GaussianUncertaintyPropagator implements UncertaintyPropagator {
                 }
             }
             if (contrib != null) {
-                uncertaintyContribTerms.add(div(contrib, c(2.0)));
+                uncertaintySum.add(div(contrib, c(2.0)));
             }
         }
 
-        if (maxOrder > 2) {
+        if (maxOrder == 3) {
             Term contrib = null;
             for (Symbol variable1 : variables.keySet()) {
                 Symbol uncertaintySymbol1 = variables.get(variable1);
@@ -114,14 +117,14 @@ public class GaussianUncertaintyPropagator implements UncertaintyPropagator {
                 }
             }
             if (contrib != null) {
-                uncertaintyContribTerms.add(div(contrib, c(6.0)));
+                uncertaintySum.add(div(contrib, c(6.0)));
             }
         }
 
-        if (uncertaintyContribTerms.isEmpty()) {
+        if (uncertaintySum.isEmpty()) {
             return term.isConst() && Double.isNaN(term.evalD(null)) ? Term.ConstD.NAN : Term.ConstD.ZERO;
         }
-        Term result = TermFactory.magnitude(uncertaintyContribTerms);
+        Term result = TermFactory.magnitude(uncertaintySum);
         Term simplifiedResult = simplify(result);
         return optimize ? TermFactory.optimize(simplifiedResult) : simplifiedResult;
     }

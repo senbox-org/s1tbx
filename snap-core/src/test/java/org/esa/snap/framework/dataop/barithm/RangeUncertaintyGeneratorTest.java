@@ -8,7 +8,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by Norman on 13.06.2015.
  */
-public class RangeUncertaintyPropagatorTest extends UncertaintyPropagatorTest {
+public class RangeUncertaintyGeneratorTest extends UncertaintyPropagatorTest {
 
     @Test
     public void testRangeUncertaintyPropagator() throws Exception {
@@ -64,7 +64,7 @@ public class RangeUncertaintyPropagatorTest extends UncertaintyPropagatorTest {
         assertEquals("max(abs(sqrt(B1 - B1_unc) - sqrt(B1)), abs(sqrt(B1 + B1_unc) - sqrt(B1)))", uncert("sqrt(B1)"));
     }
 
-    protected UncertaintyPropagator createUncertaintyPropagator() {
-        return new RangeUncertaintyPropagator();
+    protected UncertaintyGenerator createUncertaintyPropagator() {
+        return new RangeUncertaintyGenerator();
     }
 }
