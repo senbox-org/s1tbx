@@ -33,6 +33,12 @@ spectrum of EO user communities, including science, applications and services de
 
 # Building toolboxes from the source
 
+## Requirements
+
+- Java JDK >= 1.8
+- Maven >= 3
+- Git
+
 ## Checkout
 Clone the source code and related repositories into a folder _SNAP/_
 
