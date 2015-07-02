@@ -43,17 +43,21 @@ public class MultiOrderStandardUncertaintyGeneratorTest {
                      unc2("0"));
         assertEquals("0.0",
                      unc2("a"));
-        assertEquals("sqrt(sq(ux) + sq(sq(ux) / 2.0))",
+        assertEquals("sqrt(sq(ux))",
                      unc2("x"));
-        assertEquals("sqrt(sq(2.0 * x * 2.0 * x * ux * ux / 2.0) + sq(2.0 * x * ux))",  // further simplify me one day!
+        assertEquals("sqrt(sq(2.0 * ux * ux / 2.0) + sq(2.0 * x * ux))",  // further simplify me one day!
                      unc2("sq(x)"));
-        assertEquals("sqrt(sq(3.0 * sq(x) * 3.0 * sq(x) * ux * ux / 2.0) + sq(3.0 * sq(x) * ux))", // further simplify me one day!
+        assertEquals("sqrt(sq(ux / (2.0 * sqrt(x))) + sq(-2.0 * ux * ux / (2.0 * sqrt(x) * sq(2.0 * sqrt(x)) * 2.0)))",  // further simplify me one day!
+                     unc2("sqrt(x)"));
+        assertEquals("sqrt(sq(6.0 * x * ux * ux / 2.0) + sq(3.0 * sq(x) * ux))", // further simplify me one day!
                      unc2("pow(x, 3)"));
-        assertEquals("sqrt(sq(ux * sq(cos(x)) * ux / 2.0) + sq(ux * cos(x)))",
+        assertEquals("sqrt(sq(12.0 * sq(x) * ux * ux / 2.0) + sq(4.0 * pow(x, 3.0) * ux))", // further simplify me one day!
+                     unc2("pow(x, 4)"));
+        assertEquals("sqrt(sq(ux * -sin(x) * ux / 2.0) + sq(ux * cos(x)))",
                      unc2("sin(x)"));
-        assertEquals("sqrt(sq(ux * exp(2.0 * x) * ux / 2.0) + sq(ux * exp(x)))",
+        assertEquals("sqrt(sq(ux * exp(x) * ux / 2.0) + sq(ux * exp(x)))",
                      unc2("exp(x)"));
-        assertEquals("sqrt(sq(ux / x) + sq(sq(ux) / (2.0 * sq(x))))",
+        assertEquals("sqrt(sq(ux / x) + sq(ux * -ux / (2.0 * sq(x))))",
                      unc2("log(x)"));
     }
 

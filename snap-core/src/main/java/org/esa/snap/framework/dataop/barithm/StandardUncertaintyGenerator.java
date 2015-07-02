@@ -79,9 +79,8 @@ public class StandardUncertaintyGenerator implements UncertaintyGenerator {
                 for (Symbol variable2 : variables.keySet()) {
                     Symbol uncertaintySymbol2 = variables.get(variable2);
                     Term uncertainty2 = ref(uncertaintySymbol2);
-                    Term partialDerivative2 = derivative(term, variable2);
-                    Term singleContrib = mul(mul(mul(partialDerivative1,
-                                                     partialDerivative2),
+                    Term partialDerivative2 = derivative(partialDerivative1, variable2);
+                    Term singleContrib = mul(mul(partialDerivative2,
                                                  uncertainty1),
                                              uncertainty2);
                     contrib = contrib != null ? add(contrib, singleContrib) : singleContrib;
@@ -101,14 +100,12 @@ public class StandardUncertaintyGenerator implements UncertaintyGenerator {
                 for (Symbol variable2 : variables.keySet()) {
                     Symbol uncertaintySymbol2 = variables.get(variable2);
                     Term uncertainty2 = ref(uncertaintySymbol2);
-                    Term partialDerivative2 = derivative(term, variable2);
+                    Term partialDerivative2 = derivative(partialDerivative1, variable2);
                     for (Symbol variable3 : variables.keySet()) {
                         Symbol uncertaintySymbol3 = variables.get(variable3);
                         Term uncertainty3 = ref(uncertaintySymbol3);
-                        Term partialDerivative3 = derivative(term, variable3);
-                        Term singleContrib = mul(mul(mul(mul(mul(partialDerivative1,
-                                                                 partialDerivative2),
-                                                             partialDerivative3),
+                        Term partialDerivative3 = derivative(partialDerivative2, variable3);
+                        Term singleContrib = mul(mul(mul(partialDerivative3,
                                                          uncertainty1),
                                                      uncertainty2),
                                                  uncertainty3);
@@ -125,8 +122,8 @@ public class StandardUncertaintyGenerator implements UncertaintyGenerator {
             return term.isConst() && Double.isNaN(term.evalD(null)) ? Term.ConstD.NAN : Term.ConstD.ZERO;
         }
         Term result = TermFactory.magnitude(uncertaintySum);
-        Term simplifiedResult = simplify(result);
-        return optimize ? TermFactory.optimize(simplifiedResult) : simplifiedResult;
+        result = simplify(result);
+        return optimize ? TermFactory.optimize(result) : result;
     }
 
 
