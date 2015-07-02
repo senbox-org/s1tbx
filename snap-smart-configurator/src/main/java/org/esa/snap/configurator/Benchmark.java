@@ -60,13 +60,17 @@ public class Benchmark {
     }
 
     /**
-     * Load performance parameters.
+     * Load Benchmark performance parameters.
      *
-     * @param performanceParameters
+     * @param benchmarkSingleCalcul
      */
-    public void loadBenchmarkPerfParams(PerformanceParameters performanceParameters){
+    public void loadBenchmarkPerfParams(BenchmarkSingleCalcul benchmarkSingleCalcul){
         ConfigurationOptimizer confOptimizer = ConfigurationOptimizer.getInstance();
-        confOptimizer.updateCustomisedParameters(performanceParameters);
+        PerformanceParameters benchmarkPerformanceParameters = confOptimizer.getActualPerformanceParameters();
+        benchmarkPerformanceParameters.setDefaultTileSize(benchmarkSingleCalcul.getTileSize());
+        benchmarkPerformanceParameters.setCacheSize(benchmarkSingleCalcul.getCacheSize());
+        benchmarkPerformanceParameters.setNbThreads(benchmarkSingleCalcul.getNbThreads());
+        confOptimizer.updateCustomisedParameters(benchmarkPerformanceParameters);
         try {
             confOptimizer.saveCustomisedParameters();
         } catch (IOException e) {
@@ -85,5 +89,9 @@ public class Benchmark {
 
     public List<BenchmarkSingleCalcul> getBenchmarkCalculs() {
         return benchmarkCalculs;
+    }
+
+    public void addBenchmarkCalcul(BenchmarkSingleCalcul benchmarkSingleCalcul){
+        this.benchmarkCalculs.add(benchmarkSingleCalcul);
     }
 }
