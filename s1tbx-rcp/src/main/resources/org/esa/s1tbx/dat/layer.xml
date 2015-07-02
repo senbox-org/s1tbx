@@ -9,7 +9,7 @@
 
     <folder name="Menu">
         <folder name="Radar">
-
+            <attr name="position" intvalue="510"/>
         </folder>
     </folder>
 
