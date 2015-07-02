@@ -108,7 +108,6 @@
     <folder name="Menu">
         <folder name="Raster">
             <folder name="Masks">
-                <attr name="position" intvalue="420"/>
                 <file name="org-esa-s1tbx-fex-gpf-createLandMaskOp-Action.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-fex-gpf-createLandMaskOp-Action.instance"/>
                     <attr name="position" intvalue="100"/>
