@@ -2276,7 +2276,11 @@ public class Product extends ProductNode {
      *
      * @since BEAM 4.8
      */
-    public static interface AutoGrouping extends List<String[]> {
+    public interface AutoGrouping extends List<String[]> {
+
+        static AutoGrouping parse(String text) {
+            return AutoGroupingImpl.parse(text);
+        }
 
         /**
          * Gets the index of the first group path that matches the given name.
@@ -2303,26 +2307,23 @@ public class Product extends ProductNode {
                 autoGroupingPaths[i] = autoGroupingPath;
                 indexes[i] = new Index(autoGroupingPath, i);
             }
-            Arrays.sort(indexes, new Comparator<Index>() {
-                @Override
-                public int compare(Index o1, Index o2) {
-                    final String[] o1InputPath = o1.path.getInputPath();
-                    final String[] o2InputPath = o2.path.getInputPath();
-                    int index = 0;
+            Arrays.sort(indexes, (o1, o2) -> {
+                final String[] o1InputPath = o1.path.getInputPath();
+                final String[] o2InputPath = o2.path.getInputPath();
+                int index = 0;
 
-                    while (index < o1InputPath.length && index < o2InputPath.length) {
-                        final String currentO1InputPathString = o1InputPath[index];
-                        final String currentO2InputPathString = o2InputPath[index];
-                        if (currentO1InputPathString.length() != currentO2InputPathString.length()) {
-                            return currentO2InputPathString.length() - currentO1InputPathString.length();
-                        }
-                        index++;
+                while (index < o1InputPath.length && index < o2InputPath.length) {
+                    final String currentO1InputPathString = o1InputPath[index];
+                    final String currentO2InputPathString = o2InputPath[index];
+                    if (currentO1InputPathString.length() != currentO2InputPathString.length()) {
+                        return currentO2InputPathString.length() - currentO1InputPathString.length();
                     }
-                    if (o1InputPath.length != o2InputPath.length) {
-                        return o2InputPath.length - o1InputPath.length;
-                    }
-                    return o2InputPath[0].compareTo(o1InputPath[0]);
+                    index++;
                 }
+                if (o1InputPath.length != o2InputPath.length) {
+                    return o2InputPath.length - o1InputPath.length;
+                }
+                return o2InputPath[0].compareTo(o1InputPath[0]);
             });
         }
 
