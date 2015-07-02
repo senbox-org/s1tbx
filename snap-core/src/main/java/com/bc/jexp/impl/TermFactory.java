@@ -1,5 +1,6 @@
 package com.bc.jexp.impl;
 
+import com.bc.ceres.core.Assert;
 import com.bc.jexp.Symbol;
 import com.bc.jexp.Term;
 
@@ -52,6 +53,24 @@ public class TermFactory {
      */
     public static Term derivative(Term t, Symbol x) {
         return new TermDerivator(x).apply(t);
+    }
+
+    /**
+     * @param t A term.
+     * @param x The variable.
+     * @param n The order of the derivative
+     * @return The derivative of the term t at the variable x.
+     * @see TermDerivator
+     */
+    public static Term derivative(Term t, Symbol x, int n) {
+        Assert.argument(n >= 0);
+        if (n == 0) {
+            return t;
+        }
+        for (int i = 1; i <= n; i++) {
+            t = derivative(t, x);
+        }
+        return t;
     }
 
     /**
