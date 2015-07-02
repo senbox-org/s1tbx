@@ -48,8 +48,8 @@ public class LinearTodBAction extends AbstractSnapAction {
 
         final ProductNode node = SnapApp.getDefault().getSelectedProductNode();
         if (node instanceof Band) {
-            final Product product = SnapApp.getDefault().getSelectedProduct();
             final Band band = (Band) node;
+            final Product product = band.getProduct();
             final String unit = band.getUnit();
 
             if (!unit.contains(Unit.DB)) {

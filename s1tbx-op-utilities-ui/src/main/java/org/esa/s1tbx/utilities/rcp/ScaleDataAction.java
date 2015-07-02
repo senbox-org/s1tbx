@@ -43,8 +43,8 @@ public class ScaleDataAction extends AbstractSnapAction {
 
         final ProductNode node = SnapApp.getDefault().getSelectedProductNode();
         if (node instanceof Band) {
-            final Product product = SnapApp.getDefault().getSelectedProduct();
             final Band band = (Band) node;
+            final Product product = band.getProduct();
 
             ScaleDataDialog dlg = new ScaleDataDialog("Scaling Data", product, band);
             dlg.show();

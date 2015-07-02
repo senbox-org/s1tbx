@@ -46,8 +46,8 @@ public class AmplitudeToIntensityAction extends AbstractSnapAction {
 
         final ProductNode node = SnapApp.getDefault().getSelectedProductNode();
         if (node instanceof Band) {
-            final Product product = SnapApp.getDefault().getSelectedProduct();
             final Band band = (Band) node;
+            final Product product = band.getProduct();
             String bandName = band.getName();
             final String unit = band.getUnit();
 
