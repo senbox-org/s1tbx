@@ -48,9 +48,9 @@
 
     <folder name="Menu">
         <folder name="Help">
-            <folder name="Wizards">
+            <!--folder name="Wizards">
                 <attr name="position" intvalue="500"/>
-            </folder>
+            </folder-->
         </folder>
         <folder name="Radar">
             <folder name="Polarimetric">
