@@ -12,11 +12,15 @@ import org.esa.snap.framework.datamodel.RasterDataNode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.bc.jexp.impl.TermFactory.add;
 import static com.bc.jexp.impl.TermFactory.c;
 import static com.bc.jexp.impl.TermFactory.derivative;
 import static com.bc.jexp.impl.TermFactory.div;
+import static com.bc.jexp.impl.TermFactory.magnitude;
 import static com.bc.jexp.impl.TermFactory.mul;
 import static com.bc.jexp.impl.TermFactory.ref;
 import static com.bc.jexp.impl.TermFactory.simplify;
@@ -49,22 +53,23 @@ public class StandardUncertaintyGenerator implements UncertaintyGenerator {
         ParserImpl parser = new ParserImpl(namespace);
         Term term = parser.parse(expression);
         RasterDataSymbol[] symbols = BandArithmetic.getRefRasterDataSymbols(term);
-        HashMap<Symbol, Symbol> variables = new HashMap<>();
+        HashMap<Symbol, Term> variables = new HashMap<>();
 
         for (RasterDataSymbol variable : symbols) {
-            RasterDataNode uncertaintyRaster = variable.getRaster().getAncillaryVariable(relation);
-            if (uncertaintyRaster != null) {
-                Symbol uncertainty = namespace.resolveSymbol(uncertaintyRaster.getName());
-                Assert.notNull(uncertainty, "uncertainty");
-                variables.put(variable, uncertainty);
+            RasterDataNode[] uncertaintyRasters = variable.getRaster().getAncillaryVariables(relation);
+            if (uncertaintyRasters.length > 0) {
+                List<Term> symbolRefs = Stream.of(uncertaintyRasters)
+                        .map(r -> ref(namespace.resolveSymbol(r.getName())))
+                        .collect(Collectors.toList());
+
+                variables.put(variable, symbolRefs.size() == 1 ? symbolRefs.get(0) : magnitude(symbolRefs));
             }
         }
 
         ArrayList<Term> uncertaintySum = new ArrayList<>();
 
         for (Symbol variable : variables.keySet()) {
-            Symbol uncertaintySymbol = variables.get(variable);
-            Term uncertainty = ref(uncertaintySymbol);
+            Term uncertainty = variables.get(variable);
             Term partialDerivative = derivative(term, variable);
             Term contrib = mul(partialDerivative, uncertainty);
             uncertaintySum.add(contrib);
@@ -73,12 +78,10 @@ public class StandardUncertaintyGenerator implements UncertaintyGenerator {
         if (maxOrder >= 2) {
             Term contrib = null;
             for (Symbol variable1 : variables.keySet()) {
-                Symbol uncertaintySymbol1 = variables.get(variable1);
-                Term uncertainty1 = ref(uncertaintySymbol1);
+                Term uncertainty1 = variables.get(variable1);
                 Term partialDerivative1 = derivative(term, variable1);
                 for (Symbol variable2 : variables.keySet()) {
-                    Symbol uncertaintySymbol2 = variables.get(variable2);
-                    Term uncertainty2 = ref(uncertaintySymbol2);
+                    Term uncertainty2 = variables.get(variable2);
                     Term partialDerivative2 = derivative(partialDerivative1, variable2);
                     Term singleContrib = mul(mul(partialDerivative2,
                                                  uncertainty1),
@@ -94,16 +97,13 @@ public class StandardUncertaintyGenerator implements UncertaintyGenerator {
         if (maxOrder == 3) {
             Term contrib = null;
             for (Symbol variable1 : variables.keySet()) {
-                Symbol uncertaintySymbol1 = variables.get(variable1);
-                Term uncertainty1 = ref(uncertaintySymbol1);
+                Term uncertainty1 = variables.get(variable1);
                 Term partialDerivative1 = derivative(term, variable1);
                 for (Symbol variable2 : variables.keySet()) {
-                    Symbol uncertaintySymbol2 = variables.get(variable2);
-                    Term uncertainty2 = ref(uncertaintySymbol2);
+                    Term uncertainty2 = variables.get(variable2);
                     Term partialDerivative2 = derivative(partialDerivative1, variable2);
                     for (Symbol variable3 : variables.keySet()) {
-                        Symbol uncertaintySymbol3 = variables.get(variable3);
-                        Term uncertainty3 = ref(uncertaintySymbol3);
+                        Term uncertainty3 = variables.get(variable3);
                         Term partialDerivative3 = derivative(partialDerivative2, variable3);
                         Term singleContrib = mul(mul(mul(partialDerivative3,
                                                          uncertainty1),
