@@ -9,7 +9,6 @@ import org.esa.snap.framework.datamodel.RasterDataNode;
  * Generates the combined uncertainty for a given band maths expression.
  *
  * @author Norman Fomferra
- * @see org.esa.snap.framework.datamodel.RasterDataNode#addAncillaryVariable(RasterDataNode)
  * @since SNAP 2
  */
 public interface UncertaintyGenerator {
@@ -22,8 +21,8 @@ public interface UncertaintyGenerator {
      * @return A term representing the combined uncertainty.
      * @throws ParseException
      * @throws UnsupportedOperationException
-     * @see org.esa.snap.framework.datamodel.RasterDataNode#addAncillaryVariable(RasterDataNode, String)
-     * @see org.esa.snap.framework.datamodel.RasterDataNode#setAncillaryRelation(String)
+     * @see org.esa.snap.framework.datamodel.RasterDataNode#addAncillaryVariable(RasterDataNode, String...)
+     * @see org.esa.snap.framework.datamodel.RasterDataNode#setAncillaryRelations(String...)
      */
     Term generateUncertainty(Product product, String relation, String expression) throws ParseException, UnsupportedOperationException;
 }

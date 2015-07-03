@@ -97,7 +97,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public static final String PROPERTY_NAME_GEOCODING = Product.PROPERTY_NAME_GEOCODING;
     public static final String PROPERTY_NAME_STX = "stx";
     public static final String PROPERTY_NAME_ANCILLARY_VARIABLES = "ancillaryVariables";
-    public static final String PROPERTY_NAME_ANCILLARY_RELATION = "ancillaryRelation";
+    public static final String PROPERTY_NAME_ANCILLARY_RELATIONS = "ancillaryRelations";
     /**
      * Number of bytes used for internal read buffer.
      */
@@ -166,7 +166,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
 
     private SceneRasterTransform sceneRasterTransform;
-    private String ancillaryRelation;
+    private String[] ancillaryRelations;
     private AncillaryBandRemover ancillaryBandRemover;
 
 
@@ -205,87 +205,84 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
         overlayMasks = new ProductNodeGroup<>(this, "overlayMasks", false);
         roiMasks = new ProductNodeGroup<>(this, "roiMasks", false);
-
-        ancillaryVariables = new ProductNodeGroup<>(this, "ancillaryVariables", false);
     }
 
     /**
-     * Finds the first associated ancillary band for the specified relation.
+     * Finds the first associated ancillary band for the specified relations.
      *
-     * @param relation The name of the relation such as {@code "uncertainty"}, {@code "variance"}, or {@code null} (any).
+     * @param relations Names of relations such as {@code "uncertainty"}, {@code "variance"}, or {@code null} (any).
      * @return The associated ancillary band or {@code null}.
      * @since SNAP 2.0
      */
-    public RasterDataNode getAncillaryVariable(String relation) {
-        RasterDataNode[] variables = getAncillaryVariables(relation);
+    public RasterDataNode getAncillaryVariable(String... relations) {
+        RasterDataNode[] variables = getAncillaryVariables(relations);
         return variables.length > 0 ? variables[0] : null;
-    }
-
-    /**
-     * Gets all associated ancillary variables.
-     *
-     * @return The array of associated ancillary variables which may be empty.
-     * @since SNAP 2.0
-     */
-    public RasterDataNode[] getAncillaryVariables() {
-        return getAncillaryVariables(null);
     }
 
     /**
      * Finds any associated ancillary band for the specified relation.
      *
-     * @param relation The name of the relation such as {@code "uncertainty"}, {@code "variance"}, or {@code null} (any).
+     * @param relations Names of relations such as {@code "uncertainty"}, {@code "variance"}, or {@code null} (any).
      * @return The associated ancillary bands or an empty array.
      * @since SNAP 2.0
      */
-    public RasterDataNode[] getAncillaryVariables(String relation) {
-        if (relation == null) {
+    public RasterDataNode[] getAncillaryVariables(String... relations) {
+        if (ancillaryVariables == null) {
+            return new RasterDataNode[0];
+        }
+        if (relations.length == 0) {
             return ancillaryVariables.toArray(new RasterDataNode[0]);
         }
+        assertRelationsAreAllNoneNull(relations);
         ArrayList<RasterDataNode> rasterDataNodes = new ArrayList<>();
-        for (RasterDataNode ancillaryRasterDataNode : ancillaryVariables.toArray(new RasterDataNode[ancillaryVariables.getNodeCount()])) {
-            if (equalAncillaryRelations(relation, ancillaryRasterDataNode.getAncillaryRelation())) {
-                rasterDataNodes.add(ancillaryRasterDataNode);
+        for (RasterDataNode ancillaryVariable : ancillaryVariables.toArray(new RasterDataNode[ancillaryVariables.getNodeCount()])) {
+            String[] ancillaryRelations = ancillaryVariable.getAncillaryRelations();
+            if (ancillaryRelations == null) {
+                ancillaryRelations = new String[]{null};
+            }
+            for (String relation1 : relations) {
+                if (equalAncillaryRelations(relation1, ancillaryRelations) && !rasterDataNodes.contains(ancillaryVariable)) {
+                    rasterDataNodes.add(ancillaryVariable);
+                }
             }
         }
         return rasterDataNodes.toArray(new RasterDataNode[rasterDataNodes.size()]);
     }
 
     // Compare "rel" attribute according to NetCDF-U convention
-    private static boolean equalAncillaryRelations(String relation1, String relation2) {
-        if (relation2 == null) {
-            relation2 = "uncertainty";
+    private static boolean equalAncillaryRelations(String relation1, String... relations2) {
+        if (relations2.length == 0) {
+            return relation1.equalsIgnoreCase("uncertainty");
         }
-        return relation1.equalsIgnoreCase(relation2);
-    }
-
-    /**
-     * Sets or removes an associated ancillary variable.
-     *
-     * @param variable The associated ancillary variable.
-     * @since SNAP 2.0
-     */
-    public void addAncillaryVariable(RasterDataNode variable) {
-        addAncillaryVariable(variable, null);
+        for (String relation2 : relations2) {
+            return relation1.equalsIgnoreCase(relation2);
+        }
+        return false;
     }
 
     /**
      * Adds an associated ancillary variable and sets its relation name.
      *
      * @param variable The associated ancillary variable.
-     * @param relation The name of the relation, may be {@code "uncertainty"}, {@code "variance"}, or {@code null} (not set).
+     * @param relations The name of the relation, may be {@code "uncertainty"}, {@code "variance"}, or {@code null} (not set).
      * @since SNAP 2.0
      */
-    public void addAncillaryVariable(RasterDataNode variable, String relation) {
+    public void addAncillaryVariable(RasterDataNode variable, String... relations) {
         boolean change = false;
+        if (ancillaryVariables == null) {
+            ancillaryVariables = new ProductNodeGroup<>(this, "ancillaryVariables", false);
+        }
         if (!ancillaryVariables.contains(variable)) {
             change = ancillaryVariables.add(variable);
         }
-        if (relation != null) {
-            if (!equalAncillaryRelations(relation, variable.getAncillaryRelation())) {
-                change = true;
+        if (relations.length > 0) {
+            assertRelationsAreAllNoneNull(relations);
+            for (String relation : relations) {
+                if (!equalAncillaryRelations(relation, variable.getAncillaryRelations())) {
+                    change = true;
+                }
             }
-            variable.setAncillaryRelation(relation);
+            variable.setAncillaryRelations(relations);
         }
         if (change) {
             fireProductNodeChanged(PROPERTY_NAME_ANCILLARY_VARIABLES, ancillaryVariables, ancillaryVariables);
@@ -305,37 +302,46 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @since SNAP 2.0
      */
     public void removeAncillaryVariable(RasterDataNode variable) {
-        if (ancillaryVariables.remove(variable)) {
+        if (ancillaryVariables != null && ancillaryVariables.remove(variable)) {
             fireProductNodeChanged(PROPERTY_NAME_ANCILLARY_VARIABLES, ancillaryVariables, ancillaryVariables);
         }
     }
 
     /**
-     * Gets the name of an ancillary relation to another raster data node.
+     * Gets the names of an ancillary relations to another raster data node.
+     * See NetCDF-U 'rel' attribute.
      *
-     * @return The name of an ancillary relation to another raster data node, or {@code null}.
-     * @see #addAncillaryVariable(RasterDataNode, String)
+     * @return The names of an ancillary relations to another raster data node, or an empty array.
+     * @see #addAncillaryVariable(RasterDataNode, String...)
      * @see #removeAncillaryVariable(RasterDataNode)
-     * @see #getAncillaryVariable(String)
+     * @see #getAncillaryVariable(String...)
      * @since SNAP 2.0
      */
-    public String getAncillaryRelation() {
-        return ancillaryRelation;
+    public String[] getAncillaryRelations() {
+        return ancillaryRelations != null ? ancillaryRelations.clone() : new String[0];
     }
 
     /**
-     * Sets the name of an ancillary relation to another raster data node.
+     * Sets the names of an ancillary relations to another raster data node.
+     * See NetCDF-U 'rel' attribute.
      *
-     * @param relation The name of an ancillary relation, or {@code null}
-     * @see #addAncillaryVariable(RasterDataNode, String)
-     * @see #getAncillaryVariable(String)
+     * @param relations The names of an ancillary relations.
+     * @see #addAncillaryVariable(RasterDataNode, String...)
+     * @see #getAncillaryVariable(String...)
      * @since SNAP 2.0
      */
-    public void setAncillaryRelation(String relation) {
-        String oldValue = this.ancillaryRelation;
-        this.ancillaryRelation = relation;
-        if (!ObjectUtils.equalObjects(oldValue, this.ancillaryRelation)) {
-            fireProductNodeChanged(PROPERTY_NAME_ANCILLARY_RELATION, oldValue, this.ancillaryRelation);
+    public void setAncillaryRelations(String... relations) {
+        assertRelationsAreAllNoneNull(relations);
+        String[] oldValue = getAncillaryRelations();
+        this.ancillaryRelations = relations;
+        if (!ObjectUtils.equalObjects(oldValue, this.ancillaryRelations)) {
+            fireProductNodeChanged(PROPERTY_NAME_ANCILLARY_RELATIONS, oldValue, getAncillaryRelations());
+        }
+    }
+
+    private void assertRelationsAreAllNoneNull(String[] relations) {
+        for (int i = 0; i < relations.length; i++) {
+            Assert.argument(relations[i] != null, "relations has null element at index " + i);
         }
     }
 
@@ -412,7 +418,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * This method is called if no transformation has been set using the
      * {@link #setSceneRasterTransform(SceneRasterTransform)} method.
      *
-     * @return The transformation or {@code null}, if no such exists.
      * @since SNAP 2.0
      */
     protected void computeSceneRasterTransform() {
@@ -1942,14 +1947,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                                             final int stride,
                                             final byte[] gammaCurve, ProgressMonitor pm) throws IOException {
         processRasterData("Quantizing raster '" + getDisplayName() + "'",
-                          new RasterDataProcessor() {
-                              @Override
-                              public void processRasterDataBuffer(ProductData buffer, int y0, int numLines,
-                                                                  ProgressMonitor pm) {
-                                  int pos = y0 * getRasterWidth() * stride;
-                                  quantizeRasterData(buffer, rawMin, rawMax, samples, pos + offset, stride, gammaCurve,
-                                                     pm);
-                              }
+                          (buffer, y0, numLines, pm1) -> {
+                              int pos = y0 * getRasterWidth() * stride;
+                              quantizeRasterData(buffer, rawMin, rawMax, samples, pos + offset, stride, gammaCurve,
+                                                 pm1);
                           }, pm);
     }
 
@@ -2528,7 +2529,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @deprecated since BEAM 4.5. No direct replacement, implement a GPF operator or a {@link org.esa.snap.jai.SingleBandedOpImage} instead.
      */
     @Deprecated
-    public static interface RasterDataProcessor {
+    public interface RasterDataProcessor {
 
         void processRasterDataBuffer(ProductData buffer, int y0, int numLines, ProgressMonitor pm) throws IOException;
     }
@@ -2538,7 +2539,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
         @Override
         public void nodeRemoved(ProductNodeEvent event) {
-            if (event.getGroup() != ancillaryVariables && event.getSourceNode() instanceof RasterDataNode) {
+            if (ancillaryVariables != null
+                    && event.getGroup() != ancillaryVariables
+                    && event.getSourceNode() instanceof RasterDataNode) {
                 ancillaryVariables.remove((RasterDataNode) event.getSourceNode());
             }
         }

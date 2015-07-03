@@ -18,6 +18,8 @@ package org.esa.snap.framework.datamodel;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
@@ -44,42 +46,42 @@ public class RasterDataNodeAncillaryTest {
 
         assertEquals(null, a.getAncillaryVariable("uncertainty"));
         assertArrayEquals(new RasterDataNode[0], a.getAncillaryVariables("uncertainty"));
-        assertEquals(null, a_unc.getAncillaryRelation());
-        assertEquals(null, a_var.getAncillaryRelation());
+        assertArrayEquals(new String[0], a_unc.getAncillaryRelations());
+        assertArrayEquals(new String[0], a_var.getAncillaryRelations());
 
         a.addAncillaryVariable(a_unc, "uncertainty");
 
         assertEquals(a_unc, a.getAncillaryVariable("uncertainty"));
         assertArrayEquals(new RasterDataNode[]{a_unc}, a.getAncillaryVariables("uncertainty"));
-        assertEquals("uncertainty", a_unc.getAncillaryRelation());
+        assertArrayEquals(new String[]{"uncertainty"}, a_unc.getAncillaryRelations());
 
         a.addAncillaryVariable(a_var, "variance");
 
         assertEquals(a_var, a.getAncillaryVariable("variance"));
         assertArrayEquals(new RasterDataNode[]{a_var}, a.getAncillaryVariables("variance"));
-        assertEquals("variance", a_var.getAncillaryRelation());
+        assertArrayEquals(new String[]{"variance"}, a_var.getAncillaryRelations());
 
         a.addAncillaryVariable(a_var, "uncertainty");
 
         assertEquals(a_unc, a.getAncillaryVariable("uncertainty"));
         assertArrayEquals(new RasterDataNode[]{a_unc, a_var}, a.getAncillaryVariables("uncertainty"));
-        assertEquals("uncertainty", a_var.getAncillaryRelation());
+        assertArrayEquals(new String[]{"uncertainty"}, a_var.getAncillaryRelations());
 
         a.removeAncillaryVariable(a_var);
         a.removeAncillaryVariable(a_unc);
 
         assertEquals(null, a.getAncillaryVariable("uncertainty"));
         assertArrayEquals(new RasterDataNode[]{}, a.getAncillaryVariables("uncertainty"));
-        assertEquals("uncertainty", a_unc.getAncillaryRelation());
+        assertArrayEquals(new String[]{"uncertainty"}, a_unc.getAncillaryRelations());
 
         assertEquals(null, a.getAncillaryVariable("variance"));
         assertArrayEquals(new RasterDataNode[]{}, a.getAncillaryVariables("variance"));
-        assertEquals("uncertainty", a_var.getAncillaryRelation());
+        assertArrayEquals(new String[]{"uncertainty"}, a_var.getAncillaryRelations());
 
         assertEquals("" +
-                             "ancillaryRelation;ancillaryVariables;" +
-                             "ancillaryRelation;ancillaryVariables;" +
-                             "ancillaryRelation;ancillaryVariables;" +
+                             "ancillaryRelations;ancillaryVariables;" +
+                             "ancillaryRelations;ancillaryVariables;" +
+                             "ancillaryRelations;ancillaryVariables;" +
                              "ancillaryVariables;" +
                              "ancillaryVariables;", pnl.simpleTrace);
     }
@@ -90,17 +92,17 @@ public class RasterDataNodeAncillaryTest {
         a.addAncillaryVariable(a_unc);
         a.addAncillaryVariable(a_var);
 
-        assertEquals(null, a_unc.getAncillaryRelation());
-        assertEquals(null, a_var.getAncillaryRelation());
+        assertArrayEquals(new String[0], a_unc.getAncillaryRelations());
+        assertArrayEquals(new String[0], a_var.getAncillaryRelations());
 
-        assertEquals(a_unc, a.getAncillaryVariable(null));
-        assertArrayEquals(new RasterDataNode[] {a_unc, a_var}, a.getAncillaryVariables(null));
+        assertEquals(a_unc, a.getAncillaryVariable());
+        assertArrayEquals(new RasterDataNode[]{a_unc, a_var}, a.getAncillaryVariables());
 
         assertEquals(a_unc, a.getAncillaryVariable("uncertainty"));
-        assertArrayEquals(new RasterDataNode[] {a_unc, a_var}, a.getAncillaryVariables("uncertainty"));
+        assertArrayEquals(new RasterDataNode[]{a_unc, a_var}, a.getAncillaryVariables("uncertainty"));
 
         assertEquals(null, a.getAncillaryVariable("variance"));
-        assertArrayEquals(new RasterDataNode[] {}, a.getAncillaryVariables("variance"));
+        assertArrayEquals(new RasterDataNode[]{}, a.getAncillaryVariables("variance"));
     }
 
     @Test
@@ -118,24 +120,34 @@ public class RasterDataNodeAncillaryTest {
         assertArrayEquals(new RasterDataNode[]{}, a.getAncillaryVariables("uncertainty"));
     }
 
+    @Test(expected = NullPointerException.class)
+    public void testSetAncillaryRelationsWithNullArg() {
+        a_unc.setAncillaryRelations((String[]) null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testSetAncillaryRelationsWithNullItems() {
+        a_unc.setAncillaryRelations("arg1", null);
+    }
+
     @Test
     public void testGetSetAncillaryRelation() {
 
         TracingPNL pnl = new TracingPNL();
         product.addProductNodeListener(pnl);
 
-        assertEquals(null, a_unc.getAncillaryRelation());
-        a_unc.setAncillaryRelation("error");
-        assertEquals("error", a_unc.getAncillaryRelation());
-        a_unc.setAncillaryRelation(null);
-        assertEquals(null, a_unc.getAncillaryRelation());
-        a_unc.setAncillaryRelation("uncertainty");
-        a_unc.setAncillaryRelation("uncertainty");
+        assertArrayEquals(new String[0], a_unc.getAncillaryRelations());
+        a_unc.setAncillaryRelations("error");
+        assertArrayEquals(new String[]{"error"}, a_unc.getAncillaryRelations());
+        a_unc.setAncillaryRelations();
+        assertArrayEquals(new String[]{}, a_unc.getAncillaryRelations());
+        a_unc.setAncillaryRelations("uncertainty");
+        a_unc.setAncillaryRelations("uncertainty");
 
         assertEquals("" +
-                             "ancillaryRelation(null,error);" +
-                             "ancillaryRelation(error,null);" +
-                             "ancillaryRelation(null,uncertainty);", pnl.detailedTrace);
+                             "ancillaryRelations([],[error]);" +
+                             "ancillaryRelations([error],[]);" +
+                             "ancillaryRelations([],[uncertainty]);", pnl.detailedTrace);
     }
 
 
@@ -146,7 +158,11 @@ public class RasterDataNodeAncillaryTest {
         @Override
         public void nodeChanged(ProductNodeEvent event) {
             simpleTrace += String.format("%s;", event.getPropertyName());
-            detailedTrace += String.format("%s(%s,%s);", event.getPropertyName(), event.getOldValue(), event.getNewValue());
+            detailedTrace += String.format("%s(%s,%s);", event.getPropertyName(), toString(event.getOldValue()), toString(event.getNewValue()));
+        }
+
+        private static Object toString(Object object) {
+            return object instanceof Object[] ? Arrays.toString((Object[]) object) : String.valueOf(object);
         }
     }
 
