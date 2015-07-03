@@ -8,7 +8,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by Norman on 13.06.2015.
  */
-public class StandardUncertaintyGeneratorTest extends UncertaintyPropagatorTest {
+public class StandardUncertaintyGeneratorTest extends UncertaintyGeneratorTest {
 
 
     @Test
@@ -74,7 +74,7 @@ public class StandardUncertaintyGeneratorTest extends UncertaintyPropagatorTest 
     }
 
     @Override
-    protected UncertaintyGenerator createUncertaintyPropagator() {
+    protected UncertaintyGenerator createUncertaintyGenerator() {
         return new StandardUncertaintyGenerator(1, false);
     }
 }

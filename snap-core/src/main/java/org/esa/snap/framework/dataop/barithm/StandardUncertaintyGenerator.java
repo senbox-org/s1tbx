@@ -6,6 +6,7 @@ import com.bc.jexp.Symbol;
 import com.bc.jexp.Term;
 import com.bc.jexp.WritableNamespace;
 import com.bc.jexp.impl.ParserImpl;
+import com.bc.jexp.impl.TermDecompiler;
 import com.bc.jexp.impl.TermFactory;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.RasterDataNode;
@@ -48,7 +49,7 @@ public class StandardUncertaintyGenerator implements UncertaintyGenerator {
     }
 
     @Override
-    public Term generateUncertainty(Product product, String relation, String expression) throws ParseException, UnsupportedOperationException {
+    public String generateUncertainty(Product product, String relation, String expression) throws ParseException, UnsupportedOperationException {
         WritableNamespace namespace = product.createBandArithmeticDefaultNamespace();
         ParserImpl parser = new ParserImpl(namespace);
         Term term = parser.parse(expression);
@@ -117,13 +118,15 @@ public class StandardUncertaintyGenerator implements UncertaintyGenerator {
                 uncertaintySum.add(div(contrib, c(6.0)));
             }
         }
-
+        Term result;
         if (uncertaintySum.isEmpty()) {
-            return term.isConst() && Double.isNaN(term.evalD(null)) ? Term.ConstD.NAN : Term.ConstD.ZERO;
+            result = term.isConst() && Double.isNaN(term.evalD(null)) ? Term.ConstD.NAN : Term.ConstD.ZERO;
+        } else {
+            result = TermFactory.magnitude(uncertaintySum);
+            result = simplify(result);
+            result = optimize ? TermFactory.optimize(result) : result;
         }
-        Term result = TermFactory.magnitude(uncertaintySum);
-        result = simplify(result);
-        return optimize ? TermFactory.optimize(result) : result;
+        return new TermDecompiler().decompile(result);
     }
 
 

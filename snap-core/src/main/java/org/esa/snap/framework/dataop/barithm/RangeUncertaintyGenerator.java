@@ -7,6 +7,7 @@ import com.bc.jexp.TermConverter;
 import com.bc.jexp.WritableNamespace;
 import com.bc.jexp.impl.Functions;
 import com.bc.jexp.impl.ParserImpl;
+import com.bc.jexp.impl.TermDecompiler;
 import com.bc.jexp.impl.TermSimplifier;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.RasterDataNode;
@@ -18,11 +19,12 @@ import org.esa.snap.framework.datamodel.RasterDataNode;
 public class RangeUncertaintyGenerator implements UncertaintyGenerator {
 
     @Override
-    public Term generateUncertainty(Product product, String relation, String expression) throws ParseException, UnsupportedOperationException {
+    public String generateUncertainty(Product product, String relation, String expression) throws ParseException, UnsupportedOperationException {
         WritableNamespace namespace = product.createBandArithmeticDefaultNamespace();
         ParserImpl parser = new ParserImpl(namespace);
         Term term = parser.parse(expression);
-        return new RangeUncertaintyTransformer(relation).apply(term);
+        Term result = new RangeUncertaintyTransformer(relation).apply(term);
+        return new TermDecompiler().decompile(result);
     }
 
     private class RangeUncertaintyTransformer implements TermConverter {

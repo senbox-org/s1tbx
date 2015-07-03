@@ -1,7 +1,6 @@
 package org.esa.snap.framework.dataop.barithm;
 
 import com.bc.jexp.ParseException;
-import com.bc.jexp.Term;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.RasterDataNode;
 
@@ -18,11 +17,11 @@ public interface UncertaintyGenerator {
      * @param product    The data product that serves the referenced rasters in the expression.
      * @param relation   Relation name of ancillary variables that represent uncertainties (NetCDF-U 'rel' attribute).
      * @param expression The band maths expression.
-     * @return A term representing the combined uncertainty.
+     * @return A new band maths expression representing the combined uncertainty.
      * @throws ParseException
      * @throws UnsupportedOperationException
      * @see org.esa.snap.framework.datamodel.RasterDataNode#addAncillaryVariable(RasterDataNode, String...)
      * @see org.esa.snap.framework.datamodel.RasterDataNode#setAncillaryRelations(String...)
      */
-    Term generateUncertainty(Product product, String relation, String expression) throws ParseException, UnsupportedOperationException;
+    String generateUncertainty(Product product, String relation, String expression) throws ParseException, UnsupportedOperationException;
 }
