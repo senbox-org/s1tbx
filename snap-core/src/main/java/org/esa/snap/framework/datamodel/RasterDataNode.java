@@ -1074,8 +1074,11 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         overlayMasks.clearRemovedList();
         roiMasks.removeAll();
         roiMasks.clearRemovedList();
-        ancillaryVariables.removeAll();
-        ancillaryVariables.clearRemovedList();
+
+        if (ancillaryVariables != null) {
+            ancillaryVariables.removeAll();
+            ancillaryVariables.clearRemovedList();
+        }
 
         super.dispose();
     }
