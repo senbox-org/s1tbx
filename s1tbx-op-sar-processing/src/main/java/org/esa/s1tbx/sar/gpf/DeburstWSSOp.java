@@ -53,7 +53,7 @@ import java.util.Vector;
  * De-Burst a WSS product
  */
 @OperatorMetadata(alias = "DeburstWSS",
-        category = "SAR Processing",
+        category = "Radar",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Debursts an ASAR WSS product")

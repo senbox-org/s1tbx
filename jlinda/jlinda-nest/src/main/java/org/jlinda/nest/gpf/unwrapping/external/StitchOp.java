@@ -36,7 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @OperatorMetadata(alias = "Stitch",
-        category = "SAR Processing/Interferometric/Unwrapping",
+        category = "Radar/Interferometric/Unwrapping",
         description = "Unwrap phase for each tile",
         internal = false)
 public class StitchOp extends Operator {

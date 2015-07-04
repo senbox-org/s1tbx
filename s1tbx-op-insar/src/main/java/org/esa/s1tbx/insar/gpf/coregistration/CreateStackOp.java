@@ -67,7 +67,7 @@ import java.util.Map;
  * The CreateStack operator.
  */
 @OperatorMetadata(alias = "CreateStack",
-        category = "SAR Processing/Coregistration",
+        category = "Radar/Coregistration",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Collocates two or more products based on their geo-codings.")

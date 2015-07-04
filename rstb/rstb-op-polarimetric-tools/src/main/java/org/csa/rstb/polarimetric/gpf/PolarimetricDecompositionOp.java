@@ -43,7 +43,7 @@ import java.util.Map;
  */
 
 @OperatorMetadata(alias = "Polarimetric-Decomposition",
-        category = "SAR Processing/Polarimetric",
+        category = "Radar/Polarimetric",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Perform Polarimetric decomposition of a given product")

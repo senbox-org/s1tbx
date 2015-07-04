@@ -37,7 +37,7 @@
     </folder>
 
     <folder name="Menu">
-        <folder name="SAR Processing">
+        <folder name="Radar">
             <folder name="Utilities">
                 <attr name="position" intvalue="1000"/>
                 <folder name="Resampling">

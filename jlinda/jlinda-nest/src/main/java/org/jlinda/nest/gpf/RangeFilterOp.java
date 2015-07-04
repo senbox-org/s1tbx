@@ -34,7 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @OperatorMetadata(alias = "RangeFilter",
-        category = "SAR Processing/Interferometric/Filtering",
+        category = "Radar/Interferometric/Filtering",
         authors = "Petar Marinkovic",
         copyright = "Copyright (C) 2013 by PPO.labs",
         description = "Range Filter")

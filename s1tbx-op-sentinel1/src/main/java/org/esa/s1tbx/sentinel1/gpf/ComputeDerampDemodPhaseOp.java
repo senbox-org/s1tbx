@@ -41,7 +41,7 @@ import java.util.Map;
  * Compute deramp and demodulation phases.
  */
 @OperatorMetadata(alias = "Compute-Deramp-Demod-Phase",
-        category = "SAR Processing/Coregistration/S-1 TOPS Coregistration",
+        category = "Radar/Coregistration/S-1 TOPS Coregistration",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Compute Deramp and Demodulation Phases",

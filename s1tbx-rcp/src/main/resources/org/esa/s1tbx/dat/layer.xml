@@ -8,8 +8,8 @@
     </folder>
 
     <folder name="Menu">
-        <folder name="SAR Processing">
-
+        <folder name="Radar">
+            <attr name="position" intvalue="510"/>
         </folder>
     </folder>
 

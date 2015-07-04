@@ -64,7 +64,7 @@ import java.util.Set;
  * The Mosaic operator.
  */
 @OperatorMetadata(alias = "SAR-Mosaic",
-        category = "SAR Processing/Geometric",
+        category = "Radar/Geometric",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Mosaics two or more products based on their geo-codings.")

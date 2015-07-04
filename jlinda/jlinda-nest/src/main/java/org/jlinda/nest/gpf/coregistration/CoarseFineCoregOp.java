@@ -61,7 +61,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @OperatorMetadata(alias = "CoarseFine-Coregistration",
-        category = "SAR Processing/Coregistration",
+        category = "Radar/Coregistration",
         authors = "Petar Marinkovic (with contributions of Jun Lu, Luis Veci)",
         copyright = "PPO.labs and European Space Agency",
         description = "Performs coarse and found coregistration with correlation optimization method")

@@ -136,7 +136,7 @@
     </folder>
 
     <folder name="Menu">
-        <folder name="SAR Processing">
+        <folder name="Radar">
             <folder name="Coregistration">
                 <attr name="position" intvalue="300"/>
                 <file name="org-jlinda-nest-gpf-InSARCoregistrationGraph-Action.shadow">
@@ -217,7 +217,7 @@
         </file>
         <file name="org.jlinda.nest.gpf.ui.SubtRefDemOpUI">
             <attr name="operatorUIClass" stringvalue="org.jlinda.nest.gpf.ui.SubtRefDemOpUI"/>
-            <attr name="operatorName" stringvalue="SubtRefDem"/>
+            <attr name="operatorName" stringvalue="TopoPhaseRemoval"/>
         </file>
     </folder>
 

@@ -42,7 +42,7 @@ import java.util.Set;
  * Averaging multi-temporal images
  */
 @OperatorMetadata(alias = "Stack-Averaging",
-        category = "SAR Processing/Coregistration/Stack Tools",
+        category = "Radar/Coregistration/Stack Tools",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Averaging multi-temporal images")

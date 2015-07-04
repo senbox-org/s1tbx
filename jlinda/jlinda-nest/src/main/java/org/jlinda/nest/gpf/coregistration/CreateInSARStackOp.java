@@ -57,7 +57,7 @@ import java.util.Map;
  *
  */
 @OperatorMetadata(alias = "CreateInSARStack",
-        category = "SAR Processing/Coregistration",
+        category = "Radar/Coregistration",
         authors = "Petar Marinkovic (with contributions of Jun Lu, Luis Veci)",
         copyright = "PPO.labs and European Space Agency",
         description = "Collocates two or more products based on their metadata and/or geo-codings.")

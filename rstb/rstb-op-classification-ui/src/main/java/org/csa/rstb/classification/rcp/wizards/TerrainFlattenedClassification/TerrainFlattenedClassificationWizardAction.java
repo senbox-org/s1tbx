@@ -18,15 +18,10 @@ package org.csa.rstb.classification.rcp.wizards.TerrainFlattenedClassification;
 import org.esa.s1tbx.dat.wizards.WizardDialog;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.util.IconUtils;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionReference;
-import org.openide.awt.ActionReferences;
-import org.openide.awt.ActionRegistration;
-import org.openide.util.NbBundle;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-
+/*
 @ActionID(
         category = "Wizards",
         id = "TerrainFlattenedClassificationWizardAction"
@@ -45,7 +40,7 @@ import java.awt.event.ActionEvent;
 @NbBundle.Messages({
         "CTL_TerrainFlattenedClassificationWizardAction_MenuText=Terrain Flattened Classification Wizard",
         "CTL_TerrainFlattenedClassificationWizardAction_ShortDescription=Terrain Flattened Classification Wizard"
-})
+})*/
 public class TerrainFlattenedClassificationWizardAction extends AbstractAction {
 
     @Override

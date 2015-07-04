@@ -40,7 +40,7 @@ import java.util.Map;
 
 
 @OperatorMetadata(alias = "InterferogramPPO",
-        category = "SAR Processing/Interferometric/Products",
+        category = "Radar/Interferometric/Products",
         authors = "Petar Marinkovic",
         copyright = "Copyright (C) 2013 by PPO.labs",
         description = "Compute interferograms from stack of coregistered images : JBLAS implementation")

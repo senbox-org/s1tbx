@@ -45,7 +45,7 @@ import java.util.HashMap;
  * Apply thermal noise correction to Sentinel-1 Level-1 products.
  */
 @OperatorMetadata(alias = "ThermalNoiseRemoval",
-        category = "SAR Processing/Radiometric",
+        category = "Radar/Radiometric",
         authors = "Cecilia Wong, Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Removes thermal noise from products")

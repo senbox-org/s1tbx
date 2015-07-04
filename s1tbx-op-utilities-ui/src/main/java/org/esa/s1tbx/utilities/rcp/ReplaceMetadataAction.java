@@ -36,15 +36,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-@ActionID(
-        category = "Processing",
-        id = "org.esa.s1tbx.dat.ReplaceMetadataAction"
-)
+@ActionID(category = "Processing", id = "org.esa.s1tbx.dat.ReplaceMetadataAction" )
 @ActionRegistration(displayName = "#CTL_ReplaceMetadataAction_Text")
-@ActionReference(
-        path = "Menu/SAR Processing/Utilities/Data Conversion",
-        position = 400
-)
+@ActionReference(path = "Menu/Radar/Utilities/Data Conversion", position = 400 )
 @NbBundle.Messages({"CTL_ReplaceMetadataAction_Text=Replace Metadata"})
 /**
  * This action replaces the Metadata with that of another product

@@ -31,14 +31,7 @@ import java.util.Map;
  */
 public class SubtRefDemOpUI extends BaseOperatorUI {
 
-    private static final ElevationModelDescriptor[] descriptors = ElevationModelRegistry.getInstance().getAllDescriptors();
-    private static final String[] demValueSet = new String[descriptors.length];
-
-    static {
-        for (int i = 0; i < descriptors.length; i++) {
-            demValueSet[i] = descriptors[i].getName();
-        }
-    }
+    private static final String[] demValueSet = DEMFactory.getDEMNameList();
 
     private final JTextField orbitDegree = new JTextField("");
     private final JComboBox demName = new JComboBox(demValueSet);
@@ -85,8 +78,10 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
         externalDEMBrowseButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 final File file = SnapDialogs.requestFileForOpen("External DEM File", false, null, null);
-                externalDEMFile.setText(file.getAbsolutePath());
-                extNoDataValue = OperatorUIUtils.getNoDataValue(file);
+                if(file != null) {
+                    externalDEMFile.setText(file.getAbsolutePath());
+                    extNoDataValue = OperatorUIUtils.getNoDataValue(file);
+                }
                 externalDEMNoDataValue.setText(String.valueOf(extNoDataValue));
             }
         });
@@ -99,7 +94,11 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
     @Override
     public void initParameters() {
         orbitDegree.setText(String.valueOf(paramMap.get("orbitDegree")));
-        demName.setSelectedItem(paramMap.get("demName"));
+        final String demNameParam = (String) paramMap.get("demName");
+        if (demNameParam != null) {
+            ElevationModelDescriptor descriptor = ElevationModelRegistry.getInstance().getDescriptor(demNameParam);
+            demName.setSelectedItem(DEMFactory.getDEMDisplayName(descriptor));
+        }
         final File extFile = (File)paramMap.get("externalDEMFile");
         if(extFile != null) {
             externalDEMFile.setText(extFile.getAbsolutePath());
@@ -121,7 +120,7 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
     @Override
     public void updateParameters() {
         paramMap.put("orbitDegree", Integer.parseInt(orbitDegree.getText()));
-        paramMap.put("demName", demName.getSelectedItem());
+        paramMap.put("demName", (DEMFactory.getProperDEMName((String) demName.getSelectedItem())));
         final String extFileStr = externalDEMFile.getText();
         if(!extFileStr.isEmpty()) {
             paramMap.put("externalDEMFile", new File(extFileStr));
@@ -159,7 +158,6 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
 
         return contentPane;
     }
-
 
     private void enableExternalDEM(boolean flag) {
         DialogUtils.enableComponents(externalDEMFileLabel, externalDEMFile, flag);

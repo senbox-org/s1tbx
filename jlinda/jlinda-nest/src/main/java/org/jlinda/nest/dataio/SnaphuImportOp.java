@@ -15,7 +15,7 @@ import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.util.ProductUtils;
 
 @OperatorMetadata(alias = "SnaphuImport",
-        category = "SAR Processing/Interferometric/Unwrapping",
+        category = "Radar/Interferometric/Unwrapping",
         description = "Ingest SNAPHU results into NEST InSAR product.",
         internal = false)
 public class SnaphuImportOp extends Operator {

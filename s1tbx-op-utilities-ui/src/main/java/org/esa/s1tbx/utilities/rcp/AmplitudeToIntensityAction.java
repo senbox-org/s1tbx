@@ -32,15 +32,9 @@ import org.openide.util.NbBundle;
 
 import java.awt.event.ActionEvent;
 
-@ActionID(
-        category = "Tools",
-        id = "org.esa.s1tbx.dat.AmplitudeToIntensityAction"
-)
+@ActionID(category = "Raster", id = "org.esa.s1tbx.dat.AmplitudeToIntensityAction" )
 @ActionRegistration(displayName = "#CTL_AmplitudeToIntensityAction_Text")
-@ActionReference(
-        path = "Menu/SAR Processing/Utilities/Data Conversion",
-        position = 100
-)
+@ActionReference(path = "Menu/Radar/Utilities/Data Conversion", position = 100 )
 @NbBundle.Messages({"CTL_AmplitudeToIntensityAction_Text=Amplitude to/from Intensity"})
 /**
  * AmplitudeToIntensity action.
@@ -52,8 +46,8 @@ public class AmplitudeToIntensityAction extends AbstractSnapAction {
 
         final ProductNode node = SnapApp.getDefault().getSelectedProductNode();
         if (node instanceof Band) {
-            final Product product = SnapApp.getDefault().getSelectedProduct();
             final Band band = (Band) node;
+            final Product product = band.getProduct();
             String bandName = band.getName();
             final String unit = band.getUnit();
 

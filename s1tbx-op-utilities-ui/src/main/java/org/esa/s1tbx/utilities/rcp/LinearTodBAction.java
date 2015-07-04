@@ -32,15 +32,9 @@ import org.openide.util.NbBundle;
 
 import java.awt.event.ActionEvent;
 
-@ActionID(
-        category = "Tools",
-        id = "org.esa.s1tbx.dat.LinearTodBAction"
-)
+@ActionID(category = "Raster", id = "org.esa.s1tbx.dat.LinearTodBAction" )
 @ActionRegistration(displayName = "#CTL_LinearTodBAction_Text")
-@ActionReference(
-        path = "Menu/SAR Processing/Utilities/Data Conversion",
-        position = 200
-)
+@ActionReference(path = "Menu/Radar/Utilities/Data Conversion", position = 200 )
 @NbBundle.Messages({"CTL_LinearTodBAction_Text=Linear to/from dB"})
 /**
  * LinearTodB action.
@@ -54,8 +48,8 @@ public class LinearTodBAction extends AbstractSnapAction {
 
         final ProductNode node = SnapApp.getDefault().getSelectedProductNode();
         if (node instanceof Band) {
-            final Product product = SnapApp.getDefault().getSelectedProduct();
             final Band band = (Band) node;
+            final Product product = band.getProduct();
             final String unit = band.getUnit();
 
             if (!unit.contains(Unit.DB)) {

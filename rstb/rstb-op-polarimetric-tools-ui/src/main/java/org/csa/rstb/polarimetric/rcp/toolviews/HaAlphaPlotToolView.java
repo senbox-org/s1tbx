@@ -26,7 +26,7 @@ import org.openide.windows.TopComponent;
 
 @TopComponent.Description(
         preferredID = "HaAlphaPlotTopComponent",
-        iconBase = "org/csa/rstb/polarimetric/icons/h-a-alpha22.png",
+        iconBase = "org/csa/rstb/polarimetric/icons/h-a-alpha.png",
         persistenceType = TopComponent.PERSISTENCE_ALWAYS //todo define
 )
 @TopComponent.Registration(
@@ -36,7 +36,7 @@ import org.openide.windows.TopComponent;
 )
 @ActionID(category = "Window", id = "org.csa.rstb.dat.toolviews.HaAlphaPlotTopComponent")
 @ActionReferences({
-        @ActionReference(path = "Menu/Window/Tool Windows/Analysis"),
+        @ActionReference(path = "Menu/View/Tool Windows/Radar"),
         @ActionReference(path = "Toolbars/Analysis")
 })
 @TopComponent.OpenActionRegistration(

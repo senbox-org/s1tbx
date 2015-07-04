@@ -48,11 +48,11 @@
 
     <folder name="Menu">
         <folder name="Help">
-            <folder name="Wizards">
+            <!--folder name="Wizards">
                 <attr name="position" intvalue="500"/>
-            </folder>
+            </folder-->
         </folder>
-        <folder name="SAR Processing">
+        <folder name="Radar">
             <folder name="Polarimetric">
                 <attr name="position" intvalue="500"/>
                 <file name="org-csa-rstb-polarimetric-gpf-PolarimetricMatricesOp-Action.shadow">

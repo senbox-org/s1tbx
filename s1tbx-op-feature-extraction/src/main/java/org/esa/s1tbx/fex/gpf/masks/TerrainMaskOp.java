@@ -49,7 +49,7 @@ import java.io.File;
  */
 
 @OperatorMetadata(alias = "Terrain-Mask",
-        category = "Tools/Masks",
+        category = "Raster/Masks",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Terrain Mask Generation")
@@ -60,7 +60,7 @@ public final class TerrainMaskOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(valueSet = {"ACE", "GETASSE30", "SRTM 3Sec", "ASTER 1sec GDEM"},
+    @Parameter(valueSet = {"ACE", "ASTER 1sec GDEM", "GETASSE30", "SRTM 1Sec HGT", "SRTM 3Sec"},
             description = "The digital elevation model.",
             defaultValue = "SRTM 3Sec", label = "Digital Elevation Model")
     private String demName = "SRTM 3Sec";

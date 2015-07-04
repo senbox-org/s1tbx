@@ -4,7 +4,7 @@
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
-    <tocitem text="SAR Processing">
+    <tocitem text="Radar">
         <tocitem text="Coregistration" mergetype="javax.help.SortMerge">
             <tocitem text="S-1 TOPS Coregistration">
                 <tocitem text="Back Geocoding" target="BackGeocodingOp"/>

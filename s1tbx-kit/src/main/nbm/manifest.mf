@@ -1,4 +1,5 @@
 Manifest-Version: 1.0
 OpenIDE-Module-Display-Category: Sentinel-1 Toolbox
+OpenIDE-Module-Layer: org/esa/s1tbx/layer.xml
 AutoUpdate-Show-In-Client: true
 AutoUpdate-Essential-Module: false

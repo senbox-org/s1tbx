@@ -66,7 +66,7 @@ import java.util.Arrays;
  * The import vector operator.
  */
 @OperatorMetadata(alias = "Import-Vector",
-        category = "Tools",
+        category = "Vector",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Imports a shape file into a product")

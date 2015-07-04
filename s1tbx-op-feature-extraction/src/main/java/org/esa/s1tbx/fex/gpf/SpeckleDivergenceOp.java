@@ -54,7 +54,7 @@ import java.util.List;
  */
 
 @OperatorMetadata(alias = "Speckle-Divergence",
-        category = "SAR Processing/Feature Extraction",
+        category = "Radar/Feature Extraction",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Detect urban area.")

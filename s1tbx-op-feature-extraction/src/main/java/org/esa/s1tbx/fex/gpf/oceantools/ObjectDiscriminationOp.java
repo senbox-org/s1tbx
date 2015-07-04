@@ -55,7 +55,7 @@ import java.util.Map;
  * [1] D. J. Crisp, "The State-of-the-Art in Ship Detection in Synthetic Aperture Radar Imagery." DSTO-RR-0272, 2004-05.
  */
 @OperatorMetadata(alias = "Object-Discrimination",
-        category = "SAR Processing/Feature Extraction/Ocean Tools/Object Detection",
+        category = "Radar/Feature Extraction/Ocean Tools/Object Detection",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Remove false alarms from the detected objects.")

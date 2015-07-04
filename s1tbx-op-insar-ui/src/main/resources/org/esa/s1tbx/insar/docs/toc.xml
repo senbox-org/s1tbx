@@ -4,7 +4,7 @@
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
-    <tocitem text="SAR Processing">
+    <tocitem text="Radar">
         <tocitem text="Image Analysis">
             <tocitem text="Principle Component Analysis" target="PCA"/>
         </tocitem>
