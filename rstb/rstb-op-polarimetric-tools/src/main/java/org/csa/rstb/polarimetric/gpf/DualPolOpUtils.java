@@ -32,40 +32,6 @@ public final class DualPolOpUtils {
     public static final double EPS = Constants.EPS;
 
     /**
-     * Get scatter matrix for given pixel.
-     *
-     * @param index           X,Y coordinate of the given pixel
-     * @param dataBuffers     Source tiles dataBuffers for all 4 (dual pol) or 8 (full pol) source bands
-     * @param scatterMatrix_i Real part of the scatter matrix
-     * @param scatterMatrix_q Imaginary part of the scatter matrix
-     */
-    public static void getComplexScatterMatrix(final int index, final ProductData[] dataBuffers,
-                                               final double[][] scatterMatrix_i, final double[][] scatterMatrix_q) {
-
-        // Dual pol: Case 1 is HH HV
-        //           Case 2 is VH VV
-        //           Case 3 is HH VV
-
-        // If quad pol or dual pol Cases 1 or 3 then this is HH; else it is dual pol Case 2 then this is VH
-        scatterMatrix_i[0][0] = dataBuffers[0].getElemDoubleAt(index); // real
-        scatterMatrix_q[0][0] = dataBuffers[1].getElemDoubleAt(index); // imag
-
-        // If quad pol or dual pol Case 1 then this is HV; else it is dual pol Cases 2 or 3 then this is VV
-        scatterMatrix_i[0][1] = dataBuffers[2].getElemDoubleAt(index); // real
-        scatterMatrix_q[0][1] = dataBuffers[3].getElemDoubleAt(index); // imag
-
-        if (dataBuffers.length > 4) {
-
-            // Must be quad pol
-            scatterMatrix_i[1][0] = dataBuffers[4].getElemDoubleAt(index); // VH - real
-            scatterMatrix_q[1][0] = dataBuffers[5].getElemDoubleAt(index); // VH - imag
-
-            scatterMatrix_i[1][1] = dataBuffers[6].getElemDoubleAt(index); // VV - real
-            scatterMatrix_q[1][1] = dataBuffers[7].getElemDoubleAt(index); // VV - imag
-        }
-    }
-
-    /**
      * Get mean covariance matrix C2 for given pixel.
      *
      * @param x                 X coordinate of the given pixel.
@@ -110,32 +76,20 @@ public final class DualPolOpUtils {
                 }
             }
 
-        } else if (sourceProductType == PolBandUtils.MATRIX.LCHCP || sourceProductType == PolBandUtils.MATRIX.RCHCP) {
+        } else if (sourceProductType == PolBandUtils.MATRIX.LCHCP ||
+                   sourceProductType == PolBandUtils.MATRIX.RCHCP ||
+                   sourceProductType == PolBandUtils.MATRIX.DUAL_HH_HV ||
+                   sourceProductType == PolBandUtils.MATRIX.DUAL_VH_VV ||
+                   sourceProductType == PolBandUtils.MATRIX.DUAL_HH_VV) {
+
             final double[] tempKr = new double[2];
             final double[] tempKi = new double[2];
 
             for (int yy = ySt; yy <= yEd; ++yy) {
                 srcIndex.calculateStride(yy);
                 for (int xx = xSt; xx <= xEd; ++xx) {
-                    getCompactPolScatterVector(srcIndex.getIndex(xx), dataBuffers, tempKr, tempKi);
-                    DualPolOpUtils.computeCovarianceMatrixC2(tempKr, tempKi, tempCr, tempCi);
-                    CrMat.plusEquals(new Matrix(tempCr));
-                    CiMat.plusEquals(new Matrix(tempCi));
-                }
-            }
-
-        } else if (sourceProductType == PolBandUtils.MATRIX.DUAL_HH_HV ||
-                sourceProductType == PolBandUtils.MATRIX.DUAL_VH_VV ||
-                sourceProductType == PolBandUtils.MATRIX.DUAL_HH_VV) {
-
-            final double[][] Sr = new double[1][2];
-            final double[][] Si = new double[1][2];
-
-            for (int yy = ySt; yy <= yEd; ++yy) {
-                srcIndex.calculateStride(yy);
-                for (int xx = xSt; xx <= xEd; ++xx) {
-                    PolOpUtils.getComplexScatterMatrix(srcIndex.getIndex(xx), dataBuffers, Sr, Si);
-                    computeCovarianceMatrixC2(Sr[0], Si[0], tempCr, tempCi);
+                    getScatterVector(srcIndex.getIndex(xx), dataBuffers, tempKr, tempKi);
+                    computeCovarianceMatrixC2(tempKr, tempKi, tempCr, tempCi);
                     CrMat.plusEquals(new Matrix(tempCr));
                     CiMat.plusEquals(new Matrix(tempCi));
                 }
@@ -192,44 +146,38 @@ public final class DualPolOpUtils {
                                              final ProductData[] dataBuffers, final double[][] Cr,
                                              final double[][] Ci) {
 
-        if (sourceProductType == PolBandUtils.MATRIX.LCHCP || sourceProductType == PolBandUtils.MATRIX.RCHCP) {
-
-            final double[] kr = new double[2];
-            final double[] ki = new double[2];
-            getCompactPolScatterVector(index, dataBuffers, kr, ki);
-            DualPolOpUtils.computeCovarianceMatrixC2(kr, ki, Cr, Ci);
-
-        } else if (sourceProductType == PolBandUtils.MATRIX.C2) {
-            getCovarianceMatrixC2(index, dataBuffers, Cr, Ci);
-
-        } else if (sourceProductType == PolBandUtils.MATRIX.DUAL_HH_HV ||
+        if (sourceProductType == PolBandUtils.MATRIX.LCHCP ||
+                sourceProductType == PolBandUtils.MATRIX.RCHCP ||
+                sourceProductType == PolBandUtils.MATRIX.DUAL_HH_HV ||
                 sourceProductType == PolBandUtils.MATRIX.DUAL_VH_VV ||
                 sourceProductType == PolBandUtils.MATRIX.DUAL_HH_VV) {
 
-            final double[][] Sr = new double[1][2];
-            final double[][] Si = new double[1][2];
+            final double[] kr = new double[2];
+            final double[] ki = new double[2];
+            getScatterVector(index, dataBuffers, kr, ki);
+            computeCovarianceMatrixC2(kr, ki, Cr, Ci);
 
-            PolOpUtils.getComplexScatterMatrix(index, dataBuffers, Sr, Si);
-            computeCovarianceMatrixC2(Sr[0], Si[0], Cr, Ci);
+        } else if (sourceProductType == PolBandUtils.MATRIX.C2) {
+            getCovarianceMatrixC2(index, dataBuffers, Cr, Ci);
         }
     }
 
     /**
-     * Get compact pol scatter vector for a given pixel in the input compact pol product.
+     * Get compact-pol or dual-pol scatter vector for a given pixel in the input product.
      *
      * @param index       X,Y coordinate of the given pixel
      * @param dataBuffers Source tiles dataBuffers for all 4 source bands
      * @param kr          Real part of the scatter vector
      * @param ki          Imaginary part of the scatter vector
      */
-    public static void getCompactPolScatterVector(final int index, final ProductData[] dataBuffers,
-                                                  final double[] kr, final double[] ki) {
+    public static void getScatterVector(final int index, final ProductData[] dataBuffers,
+                                        final double[] kr, final double[] ki) {
 
-        kr[0] = dataBuffers[0].getElemDoubleAt(index); // RH - real
-        ki[0] = dataBuffers[1].getElemDoubleAt(index); // RH - imag
+        kr[0] = dataBuffers[0].getElemDoubleAt(index);
+        ki[0] = dataBuffers[1].getElemDoubleAt(index);
 
-        kr[1] = dataBuffers[2].getElemDoubleAt(index); // RV - real
-        ki[1] = dataBuffers[3].getElemDoubleAt(index); // RV - imag
+        kr[1] = dataBuffers[2].getElemDoubleAt(index);
+        ki[1] = dataBuffers[3].getElemDoubleAt(index);
     }
 
     /**
