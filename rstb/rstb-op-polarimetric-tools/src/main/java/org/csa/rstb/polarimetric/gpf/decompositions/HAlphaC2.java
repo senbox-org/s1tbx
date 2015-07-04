@@ -156,9 +156,10 @@ public class HAlphaC2 extends DecompositionBase implements Decomposition {
         data.entropy = -(p[0] * Math.log(p[0] + Constants.EPS) + p[1] * Math.log(p[1] + Constants.EPS)) / Math.log(2);
         data.anisotropy = (p[0] - p[1]) / (p[0] + p[1] + Constants.EPS);
 
-        final double alpha = FastMath.acos(norm(EigenVectRe[0][0], EigenVectIm[0][0])) * Constants.RTOD;
-        //final double alpha2 = FastMath.acos(norm(EigenVectRe[0][1], EigenVectIm[0][1]))*Constants.RTOD;
-        data.alpha = p[0] * alpha + p[1] * (Constants.HALF_PI - alpha);
+        final double alpha = Math.acos(norm(EigenVectRe[0][0], EigenVectIm[0][0])) * Constants.RTOD;
+        final double alpha2 = Math.acos(norm(EigenVectRe[1][0], EigenVectIm[1][0])) * Constants.RTOD;
+        //data.alpha = p[0] * alpha + p[1] * (Constants.HALF_PI - alpha);
+        data.alpha = p[0] * alpha + p[1] * alpha2; // match POLSARPro result
 
         return data;
     }
