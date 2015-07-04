@@ -46,70 +46,48 @@ public final class PolOpUtils {
      * Get scatter matrix for given pixel.
      *
      * @param index           X,Y coordinate of the given pixel
-     * @param dataBuffers     Source tiles dataBuffers for all 4 (dual pol) or 8 (full pol) source bands
+     * @param dataBuffers     Source tiles dataBuffers for all 8 source bands
      * @param scatterMatrix_i Real part of the scatter matrix
      * @param scatterMatrix_q Imaginary part of the scatter matrix
      */
     public static void getComplexScatterMatrix(final int index, final ProductData[] dataBuffers,
                                                final double[][] scatterMatrix_i, final double[][] scatterMatrix_q) {
 
-        // Dual pol: Case 1 is HH HV
-        //           Case 2 is VH VV
-        //           Case 3 is HH VV
+        scatterMatrix_i[0][0] = dataBuffers[0].getElemDoubleAt(index); // HH - real
+        scatterMatrix_q[0][0] = dataBuffers[1].getElemDoubleAt(index); // HH - imag
 
-        // If quad pol or dual pol Cases 1 or 3 then this is HH; else it is dual pol Case 2 then this is VH
-        scatterMatrix_i[0][0] = dataBuffers[0].getElemDoubleAt(index); // real
-        scatterMatrix_q[0][0] = dataBuffers[1].getElemDoubleAt(index); // imag
+        scatterMatrix_i[0][1] = dataBuffers[2].getElemDoubleAt(index); // HV - real
+        scatterMatrix_q[0][1] = dataBuffers[3].getElemDoubleAt(index); // HV - imag
 
-        // If quad pol or dual pol Case 1 then this is HV; else it is dual pol Cases 2 or 3 then this is VV
-        scatterMatrix_i[0][1] = dataBuffers[2].getElemDoubleAt(index); // real
-        scatterMatrix_q[0][1] = dataBuffers[3].getElemDoubleAt(index); // imag
+        scatterMatrix_i[1][0] = dataBuffers[4].getElemDoubleAt(index); // VH - real
+        scatterMatrix_q[1][0] = dataBuffers[5].getElemDoubleAt(index); // VH - imag
 
-        if (dataBuffers.length > 4) {
-
-            // Must be quad pol
-
-            scatterMatrix_i[1][0] = dataBuffers[4].getElemDoubleAt(index); // VH - real
-            scatterMatrix_q[1][0] = dataBuffers[5].getElemDoubleAt(index); // VH - imag
-
-            scatterMatrix_i[1][1] = dataBuffers[6].getElemDoubleAt(index); // VV - real
-            scatterMatrix_q[1][1] = dataBuffers[7].getElemDoubleAt(index); // VV - imag
-        }
+        scatterMatrix_i[1][1] = dataBuffers[6].getElemDoubleAt(index); // VV - real
+        scatterMatrix_q[1][1] = dataBuffers[7].getElemDoubleAt(index); // VV - imag
     }
 
     /**
      * Get scatter matrix for given pixel.
      *
      * @param index           X,Y coordinate of the given pixel
-     * @param dataBuffers     Source tiles dataBuffers for all 4 (dual pol) or 8 (full pol) source bands
+     * @param dataBuffers     Source tiles dataBuffers for all 8 source bands
      * @param Sr Real part of the scatter matrix
      * @param Si Imaginary part of the scatter matrix
      */
     public static void getComplexScatterMatrix(final int index, final ProductData[] dataBuffers,
                                                final DoubleMatrix Sr, final DoubleMatrix Si) {
 
-        // Dual pol: Case 1 is HH HV
-        //           Case 2 is VH VV
-        //           Case 3 is HH VV
+        Sr.put(0,0, dataBuffers[0].getElemDoubleAt(index)); // HH - real
+        Si.put(0,0, dataBuffers[1].getElemDoubleAt(index)); // HH - imag
 
-        // If quad pol or dual pol Cases 1 or 3 then this is HH; else it is dual pol Case 2 then this is VH
-        Sr.put(0,0, dataBuffers[0].getElemDoubleAt(index)); // real
-        Si.put(0,0, dataBuffers[1].getElemDoubleAt(index)); // imag
+        Sr.put(0,1, dataBuffers[2].getElemDoubleAt(index)); // HV - real
+        Si.put(0,1, dataBuffers[3].getElemDoubleAt(index)); // HV - imag
 
-        // If quad pol or dual pol Case 1 then this is HV; else it is dual pol Cases 2 or 3 then this is VV
-        Sr.put(0,1, dataBuffers[2].getElemDoubleAt(index)); // real
-        Si.put(0,1, dataBuffers[3].getElemDoubleAt(index)); // imag
+        Sr.put(1,0, dataBuffers[4].getElemDoubleAt(index)); // VH - real
+        Si.put(1,0, dataBuffers[5].getElemDoubleAt(index)); // VH - imag
 
-        if (dataBuffers.length > 4) {
-
-            // Must be quad pol
-
-            Sr.put(1,0, dataBuffers[4].getElemDoubleAt(index)); // VH - real
-            Si.put(1,0, dataBuffers[5].getElemDoubleAt(index)); // VH - imag
-
-            Sr.put(1,1, dataBuffers[6].getElemDoubleAt(index)); // VV - real
-            Si.put(1,1, dataBuffers[7].getElemDoubleAt(index)); // VV - imag
-        }
+        Sr.put(1,1, dataBuffers[6].getElemDoubleAt(index)); // VV - real
+        Si.put(1,1, dataBuffers[7].getElemDoubleAt(index)); // VV - imag
     }
 
     /**
