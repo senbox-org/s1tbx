@@ -119,7 +119,11 @@ public interface SpeckleFilter {
         final double[][] Cr = new double[2][2];
         final double[][] Ci = new double[2][2];
 
-        if (sourceProductType == PolBandUtils.MATRIX.LCHCP || sourceProductType == PolBandUtils.MATRIX.RCHCP) {
+        if (sourceProductType == PolBandUtils.MATRIX.LCHCP ||
+                sourceProductType == PolBandUtils.MATRIX.RCHCP ||
+                sourceProductType == PolBandUtils.MATRIX.DUAL_HH_HV ||
+                sourceProductType == PolBandUtils.MATRIX.DUAL_VH_VV ||
+                sourceProductType == PolBandUtils.MATRIX.DUAL_HH_VV) {
 
             final double[] Kr = new double[2];
             final double[] Ki = new double[2];
@@ -131,7 +135,7 @@ public interface SpeckleFilter {
                     final int i = x - sx0;
                     final int index = srcIndex.getIndex(x);
 
-                    DualPolOpUtils.getCompactPolScatterVector(index, dataBuffers, Kr, Ki);
+                    DualPolOpUtils.getScatterVector(index, dataBuffers, Kr, Ki);
                     DualPolOpUtils.computeCovarianceMatrixC2(Kr, Ki, Cr, Ci);
 
                     data11Real[j][i] = Cr[0][0];
@@ -152,31 +156,6 @@ public interface SpeckleFilter {
                     final int index = srcIndex.getIndex(x);
 
                     DualPolOpUtils.getCovarianceMatrixC2(index, dataBuffers, Cr, Ci);
-
-                    data11Real[j][i] = Cr[0][0];
-                    data12Real[j][i] = Cr[0][1];
-                    data12Imag[j][i] = Ci[0][1];
-                    data22Real[j][i] = Cr[1][1];
-                    span[j][i] = (Cr[0][0] + Cr[1][1]) / 2.0;
-                }
-            }
-
-        } else if (sourceProductType == PolBandUtils.MATRIX.DUAL_HH_HV ||
-                sourceProductType == PolBandUtils.MATRIX.DUAL_VH_VV ||
-                sourceProductType == PolBandUtils.MATRIX.DUAL_HH_VV) {
-
-            final double[][] Sr = new double[1][2];
-            final double[][] Si = new double[1][2];
-
-            for (int y = sy0; y < maxY; ++y) {
-                final int j = y - sy0;
-                srcIndex.calculateStride(y);
-                for (int x = sx0; x < maxX; ++x) {
-                    final int i = x - sx0;
-                    final int index = srcIndex.getIndex(x);
-
-                    PolOpUtils.getComplexScatterMatrix(index, dataBuffers, Sr, Si);
-                    DualPolOpUtils.computeCovarianceMatrixC2(Sr[0], Si[0], Cr, Ci);
 
                     data11Real[j][i] = Cr[0][0];
                     data12Real[j][i] = Cr[0][1];
