@@ -5,7 +5,6 @@ import org.esa.snap.framework.datamodel.Kernel;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.gpf.OperatorException;
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -41,7 +40,7 @@ public class PixelOperatorWithComputedSourcesTest {
 
         @Override
         protected void configureSourceSamples(SourceSampleConfigurer sampleConfigurer) throws OperatorException {
-            sampleConfigurer.defineValidPixelMask("X < 1");
+            sampleConfigurer.setValidPixelMask("X < 1");
             sampleConfigurer.defineComputedSample(0, ProductData.TYPE_UINT8, "Y < 1");
             sampleConfigurer.defineComputedSample(1, ProductData.TYPE_FLOAT64, "2 * input");
             sampleConfigurer.defineComputedSample(2, 1, new Kernel(2, 2, new double[]{10, 0, 100, 0}));

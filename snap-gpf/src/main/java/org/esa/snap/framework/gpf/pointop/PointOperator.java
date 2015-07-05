@@ -52,10 +52,10 @@ import java.util.Map;
  */
 public abstract class PointOperator extends Operator {
 
-    private transient RasterDataNode[] sourceNodes;
-    private transient RasterDataNode[] computedNodes;
+    private transient RasterDataNode[] sourceRasters;
+    private transient RasterDataNode[] computedRasters;
     private transient Mask validPixelMask;
-    private transient Band[] targetNodes;
+    private transient Band[] targetBands;
 
     /**
      * Configures this {@code PointOperator} by performing a number of initialisation steps in the given order:
@@ -81,9 +81,9 @@ public abstract class PointOperator extends Operator {
         TargetSampleConfigurerImpl tc = new TargetSampleConfigurerImpl();
         configureSourceSamples(sc);
         configureTargetSamples(tc);
-        sourceNodes = sc.getNodes();
-        computedNodes = sc.getComputeNodes();
-        targetNodes = tc.getNodes();
+        sourceRasters = sc.getRasters();
+        computedRasters = sc.getComputeNodes();
+        targetBands = tc.getRasters();
     }
 
     /**
@@ -109,9 +109,12 @@ public abstract class PointOperator extends Operator {
     @Override
     public void dispose() {
         super.dispose();
-        for (RasterDataNode node : computedNodes) {
+        for (RasterDataNode node : computedRasters) {
             node.dispose();
         }
+        sourceRasters = null;
+        computedRasters = null;
+        targetBands = null;
     }
 
     /**
@@ -211,7 +214,7 @@ public abstract class PointOperator extends Operator {
 
     Sample[] createSourceSamples(Rectangle targetRectangle, Point location) {
         final Tile[] sourceTiles = getSourceTiles(targetRectangle);
-        return createDefaultSamples(sourceNodes, sourceTiles, location);
+        return createDefaultSamples(sourceRasters, sourceTiles, location);
     }
 
     Sample createSourceMaskSamples(Rectangle targetRectangle, Point location) {
@@ -221,26 +224,26 @@ public abstract class PointOperator extends Operator {
 
     WritableSample[] createTargetSamples(Map<Band, Tile> targetTileStack, Point location) {
         final Tile[] targetTiles = getTargetTiles(targetTileStack);
-        return createDefaultSamples(targetNodes, targetTiles, location);
+        return createDefaultSamples(targetBands, targetTiles, location);
     }
 
     WritableSample createTargetSample(Tile targetTile, Point location) {
-        final RasterDataNode targetNode = targetTile.getRasterDataNode();
-        for (int i = 0; i < targetNodes.length; i++) {
+        final RasterDataNode targetRaster = targetTile.getRasterDataNode();
+        for (int i = 0; i < targetBands.length; i++) {
             //noinspection ObjectEquality
-            if (targetNode == targetNodes[i]) {
+            if (targetRaster == targetBands[i]) {
                 return new WritableSampleImpl(i, targetTile, location);
             }
         }
         final String msgPattern = "Could not create target sample for band '%s'.";
-        throw new IllegalStateException(String.format(msgPattern, targetNode.getName()));
+        throw new IllegalStateException(String.format(msgPattern, targetRaster.getName()));
     }
 
     private Tile[] getSourceTiles(Rectangle region) {
-        final Tile[] sourceTiles = new Tile[sourceNodes.length];
+        final Tile[] sourceTiles = new Tile[sourceRasters.length];
         for (int i = 0; i < sourceTiles.length; i++) {
-            if (sourceNodes[i] != null) {
-                sourceTiles[i] = getSourceTile(sourceNodes[i], region);
+            if (sourceRasters[i] != null) {
+                sourceTiles[i] = getSourceTile(sourceRasters[i], region);
             }
         }
         return sourceTiles;
@@ -254,13 +257,13 @@ public abstract class PointOperator extends Operator {
     }
 
     private Tile[] getTargetTiles(Map<Band, Tile> targetTileStack) {
-        final Tile[] targetTiles = new Tile[targetNodes.length];
+        final Tile[] targetTiles = new Tile[targetBands.length];
         for (int i = 0; i < targetTiles.length; i++) {
-            if (targetNodes[i] != null) {
-                Tile targetTile = targetTileStack.get(targetNodes[i]);
+            if (targetBands[i] != null) {
+                Tile targetTile = targetTileStack.get(targetBands[i]);
                 if (targetTile == null) {
                     final String msgPattern = "Could not find tile for defined target node '%s'.";
-                    throw new IllegalStateException(String.format(msgPattern, targetNodes[i].getName()));
+                    throw new IllegalStateException(String.format(msgPattern, targetBands[i].getName()));
                 }
                 targetTiles[i] = targetTile;
             }
@@ -374,9 +377,9 @@ public abstract class PointOperator extends Operator {
 
     private abstract static class AbstractSampleConfigurer<T extends RasterDataNode> {
 
-        final List<T> nodes = new ArrayList<T>();
+        final List<T> rasters = new ArrayList<>();
 
-        void defineSample(int index, String name, Product product, boolean sourceless) throws OperatorException {
+        void addRaster(int index, String name, Product product, boolean sourceless) throws OperatorException {
             T node = (T) product.getRasterDataNode(name);
             if (node == null) {
                 String message = String.format(
@@ -384,48 +387,53 @@ public abstract class PointOperator extends Operator {
                         product.getName(), name);
                 throw new OperatorException(message);
             }
-            if (sourceless && node.isSourceImageSet()) {
+            addRaster(index, node, sourceless);
+        }
+
+        void addRaster(int index, T raster, boolean sourceless) throws OperatorException {
+            String name = raster.getName();
+            if (sourceless && raster.isSourceImageSet()) {
                 String message = String.format(
                         "Raster '%s' must be sourceless, since it is a computed target",
                         name);
                 throw new OperatorException(message);
             }
-            addNode(index, node);
+            addRaster(index, raster);
         }
 
-        void addNode(int index, T node) {
-            Assert.notNull(node, "node");
+        void addRaster(int index, T raster) {
+            Assert.notNull(raster, "raster");
             Assert.argument(index >= 0, "index >= 0, was " + index);
-            if (index < nodes.size()) {
-                Assert.state(nodes.get(index) == null, String.format("raster at index %d already defined", index));
-                nodes.set(index, node);
-            } else if (index == nodes.size()) {
-                nodes.add(node);
+            if (index < rasters.size()) {
+                Assert.state(rasters.get(index) == null, String.format("raster at index %d already defined", index));
+                rasters.set(index, raster);
+            } else if (index == rasters.size()) {
+                rasters.add(raster);
             } else {
-                while (index > nodes.size()) {
-                    nodes.add(null);
+                while (index > rasters.size()) {
+                    rasters.add(null);
                 }
-                nodes.add(node);
+                rasters.add(raster);
             }
         }
 
-        RasterDataNode[] getNodes() {
-            return nodes.toArray(new RasterDataNode[nodes.size()]);
+        RasterDataNode[] getRasters() {
+            return rasters.toArray(new RasterDataNode[rasters.size()]);
         }
     }
 
     private final class SourceSampleConfigurerImpl extends AbstractSampleConfigurer<RasterDataNode> implements SourceSampleConfigurer {
 
-        List<RasterDataNode> computedNodes = new ArrayList<>();
+        final List<RasterDataNode> computedRasters = new ArrayList<>();
 
         @Override
         public void defineSample(int index, String name) {
-            defineSample(index, name, getSourceProduct(), false);
+            addRaster(index, name, getSourceProduct(), false);
         }
 
         @Override
         public void defineSample(int index, String name, Product product) {
-            super.defineSample(index, name, product, false);
+            super.addRaster(index, name, product, false);
         }
 
         @Override
@@ -450,33 +458,43 @@ public abstract class PointOperator extends Operator {
         }
 
         @Override
-        public void defineComputedSample(int index, RasterDataNode node) {
-            if (node.getOwner() == null) {
-                node.setOwner(getSourceProduct());
+        public void defineComputedSample(int index, RasterDataNode raster) {
+            Assert.argument(raster != getTargetProduct().getRasterDataNode(raster.getName()), "raster must not be component of target product");
+            if (raster.getOwner() == null) {
+                raster.setOwner(getSourceProduct());
             }
-            addNode(index, node);
-            computedNodes.add(node);
+            addRaster(index, raster);
+            computedRasters.add(raster);
         }
 
         @Override
-        public void defineValidPixelMask(String maskExpression) {
+        public void setValidPixelMask(String maskExpression) {
+            if (maskExpression == null || maskExpression.trim().isEmpty()) {
+                return;
+            }
+
             Assert.state(validPixelMask == null, "valid pixel mask already defined");
+
+            if (!getSourceProduct().isCompatibleBandArithmeticExpression(maskExpression)) {
+                throw new OperatorException("The valid-pixel mask expression can not be used with the source product.");
+            }
+
             validPixelMask = Mask.BandMathsType.create("__source_mask", null,
                                                        getSourceProduct().getSceneRasterWidth(),
                                                        getSourceProduct().getSceneRasterHeight(),
                                                        maskExpression,
                                                        Color.GREEN, 0.0);
             validPixelMask.setOwner(getSourceProduct());
-            computedNodes.add(validPixelMask);
+            computedRasters.add(validPixelMask);
         }
 
         RasterDataNode[] getComputeNodes() {
-            return computedNodes.toArray(new RasterDataNode[computedNodes.size()]);
+            return computedRasters.toArray(new RasterDataNode[computedRasters.size()]);
         }
 
         private RasterDataNode getSourceNode(int index) {
-            Assert.argument(nodes.get(index) != null, String.format("no source raster defined at index %s", index));
-            return nodes.get(index);
+            Assert.argument(rasters.get(index) != null, String.format("no source raster defined at index %s", index));
+            return rasters.get(index);
         }
     }
 
@@ -484,12 +502,12 @@ public abstract class PointOperator extends Operator {
 
         @Override
         public void defineSample(int index, String name) {
-            defineSample(index, name, getTargetProduct(), true);
+            addRaster(index, name, getTargetProduct(), true);
         }
 
         @Override
-        Band[] getNodes() {
-            return nodes.toArray(new Band[nodes.size()]);
+        Band[] getRasters() {
+            return rasters.toArray(new Band[rasters.size()]);
         }
     }
 
