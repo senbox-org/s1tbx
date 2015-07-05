@@ -20,6 +20,20 @@ import org.esa.snap.framework.datamodel.RasterDataNode;
  * @since SNAP 2.0
  */
 public interface SourceSampleConfigurer {
+
+    /**
+     * Defines a mask that identifies valid pixels (region of interest) using a Boolean expression.
+     * The framework evaluates the expression for each target pixel. If the mask evaluates to zero, all the
+     * target samples are set to their no-data values. Otherwise the respective
+     * {@link PixelOperator#computePixel(int, int, Sample[], WritableSample[]) computePixel} or
+     * {@link SampleOperator#computeSample(int, int, Sample[], WritableSample) computeSample} are called.
+     *
+     * @param maskExpression The Boolean valid-pixel mask expression.
+     * @see RasterDataNode#setNoDataValueUsed(boolean)
+     * @see RasterDataNode#setGeophysicalNoDataValue(double)
+     */
+    void setValidPixelMask(String maskExpression);
+
     /**
      * Defines a sample for a {@link org.esa.snap.framework.datamodel.RasterDataNode RasterDataNode}.
      *
@@ -43,13 +57,60 @@ public interface SourceSampleConfigurer {
      */
     void defineSample(int index, String name, Product product);
 
-    void defineComputedSample(int index, int dataType, String expression, Product ...sourceProducts);
+    /**
+     * Defines an intermediate source sample computed from a band math expression.
+     * <p>
+     * The method effectively creates a {@link org.esa.snap.framework.datamodel.VirtualBand VirtualBand}
+     * from which it computes the source samples.
+     *
+     * @param index          The index of the sample within the sample arrays passed to
+     *                       {@link SampleOperator#computeSample(int, int, Sample[], WritableSample) computeSample()} or
+     *                       {@link PixelOperator#computePixel(int, int, Sample[], WritableSample[]) computePixel()} methods.
+     * @param dataType       The data type of the computed sample. See {@code TYPE_X} constants in {@link org.esa.snap.framework.datamodel.ProductData}.
+     * @param expression     The band maths expression.
+     * @param sourceProducts Source products that are referenced in the expression (currently not used).
+     */
+    void defineComputedSample(int index, int dataType, String expression, Product... sourceProducts);
 
+    /**
+     * Defines an intermediate source sample computed from a linear image convolution.
+     * <p>
+     * The method effectively creates a {@link org.esa.snap.framework.datamodel.ConvolutionFilterBand ConvolutionFilterBand}
+     * from which it computes the source samples.
+     *
+     * @param index       The index of the sample within the sample arrays passed to
+     *                    {@link SampleOperator#computeSample(int, int, Sample[], WritableSample) computeSample()} or
+     *                    {@link PixelOperator#computePixel(int, int, Sample[], WritableSample[]) computePixel()} methods.
+     * @param sourceIndex The index of the source sample that will be filtered.
+     * @param kernel      The image convolution kernel.
+     */
     void defineComputedSample(int index, int sourceIndex, Kernel kernel);
 
+    /**
+     * Defines an intermediate source sample computed from a non-linear image filter.
+     * <p>
+     * The method effectively creates a {@link org.esa.snap.framework.datamodel.GeneralFilterBand GeneralFilterBand}
+     * from which it computes the source samples.
+     *
+     * @param index              The index of the sample within the sample arrays passed to
+     *                           {@link SampleOperator#computeSample(int, int, Sample[], WritableSample) computeSample()} or
+     *                           {@link PixelOperator#computePixel(int, int, Sample[], WritableSample[]) computePixel()} methods.
+     * @param sourceIndex        The index of the source sample that will be filtered.
+     * @param opType             The filter operation to be applied to pixels identified by the structuring element.
+     * @param structuringElement The structuring element is a Boolean kernel identifying the pixel positions to be filtered.
+     */
     void defineComputedSample(int index, int sourceIndex, GeneralFilterBand.OpType opType, Kernel structuringElement);
 
-    void defineComputedSample(int index, RasterDataNode node);
-
-    void defineValidPixelMask(String maskExpression);
+    /**
+     * Defines an intermediate source sample computed from the given raster.
+     * <p>
+     * The raster is usually either a component of the source products or not attached to any product at all.
+     * However, it must not be a component of the target product.
+     *
+     * @param index  The index of the sample within the sample arrays passed to
+     *               {@link SampleOperator#computeSample(int, int, Sample[], WritableSample) computeSample()} or
+     *               {@link PixelOperator#computePixel(int, int, Sample[], WritableSample[]) computePixel()} methods.
+     * @param raster The index of the source sample that will be filtered.
+     */
+    void defineComputedSample(int index, RasterDataNode raster);
 }
