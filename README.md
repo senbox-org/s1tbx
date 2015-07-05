@@ -56,6 +56,6 @@ the option *'Create module groups for multi-module Maven projects'*. Everything 
     "E:\build\SNAP\snap-engine\$\target\classes";"E:\build\SNAP\s1tbx\$\target\classes"
     
 	* **Working directory:** SNAP/snap-desktop/snap-application/target/snap/
-	* **Use classpath of module:** nbexec
+	* **Use classpath of module:** snap-main
 
 Enjoy!
