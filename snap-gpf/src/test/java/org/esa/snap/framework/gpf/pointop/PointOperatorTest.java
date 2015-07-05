@@ -19,7 +19,9 @@ import java.awt.image.Raster;
 import java.text.ParseException;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class PointOperatorTest {
 
@@ -145,13 +147,13 @@ public class PointOperatorTest {
         }
 
         @Override
-        protected void configureSourceSamples(SampleConfigurer sampleConfigurer) {
+        protected void configureSourceSamples(SourceSampleConfigurer sampleConfigurer) {
             sampleConfigurer.defineSample(0, "radiance_10");
             sampleConfigurer.defineSample(1, "radiance_8");
         }
 
         @Override
-        public void configureTargetSamples(SampleConfigurer sampleConfigurer) {
+        public void configureTargetSamples(TargetSampleConfigurer sampleConfigurer) {
             sampleConfigurer.defineSample(0, "ndvi");
             sampleConfigurer.defineSample(1, "ndvi_flags");
         }
@@ -179,13 +181,13 @@ public class PointOperatorTest {
         }
 
         @Override
-        protected void configureSourceSamples(SampleConfigurer sampleConfigurer) {
+        protected void configureSourceSamples(SourceSampleConfigurer sampleConfigurer) {
             sampleConfigurer.defineSample(0, "radiance_10");
             sampleConfigurer.defineSample(1, "radiance_8");
         }
 
         @Override
-        public void configureTargetSamples(SampleConfigurer sampleConfigurer) {
+        public void configureTargetSamples(TargetSampleConfigurer sampleConfigurer) {
             sampleConfigurer.defineSample(0, "ndvi");
             sampleConfigurer.defineSample(1, "ndvi_flags");
         }
@@ -211,13 +213,13 @@ public class PointOperatorTest {
         }
 
         @Override
-        protected void configureSourceSamples(SampleConfigurer sampleConfigurer) {
+        protected void configureSourceSamples(SourceSampleConfigurer sampleConfigurer) {
             sampleConfigurer.defineSample(86, "radiance_10");
             sampleConfigurer.defineSample(423, "radiance_8");
         }
 
         @Override
-        public void configureTargetSamples(SampleConfigurer sampleConfigurer) {
+        public void configureTargetSamples(TargetSampleConfigurer sampleConfigurer) {
             sampleConfigurer.defineSample(34, "ndvi");
             sampleConfigurer.defineSample(687, "ndvi_flags");
         }

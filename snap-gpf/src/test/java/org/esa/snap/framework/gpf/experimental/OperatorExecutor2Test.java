@@ -20,7 +20,8 @@ import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.gpf.pointop.PixelOperator;
 import org.esa.snap.framework.gpf.pointop.ProductConfigurer;
 import org.esa.snap.framework.gpf.pointop.Sample;
-import org.esa.snap.framework.gpf.pointop.SampleConfigurer;
+import org.esa.snap.framework.gpf.pointop.SourceSampleConfigurer;
+import org.esa.snap.framework.gpf.pointop.TargetSampleConfigurer;
 import org.esa.snap.framework.gpf.pointop.WritableSample;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -230,11 +231,11 @@ public class OperatorExecutor2Test {
         }
 
         @Override
-        protected void configureSourceSamples(SampleConfigurer sampleConfigurer) {
+        protected void configureSourceSamples(SourceSampleConfigurer sampleConfigurer) {
         }
 
         @Override
-        protected void configureTargetSamples(SampleConfigurer sampleConfigurer) {
+        protected void configureTargetSamples(TargetSampleConfigurer sampleConfigurer) {
             sampleConfigurer.defineSample(0, "a");
             sampleConfigurer.defineSample(1, "b");
             sampleConfigurer.defineSample(2, "c");

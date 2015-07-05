@@ -16,18 +16,24 @@
 
 package org.esa.snap.framework.gpf.pointop;
 
+import com.bc.ceres.core.Assert;
 import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.ConvolutionFilterBand;
+import org.esa.snap.framework.datamodel.GeneralFilterBand;
+import org.esa.snap.framework.datamodel.Kernel;
+import org.esa.snap.framework.datamodel.Mask;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductNodeFilter;
 import org.esa.snap.framework.datamodel.RasterDataNode;
+import org.esa.snap.framework.datamodel.VirtualBand;
 import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.Tile;
 import org.esa.snap.util.ProductUtils;
 
+import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -42,11 +48,13 @@ import java.util.Map;
  * {@link org.esa.snap.framework.datamodel.GeoCoding GeoCoding}.
  *
  * @author Norman Fomferra
- * @since BEAM 4.9
+ * @since BEAM 4.9, revised in SNAP 2.0
  */
 public abstract class PointOperator extends Operator {
 
     private transient RasterDataNode[] sourceNodes;
+    private transient RasterDataNode[] computedNodes;
+    private transient Mask validPixelMask;
     private transient Band[] targetNodes;
 
     /**
@@ -55,8 +63,8 @@ public abstract class PointOperator extends Operator {
      * <li>{@link #prepareInputs()}</li>
      * <li>{@link #createTargetProduct()}</li>
      * <li>{@link #configureTargetProduct(ProductConfigurer)}</li>
-     * <li>{@link #configureSourceSamples(SampleConfigurer)}</li>
-     * <li>{@link #configureTargetSamples(SampleConfigurer)}</li>
+     * <li>{@link #configureSourceSamples(SourceSampleConfigurer)}</li>
+     * <li>{@link #configureTargetSamples(TargetSampleConfigurer)}</li>
      * </ol>
      * This method cannot be overridden by intention (<i>template method</i>). Instead clients may wish to
      * override the methods that are called during the initialisation sequence.
@@ -69,11 +77,12 @@ public abstract class PointOperator extends Operator {
         Product targetProduct = createTargetProduct();
         setTargetProduct(targetProduct);
         configureTargetProduct(new ProductConfigurerImpl(getSourceProduct(), targetProduct));
-        SourceSampleConfigurer sc = new SourceSampleConfigurer();
-        TargetSampleConfigurer tc = new TargetSampleConfigurer();
+        SourceSampleConfigurerImpl sc = new SourceSampleConfigurerImpl();
+        TargetSampleConfigurerImpl tc = new TargetSampleConfigurerImpl();
         configureSourceSamples(sc);
         configureTargetSamples(tc);
         sourceNodes = sc.getNodes();
+        computedNodes = sc.getComputeNodes();
         targetNodes = tc.getNodes();
     }
 
@@ -97,6 +106,14 @@ public abstract class PointOperator extends Operator {
         checkRasterSize();
     }
 
+    @Override
+    public void dispose() {
+        super.dispose();
+        for (RasterDataNode node : computedNodes) {
+            node.dispose();
+        }
+    }
+
     /**
      * Creates the target product instance. Called by {@link #initialize()}.
      * <p>
@@ -107,6 +124,7 @@ public abstract class PointOperator extends Operator {
      */
     protected Product createTargetProduct() throws OperatorException {
         Product sourceProduct = getSourceProduct();
+        Assert.state(sourceProduct != null, "source product not set");
         return new Product(getId(),
                            getClass().getName(),
                            sourceProduct.getSceneRasterWidth(),
@@ -145,27 +163,28 @@ public abstract class PointOperator extends Operator {
         productConfigurer.copyGeoCoding();
     }
 
+
     /**
      * Configures all source samples that this operator requires for the computation of target samples.
-     * Source sample are defined by using the provided {@link SampleConfigurer}.
+     * Source sample are defined by using the provided {@link SourceSampleConfigurer}.
      * <p>
      * <p> The method is called by {@link #initialize()}.
      *
      * @param sampleConfigurer The configurer that defines the layout of a pixel.
      * @throws OperatorException If the source samples cannot be configured.
      */
-    protected abstract void configureSourceSamples(SampleConfigurer sampleConfigurer) throws OperatorException;
+    protected abstract void configureSourceSamples(SourceSampleConfigurer sampleConfigurer) throws OperatorException;
 
     /**
      * Configures all target samples computed by this operator.
-     * Target samples are defined by using the provided {@link SampleConfigurer}.
+     * Target samples are defined by using the provided {@link TargetSampleConfigurer}.
      * <p>
      * <p> The method is called by {@link #initialize()}.
      *
      * @param sampleConfigurer The configurer that defines the layout of a pixel.
      * @throws OperatorException If the target samples cannot be configured.
      */
-    protected abstract void configureTargetSamples(SampleConfigurer sampleConfigurer) throws OperatorException;
+    protected abstract void configureTargetSamples(TargetSampleConfigurer sampleConfigurer) throws OperatorException;
 
     /**
      * Checks if all source products share the same raster size, otherwise throws an exception.
@@ -173,7 +192,7 @@ public abstract class PointOperator extends Operator {
      *
      * @throws OperatorException If the source product's raster sizes are not equal.
      */
-    protected void checkRasterSize() throws OperatorException {
+    protected final void checkRasterSize() throws OperatorException {
         Product[] sourceProducts = getSourceProducts();
         int w = 0;
         int h = 0;
@@ -193,6 +212,11 @@ public abstract class PointOperator extends Operator {
     Sample[] createSourceSamples(Rectangle targetRectangle, Point location) {
         final Tile[] sourceTiles = getSourceTiles(targetRectangle);
         return createDefaultSamples(sourceNodes, sourceTiles, location);
+    }
+
+    Sample createSourceMaskSamples(Rectangle targetRectangle, Point location) {
+        final Tile sourceMaskTile = getSourceMaskTile(targetRectangle);
+        return sourceMaskTile != null ? new WritableSampleImpl(-1, sourceMaskTile, location) : null;
     }
 
     WritableSample[] createTargetSamples(Map<Band, Tile> targetTileStack, Point location) {
@@ -220,6 +244,13 @@ public abstract class PointOperator extends Operator {
             }
         }
         return sourceTiles;
+    }
+
+    private Tile getSourceMaskTile(Rectangle region) {
+        if (validPixelMask != null) {
+            return getSourceTile(validPixelMask, region);
+        }
+        return null;
     }
 
     private Tile[] getTargetTiles(Map<Band, Tile> targetTileStack) {
@@ -341,25 +372,32 @@ public abstract class PointOperator extends Operator {
         }
     }
 
-    private abstract static class AbstractSampleConfigurer<T extends RasterDataNode> implements SampleConfigurer {
+    private abstract static class AbstractSampleConfigurer<T extends RasterDataNode> {
 
         final List<T> nodes = new ArrayList<T>();
 
         void defineSample(int index, String name, Product product, boolean sourceless) throws OperatorException {
             T node = (T) product.getRasterDataNode(name);
             if (node == null) {
-                String message = MessageFormat.format(
-                        "Product ''{0}'' does not contain a raster data node with name ''{1}''",
+                String message = String.format(
+                        "Product '%s' does not contain a raster with name '%s'",
                         product.getName(), name);
                 throw new OperatorException(message);
             }
             if (sourceless && node.isSourceImageSet()) {
-                String message = MessageFormat.format(
-                        "Raster data node ''{0}'' must be sourceless, since it is a computed target",
+                String message = String.format(
+                        "Raster '%s' must be sourceless, since it is a computed target",
                         name);
                 throw new OperatorException(message);
             }
+            addNode(index, node);
+        }
+
+        void addNode(int index, T node) {
+            Assert.notNull(node, "node");
+            Assert.argument(index >= 0, "index >= 0, was " + index);
             if (index < nodes.size()) {
+                Assert.state(nodes.get(index) == null, String.format("raster at index %d already defined", index));
                 nodes.set(index, node);
             } else if (index == nodes.size()) {
                 nodes.add(node);
@@ -376,7 +414,9 @@ public abstract class PointOperator extends Operator {
         }
     }
 
-    private final class SourceSampleConfigurer extends AbstractSampleConfigurer<RasterDataNode> {
+    private final class SourceSampleConfigurerImpl extends AbstractSampleConfigurer<RasterDataNode> implements SourceSampleConfigurer {
+
+        List<RasterDataNode> computedNodes = new ArrayList<>();
 
         @Override
         public void defineSample(int index, String name) {
@@ -387,18 +427,64 @@ public abstract class PointOperator extends Operator {
         public void defineSample(int index, String name, Product product) {
             super.defineSample(index, name, product, false);
         }
+
+        @Override
+        public void defineComputedSample(int index, int dataType, String expression, Product... sourceProducts) {
+            defineComputedSample(index, new VirtualBand("__virtual_band_" + index,
+                                                        dataType,
+                                                        getSourceProduct().getSceneRasterWidth(),
+                                                        getSourceProduct().getSceneRasterHeight(),
+                                                        expression));
+        }
+
+        @Override
+        public void defineComputedSample(int index, int sourceIndex, Kernel kernel) {
+            RasterDataNode sourceNode = getSourceNode(sourceIndex);
+            defineComputedSample(index, new ConvolutionFilterBand("__convolution_filter_band_" + index, sourceNode, kernel, 1));
+        }
+
+        @Override
+        public void defineComputedSample(int index, int sourceIndex, GeneralFilterBand.OpType opType, Kernel structuringElement) {
+            RasterDataNode sourceNode = getSourceNode(sourceIndex);
+            defineComputedSample(index, new GeneralFilterBand("__general_filter_band_" + index, sourceNode, opType, structuringElement, 1));
+        }
+
+        @Override
+        public void defineComputedSample(int index, RasterDataNode node) {
+            if (node.getOwner() == null) {
+                node.setOwner(getSourceProduct());
+            }
+            addNode(index, node);
+            computedNodes.add(node);
+        }
+
+        @Override
+        public void defineValidPixelMask(String maskExpression) {
+            Assert.state(validPixelMask == null, "valid pixel mask already defined");
+            validPixelMask = Mask.BandMathsType.create("__source_mask", null,
+                                                       getSourceProduct().getSceneRasterWidth(),
+                                                       getSourceProduct().getSceneRasterHeight(),
+                                                       maskExpression,
+                                                       Color.GREEN, 0.0);
+            validPixelMask.setOwner(getSourceProduct());
+            computedNodes.add(validPixelMask);
+        }
+
+        RasterDataNode[] getComputeNodes() {
+            return computedNodes.toArray(new RasterDataNode[computedNodes.size()]);
+        }
+
+        private RasterDataNode getSourceNode(int index) {
+            Assert.argument(nodes.get(index) != null, String.format("no source raster defined at index %s", index));
+            return nodes.get(index);
+        }
     }
 
-    private final class TargetSampleConfigurer extends AbstractSampleConfigurer<Band> {
+    private final class TargetSampleConfigurerImpl extends AbstractSampleConfigurer<Band> implements TargetSampleConfigurer {
 
         @Override
         public void defineSample(int index, String name) {
             defineSample(index, name, getTargetProduct(), true);
-        }
-
-        @Override
-        public void defineSample(int index, String name, Product product) {
-            super.defineSample(index, name, product, true);
         }
 
         @Override

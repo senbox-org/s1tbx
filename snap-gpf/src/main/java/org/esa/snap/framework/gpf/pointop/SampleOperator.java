@@ -6,13 +6,14 @@ import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.Tile;
 
 import java.awt.Point;
+import java.awt.Rectangle;
 
 /**
  * A {@code SampleOperator} may serve as a handy base class for an operator that computes a single target sample from
  * any number of source samples.
  *
  * @author Norman Fomferra
- * @since BEAM 4.9
+ * @since BEAM 4.9, revised in SNAP 2.0
  */
 public abstract class SampleOperator extends PointOperator {
 
@@ -20,8 +21,8 @@ public abstract class SampleOperator extends PointOperator {
      * Computes a single target sample from the given source samples.
      * <p>
      * The number of source samples is the maximum defined source sample index plus one. Source samples are defined
-     * by using the {@link SampleConfigurer} in the
-     * {@link #configureSourceSamples(SampleConfigurer) configureSourceSamples} method.
+     * by using the sample configurer in the
+     * {@link #configureSourceSamples(SourceSampleConfigurer) configureSourceSamples} method.
      * Attempts to read from source samples at undefined sample indices will
      * cause undefined behaviour.
      *
@@ -44,8 +45,10 @@ public abstract class SampleOperator extends PointOperator {
     @Override
     public final void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
 
+        final Rectangle targetRectangle = targetTile.getRectangle();
         final Point location = new Point();
-        final Sample[] sourceSamples = createSourceSamples(targetTile.getRectangle(), location);
+        final Sample[] sourceSamples = createSourceSamples(targetRectangle, location);
+        final Sample sourceMaskSamples = createSourceMaskSamples(targetRectangle, location);
         final WritableSample targetSample = createTargetSample(targetTile, location);
 
         final int x1 = targetTile.getMinX();
@@ -55,14 +58,31 @@ public abstract class SampleOperator extends PointOperator {
 
         try {
             pm.beginTask(getId(), targetTile.getHeight());
-            for (location.y = y1; location.y <= y2; location.y++) {
-                for (location.x = x1; location.x <= x2; location.x++) {
-                    computeSample(location.x, location.y, sourceSamples, targetSample);
+            if (sourceMaskSamples != null) {
+                for (location.y = y1; location.y <= y2; location.y++) {
+                    for (location.x = x1; location.x <= x2; location.x++) {
+                        if (sourceMaskSamples.getBoolean()) {
+                            computeSample(location.x, location.y, sourceSamples, targetSample);
+                        }else{
+                            setInvalid(targetSample);
+                        }
+                    }
+                    pm.worked(1);
                 }
-                pm.worked(1);
+            } else {
+                for (location.y = y1; location.y <= y2; location.y++) {
+                    for (location.x = x1; location.x <= x2; location.x++) {
+                        computeSample(location.x, location.y, sourceSamples, targetSample);
+                    }
+                    pm.worked(1);
+                }
             }
         } finally {
             pm.done();
         }
+    }
+
+    private void setInvalid(WritableSample targetSample) {
+        targetSample.set(targetSample.getNode().getGeophysicalNoDataValue());
     }
 }

@@ -14,7 +14,7 @@ import java.util.Map;
  * from any number of source samples.
  *
  * @author Norman Fomferra
- * @since BEAM 4.9
+ * @since BEAM 4.9, revised in SNAP 2.0
  */
 public abstract class PixelOperator extends PointOperator {
 
@@ -22,9 +22,9 @@ public abstract class PixelOperator extends PointOperator {
      * Computes the target samples from the given source samples.
      * <p>
      * The number of source/target samples is the maximum defined sample index plus one. Source/target samples are defined
-     * by using the respective {@link SampleConfigurer} in the
-     * {@link #configureSourceSamples(SampleConfigurer) configureSourceSamples} and
-     * {@link #configureTargetSamples(SampleConfigurer) configureTargetSamples} methods.
+     * by using the respective sample configurer in the
+     * {@link #configureSourceSamples(SourceSampleConfigurer) configureSourceSamples} and
+     * {@link #configureTargetSamples(TargetSampleConfigurer) configureTargetSamples} methods.
      * Attempts to read from source samples or write to target samples at undefined sample indices will
      * cause undefined behaviour.
      *
@@ -52,6 +52,7 @@ public abstract class PixelOperator extends PointOperator {
 
         final Point location = new Point();
         final Sample[] sourceSamples = createSourceSamples(targetRectangle, location);
+        final Sample sourceMaskSamples = createSourceMaskSamples(targetRectangle, location);
         final WritableSample[] targetSamples = createTargetSamples(targetTileStack, location);
 
         final int x1 = targetRectangle.x;
@@ -61,14 +62,35 @@ public abstract class PixelOperator extends PointOperator {
 
         try {
             pm.beginTask(getId(), targetRectangle.height);
-            for (location.y = y1; location.y <= y2; location.y++) {
-                for (location.x = x1; location.x <= x2; location.x++) {
-                    computePixel(location.x, location.y, sourceSamples, targetSamples);
+            if (sourceMaskSamples != null) {
+                for (location.y = y1; location.y <= y2; location.y++) {
+                    for (location.x = x1; location.x <= x2; location.x++) {
+                        if (sourceMaskSamples.getBoolean()) {
+                            computePixel(location.x, location.y, sourceSamples, targetSamples);
+                        } else {
+                            setInvalid(targetSamples);
+                        }
+                    }
+                    pm.worked(1);
                 }
-                pm.worked(1);
+
+            } else {
+                for (location.y = y1; location.y <= y2; location.y++) {
+                    for (location.x = x1; location.x <= x2; location.x++) {
+                        computePixel(location.x, location.y, sourceSamples, targetSamples);
+                    }
+                    pm.worked(1);
+                }
+
             }
         } finally {
             pm.done();
+        }
+    }
+
+    private void setInvalid(WritableSample[] targetSamples) {
+        for (WritableSample targetSample : targetSamples) {
+            targetSample.set(targetSample.getNode().getGeophysicalNoDataValue());
         }
     }
 }

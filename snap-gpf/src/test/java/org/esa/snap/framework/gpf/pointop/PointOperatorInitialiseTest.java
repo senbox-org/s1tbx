@@ -8,7 +8,8 @@ import org.junit.Test;
 
 import javax.media.jai.operator.ConstantDescriptor;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class PointOperatorInitialiseTest {
 
@@ -100,12 +101,12 @@ public class PointOperatorInitialiseTest {
         }
 
         @Override
-        protected void configureSourceSamples(SampleConfigurer sampleConfigurer) throws OperatorException {
+        protected void configureSourceSamples(SourceSampleConfigurer sampleConfigurer) throws OperatorException {
             trace += "4";
         }
 
         @Override
-        protected void configureTargetSamples(SampleConfigurer sampleConfigurer) throws OperatorException {
+        protected void configureTargetSamples(TargetSampleConfigurer sampleConfigurer) throws OperatorException {
             trace += "5";
         }
 
@@ -136,12 +137,12 @@ public class PointOperatorInitialiseTest {
         }
 
         @Override
-        protected void configureSourceSamples(SampleConfigurer sampleConfigurer) throws OperatorException {
+        protected void configureSourceSamples(SourceSampleConfigurer sampleConfigurer) throws OperatorException {
             trace += "4";
         }
 
         @Override
-        protected void configureTargetSamples(SampleConfigurer sampleConfigurer) throws OperatorException {
+        protected void configureTargetSamples(TargetSampleConfigurer sampleConfigurer) throws OperatorException {
             trace += "5";
         }
 
@@ -153,24 +154,24 @@ public class PointOperatorInitialiseTest {
 
     private static class EmptyPointOperator extends PointOperator {
         @Override
-        protected void configureSourceSamples(SampleConfigurer sampleConfigurer) throws OperatorException {
+        protected void configureSourceSamples(SourceSampleConfigurer sampleConfigurer) throws OperatorException {
         }
 
         @Override
-        protected void configureTargetSamples(SampleConfigurer sampleConfigurer) throws OperatorException {
+        protected void configureTargetSamples(TargetSampleConfigurer sampleConfigurer) throws OperatorException {
         }
     }
 
     private static class BadSourceSamplePointOperator extends PointOperator {
 
         @Override
-        protected void configureSourceSamples(SampleConfigurer sampleConfigurer) throws OperatorException {
+        protected void configureSourceSamples(SourceSampleConfigurer sampleConfigurer) throws OperatorException {
             // OperatorException expected, since 'missing_band' is not a source band
             sampleConfigurer.defineSample(0, "missing_band");
         }
 
         @Override
-        protected void configureTargetSamples(SampleConfigurer sampleConfigurer) throws OperatorException {
+        protected void configureTargetSamples(TargetSampleConfigurer sampleConfigurer) throws OperatorException {
         }
     }
 
@@ -188,11 +189,11 @@ public class PointOperatorInitialiseTest {
         }
 
         @Override
-        protected void configureSourceSamples(SampleConfigurer sampleConfigurer) throws OperatorException {
+        protected void configureSourceSamples(SourceSampleConfigurer sampleConfigurer) throws OperatorException {
         }
 
         @Override
-        protected void configureTargetSamples(SampleConfigurer sampleConfigurer) throws OperatorException {
+        protected void configureTargetSamples(TargetSampleConfigurer sampleConfigurer) throws OperatorException {
             // OperatorException expected, since 'const_7' is not sourceless
             sampleConfigurer.defineSample(0, "const_7");
         }
