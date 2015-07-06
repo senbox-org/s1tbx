@@ -36,7 +36,6 @@ import org.esa.snap.framework.datamodel.VirtualBand;
 import org.esa.snap.util.Guardian;
 import org.esa.snap.util.StringUtils;
 
-import java.awt.Dimension;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -462,16 +461,19 @@ public class BandArithmetic {
         }
         final Product[] productAsArray = {product};
         try {
-            Dimension compatibleSize = null;
+            int referenceWidth = -1;
+            int referenceHeight = -1;
             for (String expression : expressions) {
                 final RasterDataNode[] refRasters = getRefRasters(expression, productAsArray, 0);
                 if (refRasters.length > 0) {
                     if (!areReferencedRastersCompatible(parseExpression(expression, productAsArray, 0))) {
                         return false;
                     }
-                    if (compatibleSize == null) {
-                        compatibleSize = refRasters[0].getRasterSize();
-                    } else if (!compatibleSize.equals(refRasters[0].getRasterSize())) {
+                    if (referenceWidth == -1) {
+                        referenceWidth = refRasters[0].getSceneRasterWidth();
+                        referenceHeight = refRasters[0].getSceneRasterHeight();
+                    } else if (refRasters[0].getSceneRasterWidth() != referenceWidth ||
+                            refRasters[0].getSceneRasterHeight() != referenceHeight) {
                         return false;
                     }
                 }
