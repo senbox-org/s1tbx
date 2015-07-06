@@ -64,7 +64,7 @@ public class PointOperatorInitialiseTest {
             operator.getTargetProduct();
             fail("OperatorException expected, because only existing bands can provide source samples.");
         } catch (OperatorException e) {
-            assertEquals("Product 'N1' does not contain a raster data node with name 'missing_band'", e.getMessage());
+            assertEquals("Product 'N1' does not contain a raster with name 'missing_band'", e.getMessage());
         }
     }
 
@@ -76,7 +76,7 @@ public class PointOperatorInitialiseTest {
             operator.getTargetProduct();
             fail("OperatorException expected, because only sourceless bands can provide target samples.");
         } catch (OperatorException e) {
-            assertEquals("Raster data node 'const_7' must be sourceless, since it is a computed target", e.getMessage());
+            assertEquals("Raster 'const_7' must be sourceless, since it is a computed target", e.getMessage());
         }
     }
 
