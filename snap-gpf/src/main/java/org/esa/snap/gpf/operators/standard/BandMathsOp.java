@@ -339,18 +339,17 @@ public class BandMathsOp extends Operator {
         if (StringUtils.isNullOrEmpty(bandDescriptor.type)) {
             throw new OperatorException(String.format("Missing data type for band %s.", bandDescriptor.name));
         }
-        try {
-            verificationParser.parse(bandDescriptor.expression);
-        } catch (ParseException e) {
-            throw new OperatorException("Could not parse expression: " + bandDescriptor.expression, e);
-        }
         Band band = null;
         final RasterDataNode[] rasters;
         try {
-            rasters = BandArithmetic.getRefRasters(bandDescriptor.expression, sourceProducts);
+            final Term term = verificationParser.parse(bandDescriptor.expression);
+            RasterDataSymbol[] symbols = BandArithmetic.getRefRasterDataSymbols(term);
+            rasters = new RasterDataNode[symbols.length];
+            for (int i = 0; i < symbols.length; i++) {
+                rasters[i] = symbols[i].getRaster();
+            }
         } catch (ParseException e) {
             throw new OperatorException("Could not parse expression: " + bandDescriptor.expression, e);
-
         }
         for (RasterDataNode raster : rasters) {
             if (raster instanceof Band) {
