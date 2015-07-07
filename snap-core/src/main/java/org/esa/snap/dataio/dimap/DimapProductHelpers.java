@@ -241,10 +241,18 @@ public class DimapProductHelpers {
         Debug.assertNotNull(dom);
         Debug.assertNotNull(product);
         final Element rootElem = dom.getRootElement();
-        final List geoPosElems = rootElem.getChildren(DimapProductConstants.TAG_GEOPOSITION);
-        final List crsElems = rootElem.getChildren(DimapProductConstants.TAG_COORDINATE_REFERENCE_SYSTEM);
+        final Element geoPositionElem = rootElem.getChild(DimapProductConstants.TAG_GEOPOSITION);
+        final Element coordRefSysElem = rootElem.getChild(DimapProductConstants.TAG_COORDINATE_REFERENCE_SYSTEM);
         final Datum datum = createDatum(dom);
-        if (geoPosElems.size() > 0) {
+        if (geoPositionElem != null) {
+            if (coordRefSysElem != null) {
+                final Element wktElem = coordRefSysElem.getChild(DimapProductConstants.TAG_WKT);
+                if (wktElem != null) {
+                    return createCrsGeoCoding(product, geoPositionElem, wktElem);
+                }
+            }
+
+            final List geoPosElems = rootElem.getChildren(DimapProductConstants.TAG_GEOPOSITION);
             final GeoCoding[] geoCodings = new GeoCoding[geoPosElems.size()];
 
             for (int i = 0; i < geoPosElems.size(); i++) {
@@ -255,15 +263,11 @@ public class DimapProductHelpers {
                 } else {
                     bandIndex = 0;
                 }
-                if (crsElems.get(i) != null &&
-                        ((Element) crsElems.get(i)).getChild(DimapProductConstants.TAG_WKT) != null) {
-                    final Element wktElement = ((Element) crsElems.get(i)).getChild(DimapProductConstants.TAG_WKT);
-                    geoCodings[i] = createCrsGeoCoding(product, geoPosElem, wktElement);
-                } else if (geoPosElem.getChild(DimapProductConstants.TAG_SIMPLIFIED_LOCATION_MODEL) != null &&
-                    geoPosElem.getChild(DimapProductConstants.TAG_GEOPOSITION_INSERT) != null) {
+                if (geoPosElem.getChild(DimapProductConstants.TAG_SIMPLIFIED_LOCATION_MODEL) != null &&
+                        geoPosElem.getChild(DimapProductConstants.TAG_GEOPOSITION_INSERT) != null) {
                     geoCodings[bandIndex] = createFXYGeoCoding(datum, geoPosElem);
                 } else if (geoPosElem.getChild(DimapProductConstants.TAG_SEARCH_RADIUS) != null &&
-                           geoPosElem.getChild(DimapProductConstants.TAG_LATITUDE_BAND) != null) {
+                        geoPosElem.getChild(DimapProductConstants.TAG_LATITUDE_BAND) != null) {
                     geoCodings[bandIndex] = createPixelGeoCoding(product, datum, geoPosElem);
                 } else {
                     final Element geopositionPointsElement
@@ -284,8 +288,7 @@ public class DimapProductHelpers {
         }
 
         final String tagCoordRefSys = DimapProductConstants.TAG_COORDINATE_REFERENCE_SYSTEM;
-        if (crsElems.size() == 1) {
-            final Element coordRefSysElem = (Element) crsElems.get(0);
+        if (coordRefSysElem != null) {
             final String tagHorizontalCs = DimapProductConstants.TAG_HORIZONTAL_CS;
             final Element hCsElem = coordRefSysElem.getChild(tagHorizontalCs);
             if (hCsElem != null) {
@@ -302,7 +305,7 @@ public class DimapProductHelpers {
                 }
             } else {
                 Debug.trace("DimapProductHelpers.ProductBuilder.createGeoCoding(): " +
-                            "the tag <" + tagCoordRefSys + "> contains no tag <" + tagHorizontalCs + ">"); /*I18N*/
+                                    "the tag <" + tagCoordRefSys + "> contains no tag <" + tagHorizontalCs + ">"); /*I18N*/
             }
             // 1. fallback: try to find a TiePointGeoCoding
             final Element tpgElem = coordRefSysElem.getChild(DimapProductConstants.TAG_GEOCODING_TIE_POINT_GRIDS);
@@ -331,7 +334,7 @@ public class DimapProductHelpers {
                 }
             } else {
                 Debug.trace("DimapProductHelpers.ProductBuilder.createGeoCoding(): " +
-                            "the coordinate reference system tag contains no horizontal coordinat system tag"); /*I18N*/
+                                    "the coordinate reference system tag contains no horizontal coordinat system tag"); /*I18N*/
             }
             // 2. fallback: try to find a MapGeoCoding
             final Element mapElem = coordRefSysElem.getChild(DimapProductConstants.TAG_GEOCODING_MAP);
@@ -386,13 +389,13 @@ public class DimapProductHelpers {
                 }
             } else {
                 Debug.trace("DimapProductHelpers.ProductBuilder.createGeoCoding(): neither '" /*I18N*/
-                            + DimapProductConstants.TAG_GEOCODING_TIE_POINT_GRIDS + "' nor '" /*I18N*/
-                            + DimapProductConstants.TAG_GEOCODING_MAP + "' found in '" /*I18N*/
-                            + tagCoordRefSys + "' element"); /*I18N*/
+                                    + DimapProductConstants.TAG_GEOCODING_TIE_POINT_GRIDS + "' nor '" /*I18N*/
+                                    + DimapProductConstants.TAG_GEOCODING_MAP + "' found in '" /*I18N*/
+                                    + tagCoordRefSys + "' element"); /*I18N*/
             }
         } else {
             Debug.trace("DimapProductHelpers.ProductBuilder.createGeoCoding(): missing '" /*I18N*/
-                        + tagCoordRefSys + "' element"); /*I18N*/
+                                + tagCoordRefSys + "' element"); /*I18N*/
         }
 
         // 3. fallback: try to create a TiePointGeoCoding from "latitude" and "longitude"
@@ -479,7 +482,7 @@ public class DimapProductHelpers {
         return geoCodings[0];
     }
 
-    private static GeoCoding createCrsGeoCoding(Product product, Element geoPositionElem, Element wktElem) {
+    private static GeoCoding[] createCrsGeoCoding(Product product, Element geoPositionElem, Element wktElem) {
         try {
             final CoordinateReferenceSystem crs = CRS.parseWKT(wktElem.getTextTrim());
             final Element i2mElem = geoPositionElem.getChild(
@@ -495,7 +498,7 @@ public class DimapProductHelpers {
                                                       product.getSceneRasterHeight());
                 try {
                     final CrsGeoCoding geoCoding = new CrsGeoCoding(crs, imageBounds, i2m);
-                    return geoCoding;
+                    return new GeoCoding[]{geoCoding};
                 } catch (TransformException e) {
                     Debug.trace(e);
                 }
