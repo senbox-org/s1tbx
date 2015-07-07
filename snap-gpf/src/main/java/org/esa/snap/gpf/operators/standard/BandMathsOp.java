@@ -255,6 +255,12 @@ public class BandMathsOp extends Operator {
         int width = sourceProducts[0].getSceneRasterWidth();
         int height = sourceProducts[0].getSceneRasterHeight();
         targetProduct = new Product(sourceProducts[0].getName() + "BandMath", "BandMath", width, height);
+        descriptorMap = new HashMap<>(targetBandDescriptors.length);
+        Namespace namespace = createNamespace();
+        Parser verificationParser = new ParserImpl(namespace, true);
+        for (BandDescriptor bandDescriptor : targetBandDescriptors) {
+            createBand(bandDescriptor, verificationParser);
+        }
         ProductUtils.copyMetadata(sourceProducts[0], targetProduct);
         ProductUtils.copyTiePointGrids(sourceProducts[0], targetProduct);
         ProductUtils.copyFlagCodings(sourceProducts[0], targetProduct);
@@ -269,12 +275,6 @@ public class BandMathsOp extends Operator {
                 targetProduct.setEndTime(sourceProduct.getEndTime());
                 break;
             }
-        }
-        descriptorMap = new HashMap<>(targetBandDescriptors.length);
-        Namespace namespace = createNamespace();
-        Parser verificationParser = new ParserImpl(namespace, true);
-        for (BandDescriptor bandDescriptor : targetBandDescriptors) {
-            createBand(bandDescriptor, verificationParser);
         }
     }
 
@@ -343,6 +343,10 @@ public class BandMathsOp extends Operator {
         final RasterDataNode[] rasters;
         try {
             final Term term = verificationParser.parse(bandDescriptor.expression);
+            if (!BandArithmetic.areReferencedRastersCompatible(term)) {
+                throw new OperatorException("Rasters referenced in expression are incompatible: " +
+                                                    bandDescriptor.expression);
+            }
             RasterDataSymbol[] symbols = BandArithmetic.getRefRasterDataSymbols(term);
             rasters = new RasterDataNode[symbols.length];
             for (int i = 0; i < symbols.length; i++) {
