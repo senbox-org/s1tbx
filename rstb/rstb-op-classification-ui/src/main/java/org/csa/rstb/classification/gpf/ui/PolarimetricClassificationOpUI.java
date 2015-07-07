@@ -36,6 +36,7 @@ public class PolarimetricClassificationOpUI extends BaseOperatorUI {
 
     private final JComboBox classification = new JComboBox(new String[]{
             PolarimetricClassificationOp.UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION,
+            PolarimetricClassificationOp.UNSUPERVISED_CLOUDE_POTTIER_DUAL_POL_CLASSIFICATION,
             PolarimetricClassificationOp.UNSUPERVISED_HALPHA_WISHART_CLASSIFICATION,
             PolarimetricClassificationOp.UNSUPERVISED_HALPHA_WISHART_DUAL_POL_CLASSIFICATION,
             PolarimetricClassificationOp.UNSUPERVISED_FREEMAN_DURDEN_CLASSIFICATION,
