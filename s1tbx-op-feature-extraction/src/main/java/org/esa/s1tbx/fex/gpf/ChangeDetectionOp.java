@@ -19,6 +19,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.Mask;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.gpf.Operator;
@@ -33,7 +34,7 @@ import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.TileIndex;
 import org.esa.snap.util.ProductUtils;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +75,7 @@ public class ChangeDetectionOp extends Operator {
 
     private static String RATIO_BAND_NAME = "ratio";
     private static String LOG_RATIO_BAND_NAME = "log_ratio";
+    private static final String MASK_NAME = "_change";
 
     @Override
     public void initialize() throws OperatorException {
@@ -172,6 +174,22 @@ public class ChangeDetectionOp extends Operator {
             targetRatioBand.setUnit("ratio");
         }
         targetProduct.addBand(targetRatioBand);
+
+        //create Mask
+        String expression = targetRatioBand.getName() + " > 2 ? 2 : " + targetRatioBand.getName() + " < -2 ? -2 : 0";
+
+        final Mask mask = new Mask(targetRatioBand.getName() + MASK_NAME,
+                                   targetRatioBand.getSceneRasterWidth(),
+                                   targetRatioBand.getSceneRasterHeight(),
+                                   Mask.BandMathsType.INSTANCE);
+
+        mask.setDescription("Change");
+        mask.getImageConfig().setValue("color", Color.RED);
+        mask.getImageConfig().setValue("transparency", 0.7);
+        mask.getImageConfig().setValue("expression", expression);
+        mask.setNoDataValue(0);
+        mask.setNoDataValueUsed(true);
+        targetProduct.getMaskGroup().add(mask);
     }
 
     /**
