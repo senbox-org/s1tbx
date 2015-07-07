@@ -241,18 +241,18 @@ public class DimapProductHelpers {
         Debug.assertNotNull(dom);
         Debug.assertNotNull(product);
         final Element rootElem = dom.getRootElement();
-        final Element geoPositionElem = rootElem.getChild(DimapProductConstants.TAG_GEOPOSITION);
-        final Element coordRefSysElem = rootElem.getChild(DimapProductConstants.TAG_COORDINATE_REFERENCE_SYSTEM);
+        final List geoPosElems = rootElem.getChildren(DimapProductConstants.TAG_GEOPOSITION);
+        final List crsElems = rootElem.getChildren(DimapProductConstants.TAG_COORDINATE_REFERENCE_SYSTEM);
         final Datum datum = createDatum(dom);
-        if (geoPositionElem != null) {
-            if (coordRefSysElem != null) {
-                final Element wktElem = coordRefSysElem.getChild(DimapProductConstants.TAG_WKT);
-                if (wktElem != null) {
-                    return createCrsGeoCoding(product, geoPositionElem, wktElem);
+        if (geoPosElems.size() > 0) {
+            if (crsElems.size() == geoPosElems.size()) {
+                final GeoCoding[] geoCodings = new GeoCoding[crsElems.size()];
+                for (int i = 0; i < crsElems.size(); i++) {
+                    final Element wktElem = ((Element) crsElems.get(i)).getChild(DimapProductConstants.TAG_WKT);
+                    geoCodings[i] = createCrsGeoCoding(product, (Element) geoPosElems.get(i), wktElem);
                 }
+                return geoCodings;
             }
-
-            final List geoPosElems = rootElem.getChildren(DimapProductConstants.TAG_GEOPOSITION);
             final GeoCoding[] geoCodings = new GeoCoding[geoPosElems.size()];
 
             for (int i = 0; i < geoPosElems.size(); i++) {
@@ -288,7 +288,8 @@ public class DimapProductHelpers {
         }
 
         final String tagCoordRefSys = DimapProductConstants.TAG_COORDINATE_REFERENCE_SYSTEM;
-        if (coordRefSysElem != null) {
+        if (crsElems.size() == 1) {
+            final Element coordRefSysElem = (Element) crsElems.get(0);
             final String tagHorizontalCs = DimapProductConstants.TAG_HORIZONTAL_CS;
             final Element hCsElem = coordRefSysElem.getChild(tagHorizontalCs);
             if (hCsElem != null) {
@@ -482,7 +483,7 @@ public class DimapProductHelpers {
         return geoCodings[0];
     }
 
-    private static GeoCoding[] createCrsGeoCoding(Product product, Element geoPositionElem, Element wktElem) {
+    private static GeoCoding createCrsGeoCoding(Product product, Element geoPositionElem, Element wktElem) {
         try {
             final CoordinateReferenceSystem crs = CRS.parseWKT(wktElem.getTextTrim());
             final Element i2mElem = geoPositionElem.getChild(
@@ -498,7 +499,7 @@ public class DimapProductHelpers {
                                                       product.getSceneRasterHeight());
                 try {
                     final CrsGeoCoding geoCoding = new CrsGeoCoding(crs, imageBounds, i2m);
-                    return new GeoCoding[]{geoCoding};
+                    return geoCoding;
                 } catch (TransformException e) {
                     Debug.trace(e);
                 }
