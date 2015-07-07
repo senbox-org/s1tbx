@@ -283,27 +283,22 @@ public final class PolarimetricMatricesOp extends Operator {
         final int maxY = y0 + h;
         final int maxX = x0 + w;
 
-        final double[][] Sr;
-        final double[][] Si;
-        final double[][] tempRe;
-        final double[][] tempIm;
+        final double[] kr = new double[2];
+        final double[] ki = new double[2];
+        final double[][] Sr = new double[2][2];
+        final double[][] Si = new double[2][2];
 
+        int matrixDim;
         if (matrixType.equals(PolBandUtils.MATRIX.C2)) {
-            Sr = new double[1][2];
-            Si = new double[1][2];
-            tempRe = new double[2][2];
-            tempIm = new double[2][2];
+            matrixDim = 2;
         } else if (matrixType.equals(PolBandUtils.MATRIX.C3) || matrixType.equals(PolBandUtils.MATRIX.T3)) {
-            Sr = new double[2][2];
-            Si = new double[2][2];
-            tempRe = new double[3][3];
-            tempIm = new double[3][3];
+            matrixDim = 3;
         } else { // matrixType.equals(MATRIX.C4) || matrixType.equals(MATRIX.T4)
-            Sr = new double[2][2];
-            Si = new double[2][2];
-            tempRe = new double[4][4];
-            tempIm = new double[4][4];
+            matrixDim = 4;
         }
+
+        final double[][] tempRe = new double[matrixDim][matrixDim];
+        final double[][] tempIm = new double[matrixDim][matrixDim];
 
         for (final PolBandUtils.PolSourceBand bandList : srcBandList) {
             try {
@@ -334,18 +329,20 @@ public final class PolarimetricMatricesOp extends Operator {
                         srcIdx = srcIndex.getIndex(x);
                         tgtIdx = tgtIndex.getIndex(x);
 
-                        PolOpUtils.getComplexScatterMatrix(srcIdx, dataBuffers, Sr, Si);
-
                         if (matrixType.equals(PolBandUtils.MATRIX.C2)) {
-                            DualPolOpUtils.computeCovarianceMatrixC2(Sr[0], Si[0], tempRe, tempIm);
-                        } else if (matrixType.equals(PolBandUtils.MATRIX.C3)) {
-                            PolOpUtils.computeCovarianceMatrixC3(Sr, Si, tempRe, tempIm);
-                        } else if (matrixType.equals(PolBandUtils.MATRIX.C4)) {
-                            PolOpUtils.computeCovarianceMatrixC4(Sr, Si, tempRe, tempIm);
-                        } else if (matrixType.equals(PolBandUtils.MATRIX.T3)) {
-                            PolOpUtils.computeCoherencyMatrixT3(Sr, Si, tempRe, tempIm);
-                        } else if (matrixType.equals(PolBandUtils.MATRIX.T4)) {
-                            PolOpUtils.computeCoherencyMatrixT4(Sr, Si, tempRe, tempIm);
+                            DualPolOpUtils.getScatterVector(srcIdx, dataBuffers, kr, ki);
+                            DualPolOpUtils.computeCovarianceMatrixC2(kr, ki, tempRe, tempIm);
+                        } else {
+                            PolOpUtils.getComplexScatterMatrix(srcIdx, dataBuffers, Sr, Si);
+                            if (matrixType.equals(PolBandUtils.MATRIX.C3)) {
+                                PolOpUtils.computeCovarianceMatrixC3(Sr, Si, tempRe, tempIm);
+                            } else if (matrixType.equals(PolBandUtils.MATRIX.C4)) {
+                                PolOpUtils.computeCovarianceMatrixC4(Sr, Si, tempRe, tempIm);
+                            } else if (matrixType.equals(PolBandUtils.MATRIX.T3)) {
+                                PolOpUtils.computeCoherencyMatrixT3(Sr, Si, tempRe, tempIm);
+                            } else if (matrixType.equals(PolBandUtils.MATRIX.T4)) {
+                                PolOpUtils.computeCoherencyMatrixT4(Sr, Si, tempRe, tempIm);
+                            }
                         }
 
                         for (final TileData tileData : tileDataList) {
