@@ -25,14 +25,14 @@ import org.esa.snap.framework.datamodel.MetadataAttribute;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.snap.framework.gpf.Tile;
 import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
 import org.esa.snap.framework.gpf.annotations.SourceProduct;
-import org.esa.snap.gpf.operators.standard.ReadOp;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
@@ -45,7 +45,7 @@ import java.io.IOException;
         authors = "Luis Veci",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "DB query to find matching image pair")
-public class FindImagePairOp extends ReadOp {
+public class FindImagePairOp extends Operator {
 
     @SourceProduct
     private Product sourceProduct;
