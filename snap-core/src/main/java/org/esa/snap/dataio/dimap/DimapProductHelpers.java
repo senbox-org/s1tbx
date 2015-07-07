@@ -245,14 +245,6 @@ public class DimapProductHelpers {
         final List crsElems = rootElem.getChildren(DimapProductConstants.TAG_COORDINATE_REFERENCE_SYSTEM);
         final Datum datum = createDatum(dom);
         if (geoPosElems.size() > 0) {
-            if (crsElems.size() == geoPosElems.size()) {
-                final GeoCoding[] geoCodings = new GeoCoding[crsElems.size()];
-                for (int i = 0; i < crsElems.size(); i++) {
-                    final Element wktElem = ((Element) crsElems.get(i)).getChild(DimapProductConstants.TAG_WKT);
-                    geoCodings[i] = createCrsGeoCoding(product, (Element) geoPosElems.get(i), wktElem);
-                }
-                return geoCodings;
-            }
             final GeoCoding[] geoCodings = new GeoCoding[geoPosElems.size()];
 
             for (int i = 0; i < geoPosElems.size(); i++) {
@@ -263,7 +255,11 @@ public class DimapProductHelpers {
                 } else {
                     bandIndex = 0;
                 }
-                if (geoPosElem.getChild(DimapProductConstants.TAG_SIMPLIFIED_LOCATION_MODEL) != null &&
+                if (crsElems.get(i) != null &&
+                        ((Element) crsElems.get(i)).getChild(DimapProductConstants.TAG_WKT) != null) {
+                    final Element wktElement = ((Element) crsElems.get(i)).getChild(DimapProductConstants.TAG_WKT);
+                    geoCodings[i] = createCrsGeoCoding(product, geoPosElem, wktElement);
+                } else if (geoPosElem.getChild(DimapProductConstants.TAG_SIMPLIFIED_LOCATION_MODEL) != null &&
                     geoPosElem.getChild(DimapProductConstants.TAG_GEOPOSITION_INSERT) != null) {
                     geoCodings[bandIndex] = createFXYGeoCoding(datum, geoPosElem);
                 } else if (geoPosElem.getChild(DimapProductConstants.TAG_SEARCH_RADIUS) != null &&
