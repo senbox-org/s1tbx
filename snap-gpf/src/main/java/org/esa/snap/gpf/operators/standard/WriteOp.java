@@ -33,8 +33,8 @@ import org.esa.snap.framework.gpf.annotations.SourceProduct;
 import org.esa.snap.framework.gpf.annotations.TargetProduct;
 import org.esa.snap.framework.gpf.internal.OperatorExecutor;
 import org.esa.snap.framework.gpf.internal.OperatorExecutor.ExecutionOrder;
-import org.esa.snap.jai.ImageManager;
 import org.esa.snap.util.Guardian;
+import org.esa.snap.util.jai.JAIUtils;
 import org.esa.snap.util.math.MathUtils;
 
 import javax.media.jai.JAI;
@@ -127,9 +127,6 @@ public class WriteOp extends Operator {
 
     private ProductWriter productWriter;
     private List<Band> writableBands;
-    private Dimension tileSize;
-    private int tileCountX;
-    private int tileCountY;
 
     private boolean outputFileExists = false;
     private boolean incremental = false;
@@ -251,12 +248,22 @@ public class WriteOp extends Operator {
                 writableBands.add(band);
             }
         }
-
-        tileSize = ImageManager.getPreferredTileSize(targetProduct);
-        targetProduct.setPreferredTileSize(tileSize);
-        tileCountX = MathUtils.ceilInt(targetProduct.getSceneRasterWidth() / (double) tileSize.width);
-        tileCountY = MathUtils.ceilInt(targetProduct.getSceneRasterHeight() / (double) tileSize.height);
-        tilesWritten = new boolean[writableBands.size()][tileCountY][tileCountX];
+        tilesWritten = new boolean[writableBands.size()][][];
+        for (int i = 0; i < writableBands.size(); i++) {
+            Band writableBand = writableBands.get(i);
+            Dimension tileSize = null;
+            if (writableBand.getRasterWidth() == targetProduct.getSceneRasterWidth() &&
+                    writableBand.getRasterHeight() == targetProduct.getSceneRasterHeight()) {
+                tileSize = targetProduct.getPreferredTileSize();
+            }
+            if (tileSize == null) {
+                tileSize = JAIUtils.computePreferredTileSize(writableBand.getSceneRasterWidth(),
+                                                             writableBand.getSceneRasterHeight(), 1);
+            }
+            int tileCountX = MathUtils.ceilInt(writableBand.getSceneRasterWidth() / (double) tileSize.width);
+            int tileCountY = MathUtils.ceilInt(writableBand.getSceneRasterHeight() / (double) tileSize.height);
+            tilesWritten[i] = new boolean[tileCountY][tileCountX];
+        }
     }
 
     @Override
@@ -275,11 +282,14 @@ public class WriteOp extends Operator {
         }
         try {
             final Rectangle rect = targetTile.getRectangle();
+            final Dimension tileSize = JAIUtils.computePreferredTileSize(targetBand.getSceneRasterWidth(),
+                                                                                  targetBand.getSceneRasterHeight(), 1);
+            int tileCountX = MathUtils.ceilInt(targetBand.getSceneRasterWidth() / (double) tileSize.width);
             int tileX = MathUtils.floorInt(targetTile.getMinX() / (double) tileSize.width);
             int tileY = MathUtils.floorInt(targetTile.getMinY() / (double) tileSize.height);
             if (writeEntireTileRows) {
                 Row row = new Row(targetBand, tileY);
-                Tile[] tileRowToWrite = updateTileRow(row, tileX, targetTile);
+                Tile[] tileRowToWrite = updateTileRow(row, tileX, targetTile, tileCountX);
                 if (tileRowToWrite != null) {
                     writeTileRow(targetBand, tileRowToWrite);
                 }
@@ -320,7 +330,7 @@ public class WriteOp extends Operator {
         }
     }
 
-    private Tile[] updateTileRow(Row key, int tileX, Tile currentTile) {
+    private Tile[] updateTileRow(Row key, int tileX, Tile currentTile, int tileCountX) {
         synchronized (writeCache) {
             Tile[] tileRow;
             if (writeCache.containsKey(key)) {
@@ -342,7 +352,7 @@ public class WriteOp extends Operator {
 
     private void writeTileRow(Band band, Tile[] cacheLine) throws IOException {
         Tile firstTile = cacheLine[0];
-        int sceneWidth = targetProduct.getSceneRasterWidth();
+        int sceneWidth = band.getRasterWidth();
         Rectangle lineBounds = new Rectangle(0, firstTile.getMinY(), sceneWidth, firstTile.getHeight());
         ProductData[] rawSampleOFLine = new ProductData[cacheLine.length];
         int[] tileWidth = new int[cacheLine.length];
@@ -385,9 +395,13 @@ public class WriteOp extends Operator {
     }
 
     private boolean isProductWrittenCompletely() {
-        for (int rowNumber = 0; rowNumber < tileCountY; rowNumber++) {
-            if (!isRowWrittenCompletely(rowNumber)) {
-                return false;
+        for (int bandIndex = 0; bandIndex < writableBands.size(); bandIndex++) {
+            for (boolean[] aXTileWritten : tilesWritten[bandIndex]) {
+                for (boolean aYTileWritten : aXTileWritten) {
+                    if (!aYTileWritten) {
+                        return false;
+                    }
+                }
             }
         }
         return true;

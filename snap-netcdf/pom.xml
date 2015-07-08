@@ -60,13 +60,21 @@
             <groupId>edu.ucar</groupId>
             <artifactId>nujan</artifactId>
         </dependency>
+        <!--
+        We have to include the following UGLY dependencies so that they are put into the NBM module's ext folder.
+        Otherwise we always get onm thne command-line:
+
+            SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+            SLF4J: Defaulting to no-operation (NOP) logger implementation
+            SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+        -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
         </dependency>
 
         <!--
@@ -80,6 +88,17 @@
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
         </dependency>
+
+        <!-- Test stuff -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -113,6 +132,7 @@
                         <publicPackage>ucar.unidata.util</publicPackage>
                         <publicPackage>thredds.catalog</publicPackage>
                         <publicPackage>org.slf4j</publicPackage>
+                        <publicPackage>org.slf4j.impl</publicPackage>
                         <publicPackage>org.esa.snap.dataio.netcdf.*</publicPackage>
                     </publicPackages>
                 </configuration>

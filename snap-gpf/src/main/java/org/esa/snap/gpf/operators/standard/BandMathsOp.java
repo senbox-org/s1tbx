@@ -27,6 +27,7 @@ import com.bc.jexp.impl.SymbolFactory;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.datamodel.RasterDataNode;
 import org.esa.snap.framework.dataop.barithm.BandArithmetic;
 import org.esa.snap.framework.dataop.barithm.ProductNamespacePrefixProvider;
 import org.esa.snap.framework.dataop.barithm.RasterDataEvalEnv;
@@ -42,7 +43,7 @@ import org.esa.snap.framework.gpf.annotations.TargetProduct;
 import org.esa.snap.util.ProductUtils;
 import org.esa.snap.util.StringUtils;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -253,26 +254,13 @@ public class BandMathsOp extends Operator {
         }
         int width = sourceProducts[0].getSceneRasterWidth();
         int height = sourceProducts[0].getSceneRasterHeight();
-        int cnt = 1;
-        for (Product product : sourceProducts) {
-            if (product.getSceneRasterWidth() != width ||
-                product.getSceneRasterHeight() != height) {
-                throw new OperatorException("Products must have the same raster dimension.");
-            }
-            int refNo = product.getRefNo();
-            if(refNo == 0) {
-                product.setRefNo(cnt++);
-            }
-        }
         targetProduct = new Product(sourceProducts[0].getName() + "BandMath", "BandMath", width, height);
-
         descriptorMap = new HashMap<>(targetBandDescriptors.length);
         Namespace namespace = createNamespace();
         Parser verificationParser = new ParserImpl(namespace, true);
         for (BandDescriptor bandDescriptor : targetBandDescriptors) {
             createBand(bandDescriptor, verificationParser);
         }
-
         ProductUtils.copyMetadata(sourceProducts[0], targetProduct);
         ProductUtils.copyTiePointGrids(sourceProducts[0], targetProduct);
         ProductUtils.copyFlagCodings(sourceProducts[0], targetProduct);
@@ -351,8 +339,34 @@ public class BandMathsOp extends Operator {
         if (StringUtils.isNullOrEmpty(bandDescriptor.type)) {
             throw new OperatorException(String.format("Missing data type for band %s.", bandDescriptor.name));
         }
-
-        Band band = targetProduct.addBand(bandDescriptor.name, ProductData.getType(bandDescriptor.type.toLowerCase()));
+        Band band = null;
+        final RasterDataNode[] rasters;
+        try {
+            final Term term = verificationParser.parse(bandDescriptor.expression);
+            if (!BandArithmetic.areReferencedRastersCompatible(term)) {
+                throw new OperatorException("Rasters referenced in expression are incompatible: " +
+                                                    bandDescriptor.expression);
+            }
+            RasterDataSymbol[] symbols = BandArithmetic.getRefRasterDataSymbols(term);
+            rasters = new RasterDataNode[symbols.length];
+            for (int i = 0; i < symbols.length; i++) {
+                rasters[i] = symbols[i].getRaster();
+            }
+        } catch (ParseException e) {
+            throw new OperatorException("Could not parse expression: " + bandDescriptor.expression, e);
+        }
+        for (RasterDataNode raster : rasters) {
+            if (raster instanceof Band) {
+                band = new Band(bandDescriptor.name, ProductData.getType(bandDescriptor.type.toLowerCase()),
+                                     raster.getRasterWidth(), raster.getRasterHeight());
+                band.setGeoCoding(raster.getGeoCoding());
+                targetProduct.addBand(band);
+                break;
+            }
+        }
+        if (band == null) {
+            band = targetProduct.addBand(bandDescriptor.name, ProductData.getType(bandDescriptor.type.toLowerCase()));
+        }
         if (StringUtils.isNotNullAndNotEmpty(bandDescriptor.description)) {
             band.setDescription(bandDescriptor.description);
         }
@@ -382,11 +396,6 @@ public class BandMathsOp extends Operator {
             band.setScalingFactor(bandDescriptor.scalingFactor);
         }
         descriptorMap.put(band, bandDescriptor);
-        try {
-            verificationParser.parse(bandDescriptor.expression);
-        } catch (ParseException e) {
-            throw new OperatorException("Could not parse expression: " + bandDescriptor.expression, e);
-        }
     }
 
     private Namespace createNamespace() {

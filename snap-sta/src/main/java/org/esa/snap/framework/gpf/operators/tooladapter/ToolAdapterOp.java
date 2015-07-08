@@ -421,9 +421,9 @@ public class ToolAdapterOp extends Operator {
             }
         }
         reportProgress("Trying to open the new product");
-        File input = (File) getParameter(ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE);
+        File input = descriptor.resolveVariables((File) getParameter(ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE));
         if (input == null) {
-            input = (File) this.lastPostContext.get(ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE);
+            input = descriptor.resolveVariables((File) this.lastPostContext.get(ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE));
         }
         this.lastPostContext = null;
         if (input != null) {
@@ -525,7 +525,7 @@ public class ToolAdapterOp extends Operator {
                 String paramName = param.getName();
                 Object paramValue = param.getValue();
                 if (ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE.equals(paramName)) {
-                    paramValue = getNextFileName((File) paramValue);
+                    paramValue = getNextFileName(descriptor.resolveVariables((File) paramValue));
                 }
                 context.put(paramName, paramValue);
             }

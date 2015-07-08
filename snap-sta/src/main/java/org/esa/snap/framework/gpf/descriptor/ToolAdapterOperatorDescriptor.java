@@ -29,7 +29,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -73,8 +72,6 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
     private List<TemplateParameterDescriptor> toolParameterDescriptors = new ArrayList<>();
     private String source;
     private boolean isSystem;
-    /*@XStreamAlias("osdependent")
-    private List<OSDependentProperty> osDependentProperties;*/
 
     private DefaultSourceProductDescriptor[] sourceProductDescriptors;
     private DefaultSourceProductsDescriptor sourceProductsDescriptor;
@@ -92,7 +89,6 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
         }
         this.variables = new ArrayList<>();
         this.toolParameterDescriptors = new ArrayList<>();
-        /*this.osDependentProperties = new ArrayList<>();*/
     }
 
     public ToolAdapterOperatorDescriptor(String name, Class<? extends Operator> operatorClass) {
@@ -156,13 +152,6 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
         for (int i = 0; i < obj.getTargetPropertyDescriptors().length; i++) {
             this.targetPropertyDescriptors[i] = ((DefaultTargetPropertyDescriptor) (obj.getTargetPropertyDescriptors()[i]));
         }
-
-        /*List<OSDependentProperty> propertyList = obj.getOsDependentProperties();
-        if (propertyList != null) {
-            this.osDependentProperties.addAll(propertyList.stream()
-                    .filter(property -> property != null)
-                    .map(OSDependentProperty::createCopy).collect(Collectors.toList()));
-        }*/
     }
 
     /**
@@ -181,12 +170,6 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
                     .filter(systemVariable -> systemVariable != null)
                     .map(SystemVariable::createCopy).collect(Collectors.toList()));
         }
-        /*List<OSDependentProperty> propertyList = obj.getOsDependentProperties();
-        if (propertyList != null) {
-            this.osDependentProperties.addAll(propertyList.stream()
-                    .filter(property -> property != null)
-                    .map(OSDependentProperty::createCopy).collect(Collectors.toList()));
-        }*/
     }
 
     /**
@@ -405,48 +388,16 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
     }
 
     public File resolveVariables(File location) {
-        String expandedValue = null;
+        /*String expandedValue = null;
         if (location != null) {
             expandedValue = location.getPath();
             Map<String, String> lookupVars = variables.stream().collect(Collectors.toMap(SystemVariable::getKey, SystemVariable::getValue));
             for (String key : lookupVars.keySet()) {
                 expandedValue = expandedValue.replace("$" + key, lookupVars.get(key));
             }
-            /*String extVar = getVariableValue(ToolAdapterConstants.SHELL_EXT_PROP);
-            if (extVar != null) {
-                expandedValue = expandedValue.replace(ToolAdapterConstants.SHELL_EXT_VAR, extVar);
-            }
-            String binaryVar = getVariableValue(ToolAdapterConstants.BINARY_PROP);
-            if (binaryVar != null) {
-                expandedValue = expandedValue.replace(ToolAdapterConstants.BINARY_VAR, binaryVar);
-            }
-            String varKey = null, varVal = null;
-            if (expandedValue.contains("$")) {
-                expandedValue = expandedValue.substring(expandedValue.indexOf("$"));
-                for (SystemVariable variable : variables) {
-                    String key = variable.getKey();
-                    if (expandedValue.contains(key)) {
-                        varKey = "$" + key;
-                        varVal = variable.getValue();
-                        break;
-                    }
-                }
-            } else if (expandedValue.contains("%")) {
-                expandedValue = expandedValue.substring(expandedValue.indexOf("%"));
-                for (SystemVariable variable : variables) {
-                    String key = variable.getKey();
-                    if (expandedValue.contains(key)) {
-                        varKey = "%" + key + "%";
-                        varVal = variable.getValue();
-                        break;
-                    }
-                }
-            }
-            if (varKey != null) {
-                expandedValue = expandedValue.replace(varKey, varVal);
-            }*/
         }
-        return expandedValue == null ? null : new File(expandedValue);
+        return expandedValue == null ? null : new File(expandedValue);*/
+        return VariableResolver.newInstance(this).resolve(location);
     }
     /**
      * Setter for the Progress Pattern field. The pattern is a regular expression.
@@ -569,26 +520,6 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
     public void addVariable(SystemVariable variable) {
         this.variables.add(variable);
     }
-
-    /*public List<OSDependentProperty> getOsDependentProperties() {
-        if (osDependentProperties == null) {
-            osDependentProperties = new ArrayList<>();
-        }
-        return osDependentProperties;
-    }
-
-    public void addOsDependentProperty(OSDependentProperty property) {
-        this.osDependentProperties.add(property);
-    }
-
-    public String getOSDependentPropertyValue(String name) {
-        String value = null;
-        List<OSDependentProperty> properties = this.osDependentProperties.stream().filter(p -> p.getName().equals(name)).collect(Collectors.toList());
-        if (properties != null && properties.size() == 1) {
-            value = properties.get(0).getValue();
-        }
-        return value;
-    }*/
 
     /**
      * Creates a deep copy of this operator.

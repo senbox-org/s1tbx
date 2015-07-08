@@ -26,6 +26,7 @@ import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.CrsGeoCoding;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.datamodel.TiePointGrid;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.Before;
 import org.junit.Test;
@@ -215,5 +216,13 @@ public class BandArithmeticTest {
         assertEquals(true, BandArithmetic.areReferencedRastersCompatible(product1, compatibleExpressions));
         assertEquals(true, BandArithmetic.areReferencedRastersCompatible(product1, "anotherBand"));
         assertEquals(false, BandArithmetic.areReferencedRastersCompatible(product1, incompatibleExpressions));
+    }
+
+    @Test
+    public void testAreReferencedRastersCompatible_TiePointGrid() {
+        final TiePointGrid tiePointGrid = new TiePointGrid("tiePointGrid", 2, 2, 0, 0, 2, 1, new float[]{1f, 1f, 1f, 1f});
+        product1.addTiePointGrid(tiePointGrid);
+
+        assertEquals(true, BandArithmetic.areReferencedRastersCompatible(product1, "b1", "tiePointGrid"));
     }
 }
