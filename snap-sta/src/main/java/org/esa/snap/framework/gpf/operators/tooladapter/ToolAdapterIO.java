@@ -16,6 +16,7 @@
 package org.esa.snap.framework.gpf.operators.tooladapter;
 
 import org.esa.snap.framework.gpf.GPF;
+import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.snap.framework.gpf.descriptor.ToolAdapterOperatorDescriptor;
@@ -149,8 +150,16 @@ public class ToolAdapterIO {
             operatorDescriptor = new ToolAdapterOperatorDescriptor(operatorFolder.getName(), ToolAdapterOp.class);
             logger.warning(String.format("Missing operator metadata file '%s'", descriptorFile));
         }
-
-        return new ToolAdapterOpSpi(operatorDescriptor, operatorFolder);
+        return new ToolAdapterOpSpi(operatorDescriptor) {
+            @Override
+            public Operator createOperator() throws OperatorException {
+                ToolAdapterOp toolOperator = (ToolAdapterOp) super.createOperator();
+                toolOperator.setAdapterFolder(operatorFolder);
+                toolOperator.setParameterDefaultValues();
+                return toolOperator;
+            }
+        };
+        //return new ToolAdapterOpSpi(operatorDescriptor, operatorFolder);
     }
 
     /**
@@ -205,7 +214,15 @@ public class ToolAdapterIO {
                 throw new OperatorException("Operator folder " + moduleFolder + " could not be created!");
             }
         }
-        ToolAdapterOpSpi operatorSpi = new ToolAdapterOpSpi(operator, moduleFolder);
+        ToolAdapterOpSpi operatorSpi = new ToolAdapterOpSpi(operator) {
+            @Override
+            public Operator createOperator() throws OperatorException {
+                ToolAdapterOp toolOperator = (ToolAdapterOp) super.createOperator();
+                toolOperator.setAdapterFolder(moduleFolder);
+                toolOperator.setParameterDefaultValues();
+                return toolOperator;
+            }
+        };
         File descriptorFile = new File(moduleFolder, ToolAdapterConstants.DESCRIPTOR_FILE);
         if (!descriptorFile.exists()) {
             //noinspection ResultOfMethodCallIgnored

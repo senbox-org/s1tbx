@@ -93,7 +93,7 @@
                         <publicPackage>org.esa.snap.framework.gpf.descriptor.*</publicPackage>
                         <publicPackage>org.esa.snap.framework.gpf.operators.*</publicPackage>
                         <publicPackage>org.esa.snap.framework.gpf.operators.tooladapter.*</publicPackage>
-                        <publicPackage>org.esa.snap.utils.*</publicPackage>
+                        <!--<publicPackage>org.esa.snap.utils.*</publicPackage>-->
                     </publicPackages>
                 </configuration>
             </plugin>

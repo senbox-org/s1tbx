@@ -15,8 +15,6 @@
  */
 package org.esa.snap.framework.gpf.operators.tooladapter;
 
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.snap.framework.gpf.descriptor.OperatorDescriptor;
 
@@ -47,17 +45,8 @@ public class ToolAdapterOpSpi extends OperatorSpi {
         super(operatorDescriptor);
     }
 
-    public ToolAdapterOpSpi(OperatorDescriptor operatorDescriptor, File adapterFolder) {
-        this(operatorDescriptor);
-        this.adapterFolder = adapterFolder;
-    }
-
-    @Override
-    public Operator createOperator() throws OperatorException {
-        ToolAdapterOp toolOperator = (ToolAdapterOp) super.createOperator();
-        toolOperator.setParameterDefaultValues();
-        toolOperator.setAdapterFolder(this.adapterFolder);
-        return toolOperator;
+    public void setAdapterFolder(File folder) {
+        this.adapterFolder = folder;
     }
 
 }
