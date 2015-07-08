@@ -677,10 +677,9 @@
                         <licenseName>GPL 3</licenseName>
                         <licenseFile>${project.basedir}/../LICENSE.html</licenseFile>
                         <cluster>${brandingToken}</cluster>
-                        <nbmBuildDir>${project.basedir}/../target/nbm</nbmBuildDir>
                         <brandingToken>${brandingToken}</brandingToken>
                         <useOSGiDependencies>false</useOSGiDependencies>
-                        <requiresRestart>false</requiresRestart>
+                        <requiresRestart>true</requiresRestart>
                         <keystore>${project.basedir}/../keystore/s1tbx.ks</keystore>
                         <keystorealias>snap</keystorealias>
                         <keystorepassword>snap-123</keystorepassword>

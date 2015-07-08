@@ -22,6 +22,16 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>nbm</goal>
+                            <goal>cluster</goal>
+                            <goal>autoupdate</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -33,6 +43,11 @@
     </build>
 
     <dependencies>
+
+        <!--
+             Make sure the list of dependencies reflects the wanted contents of the S3TBX.
+             Use same order as in the <modules> tag of the parent POM.
+        -->
 
         <dependency>
             <groupId>org.jlinda</groupId>

@@ -33,6 +33,11 @@
 
     <dependencies>
 
+        <!--
+             Make sure the list of dependencies reflects the wanted contents of the S3TBX.
+             Use same order as in the <modules> tag of the parent POM.
+        -->
+
         <dependency>
             <groupId>org.csa.rstb</groupId>
             <artifactId>rstb-op-classification</artifactId>
