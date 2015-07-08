@@ -21,7 +21,7 @@ package org.esa.snap.configurator;
  *
  * @author Manuel Campomanes
  */
-public class BenchmarkSingleCalcul implements Comparable<BenchmarkSingleCalcul> {
+public class BenchmarkSingleCalculus implements Comparable<BenchmarkSingleCalculus> {
 
     /**
      * tile size (px)
@@ -43,7 +43,7 @@ public class BenchmarkSingleCalcul implements Comparable<BenchmarkSingleCalcul> 
      */
     private long executionTime;
 
-    public BenchmarkSingleCalcul(int tileSize, int cacheSize, int nbThreads){
+    public BenchmarkSingleCalculus(int tileSize, int cacheSize, int nbThreads){
         this.tileSize = tileSize;
         this.cacheSize = cacheSize;
         this.nbThreads = nbThreads;
@@ -55,7 +55,7 @@ public class BenchmarkSingleCalcul implements Comparable<BenchmarkSingleCalcul> 
    }
 
     @Override
-    public int compareTo(BenchmarkSingleCalcul compareBenchmarkSingleCalcul) {
+    public int compareTo(BenchmarkSingleCalculus compareBenchmarkSingleCalcul) {
         int order = 0;
         long compareExecutionTime = compareBenchmarkSingleCalcul.executionTime;
         if(compareExecutionTime < this.executionTime){
