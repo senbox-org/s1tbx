@@ -132,6 +132,7 @@
                         <publicPackage>ucar.unidata.util</publicPackage>
                         <publicPackage>thredds.catalog</publicPackage>
                         <publicPackage>org.slf4j</publicPackage>
+                        <publicPackage>org.slf4j.impl</publicPackage>
                         <publicPackage>org.esa.snap.dataio.netcdf.*</publicPackage>
                     </publicPackages>
                 </configuration>
