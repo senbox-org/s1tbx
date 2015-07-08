@@ -34,6 +34,7 @@ import java.util.prefs.BackingStoreException;
  */
 public class ConfigurationOptimizer {
 
+    private static ConfigurationOptimizer configurationOptimizer = null;
 
     // Free space available for other applications in MegaBytes
     private static long DEFAULT_MIN_FREE_RAM = 512;
@@ -60,8 +61,15 @@ public class ConfigurationOptimizer {
     /**
      * Default constructor. Performs initialisations.
      */
-    public ConfigurationOptimizer() {
+    private ConfigurationOptimizer() {
         sysInfos = JavaSystemInfos.getInstance();
+    }
+
+    public static ConfigurationOptimizer getInstance(){
+        if(configurationOptimizer == null){
+            configurationOptimizer = new ConfigurationOptimizer();
+        }
+        return configurationOptimizer;
     }
 
 
