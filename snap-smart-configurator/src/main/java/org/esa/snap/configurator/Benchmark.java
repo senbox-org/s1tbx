@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.prefs.BackingStoreException;
 
 /**
  * Benchmark calculs to determine best performance parameters
@@ -33,18 +34,20 @@ public class Benchmark {
     /**
      * list of calculs
      */
-    private List<BenchmarkSingleCalcul> benchmarkCalculs;
+    private List<BenchmarkSingleCalculus> benchmarkCalculus;
 
     public Benchmark(List<Integer> tileSizes, List<Integer> cacheSizes, List<Integer> nbThreads){
+
         if(tileSizes.isEmpty() || cacheSizes.isEmpty() || nbThreads.isEmpty()){
             throw new IllegalArgumentException("All benchmark parameters need to be filled");
         }
-        benchmarkCalculs = new ArrayList<>();
+
+        benchmarkCalculus = new ArrayList<>();
         //generate possible calculs list
         for(Integer tileSize : tileSizes){
             for(Integer cacheSize : cacheSizes){
                 for(Integer nbThread : nbThreads){
-                    benchmarkCalculs.add(new BenchmarkSingleCalcul(tileSize, cacheSize, nbThread));
+                    benchmarkCalculus.add(new BenchmarkSingleCalculus(tileSize, cacheSize, nbThread));
                 }
             }
         }
@@ -54,9 +57,9 @@ public class Benchmark {
      * Get benchmark params with the lower execution time
      * @return PerformanceParameters
      */
-    public BenchmarkSingleCalcul getFasterBenchmarkSingleCalcul(){
-        Collections.sort(this.benchmarkCalculs);
-        return this.benchmarkCalculs.get(0);
+    public BenchmarkSingleCalculus getFasterBenchmarkSingleCalcul(){
+        Collections.sort(this.benchmarkCalculus);
+        return this.benchmarkCalculus.get(0);
     }
 
     /**
@@ -64,7 +67,7 @@ public class Benchmark {
      *
      * @param benchmarkSingleCalcul
      */
-    public void loadBenchmarkPerfParams(BenchmarkSingleCalcul benchmarkSingleCalcul){
+    public void loadBenchmarkPerfParams(BenchmarkSingleCalculus benchmarkSingleCalcul){
         ConfigurationOptimizer confOptimizer = ConfigurationOptimizer.getInstance();
         PerformanceParameters benchmarkPerformanceParameters = confOptimizer.getActualPerformanceParameters();
         benchmarkPerformanceParameters.setDefaultTileSize(benchmarkSingleCalcul.getTileSize());
@@ -73,7 +76,7 @@ public class Benchmark {
         confOptimizer.updateCustomisedParameters(benchmarkPerformanceParameters);
         try {
             confOptimizer.saveCustomisedParameters();
-        } catch (IOException e) {
+        } catch (IOException|BackingStoreException e) {
             SystemUtils.LOG.severe("Could not save performance parameters: " + e.getMessage());
         }
     }
@@ -81,17 +84,17 @@ public class Benchmark {
     public String toString(){
         String benchmarksPrint = "Benchmark results sorted by execution time\n";
         benchmarksPrint += "(Tile size, Cache size, Nb threads) = Execution time \n\n";
-        for(BenchmarkSingleCalcul benchmarkSingleCalcul : this.benchmarkCalculs){
+        for(BenchmarkSingleCalculus benchmarkSingleCalcul : this.benchmarkCalculus){
             benchmarksPrint += benchmarkSingleCalcul.toString() + "\n";
         }
         return benchmarksPrint;
     }
 
-    public List<BenchmarkSingleCalcul> getBenchmarkCalculs() {
-        return benchmarkCalculs;
+    public List<BenchmarkSingleCalculus> getBenchmarkCalculus() {
+        return benchmarkCalculus;
     }
 
-    public void addBenchmarkCalcul(BenchmarkSingleCalcul benchmarkSingleCalcul){
-        this.benchmarkCalculs.add(benchmarkSingleCalcul);
+    public void addBenchmarkCalcul(BenchmarkSingleCalculus benchmarkSingleCalcul){
+        this.benchmarkCalculus.add(benchmarkSingleCalcul);
     }
 }
