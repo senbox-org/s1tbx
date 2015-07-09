@@ -61,48 +61,6 @@ public class BandArithmeticTest {
     }
 
     @Test
-    public void testComputeBandWithScaling() throws IOException,
-            ParseException {
-        targetBand.setScalingFactor(0.05);
-        targetBand.setScalingOffset(-7);
-        product1.getBand("b1").setDataElems(new float[]{
-                2, 3, 4, 5,
-                6, 7, 8, 9,
-                10, 11, 12, 13
-        });
-        product1.setModified(false);
-        targetBand.computeBand("b1", null, new Product[]{product1}, 0, false, false, 0, ProgressMonitor.NULL);
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                final float expected = 2 + y * width + x;
-                assertEquals("at index(x,y) = " + x + "," + y,
-                             expected,
-                             targetBand.getPixelFloat(x, y), 1e-5);
-            }
-        }
-    }
-
-    @Test
-    public void testComputeBandWithUshort() throws IOException,
-            ParseException {
-        product1.getBand("b1").setDataElems(new float[]{
-                2.1f, 3.2f, 4.3f, 5.4f,
-                6.3f, 6.69f, 8.32f, 8.8f,
-                10.2f, 11.1f, 11.9f, 13.3f
-        });
-        product1.setModified(false);
-        targetBand.computeBand("b1", null, new Product[]{product1}, 0, false, false, 0, ProgressMonitor.NULL);
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                final float expected = 2 + y * width + x;
-                assertEquals("at index(x,y) = " + x + "," + y,
-                             expected,
-                             targetBand.getPixelFloat(x, y), 1e-5);
-            }
-        }
-    }
-
-    @Test
     public void testCreateDefaultNamespaceWithOneProduct() {
         Namespace namespace = BandArithmetic.createDefaultNamespace(new Product[]{product1}, 0);
 

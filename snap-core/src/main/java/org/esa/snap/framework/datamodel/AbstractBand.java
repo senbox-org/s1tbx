@@ -32,13 +32,8 @@ import java.io.IOException;
  *
  * @author Norman Fomferra
  * @author Sabine Embacher
- * @version $Revision$ $Date$
  */
 public abstract class AbstractBand extends RasterDataNode {
-
-    public static final String VIEW_MODE_ORTHO = "ORTHO";
-    public static final String VIEW_MODE_FORWARD = "FORWARD";
-    public static final String VIEW_MODE_NADIR = "NADIR";
 
     public AbstractBand(String name, int dataType, int width, int height) {
         super(name, dataType, width, height);
@@ -46,7 +41,7 @@ public abstract class AbstractBand extends RasterDataNode {
 
     /**
      * Retrieves the range of pixels specified by the coordinates as integer array. Reads the data from disk if ot is
-     * not in memory yet. If the data is loaded, just copies the data..
+     * not in memory yet. If the data is loaded, just copies the data.
      *
      * @param x      x offset into the band
      * @param y      y offset into the band
@@ -80,7 +75,7 @@ public abstract class AbstractBand extends RasterDataNode {
 
     /**
      * Retrieves the range of pixels specified by the coordinates as float array. Reads the data from disk if ot is not
-     * in memory yet. If the data is loaded, just copies the data..
+     * in memory yet. If the data is loaded, just copies the data.
      *
      * @param x      x offset into the band
      * @param y      y offset into the band
@@ -114,7 +109,7 @@ public abstract class AbstractBand extends RasterDataNode {
 
     /**
      * Retrieves the range of pixels specified by the coordinates as double array. Reads the data from disk if ot is not
-     * in memory yet. If the data is loaded, just copies the data..
+     * in memory yet. If the data is loaded, just copies the data.
      *
      * @param x      x offset into the band
      * @param y      y offset into the band
@@ -170,16 +165,6 @@ public abstract class AbstractBand extends RasterDataNode {
         return getRasterData();
     }
 
-    public String getViewModeId(final String bandName) {
-        final String nameLC = getName().toLowerCase();
-        String viewModeId = VIEW_MODE_NADIR;
-        if (nameLC.indexOf("forward") >= 0 ||
-                nameLC.indexOf("fward") >= 0) {
-            viewModeId = VIEW_MODE_FORWARD;
-        }
-        return viewModeId;
-    }
-
     protected static int[] ensureMinLengthArray(int[] array, int length) {
         if (array == null) {
             return new int[length];
@@ -212,60 +197,6 @@ public abstract class AbstractBand extends RasterDataNode {
 
     /////////////////////////////////////////////////////////////////////////
     // Deprecated API
-
-
-    /**
-     * (Re-)Computes this band's data using the given arithmetic expression.
-     *
-     * @param expression          the arithmetic expression string, e.g. "1 + log(radiance_5 / radiance_13)"
-     * @param validMaskExpression the arithmetic expression identifying valid source pixels, e.g. "radiance_5 &gt; 0.0 &amp;&amp; radiance_13 &gt; 0.0"
-     * @param sourceProducts      the list of source products possibly referenced in the expression
-     * @param defaultProductIndex the index of the product for which also symbols without the
-     *                            product prefix <code>$<i>ref-no</i></code> are registered in the namespace
-     * @param checkInvalids       if true, the method recognizes numerically invalid values (NaN, Infinity)
-     * @param useInvalidValue     if true, numerically invalid values (NaN, Infinity) are set to <code>invalidValue</code>,
-     *                            ignored if <code>checkInvalids = false</code>
-     * @param noDataValue         the value used in place of  numerically invalid values if <code>useInvalidValue =
-     *                            true</code>, ignored if  <code>checkInvalids = false</code>
-     * @param pm                  a monitor to inform the user about progress
-     * @return the number of invalid pixels, zero if  <code>checkInvalids = false</code>
-     * @throws IOException    if an I/O error occurs
-     * @throws ParseException if the expression syntax is invalid
-     * @deprecated Since BEAM 4.10. Use {@link VirtualBand} or {@link org.esa.snap.jai.VirtualBandOpImage}.
-     */
-    @Deprecated
-    public int computeBand(final String expression,
-                           final String validMaskExpression,
-                           final Product[] sourceProducts,
-                           final int defaultProductIndex,
-                           final boolean checkInvalids,
-                           final boolean useInvalidValue,
-                           final double noDataValue,
-                           ProgressMonitor pm) throws IOException, ParseException {
-
-        ProductData targetRasterData = getRasterData();
-        if (targetRasterData == null) {
-            targetRasterData = createCompatibleRasterData();
-        }
-
-        final int numInvalids = BandArithmetic.computeBand(expression,
-                                                           validMaskExpression,
-                                                           sourceProducts,
-                                                           defaultProductIndex,
-                                                           checkInvalids,
-                                                           useInvalidValue,
-                                                           noDataValue,
-                                                           0, 0,
-                                                           getRasterWidth(),
-                                                           getRasterHeight(),
-                                                           targetRasterData,
-                                                           this,
-                                                           pm);
-
-        setRasterData(targetRasterData);
-        fireProductNodeDataChanged();
-        return numInvalids;
-    }
 
     /**
      * Gets a raster data holding this band's pixel data for an entire product scene. If the data has'nt been loaded so
@@ -803,10 +734,8 @@ public abstract class AbstractBand extends RasterDataNode {
      * @param pm a monitor to inform the user about progress
      * @throws java.io.IOException if an I/O error occurs
      * @see #readRasterDataFully(ProgressMonitor)
-     * @deprecated since BEAM 4.11. No replacement.
      */
     @Override
-    @Deprecated
     public void loadRasterData(ProgressMonitor pm) throws IOException {
         if (!hasRasterData()) {
             readRasterDataFully(pm);
@@ -819,10 +748,8 @@ public abstract class AbstractBand extends RasterDataNode {
      * <code>false</code> and <code>getRasterData()</code> returns <code>null</code>.
      *
      * @see #loadRasterData()
-     * @deprecated since BEAM 4.11. No replacement.
      */
     @Override
-    @Deprecated
     public void unloadRasterData() {
         if (hasRasterData()) {
             setRasterData(null);

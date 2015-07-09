@@ -26,6 +26,8 @@ import com.bc.ceres.glevel.support.GenericMultiLevelSource;
 import com.bc.ceres.jai.operator.InterpretationType;
 import com.bc.ceres.jai.operator.ReinterpretDescriptor;
 import com.bc.ceres.jai.operator.ScalingType;
+import org.esa.snap.framework.dataio.ProductReader;
+import org.esa.snap.framework.dataio.ProductWriter;
 import org.esa.snap.framework.dataop.barithm.BandArithmetic;
 import org.esa.snap.jai.ImageManager;
 import org.esa.snap.runtime.Config;
@@ -36,7 +38,6 @@ import org.esa.snap.util.ProductUtils;
 import org.esa.snap.util.StringUtils;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.jai.SingleBandedSampleModel;
-import org.esa.snap.util.math.DoubleList;
 import org.esa.snap.util.math.Histogram;
 import org.esa.snap.util.math.IndexValidator;
 import org.esa.snap.util.math.MathUtils;
@@ -84,11 +85,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     public static final String PROPERTY_NAME_IMAGE_INFO = "imageInfo";
     public static final String PROPERTY_NAME_LOG_10_SCALED = "log10Scaled";
-    /**
-     * @deprecated since BEAM 4.11, no replacement
-     */
-    @Deprecated
-    public static final String PROPERTY_NAME_ROI_DEFINITION = "roiDefinition";
     public static final String PROPERTY_NAME_SCALING_FACTOR = "scalingFactor";
     public static final String PROPERTY_NAME_SCALING_OFFSET = "scalingOffset";
     public static final String PROPERTY_NAME_NO_DATA_VALUE = "noDataValue";
@@ -148,9 +144,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     private final ProductNodeGroup<Mask> overlayMasks;
 
-    @Deprecated
-    private final ProductNodeGroup<Mask> roiMasks;
-
     private Pointing pointing;
 
     private MultiLevelImage sourceImage;
@@ -204,7 +197,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         validPixelExpression = null;
 
         overlayMasks = new ProductNodeGroup<>(this, "overlayMasks", false);
-        roiMasks = new ProductNodeGroup<>(this, "roiMasks", false);
     }
 
     /**
@@ -263,7 +255,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * Adds an associated ancillary variable and sets its relation name.
      *
-     * @param variable The associated ancillary variable.
+     * @param variable  The associated ancillary variable.
      * @param relations The name of the relation, may be {@code "uncertainty"}, {@code "variance"}, or {@code null} (not set).
      * @since SNAP 2.0
      */
@@ -459,9 +451,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (oldState != modified) {
             if (!modified && overlayMasks != null) {
                 overlayMasks.setModified(false);
-            }
-            if (!modified) {
-                roiMasks.setModified(false);
             }
             super.setModified(modified);
         }
@@ -1023,9 +1012,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param pm a monitor to inform the user about progress
      * @throws IOException if an I/O error occurs
      * @see #unloadRasterData()
-     * @deprecated since BEAM 4.11. No replacement.
      */
-    @Deprecated
     public void loadRasterData(ProgressMonitor pm) throws IOException {
     }
 
@@ -1036,9 +1023,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * <p>The default implementation of this method does nothing.
      *
      * @see #loadRasterData()
-     * @deprecated since BEAM 4.11. No replacement.
      */
-    @Deprecated
     public void unloadRasterData() {
     }
 
@@ -1072,8 +1057,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         }
         overlayMasks.removeAll();
         overlayMasks.clearRemovedList();
-        roiMasks.removeAll();
-        roiMasks.clearRemovedList();
 
         if (ancillaryVariables != null) {
             ancillaryVariables.removeAll();
@@ -1195,102 +1178,140 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Returns the pixel located at (x,y) as an integer value.
+     * <p>
+     * Note that this method can only be used if this object's internal raster data buffer has been
+     * {@link #setRasterData(ProductData) set} or {@link #loadRasterData() loaded}.
      *
      * @param x the X co-ordinate of the pixel location
      * @param y the Y co-ordinate of the pixel location
      * @return the pixel value at (x,y)
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
+     * @throws IllegalStateException          if this object has no internal data buffer
      */
     public abstract int getPixelInt(int x, int y);
 
     /**
      * Returns the pixel located at (x,y) as a float value.
+     * <p>
+     * Note that this method can only be used if this object's internal raster data buffer has been
+     * {@link #setRasterData(ProductData) set} or {@link #loadRasterData() loaded}.
      *
      * @param x the X co-ordinate of the pixel location
      * @param y the Y co-ordinate of the pixel location
      * @return the pixel value at (x,y)
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
+     * @throws IllegalStateException          if this object has no internal data buffer
      */
     public abstract float getPixelFloat(int x, int y);
 
     /**
      * Returns the pixel located at (x,y) as a double value.
+     * <p>
+     * Note that this method can only be used if this object's internal raster data buffer has been
+     * {@link #setRasterData(ProductData) set} or {@link #loadRasterData() loaded}.
      *
      * @param x the X co-ordinate of the pixel location
      * @param y the Y co-ordinate of the pixel location
      * @return the pixel value at (x,y)
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
+     * @throws IllegalStateException          if this object has no internal data buffer
      */
     public abstract double getPixelDouble(int x, int y);
 
     /**
      * Sets the pixel located at (x,y) to the given integer value.
+     * <p>
+     * Note that this method can only be used if this object's internal raster data buffer has been
+     * {@link #setRasterData(ProductData) set} or {@link #loadRasterData() loaded}.
      *
      * @param x          the X co-ordinate of the pixel location
      * @param y          the Y co-ordinate of the pixel location
      * @param pixelValue the new pixel value at (x,y)
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
+     * @throws IllegalStateException          if this object has no internal data buffer
      */
     public abstract void setPixelInt(int x, int y, int pixelValue);
 
     /**
      * Sets the pixel located at (x,y) to the given float value.
+     * <p>
+     * Note that this method can only be used if this object's internal raster data buffer has been
+     * {@link #setRasterData(ProductData) set} or {@link #loadRasterData() loaded}.
      *
      * @param x          the X co-ordinate of the pixel location
      * @param y          the Y co-ordinate of the pixel location
      * @param pixelValue the new pixel value at (x,y)
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
+     * @throws IllegalStateException          if this object has no internal data buffer
      */
     public abstract void setPixelFloat(int x, int y, float pixelValue);
 
     /**
      * Sets the pixel located at (x,y) to the given double value.
+     * <p>
+     * Note that this method can only be used if this object's internal raster data buffer has been
+     * {@link #setRasterData(ProductData) set} or {@link #loadRasterData() loaded}.
      *
      * @param x          the X co-ordinate of the pixel location
      * @param y          the Y co-ordinate of the pixel location
      * @param pixelValue the new pixel value at (x,y)
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
+     * @throws IllegalStateException          if this object has no internal data buffer
      */
     public abstract void setPixelDouble(int x, int y, double pixelValue);
 
     /**
-     * Retrieves the range of pixels specified by the coordinates as integer array. Throws exception when the data is
-     * not read from disk yet. If the given array is <code>null</code> a new one was created and returned.
-     *
-     * @param x      x offset into the band
-     * @param y      y offset into the band
-     * @param w      width of the pixel array to be read
-     * @param h      height of the pixel array to be read.
-     * @param pixels integer array to be filled with data
+     * @see #getPixels(int, int, int, int, int[], ProgressMonitor)
      */
     public int[] getPixels(int x, int y, int w, int h, int[] pixels) {
         return getPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
     }
 
     /**
-     * @deprecated since BEAM 4.11. Use {@link #getPixels(int, int, int, int, int[])} instead.
-     */
-    @Deprecated
-    public abstract int[] getPixels(int x, int y, int w, int h, int[] pixels, ProgressMonitor pm);
-
-    /**
-     * Retrieves the range of pixels specified by the coordinates as float array. Throws exception when the data is not
-     * read from disk yet. If the given array is <code>null</code> a new one is created and returned.
+     * Retrieves the range of pixels specified by the coordinates as integer array.
+     * <p>
+     * Note that this method can only be used if this object's internal raster data buffer has been
+     * {@link #setRasterData(ProductData) set} or {@link #loadRasterData() loaded}.
+     * You can use the {@link #readPixels(int, int, int, int, double[], ProgressMonitor)} method
+     * to read or compute pixel values without a raster data buffer.
+     * <p>
+     * If the {@code pixels} array is <code>null</code> a new one will be created and returned.
      *
      * @param x      x offset into the band
      * @param y      y offset into the band
      * @param w      width of the pixel array to be read
      * @param h      height of the pixel array to be read.
-     * @param pixels float array to be filled with data
+     * @param pixels integer array to be filled with data
+     * @param pm     a progress monitor
+     * @throws IllegalStateException if this object has no internal data buffer
+     */
+    public abstract int[] getPixels(int x, int y, int w, int h, int[] pixels, ProgressMonitor pm);
+
+    /**
+     * @see {@link #getPixels(int, int, int, int, float[], ProgressMonitor)}
      */
     public float[] getPixels(int x, int y, int w, int h, float[] pixels) {
         return getPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
     }
 
     /**
-     * @deprecated since BEAM 4.11. Use {@link #getPixels(int, int, int, int, float[])} instead.
+     * Retrieves the range of pixels specified by the coordinates as float array.
+     * <p>
+     * Note that this method can only be used if this object's internal raster data buffer has been
+     * {@link #setRasterData(ProductData) set} or {@link #loadRasterData() loaded}.
+     * You can use the {@link #readPixels(int, int, int, int, double[], ProgressMonitor)} method
+     * to read or compute pixel values without a raster data buffer.
+     * <p>
+     * If the {@code pixels} array is <code>null</code> a new one will be created and returned.
+     *
+     * @param x      x offset into the band
+     * @param y      y offset into the band
+     * @param w      width of the pixel array to be read
+     * @param h      height of the pixel array to be read.
+     * @param pixels float array to be filled with data
+     * @param pm     a progress monitor
+     * @throws IllegalStateException if this object has no internal data buffer
      */
-    @Deprecated
     public abstract float[] getPixels(int x, int y, int w, int h, float[] pixels, ProgressMonitor pm);
 
     /**
@@ -1302,8 +1323,14 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Retrieves the range of pixels specified by the coordinates as double array. Throws exception when the data is not
-     * read from disk yet. If the given array is <code>null</code> a new one is created and returned.
+     * Retrieves the range of pixels specified by the coordinates as double array.
+     * <p>
+     * Note that this method can only be used if this object's internal raster data buffer has been
+     * {@link #setRasterData(ProductData) set} or {@link #loadRasterData() loaded}.
+     * You can use the {@link #readPixels(int, int, int, int, double[], ProgressMonitor)} method
+     * to read or compute pixel values without a raster data buffer.
+     * <p>
+     * If the {@code pixels} array is <code>null</code> a new one will be created and returned.
      *
      * @param x      x offset into the band
      * @param y      y offset into the band
@@ -1311,48 +1338,62 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param h      height of the pixel array to be read.
      * @param pixels double array to be filled with data
      * @param pm     a monitor to inform the user about progress
-     * @deprecated since BEAM 4.11. Use {@link #getPixels(int, int, int, int, double[])} instead.
+     * @throws IllegalStateException if this object has no internal data buffer
      */
-    @Deprecated
     public abstract double[] getPixels(int x, int y, int w, int h, double[] pixels, ProgressMonitor pm);
 
 
     /**
-     * Sets a range of pixels specified by the coordinates as integer array. Copies the data to the memory buffer of
-     * data at the specified location. Throws exception when the target buffer is not in memory.
+     * Sets a range of pixels specified by the coordinates as integer array.
+     * <p>
+     * Note that this method can only be used if this object's internal raster data buffer has been
+     * {@link #setRasterData(ProductData) set} or {@link #loadRasterData() loaded}.
+     * You can use the {@link #writePixels(int, int, int, int, double[], ProgressMonitor)} method
+     * to write pixels directly to the associated {@link Product#setProductWriter(ProductWriter) product writer}.
      *
      * @param x      x offset into the band
      * @param y      y offset into the band
      * @param w      width of the pixel array to be written
      * @param h      height of the pixel array to be written.
      * @param pixels integer array to be written
-     * @throws NullPointerException if this band has no raster data
+     * @throws NullPointerException  if this band has no raster data
+     * @throws IllegalStateException if this object has no internal data buffer
      */
     public abstract void setPixels(int x, int y, int w, int h, int[] pixels);
 
     /**
-     * Sets a range of pixels specified by the coordinates as float array. Copies the data to the memory buffer of data
-     * at the specified location. Throws exception when the target buffer is not in memory.
+     * Sets a range of pixels specified by the coordinates as float array.
+     * <p>
+     * Note that this method can only be used if this object's internal raster data buffer has been
+     * {@link #setRasterData(ProductData) set} or {@link #loadRasterData() loaded}.
+     * You can use the {@link #writePixels(int, int, int, int, double[], ProgressMonitor)} method
+     * to write pixels directly to the associated {@link Product#setProductWriter(ProductWriter) product writer}.
      *
      * @param x      x offset into the band
      * @param y      y offset into the band
      * @param w      width of the pixel array to be written
      * @param h      height of the pixel array to be written.
      * @param pixels float array to be written
-     * @throws NullPointerException if this band has no raster data
+     * @throws NullPointerException  if this band has no raster data
+     * @throws IllegalStateException if this object has no internal data buffer
      */
     public abstract void setPixels(int x, int y, int w, int h, float[] pixels);
 
     /**
-     * Sets a range of pixels specified by the coordinates as double array. Copies the data to the memory buffer of data
-     * at the specified location. Throws exception when the target buffer is not in memory.
+     * Sets a range of pixels specified by the coordinates as double array.
+     * <p>
+     * Note that this method can only be used if this object's internal raster data buffer has been
+     * {@link #setRasterData(ProductData) set} or {@link #loadRasterData() loaded}.
+     * You can use the {@link #writePixels(int, int, int, int, double[], ProgressMonitor)} method
+     * to write pixels directly to the associated {@link Product#setProductWriter(ProductWriter) product writer}.
      *
      * @param x      x offset into the band
      * @param y      y offset into the band
      * @param w      width of the pixel array to be written
      * @param h      height of the pixel array to be written.
      * @param pixels double array to be written
-     * @throws NullPointerException if this band has no raster data
+     * @throws NullPointerException  if this band has no raster data
+     * @throws IllegalStateException if this object has no internal data buffer
      */
     public abstract void setPixels(int x, int y, int w, int h, double[] pixels);
 
@@ -1365,9 +1406,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Retrieves the band data at the given offset (x, y), width and height as int data. If the data is already in
-     * memory, it merely copies the data to the buffer provided. If not, it calls the attached product reader to
-     * retrieve the data from the disk file. If the given buffer is <code>null</code> a new one was created and
-     * returned.
+     * memory, it merely copies the data to the buffer provided. If not, it calls the attached product reader or operator
+     * to read or compute the data.
+     * <p>
+     * If the {@code pixels} array is <code>null</code> a new one will be created and returned.
      *
      * @param x      x offset into the band
      * @param y      y offset into the band
@@ -1376,6 +1418,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param pixels array to be filled with data
      * @param pm     a progress monitor
      * @return the pixels read
+     * @throws IOException           if an /IO error occurs
+     * @throws IllegalStateException if this object has no attached {@link Product#setProductReader(ProductReader) product reader}
      */
     public abstract int[] readPixels(int x, int y, int w, int h, int[] pixels, ProgressMonitor pm) throws IOException;
 
@@ -1387,10 +1431,11 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Retrieves the band data at the given offset (x, y), width and height as float data. If the data is already in
-     * memory, it merely copies the data to the buffer provided. If not, it calls the attached product reader to
-     * retrieve the data from the disk file. If the given buffer is <code>null</code> a new one was created and
-     * returned.
+     * Retrieves the band data at the given offset (x, y), width and height as int data. If the data is already in
+     * memory, it merely copies the data to the buffer provided. If not, it calls the attached product reader or operator
+     * to read or compute the data.
+     * <p>
+     * If the {@code pixels} array is <code>null</code> a new one will be created and returned.
      *
      * @param x      x offset into the band
      * @param y      y offset into the band
@@ -1399,6 +1444,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param pixels array to be filled with data
      * @param pm     a progress monitor
      * @return the pixels read
+     * @throws IllegalStateException if this object has no attached {@link Product#setProductReader(ProductReader) product reader}
      */
     public abstract float[] readPixels(int x, int y, int w, int h, float[] pixels, ProgressMonitor pm) throws
             IOException;
@@ -1411,10 +1457,11 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Retrieves the band data at the given offset (x, y), width and height as double data. If the data is already in
-     * memory, it merely copies the data to the buffer provided. If not, it calls the attached product reader to
-     * retrieve the data from the disk file. If the given buffer is <code>null</code> a new one was created and
-     * returned.
+     * Retrieves the band data at the given offset (x, y), width and height as int data. If the data is already in
+     * memory, it merely copies the data to the buffer provided. If not, it calls the attached product reader or operator
+     * to read or compute the data.
+     * <p>
+     * If the {@code pixels} array is <code>null</code> a new one will be created and returned.
      *
      * @param x      x offset into the band
      * @param y      y offset into the band
@@ -1423,6 +1470,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param pixels array to be filled with data
      * @param pm     a progress monitor
      * @return the pixels read
+     * @throws IllegalStateException if this object has no attached {@link Product#setProductReader(ProductReader) product reader}
      */
     public abstract double[] readPixels(int x, int y, int w, int h, double[] pixels, ProgressMonitor pm) throws
             IOException;
@@ -1443,6 +1491,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param h      height of the pixel array to be written
      * @param pixels array of pixels to write
      * @param pm     a progress monitor
+     * @throws IllegalStateException if this object has no attached {@link Product#setProductWriter(ProductWriter) product writer}
+     * @throws IOException           if an I/O error occurs
      */
     public abstract void writePixels(int x, int y, int w, int h, int[] pixels, ProgressMonitor pm) throws IOException;
 
@@ -1462,6 +1512,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param h      height of the pixel array to be written
      * @param pixels array of pixels to write
      * @param pm     a progress monitor
+     * @throws IllegalStateException if this object has no attached {@link Product#setProductWriter(ProductWriter) product writer}
+     * @throws IOException           if an I/O error occurs
      */
     public abstract void writePixels(int x, int y, int w, int h, float[] pixels, ProgressMonitor pm) throws IOException;
 
@@ -1481,6 +1533,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param h      height of the pixel array to be written
      * @param pixels array of pixels to write
      * @param pm     a progress monitor
+     * @throws IllegalStateException if this object has no attached {@link Product#setProductWriter(ProductWriter) product writer}
+     * @throws IOException           if an I/O error occurs
      */
     public abstract void writePixels(int x, int y, int w, int h, double[] pixels, ProgressMonitor pm) throws
             IOException;
@@ -1507,6 +1561,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * @throws java.io.IOException if an I/O error occurs
      * @see #readRasterDataFully(ProgressMonitor)
+     * @see #unloadRasterData()
      */
     public void readRasterDataFully() throws IOException {
         readRasterDataFully(ProgressMonitor.NULL);
@@ -2458,45 +2513,15 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Adapts a  {@link org.esa.snap.util.math.DoubleList}
+     * Processes the raster's data.
+     * <p>
+     * Users of this method may also consider implementing a GPF {@code org.esa.snap.framework.gpf.Operator} or a {@link org.esa.snap.jai.SingleBandedOpImage} instead.
+     *
+     * @param message   a task description
+     * @param processor the raster processor
+     * @param pm        a progress monitor
      */
-    public class RasterDataDoubleList implements DoubleList {
-
-        private final ProductData _buffer;
-
-        public RasterDataDoubleList(ProductData buffer) {
-            _buffer = buffer;
-        }
-
-        @Override
-        public final int getSize() {
-            return _buffer.getNumElems();
-        }
-
-        @Override
-        public final double getDouble(int index) {
-            return scale(_buffer.getElemDoubleAt(index));
-        }
-    }
-
-    /////////////////////////////////////////////////////////////////////////
-    // Deprecated API
-
-    /**
-     * @return The roi mask group.
-     * @deprecated since BEAM 4.10 (no replacement)
-     */
-    @Deprecated
-    public ProductNodeGroup<Mask> getRoiMaskGroup() {
-        return roiMasks;
-    }
-
-
-    /**
-     * @deprecated since BEAM 4.5. No direct replacement, implement a GPF operator or a {@link org.esa.snap.jai.SingleBandedOpImage} instead.
-     */
-    @Deprecated
-    protected void processRasterData(String message, RasterDataProcessor processor, ProgressMonitor pm) throws
+    public void processRasterData(String message, RasterDataProcessor processor, ProgressMonitor pm) throws
             IOException {
         Debug.trace("RasterDataNode.processRasterData: " + message);
         int readBufferLineCount = getReadBufferLineCount();
@@ -2507,8 +2532,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (numReadsMax * readBufferLineCount < height) {
             numReadsMax++;
         }
-        Debug.trace("RasterDataNode.processRasterData: numReadsMax=" + numReadsMax +
-                            ", readBufferLineCount=" + readBufferLineCount);
+        Debug.trace(String.format("RasterDataNode.processRasterData: numReadsMax=%d, readBufferLineCount=%d",
+                                  numReadsMax, readBufferLineCount));
         pm.beginTask(message, numReadsMax * 2);
         try {
             for (int i = 0; i < numReadsMax; i++) {
@@ -2529,11 +2554,22 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * @deprecated since BEAM 4.5. No direct replacement, implement a GPF operator or a {@link org.esa.snap.jai.SingleBandedOpImage} instead.
+     * A raster data processor which is called for a set of raster lines to be processed.
+     * <p>
+     * For maximum performance, implementors may also consider implementing a GPF {@code org.esa.snap.framework.gpf.Operator} or a
+     * {@link org.esa.snap.jai.SingleBandedOpImage} instead.
      */
-    @Deprecated
     public interface RasterDataProcessor {
 
+        /**
+         * Processes some input raster lines.
+         *
+         * @param buffer   The input data buffer containing the data for {@code numLines} raster lines.
+         * @param y0       The index of the first line.
+         * @param numLines The number of lines.
+         * @param pm       a progress monitor
+         * @throws IOException
+         */
         void processRasterDataBuffer(ProductData buffer, int y0, int numLines, ProgressMonitor pm) throws IOException;
     }
 
