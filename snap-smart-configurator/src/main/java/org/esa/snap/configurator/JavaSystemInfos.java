@@ -83,7 +83,7 @@ public class JavaSystemInfos implements SystemInfos {
     private void updateSystemInfos() {
         diskNames = getDisksNames();
 
-        disksBenchMarkers = new HashMap<String, DiskBenchmarker>();
+        disksBenchMarkers = new HashMap<>();
 
         for(String diskName : diskNames) {
             DiskBenchmarker benchmarker = new DiskBenchmarker(diskName, benchmarkFileSize, benchmarkNbSamples);
@@ -100,8 +100,7 @@ public class JavaSystemInfos implements SystemInfos {
     public long getRAM() {
         OperatingSystemMXBean mxbean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
         long totalRAMInByte = mxbean.getTotalPhysicalMemorySize();
-        long totalRAMInMegaBytes = Math.round(totalRAMInByte/(1E6));
-        return totalRAMInMegaBytes;
+        return Math.round(totalRAMInByte/(1E6));
     }
 
     @Override
@@ -109,15 +108,13 @@ public class JavaSystemInfos implements SystemInfos {
         OperatingSystemMXBean mxbean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
 
         long freeRAMInByte = mxbean.getFreePhysicalMemorySize();
-        long freeRAMInMegaBytes = Math.round(freeRAMInByte/(1024*1024));
-        return freeRAMInMegaBytes;
+        return Math.round(freeRAMInByte/(1024*1024));
     }
 
     @Override
     public long getThisAppRam() {
         long thisAppRAMInBytes = Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
-        long ThisAppRAMInMegaBytes = Math.round(thisAppRAMInBytes/(1024*1024));
-        return ThisAppRAMInMegaBytes;
+        return Math.round(thisAppRAMInBytes/(1024*1024));
 
     }
 
@@ -141,8 +138,7 @@ public class JavaSystemInfos implements SystemInfos {
     public long getDiskFreeSize(String diskId) {
         File thisDisk = new File(diskId);
         long diskFreeSpaceInBytes = thisDisk.getFreeSpace();
-        long diskFreeSpaceInMegaBytes = Math.round(diskFreeSpaceInBytes / (1024 * 1024));
-        return diskFreeSpaceInMegaBytes;
+        return Math.round(diskFreeSpaceInBytes / (1024 * 1024));
     }
 
     @Override

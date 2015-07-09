@@ -57,7 +57,7 @@ public class Benchmark {
      * Get benchmark params with the lower execution time
      * @return PerformanceParameters
      */
-    public BenchmarkSingleCalculus getFasterBenchmarkSingleCalcul(){
+    public BenchmarkSingleCalculus getFasterBenchmarkSingleCalculus(){
         Collections.sort(this.benchmarkCalculus);
         return this.benchmarkCalculus.get(0);
     }
@@ -65,14 +65,14 @@ public class Benchmark {
     /**
      * Load Benchmark performance parameters.
      *
-     * @param benchmarkSingleCalcul
+     * @param benchmarkSingleCalculus
      */
-    public void loadBenchmarkPerfParams(BenchmarkSingleCalculus benchmarkSingleCalcul){
+    public void loadBenchmarkPerfParams(BenchmarkSingleCalculus benchmarkSingleCalculus){
         ConfigurationOptimizer confOptimizer = ConfigurationOptimizer.getInstance();
         PerformanceParameters benchmarkPerformanceParameters = confOptimizer.getActualPerformanceParameters();
-        benchmarkPerformanceParameters.setDefaultTileSize(benchmarkSingleCalcul.getTileSize());
-        benchmarkPerformanceParameters.setCacheSize(benchmarkSingleCalcul.getCacheSize());
-        benchmarkPerformanceParameters.setNbThreads(benchmarkSingleCalcul.getNbThreads());
+        benchmarkPerformanceParameters.setDefaultTileSize(benchmarkSingleCalculus.getTileSize());
+        benchmarkPerformanceParameters.setCacheSize(benchmarkSingleCalculus.getCacheSize());
+        benchmarkPerformanceParameters.setNbThreads(benchmarkSingleCalculus.getNbThreads());
         confOptimizer.updateCustomisedParameters(benchmarkPerformanceParameters);
         try {
             confOptimizer.saveCustomisedParameters();

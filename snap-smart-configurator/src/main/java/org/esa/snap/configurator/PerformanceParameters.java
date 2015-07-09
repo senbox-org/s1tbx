@@ -64,22 +64,6 @@ public class PerformanceParameters {
     private int defaultTileSize;
     private int cacheSize;
 
-    /*
-    private int readerTileWidth;
-    private int readerTileHeight;
-
-    private boolean pixelGeoCodingFractionAccuracy;
-    private boolean pixelGeoCodingUseTiling;
-    private boolean useAlternatePixelGeoCoding;
-
-    private OperatorExecutor.ExecutionOrder gpfExecutionOrder;
-    private boolean gpfUseFileTileCache;
-    private boolean gpfDisableTileCache;
-    */
-
-    private static PerformanceParameters actualParameters = null;
-
-
     /**
      * Default constructor
      */
@@ -173,7 +157,7 @@ public class PerformanceParameters {
         Config configuration = Config.instance().load();
         Preferences preferences = configuration.preferences();
 
-        actualParameters = new PerformanceParameters();
+        PerformanceParameters actualParameters = new PerformanceParameters();
 
         VMParameters netBeansVmParameters = retreiveNBVMParameters();
         String vmParameters = preferences.get("default_options", netBeansVmParameters.toString());
@@ -217,8 +201,11 @@ public class PerformanceParameters {
             if (diskName.equalsIgnoreCase(userDirString)) {
                 userDirString = userDirString + File.separator + "." + SystemUtils.getApplicationContextId();
                 File contextFolderAsFile = new File(userDirString);
-                contextFolderAsFile.mkdir();
-                confToSave.setUserDir(FileUtils.getPathFromURI(contextFolderAsFile.toURI()));
+                if(!contextFolderAsFile.mkdir()) {
+                    SystemUtils.LOG.severe("Could not create user dir " + userDirString);
+                } else {
+                    confToSave.setUserDir(FileUtils.getPathFromURI(contextFolderAsFile.toURI()));
+                }
                 break;
             }
         }
