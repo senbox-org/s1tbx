@@ -28,7 +28,7 @@
     <folder name="LayerEditors">
         <file name="maptools-layer">
             <attr name="layerClass" stringvalue="org.esa.s1tbx.dat.layers.maptools.MapToolsLayer"/>
-            <attr name="editorFactoryClass" stringvalue="org.esa.s1tbx.dat.layers.maptools.MapToolsLayerEditor"/>
+            <attr name="editorClass" stringvalue="org.esa.s1tbx.dat.layers.maptools.MapToolsLayerEditor"/>
         </file>
     </folder>
 
