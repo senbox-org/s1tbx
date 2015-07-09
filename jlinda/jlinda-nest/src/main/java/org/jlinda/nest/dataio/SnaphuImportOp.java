@@ -86,8 +86,8 @@ public class SnaphuImportOp extends Operator {
             if (!doNotKeepWrapped) {
                 bands = masterProduct.getBands();
                 for (Band srcBand : bands) {
-                    final Band targetBand = ProductUtils.copyBand(srcBand.getName(), masterProduct, targetProduct);
-                    targetBand.setSourceImage(srcBand.getSourceImage());
+                    String sourceBandName = srcBand.getName();
+                    ProductUtils.copyBand(sourceBandName, masterProduct, sourceBandName, targetProduct, true);
                 }
             }
 
@@ -99,12 +99,12 @@ public class SnaphuImportOp extends Operator {
                 final String slaveDate = OperatorUtils.getAcquisitionDate(
                         masterProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements()[0]);
 
-                final Band targetBand = ProductUtils.copyBand(srcBand.getName(), slaveProduct, targetProduct);
+                String sourceBandName = srcBand.getName();
+                final Band targetBand = ProductUtils.copyBand(sourceBandName, slaveProduct, sourceBandName, targetProduct, true);
                 if (targetBand.getName().toLowerCase().contains("unw") || targetBand.getName().toLowerCase().contains("band")) {
                     targetBand.setUnit(Unit.ABS_PHASE); // if there is a band with "unw" set unit to ABS phase
                     targetBand.setName("Unw_Phase_ifg_" + masterDate + "_" + slaveDate); // set the name to Unw_Phase_ifg_masterDate_slaveDate
                 }
-                targetBand.setSourceImage(srcBand.getSourceImage());
             }
 
         } catch (Throwable e) {
