@@ -17,37 +17,45 @@
 package org.esa.snap.framework.gpf.graph;
 
 import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
-import junit.framework.TestCase;
 import org.esa.snap.framework.gpf.GPF;
 import org.esa.snap.framework.gpf.TestOps;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class GraphIOTest extends TestCase {
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.TestCase.*;
+
+public class GraphIOTest {
 
     private TestOps.Op1.Spi operatorSpi1 = new TestOps.Op1.Spi();
     private TestOps.Op2.Spi operatorSpi2 = new TestOps.Op2.Spi();
     private TestOps.Op3.Spi operatorSpi3 = new TestOps.Op3.Spi();
     private TestOps.Op4.Spi operatorSpi4 = new TestOps.Op4.Spi();
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(operatorSpi1);
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(operatorSpi2);
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(operatorSpi3);
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(operatorSpi4);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(operatorSpi1);
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(operatorSpi2);
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(operatorSpi3);
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(operatorSpi4);
     }
 
+    @Test
     public void testEmptyChain() throws Exception {
         Graph chain1 = new Graph("myEmptyChain");
 
@@ -60,6 +68,7 @@ public class GraphIOTest extends TestCase {
         assertEquals(chain1.getId(), chain2.getId());
     }
 
+    @Test
     public void testOneNodeChain() throws Exception {
         Graph graph1 = new Graph("myOneNodeGraph");
         Node node1 = new Node("node1", "Op1");
@@ -78,6 +87,7 @@ public class GraphIOTest extends TestCase {
         assertEquals("Op1", node1Copy.getOperatorName());
     }
 
+    @Test
     public void testWriteToXML() throws Exception {
         Graph graph1 = new Graph("myOneNodeGraph");
         Node node1 = new Node("node1", "Op1");
@@ -97,6 +107,7 @@ public class GraphIOTest extends TestCase {
         assertEquals(expectedXML, actualXML);
     }
 
+    @Test
     public void testWriteToXMLWithApplicationData() throws Exception {
         Graph graph1 = new Graph("myOneNodeGraph");
         Node node1 = new Node("node1", "Op1");
@@ -135,6 +146,7 @@ public class GraphIOTest extends TestCase {
 
     }
 
+    @Test
     public void testReadXMLWithoutVersion() throws Exception {
         String expectedXML =
                 "<graph id=\"myOneNodeGraph\">\n" +
@@ -155,6 +167,7 @@ public class GraphIOTest extends TestCase {
         assertEquals(GraphException.class, caught.getClass());
     }
 
+    @Test
     public void testReadFromXML() throws Exception {
         String expectedXML =
                 "<graph id=\"myOneNodeGraph\">\n" +
@@ -178,6 +191,7 @@ public class GraphIOTest extends TestCase {
         assertEquals("Op1", node1.getOperatorName());
     }
 
+    @Test
     public void testReadFromXMLWithAppData() throws Exception {
         String expectedXML =
                 "<graph id=\"myOneNodeGraph\">\n" +
@@ -212,7 +226,7 @@ public class GraphIOTest extends TestCase {
 
     }
 
-
+    @Test
     public void testReadFromXMLWithHeader() throws Exception {
         String expectedXML =
                 "<graph id=\"myOneNodeGraph\">\n" +
@@ -291,6 +305,7 @@ public class GraphIOTest extends TestCase {
 
     }
 
+    @Test
     public void testTwoNodeChain() throws Exception {
         Graph graph1 = new Graph("myTwoNodeGraph");
         Node node1 = new Node("node1", "Op1");
@@ -330,6 +345,7 @@ public class GraphIOTest extends TestCase {
         assertEquals("node1", source2.getSourceNodeId());
     }
 
+    @Test
     public void testReadXml() throws Exception {
         String xml =
                 "<graph id=\"foo\">\n" +
@@ -421,6 +437,7 @@ public class GraphIOTest extends TestCase {
         return GraphIO.read(reader);
     }
 
+    @Test
     public void testGraphWithReference() throws Exception {
         String xml =
                 "<graph id=\"foo\">\n" +
@@ -465,6 +482,7 @@ public class GraphIOTest extends TestCase {
         assertEquals(3.142, op2.threshold, 0.0);
     }
 
+    @Test
     public void testGraphWithReferenceWithoutSourceProduct() throws Exception {
         String xml =
                 "<graph id=\"foo\">\n" +
@@ -513,4 +531,32 @@ public class GraphIOTest extends TestCase {
         TestOps.Op2 op2 = (TestOps.Op2) bazNodeContext.getOperator();
         assertEquals(3.142, op2.threshold, 0.0);
     }
+
+    @Test
+    public void testAddSourceProductsVariable() {
+        Map<String, String> sourceProductNamesMap = new HashMap<>();
+        sourceProductNamesMap.put("sourceProduct", "no1");
+        sourceProductNamesMap.put("sourceProduct1", "no2");
+        sourceProductNamesMap.put("sourceProduct2", "no3");
+        sourceProductNamesMap.put("sourceProduct3", "no4");
+
+        Map<String, String> sourceProductNamesMap2 = new HashMap<>();
+        sourceProductNamesMap2.put("sourceProduct1", "no2");
+        sourceProductNamesMap2.put("sourceProduct", "no1");
+        sourceProductNamesMap2.put("sourceProduct3", "no4");
+        sourceProductNamesMap2.put("sourceProduct1", "no2");
+        sourceProductNamesMap2.put("sourceProduct2", "no3");
+        sourceProductNamesMap2.put("sourceProduct.2", "no3");
+        sourceProductNamesMap2.put("sourceProduct3", "no4");
+        sourceProductNamesMap2.put("sourceProduct.3", "no4");
+
+        GraphIO.addSourceProductsVariable(sourceProductNamesMap);
+        GraphIO.addSourceProductsVariable(sourceProductNamesMap2);
+
+        assertEquals(true, sourceProductNamesMap.containsKey("sourceProducts"));
+        assertEquals(true, sourceProductNamesMap2.containsKey("sourceProducts"));
+        assertEquals("no2,no3,no4", sourceProductNamesMap.get("sourceProducts"));
+        assertEquals("no2,no3,no4", sourceProductNamesMap2.get("sourceProducts"));
+    }
+
 }
