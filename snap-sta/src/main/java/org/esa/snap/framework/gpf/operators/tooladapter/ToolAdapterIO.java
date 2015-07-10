@@ -243,9 +243,10 @@ public class ToolAdapterIO {
      * @param adapterFolder the folder of the tool adapter
      * @throws OperatorException in case of an error
      */
-    public static void registerAdapter(File adapterFolder) throws OperatorException {
+    public static ToolAdapterOpSpi registerAdapter(File adapterFolder) throws OperatorException {
         ToolAdapterOpSpi operatorSpi = ToolAdapterIO.createOperatorSpi(adapterFolder);
         ToolAdapterRegistry.INSTANCE.registerOperator(operatorSpi);
+        return operatorSpi;
     }
 
     /**
