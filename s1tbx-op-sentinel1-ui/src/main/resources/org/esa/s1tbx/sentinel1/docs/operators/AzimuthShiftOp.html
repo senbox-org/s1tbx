@@ -4,6 +4,7 @@
 
 
 
+
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <link rel="stylesheet" href="../style.css"></head><body>
 <table class="header">
@@ -21,12 +22,50 @@ operator in the TOPS InSAR processing chain. It first estimates a
 global azimuth offset for the whole sub-swath of the split S-1 SLC
 image using a Enhanced Spectral Diversity (ESD) method. The ESD
 approach exploits the data at the overlapped area of the adjacent
-bursts. The estimation is done for every overlapped area and the final azimuth offset is obtained by averaging all the estimations.<br>
+bursts. The estimation is done for every overlapped area and the final
+azimuth offset is obtained by averaging all the estimations.<br>
 </span></p>
 <p class="MsoNormal"><span>The operator then performs shift in azimuth
-direction for every burst using the offset computed above and a phase
+direction for every burst using the offset computed above with a phase
 ramp method in frequency domain</span>.<br>
 <span style=""><o:p></o:p></span></p>
- <br>
+ 
+<h4>Input <br>
+</h4>
+
+
+
+<ul>
+<li>The input to this operator is the resulting product from the S-1 Range Shift operator. It is the co-registered master and slave images
+for the same
+sub-swath and same polarization (e.g. IW1 -
+VV).
+  </li>
+</ul>
+
+<h4>Output <br>
+</h4>
+
+
+
+
+<ul>
+<li>The output of the operator are the co-registered master and slave
+bands in I/Q format with the slave bands shifted by a small amount in azimuth direction. 
+
+  </li>
+</ul>
+
+
+<h4>Parameters Used<br>
+</h4>
+
+
+
+
+<ul>
+<li>No parameter is needed for this operator.<br>
+  </li>
+</ul>
 <hr>
 </body></html>
