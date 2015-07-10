@@ -3,6 +3,7 @@
 
 
 
+
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <link rel="stylesheet" href="../style.css"></head><body>
 <table class="header">
@@ -24,9 +25,57 @@ estimates from all bursts are then averaged to get the final constant
 offset for the whole image.<br>
 </span></p>
 <p class="MsoNormal"><span>The operator then performs shift in range
-direction for every burst using the offset computed above and a phase
+direction for every burst using the offset computed above with a phase
 ramp method in frequency domain</span>.<br>
 <span style=""><o:p></o:p></span></p>
- <br>
-<hr>
-</body></html>
+ 
+<h4>Input <br>
+</h4>
+
+
+
+<ul>
+<li>The input to this operator is the resulting product from the
+Backgeocoding operator. It is the co-registered master and slave images
+for the same
+sub-swath and same polarization (e.g. IW1 -
+VV). <br>
+  </li>
+</ul>
+
+<h4>Output <br>
+</h4>
+
+
+
+
+<ul>
+<li>The output of the operator are the co-registered master and slave
+bands in I/Q format with the slave bands shifted by a small amount in
+range direction. <br>
+
+  </li>
+</ul>
+
+
+<h4>Parameters Used<br>
+</h4>
+
+
+
+
+<ul>
+<li>Registration Window Size: Dimension of the sub-set of image used
+for cross-correlation. Larger window generally implies accurate
+estimation of the range shift and also means larger memory and longer
+processing time.<br>
+</li>
+  <li>Interpolation Factor: The factor for up sampling the sub-set of image before applying cross-correlation. The larger the factor, the better the achievable accuracy, and the larger the computation cost.<br>
+  </li>
+  <li>Max Iterations: The maximum number of iterations for performing
+the cross-correlation in computing the range shift. Again larger number
+means better result and longer processing time.<br>
+  </li>
+</ul>
+<img src="file:///C:/Users/junlu/AppData/Local/Temp/moz-screenshot-16.jpg" alt="">
+<hr></body></html>
