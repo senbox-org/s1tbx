@@ -25,9 +25,9 @@ import org.esa.snap.util.StringUtils;
 
 import java.io.Reader;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * The {@link GraphIO} class contains methods for the
@@ -90,14 +90,19 @@ public class GraphIO {
         return graph;
     }
 
-    private static void addSourceProductsVariable(Map<String, String> variables) {
-        List<String> varValueList = new ArrayList<String>();
+    //package local for testing
+    static void addSourceProductsVariable(Map<String, String> variables) {
+        SortedMap<Integer, String> indexToEntry = new TreeMap<>();
         for (Map.Entry<String, String> entry : variables.entrySet()) {
-            if (entry.getKey().matches("sourceProduct[0-9]+")) {
-                varValueList.add(entry.getValue());
+            final String key = entry.getKey();
+            if (key.matches("sourceProduct[0-9]+")) {
+                int index = Integer.parseInt(key.substring(13));
+                if(!indexToEntry.containsKey(index)) {
+                    indexToEntry.put(index, entry.getValue());
+                }
             }
         }
-        variables.put("sourceProducts", StringUtils.arrayToCsv(varValueList.toArray()));
+        variables.put("sourceProducts", StringUtils.arrayToCsv(indexToEntry.values().toArray()));
     }
 
     /**

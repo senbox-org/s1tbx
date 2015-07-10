@@ -44,16 +44,12 @@ import org.esa.snap.framework.datamodel.RasterDataNode;
 import org.esa.snap.framework.datamodel.TiePointGrid;
 import org.esa.snap.framework.datamodel.VectorDataNode;
 import org.esa.snap.framework.datamodel.VirtualBand;
-import org.esa.snap.framework.dataop.maptransf.MapInfo;
-import org.esa.snap.framework.dataop.maptransf.MapProjection;
-import org.esa.snap.framework.dataop.maptransf.MapTransform;
 import org.esa.snap.glayer.MaskLayerType;
 import org.esa.snap.jai.ImageManager;
 import org.esa.snap.util.geotiff.GeoCoding2GeoTIFFMetadata;
 import org.esa.snap.util.geotiff.GeoTIFFMetadata;
 import org.esa.snap.util.jai.JAIUtils;
 import org.esa.snap.util.math.IndexValidator;
-import org.esa.snap.util.math.MathUtils;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -65,12 +61,10 @@ import javax.media.jai.PlanarImage;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ComponentColorModel;
@@ -113,9 +107,7 @@ public class ProductUtils {
      * @param rasters                 The raster data nodes.
      * @param assignMissingImageInfos if {@code true}, it is ensured that to all {@code RasterDataNode}s a valid {@code ImageInfo} will be assigned.
      * @param pm                      The progress monitor.
-     *
      * @return image information
-     *
      * @throws IOException if an I/O error occurs
      * @since BEAM 4.2
      */
@@ -153,9 +145,7 @@ public class ProductUtils {
      * @param rasters   an array of one or three raster nodes.
      * @param imageInfo the image info provides the information how to create the image
      * @param pm        a monitor to inform the user about progress
-     *
      * @return the created image
-     *
      * @throws IOException if the given raster data is not loaded and reload causes an I/O error
      * @see RasterDataNode#setImageInfo(org.esa.snap.framework.datamodel.ImageInfo)
      */
@@ -215,14 +205,8 @@ public class ProductUtils {
                                           0,
                                           numColorComponents,
                                           ProgressMonitor.NULL);
-                indexValidator = new IndexValidator() {
-                    @Override
-                    public boolean validateIndex(int pixelIndex) {
-                        return raster.isPixelValid(pixelIndex);
-                    }
-                };
+                indexValidator = raster::isPixelValid;
                 palette = ImageManager.createColorPalette(raster.getImageInfo());
-//                palette = raster.getImageInfo().getColorPaletteDef().createColorPalette(raster);
                 pm.worked(50);
                 checkCanceled(pm);
             } else {
@@ -244,14 +228,9 @@ public class ProductUtils {
                     palette = Arrays.copyOf(palette, palette.length + 1);
                     palette[palette.length - 1] = ImageInfo.NO_COLOR;
                 }
-                indexValidator = new IndexValidator() {
-                    @Override
-                    public boolean validateIndex(int pixelIndex) {
-                        return raster.isPixelValid(pixelIndex)
-                               && (noDataIndex == 0 ||
-                                   (rgbSamples[pixelIndex * numColorComponents] & 0xff) != noDataIndex);
-                    }
-                };
+                indexValidator = pixelIndex -> raster.isPixelValid(pixelIndex)
+                        && (noDataIndex == 0 ||
+                        (rgbSamples[pixelIndex * numColorComponents] & 0xff) != noDataIndex);
                 pm.worked(50);
                 checkCanceled(pm);
             }
@@ -358,15 +337,15 @@ public class ProductUtils {
             }
 
             final boolean validMaskUsed = rasters[0].isValidMaskUsed()
-                                          || rasters[1].isValidMaskUsed()
-                                          || rasters[2].isValidMaskUsed();
+                    || rasters[1].isValidMaskUsed()
+                    || rasters[2].isValidMaskUsed();
             boolean pixelValid;
             int pixelIndex = 0;
             for (int i = 0; i < rgbSamples.length; i += numColorComponents) {
                 pixelValid = !validMaskUsed
-                             || rasters[0].isPixelValid(pixelIndex)
-                                && rasters[1].isPixelValid(pixelIndex)
-                                && rasters[2].isPixelValid(pixelIndex);
+                        || rasters[0].isPixelValid(pixelIndex)
+                        && rasters[1].isPixelValid(pixelIndex)
+                        && rasters[2].isPixelValid(pixelIndex);
                 if (pixelValid) {
                     if (numColorComponents == 4) {
                         rgbSamples[i] = (byte) 255;
@@ -409,7 +388,7 @@ public class ProductUtils {
                                                                  colorComponentCount * width,
                                                                  colorComponentCount,
                                                                  colorComponentCount == 4 ?
-                                                                 RGBA_BAND_OFFSETS : RGB_BAND_OFFSETS,
+                                                                         RGBA_BAND_OFFSETS : RGB_BAND_OFFSETS,
                                                                  null
         );
         return new BufferedImage(cm, wr, false, null);
@@ -423,9 +402,7 @@ public class ProductUtils {
      *
      * @param rasterDataNode the raster data node, must not be <code>null</code>
      * @param pm             a monitor to inform the user about progress
-     *
      * @return the color indexed image
-     *
      * @throws IOException if the given raster data is not loaded and reload causes an I/O error
      * @see org.esa.snap.framework.datamodel.RasterDataNode#getImageInfo()
      */
@@ -468,209 +445,12 @@ public class ProductUtils {
         }
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-// Helpers used for map projections
-
-    /**
-     * Retuns a suitable <code>MapInfo</code> instance for the given (geo-coded) product which includes the entire or a
-     * subset of the product's scene region for the given map projection. The position of the reference pixel will be
-     * the upper left pixel's center (0.5, 0.5).
-     *
-     * @param product       the product, must not be <code>null</code>
-     * @param rect          the rectangle in pixel coordinates of the product, if <code>null</code> the entire region is
-     *                      considered
-     * @param mapProjection the map projection, must not be <code>null</code>
-     *
-     * @return the map information instance
-     */
-    public static MapInfo createSuitableMapInfo(final Product product,
-                                                final Rectangle rect,
-                                                final MapProjection mapProjection) {
-        Guardian.assertNotNull("product", product);
-        Guardian.assertNotNull("mapProjection", mapProjection);
-        final GeoCoding gc = product.getGeoCoding();
-        if (gc == null) {
-            throw new IllegalArgumentException(UtilConstants.MSG_NO_GEO_CODING);
-        }
-        final int sourceW = product.getSceneRasterWidth();
-        final int sourceH = product.getSceneRasterHeight();
-        final MapTransform mapTransform = mapProjection.getMapTransform();
-        final Point2D[] envelope = createMapEnvelope(product, rect, mapTransform);
-        final double mapW = Math.abs(envelope[1].getX() - envelope[0].getX());
-        final double mapH = Math.abs(envelope[1].getY() - envelope[0].getY());
-        float pixelSize = (float) Math.min(mapW / sourceW, mapH / sourceH);
-        if (MathUtils.equalValues(pixelSize, 0.0f)) {
-            pixelSize = 1.0f;
-        }
-        final int targetW = 1 + (int) Math.floor(mapW / pixelSize);
-        final int targetH = 1 + (int) Math.floor(mapH / pixelSize);
-        final float easting = (float) envelope[0].getX();
-        final float northing = (float) envelope[1].getY();
-        final MapInfo mapInfo = new MapInfo(mapProjection,
-                                            0.5F,
-                                            0.5F,
-                                            easting,
-                                            northing,
-                                            pixelSize,
-                                            pixelSize,
-                                            gc.getDatum());
-        mapInfo.setSceneSizeFitted(true);
-        mapInfo.setSceneWidth(targetW);
-        mapInfo.setSceneHeight(targetH);
-        mapInfo.setNoDataValue(MapInfo.DEFAULT_NO_DATA_VALUE);
-        return mapInfo;
-    }
-
-    /**
-     * Retuns a suitable <code>MapInfo</code> instance for the given (geo-coded) product which includes the entire or a
-     * subset of the product's scene region for the given map projection. The position of the reference pixel will be the scene center.
-     *
-     * @param product       the product, must not be <code>null</code>
-     * @param mapProjection the map projection, must not be <code>null</code>
-     * @param orientation   the orientation angle
-     * @param noDataValue   the no-data value to be used
-     *
-     * @return the map information instance
-     *
-     * @deprecated since BEAM 4.7 {@link MapInfo} is deprecated
-     */
-    @Deprecated
-    public static MapInfo createSuitableMapInfo(final Product product,
-                                                final MapProjection mapProjection,
-                                                final double orientation,
-                                                final double noDataValue) {
-        Guardian.assertNotNull("product", product);
-        Guardian.assertNotNull("mapProjection", mapProjection);
-        final GeoCoding gc = product.getGeoCoding();
-        if (gc == null) {
-            throw new IllegalArgumentException(UtilConstants.MSG_NO_GEO_CODING);
-        }
-        final int sourceW = product.getSceneRasterWidth();
-        final int sourceH = product.getSceneRasterHeight();
-        final MapTransform mapTransform = mapProjection.getMapTransform();
-        final Point2D[] envelope = createMapEnvelope(product, new Rectangle(sourceW, sourceH), mapTransform);
-        final Point2D pMin = envelope[0];
-        final Point2D pMax = envelope[1];
-        double mapW = pMax.getX() - pMin.getX();
-        double mapH = pMax.getY() - pMin.getY();
-
-        float pixelSize = (float) Math.min(mapW / sourceW, mapH / sourceH);
-        if (MathUtils.equalValues(pixelSize, 0.0f)) {
-            pixelSize = 1.0f;
-        }
-        final int targetW = 1 + (int) Math.floor(mapW / pixelSize);
-        final int targetH = 1 + (int) Math.floor(mapH / pixelSize);
-
-        final float pixelX = 0.5f * targetW;
-        final float pixelY = 0.5f * targetH;
-
-        final float easting = (float) pMin.getX() + pixelX * pixelSize;
-        final float northing = (float) pMax.getY() - pixelY * pixelSize;
-
-        final MapInfo mapInfo = new MapInfo(mapProjection,
-                                            pixelX,
-                                            pixelY,
-                                            easting,
-                                            northing,
-                                            pixelSize,
-                                            pixelSize,
-                                            gc.getDatum());
-        mapInfo.setOrientation((float) orientation);
-        mapInfo.setSceneSizeFitted(true);
-        mapInfo.setSceneWidth(targetW);
-        mapInfo.setSceneHeight(targetH);
-        mapInfo.setNoDataValue(noDataValue);
-        return mapInfo;
-    }
-
-    public static Dimension getOutputRasterSize(final Product product,
-                                                final Rectangle rect,
-                                                final MapTransform mapTransform,
-                                                final double pixelSizeX,
-                                                final double pixelSizeY) {
-        final Point2D[] envelope = createMapEnvelope(product, rect, mapTransform);
-        final double mapW = envelope[1].getX() - envelope[0].getX();
-        final double mapH = envelope[1].getY() - envelope[0].getY();
-        return new Dimension(1 + (int) Math.floor(mapW / pixelSizeX),
-                             1 + (int) Math.floor(mapH / pixelSizeY));
-    }
-
-    /**
-     * Creates the boundary in map coordinates for the given product, source rectangle (in product pixel coordinates)
-     * and the given map transformation. The method delegates to {@link #createMapEnvelope(org.esa.snap.framework.datamodel.Product,
-     * java.awt.Rectangle, int, org.esa.snap.framework.dataop.maptransf.MapTransform) createMapEnvelope(product, rect,
-     * step, mapTransform)} where <code>step</code> is the half of the minimum of the product scene raster width and
-     * height.
-     *
-     * @param product      The product.
-     * @param rect         The rectangle in pixel coordinates.
-     * @param mapTransform The map transformation.
-     *
-     * @return The boundary in map coordinates for the given product.
-     */
-    public static Point2D[] createMapEnvelope(final Product product,
-                                              final Rectangle rect,
-                                              final MapTransform mapTransform) {
-        final int step = Math.min(product.getSceneRasterWidth(), product.getSceneRasterHeight()) / 2;
-        return createMapEnvelope(product, rect, step, mapTransform);
-    }
-
-    /**
-     * Creates the boundary in map coordinates for the given product, source rectangle (in product
-     * pixel coordinates) and the given map transformation. The method delegates to
-     * {@link #createMapBoundary(Product, Rectangle, int, MapTransform) createMapBoundary(product, rect,
-     * step, mapTransform)} where <code>step</code> is the half of the minimum of the product scene
-     * raster width and height.
-     *
-     * @param product      The product.
-     * @param rect         The rectangle in pixel coordinates.
-     * @param step         The step size in pixels.
-     * @param mapTransform The map transformation.
-     *
-     * @return The boundary in map coordinates for the given product.
-     */
-    public static Point2D[] createMapEnvelope(Product product,
-                                              Rectangle rect,
-                                              int step,
-                                              MapTransform mapTransform) {
-        Point2D[] boundary = createMapBoundary(product, rect, step, mapTransform);
-        return getMinMax(boundary);
-    }
-
-    public static Point2D[] getMinMax(Point2D[] boundary) {
-        Point2D.Float min = new Point2D.Float();
-        Point2D.Float max = new Point2D.Float();
-        min.x = +Float.MAX_VALUE;
-        min.y = +Float.MAX_VALUE;
-        max.x = -Float.MAX_VALUE;
-        max.y = -Float.MAX_VALUE;
-        for (Point2D point : boundary) {
-            min.x = Math.min(min.x, (float) point.getX());
-            min.y = Math.min(min.y, (float) point.getY());
-            max.x = Math.max(max.x, (float) point.getX());
-            max.y = Math.max(max.y, (float) point.getY());
-        }
-        return new Point2D[]{min, max};
-    }
-
-    public static Point2D[] createMapBoundary(Product product, Rectangle rect, int step, MapTransform mapTransform) {
-        GeoPos[] geoPoints = createGeoBoundary(product, rect, step);
-        normalizeGeoPolygon(geoPoints);
-        Point2D[] mapPoints = new Point2D[geoPoints.length];
-        for (int i = 0; i < geoPoints.length; i++) {
-            mapPoints[i] = mapTransform.forward(geoPoints[i], new Point2D.Float());
-        }
-        return mapPoints;
-    }
-
     /**
      * Creates the geographical boundary of the given product and returns it as a list of geographical coordinates.
      *
      * @param product the input product, must not be null
      * @param step    the step given in pixels
-     *
      * @return an array of geographical coordinates
-     *
      * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
      */
     public static GeoPos[] createGeoBoundary(Product product, int step) {
@@ -687,9 +467,7 @@ public class ProductUtils {
      * @param product the input product, must not be null
      * @param region  the region rectangle in product pixel coordinates, can be null for entire product
      * @param step    the step given in pixels
-     *
      * @return an array of geographical coordinates
-     *
      * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
      * @see #createPixelBoundary(org.esa.snap.framework.datamodel.RasterDataNode, java.awt.Rectangle, int)
      */
@@ -706,9 +484,7 @@ public class ProductUtils {
      * @param region         the region rectangle in product pixel coordinates, can be null for entire product
      * @param step           the step given in pixels
      * @param usePixelCenter <code>true</code> if the pixel center should be used to create the boundary
-     *
      * @return an array of geographical coordinates
-     *
      * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
      * @see #createPixelBoundary(org.esa.snap.framework.datamodel.Product, java.awt.Rectangle, int, boolean)
      */
@@ -743,9 +519,7 @@ public class ProductUtils {
      * @param raster the input raster, must not be null
      * @param region the region rectangle in raster pixel coordinates, can be null for entire raster
      * @param step   the step given in pixels
-     *
      * @return an array of geographical coordinates
-     *
      * @throws IllegalArgumentException if raster is null or if the raster has no {@link GeoCoding} is null
      * @see #createPixelBoundary(org.esa.snap.framework.datamodel.RasterDataNode, java.awt.Rectangle, int)
      */
@@ -771,9 +545,7 @@ public class ProductUtils {
      * The geographic boundary of the given product are returned as shapes comprising (longitude,latitude) pairs.
      *
      * @param product the input product
-     *
      * @return an array of shape objects
-     *
      * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
      * @see #createGeoBoundary(org.esa.snap.framework.datamodel.Product, int)
      */
@@ -796,9 +568,7 @@ public class ProductUtils {
      * @param product the input product
      * @param region  the region rectangle in product pixel coordinates, can be null for entire product
      * @param step    the step given in pixels
-     *
      * @return an array of shape objects
-     *
      * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
      * @see #createGeoBoundary(org.esa.snap.framework.datamodel.Product, java.awt.Rectangle, int)
      */
@@ -818,9 +588,7 @@ public class ProductUtils {
      * @param region         the region rectangle in product pixel coordinates, can be null for entire product
      * @param step           the step given in pixels
      * @param usePixelCenter <code>true</code> if the pixel center should be used to create the pathes
-     *
      * @return an array of shape objects
-     *
      * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
      * @see #createGeoBoundary(org.esa.snap.framework.datamodel.Product, java.awt.Rectangle, int, boolean)
      */
@@ -851,7 +619,6 @@ public class ProductUtils {
      * @param product the product
      * @param rect    the source rectangle
      * @param step    the mean distance from one pixel position to the other in the returned array
-     *
      * @return the rectangular boundary
      */
     public static PixelPos[] createPixelBoundary(Product product, Rectangle rect, int step) {
@@ -870,7 +637,6 @@ public class ProductUtils {
      * @param rect           the source rectangle
      * @param step           the mean distance from one pixel position to the other in the returned array
      * @param usePixelCenter <code>true</code> if the pixel center should be used to create the boundary
-     *
      * @return the rectangular boundary
      */
     public static PixelPos[] createPixelBoundary(Product product, Rectangle rect, int step,
@@ -894,7 +660,6 @@ public class ProductUtils {
      * @param raster the raster
      * @param rect   the source rectangle
      * @param step   the mean distance from one pixel position to the other in the returned array
-     *
      * @return the rectangular boundary
      */
     public static PixelPos[] createPixelBoundary(RasterDataNode raster, Rectangle rect, int step) {
@@ -918,7 +683,6 @@ public class ProductUtils {
      *
      * @param rect the source rectangle
      * @param step the mean distance from one pixel position to the other in the returned array
-     *
      * @return the rectangular boundary
      */
     public static PixelPos[] createRectBoundary(Rectangle rect, int step) {
@@ -938,7 +702,6 @@ public class ProductUtils {
      * @param rect           the source rectangle
      * @param step           the mean distance from one pixel position to the other in the returned array
      * @param usePixelCenter <code>true</code> if the pixel center should be used
-     *
      * @return the rectangular boundary
      */
     public static PixelPos[] createRectBoundary(final Rectangle rect, int step, final boolean usePixelCenter) {
@@ -1006,7 +769,6 @@ public class ProductUtils {
      *
      * @param sourceFlagCoding the source flag coding
      * @param target           the target product
-     *
      * @return The flag coding.
      */
     public static FlagCoding copyFlagCoding(FlagCoding sourceFlagCoding, Product target) {
@@ -1043,7 +805,6 @@ public class ProductUtils {
      *
      * @param sourceIndexCoding the source index coding
      * @param target            the target product
-     *
      * @return The index coding.
      */
     public static IndexCoding copyIndexCoding(IndexCoding sourceIndexCoding, Product target) {
@@ -1074,7 +835,7 @@ public class ProductUtils {
         for (int i = 0; i < sourceMaskGroup.getNodeCount(); i++) {
             final Mask mask = sourceMaskGroup.get(i);
             if (!targetProduct.getMaskGroup().contains(mask.getName())
-                && mask.getImageType().canTransferMask(mask, targetProduct)) {
+                    && mask.getImageType().canTransferMask(mask, targetProduct)) {
                 mask.getImageType().transferMask(mask, targetProduct);
             }
         }
@@ -1101,30 +862,6 @@ public class ProductUtils {
         }
     }
 
-    /**
-     * Copies the ROI {@link Mask}s from the source product's raster data nodes to
-     * the target product's raster data nodes.
-     * <p>
-     * IMPORTANT NOTE: This method should only be used, if it is known that all masks
-     * in the source product will also be valid in the target product. This method does
-     * <em>not</em> copy ROI masks, which are not contained in the target product's
-     * mask group.
-     *
-     * @param sourceProduct the source product
-     * @param targetProduct the target product
-     *
-     * @deprecated since BEAM 4.10 (no replacement)
-     */
-    @Deprecated
-    public static void copyRoiMasks(Product sourceProduct, Product targetProduct) {
-        for (RasterDataNode sourceNode : sourceProduct.getTiePointGrids()) {
-            copyRoiMasks(sourceNode, targetProduct);
-        }
-        for (RasterDataNode sourceNode : sourceProduct.getBands()) {
-            copyRoiMasks(sourceNode, targetProduct);
-        }
-    }
-
     private static void copyOverlayMasks(final RasterDataNode sourceNode, final Product targetProduct) {
         String[] maskNames = sourceNode.getOverlayMaskGroup().getNodeNames();
         RasterDataNode targetNode = targetProduct.getRasterDataNode(sourceNode.getName());
@@ -1134,21 +871,6 @@ public class ProductUtils {
             addMasksToGroup(maskNames, maskGroup, overlayMaskGroup);
         }
     }
-
-    /*
-     * @deprecated since BEAM 4.10 (no replacement)
-     */
-    @Deprecated
-    private static void copyRoiMasks(final RasterDataNode sourceNode, final Product targetProduct) {
-        String[] maskNames = sourceNode.getRoiMaskGroup().getNodeNames();
-        RasterDataNode targetNode = targetProduct.getRasterDataNode(sourceNode.getName());
-        if (targetNode != null) {
-            ProductNodeGroup<Mask> roiMaskGroup = targetNode.getRoiMaskGroup();
-            ProductNodeGroup<Mask> maskGroup = targetProduct.getMaskGroup();
-            addMasksToGroup(maskNames, maskGroup, roiMaskGroup);
-        }
-    }
-
 
     private static void addMasksToGroup(String[] maskNames, ProductNodeGroup<Mask> maskGroup,
                                         ProductNodeGroup<Mask> specialMaskGroup) {
@@ -1166,7 +888,6 @@ public class ProductUtils {
      * @param sourceProduct   the source product
      * @param targetProduct   the target product
      * @param copySourceImage whether the source image of the source band should be copied.
-     *
      * @since BEAM 4.10
      */
     public static void copyFlagBands(Product sourceProduct, Product targetProduct, boolean copySourceImage) {
@@ -1192,25 +913,11 @@ public class ProductUtils {
     }
 
     /**
-     * Copies all bands which contain a flagcoding from the source product to the target product.
-     *
-     * @param sourceProduct the source product
-     * @param targetProduct the target product
-     *
-     * @deprecated since BEAM 4.10, use {@link #copyFlagBands(Product, Product, boolean)} instead.
-     */
-    @Deprecated
-    public static void copyFlagBands(Product sourceProduct, Product targetProduct) {
-        copyFlagBands(sourceProduct, targetProduct, false);
-    }
-
-    /**
      * Copies the named tie-point grid from the source product to the target product.
      *
      * @param gridName      the name of the tie-point grid to be copied.
      * @param sourceProduct the source product
      * @param targetProduct the target product
-     *
      * @return the copied tie-point grid, or <code>null</code> if the sourceProduct does not contain a tie-point grid with the given name.
      */
     public static TiePointGrid copyTiePointGrid(String gridName, Product sourceProduct, Product targetProduct) {
@@ -1236,9 +943,7 @@ public class ProductUtils {
      * @param sourceProduct   the source product.
      * @param targetProduct   the target product.
      * @param copySourceImage whether the source image of the source band should be copied.
-     *
      * @return the copy of the band, or <code>null</code> if the sourceProduct does not contain a band with the given name.
-     *
      * @since BEAM 4.10
      */
     public static Band copyBand(String sourceBandName, Product sourceProduct, Product targetProduct,
@@ -1254,9 +959,7 @@ public class ProductUtils {
      * @param targetBandName  the name of the band copied.
      * @param targetProduct   the target product.
      * @param copySourceImage whether the source image of the source band should be copied.
-     *
      * @return the copy of the band, or <code>null</code> if the sourceProduct does not contain a band with the given name.
-     *
      * @since BEAM 4.10
      */
     public static Band copyBand(String sourceBandName, Product sourceProduct,
@@ -1284,7 +987,6 @@ public class ProductUtils {
      *
      * @param sourceRaster the source band
      * @param targetRaster the target band
-     *
      * @see #copySpectralBandProperties(org.esa.snap.framework.datamodel.Band, org.esa.snap.framework.datamodel.Band)
      */
     public static void copyRasterDataNodeProperties(RasterDataNode sourceRaster, RasterDataNode targetRaster) {
@@ -1323,40 +1025,6 @@ public class ProductUtils {
     }
 
     /**
-     * Copies the named band from the source product to the target product.
-     *
-     * @param sourceBandName the name of the band to be copied.
-     * @param sourceProduct  the source product.
-     * @param targetProduct  the target product.
-     *
-     * @return the copy of the band, or <code>null</code> if the sourceProduct does not contain a band with the given name.
-     *
-     * @deprecated since BEAM 4.10, use {@link #copyBand(String, Product, Product, boolean)} instead.
-     */
-    @Deprecated
-    public static Band copyBand(String sourceBandName, Product sourceProduct, Product targetProduct) {
-        return copyBand(sourceBandName, sourceProduct, sourceBandName, targetProduct, false);
-    }
-
-    /**
-     * Copies the named band from the source product to the target product.
-     *
-     * @param sourceBandName the name of the band to be copied.
-     * @param sourceProduct  the source product.
-     * @param targetBandName the name of the band copied.
-     * @param targetProduct  the target product.
-     *
-     * @return the copy of the band, or <code>null</code> if the sourceProduct does not contain a band with the given name.
-     *
-     * @deprecated since BEAM 4.10, use {@link #copyBand(String, Product, String, Product, boolean)} instead.
-     */
-    @Deprecated
-    public static Band copyBand(String sourceBandName, Product sourceProduct,
-                                String targetBandName, Product targetProduct) {
-        return copyBand(sourceBandName, sourceProduct, targetBandName, targetProduct, false);
-    }
-
-    /**
      * Copies the spectral properties from source band to target band. These properties are:
      * <ul>
      * <li>{@link org.esa.snap.framework.datamodel.Band#getSpectralBandIndex() spectral band index},</li>
@@ -1367,7 +1035,6 @@ public class ProductUtils {
      *
      * @param sourceBand the source band
      * @param targetBand the target band
-     *
      * @see #copyRasterDataNodeProperties(org.esa.snap.framework.datamodel.RasterDataNode, org.esa.snap.framework.datamodel.RasterDataNode)
      */
     public static void copySpectralBandProperties(Band sourceBand, Band targetBand) {
@@ -1404,7 +1071,6 @@ public class ProductUtils {
      *
      * @param sourceProduct the source product
      * @param targetProduct the target product
-     *
      * @throws IllegalArgumentException if one of the params is <code>null</code>.
      */
     public static void copyGeoCoding(final Product sourceProduct, final Product targetProduct) {
@@ -1504,26 +1170,24 @@ public class ProductUtils {
      * Returns whether or not a product can return a pixel position from a given geographical position.
      *
      * @param product the product to be checked
-     *
      * @return <code>true</code> if the given product can return a pixel position
      */
     public static boolean canGetPixelPos(Product product) {
         return product != null
-               && product.getGeoCoding() != null
-               && product.getGeoCoding().canGetPixelPos();
+                && product.getGeoCoding() != null
+                && product.getGeoCoding().canGetPixelPos();
     }
 
     /**
      * Returns whether or not a raster can return a pixel position from a given geographical position.
      *
      * @param raster the raster to be checked
-     *
      * @return <code>true</code> if the given raster can return a pixel position
      */
     public static boolean canGetPixelPos(final RasterDataNode raster) {
         return raster != null
-               && raster.getGeoCoding() != null
-               && raster.getGeoCoding().canGetPixelPos();
+                && raster.getGeoCoding() != null
+                && raster.getGeoCoding().canGetPixelPos();
     }
 
     /**
@@ -1541,9 +1205,7 @@ public class ProductUtils {
      * @param background the background color of the output image
      * @param image      an image to be used as output image, if <code>null</code> a new image is created
      * @param pm         the progress monitor
-     *
      * @return the density plot image
-     *
      * @throws java.io.IOException when an error occurred.
      */
     public static BufferedImage createDensityPlotImage(final RasterDataNode raster1,
@@ -1563,7 +1225,7 @@ public class ProductUtils {
         Guardian.assertNotNull("raster2", raster2);
         Guardian.assertNotNull("background", background);
         if (raster1.getSceneRasterWidth() != raster2.getSceneRasterWidth()
-            || raster1.getSceneRasterHeight() != raster2.getSceneRasterHeight()) {
+                || raster1.getSceneRasterHeight() != raster2.getSceneRasterHeight()) {
             throw new IllegalArgumentException("'raster1' has not the same size as 'raster2'");
         }
 
@@ -1577,10 +1239,10 @@ public class ProductUtils {
     private static BufferedImage getCompatibleBufferedImageForDensityPlot(BufferedImage image, int width, int height,
                                                                           Color background) {
         if (image == null
-            || image.getWidth() != width
-            || image.getHeight() != height
-            || !(image.getColorModel() instanceof IndexColorModel)
-            || !(image.getRaster().getDataBuffer() instanceof DataBufferByte)) {
+                || image.getWidth() != width
+                || image.getHeight() != height
+                || !(image.getColorModel() instanceof IndexColorModel)
+                || !(image.getRaster().getDataBuffer() instanceof DataBufferByte)) {
             final int palSize = 256;
             final byte[] r = new byte[palSize];
             final byte[] g = new byte[palSize];
@@ -1616,9 +1278,7 @@ public class ProductUtils {
      * @param raster     the raster data node which contains all the activated bitmask definitions
      * @param overlayBIm the source image which is used as base image for all the overlays.
      * @param pm         a monitor to inform the user about progress
-     *
      * @return the modified given overlayBImm which contains all the activated masks.
-     *
      * @see RasterDataNode#getOverlayMaskGroup()
      */
 
@@ -1661,10 +1321,8 @@ public class ProductUtils {
      * degrees. The method operates only on the longitude values of the given polygon.
      *
      * @param polygon a geographical, closed polygon
-     *
      * @return 0 if normalizing has not been applied , -1 if negative normalizing has been applied, 1 if positive
      * normalizing has been applied, 2 if positive and negative normalising has been applied
-     *
      * @see #denormalizeGeoPolygon(GeoPos[])
      */
     public static int normalizeGeoPolygon(GeoPos[] polygon) {
@@ -1675,8 +1333,8 @@ public class ProductUtils {
 
         double lonDiff;
         double increment = 0.f;
-        double minLon = Float.MAX_VALUE;
-        double maxLon = -Float.MAX_VALUE;
+        double minLon = Double.MAX_VALUE;
+        double maxLon = -Double.MAX_VALUE;
         for (int i = 1; i < polygon.length; i++) {
             final GeoPos geoPos = polygon[i];
             lonDiff = originalLon[i] - originalLon[i - 1];
@@ -1721,45 +1379,6 @@ public class ProductUtils {
     }
 
     /**
-     * @deprecated since BEAM 4.10
-     */
-    @Deprecated
-    public static int normalizeGeoPolygon_old(GeoPos[] polygon) {
-        boolean negNormalized = false;
-        boolean posNormalized = false;
-        double lonDiff;
-        final int numValues = polygon.length;
-        for (int i = 0; i < numValues - 1; i++) {
-            GeoPos p1 = polygon[i];
-            GeoPos p2 = polygon[(i + 1) % numValues];
-            lonDiff = p2.lon - p1.lon;
-
-            if (lonDiff >= 180.0) {
-                p2.lon -= 360.0;
-                negNormalized = true;
-            } else if (lonDiff <= -180.0) {
-                p2.lon += 360.0;
-                posNormalized = true;
-            }
-        }
-
-        int normalized = 0;
-        if (negNormalized && !posNormalized) {
-            for (GeoPos aPolygon : polygon) {
-                aPolygon.lon += 360.0;
-            }
-            normalized = -1;
-        } else if (!negNormalized && posNormalized) {
-            normalized = 1;
-        } else if (negNormalized && posNormalized) {
-            normalized = 2;
-// todo - check if we should throw an IllegalArgumentException here
-// Debug.trace("ProductUtils.normalizeGeoPolygon: negNormalized && posNormalized == true");
-        }
-        return normalized;
-    }
-
-    /**
      * Denormalizes the longitude values which have been normalized using the
      * {@link #normalizeGeoPolygon(org.esa.snap.framework.datamodel.GeoPos[])} method. The
      * method operates only on the longitude values of the given polygon.
@@ -1780,18 +1399,6 @@ public class ProductUtils {
             factor = (int) ((geoPos.lon - 180.0) / 360.0);
         }
         geoPos.lon -= factor * 360.0;
-    }
-
-    /**
-     * @deprecated since BEAM 4.10
-     */
-    @Deprecated
-    public static void denormalizeGeoPos_old(GeoPos geoPos) {
-        if (geoPos.lon > 180.0) {
-            geoPos.lon -= 360.0;
-        } else if (geoPos.lon < -180.0) {
-            geoPos.lon += 360.0;
-        }
     }
 
     public static int getRotationDirection(GeoPos[] polygon) {
@@ -1818,144 +1425,12 @@ public class ProductUtils {
         return angleSum;
     }
 
-/**
- * Converts a shape given in geographic coordionates
- * into a shape in pixel coordinates using the supplied geo coding.
- * The given shape
- *
- * @param geoPath   a <code>GeneralPath</code> given in geographic lon/lat coordinates,
- *                  as returned by the {@link #convertToGeoPath} method
- * @param geoCoding the geocoding used to convert the geographic coordinates into pixel coordinates.
- * @return a <code>GeneralPath</code> given in pixel coordinates.
- * @throws IllegalArgumentException if one of the given parameter is null.
- * @throws IllegalStateException    if the given geoPath is not a geo referenced <code>GeneralPath</code>
- *                                  wich contains only SEG_MOVETO, SEG_LINETO, and SEG_CLOSE point types.
- * @see #convertToGeoPath
- */
-
-    /**
-     * Converts a <code>GeneralPath</code> given in geographic lon/lat coordinates into a <code>GeneralPath</code> in
-     * pixel coordinates using the supplied geo coding.
-     *
-     * @param geoPath   a <code>GeneralPath</code> given in geographic lon/lat coordinates, as returned by the {@link
-     *                  #convertToGeoPath(Shape, GeoCoding)} method
-     * @param geoCoding the geocoding used to convert the geographic coordinates into pixel coordinates.
-     *
-     * @return a <code>GeneralPath</code> given in pixel coordinates.
-     *
-     * @throws IllegalArgumentException if one of the given parameter is null.
-     * @throws IllegalStateException    if the given geoPath is not a geo referenced <code>GeneralPath</code> wich
-     *                                  contains only SEG_MOVETO, SEG_LINETO, and SEG_CLOSE point types.
-     * @see #convertToGeoPath(Shape, GeoCoding)
-     */
-    public static GeneralPath convertToPixelPath(GeneralPath geoPath, GeoCoding geoCoding) {
-        Guardian.assertNotNull("geoPath", geoPath);
-        Guardian.assertNotNull("geoCoding", geoCoding);
-
-        final PathIterator pathIterator = geoPath.getPathIterator(null);
-        final float[] floats = new float[6];
-        final PixelPos pixelPos = new PixelPos();
-        final GeoPos geoPos = new GeoPos();
-
-        final GeneralPath pixelPath = new GeneralPath();
-        while (!pathIterator.isDone()) {
-            final int segmentType = pathIterator.currentSegment(floats);
-            geoPos.setLocation(floats[1], floats[0]);
-            if (segmentType == PathIterator.SEG_CLOSE) {
-                pixelPath.closePath();
-            } else if (segmentType == PathIterator.SEG_LINETO) {
-                geoCoding.getPixelPos(geoPos, pixelPos);
-                pixelPath.lineTo(pixelPos.x, pixelPos.y);
-            } else if (segmentType == PathIterator.SEG_MOVETO) {
-                geoCoding.getPixelPos(geoPos, pixelPos);
-                pixelPath.moveTo(pixelPos.x, pixelPos.y);
-            } else {
-                throw new IllegalStateException("Unexpected path iterator segment: " + segmentType);
-            }
-            pathIterator.next();
-        }
-        return pixelPath;
-    }
-
-    /**
-     * Converts a <code>Shape</code> given in pixel X/Y coordinates into a <code>GeneralPath</code> in geografic
-     * coordinates using the supplied geo coding.
-     *
-     * @param shape     a <code>Shape</code> given in pixel X/Y coordinates
-     * @param geoCoding the geo coding used to convert the pixel coordinates into geografic coordinates.
-     *
-     * @return a <code>GeneralPath</code> given in geografic coordinates
-     *
-     * @throws IllegalArgumentException if one of the given parameter is <code>null</code> or the given geo coding can
-     *                                  not get geografic coordinates.
-     * @throws IllegalStateException    if this method was used with a java runtime version in which it is not guaranted
-     *                                  that a <code>PathIterator</code> returned by {@link Shape#getPathIterator(java.awt.geom.AffineTransform,
-     *                                  double)} returnes only SEG_MOVETO, SEG_LINETO, and SEG_CLOSE point types.
-     * @see GeoCoding#canGetGeoPos()
-     */
-    public static GeneralPath convertToGeoPath(Shape shape, GeoCoding geoCoding) {
-        Guardian.assertNotNull("shape", shape);
-        Guardian.assertNotNull("geoCoding", geoCoding);
-        if (!geoCoding.canGetGeoPos()) {
-            throw new IllegalArgumentException("invalid 'geoCoding'"); /*I18N*/
-        }
-
-        final PathIterator pathIterator = shape.getPathIterator(null, 0.1);
-        final float[] floats = new float[6];
-        final GeoPos geoPos = new GeoPos();
-        final PixelPos pixelPos = new PixelPos();
-        final PixelPos lastPixelPos = new PixelPos();
-        final GeneralPath geoPath = new GeneralPath();
-        while (!pathIterator.isDone()) {
-            final int segmentType = pathIterator.currentSegment(floats);
-            pixelPos.x = floats[0];
-            pixelPos.y = floats[1];
-            if (segmentType == PathIterator.SEG_CLOSE) {
-                geoPath.closePath();
-            } else if (segmentType == PathIterator.SEG_LINETO) {
-                final double maxDist = 1.5;
-                final double distance = lastPixelPos.distance(pixelPos);
-                if (distance > maxDist) {
-                    final double startX = lastPixelPos.x;
-                    final double startY = lastPixelPos.y;
-                    final double endX = pixelPos.x;
-                    final double endY = pixelPos.y;
-                    final int numParts = (int) (distance / maxDist) + 1;
-                    final double addX = (endX - startX) / numParts;
-                    final double addY = (endY - startY) / numParts;
-                    pixelPos.setLocation(startX + addX, startY + addY);
-                    for (int i = 1; i < numParts; i++, pixelPos.x += addX, pixelPos.y += addY) {
-                        geoCoding.getGeoPos(pixelPos, geoPos);
-                        geoPath.lineTo(geoPos.lon, geoPos.lat);
-                    }
-                    pixelPos.setLocation(endX, endY);
-                    geoCoding.getGeoPos(pixelPos, geoPos);
-                    geoPath.lineTo(geoPos.lon, geoPos.lat);
-                    lastPixelPos.setLocation(pixelPos);
-                } else {
-                    geoCoding.getGeoPos(pixelPos, geoPos);
-                    geoPath.lineTo(geoPos.lon, geoPos.lat);
-                    lastPixelPos.setLocation(pixelPos);
-                }
-            } else if (segmentType == PathIterator.SEG_MOVETO) {
-                geoCoding.getGeoPos(pixelPos, geoPos);
-                geoPath.moveTo(geoPos.lon, geoPos.lat);
-                lastPixelPos.setLocation(pixelPos);
-            } else {
-                throw new IllegalStateException("Unexpected path iterator segment: " + segmentType);
-            }
-            pathIterator.next();
-        }
-        return geoPath;
-    }
-
     /**
      * Copies all metadata elements and attributes of the source product to the target product.
      * The copied elements and attributes are deeply cloned.
      *
      * @param source the source product.
      * @param target the target product.
-     *
      * @throws NullPointerException if the source or the target product is {@code null}.
      */
     public static void copyMetadata(Product source, Product target) {
@@ -1970,7 +1445,6 @@ public class ProductUtils {
      *
      * @param source the source element.
      * @param target the target element.
-     *
      * @throws NullPointerException if the source or the target element is {@code null}.
      */
     public static void copyMetadata(MetadataElement source, MetadataElement target) {
@@ -2066,7 +1540,6 @@ public class ProductUtils {
      * product, the related element is removed.
      *
      * @param product the (output) product to be cleaned up
-     *
      * @return an array of messages which changes are done to the given product.
      */
     public static String[] removeInvalidExpressions(final Product product) {
@@ -2122,7 +1595,6 @@ public class ProductUtils {
      * The method prefers bands with longer wavelengths, in order to produce good results for night-time scenes.
      *
      * @param product the product to be searched
-     *
      * @return the name of a suitable band or null if the given product does not contain any bands
      */
     public static String findSuitableQuicklookBandName(final Product product) {
@@ -2219,7 +1691,7 @@ public class ProductUtils {
                 destGeoCoding.getGeoPos(pixelPos, geoPos);
                 sourceGeoCoding.getPixelPos(geoPos, pixelPos);
                 if (pixelPos.x >= 0.0 && pixelPos.x < sourceWidth
-                    && pixelPos.y >= 0.0 && pixelPos.y < sourceHeight) {
+                        && pixelPos.y >= 0.0 && pixelPos.y < sourceHeight) {
                     pixelCoords[coordIndex] = new PixelPos(pixelPos.x, pixelPos.y);
                 } else {
                     pixelCoords[coordIndex] = null;
@@ -2234,12 +1706,10 @@ public class ProductUtils {
      * Computes the minimum and maximum y value of the given {@link PixelPos} array.
      *
      * @param pixelPositions the {@link PixelPos} array
-     *
      * @return an int array which containes the minimum and maximum y value of the given {@link PixelPos} array in the
      * order:<br> &nbsp;&nbsp;&nbsp;&nbsp;[0] - the minimum value<br>&nbsp;&nbsp;&nbsp;&nbsp;[1] - the maximum
      * value<br><br>or <code>null</code> if no minimum or maximum can be retrieved because there given array is
      * empty.
-     *
      * @throws IllegalArgumentException if the given pixelPositions are <code>null</code>.
      */
     public static double[] computeMinMaxY(PixelPos[] pixelPositions) {
@@ -2273,10 +1743,10 @@ public class ProductUtils {
                                                  final double defaultNoDataValue,
                                                  final Map<Band, RasterDataNode> addedRasterDataNodes) {
         copyBandsForGeomTransform(sourceProduct,
-                targetProduct,
-                false,
-                defaultNoDataValue,
-                addedRasterDataNodes);
+                                  targetProduct,
+                                  false,
+                                  defaultNoDataValue,
+                                  addedRasterDataNodes);
     }
 
     /**

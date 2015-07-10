@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
@@ -51,6 +52,7 @@ import java.util.logging.Logger;
 public class SystemUtils {
 
     public static final String SNAP_PARALLELISM_PROPERTY_NAME = getApplicationContextId() + ".parallelism";
+    public static final String SNAP_CACHE_DIR_PROPERTY_NAME = getApplicationContextId() + ".cachedir";
 
     /**
      * The SNAP system logger. Default name is "org.esa.snap" which may be overridden by system property "snap.logger.name".
@@ -120,6 +122,34 @@ public class SystemUtils {
      */
     public static Path getAuxDataPath() {
         return getApplicationDataDir().toPath().resolve(AUXDATA_DIR_NAME);
+    }
+
+    /**
+     * Gets the SNAP cache directory . This is the directory
+     * where SNAP stores cached & temporary data.
+     * <p>
+     * The SNAP cache directory can be configured using the {@code snap.cachedir} configuration  property
+     * (or Java system property).
+     *
+     * @return the cache directory
+     * @since SNAP 2
+     */
+    public static File getCacheDir() {
+        String cacheDirPath = Config.instance().preferences().get(SNAP_CACHE_DIR_PROPERTY_NAME, null);
+        if (cacheDirPath != null) {
+            return new File(cacheDirPath);
+        }
+        return getDefaultCacheDir();
+    }
+
+    /**
+     * Gets the default SNAP cache directory.
+     *
+     * @return the default cache directory
+     * @see #getCacheDir()
+     */
+    public static File getDefaultCacheDir() {
+        return new File(getApplicationDataDir(), CACHE_DIR_NAME);
     }
 
     /**
@@ -231,16 +261,6 @@ public class SystemUtils {
             className = qualClassName;
         }
         return className + ".class";
-    }
-
-    /**
-     * Gets the default BEAM cache directory. This is the directory
-     * where BEAM stores temporary data.
-     *
-     * @return the default cache directory
-     */
-    public static File getDefaultCacheDir() {
-        return new File(getApplicationDataDir(), CACHE_DIR_NAME);
     }
 
     /**

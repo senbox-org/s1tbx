@@ -116,7 +116,7 @@ public class SRTMHGTReader extends AbstractProductReader {
     }
 
     private static File createCacheDir() throws IOException {
-        final File cacheDir = new File(SystemUtils.getDefaultCacheDir(), "temp");
+        final File cacheDir = new File(SystemUtils.getCacheDir(), "temp");
         if (!cacheDir.exists() && !cacheDir.mkdirs()) {
             throw new IOException("Failed to create directory '" + cacheDir + "'.");
         }
