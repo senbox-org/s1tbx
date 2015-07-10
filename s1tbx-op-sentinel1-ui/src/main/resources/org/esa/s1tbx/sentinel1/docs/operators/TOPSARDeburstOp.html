@@ -1,10 +1,9 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html><head><title>Help - Sentinel-1</title>
 
+
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<link rel="stylesheet" href="../style.css">
-</head>
-<body>
+<link rel="stylesheet" href="../style.css"></head><body>
 <table class="header">
 <tbody>
 <tr class="header">
@@ -63,7 +62,7 @@ direction, for each line in all sub-swaths with the same time tag,
 merge
 adjacent sub-swaths. For the overlapping region in range, merging is
 done midway between subswaths.</span></p>
-<p class="MsoNormal"><span style="" lang="EN-GB">In the azimuth
+<p class="MsoNormal"><span lang="EN-GB">In the azimuth
 direction, bursts are merged according to their zero Doppler time. Note
 that
 the black-fill demarcation is not distinctly zero at the end or start
@@ -76,6 +75,47 @@ of the next burst. For each range cell, the merging time is quantised
 to the
 nearest output azimuth cell to eliminate any fading to zero data.</span>
 </p>
-<br>
+<h4>Input <br>
+</h4>
+
+
+
+<ul>
+<li>The input to the operator is the Sentinel-1 TOPSAR IW or EW SLC product.
+The product could be original Sentinel-1 product or processed product.
+It could have multi subswaths or just one subswath like in the scae of
+split product.<br>
+  </li>
+</ul>
+
+<h4>Output <br>
+</h4>
+
+
+
+
+<ul>
+<li>The output of this operator is the deburst product. <br>
+
+  </li>
+</ul>
+
+
+<h4>Parameters Used<br>
+</h4>
+
+
+
+
+<ul>
+<li>Polarisations: The polarisations for the deburst product. User can select one or more polarisations.<br>
+
+  </li>
+</ul>
+
+
+<p><img src="file:///C:/Users/junlu/AppData/Local/Temp/moz-screenshot-19.jpg" alt="">
+</p>
+
 <hr>
 </body></html>
