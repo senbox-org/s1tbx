@@ -94,12 +94,12 @@ the option *'Create module groups for multi-module Maven projects'*. It would cr
 	* **VM parameters:** -Dsun.awt.nopixfmt=true -Dsun.java2d.noddraw=true -Dsun.java2d.dpiaware=false
 	All VM parameters are optional
 	* **Working directory:** SNAP/snap-desktop/snap-application/target/snap/
-	* **Use classpath of module:** nbexec
+	* **Use classpath of module:** snap-main
 
 ### Run SNAP with a Toolbox
-The Sentinel-3 Toolbox is configured to build all the modules into the cluster directory *´${project.basedir}/../target/nbmCluster´*
+The Sentinel-3 Toolbox is configured to build all the modules into the cluster directory *´${project.basedir}/../s<N>tbx-kit/target/netbeans_clusters/s<N>tbx´*
 This cluster can be set as parameter to the above mentioned launcher.
-Specify as program parameter e.g. *´--clusters "SNAP\s3tbx\target\nbmCluster\netbeans\s3tbx"´*
+Specify as program parameter e.g. *´--clusters "SNAP\s3tbx\s3tbx-kit\target\netbeans_clusters\s3tbx"´*
 
 
 Enjoy!
