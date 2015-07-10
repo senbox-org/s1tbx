@@ -5,6 +5,7 @@
 
 
 
+
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <link rel="stylesheet" href="../style.css"></head><body>
 <table class="header">
@@ -27,6 +28,88 @@ frame, deramp and demodulation are performed first to the slave image,
 then the truncated-sinc interpolation is performed. Finally, the reramp
 and remodulation are applied to the interpolated slave image. <br>
 <span style=""><o:p></o:p></span></p>
- <br>
+ 
+<h4>Input <br>
+</h4>
+
+
+<ul>
+  <li>Before running this operator, user should first run S-1 TOPS
+Split operator to both master and slave products to get the same
+sub-swath and same polarization data for co-registration (e.g. IW1 -
+VV). <br>
+  </li>
+  <li>The user should run Apply Orbit File to correct the orbits in
+both the split products with the Sentinel Precise (or Restitude) orbit
+files. This step can be skipped if no precise or restitude orbit file
+is available. Otherwise this step is always recommended in order to
+achieve better co-registration result.<br>
+  </li>
+</ul>
+<h4>Output <br>
+</h4>
+
+
+
+<ul>
+  <li>The output of the operator are the co-registered master and slave bands in I/Q format. <br>
+
+  </li>
+</ul>
+
+<h4>Parameters Used<br>
+</h4>
+
+
+
+<ul>
+  <li>Digital Elevation Model: The DEM type. Currently the following DEMs are supported<br>
+  </li>
+  <ul>
+    <li>ACE2_5min</li>
+    <li>ACE30</li>
+    <li>ASTER 1sec GDEM<br>
+    </li>
+    <li>GETASSE30</li>
+    <li>SRTM 1Sec Grid</li>
+    <li>SRTM 3Sec</li>
+    <li>user provided external DEM file<br>
+    </li>
+  </ul>
+  <li>DEM Resampling Method: Interpolation method for obtaining elevation values
+        from the original DEM file. The following interpolation methods are available</li>
+  <ul>
+    <li>nearest neighbour</li>
+    <li>bi-linear</li>
+    <li>cubic convolution</li>
+    <li>5-points bi-sinc</li>
+    <li>11-points bi-sinc</li>
+    <li>21-points bi-sinc</li>
+    <li>bi-cubic<br>
+    </li>
+  </ul>
+  <li>Resampling Type: Interpolation methods for obtaining pixel values
+        from the source image. The interpolation methods available are the same as listed above.</li>
+  <li>Mask out areas with no elevation:&nbsp; Checkbox indicating if
+areas without elevation should be masked out from co-registration. It
+is recommended to select this checkbox to avoid artefacts along the
+coast in the co-registered images.<br>
+  </li>
+  <li>Output Deramp and Demod Phase: Checkbox indicating if deramp and
+demodulation phases should be output as separated bands. This option is
+mostly for debugging purpose and not recommended for most users.<br>
+
+  </li>
+</ul>
+
+<p><br>
+</p>
+
+<p>
+</p>
+
+<img src="file:///C:/Users/junlu/AppData/Local/Temp/moz-screenshot-13.jpg" alt=""><br>
+<br>
+
 <hr>
 </body></html>
