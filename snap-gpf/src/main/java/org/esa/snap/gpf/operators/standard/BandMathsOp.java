@@ -44,6 +44,7 @@ import org.esa.snap.util.ProductUtils;
 import org.esa.snap.util.StringUtils;
 
 import java.awt.Rectangle;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -353,7 +354,8 @@ public class BandMathsOp extends Operator {
                 rasters[i] = symbols[i].getRaster();
             }
         } catch (ParseException e) {
-            throw new OperatorException("Could not parse expression: " + bandDescriptor.expression, e);
+            String msg = MessageFormat.format("Could not parse expression: ''{0}''. {1}", bandDescriptor.expression, e.getMessage());
+            throw new OperatorException(msg, e);
         }
         for (RasterDataNode raster : rasters) {
             if (raster instanceof Band) {
@@ -425,7 +427,8 @@ public class BandMathsOp extends Operator {
             Parser parser = new ParserImpl(namespace, false);
             term = parser.parse(expression);
         } catch (ParseException e) {
-            throw new OperatorException("Could not parse expression: " + expression, e);
+            String msg = MessageFormat.format("Could not parse expression: ''{0}''. {1}", expression, e.getMessage());
+            throw new OperatorException(msg, e);
         }
         return term;
     }
