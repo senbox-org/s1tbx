@@ -16,7 +16,6 @@
 package org.esa.snap.gpf.operators.standard;
 
 import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.TestCase;
 import org.esa.snap.GlobalTestConfig;
 import org.esa.snap.framework.dataio.ProductIO;
 import org.esa.snap.framework.datamodel.Band;
@@ -33,11 +32,15 @@ import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.snap.framework.gpf.Tile;
 import org.esa.snap.framework.gpf.Tile.Pos;
 import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
+import org.esa.snap.framework.gpf.annotations.Parameter;
 import org.esa.snap.framework.gpf.annotations.TargetProduct;
 import org.esa.snap.framework.gpf.graph.Graph;
 import org.esa.snap.framework.gpf.graph.GraphIO;
 import org.esa.snap.framework.gpf.graph.GraphProcessor;
 import org.esa.snap.util.io.FileUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import javax.media.jai.JAI;
 import javax.media.jai.TileScheduler;
@@ -45,8 +48,11 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.StringReader;
 
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
 
-public class WriteOpTest extends TestCase {
+
+public class WriteOpTest {
 
     private static final int RASTER_WIDTH = 4;
     private static final int RASTER_HEIGHT = 40;
@@ -56,8 +62,8 @@ public class WriteOpTest extends TestCase {
     private File outputFile;
     private int oldParallelism;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(algoSpi);
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(writeSpi);
         outputFile = GlobalTestConfig.getBeamTestDataOutputFile("WriteOpTest/writtenProduct.dim");
@@ -68,8 +74,8 @@ public class WriteOpTest extends TestCase {
         tileScheduler.setParallelism(Runtime.getRuntime().availableProcessors());
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(algoSpi);
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(writeSpi);
         File parentFile = outputFile.getParentFile();
@@ -79,11 +85,70 @@ public class WriteOpTest extends TestCase {
         tileScheduler.setParallelism(oldParallelism);
     }
 
+    @Test
     public void testWrite() throws Exception {
         String graphOpXml = "<graph id=\"myOneNodeGraph\">\n"
                 + "  <version>1.0</version>\n"
                 + "  <node id=\"node1\">\n"
                 + "    <operator>Algo</operator>\n"
+                + "    <parameters>\n"
+                + "    <width>" + RASTER_WIDTH + "</width>\n"
+                + "    <height>" + RASTER_HEIGHT + "</height>\n"
+                + "    <preferredTileWidth>2</preferredTileWidth>\n"
+                + "    <preferredTileHeight>2</preferredTileHeight>\n"
+                + "    </parameters>\n"
+                + "  </node>\n"
+                + "  <node id=\"node2\">\n"
+                + "    <operator>Write</operator>\n"
+                + "    <sources>\n"
+                + "      <source refid=\"node1\"/>\n"
+                + "    </sources>\n"
+                + "    <parameters>\n"
+                + "       <file>" + outputFile.getAbsolutePath() + "</file>\n"
+                + "       <deleteOutputOnFailure>false</deleteOutputOnFailure>\n"
+                + "    </parameters>\n"
+                + "  </node>\n"
+                + "</graph>";
+        StringReader reader = new StringReader(graphOpXml);
+        Graph graph = GraphIO.read(reader);
+
+        GraphProcessor processor = new GraphProcessor();
+        processor.executeGraph(graph, ProgressMonitor.NULL);
+
+        Product productOnDisk = ProductIO.readProduct(outputFile);
+        assertNotNull(productOnDisk);
+
+        assertEquals("writtenProduct", productOnDisk.getName());
+        assertEquals(3, productOnDisk.getNumBands());
+        assertEquals("OperatorBand", productOnDisk.getBandAt(0).getName());
+        assertEquals("ConstantBand", productOnDisk.getBandAt(1).getName());
+        assertEquals("VirtualBand", productOnDisk.getBandAt(2).getName());
+
+        Band operatorBand = productOnDisk.getBandAt(0);
+        operatorBand.loadRasterData();
+        //assertEquals(12345, operatorBand.getPixelInt(0, 0));
+
+        // Test that header has been rewritten due to data model changes in AlgoOp.computeTile()
+        final ProductNodeGroup<Placemark> placemarkProductNodeGroup = productOnDisk.getPinGroup();
+        // 40 pins expected --> one for each tile, we have 40 tiles
+        // This test fails sometimes and sometimes not. Probably due to some tiling-issues. Therefore commented out.
+        // assertEquals(40, placemarkProductNodeGroup.getNodeCount());
+
+        productOnDisk.dispose();
+    }
+
+    @Test
+    public void testWrite_UnexpectedTiling() throws Exception {
+        String graphOpXml = "<graph id=\"myOneNodeGraph\">\n"
+                + "  <version>1.0</version>\n"
+                + "  <node id=\"node1\">\n"
+                + "    <operator>Algo</operator>\n"
+                + "    <parameters>\n"
+                + "    <width>2000</width>\n"
+                + "    <height>2000</height>\n"
+                + "    <preferredTileWidth>750</preferredTileWidth>\n"
+                + "    <preferredTileHeight>750</preferredTileHeight>\n"
+                + "    </parameters>\n"
                 + "  </node>\n"
                 + "  <node id=\"node2\">\n"
                 + "    <operator>Write</operator>\n"
@@ -130,18 +195,30 @@ public class WriteOpTest extends TestCase {
     @OperatorMetadata(alias = "Algo")
     public static class AlgoOp extends Operator {
 
+        @Parameter
+        private int width;
+
+        @Parameter
+        private int height;
+
+        @Parameter
+        private int preferredTileWidth;
+
+        @Parameter
+        private int preferredTileHeight;
+
         @TargetProduct
         private Product targetProduct;
 
         @Override
         public void initialize() {
 
-            targetProduct = new Product("name", "desc", RASTER_WIDTH, RASTER_HEIGHT);
+            targetProduct = new Product("name", "desc", width, height);
             targetProduct.addBand("OperatorBand", ProductData.TYPE_INT8);
-            targetProduct.addBand("ConstantBand", ProductData.TYPE_INT8).setSourceImage(new BufferedImage(RASTER_WIDTH, RASTER_HEIGHT, BufferedImage.TYPE_BYTE_INDEXED));
-            targetProduct.addBand(new VirtualBand("VirtualBand", ProductData.TYPE_FLOAT32, RASTER_WIDTH, RASTER_HEIGHT, "OperatorBand + ConstantBand"));
+            targetProduct.addBand("ConstantBand", ProductData.TYPE_INT8).setSourceImage(new BufferedImage(width, height, BufferedImage.TYPE_BYTE_INDEXED));
+            targetProduct.addBand(new VirtualBand("VirtualBand", ProductData.TYPE_FLOAT32, width, height, "OperatorBand + ConstantBand"));
 
-            targetProduct.setPreferredTileSize(2, 2);
+            targetProduct.setPreferredTileSize(preferredTileWidth, preferredTileHeight);
         }
 
         @Override

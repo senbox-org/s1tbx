@@ -124,6 +124,8 @@ public class WriteOp extends Operator {
 
     private boolean[][][] tilesWritten;
     private final Map<Row, Tile[]> writeCache = new HashMap<>();
+    private Dimension[] tileSizes;
+    private int[] tileCountsX;
 
     private ProductWriter productWriter;
     private List<Band> writableBands;
@@ -248,22 +250,31 @@ public class WriteOp extends Operator {
                 writableBands.add(band);
             }
         }
+        tileSizes = new Dimension[writableBands.size()];
+        tileCountsX = new int[writableBands.size()];
         tilesWritten = new boolean[writableBands.size()][][];
         for (int i = 0; i < writableBands.size(); i++) {
             Band writableBand = writableBands.get(i);
-            Dimension tileSize = null;
-            if (writableBand.getRasterWidth() == targetProduct.getSceneRasterWidth() &&
-                    writableBand.getRasterHeight() == targetProduct.getSceneRasterHeight()) {
-                tileSize = targetProduct.getPreferredTileSize();
-            }
-            if (tileSize == null) {
-                tileSize = JAIUtils.computePreferredTileSize(writableBand.getSceneRasterWidth(),
-                                                             writableBand.getSceneRasterHeight(), 1);
-            }
+            Dimension tileSize = determineTileSize(writableBand);
+            tileSizes[i] = tileSize;
             int tileCountX = MathUtils.ceilInt(writableBand.getSceneRasterWidth() / (double) tileSize.width);
+            tileCountsX[i] = tileCountX;
             int tileCountY = MathUtils.ceilInt(writableBand.getSceneRasterHeight() / (double) tileSize.height);
             tilesWritten[i] = new boolean[tileCountY][tileCountX];
         }
+    }
+
+    private Dimension determineTileSize(Band band) {
+        Dimension tileSize = null;
+        if (band.getRasterWidth() == targetProduct.getSceneRasterWidth() &&
+                band.getRasterHeight() == targetProduct.getSceneRasterHeight()) {
+            tileSize = targetProduct.getPreferredTileSize();
+        }
+        if (tileSize == null) {
+            tileSize = JAIUtils.computePreferredTileSize(band.getSceneRasterWidth(),
+                                                         band.getSceneRasterHeight(), 1);
+        }
+        return tileSize;
     }
 
     @Override
@@ -277,14 +288,14 @@ public class WriteOp extends Operator {
 
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
-        if (!writableBands.contains(targetBand)) {
+        int bandIndex = writableBands.indexOf(targetBand);
+        if (bandIndex == -1) {
             return;
         }
         try {
             final Rectangle rect = targetTile.getRectangle();
-            final Dimension tileSize = JAIUtils.computePreferredTileSize(targetBand.getSceneRasterWidth(),
-                                                                                  targetBand.getSceneRasterHeight(), 1);
-            int tileCountX = MathUtils.ceilInt(targetBand.getSceneRasterWidth() / (double) tileSize.width);
+            final Dimension tileSize = tileSizes[bandIndex];
+            int tileCountX = tileCountsX[bandIndex];
             int tileX = MathUtils.floorInt(targetTile.getMinX() / (double) tileSize.width);
             int tileY = MathUtils.floorInt(targetTile.getMinY() / (double) tileSize.height);
             if (writeEntireTileRows) {
