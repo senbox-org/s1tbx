@@ -341,7 +341,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
             term = BandArithmetic.parseExpression(expression, products, defaultProductIndex);
         } catch (ParseException e) {
             throw new RuntimeException(MessageFormat.format(
-                    "Could not parse expression: ''{0}''.", expression), e);
+                    "Could not parse expression: ''{0}''. {1}", expression, e.getMessage()), e);
         }
         final ImageManager imageManager = ImageManager.getInstance();
         for (final RasterDataSymbol symbol : BandArithmetic.getRefRasterDataSymbols(term)) {
