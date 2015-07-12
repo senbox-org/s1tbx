@@ -36,12 +36,11 @@
   
 	<modules>
 		<module>jlinda</module>
-		<module>rstb</module>
+        <module>rstb</module>
 		<!--module>s1tbx-benchmark</module-->
         <module>s1tbx-commons</module>
 		<module>s1tbx-config</module>
 		<module>s1tbx-io</module>
-        <module>s1tbx-kit</module>
 		<module>s1tbx-op-calibration</module>
         <module>s1tbx-op-calibration-ui</module>
 		<module>s1tbx-op-feature-extraction</module>
@@ -55,6 +54,8 @@
 		<module>s1tbx-op-utilities</module>
         <module>s1tbx-op-utilities-ui</module>
 		<module>s1tbx-rcp</module>
+        
+        <module>s1tbx-kit</module>
 	</modules>
 	
     <organization>

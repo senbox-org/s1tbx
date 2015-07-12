@@ -45,8 +45,6 @@
         <snap.version>2.0.0-SNAPSHOT</snap.version>
         <s1tbx.version>2.0.0-SNAPSHOT</s1tbx.version>
         <rstb.version>7.0.0-SNAPSHOT</rstb.version>
-
-        <outputdir>../../../output</outputdir>
     </properties>
 
     <organization>
@@ -64,11 +62,12 @@
     </licenses>
 
     <modules>
-        <module>rstb-kit</module>
         <module>rstb-op-classification</module>
         <module>rstb-op-classification-ui</module>
         <module>rstb-op-polarimetric-tools</module>
         <module>rstb-op-polarimetric-tools-ui</module>
+        
+        <module>rstb-kit</module>
     </modules>
 
     <repositories>

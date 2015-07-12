@@ -34,7 +34,7 @@
     <dependencies>
 
         <!--
-             Make sure the list of dependencies reflects the wanted contents of the S3TBX.
+             Make sure the list of dependencies reflects the wanted contents of the RSTB.
              Use same order as in the <modules> tag of the parent POM.
         -->
 

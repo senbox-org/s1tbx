@@ -51,7 +51,7 @@ the option *'Create module groups for multi-module Maven projects'*. Everything 
 	All VM parameters are optional
     * **Program arguments:** 
     --clusters
-    "E:\build\SNAP\s1tbx\target\nbm\netbeans\s1tbx";"E:\build\SNAP\s1tbx\rstb\target\nbm\netbeans\rstb"
+    "E:\build\SNAP\s1tbx\s1tbx-kit\target\netbeans_clusters\s1tbx";"E:\build\SNAP\s1tbx\s1tbx-kit\target\netbeans_clusters\rstb"
     --patches
     "E:\build\SNAP\snap-engine\$\target\classes";"E:\build\SNAP\s1tbx\$\target\classes"
     
