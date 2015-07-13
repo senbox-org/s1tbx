@@ -414,6 +414,8 @@ public class BandMathsOp extends Operator {
                 } else if ("boolean".equals(variable.type)) {
                     Symbol symbol = SymbolFactory.createConstant(variable.name, Boolean.parseBoolean(variable.value));
                     namespace.registerSymbol(symbol);
+                } else {
+                    throw new OperatorException("Illegal type name in variable declaration: " + variable.type);
                 }
             }
         }

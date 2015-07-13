@@ -345,8 +345,11 @@ public class BandMathsOpTest {
         BandMathsOp.Variable[] variables = (BandMathsOp.Variable[]) variablesObj;
         assertEquals(3, variables.length);
         assertEquals("SOLAR_FLUX_13", variables[0].name);
+        assertEquals("float32", variables[0].type);
         assertEquals("SOLAR_FLUX_14", variables[1].name);
+        assertEquals("float32", variables[1].type);
         assertEquals("PI", variables[2].name);
+        assertEquals("float64", variables[2].type);
 
         InputStreamReader inputStreamReader = new InputStreamReader(getClass().getResourceAsStream("BandMathsOpParameters.xml"));
         String expectedXML = FileUtils.readText(inputStreamReader).trim();
