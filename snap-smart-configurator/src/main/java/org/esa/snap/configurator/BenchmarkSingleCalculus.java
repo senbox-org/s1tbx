@@ -56,7 +56,7 @@ public class BenchmarkSingleCalculus implements Comparable<BenchmarkSingleCalcul
 
     @Override
     public int compareTo(BenchmarkSingleCalculus compareBenchmarkSingleCalcul) {
-        int order = 0;
+        int order;
         long compareExecutionTime = compareBenchmarkSingleCalcul.executionTime;
         if(compareExecutionTime < this.executionTime){
             order = 1;

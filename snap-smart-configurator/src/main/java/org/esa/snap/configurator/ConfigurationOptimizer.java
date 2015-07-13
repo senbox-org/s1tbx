@@ -126,7 +126,7 @@ public class ConfigurationOptimizer {
         if(freeRAM > DEFAULT_MIN_FREE_RAM) {
             optisedJVMMem = thisAppRam + freeRAM - DEFAULT_MIN_FREE_RAM;
         } else {
-            optisedJVMMem = thisAppRam + freeRAM;
+            optisedJVMMem = thisAppRam + freeRAM/2;
         }
         performanceParameters.setVmXMX(optisedJVMMem);
 

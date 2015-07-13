@@ -43,6 +43,10 @@ public class Benchmark {
         }
 
         benchmarkCalculus = new ArrayList<>();
+
+        // duplicate the first values, as the first run is allways slower
+        benchmarkCalculus.add(new BenchmarkSingleCalculus(tileSizes.get(0), cacheSizes.get(0), nbThreads.get(0)));
+
         //generate possible calculs list
         for(Integer tileSize : tileSizes){
             for(Integer cacheSize : cacheSizes){
@@ -63,9 +67,10 @@ public class Benchmark {
     }
 
     /**
-     * Load Benchmark performance parameters.
+     * Save Benchmark performance parameters.
      *
-     * @param benchmarkSingleCalculus
+     * @param benchmarkSingleCalculus the object containing the tile size, nb threads, cache size for the
+     *                                benchmark to be performed
      */
     public void loadBenchmarkPerfParams(BenchmarkSingleCalculus benchmarkSingleCalculus){
         ConfigurationOptimizer confOptimizer = ConfigurationOptimizer.getInstance();

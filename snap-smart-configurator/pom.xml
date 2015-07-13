@@ -13,7 +13,7 @@
     <artifactId>snap-smart-configurator</artifactId>
     <packaging>nbm</packaging>
 
-    <name>SNAP Smart configurator</name>
+    <name>SNAP Smart Configurator</name>
     <description>A module to optimise SNAP performance parameters</description>
 
 

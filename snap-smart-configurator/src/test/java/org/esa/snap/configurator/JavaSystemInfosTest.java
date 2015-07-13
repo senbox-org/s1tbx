@@ -1,4 +1,4 @@
-/*
+package org.esa.snap.configurator;/*
  * Copyright (C) 2015 CS SI
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,13 +16,11 @@
 
 
 import junit.framework.TestCase;
-import org.esa.snap.configurator.JavaSystemInfos;
-import org.esa.snap.configurator.SystemInfos;
 
 import java.io.IOException;
 
 /**
- * Created by nducoin on 27/03/2015.
+ * @author Nicolas Ducoin
  */
 public class JavaSystemInfosTest extends TestCase {
 
