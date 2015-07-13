@@ -60,7 +60,7 @@ public interface ProductIOPlugIn {
     /**
      * Gets an instance of {@link SnapFileFilter} for use in a {@link javax.swing.JFileChooser JFileChooser}.
      *
-     * @return a file filter
+     * @return a file filter or <code>null</code> if this plugin doesn't support file filter
      */
     SnapFileFilter getProductFileFilter();
 }
