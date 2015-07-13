@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2015 CS SI
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 3 of the License, or (at your option)
- * any later version.
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, see http://www.gnu.org/licenses/
- */
 
 package org.esa.snap.configurator;
 
@@ -22,13 +7,9 @@ import org.esa.snap.runtime.EngineConfig;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.io.FileUtils;
 
-
 import java.io.File;
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -63,22 +44,6 @@ public class PerformanceParameters {
 
     private int defaultTileSize;
     private int cacheSize;
-
-    /*
-    private int readerTileWidth;
-    private int readerTileHeight;
-
-    private boolean pixelGeoCodingFractionAccuracy;
-    private boolean pixelGeoCodingUseTiling;
-    private boolean useAlternatePixelGeoCoding;
-
-    private OperatorExecutor.ExecutionOrder gpfExecutionOrder;
-    private boolean gpfUseFileTileCache;
-    private boolean gpfDisableTileCache;
-    */
-
-    private static PerformanceParameters actualParameters = null;
-
 
     /**
      * Default constructor
@@ -173,11 +138,10 @@ public class PerformanceParameters {
         Config configuration = Config.instance().load();
         Preferences preferences = configuration.preferences();
 
-        actualParameters = new PerformanceParameters();
+        PerformanceParameters actualParameters = new PerformanceParameters();
 
-        VMParameters netBeansVmParameters = retreiveNBVMParameters();
-        String vmParameters = preferences.get("default_options", netBeansVmParameters.toString());
-        actualParameters.setVMParameters(vmParameters);
+        VMParameters netBeansVmParameters = VMParameters.load();
+        actualParameters.setVMParameters(netBeansVmParameters.toString());
         actualParameters.setUserDir(configuration.userDir());
 
         final int defaultNbThreads = JavaSystemInfos.getInstance().getNbCPUs();
@@ -188,27 +152,17 @@ public class PerformanceParameters {
         return actualParameters;
     }
 
-    private static VMParameters retreiveNBVMParameters() {
-        RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
-        List<String> vmParamsList = bean.getInputArguments();
-        String[] vmParamsArray = new String[vmParamsList.size()];
-        vmParamsList.toArray(vmParamsArray);
-
-        return new VMParameters(vmParamsArray);
-    }
-
-
-
     /**
      * Save the actual configuration
      *
      * @param confToSave The configuration to save
      */
     synchronized static void saveConfiguration(PerformanceParameters confToSave) throws IOException, BackingStoreException {
+
+        confToSave.vmParameters.save();
+
         Config configuration = EngineConfig.instance().load();
         Preferences preferences = configuration.preferences();
-
-        preferences.put("default_options", confToSave.getVMParameters());
 
         String userDirString = confToSave.getUserDir().toString();
 
@@ -217,8 +171,11 @@ public class PerformanceParameters {
             if (diskName.equalsIgnoreCase(userDirString)) {
                 userDirString = userDirString + File.separator + "." + SystemUtils.getApplicationContextId();
                 File contextFolderAsFile = new File(userDirString);
-                contextFolderAsFile.mkdir();
-                confToSave.setUserDir(FileUtils.getPathFromURI(contextFolderAsFile.toURI()));
+                if(!contextFolderAsFile.mkdir()) {
+                    SystemUtils.LOG.severe("Could not create user dir " + userDirString);
+                } else {
+                    confToSave.setUserDir(FileUtils.getPathFromURI(contextFolderAsFile.toURI()));
+                }
                 break;
             }
         }
@@ -231,111 +188,4 @@ public class PerformanceParameters {
     }
 
 
-    private static class VMParameters {
-
-        private long vmXMX = 0;
-        private long vmXMS = 0;
-        private String otherVMOptions;
-
-        public long getVmXMX() {
-            return vmXMX;
-        }
-
-        public void setVmXMX(long vmXMX) {
-            this.vmXMX = vmXMX;
-        }
-
-        public long getVmXMS() {
-            return vmXMS;
-        }
-
-        public void setVmXMS(long vmXMS) {
-            this.vmXMS = vmXMS;
-        }
-
-        public String getOtherVMOptions() {
-            return otherVMOptions;
-        }
-
-        public void setOtherVMOptions(String otherVMOptions) {
-            this.otherVMOptions = otherVMOptions;
-        }
-
-        public VMParameters(String vmParametersString) {
-            if (vmParametersString != null) {
-                String[] stringArray = vmParametersString.split(" ");
-                fromStringArray(stringArray);
-            }
-        }
-
-        public VMParameters(String[] vmParametersStringArray){
-            fromStringArray(vmParametersStringArray);
-        }
-
-        public void fromStringArray(String[] vmParametersStringArray) {
-            String otherVMParams = "";
-            for (String thisArg : vmParametersStringArray) {
-
-                if (thisArg != null) {
-                    if (thisArg.startsWith("-Xmx")) {
-                        try {
-                            setVmXMX(getMemVmSettingValue(thisArg));
-                        } catch (NumberFormatException ex) {
-                            SystemUtils.LOG.warning("VM Parameters, bad XMX: " + thisArg);
-                        }
-                    } else if (thisArg.startsWith("-Xms")) {
-                        try {
-                            setVmXMS(getMemVmSettingValue(thisArg));
-                        } catch (NumberFormatException ex) {
-                            SystemUtils.LOG.warning("VM Parameters, bad XMS: " + thisArg);
-                        }
-                    } else {
-                        otherVMParams += thisArg + " ";
-                    }
-                }
-                setOtherVMOptions(otherVMParams);
-            }
-        }
-
-
-        private int getMemVmSettingValue(String vmStringSetting) throws NumberFormatException{
-
-            String memStringValue = vmStringSetting.substring(4);
-            float multValue;
-            if(memStringValue.endsWith("g") || memStringValue.endsWith("G")) {
-                multValue = 1024;
-                memStringValue = memStringValue.substring(0, memStringValue.length()-1);
-            } else if(memStringValue.endsWith("m") || memStringValue.endsWith("M")) {
-                multValue = 1;
-                memStringValue = memStringValue.substring(0, memStringValue.length()-1);
-            } else if(memStringValue.endsWith("k") || memStringValue.endsWith("K")) {
-                multValue = 1/1024;
-                memStringValue = memStringValue.substring(0, memStringValue.length()-1);
-            } else {
-                multValue = 1/(1024*1024);
-            }
-
-            return Math.round(Integer.parseInt(memStringValue) * multValue);
-        }
-
-
-        @Override
-        public String toString() {
-            StringBuilder builder = new StringBuilder();
-            if(getVmXMX() != 0) {
-                builder.append(" -Xmx");
-                builder.append(getVmXMX());
-                builder.append("m ");
-            }
-            if(getVmXMS() != 0) {
-                builder.append(" -Xms");
-                builder.append(getVmXMS());
-                builder.append("m ");
-            }
-            if(getOtherVMOptions() != null) {
-                builder.append(getOtherVMOptions());
-            }
-            return builder.toString();
-        }
-    }
 }

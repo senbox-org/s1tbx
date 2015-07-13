@@ -41,7 +41,7 @@ public class DiskBenchmarker {
     /**
      * Default file sise in MB
      */
-    public static final int DEFAULT_FILE_SIZE = 25;
+    public static final int DEFAULT_FILE_SIZE = 15;
 
     /**
      * Default number of samples the
@@ -83,22 +83,6 @@ public class DiskBenchmarker {
         this.fileSize = fileSize;
         this.nbSamples = nbSamples;
         this.dirName = dirName;
-    }
-
-    /**
-     *
-     * @param fileSize the size of the file used to compute read and write speed
-     */
-    public void setFileSize(int fileSize) {
-        this.fileSize = fileSize;
-    }
-
-    /**
-     *
-     * @param nbSamples the number of times the file is copied and read to compute read and write speed
-     */
-    public void setNbSamples( int nbSamples) {
-        this.nbSamples = nbSamples;
     }
 
     /**
@@ -231,7 +215,9 @@ public class DiskBenchmarker {
         for (int i = 0; i < nbSamples ; i++) {
             String fileName = dirName + File.separator + uniqueName + i;
             File file = new File(fileName);
-            file.delete();
+            if(!file.delete()) {
+                SystemUtils.LOG.warning("Could not delete temporary benchmark file " + fileName);
+            }
         }
     }
 }
