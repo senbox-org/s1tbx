@@ -161,15 +161,18 @@ public class VMParameters {
 
         String defaultParameters = properties.getProperty(DEFAULT_OPTION_PROPERTY_KEY);
 
-        if(defaultParameters.startsWith("\"")) {
-            // we remove global the double quotes
-            defaultParameters = defaultParameters.substring(1, defaultParameters.length()-1);
-        }
-        List<String> defaultParametersAsList = VMParameters.toParamList(defaultParameters);
-        List<String> vmParameters = new ArrayList<>(defaultParametersAsList.size());
-        for(String parameter : defaultParametersAsList) {
-            if(parameter.startsWith("-J")) {
-                vmParameters.add(parameter.substring(2));
+        List<String> vmParameters = null;
+        if(defaultParameters != null) {
+            if (defaultParameters.startsWith("\"")) {
+                // we remove global the double quotes
+                defaultParameters = defaultParameters.substring(1, defaultParameters.length() - 1);
+            }
+            List<String> defaultParametersAsList = VMParameters.toParamList(defaultParameters);
+            vmParameters = new ArrayList<>(defaultParametersAsList.size());
+            for (String parameter : defaultParametersAsList) {
+                if (parameter.startsWith("-J")) {
+                    vmParameters.add(parameter.substring(2));
+                }
             }
         }
 
