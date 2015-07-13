@@ -634,7 +634,6 @@
                         <printSummary>true</printSummary>
 						<disableXmlReport>true</disableXmlReport>
 						<redirectTestOutputToFile>true</redirectTestOutputToFile>
-						<workingDirectory>${outputdir}</workingDirectory>
                         <excludes>
                             <exclude>**/TestRaster.java</exclude>
                             <exclude>**/TestHelper$1.java</exclude>

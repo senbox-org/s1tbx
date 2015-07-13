@@ -63,12 +63,12 @@ public class S1TBXTests {
         if (testPreferences != null) {
             rootPathTestProducts = testPreferences.get("test.rootPathTestProducts", "");
 
-            subsetX = Integer.parseInt(testPreferences.get("test.subsetX", ""));
-            subsetY = Integer.parseInt(testPreferences.get("test.subsetY", ""));
-            subsetWidth = Integer.parseInt(testPreferences.get("test.subsetWidth", ""));
-            subsetHeight = Integer.parseInt(testPreferences.get("test.subsetHeight", ""));
+            subsetX = Integer.parseInt(testPreferences.get("test.subsetX", "100"));
+            subsetY = Integer.parseInt(testPreferences.get("test.subsetY", "100"));
+            subsetWidth = Integer.parseInt(testPreferences.get("test.subsetWidth", "100"));
+            subsetHeight = Integer.parseInt(testPreferences.get("test.subsetHeight", "100"));
 
-            maxIteration = Integer.parseInt(testPreferences.get("test.maxProductsPerRootFolder", ""));
+            maxIteration = Integer.parseInt(testPreferences.get("test.maxProductsPerRootFolder", "1"));
             String testReadersOnAllProducts = testPreferences.get("test.ReadersOnAllProducts", "");
             String testProcessingOnAllProducts = testPreferences.get("test.ProcessingOnAllProducts", "");
 
