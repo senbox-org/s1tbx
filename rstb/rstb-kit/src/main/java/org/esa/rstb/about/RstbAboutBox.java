@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.esa.s3tbx.about;
+package org.esa.rstb.about;
 
 import javax.swing.JLabel;
 import org.esa.snap.rcp.about.AboutBox;
