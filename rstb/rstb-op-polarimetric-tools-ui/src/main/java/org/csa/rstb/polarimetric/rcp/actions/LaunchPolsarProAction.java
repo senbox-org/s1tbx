@@ -90,33 +90,28 @@ public class LaunchPolsarProAction extends AbstractAction {
     }
 
     private static void externalExecute(final File prog, final File tclWishFile) {
-        final File homeFolder = SystemUtils.getApplicationHomeDir();
-        final File program = new File(homeFolder, "bin" + File.separator + "exec.bat");
-
-        String wish = "wish";
-        final String args = '\"' + prog.getParent() + "\" " + wish + ' ' + prog.getName();
-
-        System.out.println("Launching PolSARPro " + args);
 
         final Thread worker = new Thread() {
 
             @Override
             public void run() {
                 try {
-                    final Process proc = Runtime.getRuntime().exec(program.getAbsolutePath() + ' ' + args);
 
-                    outputTextBuffers(new BufferedReader(new InputStreamReader(proc.getInputStream())));
-                    boolean hasErrors = outputTextBuffers(new BufferedReader(new InputStreamReader(proc.getErrorStream())));
+                    if (tclWishFile.exists()) {
+                        if (prog.exists()) {
+                            String command = tclWishFile.getAbsolutePath() + " " + "\"" + prog.getAbsolutePath() + "\"";
+                            System.out.println("Launching PolSARPro: " + command);
+                            final Process proc = Runtime.getRuntime().exec(command, null, new File(prog.getParent()));
 
-                    if (hasErrors && tclWishFile.exists()) {
-                        String wish = '\"' + tclWishFile.getAbsolutePath() + '\"';
-                        final String args = '\"' + prog.getParent() + "\" " + wish + ' ' + prog.getName();
-                        System.out.println("Launching PolSARPro 2nd attempt " + args);
-
-                        final Process proc2 = Runtime.getRuntime().exec(program.getAbsolutePath() + ' ' + args);
-
-                        outputTextBuffers(new BufferedReader(new InputStreamReader(proc2.getInputStream())));
-                        outputTextBuffers(new BufferedReader(new InputStreamReader(proc2.getErrorStream())));
+                            outputTextBuffers(new BufferedReader(new InputStreamReader(proc.getInputStream())));
+                            outputTextBuffers(new BufferedReader(new InputStreamReader(proc.getErrorStream())));
+                        }
+                        else {
+                            SnapDialogs.showError("The file: " + prog.getAbsolutePath() + " does not exist.");
+                        }
+                    }
+                    else {
+                        SnapDialogs.showError("The file: " + tclWishFile.getAbsolutePath() + " does not exist.");
                     }
                 } catch (Exception e) {
                     SnapDialogs.showError("Unable to launch PolSARPro:"+e.getMessage());
