@@ -13,33 +13,30 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.about;
+package org.csa.rstb.about;
 
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import org.esa.snap.rcp.about.AboutBox;
 import org.openide.modules.ModuleInfo;
 import org.openide.modules.Modules;
 
-import java.awt.BorderLayout;
+import java.awt.*;
 
 /**
  * @author Norman
  */
-@AboutBox(displayName = "S1TBX", position = 10)
-public class S1tbxAboutBox extends JPanel {
-    
-    public S1tbxAboutBox() {
+@AboutBox(displayName = "RSTB", position = 100)
+public class RstbAboutBox extends JPanel {
+
+    public RstbAboutBox() {
         super(new BorderLayout(4, 4));
         setBorder(new EmptyBorder(4, 4, 4, 4));
-        ModuleInfo moduleInfo = Modules.getDefault().ownerOf(S1tbxAboutBox.class);
-        ImageIcon aboutImage = new ImageIcon(S1tbxAboutBox.class.getResource("about_s1tbx.jpg"));
+        ModuleInfo moduleInfo = Modules.getDefault().ownerOf(RstbAboutBox.class);
+        ImageIcon aboutImage = new ImageIcon(RstbAboutBox.class.getResource("about_rstb.jpg"));
         JLabel iconLabel = new JLabel(aboutImage);
         add(iconLabel, BorderLayout.CENTER);
-        add(new JLabel("<html><b>Sentinel-1 Toolbox (S1TBX) version " + moduleInfo.getImplementationVersion() + "</b>", SwingConstants.RIGHT), BorderLayout.SOUTH);
+        add(new JLabel("<html><b>Radarsat-2 Toolbox (RSTB) version " + moduleInfo.getImplementationVersion() + "</b>", SwingConstants.RIGHT), BorderLayout.SOUTH);
     }
 }
