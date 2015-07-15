@@ -18,7 +18,10 @@ package org.csa.rstb.polarimetric.rcp.actions;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.FileFolderUtils;
-import org.esa.snap.util.SystemUtils;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionRegistration;
+import org.openide.util.NbBundle;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -28,8 +31,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.prefs.Preferences;
-
-/* disable for now
 
 @ActionID(category = "Raster", id = "LaunchPolsarProAction" )
 @ActionRegistration(
@@ -41,7 +42,7 @@ import java.util.prefs.Preferences;
 @NbBundle.Messages({
         "CTL_LaunchPolsarProAction_MenuText=Launch PolSARPro",
         "CTL_LaunchPolsarProAction_ShortDescription=Start PolSARPro application"
-}) */
+})
 /**
  * This action launches PolSARPro
  */
@@ -109,7 +110,7 @@ public class LaunchPolsarProAction extends AbstractAction {
                         }
                     }
                     else {
-                        SnapDialogs.showError("The file: " + tclWishFile.getAbsolutePath() + " does not exist.");
+                        SnapDialogs.showError("Cannot find TCL wish.exe to launch PolSARPro");
                     }
                 } catch (Exception e) {
                     SnapDialogs.showError("Unable to launch PolSARPro:"+e.getMessage());
