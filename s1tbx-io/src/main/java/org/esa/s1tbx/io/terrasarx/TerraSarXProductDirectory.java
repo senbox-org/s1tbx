@@ -625,8 +625,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         File georefFile = new File(level1ProductDir, "ANNOTATION" + File.separator + "GEOREF.xml");
         if (georefFile.exists()) {
             try {
-                //readGeoRef(product, georefFile);
-                //return;
+                readGeoRef(product, georefFile);
+                return;
             } catch (Exception e) {
                 //
             }
