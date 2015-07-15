@@ -60,8 +60,8 @@ import java.util.Set;
  */
 public class TerraSarXProductDirectory extends XMLProductDirectory {
 
-    private static String TERRA_SAR_X = "TerraSar-X";
-    private static String TAN_DEM_X = "TanDem-X";
+    private static String TERRA_SAR_X = "TerraSAR-X";
+    private static String TAN_DEM_X = "TanDEM-X";
 
     private final File headerFile;
     private String productName = null;
