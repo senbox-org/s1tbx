@@ -4,15 +4,16 @@
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
-    <tocitem text="Radar">
-        <tocitem text="Feature Extraction">
-            <tocitem text="Ocean Tools">
-                <tocitem text="Object Detection" target="ObjectDetection"/>
-                <tocitem text="Oil Spill Detection" target="OilSpillDetection"/>
-                <tocitem text="Create Land Mask" target="CreateLandMask"/>
-                <tocitem text="Wind Field Estimation" target="WindFieldEstimation"/>
+    <tocitem text="Sentinel Toolbox Application">
+        <tocitem text="Radar">
+            <tocitem text="Feature Extraction">
+                <tocitem text="Ocean Tools">
+                    <tocitem text="Object Detection" target="ObjectDetection"/>
+                    <tocitem text="Oil Spill Detection" target="OilSpillDetection"/>
+                    <tocitem text="Create Land Mask" target="CreateLandMask"/>
+                    <tocitem text="Wind Field Estimation" target="WindFieldEstimation"/>
+                </tocitem>
             </tocitem>
         </tocitem>
     </tocitem>
-
 </toc>

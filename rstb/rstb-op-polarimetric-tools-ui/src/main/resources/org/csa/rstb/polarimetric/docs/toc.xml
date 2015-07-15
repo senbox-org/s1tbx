@@ -4,17 +4,18 @@
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
-    <tocitem text="Radar" mergetype="javax.help.SortMerge">
-        <tocitem text="Polarimetric" mergetype="javax.help.SortMerge">
-            <tocitem text="Polarimetric Matrices" target="PolarimetricMatricesOp"/>
-            <tocitem text="Polarimetric Decomposition" target="PolarimetricDecompositionOp"/>
-            <tocitem text="Polarimetric Speckle Filtering" target="PolarimetricSpeckleFilterOp"/>
-            <tocitem text="Orientation Angle Correction" target="OrientationAngleCorrectionOp"/>
-            <tocitem text="Classification">
-                <tocitem text="Unsupervised Classification" target="PolarimetricClassificationOp"/>
-                <tocitem text="Supervised Wishart Classification" target="SupervisedWishartClassificationOp"/>
+    <tocitem text="Sentinel Toolbox Application">
+        <tocitem text="Radar" mergetype="javax.help.SortMerge">
+            <tocitem text="Polarimetric" mergetype="javax.help.SortMerge">
+                <tocitem text="Polarimetric Matrices" target="PolarimetricMatricesOp"/>
+                <tocitem text="Polarimetric Decomposition" target="PolarimetricDecompositionOp"/>
+                <tocitem text="Polarimetric Speckle Filtering" target="PolarimetricSpeckleFilterOp"/>
+                <tocitem text="Orientation Angle Correction" target="OrientationAngleCorrectionOp"/>
+                <tocitem text="Classification">
+                    <tocitem text="Unsupervised Classification" target="PolarimetricClassificationOp"/>
+                    <tocitem text="Supervised Wishart Classification" target="SupervisedWishartClassificationOp"/>
+                </tocitem>
             </tocitem>
         </tocitem>
     </tocitem>
-
 </toc>

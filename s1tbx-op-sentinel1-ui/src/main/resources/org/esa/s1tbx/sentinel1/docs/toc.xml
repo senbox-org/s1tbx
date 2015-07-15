@@ -4,21 +4,22 @@
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
-    <tocitem text="Radar">
-        <tocitem text="Coregistration" mergetype="javax.help.SortMerge">
-            <tocitem text="S-1 TOPS Coregistration">
-                <tocitem text="Back Geocoding" target="BackGeocodingOp"/>
-                <tocitem text="Range Shift" target="RangeShiftOp"/>
-                <tocitem text="Azimuth Shift" target="AzimuthShiftOp"/>
+    <tocitem text="Sentinel Toolbox Application">
+        <tocitem text="Radar">
+            <tocitem text="Coregistration" mergetype="javax.help.SortMerge">
+                <tocitem text="S-1 TOPS Coregistration">
+                    <tocitem text="Back Geocoding" target="BackGeocodingOp"/>
+                    <tocitem text="Range Shift" target="RangeShiftOp"/>
+                    <tocitem text="Azimuth Shift" target="AzimuthShiftOp"/>
+                </tocitem>
+            </tocitem>
+            <tocitem text="Sentinel-1 TOPS" mergetype="javax.help.SortMerge">
+                <tocitem text="Sentinel1 SLC to GRD" target="Sentinel1SLCtoGRD"/>
+                <tocitem text="TOPSAR Deburst" target="TOPSARDeburstOp"/>
+                <tocitem text="TOPSAR Split" target="TOPSARSplitOp"/>
+                <tocitem text="Slice Assembly" target="SliceAssemblyOp"/>
+                <tocitem text="TOPSAR Merge" target="TOPSARMergeOp"/>
             </tocitem>
         </tocitem>
-        <tocitem text="Sentinel-1 TOPS" mergetype="javax.help.SortMerge">
-            <tocitem text="Sentinel1 SLC to GRD" target="Sentinel1SLCtoGRD"/>
-            <tocitem text="TOPSAR Deburst" target="TOPSARDeburstOp"/>
-            <tocitem text="TOPSAR Split" target="TOPSARSplitOp"/>
-            <tocitem text="Slice Assembly" target="SliceAssemblyOp"/>
-            <tocitem text="TOPSAR Merge" target="TOPSARMergeOp"/>
-        </tocitem>
     </tocitem>
-
 </toc>

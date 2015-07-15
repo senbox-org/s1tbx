@@ -4,6 +4,7 @@
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
+    <tocitem text="Sentinel Toolbox Application">
         <tocitem text="Radar">
             <tocitem text="Apply Orbit Correction" target="ApplyOrbitFileOp"/>
             <tocitem text="Radiometric">
@@ -40,5 +41,5 @@
             <tocitem text="Multilook" target="MultilookOp"/>
             <tocitem text="Complex to Detected GR" target="SLCtoPRI"/>
         </tocitem>
-
+    </tocitem>
 </toc>

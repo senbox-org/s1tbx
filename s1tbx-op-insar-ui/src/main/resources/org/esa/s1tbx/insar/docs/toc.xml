@@ -4,23 +4,24 @@
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
-    <tocitem text="Radar">
-        <tocitem text="Image Analysis">
-            <tocitem text="Principle Component Analysis" target="PCA"/>
-        </tocitem>
-        <tocitem text="Coregistration">
-            <tocitem text="Create Stack" target="CreateStackOp"/>
-            <tocitem text="GCP Selection" target="GCPSelectionOp"/>
-            <tocitem text="Warp" target="WarpOp"/>
-        </tocitem>
-        <tocitem text="Interferometric">
-            <tocitem text="Filtering">
-                <tocitem text="Goldstein Phase Filtering" target="GoldsteinFilterOp"/>
+    <tocitem text="Sentinel Toolbox Application">
+        <tocitem text="Radar">
+            <tocitem text="Image Analysis">
+                <tocitem text="Principle Component Analysis" target="PCA"/>
             </tocitem>
-            <tocitem text="Products">
-                <tocitem text="DEM Generation" target="DEMGenerationOp"/>
+            <tocitem text="Coregistration">
+                <tocitem text="Create Stack" target="CreateStackOp"/>
+                <tocitem text="GCP Selection" target="GCPSelectionOp"/>
+                <tocitem text="Warp" target="WarpOp"/>
+            </tocitem>
+            <tocitem text="Interferometric">
+                <tocitem text="Filtering">
+                    <tocitem text="Goldstein Phase Filtering" target="GoldsteinFilterOp"/>
+                </tocitem>
+                <tocitem text="Products">
+                    <tocitem text="DEM Generation" target="DEMGenerationOp"/>
+                </tocitem>
             </tocitem>
         </tocitem>
     </tocitem>
-
 </toc>

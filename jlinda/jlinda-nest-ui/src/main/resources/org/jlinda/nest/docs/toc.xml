@@ -4,38 +4,39 @@
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
-    <tocitem text="Radar">
-        <tocitem text="Coregistration">
-            <tocitem text="InSAR Coregistration">
-                <tocitem text="InSAR Coregistration Overview" target="insar_coregistration"/>
-                <tocitem text="Create InSAR Stack" target="CreateInSARStackOp"/>
-                <tocitem text="Coarse and Fine Coregistration" target="CoarseFineCoregOp"/>
-                <tocitem text="CPM Estimation and Resampling" target="ResampleOp"/>
+    <tocitem text="Sentinel Toolbox Application">
+        <tocitem text="Radar">
+            <tocitem text="Coregistration">
+                <tocitem text="InSAR Coregistration">
+                    <tocitem text="InSAR Coregistration Overview" target="insar_coregistration"/>
+                    <tocitem text="Create InSAR Stack" target="CreateInSARStackOp"/>
+                    <tocitem text="Coarse and Fine Coregistration" target="CoarseFineCoregOp"/>
+                    <tocitem text="CPM Estimation and Resampling" target="ResampleOp"/>
+                </tocitem>
+                <tocitem text="Cross Interferometry" target="CrossResamplingOp"/>
             </tocitem>
-            <tocitem text="Cross Interferometry" target="CrossResamplingOp"/>
+            <tocitem text="Interferometric">
+                <tocitem text="InSAR Stack Overview" target="InSARMaster"/>
+                <tocitem text="Products">
+                    <tocitem text="Interferogram Formation" target="InterferogramOp"/>
+                    <tocitem text="Coherence Estimation" target="CoherenceOp"/>
+                    <tocitem text="Three-Pass DInSAR" target="DInSAROp"/>
+                    <tocitem text="Subtraction of Topography" target="SubtRefDemOp"/>
+                    <tocitem text="Slant to Height" target="Slant2HeightOp"/>
+                </tocitem>
+                <tocitem text="Filtering">
+                    <tocitem text="Azimuth Filtering" target="AzimuthFilterOp"/>
+                    <tocitem text="Range Filtering" target="RangeFilterOp"/>
+                    <tocitem text="Phase Filtering" target="PhaseFilterOp"/>
+                </tocitem>
+                <tocitem text="Unwrapping">
+                    <tocitem text="Unwrapping" target="Unwrap"/>
+                    <tocitem text="Unwrapping Operator" target="UnwrapOp"/>
+                    <tocitem text="Stitching of unwrapped results" target="StitchOp"/>
+                    <tocitem text="Snaphu Data Export" target="SnaphuExportOp"/>
+                    <tocitem text="Snaphu Data Import" target="SnaphuImportOp"/>
+                </tocitem>
+            </tocitem>
         </tocitem>
-        <tocitem text="Interferometric">
-            <tocitem text="InSAR Stack Overview" target="InSARMaster"/>
-            <tocitem text="Products">
-                <tocitem text="Interferogram Formation" target="InterferogramOp"/>
-                <tocitem text="Coherence Estimation" target="CoherenceOp"/>
-                <tocitem text="Three-Pass DInSAR" target="DInSAROp"/>
-                <tocitem text="Subtraction of Topography" target="SubtRefDemOp"/>
-                <tocitem text="Slant to Height" target="Slant2HeightOp"/>
-            </tocitem>
-            <tocitem text="Filtering">
-                <tocitem text="Azimuth Filtering" target="AzimuthFilterOp"/>
-                <tocitem text="Range Filtering" target="RangeFilterOp"/>
-                <tocitem text="Phase Filtering" target="PhaseFilterOp"/>
-            </tocitem>
-            <tocitem text="Unwrapping">
-                <tocitem text="Unwrapping" target="Unwrap"/>
-                <tocitem text="Unwrapping Operator" target="UnwrapOp"/>
-                <tocitem text="Stitching of unwrapped results" target="StitchOp"/>
-                <tocitem text="Snaphu Data Export" target="SnaphuExportOp"/>
-                <tocitem text="Snaphu Data Import" target="SnaphuImportOp"/>
-            </tocitem>
-		</tocitem>
     </tocitem>
-    
 </toc>

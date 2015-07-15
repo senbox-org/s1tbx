@@ -4,6 +4,7 @@
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
+    <tocitem text="Sentinel Toolbox Application">
         <tocitem text="Radar">
             <tocitem text="Radiometric">
                 <tocitem text="Calibration" target="CalibrationOp"/>
@@ -11,5 +12,5 @@
 				<tocitem text="Thermal Noise Removal" target="ThermalNoiseRemoval"/>
             </tocitem>
         </tocitem>
-
+    </tocitem>
 </toc>
