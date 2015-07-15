@@ -103,7 +103,6 @@
                 <attr name="helpId" stringvalue="importTerraSarXProduct"/>
                 <attr name="ShortDescription" stringvalue="Open TanDEM-X data product."/>
             </file>
-
             <file name="org-esa-s1tbx-io-importRATProduct.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
@@ -112,6 +111,27 @@
                 <attr name="useAllFileFilter" boolvalue="false"/>
                 <attr name="helpId" stringvalue="importRATProduct"/>
                 <attr name="ShortDescription" stringvalue="Open TAXI RAT product."/>
+            </file>
+
+            <file name="org-esa-s1tbx-io-importPolSARPro.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="PolSARPro"/>
+                <attr name="formatName" stringvalue="PolSARPro"/>
+                <attr name="useAllFileFilter" boolvalue="false"/>
+                <attr name="helpId" stringvalue="importPolSARPro"/>
+                <attr name="ShortDescription" stringvalue="Open PolSARPro product."/>
+            </file>
+        </folder>
+        <folder name="Writers">
+            <file name="org-esa-s1tbx-io-exportPolSARPro.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.context"/>
+                <attr name="type" stringvalue="org.esa.snap.framework.datamodel.ProductNode"/>
+                <attr name="selectionType" stringvalue="EXACTLY_ONE"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ExportProductAction.create"/>
+                <attr name="displayName" stringvalue="PolSARPro"/>
+                <attr name="formatName" stringvalue="PolSARPro"/>
+                <attr name="useAllFileFilter" boolvalue="false"/>
             </file>
         </folder>
     </folder>
@@ -160,6 +180,14 @@
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importTanDEMXProduct.instance"/>
                         <attr name="position" intvalue="1100"/>
                     </file>
+                    <file name="separator.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="3000"/>
+                    </file>
+                    <file name="org-esa-s1tbx-io-importPolSARPro.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importPolSARPro.instance"/>
+                        <attr name="position" intvalue="3100"/>
+                    </file>
                 </folder>
                 <folder name="Generic Formats">
                     <file name="org-esa-s1tbx-io-importRATProduct.shadow">
@@ -167,6 +195,12 @@
                         <attr name="position" intvalue="1000"/>
                     </file>
                 </folder>
+            </folder>
+            <folder name="Export">
+                <file name="org-esa-s1tbx-io-exportPolSARPro.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Writers/org-esa-s1tbx-io-exportPolSARPro.instance"/>
+                    <attr name="position" intvalue="1000"/>
+                </file>
             </folder>
         </folder>
     </folder>
