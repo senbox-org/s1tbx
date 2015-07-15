@@ -1027,7 +1027,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 masterBands = appendIfMatch(imaginaryBand, "mst", masterBands);
                 slaveBands = appendIfMatch(imaginaryBand, "slv", slaveBands);
 
-                ReaderUtils.createVirtualIntensityBand(product, realBand, imaginaryBand, '_' + pol + extraInfo);
+                ReaderUtils.createVirtualIntensityBand(product, realBand, imaginaryBand, "");
 
                 try {
                     cosarBandMap.put(realBand.getName(), FileImageInputStreamExtImpl.createInputStream(file));
