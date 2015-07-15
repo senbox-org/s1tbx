@@ -79,6 +79,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     private static final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
 
     // For TDM CoSSC products only
+    private String masterSatellite = null;
+    private String slaveSatellite = null;
     private String masterProductName = null;
     private String slaveProductName = null;
     int numMasterBands = 0;
@@ -111,21 +113,29 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         // xmlDoc is the "main" annotation (i.e., the file with name "TDM... .xml")
         final Element mainRootElement = xmlDoc.getRootElement();
 
-        // Look for the product components that are the "primary" and "secondary" annotations inside the TDM xml file.
-        // Assume that the "primary" is the master in the co-registration and the "secondary" is the slave.
+        final String inSARmasterID = mainRootElement.getChild("commonAcquisitionInfo")
+                .getChild("inSARmasterID").getText().toLowerCase();
+        final String inSARslaveID = inSARmasterID.endsWith("1") ? "sat2" : "sat1";
+        masterSatellite = mainRootElement.getChild("commonAcquisitionInfo")
+                .getChild("satelliteID" + inSARmasterID).getText();
+        slaveSatellite = mainRootElement.getChild("commonAcquisitionInfo")
+                .getChild("satelliteID" + inSARslaveID).getText();
+
         final List<Element> componentList = mainRootElement.getChild("productComponents").getChildren("component");
         Element masterAnnotationComponent = null;
         Element slaveAnnotationComponent = null;
         for (Element component : componentList) {
-            if (component.getChild("name").getText().equals("cossc_annotation_primary")) {
-                masterAnnotationComponent = component;
-            }
-            if (component.getChild("name").getText().equals("cossc_annotation_secondary")) {
-                slaveAnnotationComponent = component;
+            final String satId = component.getChild("instrument").getChildText("satIDs");
+            if (component.getChildText("name").startsWith("cossc_annotation")) {
+                if (satId.equals(masterSatellite)) {
+                    masterAnnotationComponent = component;
+                }
+                if (satId.equals(slaveSatellite)) {
+                    slaveAnnotationComponent = component;
+                }
             }
             if (masterAnnotationComponent != null && slaveAnnotationComponent != null) {
                 break;
-
             }
         }
         if (masterAnnotationComponent == null) {
@@ -142,8 +152,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         // Build the slave metadata
 
         final String slaveHeader = slaveAnnotationComponent.getChild("file").getChild("location").getChildText("name");
-
-        slaveProductName = slaveHeader.substring(0, masterHeader.indexOf("/"));
+        slaveProductName = slaveHeader.substring(0, slaveHeader.indexOf("/"));
 
         final Document slaveDoc = XMLSupport.LoadXML(getInputStream(slaveHeader));
         final Element slaveRootElement = slaveDoc.getRootElement();
@@ -982,14 +991,20 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 final String pol = SARReader.findPolarizationInBandName(fileName);
 
                 if (mission.contains("TDM")) {
-                    extraInfo = ((i < numMasterBands) ? "_mst" : "_slv1") + StackUtils.getBandTimeStamp(product);
+                    final String level1ProductDirName = file.getParentFile().getParentFile().getName();
+                    if (level1ProductDirName.equals(masterProductName)) {
+                        extraInfo = "_mst";
+                    } else if (level1ProductDirName.equals(slaveProductName)) {
+                        extraInfo = "_slv1";
+                    }
+                    extraInfo += StackUtils.getBandTimeStamp(product);
                 } else if (!polsUnique) {
                     final int polIndex = fileName.indexOf(pol);
                     extraInfo = fileName.substring(polIndex + 2, fileName.indexOf(".", polIndex + 3));
                 }
 
                 final int bandDataType = (mission.contains("TDM") || isBelongToCoSSC()) ?
-                                            ProductData.TYPE_FLOAT32 : ProductData.TYPE_INT16;
+                        ProductData.TYPE_FLOAT32 : ProductData.TYPE_INT16;
                 //System.out.println("TerraSarXProductDirectory.addBands: band data type = " + ProductData.getTypeString(bandDataType));
 
                 final Band realBand = new Band("i_" + pol + extraInfo, bandDataType, width, height);
