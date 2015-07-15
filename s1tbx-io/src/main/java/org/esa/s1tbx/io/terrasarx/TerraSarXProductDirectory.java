@@ -615,8 +615,14 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
     @Override
     protected void addGeoCoding(final Product product) {
-
-        final File georefFile = new File(getBaseDir(), "ANNOTATION" + File.separator + "GEOREF.xml");
+        File level1ProductDir = getBaseDir();
+        if (getHeaderFileName().startsWith("TDM")) {
+            // Using the master product is important here.
+            // The slave product is coregistered to the master without its geocoding being updated afterwards.
+            // Its geocoding is unusable because of this.
+            level1ProductDir = new File(getBaseDir(), masterProductName);
+        }
+        File georefFile = new File(level1ProductDir, "ANNOTATION" + File.separator + "GEOREF.xml");
         if (georefFile.exists()) {
             try {
                 //readGeoRef(product, georefFile);
