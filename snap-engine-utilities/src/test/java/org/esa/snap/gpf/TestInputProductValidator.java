@@ -58,7 +58,7 @@ public class TestInputProductValidator {
             assertTrue(e.getMessage().contains("is not a valid product type"));
         }
         try {
-            validator.checkIfMapProjected();
+            validator.checkIfMapProjected(false);
         } catch (OperatorException e) {
             assertEquals(e.getMessage(), "Source product should not be map projected");
         }

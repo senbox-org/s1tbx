@@ -1,8 +1,25 @@
+/*
+ * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
 package org.esa.snap.gpf;
 
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.CrsGeoCoding;
+import org.esa.snap.framework.datamodel.MapGeoCoding;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.gpf.OperatorException;
@@ -206,16 +223,33 @@ public class InputProductValidator {
         }
     }
 
-    public void checkIfMapProjected() throws OperatorException {
-        if (OperatorUtils.isMapProjected(product)) {
+    public boolean isMapProjected() {
+        if (product.getGeoCoding() instanceof MapGeoCoding || product.getGeoCoding() instanceof CrsGeoCoding)
+            return true;
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        return absRoot != null && !AbstractMetadata.isNoData(absRoot, AbstractMetadata.map_projection);
+    }
+
+    public void checkIfMapProjected(final boolean shouldBe) throws OperatorException {
+        final boolean isMapProjected = isMapProjected();
+        if (!shouldBe && isMapProjected) {
             throw new OperatorException("Source product should not be map projected");
+        } else if (shouldBe && !isMapProjected) {
+            throw new OperatorException("Source product should be map projected");
         }
     }
 
+    public static boolean isCalibrated(final Product product) {
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        return (absRoot != null &&
+                absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().getElemBoolean());
+    }
+
     public void checkIfCalibrated(final boolean shouldBe) throws OperatorException {
-        if (!shouldBe && OperatorUtils.isCalibrated(product)) {
+        final boolean isCalibrated = isCalibrated(product);
+        if (!shouldBe && isCalibrated) {
             throw new OperatorException("Source product has already been calibrated");
-        } else if (shouldBe && !OperatorUtils.isCalibrated(product)) {
+        } else if (shouldBe && !isCalibrated) {
             throw new OperatorException("Source product should be calibrated");
         }
     }

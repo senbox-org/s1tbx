@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,11 +15,8 @@
  */
 package org.esa.snap.gpf;
 
-import org.apache.commons.math3.util.FastMath;
-import org.esa.snap.dataio.dimap.DimapProductConstants;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
-import org.esa.snap.eo.Constants;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.CrsGeoCoding;
 import org.esa.snap.framework.datamodel.GcpDescriptor;
@@ -35,18 +32,14 @@ import org.esa.snap.framework.datamodel.ProductNodeGroup;
 import org.esa.snap.framework.datamodel.TiePointGeoCoding;
 import org.esa.snap.framework.datamodel.TiePointGrid;
 import org.esa.snap.framework.datamodel.VirtualBand;
-import org.esa.snap.framework.dataop.maptransf.Datum;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.util.ExceptionLog;
 import org.esa.snap.util.ProductUtils;
-import org.esa.snap.util.StringUtils;
 import org.esa.snap.util.math.MathUtils;
 
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -208,32 +201,12 @@ public final class OperatorUtils {
         product.addBand(virtBand);
     }
 
-    public static boolean isDIMAP(final Product prod) {
-        return StringUtils.contains(prod.getProductReader().getReaderPlugIn().getFormatNames(),
-                DimapProductConstants.DIMAP_FORMAT_NAME);
-    }
-
+    @Deprecated
     public static boolean isMapProjected(final Product product) {
         if (product.getGeoCoding() instanceof MapGeoCoding || product.getGeoCoding() instanceof CrsGeoCoding)
             return true;
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         return absRoot != null && !AbstractMetadata.isNoData(absRoot, AbstractMetadata.map_projection);
-    }
-
-    public static boolean isComplex(final Product product) {
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        if (absRoot != null) {
-            final String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE, AbstractMetadata.NO_METADATA_STRING).trim();
-            if (sampleType.equalsIgnoreCase("complex"))
-                return true;
-        }
-        return false;
-    }
-
-    public static boolean isCalibrated(final Product product) {
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        return (absRoot != null &&
-                absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().getElemBoolean());
     }
 
     /**
@@ -412,56 +385,6 @@ public final class OperatorUtils {
         throw new OperatorException(message);
     }
 
-
-    // mosaic and createStack scene functions
-
-    /**
-     * Compute source image geodetic boundary (minimum/maximum latitude/longitude) from the its corner
-     * latitude/longitude.
-     *
-     * @param sourceProducts the list of input products
-     * @param scnProp        the output scene properties
-     */
-    public static void computeImageGeoBoundary(final Product[] sourceProducts, final SceneProperties scnProp) {
-
-        scnProp.latMin = 90.0f;
-        scnProp.latMax = -90.0f;
-        scnProp.lonMin = 180.0f;
-        scnProp.lonMax = -180.0f;
-
-        for (final Product srcProd : sourceProducts) {
-            final GeoCoding geoCoding = srcProd.getGeoCoding();
-            final GeoPos geoPosFirstNear = geoCoding.getGeoPos(new PixelPos(0, 0), null);
-            final GeoPos geoPosFirstFar = geoCoding.getGeoPos(new PixelPos(srcProd.getSceneRasterWidth() - 1, 0), null);
-            final GeoPos geoPosLastNear = geoCoding.getGeoPos(new PixelPos(0, srcProd.getSceneRasterHeight() - 1), null);
-            final GeoPos geoPosLastFar = geoCoding.getGeoPos(new PixelPos(srcProd.getSceneRasterWidth() - 1,
-                    srcProd.getSceneRasterHeight() - 1), null);
-
-            final double[] lats = {geoPosFirstNear.getLat(), geoPosFirstFar.getLat(), geoPosLastNear.getLat(), geoPosLastFar.getLat()};
-            final double[] lons = {geoPosFirstNear.getLon(), geoPosFirstFar.getLon(), geoPosLastNear.getLon(), geoPosLastFar.getLon()};
-            scnProp.srcCornerLatitudeMap.put(srcProd, lats);
-            scnProp.srcCornerLongitudeMap.put(srcProd, lons);
-
-            for (double lat : lats) {
-                if (lat < scnProp.latMin) {
-                    scnProp.latMin = (float)lat;
-                }
-                if (lat > scnProp.latMax) {
-                    scnProp.latMax = (float)lat;
-                }
-            }
-
-            for (double lon : lons) {
-                if (lon < scnProp.lonMin) {
-                    scnProp.lonMin = (float)lon;
-                }
-                if (lon > scnProp.lonMax) {
-                    scnProp.lonMax = (float)lon;
-                }
-            }
-        }
-    }
-
     /**
      * Compute source image geodetic boundary (minimum/maximum latitude/longitude) from the its corner
      * latitude/longitude.
@@ -526,71 +449,9 @@ public final class OperatorUtils {
         return geoBoundary;
     }
 
-    public static void getSceneDimensions(final double minSpacing, final SceneProperties scnProp) {
-        double minAbsLat;
-        if (scnProp.latMin * scnProp.latMax > 0) {
-            minAbsLat = Math.min(Math.abs(scnProp.latMin), Math.abs(scnProp.latMax)) * Constants.DTOR;
-        } else {
-            minAbsLat = 0.0;
-        }
-        double delLat = minSpacing / Constants.MeanEarthRadius * Constants.RTOD;
-        double delLon = minSpacing / (Constants.MeanEarthRadius * FastMath.cos(minAbsLat)) * Constants.RTOD;
-        delLat = Math.min(delLat, delLon);
-        delLon = delLat;
-
-        scnProp.sceneWidth = (int) ((scnProp.lonMax - scnProp.lonMin) / delLon) + 1;
-        scnProp.sceneHeight = (int) ((scnProp.latMax - scnProp.latMin) / delLat) + 1;
-    }
-
-    /**
-     * Add geocoding to the target product.
-     *
-     * @param targetProduct the destination product
-     * @param scnProp       the scene properties
-     */
-    public static void addGeoCoding(final Product targetProduct, final SceneProperties scnProp) {
-
-        final float[] latTiePoints = {scnProp.latMax, scnProp.latMax, scnProp.latMin, scnProp.latMin};
-        final float[] lonTiePoints = {scnProp.lonMin, scnProp.lonMax, scnProp.lonMin, scnProp.lonMax};
-
-        final int gridWidth = 10;
-        final int gridHeight = 10;
-
-        final float[] fineLatTiePoints = new float[gridWidth * gridHeight];
-        ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, latTiePoints, fineLatTiePoints);
-
-        final double subSamplingX = targetProduct.getSceneRasterWidth() / (gridWidth - 1);
-        final double subSamplingY = targetProduct.getSceneRasterHeight() / (gridHeight - 1);
-
-        final TiePointGrid latGrid = new TiePointGrid(TPG_LATITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
-                subSamplingX, subSamplingY, fineLatTiePoints);
-        latGrid.setUnit(Unit.DEGREES);
-
-        final float[] fineLonTiePoints = new float[gridWidth * gridHeight];
-        ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, lonTiePoints, fineLonTiePoints);
-
-        final TiePointGrid lonGrid = new TiePointGrid(TPG_LONGITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
-                subSamplingX, subSamplingY, fineLonTiePoints, TiePointGrid.DISCONT_AT_180);
-        lonGrid.setUnit(Unit.DEGREES);
-
-        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
-
-        targetProduct.addTiePointGrid(latGrid);
-        targetProduct.addTiePointGrid(lonGrid);
-        targetProduct.setGeoCoding(tpGeoCoding);
-    }
-
     public static class ImageGeoBoundary {
         public double latMin = 0.0, latMax = 0.0;
         public double lonMin = 0.0, lonMax = 0.0;
-    }
-
-    public static class SceneProperties {
-        public int sceneWidth, sceneHeight;
-        public float latMin, lonMin, latMax, lonMax;
-
-        public final Map<Product, double[]> srcCornerLatitudeMap = new HashMap<>(10);
-        public final Map<Product, double[]> srcCornerLongitudeMap = new HashMap<>(10);
     }
 
     /**
