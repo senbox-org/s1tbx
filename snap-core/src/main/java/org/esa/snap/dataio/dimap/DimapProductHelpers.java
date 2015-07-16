@@ -241,18 +241,10 @@ public class DimapProductHelpers {
         Debug.assertNotNull(dom);
         Debug.assertNotNull(product);
         final Element rootElem = dom.getRootElement();
-        final Element geoPositionElem = rootElem.getChild(DimapProductConstants.TAG_GEOPOSITION);
-        final Element coordRefSysElem = rootElem.getChild(DimapProductConstants.TAG_COORDINATE_REFERENCE_SYSTEM);
+        final List geoPosElems = rootElem.getChildren(DimapProductConstants.TAG_GEOPOSITION);
+        final List crsElems = rootElem.getChildren(DimapProductConstants.TAG_COORDINATE_REFERENCE_SYSTEM);
         final Datum datum = createDatum(dom);
-        if (geoPositionElem != null) {
-            if (coordRefSysElem != null) {
-                final Element wktElem = coordRefSysElem.getChild(DimapProductConstants.TAG_WKT);
-                if (wktElem != null) {
-                    return createCrsGeoCoding(product, geoPositionElem, wktElem);
-                }
-            }
-
-            final List geoPosElems = rootElem.getChildren(DimapProductConstants.TAG_GEOPOSITION);
+        if (geoPosElems.size() > 0) {
             final GeoCoding[] geoCodings = new GeoCoding[geoPosElems.size()];
 
             for (int i = 0; i < geoPosElems.size(); i++) {
@@ -263,7 +255,11 @@ public class DimapProductHelpers {
                 } else {
                     bandIndex = 0;
                 }
-                if (geoPosElem.getChild(DimapProductConstants.TAG_SIMPLIFIED_LOCATION_MODEL) != null &&
+                if (i < crsElems.size() && crsElems.get(i) != null &&
+                        ((Element) crsElems.get(i)).getChild(DimapProductConstants.TAG_WKT) != null) {
+                    final Element wktElement = ((Element) crsElems.get(i)).getChild(DimapProductConstants.TAG_WKT);
+                    geoCodings[bandIndex] = createCrsGeoCoding(product, geoPosElem, wktElement);
+                } else if (geoPosElem.getChild(DimapProductConstants.TAG_SIMPLIFIED_LOCATION_MODEL) != null &&
                         geoPosElem.getChild(DimapProductConstants.TAG_GEOPOSITION_INSERT) != null) {
                     geoCodings[bandIndex] = createFXYGeoCoding(datum, geoPosElem);
                 } else if (geoPosElem.getChild(DimapProductConstants.TAG_SEARCH_RADIUS) != null &&
@@ -288,7 +284,8 @@ public class DimapProductHelpers {
         }
 
         final String tagCoordRefSys = DimapProductConstants.TAG_COORDINATE_REFERENCE_SYSTEM;
-        if (coordRefSysElem != null) {
+        if (crsElems.size() == 1) {
+            final Element coordRefSysElem = (Element) crsElems.get(0);
             final String tagHorizontalCs = DimapProductConstants.TAG_HORIZONTAL_CS;
             final Element hCsElem = coordRefSysElem.getChild(tagHorizontalCs);
             if (hCsElem != null) {
@@ -482,7 +479,7 @@ public class DimapProductHelpers {
         return geoCodings[0];
     }
 
-    private static GeoCoding[] createCrsGeoCoding(Product product, Element geoPositionElem, Element wktElem) {
+    private static GeoCoding createCrsGeoCoding(Product product, Element geoPositionElem, Element wktElem) {
         try {
             final CoordinateReferenceSystem crs = CRS.parseWKT(wktElem.getTextTrim());
             final Element i2mElem = geoPositionElem.getChild(
@@ -498,7 +495,7 @@ public class DimapProductHelpers {
                                                       product.getSceneRasterHeight());
                 try {
                     final CrsGeoCoding geoCoding = new CrsGeoCoding(crs, imageBounds, i2m);
-                    return new GeoCoding[]{geoCoding};
+                    return geoCoding;
                 } catch (TransformException e) {
                     Debug.trace(e);
                 }

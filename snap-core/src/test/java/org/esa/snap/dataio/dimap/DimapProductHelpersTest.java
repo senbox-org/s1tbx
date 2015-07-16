@@ -15,7 +15,6 @@
  */
 package org.esa.snap.dataio.dimap;
 
-import junit.framework.TestCase;
 import org.esa.snap.framework.datamodel.BasicPixelGeoCoding;
 import org.esa.snap.framework.datamodel.CrsGeoCoding;
 import org.esa.snap.framework.datamodel.FXYGeoCoding;
@@ -37,6 +36,8 @@ import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.math.FXYSum;
 import org.geotools.referencing.CRS;
 import org.jdom.Document;
+import org.junit.Before;
+import org.junit.Test;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
@@ -46,7 +47,13 @@ import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.Vector;
 
-public class DimapProductHelpersTest extends TestCase {
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertNotSame;
+import static org.junit.Assert.assertTrue;
+
+public class DimapProductHelpersTest {
 
     private static final String LS = SystemUtils.LS;
     private static final String _projectionName = "ProjectionName";
@@ -421,13 +428,14 @@ public class DimapProductHelpersTest extends TestCase {
 
     private Product product;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         product = new Product("product", "type", 200, 300);
         product.addBand("b1", ProductData.TYPE_INT8);
         product.addBand("b2", ProductData.TYPE_INT8);
     }
 
+    @Test
     public void testCreateGeoCodingForMapProjectionWithOldDimapFormat() {
         final String projectionName = "Lambert Conformal Conic";
 
@@ -499,6 +507,7 @@ public class DimapProductHelpersTest extends TestCase {
         assertEquals(expDescriptor.getClass(), actualDescriptor.getClass());
     }
 
+    @Test
     public void testCreateGeoCodingForMapProjectionWithFullValidDimap_1_4_0_Format() {
         final int[] allLines = new int[0];
 
@@ -544,6 +553,7 @@ public class DimapProductHelpersTest extends TestCase {
         assertEquals(LambertConformalConicDescriptor.class, actualDescriptor.getClass());
     }
 
+    @Test
     public void testCreateGeoCodingForMapProjectionWithValidDimap_1_4_0_Format() {
 
         final String xmlStringWithoutNotMandatoryLines = createXMLString(_notMandatoryLines);
@@ -587,6 +597,7 @@ public class DimapProductHelpersTest extends TestCase {
         assertEquals(LambertConformalConicDescriptor.class, actualDescriptor.getClass());
     }
 
+    @Test
     public void testCreateGeoCodingForMapProjectionWithInvalidDimap_1_4_0_Format() {
         Document dom;
 
@@ -663,6 +674,7 @@ public class DimapProductHelpersTest extends TestCase {
         assertEquals(null, DimapProductHelpers.createGeoCoding(dom, product));
     }
 
+    @Test
     public void testCreateGeoCodingForFXYGeoCoding() {
         final byte[] bytes = _xmlFXYGeoCodingString.getBytes();
         final Document dom = DimapProductHelpers.createDom(new ByteArrayInputStream(bytes));
@@ -674,6 +686,7 @@ public class DimapProductHelpersTest extends TestCase {
 
     }
 
+//    @Test
 //    public void testCreateGeoCodingForPixelGeoCoding() throws IOException {
 //        final Band latBand = product.getBand("b1");
 //        final Band lonBand = product.getBand("b2");
@@ -699,6 +712,7 @@ public class DimapProductHelpersTest extends TestCase {
 //
 //    }
 
+    @Test
     public void testCreateGeoCodingForCrsGeoCoding() throws Exception {
         final Rectangle imageBounds = new Rectangle(product.getSceneRasterWidth(),
                                                     product.getSceneRasterHeight());
@@ -720,6 +734,43 @@ public class DimapProductHelpersTest extends TestCase {
         assertEquals(expectedI2m, crsGeoCoding.getImageToMapTransform());
     }
 
+    @Test
+    public void testCreateGeoCodingPerBandForCrsGeoCoding() throws Exception {
+        final int productWidth = product.getSceneRasterWidth();
+        final int productHeight = product.getSceneRasterHeight();
+
+        final Rectangle imageBounds1 = new Rectangle(productWidth / 2,productHeight / 2);
+        final AffineTransform i2m1 = new AffineTransform(0.23, 1.45, 2.67, 3.89, 4.01, 5.23);
+        final CoordinateReferenceSystem crs1 = CRS.decode("EPSG:4326");
+        final CrsGeoCoding crsGeoCoding1 = new CrsGeoCoding(crs1, imageBounds1, i2m1);
+
+        final Rectangle imageBounds2 = new Rectangle(productWidth / 4, productHeight / 3);
+        final AffineTransform i2m2 = new AffineTransform(0.12, 1.23, 2.34, 3.45, 4.56, 5.67);
+        final CoordinateReferenceSystem crs2 = CRS.decode("EPSG:4326");
+        final CrsGeoCoding crsGeoCoding2 = new CrsGeoCoding(crs2, imageBounds2, i2m2);
+
+        final CoordinateReferenceSystem[] expectedCrs = new CoordinateReferenceSystem[] {crs1, crs2};
+        final AffineTransform[] i2ms = new AffineTransform[]{i2m1, i2m2};
+        final byte[] bytes = createCrsGeoCodingString(new CrsGeoCoding[]{crsGeoCoding1, crsGeoCoding2}).getBytes();
+
+        final Document dom = DimapProductHelpers.createDom(new ByteArrayInputStream(bytes));
+        final GeoCoding[] geoCodings = DimapProductHelpers.createGeoCoding(dom, product);
+        assertNotNull(geoCodings);
+        assertEquals(2, geoCodings.length);
+        for (int i = 0; i < geoCodings.length; i++) {
+            GeoCoding geoCoding = geoCodings[i];
+            assertNotNull(geoCoding);
+            assertEquals(CrsGeoCoding.class, geoCoding.getClass());
+            final CrsGeoCoding crsGeoCoding = (CrsGeoCoding) geoCoding;
+            final CoordinateReferenceSystem mapCRS = crsGeoCoding.getMapCRS();
+            // ignoring metadata because scope and domainOfValidity are not restored
+            // but not important for our GeoCoding
+            assertTrue(CRS.equalsIgnoreMetadata(expectedCrs[i], mapCRS));
+            assertEquals(i2ms[i], crsGeoCoding.getImageToMapTransform());
+        }
+    }
+
+    @Test
     public void testReadingGeoCodingPerBand() {
         final byte[] bytes = _xmlBandedFXYGeoCodingString.getBytes();
         final Document dom = DimapProductHelpers.createDom(new ByteArrayInputStream(bytes));
@@ -767,6 +818,7 @@ public class DimapProductHelpersTest extends TestCase {
         assertEquals(expectedGeoCoding.getPixelSizeY(), actualGeoCoding.getPixelSizeY(), 1.0e-6);
     }
 
+    @Test
     public void testConvertBeamUnitToDimapUnit() {
         assertEquals("M", DimapProductHelpers.convertBeamUnitToDimapUnit("meter"));
         assertEquals("M", DimapProductHelpers.convertBeamUnitToDimapUnit("meters"));
@@ -784,6 +836,7 @@ public class DimapProductHelpersTest extends TestCase {
 
     }
 
+    @Test
     public void testConvertDimaUnitToBeamUnit() {
         assertEquals("meter", DimapProductHelpers.convertDimapUnitToBeamUnit("M"));
 
@@ -899,6 +952,29 @@ public class DimapProductHelpersTest extends TestCase {
                 matrix) + "</IMAGE_TO_MODEL_TRANSFORM>" + LS +
                "    </Geoposition>" + LS +
                "</" + DimapProductConstants.TAG_ROOT + ">";
+    }
+
+    private String createCrsGeoCodingString(CrsGeoCoding[] geoCodings) {
+        final StringBuilder stringBuilder = new StringBuilder("<" + DimapProductConstants.TAG_ROOT + ">" + LS);
+        for (int i = 0; i < geoCodings.length; i++) {
+            final double[] matrix = new double[6];
+            final MathTransform transform = geoCodings[i].getImageToMapTransform();
+            if (transform instanceof AffineTransform) {
+                ((AffineTransform) transform).getMatrix(matrix);
+            }
+            stringBuilder.append("    <Coordinate_Reference_System>" + LS +
+                    "        <WKT>" + LS +
+                    geoCodings[i].getMapCRS().toString() +
+                    "        </WKT>" + LS +
+                    "    </Coordinate_Reference_System>" + LS +
+                    "    <Geoposition>" + LS +
+                    "        <BAND_INDEX>" + i + "</BAND_INDEX>" + LS +
+                    "        <IMAGE_TO_MODEL_TRANSFORM>" + StringUtils.arrayToCsv(
+                    matrix) + "</IMAGE_TO_MODEL_TRANSFORM>" + LS +
+                    "    </Geoposition>" + LS);
+        }
+
+        return stringBuilder.append("</" + DimapProductConstants.TAG_ROOT + ">").toString();
     }
 
 }

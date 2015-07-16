@@ -397,6 +397,11 @@ import java.util.Set;
  * <td> Since BEAM 4.10, the XML elements "ROI", "ROI_Definition", and "ROI_ONE_DIMENSIONS" are not used anymore.
  * </td>
  * </tr>
+ * <tr>
+ * <td valign="top"></td>
+ * <td> Since SNAP 2.0, crs geocodings can be written per band.
+ * </td>
+ * </tr>
  * </table>
  *
  * @author Sabine Embacher

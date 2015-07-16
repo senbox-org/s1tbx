@@ -179,7 +179,6 @@ public final class DimapProductConstants {
     public static final String TAG_DATASET_COMMENTS = "DATASET_COMMENTS";
 
     // BEAM-Dimap flag coding tags
-    // todo - FIXME!!! this is against DIMAP naming convention!!! (nf)
     public static final String TAG_FLAG_CODING = "Flag_Coding";
     public static final String TAG_FLAG = "Flag";
     public static final String TAG_FLAG_NAME = "Flag_Name";

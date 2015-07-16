@@ -15,7 +15,6 @@
  */
 package org.esa.snap.dataio.dimap;
 
-import junit.framework.TestCase;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.BitmaskDef;
 import org.esa.snap.framework.datamodel.ConvolutionFilterBand;
@@ -38,7 +37,9 @@ import org.esa.snap.framework.dataop.resamp.Resampling;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.math.FXYSum;
 import org.geotools.referencing.CRS;
+import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Test;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.Color;
@@ -47,7 +48,9 @@ import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.io.StringWriter;
 
-public class DimapHeaderWriterTest extends TestCase {
+import static junit.framework.TestCase.assertEquals;
+
+public class DimapHeaderWriterTest {
 
     private static final String LS = SystemUtils.LS;
     private static final String header =
@@ -199,12 +202,8 @@ public class DimapHeaderWriterTest extends TestCase {
     private StringWriter stringWriter;
     private DimapHeaderWriter dimapHeaderWriter;
 
-    public DimapHeaderWriterTest(String s) {
-        super(s);
-    }
-
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         product = new Product("test", "MER_RR__2P", 200, 300);
         product.setStartTime(new ProductData.UTC(1234, 2045, 34));
         product.setEndTime(new ProductData.UTC(1234, 3045, 34));
@@ -212,10 +211,7 @@ public class DimapHeaderWriterTest extends TestCase {
         dimapHeaderWriter = new DimapHeaderWriter(product, stringWriter, "test.data");
     }
 
-
-    // ###################################################
-    // ##  W r i t e   X m l   H e a d e r   L i n e s  ##
-    // ###################################################
+    @Test
     public void testWriteXmlHeaderLines() {
         dimapHeaderWriter.writeHeader();
 
@@ -223,9 +219,7 @@ public class DimapHeaderWriterTest extends TestCase {
         assertEquals(expected, stringWriter.toString());
     }
 
-    // #########################################
-    // ##  W r i t e   B i t m a s k D e f s  ##
-    // #########################################
+    @Test
     public void testWriteBitmaskDefs() {
         addBitmaskDefsToProduct();
 
@@ -234,9 +228,7 @@ public class DimapHeaderWriterTest extends TestCase {
         assertEquals(getExpectedForWriteMasks(), stringWriter.toString());
     }
 
-    // #############################################
-    // ##  W r i t e   M a p   G e o c o d i n g  ##
-    // #############################################
+    @Test
     public void testWriteMapGeocoding() {
         final String expected = addMapGeocodingToProductAndGetExpected();
 
@@ -245,9 +237,7 @@ public class DimapHeaderWriterTest extends TestCase {
         assertEquals(expected, stringWriter.toString());
     }
 
-    // ###########################################
-    // ##  W r i t e   F X Y G e o C o d i n g  ##
-    // ###########################################
+    @Test
     public void testWriteFXYGeoCoding() {
         final String expectedForFXYGeoCoding = setFXYGeoCodingAndGetExpected();
 
@@ -256,9 +246,7 @@ public class DimapHeaderWriterTest extends TestCase {
         assertEquals(expectedForFXYGeoCoding, stringWriter.toString());
     }
 
-    // ########################################################
-    // ##  W r i t e   B a n d e d  F X Y G e o C o d i n g  ##
-    // ########################################################
+    @Test
     public void testWriteBandedFXYGeoCoding() {
         final String expectedForBandedFXYGeoCoding = setBandedFXYGeoCodingAndGetExpected();
 
@@ -267,9 +255,7 @@ public class DimapHeaderWriterTest extends TestCase {
         assertEquals(expectedForBandedFXYGeoCoding, stringWriter.toString());
     }
 
-    // ###############################################
-    // ##  W r i t e   P i x e l G e o C o d i n g  ##
-    // ###############################################
+    @Test
     @Ignore
     public void testWritePixelGeoCoding() throws IOException {
         final String expectedForPixelGeoCoding = setPixelGeoCodingAndGetExpected();
@@ -279,6 +265,7 @@ public class DimapHeaderWriterTest extends TestCase {
         assertEquals(expectedForPixelGeoCoding, stringWriter.toString());
     }
 
+//    @Test
 //    public void testWritePixelGeoCodingWithoutEstimator() throws IOException {
 //        final String expectedForPixelGeoCoding = setPixelGeoCodingWithoutEstimatorAndGetExpected();
 //
@@ -287,15 +274,22 @@ public class DimapHeaderWriterTest extends TestCase {
 //        assertEquals(expectedForPixelGeoCoding, stringWriter.toString());
 //    }
 
-    // ###############################################
-    // ##  W r i t e   C r s G e o C o d i n g      ##
-    // ###############################################
+    @Test
     public void testWriteCrsGeoCoding() throws Exception {
         final String expectedForCrsGeoCoding = setCrsGeoCodingAndGetExpected();
 
         dimapHeaderWriter.writeHeader();
 
         assertEquals(expectedForCrsGeoCoding, stringWriter.toString());
+    }
+
+    @Test
+    public void testWriteCrsGeoCodingPerBand() throws Exception {
+        final String expectedForCrsGeoCodingPerBand = setCrsGeoCodingPerBandAndGetExpected();
+
+        dimapHeaderWriter.writeHeader();
+
+        assertEquals(expectedForCrsGeoCodingPerBand, stringWriter.toString());
     }
 
     private void addBitmaskDefsToProduct() {
@@ -946,6 +940,116 @@ public class DimapHeaderWriterTest extends TestCase {
                 "        <NROWS>300</NROWS>" + LS +
                 "        <NBANDS>0</NBANDS>" + LS +
                 "    </Raster_Dimensions>" + LS +
+                footer;
+    }
+
+    private String setCrsGeoCodingPerBandAndGetExpected() throws Exception {
+        final int productWidth = product.getSceneRasterWidth();
+        final int productHeight = product.getSceneRasterHeight();
+
+        final Band band1 = new Band("band_1", ProductData.TYPE_INT8, productWidth / 2, productHeight / 2);
+        final Rectangle imageBounds1 = new Rectangle(band1.getSceneRasterWidth(),
+                                                     band1.getSceneRasterHeight());
+        final AffineTransform i2m1 = new AffineTransform(0.23, 1.45, 2.67, 3.89, 4.01, 5.23);
+        final CoordinateReferenceSystem crs1 = CRS.decode("EPSG:4326");
+        band1.setGeoCoding(new CrsGeoCoding(crs1, imageBounds1, i2m1));
+        product.addBand(band1);
+
+        final Band band2 = new Band("band_2", ProductData.TYPE_INT8, productWidth / 4, productHeight / 3);
+        final Rectangle imageBounds2 = new Rectangle(band2.getSceneRasterWidth(),
+                                                     band2.getSceneRasterHeight());
+        final AffineTransform i2m2 = new AffineTransform(0.12, 1.23, 2.34, 3.45, 4.56, 5.67);
+        final CoordinateReferenceSystem crs2 = CRS.decode("EPSG:4326");
+        band2.setGeoCoding(new CrsGeoCoding(crs2, imageBounds2, i2m2));
+        product.addBand(band2);
+
+        return header +
+                "    <Coordinate_Reference_System>" + LS +
+                "        <WKT>" + LS +
+                "             GEOGCS[\"WGS 84\", " + LS +
+                "               DATUM[\"World Geodetic System 1984\", " + LS +
+                "                 SPHEROID[\"WGS 84\", 6378137.0, 298.257223563, AUTHORITY[\"EPSG\",\"7030\"]], " + LS +
+                "                 AUTHORITY[\"EPSG\",\"6326\"]], " + LS +
+                "               PRIMEM[\"Greenwich\", 0.0, AUTHORITY[\"EPSG\",\"8901\"]], " + LS +
+                "               UNIT[\"degree\", 0.017453292519943295], " + LS +
+                "               AXIS[\"Geodetic latitude\", NORTH], " + LS +
+                "               AXIS[\"Geodetic longitude\", EAST], " + LS +
+                "               AUTHORITY[\"EPSG\",\"4326\"]]" + LS +
+                "        </WKT>" + LS +
+                "    </Coordinate_Reference_System>" + LS +
+                "    <Geoposition>" + LS +
+                "        <BAND_INDEX>0</BAND_INDEX>" + LS +
+                "        <IMAGE_TO_MODEL_TRANSFORM>0.23,1.45,2.67,3.89,4.01,5.23</IMAGE_TO_MODEL_TRANSFORM>" + LS +
+                "    </Geoposition>" + LS +
+                "    <Coordinate_Reference_System>" + LS +
+                "        <WKT>" + LS +
+                "             GEOGCS[\"WGS 84\", " + LS +
+                "               DATUM[\"World Geodetic System 1984\", " + LS +
+                "                 SPHEROID[\"WGS 84\", 6378137.0, 298.257223563, AUTHORITY[\"EPSG\",\"7030\"]], " + LS +
+                "                 AUTHORITY[\"EPSG\",\"6326\"]], " + LS +
+                "               PRIMEM[\"Greenwich\", 0.0, AUTHORITY[\"EPSG\",\"8901\"]], " + LS +
+                "               UNIT[\"degree\", 0.017453292519943295], " + LS +
+                "               AXIS[\"Geodetic latitude\", NORTH], " + LS +
+                "               AXIS[\"Geodetic longitude\", EAST], " + LS +
+                "               AUTHORITY[\"EPSG\",\"4326\"]]" + LS +
+                "        </WKT>" + LS +
+                "    </Coordinate_Reference_System>" + LS +
+                "    <Geoposition>" + LS +
+                "        <BAND_INDEX>1</BAND_INDEX>" + LS +
+                "        <IMAGE_TO_MODEL_TRANSFORM>0.12,1.23,2.34,3.45,4.56,5.67</IMAGE_TO_MODEL_TRANSFORM>" + LS +
+                "    </Geoposition>" + LS +
+                "    <Raster_Dimensions>" + LS +
+                "        <NCOLS>200</NCOLS>" + LS +
+                "        <NROWS>300</NROWS>" + LS +
+                "        <NBANDS>2</NBANDS>" + LS +
+                "    </Raster_Dimensions>" + LS +
+                "    <Data_Access>" + LS +
+                "        <DATA_FILE_FORMAT>ENVI</DATA_FILE_FORMAT>" + LS +
+                "        <DATA_FILE_FORMAT_DESC>ENVI File Format</DATA_FILE_FORMAT_DESC>" + LS +
+                "        <DATA_FILE_ORGANISATION>BAND_SEPARATE</DATA_FILE_ORGANISATION>" + LS +
+                "        <Data_File>" + LS +
+                "            <DATA_FILE_PATH href=\"test.data/band_1.hdr\" />" + LS +
+                "            <BAND_INDEX>0</BAND_INDEX>" + LS +
+                "        </Data_File>" + LS +
+                "        <Data_File>" + LS +
+                "            <DATA_FILE_PATH href=\"test.data/band_2.hdr\" />" + LS +
+                "            <BAND_INDEX>1</BAND_INDEX>" + LS +
+                "        </Data_File>" + LS +
+                "    </Data_Access>" + LS +
+                "    <Image_Interpretation>" + LS +
+                "        <Spectral_Band_Info>" + LS +
+                "            <BAND_INDEX>0</BAND_INDEX>" + LS +
+                "            <BAND_DESCRIPTION />" + LS +
+                "            <BAND_NAME>band_1</BAND_NAME>" + LS +
+                "            <BAND_RASTER_WIDTH>100</BAND_RASTER_WIDTH>" + LS +
+                "            <BAND_RASTER_HEIGHT>150</BAND_RASTER_HEIGHT>" + LS +
+                "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
+                "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
+                "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
+                "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
+                "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
+                "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
+                "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
+                "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
+                "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
+                "        </Spectral_Band_Info>" + LS +
+                "        <Spectral_Band_Info>" + LS +
+                "            <BAND_INDEX>1</BAND_INDEX>" + LS +
+                "            <BAND_DESCRIPTION />" + LS +
+                "            <BAND_NAME>band_2</BAND_NAME>" + LS +
+                "            <BAND_RASTER_WIDTH>50</BAND_RASTER_WIDTH>" + LS +
+                "            <BAND_RASTER_HEIGHT>100</BAND_RASTER_HEIGHT>" + LS +
+                "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
+                "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
+                "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
+                "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
+                "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
+                "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
+                "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
+                "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
+                "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
+                "        </Spectral_Band_Info>" + LS +
+                "    </Image_Interpretation>" + LS +
                 footer;
     }
 

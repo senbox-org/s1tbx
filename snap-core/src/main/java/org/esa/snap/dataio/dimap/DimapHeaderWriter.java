@@ -519,12 +519,12 @@ public final class DimapHeaderWriter extends XmlWriter {
             } else if (geoCoding instanceof GcpGeoCoding) {
                 writeGeoCoding((GcpGeoCoding) geoCoding, indent, index);
             } else if (geoCoding instanceof CrsGeoCoding) {
-                writeGeoCoding((CrsGeoCoding) geoCoding, indent);
+                writeGeoCoding((CrsGeoCoding) geoCoding, indent, index);
             }
         }
     }
 
-    private void writeGeoCoding(final CrsGeoCoding crsGeoCoding, int indent) {
+    private void writeGeoCoding(final CrsGeoCoding crsGeoCoding, int indent, int index) {
         final CoordinateReferenceSystem crs = crsGeoCoding.getMapCRS();
         final double[] matrix = new double[6];
         final MathTransform transform = crsGeoCoding.getImageToMapTransform();
@@ -547,6 +547,7 @@ public final class DimapHeaderWriter extends XmlWriter {
         println(crsTags[1]);
         final String[] geopositionTags = createTags(indent, DimapProductConstants.TAG_GEOPOSITION);
         println(geopositionTags[0]);
+        writeBandIndexIf(index >= 0, index, indent + 1);
         printLine(indent + 1, DimapProductConstants.TAG_IMAGE_TO_MODEL_TRANSFORM, StringUtils.arrayToCsv(matrix));
         println(geopositionTags[1]);
 

@@ -459,7 +459,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * Returns the geo-coding of this {@link RasterDataNode}.
      *
-     * @return the geo-coding
+     * @return the geo-coding, or {@code null} if not available.
      */
     public GeoCoding getGeoCoding() {
         if (geoCoding == null) {

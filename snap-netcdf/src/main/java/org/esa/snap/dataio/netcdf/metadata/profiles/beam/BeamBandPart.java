@@ -27,20 +27,33 @@ import org.esa.snap.dataio.netcdf.util.NetcdfMultiLevelImage;
 import org.esa.snap.dataio.netcdf.util.ReaderUtils;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.BasicPixelGeoCoding;
+import org.esa.snap.framework.datamodel.CrsGeoCoding;
 import org.esa.snap.framework.datamodel.GeoCoding;
 import org.esa.snap.framework.datamodel.MetadataAttribute;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.datamodel.TiePointGeoCoding;
+import org.esa.snap.framework.datamodel.TiePointGrid;
 import org.esa.snap.jai.ImageManager;
+import org.esa.snap.util.StringUtils;
+import org.esa.snap.util.jai.JAIUtils;
+import org.geotools.referencing.CRS;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.TransformException;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.Dimension;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
+import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 public class BeamBandPart extends ProfilePartIO {
@@ -52,7 +65,10 @@ public class BeamBandPart extends ProfilePartIO {
     public static final String QUICKLOOK_BAND_NAME = "quicklook_band_name";
     public static final String SOLAR_FLUX = "solar_flux";
     public static final String SPECTRAL_BAND_INDEX = "spectral_band_index";
+    public static final String GEOCODING = "geocoding";
 
+    private static final int LON_INDEX = 0;
+    private static final int LAT_INDEX = 1;
 
     @Override
     public void decode(ProfileReadContext ctx, Product p) throws IOException {
@@ -66,14 +82,21 @@ public class BeamBandPart extends ProfilePartIO {
             }
             final int yDimIndex = 0;
             final int xDimIndex = 1;
-            if (dimensions.get(yDimIndex).getLength() == p.getSceneRasterHeight()
-                && dimensions.get(xDimIndex).getLength() == p.getSceneRasterWidth()) {
-                final int rasterDataType = DataTypeUtils.getRasterDataType(variable);
-                final Band band = p.addBand(variable.getFullName(), rasterDataType);
-                CfBandPart.readCfBandAttributes(variable, band);
-                readBeamBandAttributes(variable, band);
-                band.setSourceImage(new NetcdfMultiLevelImage(band, variable, ctx));
+            final int rasterDataType = DataTypeUtils.getRasterDataType(variable);
+            final int width = dimensions.get(xDimIndex).getLength();
+            final int height = dimensions.get(yDimIndex).getLength();
+            Band band;
+            if (height == p.getSceneRasterHeight()
+                && width == p.getSceneRasterWidth()) {
+                band = p.addBand(variable.getFullName(), rasterDataType);
+            } else {
+                band = new Band(variable.getFullName(), rasterDataType, width, height);
+                setGeoCoding(ctx, p, variable, band);
+                p.addBand(band);
             }
+            CfBandPart.readCfBandAttributes(variable, band);
+            readBeamBandAttributes(variable, band);
+            band.setSourceImage(new NetcdfMultiLevelImage(band, variable, ctx));
         }
         // Work around for a bug in version 1.0.101
         // The solar flux and spectral band index were not preserved.
@@ -98,10 +121,56 @@ public class BeamBandPart extends ProfilePartIO {
         }
     }
 
+    private void setGeoCoding(ProfileReadContext ctx, Product p, Variable variable, Band band) throws IOException {
+        final Attribute geoCodingAttribute = variable.findAttribute(GEOCODING);
+        final NetcdfFile netcdfFile = ctx.getNetcdfFile();
+        if (geoCodingAttribute != null) {
+            final String geoCodingValue = geoCodingAttribute.getStringValue();
+            final String expectedCRSName = "crs_" + variable.getFullName();
+            if (geoCodingValue.equals(expectedCRSName)) {
+                final Variable crsVariable = netcdfFile.getRootGroup().findVariable(expectedCRSName);
+                if (crsVariable != null) {
+                    final Attribute wktAtt = crsVariable.findAttribute("wkt");
+                    final Attribute i2mAtt = crsVariable.findAttribute("i2m");
+                    if (wktAtt != null && i2mAtt != null) {
+                        band.setGeoCoding(createGeoCodingFromWKT(p, wktAtt.getStringValue(), i2mAtt.getStringValue()));
+                    }
+                }
+            } else {
+                final String[] tpGridNames = geoCodingValue.split(" ");
+                if (tpGridNames.length == 2
+                        && p.containsTiePointGrid(tpGridNames[LON_INDEX])
+                        && p.containsTiePointGrid(tpGridNames[LAT_INDEX])) {
+                    final TiePointGrid lon = p.getTiePointGrid(tpGridNames[LON_INDEX]);
+                    final TiePointGrid lat = p.getTiePointGrid(tpGridNames[LAT_INDEX]);
+                    band.setGeoCoding(new TiePointGeoCoding(lat, lon));
+                }
+            }
+        }
+    }
+
+    private GeoCoding createGeoCodingFromWKT(Product p, String wktString, String i2mString) {
+        try {
+            CoordinateReferenceSystem crs = CRS.parseWKT(wktString);
+            String[] parameters = StringUtils.csvToArray(i2mString);
+            double[] matrix = new double[parameters.length];
+            for (int i = 0; i < matrix.length; i++) {
+                matrix[i] = Double.valueOf(parameters[i]);
+            }
+            AffineTransform i2m = new AffineTransform(matrix);
+            Rectangle imageBounds = new Rectangle(p.getSceneRasterWidth(), p.getSceneRasterHeight());
+            return new CrsGeoCoding(crs, imageBounds, i2m);
+        } catch (FactoryException ignore) {
+        } catch (TransformException ignore) {
+        }
+        return null;
+    }
+
     @Override
     public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
         final NFileWriteable ncFile = ctx.getNetcdfFileWriteable();
-        final String dimensions = ncFile.getDimensions();
+        final String productDimensions = ncFile.getDimensions();
+        final HashMap<String, String> dimMap = new HashMap<String, String>();
         for (Band band : p.getBands()) {
             if (isPixelGeoCodingBand(band)) {
                 continue;
@@ -117,12 +186,31 @@ public class BeamBandPart extends ProfilePartIO {
             }
 
             final DataType ncDataType = DataTypeUtils.getNetcdfDataType(dataType);
-            java.awt.Dimension tileSize = ImageManager.getPreferredTileSize(p);
             String variableName = ReaderUtils.getVariableName(band);
             if(!ncFile.isNameValid(variableName)) {
                 variableName = ncFile.makeNameValid(variableName);
             }
-            final NVariable variable = ncFile.addVariable(variableName, ncDataType, tileSize, dimensions);
+            NVariable variable;
+            final int bandSceneRasterWidth = band.getSceneRasterWidth();
+            final int bandSceneRasterHeight = band.getSceneRasterHeight();
+            if (bandSceneRasterWidth != p.getSceneRasterWidth() || bandSceneRasterHeight != p.getSceneRasterHeight()) {
+                final String key = "" + bandSceneRasterWidth + " " + bandSceneRasterHeight;
+                String dimString = dimMap.get(key);
+                if (dimString == null) {
+                    final int size = dimMap.size();
+                    final String suffix = "" + (size + 1);
+                    ncFile.addDimension("y" + suffix, bandSceneRasterHeight);
+                    ncFile.addDimension("x" + suffix, bandSceneRasterWidth);
+                    dimString = "y" + suffix + " " + "x" + suffix;
+                    dimMap.put(key, dimString);
+                }
+                final java.awt.Dimension tileSize = JAIUtils.computePreferredTileSize(bandSceneRasterWidth, bandSceneRasterHeight, 1);
+                variable = ncFile.addVariable(variableName, ncDataType, tileSize, dimString);
+                encodeGeoCoding(ncFile, band, p, variable);
+            } else {
+                final java.awt.Dimension tileSize = ImageManager.getPreferredTileSize(p);
+                variable = ncFile.addVariable(variableName, ncDataType, tileSize, productDimensions);
+            }
             CfBandPart.writeCfBandAttributes(band, variable);
             writeBeamBandAttributes(band, variable);
         }
@@ -133,6 +221,34 @@ public class BeamBandPart extends ProfilePartIO {
         String quicklookBandName = p.getQuicklookBandName();
         if (quicklookBandName != null && !quicklookBandName.isEmpty()) {
             ncFile.addGlobalAttribute(QUICKLOOK_BAND_NAME, quicklookBandName);
+        }
+    }
+
+    private void encodeGeoCoding(NFileWriteable ncFile, Band band, Product product, NVariable variable) throws IOException {
+        final GeoCoding geoCoding = band.getGeoCoding();
+        if (!geoCoding.equals(product.getGeoCoding())) {
+            if (geoCoding instanceof TiePointGeoCoding) {
+                final TiePointGeoCoding tpGC = (TiePointGeoCoding) geoCoding;
+                final String[] names = new String[2];
+                names[LON_INDEX] = tpGC.getLonGrid().getName();
+                names[LAT_INDEX] = tpGC.getLatGrid().getName();
+                final String value = StringUtils.arrayToString(names, " ");
+                variable.addAttribute(GEOCODING, value);
+            } else {
+                if (geoCoding instanceof CrsGeoCoding) {
+                    final CoordinateReferenceSystem crs = geoCoding.getMapCRS();
+                    final double[] matrix = new double[6];
+                    final MathTransform transform = geoCoding.getImageToMapTransform();
+                    if (transform instanceof AffineTransform) {
+                        ((AffineTransform) transform).getMatrix(matrix);
+                    }
+                    final String crsName = "crs_" + band.getName();
+                    final NVariable crsVariable = ncFile.addScalarVariable(crsName, DataType.INT);
+                    crsVariable.addAttribute("wkt", crs.toWKT());
+                    crsVariable.addAttribute("i2m", StringUtils.arrayToCsv(matrix));
+                    variable.addAttribute(GEOCODING, crsName);
+                }
+            }
         }
     }
 
