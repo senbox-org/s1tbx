@@ -54,7 +54,6 @@ import java.io.IOException;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -386,13 +385,7 @@ public class Product extends ProductNode {
     private void handleGeoCodingChange() {
         for (int i = 0; i < pinGroup.getNodeCount(); i++) {
             final Placemark pin = pinGroup.get(i);
-            final PlacemarkDescriptor pinDescriptor = pin.getDescriptor();
-            final PixelPos pixelPos = pin.getPixelPos();
-            GeoPos geoPos = pin.getGeoPos();
-            if (pixelPos != null) {
-                geoPos = pinDescriptor.updateGeoPos(getGeoCoding(), pixelPos, geoPos);
-            }
-            pin.setGeoPos(geoPos);
+            pin.setGeoPos(pin.getGeoPos());
         }
     }
 

@@ -366,8 +366,6 @@ public class Placemark extends ProductNode {
             if (geoCoding != null && geoCoding.canGetGeoPos()) {
                 geoPos = geoCoding.getGeoPos(imagePos, geoPos);
             }
-        } else {
-            descriptor.updateGeoPos(geoCoding, imagePos, geoPos);
         }
 
         if (geoPos != null) {
