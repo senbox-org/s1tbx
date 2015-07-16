@@ -26,6 +26,7 @@ import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
 import org.esa.snap.framework.gpf.annotations.Parameter;
 import org.esa.snap.framework.gpf.annotations.SourceProduct;
 import org.esa.snap.framework.gpf.annotations.TargetProduct;
+import org.esa.snap.gpf.operators.standard.support.ProductFlipperExt;
 import org.esa.snap.util.ProductUtils;
 
 import java.util.ArrayList;
@@ -78,7 +79,7 @@ public final class FlipOp extends Operator {
                 flippingType = ProductFlipper.FLIP_VERTICAL;
 
             sourceProduct = ProductFlipperExt.createFlippedProduct(sourceProduct, flippingType,
-                    sourceProduct.getName(), sourceProduct.getDescription());
+                                                                   sourceProduct.getName(), sourceProduct.getDescription());
 
             targetProduct = new Product(sourceProduct.getName(),
                     sourceProduct.getProductType(),

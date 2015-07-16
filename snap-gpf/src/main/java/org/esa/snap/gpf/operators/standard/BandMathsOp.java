@@ -40,6 +40,7 @@ import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
 import org.esa.snap.framework.gpf.annotations.Parameter;
 import org.esa.snap.framework.gpf.annotations.SourceProducts;
 import org.esa.snap.framework.gpf.annotations.TargetProduct;
+import org.esa.snap.gpf.operators.standard.support.BandDescriptorDomConverter;
 import org.esa.snap.util.ProductUtils;
 import org.esa.snap.util.StringUtils;
 

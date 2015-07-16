@@ -1,4 +1,4 @@
-package org.esa.snap.gpf.operators.standard;
+package org.esa.snap.gpf.operators.standard.support;
 
 import org.esa.snap.framework.dataio.ProductFlipper;
 import org.esa.snap.framework.datamodel.MetadataAttribute;
