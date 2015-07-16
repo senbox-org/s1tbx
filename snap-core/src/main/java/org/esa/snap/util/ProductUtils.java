@@ -1391,6 +1391,9 @@ public class ProductUtils {
         }
     }
 
+    /**
+     * Denormalizes the longitude value of the given geographical position.
+     */
     public static void denormalizeGeoPos(GeoPos geoPos) {
         int factor;
         if (geoPos.lon >= 0.0) {
