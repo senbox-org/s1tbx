@@ -73,6 +73,11 @@ public class ResampleOpUI extends BaseOperatorUI {
             demName.setSelectedItem(DEMFactory.getDEMDisplayName(descriptor));
         }
         enableDemFields();
+
+        openResidualsFile = (Boolean)paramMap.get("openResidualsFile");
+        if(openResidualsFile == null) {
+            openResidualsFile = false;
+        }
     }
 
     @Override
@@ -93,7 +98,10 @@ public class ResampleOpUI extends BaseOperatorUI {
         if (cpmDemRefinement) {
             paramMap.put("demName", DEMFactory.getProperDEMName((String) demName.getSelectedItem()));
         }
-        
+
+        if(openResidualsFile == null) {
+            openResidualsFile = false;
+        }
         paramMap.put("openResidualsFile", openResidualsFile);
     }
 
