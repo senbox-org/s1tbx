@@ -148,6 +148,7 @@
                         <publicPackage>org.opengis.*</publicPackage>
                         <publicPackage>com.vividsolutions.jts.*</publicPackage>
                         <publicPackage>Jama</publicPackage>
+						<publicPackage>org.apache.commons.net.ftp.*</publicPackage>
                         <publicPackage>com.bc.io</publicPackage>
                         <publicPackage>com.bc.jexp</publicPackage>
                         <publicPackage>com.bc.jexp.impl</publicPackage>
