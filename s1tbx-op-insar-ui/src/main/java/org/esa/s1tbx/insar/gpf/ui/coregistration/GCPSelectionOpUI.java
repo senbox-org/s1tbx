@@ -16,6 +16,7 @@
 package org.esa.s1tbx.insar.gpf.ui.coregistration;
 
 import org.esa.snap.framework.ui.AppContext;
+import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
@@ -114,7 +115,8 @@ public class GCPSelectionOpUI extends BaseOperatorUI {
         gcpTolerance.setText(String.valueOf(paramMap.get("gcpTolerance")));
 
         if (sourceProducts != null && sourceProducts.length > 0) {
-            isComplex = OperatorUtils.isComplex(sourceProducts[0]);
+            final InputProductValidator validator = new InputProductValidator(sourceProducts[0]);
+            isComplex = validator.isComplex();
         }
 
         if (isComplex) {

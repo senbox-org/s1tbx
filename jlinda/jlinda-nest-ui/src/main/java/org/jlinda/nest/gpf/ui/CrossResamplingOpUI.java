@@ -1,18 +1,13 @@
 package org.jlinda.nest.gpf.ui;
 
 import org.esa.snap.framework.ui.AppContext;
-import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.util.DialogUtils;
 import org.jlinda.core.coregistration.LUT;
 
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.util.Map;
 
 public class CrossResamplingOpUI extends BaseOperatorUI {
@@ -37,14 +32,8 @@ public class CrossResamplingOpUI extends BaseOperatorUI {
 
         targetGeometry.setSelectedItem(paramMap.get("targetGeometry"));
         warpPolynomialOrder.setSelectedItem(paramMap.get("warpPolynomialOrder"));
-
-        if (sourceProducts != null && sourceProducts.length > 0) {
-            final boolean isComplex = OperatorUtils.isComplex(sourceProducts[0]);
-        }
-
         interpolationMethod.setSelectedItem(paramMap.get("interpolationMethod"));
     }
-
 
     @Override
     public UIValidation validateParameters() {
@@ -57,8 +46,6 @@ public class CrossResamplingOpUI extends BaseOperatorUI {
         paramMap.put("warpPolynomialOrder", Integer.parseInt((String) warpPolynomialOrder.getSelectedItem()));
         paramMap.put("interpolationMethod", interpolationMethod.getSelectedItem());
     }
-
-
 
     private JComponent createPanel() {
 

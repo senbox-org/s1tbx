@@ -142,7 +142,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
 
         try {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
-            validator.checkIfMapProjected();
+            validator.checkIfMapProjected(false);
             validator.checkIfTOPSARBurstProduct(false);
 
             getSourceImageDimension();

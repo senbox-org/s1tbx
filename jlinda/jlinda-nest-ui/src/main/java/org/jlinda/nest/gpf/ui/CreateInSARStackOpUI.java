@@ -19,7 +19,7 @@ import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.VirtualBand;
 import org.esa.snap.framework.ui.AppContext;
-import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.OperatorUIUtils;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
@@ -27,15 +27,8 @@ import org.esa.snap.util.DialogUtils;
 import org.jlinda.nest.gpf.coregistration.CreateInSARStackOp;
 import org.jlinda.nest.stacks.MasterSelection;
 
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -173,7 +166,8 @@ public class CreateInSARStackOpUI extends BaseOperatorUI {
         if(sourceProducts == null) return;
 
         for(Product prod : sourceProducts) {
-            if(!OperatorUtils.isComplex(prod)) {
+            InputProductValidator validator = new InputProductValidator(prod);
+            if(!validator.isComplex()) {
                 optimalMasterButton.setEnabled(false);
                 return;
             }

@@ -119,7 +119,7 @@ public class SRGROp extends Operator {
 
         try {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
-            validator.checkIfMapProjected();
+            validator.checkIfMapProjected(false);
             validator.checkIfTOPSARBurstProduct(false);
 
             if (numRangePoints < warpPolynomialOrder + 2) {

@@ -28,6 +28,7 @@ import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
 import org.esa.snap.framework.gpf.annotations.Parameter;
 import org.esa.snap.framework.gpf.annotations.SourceProduct;
 import org.esa.snap.framework.gpf.annotations.TargetProduct;
+import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.util.ProductUtils;
 
@@ -178,7 +179,8 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
      */
     private void addSelectedBands() {
 
-        if (sourceBandNames == null || sourceBandNames.length == 0 && OperatorUtils.isComplex(sourceProduct)) {
+        final InputProductValidator validator = new InputProductValidator(sourceProduct);
+        if (sourceBandNames == null || sourceBandNames.length == 0 && validator.isComplex()) {
             final Band[] bands = sourceProduct.getBands();
             final List<String> bandNameList = new ArrayList<>(sourceProduct.getNumBands());
             for (Band band : bands) {
