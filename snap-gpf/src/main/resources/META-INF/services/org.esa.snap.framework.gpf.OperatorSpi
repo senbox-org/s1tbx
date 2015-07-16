@@ -13,3 +13,4 @@ org.esa.snap.gpf.operators.meris.L3ToL1Op$Spi
 org.esa.snap.gpf.operators.meris.RRToFRSOp$Spi
 org.esa.snap.gpf.operators.standard.FlipOp$Spi
 org.esa.snap.gpf.operators.standard.ImportVectorOp$Spi
+org.esa.snap.gpf.operators.standard.ConvertDataTypeOp$Spi
