@@ -37,8 +37,17 @@
     </folder>
 
     <folder name="Menu">
+        <folder name="Raster">
+            <folder name="Data Conversion">
+                <attr name="position" intvalue="350"/>
+                <file name="org-esa-s1tbx-utilities-gpf-ConvertDatatypeOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-utilities-gpf-ConvertDatatypeOp-Action.instance"/>
+                    <attr name="position" intvalue="100"/>
+                </file>
+            </folder>
+        </folder>
         <folder name="Radar">
-            <folder name="Utilities">
+            <folder name="SAR Utilities">
                 <attr name="position" intvalue="1000"/>
                 <folder name="Resampling">
                     <attr name="position" intvalue="100"/>
@@ -49,13 +58,6 @@
                     <file name="org-esa-s1tbx-utilities-gpf-UndersampleOp-Action.shadow">
                         <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-utilities-gpf-UndersampleOp-Action.instance"/>
                         <attr name="position" intvalue="200"/>
-                    </file>
-                </folder>
-                <folder name="Data Conversion">
-                    <attr name="position" intvalue="200"/>
-                    <file name="org-esa-s1tbx-utilities-gpf-ConvertDatatypeOp-Action.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-utilities-gpf-ConvertDatatypeOp-Action.instance"/>
-                        <attr name="position" intvalue="100"/>
                     </file>
                 </folder>
             </folder>
