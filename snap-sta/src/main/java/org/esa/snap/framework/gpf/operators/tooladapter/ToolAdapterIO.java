@@ -53,7 +53,7 @@ public class ToolAdapterIO {
 
     static {
         logger = Logger.getLogger(ToolAdapterIO.class.getName());
-        userSubfolders = new String[] { "adapters" };
+        userSubfolders = new String[] { "tool-adapters" };
         shellExtensions = new HashMap<>();
         shellExtensions.put("windows", ".bat");
         shellExtensions.put("linux", ".sh");
@@ -274,7 +274,8 @@ public class ToolAdapterIO {
         String userPath = Config.instance().load().preferences().get(ToolAdapterConstants.USER_MODULE_PATH, null);
         File userModulePath;
         if (userPath == null) {
-            userModulePath = new File(Config.instance().userDir().toFile(), SystemUtils.getApplicationContextId());
+            //userModulePath = new File(Config.instance().userDir().toFile(), SystemUtils.getApplicationContextId());
+            userModulePath = SystemUtils.getAuxDataPath().toFile();
             for (String subFolder : userSubfolders) {
                 userModulePath = new File(userModulePath, subFolder);
             }
