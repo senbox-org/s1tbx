@@ -75,6 +75,7 @@
                         <publicPackage>com.bc.ceres.jai.*</publicPackage>
                         <publicPackage>it.geosolutions.imageio.plugins.tiff</publicPackage>
                         <publicPackage>it.geosolutions.imageioimpl.plugins.tiff</publicPackage>
+                        <publicPackage>org.mozilla.javascript.*</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>
