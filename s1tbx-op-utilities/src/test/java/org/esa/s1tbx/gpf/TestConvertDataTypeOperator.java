@@ -16,7 +16,7 @@
 package org.esa.s1tbx.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.s1tbx.utilities.gpf.ConvertDataTypeOp;
+import org.esa.snap.gpf.operators.standard.ConvertDataTypeOp;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
