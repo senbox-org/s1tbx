@@ -706,7 +706,6 @@ public class ReprojectionOp extends Operator {
                                                                easting, northing,
                                                                referencePixelX, referencePixelY);
             final AxisDirection targetAxisDirection = targetCrs.getCoordinateSystem().getAxis(1).getDirection();
-            // When collocating the Y-Axis is DISPLAY_DOWN, then pixelSizeY must not negated
             if (!AxisDirection.DISPLAY_DOWN.equals(targetAxisDirection)) {
                 imageGeometry.changeYAxisDirection();
             }
