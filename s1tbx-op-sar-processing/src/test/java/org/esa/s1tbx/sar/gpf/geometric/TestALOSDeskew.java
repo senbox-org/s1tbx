@@ -6,6 +6,7 @@ import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.snap.gpf.TestProcessor;
 import org.esa.snap.util.TestUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -31,6 +32,7 @@ public class TestALOSDeskew {
      * @throws Exception general exception
      */
     @Test
+    @Ignore
     public void testProcessing() throws Exception {
         final File inputFile = TestData.inputALOS1_1;
         if (!inputFile.exists()) {
