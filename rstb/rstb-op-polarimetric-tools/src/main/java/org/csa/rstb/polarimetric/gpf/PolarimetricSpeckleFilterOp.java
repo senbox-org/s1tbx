@@ -157,8 +157,6 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
             createTargetProduct();
 
-            getWindowSize();
-
             speckleFilter = createFilter();
 
         } catch (Throwable e) {
@@ -201,12 +199,14 @@ public class PolarimetricSpeckleFilterOp extends Operator {
             case BOXCAR_SPECKLE_FILTER:
                 return new BoxCar(this, sourceProduct, targetProduct, sourceProductType, srcBandList, filterSize);
             case REFINED_LEE_FILTER:
+                getWindowSize();
                 return new RefinedLee(this, sourceProduct, targetProduct, sourceProductType, srcBandList, filterSize,
                                       numLooks);
             case IDAN_FILTER:
                 return new IDAN(this, sourceProduct, targetProduct, sourceProductType, srcBandList, anSize,
                                 numLooks);
             case LEE_SIGMA_FILTER:
+                getWindowSize();
                 return new LeeSigma(this, sourceProduct, targetProduct, sourceProductType, srcBandList, filterSize,
                                     numLooks, sigmaStr, targetWindowSizeStr);
             default:
