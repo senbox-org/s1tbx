@@ -28,7 +28,7 @@
     <fileSets>
         <fileSet>
             <directory>${project.build.directory}</directory>
-            <outputDirectory>/lib</outputDirectory>
+            <outputDirectory>lib</outputDirectory>
             <includes>
                 <!--the software itsself-->
                 <include>*.jar</include>
