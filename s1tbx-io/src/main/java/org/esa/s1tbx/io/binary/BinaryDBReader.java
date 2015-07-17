@@ -358,7 +358,7 @@ public final class BinaryDBReader {
     private static URL getResURL(final String mission, final String fileName) {
 
         final String base = "/org/esa/s1tbx/io/";
-        final String path = base + "ceos_db" + File.separator + mission + File.separator + fileName;
+        final String path = base + "ceos_db" + File.separator + mission.toLowerCase() + File.separator + fileName;
         return BinaryDBReader.class.getResource(path);
     }
 }
