@@ -608,6 +608,22 @@ public class ProductUtilsTest {
         }
     }
 
+    @Test
+    public void testAreRastersCompatible() {
+        final Band band1 = new Band("band1", ProductData.TYPE_INT8, 16, 16);
+        final Band band2 = new Band("band2", ProductData.TYPE_INT8, 8, 8);
+        final TiePointGrid grid = new TiePointGrid("grid", 2, 2, 0, 0, 15, 15, new float[]{0f, 0f, 0f, 0f});
+
+        assertEquals(true, ProductUtils.areRastersOfSameSize(new RasterDataNode[0]));
+        assertEquals(true, ProductUtils.areRastersOfSameSize(new RasterDataNode[]{band1}));
+        assertEquals(true, ProductUtils.areRastersOfSameSize(new RasterDataNode[]{band2}));
+        assertEquals(true, ProductUtils.areRastersOfSameSize(new RasterDataNode[]{grid}));
+        assertEquals(false, ProductUtils.areRastersOfSameSize(new RasterDataNode[]{band1, band2}));
+        assertEquals(true, ProductUtils.areRastersOfSameSize(new RasterDataNode[]{band1, grid}));
+        assertEquals(false, ProductUtils.areRastersOfSameSize(new RasterDataNode[]{band2, grid}));
+
+    }
+
     public static class SGeoCoding implements GeoCoding {
 
         @Override

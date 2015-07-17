@@ -2015,4 +2015,25 @@ public class ProductUtils {
         return sample;
     }
 
+    /**
+     * This method checks whether a number of rasterdatanodes all have the same width and height.
+     *
+     * @param rasters The rasters to be checked
+     * @return true, if all rasters are of the same size
+     */
+    public static boolean areRastersOfSameSize(RasterDataNode[] rasters) {
+        if (rasters.length < 2) {
+            return true;
+        }
+        int referenceWidth = rasters[0].getSceneRasterWidth();
+        int referenceHeight = rasters[0].getSceneRasterHeight();
+        for (int i = 1; i < rasters.length; i++) {
+            if (rasters[i].getSceneRasterWidth() != referenceWidth ||
+                    rasters[i].getSceneRasterHeight() != referenceHeight) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }
