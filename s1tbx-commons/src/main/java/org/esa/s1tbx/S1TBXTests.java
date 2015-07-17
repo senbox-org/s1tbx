@@ -19,6 +19,8 @@ import org.esa.snap.gpf.TestProcessor;
 import org.esa.snap.runtime.Config;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -35,7 +37,14 @@ public class S1TBXTests {
 
     private static final Preferences testPreferences = Config.instance(S1TBX_TESTS).load().preferences();
 
-    public static String rootPathTestProducts = "";
+    private static Path workingPath = Paths.get(System.getProperty("user.dir"));
+    public static String rootPathTestProducts;
+    static {
+        if(workingPath.getParent().getParent().endsWith("s1tbx")) {
+            workingPath = workingPath.getParent();
+        }
+        rootPathTestProducts = workingPath.getParent().getParent().resolve("testdata").toString();
+    }
 
     public final static File[] rootArchivePaths = loadFilePath("test.rootArchivePaths");
     public final static File[] rootPathsTerraSarX = loadFilePath("test.rootPathTerraSarX");
@@ -61,7 +70,6 @@ public class S1TBXTests {
 
     static {
         if (testPreferences != null) {
-            rootPathTestProducts = testPreferences.get("test.rootPathTestProducts", "");
 
             subsetX = Integer.parseInt(testPreferences.get("test.subsetX", "100"));
             subsetY = Integer.parseInt(testPreferences.get("test.subsetY", "100"));
@@ -91,6 +99,7 @@ public class S1TBXTests {
     }
 
     public static TestProcessor createS1TBXTestProcessor() {
-        return new TestProcessor();
+        return new TestProcessor(subsetX, subsetY, subsetWidth, subsetHeight,
+                maxIteration, canTestReadersOnAllProducts, canTestProcessingOnAllProducts);
     }
 }
