@@ -974,10 +974,15 @@ public class ProductUtils {
         if (sourceBand == null) {
             return null;
         }
-        Band targetBand = targetProduct.addBand(targetBandName, sourceBand.getDataType());
+        Band targetBand = new Band(targetBandName, sourceBand.getDataType(),
+                                   sourceBand.getSceneRasterWidth(), sourceBand.getSceneRasterHeight());
+        targetProduct.addBand(targetBand);
         copyRasterDataNodeProperties(sourceBand, targetBand);
         if (copySourceImage) {
             targetBand.setSourceImage(sourceBand.getSourceImage());
+        }
+        if (sourceBand.getGeoCoding() != sourceProduct.getGeoCoding()) {
+            targetBand.setGeoCoding(sourceBand.getGeoCoding());
         }
         return targetBand;
     }
