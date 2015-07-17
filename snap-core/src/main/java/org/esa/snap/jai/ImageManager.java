@@ -917,7 +917,13 @@ public class ImageManager {
             final MaskKey key = new MaskKey(product, expression);
             MultiLevelImage mli = maskImageMap.get(key);
             if (mli == null) {
-                MultiLevelSource mls = new AbstractMultiLevelSource(createMultiLevelModel(product)) {
+                MultiLevelModel multiLevelModel;
+                if (rasterDataNode != null) {
+                    multiLevelModel = rasterDataNode.getSourceImage().getModel();
+                } else {
+                    multiLevelModel = createMultiLevelModel(product);
+                }
+                MultiLevelSource mls = new AbstractMultiLevelSource(multiLevelModel) {
 
                     @Override
                     public RenderedImage createImage(int level) {
