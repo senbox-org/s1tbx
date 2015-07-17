@@ -63,20 +63,29 @@ public class JaiHelper {
         }
 
         final RenderedOp[] bandRenderedOps = new RenderedOp[sourceBands.length];
+        int maxWidth = -1;
+        int maxHeight = -1;
         for (int i = 0; i < sourceBands.length; i++) {
             bandRenderedOps[i] = createTargetImage(sourceBands[i], operationName, operationParameters, renderingHints);
+            if (bandRenderedOps[i].getWidth() > maxWidth) {
+                maxWidth = bandRenderedOps[i].getWidth();
+            }
+            if (bandRenderedOps[i].getHeight() > maxHeight) {
+                maxHeight = bandRenderedOps[i].getHeight();
+            }
         }
-        final int width = bandRenderedOps[0].getWidth();
-        final int height = bandRenderedOps[0].getHeight();
 
-        Product targetProduct = new Product("jai", "jai", width, height);
+        Product targetProduct = new Product("jai", "jai", maxWidth, maxHeight);
         for (int i = 0; i < sourceBands.length; i++) {
             Band sourceBand = sourceBands[i];
-            Band targetBand = ProductUtils.copyBand(sourceBand.getName(), sourceProduct, targetProduct, false);
+            Band targetBand = new Band(sourceBand.getName(), sourceBand.getDataType(), bandRenderedOps[i].getWidth(),
+                                       bandRenderedOps[i].getHeight());
+            ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
+            targetProduct.addBand(targetBand);
             targetBand.setSourceImage(bandRenderedOps[i]);
         }
         for (final TiePointGrid sourceGrid : tiePointGrids) {
-            Band targetBand = new Band(sourceGrid.getName(), sourceGrid.getDataType(), width, height);
+            Band targetBand = new Band(sourceGrid.getName(), sourceGrid.getDataType(), maxWidth, maxHeight);
             ProductUtils.copyRasterDataNodeProperties(sourceGrid, targetBand);
             targetBand.setSourceImage(createTargetImage(sourceGrid, operationName, operationParameters, renderingHints));
             targetProduct.addBand(targetBand);

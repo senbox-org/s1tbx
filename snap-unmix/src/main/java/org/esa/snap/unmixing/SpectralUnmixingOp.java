@@ -198,6 +198,9 @@ public class SpectralUnmixingOp extends Operator {
             }
             sourceBands[i] = sourceBand;
         }
+        if (!ProductUtils.areRastersOfSameSize(sourceBands)) {
+            throw new OperatorException("Source Bands are not of the same size");
+        }
 
         int numSourceBands = sourceBands.length;
         int numEndmembers = endmembers.length;

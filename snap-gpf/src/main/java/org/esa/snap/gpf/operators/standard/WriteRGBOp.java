@@ -69,6 +69,14 @@ public class WriteRGBOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
+        final Band redBand = sourceProduct.getBandAt(red);
+        final Band greenBand = sourceProduct.getBandAt(green);
+        final Band blueBand = sourceProduct.getBandAt(blue);
+
+        if (!ProductUtils.areRastersOfSameSize(new Band[]{redBand, greenBand, blueBand})) {
+            throw new OperatorException("Red, green, and blue band must be of the same size");
+        }
+
         bandMap = new HashMap<Band, Band>(3);
         dataMap = new HashMap<Band, ProductData>(3);
         rgbChannelNodes = new RasterDataNode[3];
@@ -77,9 +85,9 @@ public class WriteRGBOp extends Operator {
         final int width = sourceProduct.getSceneRasterWidth();
 
         targetProduct = new Product("RGB", "RGB", width, height);
-        prepareTargetBand(0, sourceProduct.getBandAt(red), "red", width, height);
-        prepareTargetBand(1, sourceProduct.getBandAt(green), "green", width, height);
-        prepareTargetBand(2, sourceProduct.getBandAt(blue), "blue", width, height);
+        prepareTargetBand(0, redBand, "red", width, height);
+        prepareTargetBand(1, greenBand, "green", width, height);
+        prepareTargetBand(2, blueBand, "blue", width, height);
     }
 
     private void prepareTargetBand(int rgbIndex, Band sourceBand, String bandName, int width, int height) {
