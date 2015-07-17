@@ -133,12 +133,12 @@ import java.util.Map;
  * @since BEAM 4.7
  */
 @OperatorMetadata(alias = "Reproject",
-                  category = "Raster/Geometric",
-                  version = "1.0",
-                  authors = "Marco Zühlke, Marco Peters, Ralf Quast, Norman Fomferra",
-                  copyright = "(c) 2009 by Brockmann Consult",
-                  description = "Reprojection of a source product to a target Coordinate Reference System.",
-                  internal = false)
+        category = "Raster/Geometric",
+        version = "1.0",
+        authors = "Marco Zühlke, Marco Peters, Ralf Quast, Norman Fomferra",
+        copyright = "(c) 2009 by Brockmann Consult",
+        description = "Reprojection of a source product to a target Coordinate Reference System.",
+        internal = false)
 @SuppressWarnings({"UnusedDeclaration"})
 public class ReprojectionOp extends Operator {
 
@@ -146,7 +146,7 @@ public class ReprojectionOp extends Operator {
     @SourceProduct(alias = "source", description = "The product which will be reprojected.")
     private Product sourceProduct;
     @SourceProduct(alias = "collocateWith", optional = true, label = "Collocation product",
-                   description = "The source product will be collocated with this product.")
+            description = "The source product will be collocated with this product.")
     private Product collocationProduct;
     @TargetProduct
     private Product targetProduct;
@@ -155,16 +155,16 @@ public class ReprojectionOp extends Operator {
     private File wktFile;
 
     @Parameter(description = "A text specifying the target Coordinate Reference System, either in WKT or as an " +
-                             "authority code. For appropriate EPSG authority codes see (www.epsg-registry.org). " +
-                             "AUTO authority can be used with code 42001 (UTM), and 42002 (Transverse Mercator) " +
-                             "where the scene center is used as reference. Examples: EPSG:4326, AUTO:42001")
+            "authority code. For appropriate EPSG authority codes see (www.epsg-registry.org). " +
+            "AUTO authority can be used with code 42001 (UTM), and 42002 (Transverse Mercator) " +
+            "where the scene center is used as reference. Examples: EPSG:4326, AUTO:42001")
     private String crs;
 
     @Parameter(alias = "resampling",
-               label = "Resampling Method",
-               description = "The method used for resampling of floating-point raster data.",
-               valueSet = {"Nearest", "Bilinear", "Bicubic"},
-               defaultValue = "Nearest")
+            label = "Resampling Method",
+            description = "The method used for resampling of floating-point raster data.",
+            valueSet = {"Nearest", "Bilinear", "Bicubic"},
+            defaultValue = "Nearest")
     private String resamplingName;
 
     @Parameter(description = "The X-position of the reference pixel.")
@@ -176,7 +176,7 @@ public class ReprojectionOp extends Operator {
     @Parameter(description = "The northing of the reference pixel.")
     private Double northing;
     @Parameter(description = "The orientation of the output product (in degree).",
-               defaultValue = "0", interval = "[-360,360]")
+            defaultValue = "0", interval = "[-360,360]")
     private Double orientation;
     @Parameter(description = "The pixel size in X direction given in CRS units.")
     private Double pixelSizeX;
@@ -192,22 +192,22 @@ public class ReprojectionOp extends Operator {
     private Integer tileSizeY;
 
     @Parameter(description = "Whether the source product should be orthorectified. (Not applicable to all products)",
-               defaultValue = "false")
+            defaultValue = "false")
     private boolean orthorectify;
 
     @Parameter(description = "The name of the elevation model for the orthorectification. " +
-                             "If not given tie-point data is used.")
+            "If not given tie-point data is used.")
     private String elevationModelName;
 
     @Parameter(description = "The value used to indicate no-data.")
     private Double noDataValue;
 
     @Parameter(description = "Whether tie-point grids should be included in the output product.",
-               defaultValue = "true")
+            defaultValue = "true")
     private boolean includeTiePointGrids;
 
     @Parameter(description = "Whether to add delta longitude and latitude bands.",
-               defaultValue = "false")
+            defaultValue = "false")
     private boolean addDeltaBands;
 
     private ElevationModel elevationModel;
@@ -232,7 +232,7 @@ public class ReprojectionOp extends Operator {
         */
         ImageGeometry targetImageGeometry = createImageGeometry(targetCrs);
         initMaps(targetCrs);
-        defaultSourceModel = ImageManager.getMultiLevelModel(sourceProduct.getBandAt(0));
+        determineDefaultSourceModel();
         defaultImageGeometry = targetImageGeometry;
         /*
         * 3. Create the target product
@@ -293,6 +293,18 @@ public class ReprojectionOp extends Operator {
         }
     }
 
+    private void determineDefaultSourceModel() {
+        final ProductNodeGroup<Band> bandGroup = sourceProduct.getBandGroup();
+        for (int i = 0; i < bandGroup.getNodeCount(); i++) {
+            if (bandGroup.get(i).getSceneRasterTransform() == SceneRasterTransform.IDENTITY) {
+                defaultSourceModel = ImageManager.getMultiLevelModel(bandGroup.get(i));
+                return;
+            }
+        }
+        //handle the obscure case that there is no band with the same resolution as the product
+        defaultSourceModel = ImageManager.getMultiLevelModel(bandGroup.get(0));
+    }
+
     @Override
     public void dispose() {
         if (elevationModel != null) {
@@ -318,15 +330,16 @@ public class ReprojectionOp extends Operator {
     private void addRasterDataNodeToMaps(RasterDataNode rasterDataNode, CoordinateReferenceSystem targetCrs) {
         if (rasterDataNode.getSceneRasterTransform() == SceneRasterTransform.IDENTITY) {
             return;
+
         }
         final String rasterDataNodeName = rasterDataNode.getName();
         if (!imageGeometryMap.containsKey(rasterDataNodeName)) {
             imageGeometryMap.put(rasterDataNodeName, ImageGeometry.createTargetGeometry(rasterDataNode, targetCrs,
-                                                                                      pixelSizeX, pixelSizeY,
-                                                                                      width, height,
-                                                                                      orientation, easting,
-                                                                                      northing, referencePixelX,
-                                                                                      referencePixelY));
+                                                                                        pixelSizeX, pixelSizeY,
+                                                                                        width, height,
+                                                                                        orientation, easting,
+                                                                                        northing, referencePixelX,
+                                                                                        referencePixelY));
         }
         if (!sourceModelMap.containsKey(rasterDataNodeName)) {
             sourceModelMap.put(rasterDataNodeName, ImageManager.getMultiLevelModel(rasterDataNode));
@@ -397,7 +410,7 @@ public class ReprojectionOp extends Operator {
         targetBand.setLog10Scaled(sourceRaster.isLog10Scaled());
         targetBand.setNoDataValue(targetNoDataValue.doubleValue());
         targetBand.setNoDataValueUsed(targetBand.getSceneRasterWidth() == targetProduct.getSceneRasterWidth() &&
-                targetBand.getSceneRasterHeight() == targetProduct.getSceneRasterHeight());
+                                              targetBand.getSceneRasterHeight() == targetProduct.getSceneRasterHeight());
         targetBand.setDescription(sourceRaster.getDescription());
         targetBand.setUnit(sourceRaster.getUnit());
 
@@ -465,10 +478,10 @@ public class ReprojectionOp extends Operator {
         if (targetDataType == ProductData.TYPE_INT8) {
             targetNoDataNumber = (byte) targetNoDataValue;
         } else if (targetDataType == ProductData.TYPE_INT16 ||
-                   targetDataType == ProductData.TYPE_UINT8) {
+                targetDataType == ProductData.TYPE_UINT8) {
             targetNoDataNumber = (short) targetNoDataValue;
         } else if (targetDataType == ProductData.TYPE_INT32 ||
-                   targetDataType == ProductData.TYPE_UINT16) {
+                targetDataType == ProductData.TYPE_UINT16) {
             targetNoDataNumber = (int) targetNoDataValue;
         } else if (targetDataType == ProductData.TYPE_FLOAT32) {
             targetNoDataNumber = (float) targetNoDataValue;
@@ -627,7 +640,7 @@ public class ReprojectionOp extends Operator {
 
     protected void validateCrsParameters() {
         final String msgPattern = "Invalid target CRS specification.\nSpecify {0} one of the " +
-                                  "''wktFile'', ''crs'' or ''collocationProduct'' parameters.";
+                "''wktFile'', ''crs'' or ''collocationProduct'' parameters.";
 
         if (wktFile == null && crs == null && collocationProduct == null) {
             throw new OperatorException(MessageFormat.format(msgPattern, "at least"));
@@ -681,15 +694,15 @@ public class ReprojectionOp extends Operator {
 
     void validateReferencingParameters() {
         if (!((referencePixelX == null && referencePixelY == null && easting == null && northing == null)
-              || (referencePixelX != null && referencePixelY != null && easting != null && northing != null))) {
+                || (referencePixelX != null && referencePixelY != null && easting != null && northing != null))) {
             throw new OperatorException("Invalid referencing parameters: \n" +
-                                        "'referencePixelX', 'referencePixelY', 'easting' and 'northing' have to be specified either all or not at all.");
+                                                "'referencePixelX', 'referencePixelY', 'easting' and 'northing' have to be specified either all or not at all.");
         }
     }
 
     void validateTargetGridParameters() {
         if ((pixelSizeX != null && pixelSizeY == null) ||
-            (pixelSizeX == null && pixelSizeY != null)) {
+                (pixelSizeX == null && pixelSizeY != null)) {
             throw new OperatorException("'pixelSizeX' and 'pixelSizeY' must be specified both or not at all.");
         }
     }
