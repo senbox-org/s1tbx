@@ -294,6 +294,8 @@ public final class BackGeocodingOp extends Operator {
                 masterProduct.getSceneRasterWidth(),
                 masterProduct.getSceneRasterHeight());
 
+        ProductUtils.copyProductNodes(masterProduct, targetProduct);
+        
         final String[] masterBandNames = masterProduct.getBandNames();
         final String mstSuffix = "_mst" + StackUtils.getBandTimeStamp(masterProduct);
         for (String bandName : masterBandNames) {
@@ -343,7 +345,6 @@ public final class BackGeocodingOp extends Operator {
         //    }
         //}
 
-        ProductUtils.copyProductNodes(masterProduct, targetProduct);
         copySlaveMetadata();
 
         if (outputRangeAzimuthOffset) {
