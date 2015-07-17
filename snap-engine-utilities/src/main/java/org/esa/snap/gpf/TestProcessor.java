@@ -51,24 +51,24 @@ public class TestProcessor {
     private final int subsetWidth;
     private final int subsetHeight;
 
-    private static int maxIteration = 0;
+    private final int maxIteration;
 
-    private static boolean canTestReadersOnAllProducts = false;
-    private static boolean canTestProcessingOnAllProducts = false;
+    private final boolean canTestReadersOnAllProducts;
+    private final boolean canTestProcessingOnAllProducts;
 
     public TestProcessor() {
-        this(100,100,100,100);
+        this(100,100,100,100, 1, false, false);
     }
 
-    public TestProcessor(final int subsetX, final int subsetY, final int subsetWidth, final int subsetHeight) {
+    public TestProcessor(final int subsetX, final int subsetY, final int subsetWidth, final int subsetHeight,
+                         final int maxIteration, final boolean canTestReaders, final boolean canTestProcessing) {
         this.subsetX = subsetX;
         this.subsetY = subsetY;
         this.subsetWidth = subsetWidth;
         this.subsetHeight = subsetHeight;
-    }
-
-    public static int getMaxIterations() {
-        return maxIteration;
+        this.maxIteration = maxIteration;
+        this.canTestReadersOnAllProducts = canTestReaders;
+        this.canTestProcessingOnAllProducts = canTestProcessing;
     }
 
     public void executeOperator(final Operator op) throws Exception {
@@ -314,7 +314,7 @@ public class TestProcessor {
                                          final ProductReader reader,
                                          final String[] productTypeExemptions,
                                          final String[] exceptionExemptions) throws Exception {
-        if (!TestProcessor.canTestReadersOnAllProducts)
+        if (!canTestReadersOnAllProducts)
             return;
         for (File folderPath : folderPaths) {
             if (!folderPath.exists()) {
