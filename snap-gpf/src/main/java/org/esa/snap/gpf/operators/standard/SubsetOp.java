@@ -90,15 +90,15 @@ public class SubsetOp extends Operator {
 
     @Parameter(converter = RectangleConverter.class,
             description = "The subset region in pixel coordinates.\n" +
-                          "Use the following format: <x>,<y>,<width>,<height>\n" +
-                          "If not given, the entire scene is used. The 'geoRegion' parameter has precedence over this parameter.")
+                    "Use the following format: <x>,<y>,<width>,<height>\n" +
+                    "If not given, the entire scene is used. The 'geoRegion' parameter has precedence over this parameter.")
     private Rectangle region = null;
 
     @Parameter(converter = JtsGeometryConverter.class,
             description = "The subset region in geographical coordinates using WKT-format,\n" +
-                          "e.g. POLYGON((<lon1> <lat1>, <lon2> <lat2>, ..., <lon1> <lat1>))\n" +
-                          "(make sure to quote the option due to spaces in <geometry>).\n" +
-                          "If not given, the entire scene is used.")
+                    "e.g. POLYGON((<lon1> <lat1>, <lon2> <lat2>, ..., <lon1> <lat1>))\n" +
+                    "(make sure to quote the option due to spaces in <geometry>).\n" +
+                    "If not given, the entire scene is used.")
     private Geometry geoRegion;
     @Parameter(defaultValue = "1",
             description = "The pixel sub-sampling step in X (horizontal image direction)")
@@ -111,7 +111,7 @@ public class SubsetOp extends Operator {
     private boolean fullSwath = false;
 
     @Parameter(description = "The comma-separated list of names of tie-point grids to be copied. \n" +
-                             "If not given, all bands are copied.")
+            "If not given, all bands are copied.")
     private String[] tiePointGridNames;
 
     @Parameter(defaultValue = "false",
@@ -194,7 +194,9 @@ public class SubsetOp extends Operator {
             }
             subsetDef.addNodeNames(referencedNodeNames.toArray(new String[referencedNodeNames.size()]));
         }
-
+        if (!ProductUtils.areRastersOfSameSize(subsetDef.getNodeNames(), sourceProduct)) {
+            throw new OperatorException("Can only create subsets when all rasters are of the same size");
+        }
         if (geoRegion != null) {
             region = computePixelRegion(sourceProduct, geoRegion, 0);
         }
