@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.dat.actions;
+package org.esa.s1tbx.dat.toolviews.Projects;
 
 import org.esa.s1tbx.dat.toolviews.Projects.Project;
 import org.esa.snap.framework.ui.command.CommandEvent;
@@ -25,12 +25,12 @@ import org.esa.snap.framework.ui.command.ExecCommand;
  * @author lveci
  * @version $Revision: 1.3 $ $Date: 2011-04-08 18:23:59 $
  */
-public class CloseProjectAction extends ExecCommand {
+public class SaveProjectAction extends ExecCommand {
 
     @Override
     public void actionPerformed(final CommandEvent event) {
 
-        Project.instance().CloseProject();
+        Project.instance().SaveProject();
     }
 
     @Override
