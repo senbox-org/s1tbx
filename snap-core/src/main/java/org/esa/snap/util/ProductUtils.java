@@ -2036,4 +2036,33 @@ public class ProductUtils {
         return true;
     }
 
+    /**
+     * This method checks whether a number of rasterdatanodes withing a product all have the same width and height.
+     *
+     * @param rasterDataNodeNames The names of the rasters to be checked
+     * @param product The product which contains the rasters
+     * @return true, if all rasters are of the same size
+     */
+    public static boolean areRastersOfSameSize(String[] rasterDataNodeNames, Product product) throws IllegalArgumentException {
+        if (rasterDataNodeNames == null || rasterDataNodeNames.length == 0) {
+            return true;
+        }
+        final RasterDataNode referenceNode = product.getRasterDataNode(rasterDataNodeNames[0]);
+        if (referenceNode == null) {
+            throw new IllegalArgumentException(rasterDataNodeNames[0] + " is not part of " + product.getName());
+        }
+        int referenceWidth = referenceNode.getSceneRasterWidth();
+        int referenceHeight = referenceNode.getSceneRasterHeight();
+        for (int i = 1; i < rasterDataNodeNames.length; i++) {
+            final RasterDataNode node = product.getRasterDataNode(rasterDataNodeNames[i]);
+            if (node == null) {
+                throw new IllegalArgumentException(rasterDataNodeNames[i] + " is not part of " + product.getName());
+            }
+            if (node.getSceneRasterWidth() != referenceWidth || node.getSceneRasterHeight() != referenceHeight) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }

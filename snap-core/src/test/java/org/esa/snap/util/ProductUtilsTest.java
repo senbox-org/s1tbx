@@ -621,7 +621,38 @@ public class ProductUtilsTest {
         assertEquals(false, ProductUtils.areRastersOfSameSize(new RasterDataNode[]{band1, band2}));
         assertEquals(true, ProductUtils.areRastersOfSameSize(new RasterDataNode[]{band1, grid}));
         assertEquals(false, ProductUtils.areRastersOfSameSize(new RasterDataNode[]{band2, grid}));
+    }
 
+    @Test
+    public void testAreRastersCompatible_ReferencedByName() {
+        final Product p = new Product("myProduct", "type", 16, 16);
+        final Band band1 = new Band("band1", ProductData.TYPE_INT8, 16, 16);
+        final Band band2 = new Band("band2", ProductData.TYPE_INT8, 8, 8);
+        final Band band3 = new Band("band3", ProductData.TYPE_INT8, 8, 8);
+        final TiePointGrid grid = new TiePointGrid("grid", 2, 2, 0, 0, 15, 15, new float[]{0f, 0f, 0f, 0f});
+        p.addBand(band1);
+        p.addBand(band2);
+        p.addBand(band3);
+        p.addTiePointGrid(grid);
+
+        assertEquals(true, ProductUtils.areRastersOfSameSize(null, p));
+        assertEquals(true, ProductUtils.areRastersOfSameSize(new String[]{"band1"}, p));
+        assertEquals(true, ProductUtils.areRastersOfSameSize(new String[]{"band2"}, p));
+        assertEquals(true, ProductUtils.areRastersOfSameSize(new String[]{"band3"}, p));
+        assertEquals(true, ProductUtils.areRastersOfSameSize(new String[]{"grid"}, p));
+        assertEquals(true, ProductUtils.areRastersOfSameSize(new String[]{"band1", "grid"}, p));
+        assertEquals(false, ProductUtils.areRastersOfSameSize(new String[]{"band2", "grid"}, p));
+        assertEquals(false, ProductUtils.areRastersOfSameSize(new String[]{"band3", "grid"}, p));
+        assertEquals(false, ProductUtils.areRastersOfSameSize(new String[]{"band2", "band3", "grid"}, p));
+        assertEquals(false, ProductUtils.areRastersOfSameSize(new String[]{"band1", "band2", "grid"}, p));
+        assertEquals(false, ProductUtils.areRastersOfSameSize(new String[]{"band1", "band3", "grid"}, p));
+        assertEquals(false, ProductUtils.areRastersOfSameSize(new String[]{"band1", "band2", "band3"}, p));
+        try {
+            ProductUtils.areRastersOfSameSize(new String[]{"band1", "dvfgzfj"}, p);
+            fail("Exception expected");
+        } catch (IllegalArgumentException iae) {
+            assertEquals("dvfgzfj is not part of myProduct", iae.getMessage());
+        }
     }
 
     public static class SGeoCoding implements GeoCoding {
