@@ -2,6 +2,7 @@ package org.esa.snap.framework.gpf.pointop;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.RasterDataNode;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.Tile;
 
@@ -90,7 +91,10 @@ public abstract class PixelOperator extends PointOperator {
 
     private void setInvalid(WritableSample[] targetSamples) {
         for (WritableSample targetSample : targetSamples) {
-            targetSample.set(targetSample.getNode().getGeophysicalNoDataValue());
+            RasterDataNode node = targetSample.getNode();
+            if (node != null) {
+                targetSample.set(node.getGeophysicalNoDataValue());
+            }
         }
     }
 }
