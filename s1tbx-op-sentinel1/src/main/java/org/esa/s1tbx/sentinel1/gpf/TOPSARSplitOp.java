@@ -140,6 +140,15 @@ public final class TOPSARSplitOp extends Operator {
                     selectedBands.get(0).getRasterWidth(),
                     selectedBands.get(0).getRasterHeight());
 
+            for (TiePointGrid srcTPG : sourceProduct.getTiePointGrids()) {
+                if (srcTPG.getName().contains(subswath)) {
+                    final TiePointGrid dstTPG = srcTPG.cloneTiePointGrid();
+                    dstTPG.setName(srcTPG.getName().replace(subswath+'_', ""));
+                    targetProduct.addTiePointGrid(dstTPG);
+                }
+            }
+            addGeocoding();
+
             boolean oneBandToProcess = false;
             for (Band srcBand : selectedBands) {
                 if (srcBand instanceof VirtualBand) {
@@ -156,13 +165,7 @@ public final class TOPSARSplitOp extends Operator {
                     oneBandToProcess = false;
                 }
             }
-            for (TiePointGrid srcTPG : sourceProduct.getTiePointGrids()) {
-                if (srcTPG.getName().contains(subswath)) {
-                    final TiePointGrid dstTPG = srcTPG.cloneTiePointGrid();
-                    dstTPG.setName(srcTPG.getName().replace(subswath+'_', ""));
-                    targetProduct.addTiePointGrid(dstTPG);
-                }
-            }
+
 
             ProductUtils.copyMetadata(sourceProduct, targetProduct);
             ProductUtils.copyFlagCodings(sourceProduct, targetProduct);
@@ -173,7 +176,6 @@ public final class TOPSARSplitOp extends Operator {
             targetProduct.setEndTime(sourceProduct.getEndTime());
             targetProduct.setDescription(sourceProduct.getDescription());
 
-            addGeocoding();
             updateTargetProductMetadata();
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);

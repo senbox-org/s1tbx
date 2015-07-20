@@ -53,7 +53,7 @@ the option *'Create module groups for multi-module Maven projects'*. Everything 
     --clusters
     "E:\build\SNAP\s1tbx\s1tbx-kit\target\netbeans_clusters\s1tbx";"E:\build\SNAP\s1tbx\s1tbx-kit\target\netbeans_clusters\rstb"
     --patches
-    "E:\build\SNAP\snap-engine\$\target\classes";"E:\build\SNAP\s1tbx\$\target\classes"
+    "E:\build\SNAP\snap-engine\$\target\classes";"E:\build\SNAP\s1tbx\$\target\classes";"E:\build\SNAP\s1tbx\rstb\$\target\classes"
     
 	* **Working directory:** SNAP/snap-desktop/snap-application/target/snap/
 	* **Use classpath of module:** snap-main
