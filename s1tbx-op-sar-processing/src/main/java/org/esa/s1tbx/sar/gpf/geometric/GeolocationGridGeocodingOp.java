@@ -53,8 +53,8 @@ import java.util.Map;
  * distortions is the ground elevation of the targets. This operator corrects the topographic distortion
  * in the raw image caused by this factor. The operator implements the Geolocation-Grid (GG) geocoding method.
  * <p/>
- * The method consis of the following major steps:
- * (1) Get coner latitudes and longitudes for the source image;
+ * The method consists of the following major steps:
+ * (1) Get corner latitudes and longitudes for the source image;
  * (2) Compute [LatMin, LatMax] and [LonMin, LonMax];
  * (3) Get the range and azimuth spacings for the source image;
  * (4) Compute DEM traversal sample intervals (delLat, delLon) based on source image pixel spacing;
@@ -62,12 +62,12 @@ import java.util.Map;
  * (6) Get latitude, longitude and slant range time tie points from geolocation LADS;
  * (7) Repeat the following steps for each point in the target raster [LatMax:-delLat:LatMin]x[LonMin:delLon:LonMax]:
  * (7.1) Get local latitude lat(i,j) and longitude lon(i,j) for current point;
- * (7.2) Determine the 4 cells in the source image that are immidiately adjacent and enclose the point;
- * (7.3) Compute slant range r(i,j) for the point using biquadratic interpolation;
- * (7.4) Compute azimuth time t(i,j) for the point using biquadratic interpolation;
+ * (7.2) Determine the 4 cells in the source image that are immediately adjacent and enclose the point;
+ * (7.3) Compute slant range r(i,j) for the point using bi-quadratic interpolation;
+ * (7.4) Compute azimuth time t(i,j) for the point using bi-quadratic interpolation;
  * (7.5) Compute bias-corrected zero Doppler time tc(i,j) = t(i,j) + r(i,j)*2/c, where c is the light speed;
  * (7.6) Compute azimuth image index Ia using zero Doppler time tc(i,j);
- * (7.8) Compute range image index Ir using slant range r(i,j) or groung range;
+ * (7.8) Compute range image index Ir using slant range r(i,j) or ground range;
  * (7.9) Compute pixel value x(Ia,Ir) using interpolation and save it for current sample.
  * <p/>
  * Reference: Guide to ASAR Geocoding, Issue 1.0, 19.03.2008
@@ -413,7 +413,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
     }
 
     /**
-     * Compute zero Doppler time for a given pixel using biquadratic interpolation.
+     * Compute zero Doppler time for a given pixel using bi-quadratic interpolation.
      *
      * @param pixPos The pixel position.
      * @return The zero Doppler time in days.
@@ -532,7 +532,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
             final Resampling resampling = imgResampling;
             final Resampling.Index imgResamplingIndex = resampling.createIndex();
 
-            resampling.computeIndex(rangeIndex + 0.5, azimuthIndex + 0.5,
+            resampling.computeCornerBasedIndex(rangeIndex, azimuthIndex,
                     sourceImageWidth, sourceImageHeight, imgResamplingIndex);
 
             return resampling.resample(imgResamplingRaster, imgResamplingIndex);
