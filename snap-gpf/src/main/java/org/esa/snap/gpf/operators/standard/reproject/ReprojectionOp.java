@@ -215,6 +215,7 @@ public class ReprojectionOp extends Operator {
     private MultiLevelModel defaultSourceModel;
     private Map<String, ImageGeometry> imageGeometryMap;
     private ImageGeometry defaultImageGeometry;
+    private Reproject defaultReprojection;
 
     @Override
     public void initialize() throws OperatorException {
@@ -278,6 +279,11 @@ public class ReprojectionOp extends Operator {
         ProductData.UTC meanTime = getSourceMeanTime();
         targetProduct.setStartTime(meanTime);
         targetProduct.setEndTime(meanTime);
+
+        if (ProductUtils.areRastersOfSameSize(sourceProduct.getBands())) {
+            MultiLevelModel targetModel = ImageManager.createMultiLevelModel(targetProduct);
+            defaultReprojection = new Reproject(targetModel.getLevelCount());
+        }
 
         reprojectRasterDataNodes(sourceProduct.getBands());
         if (includeTiePointGrids) {
@@ -381,7 +387,6 @@ public class ReprojectionOp extends Operator {
     }
 
     private void reprojectSourceRaster(RasterDataNode sourceRaster) {
-        final SceneRasterTransform sceneRasterTransform = sourceRaster.getSceneRasterTransform();
         ImageGeometry imageGeometry;
         if (imageGeometryMap.containsKey(sourceRaster.getName())) {
             imageGeometry = imageGeometryMap.get(sourceRaster.getName());
@@ -558,7 +563,12 @@ public class ReprojectionOp extends Operator {
 
                 Dimension tileSize = ImageManager.getPreferredTileSize(targetProduct);
                 try {
-                    Reproject reprojection = new Reproject(targetModel.getLevelCount());
+                    Reproject reprojection;
+                    if (defaultReprojection != null) {
+                        reprojection = defaultReprojection;
+                    } else {
+                        reprojection = new Reproject(targetModel.getLevelCount());
+                    }
                     return reprojection.reproject(leveledSourceImage, sourceGeometry, targetGeometry,
                                                   targetBand.getNoDataValue(), resampling, hints, targetLevel,
                                                   tileSize);
