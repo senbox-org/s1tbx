@@ -80,4 +80,57 @@ public class BiSincInterpolationResamplingTest extends TestCase {
         double sample = resampling.resample(raster, index);
         assertEquals(sampleExp, sample, 1e-5f);
     }
+
+    public void testCornerBasedIndex() throws Exception {
+        testCornerIndex(2.2f, 2.3f);
+    }
+
+    private void testCornerIndex(final float x, final float y) throws Exception{
+
+        final Resampling.Index index = resampling.createIndex();
+        resampling.computeCornerBasedIndex(x, y, raster.getWidth(), raster.getHeight(), index);
+
+        final Resampling.Index indexExp = resampling.createIndex();
+        computeExpectedIndex(x, y, raster.getWidth(), raster.getHeight(), indexExp);
+
+        assertEquals(indexExp.i[0], index.i[0]);
+        assertEquals(indexExp.i[1], index.i[1]);
+        assertEquals(indexExp.i[2], index.i[2]);
+        assertEquals(indexExp.i[3], index.i[3]);
+        assertEquals(indexExp.i[4], index.i[4]);
+        assertEquals(indexExp.j[0], index.j[0]);
+        assertEquals(indexExp.j[1], index.j[1]);
+        assertEquals(indexExp.j[2], index.j[2]);
+        assertEquals(indexExp.j[3], index.j[3]);
+        assertEquals(indexExp.j[4], index.j[4]);
+        assertEquals(indexExp.ki[0], index.ki[0]);
+        assertEquals(indexExp.kj[0], index.kj[0]);
+    }
+
+    private void computeExpectedIndex(
+            final double x, final double y, final int width, final int height, final Resampling.Index index) {
+        index.x = x;
+        index.y = y;
+        index.width = width;
+        index.height = height;
+
+
+        final int i0 = (int) Math.floor(x);
+        final int j0 = (int) Math.floor(y);
+
+        final int iMax = width - 1;
+        final int jMax = height - 1;
+
+        index.i0 = i0;
+        index.j0 = j0;
+
+        for (int i = 0; i < 5; i++) {
+            index.i[i] = Math.min(Math.max(i0 - 2 + i, 0), iMax);
+        }
+        index.ki[0] = x - i0;
+        for (int j = 0; j < 5; j++) {
+            index.j[j] = Math.min(Math.max(j0 - 2 + j, 0), jMax);
+        }
+        index.kj[0] = y - j0;
+    }
 }

@@ -76,4 +76,57 @@ public class BilinearInterpolationResamplingTest extends TestCase {
         double sample = resampling.resample(raster, index);
         assertEquals(sampleExp, sample, 1e-5f);
     }
+
+    public void testCornerBasedIndex() throws Exception {
+        testCornerIndex(-.5f, 0.0f);
+        testCornerIndex(0.0f, 0.0f);
+        testCornerIndex(0.5f, 0.0f);
+        testCornerIndex(1.5f, 0.0f);
+        testCornerIndex(2.0f, 0.0f);
+        testCornerIndex(2.5f, 0.0f);
+        testCornerIndex(3.0f, 0.0f);
+        testCornerIndex(3.5f, 0.0f);
+        testCornerIndex(4.0f, 0.0f);
+        testCornerIndex(4.5f, 0.0f);
+        testCornerIndex(5.0f, 0.0f);
+        testCornerIndex(5.5f, 0.0f);
+        testCornerIndex(2.2f, 2.3f);
+    }
+
+    private void testCornerIndex(final float x, final float y) throws Exception{
+
+        final Resampling.Index index = resampling.createIndex();
+        resampling.computeCornerBasedIndex(x, y, raster.getWidth(), raster.getHeight(), index);
+
+        final Resampling.Index indexExp = resampling.createIndex();
+        computeExpectedIndex(x, y, raster.getWidth(), raster.getHeight(), indexExp);
+
+        assertEquals(indexExp.i[0], index.i[0]);
+        assertEquals(indexExp.i[1], index.i[1]);
+        assertEquals(indexExp.j[0], index.j[0]);
+        assertEquals(indexExp.j[1], index.j[1]);
+        assertEquals(indexExp.ki[0], index.ki[0]);
+        assertEquals(indexExp.kj[0], index.kj[0]);
+    }
+
+    private void computeExpectedIndex(
+            final double x, final double y, final int width, final int height, final Resampling.Index index) {
+        index.x = x;
+        index.y = y;
+        index.width = width;
+        index.height = height;
+
+        final int i0 = (int) Math.floor(x);
+        final int j0 = (int) Math.floor(y);
+
+        index.i0 = i0;
+        index.j0 = j0;
+
+        index.i[0] = Resampling.Index.crop(i0, width - 1);
+        index.i[1] = Resampling.Index.crop(i0 + 1, width - 1);
+        index.ki[0] = x - i0;
+        index.j[0] = Resampling.Index.crop(j0, height - 1);
+        index.j[1] = Resampling.Index.crop(j0 + 1, height - 1);
+        index.kj[0] = y - j0;
+    }
 }

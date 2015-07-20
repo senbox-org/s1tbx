@@ -78,4 +78,54 @@ public class CubicConvolutionResamplingTest extends TestCase {
         double sample = resampling.resample(raster, index);
         assertEquals(sampleExp, sample, 1e-5f);
     }
+
+
+    public void testCornerBasedIndex() throws Exception {
+        testCornerIndex(2.2f, 2.3f);
+    }
+
+    private void testCornerIndex(final float x, final float y) throws Exception{
+
+        final Resampling.Index index = resampling.createIndex();
+        resampling.computeCornerBasedIndex(x, y, raster.getWidth(), raster.getHeight(), index);
+
+        final Resampling.Index indexExp = resampling.createIndex();
+        computeExpectedIndex(x, y, raster.getWidth(), raster.getHeight(), indexExp);
+
+        assertEquals(indexExp.i[0], index.i[0]);
+        assertEquals(indexExp.i[1], index.i[1]);
+        assertEquals(indexExp.i[2], index.i[2]);
+        assertEquals(indexExp.i[3], index.i[3]);
+        assertEquals(indexExp.j[0], index.j[0]);
+        assertEquals(indexExp.j[1], index.j[1]);
+        assertEquals(indexExp.j[2], index.j[2]);
+        assertEquals(indexExp.j[3], index.j[3]);
+        assertEquals(indexExp.ki[0], index.ki[0]);
+        assertEquals(indexExp.kj[0], index.kj[0]);
+    }
+
+    private void computeExpectedIndex(
+            final double x, final double y, final int width, final int height, final Resampling.Index index) {
+        index.x = x;
+        index.y = y;
+        index.width = width;
+        index.height = height;
+
+        final int i0 = (int) Math.floor(x);
+        final int j0 = (int) Math.floor(y);
+
+        index.i0 = i0;
+        index.j0 = j0;
+
+        index.i[0] = Resampling.Index.crop(i0 - 1, width - 1);
+        index.i[1] = Resampling.Index.crop(i0, width - 1);
+        index.i[2] = Resampling.Index.crop(i0 + 1, width - 1);
+        index.i[3] = Resampling.Index.crop(i0 + 2, width - 1);
+        index.ki[0] = x - i0;
+        index.j[0] = Resampling.Index.crop(j0 - 1, height - 1);
+        index.j[1] = Resampling.Index.crop(j0, height - 1);
+        index.j[2] = Resampling.Index.crop(j0 + 1, height - 1);
+        index.j[3] = Resampling.Index.crop(j0 + 2, height - 1);
+        index.kj[0] = y - j0;
+    }
 }
