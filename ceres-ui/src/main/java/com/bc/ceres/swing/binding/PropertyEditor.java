@@ -54,7 +54,8 @@ public abstract class PropertyEditor {
 
 
         JLabel label = new JLabel(propertyDescriptor.getDisplayName() + ":");
-        String toolTipText = editorComponent.getToolTipText();
+//        String toolTipText = editorComponent.getToolTipText();
+        String toolTipText = propertyDescriptor.getDescription();
         if (toolTipText != null) {
             label.setToolTipText(toolTipText);
         }
