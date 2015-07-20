@@ -266,6 +266,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
     @Override
     public synchronized void dispose() {
         termMap.clear();
+        super.dispose();
     }
 
     @Override
