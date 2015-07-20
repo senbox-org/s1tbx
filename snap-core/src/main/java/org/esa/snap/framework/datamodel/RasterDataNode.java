@@ -2107,9 +2107,13 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             try {
                 final boolean pixelValid = readValidMask(x, y, 1, 1, new boolean[1])[0];
                 if (pixelValid) {
-                    if (isFloatingPointType()) {
+                    int geophysicalDataType = getGeophysicalDataType();
+                    if (geophysicalDataType == ProductData.TYPE_FLOAT64) {
+                        final double[] pixel = readPixels(x, y, 1, 1, new double[1], ProgressMonitor.NULL);
+                        return String.format("%.10f", pixel[0]);
+                    } else if (geophysicalDataType == ProductData.TYPE_FLOAT32) {
                         final float[] pixel = readPixels(x, y, 1, 1, new float[1], ProgressMonitor.NULL);
-                        return String.valueOf(pixel[0]);
+                        return String.format("%.5f", pixel[0]);
                     } else {
                         final int[] pixel = readPixels(x, y, 1, 1, new int[1], ProgressMonitor.NULL);
                         return String.valueOf(pixel[0]);
