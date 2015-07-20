@@ -2095,10 +2095,16 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         }
         if (hasRasterData()) {
             if (isPixelValid(x, y)) {
-                if (isFloatingPointType()) {
-                    return String.valueOf(getPixelDouble(x, y));
+                int geophysicalDataType = getGeophysicalDataType();
+                if (geophysicalDataType == ProductData.TYPE_FLOAT64) {
+                    double pixel = getPixelDouble(x, y);
+                    return String.format("%.10f", pixel);
+                } else if (geophysicalDataType == ProductData.TYPE_FLOAT32) {
+                    float pixel = getPixelFloat(x, y);
+                    return String.format("%.5f", pixel);
                 } else {
-                    return String.valueOf(getPixelInt(x, y));
+                    int pixel = getPixelInt(x, y);
+                    return String.valueOf(pixel);
                 }
             } else {
                 return NO_DATA_TEXT;
@@ -2109,14 +2115,14 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                 if (pixelValid) {
                     int geophysicalDataType = getGeophysicalDataType();
                     if (geophysicalDataType == ProductData.TYPE_FLOAT64) {
-                        final double[] pixel = readPixels(x, y, 1, 1, new double[1], ProgressMonitor.NULL);
-                        return String.format("%.10f", pixel[0]);
+                        double pixel = readPixels(x, y, 1, 1, new double[1])[0];
+                        return String.format("%.10f", pixel);
                     } else if (geophysicalDataType == ProductData.TYPE_FLOAT32) {
-                        final float[] pixel = readPixels(x, y, 1, 1, new float[1], ProgressMonitor.NULL);
-                        return String.format("%.5f", pixel[0]);
+                        float pixel = readPixels(x, y, 1, 1, new float[1])[0];
+                        return String.format("%.5f", pixel);
                     } else {
-                        final int[] pixel = readPixels(x, y, 1, 1, new int[1], ProgressMonitor.NULL);
-                        return String.valueOf(pixel[0]);
+                        int pixel = readPixels(x, y, 1, 1, new int[1])[0];
+                        return String.valueOf(pixel);
                     }
                 } else {
                     return NO_DATA_TEXT;

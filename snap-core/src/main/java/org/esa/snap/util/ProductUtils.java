@@ -1972,8 +1972,8 @@ public class ProductUtils {
         return new ProductData.UTC(currentLine);
     }
 
-    public static double getGeophysicalSampleDouble(Band band, int pixelX, int pixelY, int level) {
-        final PlanarImage image = ImageManager.getInstance().getSourceImage(band, level);
+    public static double getGeophysicalSampleDouble(RasterDataNode raster, int pixelX, int pixelY, int level) {
+        final PlanarImage image = ImageManager.getInstance().getSourceImage(raster, level);
         final int tileX = image.XToTileX(pixelX);
         final int tileY = image.YToTileY(pixelY);
         final Raster data = image.getTile(tileX, tileY);
@@ -1982,41 +1982,41 @@ public class ProductUtils {
         }
 
         final double sample;
-        if (band.getDataType() == ProductData.TYPE_INT8) {
+        if (raster.getDataType() == ProductData.TYPE_INT8) {
             sample = (byte) data.getSample(pixelX, pixelY, 0);
-        } else if (band.getDataType() == ProductData.TYPE_UINT32) {
+        } else if (raster.getDataType() == ProductData.TYPE_UINT32) {
             sample = data.getSample(pixelX, pixelY, 0) & 0xFFFFFFFFL;
         } else {
             sample = data.getSampleDouble(pixelX, pixelY, 0);
         }
-        if (band.isScalingApplied()) {
-            return band.scale(sample);
+        if (raster.isScalingApplied()) {
+            return raster.scale(sample);
         }
         return sample;
     }
 
-    public static long getGeophysicalSampleLong(Band band, int pixelX, int pixelY, int level) {
-        final PlanarImage image = ImageManager.getInstance().getSourceImage(band, level);
+    public static long getGeophysicalSampleLong(RasterDataNode raster, int pixelX, int pixelY, int level) {
+        final PlanarImage image = ImageManager.getInstance().getSourceImage(raster, level);
         final int tileX = image.XToTileX(pixelX);
         final int tileY = image.YToTileY(pixelY);
         final Raster data = image.getTile(tileX, tileY);
 
         final long sample;
-        if (band.getDataType() == ProductData.TYPE_INT8) {
+        if (raster.getDataType() == ProductData.TYPE_INT8) {
             sample = (byte) data.getSample(pixelX, pixelY, 0);
-        } else if (band.getDataType() == ProductData.TYPE_UINT32) {
+        } else if (raster.getDataType() == ProductData.TYPE_UINT32) {
             sample = data.getSample(pixelX, pixelY, 0) & 0xFFFFFFFFL;
         } else {
             sample = data.getSample(pixelX, pixelY, 0);
         }
-        if (band.isScalingApplied()) {
-            return (long) band.scale(sample);
+        if (raster.isScalingApplied()) {
+            return (long) raster.scale(sample);
         }
         return sample;
     }
 
     /**
-     * This method checks whether a number of rasterdatanodes all have the same width and height.
+     * This method checks whether the given rasters all have the same width and height.
      *
      * @param rasters The rasters to be checked
      * @return true, if all rasters are of the same size
@@ -2039,24 +2039,24 @@ public class ProductUtils {
     /**
      * This method checks whether a number of rasterdatanodes withing a product all have the same width and height.
      *
-     * @param rasterDataNodeNames The names of the rasters to be checked
+     * @param rasterNames The names of the rasters to be checked
      * @param product The product which contains the rasters
      * @return true, if all rasters are of the same size
      */
-    public static boolean areRastersOfSameSize(String[] rasterDataNodeNames, Product product) throws IllegalArgumentException {
-        if (rasterDataNodeNames == null || rasterDataNodeNames.length == 0) {
+    public static boolean areRastersOfSameSize(String[] rasterNames, Product product) throws IllegalArgumentException {
+        if (rasterNames == null || rasterNames.length == 0) {
             return true;
         }
-        final RasterDataNode referenceNode = product.getRasterDataNode(rasterDataNodeNames[0]);
+        final RasterDataNode referenceNode = product.getRasterDataNode(rasterNames[0]);
         if (referenceNode == null) {
-            throw new IllegalArgumentException(rasterDataNodeNames[0] + " is not part of " + product.getName());
+            throw new IllegalArgumentException(rasterNames[0] + " is not part of " + product.getName());
         }
         int referenceWidth = referenceNode.getSceneRasterWidth();
         int referenceHeight = referenceNode.getSceneRasterHeight();
-        for (int i = 1; i < rasterDataNodeNames.length; i++) {
-            final RasterDataNode node = product.getRasterDataNode(rasterDataNodeNames[i]);
+        for (int i = 1; i < rasterNames.length; i++) {
+            final RasterDataNode node = product.getRasterDataNode(rasterNames[i]);
             if (node == null) {
-                throw new IllegalArgumentException(rasterDataNodeNames[i] + " is not part of " + product.getName());
+                throw new IllegalArgumentException(rasterNames[i] + " is not part of " + product.getName());
             }
             if (node.getSceneRasterWidth() != referenceWidth || node.getSceneRasterHeight() != referenceHeight) {
                 return false;
