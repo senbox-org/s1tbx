@@ -2015,7 +2015,7 @@ public class ProductUtils {
      * @param level  The image pyramid level.
      * @return The geophysical sample value as a 64-bit integer value.
      */
-    public static long getGeophysicalSampleLong(RasterDataNode raster, int pixelX, int pixelY, int level) {
+    public static long getGeophysicalSampleAsLong(RasterDataNode raster, int pixelX, int pixelY, int level) {
         final PlanarImage image = ImageManager.getInstance().getSourceImage(raster, level);
         final int tileX = image.XToTileX(pixelX);
         final int tileY = image.YToTileY(pixelY);

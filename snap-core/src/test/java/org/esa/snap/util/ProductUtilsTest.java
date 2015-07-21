@@ -635,20 +635,20 @@ public class ProductUtilsTest {
         p.addBand(band3);
         p.addTiePointGrid(grid);
 
-        assertEquals(true, ProductUtils.areRastersEqualInSize(p, null));
-        assertEquals(true, ProductUtils.areRastersEqualInSize(p, new String[]{"band1"}));
-        assertEquals(true, ProductUtils.areRastersEqualInSize(p, new String[]{"band2"}));
-        assertEquals(true, ProductUtils.areRastersEqualInSize(p, new String[]{"band3"}));
-        assertEquals(true, ProductUtils.areRastersEqualInSize(p, new String[]{"grid"}));
-        assertEquals(true, ProductUtils.areRastersEqualInSize(p, new String[]{"band1", "grid"}));
-        assertEquals(false, ProductUtils.areRastersEqualInSize(p, new String[]{"band2", "grid"}));
-        assertEquals(false, ProductUtils.areRastersEqualInSize(p, new String[]{"band3", "grid"}));
-        assertEquals(false, ProductUtils.areRastersEqualInSize(p, new String[]{"band2", "band3", "grid"}));
-        assertEquals(false, ProductUtils.areRastersEqualInSize(p, new String[]{"band1", "band2", "grid"}));
-        assertEquals(false, ProductUtils.areRastersEqualInSize(p, new String[]{"band1", "band3", "grid"}));
-        assertEquals(false, ProductUtils.areRastersEqualInSize(p, new String[]{"band1", "band2", "band3"}));
+        assertEquals(true, ProductUtils.areRastersEqualInSize(p));
+        assertEquals(true, ProductUtils.areRastersEqualInSize(p, "band1"));
+        assertEquals(true, ProductUtils.areRastersEqualInSize(p, "band2"));
+        assertEquals(true, ProductUtils.areRastersEqualInSize(p, "band3"));
+        assertEquals(true, ProductUtils.areRastersEqualInSize(p, "grid"));
+        assertEquals(true, ProductUtils.areRastersEqualInSize(p, "band1", "grid"));
+        assertEquals(false, ProductUtils.areRastersEqualInSize(p, "band2", "grid"));
+        assertEquals(false, ProductUtils.areRastersEqualInSize(p, "band3", "grid"));
+        assertEquals(false, ProductUtils.areRastersEqualInSize(p, "band2", "band3", "grid"));
+        assertEquals(false, ProductUtils.areRastersEqualInSize(p, "band1", "band2", "grid"));
+        assertEquals(false, ProductUtils.areRastersEqualInSize(p, "band1", "band3", "grid"));
+        assertEquals(false, ProductUtils.areRastersEqualInSize(p, "band1", "band2", "band3"));
         try {
-            ProductUtils.areRastersEqualInSize(p, new String[]{"band1", "dvfgzfj"});
+            ProductUtils.areRastersEqualInSize(p, "band1", "dvfgzfj");
             fail("Exception expected");
         } catch (IllegalArgumentException iae) {
             assertEquals("dvfgzfj is not part of myProduct", iae.getMessage());
