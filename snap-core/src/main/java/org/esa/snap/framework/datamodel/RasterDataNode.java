@@ -995,9 +995,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * @throws java.io.IOException if an I/O error occurs
      * @see #loadRasterData(com.bc.ceres.core.ProgressMonitor)
-     * @deprecated since BEAM 4.11. No replacement.
      */
-    @Deprecated
     public void loadRasterData() throws IOException {
         loadRasterData(ProgressMonitor.NULL);
     }

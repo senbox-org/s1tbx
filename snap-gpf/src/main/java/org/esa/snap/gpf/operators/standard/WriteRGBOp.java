@@ -74,7 +74,7 @@ public class WriteRGBOp extends Operator {
         final Band blueBand = sourceProduct.getBandAt(blue);
 
         if (!ProductUtils.areRastersOfSameSize(new Band[]{redBand, greenBand, blueBand})) {
-            throw new OperatorException("Red, green, and blue band must be of the same size");
+            throw new OperatorException("The red, green, and blue bands must be the same size");
         }
 
         bandMap = new HashMap<Band, Band>(3);

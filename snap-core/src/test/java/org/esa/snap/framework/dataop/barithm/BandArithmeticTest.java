@@ -15,7 +15,6 @@
  */
 package org.esa.snap.framework.dataop.barithm;
 
-import com.bc.ceres.core.ProgressMonitor;
 import com.bc.jexp.Namespace;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Parser;
@@ -33,14 +32,11 @@ import org.junit.Test;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
-import java.io.IOException;
-
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.*;
 
 public class BandArithmeticTest {
 
-    private Band targetBand;
     private Product product1;
     private Product product2;
     private int width = 4;
@@ -48,7 +44,6 @@ public class BandArithmeticTest {
 
     @Before
     public void setUp() throws FactoryException, TransformException {
-        targetBand = new Band("b1n", ProductData.TYPE_UINT16, width, height);
         product1 = new Product("p1", "t", width, height);
         product1.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, width, height, 0, 10, 0.1, 0.1));
         product1.addBand("b1", ProductData.TYPE_FLOAT32);
@@ -163,24 +158,24 @@ public class BandArithmeticTest {
     }
 
     @Test
-    public void testAreReferencedRastersCompatible() {
+    public void testAreReferencedRastersCompatibleInSize() {
         String[] compatibleExpressions = new String[]{"b1", "b2"};
         final Band anotherBand = new Band("anotherBand", ProductData.TYPE_UINT8, width + 1, height);
         product1.addBand(anotherBand);
         String[] incompatibleExpressions = new String[]{"b1", "b2", "anotherBand"};
 
-        assertEquals(true, BandArithmetic.areReferencedRastersCompatible(product1));
-        assertEquals(true, BandArithmetic.areReferencedRastersCompatible(product1, "b1"));
-        assertEquals(true, BandArithmetic.areReferencedRastersCompatible(product1, compatibleExpressions));
-        assertEquals(true, BandArithmetic.areReferencedRastersCompatible(product1, "anotherBand"));
-        assertEquals(false, BandArithmetic.areReferencedRastersCompatible(product1, incompatibleExpressions));
+        assertEquals(true, BandArithmetic.areReferencedRastersOfSameSize(product1));
+        assertEquals(true, BandArithmetic.areReferencedRastersOfSameSize(product1, "b1"));
+        assertEquals(true, BandArithmetic.areReferencedRastersOfSameSize(product1, compatibleExpressions));
+        assertEquals(true, BandArithmetic.areReferencedRastersOfSameSize(product1, "anotherBand"));
+        assertEquals(false, BandArithmetic.areReferencedRastersOfSameSize(product1, incompatibleExpressions));
     }
 
     @Test
-    public void testAreReferencedRastersCompatible_TiePointGrid() {
+    public void testAreReferencedRastersCompatibleInSize_TiePointGrid() {
         final TiePointGrid tiePointGrid = new TiePointGrid("tiePointGrid", 2, 2, 0, 0, 2, 1, new float[]{1f, 1f, 1f, 1f});
         product1.addTiePointGrid(tiePointGrid);
 
-        assertEquals(true, BandArithmetic.areReferencedRastersCompatible(product1, "b1", "tiePointGrid"));
+        assertEquals(true, BandArithmetic.areReferencedRastersOfSameSize(product1, "b1", "tiePointGrid"));
     }
 }

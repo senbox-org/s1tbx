@@ -96,7 +96,7 @@ public class PrincipalComponentAnalysisOp extends Operator {
     public void initialize() throws OperatorException {
         collectSourceBands();
         if (!ProductUtils.areRastersOfSameSize(sourceBands)) {
-            throw new OperatorException("Source Bands are not of the same size");
+            throw new OperatorException("Source bands must all be the same size");
         }
         if (componentCount <= 0 || componentCount > sourceBands.length) {
             componentCount = sourceBands.length;

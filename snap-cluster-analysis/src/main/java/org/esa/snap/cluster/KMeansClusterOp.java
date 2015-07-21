@@ -89,7 +89,7 @@ public class KMeansClusterOp extends Operator {
     public void initialize() throws OperatorException {
         collectSourceBands();
         if (!ProductUtils.areRastersOfSameSize(sourceBands)) {
-            throw new OperatorException("Source Bands are not of the same size");
+            throw new OperatorException("Source bands must all be the same size");
         }
 
         int width = sourceProduct.getSceneRasterWidth();
