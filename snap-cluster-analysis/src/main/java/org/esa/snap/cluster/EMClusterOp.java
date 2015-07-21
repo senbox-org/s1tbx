@@ -105,7 +105,7 @@ public class EMClusterOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
         sourceBands = collectSourceBands();
-        if (!ProductUtils.areRastersOfSameSize(sourceBands)) {
+        if (!ProductUtils.areRastersEqualInSize(sourceBands)) {
             throw new OperatorException("Source bands must all be the same size");
         }
 

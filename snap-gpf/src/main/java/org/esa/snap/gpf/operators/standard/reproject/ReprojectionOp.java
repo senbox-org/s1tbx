@@ -280,7 +280,7 @@ public class ReprojectionOp extends Operator {
         targetProduct.setStartTime(meanTime);
         targetProduct.setEndTime(meanTime);
 
-        if (ProductUtils.areRastersOfSameSize(sourceProduct.getBands())) {
+        if (ProductUtils.areRastersEqualInSize(sourceProduct.getBands())) {
             MultiLevelModel targetModel = ImageManager.createMultiLevelModel(targetProduct);
             defaultReprojection = new Reproject(targetModel.getLevelCount());
         }

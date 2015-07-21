@@ -1979,7 +1979,7 @@ public class ProductUtils {
      * @param raster The raster.
      * @param pixelX The pixel X coordinate within the image at the given image pyramid level.
      * @param pixelY The pixel Y coordinate within the image at the given image pyramid level.
-     * @param level The image pyramid level.
+     * @param level  The image pyramid level.
      * @return The geophysical sample value as a 64-bit floating point value.
      */
     public static double getGeophysicalSampleAsDouble(RasterDataNode raster, int pixelX, int pixelY, int level) {
@@ -2012,7 +2012,7 @@ public class ProductUtils {
      * @param raster The raster.
      * @param pixelX The pixel X coordinate within the image at the given image pyramid level.
      * @param pixelY The pixel Y coordinate within the image at the given image pyramid level.
-     * @param level The image pyramid level.
+     * @param level  The image pyramid level.
      * @return The geophysical sample value as a 64-bit integer value.
      */
     public static long getGeophysicalSampleLong(RasterDataNode raster, int pixelX, int pixelY, int level) {
@@ -2041,10 +2041,10 @@ public class ProductUtils {
     /**
      * This method checks whether the given rasters all have the same width and height.
      *
-     * @param rasters The rasters to be checked
-     * @return true, if all rasters are of the same size
+     * @param rasters The rasters to be checked.
+     * @return {@code true}, if all rasters are equal in size.
      */
-    public static boolean areRastersOfSameSize(RasterDataNode[] rasters) {
+    public static boolean areRastersEqualInSize(RasterDataNode[] rasters) {
         if (rasters.length < 2) {
             return true;
         }
@@ -2060,14 +2060,14 @@ public class ProductUtils {
     }
 
     /**
-     * This method checks whether a number of rasterdatanodes withing a product all have the same width and height.
+     * This method checks whether the rasters given by their names all have the same width and height.
      *
-     * @param rasterNames The names of the rasters to be checked
-     * @param product The product which contains the rasters
-     * @return true, if all rasters are of the same size
+     * @param product     The product which contains the rasters.
+     * @param rasterNames The names of the rasters to be checked.
+     * @return {@code true}, if all rasters are equal in size.
      */
-    public static boolean areRastersOfSameSize(String[] rasterNames, Product product) throws IllegalArgumentException {
-        if (rasterNames == null || rasterNames.length == 0) {
+    public static boolean areRastersEqualInSize(Product product, String... rasterNames) throws IllegalArgumentException {
+        if (rasterNames.length < 2) {
             return true;
         }
         final RasterDataNode referenceNode = product.getRasterDataNode(rasterNames[0]);

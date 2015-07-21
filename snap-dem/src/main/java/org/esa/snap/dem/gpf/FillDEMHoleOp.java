@@ -118,7 +118,7 @@ public final class FillDEMHoleOp extends Operator {
     private void addSelectedBands() throws OperatorException {
 
         final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
-        if (!ProductUtils.areRastersOfSameSize(sourceBands)) {
+        if (!ProductUtils.areRastersEqualInSize(sourceBands)) {
             throw new OperatorException("Source bands must all be the same size");
         }
         for (Band sourceBand : sourceBands) {
