@@ -20,10 +20,9 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.MultiLevelModel;
 
 /**
- * TODO - Apidoc
+ * Represent a level in a multi-resolution image pyramid.
  *
  * @author Norman Fomferra
- * @version $revision$ $date$
  */
 public class ResolutionLevel {
     public final static ResolutionLevel MAXRES = new ResolutionLevel(0, 1.0);
