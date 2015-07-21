@@ -67,10 +67,10 @@ public class RasterDataNodeTest {
         b4.setNoDataValueUsed(true);
 
         assertEquals("NaN", b1.getPixelString(0, 0));
-        assertEquals("1.00000", b1.getPixelString(1, 0));
+        assertEquals("1.0", b1.getPixelString(1, 0));
 
         assertEquals("NaN", b2.getPixelString(0, 0));
-        assertEquals("2.0000000000", b2.getPixelString(1, 0));
+        assertEquals("2.0", b2.getPixelString(1, 0));
 
         assertEquals("NaN", b3.getPixelString(0, 0));
         assertEquals("3", b3.getPixelString(1, 0));

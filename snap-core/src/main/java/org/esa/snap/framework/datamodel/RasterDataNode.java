@@ -2096,13 +2096,13 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                 int geophysicalDataType = getGeophysicalDataType();
                 if (geophysicalDataType == ProductData.TYPE_FLOAT64) {
                     double pixel = getPixelDouble(x, y);
-                    return String.format("%.10f", pixel);
+                    return Double.toString(pixel);
                 } else if (geophysicalDataType == ProductData.TYPE_FLOAT32) {
                     float pixel = getPixelFloat(x, y);
-                    return String.format("%.5f", pixel);
+                    return Float.toString(pixel);
                 } else {
                     int pixel = getPixelInt(x, y);
-                    return String.valueOf(pixel);
+                    return Integer.toString(pixel);
                 }
             } else {
                 return NO_DATA_TEXT;
