@@ -55,6 +55,7 @@ public final class PolarimetricDecompositionOp extends Operator {
     private Product targetProduct;
 
     @Parameter(valueSet = {SINCLAIR_DECOMPOSITION, PAULI_DECOMPOSITION, FREEMAN_DURDEN_DECOMPOSITION,
+            GENERALIZED_FREEMAN_DURDEN_DECOMPOSITION,
             YAMAGUCHI_DECOMPOSITION, VANZYL_DECOMPOSITION, H_A_ALPHA_DECOMPOSITION, H_ALPHA_DECOMPOSITION,
             CLOUDE_DECOMPOSITION, TOUZI_DECOMPOSITION}, defaultValue = SINCLAIR_DECOMPOSITION, label = "Decomposition")
     private String decomposition = SINCLAIR_DECOMPOSITION;
