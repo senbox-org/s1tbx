@@ -17,13 +17,20 @@ package org.esa.s1tbx.dat.toolviews.Projects;
 
 import org.esa.snap.framework.ui.UIUtils;
 import org.esa.snap.framework.ui.application.support.AbstractToolView;
+import org.esa.snap.rcp.statistics.AbstractStatisticsTopComponent;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
+import org.openide.util.NbBundle;
+import org.openide.windows.TopComponent;
 
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.border.EmptyBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import java.awt.Dimension;
+import java.awt.*;
 import java.util.Enumeration;
 import java.util.Observer;
 import java.util.Vector;
@@ -31,19 +38,43 @@ import java.util.Vector;
 /**
  * The tool window which displays the current project
  */
-public class ProjectsToolView extends AbstractToolView implements Observer {
-
-    public static final String ID = ProjectsToolView.class.getName();
+@TopComponent.Description(
+        preferredID = "ProjectsToolView",
+        iconBase = "org/esa/s1tbx/dat/icons/project.png",
+        persistenceType = TopComponent.PERSISTENCE_ALWAYS //todo define
+)
+@TopComponent.Registration(
+        mode = "explorer",
+        openAtStartup = false,
+        position = 4
+)
+@ActionID(category = "Window", id = "org.esa.s1tbx.dat.toolviews.Projects.ProjectsToolView")
+@ActionReferences({
+        @ActionReference(path = "Menu/View/Tool Windows"),
+        @ActionReference(path = "Toolbars/Projects", position = 10)
+})
+@TopComponent.OpenActionRegistration(
+        displayName = "#CTL_ProjectsToolView_Name",
+        preferredID = "ProjectsToolView"
+)
+@NbBundle.Messages({
+        "CTL_ProjectsToolView_Name=Projects",
+        "CTL_ProjectsToolView_HelpId=projects"
+})
+public class ProjectsToolView extends TopComponent implements Observer {
 
     private ProjectTree projectTree;
     private DefaultMutableTreeNode rootNode;
     private final Project project = Project.instance();
 
     public ProjectsToolView() {
+        setDisplayName("Projects");
 
+        setLayout(new BorderLayout(4, 4));
+        setBorder(new EmptyBorder(4, 4, 4, 4));
+        add(createControl(), BorderLayout.CENTER);
     }
 
-    @Override
     public JComponent createControl() {
         Project.instance().addObserver(this);
 
@@ -54,10 +85,10 @@ public class ProjectsToolView extends AbstractToolView implements Observer {
         prjScrollPane.setBorder(null);
         prjScrollPane.setViewportBorder(null);
 
-        final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        splitPane.add(prjScrollPane);
+        //final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        //splitPane.add(prjScrollPane);
 
-        return splitPane;
+        return prjScrollPane;
     }
 
     private ProjectTree createTree() {

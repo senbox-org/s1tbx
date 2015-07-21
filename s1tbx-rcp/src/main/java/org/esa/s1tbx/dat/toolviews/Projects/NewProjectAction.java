@@ -18,6 +18,14 @@ package org.esa.s1tbx.dat.toolviews.Projects;
 import org.esa.s1tbx.dat.toolviews.Projects.Project;
 import org.esa.snap.framework.ui.command.CommandEvent;
 import org.esa.snap.framework.ui.command.ExecCommand;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
+import org.openide.awt.ActionRegistration;
+import org.openide.util.NbBundle;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 /**
  * This action opens a project.
@@ -25,10 +33,25 @@ import org.esa.snap.framework.ui.command.ExecCommand;
  * @author lveci
  * @version $Revision: 1.3 $ $Date: 2011-04-08 18:23:59 $
  */
-public class NewProjectAction extends ExecCommand {
+@ActionID(category = "tool", id = "NewProjectAction" )
+@ActionRegistration(
+        displayName = "#CTL_NewProjectAction_MenuText",
+        popupText = "#CTL_NewProjectAction_MenuText",
+        iconBase = "org/esa/s1tbx/dat/icons/project-new.png",
+        lazy = true
+)
+@ActionReferences({
+       // @ActionReference(path = "Menu/File/Projects", position = 20),
+        @ActionReference(path = "Toolbars/Projects", position = 20)
+})
+@NbBundle.Messages({
+        "CTL_NewProjectAction_MenuText=New Project",
+        "CTL_NewProjectAction_ShortDescription=Create a new project"
+})
+public class NewProjectAction extends AbstractAction {
 
     @Override
-    public void actionPerformed(final CommandEvent event) {
+    public void actionPerformed(ActionEvent event) {
 
         Project.instance().CreateNewProject();
     }

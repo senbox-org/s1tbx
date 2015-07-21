@@ -17,6 +17,14 @@ package org.esa.s1tbx.dat.toolviews.Projects;
 
 import org.esa.snap.framework.ui.command.CommandEvent;
 import org.esa.snap.framework.ui.command.ExecCommand;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
+import org.openide.awt.ActionRegistration;
+import org.openide.util.NbBundle;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 /**
  * This action opens a project.
@@ -24,10 +32,25 @@ import org.esa.snap.framework.ui.command.ExecCommand;
  * @author lveci
  * @version $Revision: 1.3 $ $Date: 2011-04-08 18:23:59 $
  */
-public class LoadProjectAction extends ExecCommand {
+@ActionID(category = "tool", id = "LoadProjectAction" )
+@ActionRegistration(
+        displayName = "#CTL_LoadProjectAction_MenuText",
+        popupText = "#CTL_LoadProjectAction_MenuText",
+        iconBase = "org/esa/s1tbx/dat/icons/project.png",
+        lazy = true
+)
+@ActionReferences({
+      //  @ActionReference(path = "Menu/File/Projects", position = 30),
+        @ActionReference(path = "Toolbars/Projects", position = 30)
+})
+@NbBundle.Messages({
+        "CTL_LoadProjectAction_MenuText=Load Project",
+        "CTL_LoadProjectAction_ShortDescription=Load an existing project"
+})
+public class LoadProjectAction extends AbstractAction {
 
     @Override
-    public void actionPerformed(final CommandEvent event) {
+    public void actionPerformed(final ActionEvent event) {
 
         Project.instance().LoadProject();
     }

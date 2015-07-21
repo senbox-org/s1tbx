@@ -18,6 +18,14 @@ package org.esa.s1tbx.dat.toolviews.Projects;
 import org.esa.s1tbx.dat.toolviews.Projects.Project;
 import org.esa.snap.framework.ui.command.CommandEvent;
 import org.esa.snap.framework.ui.command.ExecCommand;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
+import org.openide.awt.ActionRegistration;
+import org.openide.util.NbBundle;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 /**
  * This action opens a project.
@@ -25,16 +33,30 @@ import org.esa.snap.framework.ui.command.ExecCommand;
  * @author lveci
  * @version $Revision: 1.3 $ $Date: 2011-04-08 18:23:59 $
  */
-public class SaveProjectAction extends ExecCommand {
+@ActionID(category = "tool", id = "SaveProjectAction" )
+@ActionRegistration(
+        displayName = "#CTL_SaveProjectAction_MenuText",
+        popupText = "#CTL_SaveProjectAction_MenuText",
+        iconBase = "org/esa/s1tbx/dat/icons/project.png",
+        lazy = true
+)
+@ActionReferences({
+      //  @ActionReference(path = "Menu/File/Projects", position = 40),
+      //  @ActionReference(path = "Toolbars/Projects", position = 40)
+})
+@NbBundle.Messages({
+        "CTL_SaveProjectAction_MenuText=Save Project",
+        "CTL_SaveProjectAction_ShortDescription=Save current project"
+})
+public class SaveProjectAction extends AbstractAction {
 
     @Override
-    public void actionPerformed(final CommandEvent event) {
+    public void actionPerformed(final ActionEvent event) {
 
         Project.instance().SaveProject();
     }
 
-    @Override
-    public void updateState(final CommandEvent event) {
+    public void updateState() {
         setEnabled(Project.instance().IsProjectOpen());
     }
 }
