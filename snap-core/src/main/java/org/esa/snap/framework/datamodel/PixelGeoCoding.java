@@ -269,7 +269,7 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
         if (useTiling) {
             RenderedImage validMask = null;
             if (validMaskExpr != null && validMaskExpr.trim().length() > 0 && pixelPosEstimator != null) {
-                validMask = ImageManager.getInstance().getMaskImage(validMaskExpr, latBand.getProduct());
+                validMask = ImageManager.getInstance().getMaskImage(validMaskExpr, latBand.getProduct(), latBand);
             }
             latLonImage = new LatLonImage(this.latBand.getGeophysicalImage(), this.lonBand.getGeophysicalImage(),
                                           validMask, pixelPosEstimator);

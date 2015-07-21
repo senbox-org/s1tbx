@@ -16,14 +16,19 @@
 
 package org.esa.snap.framework.datamodel;
 
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.glevel.MultiLevelImage;
 import org.esa.snap.framework.dataio.ProductIO;
 import org.esa.snap.framework.dataop.maptransf.Datum;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import javax.media.jai.ImageLayout;
+import javax.media.jai.JAI;
 import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.RenderingHints;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -32,7 +37,8 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class ProductSceneRasterSizeTest {
     @Test
@@ -41,7 +47,7 @@ public class ProductSceneRasterSizeTest {
         assertEquals(new Dimension(30, 20), product.getSceneRasterSize());
 
         product.addBand(new Band("B0", ProductData.TYPE_FLOAT32, 5, 2));
-        // todo - [multisize_products] or do we want to allow that a product can shrink after it has been initialized
+
         assertEquals(new Dimension(30, 20), product.getSceneRasterSize());
 
         product.addBand(new Band("B1", ProductData.TYPE_FLOAT32, 100, 200));
@@ -88,9 +94,8 @@ public class ProductSceneRasterSizeTest {
 
     }
 
-//    @Test
-    @Ignore
-    public void testDimap() throws Exception {
+    @Test
+    public void testDimapWithMultiSizeBands() throws Exception {
 
         Product product = new Product("N", "T");
         assertNull(product.getSceneRasterSize());
@@ -129,12 +134,140 @@ public class ProductSceneRasterSizeTest {
             assertEquals(new Dimension(1000, 2), product2.getTiePointGrid("TPG2").getRasterSize());
             assertEquals(new Dimension(1000, 220), product2.getSceneRasterSize());
         } finally {
-            if(file.exists()) {
+            if (file.exists()) {
                 Files.delete(file.toPath());
                 File dataDir = new File(file.getAbsolutePath().replaceAll("dim", "data"));
                 Files.walkFileTree(dataDir.toPath(), new PathTreeDeleter());
             }
         }
+    }
+
+    @Test
+    public void testImageLayoutForMultiSizeProducts_WithPreferredTileSize() throws Exception {
+        int size = 900;
+        int tileSize = 130;
+
+        Product product = new Product("N", "T", size, size);
+        product.setPreferredTileSize(tileSize, tileSize);
+        Band b1 = createVirtualBand("B1", 2.4, size);
+        Band b2 = createVirtualBand("B2", 2.5, size / 3);
+        Band b3 = createVirtualBand("B3", 2.6, size / 9);
+
+        configureAndTestMultiSizeProductImages(tileSize, tileSize, tileSize, product, b1, b2, b3);
+    }
+
+    @Test
+    public void testImageLayoutForMultiSizeProducts_WithoutPreferredTileSize() throws Exception {
+        int size = 900;
+
+        Product product = new Product("N", "T", size, size);
+        Band b1 = createVirtualBand("B1", 2.4, size);
+        Band b2 = createVirtualBand("B2", 2.5, size / 3);
+        Band b3 = createVirtualBand("B3", 2.6, size / 9);
+
+        configureAndTestMultiSizeProductImages(450, 300, 100, product, b1, b2, b3);
+    }
+
+    // todo - [multisize_products] the following call will let this test fail, see SNAP-145 (nf)
+    @Ignore
+    @Test
+    public void testImageLayoutForMultiSizeProducts_WithoutPreferredTileSize_WithCustomSourceImages() throws Exception {
+        int size = 900;
+        int tileSize1 = 256;
+        int tileSize2 = 128;
+        int tileSize3 = 64;
+
+        Product product = new Product("N", "T", size, size);
+        Band b1 = createBand("B1", 2.4, size, tileSize1);
+        Band b2 = createBand("B2", 2.5, size, tileSize2);
+        Band b3 = createBand("B3", 2.6, size, tileSize3);
+
+        configureAndTestMultiSizeProductImages(tileSize1, tileSize2, tileSize3, product, b1, b2, b3);
+    }
+
+    // todo - [multisize_products] the following call will let this test fail, see SNAP-145 (nf)
+    @Ignore
+    @Test
+    public void testImageLayoutForMultiSizeProducts_WithPreferredTileSize_WithCustomSourceImages() throws Exception {
+        int size = 900;
+        int tileSize1 = 256;
+        int tileSize2 = 128;
+        int tileSize3 = 64;
+
+        Product product = new Product("N", "T", size, size);
+        product.setPreferredTileSize(130, 130);
+        Band b1 = createBand("B1", 2.4, size, tileSize1);
+        Band b2 = createBand("B2", 2.5, size, tileSize2);
+        Band b3 = createBand("B3", 2.6, size, tileSize3);
+
+        configureAndTestMultiSizeProductImages(tileSize1, tileSize2, tileSize3, product, b1, b2, b3);
+    }
+
+    private VirtualBand createVirtualBand(String name, double value, int size) {
+        return new VirtualBand(name, ProductData.TYPE_FLOAT64, size, size, value + "");
+    }
+
+    private Band createBand(String name, double value, int size, int tileSize) {
+        Band band = new Band(name, ProductData.TYPE_FLOAT64, size, size);
+        ImageLayout imageLayout = new ImageLayout();
+        imageLayout.setTileWidth(tileSize);
+        imageLayout.setTileHeight(tileSize);
+        band.setSourceImage(ConstantDescriptor.create((float) size, (float) size,
+                                                      new Double[]{value}, new RenderingHints(JAI.KEY_IMAGE_LAYOUT, imageLayout)));
+        return band;
+    }
+
+    private void configureAndTestMultiSizeProductImages(int tileSize1,
+                                                        int tileSize2,
+                                                        int tileSize3,
+                                                        Product product,
+                                                        Band b1,
+                                                        Band b2,
+                                                        Band b3) {
+
+        Mask m1 = Mask.BandMathsType.create("M1", null, b1.getSceneRasterWidth(), b1.getSceneRasterHeight(), "B1 > 0", Color.GREEN, 0.5);
+        Mask m2 = Mask.BandMathsType.create("M2", null, b2.getSceneRasterWidth(), b2.getSceneRasterHeight(), "B2 > 0", Color.GREEN, 0.5);
+        Mask m3 = Mask.BandMathsType.create("M3", null, b3.getSceneRasterWidth(), b3.getSceneRasterHeight(), "B3 > 0", Color.GREEN, 0.5);
+
+        b1.setNoDataValueUsed(true);
+        b2.setNoDataValueUsed(true);
+        b3.setNoDataValueUsed(true);
+
+        b1.setNoDataValue(0.0);
+        b2.setNoDataValue(0.0);
+        b3.setNoDataValue(0.0);
+
+        product.addBand(b1);
+        product.addBand(b2);
+        product.addBand(b3);
+
+        product.addMask(m1);
+        product.addMask(m2);
+        product.addMask(m3);
+
+        testImageLayout(b1.getSceneRasterWidth(), tileSize1, b1, m1);
+        testImageLayout(b2.getSceneRasterWidth(), tileSize2, b2, m2);
+        testImageLayout(b3.getSceneRasterWidth(), tileSize3, b3, m3);
+
+        assertEquals(2.4, b1.getStx(true, ProgressMonitor.NULL).getMean(), 1e-10);
+        assertEquals(2.5, b2.getStx(true, ProgressMonitor.NULL).getMean(), 1e-10);
+        assertEquals(2.6, b3.getStx(true, ProgressMonitor.NULL).getMean(), 1e-10);
+    }
+
+    private void testImageLayout(int size, int tileSize, Band band, Mask mask) {
+        Dimension sizeDim = new Dimension(size, size);
+        Dimension tileSizeDim = new Dimension(tileSize, tileSize);
+        MultiLevelImage bsi = band.getSourceImage();
+        MultiLevelImage vmi = band.getValidMaskImage();
+        MultiLevelImage msi = mask.getSourceImage();
+        assertEquals(sizeDim, new Dimension(bsi.getWidth(), bsi.getHeight()));
+        assertEquals(sizeDim, new Dimension(vmi.getWidth(), vmi.getHeight()));
+        assertEquals(sizeDim, new Dimension(msi.getWidth(), msi.getHeight()));
+        assertEquals(tileSizeDim, new Dimension(bsi.getTileWidth(), bsi.getTileHeight()));
+        assertEquals(tileSizeDim, new Dimension(vmi.getTileWidth(), vmi.getTileHeight()));
+        assertEquals(tileSizeDim, new Dimension(msi.getTileWidth(), msi.getTileHeight()));
+        assertEquals(bsi.getModel().getLevelCount(), vmi.getModel().getLevelCount());
+        assertEquals(bsi.getModel().getLevelCount(), msi.getModel().getLevelCount());
     }
 
     private static class PathTreeDeleter extends SimpleFileVisitor<Path> {

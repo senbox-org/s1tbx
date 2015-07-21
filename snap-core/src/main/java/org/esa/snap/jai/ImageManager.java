@@ -908,7 +908,9 @@ public class ImageManager {
         return mli.getImage(level);
     }
 
+    @Deprecated
     public MultiLevelImage getMaskImage(final String expression, final Product product) {
+        // todo - [multisize_products] fix: rasterDataNode arg is null --> product scene raster image layout will be used!! (nf)
         return getMaskImage(expression, product, null);
     }
 
@@ -1022,6 +1024,7 @@ public class ImageManager {
 
     public PlanarImage createColoredMaskImage(Product product, String expression, Color color, boolean invertMask,
                                               int level) {
+        // todo - [multisize_products] fix: rasterDataNode arg is null --> product scene raster image layout will be used!! (nf)
         RenderedImage image = getMaskImage(product, null, expression, level);
         return createColoredMaskImage(color, image, invertMask);
     }

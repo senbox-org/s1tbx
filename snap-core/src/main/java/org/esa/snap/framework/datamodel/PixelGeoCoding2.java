@@ -123,9 +123,9 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
                     }
                 }
                 if (maskImage == null) {
-                    // TODO - ensure that tile layout of lat and lon images is used
                     maskImage = (PlanarImage) ImageManager.getInstance().getMaskImage(maskExpression,
-                                                                                      lonBand.getProduct()).getImage(0);
+                                                                                      lonBand.getProduct(),
+                                                                                      lonBand).getImage(0);
                 }
             } else {
                 maskExpression = null;
