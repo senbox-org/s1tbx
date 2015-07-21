@@ -17,6 +17,11 @@
 package org.esa.snap.framework.gpf.pointop;
 
 import com.bc.ceres.core.Assert;
+import com.bc.ceres.glevel.MultiLevelImage;
+import com.bc.ceres.glevel.MultiLevelModel;
+import com.bc.ceres.glevel.MultiLevelSource;
+import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
+import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.ConvolutionFilterBand;
 import org.esa.snap.framework.datamodel.GeneralFilterBand;
@@ -29,11 +34,15 @@ import org.esa.snap.framework.datamodel.VirtualBand;
 import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.Tile;
+import org.esa.snap.jai.ImageManager;
+import org.esa.snap.jai.ResolutionLevel;
+import org.esa.snap.jai.VirtualBandOpImage;
 import org.esa.snap.util.ProductUtils;
 
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.image.RenderedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -438,11 +447,37 @@ public abstract class PointOperator extends Operator {
 
         @Override
         public void defineComputedSample(int index, int dataType, String expression, Product... sourceProducts) {
-            defineComputedSample(index, new VirtualBand("__virtual_band_" + index,
-                                                        dataType,
-                                                        getSourceProduct().getSceneRasterWidth(),
-                                                        getSourceProduct().getSceneRasterHeight(),
-                                                        expression));
+            VirtualBand virtualBand = new VirtualBand("__virtual_band_" + index,
+                                                      dataType,
+                                                      getSourceProduct().getSceneRasterWidth(),
+                                                      getSourceProduct().getSceneRasterHeight(),
+                                                      expression);
+            if (sourceProducts.length > 0) {
+                virtualBand.setSourceImage(createVirtualImage(dataType, expression, sourceProducts));
+            }
+            defineComputedSample(index, virtualBand);
+        }
+
+        private MultiLevelImage createVirtualImage(final int dataType, final String expression, final Product[] sourceProducts) {
+            // check for RefNo
+            for (Product sourceProduct : sourceProducts) {
+                if (sourceProduct.getRefNo() == 0) {
+                    throw new IllegalArgumentException(String.format("Product '%s' has no assigned reference number.", sourceProduct.getName()));
+                }
+            }
+            MultiLevelModel multiLevelModel = ImageManager.createMultiLevelModel(sourceProducts[0]);
+            MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
+                @Override
+                public RenderedImage createImage(int level) {
+                    return VirtualBandOpImage.create(expression,
+                                                     dataType,
+                                                     null,
+                                                     sourceProducts,
+                                                     0,
+                                                     ResolutionLevel.create(getModel(), level));
+                }
+            };
+            return new DefaultMultiLevelImage(multiLevelSource);
         }
 
         @Override

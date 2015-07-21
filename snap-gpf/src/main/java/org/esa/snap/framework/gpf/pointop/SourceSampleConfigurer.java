@@ -62,13 +62,15 @@ public interface SourceSampleConfigurer {
      * <p>
      * The method effectively creates a {@link org.esa.snap.framework.datamodel.VirtualBand VirtualBand}
      * from which it computes the source samples.
+     * <p>
+     * If multiple source products are used a reference number {@link Product#setRefNo(int)} has to be assigned.
      *
      * @param index          The index of the sample within the sample arrays passed to
      *                       {@link SampleOperator#computeSample(int, int, Sample[], WritableSample) computeSample()} or
      *                       {@link PixelOperator#computePixel(int, int, Sample[], WritableSample[]) computePixel()} methods.
      * @param dataType       The data type of the computed sample. See {@code TYPE_X} constants in {@link org.esa.snap.framework.datamodel.ProductData}.
      * @param expression     The band maths expression.
-     * @param sourceProducts Source products that are referenced in the expression (currently not used).
+     * @param sourceProducts Source products that are referenced in the expression.
      */
     void defineComputedSample(int index, int dataType, String expression, Product... sourceProducts);
 
