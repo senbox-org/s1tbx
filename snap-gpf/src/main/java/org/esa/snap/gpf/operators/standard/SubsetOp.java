@@ -196,7 +196,7 @@ public class SubsetOp extends Operator {
         }
         nodeNames = subsetDef.getNodeNames();
         if (!ProductUtils.areRastersEqualInSize(sourceProduct, nodeNames != null ? nodeNames : new String[0])) {
-            throw new OperatorException("Can only create subsets when all rasters are of the same size");
+            throw new OperatorException("Can only create subsets if all rasters are the same size");
         }
         if (geoRegion != null) {
             region = computePixelRegion(sourceProduct, geoRegion, 0);
