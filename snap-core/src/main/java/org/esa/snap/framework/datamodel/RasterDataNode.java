@@ -1091,7 +1091,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             int tx = image.XToTileX(x);
             int ty = image.YToTileY(y);
             Raster tile = image.getTile(tx, ty);
-            return tile.getSample(x, y, 0) != 0;
+            return tile != null && tile.getSample(x, y, 0) != 0;
         }
         return true;
     }
