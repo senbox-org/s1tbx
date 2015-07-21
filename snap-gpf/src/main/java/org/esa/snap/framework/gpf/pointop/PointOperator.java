@@ -452,7 +452,7 @@ public abstract class PointOperator extends Operator {
                                                       getSourceProduct().getSceneRasterWidth(),
                                                       getSourceProduct().getSceneRasterHeight(),
                                                       expression);
-            if (sourceProducts.length > 0) {
+            if (sourceProducts.length > 1) {
                 virtualBand.setSourceImage(createVirtualImage(dataType, expression, sourceProducts));
             }
             defineComputedSample(index, virtualBand);
