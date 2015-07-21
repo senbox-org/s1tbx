@@ -1972,15 +1972,25 @@ public class ProductUtils {
         return new ProductData.UTC(currentLine);
     }
 
-    public static double getGeophysicalSampleDouble(RasterDataNode raster, int pixelX, int pixelY, int level) {
+    /**
+     * Gets the geophysical pixel value for the given raster at the given pixel coordinates
+     * for the given image pyramid level.
+     *
+     * @param raster The raster.
+     * @param pixelX The pixel X coordinate within the image at the given image pyramid level.
+     * @param pixelY The pixel Y coordinate within the image at the given image pyramid level.
+     * @param level The image pyramid level.
+     * @return The geophysical sample value as a 64-bit floating point value.
+     */
+    public static double getGeophysicalSampleAsDouble(RasterDataNode raster, int pixelX, int pixelY, int level) {
         final PlanarImage image = ImageManager.getInstance().getSourceImage(raster, level);
         final int tileX = image.XToTileX(pixelX);
         final int tileY = image.YToTileY(pixelY);
         final Raster data = image.getTile(tileX, tileY);
         if (data == null) {
+            // Weird condition - should actually not come here at all
             return Double.NaN;
         }
-
         final double sample;
         if (raster.getDataType() == ProductData.TYPE_INT8) {
             sample = (byte) data.getSample(pixelX, pixelY, 0);
@@ -1995,12 +2005,25 @@ public class ProductUtils {
         return sample;
     }
 
+    /**
+     * Gets the geophysical pixel value for the given raster at the given pixel coordinates
+     * for the given image pyramid level.
+     *
+     * @param raster The raster.
+     * @param pixelX The pixel X coordinate within the image at the given image pyramid level.
+     * @param pixelY The pixel Y coordinate within the image at the given image pyramid level.
+     * @param level The image pyramid level.
+     * @return The geophysical sample value as a 64-bit integer value.
+     */
     public static long getGeophysicalSampleLong(RasterDataNode raster, int pixelX, int pixelY, int level) {
         final PlanarImage image = ImageManager.getInstance().getSourceImage(raster, level);
         final int tileX = image.XToTileX(pixelX);
         final int tileY = image.YToTileY(pixelY);
         final Raster data = image.getTile(tileX, tileY);
-
+        if (data == null) {
+            // Weird condition - should actually not come here at all
+            return 0L;
+        }
         final long sample;
         if (raster.getDataType() == ProductData.TYPE_INT8) {
             sample = (byte) data.getSample(pixelX, pixelY, 0);
