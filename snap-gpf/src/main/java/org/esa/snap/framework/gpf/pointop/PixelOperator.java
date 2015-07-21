@@ -89,7 +89,7 @@ public abstract class PixelOperator extends PointOperator {
         }
     }
 
-    private void setInvalid(WritableSample[] targetSamples) {
+    protected void setInvalid(WritableSample[] targetSamples) {
         for (WritableSample targetSample : targetSamples) {
             RasterDataNode node = targetSample.getNode();
             if (node != null) {
