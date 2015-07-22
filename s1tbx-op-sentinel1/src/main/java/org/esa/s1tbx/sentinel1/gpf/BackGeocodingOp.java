@@ -281,6 +281,15 @@ public final class BackGeocodingOp extends Operator {
             throw new OperatorException("Source products should have the same acquisition modes");
         }
         acquisitionMode = mAcquisitionMode;
+
+        final String mProcSysId = mAbsRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
+        final float mVersion = Float.valueOf(mProcSysId.substring(mProcSysId.lastIndexOf(" ")));
+        final String sProcSysId = sAbsRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
+        final float sVersion = Float.valueOf(sProcSysId.substring(sProcSysId.lastIndexOf(" ")));
+        if ((mVersion < 2.43 && sVersion >= 2.43) || (sVersion < 2.43 && mVersion >= 2.43)) {
+            throw new OperatorException(
+                    "Source products cannot be InSAR pair: one with EAP phase correction, one without.");
+        }
     }
 
     /**
