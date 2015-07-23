@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2015 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -22,6 +22,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import org.esa.snap.binning.AggregatorConfig;
 import org.esa.snap.binning.BinningContext;
 import org.esa.snap.binning.CellProcessorConfig;
+import org.esa.snap.binning.CompositingType;
 import org.esa.snap.binning.DataPeriod;
 import org.esa.snap.binning.ProductCustomizerConfig;
 import org.esa.snap.binning.SpatialBin;
@@ -234,6 +235,7 @@ public class BinningOp extends Operator {
     private transient Area regionArea;
     private transient MetadataAggregator metadataAggregator;
     private transient String planetaryGridClass;
+    private transient CompositingType compositingType;
 
     private final Map<Product, List<Band>> addedVariableBands;
     private Product writtenProduct;
@@ -369,6 +371,10 @@ public class BinningOp extends Operator {
         this.planetaryGridClass = planetaryGridClass;
     }
 
+    public void setCompositingType(CompositingType compositingType) {
+        this.compositingType = compositingType;
+    }
+
     /**
      * Processes all source products and writes the output file.
      * The target product represents the written output file
@@ -477,6 +483,9 @@ public class BinningOp extends Operator {
         config.setRegion(region);
         if (planetaryGridClass != null) {
             config.setPlanetaryGrid(planetaryGridClass);
+        }
+        if (compositingType!= null) {
+            config.setCompositingType(compositingType);
         }
         return config;
     }
