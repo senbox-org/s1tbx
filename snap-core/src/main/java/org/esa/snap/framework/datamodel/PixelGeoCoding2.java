@@ -503,6 +503,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
 
         private double getSampleDouble(int pixelX, int pixelY, RenderedImage dataImage, RenderedImage maskImage) {
             if (maskImage != null) {
+                // todo - [multisize_products] fix: don't rely on tiling is same for dataImage & maskImage (nf 2015-07-23)
                 // tile coordinates of images and mask "shall" be equal, but they are not - TODO check why (mz 2013-11-08)
                 final int x = maskImage.getMinX() + pixelX;
                 final int y = maskImage.getMinY() + pixelY;

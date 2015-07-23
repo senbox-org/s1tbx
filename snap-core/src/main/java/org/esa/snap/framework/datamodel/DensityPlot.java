@@ -195,12 +195,11 @@ public class DensityPlot {
             final int tileX2 = tileX1 + numXTiles - 1;
             final int tileY2 = tileY1 + numYTiles - 1;
 
-            // todo - assert dataImage tile properties equal those of maskImage
-            // (nf)
+            // todo - [multisize_products] fix: don't rely on tiling is same for dataImage1, dataImage2, maskImage (nf)
             Rectangle imageRect = new Rectangle(dataImage1.getMinX(), dataImage1.getMinY(),
                                                 dataImage1.getWidth(), dataImage1.getHeight());
             try {
-                pm.beginTask("Computing densityplot", numXTiles * numYTiles);
+                pm.beginTask("Computing density plot", numXTiles * numYTiles);
                 for (int tileY = tileY1; tileY <= tileY2; tileY++) {
                     for (int tileX = tileX1; tileX <= tileX2; tileX++) {
                         if (pm.isCanceled()) {

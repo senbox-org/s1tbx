@@ -52,6 +52,7 @@ public class OperatorExecutor {
     public static OperatorExecutor create(Operator op) {
         OperatorContext operatorContext = getOperatorContext(op);
         Product targetProduct = op.getTargetProduct();
+        // todo - [multisize_products] fix: don't rely on tiling is same for all bands (nf)
         Dimension tileSize = targetProduct.getPreferredTileSize();
 
         int rasterHeight = targetProduct.getSceneRasterHeight();

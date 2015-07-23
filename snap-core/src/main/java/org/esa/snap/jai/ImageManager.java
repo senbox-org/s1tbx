@@ -625,8 +625,6 @@ public class ImageManager {
         final double factor = 255.0 / (newMax - newMin);
         final double offset = 255.0 * newMin / (newMin - newMax);
         PlanarImage image = createRescaleOp(sourceImage, factor, offset);
-        // todo - make sure this is not needed, e.g. does "format" auto-clamp?? (nf, 10.2008)
-        // image = createClampOp(image, 0, 255);
         image = createByteFormatOp(image);
         if (gamma != 1.0) {
             byte[] gammaCurve = MathUtils.createGammaCurve(gamma, new byte[256]);
