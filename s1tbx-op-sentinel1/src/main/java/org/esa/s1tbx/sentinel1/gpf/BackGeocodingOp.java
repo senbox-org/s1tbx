@@ -1182,7 +1182,7 @@ public final class BackGeocodingOp extends Operator {
 
                     if (isSlavePixPosValid(slavePixelPos, subswathIndex, sBurstIndex)) {
 
-                        selectedResampling.computeIndex(
+                        selectedResampling.computeCornerBasedIndex(
                                 slavePixelPos.x - sourceRectangle.x, slavePixelPos.y - sourceRectangle.y,
                                 sourceRectangle.width, sourceRectangle.height, resamplingIndex);
 

@@ -1102,7 +1102,7 @@ public class RangeDopplerGeocodingOp extends Operator {
             tileData.imgResamplingRaster.set(rangeIndex, azimuthIndex, getSourceTile(srcBands[0], srcRect),
                     srcBands.length > 1 ? getSourceTile(srcBands[1], srcRect) : null);
 
-            imgResampling.computeIndex(rangeIndex + 0.5, azimuthIndex + 0.5,
+            imgResampling.computeCornerBasedIndex(rangeIndex, azimuthIndex,
                     sourceImageWidth, sourceImageHeight, tileData.imgResamplingIndex);
 
             double v = imgResampling.resample(tileData.imgResamplingRaster, tileData.imgResamplingIndex);

@@ -850,7 +850,7 @@ public class DEMBasedCoregistrationOp extends Operator {
 
                     if (isSlavePixPosValid(slavePixelPos)) {
                         try {
-                            resampling.computeIndex(slavePixelPos.x, slavePixelPos.y,
+                            resampling.computeCornerBasedIndex(slavePixelPos.x, slavePixelPos.y,
                                     sourceRasterWidth, sourceRasterHeight, resamplingIndex);
 
                             double sample = resampling.resample(resamplingRaster, resamplingIndex);
