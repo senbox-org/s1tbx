@@ -2044,15 +2044,23 @@ public class ProductUtils {
      * @param rasters The rasters to be checked.
      * @return {@code true}, if all rasters are equal in size.
      */
-    public static boolean areRastersEqualInSize(RasterDataNode[] rasters) {
-        if (rasters.length < 2) {
-            return true;
-        }
-        int referenceWidth = rasters[0].getSceneRasterWidth();
-        int referenceHeight = rasters[0].getSceneRasterHeight();
-        for (int i = 1; i < rasters.length; i++) {
-            if (rasters[i].getSceneRasterWidth() != referenceWidth ||
-                    rasters[i].getSceneRasterHeight() != referenceHeight) {
+    public static boolean areRastersEqualInSize(RasterDataNode... rasters) {
+        return rasters.length < 2 ||
+                areRastersEqualInSize(rasters[0].getSceneRasterWidth(),
+                                      rasters[0].getSceneRasterHeight(), rasters);
+    }
+
+    /**
+     * This method checks whether the given rasters all have the same given width and height.
+     *
+     * @param width The width that all rasters must have.
+     * @param height The height that all rasters must have.
+     * @param rasters The rasters to be checked.
+     * @return {@code true}, if all rasters are equal in size.
+     */
+    public static boolean areRastersEqualInSize(int width, int height, RasterDataNode... rasters) {
+        for (RasterDataNode raster : rasters) {
+            if (raster.getSceneRasterWidth() != width || raster.getSceneRasterHeight() != height) {
                 return false;
             }
         }

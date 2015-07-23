@@ -614,13 +614,13 @@ public class ProductUtilsTest {
         final Band band2 = new Band("band2", ProductData.TYPE_INT8, 8, 8);
         final TiePointGrid grid = new TiePointGrid("grid", 2, 2, 0, 0, 15, 15, new float[]{0f, 0f, 0f, 0f});
 
-        assertEquals(true, ProductUtils.areRastersEqualInSize(new RasterDataNode[0]));
-        assertEquals(true, ProductUtils.areRastersEqualInSize(new RasterDataNode[]{band1}));
-        assertEquals(true, ProductUtils.areRastersEqualInSize(new RasterDataNode[]{band2}));
-        assertEquals(true, ProductUtils.areRastersEqualInSize(new RasterDataNode[]{grid}));
-        assertEquals(false, ProductUtils.areRastersEqualInSize(new RasterDataNode[]{band1, band2}));
-        assertEquals(true, ProductUtils.areRastersEqualInSize(new RasterDataNode[]{band1, grid}));
-        assertEquals(false, ProductUtils.areRastersEqualInSize(new RasterDataNode[]{band2, grid}));
+        assertEquals(true, ProductUtils.areRastersEqualInSize());
+        assertEquals(true, ProductUtils.areRastersEqualInSize(band1));
+        assertEquals(true, ProductUtils.areRastersEqualInSize(band2));
+        assertEquals(true, ProductUtils.areRastersEqualInSize(grid));
+        assertEquals(false, ProductUtils.areRastersEqualInSize(band1, band2));
+        assertEquals(true, ProductUtils.areRastersEqualInSize(band1, grid));
+        assertEquals(false, ProductUtils.areRastersEqualInSize(band2, grid));
     }
 
     @Test
