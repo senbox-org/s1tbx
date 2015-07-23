@@ -73,6 +73,17 @@ public interface Resampling {
     void computeIndex(double x, double y, int width, int height, Index index);
 
     /**
+     * Computes the index's properties for the given non-pixel coordinate without pixel center intensity assumption.
+     *
+     * @param x      the raster's x coordinate
+     * @param y      the raster's y coordinate
+     * @param width  the raster's width
+     * @param height the raster's height
+     * @param index  the index object to which the results are to be assigned
+     */
+    void computeCornerBasedIndex(double x, double y, int width, int height, Index index);
+
+    /**
      * Performs the actual resampling operation.
      * If a sample value could not be computed at the given index, e.g. in case of missing data,
      * the method returns the special value {@link Float#NaN}.

@@ -54,4 +54,37 @@ public class NearestNeighbourResamplingTest extends TestCase {
         assertEquals(sampleExp, sample, 1e-5f);
     }
 
+    public void testCornerBasedIndex() throws Exception {
+        testCornerIndex(0.5f, 0.0f);
+        testCornerIndex(0.5f, 2.0f);
+        testCornerIndex(4.5f, 0.0f);
+        testCornerIndex(0.5f, 3.9f);
+        testCornerIndex(2.5f, 1.0f);
+        testCornerIndex(4.5f, 4.0f);
+        testCornerIndex(2.9f, 2.9f);
+    }
+
+    private void testCornerIndex(final float x, final float y) throws Exception{
+
+        final Resampling.Index index = resampling.createIndex();
+        resampling.computeCornerBasedIndex(x, y, raster.getWidth(), raster.getHeight(), index);
+
+        final Resampling.Index indexExp = resampling.createIndex();
+        computeExpectedIndex(x, y, raster.getWidth(), raster.getHeight(), indexExp);
+
+        assertEquals(indexExp.i0, index.i0);
+        assertEquals(indexExp.j0, index.j0);
+    }
+
+    private void computeExpectedIndex(
+            final double x, final double y, final int width, final int height, final Resampling.Index index) {
+        index.x = x;
+        index.y = y;
+        index.width = width;
+        index.height = height;
+
+        index.i0 = Resampling.Index.crop((int) Math.round(x), width - 1);
+        index.j0 = Resampling.Index.crop((int) Math.round(y), height - 1);
+    }
+
 }

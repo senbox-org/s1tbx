@@ -77,6 +77,14 @@ final class CubicConvolutionResampling implements Resampling {
         }
     }
 
+    // Compute resampling index for given coordinate without pixel center intensity assumption.
+    // Adding 0.5 to coordinates to counter the consideration of pixel center in base function.
+    public final void computeCornerBasedIndex(
+            final double x, final double y, final int width, final int height, final Index index) {
+
+        computeIndex(x + 0.5, y + 0.5, width, height, index);
+    }
+
     public final double resample(final Raster raster,
                                  final Index index) throws Exception {
 
