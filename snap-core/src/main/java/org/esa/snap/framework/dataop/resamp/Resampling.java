@@ -20,7 +20,8 @@ package org.esa.snap.framework.dataop.resamp;
  * An interface used to implement different resampling strategies.
  *
  * @author Norman Fomferra
- * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
+ * @author Jun Lu
+ * @author Luis Veci
  */
 public interface Resampling {
 
@@ -74,6 +75,9 @@ public interface Resampling {
 
     /**
      * Computes the index's properties for the given non-pixel coordinate without pixel center intensity assumption.
+     * <p/>
+     * The default implementation omputes the resampling index for given coordinate without pixel center intensity assumption.
+     * It adds 0.5 to coordinates to counter the consideration of pixel center in base function.
      *
      * @param x      the raster's x coordinate
      * @param y      the raster's y coordinate
@@ -81,7 +85,9 @@ public interface Resampling {
      * @param height the raster's height
      * @param index  the index object to which the results are to be assigned
      */
-    void computeCornerBasedIndex(double x, double y, int width, int height, Index index);
+    default void computeCornerBasedIndex(double x, double y, int width, int height, Index index)  {
+        computeIndex(x + 0.5, y + 0.5, width, height, index);
+    }
 
     /**
      * Performs the actual resampling operation.
