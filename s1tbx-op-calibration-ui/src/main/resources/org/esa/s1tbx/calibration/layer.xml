@@ -45,6 +45,17 @@
                 <attr name="helpId" stringvalue="importXCAProduct"/>
                 <attr name="ShortDescription" stringvalue="Import an ENVISAT External Calibration."/>
             </file>
+            <file name="org-esa-s1tbx-calibration-gpf-Sentinel1MaskBorderGRDOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="S-1 Mask Border GRD"/>
+                <attr name="operatorName" stringvalue="Sentinel1-Mask-Border-GRD"/>
+                <attr name="dialogTitle" stringvalue="S-1 Mask Border GRD"/>
+                <attr name="targetProductNameSuffix"  stringvalue="_Msk"/>
+                <attr name="ShortDescription" stringvalue="Mask no-value pixels for S-1 Level-1 GRD product"/>
+                <attr name="helpId" stringvalue="Sentinel1MaskBorderGRDOp"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
         </folder>
     </folder>
 
@@ -68,6 +79,10 @@
                 <file name="org-esa-s1tbx-calibration-gpf-importXCAProduct-Action.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-calibration-gpf-importXCAProduct-Action.instance"/>
                     <attr name="position" intvalue="400"/>
+                </file>
+                <file name="org-esa-s1tbx-calibration-gpf-Sentinel1MaskBorderGRDOp.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-calibration-gpf-Sentinel1MaskBorderGRDOp-Action.instance"/>
+                    <attr name="position" intvalue="320"/>
                 </file>
             </folder>
         </folder>
