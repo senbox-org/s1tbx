@@ -936,10 +936,13 @@ public class ImageManager {
                             width = product.getSceneRasterWidth();
                             height = product.getSceneRasterHeight();
                         }
-                        return VirtualBandOpImage.createMask(expression,
-                                                             product,
-                                                             width, height,
-                                                             ResolutionLevel.create(getModel(), level));
+                        return new VirtualBandOpImage.Builder()
+                                .mask(true)
+                                .expression(expression)
+                                .source(product)
+                                .sourceSize(new Dimension(width, height))
+                                .level(ResolutionLevel.create(getModel(), level))
+                                .create();
                     }
                 };
                 mli = new DefaultMultiLevelImage(mls);

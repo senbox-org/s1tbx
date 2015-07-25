@@ -26,6 +26,7 @@ import org.esa.snap.jai.ImageManager;
 import org.esa.snap.jai.ResolutionLevel;
 import org.esa.snap.jai.VirtualBandOpImage;
 
+import java.awt.Dimension;
 import java.awt.image.RenderedImage;
 import java.util.AbstractSet;
 import java.util.Iterator;
@@ -62,12 +63,20 @@ class VirtualBandMultiLevelImage extends DefaultMultiLevelImage implements Produ
         final MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
             @Override
             public RenderedImage createImage(int level) {
-                return VirtualBandOpImage.create(expression,
-                                                 associatedNode.getDataType(),
-                                                 associatedNode.isNoDataValueUsed() ? associatedNode.getGeophysicalNoDataValue() : null,
-                                                 associatedNode.getProduct(),
-                                                 associatedNode.getRasterWidth(), associatedNode.getRasterHeight(),
-                                                 ResolutionLevel.create(getModel(), level));
+                Product product = associatedNode.getProduct();
+                int dataType = associatedNode.getDataType();
+                Number fillValue = associatedNode.isNoDataValueUsed() ? associatedNode.getGeophysicalNoDataValue() : null;
+                Dimension size = new Dimension(associatedNode.getRasterWidth(),
+                                               associatedNode.getRasterHeight());
+                return new VirtualBandOpImage.Builder()
+                        .expression(expression)
+                        .source(product)
+                        .dataType(dataType)
+                        .fillValue(fillValue)
+                        .mask(false)
+                        .sourceSize(size)
+                        .level(ResolutionLevel.create(getModel(), level))
+                        .create();
             }
         };
         return new VirtualBandMultiLevelImage(multiLevelSource, expression, associatedNode.getProduct()) {

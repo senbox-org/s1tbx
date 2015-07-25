@@ -40,6 +40,7 @@ import org.esa.snap.util.StringUtils;
 import org.jdom.Element;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Shape;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
@@ -258,24 +259,10 @@ public class Mask extends Band {
          */
         @Override
         public MultiLevelImage createImage(final Mask mask) {
-            final MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(mask);
-            final MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
-                @Override
-                public RenderedImage createImage(int level) {
-                    return VirtualBandOpImage.createMask(getExpression(mask),
-                                                         mask.getProduct(),
-                                                         mask.getRasterWidth(), mask.getRasterHeight(),
-                                                         ResolutionLevel.create(getModel(), level));
-                }
-            };
-            return new VirtualBandMultiLevelImage(multiLevelSource, getExpression(mask), mask.getProduct()) {
-                @Override
-                public void reset() {
-                    super.reset();
-                    mask.fireProductNodeDataChanged();
-                }
-            };
+            String expression = getExpression(mask);
+            return createMultiLevelImage(mask, expression);
         }
+
 
         @Override
         public boolean canTransferMask(Mask mask, Product product) {
@@ -497,23 +484,11 @@ public class Mask extends Band {
 
         @Override
         public MultiLevelImage createImage(final Mask mask) {
-            final MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(mask);
-            final MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
-                @Override
-                public RenderedImage createImage(int level) {
-                    return VirtualBandOpImage.createMask(getExpression(mask),
-                                                         mask.getProduct(),
-                                                         mask.getRasterWidth(), mask.getRasterHeight(),
-                                                         ResolutionLevel.create(getModel(), level));
-                }
-            };
-            return new VirtualBandMultiLevelImage(multiLevelSource, getExpression(mask), mask.getProduct()) {
-                @Override
-                public void reset() {
-                    super.reset();
-                    mask.fireProductNodeDataChanged();
-                }
-            };
+            return createMaskImage(mask);
+        }
+
+        protected static MultiLevelImage createMaskImage(final Mask mask) {
+            return createMultiLevelImage(mask, getExpression(mask));
         }
 
         @Override
@@ -625,5 +600,28 @@ public class Mask extends Band {
             foundName = name + "_" + index;
         }
         return foundName;
+    }
+
+    protected static MultiLevelImage createMultiLevelImage(final Mask mask, final String expression) {
+        MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(mask);
+        MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
+            @Override
+            public RenderedImage createImage(int level) {
+                return new VirtualBandOpImage.Builder()
+                        .mask(true)
+                        .expression(expression)
+                        .source(mask.getProduct())
+                        .sourceSize(new Dimension(mask.getRasterWidth(), mask.getRasterHeight()))
+                        .level(ResolutionLevel.create(getModel(), level))
+                        .create();
+            }
+        };
+        return new VirtualBandMultiLevelImage(multiLevelSource, expression, mask.getProduct()) {
+            @Override
+            public void reset() {
+                super.reset();
+                mask.fireProductNodeDataChanged();
+            }
+        };
     }
 }

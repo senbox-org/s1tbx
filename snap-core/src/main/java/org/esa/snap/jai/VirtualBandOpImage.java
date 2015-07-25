@@ -29,6 +29,7 @@ import org.esa.snap.framework.dataop.barithm.RasterDataSymbol;
 import org.esa.snap.util.ImageUtils;
 
 import javax.media.jai.PlanarImage;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.DataBuffer;
@@ -43,6 +44,8 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * An {@code OpImage} which retrieves its data from the product reader associated with the
  * given {@code RasterDataNode} at a given pyramid level.
+ *
+ * @author Norman Fomferra
  */
 public class VirtualBandOpImage extends SingleBandedOpImage {
 
@@ -59,182 +62,159 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
 
     private volatile NoDataRaster noDataRaster;
 
-    public static VirtualBandOpImage createMask(String expression,
-                                                Product product,
-                                                ResolutionLevel level) {
-        return createMask(expression,
-                          product,
-                          product.getSceneRasterWidth(),
-                          product.getSceneRasterHeight(),
-                          level);
-    }
+    /**
+     * Used to create instances of {@link VirtualBandOpImage}s.
+     *
+     * @author Norman Fomferra
+     */
+    public static class Builder {
+        private String expression;
+        private Integer dataType;
+        private Number fillValue;
+        private Boolean mask;
+        private Integer contextSourceIndex;
+        private Product source;
+        private Product[] sources;
+        private Dimension sourceSize;
+        private Dimension tileSize;
+        private Map imageConfig;
+        private ResolutionLevel level;
 
-    public static VirtualBandOpImage createMask(String expression,
-                                                Product product,
-                                                int width, int height,
-                                                ResolutionLevel level) {
-        return create(expression,
-                      ProductData.TYPE_UINT8,
-                      null,
-                      true,
-                      product,
-                      width, height,
-                      level);
-    }
-
-    public static VirtualBandOpImage createMask(String expression,
-                                                Product[] products,
-                                                int defaultProductIndex,
-                                                int width, int height,
-                                                ResolutionLevel level) {
-        return create(expression,
-                      ProductData.TYPE_UINT8,
-                      null,
-                      true,
-                      products,
-                      defaultProductIndex,
-                      width, height,
-                      level);
-    }
-
-
-    public static VirtualBandOpImage create(String expression,
-                                            int dataType,
-                                            Number fillValue,
-                                            Product product,
-                                            ResolutionLevel level) {
-        return create(expression,
-                      dataType,
-                      fillValue,
-                      false,
-                      product,
-                      product.getSceneRasterWidth(),
-                      product.getSceneRasterHeight(),
-                      level);
-    }
-
-    public static VirtualBandOpImage create(String expression,
-                                            int dataType,
-                                            Number fillValue,
-                                            Product product,
-                                            int width, int height,
-                                            ResolutionLevel level) {
-        return create(expression,
-                      dataType,
-                      fillValue,
-                      false,
-                      product,
-                      width, height,
-                      level);
-    }
-
-    public static VirtualBandOpImage create(String expression,
-                                            int dataType,
-                                            Number fillValue,
-                                            Product[] products,
-                                            int defaultProductIndex,
-                                            ResolutionLevel level) {
-        return create(expression,
-                      dataType,
-                      fillValue,
-                      false,
-                      products,
-                      defaultProductIndex,
-                      products[defaultProductIndex].getSceneRasterWidth(),
-                      products[defaultProductIndex].getSceneRasterHeight(),
-                      level);
-    }
-
-    public static VirtualBandOpImage create(String expression,
-                                            int dataType,
-                                            Number fillValue,
-                                            Product[] products,
-                                            int defaultProductIndex,
-                                            int width, int height,
-                                            ResolutionLevel level) {
-        return create(expression,
-                      dataType,
-                      fillValue,
-                      false,
-                      products,
-                      defaultProductIndex, width, height,
-                      level);
-    }
-
-    private static VirtualBandOpImage create(String expression,
-                                             int dataType,
-                                             Number fillValue,
-                                             boolean mask,
-                                             Product product,
-                                             int width, int height,
-                                             ResolutionLevel level) {
-        Assert.notNull(product, "product");
-        Assert.notNull(level, "level");
-
-        final Product[] products;
-        final int defaultProductIndex;
-        if (product.getProductManager() != null) {
-            products = product.getProductManager().getProducts();
-            defaultProductIndex = product.getProductManager().getProductIndex(product);
-        } else {
-            products = new Product[]{product};
-            defaultProductIndex = 0;
+        public Builder() {
         }
-        Assert.state(defaultProductIndex >= 0 && defaultProductIndex < products.length);
-        Assert.state(products[defaultProductIndex] == product);
 
-        return create(expression,
-                      dataType,
-                      fillValue,
-                      mask,
-                      products,
-                      defaultProductIndex,
-                      width, height,
-                      level);
-    }
+        public Builder expression(String expression) {
+            Assert.notNull(expression, "expression");
+            Assert.argument(!expression.trim().isEmpty(), "!expression.trim().isEmpty()");
+            this.expression = expression;
+            return this;
+        }
 
-    private static VirtualBandOpImage create(String expression,
-                                             int dataType,
-                                             Number fillValue,
-                                             boolean mask,
-                                             Product[] products,
-                                             int defaultProductIndex,
-                                             int width, int height,
-                                             ResolutionLevel level) {
-        Assert.notNull(expression, "expression");
-        Assert.notNull(products, "products");
-        Assert.argument(products.length > 0, "products");
-        Assert.argument(defaultProductIndex >= 0, "defaultProductIndex");
-        Assert.argument(defaultProductIndex < products.length, "defaultProductIndex");
-        Assert.notNull(level, "level");
+        public Builder dataType(int dataType) {
+            this.dataType = dataType;
+            return this;
+        }
 
-        return new VirtualBandOpImage(expression,
-                                      dataType,
-                                      fillValue,
-                                      mask,
-                                      products,
-                                      width, height,
-                                      defaultProductIndex,
-                                      level);
+        public Builder fillValue(Number fillValue) {
+            this.fillValue = fillValue;
+            return this;
+        }
+
+        public Builder mask(boolean mask) {
+            this.mask = mask;
+            return this;
+        }
+
+        public Builder source(Product source) {
+            Assert.notNull(source, "source");
+            this.source = source;
+            return this;
+        }
+
+        public Builder sources(Product... sources) {
+            return sources(0, sources);
+        }
+
+        public Builder sources(int contextSourceIndex, Product... sources) {
+            Assert.argument(contextSourceIndex >= 0, "contextSourceIndex >= 0");
+            Assert.argument(sources.length > 0, "sources.length > 0");
+            for (int i = 0; i < sources.length; i++) {
+                Assert.argument(sources[i] != null, "sources[" + i + "] != null");
+            }
+            this.contextSourceIndex = contextSourceIndex;
+            this.sources = sources;
+            return this;
+        }
+
+        public Builder sourceSize(Dimension sourceSize) {
+            Assert.notNull(sourceSize, "sourceSize");
+            this.sourceSize = sourceSize;
+            return this;
+        }
+
+        public Builder tileSize(Dimension tileSize) {
+            Assert.notNull(tileSize, "tileSize");
+            this.tileSize = tileSize;
+            return this;
+        }
+
+        public Builder imageConfig(Map imageConfig) {
+            this.imageConfig = imageConfig;
+            return this;
+        }
+
+        public Builder level(ResolutionLevel level) {
+            Assert.notNull(level, "level");
+            this.level = level;
+            return this;
+        }
+
+        public VirtualBandOpImage create() {
+            Assert.state(expression != null, "expression != null");
+            Assert.state(!(source == null && sources == null), "!(source == null && sources == null)");
+            if (Boolean.TRUE.equals(mask) && dataType != null) {
+                Assert.state(dataType.equals(ProductData.TYPE_UINT8), "dataType.equals(ProductData.TYPE_UINT8)");
+            }
+
+            Product[] sources;
+            int contextSourceIndex;
+            if (this.source != null && this.sources == null) {
+                if (this.source.getProductManager() != null) {
+                    sources = this.source.getProductManager().getProducts();
+                    contextSourceIndex = this.source.getProductManager().getProductIndex(this.source);
+                } else {
+                    sources = new Product[]{this.source};
+                    contextSourceIndex = 0;
+                }
+            } else {
+                sources = this.sources;
+                contextSourceIndex = this.contextSourceIndex != null ? this.contextSourceIndex : 0;
+            }
+
+            Assert.state(sources.length > 0, "sources.length > 0");
+            Assert.state(contextSourceIndex >= 0, "contextSourceIndex >= 0");
+            Assert.state(contextSourceIndex < sources.length, "contextSourceIndex < sources.length");
+            // todo - [multisize_products] check expression/sources for compatibility
+
+            boolean mask = this.mask != null ? this.mask : false;
+            int dataType = this.dataType != null ? this.dataType : (mask ? ProductData.TYPE_UINT8 : ProductData.TYPE_FLOAT32);
+            Product contextSource = sources[contextSourceIndex];
+            int sourceWidth = sourceSize != null ? sourceSize.width : contextSource.getSceneRasterWidth();
+            int sourceHeight = sourceSize != null ? sourceSize.height : contextSource.getSceneRasterHeight();
+            // todo - [multisize_products] tile size shall fit to width / height
+            Dimension tileSize = this.tileSize != null ? this.tileSize : contextSource.getPreferredTileSize();
+            ResolutionLevel level = this.level != null ? this.level : ResolutionLevel.MAXRES;
+            return new VirtualBandOpImage(expression,
+                                          dataType,
+                                          fillValue,
+                                          mask,
+                                          contextSourceIndex,
+                                          sources,
+                                          sourceWidth,
+                                          sourceHeight,
+                                          tileSize,
+                                          imageConfig,
+                                          level);
+        }
     }
 
     private VirtualBandOpImage(String expression,
                                int dataType,
                                Number fillValue,
                                boolean mask,
-                               Product[] products,
-                               int width, int height,
                                int defaultProductIndex,
+                               Product[] products,
+                               int sourceWidth,
+                               int sourceHeight,
+                               Dimension tileSize,
+                               Map imageConfig,
                                ResolutionLevel level) {
         super(ImageManager.getDataBufferType(dataType),
-              width,
-              height,
-              // todo - [multisize_products] tile size shall fit to width / height
-              products[defaultProductIndex].getPreferredTileSize(),
-              null,
+              sourceWidth,
+              sourceHeight,
+              tileSize,
+              imageConfig,
               level);
-
-        // todo - check products for compatibility
         this.expression = expression;
         this.dataType = dataType;
         this.mask = mask;
@@ -272,6 +252,10 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
     @Override
     public Raster computeTile(int tileX, int tileY) {
         final Term term = parseExpression();
+        // todo - addDataToReferredRasterDataSymbols() makes wrong assumptions wrt its return value!       (nf, 2015-07-25)
+        //        Consider expr "A < 0 ? B : C" --> if C is a no-data tile at (tileX,tileY), then computeTile()
+        //        will return a noDataRaster, regardless of A's actual pixel values.
+        //
         if (addDataToReferredRasterDataSymbols(getTileRect(tileX, tileY), term)) {
             termMap.put(new Point(tileX, tileY), term);
             return super.computeTile(tileX, tileY);
@@ -311,26 +295,24 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
                     productData.setElemUIntAt(k + l, term.evalB(env) ? TRUE : FALSE);
                 }
             }
-        } else {
-            if (fillValue != null) {
-                final double fv = fillValue.doubleValue();
-                for (int i = 0, k = w * y; i < pixelCount; i += colCount, k += w) {
-                    for (int j = 0, l = x; j < colCount; j++, l++) {
-                        env.setElemIndex(i + j);
-                        final double v = term.evalD(env);
-                        if (Double.isNaN(v) || Double.isInfinite(v)) {
-                            productData.setElemDoubleAt(k + l, fv);
-                        } else {
-                            productData.setElemDoubleAt(k + l, v);
-                        }
+        } else if (fillValue != null) {
+            final double fv = fillValue.doubleValue();
+            for (int i = 0, k = w * y; i < pixelCount; i += colCount, k += w) {
+                for (int j = 0, l = x; j < colCount; j++, l++) {
+                    env.setElemIndex(i + j);
+                    final double v = term.evalD(env);
+                    if (Double.isNaN(v) || Double.isInfinite(v)) {
+                        productData.setElemDoubleAt(k + l, fv);
+                    } else {
+                        productData.setElemDoubleAt(k + l, v);
                     }
                 }
-            } else {
-                for (int i = 0, k = w * y; i < pixelCount; i += colCount, k += w) {
-                    for (int j = 0, l = x; j < colCount; j++, l++) {
-                        env.setElemIndex(i + j);
-                        productData.setElemDoubleAt(k + l, term.evalD(env));
-                    }
+            }
+        } else {
+            for (int i = 0, k = w * y; i < pixelCount; i += colCount, k += w) {
+                for (int j = 0, l = x; j < colCount; j++, l++) {
+                    env.setElemIndex(i + j);
+                    productData.setElemDoubleAt(k + l, term.evalD(env));
                 }
             }
         }

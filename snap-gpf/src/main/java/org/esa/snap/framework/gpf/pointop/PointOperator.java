@@ -452,6 +452,7 @@ public abstract class PointOperator extends Operator {
                                                       getSourceProduct().getSceneRasterWidth(),
                                                       getSourceProduct().getSceneRasterHeight(),
                                                       expression);
+            // todo - Marco Z, please explain if-block (nf, 20150725)
             if (sourceProducts.length > 1) {
                 virtualBand.setSourceImage(createVirtualImage(dataType, expression, sourceProducts));
             }
@@ -469,12 +470,12 @@ public abstract class PointOperator extends Operator {
             MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
                 @Override
                 public RenderedImage createImage(int level) {
-                    return VirtualBandOpImage.create(expression,
-                                                     dataType,
-                                                     null,
-                                                     sourceProducts,
-                                                     0,
-                                                     ResolutionLevel.create(getModel(), level));
+                    return new VirtualBandOpImage.Builder()
+                            .expression(expression)
+                            .dataType(dataType)
+                            .sources(0, sourceProducts)
+                            .level(ResolutionLevel.create(getModel(), level))
+                            .create();
                 }
             };
             return new DefaultMultiLevelImage(multiLevelSource);
