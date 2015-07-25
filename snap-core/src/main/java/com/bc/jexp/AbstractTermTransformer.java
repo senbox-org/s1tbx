@@ -6,10 +6,7 @@ package com.bc.jexp;
  *
  * @author Norman Fomferra
  */
-public abstract class AbstractTermTransformer implements TermConverter {
-    public Term apply(Term arg) {
-        return arg.accept(this);
-    }
+public abstract class AbstractTermTransformer implements TermTransformer {
 
     @Override
     public Term visit(Term.ConstB term) {

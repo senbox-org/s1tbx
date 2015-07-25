@@ -1,7 +1,7 @@
 package com.bc.jexp.impl;
 
 import com.bc.jexp.Term;
-import com.bc.jexp.TermConverter;
+import com.bc.jexp.TermTransformer;
 
 import static com.bc.jexp.Term.ConstD.eq;
 
@@ -10,8 +10,9 @@ import static com.bc.jexp.Term.ConstD.eq;
  *
  * @author Norman Fomferra
  */
-public class TermSimplifier implements TermConverter {
+public class TermSimplifier implements TermTransformer {
 
+    @Override
     public Term apply(Term term) {
         return term.accept(this);
     }

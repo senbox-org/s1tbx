@@ -3,7 +3,7 @@ package org.esa.snap.framework.dataop.barithm;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Symbol;
 import com.bc.jexp.Term;
-import com.bc.jexp.TermConverter;
+import com.bc.jexp.TermTransformer;
 import com.bc.jexp.WritableNamespace;
 import com.bc.jexp.impl.Functions;
 import com.bc.jexp.impl.ParserImpl;
@@ -27,7 +27,7 @@ public class RangeUncertaintyGenerator implements UncertaintyGenerator {
         return new TermDecompiler().decompile(result);
     }
 
-    private class RangeUncertaintyTransformer implements TermConverter {
+    private class RangeUncertaintyTransformer implements TermTransformer {
         private final TermSimplifier simplifier = new TermSimplifier();
         private final String relation;
 
@@ -35,6 +35,7 @@ public class RangeUncertaintyGenerator implements UncertaintyGenerator {
             this.relation = relation;
         }
 
+        @Override
         public Term apply(Term term) {
             return simplifier.apply(term.accept(this));
         }

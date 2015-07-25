@@ -3,7 +3,7 @@ package com.bc.jexp.impl;
 import com.bc.jexp.Function;
 import com.bc.jexp.Symbol;
 import com.bc.jexp.Term;
-import com.bc.jexp.TermConverter;
+import com.bc.jexp.TermTransformer;
 
 import static com.bc.jexp.impl.TermFactory.add;
 import static com.bc.jexp.impl.TermFactory.c;
@@ -21,7 +21,7 @@ import static com.bc.jexp.impl.TermFactory.sub;
  * @author Norman Fomferra
  * @since SNAP 2
  */
-public class TermDerivator implements TermConverter {
+public class TermDerivator implements TermTransformer {
     private final TermSimplifier simplifier;
     private final Symbol variable;
 
@@ -41,6 +41,7 @@ public class TermDerivator implements TermConverter {
      * @return The derivative.
      * @throws UnsupportedOperationException if the derivative could not be computed
      */
+    @Override
     public Term apply(Term term) {
         //return term.accept(this);
         Term derivative = term.accept(this);
