@@ -1166,8 +1166,8 @@ public final class TOPSARDeburstOp extends Operator {
         for (int i = firstSubSwathIndex; i <= lastSubSwathIndex; i++) {
             int i_1 = i - 1;
             info = subSwath[i_1];
-            if (targetLineTime >= info.firstLineTime &&
-                    targetLineTime <= info.lastLineTime &&
+            if (targetLineTime >= info.firstValidLineTime &&
+                    targetLineTime <= info.lastValidLineTime &&
                     targetSampleSlrTime >= info.slrTimeToFirstValidPixel &&
                     targetSampleSlrTime <= info.slrTimeToLastValidPixel) {
 
