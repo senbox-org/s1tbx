@@ -31,7 +31,6 @@ import org.esa.snap.framework.datamodel.RasterDataNode;
  * The resulting term in this case is an instance of <code>{@link com.bc.jexp.Term.Ref}</code>.
  *
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
- * @version $Revision$ $Date$
  */
 public class RasterDataSymbol implements Symbol {
 
@@ -73,6 +72,12 @@ public class RasterDataSymbol implements Symbol {
         this.source = source;
     }
 
+    @Override
+    @SuppressWarnings("CloneDoesntCallSuperClone")
+    public RasterDataSymbol clone() {
+        return new RasterDataSymbol(symbolName, symbolType, raster, source);
+    }
+
     private static int computeSymbolType(RasterDataNode raster, Source source) {
         if (raster instanceof Mask) {
             return Term.TYPE_B;
@@ -81,8 +86,10 @@ public class RasterDataSymbol implements Symbol {
         boolean isFloatingPointType = ProductData.isFloatingPointType(dataType);
         boolean isScaled = raster.isScalingApplied();
         switch (source) {
-            case RAW: return isFloatingPointType ? Term.TYPE_D : Term.TYPE_I;
-            case GEOPHYSICAL: return isScaled || isFloatingPointType ? Term.TYPE_D : Term.TYPE_I;
+            case RAW:
+                return isFloatingPointType ? Term.TYPE_D : Term.TYPE_I;
+            case GEOPHYSICAL:
+                return isScaled || isFloatingPointType ? Term.TYPE_D : Term.TYPE_I;
         }
         throw new IllegalArgumentException("Source not supported: " + source);
     }
@@ -104,7 +111,6 @@ public class RasterDataSymbol implements Symbol {
 
     /**
      * @return The source image type.
-     *
      * @since BEAM 4.7
      */
     public Source getSource() {
