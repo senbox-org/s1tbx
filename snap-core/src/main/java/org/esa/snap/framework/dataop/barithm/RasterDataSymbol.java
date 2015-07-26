@@ -32,7 +32,7 @@ import org.esa.snap.framework.datamodel.RasterDataNode;
  *
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
  */
-public class RasterDataSymbol implements Symbol {
+public class RasterDataSymbol implements Symbol, Cloneable {
 
     public static final Source RAW = Source.RAW;
     public static final Source GEOPHYSICAL = Source.GEOPHYSICAL;
@@ -70,12 +70,6 @@ public class RasterDataSymbol implements Symbol {
         this.symbolType = symbolType;
         this.raster = raster;
         this.source = source;
-    }
-
-    @Override
-    @SuppressWarnings("CloneDoesntCallSuperClone")
-    public RasterDataSymbol clone() {
-        return new RasterDataSymbol(symbolName, symbolType, raster, source);
     }
 
     private static int computeSymbolType(RasterDataNode raster, Source source) {
@@ -155,5 +149,14 @@ public class RasterDataSymbol implements Symbol {
     public String evalS(EvalEnv env) throws EvalException {
         final double value = evalD(env);
         return Double.toString(value);
+    }
+
+    @Override
+    public RasterDataSymbol clone() {
+        try {
+            return (RasterDataSymbol) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new IllegalStateException(e);
+        }
     }
 }

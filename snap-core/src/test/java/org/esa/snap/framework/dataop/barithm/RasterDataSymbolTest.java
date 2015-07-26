@@ -19,41 +19,61 @@ package org.esa.snap.framework.dataop.barithm;
 import com.bc.jexp.Term;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.datamodel.RasterDataNode;
+import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
+/**
+ * @author Norman
+ * @author Marco
+ */
 public class RasterDataSymbolTest {
+
+    private Band floatBand;
+    private RasterDataSymbol fgeo;
+    private RasterDataSymbol fraw;
+    private Band scaledIntBand;
+    private RasterDataSymbol sigeo;
+    private RasterDataSymbol siraw;
+
+    @Before
+    public void setUp() throws Exception {
+        floatBand = new Band("floatBand", ProductData.TYPE_FLOAT32, 1, 1);
+        fgeo = new RasterDataSymbol("fgeo", floatBand, RasterDataSymbol.Source.GEOPHYSICAL);
+        fraw = new RasterDataSymbol("fraw", floatBand, RasterDataSymbol.Source.RAW);
+        scaledIntBand = new Band("scaledIntBand", ProductData.TYPE_INT16, 1, 1);
+        scaledIntBand.setScalingFactor(5f);
+        sigeo = new RasterDataSymbol("sigeo", scaledIntBand, RasterDataSymbol.Source.GEOPHYSICAL);
+        siraw = new RasterDataSymbol("siraw", scaledIntBand, RasterDataSymbol.Source.RAW);
+    }
 
     @Test
     public void testConstructor() throws Exception {
-        Band floatBand = new Band("floatBand", ProductData.TYPE_FLOAT32, 1, 1);
+        test(fgeo, "fgeo", Term.TYPE_D, floatBand, RasterDataSymbol.Source.GEOPHYSICAL);
+        test(fraw, "fraw", Term.TYPE_D, floatBand, RasterDataSymbol.Source.RAW);
+        test(sigeo, "sigeo", Term.TYPE_D, scaledIntBand, RasterDataSymbol.Source.GEOPHYSICAL);
+        test(siraw, "siraw", Term.TYPE_I, scaledIntBand, RasterDataSymbol.Source.RAW);
+    }
 
-        RasterDataSymbol fgeo = new RasterDataSymbol("fgeo", floatBand, RasterDataSymbol.Source.GEOPHYSICAL);
-        assertEquals("fgeo", fgeo.getName());
-        assertSame(floatBand, fgeo.getRaster());
-        assertEquals(Term.TYPE_D, fgeo.getRetType());
-        assertEquals(RasterDataSymbol.Source.GEOPHYSICAL, fgeo.getSource());
+    @Test
+    public void testClone() throws Exception {
+        test(fgeo.clone(), "fgeo", Term.TYPE_D, floatBand, RasterDataSymbol.Source.GEOPHYSICAL);
+        test(fraw.clone(), "fraw", Term.TYPE_D, floatBand, RasterDataSymbol.Source.RAW);
+        test(sigeo.clone(), "sigeo", Term.TYPE_D, scaledIntBand, RasterDataSymbol.Source.GEOPHYSICAL);
+        test(siraw.clone(), "siraw", Term.TYPE_I, scaledIntBand, RasterDataSymbol.Source.RAW);
+    }
 
-        RasterDataSymbol fraw = new RasterDataSymbol("fraw", floatBand, RasterDataSymbol.Source.RAW);
-        assertEquals("fraw", fraw.getName());
-        assertSame(floatBand, fraw.getRaster());
-        assertEquals(Term.TYPE_D, fraw.getRetType());
-        assertEquals(RasterDataSymbol.Source.RAW, fraw.getSource());
-
-        Band scaledIntBand = new Band("scaledIntBand", ProductData.TYPE_INT16, 1, 1);
-        scaledIntBand.setScalingFactor(5f);
-
-        RasterDataSymbol sigeo = new RasterDataSymbol("sigeo", scaledIntBand, RasterDataSymbol.Source.GEOPHYSICAL);
-        assertEquals("sigeo", sigeo.getName());
-        assertSame(scaledIntBand, sigeo.getRaster());
-        assertEquals(Term.TYPE_D, sigeo.getRetType());
-        assertEquals(RasterDataSymbol.Source.GEOPHYSICAL, sigeo.getSource());
-
-        RasterDataSymbol siraw = new RasterDataSymbol("siraw", scaledIntBand, RasterDataSymbol.Source.RAW);
-        assertEquals("siraw", siraw.getName());
-        assertSame(scaledIntBand, siraw.getRaster());
-        assertEquals(Term.TYPE_I, siraw.getRetType());
-        assertEquals(RasterDataSymbol.Source.RAW, siraw.getSource());
+    static void test(RasterDataSymbol sym,
+                     String expName,
+                     int expType,
+                     RasterDataNode expRaster,
+                     RasterDataSymbol.Source expSource) {
+        assertEquals(expName, sym.getName());
+        assertSame(expRaster, sym.getRaster());
+        assertEquals(expType, sym.getRetType());
+        assertEquals(expSource, sym.getSource());
     }
 }
