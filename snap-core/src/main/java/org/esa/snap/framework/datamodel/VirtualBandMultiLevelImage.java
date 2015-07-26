@@ -16,12 +16,15 @@
 
 package org.esa.snap.framework.datamodel;
 
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
-import com.bc.jexp.ParseException;
+import com.bc.jexp.Term;
+import org.esa.snap.framework.dataop.barithm.BandArithmetic;
+import org.esa.snap.framework.dataop.barithm.RasterDataSymbol;
 import org.esa.snap.jai.ImageManager;
 import org.esa.snap.jai.ResolutionLevel;
 import org.esa.snap.jai.VirtualBandOpImage;
@@ -38,13 +41,16 @@ import java.util.WeakHashMap;
  * A {@link MultiLevelImage} computed from band maths. The {@link VirtualBandMultiLevelImage}
  * resets itself whenever any referred raster data have changed.
  *
+ * @author Norman Fomferra
  * @author Ralf Quast
- * @version $Revision$ $Date$
  * @since BEAM 4.7
  */
 class VirtualBandMultiLevelImage extends DefaultMultiLevelImage implements ProductNodeListener {
 
     private final Map<Product, Set<ProductNode>> nodeMap = new WeakHashMap<>();
+    //private final Term term;
+    private final WeakHashSet<Product> referencedProducts;
+    private final WeakHashSet<RasterDataNode> referencedRasters;
 
     /**
      * Creates a new {@link MultiLevelImage} computed from raster data arithmetics. The image
@@ -59,27 +65,25 @@ class VirtualBandMultiLevelImage extends DefaultMultiLevelImage implements Produ
      * @return the {@code MultiLevelImage} created.
      */
     static MultiLevelImage create(final String expression, final RasterDataNode associatedNode) {
-        final MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(associatedNode);
-        final MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
+        Term term = VirtualBandOpImage.parseExpression(expression, associatedNode.getProduct());
+        int dataType = associatedNode.getDataType();
+        Number fillValue = associatedNode.isNoDataValueUsed() ? associatedNode.getGeophysicalNoDataValue() : null;
+        Dimension sourceSize = new Dimension(associatedNode.getRasterWidth(),
+                                             associatedNode.getRasterHeight());
+        MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(associatedNode);
+        MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
             @Override
             public RenderedImage createImage(int level) {
-                Product product = associatedNode.getProduct();
-                int dataType = associatedNode.getDataType();
-                Number fillValue = associatedNode.isNoDataValueUsed() ? associatedNode.getGeophysicalNoDataValue() : null;
-                Dimension size = new Dimension(associatedNode.getRasterWidth(),
-                                               associatedNode.getRasterHeight());
-                return new VirtualBandOpImage.Builder()
-                        .expression(expression)
-                        .source(product)
+                return VirtualBandOpImage.builder(term)
                         .dataType(dataType)
                         .fillValue(fillValue)
                         .mask(false)
-                        .sourceSize(size)
+                        .sourceSize(sourceSize)
                         .level(ResolutionLevel.create(getModel(), level))
                         .create();
             }
         };
-        return new VirtualBandMultiLevelImage(multiLevelSource, expression, associatedNode.getProduct()) {
+        return new VirtualBandMultiLevelImage(term, multiLevelSource) {
             @Override
             public void reset() {
                 super.reset();
@@ -89,39 +93,42 @@ class VirtualBandMultiLevelImage extends DefaultMultiLevelImage implements Produ
     }
 
     /**
-     * Creates a new {@link MultiLevelImage} computed from raster data arithmetics. The created
-     * image resets itsself whenever any referred raster data have changed.
+     * Creates a new {@link MultiLevelImage} computed from band math. The created
+     * image resets itself whenever any referred rasters change.
      *
-     * @param multiLevelSource the multi-level image source
-     * @param expression       the raster data arithmetic expression.
-     * @param product          the parent of the raster data node(s) referred in {@code expression}.
+     * @param term          A compiled band math expression.
+     * @param multiLevelSource A multi-level image source
      */
-    VirtualBandMultiLevelImage(MultiLevelSource multiLevelSource, String expression, Product product) {
+    VirtualBandMultiLevelImage(Term term, MultiLevelSource multiLevelSource) {
         super(multiLevelSource);
-        try {
-            final RasterDataNode[] nodes = product.getRefRasterDataNodes(expression);
-            if (nodes.length > 0) {
-                for (final RasterDataNode node : nodes) {
-                    if (!nodeMap.containsKey(node.getProduct())) {
-                        nodeMap.put(node.getProduct(), new WeakHashSet<>());
-                    }
-                    nodeMap.get(node.getProduct()).add(node);
-                }
-                for (final Product key : nodeMap.keySet()) {
-                    key.addProductNodeListener(this);
-                }
-            }
-        } catch (ParseException e) {
-            // ignore, we do not need to listen to raster data nodes
+        Assert.notNull(term, "term");
+        Assert.notNull(multiLevelSource, "multiLevelSource");
+        //this.term = term;
+        RasterDataNode[] refRasters = getRefRasters(term);
+        referencedProducts = new WeakHashSet<>();
+        referencedRasters = new WeakHashSet<>();
+        for (RasterDataNode refRaster : refRasters) {
+            referencedProducts.add(refRaster.getProduct());
+            referencedRasters.add(refRaster);
         }
+        for (Product referencedProduct : referencedProducts) {
+            referencedProduct.addProductNodeListener(this);
+        }
+    }
+
+    // todo - move to BandArithmetic
+    public static RasterDataNode[] getRefRasters(Term ...terms) {
+        RasterDataSymbol[] referencedSymbols = BandArithmetic.getRefRasterDataSymbols(terms);
+        return BandArithmetic.getRefRasters(referencedSymbols);
     }
 
     @Override
     public void dispose() {
-        for (final Product key : nodeMap.keySet()) {
-            key.removeProductNodeListener(this);
+        for (Product referencedProduct : referencedProducts) {
+            referencedProduct.removeProductNodeListener(this);
         }
-        nodeMap.clear();
+        referencedProducts.clear();
+        referencedRasters.clear();
         super.dispose();
     }
 
@@ -131,9 +138,10 @@ class VirtualBandMultiLevelImage extends DefaultMultiLevelImage implements Produ
 
     @Override
     public void nodeDataChanged(ProductNodeEvent event) {
-        final Product product = event.getSourceNode().getProduct();
-        if (nodeMap.containsKey(product)) {
-            if (nodeMap.get(product).contains(event.getSourceNode())) {
+        ProductNode sourceNode = event.getSourceNode();
+        if (sourceNode instanceof RasterDataNode) {
+            RasterDataNode rasterDataNode = (RasterDataNode) sourceNode;
+            if (referencedRasters.contains(rasterDataNode)) {
                 reset();
             }
         }
@@ -148,8 +156,13 @@ class VirtualBandMultiLevelImage extends DefaultMultiLevelImage implements Produ
     }
 
     // use for testing only
-    Map<Product, Set<ProductNode>> getNodeMap() {
-        return nodeMap;
+    public Set<Product> getReferencedProducts() {
+        return referencedProducts;
+    }
+
+    // use for testing only
+    public Set<RasterDataNode> getReferencedRasters() {
+        return referencedRasters;
     }
 
     // implementation copied from {@code HashSet}

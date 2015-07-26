@@ -28,6 +28,8 @@ import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.jai.operator.PaintDescriptor;
 import com.bc.ceres.jai.operator.ReinterpretDescriptor;
+import com.bc.jexp.ParseException;
+import com.bc.jexp.Term;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.ColorPaletteDef;
 import org.esa.snap.framework.datamodel.GeoCoding;
@@ -43,6 +45,7 @@ import org.esa.snap.framework.datamodel.RasterDataNode;
 import org.esa.snap.framework.datamodel.Scene;
 import org.esa.snap.framework.datamodel.SceneFactory;
 import org.esa.snap.framework.datamodel.Stx;
+import org.esa.snap.framework.dataop.barithm.BandArithmetic;
 import org.esa.snap.util.Debug;
 import org.esa.snap.util.ImageUtils;
 import org.esa.snap.util.IntMap;
@@ -901,22 +904,32 @@ public class ImageManager {
         return PlanarImage.wrapRenderedImage(image);
     }
 
-    public RenderedImage getMaskImage(final Product product, final RasterDataNode rasterDataNode, final String expression, int level) {
+    public RenderedImage getMaskImage(Product product, RasterDataNode rasterDataNode, String expression, int level) {
         MultiLevelImage mli = getMaskImage(expression, product, rasterDataNode);
         return mli.getImage(level);
     }
 
     @Deprecated
-    public MultiLevelImage getMaskImage(final String expression, final Product product) {
+    public MultiLevelImage getMaskImage(String expression, Product product) {
         // todo - [multisize_products] fix: rasterDataNode arg is null --> product scene raster image layout will be used!! (nf)
         return getMaskImage(expression, product, null);
     }
 
-    public MultiLevelImage getMaskImage(final String expression, final Product product, final RasterDataNode rasterDataNode) {
+    public MultiLevelImage getMaskImage(String expression, Product product, RasterDataNode rasterDataNode)  {
         synchronized (maskImageMap) {
-            final MaskKey key = new MaskKey(product, expression);
+            MaskKey key = new MaskKey(product, expression);
             MultiLevelImage mli = maskImageMap.get(key);
             if (mli == null) {
+                Term term = VirtualBandOpImage.parseExpression(expression, product);
+                int sourceWidth;
+                int sourceHeight;
+                if (rasterDataNode != null) {
+                    sourceWidth = rasterDataNode.getSceneRasterWidth();
+                    sourceHeight = rasterDataNode.getSceneRasterHeight();
+                } else {
+                    sourceWidth = product.getSceneRasterWidth();
+                    sourceHeight = product.getSceneRasterHeight();
+                }
                 MultiLevelModel multiLevelModel;
                 if (rasterDataNode != null) {
                     multiLevelModel = rasterDataNode.getSourceImage().getModel();
@@ -927,20 +940,9 @@ public class ImageManager {
 
                     @Override
                     public RenderedImage createImage(int level) {
-                        final int width;
-                        final int height;
-                        if (rasterDataNode != null) {
-                            width = rasterDataNode.getSceneRasterWidth();
-                            height = rasterDataNode.getSceneRasterHeight();
-                        } else {
-                            width = product.getSceneRasterWidth();
-                            height = product.getSceneRasterHeight();
-                        }
-                        return new VirtualBandOpImage.Builder()
+                        return VirtualBandOpImage.builder(term)
                                 .mask(true)
-                                .expression(expression)
-                                .source(product)
-                                .sourceSize(new Dimension(width, height))
+                                .sourceSize(new Dimension(sourceWidth, sourceHeight))
                                 .level(ResolutionLevel.create(getModel(), level))
                                 .create();
                     }

@@ -28,6 +28,7 @@ import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.jexp.ParseException;
+import com.bc.jexp.Term;
 import com.bc.jexp.impl.Tokenizer;
 import org.esa.snap.dataio.dimap.DimapProductConstants;
 import org.esa.snap.dataio.dimap.DimapProductHelpers;
@@ -603,20 +604,19 @@ public class Mask extends Band {
     }
 
     protected static MultiLevelImage createMultiLevelImage(final Mask mask, final String expression) {
+        Term term = VirtualBandOpImage.parseExpression(expression, mask.getProduct());
         MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(mask);
         MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
             @Override
             public RenderedImage createImage(int level) {
-                return new VirtualBandOpImage.Builder()
+                return VirtualBandOpImage.builder(term)
                         .mask(true)
-                        .expression(expression)
-                        .source(mask.getProduct())
                         .sourceSize(new Dimension(mask.getRasterWidth(), mask.getRasterHeight()))
                         .level(ResolutionLevel.create(getModel(), level))
                         .create();
             }
         };
-        return new VirtualBandMultiLevelImage(multiLevelSource, expression, mask.getProduct()) {
+        return new VirtualBandMultiLevelImage(term, multiLevelSource) {
             @Override
             public void reset() {
                 super.reset();

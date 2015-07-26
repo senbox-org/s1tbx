@@ -342,12 +342,10 @@ public class MosaicOp extends Operator {
         final MultiLevelImage sourceImage = product.getBandAt(0).getSourceImage();
         final ResolutionLevel resolutionLevel = ResolutionLevel.create(sourceImage.getModel(), 0);
         final float fillValue = 0.0f;
-        return new VirtualBandOpImage.Builder()
-                .expression(expression)
+        return VirtualBandOpImage.builder(expression, product)
                 .dataType(ProductData.TYPE_FLOAT32)
                 .fillValue(fillValue)
                 .mask(false)
-                .source(product)
                 .level(resolutionLevel)
                 .create();
     }

@@ -22,6 +22,8 @@ import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
+import com.bc.jexp.ParseException;
+import com.bc.jexp.Term;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.ConvolutionFilterBand;
 import org.esa.snap.framework.datamodel.GeneralFilterBand;
@@ -31,6 +33,7 @@ import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductNodeFilter;
 import org.esa.snap.framework.datamodel.RasterDataNode;
 import org.esa.snap.framework.datamodel.VirtualBand;
+import org.esa.snap.framework.dataop.barithm.BandArithmetic;
 import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.Tile;
@@ -40,6 +43,7 @@ import org.esa.snap.jai.VirtualBandOpImage;
 import org.esa.snap.util.ProductUtils;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
@@ -466,14 +470,15 @@ public abstract class PointOperator extends Operator {
                     throw new IllegalArgumentException(String.format("Product '%s' has no assigned reference number.", sourceProduct.getName()));
                 }
             }
+            Term term = VirtualBandOpImage.parseExpression(expression, 0, sourceProducts);
+            Dimension sourceSize = sourceProducts[0].getSceneRasterSize();
             MultiLevelModel multiLevelModel = ImageManager.createMultiLevelModel(sourceProducts[0]);
             MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
                 @Override
                 public RenderedImage createImage(int level) {
-                    return new VirtualBandOpImage.Builder()
-                            .expression(expression)
+                    return VirtualBandOpImage.builder(term)
                             .dataType(dataType)
-                            .sources(0, sourceProducts)
+                            .sourceSize(sourceSize)
                             .level(ResolutionLevel.create(getModel(), level))
                             .create();
                 }
