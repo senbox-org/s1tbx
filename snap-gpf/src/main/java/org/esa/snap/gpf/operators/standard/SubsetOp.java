@@ -37,7 +37,6 @@ import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.RasterDataNode;
 import org.esa.snap.framework.datamodel.VirtualBand;
 import org.esa.snap.framework.dataop.barithm.BandArithmetic;
-import org.esa.snap.framework.dataop.barithm.RasterDataSymbol;
 import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.OperatorSpi;
@@ -58,7 +57,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
-import static java.lang.Math.*;
+import static java.lang.Math.ceil;
+import static java.lang.Math.floor;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 /**
  * This operator is used to create either spatial and/or spectral subsets of a data product.
@@ -246,15 +248,12 @@ public class SubsetOp extends Operator {
         }
         try {
             final Term term = sourceProduct.parseExpression(expression);
-            final RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
-            final RasterDataNode[] refRasters = BandArithmetic.getRefRasters(refRasterDataSymbols);
-            if (refRasters.length > 0) {
-                for (RasterDataNode refRaster : refRasters) {
-                    final String refNodeName = refRaster.getName();
-                    if (!referencedNodeNames.contains(refNodeName)) {
-                        referencedNodeNames.add(refNodeName);
-                        collectReferencedRastersInExpression(refNodeName, referencedNodeNames);
-                    }
+            final RasterDataNode[] refRasters = BandArithmetic.getRefRasters(term);
+            for (RasterDataNode refRaster : refRasters) {
+                final String refNodeName = refRaster.getName();
+                if (!referencedNodeNames.contains(refNodeName)) {
+                    referencedNodeNames.add(refNodeName);
+                    collectReferencedRastersInExpression(refNodeName, referencedNodeNames);
                 }
             }
         } catch (ParseException e) {

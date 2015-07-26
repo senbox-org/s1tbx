@@ -231,7 +231,7 @@ public class MosaicOp extends Operator {
     }
 
     private static String createValidMaskExpression(Product product, final String expression) throws ParseException {
-        return BandArithmetic.getValidMaskExpression(expression, new Product[]{product}, 0, null);
+        return BandArithmetic.getValidMaskExpression(expression, product, null);
     }
 
     private List<RenderedImage> createMosaicImages(List<List<RenderedImage>> sourceImageList,

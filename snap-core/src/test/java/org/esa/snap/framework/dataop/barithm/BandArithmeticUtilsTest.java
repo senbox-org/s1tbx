@@ -61,13 +61,13 @@ public class BandArithmeticUtilsTest {
 
         String vme;
 
-        vme = BandArithmetic.getValidMaskExpression("c + w * q - w", new Product[]{p1}, 0, null);
+        vme = BandArithmetic.getValidMaskExpression("c + w * q - w", p1, null);
         assertEquals("(f.CLOUD && !f.INVALID) " + "&& (f.WATER && !f.INVALID)", vme);
 
-        vme = BandArithmetic.getValidMaskExpression("c + w * q - w", new Product[]{p1}, 0, "");
+        vme = BandArithmetic.getValidMaskExpression("c + w * q - w", p1, "");
         assertEquals("(f.CLOUD && !f.INVALID) " + "&& (f.WATER && !f.INVALID)", vme);
 
-        vme = BandArithmetic.getValidMaskExpression("c + w * q - w", new Product[]{p1}, 0, "c >= 0.0");
+        vme = BandArithmetic.getValidMaskExpression("c + w * q - w", p1, "c >= 0.0");
         assertEquals("(c >= 0.0) " + "&& (f.CLOUD && !f.INVALID) " + "&& (f.WATER && !f.INVALID)", vme);
 
         Product p2 = createProduct(fc, 2);
