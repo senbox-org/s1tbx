@@ -508,11 +508,10 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
                 final int x = maskImage.getMinX() + pixelX;
                 final int y = maskImage.getMinY() + pixelY;
                 final int maskTileX = PlanarImage.XToTileX(x, maskImage.getTileGridXOffset(), maskImage.getTileWidth());
-                final int maskTileY = PlanarImage.YToTileY(y, maskImage.getTileGridYOffset(),
-                                                           maskImage.getTileHeight());
+                final int maskTileY = PlanarImage.YToTileY(y, maskImage.getTileGridYOffset(), maskImage.getTileHeight());
                 final int maskValue = maskImage.getTile(maskTileX, maskTileY).getSample(x, y, 0);
                 if (maskValue == 0) {
-                    return Float.NaN;
+                    return Double.NaN;
                 }
             }
             final int x = dataImage.getMinX() + pixelX;
