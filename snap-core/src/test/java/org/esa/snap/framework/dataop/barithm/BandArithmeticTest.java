@@ -164,11 +164,11 @@ public class BandArithmeticTest {
         product1.addBand(anotherBand);
         String[] incompatibleExpressions = new String[]{"b1", "b2", "anotherBand"};
 
-        assertEquals(true, BandArithmetic.areReferencedRastersOfSameSize(product1));
-        assertEquals(true, BandArithmetic.areReferencedRastersOfSameSize(product1, "b1"));
-        assertEquals(true, BandArithmetic.areReferencedRastersOfSameSize(product1, compatibleExpressions));
-        assertEquals(true, BandArithmetic.areReferencedRastersOfSameSize(product1, "anotherBand"));
-        assertEquals(false, BandArithmetic.areReferencedRastersOfSameSize(product1, incompatibleExpressions));
+        assertEquals(true, BandArithmetic.areRastersEqualInSize(product1));
+        assertEquals(true, BandArithmetic.areRastersEqualInSize(product1, "b1"));
+        assertEquals(true, BandArithmetic.areRastersEqualInSize(product1, compatibleExpressions));
+        assertEquals(true, BandArithmetic.areRastersEqualInSize(product1, "anotherBand"));
+        assertEquals(false, BandArithmetic.areRastersEqualInSize(product1, incompatibleExpressions));
     }
 
     @Test
@@ -176,6 +176,6 @@ public class BandArithmeticTest {
         final TiePointGrid tiePointGrid = new TiePointGrid("tiePointGrid", 2, 2, 0, 0, 2, 1, new float[]{1f, 1f, 1f, 1f});
         product1.addTiePointGrid(tiePointGrid);
 
-        assertEquals(true, BandArithmetic.areReferencedRastersOfSameSize(product1, "b1", "tiePointGrid"));
+        assertEquals(true, BandArithmetic.areRastersEqualInSize(product1, "b1", "tiePointGrid"));
     }
 }

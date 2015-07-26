@@ -1621,7 +1621,7 @@ public class Product extends ProductNode {
             return false;
         }
 
-        if (!BandArithmetic.areReferencedRastersOfSameSize(term)) {
+        if (!BandArithmetic.areRastersEqualInSize(term)) {
             return false;
         }
 
@@ -2176,7 +2176,7 @@ public class Product extends ProductNode {
     public Mask addMask(String maskName, String expression, String description, Color color, double transparency) {
         RasterDataNode[] refRasters = new RasterDataNode[0];
         try {
-            if (BandArithmetic.areReferencedRastersOfSameSize(this, expression)) {
+            if (BandArithmetic.areRastersEqualInSize(this, expression)) {
                 refRasters = BandArithmetic.getRefRasters(expression, this);
             }
         } catch (ParseException e) {

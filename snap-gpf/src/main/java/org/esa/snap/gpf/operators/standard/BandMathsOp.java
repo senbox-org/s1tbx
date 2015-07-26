@@ -345,7 +345,7 @@ public class BandMathsOp extends Operator {
         final RasterDataNode[] rasters;
         try {
             final Term term = verificationParser.parse(bandDescriptor.expression);
-            if (!BandArithmetic.areReferencedRastersOfSameSize(term)) {
+            if (!BandArithmetic.areRastersEqualInSize(term)) {
                 throw new OperatorException("Referenced rasters must all be the same size: " +
                                                     bandDescriptor.expression);
             }

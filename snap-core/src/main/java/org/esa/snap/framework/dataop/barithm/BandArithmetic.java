@@ -104,7 +104,7 @@ public class BandArithmetic {
         final Namespace namespace = createDefaultNamespace(products, defaultProductIndex);
         final Parser parser = new ParserImpl(namespace, false);
         final Term term = parser.parse(expression);
-        if (!areReferencedRastersOfSameSize(term)) {
+        if (!areRastersEqualInSize(term)) {
             throw new ParseException("Referenced rasters must be of same size");
         }
         return term;
@@ -431,10 +431,11 @@ public class BandArithmetic {
 
     /**
      * Determines whether all rasters which are referenced in a term are compatible.
+     *
      * @param term The term in question
      * @return true if the rasters are compatible
      */
-    public static boolean areReferencedRastersOfSameSize(Term term) {
+    public static boolean areRastersEqualInSize(Term term) {
         final RasterDataSymbol[] rasterDataSymbols = getRefRasterDataSymbols(term);
         if (rasterDataSymbols.length > 1) {
             int referenceWidth = rasterDataSymbols[0].getRaster().getSceneRasterWidth();
@@ -450,12 +451,13 @@ public class BandArithmetic {
     }
 
     /**
-     * Determines whether all rasters which are referenced in a set of expressions are compatible.
+     * Determines whether all rasters which are referenced in the given expressions are compatible.
+     *
      * @param product The product to which the expressions refer
      * @param expressions the expressions in question
      * @return true if all referenced rasters are compatible
      */
-    public static boolean areReferencedRastersOfSameSize(Product product, String... expressions) {
+    public static boolean areRastersEqualInSize(Product product, String... expressions) {
         if (expressions.length == 0) {
             return true;
         }
@@ -466,7 +468,7 @@ public class BandArithmetic {
             for (String expression : expressions) {
                 final RasterDataNode[] refRasters = getRefRasters(expression, productAsArray, 0);
                 if (refRasters.length > 0) {
-                    if (!areReferencedRastersOfSameSize(parseExpression(expression, productAsArray, 0))) {
+                    if (!areRastersEqualInSize(parseExpression(expression, productAsArray, 0))) {
                         return false;
                     }
                     if (referenceWidth == -1) {
