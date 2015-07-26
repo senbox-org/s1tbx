@@ -257,15 +257,15 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
             int y0 = (int) Math.floor(pixelPos.getY());
 
             if (fractionAccuracy) {
-                if (x0 > 0 && pixelPos.x - x0 < 0.5f || x0 == rasterW - 1) {
+                if (x0 > 0 && pixelPos.x - x0 < 0.5 || x0 == rasterW - 1) {
                     x0 -= 1;
                 }
-                if (y0 > 0 && pixelPos.y - y0 < 0.5f || y0 == rasterH - 1) {
+                if (y0 > 0 && pixelPos.y - y0 < 0.5 || y0 == rasterH - 1) {
                     y0 -= 1;
                 }
 
-                final double wx = pixelPos.x - (x0 + 0.5f);
-                final double wy = pixelPos.y - (y0 + 0.5f);
+                final double wx = pixelPos.x - (x0 + 0.5);
+                final double wy = pixelPos.y - (y0 + 0.5);
 
                 dataProvider.getGeoPosDouble(x0, y0, wx, wy, geoPos);
             } else {
@@ -508,11 +508,10 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
                 final int x = maskImage.getMinX() + pixelX;
                 final int y = maskImage.getMinY() + pixelY;
                 final int maskTileX = PlanarImage.XToTileX(x, maskImage.getTileGridXOffset(), maskImage.getTileWidth());
-                final int maskTileY = PlanarImage.YToTileY(y, maskImage.getTileGridYOffset(),
-                                                           maskImage.getTileHeight());
+                final int maskTileY = PlanarImage.YToTileY(y, maskImage.getTileGridYOffset(), maskImage.getTileHeight());
                 final int maskValue = maskImage.getTile(maskTileX, maskTileY).getSample(x, y, 0);
                 if (maskValue == 0) {
-                    return Float.NaN;
+                    return Double.NaN;
                 }
             }
             final int x = dataImage.getMinX() + pixelX;
@@ -533,9 +532,9 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
         ArrayDataProvider(RasterDataNode lonBand, RasterDataNode latBand, PlanarImage maskImage) {
             width = lonBand.getSceneRasterWidth();
             int height = lonBand.getSceneRasterHeight();
-            MultiLevelImage lonImage = ImageManager.createMaskedGeophysicalImage(lonBand, Float.NaN);
+            MultiLevelImage lonImage = ImageManager.createMaskedGeophysicalImage(lonBand, Double.NaN);
             lonData = lonImage.getData().getSamples(0, 0, width, height, 0, (double[]) null);
-            MultiLevelImage latImage = ImageManager.createMaskedGeophysicalImage(latBand, Float.NaN);
+            MultiLevelImage latImage = ImageManager.createMaskedGeophysicalImage(latBand, Double.NaN);
             latData = latImage.getData().getSamples(0, 0, width, height, 0, (double[]) null);
             if (maskImage != null) {
                 final int[] maskValues = maskImage.getData().getSamples(0, 0, width, height, 0, (int[]) null);

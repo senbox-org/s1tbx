@@ -106,7 +106,7 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
     private static final int MAX_SEARCH_CYCLES = 10;
 
     // TODO - (nf) make EPS for quad-tree search dependent on current scene
-    private static final float EPS = 0.04F; // used by quad-tree search
+    private static final double EPS = 0.04; // used by quad-tree search
     private static final boolean TRACE = false;
     private static final double D2R = Math.PI / 180.0;
 
@@ -1126,7 +1126,7 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
 
     private static class Result {
 
-        public static final float INVALID = Float.MAX_VALUE;
+        public static final double INVALID = Double.MAX_VALUE;
 
         private int x;
         private int y;
