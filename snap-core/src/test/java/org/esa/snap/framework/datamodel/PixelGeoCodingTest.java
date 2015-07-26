@@ -28,6 +28,7 @@ import javax.media.jai.operator.CropDescriptor;
 import java.awt.Rectangle;
 import java.awt.image.Raster;
 import java.io.IOException;
+import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
@@ -380,12 +381,14 @@ public class PixelGeoCodingTest {
         latBand.setRasterData(ProductData.createInstance(createBandData(latGrid)));
         lonBand.setRasterData(ProductData.createInstance(createBandData(lonGrid)));
         final FlagCoding flagCoding = new FlagCoding("flags");
-        flagCoding.addFlag("valid", 0, "valid pixel");
+        flagCoding.addFlag("valid", 0x01, "valid pixel");
 
         product.getFlagCodingGroup().add(flagCoding);
 
         Band flagomatBand = product.addBand("flagomat", ProductData.TYPE_UINT8);
-        flagomatBand.setRasterData(ProductData.createInstance(ProductData.TYPE_UINT8, PW * PH));
+        byte[] flagomatData = new byte[PW * PH];
+        Arrays.fill(flagomatData, (byte) 0x01);
+        flagomatBand.setRasterData(ProductData.createInstance(ProductData.TYPE_UINT8, flagomatData));
         flagomatBand.setSampleCoding(flagCoding);
 
         product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84));
