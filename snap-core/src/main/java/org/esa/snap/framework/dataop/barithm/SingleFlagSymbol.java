@@ -29,7 +29,6 @@ import org.esa.snap.framework.datamodel.RasterDataNode;
  * The resulting term in this case is an instance of <code>{@link com.bc.jexp.Term.Ref}</code>.
  *
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
- * @version $Revision$ $Date$
  */
 public final class SingleFlagSymbol extends RasterDataSymbol {
 
@@ -60,6 +59,15 @@ public final class SingleFlagSymbol extends RasterDataSymbol {
         return flagMask;
     }
 
+    /**
+     * Returns the flag value used by this symbol.
+     *
+     * @return the flag mask.
+     */
+    public final int getFlagValue() {
+        return flagValue;
+    }
+
     @Override
     public final boolean evalB(final EvalEnv env) throws EvalException {
         final int elemIndex = ((RasterDataEvalEnv) env).getElemIndex();
@@ -76,5 +84,10 @@ public final class SingleFlagSymbol extends RasterDataSymbol {
     public final double evalD(final EvalEnv env) throws EvalException {
         final int elemIndex = ((RasterDataEvalEnv) env).getElemIndex();
         return (data.getElemIntAt(elemIndex) & flagMask) == flagValue ? 1.0 : 0.0;
+    }
+
+    @Override
+    public SingleFlagSymbol clone() {
+        return (SingleFlagSymbol) super.clone();
     }
 }
