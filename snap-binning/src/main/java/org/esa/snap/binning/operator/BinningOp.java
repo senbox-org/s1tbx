@@ -388,6 +388,7 @@ public class BinningOp extends Operator {
         formatterConfig.setOutputFile(outputFile);
         formatterConfig.setOutputFormat(outputFormat);
         formatterConfig.setOutputType(outputType);
+        formatterConfig.setProductCustomizerConfig(productCustomizerConfig);
 
         validateInput();
 
