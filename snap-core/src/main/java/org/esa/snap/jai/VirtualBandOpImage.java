@@ -66,7 +66,7 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
     }
 
     public static Builder builder(String expression, Product source) {
-        return builder(parseExpression(expression, source));
+        return builder(expression, 0, source);
     }
 
     public static Builder builder(String expression, int contextSourceIndex, Product... sources) {
@@ -150,7 +150,6 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
         }
 
         public Builder tileSize(Dimension tileSize) {
-            Assert.notNull(tileSize, "tileSize");
             this.tileSize = tileSize;
             return this;
         }
@@ -161,7 +160,6 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
         }
 
         public Builder level(ResolutionLevel level) {
-            Assert.notNull(level, "level");
             this.level = level;
             return this;
         }

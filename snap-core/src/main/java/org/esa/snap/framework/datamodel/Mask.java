@@ -24,24 +24,16 @@ import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.MultiLevelImage;
-import com.bc.ceres.glevel.MultiLevelModel;
-import com.bc.ceres.glevel.MultiLevelSource;
-import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.jexp.ParseException;
-import com.bc.jexp.Term;
 import com.bc.jexp.impl.Tokenizer;
 import org.esa.snap.dataio.dimap.DimapProductConstants;
 import org.esa.snap.dataio.dimap.DimapProductHelpers;
 import org.esa.snap.framework.dataop.barithm.BandArithmetic;
-import org.esa.snap.jai.ImageManager;
-import org.esa.snap.jai.ResolutionLevel;
-import org.esa.snap.jai.VirtualBandOpImage;
 import org.esa.snap.util.Debug;
 import org.esa.snap.util.StringUtils;
 import org.jdom.Element;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Shape;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
@@ -190,20 +182,20 @@ public class Mask extends Band {
         }
 
         /**
-         * Creates the image.
+         * Creates the mask's source image.
          *
-         * @param mask The mask which requests creation of its image.
+         * @param mask The mask which requests creation of its source image.
          *
          * @return The image.
          */
         public abstract MultiLevelImage createImage(Mask mask);
 
-        public Mask transferMask(Mask mask, Product product) {
-            return null;
-        }
-
         public boolean canTransferMask(Mask mask, Product product) {
             return false;
+        }
+
+        public Mask transferMask(Mask mask, Product product) {
+            return null;
         }
 
         /**
@@ -251,19 +243,10 @@ public class Mask extends Band {
             super(TYPE_NAME);
         }
 
-        /**
-         * Creates the image.
-         *
-         * @param mask The mask which requests creation of its image.
-         *
-         * @return The image.
-         */
         @Override
         public MultiLevelImage createImage(final Mask mask) {
-            String expression = getExpression(mask);
-            return createMultiLevelImage(mask, expression);
+            return VirtualBand.createSourceImage(mask, getExpression(mask));
         }
-
 
         @Override
         public boolean canTransferMask(Mask mask, Product product) {
@@ -485,11 +468,7 @@ public class Mask extends Band {
 
         @Override
         public MultiLevelImage createImage(final Mask mask) {
-            return createMaskImage(mask);
-        }
-
-        protected static MultiLevelImage createMaskImage(final Mask mask) {
-            return createMultiLevelImage(mask, getExpression(mask));
+            return VirtualBand.createSourceImage(mask, getExpression(mask));
         }
 
         @Override
@@ -603,25 +582,4 @@ public class Mask extends Band {
         return foundName;
     }
 
-    protected static MultiLevelImage createMultiLevelImage(final Mask mask, final String expression) {
-        Term term = VirtualBandOpImage.parseExpression(expression, mask.getProduct());
-        MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(mask);
-        MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
-            @Override
-            public RenderedImage createImage(int level) {
-                return VirtualBandOpImage.builder(term)
-                        .mask(true)
-                        .sourceSize(new Dimension(mask.getRasterWidth(), mask.getRasterHeight()))
-                        .level(ResolutionLevel.create(getModel(), level))
-                        .create();
-            }
-        };
-        return new VirtualBandMultiLevelImage(term, multiLevelSource) {
-            @Override
-            public void reset() {
-                super.reset();
-                mask.fireProductNodeDataChanged();
-            }
-        };
-    }
 }

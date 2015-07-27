@@ -24,7 +24,6 @@ import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.jexp.Term;
 import org.esa.snap.framework.dataop.barithm.BandArithmetic;
-import org.esa.snap.framework.dataop.barithm.RasterDataSymbol;
 import org.esa.snap.jai.ImageManager;
 import org.esa.snap.jai.ResolutionLevel;
 import org.esa.snap.jai.VirtualBandOpImage;
@@ -47,56 +46,15 @@ import java.util.WeakHashMap;
  */
 class VirtualBandMultiLevelImage extends DefaultMultiLevelImage implements ProductNodeListener {
 
-    private final Map<Product, Set<ProductNode>> nodeMap = new WeakHashMap<>();
     //private final Term term;
     private final WeakHashSet<Product> referencedProducts;
     private final WeakHashSet<RasterDataNode> referencedRasters;
 
     /**
-     * Creates a new {@link MultiLevelImage} computed from raster data arithmetics. The image
-     * created is reset whenever any referred raster data have changed.
-     * <p>
-     * A 'node data changed' event is fired from the associated {@link RasterDataNode} whenever
-     * the image created is reset.
-     *
-     * @param expression     the raster data arithmetic expression.
-     * @param associatedNode the {@link RasterDataNode} associated with the image being created.
-     *
-     * @return the {@code MultiLevelImage} created.
-     */
-    static MultiLevelImage create(final String expression, final RasterDataNode associatedNode) {
-        Term term = VirtualBandOpImage.parseExpression(expression, associatedNode.getProduct());
-        int dataType = associatedNode.getDataType();
-        Number fillValue = associatedNode.isNoDataValueUsed() ? associatedNode.getGeophysicalNoDataValue() : null;
-        Dimension sourceSize = new Dimension(associatedNode.getRasterWidth(),
-                                             associatedNode.getRasterHeight());
-        MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(associatedNode);
-        MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
-            @Override
-            public RenderedImage createImage(int level) {
-                return VirtualBandOpImage.builder(term)
-                        .dataType(dataType)
-                        .fillValue(fillValue)
-                        .mask(false)
-                        .sourceSize(sourceSize)
-                        .level(ResolutionLevel.create(getModel(), level))
-                        .create();
-            }
-        };
-        return new VirtualBandMultiLevelImage(term, multiLevelSource) {
-            @Override
-            public void reset() {
-                super.reset();
-                associatedNode.fireProductNodeDataChanged();
-            }
-        };
-    }
-
-    /**
      * Creates a new {@link MultiLevelImage} computed from band math. The created
      * image resets itself whenever any referred rasters change.
      *
-     * @param term          A compiled band math expression.
+     * @param term             A compiled band math expression.
      * @param multiLevelSource A multi-level image source
      */
     VirtualBandMultiLevelImage(Term term, MultiLevelSource multiLevelSource) {
@@ -104,7 +62,7 @@ class VirtualBandMultiLevelImage extends DefaultMultiLevelImage implements Produ
         Assert.notNull(term, "term");
         Assert.notNull(multiLevelSource, "multiLevelSource");
         //this.term = term;
-        RasterDataNode[] refRasters = getRefRasters(term);
+        RasterDataNode[] refRasters = BandArithmetic.getRefRasters(term);
         referencedProducts = new WeakHashSet<>();
         referencedRasters = new WeakHashSet<>();
         for (RasterDataNode refRaster : refRasters) {
@@ -114,12 +72,6 @@ class VirtualBandMultiLevelImage extends DefaultMultiLevelImage implements Produ
         for (Product referencedProduct : referencedProducts) {
             referencedProduct.addProductNodeListener(this);
         }
-    }
-
-    // todo - move to BandArithmetic
-    public static RasterDataNode[] getRefRasters(Term ...terms) {
-        RasterDataSymbol[] referencedSymbols = BandArithmetic.getRefRasterDataSymbols(terms);
-        return BandArithmetic.getRefRasters(referencedSymbols);
     }
 
     @Override

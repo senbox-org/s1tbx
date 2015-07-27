@@ -28,7 +28,6 @@ import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.jai.operator.PaintDescriptor;
 import com.bc.ceres.jai.operator.ReinterpretDescriptor;
-import com.bc.jexp.ParseException;
 import com.bc.jexp.Term;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.ColorPaletteDef;
@@ -45,7 +44,6 @@ import org.esa.snap.framework.datamodel.RasterDataNode;
 import org.esa.snap.framework.datamodel.Scene;
 import org.esa.snap.framework.datamodel.SceneFactory;
 import org.esa.snap.framework.datamodel.Stx;
-import org.esa.snap.framework.dataop.barithm.BandArithmetic;
 import org.esa.snap.util.Debug;
 import org.esa.snap.util.ImageUtils;
 import org.esa.snap.util.IntMap;
@@ -915,44 +913,52 @@ public class ImageManager {
         return getMaskImage(expression, product, null);
     }
 
-    public MultiLevelImage getMaskImage(String expression, Product product, RasterDataNode rasterDataNode)  {
+    public MultiLevelImage getMaskImage(String expression, Product product, RasterDataNode associatedRaster) {
         synchronized (maskImageMap) {
             MaskKey key = new MaskKey(product, expression);
             MultiLevelImage mli = maskImageMap.get(key);
             if (mli == null) {
-                Term term = VirtualBandOpImage.parseExpression(expression, product);
-                int sourceWidth;
-                int sourceHeight;
-                if (rasterDataNode != null) {
-                    sourceWidth = rasterDataNode.getSceneRasterWidth();
-                    sourceHeight = rasterDataNode.getSceneRasterHeight();
-                } else {
-                    sourceWidth = product.getSceneRasterWidth();
-                    sourceHeight = product.getSceneRasterHeight();
-                }
-                MultiLevelModel multiLevelModel;
-                if (rasterDataNode != null) {
-                    multiLevelModel = rasterDataNode.getSourceImage().getModel();
-                } else {
-                    multiLevelModel = createMultiLevelModel(product);
-                }
-                MultiLevelSource mls = new AbstractMultiLevelSource(multiLevelModel) {
-
-                    @Override
-                    public RenderedImage createImage(int level) {
-                        return VirtualBandOpImage.builder(term)
-                                .mask(true)
-                                .sourceSize(new Dimension(sourceWidth, sourceHeight))
-                                .level(ResolutionLevel.create(getModel(), level))
-                                .create();
-                    }
-                };
-                mli = new DefaultMultiLevelImage(mls);
+                mli = createMaskMultiLevelImage(expression, product, associatedRaster);
                 product.addProductNodeListener(rasterDataChangeListener);
                 maskImageMap.put(key, mli);
             }
             return mli;
         }
+    }
+
+    private static MultiLevelImage createMaskMultiLevelImage(String expression,
+                                                             Product product,
+                                                             RasterDataNode associatedRaster) {
+        Term term = VirtualBandOpImage.parseExpression(expression, product);
+        Dimension sourceSize;
+        Dimension tileSize;
+        MultiLevelModel multiLevelModel;
+        if (associatedRaster != null) {
+            // It may be better to first check associatedRaster.isSourceImageSet()
+            // so that this method can be generalised to also create source (mask)
+            // images for associatedRaster (nf 2015-07-27).
+            MultiLevelImage sourceImage = associatedRaster.getSourceImage();
+            sourceSize = associatedRaster.getSceneRasterSize();
+            tileSize = new Dimension(sourceImage.getTileWidth(), sourceImage.getTileHeight());
+            multiLevelModel = sourceImage.getModel();
+        } else {
+            sourceSize = product.getSceneRasterSize();
+            tileSize = product.getPreferredTileSize();
+            multiLevelModel = createMultiLevelModel(product);
+        }
+        MultiLevelSource mls = new AbstractMultiLevelSource(multiLevelModel) {
+
+            @Override
+            public RenderedImage createImage(int level) {
+                return VirtualBandOpImage.builder(term)
+                        .mask(true)
+                        .sourceSize(sourceSize)
+                        .tileSize(tileSize)
+                        .level(ResolutionLevel.create(getModel(), level))
+                        .create();
+            }
+        };
+        return new DefaultMultiLevelImage(mls);
     }
 
     public void clearMaskImageCache(Product product) {

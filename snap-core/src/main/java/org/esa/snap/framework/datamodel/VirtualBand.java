@@ -15,12 +15,21 @@
  */
 package org.esa.snap.framework.datamodel;
 
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
+import com.bc.ceres.glevel.MultiLevelModel;
+import com.bc.ceres.glevel.MultiLevelSource;
+import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
+import com.bc.jexp.Term;
 import org.esa.snap.framework.dataio.ProductSubsetDef;
+import org.esa.snap.jai.ImageManager;
+import org.esa.snap.jai.ResolutionLevel;
+import org.esa.snap.jai.VirtualBandOpImage;
 import org.esa.snap.util.Guardian;
 import org.esa.snap.util.StringUtils;
 
+import java.awt.Dimension;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 
@@ -226,10 +235,13 @@ public class VirtualBand extends Band {
 
     @Override
     protected RenderedImage createSourceImage() {
-        return createVirtualSourceImage(this, getExpression());
+        return createSourceImage(this, getExpression());
     }
 
     /**
+     * Create a {@link MultiLevelImage} that computes its pixel values from the given band math expression.
+     * The returned image is intended to be used as source image for the given target raster.
+     * <p/>
      * Non-API.
      *
      * @param raster     The raster data node.
@@ -237,9 +249,38 @@ public class VirtualBand extends Band {
      *
      * @return A multi-level image.
      */
-    public static MultiLevelImage createVirtualSourceImage(final RasterDataNode raster, final String expression) {
-        return VirtualBandMultiLevelImage.create(expression, raster);
+    public static MultiLevelImage createSourceImage(RasterDataNode raster, String expression) {
+        Assert.notNull(raster, "raster");
+        Assert.notNull(expression, "expression");
+        Assert.argument(raster.getProduct() != null, "raster.getProduct() != null");
+        Term term = VirtualBandOpImage.parseExpression(expression, raster.getProduct());
+        Dimension sourceSize = raster.getRasterSize();
+        Dimension tileSize = raster.getProduct().getPreferredTileSize();
+        int dataType = raster.getDataType();
+        Number fillValue = raster.isNoDataValueUsed() ? raster.getGeophysicalNoDataValue() : null;
+        MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(raster);
+        MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
+            @Override
+            public RenderedImage createImage(int level) {
+                return VirtualBandOpImage.builder(term)
+                        .mask(raster instanceof Mask)
+                        .dataType(dataType)
+                        .fillValue(fillValue)
+                        .sourceSize(sourceSize)
+                        .tileSize(tileSize)
+                        .level(ResolutionLevel.create(getModel(), level))
+                        .create();
+            }
+        };
+        return new VirtualBandMultiLevelImage(term, multiLevelSource) {
+            @Override
+            public void reset() {
+                super.reset();
+                raster.fireProductNodeDataChanged();
+            }
+        };
     }
+
 }
 
 

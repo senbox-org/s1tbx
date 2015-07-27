@@ -456,7 +456,10 @@ public abstract class PointOperator extends Operator {
                                                       getSourceProduct().getSceneRasterWidth(),
                                                       getSourceProduct().getSceneRasterHeight(),
                                                       expression);
-            // todo - Marco Z, please explain if-block (nf, 20150725)
+            // Special case:
+            // If there are multiple source products, we must create the source image already now.
+            // Otherwise virtualBand would create its source image on demand - but without the
+            // multi-product context which is required here.
             if (sourceProducts.length > 1) {
                 virtualBand.setSourceImage(createVirtualImage(dataType, expression, sourceProducts));
             }
@@ -471,14 +474,17 @@ public abstract class PointOperator extends Operator {
                 }
             }
             Term term = VirtualBandOpImage.parseExpression(expression, 0, sourceProducts);
-            Dimension sourceSize = sourceProducts[0].getSceneRasterSize();
-            MultiLevelModel multiLevelModel = ImageManager.createMultiLevelModel(sourceProducts[0]);
+            Product contextProduct = sourceProducts[0];
+            Dimension sourceSize = contextProduct.getSceneRasterSize();
+            Dimension tileSize = contextProduct.getPreferredTileSize();
+            MultiLevelModel multiLevelModel = ImageManager.createMultiLevelModel(contextProduct);
             MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
                 @Override
                 public RenderedImage createImage(int level) {
                     return VirtualBandOpImage.builder(term)
                             .dataType(dataType)
                             .sourceSize(sourceSize)
+                            .tileSize(tileSize)
                             .level(ResolutionLevel.create(getModel(), level))
                             .create();
                 }

@@ -20,11 +20,11 @@ import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Term;
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.esa.snap.jai.ImageManager;
 import org.esa.snap.jai.ResolutionLevel;
 import org.esa.snap.jai.VirtualBandOpImage;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.awt.image.RenderedImage;
@@ -99,13 +99,15 @@ public class VirtualBandMultiLevelImageTest {
         assertTrue(image.getReferencedRasters().contains(w));
     }
 
-    @Ignore
     @Test
-    public void nodesAreRemoved() {
-        v.getSourceImage().dispose();
-        w.getSourceImage().dispose();
-        v = null;
-        w = null;
+    public void nodeMapIsCleared() {
+        image.dispose();
+        assertTrue(image.getReferencedProducts().isEmpty());
+        assertTrue(image.getReferencedRasters().isEmpty());
+    }
+
+    @Test
+    public void productRefsAreRemoved() {
 
         p.dispose();
         q.dispose();
@@ -113,24 +115,15 @@ public class VirtualBandMultiLevelImageTest {
         p = null;
         q = null;
 
+        v = null;
+        w = null;
+
         try {
             System.gc();
-            Thread.sleep(1000);
-            System.gc();
-            Thread.sleep(1000);
-            System.gc();
-            Thread.sleep(1000);
+            Thread.sleep(100);
             assertTrue(image.getReferencedProducts().isEmpty());
-            assertTrue(image.getReferencedRasters().isEmpty());
         } catch (Exception e) {
             // ignore
         }
-    }
-
-    @Test
-    public void nodeMapIsCleared() {
-        image.dispose();
-        assertTrue(image.getReferencedProducts().isEmpty());
-        assertTrue(image.getReferencedRasters().isEmpty());
     }
 }
