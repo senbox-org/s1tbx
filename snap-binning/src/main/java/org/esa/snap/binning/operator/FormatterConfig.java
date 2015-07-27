@@ -121,6 +121,14 @@ public class FormatterConfig {
         this.bandConfigurations = bandConfigurations;
     }
 
+    public ProductCustomizerConfig getProductCustomizerConfig() {
+        return productCustomizerConfig;
+    }
+
+    public void setProductCustomizerConfig(ProductCustomizerConfig productCustomizerConfig) {
+        this.productCustomizerConfig = productCustomizerConfig;
+    }
+
     public ProductCustomizer getProductCustomizer() {
         if (productCustomizer == null && productCustomizerConfig != null) {
             TypedDescriptorsRegistry registry = TypedDescriptorsRegistry.getInstance();
