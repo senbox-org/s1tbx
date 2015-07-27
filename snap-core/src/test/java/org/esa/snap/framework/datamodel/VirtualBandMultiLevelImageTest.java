@@ -24,7 +24,6 @@ import org.esa.snap.jai.ImageManager;
 import org.esa.snap.jai.ResolutionLevel;
 import org.esa.snap.jai.VirtualBandOpImage;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.awt.image.RenderedImage;
@@ -59,7 +58,7 @@ public class VirtualBandMultiLevelImageTest {
         Term term = VirtualBandOpImage.parseExpression(expression, p);
 
         MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(v);
-        image = new VirtualBandMultiLevelImage(term, new AbstractMultiLevelSource(multiLevelModel) {
+        image = new VirtualBandMultiLevelImage(new AbstractMultiLevelSource(multiLevelModel) {
             @Override
             public RenderedImage createImage(int level) {
                 return VirtualBandOpImage.builder(term)
@@ -68,7 +67,7 @@ public class VirtualBandMultiLevelImageTest {
                         .sourceSize(p.getSceneRasterSize())
                         .create();
             }
-        });
+        }, term);
     }
 
     @Test

@@ -272,7 +272,7 @@ public class VirtualBand extends Band {
                         .create();
             }
         };
-        return new VirtualBandMultiLevelImage(term, multiLevelSource) {
+        return new VirtualBandMultiLevelImage(multiLevelSource, term) {
             @Override
             public void reset() {
                 super.reset();

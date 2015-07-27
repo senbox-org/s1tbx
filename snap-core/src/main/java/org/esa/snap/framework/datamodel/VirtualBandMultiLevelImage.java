@@ -18,21 +18,13 @@ package org.esa.snap.framework.datamodel;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.MultiLevelImage;
-import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
-import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.jexp.Term;
 import org.esa.snap.framework.dataop.barithm.BandArithmetic;
-import org.esa.snap.jai.ImageManager;
-import org.esa.snap.jai.ResolutionLevel;
-import org.esa.snap.jai.VirtualBandOpImage;
 
-import java.awt.Dimension;
-import java.awt.image.RenderedImage;
 import java.util.AbstractSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
@@ -46,7 +38,7 @@ import java.util.WeakHashMap;
  */
 class VirtualBandMultiLevelImage extends DefaultMultiLevelImage implements ProductNodeListener {
 
-    //private final Term term;
+    private Term term;
     private final WeakHashSet<Product> referencedProducts;
     private final WeakHashSet<RasterDataNode> referencedRasters;
 
@@ -54,38 +46,45 @@ class VirtualBandMultiLevelImage extends DefaultMultiLevelImage implements Produ
      * Creates a new {@link MultiLevelImage} computed from band math. The created
      * image resets itself whenever any referred rasters change.
      *
-     * @param term             A compiled band math expression.
      * @param multiLevelSource A multi-level image source
+     * @param term             A compiled band math expression.
      */
-    VirtualBandMultiLevelImage(Term term, MultiLevelSource multiLevelSource) {
+    VirtualBandMultiLevelImage(MultiLevelSource multiLevelSource, Term term) {
         super(multiLevelSource);
-        Assert.notNull(term, "term");
         Assert.notNull(multiLevelSource, "multiLevelSource");
-        //this.term = term;
-        RasterDataNode[] refRasters = BandArithmetic.getRefRasters(term);
         referencedProducts = new WeakHashSet<>();
         referencedRasters = new WeakHashSet<>();
-        for (RasterDataNode refRaster : refRasters) {
-            referencedProducts.add(refRaster.getProduct());
-            referencedRasters.add(refRaster);
-        }
-        for (Product referencedProduct : referencedProducts) {
-            referencedProduct.addProductNodeListener(this);
+        this.term = term;
+        addTermNodes();
+    }
+
+    public Term getTerm() {
+        return term;
+    }
+
+    public void setTerm(Term term) {
+        Assert.notNull(term, "term");
+        if (this.term != term) {
+            removeTermNodes();
+            this.term = term;
+            addTermNodes();
         }
     }
 
     @Override
     public void dispose() {
-        for (Product referencedProduct : referencedProducts) {
-            referencedProduct.removeProductNodeListener(this);
-        }
-        referencedProducts.clear();
-        referencedRasters.clear();
+        removeTermNodes();
+        term = null;
         super.dispose();
     }
 
     @Override
-    public void nodeChanged(ProductNodeEvent event) {
+    protected void finalize() throws Throwable {
+        super.finalize();
+        if (term != null) {
+            //System.out.printf("%s.finalize(): term = %s%n", getClass().getSimpleName(), term.toString());
+            dispose();
+        }
     }
 
     @Override
@@ -100,6 +99,10 @@ class VirtualBandMultiLevelImage extends DefaultMultiLevelImage implements Produ
     }
 
     @Override
+    public void nodeChanged(ProductNodeEvent event) {
+    }
+
+    @Override
     public void nodeAdded(ProductNodeEvent event) {
     }
 
@@ -108,13 +111,32 @@ class VirtualBandMultiLevelImage extends DefaultMultiLevelImage implements Produ
     }
 
     // use for testing only
-    public Set<Product> getReferencedProducts() {
+    Set<Product> getReferencedProducts() {
         return referencedProducts;
     }
 
     // use for testing only
-    public Set<RasterDataNode> getReferencedRasters() {
+    Set<RasterDataNode> getReferencedRasters() {
         return referencedRasters;
+    }
+
+    private void addTermNodes() {
+        RasterDataNode[] refRasters = BandArithmetic.getRefRasters(term);
+        for (RasterDataNode refRaster : refRasters) {
+            referencedProducts.add(refRaster.getProduct());
+            referencedRasters.add(refRaster);
+        }
+        for (Product referencedProduct : referencedProducts) {
+            referencedProduct.addProductNodeListener(this);
+        }
+    }
+
+    private void removeTermNodes() {
+        for (Product referencedProduct : referencedProducts) {
+            referencedProduct.removeProductNodeListener(this);
+        }
+        referencedProducts.clear();
+        referencedRasters.clear();
     }
 
     // implementation copied from {@code HashSet}
