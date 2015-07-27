@@ -48,7 +48,6 @@ import java.util.Map;
  * This is a preliminary API under construction for BEAM 4.7. Not intended for public use.
  *
  * @author Norman Fomferra
- * @version $Revision$ $Date$
  * @since BEAM 4.7
  */
 public class Mask extends Band {
@@ -70,14 +69,19 @@ public class Mask extends Band {
         super(name, ProductData.TYPE_UINT8, width, height);
         Assert.notNull(imageType, "imageType");
         this.imageType = imageType;
-        this.imageConfigListener = new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                if (isSourceImageSet()) {
-                    getSourceImage().reset();
-                }
-                fireProductNodeChanged(evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
+        this.imageConfigListener = evt -> {
+            if (isSourceImageSet()) {
+                // Added setSourceImage(null), otherwise
+                // org.esa.snap.framework.datamodel.MaskTest.testReassignExpression
+                // cannot work. (nf 2015-07-27)
+                //
+                MultiLevelImage sourceImage = getSourceImage();
+                setSourceImage(null);
+                // The sourceImage.reset() call is left here
+                // so that old level images are removed from JAI tile cache.
+                sourceImage.reset();
             }
+            fireProductNodeChanged(evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
         };
         this.imageConfig = imageType.createImageConfig();
         this.imageConfig.addPropertyChangeListener(imageConfigListener);
@@ -296,7 +300,7 @@ public class Mask extends Band {
 
         private static Map<Mask, Mask> transferReferredMasks(String expression, Product sourceProduct,
                                                              Product targetProduct) {
-            final Map<Mask, Mask> translationMap = new HashMap<Mask, Mask>();
+            final Map<Mask, Mask> translationMap = new HashMap<>();
             final RasterDataNode[] rasters;
             try {
                 rasters = BandArithmetic.getRefRasters(expression, sourceProduct);
@@ -508,13 +512,10 @@ public class Mask extends Band {
             PropertyDescriptor rasterDescriptor = new PropertyDescriptor(PROPERTY_NAME_RASTER, String.class);
             rasterDescriptor.setNotNull(true);
             rasterDescriptor.setNotEmpty(true);
-            rasterDescriptor.setValidator(new Validator() {
-                @Override
-                public void validateValue(Property property, Object value) throws ValidationException {
-                    final String rasterName = String.valueOf(value);
-                    if (!Tokenizer.isExternalName(rasterName)) {
-                        throw new ValidationException(String.format("'%s' is not an external name.", rasterName));
-                    }
+            rasterDescriptor.setValidator((property, value) -> {
+                String rasterName = String.valueOf(value);
+                if (!Tokenizer.isExternalName(rasterName)) {
+                    throw new ValidationException(String.format("'%s' is not an external name.", rasterName));
                 }
             });
 
