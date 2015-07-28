@@ -19,6 +19,7 @@ import Jama.Matrix;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.csa.rstb.classification.rcp.dialogs.ProductGeometrySelectorDialog;
+import org.csa.rstb.polarimetric.gpf.DualPolOpUtils;
 import org.csa.rstb.polarimetric.gpf.PolOpUtils;
 import org.esa.s1tbx.io.PolBandUtils;
 import org.esa.snap.framework.datamodel.Band;
@@ -85,21 +86,26 @@ public class SupervisedTrainingAction extends AbstractAction {
             final ProductGeometrySelectorDialog dlg = new ProductGeometrySelectorDialog("Select Training Geometries");
             dlg.show();
             if (dlg.IsOK()) {
-                final Product quadPolProduct = dlg.getProduct();
-                sourceImageWidth = quadPolProduct.getSceneRasterWidth();
-                sourceImageHeight = quadPolProduct.getSceneRasterHeight();
+                final Product sourceProduct = dlg.getProduct();
+                sourceImageWidth = sourceProduct.getSceneRasterWidth();
+                sourceImageHeight = sourceProduct.getSceneRasterHeight();
 
-                PolBandUtils.MATRIX sourceProductType = PolBandUtils.getSourceProductType(quadPolProduct);
-                if (sourceProductType != PolBandUtils.MATRIX.T3 && sourceProductType != PolBandUtils.MATRIX.C3 &&
-                        sourceProductType != PolBandUtils.MATRIX.FULL) {
-                    SnapDialogs.showError("Quad pol product is expected");
+                PolBandUtils.MATRIX sourceProductType = PolBandUtils.getSourceProductType(sourceProduct);
+                if (sourceProductType != PolBandUtils.MATRIX.T3 &&
+                        sourceProductType != PolBandUtils.MATRIX.C3 &&
+                        sourceProductType != PolBandUtils.MATRIX.FULL &&
+                        sourceProductType != PolBandUtils.MATRIX.DUAL_HH_HV &&
+                        sourceProductType != PolBandUtils.MATRIX.DUAL_VH_VV &&
+                        sourceProductType != PolBandUtils.MATRIX.DUAL_HH_VV &&
+                        sourceProductType != PolBandUtils.MATRIX.C2) {
+                    SnapDialogs.showError("Quad-pol or dual-pol product is expected");
                     return;
                 }
 
                 PolBandUtils.PolSourceBand[] srcBandList =
-                        PolBandUtils.getSourceBands(quadPolProduct, sourceProductType);
+                        PolBandUtils.getSourceBands(sourceProduct, sourceProductType);
 
-                final ProgressMonitorSwingWorker worker = new TrainingSwingWorker(quadPolProduct,
+                final ProgressMonitorSwingWorker worker = new TrainingSwingWorker(sourceProduct,
                         dlg.getRoiProduct(),
                         dlg.getSelectedGeometries(),
                         dlg.getSaveFile(),
@@ -126,7 +132,7 @@ public class SupervisedTrainingAction extends AbstractAction {
 
     private static class TrainingSwingWorker extends ProgressMonitorSwingWorker {
 
-        private final Product quadPolProduct;
+        private final Product sourceProduct;
         private final Product roiProduct;
         private final String[] geometries;
         private final File file;
@@ -135,11 +141,11 @@ public class SupervisedTrainingAction extends AbstractAction {
         private Throwable error;
         private final ProcessTimeMonitor timeMonitor = new ProcessTimeMonitor();
 
-        private TrainingSwingWorker(final Product quadPolProduct, final Product roiProduct,
+        private TrainingSwingWorker(final Product sourceProduct, final Product roiProduct,
                                     final String[] geometries, final File file,
                                     final Band[] sourceBands, final PolBandUtils.MATRIX sourceProductType) {
             super(SnapApp.getDefault().getMainFrame(), "Training...");
-            this.quadPolProduct = quadPolProduct;
+            this.sourceProduct = sourceProduct;
             this.roiProduct = roiProduct;
             this.geometries = geometries;
             this.file = file;
@@ -152,6 +158,8 @@ public class SupervisedTrainingAction extends AbstractAction {
 
             final double[][] Tr = new double[3][3];
             final double[][] Ti = new double[3][3];
+            final double[][] Cr = new double[2][2];
+            final double[][] Ci = new double[2][2];
             PrintStream out = null;
             timeMonitor.start();
 
@@ -213,6 +221,12 @@ public class SupervisedTrainingAction extends AbstractAction {
                                     getMeanCoherencyMatrixFromC3(x, y, sourceBands, Tr, Ti);
                                 } else if (sourceProductType == PolBandUtils.MATRIX.T3) {
                                     getMeanCoherencyMatrixFromT3(x, y, sourceBands, Tr, Ti);
+                                } else if (sourceProductType == PolBandUtils.MATRIX.DUAL_HH_HV ||
+                                        sourceProductType == PolBandUtils.MATRIX.DUAL_VH_VV ||
+                                        sourceProductType == PolBandUtils.MATRIX.DUAL_HH_VV) {
+                                    getMeanCovarianceMatrixFromC2(x, y, sourceBands, Cr, Ci);
+                                } else if (sourceProductType == PolBandUtils.MATRIX.C2) {
+                                    getMeanCovarianceMatrixFromDualPol(x, y, sourceBands, Cr, Ci);
                                 }
 
                                 t11 += Tr[0][0];
@@ -535,6 +549,97 @@ public class SupervisedTrainingAction extends AbstractAction {
         copyMatrix(TiMat, Ti);
     }
 
+    private static void getMeanCovarianceMatrixFromDualPol(final int x, final int y, final Band[] sourceBands,
+                                                          final double[][] Cr, final double[][] Ci) throws Exception {
+
+        final int xSt = Math.max(x - halfWindowSize, 0);
+        final int xEd = Math.min(xSt + windowSize - 1, sourceImageWidth - 1);
+        final int ySt = Math.max(y - halfWindowSize, 0);
+        final int yEd = Math.min(ySt + windowSize - 1, sourceImageHeight - 1);
+        final int w = xEd - xSt + 1;
+        final int h = yEd - ySt + 1;
+        final int num = w * h;
+
+        final double[] K0_i = new double[num];
+        final double[] K0_q = new double[num];
+        final double[] K1_i = new double[num];
+        final double[] K1_q = new double[num];
+
+        sourceBands[0].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, K0_i);
+        sourceBands[1].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, K0_q);
+        sourceBands[2].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, K1_i);
+        sourceBands[3].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, K1_q);
+
+        final Matrix CrMat = new Matrix(2, 2);
+        final Matrix CiMat = new Matrix(2, 2);
+        final double[] tempKr = new double[2];
+        final double[] tempKi = new double[2];
+        double[][] tempCr = new double[2][2];
+        double[][] tempCi = new double[2][2];
+
+        for (int i = 0; i < num; ++i) {
+            tempKr[0] = K0_i[i];
+            tempKi[0] = K0_q[i];
+            tempKr[1] = K1_i[i];
+            tempKi[1] = K1_q[i];
+
+            DualPolOpUtils.computeCovarianceMatrixC2(tempKr, tempKi, tempCr, tempCi);
+
+            CrMat.plusEquals(new Matrix(tempCr));
+            CiMat.plusEquals(new Matrix(tempCi));
+        }
+
+        CrMat.timesEquals(1.0 / num);
+        CiMat.timesEquals(1.0 / num);
+        copyMatrix(CrMat, Cr);
+        copyMatrix(CiMat, Ci);
+    }
+
+    private static void getMeanCovarianceMatrixFromC2(final int x, final int y, final Band[] sourceBands,
+                                                     final double[][] Cr, final double[][] Ci) throws Exception {
+
+        final int xSt = Math.max(x - halfWindowSize, 0);
+        final int xEd = Math.min(xSt + windowSize - 1, sourceImageWidth - 1);
+        final int ySt = Math.max(y - halfWindowSize, 0);
+        final int yEd = Math.min(ySt + windowSize - 1, sourceImageHeight - 1);
+        final int w = xEd - xSt + 1;
+        final int h = yEd - ySt + 1;
+        final int num = w * h;
+
+        final double[] c11 = new double[num];
+        final double[] c12r = new double[num];
+        final double[] c12i = new double[num];
+        final double[] c22 = new double[num];
+
+        sourceBands[0].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c11);
+        sourceBands[1].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c12r);
+        sourceBands[2].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c12i);
+        sourceBands[3].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c22);
+
+        double[][] tempCr = new double[2][2];
+        double[][] tempCi = new double[2][2];
+        final Matrix CrMat = new Matrix(2, 2);
+        final Matrix CiMat = new Matrix(2, 2);
+        for (int i = 0; i < num; ++i) {
+            tempCr[0][0] = c11[i]; // C11 - real
+            tempCi[0][0] = 0.0;    // C11 - imag
+            tempCr[0][1] = c12r[i];// C12 - real
+            tempCi[0][1] = c12i[i];// C12 - imag
+            tempCr[1][1] = c22[i]; // C22 - real
+            tempCi[1][1] = 0.0;    // C22 - imag
+            tempCr[1][0] = tempCr[0][1];
+            tempCi[1][0] = -tempCi[0][1];
+
+            CrMat.plusEquals(new Matrix(tempCr));
+            CiMat.plusEquals(new Matrix(tempCi));
+        }
+
+        CrMat.timesEquals(1.0 / num);
+        CiMat.timesEquals(1.0 / num);
+        copyMatrix(CrMat, Cr);
+        copyMatrix(CiMat, Ci);
+    }
+
     /**
      * copy 3 x 3 matrix with loop unwinding
      *
@@ -542,14 +647,21 @@ public class SupervisedTrainingAction extends AbstractAction {
      * @param T   double[][] output
      */
     private static void copyMatrix(final Matrix mat, final double[][] T) {
-        T[0][0] = mat.get(0, 0);
-        T[0][1] = mat.get(0, 1);
-        T[0][2] = mat.get(0, 2);
-        T[1][0] = mat.get(1, 0);
-        T[1][1] = mat.get(1, 1);
-        T[1][2] = mat.get(1, 2);
-        T[2][0] = mat.get(2, 0);
-        T[2][1] = mat.get(2, 1);
-        T[2][2] = mat.get(2, 2);
+        if (mat.getColumnDimension() == 3) {
+            T[0][0] = mat.get(0, 0);
+            T[0][1] = mat.get(0, 1);
+            T[0][2] = mat.get(0, 2);
+            T[1][0] = mat.get(1, 0);
+            T[1][1] = mat.get(1, 1);
+            T[1][2] = mat.get(1, 2);
+            T[2][0] = mat.get(2, 0);
+            T[2][1] = mat.get(2, 1);
+            T[2][2] = mat.get(2, 2);
+        } else if (mat.getColumnDimension() == 2) {
+            T[0][0] = mat.get(0, 0);
+            T[0][1] = mat.get(0, 1);
+            T[1][0] = mat.get(1, 0);
+            T[1][1] = mat.get(1, 1);
+        }
     }
 }
