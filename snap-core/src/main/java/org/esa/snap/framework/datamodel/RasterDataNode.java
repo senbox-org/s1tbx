@@ -64,6 +64,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.logging.Level;
 import java.util.prefs.BackingStoreException;
 
 /**
@@ -148,9 +149,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     private MultiLevelImage sourceImage;
     private MultiLevelImage geophysicalImage;
-
-    // todo - use instead of validMaskImage, deprecate validMaskImage
-    // private Mask validMask;
     private MultiLevelImage validMaskImage;
 
     private ROI validMaskROI;
@@ -246,6 +244,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (relations2.length == 0) {
             return relation1.equalsIgnoreCase("uncertainty");
         }
+        // IDEA tells me this wont loop - why? (nf)
+        //noinspection LoopStatementThatDoesntLoop
         for (String relation2 : relations2) {
             return relation1.equalsIgnoreCase(relation2);
         }
@@ -436,8 +436,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                             return;
                         }
                     } catch (NoninvertibleTransformException e) {
-                        //todo throw Exception
-                        // can't create SceneRasterTransform
+                        SystemUtils.LOG.log(Level.SEVERE,
+                                            "failed to create SceneRasterTransform for raster '" + getName() + "'", e);
                     }
                 }
             }
@@ -1476,6 +1476,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * @see #writePixels(int, int, int, int, int[], ProgressMonitor)
      */
+    @SuppressWarnings("unused") // may be useful API for scripting languages
     public void writePixels(int x, int y, int w, int h, int[] pixels) throws IOException {
         writePixels(x, y, w, h, pixels, ProgressMonitor.NULL);
     }
@@ -1518,6 +1519,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * @see #writePixels(int, int, int, int, double[], ProgressMonitor)
      */
+    @SuppressWarnings("unused") // may be useful API for scripting languages
     public void writePixels(int x, int y, int w, int h, double[] pixels) throws IOException {
         writePixels(x, y, w, h, pixels, ProgressMonitor.NULL);
     }
@@ -1621,6 +1623,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                                         ProductData rasterData,
                                         ProgressMonitor pm) throws IOException;
 
+    @SuppressWarnings("unused") // may be useful API for scripting languages
     public void writeRasterDataFully() throws IOException {
         writeRasterDataFully(ProgressMonitor.NULL);
     }
@@ -1633,6 +1636,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     public abstract void writeRasterDataFully(ProgressMonitor pm) throws IOException;
 
+    @SuppressWarnings("unused") // may be useful API for scripting languages
     public void writeRasterData(int offsetX, int offsetY, int width, int height, ProductData rasterData)
             throws IOException {
         writeRasterData(offsetX, offsetY, width, height, rasterData, ProgressMonitor.NULL);
@@ -1678,6 +1682,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @return raster data compatible with this product raster
      * @see #createCompatibleRasterData
      */
+    @SuppressWarnings("unused") // may be useful API for scripting languages
     public ProductData createCompatibleSceneRasterData() {
         return createCompatibleRasterData(getSceneRasterWidth(), getSceneRasterHeight());
     }
@@ -1717,6 +1722,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param w          the raster width
      * @param h          the raster height
      */
+    @SuppressWarnings("unused") // may be useful API for scripting languages
     public void checkCompatibleRasterData(ProductData rasterData, int w, int h) {
         if (!isCompatibleRasterData(rasterData, w, h)) {
             throw new IllegalArgumentException("invalid raster data buffer for '" + getName() + "'");
@@ -1943,6 +1949,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @throws IOException if the raster data is not loaded so far and reload causes an I/O error
      * @see #setImageInfo(ImageInfo)
      */
+    @SuppressWarnings("unused") // may be useful API for scripting languages
     public BufferedImage createColorIndexedImage(ProgressMonitor pm) throws IOException {
         return ProductUtils.createColorIndexedImage(this, pm);
     }
@@ -2016,29 +2023,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         }
         return readBuffer;
     }
-
-    /**
-     * Creates a validator which can be used to validate indexes of pixels in a flat raster data buffer.
-     *
-     * @param lineOffset the absolute line offset, zero based
-     * @param roi        an optional ROI
-     * @return a new validator instance, never null
-     * @throws IOException if an I/O error occurs
-     */
-    public IndexValidator createPixelValidator(int lineOffset, final ROI roi) throws IOException {
-        if (isValidMaskUsed() && roi != null) {
-            return new DelegatingValidator(
-                    new RoiValidator(rasterWidth, lineOffset, getValidMaskROI()),
-                    new RoiValidator(rasterWidth, lineOffset, roi));
-        } else if (isValidMaskUsed()) {
-            return new RoiValidator(rasterWidth, lineOffset, getValidMaskROI());
-        } else if (roi != null) {
-            return new RoiValidator(rasterWidth, lineOffset, roi);
-        } else {
-            return IndexValidator.TRUE;
-        }
-    }
-
 
     /**
      * Applies the scaling <code>v * scalingFactor + scalingOffset</code> the the given input value. If the
@@ -2467,23 +2451,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         return mli;
     }
 
-    static final class DelegatingValidator implements IndexValidator {
-
-        private final IndexValidator validator1;
-        private final IndexValidator validator2;
-
-        DelegatingValidator(IndexValidator validator1, IndexValidator validator2) {
-            this.validator1 = validator1;
-            this.validator2 = validator2;
-        }
-
-        @Override
-        public boolean validateIndex(int pixelIndex) {
-            return validator1.validateIndex(pixelIndex)
-                    && validator2.validateIndex(pixelIndex);
-        }
-    }
-
     static final class ValidMaskValidator implements IndexValidator {
 
         private final int pixelOffset;
@@ -2497,26 +2464,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         @Override
         public boolean validateIndex(final int pixelIndex) {
             return validMask.isSet(pixelOffset + pixelIndex);
-        }
-    }
-
-    static final class RoiValidator implements IndexValidator {
-
-        private final int rasterWidth;
-        private final int lineOffset;
-        private final ROI roi;
-
-        RoiValidator(int rasterWidth, int lineOffset, ROI roi) {
-            this.rasterWidth = rasterWidth;
-            this.lineOffset = lineOffset;
-            this.roi = roi;
-        }
-
-        @Override
-        public boolean validateIndex(int pixelIndex) {
-            final int x = pixelIndex % rasterWidth;
-            final int y = lineOffset + pixelIndex / rasterWidth;
-            return roi.contains(x, y);
         }
     }
 
