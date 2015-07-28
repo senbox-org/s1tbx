@@ -228,7 +228,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         for (RasterDataNode ancillaryVariable : ancillaryVariables.toArray(new RasterDataNode[ancillaryVariables.getNodeCount()])) {
             String[] ancillaryRelations = ancillaryVariable.getAncillaryRelations();
             if (ancillaryRelations == null) {
-                ancillaryRelations = new String[]{null};
+                ancillaryRelations = new String[0];
             }
             for (String relation1 : relations) {
                 if (equalAncillaryRelations(relation1, ancillaryRelations) && !rasterDataNodes.contains(ancillaryVariable)) {
@@ -244,10 +244,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (relations2.length == 0) {
             return relation1.equalsIgnoreCase("uncertainty");
         }
-        // IDEA tells me this wont loop - why? (nf)
-        //noinspection LoopStatementThatDoesntLoop
         for (String relation2 : relations2) {
-            return relation1.equalsIgnoreCase(relation2);
+            if (relation1.equalsIgnoreCase(relation2)) {
+                return true;
+            }
         }
         return false;
     }
