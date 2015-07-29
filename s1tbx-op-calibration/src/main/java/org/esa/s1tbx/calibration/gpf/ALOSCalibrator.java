@@ -84,7 +84,7 @@ public class ALOSCalibrator extends BaseCalibrator implements Calibrator {
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
             final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-            if (!mission.equals("ALOS"))
+            if (!mission.equals("ALOS") && !mission.equals("ALOS2"))
                 throw new OperatorException(mission + " is not a valid mission for ALOS Calibration");
 
             if (absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().getElemBoolean()) {
