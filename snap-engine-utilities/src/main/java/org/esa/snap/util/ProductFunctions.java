@@ -50,7 +50,7 @@ public class ProductFunctions {
             "readme", "l1b_iif", "dor_vor", "imagery_", "browse"};
 
     final static String[] invalidFolders = {"annotation", "measurement", "auxraster", "auxfiles", "imagedata", "preview",
-            "support", "quality", "source_images", "schemas"};
+            "support", "quality", "source_images", "schemas", "granule", "datastrip", "html"};
 
     public static boolean isValidProduct(final File file) {
         final String name = file.getName().toLowerCase();
