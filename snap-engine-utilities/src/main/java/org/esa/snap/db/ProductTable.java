@@ -84,7 +84,7 @@ public class ProductTable implements TableInterface {
             "DATE",
             "DOUBLE",
             "DOUBLE",
-            "VARCHAR(30)",
+            "VARCHAR(40)",
             "VARCHAR(1200)"
     };
 
