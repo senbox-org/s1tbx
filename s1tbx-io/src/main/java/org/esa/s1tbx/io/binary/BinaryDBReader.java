@@ -18,14 +18,15 @@ package org.esa.s1tbx.io.binary;
 import org.esa.snap.framework.datamodel.MetadataAttribute;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.util.SystemUtils;
 import org.esa.snap.framework.dataop.downloadable.XMLSupport;
+import org.esa.snap.util.ResourceUtils;
+import org.esa.snap.util.SystemUtils;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
-import java.io.File;
-import java.net.URL;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -347,18 +348,19 @@ public final class BinaryDBReader {
      */
     public static Document loadDefinitionFile(final String mission, final String fileName) {
         try {
-            final URL defFile = getResURL(mission, fileName);
-            return XMLSupport.LoadXML(defFile.openStream());
+            final InputStream defStream = getResStream(mission, fileName);
+            return XMLSupport.LoadXML(defStream);
         } catch (Exception e) {
             SystemUtils.LOG.severe("Unable to open "+fileName+": "+e.getMessage());
+
         }
         return null;
     }
 
-    private static URL getResURL(final String mission, final String fileName) {
+    private static InputStream getResStream(final String mission, final String fileName) throws IOException {
 
-        final String base = "/org/esa/s1tbx/io/";
-        final String path = base + "ceos_db" + File.separator + mission.toLowerCase() + File.separator + fileName;
-        return BinaryDBReader.class.getResource(path);
+        final String base = "/org/esa/s1tbx/io/ceos_db/";
+        final String path = base + mission.toLowerCase() + "/" + fileName;
+        return ResourceUtils.getResourceAsStream(path, BinaryDBReader.class);
     }
 }

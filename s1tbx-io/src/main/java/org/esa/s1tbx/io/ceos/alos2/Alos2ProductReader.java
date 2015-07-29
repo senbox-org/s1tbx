@@ -20,7 +20,6 @@ import org.esa.s1tbx.io.ceos.CEOSProductDirectory;
 import org.esa.s1tbx.io.ceos.CEOSProductReader;
 import org.esa.s1tbx.io.ceos.alos.AlosPalsarConstants;
 import org.esa.s1tbx.io.ceos.alos.AlosPalsarImageFile;
-import org.esa.s1tbx.io.ceos.alos.AlosPalsarProductDirectory;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.framework.dataio.DecodeQualification;
 import org.esa.snap.framework.dataio.ProductReaderPlugIn;
