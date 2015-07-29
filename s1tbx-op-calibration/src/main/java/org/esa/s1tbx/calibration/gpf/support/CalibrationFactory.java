@@ -50,7 +50,7 @@ public class CalibrationFactory {
             return new ASARCalibrator();
         } else if (mission.contains("ERS1") || mission.contains("ERS2")) {
             return new ERSCalibrator();
-        } else if (mission.equals("ALOS")) {
+        } else if (mission.equals("ALOS") || mission.equals("ALOS2")) {
             return new ALOSCalibrator();
         } else if (mission.equals("RS2")) {
             return new Radarsat2Calibrator();
