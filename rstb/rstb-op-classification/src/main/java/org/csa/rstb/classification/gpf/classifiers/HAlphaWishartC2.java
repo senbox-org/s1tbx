@@ -45,7 +45,7 @@ public class HAlphaWishartC2 extends PolClassifierBase implements PolClassifier 
 
     private static final String UNSUPERVISED_WISHART_CLASS = "H_alpha_wishart_class";
 
-    protected ClusterInfoC2[][] clusterCenters = null;
+    protected ClusterInfo[][] clusterCenters = null;
     private boolean[] clusterCentersComputed = null;
     private final int maxIterations;
     protected final boolean useLeeHAlphaPlaneDefinition;
@@ -171,7 +171,7 @@ public class HAlphaWishartC2 extends PolClassifierBase implements PolClassifier 
         if (clusterCentersComputed == null) {
             clusterCentersComputed = new boolean[numTargetBands];
             Arrays.fill(clusterCentersComputed, false);
-            clusterCenters = new ClusterInfoC2[numTargetBands][9];
+            clusterCenters = new ClusterInfo[numTargetBands][9];
         }
 
         //final Dimension tileSize = ImageManager.getPreferredTileSize(sourceProduct);
@@ -277,7 +277,7 @@ public class HAlphaWishartC2 extends PolClassifierBase implements PolClassifier 
                             centerIm[z][i][j] = sumIm[z][i][j] / count;
                         }
                     }
-                    clusterCenters[targetBandIndex][z] = new ClusterInfoC2();
+                    clusterCenters[targetBandIndex][z] = new ClusterInfo();
                     clusterCenters[targetBandIndex][z].setClusterCenter(z + 1, centerRe[z], centerIm[z], counter[z]);
                 }
             }
@@ -413,7 +413,7 @@ public class HAlphaWishartC2 extends PolClassifierBase implements PolClassifier 
      * @return The zone index for the nearest cluster
      */
 
-    public static int findZoneIndex(final double[][] Cr, final double[][] Ci, final ClusterInfoC2[] clusterCenters) {
+    public static int findZoneIndex(final double[][] Cr, final double[][] Ci, final ClusterInfo[] clusterCenters) {
         double minDistance = Double.MAX_VALUE;
         int zoneIndex = -1;
         for (int z = 0; z < clusterCenters.length; ++z) {
@@ -438,73 +438,9 @@ public class HAlphaWishartC2 extends PolClassifierBase implements PolClassifier 
      * @return The Wishart distance
      */
 
-    static double computeWishartDistance(final double[][] Cr, final double[][] Ci, final ClusterInfoC2 cluster) {
+    static double computeWishartDistance(final double[][] Cr, final double[][] Ci, final ClusterInfo cluster) {
 
         return cluster.invCenterRe[0][0] * Cr[0][0] + cluster.invCenterRe[1][1] * Cr[1][1] +
                 2 * (cluster.invCenterRe[0][1] * Cr[0][1] + cluster.invCenterIm[0][1] * Ci[0][1]) + cluster.logDet;
-    }
-
-    /**
-     * Compute determinant of a 2x2 Hermitian matrix
-     *
-     * @param Cr Real part of the 2x2 Hermitian matrix
-     * @param Ci Imaginary part of the 2x2 Hermitian matrix
-     * @return The determinant
-     */
-    private static double determinantCmplxMatrix2(final double[][] Cr, final double[][] Ci) {
-        double detR = Cr[0][0] * Cr[1][1] - Cr[0][1] * Cr[0][1] - Ci[0][1] * Ci[0][1];
-        if (detR < PolOpUtils.EPS) {
-            detR = PolOpUtils.EPS;
-        }
-        return detR;
-    }
-    /**
-     * Compute inverse of a 2x2 Hermitian matrix
-     *
-     * @param Cr Real part of the 2x2 Hermitian matrix
-     * @param Ci Imaginary part of the 2x2 Hermitian matrix
-     * @param iCr Real part of the inversed 2x2 Hermitian matrix
-     * @param iCi Imaginary part of the inversed 2x2 Hermitian matrix
-     */
-    private static void inverseCmplxMatrix2(final double[][] Cr, final double[][] Ci, double[][] iCr, double[][] iCi) {
-        iCr[0][0] = Cr[1][1];
-        iCi[0][0] = 0.0;
-        iCr[0][1] = -Cr[0][1];
-        iCi[0][1] = -Ci[0][1];
-        iCr[1][0] = -Cr[0][1];
-        iCi[1][0] = Ci[0][1];
-        iCr[1][1] = Cr[0][0];
-        iCi[1][1] = 0.0;
-        final double det = determinantCmplxMatrix2(Cr, Ci);
-        for (int i = 0; i < 2; ++i) {
-            for (int j = 0; j < 2; ++j) {
-                iCr[i][j] /= det;
-                iCi[i][j] /= det;
-            }
-        }
-    }
-
-    public static class ClusterInfoC2 {
-        int zoneIndex;
-        int size;
-        double logDet;
-        final double[][] centerRe = new double[2][2];
-        final double[][] centerIm = new double[2][2];
-        final double[][] invCenterRe = new double[2][2];
-        final double[][] invCenterIm = new double[2][2];
-        public ClusterInfoC2() {
-        }
-        public void setClusterCenter(final int zoneIdx, final double[][] Cr, final double[][] Ci, final int size) {
-            this.zoneIndex = zoneIdx;
-            this.size = size;
-            for (int i = 0; i < 2; ++i) {
-                for (int j = 0; j < 2; ++j) {
-                    this.centerRe[i][j] = Cr[i][j];
-                    this.centerIm[i][j] = Ci[i][j];
-                }
-            }
-            this.logDet = Math.log(Math.abs(determinantCmplxMatrix2(Cr, Ci)));
-            inverseCmplxMatrix2(Cr, Ci, invCenterRe, invCenterIm);
-        }
     }
 }

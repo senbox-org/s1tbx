@@ -17,7 +17,9 @@ package org.csa.rstb.classification.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.csa.rstb.classification.gpf.classifiers.HAlphaWishart;
+import org.csa.rstb.classification.gpf.classifiers.HAlphaWishartC2;
 import org.csa.rstb.classification.gpf.classifiers.PolClassifierBase;
+import org.csa.rstb.polarimetric.gpf.DualPolOpUtils;
 import org.csa.rstb.polarimetric.gpf.PolOpUtils;
 import org.esa.s1tbx.io.PolBandUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
@@ -75,6 +77,7 @@ public final class SupervisedWishartClassificationOp extends Operator {
     private PolClassifierBase.ClusterInfo[] clusterCenters = null;
     private int[] clusterToClassMap = null;
     private int numClasses = 0;
+    private boolean isDualPol = false;
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -95,18 +98,40 @@ public final class SupervisedWishartClassificationOp extends Operator {
             if (!trainingDataSet.exists()) {
                 throw new OperatorException("Cannot find training data set file: " + trainingDataSet.getAbsolutePath());
             }
-            halfWindowSize = windowSize / 2;
 
-            getClusterCenters();
+            halfWindowSize = windowSize / 2;
 
             sourceProductType = PolBandUtils.getSourceProductType(sourceProduct);
 
+            checkProductValidity();
+
             srcBandList = PolBandUtils.getSourceBands(sourceProduct, sourceProductType);
+
+            getClusterCenters();
 
             createTargetProduct();
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
+        }
+    }
+
+    private void checkProductValidity() {
+
+        if (sourceProductType != PolBandUtils.MATRIX.T3 &&
+                sourceProductType != PolBandUtils.MATRIX.C3 &&
+                sourceProductType != PolBandUtils.MATRIX.FULL) {
+
+            if (sourceProductType != PolBandUtils.MATRIX.DUAL_HH_HV &&
+                    sourceProductType != PolBandUtils.MATRIX.DUAL_VH_VV &&
+                    sourceProductType != PolBandUtils.MATRIX.DUAL_HH_VV &&
+                    sourceProductType != PolBandUtils.MATRIX.C2) {
+
+                throw new OperatorException("Quad-pol or dual-pol product is expected");
+
+            } else {
+                isDualPol = true;
+            }
         }
     }
 
@@ -116,6 +141,46 @@ public final class SupervisedWishartClassificationOp extends Operator {
      * @throws IOException The I/O exception
      */
     private void getClusterCenters() throws IOException {
+
+        if (isDualPol) { // dual-pol
+            getDualPolClusterCenters();
+        } else { // quad-pol
+            getQuadPolClusterCenters();
+        }
+    }
+
+    private void getDualPolClusterCenters() throws IOException {
+
+        final Properties clusterCenterProperties = ResourceUtils.loadProperties(trainingDataSet.getAbsolutePath());
+        final int numOfClusters = Integer.parseInt(clusterCenterProperties.getProperty("number_of_clusters"));
+        clusterCenters = new PolClassifierBase.ClusterInfo[numOfClusters];
+        clusterToClassMap = new int[numOfClusters];
+
+        final double[][] Cr = new double[2][2];
+        final double[][] Ci = new double[2][2];
+        String currentClassName = "";
+        for (int c = 0; c < numOfClusters; c++) {
+
+            final String cluster = "cluster" + c;
+            final String clusterName = clusterCenterProperties.getProperty(cluster);
+            final String className = clusterName.substring(0, clusterName.lastIndexOf('_'));
+            if (!className.equals(currentClassName)) {
+                numClasses++;
+                currentClassName = className;
+            }
+            clusterToClassMap[c] = numClasses;
+
+            Cr[0][0] = Double.parseDouble(clusterCenterProperties.getProperty(cluster + "_C11"));
+            Cr[0][1] = Double.parseDouble(clusterCenterProperties.getProperty(cluster + "_C12_real"));
+            Ci[0][1] = Double.parseDouble(clusterCenterProperties.getProperty(cluster + "_C12_imag"));
+            Cr[1][1] = Double.parseDouble(clusterCenterProperties.getProperty(cluster + "_C22"));
+
+            clusterCenters[c] = new PolClassifierBase.ClusterInfo();
+            clusterCenters[c].setClusterCenter(c, Cr, Ci, 0);
+        }
+    }
+
+    private void getQuadPolClusterCenters() throws IOException {
 
         final Properties clusterCenterProperties = ResourceUtils.loadProperties(trainingDataSet.getAbsolutePath());
         final int numOfClusters = Integer.parseInt(clusterCenterProperties.getProperty("number_of_clusters"));
@@ -222,20 +287,43 @@ public final class SupervisedWishartClassificationOp extends Operator {
                     dataBuffers[i] = sourceTiles[i].getDataBuffer();
                 }
 
-                final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
-                final double[][] Tr = new double[3][3];
-                final double[][] Ti = new double[3][3];
+                if (isDualPol) {
 
-                for (int y = y0; y < maxY; ++y) {
-                    trgIndex.calculateStride(y);
-                    for (int x = x0; x < maxX; ++x) {
+                    final double[][] Cr = new double[2][2];
+                    final double[][] Ci = new double[2][2];
 
-                        PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSize, halfWindowSize, sourceImageWidth, sourceImageHeight,
-                                                          sourceProductType, srcIndex, dataBuffers, Tr, Ti);
+                    for (int y = y0; y < maxY; ++y) {
+                        trgIndex.calculateStride(y);
+                        for (int x = x0; x < maxX; ++x) {
 
-                        targetData.setElemIntAt(
-                                trgIndex.getIndex(x),
-                                clusterToClassMap[HAlphaWishart.findZoneIndex(Tr, Ti, clusterCenters) - 1]);
+                            DualPolOpUtils.getMeanCovarianceMatrixC2(x, y, halfWindowSize, halfWindowSize,
+                                    sourceImageWidth, sourceImageHeight, sourceProductType, sourceTiles,
+                                    dataBuffers, Cr, Ci);
+
+                            targetData.setElemIntAt(
+                                    trgIndex.getIndex(x),
+                                    clusterToClassMap[HAlphaWishartC2.findZoneIndex(Cr, Ci, clusterCenters) - 1]);
+                        }
+                    }
+
+                } else { // quad-pol
+
+                    final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
+
+                    final double[][] Tr = new double[3][3];
+                    final double[][] Ti = new double[3][3];
+
+                    for (int y = y0; y < maxY; ++y) {
+                        trgIndex.calculateStride(y);
+                        for (int x = x0; x < maxX; ++x) {
+
+                            PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSize, halfWindowSize, sourceImageWidth,
+                                    sourceImageHeight, sourceProductType, srcIndex, dataBuffers, Tr, Ti);
+
+                            targetData.setElemIntAt(
+                                    trgIndex.getIndex(x),
+                                    clusterToClassMap[HAlphaWishart.findZoneIndex(Tr, Ti, clusterCenters) - 1]);
+                        }
                     }
                 }
             }
