@@ -69,6 +69,7 @@ public class GoldsteinFilterOp extends Operator {
     private int halfFFTSize;
     private int windowSize;
     private int halfWindowSize;
+    private double noDataValue = 0;
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -233,27 +234,41 @@ public class GoldsteinFilterOp extends Operator {
             final ProductData iBandData = iBandRaster.getDataBuffer();
             final ProductData qBandData = qBandRaster.getDataBuffer();
             final TileIndex srcIndex = new TileIndex(iBandRaster);
-            final double iNoDataValue = iBand.getNoDataValue();
+            noDataValue = iBand.getNoDataValue();
 
             // perform filtering with a sliding window
+            final boolean[][] mask = new boolean[FFTSize][FFTSize];
             final double[][] I = new double[FFTSize][FFTSize];
             final double[][] Q = new double[FFTSize][FFTSize];
             final double[][] specI = new double[FFTSize][FFTSize];
             final double[][] specQ = new double[FFTSize][FFTSize];
             final double[][] pwrSpec = new double[FFTSize][FFTSize];
             final double[][] fltSpec = new double[FFTSize][FFTSize];
+            final int colMax = I[0].length;
+
             final int stepSize = FFTSize / 4;
             final int yMax = FastMath.min(sy0 + sh - FFTSize, sourceImageHeight - FFTSize);
             final int xMax = FastMath.min(sx0 + sw - FFTSize, sourceImageWidth - FFTSize);
             for (int y = sy0; y <= yMax; y += stepSize) {
                 for (int x = sx0; x <= xMax; x += stepSize) {
 
-                    double val = iBandData.getElemDoubleAt(iBandRaster.getDataBufferIndex(x, y));
-                    if(val == iNoDataValue) {
+                    getComplexImagettes(x, y, iBandData, qBandData, srcIndex, I, Q, mask);
+
+                    // check for no data value
+                    boolean allNoData = true;
+                    for (double[] aI : I) {
+                        for (int c = 0; c < colMax; ++c) {
+                            if (aI[c] != noDataValue) {
+                                allNoData = false;
+                                break;
+                            }
+                        }
+                        if(!allNoData)
+                            break;
+                    }
+                    if(allNoData) {
                         continue;
                     }
-
-                    getComplexImagettes(x, y, iBandData, qBandData, srcIndex, I, Q);
 
                     perform2DFFT(I, Q, specI, specQ);
 
@@ -263,7 +278,7 @@ public class GoldsteinFilterOp extends Operator {
 
                     performInverse2DFFT(specI, specQ, fltSpec, I, Q);
 
-                    updateFilteredBands(x0, y0, w, h, x, y, I, Q, iBandFiltered, qBandFiltered);
+                    updateFilteredBands(x0, y0, w, h, x, y, I, Q, mask, iBandFiltered, qBandFiltered);
                 }
             }
 
@@ -310,7 +325,8 @@ public class GoldsteinFilterOp extends Operator {
     private void getComplexImagettes(final int x, final int y,
                                      final ProductData iBandData, final ProductData qBandData,
                                      final TileIndex srcIndex,
-                                     final double[][] I, final double[][] Q) {
+                                     final double[][] I, final double[][] Q,
+                                     final boolean[][] mask) {
         int index;
         final int maxY = y + FFTSize;
         final int maxX = x + FFTSize;
@@ -321,6 +337,7 @@ public class GoldsteinFilterOp extends Operator {
                 index = srcIndex.getIndex(xx);
                 I[yidx][xx - x] = iBandData.getElemDoubleAt(index);
                 Q[yidx][xx - x] = qBandData.getElemDoubleAt(index);
+                mask[yidx][xx - x] = I[yidx][xx - x] != noDataValue;
             }
         }
     }
@@ -380,7 +397,7 @@ public class GoldsteinFilterOp extends Operator {
         }
     }
 
-    private static void getFilteredPowerSpectrum(
+    private void getFilteredPowerSpectrum(
             final double[][] pwrSpec, final double[][] fltSpec, final double alpha, final int halfWindowSize) {
 
         final int rowMax = pwrSpec.length;
@@ -396,11 +413,17 @@ public class GoldsteinFilterOp extends Operator {
                 final int iMax = Math.min(colMax - 1, c + halfWindowSize);
                 for (int j = jMin; j <= jMax; j++) {
                     for (int i = iMin; i <= iMax; i++) {
-                        sum += pwrSpec[j][i];
-                        k++;
+                        if(pwrSpec[j][i] != noDataValue) {
+                            sum += pwrSpec[j][i];
+                            k++;
+                        }
                     }
                 }
-                fltSpec[r][c] = Math.pow(sum / k, alpha);
+                if(k != 0) {
+                    fltSpec[r][c] = Math.pow(sum / k, alpha);
+                } else {
+                    fltSpec[r][c] = 0;
+                }
             }
         }
     }
@@ -463,6 +486,7 @@ public class GoldsteinFilterOp extends Operator {
      */
     private void updateFilteredBands(final int x0, final int y0, final int w, final int h,
                                      final int x, final int y, final double[][] I, final double[][] Q,
+                                     final boolean[][] mask,
                                      final double[] iBandFiltered, final double[] qBandFiltered) {
 
         final int xSt = FastMath.max(x, x0);
@@ -474,6 +498,10 @@ public class GoldsteinFilterOp extends Operator {
             final int yw = (yy - y0) * w;
             final double weightY = (1 - Math.abs(yy - y - halfFFTSize + 0.5) / halfFFTSize);
             for (int xx = xSt; xx < xEd; xx++) {
+
+                if(!mask[yi][xx - x]) {
+                    continue;
+                }
 
                 //final double weight = getTriangularWeight(x, y, xx, yy);
                 final double weight = (1 - Math.abs(xx - x - halfFFTSize + 0.5) / halfFFTSize) * weightY;
