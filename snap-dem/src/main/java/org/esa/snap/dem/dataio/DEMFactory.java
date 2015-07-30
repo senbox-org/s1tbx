@@ -36,6 +36,7 @@ import java.util.List;
  */
 public class DEMFactory {
 
+    public static final String LAST_EXTERNAL_DEM_DIR_KEY = "snap.externalDEMDir";
     public static final String AUTODEM = " (Auto Download)";
     static final String DELAUNAY_INTERPOLATION = "DELAUNAY_INTERPOLATION";
 

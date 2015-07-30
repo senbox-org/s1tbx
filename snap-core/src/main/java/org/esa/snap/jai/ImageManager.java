@@ -43,6 +43,7 @@ import org.esa.snap.framework.datamodel.RasterDataNode;
 import org.esa.snap.framework.datamodel.Scene;
 import org.esa.snap.framework.datamodel.SceneFactory;
 import org.esa.snap.framework.datamodel.Stx;
+import org.esa.snap.runtime.Config;
 import org.esa.snap.util.Debug;
 import org.esa.snap.util.ImageUtils;
 import org.esa.snap.util.IntMap;
@@ -112,8 +113,7 @@ public class ImageManager {
                                                                          new DefaultImageDatum("BEAM_IMAGE_DATUM", PixelInCell.CELL_CORNER),
                                                                          DefaultCartesianCS.DISPLAY);
 
-    private static final boolean CACHE_INTERMEDIATE_TILES = Boolean.getBoolean(
-            "snap.imageManager.enableIntermediateTileCaching");
+    private static final boolean CACHE_INTERMEDIATE_TILES = Config.instance().preferences().getBoolean("snap.enableIntermediateTileCaching", false);
 
     private final Map<MaskKey, MultiLevelImage> maskImageMap = new HashMap<>(101);
     private final ProductNodeListener rasterDataChangeListener;

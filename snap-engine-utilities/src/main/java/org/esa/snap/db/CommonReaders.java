@@ -60,7 +60,7 @@ public class CommonReaders {
         } else if (filename.endsWith("zip")) {
             if (filename.startsWith("asa")) {
                 return read(file, envisatReadPlugIn);
-            } else if (filename.startsWith("s1a")) {
+            } else if (filename.startsWith("s1a") || filename.startsWith("s1b")) {
                 return read(file, S1ReadPlugIn);
             } else if (filename.startsWith("rs2")) {
                 return read(file, RS2ReadPlugIn);
