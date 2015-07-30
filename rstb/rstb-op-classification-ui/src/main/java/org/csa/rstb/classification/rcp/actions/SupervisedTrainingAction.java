@@ -79,6 +79,7 @@ public class SupervisedTrainingAction extends AbstractAction {
 
     private static int sourceImageWidth;
     private static int sourceImageHeight;
+    private static boolean isDualPol = false;
 
     @Override
     public void actionPerformed(ActionEvent event) {
@@ -93,13 +94,19 @@ public class SupervisedTrainingAction extends AbstractAction {
                 PolBandUtils.MATRIX sourceProductType = PolBandUtils.getSourceProductType(sourceProduct);
                 if (sourceProductType != PolBandUtils.MATRIX.T3 &&
                         sourceProductType != PolBandUtils.MATRIX.C3 &&
-                        sourceProductType != PolBandUtils.MATRIX.FULL &&
-                        sourceProductType != PolBandUtils.MATRIX.DUAL_HH_HV &&
-                        sourceProductType != PolBandUtils.MATRIX.DUAL_VH_VV &&
-                        sourceProductType != PolBandUtils.MATRIX.DUAL_HH_VV &&
-                        sourceProductType != PolBandUtils.MATRIX.C2) {
-                    SnapDialogs.showError("Quad-pol or dual-pol product is expected");
-                    return;
+                        sourceProductType != PolBandUtils.MATRIX.FULL) {
+
+                    if (sourceProductType != PolBandUtils.MATRIX.DUAL_HH_HV &&
+                            sourceProductType != PolBandUtils.MATRIX.DUAL_VH_VV &&
+                            sourceProductType != PolBandUtils.MATRIX.DUAL_HH_VV &&
+                            sourceProductType != PolBandUtils.MATRIX.C2) {
+
+                        SnapDialogs.showError("Quad-pol or dual-pol product is expected");
+                        return;
+
+                    } else {
+                        isDualPol = true;
+                    }
                 }
 
                 PolBandUtils.PolSourceBand[] srcBandList =
@@ -190,8 +197,6 @@ public class SupervisedTrainingAction extends AbstractAction {
                     final int maxX = Math.min(sourceImageWidth, (int) vec.getEnvelope().getMaxX() + 1);
                     final int maxY = Math.min(sourceImageHeight, (int) vec.getEnvelope().getMaxY() + 1);
 
-                    double t11 = 0.0, t12Re = 0.0, t12Im = 0.0, t13Re = 0.0, t13Im = 0.0;
-                    double t22 = 0.0, t23Re = 0.0, t23Im = 0.0, t33 = 0.0;
                     int counter = 0;
 
                     final int width = maxX - minX;
@@ -203,74 +208,116 @@ public class SupervisedTrainingAction extends AbstractAction {
 
                     final int[] data = new int[width];
 
-                    for (int y = minY; y < maxY; ++y) {
+                    if (!isDualPol) { // quad-pol
 
-                        if (pm.isCanceled()) {
-                            error = new Exception("Training cancelled by user");
-                            return false;
-                        }
-                        final int pct = (int) (((y - minY) / (float) height) * 100);
-                        pm.setTaskName(title + geom + ' ' + pct + '%');
+                        double t11 = 0.0, t12Re = 0.0, t12Im = 0.0, t13Re = 0.0, t13Im = 0.0;
+                        double t22 = 0.0, t23Re = 0.0, t23Im = 0.0, t33 = 0.0;
 
-                        band.readPixels(minX, y, width, 1, data);
-                        for (int x = minX; x < maxX; ++x) {
-                            if (data[x - minX] != 0) {
-                                if (sourceProductType == PolBandUtils.MATRIX.FULL) {
-                                    getMeanCoherencyMatrixFromFullPol(x, y, sourceBands, Tr, Ti);
-                                } else if (sourceProductType == PolBandUtils.MATRIX.C3) {
-                                    getMeanCoherencyMatrixFromC3(x, y, sourceBands, Tr, Ti);
-                                } else if (sourceProductType == PolBandUtils.MATRIX.T3) {
-                                    getMeanCoherencyMatrixFromT3(x, y, sourceBands, Tr, Ti);
-                                } else if (sourceProductType == PolBandUtils.MATRIX.DUAL_HH_HV ||
-                                        sourceProductType == PolBandUtils.MATRIX.DUAL_VH_VV ||
-                                        sourceProductType == PolBandUtils.MATRIX.DUAL_HH_VV) {
-                                    getMeanCovarianceMatrixFromC2(x, y, sourceBands, Cr, Ci);
-                                } else if (sourceProductType == PolBandUtils.MATRIX.C2) {
-                                    getMeanCovarianceMatrixFromDualPol(x, y, sourceBands, Cr, Ci);
-                                }
-
-                                t11 += Tr[0][0];
-                                t12Re += Tr[0][1];
-                                t12Im += Ti[0][1];
-                                t13Re += Tr[0][2];
-                                t13Im += Ti[0][2];
-                                t22 += Tr[1][1];
-                                t23Re += Tr[1][2];
-                                t23Im += Ti[1][2];
-                                t33 += Tr[2][2];
-
-                                counter++;
+                        for (int y = minY; y < maxY; ++y) {
+                            if (pm.isCanceled()) {
+                                error = new Exception("Training cancelled by user");
+                                return false;
                             }
+                            final int pct = (int) (((y - minY) / (float) height) * 100);
+                            pm.setTaskName(title + geom + ' ' + pct + '%');
+
+                            band.readPixels(minX, y, width, 1, data);
+                            for (int x = minX; x < maxX; ++x) {
+                                if (data[x - minX] != 0) {
+
+                                    getMeanCoherencyMatrix(x, y, halfWindowSize, sourceImageWidth,
+                                            sourceImageHeight, sourceProductType, sourceBands, Tr, Ti);
+
+                                    t11 += Tr[0][0];
+                                    t12Re += Tr[0][1];
+                                    t12Im += Ti[0][1];
+                                    t13Re += Tr[0][2];
+                                    t13Im += Ti[0][2];
+                                    t22 += Tr[1][1];
+                                    t23Re += Tr[1][2];
+                                    t23Im += Ti[1][2];
+                                    t33 += Tr[2][2];
+
+                                    counter++;
+                                }
+                            }
+                            pm.worked(1);
                         }
-                        pm.worked(1);
+
+                        t11 /= counter;
+                        t12Re /= counter;
+                        t12Im /= counter;
+                        t13Re /= counter;
+                        t13Im /= counter;
+                        t22 /= counter;
+                        t23Re /= counter;
+                        t23Im /= counter;
+                        t33 /= counter;
+
+                        out.println("cluster" + k + " = " + geom);
+                        out.println();
+                        out.println("cluster" + k + "_T11 = " + t11);
+                        out.println("cluster" + k + "_T12_real = " + t12Re);
+                        out.println("cluster" + k + "_T12_imag = " + t12Im);
+                        out.println("cluster" + k + "_T13_real = " + t13Re);
+                        out.println("cluster" + k + "_T13_imag = " + t13Im);
+                        out.println("cluster" + k + "_T22 = " + t22);
+                        out.println("cluster" + k + "_T23_real = " + t23Re);
+                        out.println("cluster" + k + "_T23_imag = " + t23Im);
+                        out.println("cluster" + k + "_T33 = " + t33);
+                        out.println("pixels = " + counter);
+                        out.println();
+                        k++;
+
+                    } else { // dual-pol
+
+                        double c11 = 0.0, c12Re = 0.0, c12Im = 0.0, c22 = 0.0;
+
+                        for (int y = minY; y < maxY; ++y) {
+                            if (pm.isCanceled()) {
+                                error = new Exception("Training cancelled by user");
+                                return false;
+                            }
+                            final int pct = (int) (((y - minY) / (float) height) * 100);
+                            pm.setTaskName(title + geom + ' ' + pct + '%');
+
+                            band.readPixels(minX, y, width, 1, data);
+                            for (int x = minX; x < maxX; ++x) {
+                                if (data[x - minX] != 0) {
+
+                                    getMeanCovarianceMatrixC2(x, y, halfWindowSize, sourceImageWidth,
+                                            sourceImageHeight, sourceProductType, sourceBands, Cr, Ci);
+
+                                    c11 += Cr[0][0];
+                                    c12Re += Cr[0][1];
+                                    c12Im += Ci[0][1];
+                                    c22 += Cr[1][1];
+
+                                    counter++;
+                                }
+                            }
+                            pm.worked(1);
+                        }
+
+                        c11 /= counter;
+                        c12Re /= counter;
+                        c12Im /= counter;
+                        c22 /= counter;
+
+                        out.println("cluster" + k + " = " + geom);
+                        out.println();
+                        out.println("cluster" + k + "_C11 = " + c11);
+                        out.println("cluster" + k + "_C12_real = " + c12Re);
+                        out.println("cluster" + k + "_C12_imag = " + c12Im);
+                        out.println("cluster" + k + "_C22 = " + c22);
+                        out.println("pixels = " + counter);
+                        out.println();
+                        k++;
                     }
-
-                    t11 /= counter;
-                    t12Re /= counter;
-                    t12Im /= counter;
-                    t13Re /= counter;
-                    t13Im /= counter;
-                    t22 /= counter;
-                    t23Re /= counter;
-                    t23Im /= counter;
-                    t33 /= counter;
-
-                    out.println("cluster" + k + " = " + geom);
-                    out.println();
-                    out.println("cluster" + k + "_T11 = " + t11);
-                    out.println("cluster" + k + "_T12_real = " + t12Re);
-                    out.println("cluster" + k + "_T12_imag = " + t12Im);
-                    out.println("cluster" + k + "_T13_real = " + t13Re);
-                    out.println("cluster" + k + "_T13_imag = " + t13Im);
-                    out.println("cluster" + k + "_T22 = " + t22);
-                    out.println("cluster" + k + "_T23_real = " + t23Re);
-                    out.println("cluster" + k + "_T23_imag = " + t23Im);
-                    out.println("cluster" + k + "_T33 = " + t33);
-                    out.println("pixels = " + counter);
-                    out.println();
-                    k++;
                 }
+
                 return true;
+
             } catch (Throwable e) {
                 e.printStackTrace();
                 error = e;
@@ -339,60 +386,158 @@ public class SupervisedTrainingAction extends AbstractAction {
         }
     }
 
-    private static void getMeanCoherencyMatrixFromFullPol(final int x, final int y, final Band[] sourceBands,
-                                                          final double[][] Tr, final double[][] Ti) throws Exception {
+    private static void getMeanCoherencyMatrix(final int x, final int y, final int halfWindowSize,
+                                               final int sourceImageWidth, final int sourceImageHeight,
+                                               final PolBandUtils.MATRIX sourceProductType,
+                                               final Band[] sourceBands, final double[][] Tr, final double[][] Ti)
+            throws Exception {
 
         final int xSt = Math.max(x - halfWindowSize, 0);
-        final int xEd = Math.min(xSt + windowSize - 1, sourceImageWidth - 1);
+        final int xEd = Math.min(x + halfWindowSize, sourceImageWidth - 1);
         final int ySt = Math.max(y - halfWindowSize, 0);
-        final int yEd = Math.min(ySt + windowSize - 1, sourceImageHeight - 1);
+        final int yEd = Math.min(y + halfWindowSize, sourceImageHeight - 1);
         final int w = xEd - xSt + 1;
         final int h = yEd - ySt + 1;
         final int num = w * h;
 
-        final double[] i_hh = new double[num];
-        final double[] q_hh = new double[num];
-        final double[] i_hv = new double[num];
-        final double[] q_hv = new double[num];
-        final double[] i_vh = new double[num];
-        final double[] q_vh = new double[num];
-        final double[] i_vv = new double[num];
-        final double[] q_vv = new double[num];
-
-        sourceBands[0].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, i_hh);
-        sourceBands[1].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, q_hh);
-        sourceBands[2].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, i_hv);
-        sourceBands[3].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, q_hv);
-        sourceBands[4].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, i_vh);
-        sourceBands[5].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, q_vh);
-        sourceBands[6].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, i_vv);
-        sourceBands[7].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, q_vv);
-        /*
-        sourceBands[0].readPixels(xSt, ySt, w, h, i_hh);
-        sourceBands[1].readPixels(xSt, ySt, w, h, q_hh);
-        sourceBands[2].readPixels(xSt, ySt, w, h, i_hv);
-        sourceBands[3].readPixels(xSt, ySt, w, h, q_hv);
-        sourceBands[4].readPixels(xSt, ySt, w, h, i_vh);
-        sourceBands[5].readPixels(xSt, ySt, w, h, q_vh);
-        sourceBands[6].readPixels(xSt, ySt, w, h, i_vv);
-        sourceBands[7].readPixels(xSt, ySt, w, h, q_vv);
-        */
         final Matrix TrMat = new Matrix(3, 3);
         final Matrix TiMat = new Matrix(3, 3);
-        for (int i = 0; i < num; ++i) {
-            Sr[0][0] = i_hh[i];
-            Si[0][0] = q_hh[i];
-            Sr[0][1] = i_hv[i];
-            Si[0][1] = q_hv[i];
-            Sr[1][0] = i_vh[i];
-            Si[1][0] = q_vh[i];
-            Sr[1][1] = i_vv[i];
-            Si[1][1] = q_vv[i];
+        double[][] Sr = new double[2][2];
+        double[][] Si = new double[2][2];
+        double[][] tempTr = new double[3][3];
+        double[][] tempTi = new double[3][3];
+        double[][] tempCr = new double[3][3];
+        double[][] tempCi = new double[3][3];
 
-            PolOpUtils.computeCoherencyMatrixT3(Sr, Si, tempTr, tempTi);
+        if (sourceProductType == PolBandUtils.MATRIX.FULL) {
 
-            TrMat.plusEquals(new Matrix(tempTr));
-            TiMat.plusEquals(new Matrix(tempTi));
+            final double[] i_hh = new double[num];
+            final double[] q_hh = new double[num];
+            final double[] i_hv = new double[num];
+            final double[] q_hv = new double[num];
+            final double[] i_vh = new double[num];
+            final double[] q_vh = new double[num];
+            final double[] i_vv = new double[num];
+            final double[] q_vv = new double[num];
+
+            sourceBands[0].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, i_hh);
+            sourceBands[1].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, q_hh);
+            sourceBands[2].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, i_hv);
+            sourceBands[3].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, q_hv);
+            sourceBands[4].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, i_vh);
+            sourceBands[5].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, q_vh);
+            sourceBands[6].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, i_vv);
+            sourceBands[7].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, q_vv);
+
+            for (int i = 0; i < num; ++i) {
+                Sr[0][0] = i_hh[i];
+                Si[0][0] = q_hh[i];
+                Sr[0][1] = i_hv[i];
+                Si[0][1] = q_hv[i];
+                Sr[1][0] = i_vh[i];
+                Si[1][0] = q_vh[i];
+                Sr[1][1] = i_vv[i];
+                Si[1][1] = q_vv[i];
+
+                PolOpUtils.computeCoherencyMatrixT3(Sr, Si, tempTr, tempTi);
+
+                TrMat.plusEquals(new Matrix(tempTr));
+                TiMat.plusEquals(new Matrix(tempTi));
+            }
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.C3) {
+
+            final double[] c11 = new double[num];
+            final double[] c12r = new double[num];
+            final double[] c12i = new double[num];
+            final double[] c13r = new double[num];
+            final double[] c13i = new double[num];
+            final double[] c22 = new double[num];
+            final double[] c23r = new double[num];
+            final double[] c23i = new double[num];
+            final double[] c33 = new double[num];
+
+            sourceBands[0].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c11);
+            sourceBands[1].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c12r);
+            sourceBands[2].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c12i);
+            sourceBands[3].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c13r);
+            sourceBands[4].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c13i);
+            sourceBands[5].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c22);
+            sourceBands[6].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c23r);
+            sourceBands[7].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c23i);
+            sourceBands[8].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c33);
+
+            for (int i = 0; i < num; ++i) {
+                tempCr[0][0] = c11[i]; // C11 - real
+                tempCi[0][0] = 0.0;    // C11 - imag
+                tempCr[0][1] = c12r[i];// C12 - real
+                tempCi[0][1] = c12i[i];// C12 - imag
+                tempCr[0][2] = c13r[i];// C13 - real
+                tempCi[0][2] = c13i[i];// C13 - imag
+                tempCr[1][1] = c22[i]; // C22 - real
+                tempCi[1][1] = 0.0;    // C22 - imag
+                tempCr[1][2] = c23r[i];// C23 - real
+                tempCi[1][2] = c23i[i];// C23 - imag
+                tempCr[2][2] = c33[i]; // C33 - real
+                tempCi[2][2] = 0.0;    // C33 - imag
+                tempCr[1][0] = tempCr[0][1];
+                tempCi[1][0] = -tempCi[0][1];
+                tempCr[2][0] = tempCr[0][2];
+                tempCi[2][0] = -tempCi[0][2];
+                tempCr[2][1] = tempCr[1][2];
+                tempCi[2][1] = -tempCi[1][2];
+
+                PolOpUtils.c3ToT3(tempCr, tempCi, tempTr, tempTi);
+
+                TrMat.plusEquals(new Matrix(tempTr));
+                TiMat.plusEquals(new Matrix(tempTi));
+            }
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.T3) {
+
+            final double[] t11 = new double[num];
+            final double[] t12r = new double[num];
+            final double[] t12i = new double[num];
+            final double[] t13r = new double[num];
+            final double[] t13i = new double[num];
+            final double[] t22 = new double[num];
+            final double[] t23r = new double[num];
+            final double[] t23i = new double[num];
+            final double[] t33 = new double[num];
+
+            sourceBands[0].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, t11);
+            sourceBands[1].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, t12r);
+            sourceBands[2].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, t12i);
+            sourceBands[3].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, t13r);
+            sourceBands[4].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, t13i);
+            sourceBands[5].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, t22);
+            sourceBands[6].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, t23r);
+            sourceBands[7].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, t23i);
+            sourceBands[8].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, t33);
+
+            for (int i = 0; i < num; ++i) {
+                tempTr[0][0] = t11[i]; // T11 - real
+                tempTi[0][0] = 0.0;    // T11 - imag
+                tempTr[0][1] = t12r[i];// T12 - real
+                tempTi[0][1] = t12i[i];// T12 - imag
+                tempTr[0][2] = t13r[i];// T13 - real
+                tempTi[0][2] = t13i[i];// T13 - imag
+                tempTr[1][1] = t22[i]; // T22 - real
+                tempTi[1][1] = 0.0;    // T22 - imag
+                tempTr[1][2] = t23r[i];// T23 - real
+                tempTi[1][2] = t23i[i];// T23 - imag
+                tempTr[2][2] = t33[i]; // T33 - real
+                tempTi[2][2] = 0.0;    // T33 - imag
+                tempTr[1][0] = tempTr[0][1];
+                tempTi[1][0] = -tempTi[0][1];
+                tempTr[2][0] = tempTr[0][2];
+                tempTi[2][0] = -tempTi[0][2];
+                tempTr[2][1] = tempTr[1][2];
+                tempTi[2][1] = -tempTi[1][2];
+
+                TrMat.plusEquals(new Matrix(tempTr));
+                TiMat.plusEquals(new Matrix(tempTi));
+            }
         }
 
         TrMat.timesEquals(1.0 / num);
@@ -401,174 +546,19 @@ public class SupervisedTrainingAction extends AbstractAction {
         copyMatrix(TiMat, Ti);
     }
 
-    private static void getMeanCoherencyMatrixFromC3(final int x, final int y, final Band[] sourceBands,
-                                                     final double[][] Tr, final double[][] Ti) throws Exception {
+    private static void getMeanCovarianceMatrixC2(final int x, final int y, final int halfWindowSize,
+                                                  final int sourceImageWidth, final int sourceImageHeight,
+                                                  final PolBandUtils.MATRIX sourceProductType, final Band[] sourceBands,
+                                                  final double[][] Cr, final double[][] Ci)
+            throws Exception {
 
         final int xSt = Math.max(x - halfWindowSize, 0);
-        final int xEd = Math.min(xSt + windowSize - 1, sourceImageWidth - 1);
+        final int xEd = Math.min(x + halfWindowSize, sourceImageWidth - 1);
         final int ySt = Math.max(y - halfWindowSize, 0);
-        final int yEd = Math.min(ySt + windowSize - 1, sourceImageHeight - 1);
+        final int yEd = Math.min(y + halfWindowSize, sourceImageHeight - 1);
         final int w = xEd - xSt + 1;
         final int h = yEd - ySt + 1;
         final int num = w * h;
-
-        final double[] c11 = new double[num];
-        final double[] c12r = new double[num];
-        final double[] c12i = new double[num];
-        final double[] c13r = new double[num];
-        final double[] c13i = new double[num];
-        final double[] c22 = new double[num];
-        final double[] c23r = new double[num];
-        final double[] c23i = new double[num];
-        final double[] c33 = new double[num];
-
-        sourceBands[0].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c11);
-        sourceBands[1].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c12r);
-        sourceBands[2].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c12i);
-        sourceBands[3].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c13r);
-        sourceBands[4].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c13i);
-        sourceBands[5].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c22);
-        sourceBands[6].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c23r);
-        sourceBands[7].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c23i);
-        sourceBands[8].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c33);
-        /*
-        sourceBands[0].readPixels(xSt, ySt, w, h, c11);
-        sourceBands[1].readPixels(xSt, ySt, w, h, c12r);
-        sourceBands[2].readPixels(xSt, ySt, w, h, c12i);
-        sourceBands[3].readPixels(xSt, ySt, w, h, c13r);
-        sourceBands[4].readPixels(xSt, ySt, w, h, c13i);
-        sourceBands[5].readPixels(xSt, ySt, w, h, c22);
-        sourceBands[6].readPixels(xSt, ySt, w, h, c23r);
-        sourceBands[7].readPixels(xSt, ySt, w, h, c23i);
-        sourceBands[8].readPixels(xSt, ySt, w, h, c33);
-        */
-        final Matrix TrMat = new Matrix(3, 3);
-        final Matrix TiMat = new Matrix(3, 3);
-        for (int i = 0; i < num; ++i) {
-            tempCr[0][0] = c11[i]; // C11 - real
-            tempCi[0][0] = 0.0;    // C11 - imag
-            tempCr[0][1] = c12r[i];// C12 - real
-            tempCi[0][1] = c12i[i];// C12 - imag
-            tempCr[0][2] = c13r[i];// C13 - real
-            tempCi[0][2] = c13i[i];// C13 - imag
-            tempCr[1][1] = c22[i]; // C22 - real
-            tempCi[1][1] = 0.0;    // C22 - imag
-            tempCr[1][2] = c23r[i];// C23 - real
-            tempCi[1][2] = c23i[i];// C23 - imag
-            tempCr[2][2] = c33[i]; // C33 - real
-            tempCi[2][2] = 0.0;    // C33 - imag
-            tempCr[1][0] = tempCr[0][1];
-            tempCi[1][0] = -tempCi[0][1];
-            tempCr[2][0] = tempCr[0][2];
-            tempCi[2][0] = -tempCi[0][2];
-            tempCr[2][1] = tempCr[1][2];
-            tempCi[2][1] = -tempCi[1][2];
-
-            PolOpUtils.c3ToT3(tempCr, tempCi, tempTr, tempTi);
-
-            TrMat.plusEquals(new Matrix(tempTr));
-            TiMat.plusEquals(new Matrix(tempTi));
-        }
-
-        TrMat.timesEquals(1.0 / num);
-        TiMat.timesEquals(1.0 / num);
-        copyMatrix(TrMat, Tr);
-        copyMatrix(TiMat, Ti);
-    }
-
-    private static void getMeanCoherencyMatrixFromT3(final int x, final int y, final Band[] sourceBands,
-                                                     final double[][] Tr, final double[][] Ti) throws Exception {
-
-        final int xSt = Math.max(x - halfWindowSize, 0);
-        final int xEd = Math.min(xSt + windowSize - 1, sourceImageWidth - 1);
-        final int ySt = Math.max(y - halfWindowSize, 0);
-        final int yEd = Math.min(ySt + windowSize - 1, sourceImageHeight - 1);
-        final int w = xEd - xSt + 1;
-        final int h = yEd - ySt + 1;
-        final int num = w * h;
-
-        final double[] t11 = new double[num];
-        final double[] t12r = new double[num];
-        final double[] t12i = new double[num];
-        final double[] t13r = new double[num];
-        final double[] t13i = new double[num];
-        final double[] t22 = new double[num];
-        final double[] t23r = new double[num];
-        final double[] t23i = new double[num];
-        final double[] t33 = new double[num];
-
-        sourceBands[0].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, t11);
-        sourceBands[1].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, t12r);
-        sourceBands[2].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, t12i);
-        sourceBands[3].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, t13r);
-        sourceBands[4].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, t13i);
-        sourceBands[5].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, t22);
-        sourceBands[6].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, t23r);
-        sourceBands[7].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, t23i);
-        sourceBands[8].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, t33);
-        /*
-        sourceBands[0].readPixels(xSt, ySt, w, h, t11);
-        sourceBands[1].readPixels(xSt, ySt, w, h, t12r);
-        sourceBands[2].readPixels(xSt, ySt, w, h, t12i);
-        sourceBands[3].readPixels(xSt, ySt, w, h, t13r);
-        sourceBands[4].readPixels(xSt, ySt, w, h, t13i);
-        sourceBands[5].readPixels(xSt, ySt, w, h, t22);
-        sourceBands[6].readPixels(xSt, ySt, w, h, t23r);
-        sourceBands[7].readPixels(xSt, ySt, w, h, t23i);
-        sourceBands[8].readPixels(xSt, ySt, w, h, t33);
-        */
-        final Matrix TrMat = new Matrix(3, 3);
-        final Matrix TiMat = new Matrix(3, 3);
-        for (int i = 0; i < num; ++i) {
-            tempTr[0][0] = t11[i]; // T11 - real
-            tempTi[0][0] = 0.0;    // T11 - imag
-            tempTr[0][1] = t12r[i];// T12 - real
-            tempTi[0][1] = t12i[i];// T12 - imag
-            tempTr[0][2] = t13r[i];// T13 - real
-            tempTi[0][2] = t13i[i];// T13 - imag
-            tempTr[1][1] = t22[i]; // T22 - real
-            tempTi[1][1] = 0.0;    // T22 - imag
-            tempTr[1][2] = t23r[i];// T23 - real
-            tempTi[1][2] = t23i[i];// T23 - imag
-            tempTr[2][2] = t33[i]; // T33 - real
-            tempTi[2][2] = 0.0;    // T33 - imag
-            tempTr[1][0] = tempTr[0][1];
-            tempTi[1][0] = -tempTi[0][1];
-            tempTr[2][0] = tempTr[0][2];
-            tempTi[2][0] = -tempTi[0][2];
-            tempTr[2][1] = tempTr[1][2];
-            tempTi[2][1] = -tempTi[1][2];
-
-            TrMat.plusEquals(new Matrix(tempTr));
-            TiMat.plusEquals(new Matrix(tempTi));
-        }
-
-        TrMat.timesEquals(1.0 / num);
-        TiMat.timesEquals(1.0 / num);
-        copyMatrix(TrMat, Tr);
-        copyMatrix(TiMat, Ti);
-    }
-
-    private static void getMeanCovarianceMatrixFromDualPol(final int x, final int y, final Band[] sourceBands,
-                                                          final double[][] Cr, final double[][] Ci) throws Exception {
-
-        final int xSt = Math.max(x - halfWindowSize, 0);
-        final int xEd = Math.min(xSt + windowSize - 1, sourceImageWidth - 1);
-        final int ySt = Math.max(y - halfWindowSize, 0);
-        final int yEd = Math.min(ySt + windowSize - 1, sourceImageHeight - 1);
-        final int w = xEd - xSt + 1;
-        final int h = yEd - ySt + 1;
-        final int num = w * h;
-
-        final double[] K0_i = new double[num];
-        final double[] K0_q = new double[num];
-        final double[] K1_i = new double[num];
-        final double[] K1_q = new double[num];
-
-        sourceBands[0].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, K0_i);
-        sourceBands[1].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, K0_q);
-        sourceBands[2].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, K1_i);
-        sourceBands[3].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, K1_q);
 
         final Matrix CrMat = new Matrix(2, 2);
         final Matrix CiMat = new Matrix(2, 2);
@@ -577,61 +567,57 @@ public class SupervisedTrainingAction extends AbstractAction {
         double[][] tempCr = new double[2][2];
         double[][] tempCi = new double[2][2];
 
-        for (int i = 0; i < num; ++i) {
-            tempKr[0] = K0_i[i];
-            tempKi[0] = K0_q[i];
-            tempKr[1] = K1_i[i];
-            tempKi[1] = K1_q[i];
+        if (sourceProductType == PolBandUtils.MATRIX.DUAL_HH_HV ||
+                sourceProductType == PolBandUtils.MATRIX.DUAL_VH_VV ||
+                sourceProductType == PolBandUtils.MATRIX.DUAL_HH_VV) {
 
-            DualPolOpUtils.computeCovarianceMatrixC2(tempKr, tempKi, tempCr, tempCi);
+            final double[] K0_i = new double[num];
+            final double[] K0_q = new double[num];
+            final double[] K1_i = new double[num];
+            final double[] K1_q = new double[num];
 
-            CrMat.plusEquals(new Matrix(tempCr));
-            CiMat.plusEquals(new Matrix(tempCi));
-        }
+            sourceBands[0].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, K0_i);
+            sourceBands[1].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, K0_q);
+            sourceBands[2].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, K1_i);
+            sourceBands[3].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, K1_q);
 
-        CrMat.timesEquals(1.0 / num);
-        CiMat.timesEquals(1.0 / num);
-        copyMatrix(CrMat, Cr);
-        copyMatrix(CiMat, Ci);
-    }
+            for (int i = 0; i < num; ++i) {
+                tempKr[0] = K0_i[i];
+                tempKi[0] = K0_q[i];
+                tempKr[1] = K1_i[i];
+                tempKi[1] = K1_q[i];
 
-    private static void getMeanCovarianceMatrixFromC2(final int x, final int y, final Band[] sourceBands,
-                                                     final double[][] Cr, final double[][] Ci) throws Exception {
+                DualPolOpUtils.computeCovarianceMatrixC2(tempKr, tempKi, tempCr, tempCi);
 
-        final int xSt = Math.max(x - halfWindowSize, 0);
-        final int xEd = Math.min(xSt + windowSize - 1, sourceImageWidth - 1);
-        final int ySt = Math.max(y - halfWindowSize, 0);
-        final int yEd = Math.min(ySt + windowSize - 1, sourceImageHeight - 1);
-        final int w = xEd - xSt + 1;
-        final int h = yEd - ySt + 1;
-        final int num = w * h;
+                CrMat.plusEquals(new Matrix(tempCr));
+                CiMat.plusEquals(new Matrix(tempCi));
+            }
 
-        final double[] c11 = new double[num];
-        final double[] c12r = new double[num];
-        final double[] c12i = new double[num];
-        final double[] c22 = new double[num];
+        } else if (sourceProductType == PolBandUtils.MATRIX.C2) {
 
-        sourceBands[0].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c11);
-        sourceBands[1].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c12r);
-        sourceBands[2].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c12i);
-        sourceBands[3].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c22);
+            final double[] c11 = new double[num];
+            final double[] c12r = new double[num];
+            final double[] c12i = new double[num];
+            final double[] c22 = new double[num];
 
-        double[][] tempCr = new double[2][2];
-        double[][] tempCi = new double[2][2];
-        final Matrix CrMat = new Matrix(2, 2);
-        final Matrix CiMat = new Matrix(2, 2);
-        for (int i = 0; i < num; ++i) {
-            tempCr[0][0] = c11[i]; // C11 - real
-            tempCi[0][0] = 0.0;    // C11 - imag
-            tempCr[0][1] = c12r[i];// C12 - real
-            tempCi[0][1] = c12i[i];// C12 - imag
-            tempCr[1][1] = c22[i]; // C22 - real
-            tempCi[1][1] = 0.0;    // C22 - imag
-            tempCr[1][0] = tempCr[0][1];
-            tempCi[1][0] = -tempCi[0][1];
+            sourceBands[0].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c11);
+            sourceBands[1].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c12r);
+            sourceBands[2].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c12i);
+            sourceBands[3].getSourceImage().getData(new Rectangle(xSt, ySt, w, h)).getPixels(xSt, ySt, w, h, c22);
 
-            CrMat.plusEquals(new Matrix(tempCr));
-            CiMat.plusEquals(new Matrix(tempCi));
+            for (int i = 0; i < num; ++i) {
+                tempCr[0][0] = c11[i]; // C11 - real
+                tempCi[0][0] = 0.0;    // C11 - imag
+                tempCr[0][1] = c12r[i];// C12 - real
+                tempCi[0][1] = c12i[i];// C12 - imag
+                tempCr[1][1] = c22[i]; // C22 - real
+                tempCi[1][1] = 0.0;    // C22 - imag
+                tempCr[1][0] = tempCr[0][1];
+                tempCi[1][0] = -tempCi[0][1];
+
+                CrMat.plusEquals(new Matrix(tempCr));
+                CiMat.plusEquals(new Matrix(tempCi));
+            }
         }
 
         CrMat.timesEquals(1.0 / num);
@@ -641,27 +627,18 @@ public class SupervisedTrainingAction extends AbstractAction {
     }
 
     /**
-     * copy 3 x 3 matrix with loop unwinding
+     * copy matrix with loop unwinding
      *
      * @param mat Matrix input
      * @param T   double[][] output
      */
-    private static void copyMatrix(final Matrix mat, final double[][] T) {
-        if (mat.getColumnDimension() == 3) {
-            T[0][0] = mat.get(0, 0);
-            T[0][1] = mat.get(0, 1);
-            T[0][2] = mat.get(0, 2);
-            T[1][0] = mat.get(1, 0);
-            T[1][1] = mat.get(1, 1);
-            T[1][2] = mat.get(1, 2);
-            T[2][0] = mat.get(2, 0);
-            T[2][1] = mat.get(2, 1);
-            T[2][2] = mat.get(2, 2);
-        } else if (mat.getColumnDimension() == 2) {
-            T[0][0] = mat.get(0, 0);
-            T[0][1] = mat.get(0, 1);
-            T[1][0] = mat.get(1, 0);
-            T[1][1] = mat.get(1, 1);
+    public static void copyMatrix(final Matrix mat, final double[][] T) {
+
+        for (int i = 0; i < mat.getRowDimension(); i++) {
+            for (int j = 0; j < mat.getColumnDimension(); j++) {
+                T[i][j] = mat.get(i, j);
+            }
         }
     }
+
 }
