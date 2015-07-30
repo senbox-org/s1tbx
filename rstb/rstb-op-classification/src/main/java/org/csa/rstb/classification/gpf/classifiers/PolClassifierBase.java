@@ -268,26 +268,38 @@ public abstract class PolClassifierBase {
         int zoneIndex;
         int size;
         double logDet;
-        final double[][] centerRe = new double[3][3];
-        final double[][] centerIm = new double[3][3];
-        final double[][] invCenterRe = new double[3][3];
-        final double[][] invCenterIm = new double[3][3];
+        double[][] centerRe = null;
+        double[][] centerIm = null;
+        double[][] invCenterRe = null;
+        double[][] invCenterIm = null;
 
         public ClusterInfo() {
         }
 
-        public void setClusterCenter(final int zoneIdx, final double[][] Tr, final double[][] Ti, final int size) {
+        public void setClusterCenter(final int zoneIdx, final double[][] Mr, final double[][] Mi, final int size) {
+
+            final int dimension = Mr.length;
+            centerRe = new double[dimension][dimension];
+            centerIm = new double[dimension][dimension];
+            invCenterRe = new double[dimension][dimension];
+            invCenterIm = new double[dimension][dimension];
+
             this.zoneIndex = zoneIdx;
             this.size = size;
-            for (int i = 0; i < 3; ++i) {
-                for (int j = 0; j < 3; ++j) {
-                    this.centerRe[i][j] = Tr[i][j];
-                    this.centerIm[i][j] = Ti[i][j];
+            for (int i = 0; i < dimension; ++i) {
+                for (int j = 0; j < dimension; ++j) {
+                    this.centerRe[i][j] = Mr[i][j];
+                    this.centerIm[i][j] = Mi[i][j];
                 }
             }
 
-            this.logDet = Math.log(determinantCmplxMatrix3(Tr, Ti));
-            inverseCmplxMatrix3(Tr, Ti, invCenterRe, invCenterIm);
+            if (dimension == 3) {
+                this.logDet = Math.log(determinantCmplxMatrix3(Mr, Mi));
+                inverseCmplxMatrix3(Mr, Mi, invCenterRe, invCenterIm);
+            } else if (dimension == 2) {
+                this.logDet = Math.log(determinantCmplxMatrix2(Mr, Mi));
+                inverseCmplxMatrix2(Mr, Mi, invCenterRe, invCenterIm);
+            }
         }
     }
 }
