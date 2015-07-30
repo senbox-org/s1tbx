@@ -51,7 +51,7 @@ public class SupervisedWishartClassificationOpUI extends BaseOperatorUI {
         trainingDataSet.setColumns(30);
         trainingDataSetBrowseButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                final File file = SnapDialogs.requestFileForOpen("Training Data Set", false, null, null);
+                final File file = SnapDialogs.requestFileForOpen("Training Data Set", false, null, "rstb.trainingDir");
                 trainingDataSet.setText(file.getAbsolutePath());
             }
         });

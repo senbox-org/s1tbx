@@ -98,7 +98,7 @@ public class CalibrationOpUI extends BaseOperatorUI {
 
         externalAuxFileBrowseButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                final File file = SnapDialogs.requestFileForOpen("External Auxiliary File", false, null, null);
+                final File file = SnapDialogs.requestFileForOpen("External Auxiliary File", false, null, "s1tbx.calibration.aux.file");
                 externalAuxFile.setText(file.getAbsolutePath());
             }
         });

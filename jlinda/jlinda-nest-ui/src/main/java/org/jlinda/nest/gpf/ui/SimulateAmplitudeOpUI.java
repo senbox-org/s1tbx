@@ -68,7 +68,7 @@ public class SimulateAmplitudeOpUI extends BaseOperatorUI {
 
         externalDEMBrowseButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                final File file = SnapDialogs.requestFileForOpen("External DEM File", false, null, null);
+                final File file = SnapDialogs.requestFileForOpen("External DEM File", false, null, DEMFactory.LAST_EXTERNAL_DEM_DIR_KEY);
                 externalDEMFile.setText(file.getAbsolutePath());
                 extNoDataValue = OperatorUIUtils.getNoDataValue(file);
                 externalDEMNoDataValue.setText(String.valueOf(extNoDataValue));

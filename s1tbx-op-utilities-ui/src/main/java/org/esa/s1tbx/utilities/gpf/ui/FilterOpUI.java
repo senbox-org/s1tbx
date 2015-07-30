@@ -73,7 +73,7 @@ public class FilterOpUI extends BaseOperatorUI {
         kernelFile.setColumns(30);
         kernelFileBrowseButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                final File file = SnapDialogs.requestFileForOpen("User Defined Kernel File", false, null, null);
+                final File file = SnapDialogs.requestFileForOpen("User Defined Kernel File", false, null, "snap.filterDir");
                 kernelFile.setText(file.getAbsolutePath());
             }
         });
