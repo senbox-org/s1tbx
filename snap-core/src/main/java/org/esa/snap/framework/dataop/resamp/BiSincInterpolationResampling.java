@@ -21,11 +21,13 @@ import org.apache.commons.math3.util.FastMath;
 class BiSincInterpolationResampling implements Resampling {
 
     private static final double DoublePI = 2.0 * Math.PI;
-    private int kernelSize = 0;
-    private int halfKernelSize = 0;
+    private final int kernelSize;
+    private final int kernelSize1;
+    private final int halfKernelSize;
 
     public BiSincInterpolationResampling(final int kernelSize) {
         this.kernelSize = kernelSize;
+        this.kernelSize1 = kernelSize - 1;
         this.halfKernelSize = kernelSize/2;
     }
 
@@ -90,10 +92,16 @@ class BiSincInterpolationResampling implements Resampling {
         final int[] x = new int[kernelSize];
         final int[] y = new int[kernelSize];
         final double[][] samples = new double[kernelSize][kernelSize];
+        final double[] winX = new double[kernelSize];
 
-        for (int i = 0; i < kernelSize; i++) {
-            x[i] = (int) index.i[i];
-            y[i] = (int) index.j[i];
+        final double cx = index.ki[0] + halfKernelSize;
+
+        double sumX = 0.0;
+        for (int n = 0; n < kernelSize; n++) {
+            x[n] = (int) index.i[n];
+            y[n] = (int) index.j[n];
+            winX[n] = sincHanning(cx - n);
+            sumX += winX[n];
         }
 
         if (!raster.getSamples(x, y, samples)) {
@@ -103,25 +111,14 @@ class BiSincInterpolationResampling implements Resampling {
             BiCubicInterpolationResampling.replaceNaNWithMean(samples);
         }
 
-        final double muX = index.ki[0];
-        final double muY = index.kj[0];
-        final double cx = muX + halfKernelSize;
-        final double cy = muY + halfKernelSize;
-
-        final double[] winX = new double[kernelSize];
-        final double[] winY = new double[kernelSize];
-        double sumX = 0.0, sumY = 0.0;
-        for (int n = 0; n < kernelSize; n++) {
-            winX[n] = sinc(cx - n) * hanning(cx - n);
-            winY[n] = sinc(cy - n) * hanning(cy - n);
-            sumX += winX[n];
-            sumY += winY[n];
-        }
-
+        final double cy = index.kj[0] + halfKernelSize;
+        double sumY = 0, winY;
         double v = 0.0;
         for (int j = 0; j < kernelSize; j++) {
+            winY = sincHanning(cy - j);
+            sumY += winY;
             for (int i = 0; i < kernelSize; i++) {
-                v += samples[j][i]*winX[i]*winY[j];
+                v += samples[j][i]*winX[i]*winY;
             }
         }
         v /= sumX*sumY;
@@ -129,13 +126,10 @@ class BiSincInterpolationResampling implements Resampling {
         return v;
     }
 
-    private static double sinc(final double x) {
-        return (Double.compare(x, 0.0) == 0) ? 1.0 : FastMath.sin(x * Math.PI) / (x * Math.PI);
-    }
-
-    public double hanning(final double x) {
-        return (x >= -halfKernelSize && x <= halfKernelSize) ?
-                0.5 * (1.0 + FastMath.cos(DoublePI * x / (kernelSize + 1))) : 0.0;
+    private double sincHanning(final double x) {
+        return x >= -halfKernelSize && x <= halfKernelSize ?
+                x == 0 ? 1.0 : FastMath.sin(x * Math.PI) / (x * Math.PI) *
+                        (0.5 * (1.0 + FastMath.cos(DoublePI * x / kernelSize1))) : 0.0;
     }
 
     public int getKernelSize() {
