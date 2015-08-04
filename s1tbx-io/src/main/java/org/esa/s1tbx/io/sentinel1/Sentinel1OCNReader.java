@@ -22,6 +22,7 @@ import org.esa.snap.framework.datamodel.MetadataAttribute;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.util.SystemUtils;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Dimension;
@@ -240,7 +241,7 @@ public class Sentinel1OCNReader {
                     }
                     break;
                     default:
-                        System.out.println("SentinelOCNReader.addNetCDFMetadataAndBands: ERROR invalid variable rank " + variable.getRank() + " for " + variable.getFullName());
+                        SystemUtils.LOG.severe("SentinelOCNReader.addNetCDFMetadataAndBands: ERROR invalid variable rank " + variable.getRank() + " for " + variable.getFullName());
                         break;
                 }
             }
@@ -302,7 +303,7 @@ public class Sentinel1OCNReader {
         // Can source and destination have different height and width? TODO
         if (sourceWidth != destWidth || sourceHeight != destHeight) {
 
-            System.out.println("Sentinel1OCNReader.readData: ERROR sourceWidth = " + sourceWidth + " sourceHeight = " + sourceHeight);
+            SystemUtils.LOG.severe("Sentinel1OCNReader.readData: ERROR sourceWidth = " + sourceWidth + " sourceHeight = " + sourceHeight);
             return;
         }
 
@@ -372,11 +373,11 @@ public class Sentinel1OCNReader {
 
         } catch (IOException e) {
 
-            System.out.println("Sentinel1OCNReader.readDataForRank2Variable: IOException when reading variable " + var.getFullName());
+            SystemUtils.LOG.severe("Sentinel1OCNReader.readDataForRank2Variable: IOException when reading variable " + var.getFullName());
 
         } catch (InvalidRangeException e) {
 
-            System.out.println("Sentinel1OCNReader.readDataForRank2Variable: InvalidRangeException when reading variable " + var.getFullName());
+            SystemUtils.LOG.severe("Sentinel1OCNReader.readDataForRank2Variable: InvalidRangeException when reading variable " + var.getFullName());
         }
     }
 
@@ -428,11 +429,11 @@ public class Sentinel1OCNReader {
 
         } catch (IOException e) {
 
-            System.out.println("Sentinel1OCNReader.readDataForRank3Variable: IOException when reading variable " + var.getFullName());
+            SystemUtils.LOG.severe("Sentinel1OCNReader.readDataForRank3Variable: IOException when reading variable " + var.getFullName());
 
         } catch (InvalidRangeException e) {
 
-            System.out.println("Sentinel1OCNReader.readDataForRank3Variable: InvalidRangeException when reading variable " + var.getFullName());
+            SystemUtils.LOG.severe("Sentinel1OCNReader.readDataForRank3Variable: InvalidRangeException when reading variable " + var.getFullName());
         }
     }
 
@@ -493,11 +494,11 @@ public class Sentinel1OCNReader {
 
         } catch (IOException e) {
 
-            System.out.println("Sentinel1OCNReader.readDataForRank4Variable: IOException when reading variable " + var.getFullName());
+            SystemUtils.LOG.severe("Sentinel1OCNReader.readDataForRank4Variable: IOException when reading variable " + var.getFullName());
 
         } catch (InvalidRangeException e) {
 
-            System.out.println("Sentinel1OCNReader.readDataForRank4Variable: InvalidRangeException when reading variable " + var.getFullName());
+            SystemUtils.LOG.severe("Sentinel1OCNReader.readDataForRank4Variable: InvalidRangeException when reading variable " + var.getFullName());
         }
     }
 

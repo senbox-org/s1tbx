@@ -22,6 +22,7 @@ import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.gpf.ReaderUtils;
+import org.esa.snap.util.SystemUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -225,7 +226,7 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
         }
 
         if (minLat > maxLat || minLon > maxLon) {
-            System.out.println("Sentinel1Level2Directory.addGeoCodingForLevel2Products: ERROR failed to get valid footprint");
+            SystemUtils.LOG.severe("Sentinel1Level2Directory.addGeoCodingForLevel2Products: ERROR failed to get valid footprint");
             return;
         }
 
