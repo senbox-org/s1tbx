@@ -57,6 +57,9 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
+    @Parameter(description = "The list of polarisations", label = "Polarisations")
+    private String[] selectedPolarisations;
+
     private MetadataElement absRoot = null;
     private MetadataElement origMetadataRoot = null;
     private double knoise = 1.0;
@@ -336,12 +339,18 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
                 continue;
             }
 
+            final String srcBandName = srcBand.getName();
+            if (selectedPolarisations != null && selectedPolarisations.length != 0 &&
+                    !containSelectedPolarisations(srcBandName)) {
+                continue;
+            }
+
             if (srcBand instanceof VirtualBand) {
 
                 final VirtualBand sourceBand = (VirtualBand) srcBand;
 
                 final VirtualBand targetBand = new VirtualBand(
-                        sourceBand.getName(),
+                        srcBandName,
                         sourceBand.getDataType(),
                         sourceBand.getRasterWidth(),
                         sourceBand.getRasterHeight(),
@@ -353,7 +362,7 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
             } else {
 
                 final Band targetBand = new Band(
-                        srcBand.getName(),
+                        srcBandName,
                         srcBand.getDataType(),
                         srcBand.getRasterWidth(),
                         srcBand.getRasterHeight());
@@ -362,6 +371,16 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
                 targetProduct.addBand(targetBand);
             }
         }
+    }
+
+    private boolean containSelectedPolarisations(final String bandName) {
+        for (String pol : selectedPolarisations) {
+            if (bandName.contains(pol)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

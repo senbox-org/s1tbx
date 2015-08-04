@@ -48,6 +48,7 @@ import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;
 import org.jlinda.core.SLCImage;
 
+import java.awt.*;
 import java.io.File;
 
 /**
@@ -256,6 +257,12 @@ public final class ApplyOrbitFileOp extends Operator {
             if(!productUpdated) {
                 updateOrbits();
             }
+            final Rectangle targetRectangle = targetTile.getRectangle();
+            final int x0 = targetRectangle.x;
+            final int y0 = targetRectangle.y;
+            final int w = targetRectangle.width;
+            final int h = targetRectangle.height;
+            System.out.println("Band: " + targetBand.getName() + ", x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
             final Tile srcRaster = getSourceTile(sourceProduct.getBand(targetBand.getName()), targetTile.getRectangle());
             targetTile.setRawSamples(srcRaster.getRawSamples());
