@@ -49,12 +49,14 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
     protected void addImageFile(final String imgPath) throws IOException {
         final String name = imgPath.substring(imgPath.lastIndexOf('/')+1, imgPath.length()).toLowerCase();
         if (name.endsWith(".nc")) {
-            if (OCNReader == null)
+            if (OCNReader == null) {
                 OCNReader = new Sentinel1OCNReader(this);
-            if(isCompressed()) {
-                throw new IOException("Compressed format is not supported for level-2");
             }
-            OCNReader.addImageFile(new File(getBaseDir(), imgPath), name);
+            File file = new File(getBaseDir(), imgPath);
+            if(isCompressed()) {
+                file = getFile(imgPath);
+            }
+            OCNReader.addImageFile(file, name);
         }
     }
 

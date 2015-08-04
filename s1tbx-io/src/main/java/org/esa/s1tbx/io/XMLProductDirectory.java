@@ -201,6 +201,10 @@ public abstract class XMLProductDirectory {
         }
     }
 
+    protected File getFile(final String path) throws IOException {
+        return productDir.getFile(path);
+    }
+
     public boolean exists(final String path) {
         return productDir.exists(path);
     }
