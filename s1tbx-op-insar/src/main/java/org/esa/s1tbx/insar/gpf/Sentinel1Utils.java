@@ -663,7 +663,7 @@ public final class Sentinel1Utils {
             final double tmp1 = subSwath[s].linesPerBurst * subSwath[s].azimuthTimeInterval / 2.0;
 
             for (int b = 0; b < subSwath[s].numOfBursts; b++) {
-                final int firstValidSample = subSwath[s].firstValidSample[b][subSwath[s].firstValidLine[b]];
+                //final int firstValidSample = subSwath[s].firstValidSample[b][subSwath[s].firstValidLine[b]];
                 //final double tmp2 = tmp1 + subSwath[s].dopplerCentroid[b][firstValidSample] /
                 //        subSwath[s].rangeDependDopplerRate[b][firstValidSample];
                 final double tmp2 = tmp1 + subSwath[s].dopplerCentroid[b][subSwath[s].firstValidPixel] /
