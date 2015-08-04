@@ -240,10 +240,12 @@ public class NetCDFUtils {
             return ProductData.TYPE_FLOAT64;
         } else if (!rasterDataOnly) {
             if (dataType == DataType.CHAR) {
-                // return ProductData.TYPE_ASCII; todo - handle this case
+                return ProductData.TYPE_ASCII;
             } else if (dataType == DataType.STRING) {
                 return ProductData.TYPE_ASCII;
             }
+        } else if (dataType == DataType.CHAR) {
+            return unsigned ? ProductData.TYPE_UINT8 : ProductData.TYPE_INT8;
         }
         return -1;
     }
