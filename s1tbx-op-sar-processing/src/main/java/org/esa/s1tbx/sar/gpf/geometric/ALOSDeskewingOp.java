@@ -76,6 +76,11 @@ public class ALOSDeskewingOp extends Operator {
             rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames = null;
 
+    @Parameter(description = "The digital elevation model.",
+            defaultValue = "SRTM 3Sec",
+            label = "Digital Elevation Model")
+    private String demName = "SRTM 3Sec";
+
     //@Parameter(defaultValue="false", label="Use Mapready Shift Only")
     boolean useMapreadyShiftOnly = false;
 
@@ -165,7 +170,7 @@ public class ALOSDeskewingOp extends Operator {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        if (!mission.equals("ALOS")) {
+        if (!mission.contains("ALOS")) {
             throw new OperatorException("The deskewing operator is for ALOS PALSAR products only");
         }
 
@@ -377,7 +382,6 @@ public class ALOSDeskewingOp extends Operator {
         }
 
         // compute absolute shift
-        final String demName = "SRTM 3Sec";
         final String demResamplingMethod = ResamplingFactory.BILINEAR_INTERPOLATION_NAME;
         DEMFactory.validateDEM(demName, sourceProduct);
         ElevationModel dem = DEMFactory.createElevationModel(demName, demResamplingMethod);
