@@ -24,7 +24,6 @@
       <nRgLooks>1</nRgLooks>
       <nAzLooks>1</nAzLooks>
       <outputIntensity>true</outputIntensity>
-      <note>Currently, detection for complex data is performed without any resampling</note>
     </parameters>
   </node>
   <node id="4-Speckle-Filter">

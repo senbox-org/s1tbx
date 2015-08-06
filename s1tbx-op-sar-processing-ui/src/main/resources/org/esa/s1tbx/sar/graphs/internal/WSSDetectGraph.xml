@@ -152,7 +152,6 @@
       <nRgLooks>2</nRgLooks>
       <nAzLooks>1</nAzLooks>
 	  <outputIntensity>true</outputIntensity>
-      <note>Currently, detection for complex data is performed without any resampling</note>
     </parameters>
   </node>
   <node id="12-Multilook">
@@ -165,7 +164,6 @@
       <nRgLooks>2</nRgLooks>
       <nAzLooks>1</nAzLooks>
 	  <outputIntensity>true</outputIntensity>
-      <note>Currently, detection for complex data is performed without any resampling</note>
     </parameters>
   </node>
   <node id="13-Multilook">
@@ -178,7 +176,6 @@
       <nRgLooks>2</nRgLooks>
       <nAzLooks>1</nAzLooks>
 	  <outputIntensity>true</outputIntensity>
-      <note>Currently, detection for complex data is performed without any resampling</note>
     </parameters>
   </node>
   <node id="14-Multilook">
@@ -191,7 +188,6 @@
       <nRgLooks>2</nRgLooks>
       <nAzLooks>1</nAzLooks>
 	  <outputIntensity>true</outputIntensity>
-      <note>Currently, detection for complex data is performed without any resampling</note>
     </parameters>
   </node>
   <node id="15-Multilook">
@@ -204,7 +200,6 @@
       <nRgLooks>2</nRgLooks>
       <nAzLooks>1</nAzLooks>
 	  <outputIntensity>true</outputIntensity>
-      <note>Currently, detection for complex data is performed without any resampling</note>
     </parameters>
   </node>
   <node id="17-Write">

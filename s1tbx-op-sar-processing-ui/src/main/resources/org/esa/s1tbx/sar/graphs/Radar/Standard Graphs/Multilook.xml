@@ -25,7 +25,6 @@
       <nRgLooks>2</nRgLooks>
       <nAzLooks>2</nAzLooks>
 	  <outputIntensity>true</outputIntensity>
-      <note>Currently, detection for complex data is performed without any resampling</note>
     </parameters>
   </node>
   <applicationData id="Presentation">
