@@ -31,6 +31,7 @@ import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.Tile;
 import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.gpf.TileIndex;
 import org.esa.snap.util.ProductUtils;
 
@@ -339,6 +340,68 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
     private void addSelectedBands(final Product sourceProduct, final String[] sourceBandNames) {
 
+        if (outputImageInComplex) {
+            outputInComplex(sourceProduct, sourceBandNames);
+        } else {
+            outputInIntensity(sourceProduct, sourceBandNames);
+        }
+    }
+
+    private void outputInComplex(final Product sourceProduct, final String[] sourceBandNames) {
+
+        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
+
+        for (int i = 0; i < sourceBands.length; i += 2) {
+
+            final Band srcBandI = sourceBands[i];
+            final String unit = srcBandI.getUnit();
+            String nextUnit = null;
+            if (unit == null) {
+                throw new OperatorException("band " + srcBandI.getName() + " requires a unit");
+            } else if (unit.contains(Unit.DB)) {
+                throw new OperatorException("Calibration of bands in dB is not supported");
+            } else if (unit.contains(Unit.IMAGINARY)) {
+                throw new OperatorException("I and Q bands should be selected in pairs");
+            } else if (unit.contains(Unit.REAL)) {
+                if (i + 1 >= sourceBands.length) {
+                    throw new OperatorException("I and Q bands should be selected in pairs");
+                }
+                nextUnit = sourceBands[i + 1].getUnit();
+                if (nextUnit == null || !nextUnit.contains(Unit.IMAGINARY)) {
+                    throw new OperatorException("I and Q bands should be selected in pairs");
+                }
+            } else {
+                throw new OperatorException("Please select I and Q bands in pairs only");
+            }
+
+            final String[] srcBandINames = {srcBandI.getName()};
+            targetBandNameToSourceBandName.put(srcBandINames[0], srcBandINames);
+            final Band targetBandI = new Band(srcBandINames[0],
+                    ProductData.TYPE_FLOAT32,
+                    srcBandI.getSceneRasterWidth(),
+                    srcBandI.getSceneRasterHeight());
+            targetBandI.setUnit(unit);
+            targetBandI.setNoDataValueUsed(true);
+            targetProduct.addBand(targetBandI);
+
+            final Band srcBandQ = sourceBands[i + 1];
+            final String[] srcBandQNames = {srcBandQ.getName()};
+            targetBandNameToSourceBandName.put(srcBandQNames[0], srcBandQNames);
+            final Band targetBandQ = new Band(srcBandQNames[0],
+                    ProductData.TYPE_FLOAT32,
+                    srcBandQ.getSceneRasterWidth(),
+                    srcBandQ.getSceneRasterHeight());
+            targetBandQ.setUnit(nextUnit);
+            targetBandQ.setNoDataValueUsed(true);
+            targetProduct.addBand(targetBandQ);
+
+            final String suffix = "_" + OperatorUtils.getSuffixFromBandName(srcBandI.getName());
+            ReaderUtils.createVirtualIntensityBand(targetProduct, targetBandI, targetBandQ, suffix);
+        }
+    }
+
+    private void outputInIntensity(final Product sourceProduct, final String[] sourceBandNames) {
+
         final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
 
         for (int i = 0; i < sourceBands.length; i++) {
@@ -480,9 +543,9 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
         final boolean complexData = bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY;
         final CalibrationInfo calInfo = targetBandToCalInfo.get(targetBandName);
-        final Sentinel1Calibrator.CALTYPE calType = Sentinel1Calibrator.getCalibrationType(targetBandName);
+        final CALTYPE calType = getCalibrationType(targetBandName);
 
-        double dn, dn2, i, q, muX, lutVal, retroLutVal = 1.0;
+        double dn = 0.0, dn2 = 0.0, i, q, muX, lutVal, retroLutVal = 1.0, calValue, calibrationFactor;
         int srcIdx, trgIdx;
         for (int y = y0; y < maxY; ++y) {
             srcIndex.calculateStride(y);
@@ -517,34 +580,50 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
                         muY * ((1 - muX) * vec1LUT[pixelIdx] + muX * vec1LUT[pixelIdx + 1]);
 
                 if (complexData) {
-                    i = srcData1.getElemDoubleAt(srcIdx);
-                    q = srcData2.getElemDoubleAt(srcIdx);
-                    trgData.setElemDoubleAt(trgIdx, (i * i + q * q) / (lutVal*lutVal));
+                    if (outputImageInComplex) {
+                        dn = srcData1.getElemDoubleAt(srcIdx);
+                    } else {
+                        i = srcData1.getElemDoubleAt(srcIdx);
+                        q = srcData2.getElemDoubleAt(srcIdx);
+                        dn2 = i * i + q * q;
+                    }
+                    calibrationFactor = 1.0 / (lutVal*lutVal);
                 } else if (bandUnit == Unit.UnitType.AMPLITUDE) {
                     dn = srcData1.getElemDoubleAt(srcIdx);
-                    trgData.setElemDoubleAt(trgIdx, (dn * dn) / (lutVal*lutVal));
-                } else { // intensity
+                    dn2 = dn * dn;
+                    calibrationFactor = 1.0 / (lutVal*lutVal);
+                } else if (bandUnit == Unit.UnitType.INTENSITY) {
                     if (dataType != null) {
                         retroLutVal = (1 - muY) * ((1 - muX) * retroVec0LUT[pixelIdx] + muX * retroVec0LUT[pixelIdx + 1]) +
                                 muY * ((1 - muX) * retroVec1LUT[pixelIdx] + muX * retroVec1LUT[pixelIdx + 1]);
                     }
                     dn2 = srcData1.getElemDoubleAt(srcIdx);
-                    trgData.setElemDoubleAt(trgIdx, dn2 * retroLutVal / (lutVal*lutVal));
+                    calibrationFactor = retroLutVal / (lutVal*lutVal);
+                } else {
+                    throw new OperatorException("Calibration: unhandled unit");
                 }
+
+                if (isComplex && outputImageInComplex) {
+                    calValue = dn * Math.sqrt(calibrationFactor);
+                } else {
+                    calValue = dn2 * calibrationFactor;
+                }
+
+                trgData.setElemDoubleAt(trgIdx, calValue);
             }
         }
     }
 
     public static CALTYPE getCalibrationType(final String bandName) {
         CALTYPE calType;
-        if (bandName.contains("Sigma")) {
-            calType = CALTYPE.SIGMA0;
-        } else if (bandName.contains("Beta")) {
+        if (bandName.contains("Beta")) {
             calType = CALTYPE.BETA0;
         } else if (bandName.contains("Gamma")) {
             calType = CALTYPE.GAMMA;
-        } else {
+        } else if (bandName.contains("DN")) {
             calType = CALTYPE.DN;
+        } else {
+            calType = CALTYPE.SIGMA0;
         }
         return calType;
     }
@@ -574,9 +653,9 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         final int calVecIdx = calInfo.getCalibrationVectorIndex((int)azimuthIndex);
         final Sentinel1Utils.CalibrationVector vec0 = calInfo.getCalibrationVector(calVecIdx);
         final Sentinel1Utils.CalibrationVector vec1 = calInfo.getCalibrationVector(calVecIdx + 1);
-        final Sentinel1Calibrator.CALTYPE calType = Sentinel1Calibrator.getCalibrationType(targetBandName);
-        final float[] vec0LUT = Sentinel1Calibrator.getVector(calType, vec0);
-        final float[] vec1LUT = Sentinel1Calibrator.getVector(calType, vec1);
+        final CALTYPE calType = getCalibrationType(targetBandName);
+        final float[] vec0LUT = getVector(calType, vec0);
+        final float[] vec1LUT = getVector(calType, vec1);
         final int pixelIdx = calInfo.getPixelIndex((int)rangeIndex, calVecIdx);
         final double azTime = calInfo.firstLineTime + azimuthIndex * calInfo.lineTimeInterval;
         final double muY = (azTime - vec0.timeMJD) / (vec1.timeMJD - vec0.timeMJD);
