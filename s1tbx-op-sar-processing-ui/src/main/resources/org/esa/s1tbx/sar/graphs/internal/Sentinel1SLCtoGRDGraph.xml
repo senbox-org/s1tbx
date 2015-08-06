@@ -58,7 +58,6 @@
       <nAzLooks>1</nAzLooks>
       <outputIntensity>true</outputIntensity>
       <grSquarePixel>true</grSquarePixel>
-      <note>Currently, detection for complex data is performed without any resampling</note>
     </parameters>
   </node>
   <node id="Speckle-Filter">

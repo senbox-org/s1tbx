@@ -15,19 +15,17 @@
  */
 package org.esa.s1tbx.sar.gpf.ui.geometric;
 
+import org.esa.snap.dem.dataio.DEMFactory;
+import org.esa.snap.framework.dataop.dem.ElevationModelDescriptor;
+import org.esa.snap.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.snap.framework.ui.AppContext;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.OperatorUIUtils;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.util.DialogUtils;
 
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.util.Map;
 
 /**
@@ -36,6 +34,8 @@ import java.util.Map;
 public class ALOSDeskewingUI extends BaseOperatorUI {
 
     private final JList bandList = new JList();
+    private final JComboBox demName = new JComboBox(DEMFactory.getDEMNameList());
+
     /*
     private final JCheckBox useMapreadyShiftOnlyCheckBox = new JCheckBox("Use Mapready Shift Only");
     private final JCheckBox useFAQShiftOnlyCheckBox = new JCheckBox("Use FAQ Shift Only");
@@ -54,6 +54,7 @@ public class ALOSDeskewingUI extends BaseOperatorUI {
         initializeOperatorUI(operatorName, parameterMap);
         final JComponent panel = createPanel();
         initParameters();
+
         /*
         useMapreadyShiftOnlyCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
@@ -86,6 +87,13 @@ public class ALOSDeskewingUI extends BaseOperatorUI {
     public void initParameters() {
 
         OperatorUIUtils.initParamList(bandList, getBandNames());
+
+        final String demNameParam = (String) paramMap.get("demName");
+        if (demNameParam != null) {
+            ElevationModelDescriptor descriptor = ElevationModelRegistry.getInstance().getDescriptor(demNameParam);
+            demName.setSelectedItem(DEMFactory.getDEMDisplayName(descriptor));
+        }
+
         /*
         useMapreadyShiftOnly = (Boolean)paramMap.get("useMapreadyShiftOnly");
         useMapreadyShiftOnlyCheckBox.setSelected(useMapreadyShiftOnly);
@@ -110,6 +118,8 @@ public class ALOSDeskewingUI extends BaseOperatorUI {
     public void updateParameters() {
 
         OperatorUIUtils.updateParamList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
+        paramMap.put("demName", (DEMFactory.getProperDEMName((String) demName.getSelectedItem())));
+
         /*
         paramMap.put("useMapreadyShiftOnly", useMapreadyShiftOnly);
         paramMap.put("useFAQShiftOnly", useFAQShiftOnly);
@@ -128,6 +138,8 @@ public class ALOSDeskewingUI extends BaseOperatorUI {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 1;
         contentPane.add(new JScrollPane(bandList), gbc);
+        gbc.gridy++;
+        DialogUtils.addComponent(contentPane, gbc, "Digital Elevation Model:", demName);
         /*
         gbc.gridy++;
         contentPane.add(useMapreadyShiftOnlyCheckBox, gbc);

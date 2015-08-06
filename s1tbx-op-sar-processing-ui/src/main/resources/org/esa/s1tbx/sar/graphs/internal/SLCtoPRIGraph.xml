@@ -44,7 +44,6 @@
       <nRgLooks>1</nRgLooks>
 	  <nAzLooks>1</nAzLooks>
 	  <outputIntensity>true</outputIntensity>
-      <note>Currently, detection for complex data is done without any resampling</note>
     </parameters>
   </node>
   <node id="5-Write">
