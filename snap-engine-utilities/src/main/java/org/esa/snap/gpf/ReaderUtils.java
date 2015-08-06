@@ -62,16 +62,20 @@ public final class ReaderUtils {
         return origName.replace(origName.substring(0, sepPos), newPrefix);
     }
 
-    public static void createVirtualIntensityBand(final Product product, final Band bandI, final Band bandQ, final String countStr) {
-        createVirtualIntensityBand(product, bandI, bandQ, createName(bandI.getName(), "Intensity"), countStr);
+    public static void createVirtualIntensityBand(final Product product, final Band bandI, final Band bandQ, final String suffix) {
+        createVirtualIntensityBand(product, bandI, bandQ, createName(bandI.getName(), "Intensity"), suffix);
     }
 
     public static void createVirtualIntensityBand(final Product product, final Band bandI, final Band bandQ,
-                                                  final String bandName, final String countStr) {
+                                                  final String bandName, final String suffix) {
         final String expression = bandI.getName() + " * " + bandI.getName() + " + " +
                 bandQ.getName() + " * " + bandQ.getName();
 
-        final VirtualBand virtBand = new VirtualBand(bandName + countStr,
+        String name = bandName;
+        if(!name.endsWith(suffix)) {
+            name += suffix;
+        }
+        final VirtualBand virtBand = new VirtualBand(name,
                 ProductData.TYPE_FLOAT32,
                 bandI.getSceneRasterWidth(),
                 bandI.getSceneRasterHeight(),
