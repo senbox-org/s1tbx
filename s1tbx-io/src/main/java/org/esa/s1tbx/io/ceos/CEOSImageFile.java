@@ -39,7 +39,7 @@ public abstract class CEOSImageFile {
     protected BinaryFileReader binaryReader = null;
     protected BinaryRecord[] _imageRecords = null;
 
-    protected int _imageRecordLength = 0;
+    protected long _imageRecordLength = 0;
     protected long _startPosImageRecords = 0;
     protected int _imageHeaderLength = 0;
 
@@ -429,7 +429,6 @@ public abstract class CEOSImageFile {
 
                 pm.worked(1);
             }
-
         } finally {
             pm.done();
         }

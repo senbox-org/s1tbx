@@ -43,12 +43,17 @@ public class Alos2ProductReaderPlugIn extends CEOSProductReaderPlugIn {
     @Override
     protected DecodeQualification checkProductQualification(File file) {
         final String name = file.getName().toUpperCase();
-        for (String prefix : constants.getVolumeFilePrefix()) {
-            if (name.startsWith(prefix) && name.contains("ALOS2")) {
-                final Alos2ProductReader reader = new Alos2ProductReader(this);
-                return reader.checkProductQualification(file);
+        if(name.contains("ALOS2")) {
+            for (String prefix : constants.getVolumeFilePrefix()) {
+                if (name.startsWith(prefix)) {
+                    final Alos2ProductReader reader = new Alos2ProductReader(this);
+                    return reader.checkProductQualification(file);
+                }
             }
         }
+        //if (name.endsWith(".ZIP") && (ZipUtils.findInZip(file, "vol-alos2", ""))) {
+        //    return DecodeQualification.INTENDED;
+        //}
         return DecodeQualification.UNABLE;
     }
 

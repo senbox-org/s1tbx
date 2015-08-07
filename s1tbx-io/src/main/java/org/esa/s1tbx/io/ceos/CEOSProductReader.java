@@ -16,6 +16,7 @@
 package org.esa.s1tbx.io.ceos;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.VirtualDir;
 import org.esa.s1tbx.io.SARReader;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.framework.dataio.ProductReaderPlugIn;
@@ -23,6 +24,7 @@ import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.gpf.ReaderUtils;
+import org.esa.snap.util.ZipUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +34,9 @@ import java.io.IOException;
  */
 public abstract class CEOSProductReader extends SARReader {
 
+    private VirtualDir productDir = null;
+    private String baseName;
+    private File baseDir;
     protected CEOSProductDirectory _dataDir = null;
 
     /**
@@ -76,13 +81,24 @@ public abstract class CEOSProductReader extends SARReader {
      */
     @Override
     protected Product readProductNodesImpl() throws IOException {
-        final File fileFromInput = ReaderUtils.getFileFromInput(getInput());
+        final File inputFile = ReaderUtils.getFileFromInput(getInput());
+
+        if (ZipUtils.isZip(inputFile)) {
+            productDir = VirtualDir.create(inputFile);
+            baseDir = inputFile;
+            baseName = inputFile.getName();
+        } else {
+            productDir = VirtualDir.create(inputFile.getParentFile());
+            baseDir = inputFile.getParentFile();
+            baseName = inputFile.getParentFile().getName();
+        }
+
         Product product = null;
         try {
-            _dataDir = createProductDirectory(fileFromInput);
+            _dataDir = createProductDirectory(inputFile);
             _dataDir.readProductDirectory();
             product = _dataDir.createProduct();
-            product.setFileLocation(fileFromInput);
+            product.setFileLocation(inputFile);
             setQuicklookBandName(product);
             product.getGcpGroup();
             product.setProductReader(this);
