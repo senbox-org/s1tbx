@@ -134,6 +134,8 @@ public class CreateInterferogramOp extends Operator {
     private double slvScenseCentreAzimuthTime = 0.0;
     private int subSwathIndex = 0;
     private double avgSceneHeight = 0.0;
+    private MetadataElement mstRoot = null;
+    private MetadataElement slvRoot = null;
 
     private boolean outputFlatEarthPhase = false;
 
@@ -162,6 +164,10 @@ public class CreateInterferogramOp extends Operator {
                 productName = "srp_ifgs";
                 productTag = "ifg_srp";
             }
+
+            mstRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+            MetadataElement slaveElem = sourceProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT);
+            slvRoot = slaveElem.getElements()[0];
 
             checkUserInput();
 
@@ -197,6 +203,15 @@ public class CreateInterferogramOp extends Operator {
             isTOPSARBurstProduct = validator.isTOPSARBurstProduct();
 
             if (isTOPSARBurstProduct) {
+                final String mProcSysId = mstRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
+                final float mVersion = Float.valueOf(mProcSysId.substring(mProcSysId.lastIndexOf(" ")));
+                final String sProcSysId = slvRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
+                final float sVersion = Float.valueOf(sProcSysId.substring(sProcSysId.lastIndexOf(" ")));
+                if ((mVersion < 2.43 && sVersion >= 2.43) || (sVersion < 2.43 && mVersion >= 2.43)) {
+                    throw new OperatorException(
+                            "Source products cannot be InSAR pair: one with EAP phase correction, one without.");
+                }
+
                 su = new Sentinel1Utils(sourceProduct);
                 subSwath = su.getSubSwath();
                 numSubSwaths = su.getNumOfSubSwath();
@@ -251,8 +266,6 @@ public class CreateInterferogramOp extends Operator {
         }
 
         /*
-        final MetadataElement mstRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-
         final double firstNearLat = AbstractMetadata.getAttributeDouble(mstRoot, AbstractMetadata.first_near_lat);
         final double firstFarLat = AbstractMetadata.getAttributeDouble(mstRoot, AbstractMetadata.first_far_lat);
         final double lastNearLat = AbstractMetadata.getAttributeDouble(mstRoot, AbstractMetadata.last_near_lat);
@@ -274,10 +287,6 @@ public class CreateInterferogramOp extends Operator {
 
     private void getSlvApproxSceneCentreAzimuthTime() throws Exception {
 
-        MetadataElement slaveElem = sourceProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT);
-        MetadataElement[] slaveRoot = slaveElem.getElements();
-        final MetadataElement slvRoot = slaveRoot[0];
-
         final double firstLineTimeInDays = slvRoot.getAttributeUTC(AbstractMetadata.first_line_time).getMJD();
         final double firstLineTime = (firstLineTimeInDays - (int)firstLineTimeInDays) * Constants.secondsInDay;
         final double lastLineTimeInDays = slvRoot.getAttributeUTC(AbstractMetadata.last_line_time).getMJD();
@@ -292,8 +301,6 @@ public class CreateInterferogramOp extends Operator {
     }
 
     private void getMeanTerrainElevation() throws Exception {
-
-        final MetadataElement mstRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
         avgSceneHeight = AbstractMetadata.getAttributeDouble(mstRoot, AbstractMetadata.avg_scene_height);
     }
 
@@ -386,12 +393,11 @@ public class CreateInterferogramOp extends Operator {
         final String slaveTag = "slv";
 
         // get sourceMaster & sourceSlave MetadataElement
-        final MetadataElement masterMeta = AbstractMetadata.getAbstractedMetadata(sourceProduct);
         final String slaveMetadataRoot = AbstractMetadata.SLAVE_METADATA_ROOT;
 
         /* organize metadata */
         // put sourceMaster metadata into the masterMap
-        metaMapPut(masterTag, masterMeta, sourceProduct, masterMap);
+        metaMapPut(masterTag, mstRoot, sourceProduct, masterMap);
 
         // put sourceSlave metadata into slaveMap
         MetadataElement slaveElem = sourceProduct.getMetadataRoot().getElement(slaveMetadataRoot);
