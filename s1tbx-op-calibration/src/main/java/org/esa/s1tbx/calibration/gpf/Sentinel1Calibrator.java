@@ -374,6 +374,11 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
                 throw new OperatorException("Please select I and Q bands in pairs only");
             }
 
+            final String pol = srcBandI.getName().substring(srcBandI.getName().lastIndexOf("_") + 1);
+            if (!selectedPolList.contains(pol)) {
+                continue;
+            }
+
             final String[] srcBandINames = {srcBandI.getName()};
             targetBandNameToSourceBandName.put(srcBandINames[0], srcBandINames);
             final Band targetBandI = new Band(srcBandINames[0],
