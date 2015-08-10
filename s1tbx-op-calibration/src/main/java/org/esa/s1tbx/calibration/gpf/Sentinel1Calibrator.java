@@ -52,6 +52,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
     private String polarization = null;
     private CalibrationInfo[] calibration = null;
     private boolean isMultiSwath = false;
+    private boolean isFormerIPFVersion = false;
     protected final HashMap<String, CalibrationInfo> targetBandToCalInfo = new HashMap<>(2);
     private java.util.List<String> selectedPolList = null;
     private boolean outputSigmaBand = false;
@@ -131,6 +132,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
             isMultiSwath = validator.isMultiSwath();
+            isFormerIPFVersion = validator.isFormerIPFVersion();
 
             getProductType();
 
@@ -611,6 +613,9 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
                 if (isComplex && outputImageInComplex) {
                     calValue = dn * Math.sqrt(calibrationFactor);
                 } else {
+                    if (isFormerIPFVersion) {
+                        calibrationFactor = Math.sqrt(calibrationFactor);
+                    }
                     calValue = dn2 * calibrationFactor;
                 }
 
