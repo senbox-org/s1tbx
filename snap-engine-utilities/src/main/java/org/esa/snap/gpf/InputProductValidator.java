@@ -253,4 +253,11 @@ public class InputProductValidator {
             throw new OperatorException("Source product should be calibrated");
         }
     }
+
+    public boolean isFormerIPFVersion() throws OperatorException {
+        final String procSysId = absRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
+        final float version = Float.valueOf(procSysId.substring(procSysId.lastIndexOf(" ")));
+        return (version < 2.50);
+    }
+
 }
