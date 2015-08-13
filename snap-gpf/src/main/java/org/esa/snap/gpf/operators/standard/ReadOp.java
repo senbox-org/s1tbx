@@ -44,6 +44,7 @@ import java.io.IOException;
  *        &lt;operator&gt;Read&lt;/operator&gt;
  *        &lt;parameters&gt;
  *            &lt;file&gt;/eodata/SST.nc&lt;/file&gt;
+ *            &lt;formatName&gt;GeoTIFF&lt;/formatName&gt;
  *        &lt;/parameters&gt;
  *    &lt;/node&gt;
  * </pre>
@@ -53,16 +54,19 @@ import java.io.IOException;
  * @since BEAM 4.2
  */
 @OperatorMetadata(alias = "Read",
-                  category = "Input-Output",
-                  version = "1.1",
-                  authors = "Marco Zuehlke, Norman Fomferra",
-                  copyright = "(c) 2010 by Brockmann Consult",
-                  description = "Reads a product from disk.")
+        category = "Input-Output",
+        version = "1.2",
+        authors = "Marco Zuehlke, Norman Fomferra",
+        copyright = "(c) 2010 by Brockmann Consult",
+        description = "Reads a data product from a given file location.")
 public class ReadOp extends Operator {
 
-    // (A) Make this a Path object
     @Parameter(description = "The file from which the data product is read.", notNull = true, notEmpty = true)
     private File file;
+
+    @Parameter(description = "An (optional) format name.", notNull = false, notEmpty = true)
+    private String formatName;
+
     @TargetProduct
     private Product targetProduct;
 
@@ -74,13 +78,18 @@ public class ReadOp extends Operator {
             throw new OperatorException("'file' parameter must be set");
         }
         try {
-            final ProductReader productReader = ProductIO.getProductReaderForInput(file);
-            if (productReader == null) {
-                throw new OperatorException("No product reader found for file " + file);
+            ProductReader productReader;
+            if (formatName != null && !formatName.trim().isEmpty()) {
+                productReader = ProductIO.getProductReader(formatName);
+                if (productReader == null) {
+                    throw new OperatorException("No product reader found for format '" + formatName + "'");
+                }
+            } else {
+                productReader = ProductIO.getProductReaderForInput(file);
+                if (productReader == null) {
+                    throw new OperatorException("No product reader found for file " + file);
+                }
             }
-            // (B) If (A) is done:
-            // targetProduct.setSourceLocation(file.toURI());
-            // targetProduct.setFileLocation(file.toFile());
             targetProduct = productReader.readProductNodes(file, null);
             targetProduct.setFileLocation(file);
             this.productReader = productReader;
