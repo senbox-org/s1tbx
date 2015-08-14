@@ -245,22 +245,6 @@ public class CommandLineArgsTest {
     }
 
     @Test
-    public void testTargetOptions() throws Exception {
-        CommandLineArgs lineArgs = parseArgs("./map-proj.xml", "-Tndvi=./out/ndviProduct.dim", "-Tsnow=./out/snowMask.dim", "source.dim");
-        SortedMap<String, String> targetMap = lineArgs.getTargetFilePathMap();
-        assertNotNull(targetMap);
-        assertEquals(2, targetMap.size());
-        assertEquals("./out/ndviProduct.dim", targetMap.get("ndvi"));
-        assertEquals("./out/snowMask.dim", targetMap.get("snow"));
-        assertEquals(null, lineArgs.getTargetFilePath());
-        SortedMap<String, String> sourceMap = lineArgs.getSourceFilePathMap();
-        assertEquals(3, sourceMap.size());
-        assertEquals("source.dim", sourceMap.get("sourceProduct"));
-        assertEquals("source.dim", sourceMap.get("sourceProduct.1"));
-        assertEquals("source.dim", sourceMap.get("sourceProduct1")); // test for backward compatibility
-    }
-
-    @Test
     public void testSourceOptions() throws Exception {
         CommandLineArgs lineArgs = parseArgs("Reproject", "-SndviProduct=./inp/NDVI.dim", "-ScloudProduct=./inp/cloud-mask.dim", "-Pthreshold=5.0", "source.dim");
         SortedMap<String, String> sourceMap = lineArgs.getSourceFilePathMap();

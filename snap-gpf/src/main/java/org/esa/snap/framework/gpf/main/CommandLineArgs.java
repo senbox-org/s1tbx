@@ -57,7 +57,6 @@ public class CommandLineArgs {
     private String parameterFilePath;
     private String metadataFilePath;
     private String velocityTemplateDirPath;
-    private TreeMap<String, String> targetFilePathMap;
     private boolean helpRequested;
     private boolean stackTraceDump;
     private boolean clearCacheAfterRowWrite;
@@ -77,9 +76,8 @@ public class CommandLineArgs {
             helpRequested = true;
         }
 
-        sourceFilePathMap = new TreeMap<String, String>();
-        targetFilePathMap = new TreeMap<String, String>();
-        parameterMap = new TreeMap<String, String>();
+        sourceFilePathMap = new TreeMap<>();
+        parameterMap = new TreeMap<>();
         systemPropertiesMap = new HashMap<>();
         tileCacheCapacity = DEFAULT_TILE_CACHE_SIZE_IN_M * M;
         tileSchedulerParallelism = DEFAULT_TILE_SCHEDULER_PARALLELISM;
@@ -107,9 +105,6 @@ public class CommandLineArgs {
                 } else if (arg.startsWith("-S")) {
                     String[] pair = parseNameValuePair(arg);
                     sourceFilePathMap.put(pair[0], pair[1]);
-                } else if (arg.startsWith("-T")) {
-                    String[] pair = parseNameValuePair(arg);
-                    targetFilePathMap.put(pair[0], pair[1]);
                 } else if (arg.startsWith("-D")) {
                     String[] pair = parseNameValuePair(arg);
                     systemPropertiesMap.put(pair[0], pair[1]);
@@ -167,19 +162,16 @@ public class CommandLineArgs {
         if (operatorName == null && graphFilePath == null && !helpRequested) {
             throw error("Either operator name or graph XML file must be given");
         }
-        if (graphFilePath == null && !targetFilePathMap.isEmpty()) {
-            throw error("Defined target products only valid for graph XML");
-        }
         if (metadataFilePath != null && metadataFilePath.isEmpty()) {
             metadataFilePath = null;
         }
         if (velocityTemplateDirPath != null && velocityTemplateDirPath.isEmpty()) {
             velocityTemplateDirPath = null;
         }
-        if (targetFilePath == null && targetFilePathMap.isEmpty()) {
+        if (targetFilePath == null) {
             targetFilePath = DEFAULT_TARGET_FILEPATH;
         }
-        if (targetFormatName == null && targetFilePath != null) {
+        if (targetFormatName == null) {
             final String extension = FileUtils.getExtension(targetFilePath);
             if (extension == null || extension.isEmpty()) {
                 targetFormatName = DEFAULT_FORMAT_NAME;
@@ -245,10 +237,6 @@ public class CommandLineArgs {
 
     public SortedMap<String, String> getSourceFilePathMap() {
         return sourceFilePathMap;
-    }
-
-    public SortedMap<String, String> getTargetFilePathMap() {
-        return targetFilePathMap;
     }
 
     public Map<String, String> getSystemPropertiesMap() {

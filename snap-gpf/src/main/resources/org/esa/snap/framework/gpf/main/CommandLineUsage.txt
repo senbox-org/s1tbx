@@ -2,11 +2,11 @@ Usage:
   {0} <op>|<graph-file> [options] [<source-file-1> <source-file-2> ...]
 
 Description:
-  This tool is used to execute BEAM raster data operators in batch-mode. The
+  This tool is used to execute SNAP raster data operators in batch-mode. The
   operators can be used stand-alone or combined as a directed acyclic graph
   (DAG). Processing graphs are represented using XML. More info about
   processing graphs, the operator API, and the graph XML format can be found
-  in the BEAM documentation.
+  in the SNAP documentation.
 
 Arguments:
   <op>               Name of an operator. See below for the list of <op>s.
@@ -52,9 +52,6 @@ Options:
   -x                 Clears the internal tile cache after writing a complete
                      row of tiles to the target product file. This option may
                      be useful if you run into memory problems.
-  -T<target>=<file>  Defines a target product. Valid for graphs only. <target>
-                     must be the identifier of a node in the graph. The node''s
-                     output will be written to <file>.
   -S<source>=<file>  Defines a source product. <source> is specified by the
                      operator or the graph. In an XML graph, all occurrences of
                      $'{<source>'} will be replaced with references to a source
