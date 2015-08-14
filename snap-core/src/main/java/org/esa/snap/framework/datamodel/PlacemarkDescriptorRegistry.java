@@ -18,7 +18,7 @@ package org.esa.snap.framework.datamodel;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
-import org.esa.snap.BeamCoreActivator;
+import org.esa.snap.SnapCoreActivator;
 import org.esa.snap.framework.dataio.DecodeQualification;
 import org.opengis.feature.simple.SimpleFeatureType;
 
@@ -41,8 +41,8 @@ public class PlacemarkDescriptorRegistry {
     private PlacemarkDescriptorRegistry() {
         ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
         serviceRegistry = serviceRegistryManager.getServiceRegistry(PlacemarkDescriptor.class);
-        if (!BeamCoreActivator.isStarted()) {
-            BeamCoreActivator.loadServices(serviceRegistry);
+        if (!SnapCoreActivator.isStarted()) {
+            SnapCoreActivator.loadServices(serviceRegistry);
         }
     }
 

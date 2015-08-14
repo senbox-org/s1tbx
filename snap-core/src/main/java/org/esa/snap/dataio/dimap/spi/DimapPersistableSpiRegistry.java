@@ -17,7 +17,7 @@ package org.esa.snap.dataio.dimap.spi;
 
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
-import org.esa.snap.BeamCoreActivator;
+import org.esa.snap.SnapCoreActivator;
 
 import java.util.Iterator;
 
@@ -35,8 +35,8 @@ public final class DimapPersistableSpiRegistry {
 
     private DimapPersistableSpiRegistry() {
         providers = ServiceRegistryManager.getInstance().getServiceRegistry(DimapPersistableSpi.class);
-        if (!BeamCoreActivator.isStarted()) {
-            BeamCoreActivator.loadServices(providers);
+        if (!SnapCoreActivator.isStarted()) {
+            SnapCoreActivator.loadServices(providers);
         }
     }
 

@@ -23,13 +23,10 @@ import java.util.Locale;
  * This interface is a container for constants specific for ENVISAT-products.
  *
  * @author Norman Fomferra
- * @version $Revision$ $Date$
+ * @deprecated Since it is Envisat-specific, this class lives in a wrong package.
  */
+@Deprecated
 public interface BeamConstants {
-
-    String HDF5_FORMAT_NAME = "HDF5";
-
-    String GEOTIFF_FORMAT_NAME = "GEOTIFF";
 
 
     String ENVISAT_FORMAT_NAME = "ENVISAT";
@@ -97,8 +94,8 @@ public interface BeamConstants {
     int AATSR_LOC_TIE_POINT_GRID_WIDTH = 23;
     int AATSR_LOC_TIE_POINT_SUBSAMPLING_X = 25;
     int AATSR_LOC_TIE_POINT_SUBSAMPLING_Y = 32;
-    int AATSR_LOC_TIE_POINT_RASTER_WIDTH = (BeamConstants.AATSR_LOC_TIE_POINT_GRID_WIDTH - 1) * BeamConstants.AATSR_LOC_TIE_POINT_SUBSAMPLING_X;
-    float AATSR_LOC_TIE_POINT_OFFSET_X = 0.5F * BeamConstants.AATSR_SCENE_RASTER_WIDTH - 0.5F * BeamConstants.AATSR_LOC_TIE_POINT_RASTER_WIDTH;
+    int AATSR_LOC_TIE_POINT_RASTER_WIDTH = (AATSR_LOC_TIE_POINT_GRID_WIDTH - 1) * AATSR_LOC_TIE_POINT_SUBSAMPLING_X;
+    float AATSR_LOC_TIE_POINT_OFFSET_X = 0.5F * AATSR_SCENE_RASTER_WIDTH - 0.5F * AATSR_LOC_TIE_POINT_RASTER_WIDTH;
 
     /**
      * Number of solar angle tie points in across track direction for the AATSR grid.
@@ -106,8 +103,8 @@ public interface BeamConstants {
     int AATSR_SOL_TIE_POINT_GRID_WIDTH = 11;
     int AATSR_SOL_TIE_POINT_SUBSAMPLING_X = 50;
     int AATSR_SOL_TIE_POINT_SUBSAMPLING_Y = 32;
-    int AATSR_SOL_TIE_POINT_RASTER_WIDTH = (BeamConstants.AATSR_SOL_TIE_POINT_GRID_WIDTH - 1) * BeamConstants.AATSR_SOL_TIE_POINT_SUBSAMPLING_X;
-    float AATSR_SOL_TIE_POINT_OFFSET_X = 0.5F * BeamConstants.AATSR_SCENE_RASTER_WIDTH - 0.5F * BeamConstants.AATSR_SOL_TIE_POINT_RASTER_WIDTH;
+    int AATSR_SOL_TIE_POINT_RASTER_WIDTH = (AATSR_SOL_TIE_POINT_GRID_WIDTH - 1) * AATSR_SOL_TIE_POINT_SUBSAMPLING_X;
+    float AATSR_SOL_TIE_POINT_OFFSET_X = 0.5F * AATSR_SCENE_RASTER_WIDTH - 0.5F * AATSR_SOL_TIE_POINT_RASTER_WIDTH;
 
     /**
      * Y-offset of AATSR tie-points corresponds to the upper bound of a pixel.
@@ -146,8 +143,8 @@ public interface BeamConstants {
     String MERIS_DETECTOR_INDEX_DS_NAME = "detector_index";
     String MERIS_SPECTRAL_SHIFT_INDEX_DS_NAME = "ssi";
 
-    String MERIS_LAT_DS_NAME = BeamConstants.LAT_DS_NAME;
-    String MERIS_LON_DS_NAME = BeamConstants.LON_DS_NAME;
+    String MERIS_LAT_DS_NAME = LAT_DS_NAME;
+    String MERIS_LON_DS_NAME = LON_DS_NAME;
     String MERIS_SUN_ZENITH_DS_NAME = "sun_zenith";
     String MERIS_SUN_AZIMUTH_DS_NAME = "sun_azimuth";
     String MERIS_VIEW_ZENITH_DS_NAME = "view_zenith";
@@ -173,39 +170,39 @@ public interface BeamConstants {
      * The names of the Meris Level 1 spectral band names.
      */
     String[] MERIS_L1B_SPECTRAL_BAND_NAMES = {
-            BeamConstants.MERIS_L1B_RADIANCE_1_BAND_NAME, // 0
-            BeamConstants.MERIS_L1B_RADIANCE_2_BAND_NAME, // 1
-            BeamConstants.MERIS_L1B_RADIANCE_3_BAND_NAME, // 2
-            BeamConstants.MERIS_L1B_RADIANCE_4_BAND_NAME, // 3
-            BeamConstants.MERIS_L1B_RADIANCE_5_BAND_NAME, // 4
-            BeamConstants.MERIS_L1B_RADIANCE_6_BAND_NAME, // 5
-            BeamConstants.MERIS_L1B_RADIANCE_7_BAND_NAME, // 6
-            BeamConstants.MERIS_L1B_RADIANCE_8_BAND_NAME, // 7
-            BeamConstants.MERIS_L1B_RADIANCE_9_BAND_NAME, // 8
-            BeamConstants.MERIS_L1B_RADIANCE_10_BAND_NAME, // 9
-            BeamConstants.MERIS_L1B_RADIANCE_11_BAND_NAME, // 10
-            BeamConstants.MERIS_L1B_RADIANCE_12_BAND_NAME, // 11
-            BeamConstants.MERIS_L1B_RADIANCE_13_BAND_NAME, // 12
-            BeamConstants.MERIS_L1B_RADIANCE_14_BAND_NAME, // 13
-            BeamConstants.MERIS_L1B_RADIANCE_15_BAND_NAME // 14
+            MERIS_L1B_RADIANCE_1_BAND_NAME, // 0
+            MERIS_L1B_RADIANCE_2_BAND_NAME, // 1
+            MERIS_L1B_RADIANCE_3_BAND_NAME, // 2
+            MERIS_L1B_RADIANCE_4_BAND_NAME, // 3
+            MERIS_L1B_RADIANCE_5_BAND_NAME, // 4
+            MERIS_L1B_RADIANCE_6_BAND_NAME, // 5
+            MERIS_L1B_RADIANCE_7_BAND_NAME, // 6
+            MERIS_L1B_RADIANCE_8_BAND_NAME, // 7
+            MERIS_L1B_RADIANCE_9_BAND_NAME, // 8
+            MERIS_L1B_RADIANCE_10_BAND_NAME, // 9
+            MERIS_L1B_RADIANCE_11_BAND_NAME, // 10
+            MERIS_L1B_RADIANCE_12_BAND_NAME, // 11
+            MERIS_L1B_RADIANCE_13_BAND_NAME, // 12
+            MERIS_L1B_RADIANCE_14_BAND_NAME, // 13
+            MERIS_L1B_RADIANCE_15_BAND_NAME // 14
     };
-    int MERIS_L1B_NUM_SPECTRAL_BANDS = BeamConstants.MERIS_L1B_SPECTRAL_BAND_NAMES.length;
+    int MERIS_L1B_NUM_SPECTRAL_BANDS = MERIS_L1B_SPECTRAL_BAND_NAMES.length;
 
     /**
      * The names of the Meris Level 1 non spectral band names.
      */
     String[] MERIS_L1B_NON_SPECTRAL_BAND_NAMES = new String[]{
-            BeamConstants.MERIS_L1B_FLAGS_DS_NAME, // 15
-            BeamConstants.MERIS_DETECTOR_INDEX_DS_NAME // 16
+            MERIS_L1B_FLAGS_DS_NAME, // 15
+            MERIS_DETECTOR_INDEX_DS_NAME // 16
     };
-    int MERIS_L1B_NUM_NON_SPECTRAL_BANDS = BeamConstants.MERIS_L1B_NON_SPECTRAL_BAND_NAMES.length;
+    int MERIS_L1B_NUM_NON_SPECTRAL_BANDS = MERIS_L1B_NON_SPECTRAL_BAND_NAMES.length;
 
     /**
      * The names of the Meris Level 1 MDS.
      */
-    String[] MERIS_L1B_BAND_NAMES = StringUtils.addArrays(BeamConstants.MERIS_L1B_SPECTRAL_BAND_NAMES,
-                                                          BeamConstants.MERIS_L1B_NON_SPECTRAL_BAND_NAMES);
-    int MERIS_L1B_NUM_BAND_NAMES = BeamConstants.MERIS_L1B_BAND_NAMES.length;
+    String[] MERIS_L1B_BAND_NAMES = StringUtils.addArrays(MERIS_L1B_SPECTRAL_BAND_NAMES,
+                                                          MERIS_L1B_NON_SPECTRAL_BAND_NAMES);
+    int MERIS_L1B_NUM_BAND_NAMES = MERIS_L1B_BAND_NAMES.length;
 
     String MERIS_L2_REFLEC_1_BAND_NAME = "reflec_1";
     String MERIS_L2_REFLEC_2_BAND_NAME = "reflec_2";
@@ -225,24 +222,24 @@ public interface BeamConstants {
      * The names of the Meris Level 2 MDS.
      */
     String[] MERIS_L2_BAND_NAMES = {
-            BeamConstants.MERIS_L2_REFLEC_1_BAND_NAME, //  0
-            BeamConstants.MERIS_L2_REFLEC_2_BAND_NAME, //  1
-            BeamConstants.MERIS_L2_REFLEC_3_BAND_NAME, //  2
-            BeamConstants.MERIS_L2_REFLEC_4_BAND_NAME, //  3
-            BeamConstants.MERIS_L2_REFLEC_5_BAND_NAME, //  4
-            BeamConstants.MERIS_L2_REFLEC_6_BAND_NAME, //  5
-            BeamConstants.MERIS_L2_REFLEC_7_BAND_NAME, //  6
-            BeamConstants.MERIS_L2_REFLEC_8_BAND_NAME, //  7
-            BeamConstants.MERIS_L2_REFLEC_9_BAND_NAME, //  8
-            BeamConstants.MERIS_L2_REFLEC_10_BAND_NAME, //  9
-            BeamConstants.MERIS_L2_REFLEC_12_BAND_NAME, // 10
-            BeamConstants.MERIS_L2_REFLEC_13_BAND_NAME, // 11
-            BeamConstants.MERIS_L2_REFLEC_14_BAND_NAME, // 12
+            MERIS_L2_REFLEC_1_BAND_NAME, //  0
+            MERIS_L2_REFLEC_2_BAND_NAME, //  1
+            MERIS_L2_REFLEC_3_BAND_NAME, //  2
+            MERIS_L2_REFLEC_4_BAND_NAME, //  3
+            MERIS_L2_REFLEC_5_BAND_NAME, //  4
+            MERIS_L2_REFLEC_6_BAND_NAME, //  5
+            MERIS_L2_REFLEC_7_BAND_NAME, //  6
+            MERIS_L2_REFLEC_8_BAND_NAME, //  7
+            MERIS_L2_REFLEC_9_BAND_NAME, //  8
+            MERIS_L2_REFLEC_10_BAND_NAME, //  9
+            MERIS_L2_REFLEC_12_BAND_NAME, // 10
+            MERIS_L2_REFLEC_13_BAND_NAME, // 11
+            MERIS_L2_REFLEC_14_BAND_NAME, // 12
             "algal_1", // 13
             "algal_2", // 14
             "toa_veg", // 15
             "boa_veg", // 16
-            BeamConstants.MERIS_L2_YELLOW_SUBST_BAND_NAME, // 17
+            MERIS_L2_YELLOW_SUBST_BAND_NAME, // 17
             "total_susp", // 18
             "rect_refl_red", // 19
             "rect_refl_nir", // 20
@@ -264,16 +261,16 @@ public interface BeamConstants {
      * The names of the Meris ADS
      */
     String[] MERIS_TIE_POINT_GRID_NAMES = {
-            BeamConstants.MERIS_LAT_DS_NAME, //  0
-            BeamConstants.MERIS_LON_DS_NAME, //  1
-            BeamConstants.MERIS_DEM_ALTITUDE_DS_NAME, //  2
+            MERIS_LAT_DS_NAME, //  0
+            MERIS_LON_DS_NAME, //  1
+            MERIS_DEM_ALTITUDE_DS_NAME, //  2
             "dem_rough", //  3
             "lat_corr", //  4
             "lon_corr", //  5
-            BeamConstants.MERIS_SUN_ZENITH_DS_NAME, //  6
-            BeamConstants.MERIS_SUN_AZIMUTH_DS_NAME, //  7
-            BeamConstants.MERIS_VIEW_ZENITH_DS_NAME, //  8
-            BeamConstants.MERIS_VIEW_AZIMUTH_DS_NAME, //  9
+            MERIS_SUN_ZENITH_DS_NAME, //  6
+            MERIS_SUN_AZIMUTH_DS_NAME, //  7
+            MERIS_VIEW_ZENITH_DS_NAME, //  8
+            MERIS_VIEW_AZIMUTH_DS_NAME, //  9
             "zonal_wind", // 10
             "merid_wind", // 11
             "atm_press", // 12
@@ -326,24 +323,24 @@ public interface BeamConstants {
      * The names of the AATRS Level 1 MDS
      */
     String[] AATSR_L1B_BAND_NAMES = {
-            BeamConstants.AATSR_L1B_BTEMP_NADIR_1200_BAND_NAME, //  0
-            BeamConstants.AATSR_L1B_BTEMP_NADIR_1100_BAND_NAME, //  1
-            BeamConstants.AATSR_L1B_BTEMP_NADIR_0370_BAND_NAME, //  2
-            BeamConstants.AATSR_L1B_REFLEC_NADIR_1600_BAND_NAME, //  3
-            BeamConstants.AATSR_L1B_REFLEC_NADIR_0870_BAND_NAME, //  4
-            BeamConstants.AATSR_L1B_REFLEC_NADIR_0670_BAND_NAME, //  5
-            BeamConstants.AATSR_L1B_REFLEC_NADIR_0550_BAND_NAME, //  6
-            BeamConstants.AATSR_L1B_BTEMP_FWARD_1200_BAND_NAME, //  7
-            BeamConstants.AATSR_L1B_BTEMP_FWARD_1100_BAND_NAME, //  8
-            BeamConstants.AATSR_L1B_BTEMP_FWARD_0370_BAND_NAME, //  9
-            BeamConstants.AATSR_L1B_REFLEC_FWARD_1600_BAND_NAME, // 10
-            BeamConstants.AATSR_L1B_REFLEC_FWARD_0870_BAND_NAME, // 11
-            BeamConstants.AATSR_L1B_REFLEC_FWARD_0670_BAND_NAME, // 12
-            BeamConstants.AATSR_L1B_REFLEC_FWARD_0550_BAND_NAME, // 13
-            BeamConstants.AATSR_L1B_CONFID_FLAGS_NADIR_BAND_NAME, // 14
-            BeamConstants.AATSR_L1B_CONFID_FLAGS_FWARD_BAND_NAME, // 15
-            BeamConstants.AATSR_L1B_CLOUD_FLAGS_NADIR_BAND_NAME, // 16
-            BeamConstants.AATSR_L1B_CLOUD_FLAGS_FWARD_BAND_NAME   // 17
+            AATSR_L1B_BTEMP_NADIR_1200_BAND_NAME, //  0
+            AATSR_L1B_BTEMP_NADIR_1100_BAND_NAME, //  1
+            AATSR_L1B_BTEMP_NADIR_0370_BAND_NAME, //  2
+            AATSR_L1B_REFLEC_NADIR_1600_BAND_NAME, //  3
+            AATSR_L1B_REFLEC_NADIR_0870_BAND_NAME, //  4
+            AATSR_L1B_REFLEC_NADIR_0670_BAND_NAME, //  5
+            AATSR_L1B_REFLEC_NADIR_0550_BAND_NAME, //  6
+            AATSR_L1B_BTEMP_FWARD_1200_BAND_NAME, //  7
+            AATSR_L1B_BTEMP_FWARD_1100_BAND_NAME, //  8
+            AATSR_L1B_BTEMP_FWARD_0370_BAND_NAME, //  9
+            AATSR_L1B_REFLEC_FWARD_1600_BAND_NAME, // 10
+            AATSR_L1B_REFLEC_FWARD_0870_BAND_NAME, // 11
+            AATSR_L1B_REFLEC_FWARD_0670_BAND_NAME, // 12
+            AATSR_L1B_REFLEC_FWARD_0550_BAND_NAME, // 13
+            AATSR_L1B_CONFID_FLAGS_NADIR_BAND_NAME, // 14
+            AATSR_L1B_CONFID_FLAGS_FWARD_BAND_NAME, // 15
+            AATSR_L1B_CLOUD_FLAGS_NADIR_BAND_NAME, // 16
+            AATSR_L1B_CLOUD_FLAGS_FWARD_BAND_NAME   // 17
     };
 
     /**
@@ -372,7 +369,6 @@ public interface BeamConstants {
             1000.0F, // 6
     };
 
-    // @todo 1 nf/** - add AATSR solar fluxes
     /**
      * The solar fluxes for the seven AATSR spectral channels in mW / (m^2 sr nm)
      */
@@ -386,8 +382,8 @@ public interface BeamConstants {
             0.0F, // 6
     };
 
-    String AATSR_LAT_DS_NAME = BeamConstants.LAT_DS_NAME;
-    String AATSR_LON_DS_NAME = BeamConstants.LON_DS_NAME;
+    String AATSR_LAT_DS_NAME = LAT_DS_NAME;
+    String AATSR_LON_DS_NAME = LON_DS_NAME;
     String AATSR_ALTITUDE_DS_NAME = "altitude";
     String AATSR_SUN_ELEV_NADIR_DS_NAME = "sun_elev_nadir";
     String AATSR_VIEW_ELEV_NADIR_DS_NAME = "view_elev_nadir";
@@ -402,21 +398,21 @@ public interface BeamConstants {
      * The names of the AATSR ADS
      */
     String[] AATSR_TIE_POINT_GRID_NAMES = {
-            BeamConstants.AATSR_LAT_DS_NAME, // 0
-            BeamConstants.AATSR_LON_DS_NAME, // 1
+            AATSR_LAT_DS_NAME, // 0
+            AATSR_LON_DS_NAME, // 1
             "lat_corr_nadir", // 2
             "lon_corr_nadir", // 3
             "lat_corr_fward", // 4
             "lon_corr_fward", // 5
-            BeamConstants.AATSR_ALTITUDE_DS_NAME, // 6
-            BeamConstants.AATSR_SUN_ELEV_NADIR_DS_NAME, // 7
-            BeamConstants.AATSR_VIEW_ELEV_NADIR_DS_NAME, // 8
-            BeamConstants.AATSR_SUN_AZIMUTH_NADIR_DS_NAME, // 9
-            BeamConstants.AATSR_VIEW_AZIMUTH_NADIR_DS_NAME, // 10
-            BeamConstants.AATSR_SUN_ELEV_FWARD_DS_NAME, // 11
-            BeamConstants.AATSR_VIEW_ELEV_FWARD_DS_NAME, // 12
-            BeamConstants.AATSR_SUN_AZIMUTH_FWARD_DS_NAME, // 13
-            BeamConstants.AATSR_VIEW_AZIMUTH_FWARD_DS_NAME    // 14
+            AATSR_ALTITUDE_DS_NAME, // 6
+            AATSR_SUN_ELEV_NADIR_DS_NAME, // 7
+            AATSR_VIEW_ELEV_NADIR_DS_NAME, // 8
+            AATSR_SUN_AZIMUTH_NADIR_DS_NAME, // 9
+            AATSR_VIEW_AZIMUTH_NADIR_DS_NAME, // 10
+            AATSR_SUN_ELEV_FWARD_DS_NAME, // 11
+            AATSR_VIEW_ELEV_FWARD_DS_NAME, // 12
+            AATSR_SUN_AZIMUTH_FWARD_DS_NAME, // 13
+            AATSR_VIEW_AZIMUTH_FWARD_DS_NAME    // 14
     };
 
     /**

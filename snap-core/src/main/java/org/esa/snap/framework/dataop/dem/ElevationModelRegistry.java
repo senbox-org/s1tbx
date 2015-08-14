@@ -17,7 +17,7 @@ package org.esa.snap.framework.dataop.dem;
 
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
-import org.esa.snap.BeamCoreActivator;
+import org.esa.snap.SnapCoreActivator;
 import org.esa.snap.util.Guardian;
 
 import java.util.Set;
@@ -35,8 +35,8 @@ public class ElevationModelRegistry {
 
     private ElevationModelRegistry() {
         descriptors = ServiceRegistryManager.getInstance().getServiceRegistry(ElevationModelDescriptor.class);
-        if (!BeamCoreActivator.isStarted()) {
-            BeamCoreActivator.loadServices(descriptors);
+        if (!SnapCoreActivator.isStarted()) {
+            SnapCoreActivator.loadServices(descriptors);
         }
     }
 

@@ -27,7 +27,6 @@ import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.RGBImageProfile;
 import org.esa.snap.framework.datamodel.Stx;
 import org.esa.snap.framework.datamodel.VirtualBand;
-import org.esa.snap.util.BeamConstants;
 import org.esa.snap.util.Debug;
 import org.esa.snap.util.ProductUtils;
 import org.esa.snap.util.StringUtils;
@@ -308,11 +307,11 @@ public class PConvertMain {
             _formatName = DimapProductWriterPlugIn.DIMAP_FORMAT_NAME;
             _imageFormat = false;
         } else if (_formatExt.equalsIgnoreCase("h5")) {
-            _formatName = BeamConstants.HDF5_FORMAT_NAME;
+            _formatName = "HDF5";
             _imageFormat = false;
         } else if (_formatExt.equalsIgnoreCase("tifp")) {
             _formatExt = "tif";
-            _formatName = BeamConstants.GEOTIFF_FORMAT_NAME;
+            _formatName = "GeoTIFF";
             _imageFormat = false;
         } else if (_formatExt.equalsIgnoreCase("bmp")) {
             _formatName = "BMP";

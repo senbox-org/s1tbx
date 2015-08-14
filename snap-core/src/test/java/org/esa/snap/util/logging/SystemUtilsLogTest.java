@@ -18,7 +18,7 @@ package org.esa.snap.util.logging;
 import junit.framework.TestCase;
 import org.esa.snap.util.SystemUtils;
 
-public class BeamLogManagerTest extends TestCase {
+public class SystemUtilsLogTest extends TestCase {
 
     public void testThatLoggerExists() {
         assertNotNull(SystemUtils.LOG);

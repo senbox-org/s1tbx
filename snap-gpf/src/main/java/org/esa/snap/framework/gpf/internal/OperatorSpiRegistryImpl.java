@@ -19,7 +19,7 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryListener;
 import com.bc.ceres.core.ServiceRegistryManager;
-import org.esa.snap.BeamCoreActivator;
+import org.esa.snap.SnapCoreActivator;
 import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.snap.framework.gpf.OperatorSpiRegistry;
 import org.esa.snap.util.SystemUtils;
@@ -73,8 +73,8 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
      */
     @Override
     public void loadOperatorSpis() {
-        if (!BeamCoreActivator.isStarted()) {
-            BeamCoreActivator.loadServices(getServiceRegistry());
+        if (!SnapCoreActivator.isStarted()) {
+            SnapCoreActivator.loadServices(getServiceRegistry());
         }
     }
 
