@@ -189,11 +189,14 @@ public class ToolAdapterOp extends Operator {
             if (this.progressMonitor != null) {
                 this.progressMonitor.beginTask("Executing " + this.descriptor.getName(), 100);
             }
-            validateDescriptor();
             if (this.consumer == null) {
                 this.consumer = new DefaultOutputConsumer(descriptor.getProgressPattern(), descriptor.getErrorPattern(), this.progressMonitor);
                 this.consumer.setLogger(getLogger());
             }
+            if (errorMessages != null) {
+                errorMessages.clear();
+            }
+            validateDescriptor();
             if (!isStopped) {
                 beforeExecute();
             }
