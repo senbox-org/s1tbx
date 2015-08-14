@@ -48,7 +48,7 @@ public class BiSincInterpolationResamplingTest extends TestCase {
                 0.0, 0.0, 1.0, 2.0, 3.0,
                 0.7f,
                 0.8f,
-                25.32082f);
+                24.65136f);
     }
 
     private void testIndexAndSample(

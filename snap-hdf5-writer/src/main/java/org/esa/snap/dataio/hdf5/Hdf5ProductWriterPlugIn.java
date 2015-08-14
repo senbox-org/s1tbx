@@ -30,19 +30,18 @@ import java.util.Locale;
  * The <code>Hdf5ProductWriterPlugIn</code> class is the plug-in entry-point for the HDF5 product writer.
  *
  * @author Norman Fomferra
- * @version $Revision$ $Date$
  */
 public class Hdf5ProductWriterPlugIn implements ProductWriterPlugIn {
 
     public static final String HDF5_FORMAT_NAME = "HDF5";
     public static final String HDF5_FILE_EXTENSION = ".h5";
 
-    private static final String _H5_CLASS_NAME = "ncsa.hdf.hdf5lib.H5";
+    private static final String H5_CLASS_NAME = "ncsa.hdf.hdf5lib.H5";
 
-    private static boolean hdf5LibAvailable = false;
+    private static final boolean hdf5LibAvailable;
 
     static {
-        hdf5LibAvailable = loadHdf5Lib(Hdf5ProductWriterPlugIn.class) != null;
+        hdf5LibAvailable = loadHdf5Lib();
     }
 
     /**
@@ -136,30 +135,23 @@ public class Hdf5ProductWriterPlugIn implements ProductWriterPlugIn {
         if (formatNames.length > 0) {
             formatName = formatNames[0];
         }
-
         return new SnapFileFilter(formatName, getDefaultFileExtensions(), getDescription(null));
     }
 
-    private static Class<?> loadHdf5Lib(Class<?> callerClass) {
-        return loadClassWithNativeDependencies(callerClass,
-                _H5_CLASS_NAME,
-                "{0}: HDF-5 library not available: {1}: {2}");
-    }
-
-    private static Class<?> loadClassWithNativeDependencies(Class<?> callerClass, String className, String warningPattern) {
-        ClassLoader classLoader = callerClass.getClassLoader();
-
-        String classResourceName = "/" + className.replace('.', '/') + ".class";
-//        SystemUtils.class.getResource(classResourceName);
-        if (callerClass.getResource(classResourceName) != null) {
-            try {
-                return Class.forName(className, true, classLoader);
-            } catch (Throwable error) {
-                SystemUtils.LOG.warning(MessageFormat.format(warningPattern, callerClass, error.getClass(), error.getMessage()));
-                return null;
-            }
-        } else {
-            return null;
+    private static boolean loadHdf5Lib() {
+        try {
+            Class.forName(H5_CLASS_NAME);
+            return true;
+        } catch (ClassNotFoundException ignored) {
+            // no logging here, H5 class may not be provided by intention
+            return false;
+        } catch (LinkageError e) {
+            // warning here, because H5 class exists, but native libs couldn't be loaded
+            SystemUtils.LOG.warning(MessageFormat.format("{0}: HDF-5 library not available: {1}: {2}",
+                                                         Hdf5ProductWriterPlugIn.class,
+                                                         e.getClass(),
+                                                         e.getMessage()));
+            return false;
         }
     }
 }
