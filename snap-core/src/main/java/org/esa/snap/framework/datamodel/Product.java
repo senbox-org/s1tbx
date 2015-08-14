@@ -92,6 +92,7 @@ public class Product extends ProductNode {
     private static final String GCP_GROUP_NAME = "ground_control_points";
 
     public static final String PROPERTY_NAME_GEOCODING = "geoCoding";
+    public static final String PROPERTY_NAME_TIMECODING = "timeCoding";
     public static final String PROPERTY_NAME_PRODUCT_TYPE = "productType";
 
     public static final String GEOMETRY_FEATURE_TYPE_NAME = PlainFeatureFactory.DEFAULT_TYPE_NAME;
@@ -677,7 +678,7 @@ public class Product extends ProductNode {
     /**
      * Gets the time-coding of this {@link Product}.
      *
-     * @return the geo-coding, or {@code null} if not available.
+     * @return the time-coding, or {@code null} if not available.
      * @see RasterDataNode#getTimeCoding()
      * @since SNAP 2.0
      */
@@ -690,12 +691,15 @@ public class Product extends ProductNode {
      * Sets the time-coding for this {@link Product}.
      *
      * @param timeCoding the new time-coding
-     * @see RasterDataNode#setTimeCoding(GeoCoding)
+     * @see RasterDataNode#setTimeCoding(TimeCoding)
      * @since SNAP 2.0
      */
     public void setTimeCoding(final TimeCoding timeCoding) {
-        this.timeCoding = timeCoding;
-        // todo: property change
+        if (!ObjectUtils.equalObjects(timeCoding, this.timeCoding)) {
+            final TimeCoding oldValue = this.timeCoding;
+            this.timeCoding = timeCoding;
+            fireNodeChanged(this, PROPERTY_NAME_TIMECODING, oldValue, timeCoding);
+        }
     }
 
 

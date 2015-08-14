@@ -7,45 +7,44 @@ import org.junit.*;
 
 import java.util.ArrayList;
 
-/**
- * @author Norman
- * @author Sabine
- */
-public class ProductTimeCodingTest {
+public class RasterDataNodeTimeCodigTest {
 
     private TimeCoding timeCoding;
+    private RasterDataNode rasterDataNode;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         timeCoding = mock(TimeCoding.class);
+        rasterDataNode = mock(RasterDataNode.class, CALLS_REAL_METHODS);
     }
 
     @Test
-    public void testTimeCodingIsOptional() throws Exception {
-        Product product = new Product("A", "B", 1, 1);
-        assertNull(product.getTimeCoding());
+    public void testSettingAndResetingTimeCoding() {
+        assertNull(rasterDataNode.getTimeCoding());
 
-        product.setTimeCoding(timeCoding);
-        assertNotNull(product.getTimeCoding());
+        rasterDataNode.setTimeCoding(timeCoding);
+        assertNotNull(rasterDataNode.getTimeCoding());
 
-        product.setTimeCoding(null);
-        assertNull(product.getTimeCoding());
+        rasterDataNode.setTimeCoding(null);
+        assertNull(rasterDataNode.getTimeCoding());
     }
+
     @Test
     public void testPropertyChangeEventOnTimeCodingChange() {
         final Product product = new Product("pn", "pt", 20, 30);
+        final RasterDataNode rasterDataNode = product.addBand("bn", ProductData.TYPE_INT16);
         final MyProductNodeListener nodeListener = new MyProductNodeListener();
         product.addProductNodeListener(nodeListener);
 
-        product.setTimeCoding(timeCoding);
-        product.setTimeCoding(null);
+        rasterDataNode.setTimeCoding(timeCoding);
+        rasterDataNode.setTimeCoding(null);
 
         final ArrayList<ProductNodeEvent> events = nodeListener.events;
         assertEquals(2, events.size());
         final ProductNodeEvent firstEvent = events.get(0);
         final ProductNodeEvent secondEvent = events.get(1);
-        assertSame(product, firstEvent.getSourceNode());
-        assertSame(product, secondEvent.getSourceNode());
+        assertSame(rasterDataNode, firstEvent.getSourceNode());
+        assertSame(rasterDataNode, secondEvent.getSourceNode());
         assertEquals(RasterDataNode.PROPERTY_NAME_TIMECODING, firstEvent.getPropertyName());
         assertEquals(RasterDataNode.PROPERTY_NAME_TIMECODING, secondEvent.getPropertyName());
         assertNull(firstEvent.getOldValue());
@@ -78,6 +77,4 @@ public class ProductTimeCodingTest {
             events.add(event);
         }
     }
-
 }
-

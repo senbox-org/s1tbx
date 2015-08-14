@@ -92,6 +92,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public static final String PROPERTY_NAME_NO_DATA_VALUE_USED = "noDataValueUsed";
     public static final String PROPERTY_NAME_VALID_PIXEL_EXPRESSION = "validPixelExpression";
     public static final String PROPERTY_NAME_GEOCODING = Product.PROPERTY_NAME_GEOCODING;
+    public static final String PROPERTY_NAME_TIMECODING = Product.PROPERTY_NAME_TIMECODING;
     public static final String PROPERTY_NAME_STX = "stx";
     public static final String PROPERTY_NAME_ANCILLARY_VARIABLES = "ancillaryVariables";
     public static final String PROPERTY_NAME_ANCILLARY_RELATIONS = "ancillaryRelations";
@@ -500,7 +501,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * Gets the time-coding of this {@link RasterDataNode}.
      *
-     * @return the geo-coding, or {@code null} if not available.
+     * @return the time-coding, or {@code null} if not available.
      * @see Product#getTimeCoding()
      * @since SNAP 2.0
      */
@@ -513,12 +514,15 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Sets the time-coding for this {@link RasterDataNode}.
      *
      * @param timeCoding the new time-coding
-     * @see Product#setTimeCoding(GeoCoding)
+     * @see Product#setTimeCoding(TimeCoding)
      * @since SNAP 2.0
      */
     public void setTimeCoding(final TimeCoding timeCoding) {
-        this.timeCoding = timeCoding;
-        // todo: property change
+        if (!ObjectUtils.equalObjects(timeCoding, this.timeCoding)) {
+            final TimeCoding oldValue = this.timeCoding;
+            this.timeCoding = timeCoding;
+            fireProductNodeChanged(PROPERTY_NAME_TIMECODING, oldValue, timeCoding);
+        }
     }
 
     /**
