@@ -337,22 +337,33 @@ public class BandArithmetic {
     /**
      * Determines whether all rasters which are referenced in the given expressions are compatible.
      *
-     * @param product     The product to which the expressions refer
+     * @param product     The product to which the expressions can refer
      * @param expressions the expressions in question
      * @return true if all referenced rasters are compatible
      */
     public static boolean areRastersEqualInSize(Product product, String... expressions) {
+        return areRastersEqualInSize(new Product[]{product}, 0, expressions);
+    }
+
+    /**
+     * Determines whether all rasters which are referenced in the given expressions are compatible.
+     *
+     * @param products     The product to which the expressions can refer
+     * @param defaultProductIndex     The index of the default product
+     * @param expressions the expressions in question
+     * @return true if all referenced rasters are compatible
+     */
+    public static boolean areRastersEqualInSize(Product[] products, int defaultProductIndex, String... expressions) {
         if (expressions.length == 0) {
             return true;
         }
-        final Product[] productAsArray = {product};
         try {
             int referenceWidth = -1;
             int referenceHeight = -1;
             for (String expression : expressions) {
-                final RasterDataNode[] refRasters = getRefRasters(expression, productAsArray, 0);
+                final RasterDataNode[] refRasters = getRefRasters(expression, products, defaultProductIndex);
                 if (refRasters.length > 0) {
-                    if (!areRastersEqualInSize(parseExpression(expression, productAsArray, 0))) {
+                    if (!areRastersEqualInSize(parseExpression(expression, products, defaultProductIndex))) {
                         return false;
                     }
                     if (referenceWidth == -1) {
