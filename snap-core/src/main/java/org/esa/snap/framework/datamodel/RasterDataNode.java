@@ -138,6 +138,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     private String validPixelExpression;
 
     private GeoCoding geoCoding;
+    private TimeCoding timeCoding;
 
     private Stx stx;
 
@@ -494,6 +495,30 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             computeSceneRasterTransform();
             fireProductNodeChanged(PROPERTY_NAME_GEOCODING);
         }
+    }
+
+    /**
+     * Gets the time-coding of this {@link RasterDataNode}.
+     *
+     * @return the geo-coding, or {@code null} if not available.
+     * @see Product#getTimeCoding()
+     * @since SNAP 2.0
+     */
+    public TimeCoding getTimeCoding() {
+        return timeCoding;
+    }
+
+
+    /**
+     * Sets the time-coding for this {@link RasterDataNode}.
+     *
+     * @param timeCoding the new time-coding
+     * @see Product#setTimeCoding(GeoCoding)
+     * @since SNAP 2.0
+     */
+    public void setTimeCoding(final TimeCoding timeCoding) {
+        this.timeCoding = timeCoding;
+        // todo: property change
     }
 
     /**

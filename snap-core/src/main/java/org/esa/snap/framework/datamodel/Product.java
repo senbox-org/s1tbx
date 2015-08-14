@@ -112,6 +112,11 @@ public class Product extends ProductNode {
     private ProductWriter writer;
 
     /**
+     * The time-coding of this product, if any.
+     */
+    private TimeCoding timeCoding;
+
+    /**
      * The geo-coding of this product, if any.
      */
     private GeoCoding geoCoding;
@@ -668,6 +673,31 @@ public class Product extends ProductNode {
 
         ImageManager.getInstance().clearMaskImageCache(this);
     }
+
+    /**
+     * Gets the time-coding of this {@link Product}.
+     *
+     * @return the geo-coding, or {@code null} if not available.
+     * @see RasterDataNode#getTimeCoding()
+     * @since SNAP 2.0
+     */
+    public TimeCoding getTimeCoding() {
+        return timeCoding;
+    }
+
+
+    /**
+     * Sets the time-coding for this {@link Product}.
+     *
+     * @param timeCoding the new time-coding
+     * @see RasterDataNode#setTimeCoding(GeoCoding)
+     * @since SNAP 2.0
+     */
+    public void setTimeCoding(final TimeCoding timeCoding) {
+        this.timeCoding = timeCoding;
+        // todo: property change
+    }
+
 
     /**
      * Gets the pointing factory associated with this data product.
