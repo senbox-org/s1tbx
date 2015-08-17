@@ -29,6 +29,7 @@ import java.util.Locale;
  */
 public class RATProductReaderPlugIn implements ProductReaderPlugIn {
 
+    private final static String DESCRIPTION = "DLR TAXI RAT Format";
     private final static String[] FORMATS = new String[] {"RAT"};
     private final static String EXT = ".rat.hdr";
 
@@ -108,7 +109,7 @@ public class RATProductReaderPlugIn implements ProductReaderPlugIn {
      * @return a textual description of this product reader/writer
      */
     public String getDescription(final Locale locale) {
-        return "RAT";
+        return DESCRIPTION;
     }
 
     public static class FileFilter extends SnapFileFilter {
@@ -116,7 +117,7 @@ public class RATProductReaderPlugIn implements ProductReaderPlugIn {
         public FileFilter() {
             super();
             setFormatName(FORMATS[0]);
-            setDescription("RAT");
+            setDescription(DESCRIPTION);
             setExtensions(new String[] {EXT});
         }
 
@@ -137,6 +138,5 @@ public class RATProductReaderPlugIn implements ProductReaderPlugIn {
             }
             return false;
         }
-
     }
 }
