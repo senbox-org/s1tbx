@@ -109,9 +109,8 @@ public class DimapProductReader extends AbstractProductReader {
      * method can be sure that the input object and eventually the subset information has already been set.
      * <p>This method is called as a last step in the <code>readProductNodes(input, subsetInfo)</code> method.
      *
-     * @throws java.io.IOException if an I/O error occurs
-     * @throws org.esa.snap.framework.dataio.IllegalFileFormatException
-     *                             if the input file in not decodeable
+     * @throws java.io.IOException                                      if an I/O error occurs
+     * @throws org.esa.snap.framework.dataio.IllegalFileFormatException if the input file in not decodeable
      */
     @Override
     protected Product readProductNodesImpl() throws IOException {
@@ -167,9 +166,14 @@ public class DimapProductReader extends AbstractProductReader {
         if (geoCodings != null) {
             if (geoCodings.length == 1) {
                 product.setGeoCoding(geoCodings[0]);
-            } else {
+            } else if (geoCodings.length == product.getNumBands()) {
                 for (int i = 0; i < geoCodings.length; i++) {
-                    product.getBandAt(i).setGeoCoding(geoCodings[i]);
+                    final Band band = product.getBandAt(i);
+                    if (product.getSceneRasterWidth() == band.getRasterWidth() &&
+                            product.getSceneRasterHeight() == band.getRasterHeight()) {
+                        product.setGeoCoding(geoCodings[i]);
+                    }
+                    band.setGeoCoding(geoCodings[i]);
                 }
             }
         } else {
@@ -211,14 +215,14 @@ public class DimapProductReader extends AbstractProductReader {
                 inputStream = new FileImageInputStream(new File(inputDir, dataFile));
                 final float[] data = ((float[]) tiePointGrid.getData().getElems());
                 inputStream.seek(0);
-                if(dataType == ProductData.TYPE_FLOAT32) {
+                if (dataType == ProductData.TYPE_FLOAT32) {
                     inputStream.readFully(data, 0, data.length);
                 } else {
                     final double[] doubles = new double[data.length];
                     inputStream.readFully(doubles, 0, doubles.length);
                     int i = 0;
-                    for(double d : doubles) {
-                        data[i++] = (float)d;
+                    for (double d : doubles) {
+                        data[i++] = (float) d;
                     }
                 }
                 inputStream.close();
@@ -290,7 +294,6 @@ public class DimapProductReader extends AbstractProductReader {
      * @param destWidth     the width of region to be read given in the band's raster co-ordinates
      * @param destHeight    the height of region to be read given in the band's raster co-ordinates
      * @param pm            a monitor to inform the user about progress
-     *
      * @throws java.io.IOException if  an I/O error occurs
      * @see #getSubsetDef
      */
