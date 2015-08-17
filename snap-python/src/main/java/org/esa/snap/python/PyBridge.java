@@ -2,6 +2,7 @@ package org.esa.snap.python;
 
 import org.esa.snap.runtime.Config;
 import org.esa.snap.util.Debug;
+import org.esa.snap.util.ResourceInstaller;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.io.TreeCopier;
 import org.jpy.PyLib;
@@ -176,13 +177,17 @@ public class PyBridge {
             command.add("--log_level");
             command.add("DEBUG");
         }
+        // "java.home" should always be present
         String javaHome = System.getProperty("java.home");
         if (javaHome != null) {
             command.add("--java_home");
             command.add(javaHome);
         }
-        String osArch = System.getProperty("os.arch");  // "os.arch" is always present
+        // "os.arch" should always be present
+        String osArch = System.getProperty("os.arch");
         if (osArch != null) {
+            // Note that we actually need the Java VM's architecture, and not the one of the host OS.
+            // But there seems no way to retrieve it using Java JDK 1.8, so we stick to "os.arch".
             command.add("--req_arch");
             command.add(osArch);
         }
@@ -217,17 +222,7 @@ public class PyBridge {
     }
 
     private static Path findModuleCodeBasePath() {
-        try {
-            URI uri = PyBridge.class.getProtectionDomain().getCodeSource().getLocation().toURI();
-            try {
-                return Paths.get(uri);
-            } catch (FileSystemNotFoundException exp) {
-                FileSystems.newFileSystem(uri, Collections.emptyMap());
-                return Paths.get(uri);
-            }
-        } catch (URISyntaxException | IOException e) {
-            throw new RuntimeException("Failed to detect the module's code base path", e);
-        }
+        return ResourceInstaller.findModuleCodeBasePath(PyBridge.class);
     }
 
     private static Path stripJarScheme(Path path) {
@@ -313,7 +308,7 @@ public class PyBridge {
                         }
                         Config.instance().preferences().put(key, value);
                     }
-                    LOG.warning(String.format("SNAP-Python configuration loaded from '%s'", pythonConfigFile));
+                    LOG.info(String.format("SNAP-Python configuration loaded from '%s'", pythonConfigFile));
                     return true;
                 } catch (IOException e) {
                     LOG.warning(String.format("Failed to load SNAP-Python configuration from '%s'", pythonConfigFile));
@@ -337,7 +332,7 @@ public class PyBridge {
             try (BufferedWriter bufferedWriter = Files.newBufferedWriter(pythonConfigFile)) {
                 properties.store(bufferedWriter, "Created by " + PyBridge.class.getName());
             }
-            LOG.warning(String.format("SNAP-Python configuration written to '%s'", pythonConfigFile));
+            LOG.info(String.format("SNAP-Python configuration written to '%s'", pythonConfigFile));
             return true;
         } catch (IOException e) {
             LOG.warning(String.format("Failed to store SNAP-Python configuration to '%s'", pythonConfigFile));
