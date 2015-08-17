@@ -60,6 +60,7 @@ public interface ToolAdapterConstants {
     String ALIAS = "alias";
     String NOT_NULL = "NotNull";
     String NOT_EMPTY = "NotEmpty";
+    String HANDLE_OUTPUT = "isHandlingOutputName";
     String PROCESSING_WRITER = "processingWriter";
     String PREPROCESSOR_EXTERNAL_TOOL = "preprocessorExternalTool";
     String USER_MODULE_PATH = "user.module.path";

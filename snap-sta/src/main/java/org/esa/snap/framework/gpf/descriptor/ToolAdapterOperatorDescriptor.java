@@ -72,6 +72,7 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
     private List<TemplateParameterDescriptor> toolParameterDescriptors = new ArrayList<>();
     private String source;
     private boolean isSystem;
+    private boolean isHandlingOutputName;
 
     private DefaultSourceProductDescriptor[] sourceProductDescriptors;
     private DefaultSourceProductsDescriptor sourceProductsDescriptor;
@@ -152,6 +153,8 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
         for (int i = 0; i < obj.getTargetPropertyDescriptors().length; i++) {
             this.targetPropertyDescriptors[i] = ((DefaultTargetPropertyDescriptor) (obj.getTargetPropertyDescriptors()[i]));
         }
+
+        this.isHandlingOutputName = obj.isHandlingOutputName;
     }
 
     /**
@@ -317,7 +320,20 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
         }
     }
 
+    /**
+     * Determines if the source of this descriptor is from a package or creadet/modified by user.
+     */
     public boolean isFromPackage() { return SOURCE_PACKAGE.equals(getSource()); }
+
+    /**
+     * Determines if the tool would produce by itself the name of the output product.
+     */
+    public boolean isHandlingOutputName() { return isHandlingOutputName; }
+
+    /**
+     * Setter for the isHandlingOutputName member.
+     */
+    public void setHandlingOutputName(boolean value) { isHandlingOutputName = value; }
 
     @Override
     public Class<? extends Operator> getOperatorClass() {
