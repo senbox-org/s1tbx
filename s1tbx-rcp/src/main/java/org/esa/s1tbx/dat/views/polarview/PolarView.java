@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -22,17 +22,15 @@ import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.ProductNode;
 import org.esa.snap.framework.datamodel.RasterDataNode;
-import org.esa.snap.framework.ui.BasicView;
 import org.esa.snap.framework.ui.product.ProductNodeView;
 import org.esa.snap.framework.ui.product.ProductSceneImage;
 import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.FileFolderUtils;
+import org.openide.windows.TopComponent;
 
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
+import javax.swing.*;
 import javax.swing.border.BevelBorder;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import java.awt.BorderLayout;
@@ -54,14 +52,13 @@ import java.util.List;
  * User: lveci
  * Date: Dec 1, 2008
  */
-public final class PolarView extends BasicView implements ProductNodeView, ActionListener, PopupMenuListener, MouseListener, MouseMotionListener {
+public final class PolarView extends JPanel implements ActionListener, PopupMenuListener, MouseListener, MouseMotionListener {
 
-    private final Product product;
-    private ProductSceneImage sceneImage;
+    private Product product;
     private MetadataElement spectraMetadataRoot = null;
 
-    private final int numRecords;
-    private final int recordLength;
+    private int numRecords;
+    private int recordLength;
     private int numDirBins;
     private int numWLBins;
 
@@ -96,8 +93,8 @@ public final class PolarView extends BasicView implements ProductNodeView, Actio
 
     private enum WaveProductType {CROSS_SPECTRA, WAVE_SPECTRA}
 
-    private final ControlPanel controlPanel;
-    private final PolarPanel polarPanel;
+    private ControlPanel controlPanel;
+    private PolarPanel polarPanel;
     private Unit graphUnit = Unit.REAL;
     private WaveProductType waveProductType = WaveProductType.WAVE_SPECTRA;
     private float spectrum[][] = null;
@@ -109,24 +106,7 @@ public final class PolarView extends BasicView implements ProductNodeView, Actio
     private static final double rings[] = {50.0, 100.0, 200.0};
     private static final String ringTextStrings[] = {"200 m", "100 m", "50 m"};
 
-    public PolarView(Product prod, ProductSceneImage image) {
-        product = prod;
-        sceneImage = image;
-
-        if (prod.getProductType().equals("ASA_WVW_2P")) {
-            waveProductType = WaveProductType.WAVE_SPECTRA;
-            graphUnit = Unit.AMPLITUDE;
-        } else {
-            waveProductType = WaveProductType.CROSS_SPECTRA;
-            graphUnit = Unit.INTENSITY;
-        }
-
-        getMetadata();
-
-        final RasterDataNode[] rasters = sceneImage.getRasters();
-        final RasterDataNode rasterNode = rasters[0];
-        numRecords = rasterNode.getRasterHeight() - 1;
-        recordLength = rasterNode.getRasterWidth();
+    public PolarView() {
 
         addMouseListener(this);
         addMouseMotionListener(this);
@@ -137,29 +117,43 @@ public final class PolarView extends BasicView implements ProductNodeView, Actio
         this.add(polarPanel, BorderLayout.CENTER);
         controlPanel = new ControlPanel(this);
         this.add(controlPanel, BorderLayout.SOUTH);
-
-        createPlot(currentRecord);
     }
 
-    /**
-     * Returns the currently visible product node.
-     */
-    @Override
-    public ProductNode getVisibleProductNode() {
-        return sceneImage.getRasters()[0];
-    }
+    public void setProduct(final Product prod) {
+        this.product = prod;
+        if(product == null) {
+            return;
+        }
 
-    /**
-     * Releases all of the resources used by this view, its subcomponents, and all of its owned children.
-     */
-    @Override
-    public void dispose() {
-        sceneImage = null;
-        super.dispose();
+        if (product.getProductType().equals("ASA_WVW_2P")) {
+            waveProductType = WaveProductType.WAVE_SPECTRA;
+            graphUnit = Unit.AMPLITUDE;
+        } else if(product.getProductType().equals("ASA_WVS_2P")) {
+            waveProductType = WaveProductType.CROSS_SPECTRA;
+            graphUnit = Unit.INTENSITY;
+        } else {
+            waveProductType = null;
+        }
+
+        if(waveProductType != null) {
+            getMetadata();
+
+            final RasterDataNode rasterNode = product.getBandAt(0);
+            numRecords = rasterNode.getRasterHeight() - 1;
+            recordLength = rasterNode.getRasterWidth();
+
+            createPlot(currentRecord);
+        }
     }
 
     public Product getProduct() {
         return product;
+    }
+
+    public void removeProduct(final Product product) {
+        if(this.product == product) {
+            this.product = null;
+        }
     }
 
     private void getMetadata() {
@@ -390,12 +384,10 @@ public final class PolarView extends BasicView implements ProductNodeView, Actio
         return f < 0.0F ? -1 : 1;
     }
 
-    @Override
     public JPopupMenu createPopupMenu(Component component) {
         return null;
     }
 
-    @Override
     public JPopupMenu createPopupMenu(MouseEvent event) {
         final JPopupMenu popup = new JPopupMenu();
 
