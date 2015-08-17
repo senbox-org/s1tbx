@@ -260,4 +260,11 @@ public class InputProductValidator {
         return (version < 2.50);
     }
 
+    public void checkIfTanDEMXProduct() throws OperatorException {
+        final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
+        if (!mission.startsWith("TDM")) {
+            throw new OperatorException("Input should be a TanDEM-X product.");
+        }
+    }
+
 }
