@@ -15,11 +15,7 @@
  */
 package org.esa.s1tbx.dat.toolviews.Projects;
 
-import org.esa.s1tbx.dat.toolviews.Projects.Project;
-import org.esa.snap.framework.ui.command.CommandEvent;
-import org.esa.snap.framework.ui.command.ExecCommand;
 import org.openide.awt.ActionID;
-import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.NbBundle;
@@ -33,7 +29,7 @@ import java.awt.event.ActionEvent;
  * @author lveci
  * @version $Revision: 1.3 $ $Date: 2011-04-08 18:23:59 $
  */
-@ActionID(category = "tool", id = "SaveProjectAsAction" )
+@ActionID(category = "Projects", id = "SaveProjectAsAction" )
 @ActionRegistration(
         displayName = "#CTL_SaveProjectAsAction_MenuText",
         popupText = "#CTL_SaveProjectAsAction_MenuText",
