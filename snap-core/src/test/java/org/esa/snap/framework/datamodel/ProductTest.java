@@ -440,15 +440,15 @@ public class ProductTest {
         assertEquals(10, autoGrouping.size());
 
         assertArrayEquals(new String[]{"L_1"}, autoGrouping.get(0));
-        assertArrayEquals(new String []{"L_1_err"}, autoGrouping.get(1));
+        assertArrayEquals(new String[]{"L_1_err"}, autoGrouping.get(1));
         assertArrayEquals(new String[]{"L_2"}, autoGrouping.get(2));
         assertArrayEquals(new String[]{"L_2_err"}, autoGrouping.get(3));
         assertArrayEquals(new String[]{"L_10"}, autoGrouping.get(4));
         assertArrayEquals(new String[]{"L_10_err"}, autoGrouping.get(5));
-        assertArrayEquals(new String []{"L_11"}, autoGrouping.get(6));
+        assertArrayEquals(new String[]{"L_11"}, autoGrouping.get(6));
         assertArrayEquals(new String[]{"L_11_err"}, autoGrouping.get(7));
         assertArrayEquals(new String[]{"L_21"}, autoGrouping.get(8));
-        assertArrayEquals(new String []{"L_21_err"}, autoGrouping.get(9));
+        assertArrayEquals(new String[]{"L_21_err"}, autoGrouping.get(9));
 
         assertEquals(0, autoGrouping.indexOf("L_1_CAM1"));
         assertEquals(0, autoGrouping.indexOf("L_1_CAM5"));
@@ -473,7 +473,7 @@ public class ProductTest {
     }
 
     @Test
-         public void testGetAndSetBandAutoGroupingSubGroups() {
+    public void testGetAndSetBandAutoGroupingSubGroups() {
         final Product product = new Product("A", "B", 10, 10);
         product.setAutoGrouping("L_1:L_1/err:L_2:L_2/err:L_10:L_10/err:L_11:L_11/err:L_21:L_21/err");
         final Product.AutoGrouping autoGrouping = product.getAutoGrouping();
@@ -580,6 +580,31 @@ public class ProductTest {
         assertEquals(3, autoGrouping.indexOf("L_2_CAM5"));
         assertEquals(4, autoGrouping.indexOf("L_2_err_CAM1"));
         assertEquals(5, autoGrouping.indexOf("L_2_err_CAM5"));
+    }
+
+    @Test
+    public void testSettingOfAutoGroupingWithEmptyStrings() {
+        final Product product = new Product("A", "B", 10, 10);
+        product.setAutoGrouping("L_1:L_1/*err*CAM*::L_2::L_2/*err*CAM*::L_2/*err*CAM*/");
+        final Product.AutoGrouping autoGrouping = product.getAutoGrouping();
+
+        assertNotNull(autoGrouping);
+        assertEquals(5, autoGrouping.size());
+
+        assertArrayEquals(new String[]{"L_1"}, autoGrouping.get(0));
+        assertArrayEquals(new String[]{"L_1", "*err*CAM*"}, autoGrouping.get(1));
+        assertArrayEquals(new String[]{"L_2"}, autoGrouping.get(2));
+        assertArrayEquals(new String[]{"L_2", "*err*CAM*"}, autoGrouping.get(3));
+        assertArrayEquals(new String[]{"L_2", "*err*CAM*"}, autoGrouping.get(4));
+
+        assertEquals(0, autoGrouping.indexOf("L_1_CAM1"));
+        assertEquals(0, autoGrouping.indexOf("L_1_CAM5"));
+        assertEquals(1, autoGrouping.indexOf("L_1_err_CAM1"));
+        assertEquals(1, autoGrouping.indexOf("L_1_err_CAM5"));
+        assertEquals(2, autoGrouping.indexOf("L_2_CAM1"));
+        assertEquals(2, autoGrouping.indexOf("L_2_CAM5"));
+        assertEquals(3, autoGrouping.indexOf("L_2_err_CAM1"));
+        assertEquals(3, autoGrouping.indexOf("L_2_err_CAM5"));
     }
 
     @Test
@@ -1012,6 +1037,7 @@ public class ProductTest {
 
     private static class TracingProductNodeListener extends ProductNodeListenerAdapter {
         List<ProductNodeEvent> events = new ArrayList<ProductNodeEvent>();
+
         @Override
         public void nodeChanged(ProductNodeEvent event) {
             events.add(event);

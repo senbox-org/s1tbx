@@ -2376,14 +2376,25 @@ public class Product extends ProductNode {
         }
 
         public static AutoGrouping parse(String text) {
-            String[][] paths;
+            List<String[]> pathLists = new ArrayList<>();
             if (StringUtils.isNotNullAndNotEmpty(text)) {
                 String[] pathTexts = StringUtils.toStringArray(text, PATH_SEPARATOR);
-                paths = new String[pathTexts.length][];
-                for (int i = 0; i < paths.length; i++) {
-                    paths[i] = StringUtils.toStringArray(pathTexts[i], GROUP_SEPARATOR);
+                for (String pathText : pathTexts) {
+                    final String[] subPaths = StringUtils.toStringArray(pathText, GROUP_SEPARATOR);
+                    final ArrayList<String> subPathsList = new ArrayList<>();
+                    for (String subPath : subPaths) {
+                        if (StringUtils.isNotNullAndNotEmpty(subPath)) {
+                            subPathsList.add(subPath);
+                        }
+                    }
+                    if (!subPathsList.isEmpty()) {
+                        pathLists.add(subPathsList.toArray(new String[subPathsList.size()]));
+                    }
                 }
-                return new AutoGroupingImpl(paths);
+                if (pathLists.isEmpty()) {
+                    return null;
+                }
+                return new AutoGroupingImpl(pathLists.toArray(new String[pathLists.size()][]));
             } else {
                 return null;
             }
