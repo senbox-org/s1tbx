@@ -61,7 +61,7 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
                 }
                 return DecodeQualification.INTENDED;
             }
-            if (filename.endsWith(".zip") && isZippedRS2(file)) {
+            if (filename.endsWith(".zip") && filename.startsWith("rs2") && isZippedRS2(file)) {
                 return DecodeQualification.INTENDED;
             }
         }

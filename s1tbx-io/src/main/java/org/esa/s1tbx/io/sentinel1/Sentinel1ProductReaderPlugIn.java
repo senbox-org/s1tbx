@@ -46,7 +46,7 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
                 if (isLevel1(file) || isLevel2(file) || isLevel0(file))
                     return DecodeQualification.INTENDED;
             }
-            if (filename.endsWith(".zip") && (ZipUtils.findInZip(file, "s1", Sentinel1Constants.PRODUCT_HEADER_NAME) ||
+            if (filename.endsWith(".zip") && filename.startsWith("s1") && (ZipUtils.findInZip(file, "s1", Sentinel1Constants.PRODUCT_HEADER_NAME) ||
                     ZipUtils.findInZip(file, "rs2", Sentinel1Constants.PRODUCT_HEADER_NAME))) {
                 return DecodeQualification.INTENDED;
             }
