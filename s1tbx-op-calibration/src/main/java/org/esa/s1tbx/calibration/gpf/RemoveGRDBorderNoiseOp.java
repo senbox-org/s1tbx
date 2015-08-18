@@ -63,7 +63,7 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
     private MetadataElement absRoot = null;
     private MetadataElement origMetadataRoot = null;
     private double knoise = 1.0;
-    private double dn0 = 0.0;
+    private double dn0 = 1.0;
     private String coPolarization = null;
     private Sentinel1Utils.NoiseVector noiseVector = null;
     private double[] noiseLUT = null;
