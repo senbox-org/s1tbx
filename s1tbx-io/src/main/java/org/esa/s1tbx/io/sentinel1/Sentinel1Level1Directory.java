@@ -159,6 +159,8 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                         bandName = "Amplitude" + '_' + suffix;
                         final Band band = new Band(bandName, ProductData.TYPE_INT32, width, height);
                         band.setUnit(Unit.AMPLITUDE);
+                        band.setNoDataValueUsed(true);
+                        band.setNoDataValue(0);
 
                         product.addBand(band);
                         bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
