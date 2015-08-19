@@ -131,7 +131,8 @@ public class PolarimetricClassificationOp extends Operator {
 
         try {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
-            validator.checkIfSentinel1DeburstProduct();
+            validator.checkIfSLC();
+            validator.checkIfTOPSARBurstProduct(false);
 
             sourceProductType = PolBandUtils.getSourceProductType(sourceProduct);
 

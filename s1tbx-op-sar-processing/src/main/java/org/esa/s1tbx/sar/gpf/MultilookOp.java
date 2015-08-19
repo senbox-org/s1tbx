@@ -122,6 +122,7 @@ public final class MultilookOp extends Operator {
         try {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
             validator.checkIfMapProjected(false);
+            validator.checkIfTOPSARBurstProduct(false);
 
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 

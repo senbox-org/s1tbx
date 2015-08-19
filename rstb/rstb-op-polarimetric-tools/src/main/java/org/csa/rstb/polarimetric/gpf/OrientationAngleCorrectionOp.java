@@ -30,6 +30,7 @@ import org.esa.snap.framework.gpf.Tile;
 import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
 import org.esa.snap.framework.gpf.annotations.SourceProduct;
 import org.esa.snap.framework.gpf.annotations.TargetProduct;
+import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.TileIndex;
 import org.esa.snap.util.ProductUtils;
@@ -77,6 +78,10 @@ public final class OrientationAngleCorrectionOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfSLC();
+            validator.checkIfTOPSARBurstProduct(false);
+
             sourceProductType = PolBandUtils.getSourceProductType(sourceProduct);
 
             checkSourceProductType();

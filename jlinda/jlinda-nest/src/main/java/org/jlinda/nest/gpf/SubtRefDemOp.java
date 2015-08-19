@@ -148,7 +148,7 @@ public final class SubtRefDemOp extends Operator {
 
         final InputProductValidator validator = new InputProductValidator(sourceProduct);
         validator.checkIfCoregisteredStack();
-        validator.checkIfDeburstedProduct();
+        validator.checkIfTOPSARBurstProduct(false);
 
         productName = "srd_ifgs";
         productTag = "_ifg_srd";
