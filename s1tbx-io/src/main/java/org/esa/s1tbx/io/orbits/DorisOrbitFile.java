@@ -56,10 +56,10 @@ public class DorisOrbitFile extends BaseOrbitFile {
         String orbitPath = "";
         String remoteBaseFolder = "";
         if (orbitType.contains(DORIS_VOR)) {
-            orbitPath = Settings.instance().get("OrbitFiles.dorisVOROrbitPath");
+            orbitPath = Settings.getPath("OrbitFiles.dorisVOROrbitPath");
             remoteBaseFolder = Settings.getPath("OrbitFiles.dorisFTP_vor_remotePath");
         } else if (orbitType.contains(DORIS_POR)) {
-            orbitPath = Settings.instance().get("OrbitFiles.dorisPOROrbitPath");
+            orbitPath = Settings.getPath("OrbitFiles.dorisPOROrbitPath");
             remoteBaseFolder = Settings.getPath("OrbitFiles.dorisFTP_por_remotePath");
         }
 
@@ -121,7 +121,7 @@ public class DorisOrbitFile extends BaseOrbitFile {
             return;
         }
 
-        final File localFolder = new File(Settings.instance().get("OrbitFiles.dorisVOROrbitPath"));
+        final File localFolder = new File(Settings.getPath("OrbitFiles.dorisVOROrbitPath"));
         final URL remotePath = new URL(Settings.getPath("OrbitFiles.dorisHTTP_vor_remotePath"));
         final File localFile = new File(localFolder, year+".zip");
 

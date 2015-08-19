@@ -57,11 +57,11 @@ public class PrareOrbitFile extends BaseOrbitFile {
         final String remoteBaseFolder;
         final String remoteHTTPFolder;
         if (mission.equals("ERS1")) {
-            orbitPath = Settings.instance().get("OrbitFiles.prareERS1OrbitPath");
+            orbitPath = Settings.getPath("OrbitFiles.prareERS1OrbitPath");
             remoteBaseFolder = Settings.getPath("OrbitFiles.prareFTP_ERS1_remotePath");
             remoteHTTPFolder = Settings.getPath("OrbitFiles.prareHTTP_ERS1_remotePath");
         } else {
-            orbitPath = Settings.instance().get("OrbitFiles.prareERS2OrbitPath");
+            orbitPath = Settings.getPath("OrbitFiles.prareERS2OrbitPath");
             remoteBaseFolder = Settings.getPath("OrbitFiles.prareFTP_ERS2_remotePath");
             remoteHTTPFolder = Settings.getPath("OrbitFiles.prareHTTP_ERS2_remotePath");
         }
