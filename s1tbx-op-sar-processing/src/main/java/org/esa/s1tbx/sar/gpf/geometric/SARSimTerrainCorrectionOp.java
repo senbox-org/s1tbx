@@ -1061,7 +1061,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
                                     v = calibrator.applyCalibration(
                                             v, rangeIndex, azimuthIndex, slantRange, satelliteHeight, sceneToEarthCentre,
-                                            localIncidenceAngles[1], tileData.bandPolar, bandUnit, subSwathIndex); // use projected incidence angle
+                                            localIncidenceAngles[1], tileData.bandName, tileData.bandPolar, bandUnit, subSwathIndex); // use projected incidence angle
                                 } else {
                                     v = tileData.noDataValue;
                                 }

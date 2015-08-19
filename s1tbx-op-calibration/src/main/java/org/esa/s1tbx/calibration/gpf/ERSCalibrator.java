@@ -2438,7 +2438,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
     public double applyCalibration(
             final double v, final double rangeIndex, final double azimuthIndex, final double slantRange,
             final double satelliteHeight, final double sceneToEarthCentre, final double localIncidenceAngle,
-            final String bandPolar, final Unit.UnitType bandUnit, final int[] subSwathIndex) {
+            final String bandName, final String bandPolar, final Unit.UnitType bandUnit, final int[] subSwathIndex) {
 
         // For both detectec and slant range products,
         //   1) local incidence angle (Remember that for ERS the correction is sin(theta_loc)/sin(theta_ref))

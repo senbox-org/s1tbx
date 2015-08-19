@@ -1018,7 +1018,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                                 if (localIncidenceAngles[1] != SARGeocoding.NonValidIncidenceAngle) {
                                     v = calibrator.applyCalibration(
                                             v, rangeIndex, azimuthIndex, slantRange, satelliteHeight, sceneToEarthCentre,
-                                            localIncidenceAngles[1], tileData.bandPolar, tileData.bandUnit, subSwathIndex); // use projected incidence angle
+                                            localIncidenceAngles[1], tileData.bandName, tileData.bandPolar, tileData.bandUnit, subSwathIndex); // use projected incidence angle
                                 } else {
                                     v = tileData.noDataValue;
                                 }

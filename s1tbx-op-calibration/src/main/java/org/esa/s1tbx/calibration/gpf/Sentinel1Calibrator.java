@@ -656,14 +656,13 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
     public double applyCalibration(
             final double v, final double rangeIndex, final double azimuthIndex, final double slantRange,
             final double satelliteHeight, final double sceneToEarthCentre, final double localIncidenceAngle,
-            final String bandPolar, final Unit.UnitType bandUnit, int[] subSwathIndex) {
+            final String bandName, final String bandPolar, final Unit.UnitType bandUnit, int[] subSwathIndex) {
 
-        final String targetBandName = "Sigma0_" + bandPolar.toUpperCase();
-        final CalibrationInfo calInfo = targetBandToCalInfo.get(targetBandName);
+        final CalibrationInfo calInfo = targetBandToCalInfo.get(bandName);
         final int calVecIdx = calInfo.getCalibrationVectorIndex((int)azimuthIndex);
         final Sentinel1Utils.CalibrationVector vec0 = calInfo.getCalibrationVector(calVecIdx);
         final Sentinel1Utils.CalibrationVector vec1 = calInfo.getCalibrationVector(calVecIdx + 1);
-        final CALTYPE calType = getCalibrationType(targetBandName);
+        final CALTYPE calType = getCalibrationType(bandName);
         final float[] vec0LUT = getVector(calType, vec0);
         final float[] vec1LUT = getVector(calType, vec1);
         final int pixelIdx = calInfo.getPixelIndex((int)rangeIndex, calVecIdx);

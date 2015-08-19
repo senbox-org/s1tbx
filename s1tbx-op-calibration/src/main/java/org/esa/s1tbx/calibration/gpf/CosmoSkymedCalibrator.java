@@ -237,7 +237,7 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
     public double applyCalibration(
             final double v, final double rangeIndex, final double azimuthIndex, final double slantRange,
             final double satelliteHeight, final double sceneToEarthCentre, final double localIncidenceAngle,
-            final String bandPolar, final Unit.UnitType bandUnit, int[] subSwathIndex) {
+            final String bandName, final String bandPolar, final Unit.UnitType bandUnit, int[] subSwathIndex) {
 
         double Ks = 1.0;
         if (applyConstantCorrection) {
