@@ -62,16 +62,16 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
 
     private MetadataElement absRoot = null;
     private MetadataElement origMetadataRoot = null;
-    private double knoise = 1.0;
-    private double dn0 = 1.0;
+    private int sourceImageWidth = 0;
+    private int sourceImageHeight = 0;
+    private double version = 0.0f;
+    private double scalingFactor = 0.0;
+    private double noDataValue = 0;
     private String coPolarization = null;
     private Sentinel1Utils.NoiseVector noiseVector = null;
     private double[] noiseLUT = null;
-    private boolean thermalNoiseCorrectionPerformed = false;
-    private boolean oldVersion = false;
     private Band coPolBand = null;
-    private int sourceImageWidth = 0;
-    private int sourceImageHeight = 0;
+    private boolean thermalNoiseCorrectionPerformed = false;
 
     private final static double trimThreshold = 0.5;
     private final static int tileHeight = 400;
@@ -108,19 +108,19 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
 
             checkSourceProductValidity();
 
+            getIPFVersion();
+
             getProductCoPolarization();
 
             getThermalNoiseCorrectionFlag();
 
             if (!thermalNoiseCorrectionPerformed) {
                 getThermalNoiseVector();
-                
-                computeNoiseLUT();
             }
 
-            if (oldVersion) { // < IPF V2.50
-                getDN0();
-            }
+            computeNoiseScalingFactor();
+
+            computeNoiseLUT();
 
             createTargetProduct();
 
@@ -144,20 +144,6 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
             throw new OperatorException("Input should be a GRD product.");
         }
 
-        final String procSysId = absRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
-        final float version = Float.valueOf(procSysId.substring(procSysId.lastIndexOf(" ")));
-        if (version < 2.50) {
-            oldVersion = true;
-            final String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
-            if (acquisitionMode.contains("IW")) {
-                knoise = 75088.7;
-            } else if (acquisitionMode.contains("EW")) {
-                knoise = 56065.87;
-            } else {
-                throw new OperatorException("Cannot apply the operator to the input GRD product.");
-            }
-        }
-
         final String productName = absRoot.getAttributeString(AbstractMetadata.PRODUCT);
         final String level = productName.substring(12, 14);
         if (!level.equals("1S")) {
@@ -174,6 +160,15 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
         if (absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().getElemBoolean()) {
             throw new OperatorException("Cannot apply the operator to calibrated product.");
         }
+    }
+
+    /**
+     * Get IPF version.
+     */
+    private void getIPFVersion() {
+
+        final String procSysId = absRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
+        version = Double.valueOf(procSysId.substring(procSysId.lastIndexOf(" ")));
     }
 
     /**
@@ -197,6 +192,7 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
         if (coPolarization == null) {
             throw new OperatorException("Input product does not contain band with HH or VV polarization");
         }
+        noDataValue = coPolBand.getNoDataValue();
     }
 
     /**
@@ -248,20 +244,26 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
         try {
             noiseLUT = new double[sourceImageWidth];
 
-            int pixelIdx = getPixelIndex(0, noiseVector);
-            final int maxLength = noiseVector.pixels.length - 2;
-            for (int x = 0; x < sourceImageWidth; x++) {
+            if (!thermalNoiseCorrectionPerformed) {
+                int pixelIdx = getPixelIndex(0, noiseVector);
+                final int maxLength = noiseVector.pixels.length - 2;
+                for (int x = 0; x < sourceImageWidth; x++) {
 
-                if (x > noiseVector.pixels[pixelIdx + 1] && pixelIdx < maxLength) {
-                    pixelIdx++;
+                    if (x > noiseVector.pixels[pixelIdx + 1] && pixelIdx < maxLength) {
+                        pixelIdx++;
+                    }
+
+                    final int xx0 = noiseVector.pixels[pixelIdx];
+                    final int xx1 = noiseVector.pixels[pixelIdx + 1];
+                    final double muX = (double) (x - xx0) / (double) (xx1 - xx0);
+
+                    noiseLUT[x] = Maths.interpolationLinear(
+                            noiseVector.noiseLUT[pixelIdx], noiseVector.noiseLUT[pixelIdx + 1], muX)*scalingFactor;
                 }
-
-                final int xx0 = noiseVector.pixels[pixelIdx];
-                final int xx1 = noiseVector.pixels[pixelIdx + 1];
-                final double muX = (double) (x - xx0) / (double) (xx1 - xx0);
-
-                noiseLUT[x] = Maths.interpolationLinear(
-                        noiseVector.noiseLUT[pixelIdx], noiseVector.noiseLUT[pixelIdx + 1], muX);
+            } else {
+                for (int x = 0; x < sourceImageWidth; x++) {
+                    noiseLUT[x] = 0.0;
+                }
             }
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("computeNoiseLUT", e);
@@ -286,9 +288,39 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
     }
 
     /**
+     * Compute noise scaling factor.
+     */
+    private void computeNoiseScalingFactor() {
+
+        if (version < 2.50) {
+            final String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+            double knoise;
+            if (acquisitionMode.contains("IW")) {
+                knoise = 75088.7;
+            } else if (acquisitionMode.contains("EW")) {
+                knoise = 56065.87;
+            } else {
+                throw new OperatorException("Cannot apply the operator to the input GRD product.");
+            }
+
+            final double dn0 = getDN0();
+
+            if (version < 2.34) {
+                scalingFactor = knoise*dn0;
+            } else {
+                scalingFactor = knoise*dn0*dn0;
+            }
+
+        } else {
+            scalingFactor = 1.0;
+        }
+
+    }
+
+    /**
      * Get the first element in DN vector from the original product metadata.
      */
-    private void getDN0() {
+    private double getDN0() {
 
         String[] selectedPols = {coPolarization};
         Sentinel1Calibrator.CalibrationInfo[] calibration = Sentinel1Calibrator.getCalibrationVectors(
@@ -300,10 +332,11 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
                 final float[] dnLUT = Sentinel1Calibrator.getVector(
                         Sentinel1Calibrator.CALTYPE.DN, cal.getCalibrationVector(0));
 
-                dn0 = dnLUT[0];
-                break;
+                return dnLUT[0];
             }
         }
+
+        return 0.0;
     }
 
     /**
@@ -368,6 +401,9 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
                         srcBand.getRasterHeight());
 
                 targetBand.setUnit(srcBand.getUnit());
+                targetBand.setNoDataValue(srcBand.getNoDataValue());
+                targetBand.setNoDataValueUsed(srcBand.isNoDataValueUsed());
+                targetBand.setDescription(srcBand.getDescription());
                 targetProduct.addBand(targetBand);
             }
         }
@@ -444,10 +480,12 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
 
                     if (leftPixelIsNoValuePixel){
                         coPolDataValue = coPolData.getElemDoubleAt(srcIdx);
+                        if (coPolDataValue == noDataValue) {
+                            continue;
+                        }
 
-                        // According to [1], dn0^2 should be used here which we believe is wrong.
                         deNoisedDataValue =
-                                Math.sqrt(Math.max(coPolDataValue*coPolDataValue - noiseLUT[x]*knoise*dn0, 0.0));
+                                Math.sqrt(Math.max(coPolDataValue*coPolDataValue - noiseLUT[x], 0.0));
 
                         if (deNoisedDataValue < trimThreshold) {
                             for (int i = 0; i < numBands; i++) {
