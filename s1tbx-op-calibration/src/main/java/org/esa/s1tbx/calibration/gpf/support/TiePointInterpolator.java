@@ -1,4 +1,4 @@
-package org.esa.s1tbx.calibration.gpf;
+package org.esa.s1tbx.calibration.gpf.support;
 
 import Jama.Matrix;
 import com.bc.ceres.core.ProgressMonitor;
