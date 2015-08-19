@@ -126,6 +126,9 @@ public final class TerrainFlatteningOp extends Operator {
     private boolean nearRangeOnLeft = true;
     private boolean skipBistaticCorrection = false;
 
+    // set this flag to true to output terrain flattened sigma0
+    private boolean outputSigma0 = false;
+
     enum UnitType {AMPLITUDE,INTENSITY,COMPLEX,RATIO}
 
     /**
@@ -296,7 +299,7 @@ public final class TerrainFlatteningOp extends Operator {
         final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, true);
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
-        String tgtBandName;
+        String gamma0BandName, sigma0BandName = null;
         String tgtUnit;
         for (final Band srcBand : sourceBands) {
             final String srcBandName = srcBand.getName();
@@ -315,19 +318,30 @@ public final class TerrainFlatteningOp extends Operator {
             } else if (unit.contains(Unit.PHASE)) {
                 continue;
             } else if (unit.contains(Unit.REAL) || unit.contains(Unit.IMAGINARY)) {
-                tgtBandName = srcBandName;
+                gamma0BandName = "Gamma0_" + srcBandName;
                 tgtUnit = unit;
+                if (outputSigma0) {
+                    sigma0BandName = "Sigma0_" + srcBandName;
+                }
             } else { // amplitude or intensity
                 final String pol = OperatorUtils.getBandPolarization(srcBandName, absRoot);
-                tgtBandName = "Gamma0";
+                gamma0BandName = "Gamma0";
+                sigma0BandName = "Sigma0";
                 if (pol != null && !pol.isEmpty()) {
-                    tgtBandName = "Gamma0_" + pol.toUpperCase();
+                    gamma0BandName = "Gamma0_" + pol.toUpperCase();
+                    sigma0BandName = "Sigma0_" + pol.toUpperCase();
                 }
                 tgtUnit = Unit.INTENSITY;
             }
 
-            if (targetProduct.getBand(tgtBandName) == null) {
-                Band tgtBand = targetProduct.addBand(tgtBandName, ProductData.TYPE_FLOAT32);
+            if (targetProduct.getBand(gamma0BandName) == null) {
+                Band tgtBand = targetProduct.addBand(gamma0BandName, ProductData.TYPE_FLOAT32);
+                tgtBand.setUnit(tgtUnit);
+                targetBandToSourceBandMap.put(tgtBand, srcBand);
+            }
+
+            if (outputSigma0 && targetProduct.getBand(sigma0BandName) == null) {
+                Band tgtBand = targetProduct.addBand(sigma0BandName, ProductData.TYPE_FLOAT32);
                 tgtBand.setUnit(tgtUnit);
                 targetBandToSourceBandMap.put(tgtBand, srcBand);
             }
@@ -385,13 +399,19 @@ public final class TerrainFlatteningOp extends Operator {
             double[] tileOverlapPercentage = {0.0, 0.0};
             computeTileOverlapPercentage(x0, y0, w, h, tileOverlapPercentage);
 
-            final double[][] simulatedImage = new double[h][w];
-            final boolean validSimulation = generateSimulatedImage(x0, y0, w, h, tileOverlapPercentage, simulatedImage);
+            final double[][] gamma0ReferenceArea = new double[h][w];
+            double[][] sigma0ReferenceArea = null;
+            if (outputSigma0) {
+                sigma0ReferenceArea = new double[h][w];
+            }
+
+            final boolean validSimulation = generateSimulatedImage(
+                    x0, y0, w, h, tileOverlapPercentage, gamma0ReferenceArea, sigma0ReferenceArea);
             if (!validSimulation) {
                 return;
             }
 
-            outputNormalizedImage(x0, y0, w, h, simulatedImage, targetTiles, targetRectangle);
+            outputNormalizedImage(x0, y0, w, h, gamma0ReferenceArea, sigma0ReferenceArea, targetTiles, targetRectangle);
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -405,11 +425,14 @@ public final class TerrainFlatteningOp extends Operator {
      * @param y0             Y coordinate of the upper left corner pixel of given tile.
      * @param w              Width of given tile.
      * @param h              Height of given tile.
-     * @param simulatedImage The simulated image.
+     * @param gamma0ReferenceArea The simulated image for flattened gamma0 generation.
+     * @param sigma0ReferenceArea The simulated image for flattened sigma0 generation.
      * @return Boolean flag indicating if the simulation is successful.
      */
     private boolean generateSimulatedImage(final int x0, final int y0, final int w, final int h,
-                                           final double[] tileOverlapPercentage, double[][] simulatedImage) {
+                                           final double[] tileOverlapPercentage,
+                                           final double[][] gamma0ReferenceArea,
+                                           final double[][] sigma0ReferenceArea) {
 
         try {
             final int ymin = Math.max(y0 - (int) (tileSize * tileOverlapPercentage[1]), 0);
@@ -428,9 +451,13 @@ public final class TerrainFlatteningOp extends Operator {
 
                 final double[] azimuthIndex = new double[w];
                 final double[] rangeIndex = new double[w];
-                final double[] illuminatedArea = new double[w];
+                final double[] gamma0Area = new double[w];
                 final double[] elevationAngle = new double[w];
                 final boolean[] savePixel = new boolean[w];
+                double[] sigma0Area = null;
+                if (outputSigma0) {
+                    sigma0Area = new double[w];
+                }
 
                 for (int x = x0; x < xmax; x++) {
                     final int i = x - x0;
@@ -474,11 +501,14 @@ public final class TerrainFlatteningOp extends Operator {
 
                     final LocalGeometry localGeometry = new LocalGeometry(earthPoint, sensorPos, terrainData, xx, yy);
 
-                    illuminatedArea[i] = computeLocalIlluminatedArea(localGeometry, demNoDataValue);
-
-                    if (illuminatedArea[i] == noDataValue) {
+                    gamma0Area[i] = computeGamma0Area(localGeometry, demNoDataValue);
+                    if (gamma0Area[i] == noDataValue) {
                         savePixel[i] = false;
                         continue;
+                    }
+
+                    if (outputSigma0) {
+                        sigma0Area[i] = computeSigma0Area(localGeometry, demNoDataValue);
                     }
 
                     elevationAngle[i] = computeElevationAngle(slantRange, earthPoint, sensorPos);
@@ -494,8 +524,13 @@ public final class TerrainFlatteningOp extends Operator {
                         int i = x - x0;
                         if (savePixel[i] && elevationAngle[i] > maxElevAngle) {
                             maxElevAngle = elevationAngle[i];
-                            saveLocalIlluminatedArea(x0, y0, w, h, illuminatedArea[i], azimuthIndex[i],
-                                    rangeIndex[i], simulatedImage);
+                            saveGamma0Area(x0, y0, w, h, gamma0Area[i], azimuthIndex[i], rangeIndex[i],
+                                    gamma0ReferenceArea);
+
+                            if (outputSigma0) {
+                                saveSigma0Area(x0, y0, w, h, sigma0Area[i], azimuthIndex[i], rangeIndex[i],
+                                        sigma0ReferenceArea);
+                            }
                         }
                     }
 
@@ -506,8 +541,13 @@ public final class TerrainFlatteningOp extends Operator {
                         int i = x - x0;
                         if (savePixel[i] && elevationAngle[i] > maxElevAngle) {
                             maxElevAngle = elevationAngle[i];
-                            saveLocalIlluminatedArea(x0, y0, w, h, illuminatedArea[i], azimuthIndex[i],
-                                    rangeIndex[i], simulatedImage);
+                            saveGamma0Area(x0, y0, w, h, gamma0Area[i], azimuthIndex[i], rangeIndex[i],
+                                    gamma0ReferenceArea);
+
+                            if (outputSigma0) {
+                                saveSigma0Area(x0, y0, w, h, sigma0Area[i], azimuthIndex[i], rangeIndex[i],
+                                        sigma0ReferenceArea);
+                            }
                         }
                     }
                 }
@@ -526,27 +566,34 @@ public final class TerrainFlatteningOp extends Operator {
      * @param y0              Y coordinate of the upper left corner pixel of given tile.
      * @param w               Width of given tile.
      * @param h               Height of given tile.
-     * @param simulatedImage  The simulated image.
+     * @param gamma0ReferenceArea The simulated image for flattened gamma0 generation.
+     * @param sigma0ReferenceArea The simulated image for flattened sigma0 generation.
      * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed.
      */
     private void outputNormalizedImage(final int x0, final int y0, final int w, final int h,
-                                       final double[][] simulatedImage, final Map<Band, Tile> targetTiles,
-                                       final Rectangle targetRectangle) {
+                                       final double[][] gamma0ReferenceArea, final double[][] sigma0ReferenceArea,
+                                       final Map<Band, Tile> targetTiles, final Rectangle targetRectangle) {
 
         for (Band tgtBand:targetBands) {
             final Tile targetTile = targetTiles.get(tgtBand);
             final ProductData targetData = targetTile.getDataBuffer();
             final TileIndex trgIndex = new TileIndex(targetTile);
             final String unit = tgtBand.getUnit();
+            final String bandName = tgtBand.getName();
 
             Band srcBand = null;
             Tile sourceTile = null;
             ProductData sourceData = null;
-            if (!unit.contains("Ratio")) {
+            if (bandName.contains("Gamma0") || bandName.contains("Sigma0")) {
                 srcBand = targetBandToSourceBandMap.get(tgtBand);
                 sourceTile = getSourceTile(srcBand, targetRectangle);
                 sourceData = sourceTile.getDataBuffer();
+            }
+
+            double[][] simulatedImage = gamma0ReferenceArea;
+            if (bandName.contains("Sigma0")) {
+                simulatedImage = sigma0ReferenceArea;
             }
 
             UnitType unitType = UnitType.AMPLITUDE;
@@ -560,14 +607,15 @@ public final class TerrainFlatteningOp extends Operator {
                 unitType = UnitType.RATIO;
             }
 
-            double v;
+            double v, simVal;
             for (int y = y0; y < y0 + h; y++) {
                 final int yy = y - y0;
                 trgIndex.calculateStride(y);
                 for (int x = x0; x < x0 + w; x++) {
                     final int xx = x - x0;
                     final int idx = trgIndex.getIndex(x);
-                    double simVal = simulatedImage[yy][xx];
+                    simVal = simulatedImage[yy][xx];
+
                     if (simVal != noDataValue && simVal != 0.0) {
 
                         switch (unitType) {
@@ -750,14 +798,14 @@ public final class TerrainFlatteningOp extends Operator {
      * @param y0              The y coordinate of the pixel at the upper left corner of current tile.
      * @param w               The tile width.
      * @param h               The tile height.
-     * @param illuminatedArea The illuminated area.
+     * @param gamma0Area      The illuminated area.
      * @param azimuthIndex    Azimuth pixel index for the illuminated area.
      * @param rangeIndex      Range pixel index for the illuminated area.
-     * @param simulatedImage  Buffer for the simulated image.
+     * @param gamma0ReferenceArea  Buffer for the simulated image.
      */
-    private void saveLocalIlluminatedArea(final int x0, final int y0, final int w, final int h,
-                                          final double illuminatedArea, final double azimuthIndex,
-                                          final double rangeIndex, final double[][] simulatedImage) {
+    private void saveGamma0Area(final int x0, final int y0, final int w, final int h, final double gamma0Area,
+                                final double azimuthIndex, final double rangeIndex,
+                                final double[][] gamma0ReferenceArea) {
 
         final int ia0 = (int) azimuthIndex;
         final int ia1 = ia0 + 1;
@@ -771,15 +819,47 @@ public final class TerrainFlatteningOp extends Operator {
         if (ir0 >= x0) {
             final double wrc = 1 - wr;
             if (ia0 >= y0)
-                simulatedImage[ia0 - y0][ir0 - x0] += wrc * wac * illuminatedArea / beta0;
+                gamma0ReferenceArea[ia0 - y0][ir0 - x0] += wrc * wac * gamma0Area / beta0;
+
             if (ia1 < y0 + h)
-                simulatedImage[ia1 - y0][ir0 - x0] += wrc * wa * illuminatedArea / beta0;
+                gamma0ReferenceArea[ia1 - y0][ir0 - x0] += wrc * wa * gamma0Area / beta0;
         }
         if (ir1 < x0 + w) {
             if (ia0 >= y0)
-                simulatedImage[ia0 - y0][ir1 - x0] += wr * wac * illuminatedArea / beta0;
+                gamma0ReferenceArea[ia0 - y0][ir1 - x0] += wr * wac * gamma0Area / beta0;
+
             if (ia1 < y0 + h)
-                simulatedImage[ia1 - y0][ir1 - x0] += wr * wa * illuminatedArea / beta0;
+                gamma0ReferenceArea[ia1 - y0][ir1 - x0] += wr * wa * gamma0Area / beta0;
+        }
+    }
+
+    private void saveSigma0Area(final int x0, final int y0, final int w, final int h, final double sigma0Area,
+                                final double azimuthIndex, final double rangeIndex,
+                                final double[][] sigma0ReferenceArea) {
+
+        final int ia0 = (int) azimuthIndex;
+        final int ia1 = ia0 + 1;
+        final int ir0 = (int) rangeIndex;
+        final int ir1 = ir0 + 1;
+
+        final double wr = rangeIndex - ir0;
+        final double wa = azimuthIndex - ia0;
+        final double wac = 1 - wa;
+
+        if (ir0 >= x0) {
+            final double wrc = 1 - wr;
+            if (ia0 >= y0)
+                sigma0ReferenceArea[ia0 - y0][ir0 - x0] += wrc * wac * sigma0Area / beta0;
+
+            if (ia1 < y0 + h)
+                sigma0ReferenceArea[ia1 - y0][ir0 - x0] += wrc * wa * sigma0Area / beta0;
+        }
+        if (ir1 < x0 + w) {
+            if (ia0 >= y0)
+                sigma0ReferenceArea[ia0 - y0][ir1 - x0] += wr * wac * sigma0Area / beta0;
+
+            if (ia1 < y0 + h)
+                sigma0ReferenceArea[ia1 - y0][ir1 - x0] += wr * wa * sigma0Area / beta0;
         }
     }
 
@@ -807,7 +887,7 @@ public final class TerrainFlatteningOp extends Operator {
      * @param demNoDataValue Invalid DEM value.
      * @return The computed local illuminated area.
      */
-    private double computeLocalIlluminatedArea(final LocalGeometry lg, final double demNoDataValue) {
+    private double computeGamma0Area(final LocalGeometry lg, final double demNoDataValue) {
 
         if (lg.t00Height == demNoDataValue || lg.t01Height == demNoDataValue ||
                 lg.t10Height == demNoDataValue || lg.t11Height == demNoDataValue) {
@@ -857,6 +937,44 @@ public final class TerrainFlatteningOp extends Operator {
         // compute the illuminated area
         return Math.sqrt(h1 * (h1 - p00p01) * (h1 - p00p10) * (h1 - p10p01)) +
                 Math.sqrt(h2 * (h2 - p11p01) * (h2 - p11p10) * (h2 - p10p01));
+    }
+
+    private double computeSigma0Area(final LocalGeometry lg, final double demNoDataValue) {
+
+        if (lg.t00Height == demNoDataValue || lg.t01Height == demNoDataValue ||
+                lg.t10Height == demNoDataValue || lg.t11Height == demNoDataValue) {
+            return noDataValue;
+        }
+
+        final PosVector t00 = new PosVector();
+        final PosVector t01 = new PosVector();
+        final PosVector t10 = new PosVector();
+        final PosVector t11 = new PosVector();
+
+        GeoUtils.geo2xyzWGS84(lg.t00Lat, lg.t00Lon, lg.t00Height, t00);
+        GeoUtils.geo2xyzWGS84(lg.t01Lat, lg.t01Lon, lg.t01Height, t01);
+        GeoUtils.geo2xyzWGS84(lg.t10Lat, lg.t10Lon, lg.t10Height, t10);
+        GeoUtils.geo2xyzWGS84(lg.t11Lat, lg.t11Lon, lg.t11Height, t11);
+
+        final double[] T00 = {t00.x, t00.y, t00.z};
+        final double[] T01 = {t01.x, t01.y, t01.z};
+        final double[] T10 = {t10.x, t10.y, t10.z};
+        final double[] T11 = {t11.x, t11.y, t11.z};
+
+        // compute distances between projected points
+        final double T00T01 = distance(T00, T01);
+        final double T00T10 = distance(T00, T10);
+        final double T11T01 = distance(T11, T01);
+        final double T11T10 = distance(T11, T10);
+        final double T10T01 = distance(T10, T01);
+
+        // compute semi-perimeters of two triangles: T00-T01-T10 and T11-T01-T10
+        final double h1 = 0.5 * (T00T01 + T00T10 + T10T01);
+        final double h2 = 0.5 * (T11T01 + T11T10 + T10T01);
+
+        // compute the illuminated area
+        return Math.sqrt(h1 * (h1 - T00T01) * (h1 - T00T10) * (h1 - T10T01)) +
+                Math.sqrt(h2 * (h2 - T11T01) * (h2 - T11T10) * (h2 - T10T01));
     }
 
 
