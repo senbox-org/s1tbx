@@ -3,7 +3,7 @@ package org.esa.snap.csv.dataio.writer;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.framework.dataio.ProductWriter;
 import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.util.io.Constants;
+import org.esa.snap.csv.dataio.Constants;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -153,7 +153,7 @@ public class CsvWriterBuilder {
             }
         }
     }
-    
+
     static class BeamOutputFormat implements OutputFormatStrategy {
 
         private static final String separator = Constants.DEFAULT_SEPARATOR;

@@ -1,0 +1,4 @@
+featureId	station:string	lat:float	lon:float	date_time:time	radiance_1:float	radiance_2:float	complete_time:time
+0	AMRU1	30.0	50.0	2010-06-01T12:45:00	NaN	13.4	2011-06-01T13:45:00
+1	AMRU1	30.0	50.0	[null]	18.3	2.4	2011-06-01T14:45:00
+2	AMRU2	40.0	120.0	2010-06-01T12:47:00	10.5	10.6	2011-06-01T15:45:00
