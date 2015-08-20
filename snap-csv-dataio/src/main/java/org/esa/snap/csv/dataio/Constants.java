@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -9,12 +9,12 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.snap.util.io;
+package org.esa.snap.csv.dataio;
 
 /**
  * Some constants.
@@ -33,4 +33,5 @@ public class Constants {
     public static final String DEFAULT_SEPARATOR = "\t";
     public static final String FORMAT_NAME = "CSV";
     public static final String DESCRIPTION = "CSV products";
+    public static final String PROPERTY_NAME_TIME_COLUMN = "timeColumn";
 }
