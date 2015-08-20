@@ -45,6 +45,7 @@ import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.referencing.CRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -145,11 +146,14 @@ public class VectorDataNodeReader {
         pm.worked(5);
         interpretationStrategy = createInterpretationStrategy();
         pm.worked(5);
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = readFeatures();
+        final CoordinateReferenceSystem featureCrs = crsProvider.getFeatureCrs(product);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = readFeatures(featureCrs);
         pm.worked(45);
 
+        final boolean needsClipping = !CRS.equalsIgnoreMetadata(featureCrs, modelCrs);
+        final boolean clipToProductBounds = crsProvider.clipToProductBounds();
         FeatureCollection<SimpleFeatureType, SimpleFeature> clippedCollection;
-        if (product.getGeoCoding() != null && featureCollection.size() > 0) {
+        if (product.getGeoCoding() != null && featureCollection.size() > 0 && (needsClipping || clipToProductBounds)) {
             final Geometry clipGeometry = FeatureUtils.createGeoBoundaryPolygon(product);
             clippedCollection = FeatureUtils.clipCollection(featureCollection,
                                                             null,
@@ -219,8 +223,8 @@ public class VectorDataNodeReader {
         }
     }
 
-    private FeatureCollection<SimpleFeatureType, SimpleFeature> readFeatures() throws IOException {
-        final SimpleFeatureType featureType = readFeatureType();
+    private FeatureCollection<SimpleFeatureType, SimpleFeature> readFeatures(CoordinateReferenceSystem featureCrs) throws IOException {
+        final SimpleFeatureType featureType = readFeatureType(featureCrs);
         return readFeatures(featureType);
     }
 
@@ -244,12 +248,9 @@ public class VectorDataNodeReader {
         String geometryName = null;
         final String defaultGeometry = properties.get("defaultGeometry");
         for (int i = 0; i < tokens.length; i++) {
-            final String firstToken = tokens[0];
-            if (i == 0 &&
-                firstToken.startsWith("org.esa.snap") ||
-                firstToken.startsWith("org.esa.beam") /*for backward compatibility*/) {
+            if (i == 0 && (tokens[0].startsWith("org.esa.snap") || tokens[0].startsWith("org.esa.beam") /* for backward compatibility*/ )) {
                 hasFeatureTypeName = true;
-                featureTypeName = firstToken;
+                featureTypeName = tokens[0];
             } else {
                 String token = tokens[i];
                 final int colonPos = token.indexOf(':');
@@ -334,18 +335,17 @@ public class VectorDataNodeReader {
         return true;
     }
 
-    private SimpleFeatureType readFeatureType() throws IOException {
+    private SimpleFeatureType readFeatureType(CoordinateReferenceSystem featureCrs) throws IOException {
         String[] tokens = reader.readRecord();
         if (tokens == null || tokens.length <= 1) {
             throw new IOException("Missing feature type definition in first line.");
         }
         reader.mark(1024 * 1024 * 10);
-        return createFeatureType(tokens);
+        return createFeatureType(tokens, featureCrs);
     }
 
-    private SimpleFeatureType createFeatureType(String[] tokens) throws IOException {
+    private SimpleFeatureType createFeatureType(String[] tokens, CoordinateReferenceSystem featureCrs) throws IOException {
         SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
-        final CoordinateReferenceSystem featureCrs = crsProvider.getFeatureCrs(product);
         builder.setCRS(featureCrs);
         JavaTypeConverter jtc = new JavaTypeConverter();
 
