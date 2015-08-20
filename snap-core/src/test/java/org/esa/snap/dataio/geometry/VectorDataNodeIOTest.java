@@ -82,14 +82,21 @@ public class VectorDataNodeIOTest {
 
     @Test
     public void testDecodingDelimiter() throws IOException {
+        final FeatureUtils.FeatureCrsProvider featureCrsProvider = new FeatureUtils.FeatureCrsProvider() {
+            @Override
+            public CoordinateReferenceSystem getFeatureCrs(Product product) {
+                return DefaultGeographicCRS.WGS84;
+            }
+
+            @Override
+            public boolean clipToProductBounds() {
+                return true;
+            }
+        };
         final FeatureCollection<SimpleFeatureType, SimpleFeature> readCollection =
                 VectorDataNodeReader.read("mem", new StringReader(stringWriter.toString()),
-                                          createDummyProduct(), new FeatureUtils.FeatureCrsProvider() {
-                    @Override
-                    public CoordinateReferenceSystem getFeatureCrs(Product product) {
-                        return DefaultGeographicCRS.WGS84;
-                    }
-                }, placemarkDescriptorProvider, DefaultGeographicCRS.WGS84, VectorDataNodeIO.DEFAULT_DELIMITER_CHAR, ProgressMonitor.NULL).getFeatureCollection();
+                                          createDummyProduct(), featureCrsProvider, placemarkDescriptorProvider,
+                                          DefaultGeographicCRS.WGS84, VectorDataNodeIO.DEFAULT_DELIMITER_CHAR, ProgressMonitor.NULL).getFeatureCollection();
 
         assertEquals(testCollection.size(), readCollection.size());
         final FeatureIterator<SimpleFeature> expectedIterator = testCollection.features();
@@ -161,12 +168,20 @@ public class VectorDataNodeIOTest {
         assertNotNull(secondLine);
         assertEquals("#defaultCSS=stroke:#ff0000", secondLine);
 
-        VectorDataNode vectorDataNode2 = VectorDataNodeReader.read("mem", new FileReader(tempFile), createDummyProduct(), new FeatureUtils.FeatureCrsProvider() {
+        final FeatureUtils.FeatureCrsProvider featureCrsProvider = new FeatureUtils.FeatureCrsProvider() {
             @Override
             public CoordinateReferenceSystem getFeatureCrs(Product product) {
                 return DefaultGeographicCRS.WGS84;
             }
-        }, placemarkDescriptorProvider, DefaultGeographicCRS.WGS84, VectorDataNodeIO.DEFAULT_DELIMITER_CHAR, ProgressMonitor.NULL);
+
+            @Override
+            public boolean clipToProductBounds() {
+                return true;
+            }
+        };
+        VectorDataNode vectorDataNode2 = VectorDataNodeReader.read("mem", new FileReader(tempFile), createDummyProduct(),
+                                                                   featureCrsProvider, placemarkDescriptorProvider,
+                                                                   DefaultGeographicCRS.WGS84, VectorDataNodeIO.DEFAULT_DELIMITER_CHAR, ProgressMonitor.NULL);
 
         assertNotNull(vectorDataNode2);
         assertEquals(vectorDataNode.getDescription(), vectorDataNode2.getDescription());

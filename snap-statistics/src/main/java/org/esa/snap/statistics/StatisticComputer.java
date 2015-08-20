@@ -66,6 +66,11 @@ public class StatisticComputer {
                 }
                 return DefaultGeographicCRS.WGS84;
             }
+
+            @Override
+            public boolean clipToProductBounds() {
+                return true;
+            }
         };
         pm = ProgressMonitor.NULL;
         this.bandConfigurations = bandConfigurations;

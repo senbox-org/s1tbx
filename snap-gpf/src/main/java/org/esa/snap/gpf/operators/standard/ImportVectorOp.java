@@ -51,7 +51,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
-import javax.swing.*;
+import javax.swing.SwingUtilities;
 import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.FileReader;
@@ -207,6 +207,11 @@ public class ImportVectorOp extends Operator {
                 }
                 CoordinateReferenceSystem featureCrs = featureCrsBuffer[0];
                 return featureCrs != null ? featureCrs : DefaultGeographicCRS.WGS84;
+            }
+
+            @Override
+            public boolean clipToProductBounds() {
+                return true;
             }
 
         }

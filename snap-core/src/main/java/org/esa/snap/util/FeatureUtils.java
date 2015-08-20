@@ -135,6 +135,8 @@ public class FeatureUtils {
 
     public static interface FeatureCrsProvider {
         CoordinateReferenceSystem getFeatureCrs(Product product);
+
+        boolean clipToProductBounds();
     }
 
     /**

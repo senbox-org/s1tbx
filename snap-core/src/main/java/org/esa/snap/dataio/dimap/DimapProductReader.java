@@ -423,6 +423,11 @@ public class DimapProductReader extends AbstractProductReader {
                 public CoordinateReferenceSystem getFeatureCrs(Product product) {
                     return modelCrs;
                 }
+
+                @Override
+                public boolean clipToProductBounds() {
+                    return false;
+                }
             };
             OptimalPlacemarkDescriptorProvider descriptorProvider = new OptimalPlacemarkDescriptorProvider();
             VectorDataNode vectorDataNode = VectorDataNodeReader.read(vectorFile.getName(), reader, product,
