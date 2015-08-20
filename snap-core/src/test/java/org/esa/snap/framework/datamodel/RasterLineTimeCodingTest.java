@@ -56,7 +56,5 @@ public class RasterLineTimeCodingTest {
         assertEquals("NaN", "" + timeCoding.getMJD(new PixelPos(validX, invalidPosY)));
         assertEquals("NaN", "" + timeCoding.getMJD(new PixelPos(invalidNegX, validY)));
         assertEquals("NaN", "" + timeCoding.getMJD(new PixelPos(invalidPosX, validY)));
-
-
-    }
+   }
 }
