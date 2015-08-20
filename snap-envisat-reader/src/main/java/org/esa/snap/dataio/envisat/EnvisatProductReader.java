@@ -28,6 +28,7 @@ import org.esa.snap.framework.datamodel.PointingFactoryRegistry;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.ProductNodeGroup;
+import org.esa.snap.framework.datamodel.RasterLineTimeCoding;
 import org.esa.snap.framework.datamodel.TiePointGeoCoding;
 import org.esa.snap.framework.datamodel.TiePointGrid;
 import org.esa.snap.framework.datamodel.VirtualBand;
@@ -225,6 +226,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         product.setDescription(getProductFile().getProductDescription());
         product.setStartTime(getProductFile().getSceneRasterStartTime());
         product.setEndTime(getProductFile().getSceneRasterStopTime());
+        product.setTimeCoding(new RasterLineTimeCoding(getMJDs()));
         product.setAutoGrouping(getProductFile().getAutoGroupingPattern());
 
         addBandsToProduct(product);
@@ -675,4 +677,19 @@ public class EnvisatProductReader extends AbstractProductReader {
             return TiePointGrid.DISCONT_NONE;
         }
     }
+
+    private double[] getMJDs() throws IOException {
+        double[] mjDs;ProductData.UTC[] allRecordTimes = productFile.getAllRecordTimes();
+        mjDs = new double[allRecordTimes.length];
+        for (int i = 0; i < allRecordTimes.length; i++) {
+            ProductData.UTC utc = allRecordTimes[i];
+            if (utc != null) {
+                mjDs[i] = utc.getMJD();
+            } else {
+                mjDs[i] = Double.NaN;
+            }
+        }
+        return mjDs;
+    }
+
 }
