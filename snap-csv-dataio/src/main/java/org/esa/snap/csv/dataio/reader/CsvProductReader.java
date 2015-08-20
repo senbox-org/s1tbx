@@ -268,6 +268,7 @@ public class CsvProductReader extends AbstractProductReader {
     }
 
     static class CSVTimeCoding extends RasterPixelTimeCoding {
+
         private final String dataSourceName;
 
         public CSVTimeCoding(double[] timeMJD, int rasterWidth, int rasterHeight, String dataSourceName) {
