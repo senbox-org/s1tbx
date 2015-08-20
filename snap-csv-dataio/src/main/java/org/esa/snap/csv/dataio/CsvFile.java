@@ -24,7 +24,6 @@ import org.esa.snap.dataio.geometry.VectorDataNodeIO;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.converters.JavaTypeConverter;
-import org.esa.snap.util.io.Constants;
 import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -112,12 +111,12 @@ public class CsvFile implements CsvSourceParser, CsvSource {
     }
 
     @Override
-    public Object[] parseRecords(final int offset, final int numRecords, final String rowName) throws IOException {
-        AttributeDescriptor attributeDescriptor = simpleFeatureType.getDescriptor(rowName);
+    public Object[] parseRecords(final int offset, final int numRecords, final String colName) throws IOException {
+        AttributeDescriptor attributeDescriptor = simpleFeatureType.getDescriptor(colName);
         int expectedTokenCount = simpleFeatureType.getAttributeCount();
         expectedTokenCount += hasFeatureId ? 1 : 0;
-        int rowIndex = simpleFeatureType.getAttributeDescriptors().indexOf(attributeDescriptor);
-        int tokenIndex = rowIndex + (hasFeatureId ? 1 : 0);
+        int colIndex = simpleFeatureType.getAttributeDescriptors().indexOf(attributeDescriptor);
+        int tokenIndex = colIndex + (hasFeatureId ? 1 : 0);
 
         List<Object> values = new ArrayList<>(numRecords);
         skipToLine(offset);
@@ -138,7 +137,7 @@ public class CsvFile implements CsvSourceParser, CsvSource {
             try {
                 Object value = null;
                 if (!VectorDataNodeIO.NULL_TEXT.equals(token)) {
-                    value = converters[rowIndex].parse(token);
+                    value = converters[colIndex].parse(token);
                 }
                 values.add(value);
             } catch (ConversionException e) {
