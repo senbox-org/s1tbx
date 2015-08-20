@@ -62,16 +62,22 @@ public class PixExOpUtils {
         FileReader reader = null;
         try {
             reader = new FileReader(matchupFile);
+            final FeatureUtils.FeatureCrsProvider featureCrsProvider = new FeatureUtils.FeatureCrsProvider() {
+                @Override
+                public CoordinateReferenceSystem getFeatureCrs(Product product) {
+                    return DefaultGeographicCRS.WGS84;
+                }
+
+                @Override
+                public boolean clipToProductBounds() {
+                    return true;
+                }
+            };
             final VectorDataNode vdn = VectorDataNodeReader.read(
                     matchupFile.getName(),
                     reader,
                     dummyProduct,
-                    new FeatureUtils.FeatureCrsProvider() {
-                        @Override
-                        public CoordinateReferenceSystem getFeatureCrs(Product product) {
-                            return DefaultGeographicCRS.WGS84;
-                        }
-                    },
+                    featureCrsProvider,
                     new VectorDataNodeReader.PlacemarkDescriptorProvider() {
                         @Override
                         public PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType simpleFeatureType) {
