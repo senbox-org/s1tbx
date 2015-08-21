@@ -129,9 +129,9 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
     private File getDestFolder(final int year) {
         final File orbitFileFolder;
         if(orbitType.startsWith(RESTITUTED)) {
-            orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinel1RESOrbitPath")+File.separator+year);
+            orbitFileFolder = new File(Settings.getPath("OrbitFiles.sentinel1RESOrbitPath")+File.separator+year);
         } else {
-            orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinel1POEOrbitPath")+File.separator+year);
+            orbitFileFolder = new File(Settings.getPath("OrbitFiles.sentinel1POEOrbitPath")+File.separator+year);
         }
         return orbitFileFolder;
     }
@@ -142,10 +142,10 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         final File orbitFileFolder;
         if(orbitType.startsWith(RESTITUTED)) {
             prefix = "S1A_OPER_AUX_RESORB_OPOD_";
-            orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinel1RESOrbitPath")+File.separator+year);
+            orbitFileFolder = new File(Settings.getPath("OrbitFiles.sentinel1RESOrbitPath")+File.separator+year);
         } else {
             prefix = "S1A_OPER_AUX_POEORB_OPOD_";
-            orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinel1POEOrbitPath")+File.separator+year);
+            orbitFileFolder = new File(Settings.getPath("OrbitFiles.sentinel1POEOrbitPath") + File.separator+year);
         }
 
         final File[] files = orbitFileFolder.listFiles(new FilenameFilter() {
@@ -179,10 +179,10 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         final File localFolder;
         final URL remotePath;
         if(orbitType.startsWith(RESTITUTED)) {
-            localFolder = new File(Settings.instance().get("OrbitFiles.sentinel1RESOrbitPath"), String.valueOf(year));
+            localFolder = new File(Settings.getPath("OrbitFiles.sentinel1RESOrbitPath"), String.valueOf(year));
             remotePath = new URL(Settings.instance().getPath("OrbitFiles.sentinel1RESOrbit_remotePath"));
         } else {
-            localFolder = new File(Settings.instance().get("OrbitFiles.sentinel1POEOrbitPath"), String.valueOf(year));
+            localFolder = new File(Settings.getPath("OrbitFiles.sentinel1POEOrbitPath"), String.valueOf(year));
             remotePath = new URL(Settings.instance().getPath("OrbitFiles.sentinel1POEOrbit_remotePath"));
         }
 

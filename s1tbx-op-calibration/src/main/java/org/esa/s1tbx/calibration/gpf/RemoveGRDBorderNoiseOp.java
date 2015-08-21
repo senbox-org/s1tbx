@@ -60,6 +60,12 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
     @Parameter(description = "The list of polarisations", label = "Polarisations")
     private String[] selectedPolarisations;
 
+    @Parameter(description = "The border margin limit", defaultValue = "500", label = "Border margin limit[pixels]")
+    private int borderLimit = 500;
+
+    @Parameter(description = "The trim threshold", defaultValue = "0.5", label = "Threshold")
+    private static double trimThreshold = 0.5;
+
     private MetadataElement absRoot = null;
     private MetadataElement origMetadataRoot = null;
     private int sourceImageWidth = 0;
@@ -72,10 +78,6 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
     private double[] noiseLUT = null;
     private Band coPolBand = null;
     private boolean thermalNoiseCorrectionPerformed = false;
-
-    private final static double trimThreshold = 0.5;
-    private final static int tileHeight = 400;
-
 
     /**
      * Default constructor. The graph processing framework
@@ -314,7 +316,6 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
         } else {
             scalingFactor = 1.0;
         }
-
     }
 
     /**
@@ -347,12 +348,11 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
         targetProduct = new Product(sourceProduct.getName(),
                 sourceProduct.getProductType(),
                 sourceImageWidth,
-                sourceImageHeight);
+                                    sourceImageHeight);
 
         addSelectedBands();
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
-        targetProduct.setPreferredTileSize(targetProduct.getSceneRasterWidth(), tileHeight);
     }
 
     /**
@@ -473,32 +473,35 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
                 srcIndex.calculateStride(y);
                 tgtIndex.calculateStride(y);
 
-                boolean leftPixelIsNoValuePixel = true;
                 for (int x = x0; x < xMax; x++) {
                     final int srcIdx = srcIndex.getIndex(x);
                     final int tgtIdx = tgtIndex.getIndex(x);
 
-                    if (leftPixelIsNoValuePixel){
+                    boolean testPixel = x < borderLimit || x > sourceImageWidth-borderLimit ||
+                                        y < borderLimit || y > sourceImageHeight-borderLimit;
+
+                    if (testPixel){
                         coPolDataValue = coPolData.getElemDoubleAt(srcIdx);
                         if (coPolDataValue == noDataValue) {
                             continue;
                         }
 
-                        deNoisedDataValue =
-                                Math.sqrt(Math.max(coPolDataValue*coPolDataValue - noiseLUT[x], 0.0));
+                        if(coPolDataValue < 30) {
+                            deNoisedDataValue = 0;
+                        } else {
+                            deNoisedDataValue =
+                                    Math.sqrt(Math.max(coPolDataValue * coPolDataValue - noiseLUT[x], 0.0));
+                        }
 
                         if (deNoisedDataValue < trimThreshold) {
                             for (int i = 0; i < numBands; i++) {
                                 targetData[i].setElemDoubleAt(tgtIdx, bandNoDataValues[i]);
                             }
                         } else {
-                            for (int i = 0; i < numBands; i++) {
-                                targetData[i].setElemDoubleAt(tgtIdx, sourceData[i].getElemDoubleAt(srcIdx));
-                            }
-                            leftPixelIsNoValuePixel = false;
+                            testPixel = false;
                         }
-
-                    } else {
+                    }
+                    if(!testPixel) {
                         for (int i = 0; i < numBands; i++) {
                             targetData[i].setElemDoubleAt(tgtIdx, sourceData[i].getElemDoubleAt(srcIdx));
                         }
