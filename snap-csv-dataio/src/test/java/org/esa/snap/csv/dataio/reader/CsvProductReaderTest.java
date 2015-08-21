@@ -26,6 +26,7 @@ import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.PixelPos;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.datamodel.RasterPixelTimeCoding;
 import org.junit.*;
 
 import java.awt.image.Raster;
@@ -234,9 +235,9 @@ public class CsvProductReaderTest {
     public void testCreateTimeCoding_firstTimeColumn() throws IOException {
         Product product = readTestProduct("simple_format_no_properties_but_time_column.txt");
 
-        CsvProductReader.TimeCoding timeCoding = (CsvProductReader.TimeCoding) product.getTimeCoding();
+        CsvProductReader.CSVTimeCoding timeCoding = (CsvProductReader.CSVTimeCoding) product.getTimeCoding();
         assertNotNull(timeCoding);
-        assertEquals("date_time", timeCoding.getColumnName());
+        assertEquals("date_time", timeCoding.getDataSourceName());
 
         assertEquals(2, product.getSceneRasterWidth());
         assertEquals(2, product.getSceneRasterHeight());
@@ -251,9 +252,9 @@ public class CsvProductReaderTest {
     public void testCreateTimeCoding_firstCompleteTimeColumn() throws IOException {
         Product product = readTestProduct("simple_format_no_properties_gaps_in_first_time_column.txt");
 
-        CsvProductReader.TimeCoding timeCoding = (CsvProductReader.TimeCoding) product.getTimeCoding();
+        CsvProductReader.CSVTimeCoding timeCoding = (CsvProductReader.CSVTimeCoding) product.getTimeCoding();
         assertNotNull(timeCoding);
-        assertEquals("complete_time", timeCoding.getColumnName());
+        assertEquals("complete_time", timeCoding.getDataSourceName());
 
         assertEquals(2, product.getSceneRasterWidth());
         assertEquals(2, product.getSceneRasterHeight());
@@ -269,9 +270,9 @@ public class CsvProductReaderTest {
     public void testCreateTimeCoding_timeColumnProperty() throws IOException {
         Product product = readTestProduct("simple_format_with_time_column_property.txt");
 
-        CsvProductReader.TimeCoding timeCoding = (CsvProductReader.TimeCoding) product.getTimeCoding();
+        CsvProductReader.CSVTimeCoding timeCoding = (CsvProductReader.CSVTimeCoding) product.getTimeCoding();
         assertNotNull(timeCoding);
-        assertEquals("any_name", timeCoding.getColumnName());
+        assertEquals("any_name", timeCoding.getDataSourceName());
 
         assertEquals(2, product.getSceneRasterWidth());
         assertEquals(2, product.getSceneRasterHeight());
@@ -283,7 +284,7 @@ public class CsvProductReaderTest {
 
     }
 
-    private String getTimeString(CsvProductReader.TimeCoding timeCoding, double x, double y) {
+    private String getTimeString(RasterPixelTimeCoding timeCoding, double x, double y) {
         return new ProductData.UTC(timeCoding.getMJD(new PixelPos(x, y))).format();
     }
 }

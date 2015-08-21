@@ -24,9 +24,9 @@ import org.esa.snap.csv.dataio.CsvSourceParser;
 import org.esa.snap.framework.dataio.AbstractProductReader;
 import org.esa.snap.framework.dataio.ProductReaderPlugIn;
 import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.PixelPos;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.datamodel.RasterPixelTimeCoding;
 import org.esa.snap.util.StringUtils;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.io.FileUtils;
@@ -109,7 +109,6 @@ public class CsvProductReader extends AbstractProductReader {
     }
 
     private void initTimeCoding() throws IOException {
-        final int sceneRasterWidth = product.getSceneRasterWidth();
         final String timeColumnName = source.getProperties().get(Constants.PROPERTY_NAME_TIME_COLUMN);
         for (AttributeDescriptor descriptor : source.getFeatureType().getAttributeDescriptors()) {
             final String colName = descriptor.getName().toString();
@@ -121,12 +120,14 @@ public class CsvProductReader extends AbstractProductReader {
             if (isUTC) {
                 final double[] timeMJD = getTimeMJD(colName);
                 if (timeMJD != null) {
-                    product.setTimeCoding(new TimeCoding(sceneRasterWidth, timeMJD, colName));
+                    final int width = product.getSceneRasterWidth();
+                    final int height = product.getSceneRasterHeight();
+                    product.setTimeCoding(new CSVTimeCoding(timeMJD, width, height, colName));
                     return;
                 }
             }
         }
-        SystemUtils.LOG.warning("Not able to create TimeCoding for product '" + product.getFileLocation().getAbsolutePath() + "'");
+        SystemUtils.LOG.warning("Not able to create RasterPixelTimeCoding for product '" + product.getFileLocation().getAbsolutePath() + "'");
     }
 
     private double[] getTimeMJD(String colName) throws IOException {
@@ -266,29 +267,16 @@ public class CsvProductReader extends AbstractProductReader {
                className.equals("integer");
     }
 
-    static class TimeCoding implements org.esa.snap.framework.datamodel.TimeCoding {
+    static class CSVTimeCoding extends RasterPixelTimeCoding {
+        private final String dataSourceName;
 
-        private final int sceneRasterWidth;
-        private final double[] timeMJD;
-        private final String columnName;
-
-        public TimeCoding(int sceneRasterWidth, double[] timeMJD, String columnName) {
-            this.sceneRasterWidth = sceneRasterWidth;
-            this.timeMJD = timeMJD;
-            this.columnName = columnName;
+        public CSVTimeCoding(double[] timeMJD, int rasterWidth, int rasterHeight, String dataSourceName) {
+            super(timeMJD, rasterWidth, rasterHeight);
+            this.dataSourceName = dataSourceName;
         }
 
-        @Override
-        public double getMJD(PixelPos pixelPos) {
-            int index = sceneRasterWidth * (int) Math.floor(pixelPos.y) + (int) Math.floor(pixelPos.x);
-            if (index >= timeMJD.length) {
-                return Double.NaN;
-            }
-            return timeMJD[(index)];
-        }
-
-        public String getColumnName() {
-            return columnName;
+        public String getDataSourceName() {
+            return dataSourceName;
         }
     }
 }
