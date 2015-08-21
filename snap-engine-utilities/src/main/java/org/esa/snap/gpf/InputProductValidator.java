@@ -33,6 +33,18 @@ public class InputProductValidator {
     private final Product product;
     private final MetadataElement absRoot;
 
+    private final static String SHOULD_BE_COREGISTERED = "Input should be a coregistered stack.";
+    private final static String SHOULD_BE_SLC = "Input should be a single look complex SLC product.";
+    private final static String SHOULD_BE_GRD = "Input should be a detected product.";
+    private final static String SHOULD_BE_S1 = "Input should be a Sentinel-1 product.";
+    private final static String SHOULD_BE_DEBURST = "Source product should first be deburst.";
+    private final static String SHOULD_BE_MULTISWATH_SLC = "Source product should be multi sub-swath SLC burst product.";
+    private final static String SHOULD_BE_QUAD_POL = "Input should be a full pol SLC product.";
+    private final static String SHOULD_BE_CALIBRATED = "Source product should be calibrated.";
+    private final static String SHOULD_NOT_BE_CALIBRATED = "Source product has already been calibrated.";
+    private final static String SHOULD_BE_MAP_PROJECTED = "Source product should be map projected.";
+    private final static String SHOULD_NOT_BE_MAP_PROJECTED = "Source product should not be map projected.";
+
     public InputProductValidator(final Product product) throws OperatorException {
         this.product = product;
         absRoot = AbstractMetadata.getAbstractedMetadata(product);
@@ -40,7 +52,7 @@ public class InputProductValidator {
 
     public void checkIfCoregisteredStack() throws OperatorException {
         if (!StackUtils.isCoregisteredStack(product)) {
-            throw new OperatorException("Input should be a coregistered stack");
+            throw new OperatorException(SHOULD_BE_COREGISTERED);
         }
     }
 
@@ -56,7 +68,13 @@ public class InputProductValidator {
 
     public void checkIfSLC() throws OperatorException {
         if (!isComplex()) {
-            throw new OperatorException("Input should be a single look complex SLC product");
+            throw new OperatorException(SHOULD_BE_SLC);
+        }
+    }
+
+    public void checkIfGRD() throws OperatorException {
+        if (isComplex()) {
+            throw new OperatorException(SHOULD_BE_GRD);
         }
     }
 
@@ -73,7 +91,7 @@ public class InputProductValidator {
 
     public void checkIfSentinel1Product() throws OperatorException {
         if (!isSentinel1Product()) {
-            throw new OperatorException("Input should be a Sentinel-1 product.");
+            throw new OperatorException(SHOULD_BE_S1);
         }
     }
 
@@ -96,8 +114,13 @@ public class InputProductValidator {
     }
 
     public boolean isTOPSARProduct() {
+        boolean isS1 = false;
+        final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION, "");
+        if (mission.startsWith("SENTINEL-1") || mission.startsWith("RS2")) {  // also include RS2 in TOPS mode
+            isS1 = true;
+        }
         final String[] bandNames = product.getBandNames();
-        return (contains(bandNames, "IW1") || contains(bandNames, "IW2") || contains(bandNames, "IW3") ||
+        return isS1 && (contains(bandNames, "IW1") || contains(bandNames, "IW2") || contains(bandNames, "IW3") ||
                 contains(bandNames, "EW1") || contains(bandNames, "EW2") || contains(bandNames, "EW3") ||
                 contains(bandNames, "EW4") || contains(bandNames, "EW5"));
     }
@@ -113,19 +136,13 @@ public class InputProductValidator {
             throw new OperatorException("Source product should NOT be a deburst product");
         } else if (!shouldbe && isTOPSARProduct && !isDebursted()) {
             // It should not be a TOP SAR burst product but it is.
-            throw new OperatorException("Source product should first be deburst");
+            throw new OperatorException(SHOULD_BE_DEBURST);
         }
     }
 
     public void checkIfMultiSwathTOPSARProduct() throws OperatorException {
         if (!isMultiSwath()) {
-            throw new OperatorException("Source product should be multi sub-swath SLC burst product");
-        }
-    }
-
-    public void checkIfDeburstedProduct() throws OperatorException {
-        if (!isDebursted()) {
-            throw new OperatorException("Source product should be a debursted product");
+            throw new OperatorException(SHOULD_BE_MULTISWATH_SLC);
         }
     }
 
@@ -152,41 +169,6 @@ public class InputProductValidator {
             }
         }
         return isDebursted;
-    }
-
-    public void checkIfSentinel1DeburstProduct() throws OperatorException {
-
-        // First off, it must be SLC
-        checkIfSLC();
-
-        // Then...
-        // If it is not Sentinel1, we don't have to check.
-        // If it is single-path (i.e., not multi-path), we don't have to check.
-        // If it is multi-path, then it needs to be deburst.
-        // Now isMultiPath() returns true if it is multi-path AND not deburst
-        // So we want to throw if isMultiPath() returns true in isTOPSARBurstProduct()
-        if (isTOPSARBurstProduct()) {
-            throw new OperatorException("Source product should first be deburst");
-        }
-    }
-
-    public boolean isTOPSARBurstProduct() throws OperatorException {
-
-        final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        if (!mission.startsWith("SENTINEL-1")) {
-            return false;
-        }
-
-        final String[] bandNames = product.getBandNames();
-        for (String bandName : bandNames) {
-            if (bandName.contains("IW1") || bandName.contains("IW2") || bandName.contains("IW3") ||
-                bandName.contains("EW1") || bandName.contains("EW2") || bandName.contains("EW3") ||
-                bandName.contains("EW4") || bandName.contains("EW5")) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private static boolean contains(final String[] list, final String tag) {
@@ -219,7 +201,7 @@ public class InputProductValidator {
 
     public void checkIfQuadPolSLC() throws OperatorException {
         if (!isFullPolSLC()) {
-            throw new OperatorException("Input should be a full pol SLC product");
+            throw new OperatorException(SHOULD_BE_QUAD_POL);
         }
     }
 
@@ -233,9 +215,9 @@ public class InputProductValidator {
     public void checkIfMapProjected(final boolean shouldBe) throws OperatorException {
         final boolean isMapProjected = isMapProjected();
         if (!shouldBe && isMapProjected) {
-            throw new OperatorException("Source product should not be map projected");
+            throw new OperatorException(SHOULD_NOT_BE_MAP_PROJECTED);
         } else if (shouldBe && !isMapProjected) {
-            throw new OperatorException("Source product should be map projected");
+            throw new OperatorException(SHOULD_BE_MAP_PROJECTED);
         }
     }
 
@@ -248,9 +230,9 @@ public class InputProductValidator {
     public void checkIfCalibrated(final boolean shouldBe) throws OperatorException {
         final boolean isCalibrated = isCalibrated(product);
         if (!shouldBe && isCalibrated) {
-            throw new OperatorException("Source product has already been calibrated");
+            throw new OperatorException(SHOULD_NOT_BE_CALIBRATED);
         } else if (shouldBe && !isCalibrated) {
-            throw new OperatorException("Source product should be calibrated");
+            throw new OperatorException(SHOULD_BE_CALIBRATED);
         }
     }
 
@@ -258,6 +240,13 @@ public class InputProductValidator {
         final String procSysId = absRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
         final float version = Float.valueOf(procSysId.substring(procSysId.lastIndexOf(" ")));
         return (version < 2.50);
+    }
+
+    public void checkIfTanDEMXProduct() throws OperatorException {
+        final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
+        if (!mission.startsWith("TDM")) {
+            throw new OperatorException("Input should be a TanDEM-X product.");
+        }
     }
 
 }

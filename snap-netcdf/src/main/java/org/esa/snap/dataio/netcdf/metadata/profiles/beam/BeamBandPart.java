@@ -87,9 +87,13 @@ public class BeamBandPart extends ProfilePartIO {
             final int height = dimensions.get(yDimIndex).getLength();
             Band band;
             if (height == p.getSceneRasterHeight()
-                && width == p.getSceneRasterWidth()) {
+                    && width == p.getSceneRasterWidth()) {
                 band = p.addBand(variable.getFullName(), rasterDataType);
             } else {
+                if (dimensions.get(xDimIndex).getFullName().startsWith("tp_") ||
+                        dimensions.get(yDimIndex).getFullName().startsWith("tp_")) {
+                    continue;
+                }
                 band = new Band(variable.getFullName(), rasterDataType, width, height);
                 setGeoCoding(ctx, p, variable, band);
                 p.addBand(band);
@@ -187,7 +191,7 @@ public class BeamBandPart extends ProfilePartIO {
 
             final DataType ncDataType = DataTypeUtils.getNetcdfDataType(dataType);
             String variableName = ReaderUtils.getVariableName(band);
-            if(!ncFile.isNameValid(variableName)) {
+            if (!ncFile.isNameValid(variableName)) {
                 variableName = ncFile.makeNameValid(variableName);
             }
             NVariable variable;

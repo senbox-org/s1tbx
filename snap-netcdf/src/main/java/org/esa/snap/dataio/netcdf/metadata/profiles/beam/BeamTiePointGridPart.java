@@ -56,6 +56,9 @@ public class BeamTiePointGridPart extends ProfilePartIO {
                     || dimensionX.getLength() != p.getSceneRasterWidth()) {
                 //maybe this is a tie point grid
                 final String tpName = ReaderUtils.getRasterName(variable);
+                if (p.containsBand(tpName)) {
+                    continue;
+                }
                 final Attribute offsetX = variable.findAttributeIgnoreCase(OFFSET_X);
                 final Attribute offsetY = variable.findAttributeIgnoreCase(OFFSET_Y);
                 final Attribute subSamplingX = variable.findAttributeIgnoreCase(SUBSAMPLING_X);

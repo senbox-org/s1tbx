@@ -71,6 +71,11 @@ public class VectorDataNodeReaderTest {
             public CoordinateReferenceSystem getFeatureCrs(Product product) {
                 return DefaultGeographicCRS.WGS84;
             }
+
+            @Override
+            public boolean clipToProductBounds() {
+                return true;
+            }
         };
         placemarkDescriptorProvider = new VectorDataNodeReader.PlacemarkDescriptorProvider() {
             @Override
