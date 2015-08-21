@@ -213,7 +213,7 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
             srcData2 = sourceRaster2.getDataBuffer();
         }
 
-        final Unit.UnitType bandUnit = Unit.getUnitType(sourceBand1);
+        final Unit.UnitType bandUnit = Unit.getUnitType(targetBand);
 
         final ProductData trgData = targetTile.getDataBuffer();
         final TileIndex srcIndex = new TileIndex(sourceRaster1);
@@ -222,7 +222,7 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
         final int maxY = y0 + h;
         final int maxX = x0 + w;
 
-        double sigma, dn, i, q;
+        double sigma = 0.0, dn, dn2, i, q, phaseTerm = 0.0;
         int srcIdx, tgtIdx;
 
         for (int y = y0; y < maxY; ++y) {
@@ -235,17 +235,22 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
 
                 if (bandUnit == Unit.UnitType.AMPLITUDE) {
                     dn = srcData1.getElemDoubleAt(srcIdx);
-                    sigma = dn * dn;
+                    dn2 = dn * dn;
                 } else if (bandUnit == Unit.UnitType.INTENSITY) {
-                    sigma = srcData1.getElemDoubleAt(srcIdx);
-                } else if (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
+                    dn2 = srcData1.getElemDoubleAt(srcIdx);
+                } else if (bandUnit == Unit.UnitType.REAL) {
+                    i = srcData1.getElemDoubleAt(srcIdx);
+                    q = srcData2.getElemDoubleAt(srcIdx);
+                    dn2 = i * i + q * q;
                     if (outputImageInComplex) {
-                        // the sigma below is actually i or q, we still call it sigma just for convenient
-                        sigma = srcData1.getElemDoubleAt(srcIdx);
-                    } else {
-                        i = srcData1.getElemDoubleAt(srcIdx);
-                        q = srcData2.getElemDoubleAt(srcIdx);
-                        sigma = i * i + q * q;
+                        phaseTerm = i / Math.sqrt(dn2);
+                    }
+                } else if (bandUnit == Unit.UnitType.IMAGINARY) {
+                    i = srcData1.getElemDoubleAt(srcIdx);
+                    q = srcData2.getElemDoubleAt(srcIdx);
+                    dn2 = i * i + q * q;
+                    if (outputImageInComplex) {
+                        phaseTerm = q / Math.sqrt(dn2);
                     }
                 } else {
                     throw new OperatorException("Calibration: unhandled unit");
@@ -253,14 +258,13 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
 
                 if (isComplex) {
                     if (gains != null) {
+                        sigma = dn2 / (gains[x + subsetOffsetX] * gains[x + subsetOffsetX]);
                         if (outputImageInComplex) {
-                            sigma /= gains[x + subsetOffsetX];
-                        } else {
-                            sigma /= (gains[x + subsetOffsetX] * gains[x + subsetOffsetX]);
+                            sigma = Math.sqrt(sigma)*phaseTerm;
                         }
                     }
                 } else {
-                    sigma += offset;
+                    sigma = dn2 + offset;
                     if (gains != null) {
                         sigma /= gains[x + subsetOffsetX];
                     }

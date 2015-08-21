@@ -369,7 +369,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
             srcGIMData = srcGIMTile.getDataBuffer();
         }
 
-        final Unit.UnitType bandUnit = Unit.getUnitType(sourceBand1);
+        final Unit.UnitType bandUnit = Unit.getUnitType(targetBand);
         final double noDataValue = sourceBand1.getNoDataValue();
 
         // copy band if unit is phase
@@ -397,7 +397,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
         final int maxY = y0 + h;
         final int maxX = x0 + w;
 
-        double sigma, dn, i, q;
+        double sigma, dn, dn2, i, q, phaseTerm = 0.0;
         int srcIdx, tgtIdx;
 
         for (int y = y0; y < maxY; ++y) {
@@ -413,13 +413,23 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
                     if (dn == noDataValue) { // skip noDataValue
                         continue;
                     }
-                    sigma = dn * dn;
+                    dn2 = dn * dn;
                 } else if (bandUnit == Unit.UnitType.INTENSITY) {
-                    sigma = srcData1.getElemDoubleAt(srcIdx);
-                } else if (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
+                    dn2 = srcData1.getElemDoubleAt(srcIdx);
+                } else if (bandUnit == Unit.UnitType.REAL) {
                     i = srcData1.getElemDoubleAt(srcIdx);
                     q = srcData2.getElemDoubleAt(srcIdx);
-                    sigma = i * i + q * q;
+                    dn2 = i * i + q * q;
+                    if (outputImageInComplex) {
+                        phaseTerm = i / Math.sqrt(dn2);
+                    }
+                } else if (bandUnit == Unit.UnitType.IMAGINARY) {
+                    i = srcData1.getElemDoubleAt(srcIdx);
+                    q = srcData2.getElemDoubleAt(srcIdx);
+                    dn2 = i * i + q * q;
+                    if (outputImageInComplex) {
+                        phaseTerm = q / Math.sqrt(dn2);
+                    }
                 } else {
                     throw new OperatorException("TerraSARXCalibrator: unhandled unit");
                 }
@@ -433,9 +443,13 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
                 }
 
                 if (noiseCorrectedFlag) {
-                    sigma = Ks * sigma * FastMath.sin(inciAng);
+                    sigma = Ks * dn2 * FastMath.sin(inciAng);
                 } else {
-                    sigma = Ks * (sigma - tileNoise[y - y0][x - x0]) * FastMath.sin(inciAng);
+                    sigma = Ks * (dn2 - tileNoise[y - y0][x - x0]) * FastMath.sin(inciAng);
+                }
+
+                if (isComplex && outputImageInComplex) {
+                    sigma = Math.sqrt(sigma)*phaseTerm;
                 }
 
                 if (outputImageScaleInDb) { // convert calibration result to dB

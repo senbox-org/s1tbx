@@ -148,6 +148,8 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
 
             getProductType();
 
+            getSampleType();
+
             getSRGRFlag();
 
             getCalibrationFlags();
@@ -891,7 +893,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
             srcData2 = sourceRaster2.getDataBuffer();
         }
 
-        final Unit.UnitType bandUnit = Unit.getUnitType(sourceBand1);
+        final Unit.UnitType bandUnit = Unit.getUnitType(targetBand);
 
         // copy band if unit is phase
         if (bandUnit == Unit.UnitType.PHASE) {
@@ -935,7 +937,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
             }
         }
 
-        double sigma, dn = 0, i, q;
+        double sigma, dn, dn2, i, q, phaseTerm = 0.0;
         final double theCalibrationFactor = newCalibrationConstant[prodBand];
 
         int srcIdx, tgtIdx;
@@ -955,34 +957,47 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
 
                 if (bandUnit == Unit.UnitType.AMPLITUDE) {
                     dn = srcData1.getElemDoubleAt(srcIdx);
-                    sigma = dn * dn;
+                    dn2 = dn * dn;
                 } else if (bandUnit == Unit.UnitType.INTENSITY) {
-                    sigma = srcData1.getElemDoubleAt(srcIdx);
-                } else if (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
+                    dn2 = srcData1.getElemDoubleAt(srcIdx);
+                } else if (bandUnit == Unit.UnitType.REAL) {
                     i = srcData1.getElemDoubleAt(srcIdx);
                     q = srcData2.getElemDoubleAt(srcIdx);
-                    sigma = i * i + q * q;
+                    dn2 = i * i + q * q;
+                    if (outputImageInComplex) {
+                        phaseTerm = i / Math.sqrt(dn2);
+                    }
+                } else if (bandUnit == Unit.UnitType.IMAGINARY) {
+                    i = srcData1.getElemDoubleAt(srcIdx);
+                    q = srcData2.getElemDoubleAt(srcIdx);
+                    dn2 = i * i + q * q;
+                    if (outputImageInComplex) {
+                        phaseTerm = q / Math.sqrt(dn2);
+                    }
                 } else {
                     throw new OperatorException("ASAR Calibration: unhandled unit");
                 }
 
+                double calFactor = 1.0;
                 if (retroCalibrationFlag) { // remove old antenna pattern gain
-                    sigma *= targetTileOldAntPat[yy][xx]; // see Andrea's email dated Nov. 11, 2008
+                    calFactor *= targetTileOldAntPat[yy][xx]; // see Andrea's email dated Nov. 11, 2008
                 }
 
                 // apply calibration constant and incidence angle corrections
-                sigma *= FastMath.sin(incidenceAnglesArray[xx] * Constants.DTOR) / theCalibrationFactor;
+                calFactor *= FastMath.sin(incidenceAnglesArray[xx] * Constants.DTOR) / theCalibrationFactor;
 
                 if (applyRangeSpreadingCorr && targetTileSlantRange != null) { // apply range spreading loss compensation
-                    /*
-                    time = slantRangeTimeArray[xx] / 1000000000.0; //convert ns to s
-                    sigma *= Math.pow(time * halfLightSpeedByRefSlantRange, rangeSpreadingCompPower);
-                    */
-                    sigma *= FastMath.pow(targetTileSlantRange[yy][xx] / refSlantRange800km, rangeSpreadingCompPower);
+                    calFactor *= FastMath.pow(targetTileSlantRange[yy][xx] / refSlantRange800km, rangeSpreadingCompPower);
                 }
 
                 if (applyAntennaPatternCorr) { // apply antenna pattern correction
-                    sigma /= targetTileNewAntPat[yy][xx];  // see Andrea's email dated Nov. 11, 2008
+                    calFactor /= targetTileNewAntPat[yy][xx];  // see Andrea's email dated Nov. 11, 2008
+                }
+
+                sigma = dn2*calFactor;
+
+                if (isComplex && outputImageInComplex) {
+                    sigma = Math.sqrt(sigma)*phaseTerm;
                 }
 
                 if (outputImageScaleInDb) { // convert calibration result to dB
