@@ -142,7 +142,7 @@ public class ImageGeometry {
                                     height, orientation, easting, northing, referencePixelX, referencePixelY);
     }
 
-    public static ImageGeometry createTargetGeometry(Rectangle2D mapBoundary, int sourceWidth, int sourceHeight,
+    private static ImageGeometry createTargetGeometry(Rectangle2D mapBoundary, int sourceWidth, int sourceHeight,
                                                      CoordinateReferenceSystem targetCrs,
                                                      Double pixelSizeX, Double pixelSizeY, Integer width,
                                                      Integer height,

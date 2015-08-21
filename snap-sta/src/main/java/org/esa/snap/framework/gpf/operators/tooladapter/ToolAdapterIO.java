@@ -334,6 +334,9 @@ public class ToolAdapterIO {
     public static File ensureLocalCopy(File file, String adaptorAlias) {
         File newFile = null;
         File path = new File(getUserAdapterPath(), adaptorAlias);
+        if (!path.exists()) {
+            path.mkdir();
+        }
         if (!file.isAbsolute()) {
             newFile = new File(path, file.getName());
         } else if (file.exists() && !file.getAbsolutePath().startsWith(path.getAbsolutePath())) {
