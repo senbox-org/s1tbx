@@ -33,7 +33,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <all.clusters>../../snap-desktop/snap-application/target/snap</all.clusters>
+        <application.dir>../../snap-desktop/snap-application/target/snap</application.dir>
     </properties>
 	
 	<build>
@@ -50,7 +50,7 @@
                                 <goal>copy-resources</goal>
                             </goals>
                             <configuration>
-                                <outputDirectory>${all.clusters}/etc/</outputDirectory>
+                                <outputDirectory>${application.dir}/etc/</outputDirectory>
                                 <resources>
                                     <resource>
                                         <directory>etc</directory>
