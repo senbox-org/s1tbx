@@ -63,6 +63,7 @@ if debug:
     jpy.diag.flags = jpy.diag.F_EXEC + jpy.diag.F_ERR
 
 
+#
 # Recursively searches for JAR files in 'dir_path' and appends them to the first member of the
 # 'env' tuple (env[0] is the classpath). Also searches for 'lib/LIB_PLATFORM_NAMES[i]' and if one
 # exists, appends it to the second member of the 'env' tuple (env[1] is the java.library.path)
@@ -78,23 +79,22 @@ def _collect_snap_jvm_env(dir_path, env):
             if not (name.endswith('-ui.jar') or name.endswith('-examples.jar')):
                 env[0].append(path)
         elif os.path.isdir(path):
-            if name == 'modules':
+            if name == 'lib':
                 import platform
                 os_arch = platform.machine().lower()
                 os_name = platform.system().lower()
-                lib_path1 = os.path.join(path, 'lib')
-                if os.path.exists(lib_path1):
-                    lib_path2 = os.path.join(lib_path1, os_arch)
-                    if os.path.exists(lib_path2):
-                        lib_path3 = os.path.join(lib_path2, os_name)
-                        if os.path.exists(lib_path3):
-                            env[1].append(lib_path3)
-                        env[1].append(lib_path2)
-                    env[1].append(lib_path1)
+                lib_os_arch_path = os.path.join(path, os_arch)
+                if os.path.exists(lib_os_arch_path):
+                    lib_os_name_path = os.path.join(lib_os_arch_path, os_name)
+                    if os.path.exists(lib_os_name_path):
+                        env[1].append(lib_os_name_path)
+                    env[1].append(lib_os_arch_path)
+                env[1].append(path)
             if not (name == 'locale' or name == 'docs'):
                 _collect_snap_jvm_env(path, env)
 
 
+#
 # Searches for *.jar files in directory given by global 'snap_home' variable and returns them as a list.
 #
 # Note: This function is called only if the 'snappy' module is not imported from Java.
@@ -106,7 +106,7 @@ def _get_snap_jvm_env():
         if os.path.isdir(os.path.join(snap_home, name)):
             dir_names.append(name)
 
-    module_dirs = []
+    java_module_dirs = []
 
     if 'bin' in dir_names and 'etc' in dir_names and 'snap' in dir_names:
         # SNAP Desktop Distribution Directory
@@ -114,20 +114,20 @@ def _get_snap_jvm_env():
             if not (dir_name == 'platform' or dir_name == 'ide'):
                 dir_path = os.path.join(snap_home, dir_name, 'modules')
                 if os.path.isdir(dir_path):
-                    module_dirs.append(dir_path)
+                    java_module_dirs.append(dir_path)
     elif 'lib' in dir_names and 'modules' in dir_names:
         # SNAP Engine Distribution Directory
-        module_dirs = [os.path.join(snap_home, 'modules'), os.path.join(snap_home, 'lib')]
+        java_module_dirs = [os.path.join(snap_home, 'modules'), os.path.join(snap_home, 'lib')]
     else:
         raise RuntimeError('does not seem to be a valid SNAP distribution directory: ' + snap_home)
 
     if debug:
         import pprint
-        print(module_dir + ': module_dirs = ')
-        pprint.pprint(module_dirs)
+        print(module_dir + ': java_module_dirs = ')
+        pprint.pprint(java_module_dirs)
 
     env = ([], [])
-    for path in module_dirs:
+    for path in java_module_dirs:
         _collect_snap_jvm_env(path, env)
 
     if debug:
@@ -138,6 +138,7 @@ def _get_snap_jvm_env():
     return env
 
 
+#
 # Creates a list of Java JVM options, including the Java classpath derived from the global 'snap_home' variable.
 #
 # Note: This function is called only if the 'snappy' module is not imported from Java.

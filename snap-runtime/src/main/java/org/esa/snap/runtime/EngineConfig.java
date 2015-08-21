@@ -1,6 +1,8 @@
 package org.esa.snap.runtime;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -8,7 +10,6 @@ import java.util.Collections;
 import java.util.Properties;
 import java.util.Set;
 import java.util.logging.*;
-import java.util.prefs.BackingStoreException;
 import java.util.stream.Collectors;
 
 /**
@@ -287,14 +288,29 @@ public class EngineConfig extends Config {
         for (Handler handler : handlers) {
             if (handler instanceof ConsoleHandler) {
                 ConsoleHandler consoleHandler = (ConsoleHandler) handler;
-                consoleHandler.setFormatter(new Formatter() {
-                    @Override
-                    public String format(LogRecord record) {
-                        return String.format("%s: %s: %s%n", record.getLevel(), record.getSourceClassName(), record.getMessage());
-                    }
-                });
+                consoleHandler.setFormatter(new LogRecordFormatter());
             }
         }
     }
 
+    private static class LogRecordFormatter extends Formatter {
+        @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+        @Override
+        public String format(LogRecord record) {
+            if (record.getThrown() != null) {
+                StringWriter stackTrace = new StringWriter();
+                record.getThrown().printStackTrace(new PrintWriter(stackTrace));
+                return String.format("%s: %s: %s%n%s%n",
+                                     record.getLevel(),
+                                     record.getSourceClassName(),
+                                     record.getMessage(),
+                                     stackTrace.toString());
+            } else {
+                return String.format("%s: %s: %s%n",
+                                     record.getLevel(),
+                                     record.getSourceClassName(),
+                                     record.getMessage());
+            }
+        }
+    }
 }

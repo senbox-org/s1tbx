@@ -76,7 +76,7 @@ public interface Resampling {
     /**
      * Computes the index's properties for the given non-pixel coordinate without pixel center intensity assumption.
      * <p/>
-     * The default implementation omputes the resampling index for given coordinate without pixel center intensity assumption.
+     * The default implementation computes the resampling index for given coordinate without pixel center intensity assumption.
      * It adds 0.5 to coordinates to counter the consideration of pixel center in base function.
      *
      * @param x      the raster's x coordinate

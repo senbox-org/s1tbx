@@ -189,11 +189,14 @@ public class ToolAdapterOp extends Operator {
             if (this.progressMonitor != null) {
                 this.progressMonitor.beginTask("Executing " + this.descriptor.getName(), 100);
             }
-            validateDescriptor();
             if (this.consumer == null) {
                 this.consumer = new DefaultOutputConsumer(descriptor.getProgressPattern(), descriptor.getErrorPattern(), this.progressMonitor);
                 this.consumer.setLogger(getLogger());
             }
+            if (errorMessages != null) {
+                errorMessages.clear();
+            }
+            validateDescriptor();
             if (!isStopped) {
                 beforeExecute();
             }
@@ -217,6 +220,11 @@ public class ToolAdapterOp extends Operator {
 
     public List<String> getExecutionOutput() {
         return this.consumer.getProcessOutput();
+    }
+
+    public Product getResult() {
+        return accessibleContext.isInitialized() ?
+            accessibleContext.getTargetProduct() : null;
     }
 
     /**
@@ -356,7 +364,7 @@ public class ToolAdapterOp extends Operator {
             //get the process output
             outReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             while (!isStopped()) {
-                while (outReader.ready()) {
+                while (!isStopped && outReader.ready()) {
                     //read the process output line by line
                     String line = outReader.readLine();
                     //consume the line if possible
@@ -377,7 +385,7 @@ public class ToolAdapterOp extends Operator {
                 throw new IOException(String.format("Process exited with value %d", process.exitValue()));
             }
         } catch (IOException e) {
-            throw new OperatorException("Error running tool " + descriptor.getName(), e);
+            throw new OperatorException(String.format("% execution was interrupted [%s]",descriptor.getName(), e));
         } finally {
             if (process != null) {
                 // if the process is still running, force it to isStopped
@@ -390,7 +398,7 @@ public class ToolAdapterOp extends Operator {
                     ret = process.waitFor();
                 } catch (InterruptedException e) {
                     //noinspection ThrowFromFinallyBlock
-                    throw new OperatorException("Error running tool " + descriptor.getName(), e);
+                    throw new OperatorException(String.format("Error stopping %s [%s]", descriptor.getName(), e));
                 }
 
                 //close the reader

@@ -38,6 +38,7 @@ class DefaultOutputConsumer implements ProcessOutputConsumer {
     private Logger logger;
     private ProgressMonitor progressMonitor;
     private List<String> processOutput;
+    private static final int MAX_UNITS = 100;
 
     public DefaultOutputConsumer() {
         this(null, null, null);
@@ -81,8 +82,13 @@ class DefaultOutputConsumer implements ProcessOutputConsumer {
         Matcher matcher = null;
         try {
             if (progress != null && (matcher = progress.matcher(line)).matches()) {
-                int worked = Integer.parseInt(matcher.group(1));
-                progressMonitor.worked(worked);
+                int worked;
+                try {
+                    worked = Integer.parseInt(matcher.group(1));
+                } catch (Exception e) {
+                    worked = (int) Float.parseFloat(matcher.group(1));
+                }
+                progressMonitor.worked(Math.min(worked, MAX_UNITS));
                 progressMonitor.setSubTaskName(line);
                 getLogger().info(line);
             } else if (error != null && (matcher = error.matcher(line)).matches()) {
@@ -104,7 +110,7 @@ class DefaultOutputConsumer implements ProcessOutputConsumer {
     private void initializeProgressMonitor() {
         if (progressMonitor == null) {
             progressMonitor = ProgressMonitor.NULL;
-            progressMonitor.beginTask("Starting", 100);
+            progressMonitor.beginTask("Starting", MAX_UNITS);
         }
     }
 

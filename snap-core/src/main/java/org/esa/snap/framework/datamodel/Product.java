@@ -102,6 +102,7 @@ public class Product extends ProductNode {
     private static final String GCP_GROUP_NAME = "ground_control_points";
 
     public static final String PROPERTY_NAME_GEOCODING = "geoCoding";
+    public static final String PROPERTY_NAME_TIMECODING = "timeCoding";
     public static final String PROPERTY_NAME_PRODUCT_TYPE = "productType";
 
     public static final String GEOMETRY_FEATURE_TYPE_NAME = PlainFeatureFactory.DEFAULT_TYPE_NAME;
@@ -120,6 +121,11 @@ public class Product extends ProductNode {
      * The writer for this product. The writer is an exchangeable property of a product.
      */
     private ProductWriter writer;
+
+    /**
+     * The time-coding of this product, if any.
+     */
+    private TimeCoding timeCoding;
 
     /**
      * The geo-coding of this product, if any.
@@ -691,6 +697,34 @@ public class Product extends ProductNode {
 
         fileLocation = null;
     }
+
+    /**
+     * Gets the time-coding of this {@link Product}.
+     *
+     * @return the time-coding, or {@code null} if not available.
+     * @see RasterDataNode#getTimeCoding()
+     * @since SNAP 2.0
+     */
+    public TimeCoding getTimeCoding() {
+        return timeCoding;
+    }
+
+
+    /**
+     * Sets the time-coding for this {@link Product}.
+     *
+     * @param timeCoding the new time-coding
+     * @see RasterDataNode#setTimeCoding(TimeCoding)
+     * @since SNAP 2.0
+     */
+    public void setTimeCoding(final TimeCoding timeCoding) {
+        if (!ObjectUtils.equalObjects(timeCoding, this.timeCoding)) {
+            final TimeCoding oldValue = this.timeCoding;
+            this.timeCoding = timeCoding;
+            fireNodeChanged(this, PROPERTY_NAME_TIMECODING, oldValue, timeCoding);
+        }
+    }
+
 
     /**
      * Gets the pointing factory associated with this data product.
@@ -2365,14 +2399,25 @@ public class Product extends ProductNode {
         }
 
         public static AutoGrouping parse(String text) {
-            String[][] paths;
+            List<String[]> pathLists = new ArrayList<>();
             if (StringUtils.isNotNullAndNotEmpty(text)) {
                 String[] pathTexts = StringUtils.toStringArray(text, PATH_SEPARATOR);
-                paths = new String[pathTexts.length][];
-                for (int i = 0; i < paths.length; i++) {
-                    paths[i] = StringUtils.toStringArray(pathTexts[i], GROUP_SEPARATOR);
+                for (String pathText : pathTexts) {
+                    final String[] subPaths = StringUtils.toStringArray(pathText, GROUP_SEPARATOR);
+                    final ArrayList<String> subPathsList = new ArrayList<>();
+                    for (String subPath : subPaths) {
+                        if (StringUtils.isNotNullAndNotEmpty(subPath)) {
+                            subPathsList.add(subPath);
+                        }
+                    }
+                    if (!subPathsList.isEmpty()) {
+                        pathLists.add(subPathsList.toArray(new String[subPathsList.size()]));
+                    }
                 }
-                return new AutoGroupingImpl(paths);
+                if (pathLists.isEmpty()) {
+                    return null;
+                }
+                return new AutoGroupingImpl(pathLists.toArray(new String[pathLists.size()][]));
             } else {
                 return null;
             }

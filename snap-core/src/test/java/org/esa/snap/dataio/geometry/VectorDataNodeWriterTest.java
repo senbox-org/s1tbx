@@ -89,13 +89,19 @@ public class VectorDataNodeWriterTest extends TestCase {
     }
 
     private void testInputOutput(String input, String[] expectedProperties, String expectedContent) throws IOException {
+        final FeatureUtils.FeatureCrsProvider featureCrsProvider = new FeatureUtils.FeatureCrsProvider() {
+            @Override
+            public CoordinateReferenceSystem getFeatureCrs(Product product) {
+                return DefaultGeographicCRS.WGS84;
+            }
+
+            @Override
+            public boolean clipToProductBounds() {
+                return true;
+            }
+        };
         final VectorDataNode dataNode = VectorDataNodeReader.read("mem", new StringReader(input), createDummyProduct(),
-                                                                  new FeatureUtils.FeatureCrsProvider() {
-                                                                      @Override
-                                                                      public CoordinateReferenceSystem getFeatureCrs(Product product) {
-                                                                          return DefaultGeographicCRS.WGS84;
-                                                                      }
-                                                                  }, placemarkDescriptorProvider, DefaultGeographicCRS.WGS84,
+                                                                  featureCrsProvider, placemarkDescriptorProvider, DefaultGeographicCRS.WGS84,
                                                                   VectorDataNodeIO.DEFAULT_DELIMITER_CHAR, ProgressMonitor.NULL);
         Map<String, String> properties = new HashMap<>();
         for (Map.Entry<Object, Object> entry : dataNode.getFeatureType().getUserData().entrySet()) {

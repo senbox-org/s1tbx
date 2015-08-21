@@ -44,12 +44,11 @@ import java.util.logging.Logger;
  * <p><i><b>IMPORTANT NOTE:</b>
  * This class does not belong to the public API.
  * It is not intended to be used by clients.
- * It is invoked by the {@link ModuleRuntime ceres runtime} to activate the {@code beam-core} module.</i>
+ * We only use {@link #loadServices}.</i>
  *
  * @author Marco Peters
- * @version $Revision$ $Date$
  */
-public class BeamCoreActivator implements Activator {
+public class SnapCoreActivator implements Activator {
 
     private static ModuleContext moduleContext;
     private FactoryIteratorProvider geotoolsFactoryIteratorProvider;
@@ -80,7 +79,7 @@ public class BeamCoreActivator implements Activator {
 
     @Override
     public void start(ModuleContext moduleContext) throws CoreException {
-        BeamCoreActivator.moduleContext = moduleContext;
+        SnapCoreActivator.moduleContext = moduleContext;
         SystemUtils.init3rdPartyLibs(moduleContext.getModule().getClass());
         registerRGBProfiles(moduleContext);
         registerGeotoolsServices();
@@ -88,7 +87,7 @@ public class BeamCoreActivator implements Activator {
 
     @Override
     public void stop(ModuleContext moduleContext) throws CoreException {
-        BeamCoreActivator.moduleContext = null;
+        SnapCoreActivator.moduleContext = null;
         deregisterGeotoolsServices();
     }
 

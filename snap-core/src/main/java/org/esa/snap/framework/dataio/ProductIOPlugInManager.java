@@ -17,7 +17,7 @@ package org.esa.snap.framework.dataio;
 
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
-import org.esa.snap.BeamCoreActivator;
+import org.esa.snap.SnapCoreActivator;
 import org.esa.snap.util.Debug;
 import org.esa.snap.util.Guardian;
 
@@ -190,9 +190,9 @@ public class ProductIOPlugInManager {
         readerPlugIns = serviceRegistryManager.getServiceRegistry(ProductReaderPlugIn.class);
         writerPlugIns = serviceRegistryManager.getServiceRegistry(ProductWriterPlugIn.class);
 
-        if (!BeamCoreActivator.isStarted()) {
-            BeamCoreActivator.loadServices(readerPlugIns);
-            BeamCoreActivator.loadServices(writerPlugIns);
+        if (!SnapCoreActivator.isStarted()) {
+            SnapCoreActivator.loadServices(readerPlugIns);
+            SnapCoreActivator.loadServices(writerPlugIns);
         }
     }
     

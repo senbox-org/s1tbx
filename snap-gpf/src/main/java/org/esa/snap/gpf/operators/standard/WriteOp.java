@@ -261,6 +261,10 @@ public class WriteOp extends Operator {
             tileCountsX[i] = tileCountX;
             int tileCountY = MathUtils.ceilInt(writableBand.getSceneRasterHeight() / (double) tileSize.height);
             tilesWritten[i] = new boolean[tileCountY][tileCountX];
+
+            if(writeEntireTileRows && i > 0 && !tileSize.equals(tileSizes[0])) {
+                writeEntireTileRows = false;        // don't writeEntireTileRows for multisize bands
+            }
         }
     }
 

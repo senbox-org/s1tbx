@@ -17,7 +17,7 @@ package org.esa.snap.framework.dataop.maptransf;
 
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
-import org.esa.snap.BeamCoreActivator;
+import org.esa.snap.SnapCoreActivator;
 import org.esa.snap.util.Guardian;
 
 import java.util.LinkedList;
@@ -39,8 +39,8 @@ public class MapProjectionRegistry {
         projectionList = new LinkedList<MapProjection>();
         ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
         descriptors = serviceRegistryManager.getServiceRegistry(MapTransformDescriptor.class);
-        if (!BeamCoreActivator.isStarted()) {
-            BeamCoreActivator.loadServices(descriptors);
+        if (!SnapCoreActivator.isStarted()) {
+            SnapCoreActivator.loadServices(descriptors);
         }
         Set<MapTransformDescriptor> services = descriptors.getServices();
         for (MapTransformDescriptor descriptor : services) {

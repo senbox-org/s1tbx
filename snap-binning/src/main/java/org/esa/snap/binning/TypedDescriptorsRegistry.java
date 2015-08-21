@@ -18,7 +18,7 @@ package org.esa.snap.binning;
 
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
-import org.esa.snap.BeamCoreActivator;
+import org.esa.snap.SnapCoreActivator;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,8 +76,8 @@ public class TypedDescriptorsRegistry {
         SpecificRegistry(Class<TD> klass) {
             ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
             ServiceRegistry<TD> serviceRegistry = serviceRegistryManager.getServiceRegistry(klass);
-            if (!BeamCoreActivator.isStarted()) {
-                BeamCoreActivator.loadServices(serviceRegistry);
+            if (!SnapCoreActivator.isStarted()) {
+                SnapCoreActivator.loadServices(serviceRegistry);
             }
 
             nameMap = createNameMap(serviceRegistry);

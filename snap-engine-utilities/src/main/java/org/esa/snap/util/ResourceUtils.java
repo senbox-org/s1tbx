@@ -65,7 +65,7 @@ public final class ResourceUtils {
 
     public static InputStream getResourceAsStream(final String filename, final Class theClass) throws IOException {
         // Try to load resource from jar
-        final InputStream stream = ClassLoader.getSystemResourceAsStream(filename);
+        InputStream stream = ClassLoader.getSystemResourceAsStream(filename);
         if (stream != null) return stream;
 
         // If not found in jar, then load from disk
@@ -73,6 +73,11 @@ public final class ResourceUtils {
         if (resURL != null) {
             return theClass.getClassLoader().getResourceAsStream(filename);
         }
+
+        final Path basePath = ResourceInstaller.findModuleCodeBasePath(theClass);
+        final String pathStr = basePath.toString()+filename;
+        stream = new FileInputStream(pathStr);
+        if(stream != null) return stream;
 
         return new FileInputStream(filename);
     }
