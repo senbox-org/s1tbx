@@ -33,7 +33,6 @@ import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.ProductNodeGroup;
 import org.esa.snap.framework.datamodel.RasterDataNode;
-import org.esa.snap.framework.datamodel.SceneRasterTransform;
 import org.esa.snap.framework.datamodel.TiePointGrid;
 import org.esa.snap.framework.dataop.dem.ElevationModel;
 import org.esa.snap.framework.dataop.dem.ElevationModelDescriptor;
@@ -72,7 +71,6 @@ import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * <p>
@@ -211,18 +209,9 @@ public class ReprojectionOp extends Operator {
             defaultValue = "false")
     private boolean addDeltaBands;
 
+    private ReprojectionSettingsProvider reprojectionSettingsProvider;
+
     private ElevationModel elevationModel;
-
-    private MultiLevelModel defaultSourceModel;
-    private ImageGeometry defaultImageGeometry;
-    private MultiLevelModel defaultTargetModel;
-    private Reproject defaultReprojection;
-
-    private Map<String, GeoCoding> targetGeocodingMap;
-    private Map<String, ImageGeometry> imageGeometryMap;
-    private Map<String, MultiLevelModel> sourceModelMap;
-    private Map<String, MultiLevelModel> targetModelMap;
-    private Map<String, Reproject> reprojectMap;
 
     @Override
     public void initialize() throws OperatorException {
@@ -241,7 +230,7 @@ public class ReprojectionOp extends Operator {
         * 2. Compute the target geometry
         */
         ImageGeometry targetImageGeometry = createImageGeometry(targetCrs);
-        determineDefaultSourceModel();
+//        determineDefaultSourceModel();
         /*
         * 3. Create the target product
         */
@@ -287,14 +276,7 @@ public class ReprojectionOp extends Operator {
         targetProduct.setStartTime(meanTime);
         targetProduct.setEndTime(meanTime);
 
-        if (ProductUtils.areRastersEqualInSize(sourceProduct.getBands())) {
-            defaultImageGeometry = targetImageGeometry;
-            determineDefaultSourceModel();
-            defaultTargetModel = ImageManager.createMultiLevelModel(targetProduct);
-            defaultReprojection = new Reproject(defaultTargetModel.getLevelCount());
-        } else {
-            initMaps();
-        }
+        reprojectionSettingsProvider = new ReprojectionSettingsProvider(targetImageGeometry);
 
         reprojectRasterDataNodes(sourceProduct.getBands());
         if (includeTiePointGrids) {
@@ -310,77 +292,12 @@ public class ReprojectionOp extends Operator {
         }
     }
 
-    private void determineDefaultSourceModel() {
-        final ProductNodeGroup<Band> bandGroup = sourceProduct.getBandGroup();
-        for (int i = 0; i < bandGroup.getNodeCount(); i++) {
-            if (bandGroup.get(i).getSceneRasterTransform() == SceneRasterTransform.IDENTITY) {
-                defaultSourceModel = ImageManager.getMultiLevelModel(bandGroup.get(i));
-                return;
-            }
-        }
-        //handle the obscure case that there is no band with the same resolution as the product
-        defaultSourceModel = ImageManager.getMultiLevelModel(bandGroup.get(0));
-    }
-
     @Override
     public void dispose() {
         if (elevationModel != null) {
             elevationModel.dispose();
         }
         super.dispose();
-    }
-
-    private void initMaps() {
-        targetGeocodingMap = new HashMap<>();
-        imageGeometryMap = new HashMap<>();
-        sourceModelMap = new HashMap<>();
-        targetModelMap = new HashMap<>();
-        reprojectMap = new HashMap<>();
-
-        final ProductNodeGroup<Band> sourceBands = sourceProduct.getBandGroup();
-        for (int i = 0; i < sourceBands.getNodeCount(); i++) {
-            addRasterDataNodeToMaps(sourceBands.get(i));
-        }
-        final ProductNodeGroup<TiePointGrid> tiePointGridGroup = sourceProduct.getTiePointGridGroup();
-        for (int i = 0; i < tiePointGridGroup.getNodeCount(); i++) {
-            addRasterDataNodeToMaps(tiePointGridGroup.get(i));
-        }
-    }
-
-    private void addRasterDataNodeToMaps(RasterDataNode rasterDataNode) {
-        final String key = getKey(rasterDataNode);
-        if (!imageGeometryMap.containsKey(key)) {
-            final GeoPos centerGeoPos =
-                    getCenterGeoPos(rasterDataNode.getGeoCoding(), rasterDataNode.getSceneRasterWidth(), rasterDataNode.getSceneRasterHeight());
-            CoordinateReferenceSystem targetCrs = createTargetCRS(centerGeoPos);
-            final ImageGeometry targetImageGeometry = ImageGeometry.createTargetGeometry(rasterDataNode, targetCrs,
-                                                                                         pixelSizeX, pixelSizeY,
-                                                                                         width, height,
-                                                                                         orientation, easting,
-                                                                                         northing, referencePixelX,
-                                                                                         referencePixelY);
-            final AxisDirection targetAxisDirection = targetCrs.getCoordinateSystem().getAxis(1).getDirection();
-            if (!AxisDirection.DISPLAY_DOWN.equals(targetAxisDirection)) {
-                targetImageGeometry.changeYAxisDirection();
-            }
-            imageGeometryMap.put(key, targetImageGeometry);
-            Rectangle targetRect = targetImageGeometry.getImageRect();
-            try {
-                targetGeocodingMap.put(key, new CrsGeoCoding(targetImageGeometry.getMapCrs(),
-                                                             targetRect,
-                                                             targetImageGeometry.getImage2MapTransform()));
-            } catch (FactoryException | TransformException e) {
-                throw new OperatorException(e);
-            }
-        }
-        if (!sourceModelMap.containsKey(key)) {
-            sourceModelMap.put(key, ImageManager.getMultiLevelModel(rasterDataNode));
-        }
-    }
-
-    private String getKey(RasterDataNode rasterDataNode) {
-        return rasterDataNode.getGeoCoding().toString() + " " + rasterDataNode.getSceneRasterWidth() + " "
-                + rasterDataNode.getSceneRasterHeight();
     }
 
     private ElevationModel createElevationModel() throws OperatorException {
@@ -418,23 +335,8 @@ public class ReprojectionOp extends Operator {
     }
 
     private void reprojectSourceRaster(RasterDataNode sourceRaster) {
-        ImageGeometry imageGeometry;
-        if (defaultImageGeometry != null) {
-            imageGeometry = defaultImageGeometry;
-        } else {
-            imageGeometry = imageGeometryMap.get(getKey(sourceRaster));
-
-        }
-        MultiLevelModel sourceModel;
-        if (defaultSourceModel != null) {
-            sourceModel = defaultSourceModel;
-        } else {
-            sourceModel = sourceModelMap.get(getKey(sourceRaster));
-        }
-        GeoCoding bandGeoCoding = null;
-        if (targetGeocodingMap != null && targetGeocodingMap.containsKey(getKey(sourceRaster))) {
-            bandGeoCoding = targetGeocodingMap.get(getKey(sourceRaster));
-        }
+        final ReprojectionSettings reprojectionSettings =
+                reprojectionSettingsProvider.getReprojectionSettings(sourceRaster);
         final int targetDataType;
         MultiLevelImage sourceImage;
         if (sourceRaster.isScalingApplied()) {
@@ -445,7 +347,7 @@ public class ReprojectionOp extends Operator {
             sourceImage = sourceRaster.getSourceImage();
         }
         final Number targetNoDataValue = getTargetNoDataValue(sourceRaster, targetDataType);
-        final Rectangle imageRect = imageGeometry.getImageRect();
+        final Rectangle imageRect = reprojectionSettings.getImageGeometry().getImageRect();
         final Band targetBand = new Band(sourceRaster.getName(), targetDataType, (int) imageRect.getWidth(), (int) imageRect.getHeight());
         targetProduct.addBand(targetBand);
         targetBand.setLog10Scaled(sourceRaster.isLog10Scaled());
@@ -454,6 +356,7 @@ public class ReprojectionOp extends Operator {
                                               targetBand.getSceneRasterHeight() == targetProduct.getSceneRasterHeight());
         targetBand.setDescription(sourceRaster.getDescription());
         targetBand.setUnit(sourceRaster.getUnit());
+        GeoCoding bandGeoCoding = reprojectionSettings.getGeoCoding();
         if (bandGeoCoding != null) {
             targetBand.setGeoCoding(bandGeoCoding);
         }
@@ -465,25 +368,19 @@ public class ReprojectionOp extends Operator {
         }
 
         final Interpolation resampling = getResampling(targetBand);
-        MultiLevelModel targetModel;
-        Reproject reprojection;
-        if (defaultTargetModel != null) {
-            targetModel = defaultTargetModel;
-            reprojection = defaultReprojection;
-        } else {
-            final String key = getKey(sourceRaster);
-            if (targetModelMap.containsKey(key)) {
-                targetModel = targetModelMap.get(getKey(sourceRaster));
-                reprojection = reprojectMap.get(getKey(sourceRaster));
-            } else {
-                targetModel = ImageManager.createMultiLevelModel(targetBand);
-                targetModelMap.put(key, targetModel);
-                reprojection = new Reproject(targetModel.getLevelCount());
-                reprojectMap.put(key, reprojection);
-            }
+        MultiLevelModel targetModel = reprojectionSettings.getTargetModel();
+        if (targetModel == null) {
+            targetModel = ImageManager.createMultiLevelModel(targetBand);
+            reprojectionSettings.setTargetModel(targetModel);
+        }
+        Reproject reprojection = reprojectionSettings.getReprojection();
+        if (reprojection == null) {
+            reprojection = new Reproject(targetModel.getLevelCount());
+            reprojectionSettings.setReprojection(reprojection);
         }
         MultiLevelImage projectedImage =
-                createProjectedImage(sourceGeoCoding, sourceImage, sourceModel, targetBand, resampling, targetModel, reprojection);
+                createProjectedImage(sourceGeoCoding, sourceImage, reprojectionSettings.getSourceModel(),
+                                     targetBand, resampling, targetModel, reprojection);
         if (mustReplaceNaN(sourceRaster, targetDataType, targetNoDataValue.doubleValue())) {
             projectedImage = createNaNReplacedImage(projectedImage, targetModel, targetNoDataValue.doubleValue());
         }
@@ -829,6 +726,151 @@ public class ReprojectionOp extends Operator {
                 new ColorPaletteDef.Point((p1 + p2) / 2, new Color(255, 255, 255)),
                 new ColorPaletteDef.Point(p2, new Color(0, 0, 127)),
         }));
+    }
+
+    class ReprojectionSettingsProvider {
+
+        ReprojectionSettingsProvider provider;
+
+        ReprojectionSettingsProvider() {
+        }
+
+        ReprojectionSettingsProvider(ImageGeometry targetImageGeometry) {
+            if (ProductUtils.areRastersEqualInSize(sourceProduct.getBands())) {
+                provider = new DefaultReprojectionSettingsProvider(targetImageGeometry);
+            } else {
+                provider = new MultiResolutionReprojectionSettingsProvider();
+            }
+        }
+
+        protected ReprojectionSettings getReprojectionSettings(RasterDataNode rasterDataNode) {
+            return provider.getReprojectionSettings(rasterDataNode);
+        }
+    }
+
+    private class DefaultReprojectionSettingsProvider extends ReprojectionSettingsProvider {
+
+        ReprojectionSettings defaultReprojectionSettings;
+
+        DefaultReprojectionSettingsProvider(ImageGeometry imageGeometry) {
+            MultiLevelModel sourceModel = ImageManager.getMultiLevelModel(sourceProduct.getBandGroup().get(0));
+            MultiLevelModel targetModel = ImageManager.createMultiLevelModel(targetProduct);
+            Reproject reprojection = new Reproject(targetModel.getLevelCount());
+            defaultReprojectionSettings = new ReprojectionSettings(null, sourceModel, imageGeometry);
+            defaultReprojectionSettings.setTargetModel(targetModel);
+            defaultReprojectionSettings.setReprojection(reprojection);
+        }
+
+
+        @Override
+        protected ReprojectionSettings getReprojectionSettings(RasterDataNode rasterDataNode) {
+            return defaultReprojectionSettings;
+        }
+    }
+
+    private class MultiResolutionReprojectionSettingsProvider extends ReprojectionSettingsProvider {
+
+        HashMap<String, ReprojectionSettings> reprojectionSettingsMap;
+
+        MultiResolutionReprojectionSettingsProvider() {
+            reprojectionSettingsMap = new HashMap<>();
+            final ProductNodeGroup<Band> sourceBands = sourceProduct.getBandGroup();
+            for (int i = 0; i < sourceBands.getNodeCount(); i++) {
+                addReprojectionSettingsIfNecessary(sourceBands.get(i));
+            }
+            if (includeTiePointGrids) {
+                final ProductNodeGroup<TiePointGrid> tiePointGridGroup = sourceProduct.getTiePointGridGroup();
+                for (int i = 0; i < tiePointGridGroup.getNodeCount(); i++) {
+                    addReprojectionSettingsIfNecessary(tiePointGridGroup.get(i));
+                }
+            }
+        }
+
+        @Override
+        protected ReprojectionSettings getReprojectionSettings(RasterDataNode rasterDataNode) {
+            return reprojectionSettingsMap.get(getKey(rasterDataNode));
+        }
+
+        private void addReprojectionSettingsIfNecessary(RasterDataNode rasterDataNode) {
+            final String key = getKey(rasterDataNode);
+            if (!reprojectionSettingsMap.containsKey(key)) {
+                final GeoPos centerGeoPos =
+                        getCenterGeoPos(rasterDataNode.getGeoCoding(),
+                                        rasterDataNode.getSceneRasterWidth(), rasterDataNode.getSceneRasterHeight());
+                CoordinateReferenceSystem targetCrs = createTargetCRS(centerGeoPos);
+                final ImageGeometry targetImageGeometry = ImageGeometry.createTargetGeometry(rasterDataNode, targetCrs,
+                                                                                             pixelSizeX, pixelSizeY,
+                                                                                             width, height,
+                                                                                             orientation, easting,
+                                                                                             northing, referencePixelX,
+                                                                                             referencePixelY);
+                final AxisDirection targetAxisDirection = targetCrs.getCoordinateSystem().getAxis(1).getDirection();
+                if (!AxisDirection.DISPLAY_DOWN.equals(targetAxisDirection)) {
+                    targetImageGeometry.changeYAxisDirection();
+                }
+                Rectangle targetRect = targetImageGeometry.getImageRect();
+                try {
+                    final CrsGeoCoding geoCoding = new CrsGeoCoding(targetImageGeometry.getMapCrs(),
+                                                                    targetRect,
+                                                                    targetImageGeometry.getImage2MapTransform());
+                    final MultiLevelModel sourceModel = ImageManager.getMultiLevelModel(rasterDataNode);
+                    reprojectionSettingsMap.put(key, new ReprojectionSettings(geoCoding, sourceModel, targetImageGeometry));
+                } catch (FactoryException | TransformException e) {
+                    throw new OperatorException(e);
+                }
+            }
+        }
+
+        private String getKey(RasterDataNode rasterDataNode) {
+            return rasterDataNode.getGeoCoding().toString() + " " + rasterDataNode.getSceneRasterWidth() + " "
+                    + rasterDataNode.getSceneRasterHeight();
+        }
+
+    }
+
+    private class ReprojectionSettings {
+
+        private GeoCoding geoCoding;
+        private MultiLevelModel sourceModel;
+        private ImageGeometry imageGeometry;
+
+        public void setTargetModel(MultiLevelModel targetModel) {
+            this.targetModel = targetModel;
+        }
+
+        public void setReprojection(Reproject reprojection) {
+            this.reprojection = reprojection;
+        }
+
+        private MultiLevelModel targetModel;
+        private Reproject reprojection;
+
+        ReprojectionSettings(GeoCoding geoCoding, MultiLevelModel sourceModel, ImageGeometry imageGeometry) {
+            this.geoCoding = geoCoding;
+            this.sourceModel = sourceModel;
+            this.imageGeometry = imageGeometry;
+        }
+
+        public GeoCoding getGeoCoding() {
+            return geoCoding;
+        }
+
+        public MultiLevelModel getSourceModel() {
+            return sourceModel;
+        }
+
+        public ImageGeometry getImageGeometry() {
+            return imageGeometry;
+        }
+
+        public MultiLevelModel getTargetModel() {
+            return targetModel;
+        }
+
+        public Reproject getReprojection() {
+            return reprojection;
+        }
+
     }
 
 }
