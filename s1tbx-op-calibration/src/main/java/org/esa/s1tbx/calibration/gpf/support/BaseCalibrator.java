@@ -152,16 +152,15 @@ public class BaseCalibrator {
                 throw new OperatorException("Please select I and Q bands in pairs only");
             }
 
-            final String[] srcBandINames = {srcBandI.getName()};
-            targetBandNameToSourceBandName.put(srcBandINames[0], srcBandINames);
-            final Band targetBandI = targetProduct.addBand(srcBandINames[0], ProductData.TYPE_FLOAT32);
+            final Band srcBandQ = sourceBands[i + 1];
+            final String[] srcBandNames = {srcBandI.getName(), srcBandQ.getName()};
+            targetBandNameToSourceBandName.put(srcBandNames[0], srcBandNames);
+            final Band targetBandI = targetProduct.addBand(srcBandNames[0], ProductData.TYPE_FLOAT32);
             targetBandI.setUnit(unit);
             targetBandI.setNoDataValueUsed(true);
 
-            final Band srcBandQ = sourceBands[i + 1];
-            final String[] srcBandQNames = {srcBandQ.getName()};
-            targetBandNameToSourceBandName.put(srcBandQNames[0], srcBandQNames);
-            final Band targetBandQ = targetProduct.addBand(srcBandQNames[0], ProductData.TYPE_FLOAT32);
+            targetBandNameToSourceBandName.put(srcBandNames[1], srcBandNames);
+            final Band targetBandQ = targetProduct.addBand(srcBandNames[1], ProductData.TYPE_FLOAT32);
             targetBandQ.setUnit(nextUnit);
             targetBandQ.setNoDataValueUsed(true);
 
