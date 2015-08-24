@@ -177,10 +177,11 @@ public class ALOSCalibrator extends BaseCalibrator implements Calibrator {
             srcData2 = sourceRaster2.getDataBuffer();
         }
 
-        final Unit.UnitType bandUnit = Unit.getUnitType(targetBand);
+        final Unit.UnitType tgtBandUnit = Unit.getUnitType(targetBand);
+        final Unit.UnitType srcBandUnit = Unit.getUnitType(sourceBand1);
 
         // copy band if unit is phase
-        if (bandUnit == Unit.UnitType.PHASE) {
+        if (tgtBandUnit == Unit.UnitType.PHASE) {
             targetTile.setRawSamples(sourceRaster1.getRawSamples());
             return;
         }
@@ -203,23 +204,18 @@ public class ALOSCalibrator extends BaseCalibrator implements Calibrator {
                 srcIdx = srcIndex.getIndex(x);
                 tgtIdx = tgtIndex.getIndex(x);
 
-                if (bandUnit == Unit.UnitType.AMPLITUDE) {
+                if (srcBandUnit == Unit.UnitType.AMPLITUDE) {
                     dn = srcData1.getElemDoubleAt(srcIdx);
                     dn2 = dn * dn;
-                } else if (bandUnit == Unit.UnitType.INTENSITY) {
+                } else if (srcBandUnit == Unit.UnitType.INTENSITY) {
                     dn2 = srcData1.getElemDoubleAt(srcIdx);
-                } else if (bandUnit == Unit.UnitType.REAL) {
+                } else if (srcBandUnit == Unit.UnitType.REAL) {
                     i = srcData1.getElemDoubleAt(srcIdx);
                     q = srcData2.getElemDoubleAt(srcIdx);
                     dn2 = i * i + q * q;
-                    if (outputImageInComplex) {
+                    if (tgtBandUnit == Unit.UnitType.REAL) {
                         phaseTerm = i / Math.sqrt(dn2);
-                    }
-                } else if (bandUnit == Unit.UnitType.IMAGINARY) {
-                    i = srcData1.getElemDoubleAt(srcIdx);
-                    q = srcData2.getElemDoubleAt(srcIdx);
-                    dn2 = i * i + q * q;
-                    if (outputImageInComplex) {
+                    } else if (tgtBandUnit == Unit.UnitType.IMAGINARY) {
                         phaseTerm = q / Math.sqrt(dn2);
                     }
                 } else {

@@ -321,10 +321,11 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
                 srcData2 = sourceRaster2.getDataBuffer();
             }
 
-            final Unit.UnitType bandUnit = Unit.getUnitType(targetBand);
+            final Unit.UnitType tgtBandUnit = Unit.getUnitType(targetBand);
+            final Unit.UnitType srcBandUnit = Unit.getUnitType(sourceBand1);
 
             // copy band if unit is phase
-            if (bandUnit == Unit.UnitType.PHASE) {
+            if (tgtBandUnit == Unit.UnitType.PHASE) {
                 targetTile.setRawSamples(sourceRaster1.getRawSamples());
                 return;
             }
@@ -334,7 +335,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
             }
 
             if (applyADCSaturationCorrection && !adcHasBeenTestedFlag) {
-                testADC(sourceBand1, sourceBand2, bandUnit);
+                testADC(sourceBand1, sourceBand2, srcBandUnit);
             }
 
             boolean applyADCSaturationCorrectionToCurrentTile = false;
@@ -344,7 +345,8 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
 
             double[][] adcPowerLoss = null;
             if (applyADCSaturationCorrectionToCurrentTile) {
-                adcPowerLoss = computeADCPowerLossValuesForCurrentTile(sourceBand1, sourceBand2, x0, y0, w, h, bandUnit);
+                adcPowerLoss = computeADCPowerLossValuesForCurrentTile(
+                        sourceBand1, sourceBand2, x0, y0, w, h, srcBandUnit);
             }
 
             final double k = calibrationConstant * FastMath.sin(referenceIncidenceAngle);
@@ -365,26 +367,21 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
                 for (int y = y0; y < maxY; y++) {
                     index = sourceRaster1.getDataBufferIndex(x, y);
 
-                    if (bandUnit == Unit.UnitType.AMPLITUDE) {
+                    if (srcBandUnit == Unit.UnitType.AMPLITUDE) {
                         dn = srcData1.getElemDoubleAt(index);
                         dn2 = dn * dn;
-                    } else if (bandUnit == Unit.UnitType.INTENSITY) {
+                    } else if (srcBandUnit == Unit.UnitType.INTENSITY) {
                         dn2 = srcData1.getElemDoubleAt(index);
-                    } else if (bandUnit == Unit.UnitType.REAL) {
+                    } else if (srcBandUnit == Unit.UnitType.REAL) {
                         i = srcData1.getElemDoubleAt(index);
                         q = srcData2.getElemDoubleAt(index);
                         dn2 = i * i + q * q;
-                        if (outputImageInComplex) {
+                        if (tgtBandUnit == Unit.UnitType.REAL) {
                             phaseTerm = i / Math.sqrt(dn2);
-                        }
-                    } else if (bandUnit == Unit.UnitType.IMAGINARY) {
-                        i = srcData1.getElemDoubleAt(index);
-                        q = srcData2.getElemDoubleAt(index);
-                        dn2 = i * i + q * q;
-                        if (outputImageInComplex) {
+                        } else if (tgtBandUnit == Unit.UnitType.IMAGINARY) {
                             phaseTerm = q / Math.sqrt(dn2);
                         }
-                    } else if (bandUnit == Unit.UnitType.INTENSITY_DB) {
+                    } else if (srcBandUnit == Unit.UnitType.INTENSITY_DB) {
                         dn2 = FastMath.pow(10, srcData1.getElemDoubleAt(index) / 10.0); // convert dB to linear scale
                     } else {
                         throw new OperatorException("ERS Calibration: unhandled unit");
