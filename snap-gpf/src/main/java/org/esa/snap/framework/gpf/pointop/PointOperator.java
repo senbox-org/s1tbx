@@ -22,6 +22,8 @@ import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
+import com.bc.jexp.ParseException;
+import com.bc.jexp.Term;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.ConvolutionFilterBand;
 import org.esa.snap.framework.datamodel.GeneralFilterBand;
@@ -31,6 +33,7 @@ import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductNodeFilter;
 import org.esa.snap.framework.datamodel.RasterDataNode;
 import org.esa.snap.framework.datamodel.VirtualBand;
+import org.esa.snap.framework.dataop.barithm.BandArithmetic;
 import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.Tile;
@@ -40,6 +43,7 @@ import org.esa.snap.jai.VirtualBandOpImage;
 import org.esa.snap.util.ProductUtils;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
@@ -452,6 +456,10 @@ public abstract class PointOperator extends Operator {
                                                       getSourceProduct().getSceneRasterWidth(),
                                                       getSourceProduct().getSceneRasterHeight(),
                                                       expression);
+            // Special case:
+            // If there are multiple source products, we must create the source image already now.
+            // Otherwise virtualBand would create its source image on demand - but without the
+            // multi-product context which is required here.
             if (sourceProducts.length > 1) {
                 virtualBand.setSourceImage(createVirtualImage(dataType, expression, sourceProducts));
             }
@@ -465,16 +473,20 @@ public abstract class PointOperator extends Operator {
                     throw new IllegalArgumentException(String.format("Product '%s' has no assigned reference number.", sourceProduct.getName()));
                 }
             }
-            MultiLevelModel multiLevelModel = ImageManager.createMultiLevelModel(sourceProducts[0]);
+            Term term = VirtualBandOpImage.parseExpression(expression, 0, sourceProducts);
+            Product contextProduct = sourceProducts[0];
+            Dimension sourceSize = contextProduct.getSceneRasterSize();
+            Dimension tileSize = contextProduct.getPreferredTileSize();
+            MultiLevelModel multiLevelModel = ImageManager.createMultiLevelModel(contextProduct);
             MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
                 @Override
                 public RenderedImage createImage(int level) {
-                    return VirtualBandOpImage.create(expression,
-                                                     dataType,
-                                                     null,
-                                                     sourceProducts,
-                                                     0,
-                                                     ResolutionLevel.create(getModel(), level));
+                    return VirtualBandOpImage.builder(term)
+                            .dataType(dataType)
+                            .sourceSize(sourceSize)
+                            .tileSize(tileSize)
+                            .level(ResolutionLevel.create(getModel(), level))
+                            .create();
                 }
             };
             return new DefaultMultiLevelImage(multiLevelSource);

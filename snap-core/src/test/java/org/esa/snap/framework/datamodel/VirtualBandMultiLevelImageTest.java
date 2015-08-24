@@ -18,6 +18,8 @@ package org.esa.snap.framework.datamodel;
 
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
+import com.bc.jexp.ParseException;
+import com.bc.jexp.Term;
 import org.esa.snap.jai.ImageManager;
 import org.esa.snap.jai.ResolutionLevel;
 import org.esa.snap.jai.VirtualBandOpImage;
@@ -38,7 +40,7 @@ public class VirtualBandMultiLevelImageTest {
     private VirtualBandMultiLevelImage image;
 
     @Before
-    public void setup() {
+    public void setup() throws ParseException {
         p = new Product("P", "T", 1, 1);
         v = new VirtualBand("V", ProductData.TYPE_INT8, 1, 1, "1");
         p.addBand(v);
@@ -47,18 +49,25 @@ public class VirtualBandMultiLevelImageTest {
         w = new VirtualBand("W", ProductData.TYPE_INT8, 1, 1, "0");
         q.addBand(w);
 
-        final ProductManager pm = new ProductManager();
+        ProductManager pm = new ProductManager();
         pm.addProduct(p);
         pm.addProduct(q);
 
-        final String expression = "$1.V == $2.W";
-        final MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(v);
+        String expression = "$1.V == $2.W";
+
+        Term term = VirtualBandOpImage.parseExpression(expression, p);
+
+        MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(v);
         image = new VirtualBandMultiLevelImage(new AbstractMultiLevelSource(multiLevelModel) {
             @Override
             public RenderedImage createImage(int level) {
-                return VirtualBandOpImage.createMask(expression, p, ResolutionLevel.create(getModel(), level));
+                return VirtualBandOpImage.builder(term)
+                        .mask(true)
+                        .level(ResolutionLevel.create(getModel(), level))
+                        .sourceSize(p.getSceneRasterSize())
+                        .create();
             }
-        }, expression, p);
+        }, term);
     }
 
     @Test
@@ -83,16 +92,27 @@ public class VirtualBandMultiLevelImageTest {
 
     @Test
     public void nodesAreAdded() {
-        assertTrue(image.getNodeMap().containsKey(p));
-        assertTrue(image.getNodeMap().containsKey(q));
-        assertTrue(image.getNodeMap().get(p).contains(v));
-        assertTrue(image.getNodeMap().get(q).contains(w));
+        assertTrue(image.getReferencedProducts().contains(p));
+        assertTrue(image.getReferencedProducts().contains(q));
+        assertTrue(image.getReferencedRasters().contains(v));
+        assertTrue(image.getReferencedRasters().contains(w));
     }
 
     @Test
-    public void nodesAreRemoved() {
+    public void nodeMapIsCleared() {
+        image.dispose();
+        assertTrue(image.getReferencedProducts().isEmpty());
+        assertTrue(image.getReferencedRasters().isEmpty());
+    }
+
+    @Test
+    public void productRefsAreRemoved() {
+
         p.dispose();
         q.dispose();
+
+        p = null;
+        q = null;
 
         v = null;
         w = null;
@@ -100,16 +120,9 @@ public class VirtualBandMultiLevelImageTest {
         try {
             System.gc();
             Thread.sleep(100);
-            assertTrue(image.getNodeMap().get(p).isEmpty());
-            assertTrue(image.getNodeMap().get(q).isEmpty());
+            assertTrue(image.getReferencedProducts().isEmpty());
         } catch (Exception e) {
             // ignore
         }
-    }
-
-    @Test
-    public void nodeMapIsCleared() {
-        image.dispose();
-        assertTrue(image.getNodeMap().isEmpty());
     }
 }

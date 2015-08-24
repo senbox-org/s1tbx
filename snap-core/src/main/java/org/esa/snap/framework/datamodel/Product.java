@@ -17,6 +17,10 @@ package org.esa.snap.framework.datamodel;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.glevel.MultiLevelImage;
+import com.bc.ceres.glevel.MultiLevelModel;
+import com.bc.ceres.glevel.MultiLevelSource;
+import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.jexp.Namespace;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Parser;
@@ -37,6 +41,8 @@ import org.esa.snap.framework.dataop.maptransf.MapInfo;
 import org.esa.snap.framework.dataop.maptransf.MapProjection;
 import org.esa.snap.framework.dataop.maptransf.MapTransform;
 import org.esa.snap.jai.ImageManager;
+import org.esa.snap.jai.ResolutionLevel;
+import org.esa.snap.jai.VirtualBandOpImage;
 import org.esa.snap.util.BitRaster;
 import org.esa.snap.util.Debug;
 import org.esa.snap.util.Guardian;
@@ -49,11 +55,15 @@ import org.esa.snap.util.math.MathUtils;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -182,6 +192,9 @@ public class Product extends ProductNode {
     private AutoGrouping autoGrouping;
     private final PlacemarkGroup pinGroup;
     private final PlacemarkGroup gcpGroup;
+
+    private Map<String, WeakReference<MultiLevelImage>> maskCache;
+
 
     /**
      * The group which contains all other product node groups.
@@ -665,14 +678,24 @@ public class Product extends ProductNode {
             validMasks = null;
         }
 
+        if (maskCache != null) {
+            Collection<WeakReference<MultiLevelImage>> values = maskCache.values();
+            for (WeakReference<MultiLevelImage> value : values) {
+                MultiLevelImage maskImage = value.get();
+                if (maskImage != null) {
+                    maskImage.reset();
+                }
+            }
+            maskCache.clear();
+            maskCache = null;
+        }
+
         if (listeners != null) {
             listeners.clear();
             listeners = null;
         }
 
         fileLocation = null;
-
-        ImageManager.getInstance().clearMaskImageCache(this);
     }
 
     /**
@@ -2801,6 +2824,62 @@ public class Product extends ProductNode {
                 }
             }
         }, "Reading bitmask...");  /*I18N*/
+    }
+
+
+    public MultiLevelImage getMaskImage(String expression, RasterDataNode associatedRaster) {
+        synchronized (this) {
+            if (maskCache == null) {
+                maskCache = new HashMap<>();
+            }
+            WeakReference<MultiLevelImage> maskImageRef = maskCache.get(expression);
+            MultiLevelImage maskImage = null;
+            if (maskImageRef != null) {
+                maskImage = maskImageRef.get();
+            }
+            if (maskImage == null) {
+                maskImage = createMaskImage(expression, associatedRaster);
+                maskCache.put(expression, new WeakReference<>(maskImage));
+                System.out.printf("%s.getMaskImage(%s, %s): new: maskCache.size() = %d%n", getClass().getSimpleName(), expression, associatedRaster != null ? associatedRaster.getName() : "null", maskCache.size());
+            } else {
+                System.out.printf("%s.getMaskImage(%s, %s): cached: maskCache.size() = %d%n", getClass().getSimpleName(), expression, associatedRaster != null ? associatedRaster.getName() : "null", maskCache.size());
+            }
+            return maskImage;
+        }
+    }
+
+    private MultiLevelImage createMaskImage(String expression,
+                                            RasterDataNode associatedRaster) {
+        Term term = VirtualBandOpImage.parseExpression(expression, this);
+        Dimension sourceSize;
+        Dimension tileSize;
+        MultiLevelModel multiLevelModel;
+        if (associatedRaster != null) {
+            // It may be better to first check associatedRaster.isSourceImageSet()
+            // so that this method can be generalised to also create source (mask)
+            // images for associatedRaster (nf 2015-07-27).
+            MultiLevelImage sourceImage = associatedRaster.getSourceImage();
+            sourceSize = associatedRaster.getSceneRasterSize();
+            tileSize = new Dimension(sourceImage.getTileWidth(), sourceImage.getTileHeight());
+            multiLevelModel = sourceImage.getModel();
+        } else {
+            sourceSize = getSceneRasterSize();
+            tileSize = getPreferredTileSize();
+            multiLevelModel = ImageManager.createMultiLevelModel(this);
+        }
+        MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
+
+            @Override
+            public RenderedImage createImage(int level) {
+                return VirtualBandOpImage.builder(term)
+                        .mask(true)
+                        .sourceSize(sourceSize)
+                        .tileSize(tileSize)
+                        .level(ResolutionLevel.create(getModel(), level))
+                        .create();
+            }
+        };
+        return new VirtualBandMultiLevelImage(multiLevelSource, term);
     }
 
     private class VectorDataNodeProductNodeGroup extends ProductNodeGroup<VectorDataNode> {

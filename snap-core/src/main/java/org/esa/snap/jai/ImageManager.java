@@ -21,7 +21,6 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
-import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
@@ -35,9 +34,6 @@ import org.esa.snap.framework.datamodel.ImageInfo;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.ProductNode;
-import org.esa.snap.framework.datamodel.ProductNodeEvent;
-import org.esa.snap.framework.datamodel.ProductNodeListener;
-import org.esa.snap.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.snap.framework.datamodel.RGBChannelDef;
 import org.esa.snap.framework.datamodel.RasterDataNode;
 import org.esa.snap.framework.datamodel.Scene;
@@ -94,9 +90,7 @@ import java.awt.image.renderable.ParameterBlock;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -115,22 +109,12 @@ public class ImageManager {
 
     private static final boolean CACHE_INTERMEDIATE_TILES = Config.instance().preferences().getBoolean("snap.enableIntermediateTileCaching", false);
 
-    private final Map<MaskKey, MultiLevelImage> maskImageMap = new HashMap<>(101);
-    private final ProductNodeListener rasterDataChangeListener;
 
     public static ImageManager getInstance() {
         return Holder.instance;
     }
 
     public ImageManager() {
-        this.rasterDataChangeListener = new RasterDataChangeListener();
-    }
-
-    public synchronized void dispose() {
-        for (MultiLevelSource multiLevelSource : maskImageMap.values()) {
-            multiLevelSource.reset();
-        }
-        maskImageMap.clear();
     }
 
     /**
@@ -901,67 +885,6 @@ public class ImageManager {
         return PlanarImage.wrapRenderedImage(image);
     }
 
-    public RenderedImage getMaskImage(final Product product, final RasterDataNode rasterDataNode, final String expression, int level) {
-        MultiLevelImage mli = getMaskImage(expression, product, rasterDataNode);
-        return mli.getImage(level);
-    }
-
-    @Deprecated
-    public MultiLevelImage getMaskImage(final String expression, final Product product) {
-        // todo - [multisize_products] fix: rasterDataNode arg is null --> product scene raster image layout will be used!! (nf)
-        return getMaskImage(expression, product, null);
-    }
-
-    public MultiLevelImage getMaskImage(final String expression, final Product product, final RasterDataNode rasterDataNode) {
-        synchronized (maskImageMap) {
-            final MaskKey key = new MaskKey(product, expression);
-            MultiLevelImage mli = maskImageMap.get(key);
-            if (mli == null) {
-                MultiLevelModel multiLevelModel;
-                if (rasterDataNode != null) {
-                    multiLevelModel = rasterDataNode.getSourceImage().getModel();
-                } else {
-                    multiLevelModel = createMultiLevelModel(product);
-                }
-                MultiLevelSource mls = new AbstractMultiLevelSource(multiLevelModel) {
-
-                    @Override
-                    public RenderedImage createImage(int level) {
-                        final int width;
-                        final int height;
-                        if (rasterDataNode != null) {
-                            width = rasterDataNode.getSceneRasterWidth();
-                            height = rasterDataNode.getSceneRasterHeight();
-                        } else {
-                            width = product.getSceneRasterWidth();
-                            height = product.getSceneRasterHeight();
-                        }
-                        return VirtualBandOpImage.createMask(expression,
-                                                             product,
-                                                             width, height,
-                                                             ResolutionLevel.create(getModel(), level));
-                    }
-                };
-                mli = new DefaultMultiLevelImage(mls);
-                product.addProductNodeListener(rasterDataChangeListener);
-                maskImageMap.put(key, mli);
-            }
-            return mli;
-        }
-    }
-
-    public void clearMaskImageCache(Product product) {
-        synchronized (maskImageMap) {
-            final Iterator<MaskKey> keySetIterator = maskImageMap.keySet().iterator();
-            while (keySetIterator.hasNext()) {
-                MaskKey next = keySetIterator.next();
-                if (next.product.get() == product) {
-                    keySetIterator.remove();
-                }
-            }
-        }
-    }
-
     public ImageInfo getImageInfo(RasterDataNode[] rasters) {
         Assert.notNull(rasters, "rasters");
         Assert.argument(rasters.length == 1 || rasters.length == 3, "rasters.length == 1 || rasters.length == 3");
@@ -1022,9 +945,10 @@ public class ImageManager {
 
     public PlanarImage createColoredMaskImage(Product product, String expression, Color color, boolean invertMask,
                                               int level) {
-        // todo - [multisize_products] fix: rasterDataNode arg is null --> product scene raster image layout will be used!! (nf)
-        RenderedImage image = getMaskImage(product, null, expression, level);
-        return createColoredMaskImage(color, image, invertMask);
+        // todo - [multisize_products] fix: rasterDataNode arg is null --> default product scene raster image layout will be used!! (nf)
+        MultiLevelImage maskImage = product.getMaskImage(expression, null);
+        RenderedImage levelImage = maskImage.getImage(level);
+        return createColoredMaskImage(color, levelImage, invertMask);
     }
 
     public static PlanarImage createColoredMaskImage(Color color, RenderedImage alphaImage, boolean invertAlpha) {
@@ -1224,28 +1148,6 @@ public class ImageManager {
         return boSaCo;
     }
 
-    public static Color computeColor(ImageInfo imageInfo, Double rasterValue) {
-        final ColorPaletteDef cpd = imageInfo.getColorPaletteDef();
-        if (rasterValue <= cpd.getMinDisplaySample()) {
-            return cpd.getFirstPoint().getColor();
-        } else if (rasterValue >= cpd.getMaxDisplaySample()) {
-            return cpd.getLastPoint().getColor();
-        } else {
-            BorderSamplesAndColors boSaCo = new BorderSamplesAndColors();
-            final boolean logScaled = imageInfo.isLogScaled();
-            if (logScaled) {
-                rasterValue = Stx.LOG10_SCALING.scale(rasterValue);
-            }
-            for (int i = 0; i < cpd.getNumPoints() - 1; i++) {
-                boSaCo = getBorderSamplesAndColors(imageInfo, i, boSaCo);
-                if (rasterValue >= boSaCo.sample1 && rasterValue <= boSaCo.sample2) {
-                    return computeColor(rasterValue, boSaCo);
-                }
-            }
-        }
-        return Color.black;
-    }
-
     private static class BorderSamplesAndColors {
 
         double sample1;
@@ -1269,60 +1171,6 @@ public class ImageManager {
         final int blue = (int) MathUtils.roundAndCrop(b1 + f * (b2 - b1), 0L, 255L);
         final int alpha = (int) MathUtils.roundAndCrop(a1 + f * (a2 - a1), 0L, 255L);
         return new Color(red, green, blue, alpha);
-    }
-
-    private static class MaskKey {
-
-        private final WeakReference<Product> product;
-        private final String expression;
-
-        private MaskKey(Product product, String expression) {
-            Assert.notNull(product, "product");
-            Assert.notNull(expression, "expression");
-            this.product = new WeakReference<>(product);
-            this.expression = expression;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null) {
-                return false;
-            }
-            if (getClass() != o.getClass()) {
-                return false;
-            }
-            MaskKey key = (MaskKey) o;
-            return product.get() == key.product.get() && expression.equals(key.expression);
-
-        }
-
-        @Override
-        public int hashCode() {
-            int result;
-            result = product.get().hashCode();
-            result = 31 * result + expression.hashCode();
-            return result;
-        }
-    }
-
-    private class RasterDataChangeListener extends ProductNodeListenerAdapter {
-
-        @Override
-        public void nodeDataChanged(ProductNodeEvent event) {
-            super.nodeDataChanged(event);
-            final ProductNode node = event.getSourceNode();
-            synchronized (maskImageMap) {
-                final Set<MaskKey> keySet = maskImageMap.keySet();
-                for (MaskKey maskKey : keySet) {
-                    if (maskKey.product.get() == node.getProduct() && maskKey.expression.contains(node.getName())) {
-                        maskImageMap.get(maskKey).reset();
-                    }
-                }
-            }
-        }
     }
 
     // Initialization on demand holder idiom
