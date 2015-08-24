@@ -970,6 +970,8 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
                     } else if (tgtBandUnit == Unit.UnitType.IMAGINARY) {
                         phaseTerm = q / Math.sqrt(dn2);
                     }
+                } else if (srcBandUnit == Unit.UnitType.INTENSITY_DB) {
+                    dn2 = FastMath.pow(10, srcData1.getElemDoubleAt(srcIdx) / 10.0); // convert dB to linear scale
                 } else {
                     throw new OperatorException("ASAR Calibration: unhandled unit");
                 }
