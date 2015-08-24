@@ -12,15 +12,11 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLDecoder;
-import java.nio.file.FileSystemNotFoundException;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -112,7 +108,7 @@ public class PyBridge {
         }
 
         if (forcePythonConfig == null) {
-            forcePythonConfig = isForcePythonConfig();
+            forcePythonConfig = isForceGeneratingNewPythonConfig();
         }
 
         Path snappyPath = pythonModuleInstallDir.resolve(SNAPPY_NAME);
@@ -259,8 +255,8 @@ public class PyBridge {
         LOG.info("SNAP-Python module directory: " + pythonModuleDir);
     }
 
-    private static boolean isForcePythonConfig() {
-        return Config.instance().preferences().getBoolean(FORCE_PYTHON_CONFIG_PROPERTY, true);
+    private static boolean isForceGeneratingNewPythonConfig() {
+        return Config.instance().preferences().getBoolean(FORCE_PYTHON_CONFIG_PROPERTY, false);
     }
 
     private static Path getPythonExecutable() {

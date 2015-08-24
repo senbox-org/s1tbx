@@ -2,8 +2,8 @@
 
 SNAPPY_NAME = 'snappy'
 SNAPPY_VERSION = '2.0-SNAPSHOT'
-SNAPPY_SUMMARY = 'SNAP Python API'
-SNAPPY_AUTHOR = 'Norman Fomferra, Brockmann Consult GmbH'
+SNAPPY_SUMMARY = 'snappy - The SNAP Python API'
+SNAPPY_AUTHOR = 'SNAP Development Team, Brockmann Consult GmbH'
 
 # todo - fix this setup script so that the parent directory ('..' = 'snappy') including its
 # content is installed into Python
