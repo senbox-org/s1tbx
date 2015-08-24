@@ -110,9 +110,12 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
             sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE);
 
             getCalibrationFlags();
+
             getCalibrationFactors();
 
             getTiePointGridData(sourceProduct);
+
+            getSampleType();
 
             if (mustUpdateMetadata) {
                 updateTargetProductMetadata();
@@ -278,8 +281,7 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
         return v;
     }
 
-    public void computeTile(Band targetBand, Tile targetTile,
-                            ProgressMonitor pm) throws OperatorException {
+    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
 
         final Rectangle targetTileRectangle = targetTile.getRectangle();
         final int x0 = targetTileRectangle.x;
@@ -306,7 +308,7 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
             srcData2 = sourceRaster2.getDataBuffer();
         }
 
-        final Unit.UnitType bandUnit = Unit.getUnitType(sourceBand1);
+        final Unit.UnitType bandUnit = Unit.getUnitType(targetBand);
 
         // copy band if unit is phase
         if (bandUnit == Unit.UnitType.PHASE) {
@@ -327,7 +329,7 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
         final int maxY = y0 + h;
         final int maxX = x0 + w;
 
-        double sigma, dn, i, q;
+        double sigma, dn, dn2, i, q, phaseTerm = 0.0;
         int srcIdx, tgtIdx;
         final double powFactor = FastMath.pow(referenceSlantRange, 2 * referenceSlantRangeExp);
         final double sinRefIncidenceAngle = FastMath.sin(referenceIncidenceAngle);
@@ -343,26 +345,43 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
 
                 if (bandUnit == Unit.UnitType.AMPLITUDE) {
                     dn = srcData1.getElemDoubleAt(srcIdx);
-                    sigma = dn * dn;
+                    dn2 = dn * dn;
                 } else if (bandUnit == Unit.UnitType.INTENSITY) {
-                    sigma = srcData1.getElemDoubleAt(srcIdx);
-                } else if (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
+                    dn2 = srcData1.getElemDoubleAt(srcIdx);
+                } else if (bandUnit == Unit.UnitType.REAL) {
                     i = srcData1.getElemDoubleAt(srcIdx);
                     q = srcData2.getElemDoubleAt(srcIdx);
-                    sigma = i * i + q * q;
+                    dn2 = i * i + q * q;
+                    if (outputImageInComplex) {
+                        phaseTerm = i / Math.sqrt(dn2);
+                    }
+                } else if (bandUnit == Unit.UnitType.IMAGINARY) {
+                    i = srcData1.getElemDoubleAt(srcIdx);
+                    q = srcData2.getElemDoubleAt(srcIdx);
+                    dn2 = i * i + q * q;
+                    if (outputImageInComplex) {
+                        phaseTerm = q / Math.sqrt(dn2);
+                    }
                 } else if (bandUnit == Unit.UnitType.INTENSITY_DB) {
-                    sigma = FastMath.pow(10, srcData1.getElemDoubleAt(srcIdx) / 10.0); // convert dB to linear scale
+                    dn2 = FastMath.pow(10, srcData1.getElemDoubleAt(srcIdx) / 10.0); // convert dB to linear scale
                 } else {
                     throw new OperatorException("CosmoSkymed Calibration: unhandled unit");
                 }
 
+                double calFactor = 1.0;
                 if (applyRangeSpreadingLossCorrection)
-                    sigma *= powFactor;
+                    calFactor *= powFactor;
 
                 if (applyIncidenceAngleCorrection)
-                    sigma *= sinRefIncidenceAngle;
+                    calFactor *= sinRefIncidenceAngle;
 
-                sigma /= rescaleCalFactor;
+                calFactor /= rescaleCalFactor;
+
+                sigma = dn2*calFactor;
+
+                if (isComplex && outputImageInComplex) {
+                    sigma = Math.sqrt(sigma)*phaseTerm;
+                }
 
                 if (outputImageScaleInDb) { // convert calibration result to dB
                     if (sigma < underFlowFloat) {

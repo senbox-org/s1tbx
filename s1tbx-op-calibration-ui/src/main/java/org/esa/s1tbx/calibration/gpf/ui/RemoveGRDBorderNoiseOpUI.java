@@ -24,10 +24,7 @@ import org.esa.snap.graphbuilder.gpf.ui.OperatorUIUtils;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.util.DialogUtils;
 
-import javax.swing.JComponent;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import javax.swing.*;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.Map;
@@ -38,6 +35,8 @@ import java.util.Map;
 public class RemoveGRDBorderNoiseOpUI extends BaseOperatorUI {
 
     private final JList<String> polList = new JList<>();
+    private final JTextField borderLimit = new JTextField("");
+    private final JTextField trimThreshold = new JTextField("");
 
     @Override
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {
@@ -57,6 +56,9 @@ public class RemoveGRDBorderNoiseOpUI extends BaseOperatorUI {
             OperatorUIUtils.initParamList(polList, Sentinel1Utils.getProductPolarizations(absRoot),
                     (String[])paramMap.get("selectedPolarisations"));
         }
+
+        borderLimit.setText(String.valueOf(paramMap.get("borderLimit")));
+        trimThreshold.setText(String.valueOf(paramMap.get("trimThreshold")));
     }
 
     @Override
@@ -68,6 +70,8 @@ public class RemoveGRDBorderNoiseOpUI extends BaseOperatorUI {
     public void updateParameters() {
 
         OperatorUIUtils.updateParamList(polList, paramMap, "selectedPolarisations");
+        paramMap.put("borderLimit", Integer.parseInt(borderLimit.getText()));
+        paramMap.put("trimThreshold", Double.parseDouble(trimThreshold.getText()));
     }
 
     private JComponent createPanel() {
@@ -76,6 +80,10 @@ public class RemoveGRDBorderNoiseOpUI extends BaseOperatorUI {
         final GridBagConstraints gbc = DialogUtils.createGridBagConstraints();
 
         DialogUtils.addComponent(contentPane, gbc, "Polarisations:", polList);
+        gbc.gridy++;
+        DialogUtils.addComponent(contentPane, gbc, "Border margin limit [pixels]:", borderLimit);
+        gbc.gridy++;
+        DialogUtils.addComponent(contentPane, gbc, "Threshold:", trimThreshold);
 
         DialogUtils.fillPanel(contentPane, gbc);
 

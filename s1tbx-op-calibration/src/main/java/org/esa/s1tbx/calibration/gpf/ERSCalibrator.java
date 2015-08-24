@@ -321,7 +321,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
                 srcData2 = sourceRaster2.getDataBuffer();
             }
 
-            final Unit.UnitType bandUnit = Unit.getUnitType(sourceBand1);
+            final Unit.UnitType bandUnit = Unit.getUnitType(targetBand);
 
             // copy band if unit is phase
             if (bandUnit == Unit.UnitType.PHASE) {
@@ -349,47 +349,70 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
 
             final double k = calibrationConstant * FastMath.sin(referenceIncidenceAngle);
 
-            double sigma, dn, i, q;
+            final int maxY = y0 + h;
+            final int maxX = x0 + w;
+
+            double sigma, dn, dn2, i, q, phaseTerm = 0.0;
             int index;
             int adcJ = 0;
-            for (int x = x0; x < x0 + w; x++) {
+            for (int x = x0; x < maxX; x++) {
 
                 final double sinIncidenceAngleByK = FastMath.sin(incidenceAngles[x]) / k;
                 if (applyADCSaturationCorrectionToCurrentTile) {
                     adcJ = Math.min(((x - x0) / blockWidth), adcPowerLoss[0].length - 1);
                 }
 
-                for (int y = y0; y < y0 + h; y++) {
+                for (int y = y0; y < maxY; y++) {
                     index = sourceRaster1.getDataBufferIndex(x, y);
 
                     if (bandUnit == Unit.UnitType.AMPLITUDE) {
                         dn = srcData1.getElemDoubleAt(index);
-                        sigma = dn * dn;
+                        dn2 = dn * dn;
                     } else if (bandUnit == Unit.UnitType.INTENSITY) {
-                        sigma = srcData1.getElemDoubleAt(index);
-                    } else { // COMPLEX
+                        dn2 = srcData1.getElemDoubleAt(index);
+                    } else if (bandUnit == Unit.UnitType.REAL) {
                         i = srcData1.getElemDoubleAt(index);
                         q = srcData2.getElemDoubleAt(index);
-                        sigma = i * i + q * q;
+                        dn2 = i * i + q * q;
+                        if (outputImageInComplex) {
+                            phaseTerm = i / Math.sqrt(dn2);
+                        }
+                    } else if (bandUnit == Unit.UnitType.IMAGINARY) {
+                        i = srcData1.getElemDoubleAt(index);
+                        q = srcData2.getElemDoubleAt(index);
+                        dn2 = i * i + q * q;
+                        if (outputImageInComplex) {
+                            phaseTerm = q / Math.sqrt(dn2);
+                        }
+                    } else if (bandUnit == Unit.UnitType.INTENSITY_DB) {
+                        dn2 = FastMath.pow(10, srcData1.getElemDoubleAt(index) / 10.0); // convert dB to linear scale
+                    } else {
+                        throw new OperatorException("ERS Calibration: unhandled unit");
                     }
 
-                    sigma *= sinIncidenceAngleByK;
+                    double calFactor = sinIncidenceAngleByK;
 
                     if (applyAntennaPatternCorrection) {
-                        sigma *= antennaPatternCorrFactor[x];
+                        calFactor *= antennaPatternCorrFactor[x];
                     }
 
                     if (applyRangeSpreadingLossCorrection) {
-                        sigma *= rangeSpreadingLoss[x];
+                        calFactor *= rangeSpreadingLoss[x];
                     }
 
                     if (applyReplicaPowerCorrection) {
-                        sigma *= replicaPulseVariationsCorrectionFactor;
+                        calFactor *= replicaPulseVariationsCorrectionFactor;
                     }
 
                     if (applyADCSaturationCorrectionToCurrentTile) {
                         final int adcI = Math.min(((y - y0) / blockHeight), adcPowerLoss.length - 1);
-                        sigma *= adcPowerLoss[adcI][adcJ];
+                        calFactor *= adcPowerLoss[adcI][adcJ];
+                    }
+
+                    sigma = dn2*calFactor;
+
+                    if (isComplex && outputImageInComplex) {
+                        sigma = Math.sqrt(sigma)*phaseTerm;
                     }
 
                     if (outputImageScaleInDb) { // convert calibration result to dB

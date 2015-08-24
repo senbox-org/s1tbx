@@ -227,7 +227,7 @@ public class CalibrationOpUI extends BaseOperatorUI {
                 outputBetaBandCheckBox.setVisible(false);
                 outputDNBandCheckBox.setVisible(false);
 
-                if ((mission.equals("RS2") || mission.contains("ALOS")) && sampleType.equals("COMPLEX")) {
+                if (sampleType.equals("COMPLEX")) {
 
                     saveInComplexCheckBox.setEnabled(true);
                     saveInComplexCheckBox.setSelected(false);
@@ -239,13 +239,38 @@ public class CalibrationOpUI extends BaseOperatorUI {
                         saveInDbCheckBox.setSelected(false);
                         createGamma0VirtualBandCheckBox.setSelected(false);
                         createBeta0VirtualBandCheckBox.setSelected(false);
+
+                        outputSigmaBandCheckBox.setEnabled(false);
+                        outputGammaBandCheckBox.setEnabled(false);
+                        outputBetaBandCheckBox.setEnabled(false);
+                        outputDNBandCheckBox.setEnabled(false);
+                        outputSigmaBandCheckBox.setSelected(false);
+                        outputGammaBandCheckBox.setSelected(false);
+                        outputBetaBandCheckBox.setSelected(false);
+                        outputDNBandCheckBox.setSelected(false);
+
                     } else {
                         saveInDbCheckBox.setEnabled(true);
                         createGamma0VirtualBandCheckBox.setEnabled(true);
                         createBeta0VirtualBandCheckBox.setEnabled(true);
+
+                        outputSigmaBandCheckBox.setVisible(true);
+                        outputGammaBandCheckBox.setVisible(true);
+                        outputBetaBandCheckBox.setVisible(true);
+                        outputDNBandCheckBox.setVisible(true);
                     }
 
-                } else if (mission.startsWith("SENTINEL-1")) {
+                } else {
+                    saveInComplexCheckBox.setEnabled(false);
+                    saveInComplexCheckBox.setSelected(false);
+
+                    outputSigmaBandCheckBox.setVisible(true);
+                    outputGammaBandCheckBox.setVisible(true);
+                    outputBetaBandCheckBox.setVisible(true);
+                    outputDNBandCheckBox.setVisible(true);
+                }
+
+                if (mission.startsWith("SENTINEL-1")) {
 
                     OperatorUIUtils.initParamList(polList, Sentinel1Utils.getProductPolarizations(absRoot),
                             (String[]) paramMap.get("selectedPolarisations"));
@@ -256,36 +281,10 @@ public class CalibrationOpUI extends BaseOperatorUI {
                     saveInDbCheckBox.setVisible(false);
                     createGamma0VirtualBandCheckBox.setVisible(false);
                     createBeta0VirtualBandCheckBox.setVisible(false);
-
-                    if (sampleType.equals("COMPLEX")) {
-                        saveInComplexCheckBox.setVisible(true);
-                    } else {
-                        saveInComplexCheckBox.setVisible(false);
-                    }
-
-                    if (saveInComplex) {
-                        outputSigmaBandCheckBox.setEnabled(false);
-                        outputGammaBandCheckBox.setEnabled(false);
-                        outputBetaBandCheckBox.setEnabled(false);
-                        outputDNBandCheckBox.setEnabled(false);
-                        outputSigmaBandCheckBox.setSelected(false);
-                        outputGammaBandCheckBox.setSelected(false);
-                        outputBetaBandCheckBox.setSelected(false);
-                        outputDNBandCheckBox.setSelected(false);
-                    } else {
-                        outputSigmaBandCheckBox.setVisible(true);
-                        outputGammaBandCheckBox.setVisible(true);
-                        outputBetaBandCheckBox.setVisible(true);
-                        outputDNBandCheckBox.setVisible(true);
-                    }
-
                     DialogUtils.enableComponents(polListLabel, polListPane, true);
-
-                } else {
-                    saveInComplexCheckBox.setEnabled(false);
-                    saveInComplexCheckBox.setSelected(false);
                 }
             }
+
         } else {
 
             auxFile.setSelectedItem(paramMap.get("auxFile"));

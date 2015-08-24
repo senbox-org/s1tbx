@@ -177,7 +177,7 @@ public class ALOSCalibrator extends BaseCalibrator implements Calibrator {
             srcData2 = sourceRaster2.getDataBuffer();
         }
 
-        final Unit.UnitType bandUnit = Unit.getUnitType(sourceBand1);
+        final Unit.UnitType bandUnit = Unit.getUnitType(targetBand);
 
         // copy band if unit is phase
         if (bandUnit == Unit.UnitType.PHASE) {
@@ -192,7 +192,7 @@ public class ALOSCalibrator extends BaseCalibrator implements Calibrator {
         final int maxY = y0 + h;
         final int maxX = x0 + w;
 
-        double dn = 0, dn2 = 0, sigma, i, q;
+        double sigma, dn, dn2, i, q, phaseTerm = 0.0;
         int srcIdx, tgtIdx;
 
         for (int y = y0; y < maxY; ++y) {
@@ -208,22 +208,28 @@ public class ALOSCalibrator extends BaseCalibrator implements Calibrator {
                     dn2 = dn * dn;
                 } else if (bandUnit == Unit.UnitType.INTENSITY) {
                     dn2 = srcData1.getElemDoubleAt(srcIdx);
-                } else if (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
+                } else if (bandUnit == Unit.UnitType.REAL) {
+                    i = srcData1.getElemDoubleAt(srcIdx);
+                    q = srcData2.getElemDoubleAt(srcIdx);
+                    dn2 = i * i + q * q;
                     if (outputImageInComplex) {
-                        dn = srcData1.getElemDoubleAt(srcIdx);
-                    } else {
-                        i = srcData1.getElemDoubleAt(srcIdx);
-                        q = srcData2.getElemDoubleAt(srcIdx);
-                        dn2 = i * i + q * q;
+                        phaseTerm = i / Math.sqrt(dn2);
+                    }
+                } else if (bandUnit == Unit.UnitType.IMAGINARY) {
+                    i = srcData1.getElemDoubleAt(srcIdx);
+                    q = srcData2.getElemDoubleAt(srcIdx);
+                    dn2 = i * i + q * q;
+                    if (outputImageInComplex) {
+                        phaseTerm = q / Math.sqrt(dn2);
                     }
                 } else {
                     throw new OperatorException("ALOS Calibration: unhandled unit");
                 }
 
+                sigma = dn2 * calibrationFactor;
+
                 if (isComplex && outputImageInComplex) {
-                    sigma = dn * Math.sqrt(calibrationFactor);
-                } else {
-                    sigma = dn2 * calibrationFactor;
+                    sigma = Math.sqrt(sigma)*phaseTerm;
                 }
 
                 if (outputImageScaleInDb) { // convert calibration result to dB
