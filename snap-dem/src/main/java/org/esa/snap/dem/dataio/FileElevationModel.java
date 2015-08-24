@@ -62,6 +62,9 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
 
     private void init(final File file, final Resampling resamplingMethod, Double demNoDataValue) throws IOException {
         final ProductReader productReader = ProductIO.getProductReaderForInput(file);
+        if(productReader == null) {
+            throw new IOException("No product reader found for "+file.toString());
+        }
         final Product product = productReader.readProductNodes(file, null);
         RASTER_WIDTH = product.getBandAt(0).getSceneRasterWidth();
         RASTER_HEIGHT = product.getBandAt(0).getSceneRasterHeight();
