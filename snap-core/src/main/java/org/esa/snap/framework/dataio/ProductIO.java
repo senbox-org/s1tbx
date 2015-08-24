@@ -254,16 +254,20 @@ public class ProductIO {
         ProductReaderPlugIn selectedPlugIn = null;
         while (it.hasNext()) {
             ProductReaderPlugIn plugIn = it.next();
+            try {
 
-            final long startTime = System.currentTimeMillis();
-            DecodeQualification decodeQualification = plugIn.getDecodeQualification(input);
-            final long endTime = System.currentTimeMillis();
-            logger.fine(String.format("Checking reader plugin %s (took %d ms)", plugIn.getClass().getName(), (endTime - startTime)));
-            if (decodeQualification == DecodeQualification.INTENDED) {
-                selectedPlugIn = plugIn;
-                break;
-            } else if (decodeQualification == DecodeQualification.SUITABLE) {
-                selectedPlugIn = plugIn;
+                final long startTime = System.currentTimeMillis();
+                DecodeQualification decodeQualification = plugIn.getDecodeQualification(input);
+                final long endTime = System.currentTimeMillis();
+                logger.fine(String.format("Checking reader plugin %s (took %d ms)", plugIn.getClass().getName(), (endTime - startTime)));
+                if (decodeQualification == DecodeQualification.INTENDED) {
+                    selectedPlugIn = plugIn;
+                    break;
+                } else if (decodeQualification == DecodeQualification.SUITABLE) {
+                    selectedPlugIn = plugIn;
+                }
+            } catch (Exception e) {
+                logger.severe("Error attempting to read "+input+" with plugin reader "+plugIn.toString()+": "+e.getMessage());
             }
         }
         final long endTimeTotal = System.currentTimeMillis();
