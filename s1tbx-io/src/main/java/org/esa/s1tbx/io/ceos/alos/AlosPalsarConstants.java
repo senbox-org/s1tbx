@@ -26,7 +26,7 @@ public class AlosPalsarConstants implements CEOSConstants {
     private final static String[] FORMAT_FILE_EXTENSIONS = new String[]{""};
     private final static String PLUGIN_DESCRIPTION = "ALOS PALSAR CEOS Products";      /*I18N*/
 
-    private final static String[] VOLUME_FILE_PREFIX = {"VOL"};
+    private final static String[] VOLUME_FILE_PREFIX = {"VOL-ALPSR"};
     private static final String[] LEADER_FILE_PREFIX = {"LE"};
     private static final String[] IMAGE_FILE_PREFIX = {"IMG"};
     private static final String[] TRAILER_FILE_PREFIX = {"TR"};
