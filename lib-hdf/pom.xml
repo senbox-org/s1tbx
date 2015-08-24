@@ -24,7 +24,7 @@
 
     <groupId>ncsa.hdf</groupId>
     <artifactId>lib-hdf</artifactId>
-    <version>${hdf.version}</version>
+    <version>2.7.1</version>
     <packaging>nbm</packaging>
 
     <name>HDF Library</name>
