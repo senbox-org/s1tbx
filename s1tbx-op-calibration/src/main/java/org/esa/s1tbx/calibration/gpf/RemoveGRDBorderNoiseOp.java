@@ -64,7 +64,7 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
     private int borderLimit = 500;
 
     @Parameter(description = "The trim threshold", defaultValue = "0.5", label = "Threshold")
-    private static double trimThreshold = 0.5;
+    private double trimThreshold = 0.5;
 
     private MetadataElement absRoot = null;
     private MetadataElement origMetadataRoot = null;

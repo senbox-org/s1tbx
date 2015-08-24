@@ -57,8 +57,12 @@ public class RemoveGRDBorderNoiseOpUI extends BaseOperatorUI {
                     (String[])paramMap.get("selectedPolarisations"));
         }
 
-        borderLimit.setText(String.valueOf(paramMap.get("borderLimit")));
-        trimThreshold.setText(String.valueOf(paramMap.get("trimThreshold")));
+        if(paramMap.get("borderLimit") != null) {
+            borderLimit.setText(String.valueOf(paramMap.get("borderLimit")));
+        }
+        if(paramMap.get("trimThreshold") != null) {
+            trimThreshold.setText(String.valueOf(paramMap.get("trimThreshold")));
+        }
     }
 
     @Override
@@ -70,8 +74,12 @@ public class RemoveGRDBorderNoiseOpUI extends BaseOperatorUI {
     public void updateParameters() {
 
         OperatorUIUtils.updateParamList(polList, paramMap, "selectedPolarisations");
-        paramMap.put("borderLimit", Integer.parseInt(borderLimit.getText()));
-        paramMap.put("trimThreshold", Double.parseDouble(trimThreshold.getText()));
+        if(!borderLimit.getText().isEmpty()) {
+            paramMap.put("borderLimit", Integer.parseInt(borderLimit.getText()));
+        }
+        if(!trimThreshold.getText().isEmpty()) {
+            paramMap.put("trimThreshold", Double.parseDouble(trimThreshold.getText()));
+        }
     }
 
     private JComponent createPanel() {
