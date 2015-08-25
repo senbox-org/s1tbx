@@ -33,6 +33,6 @@ public class RasterPixelTimeCoding implements TimeCoding {
         if (index >= timeMJD.length) {
             return Double.NaN;
         }
-        return timeMJD[(index)];
+        return timeMJD[index];
     }
 }
