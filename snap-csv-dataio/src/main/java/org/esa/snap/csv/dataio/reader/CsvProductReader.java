@@ -37,6 +37,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.logging.Level;
+import java.util.stream.DoubleStream;
 
 /**
  * The CsvProductReader is able to read a CSV file as a product.
@@ -115,19 +116,28 @@ public class CsvProductReader extends AbstractProductReader {
             if (timeColumnName != null && !timeColumnName.equals(colName)) {
                 continue;
             }
-            final Class<?> binding = descriptor.getType().getBinding();
-            final boolean isUTC = binding.getSimpleName().toLowerCase().equals("utc");
-            if (isUTC) {
+            if (isUTC(descriptor)) {
                 final double[] timeMJD = getTimeMJD(colName);
                 if (timeMJD != null) {
                     final int width = product.getSceneRasterWidth();
                     final int height = product.getSceneRasterHeight();
                     product.setTimeCoding(new CSVTimeCoding(timeMJD, width, height, colName));
+                    initStartEndTime(timeMJD);
                     return;
                 }
             }
         }
         SystemUtils.LOG.warning("Not able to create RasterPixelTimeCoding for product '" + product.getFileLocation().getAbsolutePath() + "'");
+    }
+
+    private void initStartEndTime(double[] timeMJD) {
+        product.setStartTime(new ProductData.UTC(DoubleStream.of(timeMJD).min().getAsDouble()));
+        product.setEndTime(new ProductData.UTC(DoubleStream.of(timeMJD).max().getAsDouble()));
+    }
+
+    private boolean isUTC(AttributeDescriptor descriptor) {
+        final Class<?> binding = descriptor.getType().getBinding();
+        return binding.getSimpleName().toLowerCase().equals("utc");
     }
 
     private double[] getTimeMJD(String colName) throws IOException {
