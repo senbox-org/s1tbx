@@ -70,8 +70,8 @@ class ProjectTree extends JTree implements PopupMenuFactory, ActionListener {
     public ProjectTree(final boolean multipleSelect) {
 
         getSelectionModel().setSelectionMode(multipleSelect
-                ? TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION
-                : TreeSelectionModel.SINGLE_TREE_SELECTION);
+                                                     ? TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION
+                                                     : TreeSelectionModel.SINGLE_TREE_SELECTION);
         addMouseListener(new PTMouseListener());
         setCellRenderer(new PTCellRenderer());
         setRootVisible(false);
@@ -219,8 +219,8 @@ class ProjectTree extends JTree implements PopupMenuFactory, ActionListener {
             final ProjectSubFolder parentFolder = (ProjectSubFolder) parentNode.getUserObject();
             if (parentNode != null && parentFolder != null) {
                 final ProjectFile file = (ProjectFile) menuContext;
-                final SnapDialogs.Answer status = SnapDialogs.requestDecision("Delete","Are you sure you want to delete "
-                                                       + file.getFile().toString(), true, null);
+                final SnapDialogs.Answer status = SnapDialogs.requestDecision("Delete", "Are you sure you want to delete "
+                        + file.getFile().toString(), true, null);
                 if (status == SnapDialogs.Answer.YES) {
                     project.removeFile(parentFolder, file.getFile());
                 }

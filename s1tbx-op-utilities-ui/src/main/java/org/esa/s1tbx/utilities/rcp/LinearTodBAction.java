@@ -21,7 +21,6 @@ import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.ProductNode;
 import org.esa.snap.framework.datamodel.VirtualBand;
-import org.esa.snap.framework.ui.command.CommandEvent;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.rcp.actions.AbstractSnapAction;
@@ -32,9 +31,9 @@ import org.openide.util.NbBundle;
 
 import java.awt.event.ActionEvent;
 
-@ActionID(category = "Raster", id = "org.esa.s1tbx.dat.LinearTodBAction" )
+@ActionID(category = "Raster", id = "org.esa.s1tbx.dat.LinearTodBAction")
 @ActionRegistration(displayName = "#CTL_LinearTodBAction_Text")
-@ActionReference(path = "Menu/Raster/Data Conversion", position = 200 )
+@ActionReference(path = "Menu/Raster/Data Conversion", position = 200)
 @NbBundle.Messages({"CTL_LinearTodBAction_Text=Linear to/from dB"})
 /**
  * LinearTodB action.
@@ -68,18 +67,19 @@ public class LinearTodBAction extends AbstractSnapAction {
         }
     }
 
-    public void updateState(CommandEvent event) {
-        final ProductNode node = SnapApp.getDefault().getSelectedProductNode();
-        if (node instanceof Band) {
-            final Band band = (Band) node;
-            final String unit = band.getUnit();
-            if (unit != null && !unit.contains(Unit.PHASE)) {
-                event.getCommand().setEnabled(true);
-                return;
-            }
-        }
-        event.getCommand().setEnabled(false);
-    }
+// Code removed by nf, lv to review
+//    public void updateState(CommandEvent event) {
+//        final ProductNode node = SnapApp.getDefault().getSelectedProductNode();
+//        if (node instanceof Band) {
+//            final Band band = (Band) node;
+//            final String unit = band.getUnit();
+//            if (unit != null && !unit.contains(Unit.PHASE)) {
+//                event.getCommand().setEnabled(true);
+//                return;
+//            }
+//        }
+//        event.getCommand().setEnabled(false);
+//    }
 
     public static void convert(final Product product, final Band band, final boolean todB) {
         String bandName = band.getName();
@@ -108,10 +108,10 @@ public class LinearTodBAction extends AbstractSnapAction {
         }
 
         final VirtualBand virtBand = new VirtualBand(newBandName,
-                ProductData.TYPE_FLOAT32,
-                band.getSceneRasterWidth(),
-                band.getSceneRasterHeight(),
-                expression);
+                                                     ProductData.TYPE_FLOAT32,
+                                                     band.getSceneRasterWidth(),
+                                                     band.getSceneRasterHeight(),
+                                                     expression);
         virtBand.setUnit(unit);
         virtBand.setDescription(band.getDescription());
         virtBand.setNoDataValueUsed(true);

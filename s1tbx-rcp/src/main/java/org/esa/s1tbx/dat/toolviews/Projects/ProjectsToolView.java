@@ -16,8 +16,6 @@
 package org.esa.s1tbx.dat.toolviews.Projects;
 
 import org.esa.snap.framework.ui.UIUtils;
-import org.esa.snap.framework.ui.application.support.AbstractToolView;
-import org.esa.snap.rcp.statistics.AbstractStatisticsTopComponent;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -26,11 +24,11 @@ import org.openide.windows.TopComponent;
 
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.util.Enumeration;
 import java.util.Observer;
 import java.util.Vector;
@@ -128,7 +126,7 @@ public class ProjectsToolView extends TopComponent implements Observer {
      * Implements the functionality of Observer participant of Observer Design Pattern to define a one-to-many
      * dependency between a Subject object and any number of Observer objects so that when the
      * Subject object changes state, all its Observer objects are notified and updated automatically.
-     * <p/>
+     * <p>
      * Defines an updating interface for objects that should be notified of changes in a subject.
      *
      * @param subject The Observerable subject

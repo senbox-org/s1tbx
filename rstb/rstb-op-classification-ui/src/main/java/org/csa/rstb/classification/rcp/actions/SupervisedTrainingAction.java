@@ -26,7 +26,6 @@ import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Mask;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.VectorDataNode;
-import org.esa.snap.framework.ui.command.CommandEvent;
 import org.esa.snap.gpf.ProcessTimeMonitor;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
@@ -113,11 +112,11 @@ public class SupervisedTrainingAction extends AbstractAction {
                         PolBandUtils.getSourceBands(sourceProduct, sourceProductType);
 
                 final ProgressMonitorSwingWorker worker = new TrainingSwingWorker(sourceProduct,
-                        dlg.getRoiProduct(),
-                        dlg.getSelectedGeometries(),
-                        dlg.getSaveFile(),
-                        srcBandList[0].srcBands,
-                        sourceProductType);
+                                                                                  dlg.getRoiProduct(),
+                                                                                  dlg.getSelectedGeometries(),
+                                                                                  dlg.getSaveFile(),
+                                                                                  srcBandList[0].srcBands,
+                                                                                  sourceProductType);
                 worker.executeWithBlocking();
             }
         } catch (Exception e) {
@@ -125,17 +124,18 @@ public class SupervisedTrainingAction extends AbstractAction {
         }
     }
 
-    /**
-     * Called when a command should update its state.
-     * <p>
-     * <p> This method can contain some code which analyzes the underlying element and makes a decision whether
-     * this item or group should be made visible/invisible or enabled/disabled etc.
-     *
-     * @param event the command event
-     */
-    public void updateState(CommandEvent event) {
-        setEnabled(SnapApp.getDefault().getProductManager().getProductCount() > 0);
-    }
+// Code removed by nf, lv to review
+//    /**
+//     * Called when a command should update its state.
+//     * <p>
+//     * <p> This method can contain some code which analyzes the underlying element and makes a decision whether
+//     * this item or group should be made visible/invisible or enabled/disabled etc.
+//     *
+//     * @param event the command event
+//     */
+//    public void updateState(CommandEvent event) {
+//        setEnabled(SnapApp.getDefault().getProductManager().getProductCount() > 0);
+//    }
 
     private static class TrainingSwingWorker extends ProgressMonitorSwingWorker {
 
@@ -226,7 +226,7 @@ public class SupervisedTrainingAction extends AbstractAction {
                                 if (data[x - minX] != 0) {
 
                                     getMeanCoherencyMatrix(x, y, halfWindowSize, sourceImageWidth,
-                                            sourceImageHeight, sourceProductType, sourceBands, Tr, Ti);
+                                                           sourceImageHeight, sourceProductType, sourceBands, Tr, Ti);
 
                                     t11 += Tr[0][0];
                                     t12Re += Tr[0][1];
@@ -286,7 +286,7 @@ public class SupervisedTrainingAction extends AbstractAction {
                                 if (data[x - minX] != 0) {
 
                                     getMeanCovarianceMatrixC2(x, y, halfWindowSize, sourceImageWidth,
-                                            sourceImageHeight, sourceProductType, sourceBands, Cr, Ci);
+                                                              sourceImageHeight, sourceProductType, sourceBands, Cr, Ci);
 
                                     c11 += Cr[0][0];
                                     c12Re += Cr[0][1];
@@ -376,7 +376,7 @@ public class SupervisedTrainingAction extends AbstractAction {
                 if (isOk) {
                     final String durationStr = "Processing completed in " + ProcessTimeMonitor.formatDuration(duration);
                     SnapDialogs.showInformation("Done",
-                                "Supervised Training Dataset Completed\n" + file.getAbsolutePath() + "\n\n" + durationStr, null);
+                                                "Supervised Training Dataset Completed\n" + file.getAbsolutePath() + "\n\n" + durationStr, null);
                 } else {
                     SnapDialogs.showError("An error occurred\n" + error.getMessage());
                 }

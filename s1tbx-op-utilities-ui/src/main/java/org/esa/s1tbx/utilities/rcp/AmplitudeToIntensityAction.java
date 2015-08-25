@@ -21,7 +21,6 @@ import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.ProductNode;
 import org.esa.snap.framework.datamodel.VirtualBand;
-import org.esa.snap.framework.ui.command.CommandEvent;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.rcp.actions.AbstractSnapAction;
@@ -32,9 +31,9 @@ import org.openide.util.NbBundle;
 
 import java.awt.event.ActionEvent;
 
-@ActionID(category = "Raster", id = "org.esa.s1tbx.dat.AmplitudeToIntensityAction" )
+@ActionID(category = "Raster", id = "org.esa.s1tbx.dat.AmplitudeToIntensityAction")
 @ActionRegistration(displayName = "#CTL_AmplitudeToIntensityAction_Text")
-@ActionReference(path = "Menu/Raster/Data Conversion", position = 100 )
+@ActionReference(path = "Menu/Raster/Data Conversion", position = 100)
 @NbBundle.Messages({"CTL_AmplitudeToIntensityAction_Text=Amplitude to/from Intensity"})
 /**
  * AmplitudeToIntensity action.
@@ -85,18 +84,19 @@ public class AmplitudeToIntensityAction extends AbstractSnapAction {
         }
     }
 
-    public void updateState(CommandEvent event) {
-        final ProductNode node = SnapApp.getDefault().getSelectedProductNode();
-        if (node instanceof Band) {
-            final Band band = (Band) node;
-            final String unit = band.getUnit();
-            if (unit != null && (unit.contains(Unit.AMPLITUDE) || unit.contains(Unit.INTENSITY))) {
-                event.getCommand().setEnabled(true);
-                return;
-            }
-        }
-        event.getCommand().setEnabled(false);
-    }
+// Code removed by nf, lv to review
+//    public void updateState(CommandEvent event) {
+//        final ProductNode node = SnapApp.getDefault().getSelectedProductNode();
+//        if (node instanceof Band) {
+//            final Band band = (Band) node;
+//            final String unit = band.getUnit();
+//            if (unit != null && (unit.contains(Unit.AMPLITUDE) || unit.contains(Unit.INTENSITY))) {
+//                event.getCommand().setEnabled(true);
+//                return;
+//            }
+//        }
+//        event.getCommand().setEnabled(false);
+//    }
 
     private static String replaceName(String bandName, final String fromName, final String toName) {
         if (bandName.contains(fromName)) {
@@ -129,10 +129,10 @@ public class AmplitudeToIntensityAction extends AbstractSnapAction {
         }
 
         final VirtualBand virtBand = new VirtualBand(bandName,
-                ProductData.TYPE_FLOAT32,
-                band.getSceneRasterWidth(),
-                band.getSceneRasterHeight(),
-                expression);
+                                                     ProductData.TYPE_FLOAT32,
+                                                     band.getSceneRasterWidth(),
+                                                     band.getSceneRasterHeight(),
+                                                     expression);
         virtBand.setUnit(unit);
         virtBand.setDescription(band.getDescription());
         virtBand.setNoDataValueUsed(true);

@@ -16,10 +16,6 @@
 package org.esa.s1tbx.calibration.rcp;
 
 import org.esa.s1tbx.calibration.gpf.CalibrationOp;
-import org.esa.snap.datamodel.Unit;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.ProductNode;
-import org.esa.snap.framework.ui.command.CommandEvent;
 import org.esa.snap.rcp.SnapApp;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -32,10 +28,10 @@ import java.awt.event.ActionEvent;
 /**
  * Sigma0toGamma0Action action.
  */
-@ActionID(category = "Raster", id = "Sigma0toGamma0Action" )
-@ActionRegistration(displayName = "#CTL_Sigma0toGamma0ActionName" )
+@ActionID(category = "Raster", id = "Sigma0toGamma0Action")
+@ActionRegistration(displayName = "#CTL_Sigma0toGamma0ActionName")
 @ActionReference(path = "Menu/Radar/Radiometric", position = 700)
-@NbBundle.Messages({ "CTL_Sigma0toGamma0ActionName=Convert Sigma0 to Gamma0" })
+@NbBundle.Messages({"CTL_Sigma0toGamma0ActionName=Convert Sigma0 to Gamma0"})
 public class Sigma0toGamma0Action extends AbstractAction {
 
     @Override
@@ -44,16 +40,17 @@ public class Sigma0toGamma0Action extends AbstractAction {
         CalibrationOp.createGammaVirtualBand(SnapApp.getDefault().getSelectedProduct(), false);
     }
 
-    public void updateState(CommandEvent event) {
-        final ProductNode node = SnapApp.getDefault().getSelectedProductNode();
-        if (node instanceof Band) {
-            final Band band = (Band) node;
-            final String unit = band.getUnit();
-            if (unit != null && unit.contains(Unit.INTENSITY) && band.getName().toLowerCase().contains("sigma")) {
-                event.getCommand().setEnabled(true);
-                return;
-            }
-        }
-        event.getCommand().setEnabled(false);
-    }
+// Code removed by nf, lv to review
+//    public void updateState(CommandEvent event) {
+//        final ProductNode node = SnapApp.getDefault().getSelectedProductNode();
+//        if (node instanceof Band) {
+//            final Band band = (Band) node;
+//            final String unit = band.getUnit();
+//            if (unit != null && unit.contains(Unit.INTENSITY) && band.getName().toLowerCase().contains("sigma")) {
+//                event.getCommand().setEnabled(true);
+//                return;
+//            }
+//        }
+//        event.getCommand().setEnabled(false);
+//    }
 }

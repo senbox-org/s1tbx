@@ -21,7 +21,6 @@ import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.ui.command.CommandEvent;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.rcp.actions.AbstractSnapAction;
@@ -36,9 +35,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-@ActionID(category = "Processing", id = "org.esa.s1tbx.dat.ReplaceMetadataAction" )
+@ActionID(category = "Processing", id = "org.esa.s1tbx.dat.ReplaceMetadataAction")
 @ActionRegistration(displayName = "#CTL_ReplaceMetadataAction_Text")
-@ActionReference(path = "Menu/Tools", position = 400 )
+@ActionReference(path = "Menu/Tools", position = 400)
 @NbBundle.Messages({"CTL_ReplaceMetadataAction_Text=Replace Metadata"})
 /**
  * This action replaces the Metadata with that of another product
@@ -77,7 +76,7 @@ public class ReplaceMetadataAction extends AbstractSnapAction {
 
                 final MetadataElement srcAbsRoot = AbstractMetadata.getAbstractedMetadata(srcProduct);
                 final File tmpMetadataFile = new File(ResourceUtils.getApplicationUserTempDataDir(),
-                        srcProduct.getName() + "_metadata.xml");
+                                                      srcProduct.getName() + "_metadata.xml");
                 AbstractMetadataIO.Save(srcProduct, srcAbsRoot, tmpMetadataFile);
 
                 clearProductMetadata(destProduct);
@@ -88,7 +87,7 @@ public class ReplaceMetadataAction extends AbstractSnapAction {
                 SnapApp.getDefault().getProductManager().addProduct(destProduct);
 
                 ReplaceMetadataOp.resetPolarizations(AbstractMetadata.getAbstractedMetadata(destProduct),
-                        isPolsar, isCalibrated);
+                                                     isPolsar, isCalibrated);
 
                 tmpMetadataFile.delete();
             } catch (Exception e) {
@@ -97,10 +96,11 @@ public class ReplaceMetadataAction extends AbstractSnapAction {
         }
     }
 
-    public void updateState(final CommandEvent event) {
-        final Product product = SnapApp.getDefault().getSelectedProduct();
-        setEnabled(product != null);
-    }
+// Code removed by nf, lv to review
+//    public void updateState(final CommandEvent event) {
+//        final Product product = SnapApp.getDefault().getSelectedProduct();
+//        setEnabled(product != null);
+//    }
 
     private static String[] getCompatibleProducts(final Product destProduct) {
         final List<String> prodList = new ArrayList<>();

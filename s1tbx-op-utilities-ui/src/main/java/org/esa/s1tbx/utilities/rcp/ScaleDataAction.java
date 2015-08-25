@@ -15,17 +15,11 @@
  */
 package org.esa.s1tbx.utilities.rcp;
 
-import org.esa.snap.datamodel.Unit;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductNode;
-import org.esa.snap.framework.ui.command.CommandEvent;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.actions.AbstractSnapAction;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionReference;
-import org.openide.awt.ActionRegistration;
-import org.openide.util.NbBundle;
 
 import java.awt.event.ActionEvent;
 
@@ -35,6 +29,7 @@ import java.awt.event.ActionEvent;
 @ActionReference(path = "Menu/Raster/Data Conversion", position = 300 )
 @NbBundle.Messages({"CTL_ScaleDataAction_Text=Scale Data"})
 */
+
 /**
  * ScaleData action.
  */
@@ -53,17 +48,18 @@ public class ScaleDataAction extends AbstractSnapAction {
         }
     }
 
-    public void updateState(CommandEvent event) {
-        final ProductNode node = SnapApp.getDefault().getSelectedProductNode();
-        if (node instanceof Band) {
-            final Band band = (Band) node;
-            final String unit = band.getUnit();
-            if (unit != null && !unit.contains(Unit.PHASE)) {
-                event.getCommand().setEnabled(true);
-                return;
-            }
-        }
-        event.getCommand().setEnabled(false);
-    }
+// Code removed by nf, lv to review
+//    public void updateState(CommandEvent event) {
+//        final ProductNode node = SnapApp.getDefault().getSelectedProductNode();
+//        if (node instanceof Band) {
+//            final Band band = (Band) node;
+//            final String unit = band.getUnit();
+//            if (unit != null && !unit.contains(Unit.PHASE)) {
+//                event.getCommand().setEnabled(true);
+//                return;
+//            }
+//        }
+//        event.getCommand().setEnabled(false);
+//    }
 
 }
