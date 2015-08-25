@@ -16,9 +16,9 @@
 package org.esa.snap.util;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -45,7 +45,7 @@ public final class ResourceUtils {
     }
 
     public static Properties loadProperties(final String filename) throws IOException {
-        final InputStream dbPropInputStream = getResourceAsStream(filename);
+        final InputStream dbPropInputStream = getResourceAsStream(filename, ResourceUtils.class);
         return loadProperties(dbPropInputStream);
     }
 
@@ -59,27 +59,9 @@ public final class ResourceUtils {
         return dbProperties;
     }
 
-    public static InputStream getResourceAsStream(final String filename) throws IOException {
-        return getResourceAsStream(filename, ResourceUtils.class);
-    }
-
     public static InputStream getResourceAsStream(final String filename, final Class theClass) throws IOException {
-        // Try to load resource from jar
-        InputStream stream = ClassLoader.getSystemResourceAsStream(filename);
-        if (stream != null) return stream;
-
-        // If not found in jar, then load from disk
-        final java.net.URL resURL = theClass.getClassLoader().getResource(filename);
-        if (resURL != null) {
-            return theClass.getClassLoader().getResourceAsStream(filename);
-        }
-
         final Path basePath = ResourceInstaller.findModuleCodeBasePath(theClass);
-        final String pathStr = basePath.toString()+filename;
-        stream = new FileInputStream(pathStr);
-        if(stream != null) return stream;
-
-        return new FileInputStream(filename);
+        return Files.newInputStream(basePath.resolve(filename));
     }
 
     /**
