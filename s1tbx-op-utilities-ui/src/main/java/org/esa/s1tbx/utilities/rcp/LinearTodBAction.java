@@ -21,33 +21,71 @@ import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.ProductNode;
 import org.esa.snap.framework.datamodel.VirtualBand;
-import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.rcp.actions.AbstractSnapAction;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
-import org.openide.util.NbBundle;
+import org.openide.util.*;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 @ActionID(category = "Raster", id = "org.esa.s1tbx.dat.LinearTodBAction")
 @ActionRegistration(displayName = "#CTL_LinearTodBAction_Text")
-@ActionReference(path = "Menu/Raster/Data Conversion", position = 200)
-@NbBundle.Messages({"CTL_LinearTodBAction_Text=Linear to/from dB"})
+@ActionReferences({
+        @ActionReference(
+                path = "Menu/Raster/Data Conversion", position = 200
+        ),
+        @ActionReference(
+                path = "Context/Product/RasterDataNode",
+                position = 42
+        )
+})
+@NbBundle.Messages({
+        "CTL_LinearTodBAction_Text=Linear to/from dB",
+        "CTL_LinearTodBAction_Description=Creates a dB or linear virtual band from a linear or dB band"
+})
 /**
  * LinearTodB action.
  */
-public class LinearTodBAction extends AbstractSnapAction {
+public class LinearTodBAction extends AbstractSnapAction implements ContextAwareAction, LookupListener {
 
     private static final String dBStr = "_" + Unit.DB;
+    private final Lookup lkp;
+
+    public LinearTodBAction() {
+        this(Utilities.actionsGlobalContext());
+    }
+
+    public LinearTodBAction(Lookup lkp) {
+        this.lkp = lkp;
+        Lookup.Result<ProductNode> lkpContext = lkp.lookupResult(ProductNode.class);
+        lkpContext.addLookupListener(WeakListeners.create(LookupListener.class, this, lkpContext));
+        setEnableState();
+
+        putValue(NAME, Bundle.CTL_LinearTodBAction_Text());
+        putValue(SHORT_DESCRIPTION, Bundle.CTL_LinearTodBAction_Description());
+    }
+
+    @Override
+    public Action createContextAwareInstance(Lookup actionContext) {
+        return new LinearTodBAction(actionContext);
+    }
+
+    @Override
+    public void resultChanged(LookupEvent ev) {
+        setEnableState();
+    }
+
 
     @Override
     public void actionPerformed(ActionEvent event) {
 
-        final ProductNode node = SnapApp.getDefault().getSelectedProductNode();
-        if (node instanceof Band) {
-            final Band band = (Band) node;
+        final ProductNode productNode = lkp.lookup(ProductNode.class);
+        if (productNode != null && productNode instanceof Band) {
+            final Band band = (Band) productNode;
             final Product product = band.getProduct();
             final String unit = band.getUnit();
 
@@ -67,19 +105,18 @@ public class LinearTodBAction extends AbstractSnapAction {
         }
     }
 
-// Code removed by nf, lv to review
-//    public void updateState(CommandEvent event) {
-//        final ProductNode node = SnapApp.getDefault().getSelectedProductNode();
-//        if (node instanceof Band) {
-//            final Band band = (Band) node;
-//            final String unit = band.getUnit();
-//            if (unit != null && !unit.contains(Unit.PHASE)) {
-//                event.getCommand().setEnabled(true);
-//                return;
-//            }
-//        }
-//        event.getCommand().setEnabled(false);
-//    }
+    public void setEnableState() {
+        final ProductNode productNode = lkp.lookup(ProductNode.class);
+        if (productNode != null && productNode instanceof Band) {
+            final Band band = (Band) productNode;
+            final String unit = band.getUnit();
+            if (unit != null && !unit.contains(Unit.PHASE)) {
+                setEnabled(true);
+                return;
+            }
+        }
+        setEnabled(false);
+    }
 
     public static void convert(final Product product, final Band band, final boolean todB) {
         String bandName = band.getName();

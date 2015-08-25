@@ -68,14 +68,6 @@ public class SupervisedTrainingAction extends AbstractAction {
     private static final int windowSize = 5;
     private static final int halfWindowSize = windowSize / 2;
 
-    private static final double[][] Sr = new double[2][2];
-    private static final double[][] Si = new double[2][2];
-    private static final double[][] tempCr = new double[3][3];
-    private static final double[][] tempCi = new double[3][3];
-    private static final double[][] tempTr = new double[3][3];
-    private static final double[][] tempTi = new double[3][3];
-
-
     private static int sourceImageWidth;
     private static int sourceImageHeight;
     private static boolean isDualPol = false;
@@ -123,19 +115,6 @@ public class SupervisedTrainingAction extends AbstractAction {
             SnapDialogs.showError(e.getMessage());
         }
     }
-
-// Code removed by nf, lv to review
-//    /**
-//     * Called when a command should update its state.
-//     * <p>
-//     * <p> This method can contain some code which analyzes the underlying element and makes a decision whether
-//     * this item or group should be made visible/invisible or enabled/disabled etc.
-//     *
-//     * @param event the command event
-//     */
-//    public void updateState(CommandEvent event) {
-//        setEnabled(SnapApp.getDefault().getProductManager().getProductCount() > 0);
-//    }
 
     private static class TrainingSwingWorker extends ProgressMonitorSwingWorker {
 
