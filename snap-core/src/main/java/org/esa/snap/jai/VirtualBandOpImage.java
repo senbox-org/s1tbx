@@ -20,6 +20,7 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.jai.NoDataRaster;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Term;
+import com.bc.jexp.impl.TermDecompiler;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.RasterDataNode;
@@ -214,9 +215,12 @@ public class VirtualBandOpImage extends SingleBandedOpImage {
         return mask;
     }
 
+    public String getExpression() {
+        return new TermDecompiler().decompile(term);
+    }
+
     @Override
     public synchronized void dispose() {
-        //term = null;
         effectiveTerms.clear();
         super.dispose();
     }
