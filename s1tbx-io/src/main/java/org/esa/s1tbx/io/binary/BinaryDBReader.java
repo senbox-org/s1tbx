@@ -359,7 +359,7 @@ public final class BinaryDBReader {
 
     private static InputStream getResStream(final String mission, final String fileName) throws IOException {
 
-        final String base = "/org/esa/s1tbx/io/ceos_db/";
+        final String base = "org/esa/s1tbx/io/ceos_db/";
         final String path = base + mission.toLowerCase() + "/" + fileName;
         return ResourceUtils.getResourceAsStream(path, BinaryDBReader.class);
     }
