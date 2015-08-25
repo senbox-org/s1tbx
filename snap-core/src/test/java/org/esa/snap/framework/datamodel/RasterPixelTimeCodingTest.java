@@ -5,8 +5,6 @@ import static org.junit.Assert.*;
 
 import org.junit.*;
 
-import java.text.ParseException;
-
 /**
  * Created by Sabine on 21.08.2015.
  */
