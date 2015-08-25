@@ -95,7 +95,7 @@ public class SnaphuConfigFile {
 
         formattedConfig.format("# CONFIG FOR SNAPHU\n");
         formattedConfig.format("# ---------------------------------------------------------------- \n");
-        formattedConfig.format("# Created by NEST software on: " + printCurrentTimeDate() + "\n");
+        formattedConfig.format("# Created by SNAP software on: " + printCurrentTimeDate() + "\n");
         formattedConfig.format("#\n");
         formattedConfig.format("# Command to call snaphu:\n");
         formattedConfig.format("# \n");

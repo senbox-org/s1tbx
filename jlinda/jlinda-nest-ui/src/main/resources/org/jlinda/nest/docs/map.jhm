@@ -25,7 +25,6 @@
     <mapID target="StitchOp" url="operators/StitchOp.html"/>
 
     <!--Coregistration Operators-->
-   	<mapID target="CreateInSARStackOp" url="operators/CreateInSARStackOp.html"/>
     <mapID target="CoarseFineCoregOp" url="operators/CoarseFineCoregOp.html"/>
     <mapID target="ResampleOp" url="operators/ResampleOp.html"/>
     <mapID target="CrossResamplingOp" url="operators/CrossResamplingOp.html"/>

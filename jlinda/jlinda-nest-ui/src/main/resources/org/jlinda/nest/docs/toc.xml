@@ -9,7 +9,6 @@
             <tocitem text="Coregistration">
                 <tocitem text="InSAR Coregistration">
                     <tocitem text="InSAR Coregistration Overview" target="insar_coregistration"/>
-                    <tocitem text="Create InSAR Stack" target="CreateInSARStackOp"/>
                     <tocitem text="Coarse and Fine Coregistration" target="CoarseFineCoregOp"/>
                     <tocitem text="CPM Estimation and Resampling" target="ResampleOp"/>
                 </tocitem>

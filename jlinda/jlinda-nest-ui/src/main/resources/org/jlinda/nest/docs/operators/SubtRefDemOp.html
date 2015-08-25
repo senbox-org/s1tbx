@@ -24,29 +24,13 @@
 
 <p>
     This operator has to be performed after the interferogram generation. It also requires
-    an input DEM, SRTM can be used, or any other DEM supported by NEST. The DEM handling
+    an input DEM, SRTM can be used, or any other supported DEM. The DEM handling
     for most of elevation models, selection and download from internet of tiles covering
     the area of interest, interpolation, accounting for geoid undulation, etc, is performed
     automatically by the operator itself.
 </p>
 
-<p>
-    A set of freely available, for the scientific use, digital elevation models are supported
-    by NEST.
-    <!--, as well as support for custom DEMs. -->
-    The elevation models for which tiles are
-    automatically handled by NEST are: SRTM, ACE, and GETASSE. For all others, some administration
-    and data manipulation work might be needed. Namely, a manual selection and download of tiles
-    covering the area-of-interest has to be performed; while interpolation and pre-processing
-    of DEM for interefometric applications is also performed automatically by the operator.
-    <!--Note, that the "External DEM" should be in the WGS84 system (or in the same reference as-->
-    <!--the orbit ephemerides).-->
-</p>
-
 <h4>Implementation Details</h4>
-
-<p><span style="text-decoration: underline;">Note that interpolation of DEM is conceptually different then in other Geometry NEST operators</span>
-    (eg. Range Doppler Terrain Correction Operator).</p>
 
 <p>The DEM reference phase is computed in two steps:</p>
 
@@ -59,7 +43,6 @@
     <li>
         Then, the reference phase is interpolated to the integer grid of master
         coordinates. A linear interpolation based on a Delaunay triangulation is used.
-        Dealunay Triangulation library, developed specifically for NEST and SAR applications is used.
     </li>
 </ul>
 
@@ -89,8 +72,7 @@
 <p>
     When using 'External DEM' as a reference surface, user has to make sure that the input DEM sufficiently covers and
     and extends, the area of input interferogram. In practice, this means that the input DEM should be 10-15%
-    bigger in its extent (wider and higher) then the interferogram. This issue will be addressed in NEST 5A-FINAL
-    release.
+    bigger in its extent (wider and higher) then the interferogram.
 </p>
 
 <br>

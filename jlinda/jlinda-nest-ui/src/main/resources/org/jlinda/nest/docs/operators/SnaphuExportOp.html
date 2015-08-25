@@ -16,13 +16,13 @@
     </tbody>
 </table>
 
-<h3>Exporting NEST data for SNAPHU processing</h3>
+<h3>Exporting data for SNAPHU processing</h3>
 
 <h4>Important note</h4>
 
 <p>
-    It is strongly advised before executing graph for exporting NEST data for SNAPHU processing for user to get familiar
-    with general principles of doing <a href="Unwrapping.html">phase unwrapping in NEST</a>.
+    It is strongly advised before executing graph for exporting data for SNAPHU processing for user to get familiar
+    with general principles of doing <a href="Unwrapping.html">phase unwrapping</a>.
 </p>
 
 <h4>
@@ -33,15 +33,15 @@
     The main purpose of SNAPHU data export functionality is three-fold:
 <ol>
     <li>
-        To export NEST data (bands) in the format compatible for SNAPHU processing,
+        To export data (bands) in the format compatible for SNAPHU processing,
     </li>
     <li>
         To build a SNAPHU configuration file (snaphu.conf), the file where processing parameters for SNAPHU are
         being stored,
     </li>
     <li>
-        To construct a <i>container</i> NEST product that will store metadata and bands to be used when SNAPHU results
-        are being ingested back into NEST.
+        To construct a <i>container</i> product that will store metadata and bands to be used when SNAPHU results
+        are being ingested back into the Toolbox.
     </li>
 </ol>
 
@@ -75,7 +75,7 @@
     </dd>
 
     <dt><strong>5-Write:</strong></dt>
-    <dd>Writes "phase product" in the standard NEST/BEAM DIMAP format.</dd>
+    <dd>Writes "phase product" in the standard DIMAP format.</dd>
 </dl>
 
 <img style="" alt="" src="../images/SnaphuExportGraph_fig1.jpg">
@@ -109,7 +109,7 @@
 </h4>
 
 <p>
-    Given that the SNAPHU software is properly installed and configured, unwrapping of exported NEST product is
+    Given that the SNAPHU software is properly installed and configured, unwrapping of exported product is
     quite straightforward. In the directory where the SNAPHU product is being saved, the following command is to be
     executed:
 </p>
