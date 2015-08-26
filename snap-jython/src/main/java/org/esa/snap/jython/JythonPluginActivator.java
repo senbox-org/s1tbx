@@ -1,4 +1,4 @@
-package org.esa.snap.jpython;
+package org.esa.snap.jython;
 
 
 import org.esa.snap.runtime.Activator;
@@ -46,7 +46,7 @@ import java.util.stream.Stream;
  *
  * @author Norman Fomferra
  */
-public class SnapJythonActivator implements Activator {
+public class JythonPluginActivator implements Activator {
 
     // see also org.esa.snap.python.PyBridge.SNAP_PYTHON_PATHS_PROPERTY
     public static final String JYTHON_EXTRA_PATHS_PROPERTY = "snap.jythonExtraPaths";

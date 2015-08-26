@@ -1,4 +1,4 @@
-package org.esa.snap.jpython;
+package org.esa.snap.jython;
 
 
 import org.junit.AfterClass;
@@ -17,30 +17,30 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Norman Fomferra
  */
-public class SnapJythonActivatorTest {
+public class JythonPluginActivatorTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        File resourceRootDir = Paths.get(SnapJythonActivatorTest.class.getResource("/").toURI()).toFile();
+        File resourceRootDir = Paths.get(JythonPluginActivatorTest.class.getResource("/").toURI()).toFile();
         String extraPaths = String.join(File.pathSeparator,
                                         new File(resourceRootDir, "mod_parent_a").getPath(),
                                         new File(resourceRootDir, "mod_parent_b.zip").getPath());
-        System.setProperty(SnapJythonActivator.JYTHON_EXTRA_PATHS_PROPERTY, extraPaths);
+        System.setProperty(JythonPluginActivator.JYTHON_EXTRA_PATHS_PROPERTY, extraPaths);
     }
 
     @AfterClass
     public static void tearDown() throws Exception {
-        System.clearProperty(SnapJythonActivator.JYTHON_EXTRA_PATHS_PROPERTY);
+        System.clearProperty(JythonPluginActivator.JYTHON_EXTRA_PATHS_PROPERTY);
     }
 
     @Test
     public void testActivator() throws Exception {
 
-        SnapJythonActivator activator = new SnapJythonActivator();
+        JythonPluginActivator activator = new JythonPluginActivator();
 
         activator.start();
 
-        List<SnapJythonActivator.JythonPlugin> jythonPlugins = activator.getJythonPlugins();
+        List<JythonPluginActivator.JythonPlugin> jythonPlugins = activator.getJythonPlugins();
         assertNotNull(jythonPlugins);
         assertEquals(3, jythonPlugins.size());
 
