@@ -329,26 +329,11 @@ public class GeoTiffProductReader extends AbstractProductReader {
         TiffTagToMetadataConverter.addTiffTagsToMetadata(imageMetadata, tiffInfo, product.getMetadataRoot());
 
         if (inputFile != null) {
-            initMetadata(product, inputFile);
             product.setFileLocation(inputFile);
         }
         setPreferredTiling(product);
 
         return product;
-    }
-
-    /**
-     * Allow other metadata to be injected
-     *
-     * @param product   the Product
-     * @param inputFile the source tiff file
-     *
-     * @throws IOException in case of an IO error
-     */
-    @SuppressWarnings({"UnusedDeclaration"})
-    protected void initMetadata(final Product product, final File inputFile) throws IOException {
-        // don't remove
-        // implemented by NEST
     }
 
     private void initBandsMap(Product product) {

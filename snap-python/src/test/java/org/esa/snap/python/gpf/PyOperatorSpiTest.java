@@ -1,9 +1,10 @@
-package org.esa.snap.gpf.python;
+package org.esa.snap.python.gpf;
 
 
 import org.esa.snap.framework.gpf.GPF;
 import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.snap.framework.gpf.OperatorSpiRegistry;
+import org.esa.snap.python.PyBridge;
 import org.esa.snap.runtime.Config;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -17,7 +18,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 
-import static org.esa.snap.gpf.python.PyOperatorSpi.*;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 
@@ -30,8 +30,7 @@ public class PyOperatorSpiTest {
     public static void init() {
         File file = PyOperatorTest.getResourceFile("/");
         assertTrue(file.isDirectory());
-        Config.instance().preferences().put(EXT_PROPERTY_NAME, file.getPath());
-        //System.out.printf("%s = %s%n", EXT_PROPERTY_NAME, System.getProperty(EXT_PROPERTY_NAME));
+        Config.instance().preferences().put(PyBridge.PYTHON_EXTRA_PATHS_PROPERTY, file.getPath());
     }
 
     /*

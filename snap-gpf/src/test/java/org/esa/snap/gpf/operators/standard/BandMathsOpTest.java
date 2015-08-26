@@ -28,6 +28,7 @@ import org.esa.snap.framework.datamodel.GeoCoding;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.gpf.GPF;
+import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.snap.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.snap.framework.gpf.graph.Graph;
@@ -40,7 +41,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.io.InputStreamReader;
 import java.text.ParseException;
@@ -48,10 +49,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class BandMathsOpTest {
 
@@ -74,7 +72,7 @@ public class BandMathsOpTest {
 
     @Test
     public void testSimplestCase() throws Exception {
-        Map<String, Object> parameters = new HashMap<String, Object>();
+        Map<String, Object> parameters = new HashMap<>();
         BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
         bandDescriptors[0] = createBandDescription("aBandName", "1.0", ProductData.TYPESTRING_FLOAT32, "bigUnits");
         parameters.put("targetBands", bandDescriptors);
@@ -102,7 +100,7 @@ public class BandMathsOpTest {
 
     @Test
     public void testGeoCodingIsCopied() throws Exception {
-        Map<String, Object> parameters = new HashMap<String, Object>();
+        Map<String, Object> parameters = new HashMap<>();
         BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
         bandDescriptors[0] = createBandDescription("aBandName", "1.0", ProductData.TYPESTRING_UINT8, "simpleUnits");
         parameters.put("targetBands", bandDescriptors);
@@ -117,6 +115,86 @@ public class BandMathsOpTest {
 
         assertNotNull(targetProduct);
         assertNotNull(targetProduct.getGeoCoding());
+        assertTrue(targetProduct.isUsingSingleGeoCoding());
+    }
+
+    @Test
+    public void testGeoCodingIsCopiedWithRasterInExpresssion() throws Exception {
+        Product sourceProduct = createTestProduct(4, 4);
+        CoordinateReferenceSystem decode = CRS.decode("EPSG:32632");
+        Rectangle imageBounds = new Rectangle(4, 4);
+        AffineTransform imageToMap = new AffineTransform();
+        final GeoCoding geoCoding = new CrsGeoCoding(decode, imageBounds, imageToMap);
+        sourceProduct.setGeoCoding(geoCoding);
+
+        Map<String, Object> parameters = new HashMap<>();
+        BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
+        bandDescriptors[0] = createBandDescription("aBandName", "band1 * 2.0", ProductData.TYPESTRING_UINT8, "simpleUnits");
+        parameters.put("targetBands", bandDescriptors);
+
+        Product targetProduct = GPF.createProduct("BandMaths", parameters, sourceProduct);
+
+        assertNotNull(targetProduct);
+        assertNotNull(targetProduct.getGeoCoding());
+        assertTrue(targetProduct.isUsingSingleGeoCoding());
+    }
+
+    @Test
+    public void testTwoExpressionWithMultiSize() throws Exception {
+        Product sourceProduct1 = createTestProduct(4, 4);
+        AffineTransform imageToMap = new AffineTransform();
+        final GeoCoding geoCoding = new CrsGeoCoding(CRS.decode("EPSG:32632"), new Rectangle(4, 4), imageToMap);
+        sourceProduct1.setGeoCoding(geoCoding);
+
+        Product sourceProduct2 = createTestProduct(12,12);
+        AffineTransform imageToMap2 = new AffineTransform();
+        final GeoCoding geoCoding2 = new CrsGeoCoding(CRS.decode("EPSG:32632"), new Rectangle(12, 12), imageToMap2);
+        sourceProduct2.setGeoCoding(geoCoding2);
+
+        Map<String, Object> parameters = new HashMap<>();
+        BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[2];
+        bandDescriptors[0] = createBandDescription("aBandName1", "$sourceProduct.1.band1 + $sourceProduct.1.band2", ProductData.TYPESTRING_UINT16, "simpleUnits");
+        bandDescriptors[1] = createBandDescription("aBandName2", "$sourceProduct.2.band1 + $sourceProduct.2.band2", ProductData.TYPESTRING_UINT16, "simpleUnits");
+        parameters.put("targetBands", bandDescriptors);
+
+        Product targetProduct = GPF.createProduct("BandMaths", parameters, sourceProduct1, sourceProduct2);
+
+        assertNotNull(targetProduct);
+        assertNotNull(targetProduct.getGeoCoding());
+        assertFalse(targetProduct.isUsingSingleGeoCoding());
+
+        final GeoCoding targetGC1 = targetProduct.getBand("aBandName1").getGeoCoding();
+        final GeoCoding targetGC2 = targetProduct.getBand("aBandName2").getGeoCoding();
+        assertNotSame(targetGC1, targetGC2);
+    }
+
+    @Test
+    public void testOneExpressionWithMultiSize() throws Exception {
+        Product sourceProduct = createTestProduct(4, 4);
+        Band band4 = new Band("band4", ProductData.TYPE_INT16, 10, 10);
+        sourceProduct.addBand(band4);
+        short[] shortValues = new short[10 * 10];
+        Arrays.fill(shortValues, (short) 12);
+        band4.setData(ProductData.createInstance(shortValues));
+
+        CoordinateReferenceSystem decode = CRS.decode("EPSG:32632");
+        Rectangle imageBounds = new Rectangle(4, 4);
+        AffineTransform imageToMap = new AffineTransform();
+        final GeoCoding geoCoding = new CrsGeoCoding(decode, imageBounds, imageToMap);
+
+        sourceProduct.setGeoCoding(geoCoding);
+
+        Map<String, Object> parameters = new HashMap<>();
+        BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
+        bandDescriptors[0] = createBandDescription("aBandName", "band1 * band4", ProductData.TYPESTRING_UINT8, "simpleUnits");
+        parameters.put("targetBands", bandDescriptors);
+        try {
+            GPF.createProduct("BandMaths", parameters, sourceProduct);
+            fail("Should fail, because bands have different size");
+        } catch (OperatorException e) {
+            //expected
+        }
+
     }
 
     @Test
@@ -217,7 +295,7 @@ public class BandMathsOpTest {
     @Test
     public void testTwoSourceBandsTwoTargetBands() throws Exception {
         Product sourceProduct = createTestProduct(4, 4);
-        Map<String, Object> parameters = new HashMap<String, Object>();
+        Map<String, Object> parameters = new HashMap<>();
         BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[2];
         bandDescriptors[0] = createBandDescription("b1", "band1 + band2 < 3.0", ProductData.TYPESTRING_INT8, "milliUnit");
         bandDescriptors[1] = createBandDescription("b2", "band1 + band2 + 2.5", ProductData.TYPESTRING_INT32, "maxiUnit");
@@ -249,7 +327,7 @@ public class BandMathsOpTest {
     public void testTwoSourceProductsOneTargetBand() throws Exception {
         Product sourceProduct1 = createTestProduct(4, 4);
         Product sourceProduct2 = createTestProduct(4, 4);
-        Map<String, Object> parameters = new HashMap<String, Object>();
+        Map<String, Object> parameters = new HashMap<>();
         BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
         bandDescriptors[0] = createBandDescription("aBandName", "$sourceProduct.1.band1 + $sourceProduct.2.band2",
                                                    ProductData.TYPESTRING_FLOAT32, "milliUnit");
@@ -268,10 +346,10 @@ public class BandMathsOpTest {
 
     @Test
     public void testTwoSourceProductsWithNames() throws Exception {
-        HashMap<String, Product> productMap = new HashMap<String, Product>();
+        HashMap<String, Product> productMap = new HashMap<>();
         productMap.put("numberOne", createTestProduct(4, 4));
         productMap.put("numberTwo", createTestProduct(4, 4));
-        Map<String, Object> parameters = new HashMap<String, Object>();
+        Map<String, Object> parameters = new HashMap<>();
         BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
         bandDescriptors[0] = createBandDescription("aBandName", "$numberOne.band1 + $numberTwo.band2",
                                                    ProductData.TYPESTRING_FLOAT32, "milliUnit");
@@ -289,7 +367,7 @@ public class BandMathsOpTest {
 
     @Test
     public void testDivisionByZero() throws Exception {
-        Map<String, Object> parameters = new HashMap<String, Object>();
+        Map<String, Object> parameters = new HashMap<>();
         BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
         bandDescriptors[0] = createBandDescription("aBandName", "band1/0.0", ProductData.TYPESTRING_FLOAT32, "bigUnits");
         parameters.put("targetBands", bandDescriptors);
@@ -312,7 +390,7 @@ public class BandMathsOpTest {
 
     @Test
     public void testGraph() throws Exception {
-        HashMap<String, Object> parameterMap = new HashMap<String, Object>();
+        HashMap<String, Object> parameterMap = new HashMap<>();
         Class<BandMathsOp> opType = BandMathsOp.class;
 
         Graph graph = GraphIO.read(new InputStreamReader(getClass().getResourceAsStream("BandMathsOpTest.xml")));
