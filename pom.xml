@@ -73,6 +73,7 @@
         <module>snap-getasse30-dem</module>
         <module>snap-geotiff</module>
         <module>snap-hdf5-writer</module>
+        <module>snap-jython</module>
         <module>snap-ndvi</module>
         <module>snap-netcdf</module>
         <module>snap-pconvert</module>
