@@ -16,7 +16,7 @@ import org.esa.snap.util.ProductUtils;
 
 @OperatorMetadata(alias = "SnaphuImport",
         category = "Radar/Interferometric/Unwrapping",
-        description = "Ingest SNAPHU results into NEST InSAR product.",
+        description = "Ingest SNAPHU results into InSAR product.",
         internal = false)
 public class SnaphuImportOp extends Operator {
 

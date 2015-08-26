@@ -47,27 +47,10 @@
     to the master geometry is performed.
 </p>
 
-<h5>Comparison with 'Old' Coregistration Implementation</h5>
-
-<p><br>
-    Interferometric coregistration is fully implemented in the toolbox since NEST version 5. While there are
-    conceptual overlaps with initial coregistration implementation, the algorithmic and implementation robustness
-    is much higher and more optimal for the interferometric applications.
-    <br><br>
-    <b><u>For any interferometric application this is the recommended coregistration processing chain.</u></b>
-</p>
-
-<p><br>
-    In future releases 'old' and 'interferometric' coregistration will be integrated into uniform processing chain.
-</p>
-
 <h4>Overview of Coregistration Processing Chain</h4>
 
 <p><br>
-    The interferometric coregistration is performed in three major processing steps (see Figure 1) with three operators:
-    <a href="../operators/CreateInSARStackOp.html">Create InSAR Stack operator</a>,
-    &nbsp;<a href="../operators/CoarseFineCoregOp.html">Coarse and Fine Coregistration operator</a> and
-    &nbsp;<a href="../operators/ResampleOp.html">Coregistration Polynomial and Resampling operator</a>.
+    The interferometric coregistration is performed by create stack, coarse fine coregistration and resampling.
 </p>
 
 <br>

@@ -21,31 +21,60 @@ import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.ProductNode;
 import org.esa.snap.framework.datamodel.VirtualBand;
-import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.rcp.actions.AbstractSnapAction;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
-import org.openide.util.NbBundle;
+import org.openide.util.*;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 @ActionID(category = "Raster", id = "org.esa.s1tbx.dat.AmplitudeToIntensityAction")
 @ActionRegistration(displayName = "#CTL_AmplitudeToIntensityAction_Text")
 @ActionReference(path = "Menu/Raster/Data Conversion", position = 100)
-@NbBundle.Messages({"CTL_AmplitudeToIntensityAction_Text=Amplitude to/from Intensity"})
+@NbBundle.Messages({
+        "CTL_AmplitudeToIntensityAction_Text=Amplitude to/from Intensity",
+        "CTL_AmplitudeToIntensityAction_Description=Creates a virtual band from an Amplitude or Intensity band"
+})
 /**
  * AmplitudeToIntensity action.
  */
-public class AmplitudeToIntensityAction extends AbstractSnapAction {
+public class AmplitudeToIntensityAction extends AbstractSnapAction implements ContextAwareAction, LookupListener {
+
+    private final Lookup lkp;
+
+    public AmplitudeToIntensityAction() {
+        this(Utilities.actionsGlobalContext());
+    }
+
+    public AmplitudeToIntensityAction(Lookup lkp) {
+        this.lkp = lkp;
+        Lookup.Result<ProductNode> lkpContext = lkp.lookupResult(ProductNode.class);
+        lkpContext.addLookupListener(WeakListeners.create(LookupListener.class, this, lkpContext));
+        setEnableState();
+
+        putValue(NAME, Bundle.CTL_AmplitudeToIntensityAction_Text());
+        putValue(SHORT_DESCRIPTION, Bundle.CTL_AmplitudeToIntensityAction_Description());
+    }
+
+    @Override
+    public Action createContextAwareInstance(Lookup actionContext) {
+        return new AmplitudeToIntensityAction(actionContext);
+    }
+
+    @Override
+    public void resultChanged(LookupEvent ev) {
+        setEnableState();
+    }
 
     @Override
     public void actionPerformed(ActionEvent event) {
 
-        final ProductNode node = SnapApp.getDefault().getSelectedProductNode();
-        if (node instanceof Band) {
-            final Band band = (Band) node;
+        final ProductNode productNode = lkp.lookup(ProductNode.class);
+        if (productNode != null && productNode instanceof Band) {
+            final Band band = (Band) productNode;
             final Product product = band.getProduct();
             String bandName = band.getName();
             final String unit = band.getUnit();
@@ -84,19 +113,18 @@ public class AmplitudeToIntensityAction extends AbstractSnapAction {
         }
     }
 
-// Code removed by nf, lv to review
-//    public void updateState(CommandEvent event) {
-//        final ProductNode node = SnapApp.getDefault().getSelectedProductNode();
-//        if (node instanceof Band) {
-//            final Band band = (Band) node;
-//            final String unit = band.getUnit();
-//            if (unit != null && (unit.contains(Unit.AMPLITUDE) || unit.contains(Unit.INTENSITY))) {
-//                event.getCommand().setEnabled(true);
-//                return;
-//            }
-//        }
-//        event.getCommand().setEnabled(false);
-//    }
+    public void setEnableState() {
+        final ProductNode productNode = lkp.lookup(ProductNode.class);
+        if (productNode != null && productNode instanceof Band) {
+            final Band band = (Band) productNode;
+            final String unit = band.getUnit();
+            if (unit != null && (unit.contains(Unit.AMPLITUDE) || unit.contains(Unit.INTENSITY))) {
+                setEnabled(true);
+                return;
+            }
+        }
+        setEnabled(false);
+    }
 
     private static String replaceName(String bandName, final String fromName, final String toName) {
         if (bandName.contains(fromName)) {

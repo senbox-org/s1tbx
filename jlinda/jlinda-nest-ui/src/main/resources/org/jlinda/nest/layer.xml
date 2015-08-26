@@ -195,10 +195,6 @@
     </folder>
 
     <folder name="OperatorUIs">
-        <file name="org.jlinda.nest.gpf.ui.CreateInSARStackOpUI">
-            <attr name="operatorUIClass" stringvalue="org.jlinda.nest.gpf.ui.CreateInSARStackOpUI"/>
-            <attr name="operatorName" stringvalue="CreateInSARStack"/>
-        </file>
         <file name="org.jlinda.nest.gpf.ui.CoarseFineCoregOpUI">
             <attr name="operatorUIClass" stringvalue="org.jlinda.nest.gpf.ui.CoarseFineCoregOpUI"/>
             <attr name="operatorName" stringvalue="CoarseFine-Coregistration2"/>

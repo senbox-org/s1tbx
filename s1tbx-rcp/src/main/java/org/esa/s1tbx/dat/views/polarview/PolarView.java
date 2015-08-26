@@ -20,22 +20,15 @@ import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.ProductNode;
 import org.esa.snap.framework.datamodel.RasterDataNode;
-import org.esa.snap.framework.ui.product.ProductNodeView;
-import org.esa.snap.framework.ui.product.ProductSceneImage;
 import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.FileFolderUtils;
-import org.openide.windows.TopComponent;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -48,9 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * NEST
- * User: lveci
- * Date: Dec 1, 2008
+ * Polar plot panel
  */
 public final class PolarView extends JPanel implements ActionListener, PopupMenuListener, MouseListener, MouseMotionListener {
 

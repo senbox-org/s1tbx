@@ -9,13 +9,12 @@
 <table class="header">
     <tbody>
     <tr class="header">
-        <td class="header">&nbsp; Phase Unwrapping in NEST</td>
+        <td class="header">&nbsp; Phase Unwrapping</td>
         <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg"
                                                                                  border="0"></a></td>
     </tr>
     </tbody>
 </table>
-<!--<h3>Phase Unwrapping in NEST: Interface to SNAPHU</h3>-->
 
 <h3>Introduction</h3>
 
@@ -35,10 +34,10 @@
     impossible to assess the reliability of the solution.
 </p>
 
-<h3>Phase Unwrapping in NEST</h3>
+<h3>Phase Unwrapping</h3>
 
 <p>
-    There are two methods to perform the phase unwrapping in NEST: 
+    There are two methods to perform the phase unwrapping:
     
 <ol>
     <li>
@@ -53,18 +52,12 @@
 <h4>Integrated phase unwrapping</h4>
 
 <p>
-    NEST version 5, brings the internal implementation of the phase unwrapping functionality. As all other 
-    interferometric functionality, the unwrapping support, is provided via 
-    <a href="https://github.com/ppolabs/jlinda/">jLinda</a> library.  
-</p>
-
-<p>
     This unwrapping implementation is following the concept introduced by Costantini, [1]; where the unwrapping 
     problem is formulated and solved as a minimum-cost flow problem on a network. 
 </p>
 
 <p>
-    Because of the framework restrictions, the unwrapping in NEST is performed as a two-stage process. First, the 
+    Because of the framework restrictions, the unwrapping is performed as a two-stage process. First, the
     initial unwrapping is performed with the unwrap operator, results need to be saved, and then in a 
     second stage, the unwrapping result is <i>stitched</i> into a smooth result. Specifically:
 </p>
@@ -87,24 +80,22 @@
 <p>
     To obtain the unwrapped interferogram, a 3rd party software should be used. The recommended tool to perform the
     phase unwrapping is the "Statistical-Cost, Network-Flow Algorithm for Phase Unwrapping" (SNAPHU), that can be
-    downloaded from <a href="http://www-star.stanford.edu/sar_group/snaphu/">SNAPHU project web-page</a>. The restricted
-    distribution license of this software prevented a direct integration in NEST, so from the user it is expected to
-    download and install this, or other, 3rd party software for the phase unwrapping individually.
+    downloaded from <a href="http://www-star.stanford.edu/sar_group/snaphu/">SNAPHU project web-page</a>.
 
 <h5>SNAPHU support tools</h5>
 
 <p>
-    To make integration between NEST and SNAPHU as easy as possible, we developed a set of tools for
+    To make integration between the Toolbox and SNAPHU as easy as possible, we developed a set of tools for
     exporting and importing data to/from SNAPHU. It should be <strong>noted</strong> that these tools are developed for
     the user convenience and that the same functionality can be achieved with chaining Product Generation Tools
-    of NEST (eg. Band Arithmetic, Replace Metadata, and other operations), and manual construction of SNAPHU
+    (eg. Band Arithmetic, Replace Metadata, and other operations), and manual construction of SNAPHU
     configuration files.
 </p>
 
 <dl>
     <dt><a href="SnaphuExportOp.html">SNAPHU export</a></dt>
     <dd>
-        The graph for exporting NEST InSAR data to processing with SNAPHU, building SNAPHU configuration file, and
+        The graph for exporting InSAR data to processing with SNAPHU, building SNAPHU configuration file, and
         creating a "phase" product. The phase product serves as a container an interface with SNAPHU. In the phase
         product the wrapped phase is saved, with the corresponding metadata.
     </dd>

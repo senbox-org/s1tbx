@@ -195,79 +195,110 @@ class ProjectTree extends JTree implements PopupMenuFactory, ActionListener {
         final DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) selectedNode.getParent();
         final String actionCmd = e.getActionCommand();
 
-        if (actionCmd.equals("Create Folder")) {
-            final ProjectSubFolder subFolder = (ProjectSubFolder) menuContext;
-            project.createNewFolder(subFolder);
-        } else if (actionCmd.equals("Remove Folder")) {
-            if (parentNode != null) {
-                final Object context = parentNode.getUserObject();
-                if (context != null) {
-                    final ProjectSubFolder parentFolder = (ProjectSubFolder) context;
-                    final ProjectSubFolder subFolder = (ProjectSubFolder) menuContext;
-                    project.deleteFolder(parentFolder, subFolder);
-                }
+        switch (actionCmd) {
+            case "Create Folder": {
+                final ProjectSubFolder subFolder = (ProjectSubFolder) menuContext;
+                project.createNewFolder(subFolder);
+                break;
             }
-        } else if (actionCmd.equals("Rename Folder")) {
-            if (parentNode != null) {
-                final Object context = parentNode.getUserObject();
-                if (context != null) {
-                    final ProjectSubFolder subFolder = (ProjectSubFolder) menuContext;
-                    project.renameFolder(subFolder);
+            case "Remove Folder":
+                if (parentNode != null) {
+                    final Object context = parentNode.getUserObject();
+                    if (context != null) {
+                        final ProjectSubFolder parentFolder = (ProjectSubFolder) context;
+                        final ProjectSubFolder subFolder = (ProjectSubFolder) menuContext;
+                        project.deleteFolder(parentFolder, subFolder);
+                    }
                 }
-            }
-        } else if (actionCmd.equals("Remove")) {
-            final ProjectSubFolder parentFolder = (ProjectSubFolder) parentNode.getUserObject();
-            if (parentNode != null && parentFolder != null) {
+                break;
+            case "Rename Folder":
+                if (parentNode != null) {
+                    final Object context = parentNode.getUserObject();
+                    if (context != null) {
+                        final ProjectSubFolder subFolder = (ProjectSubFolder) menuContext;
+                        project.renameFolder(subFolder);
+                    }
+                }
+                break;
+            case "Remove":
+                if (parentNode != null) {
+                    final ProjectSubFolder parentFolder = (ProjectSubFolder) parentNode.getUserObject();
+                    if (parentFolder != null) {
+                        final ProjectFile file = (ProjectFile) menuContext;
+                        final SnapDialogs.Answer status = SnapDialogs.requestDecision("Delete", "Are you sure you want to delete "
+                                + file.getFile().toString(), true, null);
+                        if (status == SnapDialogs.Answer.YES) {
+                            project.removeFile(parentFolder, file.getFile());
+                        }
+                    }
+                }
+                break;
+            case "Open": {
+                final ProjectSubFolder parentFolder = (ProjectSubFolder) parentNode.getUserObject();
                 final ProjectFile file = (ProjectFile) menuContext;
-                final SnapDialogs.Answer status = SnapDialogs.requestDecision("Delete", "Are you sure you want to delete "
-                        + file.getFile().toString(), true, null);
-                if (status == SnapDialogs.Answer.YES) {
-                    project.removeFile(parentFolder, file.getFile());
-                }
+                Project.openFile(parentFolder, file.getFile());
+                break;
             }
-        } else if (actionCmd.equals("Open")) {
-            final ProjectSubFolder parentFolder = (ProjectSubFolder) parentNode.getUserObject();
-            final ProjectFile file = (ProjectFile) menuContext;
-            Project.openFile(parentFolder, file.getFile());
-        } else if (actionCmd.equals("Open Subset")) {
-            final ProjectSubFolder parentFolder = (ProjectSubFolder) parentNode.getUserObject();
-            final ProjectFile file = (ProjectFile) menuContext;
-            Project.openSubset(parentFolder, file.getFile());
-        } else if (actionCmd.equals("Import as DIMAP")) {
-            final ProjectFile file = (ProjectFile) menuContext;
-            project.ImportFileList(new File[]{file.getFile()});
-        } else if (actionCmd.equals("Import Subset as DIMAP")) {
-            final ProjectSubFolder parentFolder = (ProjectSubFolder) parentNode.getUserObject();
-            final ProjectFile file = (ProjectFile) menuContext;
-            project.importSubset(parentFolder, file.getFile());
-        } else if (actionCmd.equals("Clear")) {
-            final ProjectSubFolder subFolder = (ProjectSubFolder) menuContext;
-            project.clearFolder(subFolder);
-        } else if (actionCmd.equals("Expand All")) {
-            expandAll();
-        } else if (actionCmd.equals("Expand")) {
-            expandPath(selectedPath);
-        } else if (actionCmd.equals("Collapse")) {
-            collapsePath(selectedPath);
-        } else if (actionCmd.equals("New Project...")) {
-            project.CreateNewProject();
-        } else if (actionCmd.equals("Load Project...")) {
-            project.LoadProject();
-        } else if (actionCmd.equals("Save Project")) {
-            project.SaveProject();
-        } else if (actionCmd.equals("Save Project As...")) {
-            project.SaveProjectAs();
-        } else if (actionCmd.equals("Close Project")) {
-            project.CloseProject();
-        } else if (actionCmd.equals("Refresh Project")) {
-            project.refreshProjectTree();
-            project.notifyEvent(true);
-        } else if (actionCmd.equals("New ProductSet...")) {
-            final ProjectSubFolder subFolder = (ProjectSubFolder) menuContext;
-            project.createNewProductSet(subFolder);
-        } else if (actionCmd.equals("New Graph...")) {
-            final ProjectSubFolder subFolder = (ProjectSubFolder) menuContext;
-            Project.createNewGraph(subFolder);
+            case "Open Subset": {
+                final ProjectSubFolder parentFolder = (ProjectSubFolder) parentNode.getUserObject();
+                final ProjectFile file = (ProjectFile) menuContext;
+                Project.openSubset(parentFolder, file.getFile());
+                break;
+            }
+            case "Import as DIMAP": {
+                final ProjectFile file = (ProjectFile) menuContext;
+                project.ImportFileList(new File[]{file.getFile()});
+                break;
+            }
+            case "Import Subset as DIMAP": {
+                final ProjectSubFolder parentFolder = (ProjectSubFolder) parentNode.getUserObject();
+                final ProjectFile file = (ProjectFile) menuContext;
+                project.importSubset(parentFolder, file.getFile());
+                break;
+            }
+            case "Clear": {
+                final ProjectSubFolder subFolder = (ProjectSubFolder) menuContext;
+                project.clearFolder(subFolder);
+                break;
+            }
+            case "Expand All":
+                expandAll();
+                break;
+            case "Expand":
+                expandPath(selectedPath);
+                break;
+            case "Collapse":
+                collapsePath(selectedPath);
+                break;
+            case "New Project...":
+                project.CreateNewProject();
+                break;
+            case "Load Project...":
+                project.LoadProject();
+                break;
+            case "Save Project":
+                project.SaveProject();
+                break;
+            case "Save Project As...":
+                project.SaveProjectAs();
+                break;
+            case "Close Project":
+                project.CloseProject();
+                break;
+            case "Refresh Project":
+                project.refreshProjectTree();
+                project.notifyEvent(true);
+                break;
+            case "New ProductSet...": {
+                final ProjectSubFolder subFolder = (ProjectSubFolder) menuContext;
+                project.createNewProductSet(subFolder);
+                break;
+            }
+            case "New Graph...": {
+                final ProjectSubFolder subFolder = (ProjectSubFolder) menuContext;
+                Project.createNewGraph(subFolder);
+                break;
+            }
         }
     }
 
@@ -331,15 +362,17 @@ class ProjectTree extends JTree implements PopupMenuFactory, ActionListener {
                 int clickCount = event.getClickCount();
                 if (clickCount > 1) {
                     final TreePath selPath = getPathForLocation(event.getX(), event.getY());
-                    final DefaultMutableTreeNode node = (DefaultMutableTreeNode) selPath.getLastPathComponent();
-                    final DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) node.getParent();
+                    if(selPath != null) {
+                        final DefaultMutableTreeNode node = (DefaultMutableTreeNode) selPath.getLastPathComponent();
+                        final DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) node.getParent();
 
-                    final Object o = node.getUserObject();
-                    if (o instanceof ProjectFile) {
-                        final ProjectFile file = (ProjectFile) o;
+                        final Object o = node.getUserObject();
+                        if (o instanceof ProjectFile) {
+                            final ProjectFile file = (ProjectFile) o;
 
-                        final ProjectSubFolder parentFolder = (ProjectSubFolder) parentNode.getUserObject();
-                        Project.openFile(parentFolder, file.getFile());
+                            final ProjectSubFolder parentFolder = (ProjectSubFolder) parentNode.getUserObject();
+                            Project.openFile(parentFolder, file.getFile());
+                        }
                     }
                 }
             }

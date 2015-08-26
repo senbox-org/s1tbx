@@ -25,7 +25,7 @@
 </p>
     This step can be performed only if an unwrapped topography interferogram (topo pair) and a complex deformation
     interferogram (defo pair) are present. Both defo and topo pair has to be referenced to a a common master. This can be
-    achieved by processing a stack of interferograms in NEST-DORIS. Both defo and topo interferograms have to be corrected
+    achieved by processing a stack of interferograms in JLinda. Both defo and topo interferograms have to be corrected
     for the phase, and sampled on the same grid (see Coregistration and Wrap Operator). Also, both defo and topo
     interferograms must have the same multilook factors and the same dimensions (i.e. overlap exactly).
 </p>
@@ -39,11 +39,11 @@
     This operation is performed in the stack processing tree. First create a stack of interferograms, that coregistered to the
     same master and processed until subtraction of the reference phase. Then we have to unwrap defo-pair. In order to do so,
     the deformation pair has to be selected, and extracted for the external unwrapping in the Snaphu software. After the unwrap
-    is performed externally, the unwrapped results are imported back into the NEST. Finally, for DInSAR operators, both
+    is performed externally, the unwrapped results are imported back into the Toolbox. Finally, for DInSAR operators, both
     defo-pair and topo-pair are listed as a source products, and the output of the operator is a differential intereferogram.
 </p>
 <p>
-    To geocode the differential phase values, standard geocoding modules of NEST can be applied.
+    To geocode the differential phase values, standard geocoding can be applied.
 </p>
 
 
