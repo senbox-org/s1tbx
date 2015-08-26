@@ -1,0 +1,11 @@
+target
+build
+local.txt
+snappy.ini
+.idea
+*.iml
+*.class
+*.war
+*.ear
+__py_cache__/
+

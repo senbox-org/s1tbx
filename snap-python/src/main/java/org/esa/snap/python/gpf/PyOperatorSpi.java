@@ -1,4 +1,4 @@
-package org.esa.snap.gpf.python;
+package org.esa.snap.python.gpf;
 
 import com.bc.ceres.core.ResourceLocator;
 import org.esa.snap.framework.gpf.GPF;
@@ -7,6 +7,7 @@ import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.snap.framework.gpf.descriptor.DefaultOperatorDescriptor;
 import org.esa.snap.framework.gpf.descriptor.OperatorDescriptor;
+import org.esa.snap.python.PyBridge;
 import org.esa.snap.runtime.Config;
 
 import java.io.BufferedReader;
@@ -29,7 +30,7 @@ import static org.esa.snap.util.SystemUtils.LOG;
  */
 public class PyOperatorSpi extends OperatorSpi {
 
-    public static final String PY_OP_RESOURCE_NAME = "META-INF/services/snappy-operators";
+    public static final String PY_OP_SPI_RESOURCE_NAME = "META-INF/services/" + PyOperatorSpi.class.getName();
 
     public PyOperatorSpi() {
         super(PyOperator.class);
@@ -39,60 +40,66 @@ public class PyOperatorSpi extends OperatorSpi {
         super(operatorDescriptor);
     }
 
-    static final String EXT_PROPERTY_NAME = "snap.snappy.ext";
-
     static {
-        scanDirs(Config.instance().preferences().get(EXT_PROPERTY_NAME, "").split(File.pathSeparator));
-        scanClassPath();
+        scanPathForPyOps(PyBridge.PYTHON_CONFIG_DIR);
+        String extraPaths = Config.instance().preferences().get(PyBridge.PYTHON_EXTRA_PATHS_PROPERTY, null);
+        if (extraPaths != null) {
+            scanPathsForPyOps(extraPaths.split(File.pathSeparator));
+        }
+        scanClassPathForPyOps();
     }
 
-    private static void scanDirs(String... paths) {
+    private static void scanPathsForPyOps(String... paths) {
         for (String path : paths) {
-            scanDir(Paths.get(path));
+            scanPathForPyOps(Paths.get(path));
         }
     }
 
-    private static void scanDir(Path dir) {
-        if (Files.exists(dir)) {
+    private static void scanPathForPyOps(Path path) {
+        // Note we may allow for zip files here later!
+        if (Files.isDirectory(path)) {
             try {
-                LOG.fine("Scanning for Python modules in directory " + dir);
-                Files.list(dir).forEach(path -> {
-                    registerPythonModule(path.resolve(PY_OP_RESOURCE_NAME));
+                LOG.fine("Scanning for Python modules in " + path);
+                Files.list(path).forEach(entry -> {
+                    registerPyOpModule(entry.resolve(PY_OP_SPI_RESOURCE_NAME));
                 });
             } catch (IOException e) {
                 LOG.log(Level.SEVERE, "Failed scan for Python modules: " + e.getMessage(), e);
             }
         } else {
-            LOG.warning("Ignoring non-existent Python module path: " + dir);
+            LOG.warning("Ignoring non-existent Python module path: " + path);
         }
     }
 
-    private static void scanClassPath() {
+    private static void scanClassPathForPyOps() {
         LOG.fine("Scanning for Python modules in Java class path...");
-        Collection<Path> resources = ResourceLocator.getResources(PY_OP_RESOURCE_NAME);
-        resources.forEach(PyOperatorSpi::registerPythonModule);
+        Collection<Path> resources = ResourceLocator.getResources(PY_OP_SPI_RESOURCE_NAME);
+        resources.forEach(PyOperatorSpi::registerPyOpModule);
     }
 
-    private static void registerPythonModule(Path resourcePath) {
-        if (!Files.exists(resourcePath) || !resourcePath.endsWith(PY_OP_RESOURCE_NAME)) {
+    private static void registerPyOpModule(Path resourcePath) {
+        if (!Files.exists(resourcePath) || !resourcePath.endsWith(PY_OP_SPI_RESOURCE_NAME)) {
             return;
         }
 
-        Path moduleRoot = subtract(resourcePath, Paths.get(PY_OP_RESOURCE_NAME).getNameCount());
+        Path moduleRoot = subtract(resourcePath, Paths.get(PY_OP_SPI_RESOURCE_NAME).getNameCount());
         LOG.info("SNAP-Python module root found: " + moduleRoot.toUri());
 
         try {
             Files.lines(resourcePath).forEach(line -> {
                 line = line.trim();
                 if (!line.isEmpty() && !line.startsWith("#")) {
-                    String[] split = line.split("\\s+");
-                    if (split.length == 2) {
-                        String modulePath = split[0].trim();
-                        String className = split[1].trim();
+                    int lastDotPos = line.lastIndexOf('.');
+                    String modulePath = "";
+                    String className = "";
+                    if (lastDotPos > 0) {
+                        modulePath = line.substring(0, lastDotPos);
+                        className = line.substring(lastDotPos + 1);
                         if (!registerModule(moduleRoot, modulePath, className)) {
                             LOG.warning(String.format("Python module not installed: invalid entry in %s: %s", resourcePath, line));
                         }
-                    } else {
+                    }
+                    if (modulePath.isEmpty() || className.isEmpty()) {
                         LOG.warning(String.format("Invalid Python module entry in %s: %s", resourcePath, line));
                     }
                 }
