@@ -617,10 +617,9 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
                 if (isComplex && outputImageInComplex) {
                     calValue = Math.sqrt(calValue)*phaseTerm;
+                } else if (!isComplex && isFormerIPFVersion) { // this is to avoid blank calibration result for GRD
+                    calValue /= Math.sqrt(calibrationFactor);
                 }
-                //else if (isFormerIPFVersion) { // this is to avoid blank calibration result
-                //    calValue /= Math.sqrt(calibrationFactor);
-                //}
 
                 tgtData.setElemDoubleAt(trgIdx, calValue);
             }
