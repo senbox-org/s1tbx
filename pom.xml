@@ -28,7 +28,10 @@
 		<rstb.version>7.0.0-SNAPSHOT</rstb.version>
 		<s1tbx.version>2.0.0-SNAPSHOT</s1tbx.version>
 		<snap.version>2.0.0-SNAPSHOT</snap.version>
-        
+        <!-- netbeans.specVersion is used to filter manifest.mf and set the the OpenIDE-Module-Specification-Version attribute.
+             This is necessary to make netbeans modules updatable and independent from maven version. -->
+        <netbeans.specVersion>1.0</netbeans.specVersion>
+
 		<geotools.version>2.7.4</geotools.version>
 		<hdf.version>2.7.1</hdf.version>
         <netcdf.version>4.3.22</netcdf.version>	
@@ -659,7 +662,37 @@
 			        <artifactId>versions-maven-plugin</artifactId>
 			        <version>2.2</version>
 			     </plugin>
-			  
+
+                <plugin>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>2.7</version>
+                    <configuration>
+                        <encoding>UTF-8</encoding>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>file-manifest</id>
+                            <phase>process-sources</phase>
+                            <goals>
+                                <goal>copy-resources</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>${build.directory}/nbm</outputDirectory>
+                                <resources>
+                                    <resource>
+                                        <directory>src/main/nbm</directory>
+                                        <filtering>true</filtering>
+                                        <includes>
+                                            <include>manifest.mf</include>
+                                        </includes>
+                                    </resource>
+                                </resources>
+
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+
 				<plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>nbm-maven-plugin</artifactId>
@@ -683,6 +716,7 @@
                         <keystore>${project.basedir}/../keystore/s1tbx.ks</keystore>
                         <keystorealias>snap</keystorealias>
                         <keystorepassword>snap-123</keystorepassword>
+                        <sourceManifestFile>target/nbm/manifest.mf</sourceManifestFile>
                     </configuration>
                 </plugin>
                 <plugin>
