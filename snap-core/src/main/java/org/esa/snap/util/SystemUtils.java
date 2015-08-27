@@ -103,7 +103,6 @@ public class SystemUtils {
      * "http://sentinel.esa.int".
      *
      * @return the application homepage url
-     *
      * @since BEAM 4.10
      */
     public static String getApplicationHomepageUrl() {
@@ -114,7 +113,6 @@ public class SystemUtils {
      * Gets the current user's application data directory.
      *
      * @return the current user's application data directory
-     *
      * @since BEAM 4.2
      */
     public static File getApplicationDataDir() {
@@ -125,7 +123,6 @@ public class SystemUtils {
      * Gets the auxdata directory which stores dems, orbits, rgb profiles, etc.
      *
      * @return the auxiliary data directory
-     *
      * @since SNAP 2.0
      */
     public static Path getAuxDataPath() {
@@ -165,7 +162,6 @@ public class SystemUtils {
      *
      * @param force if true, the directory will be created if it didn't exist before
      * @return the current user's application data directory
-     *
      * @since BEAM 4.2
      */
     public static File getApplicationDataDir(boolean force) {
@@ -182,7 +178,6 @@ public class SystemUtils {
      * the string "snap" is used.
      *
      * @return The application context ID.
-     *
      * @since BEAM 4.10
      */
     public static String getApplicationContextId() {
@@ -196,7 +191,6 @@ public class SystemUtils {
      * the string "SNAP" is used.
      *
      * @return The application name.
-     *
      * @see #getApplicationContextId()
      * @since BEAM 4.10
      */
@@ -255,7 +249,6 @@ public class SystemUtils {
      *
      * @param aClass The class.
      * @return the file name of the given class
-     *
      * @throws IllegalArgumentException if the given parameter is <code>null</code>.
      */
     public static String getClassFileName(final Class aClass) {
@@ -276,13 +269,12 @@ public class SystemUtils {
      *
      * @param urlPath an URL path or any other string containing the forward slash '/' as directory separator.
      * @return a path string with all occurrences of '/'
-     *
      * @throws IllegalArgumentException if the given parameter is <code>null</code>.
      */
     public static String convertToLocalPath(String urlPath) {
         Guardian.assertNotNull("urlPath", urlPath);
         if (File.separatorChar != _URL_DIR_SEPARATOR_CHAR
-            && urlPath.indexOf(_URL_DIR_SEPARATOR_CHAR) >= 0) {
+                && urlPath.indexOf(_URL_DIR_SEPARATOR_CHAR) >= 0) {
             return urlPath.replace(_URL_DIR_SEPARATOR_CHAR,
                                    File.separatorChar);
         }
@@ -368,7 +360,7 @@ public class SystemUtils {
         final String currentLafName = UIManager.getLookAndFeel().getClass().getName();
 
         return System.getProperty(macOsSpecificPropertyKey) != null
-               && systemLafName.equals(currentLafName);
+                && systemLafName.equals(currentLafName);
     }
 
     /**
@@ -481,9 +473,9 @@ public class SystemUtils {
      *
      * @param aClass The module jar which contains this specified class will be used to look-up the
      *               {@code META-INF/MANIFEST.MF}
-     * @return the module metada
+     * @return the module metadata, or {@code null} if a {@code META-INF/MANIFEST.MF} could not be found.
      */
-    public static ModuleMetadata loadModuleMetadata(Class<?> aClass)  {
+    public static ModuleMetadata loadModuleMetadata(Class<?> aClass) {
         try {
             URL moduleLocation = aClass.getProtectionDomain().getCodeSource().getLocation();
             final Path pathFromURI = FileUtils.getPathFromURI(FileUtils.ensureJarURI(moduleLocation.toURI()));
@@ -521,7 +513,7 @@ public class SystemUtils {
 
         // Returns image
         public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException,
-                                                                IOException {
+                IOException {
             if (!DataFlavor.imageFlavor.equals(flavor)) {
                 throw new UnsupportedFlavorException(flavor);
             }
