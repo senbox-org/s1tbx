@@ -60,6 +60,7 @@ import org.esa.snap.framework.gpf.monitor.TileComputationEvent;
 import org.esa.snap.framework.gpf.monitor.TileComputationObserver;
 import org.esa.snap.gpf.operators.standard.WriteOp;
 import org.esa.snap.runtime.Config;
+import org.esa.snap.util.ModuleMetadata;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.jai.JAIUtils;
 
@@ -80,8 +81,16 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TimeZone;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.logging.Logger;
@@ -571,12 +580,11 @@ public class OperatorContext {
         targetNodeME.addAttribute(new MetadataAttribute("id", ProductData.createInstance(opId), false));
         targetNodeME.addAttribute(new MetadataAttribute("operator", ProductData.createInstance(opName), false));
 
-        Manifest manifest = operatorSpi.getManifest();
-        if (manifest != null) {
-            final Attributes mainAttributes = manifest.getMainAttributes();
-            final ProductData moduleName = getAttributeValue(mainAttributes, MANIFEST_ATTR_MODULE_NAME);
+        final ModuleMetadata moduleMetadata = operatorSpi.getModuleMetadata();
+        if (moduleMetadata != null) {
+            final ProductData moduleName = ProductData.createInstance(moduleMetadata.getDisplayName());
             targetNodeME.addAttribute(new MetadataAttribute("moduleName", moduleName, false));
-            final ProductData moduleVersion = getAttributeValue(mainAttributes, MANIFEST_ATTR_MODULE_VERSION);
+            final ProductData moduleVersion = ProductData.createInstance(moduleMetadata.getVersion());
             targetNodeME.addAttribute(new MetadataAttribute("moduleVersion", moduleVersion, false));
         }
 

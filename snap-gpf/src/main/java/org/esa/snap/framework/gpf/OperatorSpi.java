@@ -28,15 +28,13 @@ import org.esa.snap.framework.gpf.descriptor.SourceProductDescriptor;
 import org.esa.snap.framework.gpf.descriptor.SourceProductsDescriptor;
 import org.esa.snap.framework.gpf.descriptor.TargetProductDescriptor;
 import org.esa.snap.framework.gpf.descriptor.TargetPropertyDescriptor;
-import org.esa.snap.util.io.FileUtils;
+import org.esa.snap.util.ModuleMetadata;
+import org.esa.snap.util.SystemUtils;
 
 import java.awt.RenderingHints;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Map;
 import java.util.jar.Manifest;
-import java.util.logging.Logger;
 
 /**
  * <p>The <code>OperatorSpi</code> class is the service provider interface (SPI) for {@link Operator}s.
@@ -210,11 +208,13 @@ public abstract class OperatorSpi {
         return operatorDescriptor.getAlias();
     }
 
-    public Manifest getManifest() {
-        if (manifest == null) {
-            this.manifest = loadManifest();
-        }
-        return manifest;
+    /**
+     * The metadata information of the module which holds the operator provided by this SPI.
+     *
+     * @return the module metadata
+     */
+    public ModuleMetadata getModuleMetadata() {
+        return SystemUtils.loadModuleMetadata(getOperatorDescriptor().getOperatorClass());
     }
 
     /**
@@ -239,18 +239,6 @@ public abstract class OperatorSpi {
             return annotation.alias();
         }
         return operatorClass.getSimpleName();
-    }
-
-    private Manifest loadManifest()  {
-        try {
-            URL moduleLocation = getOperatorDescriptor().getOperatorClass().getProtectionDomain().getCodeSource().getLocation();
-            final Path pathFromURI = FileUtils.getPathFromURI(FileUtils.ensureJarURI(moduleLocation.toURI()));
-            final Path manifestPath = pathFromURI.resolve("META-INF/MANIFEST.MF");
-            return new Manifest(Files.newInputStream(manifestPath));
-        } catch (Exception e) {
-            Logger.getLogger(getClass().getName()).warning("Could not read manifest");
-        }
-        return null;
     }
 
     private static class NoMetadataOperatorDescriptor implements OperatorDescriptor {

@@ -16,6 +16,7 @@
 package org.esa.snap.util;
 
 import org.esa.snap.runtime.Config;
+import org.esa.snap.util.io.FileUtils;
 import org.geotools.referencing.factory.epsg.HsqlEpsgDatabase;
 
 import javax.media.jai.JAI;
@@ -32,12 +33,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
 import java.util.StringTokenizer;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,6 +57,10 @@ public class SystemUtils {
 
     public static final String SNAP_PARALLELISM_PROPERTY_NAME = getApplicationContextId() + ".parallelism";
     public static final String SNAP_CACHE_DIR_PROPERTY_NAME = getApplicationContextId() + ".cachedir";
+
+    private static final String MANIFEST_ATTR_MODULE_NAME = "OpenIDE-Module-Name";
+    private static final String MANIFEST_ATTR_MODULE_VERSION = "OpenIDE-Module-Specification-Version";
+
 
     /**
      * The SNAP system logger. Default name is "org.esa.snap" which may be overridden by system property "snap.logger.name".
@@ -468,6 +476,29 @@ public class SystemUtils {
     }
 
     /**
+     * Tries to load the metadata from {@code META-INF/MANIFEST.MF} contained in the module jar
+     * of the specified class.
+     *
+     * @param aClass The module jar which contains this specified class will be used to look-up the
+     *               {@code META-INF/MANIFEST.MF}
+     * @return the module metada
+     */
+    public static ModuleMetadata loadModuleMetadata(Class<?> aClass)  {
+        try {
+            URL moduleLocation = aClass.getProtectionDomain().getCodeSource().getLocation();
+            final Path pathFromURI = FileUtils.getPathFromURI(FileUtils.ensureJarURI(moduleLocation.toURI()));
+            final Path manifestPath = pathFromURI.resolve("META-INF/MANIFEST.MF");
+            final Manifest manifest = new Manifest(Files.newInputStream(manifestPath));
+            return new ManifestModuleMetadata(manifest);
+
+        } catch (Exception e) {
+            LOG.warning("Could not read manifest");
+        }
+        return null;
+    }
+
+
+    /**
      * This class is used to hold an image while on the clipboard.
      */
     public static class ImageSelection implements Transferable {
@@ -504,5 +535,39 @@ public class SystemUtils {
         public void write(int b) throws IOException {
 
         }
+    }
+
+    private static class ManifestModuleMetadata implements ModuleMetadata {
+
+        private final Manifest manifest;
+
+        public ManifestModuleMetadata(Manifest manifest) {
+            this.manifest = manifest;
+        }
+
+        @Override
+        public String getDisplayName() {
+            return getAttributeValue(manifest, MANIFEST_ATTR_MODULE_NAME);
+        }
+
+        @Override
+        public String getSymbolicName() {
+            return getDisplayName() + "_" + getVersion();
+        }
+
+        @Override
+        public String getVersion() {
+            return getAttributeValue(manifest, MANIFEST_ATTR_MODULE_VERSION);
+        }
+
+        private String getAttributeValue(Manifest manifest, String attrName) {
+            final Attributes mainAttributes = manifest.getMainAttributes();
+            final String attrValue = mainAttributes.getValue(attrName);
+            if (attrValue == null) {
+                return "unknown";
+            }
+            return attrValue;
+        }
+
     }
 }
