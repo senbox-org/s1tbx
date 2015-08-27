@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-OpenIDE-Module-Specification-Version: ${netbeans.specVersion}
+OpenIDE-Module-Specification-Version: ${snap.nbmSpecVersion}
 OpenIDE-Module-Display-Category: SNAP Engine
 AutoUpdate-Show-In-Client: true
 AutoUpdate-Essential-Module: true
