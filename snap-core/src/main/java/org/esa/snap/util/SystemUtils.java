@@ -20,7 +20,6 @@ import org.esa.snap.util.io.FileUtils;
 import org.geotools.referencing.factory.epsg.HsqlEpsgDatabase;
 
 import javax.media.jai.JAI;
-import javax.swing.UIManager;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -42,7 +41,6 @@ import java.util.ServiceLoader;
 import java.util.StringTokenizer;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -103,7 +101,6 @@ public class SystemUtils {
      * "http://sentinel.esa.int".
      *
      * @return the application homepage url
-     *
      * @since BEAM 4.10
      */
     public static String getApplicationHomepageUrl() {
@@ -114,7 +111,6 @@ public class SystemUtils {
      * Gets the current user's application data directory.
      *
      * @return the current user's application data directory
-     *
      * @since BEAM 4.2
      */
     public static File getApplicationDataDir() {
@@ -125,7 +121,6 @@ public class SystemUtils {
      * Gets the auxdata directory which stores dems, orbits, rgb profiles, etc.
      *
      * @return the auxiliary data directory
-     *
      * @since SNAP 2.0
      */
     public static Path getAuxDataPath() {
@@ -165,7 +160,6 @@ public class SystemUtils {
      *
      * @param force if true, the directory will be created if it didn't exist before
      * @return the current user's application data directory
-     *
      * @since BEAM 4.2
      */
     public static File getApplicationDataDir(boolean force) {
@@ -182,7 +176,6 @@ public class SystemUtils {
      * the string "snap" is used.
      *
      * @return The application context ID.
-     *
      * @since BEAM 4.10
      */
     public static String getApplicationContextId() {
@@ -196,7 +189,6 @@ public class SystemUtils {
      * the string "SNAP" is used.
      *
      * @return The application name.
-     *
      * @see #getApplicationContextId()
      * @since BEAM 4.10
      */
@@ -255,7 +247,6 @@ public class SystemUtils {
      *
      * @param aClass The class.
      * @return the file name of the given class
-     *
      * @throws IllegalArgumentException if the given parameter is <code>null</code>.
      */
     public static String getClassFileName(final Class aClass) {
@@ -276,13 +267,12 @@ public class SystemUtils {
      *
      * @param urlPath an URL path or any other string containing the forward slash '/' as directory separator.
      * @return a path string with all occurrences of '/'
-     *
      * @throws IllegalArgumentException if the given parameter is <code>null</code>.
      */
     public static String convertToLocalPath(String urlPath) {
         Guardian.assertNotNull("urlPath", urlPath);
         if (File.separatorChar != _URL_DIR_SEPARATOR_CHAR
-            && urlPath.indexOf(_URL_DIR_SEPARATOR_CHAR) >= 0) {
+                && urlPath.indexOf(_URL_DIR_SEPARATOR_CHAR) >= 0) {
             return urlPath.replace(_URL_DIR_SEPARATOR_CHAR,
                                    File.separatorChar);
         }
@@ -305,7 +295,7 @@ public class SystemUtils {
         }
         String message = e.getMessage();
         if (message != null && message.length() > 0) {
-            final StringBuffer sb = new StringBuffer();
+            final StringBuilder sb = new StringBuilder();
             sb.append(Character.toUpperCase(message.charAt(0)));
             sb.append(message.substring(1));
             String[] punctuators = new String[]{".", ",", "!", "?", ";", ":"};
@@ -356,21 +346,6 @@ public class SystemUtils {
         }
     }
 
-    public static boolean isRunningOnMacOS() {
-
-        String osName = System.getProperty("os.name");
-        if ("Mac OS X".equalsIgnoreCase(osName)) {
-            return true;
-        }
-
-        final String macOsSpecificPropertyKey = "mrj.version";
-        final String systemLafName = UIManager.getSystemLookAndFeelClassName();
-        final String currentLafName = UIManager.getLookAndFeel().getClass().getName();
-
-        return System.getProperty(macOsSpecificPropertyKey) != null
-               && systemLafName.equals(currentLafName);
-    }
-
     /**
      * Loads services from all <code>META-INF/services/</code> resources.
      *
@@ -391,23 +366,6 @@ public class SystemUtils {
     public static <S> Iterable<S> loadServices(Class<S> serviceType, ClassLoader classLoader) {
         return ServiceLoader.load(serviceType, classLoader);
     }
-
-    public static String getBuildNumber() {
-        // todo - in BEAM 3.x org.esa.snap.resources.bundles.build resource has been used. 
-        // todo - use application.properties with version ID set by Maven (resource Filter!)
-        return System.getProperty(getApplicationContextId() + ".build.id", "1");
-    }
-
-    public static Level parseLogLevel(String levelName) throws IllegalArgumentException {
-        if ("DEBUG".equalsIgnoreCase(levelName)) {
-            return Level.FINE;
-        } else if ("ERROR".equalsIgnoreCase(levelName)) {
-            return Level.SEVERE;
-        } else {
-            return Level.parse(levelName);
-        }
-    }
-
 
     /**
      * Initialize third party libraries of BEAM.
@@ -481,9 +439,9 @@ public class SystemUtils {
      *
      * @param aClass The module jar which contains this specified class will be used to look-up the
      *               {@code META-INF/MANIFEST.MF}
-     * @return the module metada
+     * @return the module metadata, or {@code null} if a {@code META-INF/MANIFEST.MF} could not be found.
      */
-    public static ModuleMetadata loadModuleMetadata(Class<?> aClass)  {
+    public static ModuleMetadata loadModuleMetadata(Class<?> aClass) {
         try {
             URL moduleLocation = aClass.getProtectionDomain().getCodeSource().getLocation();
             final Path pathFromURI = FileUtils.getPathFromURI(FileUtils.ensureJarURI(moduleLocation.toURI()));
@@ -521,7 +479,7 @@ public class SystemUtils {
 
         // Returns image
         public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException,
-                                                                IOException {
+                IOException {
             if (!DataFlavor.imageFlavor.equals(flavor)) {
                 throw new UnsupportedFlavorException(flavor);
             }
