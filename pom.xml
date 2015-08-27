@@ -826,7 +826,7 @@
                                 <goal>copy-resources</goal>
                             </goals>
                             <configuration>
-                                <outputDirectory>${build.directory}/nbm</outputDirectory>
+                                <outputDirectory>${project.build.directory}/nbm</outputDirectory>
                                 <resources>
                                     <resource>
                                         <directory>src/main/nbm</directory>
