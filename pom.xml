@@ -76,12 +76,7 @@
         <module>snap-getasse30-dem</module>
         <module>snap-geotiff</module>
         <module>snap-hdf5-writer</module>
-        <!--
-        Fixme:
-          [INFO] Private classes referenced in module: [javax.xml.transform...
-          [ERROR] Project depends on packages not accessible at runtime in module org.esa.snap:snap-jython:jar:...
         <module>snap-jython</module>
-        -->
         <module>snap-ndvi</module>
         <module>snap-netcdf</module>
         <module>snap-pconvert</module>
