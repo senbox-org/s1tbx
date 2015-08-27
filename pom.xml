@@ -32,6 +32,9 @@
         <brandingToken>snap</brandingToken>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <snap.version>2.0.0-SNAPSHOT</snap.version>
+        <!-- netbeans.specVersion is used to filter manifest.mf and set the the OpenIDE-Module-Specification-Version attribute.
+             This is necessary to make netbeans modules updatable and independent from maven version. -->
+        <netbeans.specVersion>1.0</netbeans.specVersion>
         <javahelp.version>2.0.05</javahelp.version>
         <hdf.version>2.7.1</hdf.version>
         <netcdf.version>4.3.22</netcdf.version>
@@ -807,6 +810,35 @@
                         </systemPropertyVariables>
                         <argLine>-Xmx1024M -Dfile.encoding=UTF-8</argLine>
                     </configuration>
+                </plugin>
+
+                <plugin>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>2.7</version>
+                    <configuration>
+                        <encoding>UTF-8</encoding>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>file-manifest</id>
+                            <phase>process-sources</phase>
+                            <goals>
+                                <goal>copy-resources</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>${build.directory}/nbm</outputDirectory>
+                                <resources>
+                                    <resource>
+                                        <directory>src/main/nbm</directory>
+                                        <filtering>true</filtering>
+                                        <includes>
+                                            <include>manifest.mf</include>
+                                        </includes>
+                                    </resource>
+                                </resources>
+                            </configuration>
+                        </execution>
+                    </executions>
                 </plugin>
 
                 <plugin>

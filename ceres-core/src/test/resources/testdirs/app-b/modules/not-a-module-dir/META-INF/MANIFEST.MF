@@ -1,3 +1,4 @@
 Manifest-Version: 1.0
+OpenIDE-Module-Specification-Version: ${netbeans.specVersion}
 Created-By: 1.2.2 (Sun Microsystems Inc.)
 Main-Class: com.bc.ceres.Process
