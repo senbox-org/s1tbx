@@ -20,7 +20,6 @@ import org.esa.snap.util.io.FileUtils;
 import org.geotools.referencing.factory.epsg.HsqlEpsgDatabase;
 
 import javax.media.jai.JAI;
-import javax.swing.UIManager;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -42,7 +41,6 @@ import java.util.ServiceLoader;
 import java.util.StringTokenizer;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -297,7 +295,7 @@ public class SystemUtils {
         }
         String message = e.getMessage();
         if (message != null && message.length() > 0) {
-            final StringBuffer sb = new StringBuffer();
+            final StringBuilder sb = new StringBuilder();
             sb.append(Character.toUpperCase(message.charAt(0)));
             sb.append(message.substring(1));
             String[] punctuators = new String[]{".", ",", "!", "?", ";", ":"};
@@ -348,21 +346,6 @@ public class SystemUtils {
         }
     }
 
-    public static boolean isRunningOnMacOS() {
-
-        String osName = System.getProperty("os.name");
-        if ("Mac OS X".equalsIgnoreCase(osName)) {
-            return true;
-        }
-
-        final String macOsSpecificPropertyKey = "mrj.version";
-        final String systemLafName = UIManager.getSystemLookAndFeelClassName();
-        final String currentLafName = UIManager.getLookAndFeel().getClass().getName();
-
-        return System.getProperty(macOsSpecificPropertyKey) != null
-                && systemLafName.equals(currentLafName);
-    }
-
     /**
      * Loads services from all <code>META-INF/services/</code> resources.
      *
@@ -383,23 +366,6 @@ public class SystemUtils {
     public static <S> Iterable<S> loadServices(Class<S> serviceType, ClassLoader classLoader) {
         return ServiceLoader.load(serviceType, classLoader);
     }
-
-    public static String getBuildNumber() {
-        // todo - in BEAM 3.x org.esa.snap.resources.bundles.build resource has been used. 
-        // todo - use application.properties with version ID set by Maven (resource Filter!)
-        return System.getProperty(getApplicationContextId() + ".build.id", "1");
-    }
-
-    public static Level parseLogLevel(String levelName) throws IllegalArgumentException {
-        if ("DEBUG".equalsIgnoreCase(levelName)) {
-            return Level.FINE;
-        } else if ("ERROR".equalsIgnoreCase(levelName)) {
-            return Level.SEVERE;
-        } else {
-            return Level.parse(levelName);
-        }
-    }
-
 
     /**
      * Initialize third party libraries of BEAM.
