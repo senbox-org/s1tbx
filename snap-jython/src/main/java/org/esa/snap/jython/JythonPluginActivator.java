@@ -115,6 +115,10 @@ public class JythonPluginActivator implements Activator {
     }
 
     private void extendJythonSysPath(List<Path> modulePaths) {
+        for (Path modulePath : modulePaths) {
+            SystemUtils.LOG.info("SNAP-Jython module path: " + modulePath);
+        }
+
         PyString[] pyPaths = modulePaths.stream()
                 .map(p -> new PyString(p.toString()))
                 .toArray(PyString[]::new);
