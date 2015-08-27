@@ -22,10 +22,7 @@ import com.bc.ceres.core.runtime.Activator;
 import com.bc.ceres.core.runtime.ConfigurationElement;
 import com.bc.ceres.core.runtime.Extension;
 import com.bc.ceres.core.runtime.ExtensionPoint;
-import com.bc.ceres.core.runtime.Module;
 import com.bc.ceres.core.runtime.ModuleContext;
-import com.bc.ceres.core.runtime.ModuleRuntime;
-import com.bc.ceres.core.runtime.ModuleState;
 import org.esa.snap.framework.datamodel.RGBImageProfile;
 import org.esa.snap.framework.datamodel.RGBImageProfileManager;
 import org.esa.snap.util.SystemUtils;
@@ -33,12 +30,9 @@ import org.geotools.factory.FactoryIteratorProvider;
 import org.geotools.factory.GeoTools;
 import org.geotools.referencing.operation.MathTransformProvider;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.ServiceConfigurationError;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * <p><i><b>IMPORTANT NOTE:</b>
@@ -50,11 +44,10 @@ import java.util.logging.Logger;
  */
 public class SnapCoreActivator implements Activator {
 
-    private static ModuleContext moduleContext;
     private FactoryIteratorProvider geotoolsFactoryIteratorProvider;
 
     public static boolean isStarted() {
-        return moduleContext != null;
+        return false;
     }
 
     public static <T> void loadServices(ServiceRegistry<T> registry) {
@@ -66,20 +59,13 @@ public class SnapCoreActivator implements Activator {
             try {
                 registry.addService(iterator.next());
             } catch (ServiceConfigurationError e) {
-                final Logger logger;
-                if (moduleContext != null) {
-                    logger = moduleContext.getLogger();
-                } else {
-                    logger = SystemUtils.LOG;
-                }
-                logger.log(Level.WARNING, e.getMessage(), e.getCause());
+                SystemUtils.LOG.log(Level.WARNING, e.getMessage(), e.getCause());
             }
         }
     }
 
     @Override
     public void start(ModuleContext moduleContext) throws CoreException {
-        SnapCoreActivator.moduleContext = moduleContext;
         SystemUtils.init3rdPartyLibs(moduleContext.getModule().getClass());
         registerRGBProfiles(moduleContext);
         registerGeotoolsServices();
@@ -87,7 +73,6 @@ public class SnapCoreActivator implements Activator {
 
     @Override
     public void stop(ModuleContext moduleContext) throws CoreException {
-        SnapCoreActivator.moduleContext = null;
         deregisterGeotoolsServices();
     }
 
@@ -118,31 +103,6 @@ public class SnapCoreActivator implements Activator {
                 profileManager.addProfile(rgbImageProfile);
             }
         }
-    }
-
-    public static <T> List<T> loadExecutableExtensions(ModuleContext moduleContext,
-                                                       String extensionPointId,
-                                                       String elementName,
-                                                       Class<T> extensionType) {
-        Module module = moduleContext.getModule();
-        ExtensionPoint extensionPoint = module.getExtensionPoint(extensionPointId);
-        ConfigurationElement[] configurationElements = extensionPoint.getConfigurationElements();
-        List<T> executableExtensions = new ArrayList<>(32);
-        for (ConfigurationElement configurationElement : configurationElements) {
-            ConfigurationElement[] children = configurationElement.getChildren(elementName);
-            for (ConfigurationElement child : children) {
-                try {
-                    ModuleState moduleState = child.getDeclaringExtension().getDeclaringModule().getState();
-                    if (moduleState.isOneOf(ModuleState.STARTING, ModuleState.RESOLVED)) {
-                        T executableExtension = child.createExecutableExtension(extensionType);
-                        executableExtensions.add(executableExtension);
-                    }
-                } catch (CoreException e) {
-                    moduleContext.getLogger().log(Level.SEVERE, e.getMessage(), e);
-                }
-            }
-        }
-        return executableExtensions;
     }
 
     private static final class GeotoolsFactoryIteratorProvider implements FactoryIteratorProvider {
