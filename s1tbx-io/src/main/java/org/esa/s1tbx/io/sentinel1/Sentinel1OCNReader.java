@@ -164,13 +164,8 @@ public class Sentinel1OCNReader {
 
             // Add bands to product...
 
-            // Find index of 3rd '-'
-            int idx = -1;
-            for (int i = 0; i < 3; i++) {
-                idx = file.indexOf('-', idx + 1);
-            }
-
-            final String pol = file.substring(idx + 1, idx + 3);
+            int idx = file.indexOf("-ocn-");
+            final String pol = file.substring(idx+5,idx+7);
 
             idx = file.lastIndexOf('-');
             final String imageNum = file.substring(idx + 1, idx + 4);
@@ -210,7 +205,7 @@ public class Sentinel1OCNReader {
                     {
                         // Tbe band will have dimensions: shape[0]*shape[2] (rows) by shape[1] (cols).
                         // So band width = shape[1] and band height = shape[0]*shape[2]
-                        addBand(product, bandName, variable, shape[1], shape[0] * shape[2]);
+                        addBand(product, bandName, variable, shape[1], shape[0]);// * shape[2]);
                         bandNameNCFileMap.put(bandName, netcdfFile);
                         /*
                         if (bandName.contains("oswSpecRes")) {
@@ -282,7 +277,7 @@ public class Sentinel1OCNReader {
         product.addBand(band);
     }
 
-    public synchronized void readData(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
+    public void readData(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
                          int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
                          int destOffsetY, int destWidth, int destHeight, ProductData destBuffer) {
 
@@ -316,14 +311,11 @@ public class Sentinel1OCNReader {
         // So it looks like we can ignore destOffsetX and destOffsetY.
 
         final String bandName = destBand.getName();
-
-        final NetcdfFile netcdfFile = bandNameNCFileMap.get(bandName);
-
-        final int idx = bandName.lastIndexOf('_');
-        final String varFullName = bandName.substring(idx + 1);
+        final String varFullName = bandName.substring(bandName.lastIndexOf('_') + 1);
 
         //System.out.println("Sentinel1OCNReader.readData: bandName = " + bandName + " varFullName = " + varFullName);
 
+        final NetcdfFile netcdfFile = bandNameNCFileMap.get(bandName);
         final Variable var = netcdfFile.findVariable(varFullName);
 
         switch (var.getRank()) {
@@ -342,7 +334,7 @@ public class Sentinel1OCNReader {
         }
     }
 
-    public void readDataForRank2Variable(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
+    public synchronized void readDataForRank2Variable(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
                                          int sourceStepX, int sourceStepY, Variable var,
                                          int destWidth, int destHeight, ProductData destBuffer) {
 
@@ -381,11 +373,12 @@ public class Sentinel1OCNReader {
         }
     }
 
-    private void readDataForRank3Variable(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
+    private synchronized void readDataForRank3Variable(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
                                           int sourceStepX, int sourceStepY, Variable var,
                                           int destWidth, int destHeight, ProductData destBuffer) {
 
         final int[] shape0 = var.getShape();
+        shape0[2] = 1;
 
         // shape0[0] is height of "outer" grid.
         // shape0[1] is width of "outer" grid.
@@ -401,19 +394,19 @@ public class Sentinel1OCNReader {
         try {
 
             final Array srcArray = var.read(origin, shape);
+            final int[] idx = new int[3];
 
             for (int i = 0; i < destHeight; i++) {
 
                 // srcY is wrt to what is read in srcArray
                 final int srcY = (sourceOffsetY - shape0[2] * origin[0]) + i * sourceStepY;
+                idx[0] = srcY / shape[2];
 
                 for (int j = 0; j < destWidth; j++) {
 
                     // srcX is wrt to what is read in srcArray
                     final int srcX = j * sourceStepX;
 
-                    final int[] idx = new int[3];
-                    idx[0] = srcY / shape[2];
                     idx[1] = srcX;
                     idx[2] = srcY - idx[0] * shape[2];
 
@@ -437,7 +430,7 @@ public class Sentinel1OCNReader {
         }
     }
 
-    private void readDataForRank4Variable(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
+    private synchronized void readDataForRank4Variable(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
                                           int sourceStepX, int sourceStepY, Variable var,
                                           int destWidth, int destHeight, ProductData destBuffer) {
 
@@ -464,19 +457,19 @@ public class Sentinel1OCNReader {
         try {
 
             final Array srcArray = var.read(origin, shape);
+            final int[] idx = new int[4];
 
             for (int i = 0; i < destHeight; i++) {
 
                 // srcY is wrt to what is read in srcArray
                 final int srcY = (sourceOffsetY - shape0[2] * origin[0]) + i * sourceStepY;
+                idx[0] = srcY / shape[2];
 
                 for (int j = 0; j < destWidth; j++) {
 
                     // srcX is wrt to what is read in srcArray
                     final int srcX = (sourceOffsetX - shape0[3] * origin[1]) + j * sourceStepX;
 
-                    final int[] idx = new int[4];
-                    idx[0] = srcY / shape[2];
                     idx[1] = srcX / shape[3];
                     idx[2] = srcY - idx[0] * shape[2];
                     idx[3] = srcX - idx[1] * shape[3];
@@ -505,9 +498,7 @@ public class Sentinel1OCNReader {
     private static boolean variableIsVector(Variable variable) {
 
         final int[] shape = variable.getShape();
-
         int cnt = 0;
-
         for (int i : shape) {
             if (i == 1) {
                 cnt++;
@@ -521,7 +512,6 @@ public class Sentinel1OCNReader {
 
         try {
             Array arr = variable.read();
-
             for (int i = 0; i < arr.getSize(); i++) {
                 System.out.println("Sentinel1OCNReader: " + variable.getFullName() + "[" + i + "] = " + arr.getFloat(i));
             }
@@ -530,6 +520,5 @@ public class Sentinel1OCNReader {
 
             System.out.println("Sentinel1OCNReader: failed to read variable " + variable.getFullName() + " for band " + bandName);
         }
-
     }
 }
