@@ -165,11 +165,16 @@
             <artifactId>snap-hdf5-writer</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!--
+        Fixme:
+          [INFO] Private classes referenced in module: [javax.xml.transform...
+          [ERROR] Project depends on packages not accessible at runtime in module org.esa.snap:snap-jython:jar:...
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-jython</artifactId>
             <version>${project.version}</version>
         </dependency>
+        -->
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-ndvi</artifactId>
