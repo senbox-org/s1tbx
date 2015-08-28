@@ -339,27 +339,25 @@ public class Sentinel1OCNReader {
                                          int destWidth, int destHeight, ProductData destBuffer) {
 
         final int[] origin = {sourceOffsetY, sourceOffsetX};
-        final int[] shape = {(sourceHeight - 1) * sourceStepY + 1, (sourceWidth - 1) * sourceStepX + 1};
-        // ADDED
+        final int[] shape = {sourceHeight, sourceWidth};
         /*
         System.out.println(":::::" + sourceOffsetX + " " + sourceOffsetY);
         System.out.println(":::::" + sourceStepX + " " + sourceStepY);
         System.out.println(":::::" + sourceWidth + " " + sourceHeight);
         System.out.println(":::::" + destWidth + " " + destHeight);
         */
+
         try {
 
             final Array srcArray = var.read(origin, shape);
 
             for (int i = 0; i < destHeight; i++) {
-
+                final int srcStride = i * sourceWidth;
+                final int dstStride = i * destWidth;
                 for (int j = 0; j < destWidth; j++) {
 
-                    final int destIdx = i * destWidth + j;
-                    final int srcIdx = i * sourceStepY * shape[1] + j * sourceStepX;
-                    destBuffer.setElemFloatAt(destIdx, srcArray.getFloat(srcIdx));
-
-                    //System.out.println("Sentinel1OCNReader.readData:  i = " + i + " j = " + j + " destIdx = " + destIdx + " srcIdx = " + srcIdx);
+                    destBuffer.setElemFloatAt(dstStride + j, srcArray.getFloat(srcStride + j));
+                    //destBuffer.setElemFloatAt(dstStride +destWidth - j - 1, srcArray.getFloat(srcStride + j));
                 }
             }
 
