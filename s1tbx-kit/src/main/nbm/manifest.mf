@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-OpenIDE-Module-Specification-Version: ${netbeans.specVersion}
+OpenIDE-Module-Specification-Version: ${snap.nbmSpecVersion}
 OpenIDE-Module-Display-Category: Sentinel-1 Toolbox
 OpenIDE-Module-Layer: org/esa/s1tbx/layer.xml
 AutoUpdate-Show-In-Client: true
