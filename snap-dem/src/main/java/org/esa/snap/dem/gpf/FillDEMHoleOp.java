@@ -20,6 +20,7 @@ import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.PixelPos;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.datamodel.VirtualBand;
 import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.OperatorSpi;
@@ -121,15 +122,19 @@ public final class FillDEMHoleOp extends Operator {
         if (!ProductUtils.areRastersEqualInSize(sourceBands)) {
             throw new OperatorException("Source bands must all be the same size");
         }
-        for (Band sourceBand : sourceBands) {
-
-            final Band targetBand = new Band(sourceBand.getName(),
-                    ProductData.TYPE_FLOAT32,
-                    sourceImageWidth,
-                    sourceImageHeight);
-
-            targetBand.setUnit(sourceBand.getUnit());
-            targetProduct.addBand(targetBand);
+        for (Band srcBand : sourceBands) {
+            if (srcBand instanceof VirtualBand) {
+                final VirtualBand sourceBand = (VirtualBand) srcBand;
+                final VirtualBand targetBand = new VirtualBand(sourceBand.getName(),
+                                                               sourceBand.getDataType(),
+                                                               sourceBand.getRasterWidth(),
+                                                               sourceBand.getRasterHeight(),
+                                                               sourceBand.getExpression());
+                ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
+                targetProduct.addBand(targetBand);
+            } else {
+                ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, false);
+            }
         }
     }
 

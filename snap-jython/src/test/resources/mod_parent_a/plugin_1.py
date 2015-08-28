@@ -1,13 +1,12 @@
-
 started = False
 stopped = False
 
-print("started = " + str(started))
 
 def on_snap_start():
+    global started
     started = True
-    print("started = " + str(started))
 
 
 def on_snap_stop():
+    global stopped
     stopped = True

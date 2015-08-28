@@ -31,7 +31,14 @@
     <properties>
         <brandingToken>snap</brandingToken>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <snap.version>2.0.0-SNAPSHOT</snap.version>
+        <!--
+            snap.version is the Maven module version.
+            snap.nbmSpecVersion is the NetBeans module specification version.
+            It is used to filter manifest.mf and set the manifest's "OpenIDE-Module-Specification-Version" header.
+            This is necessary to make NetBeans modules updatable and independent from the Maven version (= snap.version).
+        -->
+        <snap.version>${project.version}</snap.version>
+        <snap.nbmSpecVersion>1.0</snap.nbmSpecVersion>
         <javahelp.version>2.0.05</javahelp.version>
         <hdf.version>2.7.1</hdf.version>
         <netcdf.version>4.3.22</netcdf.version>
@@ -73,6 +80,7 @@
         <module>snap-getasse30-dem</module>
         <module>snap-geotiff</module>
         <module>snap-hdf5-writer</module>
+        <module>snap-jython</module>
         <module>snap-ndvi</module>
         <module>snap-netcdf</module>
         <module>snap-pconvert</module>
@@ -664,14 +672,6 @@
                 <version>1.0.17</version>
             </dependency>
 
-            <!-- Python scripting support ######################################## -->
-
-            <dependency>
-                <groupId>org.jython</groupId>
-                <artifactId>jython</artifactId>
-                <version>2.7.0</version>
-            </dependency>
-
             <!-- Smart configurator support ######################################## -->
 
             <dependency>
@@ -812,6 +812,35 @@
                 </plugin>
 
                 <plugin>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>2.7</version>
+                    <configuration>
+                        <encoding>UTF-8</encoding>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>file-manifest</id>
+                            <phase>process-sources</phase>
+                            <goals>
+                                <goal>copy-resources</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>${project.build.directory}/nbm</outputDirectory>
+                                <resources>
+                                    <resource>
+                                        <directory>src/main/nbm</directory>
+                                        <filtering>true</filtering>
+                                        <includes>
+                                            <include>manifest.mf</include>
+                                        </includes>
+                                    </resource>
+                                </resources>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>2.10.3</version>
                     <configuration>
@@ -863,6 +892,7 @@
                         <keystore>${project.basedir}/../keystore/snap.ks</keystore>
                         <keystorealias>snap</keystorealias>
                         <keystorepassword>snap-123</keystorepassword>
+                        <sourceManifestFile>target/nbm/manifest.mf</sourceManifestFile>
                     </configuration>
                 </plugin>
 

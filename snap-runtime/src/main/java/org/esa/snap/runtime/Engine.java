@@ -206,12 +206,12 @@ public class Engine {
 
     private void informActivators(Lifecycle lifecycle) {
         ServiceLoader<Activator> activators = ServiceLoader.load(Activator.class, clientClassLoader);
-        ArrayList<Activator> arraysList = new ArrayList<>();
+        List<Activator> activatorList = new ArrayList<>();
         for (Activator activator : activators) {
-            arraysList.add(activator);
+            activatorList.add(activator);
         }
-        arraysList.sort((a1, a2) -> lifecycle == Lifecycle.START ? a1.getStartLevel() - a2.getStartLevel() : a2.getStartLevel() - a1.getStartLevel());
-        for (Activator activator : arraysList) {
+        activatorList.sort((a1, a2) -> lifecycle == Lifecycle.START ? a1.getStartLevel() - a2.getStartLevel() : a2.getStartLevel() - a1.getStartLevel());
+        for (Activator activator : activatorList) {
             try {
                 if (lifecycle == Lifecycle.START) {
                     activator.start();
