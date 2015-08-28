@@ -22,6 +22,7 @@
         <jlinda.version>2.0.0-SNAPSHOT</jlinda.version>
 		<s1tbx.version>2.0.0-SNAPSHOT</s1tbx.version>
 		<snap.version>2.0.0-SNAPSHOT</snap.version>
+        <snap.nbmSpecVersion>1.0</snap.nbmSpecVersion>
         <jblas.version>1.2.4</jblas.version>
         <junit.version>4.12</junit.version>
 		

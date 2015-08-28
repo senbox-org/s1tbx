@@ -43,6 +43,7 @@
         <user.language>en</user.language>
 
         <snap.version>2.0.0-SNAPSHOT</snap.version>
+        <snap.nbmSpecVersion>1.0</snap.nbmSpecVersion>
         <s1tbx.version>2.0.0-SNAPSHOT</s1tbx.version>
         <rstb.version>7.0.0-SNAPSHOT</rstb.version>
     </properties>
