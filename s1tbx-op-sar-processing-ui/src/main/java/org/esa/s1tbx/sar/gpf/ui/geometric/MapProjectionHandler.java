@@ -18,6 +18,7 @@ package org.esa.s1tbx.sar.gpf.ui.geometric;
 import com.bc.ceres.swing.TableLayout;
 import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.ui.AppContext;
 import org.esa.snap.framework.ui.ModalDialog;
 import org.esa.snap.framework.ui.crs.CrsSelectionPanel;
 import org.esa.snap.framework.ui.crs.CustomCrsForm;
@@ -44,7 +45,7 @@ public class MapProjectionHandler {
     }
 
     private static CrsSelectionPanel createCRSPanel() {
-        final SnapApp.SnapContext appContext = new SnapApp.SnapContext();
+        final AppContext appContext = SnapApp.getDefault().getAppContext();
         final CustomCrsForm customCrsForm = new CustomCrsForm(appContext);
         final PredefinedCrsForm predefinedCrsForm = new PredefinedCrsForm(appContext);
 

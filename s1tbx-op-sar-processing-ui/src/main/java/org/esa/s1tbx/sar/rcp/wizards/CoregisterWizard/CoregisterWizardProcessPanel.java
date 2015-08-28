@@ -33,7 +33,7 @@ public class CoregisterWizardProcessPanel extends WizardPanel {
     public CoregisterWizardProcessPanel(final File[] productFileList) {
         super("Coregistration");
 
-        graphDialog = new GraphBuilderDialog(new SnapApp.SnapContext(),
+        graphDialog = new GraphBuilderDialog(SnapApp.getDefault().getAppContext(),
                 "Coregistration", "Coregistration", false);
 
         final File graphPath = GraphBuilderDialog.getInternalGraphFolder();

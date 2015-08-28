@@ -2,15 +2,16 @@ package org.jlinda.nest.dat.dialogs;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-import org.esa.snap.graphbuilder.rcp.dialogs.ProductSetPanel;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.db.CommonReaders;
 import org.esa.snap.db.ProductEntry;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.ui.AppContext;
 import org.esa.snap.framework.ui.ModalDialog;
 import org.esa.snap.framework.ui.ModelessDialog;
 import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.graphbuilder.rcp.dialogs.ProductSetPanel;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.DialogUtils;
@@ -49,7 +50,7 @@ public class InSARMasterDialog extends ModelessDialog {
     private boolean ok = false;
 
     private final InSARFileModel outputFileModel = new InSARFileModel();
-    private final SnapApp.SnapContext appContext = new SnapApp.SnapContext();
+    private final AppContext appContext = SnapApp.getDefault().getAppContext();
     private final ProductSetPanel inputProductListPanel = new ProductSetPanel(appContext, "Input stack");
     private final ProductSetPanel outputProductListPanel = new ProductSetPanel(appContext, "Overview", outputFileModel);
 
@@ -255,7 +256,7 @@ public class InSARMasterDialog extends ModelessDialog {
             dataStack.setInput(imgList.toArray(new SLCImage[size]), orbList.toArray(new Orbit[size]));
 
             final Worker worker = new Worker(SnapApp.getDefault().getMainFrame(), "Computing Optimal InSAR Master",
-                    dataStack);
+                                             dataStack);
             worker.executeWithBlocking();
 
             return (MasterSelection.IfgStack[]) worker.get();

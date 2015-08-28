@@ -34,7 +34,7 @@ public class TerrainFlattenedWizardProcessPanel extends WizardPanel {
     public TerrainFlattenedWizardProcessPanel(final Product srcProduct) {
         super("Terrain Flattened Terrain Correction");
 
-        graphDialog = new GraphBuilderDialog(new SnapApp.SnapContext(), "TerrainFlatten", "Terrain Flattened Terrain Correction", false);
+        graphDialog = new GraphBuilderDialog(SnapApp.getDefault().getAppContext(), "TerrainFlatten", "Terrain Flattened Terrain Correction", false);
 
         final File graphFile = new File(wizardGraphPath, "TerrainFlattenedT3.xml");
 

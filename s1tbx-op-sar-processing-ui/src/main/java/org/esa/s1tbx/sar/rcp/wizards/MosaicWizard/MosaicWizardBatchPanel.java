@@ -79,7 +79,7 @@ public class MosaicWizardBatchPanel extends WizardPanel {
                         "At the end of the processing, press Next to mosaic them together.");
         this.add(textPanel, BorderLayout.NORTH);
 
-        batchDlg = new BatchGraphDialog(new SnapApp.SnapContext(),
+        batchDlg = new BatchGraphDialog(SnapApp.getDefault().getAppContext(),
                 "Batch Processing", "batchProcessing", false);
 
         final JPanel batchPanel = new JPanel(new BorderLayout());

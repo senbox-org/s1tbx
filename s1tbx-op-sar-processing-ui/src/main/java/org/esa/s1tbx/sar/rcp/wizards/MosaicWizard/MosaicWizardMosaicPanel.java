@@ -33,7 +33,7 @@ public class MosaicWizardMosaicPanel extends WizardPanel {
     public MosaicWizardMosaicPanel(final File[] productFileList) {
         super("Mosaic");
 
-        graphDialog = new GraphBuilderDialog(new SnapApp.SnapContext(), "Mosaic", "MosaicOp", false);
+        graphDialog = new GraphBuilderDialog(SnapApp.getDefault().getAppContext(), "Mosaic", "MosaicOp", false);
 
         final File graphPath = GraphBuilderDialog.getInternalGraphFolder();
         final File graphFile = new File(graphPath, "MosaicGraph.xml");

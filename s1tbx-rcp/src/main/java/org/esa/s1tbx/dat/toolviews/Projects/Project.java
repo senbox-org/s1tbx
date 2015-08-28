@@ -357,7 +357,7 @@ public class Project extends Observable {
     }
 
     public static void createNewGraph(final ProjectSubFolder subFolder) {
-        final ModelessDialog dialog = new GraphBuilderDialog(new SnapApp.SnapContext(), "Graph Builder", "graph_builder");
+        final ModelessDialog dialog = new GraphBuilderDialog(SnapApp.getDefault().getAppContext(), "Graph Builder", "graph_builder");
         dialog.show();
     }
 
@@ -365,7 +365,7 @@ public class Project extends Observable {
         if (parentFolder.getFolderType() == ProjectSubFolder.FolderType.PRODUCTSET) {
             ProductSet.OpenProductSet(file);
         } else if (parentFolder.getFolderType() == ProjectSubFolder.FolderType.GRAPH) {
-            final GraphBuilderDialog dialog = new GraphBuilderDialog(new SnapApp.SnapContext(), "Graph Builder", "graph_builder");
+            final GraphBuilderDialog dialog = new GraphBuilderDialog(SnapApp.getDefault().getAppContext(), "Graph Builder", "graph_builder");
             dialog.show();
             dialog.LoadGraph(file);
         } else if (parentFolder.getFolderType() == ProjectSubFolder.FolderType.PRODUCT) {

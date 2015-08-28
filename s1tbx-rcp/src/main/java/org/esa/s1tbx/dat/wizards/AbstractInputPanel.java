@@ -68,7 +68,7 @@ public abstract class AbstractInputPanel extends WizardPanel {
         final JPanel textPanel = createTextPanel("Instructions", getInstructions());
         this.add(textPanel, BorderLayout.NORTH);
 
-        sourcePanel = new SourceProductPanel(new SnapApp.SnapContext());
+        sourcePanel = new SourceProductPanel(SnapApp.getDefault().getAppContext());
         sourcePanel.initProducts();
         this.add(sourcePanel, BorderLayout.CENTER);
     }

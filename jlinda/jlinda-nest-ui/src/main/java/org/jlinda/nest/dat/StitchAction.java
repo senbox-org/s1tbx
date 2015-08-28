@@ -12,7 +12,7 @@ public class StitchAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent event) {
 
-        final GraphBuilderDialog dialog = new GraphBuilderDialog(new SnapApp.SnapContext(),
+        final GraphBuilderDialog dialog = new GraphBuilderDialog(SnapApp.getDefault().getAppContext(),
                 "Stitch Unwrapped Tiles", "StitchOp", false);
         dialog.show();
 
