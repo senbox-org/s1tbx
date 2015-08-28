@@ -1023,6 +1023,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         //product.setProductType(getProductType());
         product.setDescription(getProductDescription());
 
+        ReaderUtils.addMetadataIncidenceAngles(product);
         ReaderUtils.addMetadataProductSize(product);
 
         return product;
