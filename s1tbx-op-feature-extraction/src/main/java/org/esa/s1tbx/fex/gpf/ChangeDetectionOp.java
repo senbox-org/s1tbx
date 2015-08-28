@@ -63,6 +63,12 @@ public class ChangeDetectionOp extends Operator {
             rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames = null;
 
+    @Parameter(description = "Mask upper threshold", defaultValue = "2.0", label = "Mask upper threshold")
+    private float maskUpperThreshold = 2.0f;
+
+    @Parameter(description = "Mask lower threshold", defaultValue = "-2.0", label = "Mask lower threshold")
+    private float maskLowerThreshold = -2.0f;
+
     @Parameter(description = "Include source bands", defaultValue = "false", label = "Include source bands")
     private boolean includeSourceBands = false;
 
@@ -176,7 +182,7 @@ public class ChangeDetectionOp extends Operator {
         targetProduct.addBand(targetRatioBand);
 
         //create Mask
-        String expression = targetRatioBand.getName() + " > 2 ? 2 : " + targetRatioBand.getName() + " < -2 ? -2 : 0";
+        String expression = targetRatioBand.getName() + " > "+ maskUpperThreshold+" ? 1 : " + targetRatioBand.getName() + " < "+maskLowerThreshold+" ? -1 : 0";
 
         final Mask mask = new Mask(targetRatioBand.getName() + MASK_NAME,
                                    targetRatioBand.getSceneRasterWidth(),
