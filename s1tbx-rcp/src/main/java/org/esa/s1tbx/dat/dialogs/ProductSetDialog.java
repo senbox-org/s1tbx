@@ -47,7 +47,7 @@ public class ProductSetDialog extends ModelessDialog {
 
         productSetTable.setFiles(productSet.getFileList());
 
-        final ProductSetPanel content = new ProductSetPanel(new SnapApp.SnapContext(), "", productSetTable, false, true);
+        final ProductSetPanel content = new ProductSetPanel(SnapApp.getDefault().getAppContext(), "", productSetTable, false, true);
 
         final JPanel topPanel = new JPanel(new BorderLayout(4, 4));
         final JLabel nameLabel = new JLabel("Name:");

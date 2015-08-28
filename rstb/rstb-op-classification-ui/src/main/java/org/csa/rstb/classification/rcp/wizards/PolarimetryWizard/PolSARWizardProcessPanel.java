@@ -35,7 +35,7 @@ public class PolSARWizardProcessPanel extends WizardPanel {
     public PolSARWizardProcessPanel(final Product srcProduct) {
         super("Classification");
 
-        graphDialog = new GraphBuilderDialog(new SnapApp.SnapContext(), "Classification", "Classification", false);
+        graphDialog = new GraphBuilderDialog(SnapApp.getDefault().getAppContext(), "Classification", "Classification", false);
 
         final File graphFile = new File(wizardGraphPath, wishartGraph);
 

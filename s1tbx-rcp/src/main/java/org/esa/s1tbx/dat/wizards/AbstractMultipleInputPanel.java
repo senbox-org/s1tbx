@@ -73,7 +73,7 @@ public abstract class AbstractMultipleInputPanel extends WizardPanel {
         final JPanel textPanel = createTextPanel("Instructions", getInstructions());
         this.add(textPanel, BorderLayout.NORTH);
 
-        productSetPanel = new ProductSetPanel(new SnapApp.SnapContext(), null, new FileTable(), true, true);
+        productSetPanel = new ProductSetPanel(SnapApp.getDefault().getAppContext(), null, new FileTable(), true, true);
         this.add(productSetPanel, BorderLayout.CENTER);
     }
 }

@@ -36,7 +36,7 @@ public class TerrainFlattenedWizardClassifyPanel extends WizardPanel {
     public TerrainFlattenedWizardClassifyPanel(final File[] productFileList) {
         super("Classification");
 
-        graphDialog = new GraphBuilderDialog(new SnapApp.SnapContext(), "Classification", "Classification", false);
+        graphDialog = new GraphBuilderDialog(SnapApp.getDefault().getAppContext(), "Classification", "Classification", false);
 
         final File graphFile = new File(GraphBuilderDialog.getStandardGraphFolder(), wishartGraph);
 

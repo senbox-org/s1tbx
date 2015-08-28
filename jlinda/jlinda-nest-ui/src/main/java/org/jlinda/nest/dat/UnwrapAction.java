@@ -12,7 +12,7 @@ public class UnwrapAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent event) {
 
-        final GraphBuilderDialog dialog = new GraphBuilderDialog(new SnapApp.SnapContext(),
+        final GraphBuilderDialog dialog = new GraphBuilderDialog(SnapApp.getDefault().getAppContext(),
                 "Unwrapping Tiles", "UnwrapOp", false);
         dialog.show();
 
