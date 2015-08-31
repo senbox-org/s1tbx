@@ -274,9 +274,12 @@ public final class Sentinel1Utils {
         final MetadataElement burstList = swathTiming.getElement("burstList");
         final MetadataElement generalAnnotation = product.getElement("generalAnnotation");
         final MetadataElement productInformation = generalAnnotation.getElement("productInformation");
+        final MetadataElement antennaPattern = product.getElement("antennaPattern");
+        final MetadataElement antennaPatternList = antennaPattern.getElement("antennaPatternList");
 
         subSwath.firstLineTime = getTime(imageInformation, "productFirstLineUtcTime").getMJD()*Constants.secondsInDay;
         subSwath.lastLineTime = getTime(imageInformation, "productLastLineUtcTime").getMJD()*Constants.secondsInDay;
+        subSwath.ascendingNodeTime = getTime(imageInformation, "ascendingNodeTime").getMJD()*Constants.secondsInDay;
         subSwath.numOfSamples = Integer.parseInt(imageInformation.getAttributeString("numberOfSamples"));
         subSwath.numOfLines = Integer.parseInt(imageInformation.getAttributeString("numberOfLines"));
         subSwath.azimuthTimeInterval = Double.parseDouble(imageInformation.getAttributeString("azimuthTimeInterval"));
@@ -290,6 +293,7 @@ public final class Sentinel1Utils {
         subSwath.linesPerBurst = Integer.parseInt(swathTiming.getAttributeString("linesPerBurst"));
         subSwath.samplesPerBurst = Integer.parseInt(swathTiming.getAttributeString("samplesPerBurst"));
         subSwath.radarFrequency = Double.parseDouble(productInformation.getAttributeString("radarFrequency"));
+        subSwath.rangeSamplingRate = Double.parseDouble(productInformation.getAttributeString("rangeSamplingRate"));
         subSwath.azimuthSteeringRate = Double.parseDouble(productInformation.getAttributeString("azimuthSteeringRate"));
 
         subSwath.burstFirstLineTime = new double[subSwath.numOfBursts];
@@ -406,6 +410,22 @@ public final class Sentinel1Utils {
             subSwath.longitude[i][j] = Double.parseDouble(listElem.getAttributeString("longitude"));
             subSwath.incidenceAngle[i][j] = Double.parseDouble(listElem.getAttributeString("incidenceAngle"));
             k++;
+        }
+
+        final int numAPRecords = Integer.parseInt(antennaPatternList.getAttributeString("count"));
+        subSwath.apSlantRangeTime = new double[numAPRecords][];
+        subSwath.apElevationAngle = new double[numAPRecords][];
+
+        k = 0;
+        if (numAPRecords > 0) {
+            final MetadataElement[] antennaPatternListElem = antennaPatternList.getElements();
+            for (MetadataElement listElem : antennaPatternListElem) {
+                final MetadataElement slantRangeTimeElem = listElem.getElement("slantRangeTime");
+                final MetadataElement elevationAngleElem = listElem.getElement("elevationAngle");
+                subSwath.apSlantRangeTime[k] = Sentinel1Utils.getDoubleArray(slantRangeTimeElem, "slantRangeTime");
+                subSwath.apElevationAngle[k] = Sentinel1Utils.getDoubleArray(elevationAngleElem, "elevationAngle");
+                k++;
+            }
         }
     }
 
@@ -1343,7 +1363,9 @@ public final class Sentinel1Utils {
         public double rangePixelSpacing;
         public double azimuthPixelSpacing;
         public double radarFrequency;
+        public double rangeSamplingRate;
         public double azimuthSteeringRate;
+        public double ascendingNodeTime;
         public int firstValidPixel;
         public int lastValidPixel;
 
@@ -1363,6 +1385,10 @@ public final class Sentinel1Utils {
         public double[][] dopplerRate;
         public double[][] referenceTime;
         public double[][] dopplerCentroid;
+
+        // antenna pattern
+        public double[][] apSlantRangeTime;
+        public double[][] apElevationAngle;
 
         // GeoLocationGridPoint
         public int numOfGeoLines;
