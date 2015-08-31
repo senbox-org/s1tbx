@@ -24,17 +24,18 @@
         <test.jvm.arguments>-Xmx${test.jvm.maxheapsize}</test.jvm.arguments>
         <surefire.jvm.args>${test.jvm.arguments} -enableassertions</surefire.jvm.args>
 
-		<jlinda.version>2.0.0-SNAPSHOT</jlinda.version>
-		<rstb.version>7.0.0-SNAPSHOT</rstb.version>
-		<s1tbx.version>2.0.0-SNAPSHOT</s1tbx.version>
-        <!--
-            snap.version is the Maven module version.
-            snap.nbmSpecVersion is the NetBeans module specification version.
-            It is used to filter manifest.mf and set the manifest's "OpenIDE-Module-Specification-Version" header.
-            This is necessary to make NetBeans modules updatable and independent from the Maven version (= snap.version).
-        -->
         <snap.version>2.0.0-SNAPSHOT</snap.version>
-        <snap.nbmSpecVersion>1.0</snap.nbmSpecVersion>
+        <!--
+            s1tbx.version is the Maven module version.
+            s1tbx.nbmSpecVersion is the NetBeans module specification version.
+            It is used to filter manifest.mf and set the manifest's "OpenIDE-Module-Specification-Version" header.
+            This is necessary to make NetBeans modules updatable and independent from the Maven version (= s1tbx.version).
+        -->
+		<s1tbx.version>2.0.0-SNAPSHOT</s1tbx.version>
+        <s1tbx.nbmSpecVersion>2.0.0.6</s1tbx.nbmSpecVersion>
+        <rstb.version>7.0.0-SNAPSHOT</rstb.version>
+        <rstb.nbmSpecVersion>7.0.0.6</rstb.nbmSpecVersion>
+        <jlinda.version>2.0.0-SNAPSHOT</jlinda.version>
 
 		<geotools.version>2.7.4</geotools.version>
 		<hdf.version>2.7.1</hdf.version>
@@ -667,36 +668,6 @@
 			        <version>2.2</version>
 			     </plugin>
 
-                <plugin>
-                    <artifactId>maven-resources-plugin</artifactId>
-                    <version>2.7</version>
-                    <configuration>
-                        <encoding>UTF-8</encoding>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>file-manifest</id>
-                            <phase>process-sources</phase>
-                            <goals>
-                                <goal>copy-resources</goal>
-                            </goals>
-                            <configuration>
-                                <outputDirectory>${project.build.directory}/nbm</outputDirectory>
-                                <resources>
-                                    <resource>
-                                        <directory>src/main/nbm</directory>
-                                        <filtering>true</filtering>
-                                        <includes>
-                                            <include>manifest.mf</include>
-                                        </includes>
-                                    </resource>
-                                </resources>
-
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-
 				<plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>nbm-maven-plugin</artifactId>
@@ -748,6 +719,35 @@
                         </fileset>
                     </filesets>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.7</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>file-manifest</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${build.directory}/nbm</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/nbm</directory>
+                                    <filtering>true</filtering>
+                                    <includes>
+                                        <include>manifest.mf</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
 		

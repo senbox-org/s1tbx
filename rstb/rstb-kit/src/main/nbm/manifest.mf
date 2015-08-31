@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-OpenIDE-Module-Specification-Version: ${snap.nbmSpecVersion}
+OpenIDE-Module-Specification-Version: ${rstb.nbmSpecVersion}
 OpenIDE-Module-Display-Category: Radarsat-2 Toolbox
 AutoUpdate-Show-In-Client: true
 AutoUpdate-Essential-Module: false

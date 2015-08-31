@@ -9,24 +9,24 @@
     <version>2.0.0-SNAPSHOT</version>
 
     <packaging>pom</packaging>
-        
+
     <description>Java Library for Interferometric Data Analysis (jLinda)</description>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>		
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <netbeans.version>RELEASE802</netbeans.version>
         <javahelp.version>2.0.05</javahelp.version>
-        <brandingToken>s1tbx</brandingToken>		
-		<user.language>en</user.language>
-		
+        <brandingToken>s1tbx</brandingToken>
+        <user.language>en</user.language>
+
         <jlinda.version>2.0.0-SNAPSHOT</jlinda.version>
+        <jlinda.nbmSpecVersion>2.0.0.6</jlinda.nbmSpecVersion>
 		<s1tbx.version>2.0.0-SNAPSHOT</s1tbx.version>
 		<snap.version>2.0.0-SNAPSHOT</snap.version>
-        <snap.nbmSpecVersion>1.0</snap.nbmSpecVersion>
         <jblas.version>1.2.4</jblas.version>
         <junit.version>4.12</junit.version>
-		
-		<outputdir>../../../output</outputdir>
+
+        <outputdir>../../../output</outputdir>
     </properties>
 
     <organization>
@@ -50,11 +50,11 @@
     </modules>
 
     <prerequisites>
-       <maven>3.0.0</maven>
+        <maven>3.0.0</maven>
     </prerequisites>
-    
+
     <repositories>
-		<repository>
+        <repository>
             <id>array-mvn-repo</id>
             <name>Public Maven Repository at Array Systems Computing Inc</name>
             <url>http://corp.array.ca/nest-web/mavenrepo</url>
@@ -118,41 +118,70 @@
                 <!--<tagNameFormat>v@{project.version}</tagNameFormat>-->
                 <!--</configuration>-->
             </plugin>
-            
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>nbm-maven-plugin</artifactId>
-                    <version>3.14</version>
-                    <extensions>true</extensions>
-                    <dependencies>
-                        <dependency>
-                            <groupId>javax.help</groupId>
-                            <artifactId>javahelp</artifactId>
-                            <version>${javahelp.version}</version>
-                        </dependency>
-                    </dependencies>
-                    <configuration>
-                        <moduleType>normal</moduleType>
-                        <licenseName>GPL 3</licenseName>
-                        <licenseFile>${project.basedir}/../../LICENSE.html</licenseFile>
-                        <cluster>${brandingToken}</cluster>
-                        <brandingToken>${brandingToken}</brandingToken>
-                        <useOSGiDependencies>false</useOSGiDependencies>
-                        <requiresRestart>true</requiresRestart>
-                        <keystore>${project.basedir}/../../keystore/s1tbx.ks</keystore>
-                        <keystorealias>snap</keystorealias>
-                        <keystorepassword>snap-123</keystorepassword>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <version>2.6</version>
-                    <configuration>
-                        <!-- to have the jar plugin pickup the nbm generated manifest -->
-                        <useDefaultManifestFile>true</useDefaultManifestFile>
-                    </configuration>
-                </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+                <version>3.14</version>
+                <extensions>true</extensions>
+                <dependencies>
+                    <dependency>
+                        <groupId>javax.help</groupId>
+                        <artifactId>javahelp</artifactId>
+                        <version>${javahelp.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <moduleType>normal</moduleType>
+                    <licenseName>GPL 3</licenseName>
+                    <licenseFile>${project.basedir}/../../LICENSE.html</licenseFile>
+                    <cluster>${brandingToken}</cluster>
+                    <brandingToken>${brandingToken}</brandingToken>
+                    <useOSGiDependencies>false</useOSGiDependencies>
+                    <requiresRestart>true</requiresRestart>
+                    <keystore>${project.basedir}/../../keystore/s1tbx.ks</keystore>
+                    <keystorealias>snap</keystorealias>
+                    <keystorepassword>snap-123</keystorepassword>
+                    <sourceManifestFile>target/nbm/manifest.mf</sourceManifestFile>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <!-- to have the jar plugin pickup the nbm generated manifest -->
+                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.7</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>file-manifest</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/nbm</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/nbm</directory>
+                                    <filtering>true</filtering>
+                                    <includes>
+                                        <include>manifest.mf</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
