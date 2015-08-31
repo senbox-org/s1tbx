@@ -340,7 +340,7 @@ public class WriteOp extends Operator {
             if (e instanceof OperatorException) {
                 throw (OperatorException) e;
             } else {
-                throw new OperatorException(e);
+                throw new OperatorException("Not able to write product file: '" + file.getAbsolutePath() + "'", e);
             }
         }
     }
