@@ -106,6 +106,17 @@
                 <attr name="icon" stringvalue="esaIcon"/>
                 <attr name="helpId" stringvalue="ComputeDerampDemodPhaseOp"/>
             </file>
+            <file name="org-esa-s1tbx-gpf-EAPPhaseCorrectionOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="S-1 EAP Phase Correction"/>
+                <attr name="operatorName" stringvalue="EAP-Phase-Correction"/>
+                <attr name="dialogTitle" stringvalue="S-1 EAP Phase Correction"/>
+                <attr name="ShortDescription" stringvalue="EAP Phase Correction"/>
+                <attr name="targetProductNameSuffix" stringvalue="_pc"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="EAPPhaseCorrectionOp"/>
+            </file>
         </folder>
     </folder>
 
@@ -164,6 +175,10 @@
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-gpf-ComputeDerampDemodPhaseOp-Action.instance"/>
                     <attr name="position" intvalue="600"/>
                 </file-->
+                <file name="org-esa-s1tbx-gpf-EAPPhaseCorrectionOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-gpf-EAPPhaseCorrectionOp-Action.instance"/>
+                    <attr name="position" intvalue="600"/>
+                </file>
             </folder>
 
         </folder>
