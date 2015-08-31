@@ -161,8 +161,8 @@
     </folder>
 
     <folder name="OperatorUIs">
-        <file name="org.esa.s1tbx.fex.gpf.ui.oceantools.CreateLandMaskOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.fex.gpf.ui.oceantools.CreateLandMaskOpUI"/>
+        <file name="org.esa.s1tbx.fex.gpf.ui.masks.CreateLandMaskOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.fex.gpf.ui.masks.CreateLandMaskOpUI"/>
             <attr name="operatorName" stringvalue="Land-Sea-Mask"/>
         </file>
     </folder>
