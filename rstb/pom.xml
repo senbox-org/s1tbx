@@ -37,15 +37,15 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <netbeans.version>RELEASE802</netbeans.version>
-        <javahelp.version>2.0.05</javahelp.version>
         <brandingToken>rstb</brandingToken>
         <user.language>en</user.language>
 
-        <snap.version>2.0.0-SNAPSHOT</snap.version>
-        <snap.nbmSpecVersion>1.0</snap.nbmSpecVersion>
-        <s1tbx.version>2.0.0-SNAPSHOT</s1tbx.version>
-        <rstb.version>7.0.0-SNAPSHOT</rstb.version>
+        <!-- Set by parent -->
+        <!--<netbeans.version>RELEASE802</netbeans.version>-->
+        <!--<javahelp.version>2.0.05</javahelp.version>-->
+        <!--<snap.version>2.0.0-SNAPSHOT</snap.version>-->
+        <!--<s1tbx.version>2.0.0-SNAPSHOT</s1tbx.version>-->
+        <!--<rstb.version>7.0.0-SNAPSHOT</rstb.version>-->
     </properties>
 
     <organization>
@@ -128,6 +128,7 @@
                     <keystore>${project.basedir}/../../keystore/s1tbx.ks</keystore>
                     <keystorealias>snap</keystorealias>
                     <keystorepassword>snap-123</keystorepassword>
+                    <sourceManifestFile>target/nbm/manifest.mf</sourceManifestFile>
                 </configuration>
             </plugin>
             <plugin>
