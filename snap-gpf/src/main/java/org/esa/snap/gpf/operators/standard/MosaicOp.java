@@ -339,10 +339,17 @@ public class MosaicOp extends Operator {
     }
 
     private PlanarImage createExpressionImage(final String expression, Product product) {
-        final MultiLevelImage sourceImage = product.getBandAt(0).getSourceImage();
-        final ResolutionLevel resolutionLevel = ResolutionLevel.create(sourceImage.getModel(), 0);
-        final float fillValue = 0.0f;
-        return VirtualBandOpImage.create(expression, ProductData.TYPE_FLOAT32, fillValue, product, resolutionLevel);
+        MultiLevelImage sourceImage = product.getBandAt(0).getSourceImage();
+        ResolutionLevel resolutionLevel = ResolutionLevel.create(sourceImage.getModel(), 0);
+        float fillValue = 0.0f;
+        Dimension tileSize = new Dimension(sourceImage.getTileWidth(), sourceImage.getTileHeight());
+        return VirtualBandOpImage.builder(expression, product)
+                .dataType(ProductData.TYPE_FLOAT32)
+                .fillValue(fillValue)
+                .tileSize(tileSize)
+                .mask(false)
+                .level(resolutionLevel)
+                .create();
     }
 
     private Product[] createReprojectedProducts() {

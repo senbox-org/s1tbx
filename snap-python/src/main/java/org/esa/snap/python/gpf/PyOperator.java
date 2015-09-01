@@ -1,4 +1,4 @@
-package org.esa.snap.gpf.python;
+package org.esa.snap.python.gpf;
 
 
 import com.bc.ceres.core.ProgressMonitor;

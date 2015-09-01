@@ -269,7 +269,7 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
         if (useTiling) {
             RenderedImage validMask = null;
             if (validMaskExpr != null && validMaskExpr.trim().length() > 0 && pixelPosEstimator != null) {
-                validMask = ImageManager.getInstance().getMaskImage(validMaskExpr, latBand.getProduct(), latBand);
+                validMask = latBand.getProduct().getMaskImage(validMaskExpr, latBand);
             }
             latLonImage = new LatLonImage(this.latBand.getGeophysicalImage(), this.lonBand.getGeophysicalImage(),
                                           validMask, pixelPosEstimator);
@@ -281,7 +281,7 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
                 if (validMaskExpr != null && validMaskExpr.trim().length() > 0) {
                     final BitRaster validMask = latBand.getProduct().createValidMask(validMaskExpr,
                                                                                      SubProgressMonitor.create(pm, 1));
-                    fillInvalidGaps(new RasterDataNode.ValidMaskValidator(rasterHeight, 0, validMask),
+                    fillInvalidGaps(new RasterDataNode.ValidMaskValidator(rasterWidth, 0, validMask),
                                     (float[]) latGrid.getDataElems(),
                                     (float[]) lonGrid.getDataElems(), SubProgressMonitor.create(pm, 1));
                 }

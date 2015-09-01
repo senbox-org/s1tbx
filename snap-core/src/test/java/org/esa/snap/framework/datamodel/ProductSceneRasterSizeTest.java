@@ -168,7 +168,7 @@ public class ProductSceneRasterSizeTest {
         configureAndTestMultiSizeProductImages(450, 300, 100, product, b1, b2, b3);
     }
 
-    // todo - [multisize_products] the following call will let this test fail, see SNAP-145 (nf)
+    // todo - [multisize_products] remove @Ignore and let test succeed, see SNAP-145 (nf)
     @Ignore
     @Test
     public void testImageLayoutForMultiSizeProducts_WithoutPreferredTileSize_WithCustomSourceImages() throws Exception {
@@ -185,7 +185,7 @@ public class ProductSceneRasterSizeTest {
         configureAndTestMultiSizeProductImages(tileSize1, tileSize2, tileSize3, product, b1, b2, b3);
     }
 
-    // todo - [multisize_products] the following call will let this test fail, see SNAP-145 (nf)
+    // todo - [multisize_products] remove @Ignore and let test succeed, see SNAP-145 (nf)
     @Ignore
     @Test
     public void testImageLayoutForMultiSizeProducts_WithPreferredTileSize_WithCustomSourceImages() throws Exception {

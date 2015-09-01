@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,6 +32,10 @@ import java.util.stream.Collectors;
  * @since SNAP 2.0
  */
 public class Engine {
+
+    private enum Lifecycle {
+        START, STOP
+    }
 
     private static final String JAR_EXT = ".jar";
 
@@ -113,6 +118,7 @@ public class Engine {
                     if (setContextClassLoader) {
                         instance.setContextClassLoader();
                     }
+                    instance.runClientCode(() -> instance.informActivators(Lifecycle.START));
                 }
             }
         }
@@ -126,7 +132,10 @@ public class Engine {
      * @see #start(boolean)
      */
     public synchronized void stop() {
-        instance = null;
+        if (instance != null) {
+            instance.runClientCode(() -> instance.informActivators(Lifecycle.STOP));
+            instance = null;
+        }
     }
 
     /**
@@ -193,6 +202,28 @@ public class Engine {
     public Runnable createClientRunnable(Runnable runnable) {
         assertStarted();
         return () -> runClientCode(runnable);
+    }
+
+    private void informActivators(Lifecycle lifecycle) {
+        ServiceLoader<Activator> activators = ServiceLoader.load(Activator.class, clientClassLoader);
+        List<Activator> activatorList = new ArrayList<>();
+        for (Activator activator : activators) {
+            activatorList.add(activator);
+        }
+        activatorList.sort((a1, a2) -> lifecycle == Lifecycle.START ? a1.getStartLevel() - a2.getStartLevel() : a2.getStartLevel() - a1.getStartLevel());
+        for (Activator activator : activatorList) {
+            try {
+                if (lifecycle == Lifecycle.START) {
+                    activator.start();
+                } else {
+                    activator.stop();
+                }
+            } catch (Exception ex) {
+                getConfig().logger().log(Level.SEVERE, String.format("Failed to %s %s",
+                                                                     lifecycle == Lifecycle.START ? "start" : "stop",
+                                                                     activator.getClass().getName()), ex);
+            }
+        }
     }
 
     private ClassLoader createClientClassLoader(List<Path> paths) {

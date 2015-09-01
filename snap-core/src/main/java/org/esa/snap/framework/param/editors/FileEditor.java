@@ -19,7 +19,6 @@ import org.esa.snap.framework.param.ParamProperties;
 import org.esa.snap.framework.param.Parameter;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.io.FileChooserFactory;
-import org.esa.snap.util.io.SnapFileChooser;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
@@ -80,7 +79,7 @@ public class FileEditor extends TextFieldXEditor {
             option = fileChooser.showDialog(getEditorComponent(), _DEFAULT_APPROVE_BUTTON_TEXT);
         }
         setLastDir(fileChooser.getCurrentDirectory());
-        if (option == SnapFileChooser.APPROVE_OPTION) {
+        if (option == JFileChooser.APPROVE_OPTION) {
             file = fileChooser.getSelectedFile();
             if (file != null) {
                 setParameterFileValue(file);

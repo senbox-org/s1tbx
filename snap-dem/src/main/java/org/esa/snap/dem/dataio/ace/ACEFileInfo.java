@@ -95,7 +95,7 @@ public class ACEFileInfo {
 
     private void setFromData(final File dataFile) throws IOException {
         final String ext = FileUtils.getExtension(dataFile.getName());
-        if (ext.equalsIgnoreCase(".zip")) {
+        if (ext != null && ext.equalsIgnoreCase(".zip")) {
             final String baseName = FileUtils.getFilenameWithoutExtension(dataFile.getName()) + ".ACE";
             final ZipFile zipFile = new ZipFile(dataFile);
             try {

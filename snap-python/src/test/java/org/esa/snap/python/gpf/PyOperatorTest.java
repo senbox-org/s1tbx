@@ -1,4 +1,4 @@
-package org.esa.snap.gpf.python;
+package org.esa.snap.python.gpf;
 
 
 import org.esa.snap.framework.datamodel.Product;
@@ -17,7 +17,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.esa.snap.gpf.python.PyOperatorSpi.*;
 import static org.junit.Assert.*;
 import static org.junit.Assume.*;
 
@@ -28,9 +27,17 @@ public class PyOperatorTest {
 
     @BeforeClass
     public static void init() {
+        File moduleDir = PyOperatorTest.getResourceFile("/");
+        assertTrue(moduleDir.isDirectory());
+
         // e.g. use -Dsnap.pythonExecutable=C:/Python34/python.exe
+        String pythonExe = Config.instance().preferences().get(PyBridge.PYTHON_EXECUTABLE_PROPERTY, null);
+
         assumeTrue(String.format("Please set '%s' to execute this test", PyBridge.PYTHON_EXECUTABLE_PROPERTY),
-                   Config.instance().preferences().get(PyBridge.PYTHON_EXECUTABLE_PROPERTY, null) != null);
+                   pythonExe != null);
+
+        Config.instance().preferences().put(PyBridge.FORCE_PYTHON_CONFIG_PROPERTY, "true");
+        Config.instance().preferences().put(PyBridge.PYTHON_MODULE_DIR_PROPERTY, moduleDir.getPath());
 
         PyOperatorSpiTest.init();
     }
@@ -72,6 +79,9 @@ public class PyOperatorTest {
     @Test
     public void testPythonOperatorInstantiationAndInvocation() throws Exception {
 
+        File moduleDir = PyOperatorTest.getResourceFile("/snappy_ndvi_op");
+        assertTrue(moduleDir.isDirectory());
+
         Product source = new Product("N", "T", 100, 100);
         source.addBand("radiance_7", "120.0");  // upper wavelength
         source.addBand("radiance_13", "50.0"); // lower wavelength
@@ -83,7 +93,7 @@ public class PyOperatorTest {
         PyOperator operator = new PyOperator();
         operator.setSpi(spi);
         operator.setParameterDefaultValues();
-        operator.setPythonModulePath(new File(Config.instance().preferences().get(EXT_PROPERTY_NAME, null), "snappy_ndvi_op").getPath());
+        operator.setPythonModulePath(moduleDir.getPath());
         operator.setPythonModuleName("ndvi_op");
         operator.setPythonClassName("NdviOp");
         operator.setParameter("lowerName", "radiance_13");

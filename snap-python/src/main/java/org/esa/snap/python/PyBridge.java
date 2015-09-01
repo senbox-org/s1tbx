@@ -12,15 +12,11 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLDecoder;
-import java.nio.file.FileSystemNotFoundException;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -55,11 +51,12 @@ import static org.esa.snap.util.SystemUtils.LOG;
 public class PyBridge {
 
     public static final String PYTHON_EXECUTABLE_PROPERTY = "snap.pythonExecutable";
-    public static final String PYTHON_MODULE_INSTALL_DIR_PROPERTY = "snap.pythonModuleDir";
+    public static final String PYTHON_MODULE_DIR_PROPERTY = "snap.pythonModuleDir";
     public static final String FORCE_PYTHON_CONFIG_PROPERTY = "snap.forcePythonConfig";
+    public static final String PYTHON_EXTRA_PATHS_PROPERTY = "snap.pythonExtraPaths";
+    public static final Path PYTHON_CONFIG_DIR;
 
-    private static final Path MODULE_CODE_BASE_PATH = findModuleCodeBasePath();
-    private static final Path PYTHON_CONFIG_DIR = Paths.get(SystemUtils.getApplicationDataDir(true).getPath(), "snap-python");
+    private static final String SNAP_PYTHON_DIRNAME = "snap-python";
     private static final String JPY_DEBUG_PROPERTY = "jpy.debug";
     private static final String JPY_CONFIG_PROPERTY = "jpy.config";
     private static final String SNAPPY_NAME = "snappy";
@@ -67,8 +64,14 @@ public class PyBridge {
     private static final String SNAPPYUTIL_PY_FILENAME = "snappyutil.py";
     private static final String SNAPPYUTIL_LOG_FILENAME = "snappyutil.log";
     private static final String JPY_JAVA_API_CONFIG_FILENAME = "jpyconfig.properties";
+    private static final Path MODULE_CODE_BASE_PATH;
 
     private static boolean established;
+
+    static {
+        MODULE_CODE_BASE_PATH = findModuleCodeBasePath();
+        PYTHON_CONFIG_DIR = SystemUtils.getApplicationDataDir(true).toPath().resolve(SNAP_PYTHON_DIRNAME);
+    }
 
     /**
      * Establishes the SNAP-Python bridge.
@@ -91,14 +94,14 @@ public class PyBridge {
     /**
      * Installs the SNAP-Python interface.
      *
-     * @param pythonExecutable       The Python executable.
-     * @param pythonModuleInstallDir The directory into which the 'snappy' Python module will be installed and configured.
-     * @param forcePythonConfig      If {@code true}, any existing installation / configuration will be overwritten.
+     * @param pythonExecutable  The Python executable.
+     * @param snappyParentDir   The directory into which the 'snappy' Python module will be installed and configured.
+     * @param forcePythonConfig If {@code true}, any existing installation / configuration will be overwritten.
      * @return The path to the configured 'snappy' Python module.
      * @throws IOException
      */
     public synchronized static Path installPythonModule(Path pythonExecutable,
-                                                        Path pythonModuleInstallDir,
+                                                        Path snappyParentDir,
                                                         Boolean forcePythonConfig) throws IOException {
 
         loadPythonConfig();
@@ -107,18 +110,18 @@ public class PyBridge {
             pythonExecutable = getPythonExecutable();
         }
 
-        if (pythonModuleInstallDir == null) {
-            pythonModuleInstallDir = getPythonModuleInstallDir();
+        if (snappyParentDir == null) {
+            snappyParentDir = getSnappyParentDir();
         }
 
         if (forcePythonConfig == null) {
-            forcePythonConfig = isForcePythonConfig();
+            forcePythonConfig = isForceGeneratingNewPythonConfig();
         }
 
-        Path snappyPath = pythonModuleInstallDir.resolve(SNAPPY_NAME);
+        Path snappyPath = snappyParentDir.resolve(SNAPPY_NAME);
         if (forcePythonConfig || !Files.isDirectory(snappyPath)) {
             unpackPythonModuleDir(snappyPath);
-            storePythonConfig(pythonExecutable, pythonModuleInstallDir);
+            storePythonConfig(pythonExecutable, snappyParentDir);
         }
 
         Path jpyConfigFile = snappyPath.resolve(JPY_JAVA_API_CONFIG_FILENAME);
@@ -256,20 +259,20 @@ public class PyBridge {
     private static void unpackPythonModuleDir(Path pythonModuleDir) throws IOException {
         Files.createDirectories(pythonModuleDir);
         TreeCopier.copy(getResourcePath(SNAPPY_NAME), pythonModuleDir);
-        LOG.info("SNAP-Python module directory: " + pythonModuleDir);
+        LOG.info(String.format("SNAP-Python module '%s' located at %s", SNAPPY_NAME, pythonModuleDir));
     }
 
-    private static boolean isForcePythonConfig() {
-        return Config.instance().preferences().getBoolean(FORCE_PYTHON_CONFIG_PROPERTY, true);
+    private static boolean isForceGeneratingNewPythonConfig() {
+        return Config.instance().preferences().getBoolean(FORCE_PYTHON_CONFIG_PROPERTY, false);
     }
 
     private static Path getPythonExecutable() {
         return Paths.get(Config.instance().preferences().get(PYTHON_EXECUTABLE_PROPERTY, "python"));
     }
 
-    private static Path getPythonModuleInstallDir() {
+    private static Path getSnappyParentDir() {
         Path pythonModuleInstallDir;
-        String pythonModuleDirStr = Config.instance().preferences().get(PYTHON_MODULE_INSTALL_DIR_PROPERTY, null);
+        String pythonModuleDirStr = Config.instance().preferences().get(PYTHON_MODULE_DIR_PROPERTY, null);
         if (pythonModuleDirStr != null) {
             pythonModuleInstallDir = Paths.get(pythonModuleDirStr);
         } else {
@@ -328,7 +331,7 @@ public class PyBridge {
             }
             Properties properties = new Properties();
             properties.setProperty(PYTHON_EXECUTABLE_PROPERTY, pythonExecutable.toString());
-            properties.setProperty(PYTHON_MODULE_INSTALL_DIR_PROPERTY, pythonModuleInstallDir.toString());
+            properties.setProperty(PYTHON_MODULE_DIR_PROPERTY, pythonModuleInstallDir.toString());
             try (BufferedWriter bufferedWriter = Files.newBufferedWriter(pythonConfigFile)) {
                 properties.store(bufferedWriter, "Created by " + PyBridge.class.getName());
             }

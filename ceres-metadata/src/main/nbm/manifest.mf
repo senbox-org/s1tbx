@@ -1,4 +1,5 @@
 Manifest-Version: 1.0
+OpenIDE-Module-Specification-Version: ${snap.nbmSpecVersion}
 AutoUpdate-Show-In-Client: false
 AutoUpdate-Essential-Module: true
 OpenIDE-Module-Java-Dependencies: Java > 1.8

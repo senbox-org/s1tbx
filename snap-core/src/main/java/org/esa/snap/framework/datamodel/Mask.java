@@ -24,17 +24,11 @@ import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.MultiLevelImage;
-import com.bc.ceres.glevel.MultiLevelModel;
-import com.bc.ceres.glevel.MultiLevelSource;
-import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.impl.Tokenizer;
 import org.esa.snap.dataio.dimap.DimapProductConstants;
 import org.esa.snap.dataio.dimap.DimapProductHelpers;
 import org.esa.snap.framework.dataop.barithm.BandArithmetic;
-import org.esa.snap.jai.ImageManager;
-import org.esa.snap.jai.ResolutionLevel;
-import org.esa.snap.jai.VirtualBandOpImage;
 import org.esa.snap.util.Debug;
 import org.esa.snap.util.StringUtils;
 import org.jdom.Element;
@@ -54,7 +48,6 @@ import java.util.Map;
  * This is a preliminary API under construction for BEAM 4.7. Not intended for public use.
  *
  * @author Norman Fomferra
- * @version $Revision$ $Date$
  * @since BEAM 4.7
  */
 public class Mask extends Band {
@@ -76,14 +69,19 @@ public class Mask extends Band {
         super(name, ProductData.TYPE_UINT8, width, height);
         Assert.notNull(imageType, "imageType");
         this.imageType = imageType;
-        this.imageConfigListener = new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                if (isSourceImageSet()) {
-                    getSourceImage().reset();
-                }
-                fireProductNodeChanged(evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
+        this.imageConfigListener = evt -> {
+            if (isSourceImageSet()) {
+                // Added setSourceImage(null), otherwise
+                // org.esa.snap.framework.datamodel.MaskTest.testReassignExpression
+                // cannot work. (nf 2015-07-27)
+                //
+                MultiLevelImage sourceImage = getSourceImage();
+                setSourceImage(null);
+                // The sourceImage.reset() call is left here
+                // so that old level images are removed from JAI tile cache.
+                sourceImage.reset();
             }
+            fireProductNodeChanged(evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
         };
         this.imageConfig = imageType.createImageConfig();
         this.imageConfig.addPropertyChangeListener(imageConfigListener);
@@ -188,20 +186,20 @@ public class Mask extends Band {
         }
 
         /**
-         * Creates the image.
+         * Creates the mask's source image.
          *
-         * @param mask The mask which requests creation of its image.
+         * @param mask The mask which requests creation of its source image.
          *
          * @return The image.
          */
         public abstract MultiLevelImage createImage(Mask mask);
 
-        public Mask transferMask(Mask mask, Product product) {
-            return null;
-        }
-
         public boolean canTransferMask(Mask mask, Product product) {
             return false;
+        }
+
+        public Mask transferMask(Mask mask, Product product) {
+            return null;
         }
 
         /**
@@ -249,32 +247,9 @@ public class Mask extends Band {
             super(TYPE_NAME);
         }
 
-        /**
-         * Creates the image.
-         *
-         * @param mask The mask which requests creation of its image.
-         *
-         * @return The image.
-         */
         @Override
         public MultiLevelImage createImage(final Mask mask) {
-            final MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(mask);
-            final MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
-                @Override
-                public RenderedImage createImage(int level) {
-                    return VirtualBandOpImage.createMask(getExpression(mask),
-                                                         mask.getProduct(),
-                                                         mask.getRasterWidth(), mask.getRasterHeight(),
-                                                         ResolutionLevel.create(getModel(), level));
-                }
-            };
-            return new VirtualBandMultiLevelImage(multiLevelSource, getExpression(mask), mask.getProduct()) {
-                @Override
-                public void reset() {
-                    super.reset();
-                    mask.fireProductNodeDataChanged();
-                }
-            };
+            return VirtualBand.createSourceImage(mask, getExpression(mask));
         }
 
         @Override
@@ -325,7 +300,7 @@ public class Mask extends Band {
 
         private static Map<Mask, Mask> transferReferredMasks(String expression, Product sourceProduct,
                                                              Product targetProduct) {
-            final Map<Mask, Mask> translationMap = new HashMap<Mask, Mask>();
+            final Map<Mask, Mask> translationMap = new HashMap<>();
             final RasterDataNode[] rasters;
             try {
                 rasters = BandArithmetic.getRefRasters(expression, sourceProduct);
@@ -497,23 +472,7 @@ public class Mask extends Band {
 
         @Override
         public MultiLevelImage createImage(final Mask mask) {
-            final MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(mask);
-            final MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
-                @Override
-                public RenderedImage createImage(int level) {
-                    return VirtualBandOpImage.createMask(getExpression(mask),
-                                                         mask.getProduct(),
-                                                         mask.getRasterWidth(), mask.getRasterHeight(),
-                                                         ResolutionLevel.create(getModel(), level));
-                }
-            };
-            return new VirtualBandMultiLevelImage(multiLevelSource, getExpression(mask), mask.getProduct()) {
-                @Override
-                public void reset() {
-                    super.reset();
-                    mask.fireProductNodeDataChanged();
-                }
-            };
+            return VirtualBand.createSourceImage(mask, getExpression(mask));
         }
 
         @Override
@@ -553,13 +512,10 @@ public class Mask extends Band {
             PropertyDescriptor rasterDescriptor = new PropertyDescriptor(PROPERTY_NAME_RASTER, String.class);
             rasterDescriptor.setNotNull(true);
             rasterDescriptor.setNotEmpty(true);
-            rasterDescriptor.setValidator(new Validator() {
-                @Override
-                public void validateValue(Property property, Object value) throws ValidationException {
-                    final String rasterName = String.valueOf(value);
-                    if (!Tokenizer.isExternalName(rasterName)) {
-                        throw new ValidationException(String.format("'%s' is not an external name.", rasterName));
-                    }
+            rasterDescriptor.setValidator((property, value) -> {
+                String rasterName = String.valueOf(value);
+                if (!Tokenizer.isExternalName(rasterName)) {
+                    throw new ValidationException(String.format("'%s' is not an external name.", rasterName));
                 }
             });
 
@@ -626,4 +582,5 @@ public class Mask extends Band {
         }
         return foundName;
     }
+
 }

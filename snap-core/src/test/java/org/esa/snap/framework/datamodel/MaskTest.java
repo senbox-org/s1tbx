@@ -51,7 +51,7 @@ public class MaskTest {
         Mask.ImageType type = new NullImageType();
         PropertyContainer imageConfig = type.createImageConfig();
         assertEquals(Color.RED, imageConfig.getValue("color"));
-        assertEquals(0.5, (double)imageConfig.getValue("transparency"), 1.0e-6);
+        assertEquals(0.5, (double) imageConfig.getValue("transparency"), 1.0e-6);
     }
     
     @Test
@@ -67,6 +67,34 @@ public class MaskTest {
         band.setName("c");
         expression = Mask.BandMathsType.getExpression(mask);
         assertEquals("c == 2", expression);
+    }
+
+    @Test
+    public void testReassignBandMathsExpression() {
+        Product product = new Product("P", "P-Type", 4, 1);
+        VirtualBand band = new VirtualBand("B", ProductData.TYPE_FLOAT32, 4, 1, "X");
+        Mask mask = Mask.BandMathsType.create("M", "M-Descr", 4, 1, "B > 2", Color.GREEN, 0.5);
+        product.getBandGroup().add(band);
+        product.getMaskGroup().add(mask);
+
+        assertEquals(0, mask.getSourceImage().getData().getSample(0, 0, 0));
+        assertEquals(0, mask.getSourceImage().getData().getSample(1, 0, 0));
+        assertEquals(255, mask.getSourceImage().getData().getSample(2, 0, 0));
+        assertEquals(255, mask.getSourceImage().getData().getSample(3, 0, 0));
+
+        mask.getImageConfig().setValue("expression", "B > 3");
+
+        assertEquals(0, mask.getSourceImage().getData().getSample(0, 0, 0));
+        assertEquals(0, mask.getSourceImage().getData().getSample(1, 0, 0));
+        assertEquals(0, mask.getSourceImage().getData().getSample(2, 0, 0));
+        assertEquals(255, mask.getSourceImage().getData().getSample(3, 0, 0));
+
+        band.setExpression("X + 2");
+
+        assertEquals(0, mask.getSourceImage().getData().getSample(0, 0, 0));
+        assertEquals(255, mask.getSourceImage().getData().getSample(1, 0, 0));
+        assertEquals(255, mask.getSourceImage().getData().getSample(2, 0, 0));
+        assertEquals(255, mask.getSourceImage().getData().getSample(3, 0, 0));
     }
 
     private static class NullImageType extends Mask.ImageType {

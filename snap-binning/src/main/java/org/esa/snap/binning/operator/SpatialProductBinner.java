@@ -147,8 +147,8 @@ public class SpatialProductBinner {
     private static MultiLevelImage getMaskImage(Product product, String maskExpr) {
         MultiLevelImage maskImage = null;
         if (StringUtils.isNotNullAndNotEmpty(maskExpr)) {
-            // todo - [multisize_products] fix: rasterDataNode arg is null --> product scene raster image layout will be used!! (nf)
-            maskImage = ImageManager.getInstance().getMaskImage(maskExpr, product, null);
+            // todo - [multisize_products] fix: rasterDataNode arg is null --> default product scene raster image layout will be used!! (nf)
+            maskImage = product.getMaskImage(maskExpr, null);
         }
         return maskImage;
     }
