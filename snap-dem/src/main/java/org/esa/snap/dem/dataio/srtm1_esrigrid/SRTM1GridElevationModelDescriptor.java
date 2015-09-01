@@ -87,10 +87,6 @@ public class SRTM1GridElevationModelDescriptor extends AbstractElevationModelDes
         return false;
     }
 
-    public boolean isDemInstalled() {
-        return true;
-    }
-
     public URL getDemArchiveUrl() {
         return null;
     }

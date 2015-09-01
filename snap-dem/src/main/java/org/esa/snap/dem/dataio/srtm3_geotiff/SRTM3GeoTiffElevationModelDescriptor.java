@@ -87,10 +87,6 @@ public class SRTM3GeoTiffElevationModelDescriptor extends AbstractElevationModel
         return true;
     }
 
-    public boolean isDemInstalled() {
-        return true;
-    }
-
     public URL getDemArchiveUrl() {
         return null;
     }
