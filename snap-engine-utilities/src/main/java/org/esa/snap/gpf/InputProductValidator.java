@@ -236,12 +236,6 @@ public class InputProductValidator {
         }
     }
 
-    public boolean isFormerIPFVersion() throws OperatorException {
-        final String procSysId = absRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
-        final float version = Float.valueOf(procSysId.substring(procSysId.lastIndexOf(" ")));
-        return (version < 2.50);
-    }
-
     public void checkIfTanDEMXProduct() throws OperatorException {
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
         if (!mission.startsWith("TDM")) {
