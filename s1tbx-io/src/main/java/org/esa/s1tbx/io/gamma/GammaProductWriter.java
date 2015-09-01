@@ -1,0 +1,302 @@
+/*
+ * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+package org.esa.s1tbx.io.gamma;
+
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.glevel.MultiLevelImage;
+import org.esa.s1tbx.io.FileImageOutputStreamExtImpl;
+import org.esa.snap.datamodel.Unit;
+import org.esa.snap.framework.dataio.AbstractProductWriter;
+import org.esa.snap.framework.dataio.ProductWriterPlugIn;
+import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.FilterBand;
+import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.datamodel.ProductNode;
+import org.esa.snap.framework.datamodel.RasterDataNode;
+import org.esa.snap.framework.datamodel.VirtualBand;
+import org.esa.snap.framework.gpf.Tile;
+import org.esa.snap.framework.gpf.internal.TileImpl;
+import org.esa.snap.util.Guardian;
+
+import javax.imageio.stream.ImageOutputStream;
+import java.awt.*;
+import java.awt.image.Raster;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.ByteOrder;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * The product writer for Gamma products.
+ */
+public class GammaProductWriter extends AbstractProductWriter {
+
+    private File outputDir;
+    private File outputFile;
+    private Product srcProduct;
+    private Map<Band, ImageOutputStream> bandOutputStreams;
+
+
+    public GammaProductWriter(final ProductWriterPlugIn writerPlugIn) {
+        super(writerPlugIn);
+    }
+
+    /**
+     * Writes the in-memory representation of a data product. This method was called by <code>writeProductNodes(product,
+     * output)</code> of the AbstractProductWriter.
+     *
+     * @throws IllegalArgumentException if <code>output</code> type is not one of the supported output sources.
+     * @throws IOException              if an I/O error occurs
+     */
+    @Override
+    protected void writeProductNodesImpl() throws IOException {
+        final Object output = getOutput();
+        outputFile = null;
+        if (output instanceof String) {
+            outputFile = new File((String) output);
+        } else if (output instanceof File) {
+            outputFile = (File) output;
+        }
+        outputDir = outputFile.getParentFile();
+
+        srcProduct = getSourceProduct();
+        srcProduct.setProductWriter(this);
+        srcProduct.setFileLocation(outputDir);
+
+        HeaderWriter headerWriter = new HeaderWriter(srcProduct, outputFile);
+        headerWriter.writeParFile();
+    }
+
+    private ImageOutputStream createImageOutputStream(final Band band) throws IOException {
+        final ImageOutputStream out = new FileImageOutputStreamExtImpl(getValidImageFile(band));
+        out.setByteOrder(ByteOrder.LITTLE_ENDIAN);
+        return out;
+    }
+
+    private String createImageFilename(final Band band) {
+        return band.getName() + GammaConstants.SLC_EXTENSION;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void writeBandRasterData(Band sourceBand,
+                                    int sourceOffsetX, int sourceOffsetY,
+                                    int sourceWidth, int sourceHeight,
+                                    ProductData sourceBuffer,
+                                    ProgressMonitor pm) throws IOException {
+        Guardian.assertNotNull("sourceBand", sourceBand);
+        Guardian.assertNotNull("sourceBuffer", sourceBuffer);
+        final int sourceBandWidth = sourceBand.getSceneRasterWidth();
+        final int sourceBandHeight = sourceBand.getSceneRasterHeight();
+
+        final ImageOutputStream outputStream = getOrCreateImageOutputStream(sourceBand);
+        long outputPos = (long) sourceOffsetY * (long) sourceBandWidth + sourceOffsetX;
+        pm.beginTask("Writing band '" + sourceBand.getName() + "'...", sourceHeight);
+        try {
+            final long max = sourceHeight * sourceWidth;
+            if(isComplex(sourceBand)) {
+                final Rectangle rect = new Rectangle(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight);
+                final Tile sourceTile = getSourceTile(getComplexSrcBand(sourceBand), rect);
+                final ProductData qSourceBuffer = sourceTile.getRawSamples();
+
+                for (int sourcePos = 0; sourcePos < max; sourcePos += sourceWidth) {
+                    float[] destBuffer = new float[sourceBuffer.getNumElems()*2];
+                    int dstCnt = 0;
+                    for (int srcCnt = 0; srcCnt < sourceBuffer.getNumElems(); srcCnt++) {
+                        destBuffer[dstCnt++] = sourceBuffer.getElemFloatAt(srcCnt);
+                        destBuffer[dstCnt++] = qSourceBuffer.getElemFloatAt(srcCnt);
+                    }
+
+                   // outputStream.seek(sourceBuffer.getElemSize() * outputPos);
+                    outputStream.writeFloats(destBuffer, 0, destBuffer.length);
+                    outputPos += sourceBandWidth;
+                }
+
+                System.out.println(rect.toString());
+            } else {
+                for (int sourcePos = 0; sourcePos < max; sourcePos += sourceWidth) {
+                    sourceBuffer.writeTo(sourcePos, sourceWidth, outputStream, outputPos);
+                    outputPos += sourceBandWidth;
+                }
+            }
+            pm.worked(1);
+        } finally {
+            pm.done();
+        }
+    }
+
+    private Band getComplexSrcBand(final Band iBand) {
+        String name = iBand.getName();
+        if(name.startsWith("i_")) {
+            name.replace("i_", "q_");
+        } else if(name.startsWith("q_")) {
+            name.replace("q_", "i_");
+        }
+        return srcProduct.getBand(name);
+    }
+
+    private Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region) {
+        MultiLevelImage image = rasterDataNode.getSourceImage();
+
+        Raster awtRaster = image.getData(region); // Note: copyData is NOT faster!
+
+        return new TileImpl(rasterDataNode, awtRaster);
+    }
+
+    /**
+     * Writes all data in memory to disk. After a flush operation, the writer can be closed safely
+     *
+     * @throws java.io.IOException on failure
+     */
+    public void flush() throws IOException {
+        if (bandOutputStreams == null) {
+            return;
+        }
+        for (Object o : bandOutputStreams.values()) {
+            ((ImageOutputStream) o).flush();
+        }
+    }
+
+    /**
+     * Closes all output streams currently open.
+     *
+     * @throws java.io.IOException on failure
+     */
+    public void close() throws IOException {
+        if (bandOutputStreams == null) {
+            return;
+        }
+        for (Object o : bandOutputStreams.values()) {
+            ((ImageOutputStream) o).close();
+        }
+        bandOutputStreams.clear();
+        bandOutputStreams = null;
+    }
+
+    /**
+     * Deletes the physically representation of the product from the hard disk.
+     */
+    public void deleteOutput() throws IOException {
+        flush();
+        close();
+        if (outputFile != null && outputFile.exists() && outputFile.isFile()) {
+            outputFile.delete();
+        }
+    }
+
+    /**
+     * Returns the data output stream associated with the given <code>Band</code>. If no stream exists, one is created
+     * and fed into the hash map
+     */
+    private ImageOutputStream getOrCreateImageOutputStream(final Band band) throws IOException {
+        ImageOutputStream outputStream = getImageOutputStream(band);
+        if (outputStream == null) {
+            outputStream = createImageOutputStream(band);
+            if (bandOutputStreams == null) {
+                bandOutputStreams = new HashMap<>();
+            }
+            bandOutputStreams.put(band, outputStream);
+        }
+        return outputStream;
+    }
+
+    private ImageOutputStream getImageOutputStream(final Band band) {
+        if (bandOutputStreams != null) {
+            return bandOutputStreams.get(band);
+        }
+        return null;
+    }
+
+    @Override
+    public boolean shouldWrite(final ProductNode node) {
+        if (node instanceof VirtualBand) {
+            return false;
+        }
+        if (node instanceof FilterBand) {
+            return false;
+        }
+        if(node instanceof Band) {
+            Band band = (Band) node;
+            if(Unit.IMAGINARY.equals(band.getUnit()))
+                return false;
+        }
+        if (node.isModified()) {
+            return true;
+        }
+        if (!isIncrementalMode()) {
+            return true;
+        }
+        if (!(node instanceof Band)) {
+            return true;
+        }
+        final File imageFile = getImageFile((Band) node);
+        return !(imageFile != null && imageFile.exists());
+    }
+
+    private File getImageFile(final Band band) {
+        return new File(outputDir, createImageFilename(band));
+    }
+
+    /**
+     * Returns a file associated with the given <code>Band</code>. The method ensures that the file exists and have the
+     * right size. Also ensures a recreate if the file not exists or the file have a different file size. A new envi
+     * header file was written every call.
+     */
+    private File getValidImageFile(final Band band) throws IOException {
+        final File file = getImageFile(band);
+        if (file.exists()) {
+            if (file.length() != getImageFileSize(band)) {
+                createPhysicalImageFile(band, file);
+            }
+        } else {
+            createPhysicalImageFile(band, file);
+        }
+        return file;
+    }
+
+    private static void createPhysicalImageFile(final Band band, final File file) throws IOException {
+        createPhysicalFile(file, getImageFileSize(band));
+    }
+
+    private static long getImageFileSize(final RasterDataNode band) {
+        long numInterleaved = 1;
+        if(isComplex(band)) {
+            numInterleaved = 2;
+        }
+        return (long) ProductData.getElemSize(band.getDataType()) *
+                (long) band.getRasterWidth() *
+                (long) band.getRasterHeight() * numInterleaved;
+    }
+
+    private static void createPhysicalFile(final File file, final long fileSize) throws IOException {
+        final File parentDir = file.getParentFile();
+        if (parentDir != null) {
+            parentDir.mkdirs();
+        }
+        final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
+        randomAccessFile.setLength(fileSize);
+        randomAccessFile.close();
+    }
+
+    private static boolean isComplex(final RasterDataNode band) {
+        final String unit = band.getUnit();
+        return unit != null && unit.equals(Unit.REAL);
+    }
+}
