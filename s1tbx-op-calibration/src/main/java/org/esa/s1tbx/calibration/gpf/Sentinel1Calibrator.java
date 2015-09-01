@@ -52,7 +52,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
     private String polarization = null;
     private CalibrationInfo[] calibration = null;
     private boolean isMultiSwath = false;
-    private boolean isFormerIPFVersion = false;
+    private boolean priorToIPFV234 = false;
     protected final HashMap<String, CalibrationInfo> targetBandToCalInfo = new HashMap<>(2);
     private java.util.List<String> selectedPolList = null;
     private boolean outputSigmaBand = false;
@@ -132,7 +132,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
             isMultiSwath = validator.isMultiSwath();
-            isFormerIPFVersion = validator.isFormerIPFVersion();
+            priorToIPFV234 = priorToIPFV234();
 
             getProductType();
 
@@ -155,6 +155,12 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         } catch (Exception e) {
             throw new OperatorException(e);
         }
+    }
+
+    private boolean priorToIPFV234() throws OperatorException {
+        final String procSysId = absRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
+        final float version = Float.valueOf(procSysId.substring(procSysId.lastIndexOf(" ")));
+        return (version < 2.34f);
     }
 
     /**
@@ -617,7 +623,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
                 if (isComplex && outputImageInComplex) {
                     calValue = Math.sqrt(calValue)*phaseTerm;
-                } else if (!isComplex && isFormerIPFVersion) { // this is to avoid blank calibration result for GRD
+                } else if (!isComplex && priorToIPFV234) { // this is to avoid blank calibration result for GRD
                     calValue /= Math.sqrt(calibrationFactor);
                 }
 
