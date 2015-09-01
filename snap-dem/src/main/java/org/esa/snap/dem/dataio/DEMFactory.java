@@ -73,11 +73,7 @@ public class DEMFactory {
 
     public static ElevationModel createElevationModel(final String demName, String demResamplingMethod) throws IOException {
 
-        final ElevationModelRegistry elevationModelRegistry = ElevationModelRegistry.getInstance();
-        final ElevationModelDescriptor demDescriptor = elevationModelRegistry.getDescriptor(demName);
-        if (demDescriptor == null) {
-            throw new IOException("The DEM '" + demName + "' is not supported.");
-        }
+        final ElevationModelDescriptor demDescriptor = getDemDescriptor(demName);
 
         if (demDescriptor.isInstallingDem()) {
             throw new IOException("The DEM '" + demName + "' is currently being installed.");
@@ -96,11 +92,7 @@ public class DEMFactory {
 
     public static void checkIfDEMInstalled(final String demName) throws IOException {
 
-        final ElevationModelRegistry elevationModelRegistry = ElevationModelRegistry.getInstance();
-        final ElevationModelDescriptor demDescriptor = elevationModelRegistry.getDescriptor(demName);
-        if (demDescriptor == null) {
-            throw new IOException("The DEM '" + demName + "' is not supported.");
-        }
+        final ElevationModelDescriptor demDescriptor = getDemDescriptor(demName);
 
         if (!demDescriptor.isInstallingDem() && !demDescriptor.isDemInstalled()) {
             if (!demDescriptor.installDemFiles(null)) {
@@ -380,6 +372,15 @@ public class DEMFactory {
         }
         return valid;
     }*/
+
+    private static ElevationModelDescriptor getDemDescriptor(String demName) throws IOException {
+        final ElevationModelRegistry elevationModelRegistry = ElevationModelRegistry.getInstance();
+        final ElevationModelDescriptor demDescriptor = elevationModelRegistry.getDescriptor(demName);
+        if (demDescriptor == null) {
+            throw new IOException("The DEM '" + demName + "' is not supported.");
+        }
+        return demDescriptor;
+    }
 
     private static GeoPos[] extendCorners(final GeoPos extraGeo, final GeoPos[] inGeo) {
 

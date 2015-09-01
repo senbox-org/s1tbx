@@ -99,11 +99,6 @@ public class SRTM1HgtElevationModelDescriptor extends AbstractElevationModelDesc
     }
 
     @Override
-    public boolean isDemInstalled() {
-        return true;
-    }
-
-    @Override
     public URL getDemArchiveUrl() {
         return null;
     }

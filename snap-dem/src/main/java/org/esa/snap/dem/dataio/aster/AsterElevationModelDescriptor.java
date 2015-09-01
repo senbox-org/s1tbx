@@ -90,10 +90,6 @@ public class AsterElevationModelDescriptor extends AbstractElevationModelDescrip
         return false;
     }
 
-    public boolean isDemInstalled() {
-        return true;
-    }
-
     public URL getDemArchiveUrl() {
         return null;
     }
