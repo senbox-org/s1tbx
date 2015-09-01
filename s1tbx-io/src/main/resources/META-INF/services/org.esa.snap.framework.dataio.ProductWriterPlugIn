@@ -1,3 +1,4 @@
 org.esa.s1tbx.io.imageio.ImageIOWriterPlugIn
 org.esa.s1tbx.io.polsarpro.PolsarProProductWriterPlugIn
+org.esa.s1tbx.io.gamma.GammaProductWriterPlugIn
 org.esa.s1tbx.io.geotiffxml.GeoTiffXMLProductWriterPlugIn

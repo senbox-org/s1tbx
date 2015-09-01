@@ -5,6 +5,7 @@ org.esa.s1tbx.io.ceos.alos.AlosPalsarProductReaderPlugIn
 org.esa.s1tbx.io.ceos.alos2.Alos2ProductReaderPlugIn
 org.esa.s1tbx.io.ceos.basic.BasicCeosProductReaderPlugIn
 org.esa.s1tbx.io.cosmo.CosmoSkymedReaderPlugIn
+org.esa.s1tbx.io.gamma.GammaProductReaderPlugIn
 org.esa.s1tbx.io.gtopo30.GTOPO30ReaderPlugIn
 org.esa.s1tbx.io.imageio.ImageIOReaderPlugIn
 org.esa.s1tbx.io.polsarpro.PolsarProProductReaderPlugIn
