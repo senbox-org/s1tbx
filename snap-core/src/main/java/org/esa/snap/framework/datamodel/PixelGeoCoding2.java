@@ -258,6 +258,9 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
                 final double wy = pixelPos.y - (y0 + 0.5);
 
                 dataProvider.getGeoPosDouble(x0, y0, wx, wy, geoPos);
+                if (!geoPos.isValid()) {
+                    dataProvider.getGeoPosInteger(x0, y0, geoPos);
+                }
             } else {
                 dataProvider.getGeoPosInteger(x0, y0, geoPos);
             }
@@ -422,14 +425,15 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
                 final Raster lonData = lonImage.getData(region);
                 geoPos.lon = interpolate(wx, wy, lonData, LON);
             } else {
-                geoPos.lon = getSampleDouble(x0, y0, lonImage, lonMaskImage);
+                geoPos.lon = Double.NaN;
+                return;
             }
 
             if (latMaskImage == null || allValid(latMaskImage.getData(region))) {
                 final Raster latData = latImage.getData(region);
                 geoPos.lat = interpolate(wx, wy, latData, LAT);
             } else {
-                geoPos.lat = getSampleDouble(x0, y0, latImage, latMaskImage);
+                geoPos.lat = Double.NaN;
             }
         }
 
@@ -484,7 +488,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
                     }
                 }
             }
-            return d00;
+            return Double.NaN;
         }
 
         private double getSampleDouble(int pixelX, int pixelY, RenderedImage dataImage, RenderedImage maskImage) {
@@ -572,7 +576,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
                     }
                 }
             }
-            return d00;
+            return Double.NaN;
         }
 
     }
