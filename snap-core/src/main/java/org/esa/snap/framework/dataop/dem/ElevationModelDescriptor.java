@@ -26,6 +26,7 @@ import java.net.URL;
  * An <code>ElevationModel</code> is used to obtain an elevation above a
  * specified geographical datum for a given geographical position.
  *
+ * @author Luis Veci
  * @author Norman Fomferra
  */
 public interface ElevationModelDescriptor {
