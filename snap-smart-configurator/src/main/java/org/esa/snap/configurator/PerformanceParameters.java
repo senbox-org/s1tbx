@@ -159,7 +159,10 @@ public class PerformanceParameters {
      */
     synchronized static void saveConfiguration(PerformanceParameters confToSave) throws IOException, BackingStoreException {
 
-        confToSave.vmParameters.save();
+        if(!loadConfiguration().getVMParameters().equals(confToSave.getVMParameters())) {
+            confToSave.vmParameters.save();
+        }
+
 
         Config configuration = EngineConfig.instance().load();
         Preferences preferences = configuration.preferences();
