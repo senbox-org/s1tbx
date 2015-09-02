@@ -340,6 +340,22 @@ public class CalibrationOpUI extends BaseOperatorUI {
 
     @Override
     public UIValidation validateParameters() {
+
+        if (sourceProducts != null) {
+            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProducts[0]);
+            if (absRoot != null) {
+                final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
+                if (mission.startsWith("SENTINEL-1")) {
+                    final String procSysId = absRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
+                    final float version = Float.valueOf(procSysId.substring(procSysId.lastIndexOf(" ")));
+                    if (version < 2.34f) {
+                        return new UIValidation(UIValidation.State.WARNING,
+                                "The calibration LUT for this product could be incorrect and " +
+                                        "therefore the calibration result may not be reliable.");
+                    }
+                }
+            }
+        }
         return new UIValidation(UIValidation.State.OK, "");
     }
 
