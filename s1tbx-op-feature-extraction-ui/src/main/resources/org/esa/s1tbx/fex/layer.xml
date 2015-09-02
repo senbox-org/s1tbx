@@ -154,7 +154,7 @@
                 </file>
                 <file name="org-esa-s1tbx-fex-gpf-SpeckleDivergence-Action.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-fex-gpf-SpeckleDivergence-Action.instance"/>
-                    <attr name="position" intvalue="300"/>
+                    <attr name="position" intvalue="400"/>
                 </file>
             </folder>
         </folder>

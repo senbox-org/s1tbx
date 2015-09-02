@@ -99,7 +99,7 @@
                 <attr name="position" intvalue="300"/>
                 <file name="org-esa-s1tbx-insar-gpf-coregistration-CoregistrationGraph-Action.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-coregistration-CoregistrationGraph-Action.instance"/>
-                    <attr name="position" intvalue="200"/>
+                    <attr name="position" intvalue="250"/>
                 </file>
                 <folder name="Stack Tools">
                     <attr name="position" intvalue="300"/>
@@ -142,7 +142,7 @@
                     <attr name="position" intvalue="200"/>
                     <file name="org-esa-s1tbx-insar-gpf-GoldsteinPhaseFiltering-Action.shadow">
                         <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-GoldsteinPhaseFiltering-Action.instance"/>
-                        <attr name="position" intvalue="100"/>
+                        <attr name="position" intvalue="300"/>
                     </file>
                 </folder>
             </folder>

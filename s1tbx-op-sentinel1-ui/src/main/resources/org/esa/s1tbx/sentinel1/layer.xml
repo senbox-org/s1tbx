@@ -173,11 +173,11 @@
                 </file>
                 <!--file name="org-esa-s1tbx-gpf-ComputeDerampDemodPhaseOp-Action.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-gpf-ComputeDerampDemodPhaseOp-Action.instance"/>
-                    <attr name="position" intvalue="600"/>
+                    <attr name="position" intvalue="700"/>
                 </file-->
                 <file name="org-esa-s1tbx-gpf-EAPPhaseCorrectionOp-Action.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-gpf-EAPPhaseCorrectionOp-Action.instance"/>
-                    <attr name="position" intvalue="600"/>
+                    <attr name="position" intvalue="800"/>
                 </file>
             </folder>
 

@@ -33,7 +33,7 @@ import java.awt.event.ActionEvent;
 
 @ActionID(category = "Raster", id = "org.esa.s1tbx.dat.AmplitudeToIntensityAction")
 @ActionRegistration(displayName = "#CTL_AmplitudeToIntensityAction_Text")
-@ActionReference(path = "Menu/Raster/Data Conversion", position = 100)
+@ActionReference(path = "Menu/Raster/Data Conversion", position = 200)
 @NbBundle.Messages({
         "CTL_AmplitudeToIntensityAction_Text=Amplitude to/from Intensity",
         "CTL_AmplitudeToIntensityAction_Description=Creates a virtual band from an Amplitude or Intensity band"
