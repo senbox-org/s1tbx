@@ -53,7 +53,6 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
     private final DataProvider dataProvider;
     private final GeoCoding formerGeocoding;
 
-    //    private final PixelPosEstimatorFactory pixelPosEstimatorFactory;
     private transient PixelPosEstimator pixelPosEstimator;
     private transient PixelFinder pixelFinder;
 
@@ -377,23 +376,15 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
         return Datum.WGS_84;
     }
 
-//    private void ensurePixelPosEstimatorExist() {
-//        synchronized (pixelPosEstimatorFactory) {
-//            if (pixelPosEstimator == null) {
-//                pixelPosEstimator = pixelPosEstimatorFactory.create();
-//            }
-//        }
-//    }
-
     private interface DataProvider {
 
-        static final double LAT_MIN = -90.0;
-        static final double LAT_MAX = 90.0;
-        static final double LON_MIN = -180.0;
-        static final double LON_MAX = 180.0;
+        double LAT_MIN = -90.0;
+        double LAT_MAX = 90.0;
+        double LON_MIN = -180.0;
+        double LON_MAX = 180.0;
 
-        static final int LAT = 0;
-        static final int LON = 1;
+        int LAT = 0;
+        int LON = 1;
 
         void getGeoPosInteger(int x0, int y0, GeoPos geoPos);
 
@@ -584,25 +575,5 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
             return d00;
         }
 
-    }
-
-    private static class PixelPosEstimatorFactory {
-
-        private final PlanarImage lonImage;
-        private final PlanarImage latImage;
-        private final PlanarImage maskImage;
-        private final double accuracy;
-
-        private PixelPosEstimatorFactory(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage,
-                                         double accuracy) {
-            this.lonImage = lonImage;
-            this.latImage = latImage;
-            this.maskImage = maskImage;
-            this.accuracy = accuracy;
-        }
-
-        private PixelPosEstimator create() {
-            return new PixelPosEstimator(lonImage, latImage, maskImage, accuracy);
-        }
     }
 }
