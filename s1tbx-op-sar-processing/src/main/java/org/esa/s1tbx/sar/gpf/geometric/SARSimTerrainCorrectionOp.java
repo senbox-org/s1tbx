@@ -336,7 +336,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
     private void checkUserInput() {
 
         if (!saveSelectedSourceBand && !applyRadiometricNormalization) {
-            throw new OperatorException("Please selecte output band for terrain corrected image");
+            throw new OperatorException("Please select output band for terrain corrected image");
         }
 
         if (!applyRadiometricNormalization) {
@@ -555,7 +555,8 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
         final Band[] sourceBands = sourceProduct.getBands();
         if (sourceBands.length == 1) {
-            throw new OperatorException("Source product should include a simulated intensity band. Only " + sourceBands[0].getName() + " found");
+            throw new OperatorException("Source product should include a simulated intensity band. Only " +
+                    sourceBands[0].getName() + " found");
         }
 
         String targetBandName;
