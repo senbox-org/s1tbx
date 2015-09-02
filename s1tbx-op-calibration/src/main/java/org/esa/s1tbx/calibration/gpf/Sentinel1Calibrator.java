@@ -34,6 +34,7 @@ import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.gpf.TileIndex;
 import org.esa.snap.util.ProductUtils;
+import org.esa.snap.util.SystemUtils;
 
 import java.awt.*;
 import java.io.File;
@@ -132,7 +133,12 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
             isMultiSwath = validator.isMultiSwath();
+
             priorToIPFV234 = priorToIPFV234();
+            if (priorToIPFV234) {
+                SystemUtils.LOG.warning("The calibration LUT for this product could be incorrect and " +
+                        "therefore the calibration result may not be reliable.");
+            }
 
             getProductType();
 
