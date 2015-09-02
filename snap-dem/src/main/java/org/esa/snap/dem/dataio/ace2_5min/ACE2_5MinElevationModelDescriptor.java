@@ -15,16 +15,12 @@
  */
 package org.esa.snap.dem.dataio.ace2_5min;
 
-import com.bc.io.FileDownloader;
-import com.bc.io.FileUnpacker;
 import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.dataop.dem.AbstractElevationModelDescriptor;
 import org.esa.snap.framework.dataop.dem.ElevationModel;
 import org.esa.snap.framework.dataop.maptransf.Datum;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 
-import java.awt.*;
-import java.io.File;
 import java.net.URL;
 
 public class ACE2_5MinElevationModelDescriptor extends AbstractElevationModelDescriptor {
@@ -95,10 +91,6 @@ public class ACE2_5MinElevationModelDescriptor extends AbstractElevationModelDes
         return true;
     }
 
-    public boolean isDemInstalled() {
-        return true;
-    }
-
     public URL getDemArchiveUrl() {
         return null;
     }
@@ -122,31 +114,4 @@ public class ACE2_5MinElevationModelDescriptor extends AbstractElevationModelDes
         return latString + lonString + DB_FILE_SUFFIX;
     }
 
-    @Override
-    public synchronized boolean installDemFiles(Object uiComponent) {
-        if (isDemInstalled()) {
-            return true;
-        }
-        if (isInstallingDem()) {
-            return true;
-        }
-        final Component parent = uiComponent instanceof Component ? (Component) uiComponent : null;
-
-        final File demInstallDir = getDemInstallDir();
-        if (!demInstallDir.exists()) {
-            final boolean success = demInstallDir.mkdirs();
-            if (!success) {
-                return false;
-            }
-        }
-
-        try {
-            final File archiveFile = FileDownloader.downloadFile(getDemArchiveUrl(), demInstallDir, parent);
-            FileUnpacker.unpackZip(archiveFile, demInstallDir, parent);
-            archiveFile.delete();
-        } catch (Exception e) {
-            return false;
-        }
-        return true;
-    }
 }

@@ -368,7 +368,11 @@ public class ToolAdapterIO {
         File[] jarFiles = path.listFiles(f -> f.getName().endsWith(".jar"));
         if (jarFiles != null) {
             for (File jarFile : jarFiles) {
-                unpackAdapterJar(jarFile, null);
+                try {
+                    unpackAdapterJar(jarFile, null);
+                } catch (IOException ioEx) {
+                    logger.warning(ioEx.getMessage());
+                }
             }
         }
         File[] moduleFolders = path.listFiles();

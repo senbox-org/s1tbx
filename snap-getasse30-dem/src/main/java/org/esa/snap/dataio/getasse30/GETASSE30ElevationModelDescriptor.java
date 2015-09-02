@@ -98,11 +98,6 @@ public class GETASSE30ElevationModelDescriptor extends AbstractElevationModelDes
     }
 
     @Override
-    public boolean isDemInstalled() {
-        return true;
-    }
-
-    @Override
     public URL getDemArchiveUrl() {
         return null;
     }

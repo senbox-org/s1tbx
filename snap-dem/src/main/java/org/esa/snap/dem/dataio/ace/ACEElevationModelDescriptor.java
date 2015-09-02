@@ -87,10 +87,6 @@ public class ACEElevationModelDescriptor extends AbstractElevationModelDescripto
         return true;
     }
 
-    public boolean isDemInstalled() {
-        return true;
-    }
-
     public URL getDemArchiveUrl() {
         return null;
     }

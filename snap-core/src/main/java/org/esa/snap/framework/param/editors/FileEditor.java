@@ -18,7 +18,6 @@ package org.esa.snap.framework.param.editors;
 import org.esa.snap.framework.param.ParamProperties;
 import org.esa.snap.framework.param.Parameter;
 import org.esa.snap.util.SystemUtils;
-import org.esa.snap.util.io.FileChooserFactory;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
@@ -49,9 +48,9 @@ public class FileEditor extends TextFieldXEditor {
             if (file == null) {
                 file = lastDir;
             }
-            fileChooser = FileChooserFactory.getInstance().createDirChooser(file);
+            fileChooser = createDirChooser(file);
         } else {
-            fileChooser = FileChooserFactory.getInstance().createFileChooser(lastDir);
+            fileChooser = createFileChooser(lastDir);
         }
         fileChooser.setFileSelectionMode(fsm);
         if (file != null && file.exists()) {
@@ -121,4 +120,17 @@ public class FileEditor extends TextFieldXEditor {
     private void setLastDir(final File lastDir) {
         getParameter().getProperties().setPropertyValue(ParamProperties.LAST_DIR_KEY, lastDir);
     }
+
+    public JFileChooser createFileChooser(File currentDirectory) {
+        JFileChooser fileChooser = new JFileChooser(currentDirectory);
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        return fileChooser;
+    }
+
+    public JFileChooser createDirChooser(File currentDirectory) {
+        JFileChooser dirChooser = new JFileChooser(currentDirectory);
+        dirChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        return dirChooser;
+    }
+
 }
