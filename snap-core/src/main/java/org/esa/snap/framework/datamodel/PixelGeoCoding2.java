@@ -55,7 +55,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
 
     //    private final PixelPosEstimatorFactory pixelPosEstimatorFactory;
     private transient PixelPosEstimator pixelPosEstimator;
-    private transient DefaultPixelFinder pixelFinder;
+    private transient PixelFinder pixelFinder;
 
     /**
      * Constructs a new pixel-based geo-coding.
@@ -143,9 +143,8 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
         final double pixelSizeY = pixelDimension.getHeight();
         final double pixelDiagonalSquared = pixelSizeX * pixelSizeX + pixelSizeY * pixelSizeY;
 
-//        pixelPosEstimatorFactory = new PixelPosEstimatorFactory(lonImage, latImage, maskImage, 0.5);
         pixelPosEstimator = new PixelPosEstimator(lonImage, latImage, maskImage, 0.5);
-        pixelFinder = new DefaultPixelFinder(lonImage, latImage, maskImage, pixelDiagonalSquared);
+        pixelFinder = new PixelFinder(lonImage, latImage, maskImage, pixelDiagonalSquared, fractionAccuracy);
 
         boolean useTiling = Config.instance().preferences().getBoolean(SYSPROP_PIXEL_GEO_CODING_USE_TILING, true);
         boolean disableTiling = !useTiling;
@@ -220,15 +219,10 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
             pixelPos = new PixelPos();
         }
         if (geoPos.isValid()) {
-//            ensurePixelPosEstimatorExist();
-//            if (pixelPosEstimator.canGetPixelPos()) {
             pixelPosEstimator.getPixelPos(geoPos, pixelPos);
             if (pixelPos.isValid()) {
                 pixelFinder.findPixelPos(geoPos, pixelPos);
             }
-//            } else {
-//                pixelPos.setInvalid();
-//            }
         } else {
             pixelPos.setInvalid();
         }
@@ -273,7 +267,6 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
                 if (formerGeocoding != null && formerGeocoding.canGetGeoPos()) {
                     formerGeocoding.getGeoPos(pixelPos, geoPos);
                 } else {
-//                    ensurePixelPosEstimatorExist();
                     pixelPosEstimator.getGeoPos(pixelPos, geoPos);
                 }
             }
