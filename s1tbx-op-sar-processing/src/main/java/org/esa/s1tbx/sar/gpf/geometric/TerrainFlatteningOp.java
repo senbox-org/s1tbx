@@ -730,13 +730,13 @@ public final class TerrainFlatteningOp extends Operator {
         if (tileOverlapPercentageMin != Double.MAX_VALUE && tileOverlapPercentageMin < 0.0) {
             overlapPercentages[0] = tileOverlapPercentageMin - 1.0;
         } else {
-            overlapPercentages[0] = 0.0;
+            overlapPercentages[0] = 1.0;
         }
 
         if (tileOverlapPercentageMax != -Double.MAX_VALUE && tileOverlapPercentageMax > 0.0) {
             overlapPercentages[1] = tileOverlapPercentageMax + 1.0;
         } else {
-            overlapPercentages[1] = 0.0;
+            overlapPercentages[1] = 1.0;
         }
     }
 
