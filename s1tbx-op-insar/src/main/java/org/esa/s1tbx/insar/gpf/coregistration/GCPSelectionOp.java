@@ -348,6 +348,9 @@ public class GCPSelectionOp extends Operator {
                     if (unit != null && !unit.contains(Unit.IMAGINARY)) {
                         slvBand1 = slvBand;
                         break;
+                    } else if (unit == null) {
+                        // Assume that the image is real-valued if no unit is set
+                        slvBand1 = slvBand;
                     }
                 }
             }
@@ -366,7 +369,7 @@ public class GCPSelectionOp extends Operator {
                 targetBand.setSourceImage(srcBand.getSourceImage());
             } else {
                 final String unit = srcBand.getUnit();
-                if (oneSlaveProcessed == false && unit != null && !unit.contains(Unit.IMAGINARY)) {
+                if (!oneSlaveProcessed && (unit == null || !unit.contains(Unit.IMAGINARY))) {
                     oneSlaveProcessed = true;
                     primarySlaveBand = srcBand;
                     final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
