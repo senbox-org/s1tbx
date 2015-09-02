@@ -199,7 +199,7 @@ public final class SubtRefDemOp extends Operator {
             }
 
             demNoDataValue = demDescriptor.getNoDataValue();
-            demSamplingLat = demDescriptor.getDegreeRes() * (1.0f / demDescriptor.getPixelRes()) * Constants.DTOR;
+            demSamplingLat = demDescriptor.getTileWidthInDegrees() * (1.0f / demDescriptor.getTileWidth()) * Constants.DTOR;
             demSamplingLon = demSamplingLat;
         }
 

@@ -573,7 +573,7 @@ public class DEMBasedCoregistrationOp extends Operator {
             final double[] latLonMinMax = new double[4];
             computeImageGeoBoundary(x0, xMax, y0, yMax, masterProduct, latLonMinMax);
 
-            final double delta = (double)dem.getDescriptor().getDegreeRes() / (double)dem.getDescriptor().getPixelRes();
+            final double delta = (double)dem.getDescriptor().getTileWidthInDegrees() / (double)dem.getDescriptor().getTileWidth();
             final double extralat = 1.5*delta + 4.0/25.0;
             final double extralon = 1.5*delta + 4.0/25.0;
             final double latMin = latLonMinMax[0] - extralat;

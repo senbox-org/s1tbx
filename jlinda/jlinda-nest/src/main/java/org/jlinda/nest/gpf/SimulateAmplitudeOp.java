@@ -158,7 +158,7 @@ public final class SimulateAmplitudeOp extends Operator {
 
             demNoDataValue = demDescriptor.getNoDataValue();
 
-            demSampling = demDescriptor.getDegreeRes() * (1.0f / demDescriptor.getPixelRes()) * Constants.DTOR;
+            demSampling = demDescriptor.getTileWidthInDegrees() * (1.0f / demDescriptor.getTileWidth()) * Constants.DTOR;
         }
 
 
