@@ -235,7 +235,6 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
      * @param pixelPos the pixel's co-ordinates given as x,y
      * @param geoPos   an instance of <code>GeoPos</code> to be used as retun value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
-     *
      * @return the geographical position as lat/lon.
      */
     @Override
@@ -248,7 +247,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
             int x0 = (int) Math.floor(pixelPos.getX());
             int y0 = (int) Math.floor(pixelPos.getY());
 
-            if (fractionAccuracy) {
+            if (fractionAccuracy && !isInPixelCenter(pixelPos)) {
                 if (x0 > 0 && pixelPos.x - x0 < 0.5 || x0 == rasterW - 1) {
                     x0 -= 1;
                 }
@@ -272,6 +271,11 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
             }
         }
         return geoPos;
+    }
+
+    private boolean isInPixelCenter(PixelPos pixelPos) {
+        return Math.abs(pixelPos.getX() - Math.floor(pixelPos.getX()) - 0.5) < 1e-8 &&
+                Math.abs(pixelPos.getY() - Math.floor(pixelPos.getY()) - 0.5) < 1e-8;
     }
 
     private boolean pixelPosIsInsideRasterWH(PixelPos pixelPos) {
