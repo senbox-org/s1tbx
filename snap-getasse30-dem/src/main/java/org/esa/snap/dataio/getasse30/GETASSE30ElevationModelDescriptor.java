@@ -15,10 +15,8 @@
  */
 package org.esa.snap.dataio.getasse30;
 
-import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.dataop.dem.AbstractElevationModelDescriptor;
 import org.esa.snap.framework.dataop.dem.ElevationModel;
-import org.esa.snap.framework.dataop.maptransf.Datum;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 
 import java.io.IOException;
@@ -33,7 +31,6 @@ public class GETASSE30ElevationModelDescriptor extends AbstractElevationModelDes
     private static final int DEGREE_RES = 15;
     private static final int PIXEL_RES = 1800;
     public static final int NO_DATA_VALUE = -9999;
-    private static final GeoPos RASTER_ORIGIN = new GeoPos(90.0f, 180.0f);
     private static final int RASTER_WIDTH = NUM_X_TILES * PIXEL_RES;
     private static final int RASTER_HEIGHT = NUM_Y_TILES * PIXEL_RES;
 
@@ -71,17 +68,12 @@ public class GETASSE30ElevationModelDescriptor extends AbstractElevationModelDes
     }
 
     @Override
-    public GeoPos getRasterOrigin() {
-        return RASTER_ORIGIN;
-    }
-
-    @Override
-    public int getDegreeRes() {
+    public int getTileWidthInDegrees() {
         return DEGREE_RES;
     }
 
     @Override
-    public int getPixelRes() {
+    public int getTileWidth() {
         return PIXEL_RES;
     }
 

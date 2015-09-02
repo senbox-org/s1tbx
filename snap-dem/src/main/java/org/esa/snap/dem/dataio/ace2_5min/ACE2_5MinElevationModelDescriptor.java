@@ -15,7 +15,6 @@
  */
 package org.esa.snap.dem.dataio.ace2_5min;
 
-import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.dataop.dem.AbstractElevationModelDescriptor;
 import org.esa.snap.framework.dataop.dem.ElevationModel;
 import org.esa.snap.framework.dataop.resamp.Resampling;
@@ -26,13 +25,12 @@ public class ACE2_5MinElevationModelDescriptor extends AbstractElevationModelDes
 
     private static final String NAME = "ACE2_5Min";
     private static final String DB_FILE_SUFFIX = "_5M.ACE2";
-    private static final String ARCHIVE_URL_PATH = "http://nest.s3.amazonaws.com/data/5M_HEIGHTS.zip";
+    //private static final String ARCHIVE_URL_PATH = "http://nest.s3.amazonaws.com/data/5M_HEIGHTS.zip";
     public static final int NUM_X_TILES = 24;
     public static final int NUM_Y_TILES = 12;
     public static final int DEGREE_RES = 15;
     public static final int PIXEL_RES = 180;
     public static final int NO_DATA_VALUE = -500;
-    public static final GeoPos RASTER_ORIGIN = new GeoPos(90.0f, 180.0f);
     public static final int RASTER_WIDTH = NUM_X_TILES * PIXEL_RES;
     public static final int RASTER_HEIGHT = NUM_Y_TILES * PIXEL_RES;
 
@@ -66,17 +64,12 @@ public class ACE2_5MinElevationModelDescriptor extends AbstractElevationModelDes
     }
 
     @Override
-    public GeoPos getRasterOrigin() {
-        return RASTER_ORIGIN;
-    }
-
-    @Override
-    public int getDegreeRes() {
+    public int getTileWidthInDegrees() {
         return DEGREE_RES;
     }
 
     @Override
-    public int getPixelRes() {
+    public int getTileWidth() {
         return PIXEL_RES;
     }
 

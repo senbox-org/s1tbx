@@ -15,10 +15,8 @@
  */
 package org.esa.snap.dem.dataio.srtm1_hgt;
 
-import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.dataop.dem.AbstractElevationModelDescriptor;
 import org.esa.snap.framework.dataop.dem.ElevationModel;
-import org.esa.snap.framework.dataop.maptransf.Datum;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 
 import java.io.IOException;
@@ -27,14 +25,13 @@ import java.net.URL;
 public class SRTM1HgtElevationModelDescriptor extends AbstractElevationModelDescriptor {
 
     private static final String NAME = "SRTM 1Sec HGT";
-    private static final String DB_FILE_SUFFIX = ".hgt";
+    //private static final String DB_FILE_SUFFIX = ".hgt";
     private static final int NUM_X_TILES = 360;
     private static final int NUM_Y_TILES = 120;
     private static final int DEGREE_RES = 1;
     private static final int PIXEL_RES = 3600;
     public static final int NO_DATA_VALUE = -32768;
 
-    private static final GeoPos RASTER_ORIGIN = new GeoPos(60.0f, 180.0f);
     private static final int RASTER_WIDTH = NUM_X_TILES * PIXEL_RES;
     private static final int RASTER_HEIGHT = NUM_Y_TILES * PIXEL_RES;
 
@@ -72,17 +69,12 @@ public class SRTM1HgtElevationModelDescriptor extends AbstractElevationModelDesc
     }
 
     @Override
-    public GeoPos getRasterOrigin() {
-        return RASTER_ORIGIN;
-    }
-
-    @Override
-    public int getDegreeRes() {
+    public int getTileWidthInDegrees() {
         return DEGREE_RES;
     }
 
     @Override
-    public int getPixelRes() {
+    public int getTileWidth() {
         return PIXEL_RES;
     }
 

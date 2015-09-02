@@ -15,10 +15,8 @@
  */
 package org.esa.snap.dem.dataio.srtm1_esrigrid;
 
-import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.dataop.dem.AbstractElevationModelDescriptor;
 import org.esa.snap.framework.dataop.dem.ElevationModel;
-import org.esa.snap.framework.dataop.maptransf.Datum;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 
 import java.net.URL;
@@ -26,14 +24,13 @@ import java.net.URL;
 public class SRTM1GridElevationModelDescriptor extends AbstractElevationModelDescriptor {
 
     public static final String NAME = "SRTM 1Sec Grid";
-    public static final String DB_FILE_SUFFIX = ".adf";
+    //public static final String DB_FILE_SUFFIX = ".adf";
     public static final int NUM_X_TILES = 360;
     public static final int NUM_Y_TILES = 120;
     public static final int DEGREE_RES = 1;
     public static final int PIXEL_RES = 3600;
     public static final int NO_DATA_VALUE = -32768;
 
-    public static final GeoPos RASTER_ORIGIN = new GeoPos(60, 180);
     public static final int RASTER_WIDTH = NUM_X_TILES * PIXEL_RES;
     public static final int RASTER_HEIGHT = NUM_Y_TILES * PIXEL_RES;
 
@@ -64,15 +61,11 @@ public class SRTM1GridElevationModelDescriptor extends AbstractElevationModelDes
         return RASTER_HEIGHT;
     }
 
-    public GeoPos getRasterOrigin() {
-        return RASTER_ORIGIN;
-    }
-
-    public int getDegreeRes() {
+    public int getTileWidthInDegrees() {
         return DEGREE_RES;
     }
 
-    public int getPixelRes() {
+    public int getTileWidth() {
         return PIXEL_RES;
     }
 

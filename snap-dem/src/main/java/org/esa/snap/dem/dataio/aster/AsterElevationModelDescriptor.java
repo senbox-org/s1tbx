@@ -15,10 +15,8 @@
  */
 package org.esa.snap.dem.dataio.aster;
 
-import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.dataop.dem.AbstractElevationModelDescriptor;
 import org.esa.snap.framework.dataop.dem.ElevationModel;
-import org.esa.snap.framework.dataop.maptransf.Datum;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 
 import java.net.URL;
@@ -26,13 +24,12 @@ import java.net.URL;
 public class AsterElevationModelDescriptor extends AbstractElevationModelDescriptor {
 
     private static final String NAME = "ASTER 1sec GDEM";
-    private static final String DB_FILE_SUFFIX = ".TIF";
+    //private static final String DB_FILE_SUFFIX = ".TIF";
     private static final int NUM_X_TILES = 360;
     private static final int NUM_Y_TILES = 166;
     private static final int DEGREE_RES = 1;
     private static final int PIXEL_RES = 3600;
     private static final int NO_DATA_VALUE = -9999;
-    private static final GeoPos RASTER_ORIGIN = new GeoPos(83, 180);
     private static final int RASTER_WIDTH = NUM_X_TILES * PIXEL_RES;
     private static final int RASTER_HEIGHT = NUM_Y_TILES * PIXEL_RES;
 
@@ -66,17 +63,12 @@ public class AsterElevationModelDescriptor extends AbstractElevationModelDescrip
     }
 
     @Override
-    public GeoPos getRasterOrigin() {
-        return RASTER_ORIGIN;
-    }
-
-    @Override
-    public int getDegreeRes() {
+    public int getTileWidthInDegrees() {
         return DEGREE_RES;
     }
 
     @Override
-    public int getPixelRes() {
+    public int getTileWidth() {
         return PIXEL_RES;
     }
 

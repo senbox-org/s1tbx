@@ -32,8 +32,6 @@ public interface ElevationModelDescriptor {
 
     int DEM_INSTALLED = 1;
     int DEM_INSTALLATION_IN_PROGRESS = 2;
-    int DEM_INSTALLATION_CANCELED = 3;
-    int DEM_INSTALLATION_ERROR = 4;
 
     /**
      * The name of this elevation source, e.g. "GTOPO30"
@@ -64,25 +62,18 @@ public interface ElevationModelDescriptor {
     int getRasterHeight();
 
     /**
-     * Gets the geo-origin of this elevation map (upper-left-corner).
+     * Gets the width of a tile in degrees.
      *
-     * @return the  (lat,lon) value, e.g.
+     * @return the width of a tile in degrees, e.g. 15
      */
-    GeoPos getRasterOrigin();
+    int getTileWidthInDegrees();
 
     /**
-     * Gets the resolution (in degrees) of this elevation map.
+     * Gets the width of a tile in pixels.
      *
-     * @return the  (degree) value, e.g.
+     * @return the width of a tile in pixels, e.g. 1800
      */
-    int getDegreeRes();
-
-    /**
-     * Gets the resolution (in pixels) of this elevation map.
-     *
-     * @return the  (pixels) value, e.g.
-     */
-    int getPixelRes();
+    int getTileWidth();
 
     /**
      * Gets the number of tiles in x direction

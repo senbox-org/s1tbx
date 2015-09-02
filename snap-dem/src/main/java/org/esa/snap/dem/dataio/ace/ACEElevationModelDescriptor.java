@@ -15,10 +15,8 @@
  */
 package org.esa.snap.dem.dataio.ace;
 
-import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.dataop.dem.AbstractElevationModelDescriptor;
 import org.esa.snap.framework.dataop.dem.ElevationModel;
-import org.esa.snap.framework.dataop.maptransf.Datum;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 
 import java.io.IOException;
@@ -34,7 +32,6 @@ public class ACEElevationModelDescriptor extends AbstractElevationModelDescripto
     public static final int PIXEL_RES = 1800;
     public static final int NO_DATA_VALUE = -500;
 
-    public static final GeoPos RASTER_ORIGIN = new GeoPos(60, 180);
     public static final int RASTER_WIDTH = NUM_X_TILES * PIXEL_RES;
     public static final int RASTER_HEIGHT = NUM_Y_TILES * PIXEL_RES;
 
@@ -65,15 +62,11 @@ public class ACEElevationModelDescriptor extends AbstractElevationModelDescripto
         return RASTER_HEIGHT;
     }
 
-    public GeoPos getRasterOrigin() {
-        return RASTER_ORIGIN;
-    }
-
-    public int getDegreeRes() {
+    public int getTileWidthInDegrees() {
         return DEGREE_RES;
     }
 
-    public int getPixelRes() {
+    public int getTileWidth() {
         return PIXEL_RES;
     }
 

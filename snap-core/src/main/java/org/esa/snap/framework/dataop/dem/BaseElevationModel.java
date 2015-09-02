@@ -57,9 +57,9 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
         NUM_X_TILES = descriptor.getNumXTiles();
         NUM_Y_TILES = descriptor.getNumYTiles();
         NO_DATA_VALUE = descriptor.getNoDataValue();
-        NUM_PIXELS_PER_TILE = descriptor.getPixelRes();
+        NUM_PIXELS_PER_TILE = descriptor.getTileWidth();
         NUM_PIXELS_PER_TILEinv = 1.0 / (double) NUM_PIXELS_PER_TILE;
-        DEGREE_RES = descriptor.getDegreeRes();
+        DEGREE_RES = descriptor.getTileWidthInDegrees();
 
         RASTER_WIDTH = NUM_X_TILES * NUM_PIXELS_PER_TILE;
         RASTER_HEIGHT = NUM_Y_TILES * NUM_PIXELS_PER_TILE;
