@@ -46,10 +46,6 @@ public class SRTM3GeoTiffElevationModelDescriptor extends AbstractElevationModel
         return NAME;
     }
 
-    public Datum getDatum() {
-        return DATUM;
-    }
-
     public int getNumXTiles() {
         return NUM_X_TILES;
     }

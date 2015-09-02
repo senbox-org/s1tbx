@@ -37,19 +37,12 @@ public class GETASSE30ElevationModelDescriptor extends AbstractElevationModelDes
     private static final int RASTER_WIDTH = NUM_X_TILES * PIXEL_RES;
     private static final int RASTER_HEIGHT = NUM_Y_TILES * PIXEL_RES;
 
-    private static final Datum DATUM = Datum.WGS_84;
-
     public GETASSE30ElevationModelDescriptor() {
     }
 
     @Override
     public String getName() {
         return NAME;
-    }
-
-    @Override
-    public Datum getDatum() {
-        return DATUM;
     }
 
     @Override

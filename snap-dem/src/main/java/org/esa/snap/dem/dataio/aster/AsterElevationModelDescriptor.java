@@ -35,7 +35,6 @@ public class AsterElevationModelDescriptor extends AbstractElevationModelDescrip
     private static final GeoPos RASTER_ORIGIN = new GeoPos(83, 180);
     private static final int RASTER_WIDTH = NUM_X_TILES * PIXEL_RES;
     private static final int RASTER_HEIGHT = NUM_Y_TILES * PIXEL_RES;
-    private static final Datum DATUM = Datum.WGS_84;
 
     public AsterElevationModelDescriptor() {
     }
@@ -50,10 +49,6 @@ public class AsterElevationModelDescriptor extends AbstractElevationModelDescrip
 
     public int getNumYTiles() {
         return NUM_Y_TILES;
-    }
-
-    public Datum getDatum() {
-        return DATUM;
     }
 
     public float getNoDataValue() {

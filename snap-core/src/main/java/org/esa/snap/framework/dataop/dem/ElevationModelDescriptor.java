@@ -43,13 +43,6 @@ public interface ElevationModelDescriptor {
     String getName();
 
     /**
-     * Gets the datum for geographical coordinates interpreted by this elevation source, e.g. WGS-84.
-     *
-     * @return the datum, e.g. {@link org.esa.snap.framework.dataop.maptransf.Datum#WGS_84}
-     */
-    Datum getDatum();
-
-    /**
      * Gets the no-data value for this elevation map.
      *
      * @return the  no-data value, e.g. -99999

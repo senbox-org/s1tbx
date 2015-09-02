@@ -18,7 +18,6 @@ package org.esa.snap.dem.dataio.ace2_5min;
 import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.dataop.dem.AbstractElevationModelDescriptor;
 import org.esa.snap.framework.dataop.dem.ElevationModel;
-import org.esa.snap.framework.dataop.maptransf.Datum;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 
 import java.net.URL;
@@ -36,17 +35,12 @@ public class ACE2_5MinElevationModelDescriptor extends AbstractElevationModelDes
     public static final GeoPos RASTER_ORIGIN = new GeoPos(90.0f, 180.0f);
     public static final int RASTER_WIDTH = NUM_X_TILES * PIXEL_RES;
     public static final int RASTER_HEIGHT = NUM_Y_TILES * PIXEL_RES;
-    private static final Datum DATUM = Datum.WGS_84;
 
     public ACE2_5MinElevationModelDescriptor() {
     }
 
     public String getName() {
         return NAME;
-    }
-
-    public Datum getDatum() {
-        return DATUM;
     }
 
     public int getNumXTiles() {

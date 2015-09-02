@@ -37,17 +37,11 @@ public class SRTM1GridElevationModelDescriptor extends AbstractElevationModelDes
     public static final int RASTER_WIDTH = NUM_X_TILES * PIXEL_RES;
     public static final int RASTER_HEIGHT = NUM_Y_TILES * PIXEL_RES;
 
-    public static final Datum DATUM = Datum.WGS_84;
-
     public SRTM1GridElevationModelDescriptor() {
     }
 
     public String getName() {
         return NAME;
-    }
-
-    public Datum getDatum() {
-        return DATUM;
     }
 
     public int getNumXTiles() {
