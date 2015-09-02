@@ -36,7 +36,7 @@ import java.awt.event.ActionEvent;
 @ActionRegistration(displayName = "#CTL_LinearTodBAction_Text")
 @ActionReferences({
         @ActionReference(
-                path = "Menu/Raster/Data Conversion", position = 200
+                path = "Menu/Raster/Data Conversion", position = 300
         ),
         @ActionReference(
                 path = "Context/Product/RasterDataNode",
