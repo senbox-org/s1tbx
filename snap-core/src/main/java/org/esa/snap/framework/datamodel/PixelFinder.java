@@ -241,6 +241,16 @@ public class PixelFinder {
                 lowerGeoPos = initGeoPos(x, y + 1);
             }
 
+            if (onLeftBorder && onUpperBorder) {
+                return getPixelPosFromLowerRight(lat0, lon0);
+            } else if (onLeftBorder && onLowerBorder) {
+                return getPixelPosFromUpperRight(lat0, lon0);
+            } else if (onRightBorder && onUpperBorder) {
+                return getPixelPosFromLowerLeft(lat0, lon0);
+            } else if (onRightBorder && onLowerBorder) {
+                return getPixelPosFromUpperLeft(lat0, lon0);
+            }
+
             simulateGeoPosIfNecessary(onLeftBorder, leftGeoPos, rightGeoPos);
             simulateGeoPosIfNecessary(onUpperBorder, upperGeoPos, lowerGeoPos);
             simulateGeoPosIfNecessary(onRightBorder, rightGeoPos, leftGeoPos);
@@ -290,6 +300,22 @@ public class PixelFinder {
         }
 
         private int determineQuadrant(final double lat, final double lon) {
+            if (lat > Math.max(centerGeoPos.getLat(), leftGeoPos.getLat()) &&
+                    lon < Math.min(centerGeoPos.getLon(), upperGeoPos.getLon())) {
+                return upper_left_quadrant;
+            }
+            if (lat > Math.max(centerGeoPos.getLat(), rightGeoPos.getLat()) &&
+                    lon > Math.max(centerGeoPos.getLon(), upperGeoPos.getLon())) {
+                return upper_right_quadrant;
+            }
+            if (lat < Math.min(centerGeoPos.getLat(), leftGeoPos.getLat()) &&
+                    lon < Math.min(centerGeoPos.getLon(), lowerGeoPos.getLon())) {
+                return lower_left_quadrant;
+            }
+            if (lat < Math.min(centerGeoPos.getLat(), rightGeoPos.getLat()) &&
+                    lon > Math.max(centerGeoPos.getLon(), lowerGeoPos.getLon())) {
+                return lower_right_quadrant;
+            }
             Point requestedPoint = geometryFactory.createPoint(new Coordinate(lat, lon));
             Coordinate centerCoordinate = new Coordinate(centerGeoPos.getLat(), centerGeoPos.getLon());
             Coordinate leftCoordinate = new Coordinate(leftGeoPos.getLat(), leftGeoPos.getLon());
@@ -300,24 +326,36 @@ public class PixelFinder {
             int chosenQuadrant = -1;
             double upperLeftDistance = geometryFactory.createPolygon(
                     new Coordinate[]{centerCoordinate, leftCoordinate, upperCoordinate, centerCoordinate}).distance(requestedPoint);
+            if (upperLeftDistance == 0) {
+                return upper_left_quadrant;
+            }
             if (upperLeftDistance < minDistance) {
                 minDistance = upperLeftDistance;
                 chosenQuadrant = upper_left_quadrant;
             }
             double upperRightDistance = geometryFactory.createPolygon(
                     new Coordinate[]{centerCoordinate, rightCoordinate, upperCoordinate, centerCoordinate}).distance(requestedPoint);
+            if (upperRightDistance == 0) {
+                return upper_right_quadrant;
+            }
             if (upperRightDistance < minDistance) {
                 minDistance = upperRightDistance;
                 chosenQuadrant = upper_right_quadrant;
             }
             double lowerLeftDistance = geometryFactory.createPolygon(
                     new Coordinate[]{centerCoordinate, leftCoordinate, lowerCoordinate, centerCoordinate}).distance(requestedPoint);
+            if (lowerLeftDistance == 0) {
+                return lower_left_quadrant;
+            }
             if (lowerLeftDistance < minDistance) {
                 minDistance = lowerLeftDistance;
                 chosenQuadrant = lower_left_quadrant;
             }
             double lowerRightDistance = geometryFactory.createPolygon(
                     new Coordinate[]{centerCoordinate, rightCoordinate, lowerCoordinate, centerCoordinate}).distance(requestedPoint);
+            if (lowerRightDistance == 0) {
+                return lower_right_quadrant;
+            }
             if (lowerRightDistance < minDistance) {
                 chosenQuadrant = lower_right_quadrant;
             }
