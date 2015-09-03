@@ -26,11 +26,9 @@ import java.net.URL;
  *
  * @author Luis Veci
  * @author Norman Fomferra
+ * @author Marco Peters
  */
 public interface ElevationModelDescriptor {
-
-    int DEM_INSTALLED = 1;
-    int DEM_INSTALLATION_IN_PROGRESS = 2;
 
     /**
      * The name of this elevation source, e.g. "GTOPO30"
@@ -129,11 +127,6 @@ public interface ElevationModelDescriptor {
      *         or the user canceled the installation
      */
     boolean installDemFiles(Object uiComponent);
-
-    /**
-     * Currently not used.
-     */
-    int getInstallationStatus();
 
     /**
      * Create the tile filename

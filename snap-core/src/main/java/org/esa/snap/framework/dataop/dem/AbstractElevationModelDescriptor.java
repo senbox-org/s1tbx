@@ -29,8 +29,9 @@ import java.util.logging.Logger;
  * method. It uses the properties values returned {@link #getDemArchiveUrl()} and {@link #getDemInstallDir()} methods
  * in order to download and install the DEM.
  *
+ * @author Luis Veci
  * @author Norman Fomferra
- * @version $Revision$
+ * @author Marco Peters
  */
 public abstract class AbstractElevationModelDescriptor implements ElevationModelDescriptor {
 
@@ -66,10 +67,6 @@ public abstract class AbstractElevationModelDescriptor implements ElevationModel
 
     public void setDemInstallDir(File demInstallDir) {
         this.demInstallDir = demInstallDir;
-    }
-
-    public int getInstallationStatus() {
-        return DEM_INSTALLED;
     }
 
     public boolean installDemFiles(Object uiComponent) {
