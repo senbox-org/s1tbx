@@ -16,11 +16,11 @@
 package org.esa.snap.dem.dataio.aster;
 
 import com.bc.io.FileUnpacker;
-import org.esa.snap.framework.dataop.dem.BaseElevationModel;
-import org.esa.snap.framework.dataop.dem.ElevationFile;
 import org.esa.snap.framework.dataio.ProductReaderPlugIn;
 import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.datamodel.PixelPos;
+import org.esa.snap.framework.dataop.dem.BaseElevationModel;
+import org.esa.snap.framework.dataop.dem.ElevationFile;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 
 import java.io.File;
@@ -59,7 +59,7 @@ public final class AsterElevationModel extends BaseElevationModel {
                                        final int x, final int y, final File demInstallDir) {
         final int minLon = x * DEGREE_RES - 180;
         final int minLat = y * DEGREE_RES - 83;
-        final String fileName = descriptor.createTileFilename(minLat, minLon);
+        final String fileName = createTileFilename(minLat, minLon);
         final File localFile = new File(demInstallDir, fileName);
         elevationFiles[x][NUM_Y_TILES - 1 - y] = new AsterFile(this, localFile, productReaderPlugIn.createReaderInstance());
     }
@@ -82,4 +82,25 @@ public final class AsterElevationModel extends BaseElevationModel {
             e.printStackTrace();
         }
     }
+
+    private String createTileFilename(int minLat, int minLon) {
+        final StringBuilder name = new StringBuilder("ASTGTM_");
+        name.append(minLat < 0 ? "S" : "N");
+        String latString = String.valueOf(Math.abs(minLat));
+        while (latString.length() < 2) {
+            latString = '0' + latString;
+        }
+        name.append(latString);
+
+        name.append(minLon < 0 ? "W" : "E");
+        String lonString = String.valueOf(Math.abs(minLon));
+        while (lonString.length() < 3) {
+            lonString = '0' + lonString;
+        }
+        name.append(lonString);
+        name.append(".zip");
+
+        return name.toString();
+    }
+
 }

@@ -110,11 +110,4 @@ public interface ElevationModelDescriptor {
      */
     File getDemInstallDir();
 
-    /**
-     * Create the tile filename
-     * @param minLat
-     * @param minLon
-     * @return filename
-     */
-    String createTileFilename(int minLat, int minLon);
 }

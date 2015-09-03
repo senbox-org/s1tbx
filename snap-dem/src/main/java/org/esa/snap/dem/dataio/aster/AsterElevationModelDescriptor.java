@@ -75,32 +75,13 @@ public class AsterElevationModelDescriptor extends AbstractElevationModelDescrip
         return false;
     }
 
+    @Override
     public ElevationModel createDem(final Resampling resamplingMethod) {
         try {
             return new AsterElevationModel(this, resamplingMethod);
         } catch (Exception e) {
             return null;
         }
-    }
-
-    public String createTileFilename(int minLat, int minLon) {
-        final StringBuilder name = new StringBuilder("ASTGTM_");
-        name.append(minLat < 0 ? "S" : "N");
-        String latString = String.valueOf(Math.abs(minLat));
-        while (latString.length() < 2) {
-            latString = '0' + latString;
-        }
-        name.append(latString);
-
-        name.append(minLon < 0 ? "W" : "E");
-        String lonString = String.valueOf(Math.abs(minLon));
-        while (lonString.length() < 3) {
-            lonString = '0' + lonString;
-        }
-        name.append(lonString);
-        name.append(".zip");
-
-        return name.toString();
     }
 
 }

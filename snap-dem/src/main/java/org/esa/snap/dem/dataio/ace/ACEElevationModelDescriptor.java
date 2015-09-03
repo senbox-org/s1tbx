@@ -24,7 +24,6 @@ import java.io.IOException;
 public class ACEElevationModelDescriptor extends AbstractElevationModelDescriptor {
 
     private static final String NAME = "ACE30";
-    private static final String DB_FILE_SUFFIX = ".ACE";
     public static final int NUM_X_TILES = 24;
     public static final int NUM_Y_TILES = 12;
     public static final int DEGREE_RES = 15;
@@ -82,15 +81,4 @@ public class ACEElevationModelDescriptor extends AbstractElevationModelDescripto
         }
     }
 
-    public String createTileFilename(int minLat, int minLon) {
-        String latString = minLat < 0 ? Math.abs(minLat) + "S" : minLat + "N";
-        while (latString.length() < 3) {
-            latString = '0' + latString;
-        }
-        String lonString = minLon < 0 ? Math.abs(minLon) + "W" : minLon + "E";
-        while (lonString.length() < 4) {
-            lonString = '0' + lonString;
-        }
-        return latString + lonString + DB_FILE_SUFFIX;
-    }
 }

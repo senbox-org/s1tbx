@@ -15,11 +15,11 @@
  */
 package org.esa.snap.dem.dataio.ace;
 
-import org.esa.snap.framework.dataop.dem.BaseElevationModel;
-import org.esa.snap.framework.dataop.dem.ElevationFile;
 import org.esa.snap.framework.dataio.ProductReaderPlugIn;
 import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.datamodel.PixelPos;
+import org.esa.snap.framework.dataop.dem.BaseElevationModel;
+import org.esa.snap.framework.dataop.dem.ElevationFile;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 
 import java.io.File;
@@ -28,6 +28,7 @@ import java.io.IOException;
 public class ACEElevationModel extends BaseElevationModel {
 
     private static final ProductReaderPlugIn productReaderPlugIn = getReaderPlugIn(ACEReaderPlugIn.FORMAT_NAME);
+    private static final String DB_FILE_SUFFIX = ".ACE";
 
     public ACEElevationModel(ACEElevationModelDescriptor descriptor, Resampling resamplingMethod) throws IOException {
         super(descriptor, resamplingMethod);
@@ -55,8 +56,21 @@ public class ACEElevationModel extends BaseElevationModel {
                                        final int x, final int y, final File demInstallDir) {
         final int minLon = x * DEGREE_RES - 180;
         final int minLat = y * DEGREE_RES - 90;
-        final String fileName = descriptor.createTileFilename(minLat, minLon);
+        final String fileName = createTileFilename(minLat, minLon);
         final File localFile = new File(demInstallDir, fileName);
         elevationFiles[x][NUM_Y_TILES - 1 - y] = new ACEFile(this, localFile, productReaderPlugIn.createReaderInstance());
     }
+
+    String createTileFilename(int minLat, int minLon) {
+        String latString = minLat < 0 ? Math.abs(minLat) + "S" : minLat + "N";
+        while (latString.length() < 3) {
+            latString = '0' + latString;
+        }
+        String lonString = minLon < 0 ? Math.abs(minLon) + "W" : minLon + "E";
+        while (lonString.length() < 4) {
+            lonString = '0' + lonString;
+        }
+        return latString + lonString + DB_FILE_SUFFIX;
+    }
+
 }

@@ -16,9 +16,11 @@
 package org.esa.snap.dem.dataio.ace;
 
 import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.dataop.dem.ElevationModel;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 import org.junit.Ignore;
+import org.junit.Test;
+
+import java.io.IOException;
 
 import static org.junit.Assert.*;
 
@@ -30,8 +32,6 @@ import static org.junit.Assert.*;
  */
 public class TestACEElevationModel {
 
-    private final ACEElevationModelDescriptor demDescriptor = new ACEElevationModelDescriptor();
-
     private static double[] expectedValues = {
             1100.0,
             1149.0,
@@ -42,10 +42,10 @@ public class TestACEElevationModel {
     @Ignore
     public void testElevationModel() throws Exception {
 
-        final ElevationModel dem = demDescriptor.createDem(Resampling.BILINEAR_INTERPOLATION);
+        final ACEElevationModel dem = getElevationModel();
         int height = 2;
         int width = 2;
-        final double[] demValues = new double[width*height];
+        final double[] demValues = new double[width * height];
         int count = 0;
 
         final GeoPos geoPos = new GeoPos(-18, 20);
@@ -55,11 +55,36 @@ public class TestACEElevationModel {
                 try {
                     demValues[count++] = dem.getElevation(geoPos);
                 } catch (Exception e) {
-                    assertFalse("Get Elevation threw: "+e.getMessage(), true);
+                    assertFalse("Get Elevation threw: " + e.getMessage(), true);
                 }
             }
         }
 
         assertArrayEquals(expectedValues, demValues, 1.0e-6);
     }
+
+    @Test
+    public void testFilenameCreation() throws Exception {
+        final ACEElevationModel dem = getElevationModel();
+
+        assertEquals("45S004W.ACE", dem.createTileFilename(-45, -4));
+        assertEquals("45S004E.ACE", dem.createTileFilename(-45, +4));
+        assertEquals("45N004W.ACE", dem.createTileFilename(+45, -4));
+        assertEquals("45N004E.ACE", dem.createTileFilename(+45, +4));
+
+        assertEquals("05S045W.ACE", dem.createTileFilename(-5, -45));
+        assertEquals("05S045E.ACE", dem.createTileFilename(-5, +45));
+        assertEquals("05N045W.ACE", dem.createTileFilename(+5, -45));
+        assertEquals("05N045E.ACE", dem.createTileFilename(+5, +45));
+
+        assertEquals("90S180W.ACE", dem.createTileFilename(-90, -180));
+        assertEquals("90S180E.ACE", dem.createTileFilename(-90, +180));
+        assertEquals("90N180W.ACE", dem.createTileFilename(+90, -180));
+        assertEquals("90N180E.ACE", dem.createTileFilename(+90, +180));
+    }
+
+    private ACEElevationModel getElevationModel() throws IOException {
+        return new ACEElevationModel(new ACEElevationModelDescriptor(), Resampling.BILINEAR_INTERPOLATION);
+    }
+
 }

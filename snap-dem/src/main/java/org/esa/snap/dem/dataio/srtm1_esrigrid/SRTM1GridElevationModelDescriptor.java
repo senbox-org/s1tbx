@@ -72,34 +72,13 @@ public class SRTM1GridElevationModelDescriptor extends AbstractElevationModelDes
         return false;
     }
 
+    @Override
     public ElevationModel createDem(final Resampling resamplingMethod) {
         try {
             return new SRTM1GridElevationModel(this, resamplingMethod);
         } catch (Exception e) {
             return null;
         }
-    }
-
-    public String createTileFilename(final int minLat, final int minLon) {
-        final StringBuilder name = new StringBuilder(12);
-
-        name.append(minLon < 0 ? "w" : "e");
-        String lonString = String.valueOf(Math.abs(minLon));
-        while (lonString.length() < 2) {
-            lonString = '0' + lonString;
-        }
-        name.append(lonString);
-
-        name.append('_');
-
-        name.append(minLat < 0 ? "s" : "n");
-        String latString = String.valueOf(Math.abs(minLat));
-        while (latString.length() < 2) {
-            latString = '0' + latString;
-        }
-        name.append(latString);
-
-        return name.toString();
     }
 
 }

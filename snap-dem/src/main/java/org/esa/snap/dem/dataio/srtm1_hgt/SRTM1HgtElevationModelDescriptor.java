@@ -91,24 +91,4 @@ public class SRTM1HgtElevationModelDescriptor extends AbstractElevationModelDesc
         }
     }
 
-    public String createTileFilename(int minLat, int minLon) {
-        final StringBuilder name = new StringBuilder();
-        name.append(minLat < 0 ? "S" : "N");
-        String latString = String.valueOf(Math.abs(minLat));
-        while (latString.length() < 2) {
-            latString = '0' + latString;
-        }
-        name.append(latString);
-
-        name.append(minLon < 0 ? "W" : "E");
-        String lonString = String.valueOf(Math.abs(minLon));
-        while (lonString.length() < 3) {
-            lonString = '0' + lonString;
-        }
-        name.append(lonString);
-        name.append(".hgt.zip");
-
-        return name.toString();
-    }
-
 }

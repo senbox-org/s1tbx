@@ -15,11 +15,11 @@
  */
 package org.esa.snap.dem.dataio.srtm1_esrigrid;
 
-import org.esa.snap.framework.dataop.dem.BaseElevationModel;
-import org.esa.snap.framework.dataop.dem.ElevationFile;
 import org.esa.snap.framework.dataio.ProductReaderPlugIn;
 import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.datamodel.PixelPos;
+import org.esa.snap.framework.dataop.dem.BaseElevationModel;
+import org.esa.snap.framework.dataop.dem.ElevationFile;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 
 import java.io.File;
@@ -57,9 +57,33 @@ public final class SRTM1GridElevationModel extends BaseElevationModel {
 
         final int minLon = x * DEGREE_RES - 180;
         final int minLat = y * DEGREE_RES - 60;
-        final String folderName = descriptor.createTileFilename(minLat, minLon);
+        final String folderName = createTileFilename(minLat, minLon);
         final File localFolder = new File(demInstallDir, folderName);
         final File localFile = new File(localFolder, "hdr.adf");
         elevationFiles[x][NUM_Y_TILES - 1 - y] = new SRTM1GridFile(this, localFile, productReaderPlugIn.createReaderInstance());
     }
+
+    private String createTileFilename(final int minLat, final int minLon) {
+        final StringBuilder name = new StringBuilder(12);
+
+        name.append(minLon < 0 ? "w" : "e");
+        String lonString = String.valueOf(Math.abs(minLon));
+        while (lonString.length() < 2) {
+            lonString = '0' + lonString;
+        }
+        name.append(lonString);
+
+        name.append('_');
+
+        name.append(minLat < 0 ? "s" : "n");
+        String latString = String.valueOf(Math.abs(minLat));
+        while (latString.length() < 2) {
+            latString = '0' + latString;
+        }
+        name.append(latString);
+
+        return name.toString();
+    }
+
+
 }

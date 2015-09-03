@@ -22,7 +22,6 @@ import org.esa.snap.framework.dataop.resamp.Resampling;
 public class SRTM3GeoTiffElevationModelDescriptor extends AbstractElevationModelDescriptor {
 
     private static final String NAME = "SRTM 3Sec";
-    private static final String DB_FILE_SUFFIX = ".tif";
     private static final int NUM_X_TILES = 72;
     private static final int NUM_Y_TILES = 24;
     private static final int DEGREE_RES = 5;
@@ -72,23 +71,9 @@ public class SRTM3GeoTiffElevationModelDescriptor extends AbstractElevationModel
         return true;
     }
 
+    @Override
     public synchronized ElevationModel createDem(Resampling resamplingMethod) {
         return new SRTM3GeoTiffElevationModel(this, resamplingMethod);
-    }
-
-    public String createTileFilename(final int tileX, final int tileY) {
-        final StringBuilder name = new StringBuilder("srtm_");
-        if (tileX < 10) {
-            name.append('0');
-        }
-        name.append(tileX);
-        name.append('_');
-        if (tileY < 10) {
-            name.append('0');
-        }
-        name.append(tileY);
-        name.append(DB_FILE_SUFFIX);
-        return name.toString();
     }
 
 }

@@ -22,8 +22,6 @@ import org.esa.snap.framework.dataop.resamp.Resampling;
 public class ACE2_5MinElevationModelDescriptor extends AbstractElevationModelDescriptor {
 
     private static final String NAME = "ACE2_5Min";
-    private static final String DB_FILE_SUFFIX = "_5M.ACE2";
-    //private static final String ARCHIVE_URL_PATH = "http://nest.s3.amazonaws.com/data/5M_HEIGHTS.zip";
     public static final int NUM_X_TILES = 24;
     public static final int NUM_Y_TILES = 12;
     public static final int DEGREE_RES = 15;
@@ -76,20 +74,9 @@ public class ACE2_5MinElevationModelDescriptor extends AbstractElevationModelDes
         return true;
     }
 
+    @Override
     public ElevationModel createDem(Resampling resamplingMethod) {
         return new ACE2_5MinElevationModel(this, resamplingMethod);
-    }
-
-    public String createTileFilename(int minLat, int minLon) {
-        String latString = minLat < 0 ? Math.abs(minLat) + "S" : minLat + "N";
-        while (latString.length() < 3) {
-            latString = '0' + latString;
-        }
-        String lonString = minLon < 0 ? Math.abs(minLon) + "W" : minLon + "E";
-        while (lonString.length() < 4) {
-            lonString = '0' + lonString;
-        }
-        return latString + lonString + DB_FILE_SUFFIX;
     }
 
 }
