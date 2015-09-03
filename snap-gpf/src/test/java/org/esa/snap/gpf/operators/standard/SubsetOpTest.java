@@ -104,6 +104,8 @@ public class SubsetOpTest {
         HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("geoRegion", polygon.toText());
         parameters.put("fullSwath", true);
+        final String expectedBandName = "radiance_3";
+        parameters.put("sourceBands", new String[]{expectedBandName});
         final Product sp = createTestProduct(100, 100);
         assertNotNull(sp.getGeoCoding());
 
@@ -111,6 +113,8 @@ public class SubsetOpTest {
         assertNotNull(tp);
         assertEquals(100, tp.getSceneRasterWidth());
         assertEquals(50, tp.getSceneRasterHeight());
+        assertEquals(1, tp.getNumBands());
+        assertNotNull(tp.getBand(expectedBandName));
     }
 
 

@@ -53,9 +53,8 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
     private final DataProvider dataProvider;
     private final GeoCoding formerGeocoding;
 
-    //    private final PixelPosEstimatorFactory pixelPosEstimatorFactory;
     private transient PixelPosEstimator pixelPosEstimator;
-    private transient DefaultPixelFinder pixelFinder;
+    private transient PixelFinder pixelFinder;
 
     /**
      * Constructs a new pixel-based geo-coding.
@@ -143,9 +142,8 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
         final double pixelSizeY = pixelDimension.getHeight();
         final double pixelDiagonalSquared = pixelSizeX * pixelSizeX + pixelSizeY * pixelSizeY;
 
-//        pixelPosEstimatorFactory = new PixelPosEstimatorFactory(lonImage, latImage, maskImage, 0.5);
         pixelPosEstimator = new PixelPosEstimator(lonImage, latImage, maskImage, 0.5);
-        pixelFinder = new DefaultPixelFinder(lonImage, latImage, maskImage, pixelDiagonalSquared);
+        pixelFinder = new PixelFinder(lonImage, latImage, maskImage, pixelDiagonalSquared, fractionAccuracy);
 
         boolean useTiling = Config.instance().preferences().getBoolean(SYSPROP_PIXEL_GEO_CODING_USE_TILING, true);
         boolean disableTiling = !useTiling;
@@ -220,15 +218,10 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
             pixelPos = new PixelPos();
         }
         if (geoPos.isValid()) {
-//            ensurePixelPosEstimatorExist();
-//            if (pixelPosEstimator.canGetPixelPos()) {
             pixelPosEstimator.getPixelPos(geoPos, pixelPos);
             if (pixelPos.isValid()) {
                 pixelFinder.findPixelPos(geoPos, pixelPos);
             }
-//            } else {
-//                pixelPos.setInvalid();
-//            }
         } else {
             pixelPos.setInvalid();
         }
@@ -241,7 +234,6 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
      * @param pixelPos the pixel's co-ordinates given as x,y
      * @param geoPos   an instance of <code>GeoPos</code> to be used as retun value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
-     *
      * @return the geographical position as lat/lon.
      */
     @Override
@@ -254,7 +246,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
             int x0 = (int) Math.floor(pixelPos.getX());
             int y0 = (int) Math.floor(pixelPos.getY());
 
-            if (fractionAccuracy) {
+            if (fractionAccuracy && !isInPixelCenter(pixelPos)) {
                 if (x0 > 0 && pixelPos.x - x0 < 0.5 || x0 == rasterW - 1) {
                     x0 -= 1;
                 }
@@ -266,6 +258,9 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
                 final double wy = pixelPos.y - (y0 + 0.5);
 
                 dataProvider.getGeoPosDouble(x0, y0, wx, wy, geoPos);
+                if (!geoPos.isValid()) {
+                    dataProvider.getGeoPosInteger(x0, y0, geoPos);
+                }
             } else {
                 dataProvider.getGeoPosInteger(x0, y0, geoPos);
             }
@@ -273,12 +268,16 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
                 if (formerGeocoding != null && formerGeocoding.canGetGeoPos()) {
                     formerGeocoding.getGeoPos(pixelPos, geoPos);
                 } else {
-//                    ensurePixelPosEstimatorExist();
                     pixelPosEstimator.getGeoPos(pixelPos, geoPos);
                 }
             }
         }
         return geoPos;
+    }
+
+    private boolean isInPixelCenter(PixelPos pixelPos) {
+        return Math.abs(pixelPos.getX() - Math.floor(pixelPos.getX()) - 0.5) < 1e-8 &&
+                Math.abs(pixelPos.getY() - Math.floor(pixelPos.getY()) - 0.5) < 1e-8;
     }
 
     private boolean pixelPosIsInsideRasterWH(PixelPos pixelPos) {
@@ -380,23 +379,15 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
         return Datum.WGS_84;
     }
 
-//    private void ensurePixelPosEstimatorExist() {
-//        synchronized (pixelPosEstimatorFactory) {
-//            if (pixelPosEstimator == null) {
-//                pixelPosEstimator = pixelPosEstimatorFactory.create();
-//            }
-//        }
-//    }
-
     private interface DataProvider {
 
-        static final double LAT_MIN = -90.0;
-        static final double LAT_MAX = 90.0;
-        static final double LON_MIN = -180.0;
-        static final double LON_MAX = 180.0;
+        double LAT_MIN = -90.0;
+        double LAT_MAX = 90.0;
+        double LON_MIN = -180.0;
+        double LON_MAX = 180.0;
 
-        static final int LAT = 0;
-        static final int LON = 1;
+        int LAT = 0;
+        int LON = 1;
 
         void getGeoPosInteger(int x0, int y0, GeoPos geoPos);
 
@@ -434,14 +425,15 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
                 final Raster lonData = lonImage.getData(region);
                 geoPos.lon = interpolate(wx, wy, lonData, LON);
             } else {
-                geoPos.lon = getSampleDouble(x0, y0, lonImage, lonMaskImage);
+                geoPos.lon = Double.NaN;
+                return;
             }
 
             if (latMaskImage == null || allValid(latMaskImage.getData(region))) {
                 final Raster latData = latImage.getData(region);
                 geoPos.lat = interpolate(wx, wy, latData, LAT);
             } else {
-                geoPos.lat = getSampleDouble(x0, y0, latImage, latMaskImage);
+                geoPos.lat = Double.NaN;
             }
         }
 
@@ -496,7 +488,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
                     }
                 }
             }
-            return d00;
+            return Double.NaN;
         }
 
         private double getSampleDouble(int pixelX, int pixelY, RenderedImage dataImage, RenderedImage maskImage) {
@@ -584,28 +576,8 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
                     }
                 }
             }
-            return d00;
+            return Double.NaN;
         }
 
-    }
-
-    private static class PixelPosEstimatorFactory {
-
-        private final PlanarImage lonImage;
-        private final PlanarImage latImage;
-        private final PlanarImage maskImage;
-        private final double accuracy;
-
-        private PixelPosEstimatorFactory(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage,
-                                         double accuracy) {
-            this.lonImage = lonImage;
-            this.latImage = latImage;
-            this.maskImage = maskImage;
-            this.accuracy = accuracy;
-        }
-
-        private PixelPosEstimator create() {
-            return new PixelPosEstimator(lonImage, latImage, maskImage, accuracy);
-        }
     }
 }
