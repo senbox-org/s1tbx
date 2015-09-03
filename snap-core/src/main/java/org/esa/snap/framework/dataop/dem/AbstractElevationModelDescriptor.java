@@ -64,10 +64,6 @@ public abstract class AbstractElevationModelDescriptor implements ElevationModel
         return demInstallDir;
     }
 
-    public void setDemInstallDir(File demInstallDir) {
-        this.demInstallDir = demInstallDir;
-    }
-
     /**
      * Loads DEM properties from the "${USER_APP_DATA}/auxdata/dem/${DEM}/dem.properties" file.
      */
