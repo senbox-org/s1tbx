@@ -19,8 +19,6 @@ import org.esa.snap.framework.dataop.dem.AbstractElevationModelDescriptor;
 import org.esa.snap.framework.dataop.dem.ElevationModel;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 
-import java.net.URL;
-
 public class AsterElevationModelDescriptor extends AbstractElevationModelDescriptor {
 
     private static final String NAME = "ASTER 1sec GDEM";
@@ -75,10 +73,6 @@ public class AsterElevationModelDescriptor extends AbstractElevationModelDescrip
     @Override
     public boolean canBeDownloaded() {
         return false;
-    }
-
-    public URL getDemArchiveUrl() {
-        return null;
     }
 
     public ElevationModel createDem(final Resampling resamplingMethod) {

@@ -20,7 +20,6 @@ import org.esa.snap.framework.dataop.dem.ElevationModel;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 
 import java.io.IOException;
-import java.net.URL;
 
 public class GETASSE30ElevationModelDescriptor extends AbstractElevationModelDescriptor {
 
@@ -80,11 +79,6 @@ public class GETASSE30ElevationModelDescriptor extends AbstractElevationModelDes
     @Override
     public boolean canBeDownloaded() {
         return true;
-    }
-
-    @Override
-    public URL getDemArchiveUrl() {
-        return null;
     }
 
     @Override

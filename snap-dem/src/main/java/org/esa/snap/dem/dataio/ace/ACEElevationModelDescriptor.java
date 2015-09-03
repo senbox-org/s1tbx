@@ -20,7 +20,6 @@ import org.esa.snap.framework.dataop.dem.ElevationModel;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 
 import java.io.IOException;
-import java.net.URL;
 
 public class ACEElevationModelDescriptor extends AbstractElevationModelDescriptor {
 
@@ -73,10 +72,6 @@ public class ACEElevationModelDescriptor extends AbstractElevationModelDescripto
     @Override
     public boolean canBeDownloaded() {
         return true;
-    }
-
-    public URL getDemArchiveUrl() {
-        return null;
     }
 
     public ElevationModel createDem(Resampling resamplingMethod) {

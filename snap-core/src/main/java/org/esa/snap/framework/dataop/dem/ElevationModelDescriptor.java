@@ -18,7 +18,6 @@ package org.esa.snap.framework.dataop.dem;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 
 import java.io.File;
-import java.net.URL;
 
 /**
  * An <code>ElevationModel</code> is used to obtain an elevation above a
@@ -110,13 +109,6 @@ public interface ElevationModelDescriptor {
      * @return the DEM file directory
      */
     File getDemInstallDir();
-
-    /**
-     * Gets the URL of the DEM (ZIP) archive to be used for on-line installaion.
-     *
-     * @return the URL of the DEM (ZIP) archive
-     */
-    URL getDemArchiveUrl();
 
     /**
      * Create the tile filename

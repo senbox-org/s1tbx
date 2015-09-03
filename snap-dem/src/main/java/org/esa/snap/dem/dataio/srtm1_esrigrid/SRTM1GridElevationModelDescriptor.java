@@ -19,8 +19,6 @@ import org.esa.snap.framework.dataop.dem.AbstractElevationModelDescriptor;
 import org.esa.snap.framework.dataop.dem.ElevationModel;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 
-import java.net.URL;
-
 public class SRTM1GridElevationModelDescriptor extends AbstractElevationModelDescriptor {
 
     public static final String NAME = "SRTM 1Sec Grid";
@@ -72,10 +70,6 @@ public class SRTM1GridElevationModelDescriptor extends AbstractElevationModelDes
     @Override
     public boolean canBeDownloaded() {
         return false;
-    }
-
-    public URL getDemArchiveUrl() {
-        return null;
     }
 
     public ElevationModel createDem(final Resampling resamplingMethod) {
