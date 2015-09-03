@@ -3,6 +3,8 @@ package org.esa.snap.framework.datamodel;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.framework.dataop.maptransf.Datum;
 import org.esa.snap.runtime.Config;
+import org.esa.snap.util.StopWatch;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -39,15 +41,17 @@ public class PixelGeoCoding2Test {
             GeoPos gp = new GeoPos();
             double expectedDistance = Math.sqrt(Math.pow(0.25, 2) + Math.pow(0.25, 2));
             double[] offsets = new double[]{0.25, 0.75};
-            for (int y = 0; y < product.getSceneRasterHeight(); y++) {
-                for (int x = 0; x < product.getSceneRasterWidth(); x++) {
-                    for (double xOffset : offsets)
-                        for (double yOffset : offsets) {
-                            final PixelPos originalPixelPos = new PixelPos(x + xOffset, y + yOffset);
-                            pixelGeoCoding.getGeoPos(originalPixelPos, gp);
-                            pixelGeoCoding.getPixelPos(gp, calculatedPixelPos);
-                            assertEquals(expectedDistance, calculatedPixelPos.distance(originalPixelPos), 1e-8);
-                        }
+            for (int i = 0; i < 100; i++) {
+                for (int y = 0; y < product.getSceneRasterHeight(); y++) {
+                    for (int x = 0; x < product.getSceneRasterWidth(); x++) {
+                        for (double xOffset : offsets)
+                            for (double yOffset : offsets) {
+                                final PixelPos originalPixelPos = new PixelPos(x + xOffset, y + yOffset);
+                                pixelGeoCoding.getGeoPos(originalPixelPos, gp);
+                                pixelGeoCoding.getPixelPos(gp, calculatedPixelPos);
+                                assertEquals(expectedDistance, calculatedPixelPos.distance(originalPixelPos), 1e-8);
+                            }
+                    }
                 }
             }
         } finally {
@@ -71,23 +75,101 @@ public class PixelGeoCoding2Test {
             PixelPos calculatedPixelPos = new PixelPos();
             GeoPos gp = new GeoPos();
             double[] offsets = new double[]{0.25, 0.75};
-            for (int y = 0; y < product.getSceneRasterHeight(); y++) {
-                for (int x = 0; x < product.getSceneRasterWidth(); x++) {
-                    for (double xOffset : offsets)
-                        for (double yOffset : offsets) {
-                            final PixelPos originalPixelPos = new PixelPos(x + xOffset, y + yOffset);
-                            pixelGeoCoding.getGeoPos(originalPixelPos, gp);
-                            pixelGeoCoding.getPixelPos(gp, calculatedPixelPos);
-                            final double distance = calculatedPixelPos.distance(originalPixelPos);
-                            if (distance > 1e-8) {
-                                System.out.println(originalPixelPos.getX() + ", " + originalPixelPos.getY());
-                                System.out.println(calculatedPixelPos.getX() + ", " + calculatedPixelPos.getY());
-                                System.out.println("distance = " + distance);
+            for (int i = 0; i < 100; i++) {
+                for (int y = 0; y < product.getSceneRasterHeight(); y++) {
+                    for (int x = 0; x < product.getSceneRasterWidth(); x++) {
+                        for (double xOffset : offsets)
+                            for (double yOffset : offsets) {
+                                final PixelPos originalPixelPos = new PixelPos(x + xOffset, y + yOffset);
+                                pixelGeoCoding.getGeoPos(originalPixelPos, gp);
+                                pixelGeoCoding.getPixelPos(gp, calculatedPixelPos);
+                                assertEquals(0, calculatedPixelPos.distance(originalPixelPos), 2.5e-7);
                             }
-                            assertEquals(0, distance, 2.5e-7);
-                        }
+                    }
                 }
             }
+        } finally {
+            Config.instance().preferences().remove("snap.pixelGeoCoding.fractionAccuracy");
+            Config.instance().preferences().remove("snap.pixelGeoCoding.useTiling");
+        }
+    }
+
+    @Test
+    @Ignore
+    public void testGetPixelPos_PixelCenterAccuracy_withTimeStop() throws Exception {
+        try {
+            Config.instance().preferences().putBoolean("snap.pixelGeoCoding.fractionAccuracy", false);
+            Config.instance().preferences().putBoolean("snap.pixelGeoCoding.useTiling", false);
+            Product product = createProduct();
+            GeoCoding pixelGeoCoding = GeoCodingFactory.createPixelGeoCoding(product.getBand("latBand"),
+                                                                             product.getBand("lonBand"), null, 5,
+                                                                             ProgressMonitor.NULL);
+            product.setGeoCoding(pixelGeoCoding);
+
+            PixelPos calculatedPixelPos = new PixelPos();
+            GeoPos gp = new GeoPos();
+            double expectedDistance = Math.sqrt(Math.pow(0.25, 2) + Math.pow(0.25, 2));
+            double[] offsets = new double[]{0.25, 0.75};
+            StopWatch stopWatch = new StopWatch();
+            long totalTime = 0;
+            for (int i = 0; i < 100; i++) {
+                stopWatch.start();
+                for (int y = 0; y < product.getSceneRasterHeight(); y++) {
+                    for (int x = 0; x < product.getSceneRasterWidth(); x++) {
+                        for (double xOffset : offsets)
+                            for (double yOffset : offsets) {
+                                final PixelPos originalPixelPos = new PixelPos(x + xOffset, y + yOffset);
+                                pixelGeoCoding.getGeoPos(originalPixelPos, gp);
+                                pixelGeoCoding.getPixelPos(gp, calculatedPixelPos);
+                                assertEquals(expectedDistance, calculatedPixelPos.distance(originalPixelPos), 1e-8);
+                            }
+                    }
+                }
+                stopWatch.stop();
+                totalTime += stopWatch.getTimeDiff();
+            }
+            System.out.println("Required time: " + StopWatch.getTimeString(totalTime));
+        } finally {
+            Config.instance().preferences().remove("snap.pixelGeoCoding.fractionAccuracy");
+            Config.instance().preferences().remove("snap.pixelGeoCoding.useTiling");
+        }
+    }
+
+    @Test
+    @Ignore
+    public void testGetPixelPos_FractionAccuracy_withTimeStop() throws Exception {
+        try {
+            Config.instance().preferences().putBoolean("snap.pixelGeoCoding.fractionAccuracy", true);
+            Config.instance().preferences().putBoolean("snap.pixelGeoCoding.useTiling", true);
+            Product product = createProduct();
+            GeoCoding pixelGeoCoding = GeoCodingFactory.createPixelGeoCoding(product.getBand("latBand"),
+                                                                             product.getBand("lonBand"), null, 5,
+                                                                             ProgressMonitor.NULL);
+            product.setGeoCoding(pixelGeoCoding);
+
+
+            PixelPos calculatedPixelPos = new PixelPos();
+            GeoPos gp = new GeoPos();
+            double[] offsets = new double[]{0.25, 0.75};
+            StopWatch stopWatch = new StopWatch();
+            long totalTime = 0;
+            for (int i = 0; i < 100; i++) {
+                stopWatch.start();
+                for (int y = 0; y < product.getSceneRasterHeight(); y++) {
+                    for (int x = 0; x < product.getSceneRasterWidth(); x++) {
+                        for (double xOffset : offsets)
+                            for (double yOffset : offsets) {
+                                final PixelPos originalPixelPos = new PixelPos(x + xOffset, y + yOffset);
+                                pixelGeoCoding.getGeoPos(originalPixelPos, gp);
+                                pixelGeoCoding.getPixelPos(gp, calculatedPixelPos);
+                                assertEquals(0, calculatedPixelPos.distance(originalPixelPos), 2.5e-7);
+                            }
+                    }
+                }
+                stopWatch.stop();
+                totalTime += stopWatch.getTimeDiff();
+            }
+            System.out.println("Required time: " + StopWatch.getTimeString(totalTime));
         } finally {
             Config.instance().preferences().remove("snap.pixelGeoCoding.fractionAccuracy");
             Config.instance().preferences().remove("snap.pixelGeoCoding.useTiling");
