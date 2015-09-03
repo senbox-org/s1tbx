@@ -1,9 +1,9 @@
 package org.jlinda.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.dem.dataio.FileElevationModel;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.dem.dataio.FileElevationModel;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.datamodel.MetadataElement;
@@ -44,7 +44,7 @@ import org.jlinda.nest.utils.CplxContainer;
 import org.jlinda.nest.utils.ProductContainer;
 import org.jlinda.nest.utils.TileUtilsDoris;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -185,12 +185,6 @@ public final class SubtRefDemOp extends Operator {
 
             if (demDescriptor == null) {
                 throw new OperatorException("The DEM '" + demName + "' is not supported.");
-            }
-
-            if (!demDescriptor.isInstallingDem() && !demDescriptor.isDemInstalled()) {
-                if(!demDescriptor.installDemFiles(null)) {
-                    throw new OperatorException("DEM "+ demName +" must be installed first");
-                }
             }
 
             dem = demDescriptor.createDem(resampling);
