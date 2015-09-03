@@ -68,10 +68,6 @@ public abstract class AbstractElevationModelDescriptor implements ElevationModel
         this.demInstallDir = demInstallDir;
     }
 
-    public boolean isInstallingDem() {   // always false
-        return false;
-    }
-
     public int getInstallationStatus() {
         return DEM_INSTALLED;
     }

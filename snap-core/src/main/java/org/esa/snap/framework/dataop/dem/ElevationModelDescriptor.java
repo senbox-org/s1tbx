@@ -121,13 +121,6 @@ public interface ElevationModelDescriptor {
     URL getDemArchiveUrl();
 
     /**
-     * Tests whether or not the DEM is currently being installed.
-     *
-     * @return true, if so
-     */
-    boolean isInstallingDem();
-
-    /**
      * Asynchronously installs the files required to use the DEM if not already done or in progress.
      *
      * @param uiComponent an optional UI component which serves as parent for progress monitoring

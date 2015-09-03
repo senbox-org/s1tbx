@@ -75,10 +75,6 @@ public class DEMFactory {
 
         final ElevationModelDescriptor demDescriptor = getDemDescriptor(demName);
 
-        if (demDescriptor.isInstallingDem()) {
-            throw new IOException("The DEM '" + demName + "' is currently being installed.");
-        }
-
         Resampling resampleMethod = null;
         if (!demResamplingMethod.equals(DELAUNAY_INTERPOLATION))               // resampling not actual used for Delaunay
             resampleMethod = ResamplingFactory.createResampling(demResamplingMethod);
