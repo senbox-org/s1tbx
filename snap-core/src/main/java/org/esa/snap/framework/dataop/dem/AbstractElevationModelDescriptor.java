@@ -25,9 +25,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * The <code>AbstractElevationModelDescriptor</code> offers a default implementation for the {@link #installDemFiles(Object)}
- * method. It uses the properties values returned {@link #getDemArchiveUrl()} and {@link #getDemInstallDir()} methods
- * in order to download and install the DEM.
+ * The <code>AbstractElevationModelDescriptor</code> implements general behaviour
+ * common to all {@link ElevationModelDescriptor}
  *
  * @author Luis Veci
  * @author Norman Fomferra
@@ -67,10 +66,6 @@ public abstract class AbstractElevationModelDescriptor implements ElevationModel
 
     public void setDemInstallDir(File demInstallDir) {
         this.demInstallDir = demInstallDir;
-    }
-
-    public boolean installDemFiles(Object uiComponent) {
-        return true;
     }
 
     /**
