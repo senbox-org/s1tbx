@@ -83,9 +83,6 @@ public class ACE2_5MinElevationModelDescriptor extends AbstractElevationModelDes
     }
 
     public ElevationModel createDem(Resampling resamplingMethod) {
-        if (!isDemInstalled()) {
-            installDemFiles(null);
-        }
         return new ACE2_5MinElevationModel(this, resamplingMethod);
     }
 

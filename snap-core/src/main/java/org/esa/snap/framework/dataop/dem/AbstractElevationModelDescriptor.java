@@ -68,29 +68,15 @@ public abstract class AbstractElevationModelDescriptor implements ElevationModel
         this.demInstallDir = demInstallDir;
     }
 
-    @Override
-    public boolean isDemInstalled() {
-        return true;
-    }
-
     public boolean isInstallingDem() {   // always false
-        return getInstallationStatus() == DEM_INSTALLATION_IN_PROGRESS;
+        return false;
     }
 
-    public int getInstallationStatus() { // always DEM_INSTALLED
-        if (isDemInstalled()) {
-            return DEM_INSTALLED;
-        }
-        return 0;
+    public int getInstallationStatus() {
+        return DEM_INSTALLED;
     }
 
-    public boolean installDemFiles(Object uiComponent) { // always true
-        if (isDemInstalled()) {
-            return true;
-        }
-        if (isInstallingDem()) {
-            return true;
-        }
+    public boolean installDemFiles(Object uiComponent) {
         return true;
     }
 

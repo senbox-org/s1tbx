@@ -18,7 +18,6 @@ package org.esa.snap.dem.dataio.ace;
 import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.dataop.dem.ElevationModel;
 import org.esa.snap.framework.dataop.resamp.Resampling;
-import org.esa.snap.util.TestUtils;
 import org.junit.Ignore;
 
 import static org.junit.Assert.*;
@@ -42,11 +41,6 @@ public class TestACEElevationModel {
 
     @Ignore
     public void testElevationModel() throws Exception {
-
-        if (!demDescriptor.isDemInstalled()) {
-            TestUtils.skipTest(this, demDescriptor.getName()+" not installed");
-            return;
-        }
 
         final ElevationModel dem = demDescriptor.createDem(Resampling.BILINEAR_INTERPOLATION);
         int height = 2;

@@ -90,15 +90,9 @@ public class DEMFactory {
         return dem;
     }
 
+    // is of no use
     public static void checkIfDEMInstalled(final String demName) throws IOException {
 
-        final ElevationModelDescriptor demDescriptor = getDemDescriptor(demName);
-
-        if (!demDescriptor.isInstallingDem() && !demDescriptor.isDemInstalled()) {
-            if (!demDescriptor.installDemFiles(null)) {
-                throw new IOException("DEM " + demName + " must be installed first");
-            }
-        }
     }
 
     public static void validateDEM(final String demName, final Product srcProduct) throws IOException {

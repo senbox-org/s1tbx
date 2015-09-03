@@ -15,8 +15,6 @@
  */
 package org.esa.snap.framework.dataop.dem;
 
-import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.dataop.maptransf.Datum;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 
 import java.io.File;
@@ -121,13 +119,6 @@ public interface ElevationModelDescriptor {
      * @return the URL of the DEM (ZIP) archive
      */
     URL getDemArchiveUrl();
-
-    /**
-     * Tests whether or not the DEM and associated files are installed.
-     *
-     * @return true, if so
-     */
-    boolean isDemInstalled();
 
     /**
      * Tests whether or not the DEM is currently being installed.
