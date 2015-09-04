@@ -18,11 +18,11 @@ package org.esa.s1tbx.insar.gpf;
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.insar.gpf.geometric.SARUtils;
-import org.esa.snap.dem.dataio.DEMFactory;
-import org.esa.snap.dem.dataio.FileElevationModel;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.dem.dataio.DEMFactory;
+import org.esa.snap.dem.dataio.FileElevationModel;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.GeoPos;
@@ -52,7 +52,7 @@ import org.jlinda.core.Baseline;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.SLCImage;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -374,10 +374,6 @@ public final class DEMGenerationOp extends Operator {
             final ElevationModelDescriptor demDescriptor = elevationModelRegistry.getDescriptor(demName);
             if (demDescriptor == null) {
                 throw new OperatorException("The DEM '" + demName + "' is not supported.");
-            }
-
-            if (demDescriptor.isInstallingDem()) {
-                throw new OperatorException("The DEM '" + demName + "' is currently being installed.");
             }
 
             dem = demDescriptor.createDem(ResamplingFactory.createResampling(demResamplingMethod));

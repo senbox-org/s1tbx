@@ -45,7 +45,8 @@ import javax.media.jai.InterpolationTable;
 import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.WarpPolynomial;
-import java.awt.*;
+import java.awt.Desktop;
+import java.awt.Rectangle;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
@@ -408,12 +409,6 @@ public class ResampleOp extends Operator {
 
         if (demDescriptor == null) {
             throw new OperatorException("The DEM '" + demName + "' is not supported.");
-        }
-
-        if (!demDescriptor.isInstallingDem() && !demDescriptor.isDemInstalled()) {
-            if (!demDescriptor.installDemFiles(null)) {
-                throw new OperatorException("DEM " + demName + " must be installed first");
-            }
         }
 
         dem = demDescriptor.createDem(resampling);

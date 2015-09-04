@@ -755,7 +755,7 @@ public final class BackGeocodingOp extends Operator {
 
             computeImageGeoBoundary(subSwathIndex, mBurstIndex, xmin, xmax, ymin, ymax, latLonMinMax);
 
-            final double delta = (double)dem.getDescriptor().getDegreeRes() / (double)dem.getDescriptor().getPixelRes();
+            final double delta = (double)dem.getDescriptor().getTileWidthInDegrees() / (double)dem.getDescriptor().getTileWidth();
 //            final double extralat = 1.5*delta + 4.0/25.0;
 //            final double extralon = 1.5*delta + 4.0/25.0;
             final double extralat = 20*delta;

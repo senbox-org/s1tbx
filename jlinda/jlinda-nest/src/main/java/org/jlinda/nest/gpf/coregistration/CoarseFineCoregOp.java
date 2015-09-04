@@ -14,9 +14,6 @@
 package org.jlinda.nest.gpf.coregistration;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.framework.dataop.dem.ElevationModel;
-import org.esa.snap.framework.dataop.dem.ElevationModelDescriptor;
-import org.esa.snap.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.framework.datamodel.Band;
@@ -31,6 +28,10 @@ import org.esa.snap.framework.datamodel.PlacemarkNameFactory;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.ProductNodeGroup;
+import org.esa.snap.framework.dataop.dem.ElevationModel;
+import org.esa.snap.framework.dataop.dem.ElevationModelDescriptor;
+import org.esa.snap.framework.dataop.dem.ElevationModelRegistry;
+import org.esa.snap.framework.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.framework.dataop.resamp.ResamplingFactory;
 import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorException;
@@ -42,7 +43,6 @@ import org.esa.snap.framework.gpf.annotations.SourceProduct;
 import org.esa.snap.framework.gpf.annotations.TargetProduct;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.StackUtils;
-import org.esa.snap.framework.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.gpf.ThreadManager;
 import org.esa.snap.util.MemUtils;
 import org.esa.snap.util.ProductUtils;
@@ -349,9 +349,6 @@ public class CoarseFineCoregOp extends Operator {
 
         final ElevationModelRegistry elevationModelRegistry = ElevationModelRegistry.getInstance();
         final ElevationModelDescriptor demDescriptor = elevationModelRegistry.getDescriptor("SRTM 3Sec");
-        if (demDescriptor.isInstallingDem()) {
-            throw new OperatorException("The DEM is currently being installed.");
-        }
         dem = demDescriptor.createDem(ResamplingFactory.createResampling(ResamplingFactory.NEAREST_NEIGHBOUR_NAME));
     }
 

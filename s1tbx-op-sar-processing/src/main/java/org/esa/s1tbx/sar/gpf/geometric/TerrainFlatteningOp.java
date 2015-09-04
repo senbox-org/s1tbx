@@ -19,15 +19,22 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.insar.gpf.geometric.SARGeocoding;
 import org.esa.s1tbx.insar.gpf.geometric.SARUtils;
-import org.esa.snap.dem.dataio.DEMFactory;
-import org.esa.snap.dem.dataio.FileElevationModel;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.datamodel.PosVector;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.dem.dataio.DEMFactory;
+import org.esa.snap.dem.dataio.FileElevationModel;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.eo.GeoUtils;
-import org.esa.snap.framework.datamodel.*;
+import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.GeoCoding;
+import org.esa.snap.framework.datamodel.GeoPos;
+import org.esa.snap.framework.datamodel.MetadataElement;
+import org.esa.snap.framework.datamodel.PixelPos;
+import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.datamodel.TiePointGrid;
 import org.esa.snap.framework.dataop.dem.ElevationModel;
 import org.esa.snap.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.snap.framework.dataop.dem.ElevationModelRegistry;
@@ -47,7 +54,7 @@ import org.esa.snap.gpf.TileIndex;
 import org.esa.snap.util.Maths;
 import org.esa.snap.util.ProductUtils;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -670,10 +677,6 @@ public final class TerrainFlatteningOp extends Operator {
             final ElevationModelDescriptor demDescriptor = elevationModelRegistry.getDescriptor(demName);
             if (demDescriptor == null) {
                 throw new OperatorException("The DEM '" + demName + "' is not supported.");
-            }
-
-            if (demDescriptor.isInstallingDem()) {
-                throw new OperatorException("The DEM '" + demName + "' is currently being installed.");
             }
 
             dem = demDescriptor.createDem(ResamplingFactory.createResampling(demResamplingMethod));

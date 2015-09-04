@@ -38,7 +38,7 @@ import org.esa.snap.gpf.TileGeoreferencing;
 import org.esa.snap.gpf.TileIndex;
 import org.esa.snap.util.ProductUtils;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -226,9 +226,6 @@ public class CreateLandMaskOp extends Operator {
         ElevationModelDescriptor demDescriptor = elevationModelRegistry.getDescriptor("ACE2_5Min");
         if (useSRTM) {
             demDescriptor = elevationModelRegistry.getDescriptor("SRTM 3Sec");
-        }
-        if (demDescriptor.isInstallingDem()) {
-            throw new OperatorException("The DEM is currently being installed.");
         }
         dem = demDescriptor.createDem(ResamplingFactory.createResampling(ResamplingFactory.NEAREST_NEIGHBOUR_NAME));
     }
