@@ -2,11 +2,8 @@ package org.esa.snap.framework.datamodel;
 
 import Jama.LUDecomposition;
 import Jama.Matrix;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Point;
 import org.esa.snap.util.math.DistanceMeasure;
 import org.esa.snap.util.math.SinusoidalDistance;
-import org.geotools.geometry.jts.JTSFactoryFinder;
 
 import javax.media.jai.PlanarImage;
 import java.awt.Rectangle;
@@ -205,15 +202,10 @@ public class PixelFinder {
         private int centerX;
         private int centerY;
         private GeoPos centerGeoPos;
-        private final com.vividsolutions.jts.geom.GeometryFactory geometryFactory;
         private GeoPos leftGeoPos;
         private GeoPos upperGeoPos;
         private GeoPos rightGeoPos;
         private GeoPos lowerGeoPos;
-
-        FractionPixelFindingStrategy() {
-            geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
-        }
 
         @Override
         public PixelPos findPixel(double lat0, double lon0, double minDistance, int x, int y, GeoPos geoPos) {
@@ -300,66 +292,50 @@ public class PixelFinder {
         }
 
         private int determineQuadrant(final double lat, final double lon) {
-            if (lat > Math.max(centerGeoPos.getLat(), leftGeoPos.getLat()) &&
-                    lon < Math.min(centerGeoPos.getLon(), upperGeoPos.getLon())) {
+            boolean isAboveLeftCenterLine = determineWhetherIsAbove(leftGeoPos, lat, lon);
+            boolean isLeftToUpperCenterLine = determineWhetherIsLeftTo(upperGeoPos, lat, lon);
+            if (isAboveLeftCenterLine && isLeftToUpperCenterLine) {
                 return upper_left_quadrant;
             }
-            if (lat > Math.max(centerGeoPos.getLat(), rightGeoPos.getLat()) &&
-                    lon > Math.max(centerGeoPos.getLon(), upperGeoPos.getLon())) {
+            boolean isAboveRightCenterLine = determineWhetherIsAbove(rightGeoPos, lat, lon);
+            if (isAboveRightCenterLine && !isLeftToUpperCenterLine) {
                 return upper_right_quadrant;
             }
-            if (lat < Math.min(centerGeoPos.getLat(), leftGeoPos.getLat()) &&
-                    lon < Math.min(centerGeoPos.getLon(), lowerGeoPos.getLon())) {
+            boolean isLeftToLowerCenterLine = determineWhetherIsLeftTo(lowerGeoPos, lat, lon);
+            if (isLeftToLowerCenterLine && !isAboveLeftCenterLine) {
                 return lower_left_quadrant;
             }
-            if (lat < Math.min(centerGeoPos.getLat(), rightGeoPos.getLat()) &&
-                    lon > Math.max(centerGeoPos.getLon(), lowerGeoPos.getLon())) {
-                return lower_right_quadrant;
+            return lower_right_quadrant;
+        }
+
+        private boolean determineWhetherIsAbove(GeoPos geoPos, double lat, double lon) {
+            if (!(Math.abs(centerGeoPos.getLat() - geoPos.getLat()) < 1e-8)) {
+                double mToLeft = (centerGeoPos.getLon() - geoPos.getLon()) /
+                        (centerGeoPos.getLat() - geoPos.getLat());
+                double calculatedLon = mToLeft * (lat - geoPos.getLat()) + geoPos.getLon();
+                double calculatedUpperLon = mToLeft * (upperGeoPos.getLat() - geoPos.getLat()) + geoPos.getLon();
+                double diff = calculatedLon - lon;
+                double upperDiff = calculatedUpperLon - upperGeoPos.getLon();
+                return (diff >= 0 && upperDiff >= 0) || (diff < 0 && upperDiff < 0);
+            } else {
+                return (lat >= centerGeoPos.getLat() && upperGeoPos.getLat() >= centerGeoPos.getLat()) ||
+                        (lat < centerGeoPos.getLat() && upperGeoPos.getLat() < centerGeoPos.getLat());
             }
-            Point requestedPoint = geometryFactory.createPoint(new Coordinate(lat, lon));
-            Coordinate centerCoordinate = new Coordinate(centerGeoPos.getLat(), centerGeoPos.getLon());
-            Coordinate leftCoordinate = new Coordinate(leftGeoPos.getLat(), leftGeoPos.getLon());
-            Coordinate rightCoordinate = new Coordinate(rightGeoPos.getLat(), rightGeoPos.getLon());
-            Coordinate upperCoordinate = new Coordinate(upperGeoPos.getLat(), upperGeoPos.getLon());
-            Coordinate lowerCoordinate = new Coordinate(lowerGeoPos.getLat(), lowerGeoPos.getLon());
-            double minDistance = Double.POSITIVE_INFINITY;
-            int chosenQuadrant = -1;
-            double upperLeftDistance = geometryFactory.createPolygon(
-                    new Coordinate[]{centerCoordinate, leftCoordinate, upperCoordinate, centerCoordinate}).distance(requestedPoint);
-            if (upperLeftDistance == 0) {
-                return upper_left_quadrant;
+        }
+
+        private boolean determineWhetherIsLeftTo(GeoPos geoPos, double lat, double lon) {
+            if (!(Math.abs(centerGeoPos.getLat() - geoPos.getLat()) < 1e-8)) {
+                double mToUpper = (centerGeoPos.getLon() - geoPos.getLon()) /
+                        (centerGeoPos.getLat() - geoPos.getLat());
+                double calculatedLon = mToUpper * (lat - geoPos.getLat()) + geoPos.getLon();
+                double calculatedLeftLon = mToUpper * (leftGeoPos.getLat() - geoPos.getLat()) + geoPos.getLon();
+                double diff = calculatedLon - lon;
+                double leftDiff = calculatedLeftLon - leftGeoPos.getLon();
+                return (diff >= 0 && leftDiff >= 0) || (diff < 0 && leftDiff < 0);
+            } else {
+                return (lon >= centerGeoPos.getLon() && leftGeoPos.getLon() >= centerGeoPos.getLon()) ||
+                        (lon < centerGeoPos.getLon() && leftGeoPos.getLon() < centerGeoPos.getLon());
             }
-            if (upperLeftDistance < minDistance) {
-                minDistance = upperLeftDistance;
-                chosenQuadrant = upper_left_quadrant;
-            }
-            double upperRightDistance = geometryFactory.createPolygon(
-                    new Coordinate[]{centerCoordinate, rightCoordinate, upperCoordinate, centerCoordinate}).distance(requestedPoint);
-            if (upperRightDistance == 0) {
-                return upper_right_quadrant;
-            }
-            if (upperRightDistance < minDistance) {
-                minDistance = upperRightDistance;
-                chosenQuadrant = upper_right_quadrant;
-            }
-            double lowerLeftDistance = geometryFactory.createPolygon(
-                    new Coordinate[]{centerCoordinate, leftCoordinate, lowerCoordinate, centerCoordinate}).distance(requestedPoint);
-            if (lowerLeftDistance == 0) {
-                return lower_left_quadrant;
-            }
-            if (lowerLeftDistance < minDistance) {
-                minDistance = lowerLeftDistance;
-                chosenQuadrant = lower_left_quadrant;
-            }
-            double lowerRightDistance = geometryFactory.createPolygon(
-                    new Coordinate[]{centerCoordinate, rightCoordinate, lowerCoordinate, centerCoordinate}).distance(requestedPoint);
-            if (lowerRightDistance == 0) {
-                return lower_right_quadrant;
-            }
-            if (lowerRightDistance < minDistance) {
-                chosenQuadrant = lower_right_quadrant;
-            }
-            return chosenQuadrant;
         }
 
         private GeoPos simulateGeoPosIfNecessary(boolean simulate, GeoPos geoPos, GeoPos counterGeoPos) {
@@ -403,6 +379,7 @@ public class PixelFinder {
 
         private PixelPos getPixelPosWithFractionAccuracy(final double lat, final double lon, GeoPos[] geoPositions,
                                                          int[] xPositions, int[] yPositions) {
+            //todo make this the exception: Only use when we know we are not within the pixel
             final PixelPos pixelPos = new PixelPos();
             if (!geoPositions[1].isValid() || !geoPositions[2].isValid()) {
                 pixelPos.setInvalid();
