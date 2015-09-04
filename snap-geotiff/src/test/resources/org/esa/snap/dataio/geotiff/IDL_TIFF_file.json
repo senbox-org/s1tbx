@@ -1,6 +1,6 @@
 {
     "id": "IDL_TIFF_file",
-    "decodeQualification": "SUITABLE",
+    "decodeQualification": "INTENDED",
     "expectedContent": {
         "sceneWidth": 300,
         "sceneHeight": 290,
