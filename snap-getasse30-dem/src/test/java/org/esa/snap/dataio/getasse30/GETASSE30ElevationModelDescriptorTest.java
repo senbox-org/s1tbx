@@ -15,32 +15,17 @@
  */
 package org.esa.snap.dataio.getasse30;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class GETASSE30ElevationModelDescriptorTest extends TestCase {
+import static org.junit.Assert.*;
+
+public class GETASSE30ElevationModelDescriptorTest {
 
     final GETASSE30ElevationModelDescriptor _descriptor = new GETASSE30ElevationModelDescriptor();
 
+    @Test
     public void testConstantProperties() {
         assertEquals("GETASSE30", _descriptor.getName());
-    }
-
-    public void testFilenameCreation() {
-
-        assertEquals("45S004W.GETASSE30", _descriptor.createTileFilename(-45, -4));
-        assertEquals("45S004E.GETASSE30", _descriptor.createTileFilename(-45, +4));
-        assertEquals("45N004W.GETASSE30", _descriptor.createTileFilename(+45, -4));
-        assertEquals("45N004E.GETASSE30", _descriptor.createTileFilename(+45, +4));
-
-        assertEquals("05S045W.GETASSE30", _descriptor.createTileFilename(-5, -45));
-        assertEquals("05S045E.GETASSE30", _descriptor.createTileFilename(-5, +45));
-        assertEquals("05N045W.GETASSE30", _descriptor.createTileFilename(+5, -45));
-        assertEquals("05N045E.GETASSE30", _descriptor.createTileFilename(+5, +45));
-
-        assertEquals("90S180W.GETASSE30", _descriptor.createTileFilename(-90, -180));
-        assertEquals("90S180E.GETASSE30", _descriptor.createTileFilename(-90, +180));
-        assertEquals("90N180W.GETASSE30", _descriptor.createTileFilename(+90, -180));
-        assertEquals("90N180E.GETASSE30", _descriptor.createTileFilename(+90, +180));
     }
 
 }

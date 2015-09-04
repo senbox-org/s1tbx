@@ -15,39 +15,29 @@
  */
 package org.esa.snap.dem.dataio.ace;
 
-import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.dataop.dem.AbstractElevationModelDescriptor;
 import org.esa.snap.framework.dataop.dem.ElevationModel;
-import org.esa.snap.framework.dataop.maptransf.Datum;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 
 import java.io.IOException;
-import java.net.URL;
 
 public class ACEElevationModelDescriptor extends AbstractElevationModelDescriptor {
 
     private static final String NAME = "ACE30";
-    private static final String DB_FILE_SUFFIX = ".ACE";
     public static final int NUM_X_TILES = 24;
     public static final int NUM_Y_TILES = 12;
     public static final int DEGREE_RES = 15;
     public static final int PIXEL_RES = 1800;
     public static final int NO_DATA_VALUE = -500;
 
-    public static final GeoPos RASTER_ORIGIN = new GeoPos(60, 180);
     public static final int RASTER_WIDTH = NUM_X_TILES * PIXEL_RES;
     public static final int RASTER_HEIGHT = NUM_Y_TILES * PIXEL_RES;
-    private static final Datum DATUM = Datum.WGS_84;
 
     public ACEElevationModelDescriptor() {
     }
 
     public String getName() {
         return NAME;
-    }
-
-    public Datum getDatum() {
-        return DATUM;
     }
 
     public int getNumXTiles() {
@@ -70,25 +60,17 @@ public class ACEElevationModelDescriptor extends AbstractElevationModelDescripto
         return RASTER_HEIGHT;
     }
 
-    public GeoPos getRasterOrigin() {
-        return RASTER_ORIGIN;
-    }
-
-    public int getDegreeRes() {
+    public int getTileWidthInDegrees() {
         return DEGREE_RES;
     }
 
-    public int getPixelRes() {
+    public int getTileWidth() {
         return PIXEL_RES;
     }
 
     @Override
     public boolean canBeDownloaded() {
         return true;
-    }
-
-    public URL getDemArchiveUrl() {
-        return null;
     }
 
     public ElevationModel createDem(Resampling resamplingMethod) {
@@ -99,15 +81,4 @@ public class ACEElevationModelDescriptor extends AbstractElevationModelDescripto
         }
     }
 
-    public String createTileFilename(int minLat, int minLon) {
-        String latString = minLat < 0 ? Math.abs(minLat) + "S" : minLat + "N";
-        while (latString.length() < 3) {
-            latString = '0' + latString;
-        }
-        String lonString = minLon < 0 ? Math.abs(minLon) + "W" : minLon + "E";
-        while (lonString.length() < 4) {
-            lonString = '0' + lonString;
-        }
-        return latString + lonString + DB_FILE_SUFFIX;
-    }
 }

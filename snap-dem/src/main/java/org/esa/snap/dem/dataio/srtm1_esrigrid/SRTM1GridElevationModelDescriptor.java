@@ -15,39 +15,28 @@
  */
 package org.esa.snap.dem.dataio.srtm1_esrigrid;
 
-import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.dataop.dem.AbstractElevationModelDescriptor;
 import org.esa.snap.framework.dataop.dem.ElevationModel;
-import org.esa.snap.framework.dataop.maptransf.Datum;
 import org.esa.snap.framework.dataop.resamp.Resampling;
-
-import java.net.URL;
 
 public class SRTM1GridElevationModelDescriptor extends AbstractElevationModelDescriptor {
 
     public static final String NAME = "SRTM 1Sec Grid";
-    public static final String DB_FILE_SUFFIX = ".adf";
+    //public static final String DB_FILE_SUFFIX = ".adf";
     public static final int NUM_X_TILES = 360;
     public static final int NUM_Y_TILES = 120;
     public static final int DEGREE_RES = 1;
     public static final int PIXEL_RES = 3600;
     public static final int NO_DATA_VALUE = -32768;
 
-    public static final GeoPos RASTER_ORIGIN = new GeoPos(60, 180);
     public static final int RASTER_WIDTH = NUM_X_TILES * PIXEL_RES;
     public static final int RASTER_HEIGHT = NUM_Y_TILES * PIXEL_RES;
-
-    public static final Datum DATUM = Datum.WGS_84;
 
     public SRTM1GridElevationModelDescriptor() {
     }
 
     public String getName() {
         return NAME;
-    }
-
-    public Datum getDatum() {
-        return DATUM;
     }
 
     public int getNumXTiles() {
@@ -70,15 +59,11 @@ public class SRTM1GridElevationModelDescriptor extends AbstractElevationModelDes
         return RASTER_HEIGHT;
     }
 
-    public GeoPos getRasterOrigin() {
-        return RASTER_ORIGIN;
-    }
-
-    public int getDegreeRes() {
+    public int getTileWidthInDegrees() {
         return DEGREE_RES;
     }
 
-    public int getPixelRes() {
+    public int getTileWidth() {
         return PIXEL_RES;
     }
 
@@ -87,38 +72,13 @@ public class SRTM1GridElevationModelDescriptor extends AbstractElevationModelDes
         return false;
     }
 
-    public URL getDemArchiveUrl() {
-        return null;
-    }
-
+    @Override
     public ElevationModel createDem(final Resampling resamplingMethod) {
         try {
             return new SRTM1GridElevationModel(this, resamplingMethod);
         } catch (Exception e) {
             return null;
         }
-    }
-
-    public String createTileFilename(final int minLat, final int minLon) {
-        final StringBuilder name = new StringBuilder(12);
-
-        name.append(minLon < 0 ? "w" : "e");
-        String lonString = String.valueOf(Math.abs(minLon));
-        while (lonString.length() < 2) {
-            lonString = '0' + lonString;
-        }
-        name.append(lonString);
-
-        name.append('_');
-
-        name.append(minLat < 0 ? "s" : "n");
-        String latString = String.valueOf(Math.abs(minLat));
-        while (latString.length() < 2) {
-            latString = '0' + latString;
-        }
-        name.append(latString);
-
-        return name.toString();
     }
 
 }

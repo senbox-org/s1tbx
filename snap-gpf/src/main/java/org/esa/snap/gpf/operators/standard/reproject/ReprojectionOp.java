@@ -304,9 +304,6 @@ public class ReprojectionOp extends Operator {
         if (elevationModelName != null) {
             final ElevationModelDescriptor demDescriptor = ElevationModelRegistry.getInstance().getDescriptor(
                     elevationModelName);
-            if (!demDescriptor.isDemInstalled()) {
-                throw new OperatorException("DEM not installed: " + elevationModelName);
-            }
             return demDescriptor.createDem(Resampling.BILINEAR_INTERPOLATION);
         }
         return null; // force use of elevation from tie-points

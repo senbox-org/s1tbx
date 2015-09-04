@@ -55,8 +55,29 @@ public class SRTM1HgtElevationModel extends BaseElevationModel {
                                        final int x, final int y, final File demInstallDir) {
         final int minLon = x * DEGREE_RES - 180;
         final int minLat = y * DEGREE_RES - 60;
-        final String fileName = descriptor.createTileFilename(minLat, minLon);
+        final String fileName = createTileFilename(minLat, minLon);
         final File localFile = new File(demInstallDir, fileName);
         elevationFiles[x][NUM_Y_TILES - 1 - y] = new SRTM1HgtFile(this, localFile, productReaderPlugIn.createReaderInstance());
     }
+
+    private String createTileFilename(int minLat, int minLon) {
+        final StringBuilder name = new StringBuilder();
+        name.append(minLat < 0 ? "S" : "N");
+        String latString = String.valueOf(Math.abs(minLat));
+        while (latString.length() < 2) {
+            latString = '0' + latString;
+        }
+        name.append(latString);
+
+        name.append(minLon < 0 ? "W" : "E");
+        String lonString = String.valueOf(Math.abs(minLon));
+        while (lonString.length() < 3) {
+            lonString = '0' + lonString;
+        }
+        name.append(lonString);
+        name.append(".hgt.zip");
+
+        return name.toString();
+    }
+
 }

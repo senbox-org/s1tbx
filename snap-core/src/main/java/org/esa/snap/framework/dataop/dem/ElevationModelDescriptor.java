@@ -15,25 +15,19 @@
  */
 package org.esa.snap.framework.dataop.dem;
 
-import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.dataop.maptransf.Datum;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 
 import java.io.File;
-import java.net.URL;
 
 /**
  * An <code>ElevationModel</code> is used to obtain an elevation above a
  * specified geographical datum for a given geographical position.
  *
+ * @author Luis Veci
  * @author Norman Fomferra
+ * @author Marco Peters
  */
 public interface ElevationModelDescriptor {
-
-    int DEM_INSTALLED = 1;
-    int DEM_INSTALLATION_IN_PROGRESS = 2;
-    int DEM_INSTALLATION_CANCELED = 3;
-    int DEM_INSTALLATION_ERROR = 4;
 
     /**
      * The name of this elevation source, e.g. "GTOPO30"
@@ -41,13 +35,6 @@ public interface ElevationModelDescriptor {
      * @return a name
      */
     String getName();
-
-    /**
-     * Gets the datum for geographical coordinates interpreted by this elevation source, e.g. WGS-84.
-     *
-     * @return the datum, e.g. {@link org.esa.snap.framework.dataop.maptransf.Datum#WGS_84}
-     */
-    Datum getDatum();
 
     /**
      * Gets the no-data value for this elevation map.
@@ -71,25 +58,18 @@ public interface ElevationModelDescriptor {
     int getRasterHeight();
 
     /**
-     * Gets the geo-origin of this elevation map (upper-left-corner).
+     * Gets the width of a tile in degrees.
      *
-     * @return the  (lat,lon) value, e.g.
+     * @return the width of a tile in degrees, e.g. 15
      */
-    GeoPos getRasterOrigin();
+    int getTileWidthInDegrees();
 
     /**
-     * Gets the resolution (in degrees) of this elevation map.
+     * Gets the width of a tile in pixels.
      *
-     * @return the  (degree) value, e.g.
+     * @return the width of a tile in pixels, e.g. 1800
      */
-    int getDegreeRes();
-
-    /**
-     * Gets the resolution (in pixels) of this elevation map.
-     *
-     * @return the  (pixels) value, e.g.
-     */
-    int getPixelRes();
+    int getTileWidth();
 
     /**
      * Gets the number of tiles in x direction
@@ -130,47 +110,4 @@ public interface ElevationModelDescriptor {
      */
     File getDemInstallDir();
 
-    /**
-     * Gets the URL of the DEM (ZIP) archive to be used for on-line installaion.
-     *
-     * @return the URL of the DEM (ZIP) archive
-     */
-    URL getDemArchiveUrl();
-
-    /**
-     * Tests whether or not the DEM and associated files are installed.
-     *
-     * @return true, if so
-     */
-    boolean isDemInstalled();
-
-    /**
-     * Tests whether or not the DEM is currently being installed.
-     *
-     * @return true, if so
-     */
-    boolean isInstallingDem();
-
-    /**
-     * Asynchronously installs the files required to use the DEM if not already done or in progress.
-     *
-     * @param uiComponent an optional UI component which serves as parent for progress monitoring
-     *
-     * @return true, if the DEM is already installed, is being installed or will be installed. False, if an error occurred
-     *         or the user canceled the installation
-     */
-    boolean installDemFiles(Object uiComponent);
-
-    /**
-     * Currently not used.
-     */
-    int getInstallationStatus();
-
-    /**
-     * Create the tile filename
-     * @param minLat
-     * @param minLon
-     * @return filename
-     */
-    String createTileFilename(int minLat, int minLon);
 }
