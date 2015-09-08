@@ -59,7 +59,7 @@ public final class ReaderUtils {
         if(sepPos < 0) {
             sepPos = origName.length();
         }
-        return origName.replace(origName.substring(0, sepPos), newPrefix);
+        return newPrefix + origName.substring(sepPos, origName.length());
     }
 
     public static void createVirtualIntensityBand(final Product product, final Band bandI, final Band bandQ, final String suffix) {
