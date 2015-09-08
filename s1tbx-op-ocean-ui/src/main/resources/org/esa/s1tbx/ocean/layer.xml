@@ -1,6 +1,12 @@
 
 <filesystem>
 
-
+    <folder name="WorldWindLayers">
+        <file name="Level2ProductLayer">
+            <attr name="WWLayerClass" stringvalue="org.esa.s1tbx.ocean.worldwind.layers.Level2ProductLayer"/>
+            <attr name="showInWorldMapToolView" stringvalue="false"/>
+            <attr name="showIn3DToolView" stringvalue="true"/>
+        </file>
+    </folder>
 
 </filesystem>
