@@ -475,7 +475,6 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
 
                 for (int x = x0; x < xMax; x++) {
                     final int srcIdx = srcIndex.getIndex(x);
-                    final int tgtIdx = tgtIndex.getIndex(x);
 
                     boolean testPixel = x < borderLimit || x > sourceImageWidth-borderLimit ||
                                         y < borderLimit || y > sourceImageHeight-borderLimit;
@@ -494,6 +493,7 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
                         }
 
                         if (deNoisedDataValue < trimThreshold) {
+                            final int tgtIdx = tgtIndex.getIndex(x);
                             for (int i = 0; i < numBands; i++) {
                                 targetData[i].setElemDoubleAt(tgtIdx, bandNoDataValues[i]);
                             }
@@ -502,6 +502,7 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
                         }
                     }
                     if(!testPixel) {
+                        final int tgtIdx = tgtIndex.getIndex(x);
                         for (int i = 0; i < numBands; i++) {
                             targetData[i].setElemDoubleAt(tgtIdx, sourceData[i].getElemDoubleAt(srcIdx));
                         }
