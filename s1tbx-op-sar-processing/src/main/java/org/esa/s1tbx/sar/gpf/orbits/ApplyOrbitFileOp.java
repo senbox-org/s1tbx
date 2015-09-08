@@ -43,6 +43,7 @@ import org.esa.snap.framework.gpf.annotations.SourceProduct;
 import org.esa.snap.framework.gpf.annotations.TargetProduct;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.util.ProductUtils;
+import org.esa.snap.util.SystemUtils;
 import org.jlinda.core.Ellipsoid;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;
@@ -98,6 +99,9 @@ public final class ApplyOrbitFileOp extends Operator {
 
     @Parameter(label = "Polynomial Degree", defaultValue = "3")
     private int polyDegree = 3;
+
+    @Parameter(label = "Do not fail if new orbit file is not found", defaultValue = "false")
+    private Boolean continueOnFail = false;
 
     private MetadataElement absRoot = null;
 
@@ -186,7 +190,16 @@ public final class ApplyOrbitFileOp extends Operator {
             createTargetProduct();
 
             if(!productUpdated) {
-                updateOrbits();
+                try {
+                    updateOrbits();
+                } catch (Exception e) {
+                    if(continueOnFail) {
+                        SystemUtils.LOG.warning("ApplyOrbit ignoring error and continuing: "+e.toString());
+                        productUpdated = true;
+                    } else {
+                        throw e;
+                    }
+                }
             }
 
         } catch (Throwable e) {
