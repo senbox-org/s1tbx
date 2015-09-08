@@ -30,12 +30,14 @@ import org.esa.snap.framework.datamodel.RasterPixelTimeCoding;
 import org.esa.snap.util.StringUtils;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.io.FileUtils;
+import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.stream.DoubleStream;
 
@@ -141,6 +143,12 @@ public class CsvProductReader extends AbstractProductReader {
     }
 
     private double[] getTimeMJD(String colName) throws IOException {
+        final String timePattern = source.getProperties().get(Constants.PROPERTY_NAME_TIME_PATTERN);
+        if (StringUtils.isNotNullAndNotEmpty(timePattern)) {
+            final SimpleFeatureType featureType = source.getFeatureType();
+            final List<AttributeDescriptor> descriptors = featureType.getAttributeDescriptors();
+            final int colIdx = descriptors.indexOf(colName);
+        }
         Object[] objects = parser.parseRecords(0, source.getRecordCount(), colName);
         double[] timeMJD = new double[objects.length];
         for (int i = 0; i < objects.length; i++) {

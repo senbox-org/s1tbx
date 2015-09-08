@@ -34,4 +34,5 @@ public class Constants {
     public static final String FORMAT_NAME = "CSV";
     public static final String DESCRIPTION = "CSV products";
     public static final String PROPERTY_NAME_TIME_COLUMN = "timeColumn";
+    public static final String PROPERTY_NAME_TIME_PATTERN = "timePattern";
 }

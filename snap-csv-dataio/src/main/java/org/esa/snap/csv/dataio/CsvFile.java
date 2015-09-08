@@ -22,6 +22,7 @@ import com.bc.ceres.binding.ConverterRegistry;
 import com.sun.media.imageio.stream.FileChannelImageInputStream;
 import org.esa.snap.dataio.geometry.VectorDataNodeIO;
 import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.util.StringUtils;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.converters.JavaTypeConverter;
 import org.geotools.data.collection.ListFeatureCollection;
@@ -33,6 +34,7 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.AttributeType;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -199,8 +201,22 @@ public class CsvFile implements CsvSourceParser, CsvSource {
     public CsvSource parseMetadata() throws IOException {
         parseProperties();
         parseHeader();
-        converters = VectorDataNodeIO.getConverters(simpleFeatureType);
+        initConverters();
         return this;
+    }
+
+    private void initConverters() throws IOException {
+        converters = VectorDataNodeIO.getConverters(simpleFeatureType);
+        final String timePattern = properties.get(Constants.PROPERTY_NAME_TIME_PATTERN);
+        if (StringUtils.isNotNullAndNotEmpty(timePattern)) {
+            List<AttributeType> attributeTypes = getFeatureType().getTypes();
+            for (int i = 0; i < attributeTypes.size(); i++) {
+                Class<?> type = attributeTypes.get(i).getBinding();
+                if (type == ProductData.UTC.class) {
+                    converters[i] = new UTCConverter(timePattern);
+                }
+            }
+        }
     }
 
     @Override
@@ -260,7 +276,7 @@ public class CsvFile implements CsvSourceParser, CsvSource {
         String line;
         stream.seek(0);
         propertiesByteSize = 0;
-        long posInStream = 0l;
+        long posInStream = 0;
         while ((line = stream.readLine()) != null) {
             if (!line.startsWith("#")) {
                 stream.seek(posInStream);
@@ -330,7 +346,7 @@ public class CsvFile implements CsvSourceParser, CsvSource {
             String attributeTypeName;
             String attributeName;
             final int colonPos = token.indexOf(':');
-            if(colonPos == 0) {
+            if (colonPos == 0) {
                 throw new IOException(String.format("Missing name specifier in attribute descriptor '%s'", token));
             }
             Class<?> attributeType;
@@ -403,6 +419,16 @@ public class CsvFile implements CsvSourceParser, CsvSource {
 
     private static class UTCConverter implements Converter<ProductData.UTC> {
 
+        private final String timePattern;
+
+        public UTCConverter() {
+            this(Constants.TIME_PATTERN);
+        }
+
+        private UTCConverter(String timePattern) {
+            this.timePattern = timePattern;
+        }
+
         @Override
         public Class<? extends ProductData.UTC> getValueType() {
             return ProductData.UTC.class;
@@ -411,7 +437,7 @@ public class CsvFile implements CsvSourceParser, CsvSource {
         @Override
         public ProductData.UTC parse(String text) throws ConversionException {
             try {
-                return ProductData.UTC.parse(text, Constants.TIME_PATTERN);
+                return ProductData.UTC.parse(text, timePattern);
             } catch (java.text.ParseException e) {
                 throw new ConversionException(e);
             }
@@ -419,7 +445,7 @@ public class CsvFile implements CsvSourceParser, CsvSource {
 
         @Override
         public String format(ProductData.UTC value) {
-            final SimpleDateFormat sdf = new SimpleDateFormat(Constants.TIME_PATTERN);
+            final SimpleDateFormat sdf = new SimpleDateFormat(timePattern);
             return sdf.format(value.getAsDate());
         }
     }
@@ -451,6 +477,4 @@ public class CsvFile implements CsvSourceParser, CsvSource {
             return result;
         }
     }
-
-
 }
