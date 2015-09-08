@@ -573,10 +573,12 @@ public final class SARSimulationOp extends Operator {
                 for (int i = 0; i < nLat; i++) {
                     final double lat = latMin + i * delLat;
 
-                    Arrays.fill(slrs, 0.0);
-                    Arrays.fill(elev, 0.0);
-                    Arrays.fill(index, -1);
-                    Arrays.fill(savePixel, Boolean.FALSE);
+                    if (saveLayoverShadowMask) {
+                        Arrays.fill(slrs, 0.0);
+                        Arrays.fill(elev, 0.0);
+                        Arrays.fill(index, -1);
+                        Arrays.fill(savePixel, Boolean.FALSE);
+                    }
 
                     for (int j = 0; j < nLon; j++) {
                         double lon = lonMin + j * delLon;
@@ -704,10 +706,12 @@ public final class SARSimulationOp extends Operator {
                 for (int y = ymin; y < ymax; y++) {
                     final int yy = y - ymin;
 
-                    Arrays.fill(slrs, 0.0);
-                    Arrays.fill(elev, 0.0);
-                    Arrays.fill(index, -1);
-                    Arrays.fill(savePixel, Boolean.FALSE);
+                    if (saveLayoverShadowMask) {
+                        Arrays.fill(slrs, 0.0);
+                        Arrays.fill(elev, 0.0);
+                        Arrays.fill(index, -1);
+                        Arrays.fill(savePixel, Boolean.FALSE);
+                    }
 
                     for (int x = xmin; x < xmax; x++) {
                         final int xx = x - xmin;
