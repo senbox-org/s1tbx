@@ -1,4 +1,4 @@
-package org.esa.s1tbx.dat.views.polarview;
+package org.esa.s1tbx.ocean.toolviews.polarview;
 
 import java.awt.Graphics;
 import java.awt.Point;

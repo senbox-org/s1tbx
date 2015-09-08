@@ -62,6 +62,7 @@
 		<module>s1tbx-op-utilities</module>
         <module>s1tbx-op-utilities-ui</module>
 		<module>s1tbx-rcp</module>
+        <module>s1tbx-op-ocean-ui</module>
         
         <module>s1tbx-kit</module>
 	</modules>

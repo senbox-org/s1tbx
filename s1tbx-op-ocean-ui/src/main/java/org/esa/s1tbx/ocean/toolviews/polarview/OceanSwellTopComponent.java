@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.dat.views.polarview;
+package org.esa.s1tbx.ocean.toolviews.polarview;
 
 
 import org.esa.snap.framework.datamodel.Product;
@@ -36,7 +36,7 @@ import java.awt.*;
 
 @TopComponent.Description(
         preferredID = "OceanSwellTopComponent",
-        iconBase = "org/esa/s1tbx/dat/icons/ocean-swell22.png",
+        iconBase = "org/esa/s1tbx/ocean/icons/ocean-swell22.png",
         persistenceType = TopComponent.PERSISTENCE_NEVER
 )
 @TopComponent.Registration(
@@ -44,7 +44,7 @@ import java.awt.*;
         openAtStartup = false,
         position = 60
 )
-@ActionID(category = "Window", id = "org.esa.s1tbx.dat.views.polarview.OceanSwellTopComponent")
+@ActionID(category = "Window", id = "org.esa.s1tbx.ocean.toolviews.polarview.OceanSwellTopComponent")
 @ActionReferences({
         @ActionReference(path = "Menu/View/Tool Windows/Radar"),
         @ActionReference(path = "Toolbars/Views")
