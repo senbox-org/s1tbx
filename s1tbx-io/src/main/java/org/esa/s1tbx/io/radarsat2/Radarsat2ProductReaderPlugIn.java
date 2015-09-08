@@ -18,8 +18,6 @@ package org.esa.s1tbx.io.radarsat2;
 import org.esa.snap.framework.dataio.DecodeQualification;
 import org.esa.snap.framework.dataio.ProductReader;
 import org.esa.snap.framework.dataio.ProductReaderPlugIn;
-import org.esa.snap.framework.datamodel.RGBImageProfile;
-import org.esa.snap.framework.datamodel.RGBImageProfileManager;
 import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.util.io.SnapFileFilter;
 
@@ -32,10 +30,6 @@ import java.util.zip.ZipFile;
  * The ReaderPlugIn for Radarsat2 products.
  */
 public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
-
-    static{
-        registerRGBProfiles();
-    }
 
     /**
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
@@ -173,65 +167,5 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
             }
             return false;
         }
-    }
-
-    private static void registerRGBProfiles() {
-        RGBImageProfileManager manager = RGBImageProfileManager.getInstance();
-        manager.addProfile(new RGBImageProfile("Pauli",
-                                               new String[]{
-                                                       "((i_HH-i_VV)*(i_HH-i_VV)+(q_HH-q_VV)*(q_HH-q_VV))/2",
-                                                       "((i_HV+i_VH)*(i_HV+i_VH)+(q_HV+q_VH)*(q_HV+q_VH))/2",
-                                                       "((i_HH+i_VV)*(i_HH+i_VV)+(q_HH+q_VV)*(q_HH+q_VV))/2"
-                                               }
-        ));
-        manager.addProfile(new RGBImageProfile("Sinclair",
-                                               new String[]{
-                                                       "i_VV*i_VV+q_VV*q_VV",
-                                                       "((i_HV+i_VH)*(i_HV+i_VH)+(q_HV+q_VH)*(q_HV+q_VH))/4",
-                                                       "i_HH*i_HH+q_HH*q_HH"
-                                               }
-        ));
-        manager.addProfile(new RGBImageProfile("Dual Pol HH+HV",
-                                               new String[]{
-                                                       "Intensity_HH",
-                                                       "Intensity_HV",
-                                                       "Intensity_HH/Intensity_HV"
-                                               }
-        ));
-        manager.addProfile(new RGBImageProfile("Dual Pol VV+VH",
-                                               new String[]{
-                                                       "Intensity_VV",
-                                                       "Intensity_VH",
-                                                       "Intensity_VV/Intensity_VH"
-                                               }
-        ));
-        manager.addProfile(new RGBImageProfile("Dual Pol HH+VV",
-                                               new String[]{
-                                                       "Intensity_HH",
-                                                       "Intensity_VV",
-                                                       "Intensity_HH/Intensity_VV"
-                                               }
-        ));
-        manager.addProfile(new RGBImageProfile("Dual Pol Sigma0 HH+HV",
-                                               new String[]{
-                                                       "Sigma0_HH",
-                                                       "Sigma0_HV",
-                                                       "Sigma0_HH/Sigma0_HV"
-                                               }
-        ));
-        manager.addProfile(new RGBImageProfile("Dual Pol Sigma0 VV+VH",
-                                               new String[]{
-                                                       "Sigma0_VV",
-                                                       "Sigma0_VH",
-                                                       "Sigma0_VV/Sigma0_VH"
-                                               }
-        ));
-        manager.addProfile(new RGBImageProfile("Dual Pol Sigma0 HH+VV",
-                                               new String[]{
-                                                       "Sigma0_HH",
-                                                       "Sigma0_VV",
-                                                       "Sigma0_HH/Sigma0_VV"
-                                               }
-        ));
     }
 }
