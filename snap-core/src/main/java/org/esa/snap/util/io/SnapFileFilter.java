@@ -21,7 +21,12 @@ import org.esa.snap.util.StringUtils;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * A <code>FileFilter</code> with file extensions support.
@@ -235,7 +240,7 @@ public class SnapFileFilter extends FileFilter {
     /**
      * Checks if the given directory represents a compound document.
      * If so, we don't want the user to descend into it when using the
-     * {@link SnapFileChooser}.
+     * {@link JFileChooser}.
      * The default implementation returns {@code false}.
      * Clients may override.
      *
@@ -248,7 +253,7 @@ public class SnapFileFilter extends FileFilter {
     }
 
     /**
-     * Gets the file selection mode for the {@link SnapFileChooser} if this filter is used.
+     * Gets the file selection mode for the {@link JFileChooser} if this filter is used.
      * The default implementation returns {@link FileSelectionMode#FILES_ONLY}.
      * Clients may override.
      *

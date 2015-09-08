@@ -76,7 +76,7 @@ public class ACEReader extends AbstractProductReader {
         final String fileName;
         try {
             final String ext = FileUtils.getExtension(dataFile);
-            if (ext.equalsIgnoreCase(".zip")) {
+            if (ext != null && ext.equalsIgnoreCase(".zip")) {
                 final String entryName = FileUtils.getFilenameWithoutExtension(dataFile.getName()) + ".ACE";
                 _zipFile = new ZipFile(dataFile);
                 final ZipEntry entry = getZipEntryIgnoreCase(entryName);

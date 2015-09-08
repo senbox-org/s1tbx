@@ -27,6 +27,7 @@ import java.io.IOException;
 
 public class GETASSE30ElevationModel extends BaseElevationModel {
 
+    private static final String DB_FILE_SUFFIX = ".GETASSE30";
     private static final ProductReaderPlugIn productReaderPlugIn = getReaderPlugIn(GETASSE30ReaderPlugIn.FORMAT_NAME);
 
     public GETASSE30ElevationModel(final GETASSE30ElevationModelDescriptor descriptor, final Resampling resamplingMethod) throws IOException {
@@ -55,8 +56,21 @@ public class GETASSE30ElevationModel extends BaseElevationModel {
                                        final int x, final int y, final File demInstallDir) {
         final int minLon = x * DEGREE_RES - 180;
         final int minLat = y * DEGREE_RES - 90;
-        final String fileName = descriptor.createTileFilename(minLat, minLon);
+        final String fileName = createTileFilename(minLat, minLon);
         final File localFile = new File(demInstallDir, fileName);
         elevationFiles[x][NUM_Y_TILES - 1 - y] = new GETASSE30File(this, localFile, productReaderPlugIn.createReaderInstance());
     }
+
+    String createTileFilename(int minLat, int minLon) {
+        String latString = minLat < 0 ? Math.abs(minLat) + "S" : minLat + "N";
+        while (latString.length() < 3) {
+            latString = "0" + latString;
+        }
+        String lonString = minLon < 0 ? Math.abs(minLon) + "W" : minLon + "E";
+        while (lonString.length() < 4) {
+            lonString = "0" + lonString;
+        }
+        return latString + lonString + DB_FILE_SUFFIX;
+    }
+
 }

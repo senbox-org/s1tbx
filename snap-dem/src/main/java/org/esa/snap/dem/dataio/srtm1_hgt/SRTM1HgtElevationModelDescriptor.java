@@ -15,30 +15,24 @@
  */
 package org.esa.snap.dem.dataio.srtm1_hgt;
 
-import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.dataop.dem.AbstractElevationModelDescriptor;
 import org.esa.snap.framework.dataop.dem.ElevationModel;
-import org.esa.snap.framework.dataop.maptransf.Datum;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 
 import java.io.IOException;
-import java.net.URL;
 
 public class SRTM1HgtElevationModelDescriptor extends AbstractElevationModelDescriptor {
 
     private static final String NAME = "SRTM 1Sec HGT";
-    private static final String DB_FILE_SUFFIX = ".hgt";
+    //private static final String DB_FILE_SUFFIX = ".hgt";
     private static final int NUM_X_TILES = 360;
     private static final int NUM_Y_TILES = 120;
     private static final int DEGREE_RES = 1;
     private static final int PIXEL_RES = 3600;
     public static final int NO_DATA_VALUE = -32768;
 
-    private static final GeoPos RASTER_ORIGIN = new GeoPos(60.0f, 180.0f);
     private static final int RASTER_WIDTH = NUM_X_TILES * PIXEL_RES;
     private static final int RASTER_HEIGHT = NUM_Y_TILES * PIXEL_RES;
-
-    private static final Datum DATUM = Datum.WGS_84;
 
     public SRTM1HgtElevationModelDescriptor() {
     }
@@ -46,11 +40,6 @@ public class SRTM1HgtElevationModelDescriptor extends AbstractElevationModelDesc
     @Override
     public String getName() {
         return NAME;
-    }
-
-    @Override
-    public Datum getDatum() {
-        return DATUM;
     }
 
     @Override
@@ -79,17 +68,12 @@ public class SRTM1HgtElevationModelDescriptor extends AbstractElevationModelDesc
     }
 
     @Override
-    public GeoPos getRasterOrigin() {
-        return RASTER_ORIGIN;
-    }
-
-    @Override
-    public int getDegreeRes() {
+    public int getTileWidthInDegrees() {
         return DEGREE_RES;
     }
 
     @Override
-    public int getPixelRes() {
+    public int getTileWidth() {
         return PIXEL_RES;
     }
 
@@ -99,42 +83,12 @@ public class SRTM1HgtElevationModelDescriptor extends AbstractElevationModelDesc
     }
 
     @Override
-    public boolean isDemInstalled() {
-        return true;
-    }
-
-    @Override
-    public URL getDemArchiveUrl() {
-        return null;
-    }
-
-    @Override
     public ElevationModel createDem(Resampling resampling) {
         try {
             return new SRTM1HgtElevationModel(this, resampling);
         } catch (IOException e) {
             return null;
         }
-    }
-
-    public String createTileFilename(int minLat, int minLon) {
-        final StringBuilder name = new StringBuilder();
-        name.append(minLat < 0 ? "S" : "N");
-        String latString = String.valueOf(Math.abs(minLat));
-        while (latString.length() < 2) {
-            latString = '0' + latString;
-        }
-        name.append(latString);
-
-        name.append(minLon < 0 ? "W" : "E");
-        String lonString = String.valueOf(Math.abs(minLon));
-        while (lonString.length() < 3) {
-            lonString = '0' + lonString;
-        }
-        name.append(lonString);
-        name.append(".hgt.zip");
-
-        return name.toString();
     }
 
 }

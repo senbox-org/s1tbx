@@ -15,17 +15,18 @@
  */
 package org.esa.snap.dem.dataio.srtm3_geotiff;
 
-import org.esa.snap.framework.dataop.dem.BaseElevationModel;
-import org.esa.snap.framework.dataop.dem.ElevationFile;
 import org.esa.snap.framework.dataio.ProductReaderPlugIn;
 import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.datamodel.PixelPos;
+import org.esa.snap.framework.dataop.dem.BaseElevationModel;
+import org.esa.snap.framework.dataop.dem.ElevationFile;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 
 import java.io.File;
 
 public final class SRTM3GeoTiffElevationModel extends BaseElevationModel {
 
+    private static final String DB_FILE_SUFFIX = ".tif";
     private static final ProductReaderPlugIn productReaderPlugIn = getReaderPlugIn("GeoTIFF");
 
     public SRTM3GeoTiffElevationModel(final SRTM3GeoTiffElevationModelDescriptor descriptor, final Resampling resamplingMethod) {
@@ -54,8 +55,24 @@ public final class SRTM3GeoTiffElevationModel extends BaseElevationModel {
     @Override
     protected void createElevationFile(final ElevationFile[][] elevationFiles,
                                        final int x, final int y, final File demInstallDir) {
-        final String fileName = descriptor.createTileFilename(x + 1, y + 1);
+        final String fileName = createTileFilename(x + 1, y + 1);
         final File localFile = new File(demInstallDir, fileName);
         elevationFiles[x][y] = new SRTM3GeoTiffFile(this, localFile, productReaderPlugIn.createReaderInstance());
     }
+
+    private String createTileFilename(final int tileX, final int tileY) {
+        final StringBuilder name = new StringBuilder("srtm_");
+        if (tileX < 10) {
+            name.append('0');
+        }
+        name.append(tileX);
+        name.append('_');
+        if (tileY < 10) {
+            name.append('0');
+        }
+        name.append(tileY);
+        name.append(DB_FILE_SUFFIX);
+        return name.toString();
+    }
+
 }

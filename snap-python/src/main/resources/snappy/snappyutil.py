@@ -60,7 +60,8 @@ def _configure_snappy(snap_home=None,
         with open(snappy_ini_file, 'w') as file:
             file.writelines(['[DEFAULT]\n',
                              'snap_home = %s\n' % snap_home,
-                             '# java_classpath: target/classes\n',
+                             '# java_class_path: ./target/classes\n',
+                             '# java_library_path: ./lib\n',
                              '# java_options: -Djava.awt.headless=false\n',
                              '# java_max_mem: 4G\n',
                              '# debug: False\n'])

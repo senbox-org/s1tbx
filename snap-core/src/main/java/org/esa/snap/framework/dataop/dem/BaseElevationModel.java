@@ -49,17 +49,18 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
 
     public BaseElevationModel(final ElevationModelDescriptor descriptor, Resampling resamplingMethod) {
         this.descriptor = descriptor;
-        if (resamplingMethod == null)
+        if (resamplingMethod == null) {
             resamplingMethod = Resampling.BILINEAR_INTERPOLATION;
+        }
         this.resampling = resamplingMethod;
         this.resamplingRaster = this;
 
         NUM_X_TILES = descriptor.getNumXTiles();
         NUM_Y_TILES = descriptor.getNumYTiles();
         NO_DATA_VALUE = descriptor.getNoDataValue();
-        NUM_PIXELS_PER_TILE = descriptor.getPixelRes();
+        NUM_PIXELS_PER_TILE = descriptor.getTileWidth();
         NUM_PIXELS_PER_TILEinv = 1.0 / (double) NUM_PIXELS_PER_TILE;
-        DEGREE_RES = descriptor.getDegreeRes();
+        DEGREE_RES = descriptor.getTileWidthInDegrees();
 
         RASTER_WIDTH = NUM_X_TILES * NUM_PIXELS_PER_TILE;
         RASTER_HEIGHT = NUM_Y_TILES * NUM_PIXELS_PER_TILE;
@@ -110,26 +111,25 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
         return new PixelPos(getIndexX(geoPos), getIndexY(geoPos));
     }
 
-    public void dispose() {
-        for (ElevationTile tile : elevationTileCache) {
-            if (tile != null)
-                tile.dispose();
-        }
-        elevationTileCache.clear();
-        for (ElevationFile[] elevationFile : elevationFiles) {
-            for (ElevationFile anElevationFile : elevationFile) {
-                if (anElevationFile != null)
-                    anElevationFile.dispose();
-            }
-        }
-    }
-
     public int getWidth() {
         return RASTER_WIDTH;
     }
 
     public int getHeight() {
         return RASTER_HEIGHT;
+    }
+
+    public void updateCache(final ElevationTile tile) {
+        elevationTileCache.remove(tile);
+        elevationTileCache.add(0, tile);
+        while (elevationTileCache.size() > maxCacheSize) {
+            final int index = elevationTileCache.size() - 1;
+            final ElevationTile lastTile = elevationTileCache.get(index);
+            if (lastTile != null) {
+                lastTile.clearCache();
+            }
+            elevationTileCache.remove(index);
+        }
     }
 
     public final double getSample(final double pixelX, final double pixelY) throws Exception {
@@ -140,41 +140,9 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
             return Double.NaN;
         }
         final double sample = tile.getSample((int) (pixelX - tileXIndex * NUM_PIXELS_PER_TILE),
-                (int) (pixelY - tileYIndex * NUM_PIXELS_PER_TILE));
+                                             (int) (pixelY - tileYIndex * NUM_PIXELS_PER_TILE));
 
         return sample == NO_DATA_VALUE ? Double.NaN : sample;
-    }
-
-    private ElevationFile[][] createElevationFiles() {
-        final ElevationFile[][] elevationFiles = new ElevationFile[NUM_X_TILES][NUM_Y_TILES];
-        final File demInstallDir = descriptor.getDemInstallDir();
-        for (int x = 0; x < elevationFiles.length; x++) {
-            for (int y = 0; y < elevationFiles[x].length; y++) {
-
-                createElevationFile(elevationFiles, x, y, demInstallDir);
-            }
-        }
-        return elevationFiles;
-    }
-
-    protected abstract void createElevationFile(final ElevationFile[][] elevationFiles,
-                                                final int x, final int y, final File demInstallDir);
-
-    public void updateCache(final ElevationTile tile) {
-        elevationTileCache.remove(tile);
-        elevationTileCache.add(0, tile);
-        while (elevationTileCache.size() > maxCacheSize) {
-            final int index = elevationTileCache.size() - 1;
-            final ElevationTile lastTile = elevationTileCache.get(index);
-            if (lastTile != null)
-                lastTile.clearCache();
-            elevationTileCache.remove(index);
-        }
-    }
-
-    protected static ProductReaderPlugIn getReaderPlugIn(final String formatName) {
-        final Iterator readerPlugIns = ProductIOPlugInManager.getInstance().getReaderPlugIns(formatName);
-        return (ProductReaderPlugIn) readerPlugIns.next();
     }
 
     public final boolean getSamples(final int[] xArray, final int[] yArray, final double[][] samples) throws Exception {
@@ -206,4 +174,41 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
         }
         return allValid;
     }
+
+    public void dispose() {
+        for (ElevationTile tile : elevationTileCache) {
+            if (tile != null) {
+                tile.dispose();
+            }
+        }
+        elevationTileCache.clear();
+        for (ElevationFile[] elevationFile : elevationFiles) {
+            for (ElevationFile anElevationFile : elevationFile) {
+                if (anElevationFile != null) {
+                    anElevationFile.dispose();
+                }
+            }
+        }
+    }
+
+    protected abstract void createElevationFile(final ElevationFile[][] elevationFiles,
+                                                final int x, final int y, final File demInstallDir);
+
+    protected static ProductReaderPlugIn getReaderPlugIn(final String formatName) {
+        final Iterator readerPlugIns = ProductIOPlugInManager.getInstance().getReaderPlugIns(formatName);
+        return (ProductReaderPlugIn) readerPlugIns.next();
+    }
+
+    private ElevationFile[][] createElevationFiles() {
+        final ElevationFile[][] elevationFiles = new ElevationFile[NUM_X_TILES][NUM_Y_TILES];
+        final File demInstallDir = descriptor.getDemInstallDir();
+        for (int x = 0; x < elevationFiles.length; x++) {
+            for (int y = 0; y < elevationFiles[x].length; y++) {
+
+                createElevationFile(elevationFiles, x, y, demInstallDir);
+            }
+        }
+        return elevationFiles;
+    }
+
 }

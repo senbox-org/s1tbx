@@ -21,6 +21,7 @@ public class SystemDependentVariable extends SystemVariable {
     String windows;
     String linux;
     String macosx;
+    private boolean isTransient;
 
     enum OS {
         windows,
@@ -38,6 +39,7 @@ public class SystemDependentVariable extends SystemVariable {
         super(key, value);
         initialize();
         setValue(value);
+        isTransient = false;
     }
 
     /**
@@ -68,7 +70,7 @@ public class SystemDependentVariable extends SystemVariable {
                 this.macosx = value;
                 break;
         }
-        if (value != null && !value.isEmpty()) {
+        if (!isTransient && value != null && !value.isEmpty()) {
             ToolAdapterIO.saveVariable(this.key, value);
         }
     }
@@ -125,6 +127,8 @@ public class SystemDependentVariable extends SystemVariable {
             setValue(value);
         }
     }
+
+    public void setTransient(boolean value) { this.isTransient = value; }
 
     private void initialize() {
         values = new HashMap<>();

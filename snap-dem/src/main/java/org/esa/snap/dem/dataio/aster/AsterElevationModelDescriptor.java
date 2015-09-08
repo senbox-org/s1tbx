@@ -15,27 +15,21 @@
  */
 package org.esa.snap.dem.dataio.aster;
 
-import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.dataop.dem.AbstractElevationModelDescriptor;
 import org.esa.snap.framework.dataop.dem.ElevationModel;
-import org.esa.snap.framework.dataop.maptransf.Datum;
 import org.esa.snap.framework.dataop.resamp.Resampling;
-
-import java.net.URL;
 
 public class AsterElevationModelDescriptor extends AbstractElevationModelDescriptor {
 
     private static final String NAME = "ASTER 1sec GDEM";
-    private static final String DB_FILE_SUFFIX = ".TIF";
+    //private static final String DB_FILE_SUFFIX = ".TIF";
     private static final int NUM_X_TILES = 360;
     private static final int NUM_Y_TILES = 166;
     private static final int DEGREE_RES = 1;
     private static final int PIXEL_RES = 3600;
     private static final int NO_DATA_VALUE = -9999;
-    private static final GeoPos RASTER_ORIGIN = new GeoPos(83, 180);
     private static final int RASTER_WIDTH = NUM_X_TILES * PIXEL_RES;
     private static final int RASTER_HEIGHT = NUM_Y_TILES * PIXEL_RES;
-    private static final Datum DATUM = Datum.WGS_84;
 
     public AsterElevationModelDescriptor() {
     }
@@ -50,10 +44,6 @@ public class AsterElevationModelDescriptor extends AbstractElevationModelDescrip
 
     public int getNumYTiles() {
         return NUM_Y_TILES;
-    }
-
-    public Datum getDatum() {
-        return DATUM;
     }
 
     public float getNoDataValue() {
@@ -71,17 +61,12 @@ public class AsterElevationModelDescriptor extends AbstractElevationModelDescrip
     }
 
     @Override
-    public GeoPos getRasterOrigin() {
-        return RASTER_ORIGIN;
-    }
-
-    @Override
-    public int getDegreeRes() {
+    public int getTileWidthInDegrees() {
         return DEGREE_RES;
     }
 
     @Override
-    public int getPixelRes() {
+    public int getTileWidth() {
         return PIXEL_RES;
     }
 
@@ -90,40 +75,13 @@ public class AsterElevationModelDescriptor extends AbstractElevationModelDescrip
         return false;
     }
 
-    public boolean isDemInstalled() {
-        return true;
-    }
-
-    public URL getDemArchiveUrl() {
-        return null;
-    }
-
+    @Override
     public ElevationModel createDem(final Resampling resamplingMethod) {
         try {
             return new AsterElevationModel(this, resamplingMethod);
         } catch (Exception e) {
             return null;
         }
-    }
-
-    public String createTileFilename(int minLat, int minLon) {
-        final StringBuilder name = new StringBuilder("ASTGTM_");
-        name.append(minLat < 0 ? "S" : "N");
-        String latString = String.valueOf(Math.abs(minLat));
-        while (latString.length() < 2) {
-            latString = '0' + latString;
-        }
-        name.append(latString);
-
-        name.append(minLon < 0 ? "W" : "E");
-        String lonString = String.valueOf(Math.abs(minLon));
-        while (lonString.length() < 3) {
-            lonString = '0' + lonString;
-        }
-        name.append(lonString);
-        name.append(".zip");
-
-        return name.toString();
     }
 
 }

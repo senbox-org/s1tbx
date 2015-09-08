@@ -41,7 +41,7 @@ public class DiskBenchmarker {
     /**
      * Default file sise in MB
      */
-    public static final int DEFAULT_FILE_SIZE = 15;
+    public static final int DEFAULT_FILE_SIZE = 5;
 
     /**
      * Default number of samples the

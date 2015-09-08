@@ -73,15 +73,7 @@ public class DEMFactory {
 
     public static ElevationModel createElevationModel(final String demName, String demResamplingMethod) throws IOException {
 
-        final ElevationModelRegistry elevationModelRegistry = ElevationModelRegistry.getInstance();
-        final ElevationModelDescriptor demDescriptor = elevationModelRegistry.getDescriptor(demName);
-        if (demDescriptor == null) {
-            throw new IOException("The DEM '" + demName + "' is not supported.");
-        }
-
-        if (demDescriptor.isInstallingDem()) {
-            throw new IOException("The DEM '" + demName + "' is currently being installed.");
-        }
+        final ElevationModelDescriptor demDescriptor = getDemDescriptor(demName);
 
         Resampling resampleMethod = null;
         if (!demResamplingMethod.equals(DELAUNAY_INTERPOLATION))               // resampling not actual used for Delaunay
@@ -94,19 +86,9 @@ public class DEMFactory {
         return dem;
     }
 
+    // is of no use
     public static void checkIfDEMInstalled(final String demName) throws IOException {
 
-        final ElevationModelRegistry elevationModelRegistry = ElevationModelRegistry.getInstance();
-        final ElevationModelDescriptor demDescriptor = elevationModelRegistry.getDescriptor(demName);
-        if (demDescriptor == null) {
-            throw new IOException("The DEM '" + demName + "' is not supported.");
-        }
-
-        if (!demDescriptor.isInstallingDem() && !demDescriptor.isDemInstalled()) {
-            if (!demDescriptor.installDemFiles(null)) {
-                throw new IOException("DEM " + demName + " must be installed first");
-            }
-        }
     }
 
     public static void validateDEM(final String demName, final Product srcProduct) throws IOException {
@@ -380,6 +362,15 @@ public class DEMFactory {
         }
         return valid;
     }*/
+
+    private static ElevationModelDescriptor getDemDescriptor(String demName) throws IOException {
+        final ElevationModelRegistry elevationModelRegistry = ElevationModelRegistry.getInstance();
+        final ElevationModelDescriptor demDescriptor = elevationModelRegistry.getDescriptor(demName);
+        if (demDescriptor == null) {
+            throw new IOException("The DEM '" + demName + "' is not supported.");
+        }
+        return demDescriptor;
+    }
 
     private static GeoPos[] extendCorners(final GeoPos extraGeo, final GeoPos[] inGeo) {
 

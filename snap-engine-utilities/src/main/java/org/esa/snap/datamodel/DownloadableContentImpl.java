@@ -326,7 +326,7 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
 
     private File getFileFromZip(final File dataFile) throws IOException {
         final String ext = FileUtils.getExtension(dataFile.getName());
-        if (ext.equalsIgnoreCase(".zip")) {
+        if (".zip".equalsIgnoreCase(ext)) {
             final String baseName = localFile.getName();
             final File newFile = new File(ResourceUtils.getApplicationUserTempDataDir(), baseName);
             if (newFile.exists())

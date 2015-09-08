@@ -63,7 +63,6 @@ import org.esa.snap.util.StringUtils;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.XmlWriter;
 import org.esa.snap.util.io.FileUtils;
-import org.esa.snap.util.io.SnapFileChooser;
 import org.esa.snap.util.math.FXYSum;
 import org.geotools.referencing.CRS;
 import org.jdom.Content;
@@ -961,7 +960,6 @@ public class DimapProductHelpers {
      *
      * @return a FileFilter for use with a {@link javax.swing.JFileChooser}
      *
-     * @see SnapFileChooser
      */
     public static FileFilter createDimapFileFilter() {
         return new DimapFileFilter();

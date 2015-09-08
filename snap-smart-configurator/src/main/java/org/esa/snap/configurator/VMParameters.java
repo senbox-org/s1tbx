@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -39,7 +40,7 @@ public class VMParameters {
 
     private static final String DEFAULT_OPTION_PROPERTY_KEY="default_options";
 
-    private static Path snapConfigPath = Config.instance().installDir().resolve("etc").resolve("snap.conf");
+    private static Path snapConfigPath = null;
 
     private long vmXMX = 0;
     private long vmXMS = 0;
@@ -78,6 +79,17 @@ public class VMParameters {
         if(vmParametersStringList != null) {
             fromStringList(vmParametersStringList);
         }
+    }
+
+    static void setSnapConfigPath(Path snapConfigPath) {
+        VMParameters.snapConfigPath = snapConfigPath;
+    }
+
+    static Path getSnapConfigPath() {
+        if(snapConfigPath == null) {
+            snapConfigPath = Config.instance().installDir().resolve("etc").resolve("snap.conf");
+        }
+        return snapConfigPath;
     }
 
     public void fromStringList(List<String> vmParametersStringArray) {
@@ -183,12 +195,12 @@ public class VMParameters {
 
         Properties properties = new Properties();
         try {
-            try (BufferedReader reader = Files.newBufferedReader(snapConfigPath)) {
+            try (BufferedReader reader = Files.newBufferedReader(getSnapConfigPath())) {
                 properties.load(reader);
             }
         } catch (IOException e) {
             // we could not find the snap config file. We log an error and continue, it will be created
-            SystemUtils.LOG.severe(String.format("Can't load snap config file '%s'", snapConfigPath.toString()));
+            SystemUtils.LOG.severe(String.format("Can't load snap config file '%s'", getSnapConfigPath().toString()));
         }
 
         return properties;
@@ -200,7 +212,7 @@ public class VMParameters {
      * @return true if the VM parameters can be saved
      */
     public static boolean canSave() {
-        return Files.isWritable(snapConfigPath);
+        return Files.isWritable(getSnapConfigPath());
     }
 
     /**
@@ -238,10 +250,38 @@ public class VMParameters {
         }
 
         String vmParametersAsString = "\"" + VMParameters.toString(parametersToSave) + "\"";
-        properties.setProperty("default_options", vmParametersAsString);
+        String defaultOptionAsString = DEFAULT_OPTION_PROPERTY_KEY + "=" + vmParametersAsString;
 
-        BufferedWriter writer = Files.newBufferedWriter(snapConfigPath);
-        properties.store(writer, "VM parameters changed from SNAP");
+        // we replace the default option setting in the config path
+        // we can't use properties.store since this doesn't keep comments and creates some problems with paths
+        List<String> snapConfigLines = Files.readAllLines(getSnapConfigPath());
+
+        if(snapConfigLines != null && snapConfigLines.size() > 0) {
+            Iterator<String> configLinesIterator = snapConfigLines.iterator();
+            String regex = DEFAULT_OPTION_PROPERTY_KEY + "[ =:].*";
+
+            BufferedWriter writer = Files.newBufferedWriter(getSnapConfigPath());
+            do {
+
+                String configLine = configLinesIterator.next();
+
+                snapConfigLines.iterator();
+
+                if (configLine != null) {
+                    if (configLine.matches(regex)) {
+                        while (configLine != null && configLine.trim().endsWith("\\")) {
+                            configLine = configLinesIterator.next();
+                        }
+                        writer.write(defaultOptionAsString);
+                    } else {
+                        writer.write(configLine);
+                    }
+                    writer.newLine();
+                }
+            } while (configLinesIterator.hasNext());
+
+            writer.close();
+        }
     }
 
     @Override

@@ -105,10 +105,4 @@ public class SystemUtilsTest {
         assertEquals(expected, SystemUtils.convertToLocalPath("/a/b/cdef/g"));
     }
 
-    @Test
-    public void testGetBuildNumber() {
-        String buildNumber = SystemUtils.getBuildNumber();
-        assertNotNull("build number must be not null", buildNumber);
-    }
-
 }

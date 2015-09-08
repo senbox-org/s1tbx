@@ -22,6 +22,7 @@
                 <folder name="DEM">
                     <file name="org-esa-snap-dataio-getasse30-ImportGetasse30Product.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-snap-dataio-getasse30-ImportGetasse30Product.instance"/>
+                        <attr name="position" intvalue="250"/>
                     </file>
                 </folder>
             </folder>

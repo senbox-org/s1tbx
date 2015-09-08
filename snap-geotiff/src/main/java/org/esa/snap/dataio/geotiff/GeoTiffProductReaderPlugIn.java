@@ -51,9 +51,9 @@ public class GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
             }
 			if(input instanceof String || input instanceof File) {
 				 final String ext = FileUtils.getExtension((File) imageIOInput);
-                 if(ext.equalsIgnoreCase(".tif") || ext.equalsIgnoreCase(".tiff") || ext.equalsIgnoreCase(".btf")) {
+                 if(ext != null && ext.equalsIgnoreCase(".tif") || ext.equalsIgnoreCase(".tiff") || ext.equalsIgnoreCase(".btf")) {
                      return DecodeQualification.INTENDED;
-                 } else if(ext.equalsIgnoreCase(".zip")) {
+                 } else if(ext != null && ext.equalsIgnoreCase(".zip")) {
                      return checkZip((File) imageIOInput);
                  } else {
                      return DecodeQualification.UNABLE;

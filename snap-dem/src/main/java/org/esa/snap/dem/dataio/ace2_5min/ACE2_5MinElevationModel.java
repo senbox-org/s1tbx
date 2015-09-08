@@ -15,17 +15,18 @@
  */
 package org.esa.snap.dem.dataio.ace2_5min;
 
-import org.esa.snap.framework.dataop.dem.BaseElevationModel;
-import org.esa.snap.framework.dataop.dem.ElevationFile;
 import org.esa.snap.framework.dataio.ProductReaderPlugIn;
 import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.datamodel.PixelPos;
+import org.esa.snap.framework.dataop.dem.BaseElevationModel;
+import org.esa.snap.framework.dataop.dem.ElevationFile;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 
 import java.io.File;
 
 public class ACE2_5MinElevationModel extends BaseElevationModel {
 
+    private static final String DB_FILE_SUFFIX = "_5M.ACE2";
     private static final ProductReaderPlugIn productReaderPlugIn = getReaderPlugIn(ACE2_5MinReaderPlugIn.FORMAT_NAME);
 
     public ACE2_5MinElevationModel(final ACE2_5MinElevationModelDescriptor descriptor, final Resampling resamplingMethod) {
@@ -54,8 +55,22 @@ public class ACE2_5MinElevationModel extends BaseElevationModel {
                                        final int x, final int y, final File demInstallDir) {
         final int minLon = x * DEGREE_RES - 180;
         final int minLat = y * DEGREE_RES - 90;
-        final String fileName = descriptor.createTileFilename(minLat, minLon);
+        final String fileName = createTileFilename(minLat, minLon);
         final File localFile = new File(demInstallDir, fileName);
         elevationFiles[x][NUM_Y_TILES - 1 - y] = new ACE2_5MinFile(this, localFile, productReaderPlugIn.createReaderInstance());
     }
+
+    private String createTileFilename(int minLat, int minLon) {
+        String latString = minLat < 0 ? Math.abs(minLat) + "S" : minLat + "N";
+        while (latString.length() < 3) {
+            latString = '0' + latString;
+        }
+        String lonString = minLon < 0 ? Math.abs(minLon) + "W" : minLon + "E";
+        while (lonString.length() < 4) {
+            lonString = '0' + lonString;
+        }
+        return latString + lonString + DB_FILE_SUFFIX;
+    }
+
+
 }
