@@ -19,22 +19,15 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.insar.gpf.geometric.SARGeocoding;
 import org.esa.s1tbx.insar.gpf.geometric.SARUtils;
+import org.esa.snap.dem.dataio.DEMFactory;
+import org.esa.snap.dem.dataio.FileElevationModel;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.datamodel.PosVector;
 import org.esa.snap.datamodel.Unit;
-import org.esa.snap.dem.dataio.DEMFactory;
-import org.esa.snap.dem.dataio.FileElevationModel;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.eo.GeoUtils;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.GeoCoding;
-import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.TiePointGrid;
+import org.esa.snap.framework.datamodel.*;
 import org.esa.snap.framework.dataop.dem.ElevationModel;
 import org.esa.snap.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.snap.framework.dataop.dem.ElevationModelRegistry;
@@ -47,14 +40,11 @@ import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
 import org.esa.snap.framework.gpf.annotations.Parameter;
 import org.esa.snap.framework.gpf.annotations.SourceProduct;
 import org.esa.snap.framework.gpf.annotations.TargetProduct;
-import org.esa.snap.gpf.InputProductValidator;
-import org.esa.snap.gpf.OperatorUtils;
-import org.esa.snap.gpf.ReaderUtils;
-import org.esa.snap.gpf.TileIndex;
+import org.esa.snap.gpf.*;
 import org.esa.snap.util.Maths;
 import org.esa.snap.util.ProductUtils;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -87,9 +77,9 @@ public final class TerrainFlatteningOp extends Operator {
             label = "Digital Elevation Model")
     private String demName = "SRTM 3Sec";
 
-    @Parameter(defaultValue = ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
+    @Parameter(defaultValue = ResamplingFactory.BICUBIC_INTERPOLATION_NAME,
             label = "DEM Resampling Method")
-    private String demResamplingMethod = ResamplingFactory.BILINEAR_INTERPOLATION_NAME;
+    private String demResamplingMethod = ResamplingFactory.BICUBIC_INTERPOLATION_NAME;
 
     @Parameter(label = "External DEM")
     private File externalDEMFile = null;
@@ -123,8 +113,6 @@ public final class TerrainFlatteningOp extends Operator {
 
     private double noDataValue = 0;
     private double beta0 = 0;
-
-    private int tileSize = 400;
 
     private OrbitStateVector[] orbitStateVectors = null;
     private AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
@@ -293,9 +281,6 @@ public final class TerrainFlatteningOp extends Operator {
         }
 
         targetGeoCoding = targetProduct.getGeoCoding();
-
-        // set the tile width to the image width to reduce tiling effect
-        targetProduct.setPreferredTileSize(targetProduct.getSceneRasterWidth(), tileSize);
     }
 
     /**
@@ -401,10 +386,9 @@ public final class TerrainFlatteningOp extends Operator {
             final int y0 = targetRectangle.y;
             final int w = targetRectangle.width;
             final int h = targetRectangle.height;
-            // System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
+            //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
-            double[] tileOverlapPercentage = {0.0, 0.0};
-            computeTileOverlapPercentage(x0, y0, w, h, tileOverlapPercentage);
+            final OverlapPercentage tileOverlapPercentage = computeTileOverlapPercentage(x0, y0, w, h);
 
             final double[][] gamma0ReferenceArea = new double[h][w];
             double[][] sigma0ReferenceArea = null;
@@ -414,6 +398,7 @@ public final class TerrainFlatteningOp extends Operator {
 
             final boolean validSimulation = generateSimulatedImage(
                     x0, y0, w, h, tileOverlapPercentage, gamma0ReferenceArea, sigma0ReferenceArea);
+
             if (!validSimulation) {
                 return;
             }
@@ -437,98 +422,88 @@ public final class TerrainFlatteningOp extends Operator {
      * @return Boolean flag indicating if the simulation is successful.
      */
     private boolean generateSimulatedImage(final int x0, final int y0, final int w, final int h,
-                                           final double[] tileOverlapPercentage,
+                                           final OverlapPercentage tileOverlapPercentage,
                                            final double[][] gamma0ReferenceArea,
                                            final double[][] sigma0ReferenceArea) {
 
         try {
-            final int ymin = Math.max(y0 - (int) (tileSize * tileOverlapPercentage[1]), 0);
-            final int ymax = y0 + h + (int) (tileSize * Math.abs(tileOverlapPercentage[0]));
-            final int xmax = x0 + w;
+            final int ymin = Math.max(y0 - (int) (h * tileOverlapPercentage.tileOverlapUp), 0);
+            final int ymax = Math.min(y0 + h + (int) (h * tileOverlapPercentage.tileOverlapDown), sourceImageHeight);
+            final int xmin = Math.max(x0 - (int) (w * tileOverlapPercentage.tileOverlapLeft), 0);
+            final int xmax = Math.min(x0 + w + (int) (w * tileOverlapPercentage.tileOverlapRight), sourceImageWidth);
+            final int widthExt = xmax - xmin;
+            final int heightExt = ymax - ymin;
 
-            final TerrainData terrainData = new TerrainData(w, ymax - ymin);
-            final boolean valid = getLocalDEM(x0, ymin, w, ymax - ymin, terrainData);
+            final double[][] localDEM = new double[heightExt + 2][widthExt + 2];
+            final TileGeoreferencing tileGeoRef = new TileGeoreferencing(
+                    targetProduct, xmin, ymin, widthExt, heightExt);
+
+            final boolean valid = DEMFactory.getLocalDEM(
+                    dem, demNoDataValue, demResamplingMethod, tileGeoRef, xmin, ymin, widthExt, heightExt,
+                    sourceProduct, true, localDEM);
+
             if (!valid) {
                 return false;
             }
 
-            final PosVector earthPoint = new PosVector();
-            final PosVector sensorPos = new PosVector();
+            final PositionData posData = new PositionData();
+            final GeoPos geoPos = new GeoPos();
             for (int y = ymin; y < ymax; y++) {
+                final int yy = y - ymin;
 
-                final double[] azimuthIndex = new double[w];
-                final double[] rangeIndex = new double[w];
-                final double[] gamma0Area = new double[w];
-                final double[] elevationAngle = new double[w];
-                final boolean[] savePixel = new boolean[w];
+                final double[] azimuthIndex = new double[widthExt];
+                final double[] rangeIndex = new double[widthExt];
+                final double[] gamma0Area = new double[widthExt];
+                final double[] elevationAngle = new double[widthExt];
+                final boolean[] savePixel = new boolean[widthExt];
                 double[] sigma0Area = null;
                 if (outputSigma0) {
-                    sigma0Area = new double[w];
+                    sigma0Area = new double[widthExt];
                 }
 
-                for (int x = x0; x < xmax; x++) {
-                    final int i = x - x0;
-                    final int xx = x - x0 + 1;
-                    final int yy = y - ymin + 1;
+                for (int x = xmin; x < xmax; x++) {
+                    final int xx = x - xmin;
 
-                    final double alt = terrainData.localDEM[yy][xx];
-                    if (alt == demNoDataValue) {
-                        savePixel[i] = false;
+                    double alt = localDEM[yy + 1][xx + 1];
+                    if (alt == demNoDataValue)
                         continue;
-                    }
 
-                    GeoUtils.geo2xyzWGS84(terrainData.latPixels[yy][xx], terrainData.lonPixels[yy][xx], alt, earthPoint);
-
-                    double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
-                            firstLineUTC, lineTimeInterval, wavelength, earthPoint,
-                            orbit.sensorPosition, orbit.sensorVelocity);
-
-                    double slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, earthPoint, sensorPos);
-
-                    if(!skipBistaticCorrection) {
-                        // skip bistatic correction for COSMO, TerraSAR-X and RadarSAT-2 and S-1
-                        zeroDopplerTime += slantRange / Constants.lightSpeedInMetersPerDay;
-                        slantRange = SARGeocoding.computeSlantRange(
-                                zeroDopplerTime, orbit, earthPoint, sensorPos);
-                    }
-
-                    azimuthIndex[i] = (zeroDopplerTime - firstLineUTC) / lineTimeInterval;
-
-                    rangeIndex[i] = SARGeocoding.computeRangeIndex(
-                            srgrFlag, sourceImageWidth, firstLineUTC, lastLineUTC, rangeSpacing,
-                            zeroDopplerTime, slantRange, nearEdgeSlantRange, srgrConvParams);
-
-                    if (rangeIndex[i] <= 0.0) {
+                    tileGeoRef.getGeoPos(x, y, geoPos);
+                    if (!geoPos.isValid())
                         continue;
+
+                    double lat = geoPos.lat;
+                    double lon = geoPos.lon;
+                    if (lon >= 180.0) {
+                        lon -= 360.0;
                     }
 
-                    if (!nearRangeOnLeft) {
-                        rangeIndex[i] = sourceImageWidth - 1 - rangeIndex[i];
-                    }
-
-                    final LocalGeometry localGeometry = new LocalGeometry(earthPoint, sensorPos, terrainData, xx, yy);
-
-                    gamma0Area[i] = computeGamma0Area(localGeometry, demNoDataValue);
-                    if (gamma0Area[i] == noDataValue) {
-                        savePixel[i] = false;
+                    if (!getPosition(lat, lon, alt, x0, y0, w, h, posData))
                         continue;
-                    }
+
+                    final LocalGeometry localGeometry = new LocalGeometry(
+                            xmin, ymin, x, y, tileGeoRef, localDEM, posData.earthPoint, posData.sensorPos);
+
+                    gamma0Area[xx] = computeGamma0Area(localGeometry, demNoDataValue);
+                    if (gamma0Area[xx] == noDataValue)
+                        continue;
 
                     if (outputSigma0) {
-                        sigma0Area[i] = computeSigma0Area(localGeometry, demNoDataValue);
+                        sigma0Area[xx] = computeSigma0Area(localGeometry, demNoDataValue);
                     }
 
-                    elevationAngle[i] = computeElevationAngle(slantRange, earthPoint, sensorPos);
+                    elevationAngle[xx] = computeElevationAngle(posData.earthPoint, posData.sensorPos);
 
-                    savePixel[i] = rangeIndex[i] >= x0 && rangeIndex[i] < x0 + w &&
-                            azimuthIndex[i] > y0 - 1 && azimuthIndex[i] < y0 + h;
+                    rangeIndex[xx] = posData.rangeIndex;
+                    azimuthIndex[xx] = posData.azimuthIndex;
+                    savePixel[xx] = rangeIndex[xx] > x0 - 1 && rangeIndex[xx] < x0 + w &&
+                            azimuthIndex[xx] > y0 - 1 && azimuthIndex[xx] < y0 + h;
                 }
 
                 if (nearRangeOnLeft) {
                     // traverse from near range to far range to detect shadowing area
                     double maxElevAngle = 0.0;
-                    for (int x = x0; x < x0 + w; x++) {
-                        int i = x - x0;
+                    for (int i = 0; i < widthExt; i++) {
                         if (savePixel[i] && elevationAngle[i] > maxElevAngle) {
                             maxElevAngle = elevationAngle[i];
                             saveGamma0Area(x0, y0, w, h, gamma0Area[i], azimuthIndex[i], rangeIndex[i],
@@ -544,8 +519,7 @@ public final class TerrainFlatteningOp extends Operator {
                 } else {
                     // traverse from near range to far range to detect shadowing area
                     double maxElevAngle = 0.0;
-                    for (int x = x0 + w - 1; x >= x0; x--) {
-                        int i = x - x0;
+                    for (int i = widthExt - 1; i >= 0; --i) {
                         if (savePixel[i] && elevationAngle[i] > maxElevAngle) {
                             maxElevAngle = elevationAngle[i];
                             saveGamma0Area(x0, y0, w, h, gamma0Area[i], azimuthIndex[i], rangeIndex[i],
@@ -566,6 +540,53 @@ public final class TerrainFlatteningOp extends Operator {
         return true;
     }
 
+    private boolean getPosition(final double lat, final double lon, final double alt,
+                                final int x0, final int y0, final int w, final int h,
+                                final PositionData data) {
+
+        GeoUtils.geo2xyzWGS84(lat, lon, alt, data.earthPoint);
+
+        final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
+                firstLineUTC, lineTimeInterval, wavelength, data.earthPoint,
+                orbit.sensorPosition, orbit.sensorVelocity);
+
+        if (zeroDopplerTime == SARGeocoding.NonValidZeroDopplerTime) {
+            return false;
+        }
+
+        data.slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, data.earthPoint, data.sensorPos);
+
+        final double zeroDopplerTimeWithoutBias =
+                zeroDopplerTime + data.slantRange / Constants.lightSpeedInMetersPerDay;
+
+        data.azimuthIndex = (zeroDopplerTimeWithoutBias - firstLineUTC) / lineTimeInterval;
+
+        if (!(data.azimuthIndex >= y0 - 1 && data.azimuthIndex <= y0 + h)) {
+            return false;
+        }
+
+        data.slantRange = SARGeocoding.computeSlantRange(
+                zeroDopplerTimeWithoutBias, orbit, data.earthPoint, data.sensorPos);
+
+        if (!srgrFlag) {
+            data.rangeIndex = (data.slantRange - nearEdgeSlantRange) / rangeSpacing;
+        } else {
+            data.rangeIndex = SARGeocoding.computeRangeIndex(
+                    srgrFlag, sourceImageWidth, firstLineUTC, lastLineUTC, rangeSpacing,
+                    zeroDopplerTimeWithoutBias, data.slantRange, nearEdgeSlantRange, srgrConvParams);
+        }
+
+        if (!nearRangeOnLeft) {
+            data.rangeIndex = sourceImageWidth - 1 - data.rangeIndex;
+        }
+
+        if (!(data.rangeIndex >= x0 - 1 && data.rangeIndex <= x0 + w)) {
+            return false;
+        }
+        return true;
+    }
+
+
     /**
      * Output normalized image.
      *
@@ -582,73 +603,95 @@ public final class TerrainFlatteningOp extends Operator {
                                        final double[][] gamma0ReferenceArea, final double[][] sigma0ReferenceArea,
                                        final Map<Band, Tile> targetTiles, final Rectangle targetRectangle) {
 
-        for (Band tgtBand:targetBands) {
-            final Tile targetTile = targetTiles.get(tgtBand);
-            final ProductData targetData = targetTile.getDataBuffer();
-            final TileIndex trgIndex = new TileIndex(targetTile);
-            final String unit = tgtBand.getUnit();
-            final String bandName = tgtBand.getName();
+        try {
+            for (Band tgtBand:targetBands) {
+                final Tile targetTile = targetTiles.get(tgtBand);
+                final ProductData targetData = targetTile.getDataBuffer();
+                final TileIndex tgtIndex = new TileIndex(targetTile);
+                final String unit = tgtBand.getUnit();
+                final String bandName = tgtBand.getName();
 
-            Band srcBand = null;
-            Tile sourceTile = null;
-            ProductData sourceData = null;
-            if (bandName.contains("Gamma0") || bandName.contains("Sigma0")) {
-                srcBand = targetBandToSourceBandMap.get(tgtBand);
-                sourceTile = getSourceTile(srcBand, targetRectangle);
-                sourceData = sourceTile.getDataBuffer();
-            }
+                Band srcBand = null;
+                Tile sourceTile = null;
+                ProductData sourceData = null;
+                TileIndex srcIndex = null;
+                if (bandName.contains("Gamma0") || bandName.contains("Sigma0")) {
+                    srcBand = targetBandToSourceBandMap.get(tgtBand);
+                    sourceTile = getSourceTile(srcBand, targetRectangle);
+                    sourceData = sourceTile.getDataBuffer();
+                    srcIndex = new TileIndex(sourceTile);
+                }
 
-            double[][] simulatedImage = gamma0ReferenceArea;
-            if (bandName.contains("Sigma0")) {
-                simulatedImage = sigma0ReferenceArea;
-            }
+                double[][] simulatedImage = gamma0ReferenceArea;
+                if (bandName.contains("Sigma0")) {
+                    simulatedImage = sigma0ReferenceArea;
+                }
 
-            UnitType unitType = UnitType.AMPLITUDE;
-            if (unit.contains(Unit.AMPLITUDE)) {
-                unitType = UnitType.AMPLITUDE;
-            } else if (unit.contains(Unit.INTENSITY)) {
-                unitType = UnitType.INTENSITY;
-            } else if (unit.contains(Unit.REAL) || unit.contains(Unit.IMAGINARY)) {
-                unitType = UnitType.COMPLEX;
-            } else if (unit.contains("Ratio")) {
-                unitType = UnitType.RATIO;
-            }
+                UnitType unitType = UnitType.AMPLITUDE;
+                if (unit.contains(Unit.AMPLITUDE)) {
+                    unitType = UnitType.AMPLITUDE;
+                } else if (unit.contains(Unit.INTENSITY)) {
+                    unitType = UnitType.INTENSITY;
+                } else if (unit.contains(Unit.REAL) || unit.contains(Unit.IMAGINARY)) {
+                    unitType = UnitType.COMPLEX;
+                } else if (unit.contains("Ratio")) {
+                    unitType = UnitType.RATIO;
+                }
 
-            double v, simVal;
-            for (int y = y0; y < y0 + h; y++) {
-                final int yy = y - y0;
-                trgIndex.calculateStride(y);
-                for (int x = x0; x < x0 + w; x++) {
-                    final int xx = x - x0;
-                    final int idx = trgIndex.getIndex(x);
-                    simVal = simulatedImage[yy][xx];
-
-                    if (simVal != noDataValue && simVal != 0.0) {
-
-                        switch (unitType) {
-                            case AMPLITUDE :
-                                v = sourceData.getElemDoubleAt(idx);
-                                targetData.setElemDoubleAt(idx, v*v / simVal);
-                                break;
-                            case INTENSITY:
-                                v = sourceData.getElemDoubleAt(idx);
-                                targetData.setElemDoubleAt(idx, v / simVal);
-                                break;
-                            case COMPLEX:
-                                v = sourceData.getElemDoubleAt(idx);
-                                targetData.setElemDoubleAt(idx, v / Math.sqrt(simVal));
-                                break;
-                            case RATIO:
-                                targetData.setElemDoubleAt(idx, simVal);
-                                break;
+                if (unitType == UnitType.RATIO) {
+                    for (int y = y0; y < y0 + h; y++) {
+                        final int yy = y - y0;
+                        tgtIndex.calculateStride(y);
+                        for (int x = x0; x < x0 + w; x++) {
+                            final int xx = x - x0;
+                            final int tgtIdx = tgtIndex.getIndex(x);
+                            final double simVal = simulatedImage[yy][xx];
+                            if (simVal != noDataValue && simVal != 0.0) {
+                                targetData.setElemDoubleAt(tgtIdx, simVal);
+                            } else {
+                                targetData.setElemDoubleAt(tgtIdx, noDataValue);
+                            }
                         }
-
-                    } else {
-                        targetData.setElemDoubleAt(idx, noDataValue);
                     }
 
+                } else {
+
+                    double v, simVal;
+                    int tgtIdx, srcIdx;
+                    for (int y = y0; y < y0 + h; y++) {
+                        final int yy = y - y0;
+                        tgtIndex.calculateStride(y);
+                        srcIndex.calculateStride(y);
+                        for (int x = x0; x < x0 + w; x++) {
+                            final int xx = x - x0;
+                            tgtIdx = tgtIndex.getIndex(x);
+                            srcIdx = srcIndex.getIndex(x);
+                            simVal = simulatedImage[yy][xx];
+
+                            if (simVal != noDataValue && simVal != 0.0) {
+                                switch (unitType) {
+                                    case AMPLITUDE :
+                                        v = sourceData.getElemDoubleAt(srcIdx);
+                                        targetData.setElemDoubleAt(tgtIdx, v*v / simVal);
+                                        break;
+                                    case INTENSITY:
+                                        v = sourceData.getElemDoubleAt(srcIdx);
+                                        targetData.setElemDoubleAt(tgtIdx, v / simVal);
+                                        break;
+                                    case COMPLEX:
+                                        v = sourceData.getElemDoubleAt(srcIdx);
+                                        targetData.setElemDoubleAt(tgtIdx, v / Math.sqrt(simVal));
+                                        break;
+                                }
+                            } else {
+                                targetData.setElemDoubleAt(tgtIdx, noDataValue);
+                            }
+                        }
+                    }
                 }
             }
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException(getId(), e);
         }
     }
 
@@ -659,46 +702,33 @@ public final class TerrainFlatteningOp extends Operator {
      */
     private synchronized void getElevationModel() throws Exception {
 
-        if (isElevationModelAvailable) {
-            return;
-        }
+        if (isElevationModelAvailable) return;
+        try {
+            if (externalDEMFile != null) { // if external DEM file is specified by user
 
-        if (externalDEMFile != null && fileElevationModel == null) { // if external DEM file is specified by user
+                dem = new FileElevationModel(externalDEMFile, demResamplingMethod, externalDEMNoDataValue);
+                demNoDataValue = externalDEMNoDataValue;
+                demName = externalDEMFile.getPath();
 
-            fileElevationModel = new FileElevationModel(externalDEMFile,
-                    ResamplingFactory.createResampling(demResamplingMethod), externalDEMNoDataValue);
-
-            demNoDataValue = externalDEMNoDataValue;
-            demName = externalDEMFile.getPath();
-
-        } else {
-
-            final ElevationModelRegistry elevationModelRegistry = ElevationModelRegistry.getInstance();
-            final ElevationModelDescriptor demDescriptor = elevationModelRegistry.getDescriptor(demName);
-            if (demDescriptor == null) {
-                throw new OperatorException("The DEM '" + demName + "' is not supported.");
+            } else {
+                dem = DEMFactory.createElevationModel(demName, demResamplingMethod);
+                demNoDataValue = dem.getDescriptor().getNoDataValue();
             }
-
-            dem = demDescriptor.createDem(ResamplingFactory.createResampling(demResamplingMethod));
-            if (dem == null) {
-                throw new OperatorException("The DEM '" + demName + "' has not been installed.");
-            }
-
-            demNoDataValue = dem.getDescriptor().getNoDataValue();
+        } catch (Throwable t) {
+            t.printStackTrace();
         }
         isElevationModelAvailable = true;
     }
 
-    private void computeTileOverlapPercentage(final int x0, final int y0, final int w, final int h,
-                                              double[] overlapPercentages)
+    private OverlapPercentage computeTileOverlapPercentage(final int x0, final int y0, final int w, final int h)
             throws Exception {
 
         final PixelPos pixPos = new PixelPos();
         final GeoPos geoPos = new GeoPos();
         final PosVector earthPoint = new PosVector();
         final PosVector sensorPos = new PosVector();
-        double tileOverlapPercentageMax = -Double.MAX_VALUE;
-        double tileOverlapPercentageMin = Double.MAX_VALUE;
+
+        double tileOverlapUp = 0.0, tileOverlapDown = 0.0, tileOverlapLeft = 0.0, tileOverlapRight = 0.0;
         for (int y = y0; y < y0 + h; y += 20) {
             for (int x = x0; x < x0 + w; x += 20) {
                 pixPos.setLocation(x, y);
@@ -713,85 +743,47 @@ public final class TerrainFlatteningOp extends Operator {
                     continue;
                 }
 
-                final double slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, earthPoint, sensorPos);
+                double slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, earthPoint, sensorPos);
 
                 final double zeroDopplerTimeWithoutBias = zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
 
                 final int azimuthIndex = (int) ((zeroDopplerTimeWithoutBias - firstLineUTC) / lineTimeInterval + 0.5);
 
-                double tileOverlapPercentage = (azimuthIndex - y) / (double) tileSize;
+                slantRange = SARGeocoding.computeSlantRange(zeroDopplerTimeWithoutBias, orbit, earthPoint, sensorPos);
 
-                if (tileOverlapPercentage > tileOverlapPercentageMax) {
-                    tileOverlapPercentageMax = tileOverlapPercentage;
-                }
-                if (tileOverlapPercentage < tileOverlapPercentageMin) {
-                    tileOverlapPercentageMin = tileOverlapPercentage;
-                }
-            }
-        }
-
-        if (tileOverlapPercentageMin != Double.MAX_VALUE && tileOverlapPercentageMin < 0.0) {
-            overlapPercentages[0] = tileOverlapPercentageMin - 1.0;
-        } else {
-            overlapPercentages[0] = 1.0;
-        }
-
-        if (tileOverlapPercentageMax != -Double.MAX_VALUE && tileOverlapPercentageMax > 0.0) {
-            overlapPercentages[1] = tileOverlapPercentageMax + 1.0;
-        } else {
-            overlapPercentages[1] = 1.0;
-        }
-    }
-
-    /**
-     * Read DEM for current tile.
-     *
-     * @param x0          The x coordinate of the pixel at the upper left corner of current tile.
-     * @param y0          The y coordinate of the pixel at the upper left corner of current tile.
-     * @param tileHeight  The tile height.
-     * @param tileWidth   The tile width.
-     * @param terrainData The DEM for the tile.
-     * @return false if all values are no data
-     * @throws Exception from dem
-     */
-    private boolean getLocalDEM(final int x0, final int y0, final int tileWidth, final int tileHeight,
-                                final TerrainData terrainData) throws Exception {
-
-        // Note: the localDEM covers current tile with 1 extra row above, 1 extra row below, 1 extra column to
-        //       the left and 1 extra column to the right of the tile.
-        final GeoPos geoPos = new GeoPos();
-        final int maxY = y0 + tileHeight + 1;
-        final int maxX = x0 + tileWidth + 1;
-        double alt;
-        boolean valid = false;
-        for (int y = y0 - 1; y < maxY; y++) {
-            final int yy = y - y0 + 1;
-            for (int x = x0 - 1; x < maxX; x++) {
-                final int xx = x - x0 + 1;
-
-                final double lat = latitudeTPG.getPixelDouble(x + 0.5f, y + 0.5f);
-                final double lon = longitudeTPG.getPixelDouble(x + 0.5f, y + 0.5f);
-                geoPos.setLocation(lat, lon);
-
-                if (externalDEMFile == null) {
-                    alt = dem.getElevation(geoPos);
+                double rangeIndex;
+                if (!srgrFlag) {
+                    rangeIndex = (slantRange - nearEdgeSlantRange) / rangeSpacing;
                 } else {
-                    alt = fileElevationModel.getElevation(geoPos);
+                    rangeIndex = SARGeocoding.computeRangeIndex(
+                            srgrFlag, sourceImageWidth, firstLineUTC, lastLineUTC, rangeSpacing,
+                            zeroDopplerTimeWithoutBias, slantRange, nearEdgeSlantRange, srgrConvParams);
                 }
 
-                terrainData.localDEM[yy][xx] = alt;
-                terrainData.latPixels[yy][xx] = lat;
-                terrainData.lonPixels[yy][xx] = lon;
+                final double azTileOverlapPercentage = (azimuthIndex - y) / (double) h;
+                if (azTileOverlapPercentage > tileOverlapUp) {
+                    tileOverlapUp = azTileOverlapPercentage;
+                } else if (azTileOverlapPercentage < -tileOverlapDown) {
+                    tileOverlapDown = -azTileOverlapPercentage;
+                }
 
-                if (alt != demNoDataValue)
-                    valid = true;
+                final double rgTileOverlapPercentage = (rangeIndex - x) / (double) w;
+                if (rangeIndex != -1) {
+                    if (rgTileOverlapPercentage > tileOverlapLeft) {
+                        tileOverlapLeft = rgTileOverlapPercentage;
+                    } else if (rgTileOverlapPercentage < -tileOverlapRight) {
+                        tileOverlapRight = -rgTileOverlapPercentage;
+                    }
+                }
             }
         }
-        if (fileElevationModel != null) {
-            //fileElevationModel.clearCache();
-        }
 
-        return valid;
+        tileOverlapUp += 0.1;
+        tileOverlapDown += 0.1;
+        tileOverlapLeft += 0.1;
+        tileOverlapRight += 0.1;
+
+        return new OverlapPercentage(tileOverlapUp, tileOverlapDown, tileOverlapLeft, tileOverlapRight);
     }
 
     /**
@@ -869,14 +861,16 @@ public final class TerrainFlatteningOp extends Operator {
     /**
      * Compute elevation angle (in degree).
      *
-     * @param slantRange The slant range.
      * @param earthPoint The coordinate for target on earth surface.
      * @param sensorPos  The coordinate for satellite position.
      * @return The elevation angle in degree.
      */
-    private static double computeElevationAngle(
-            final double slantRange, final PosVector earthPoint, final PosVector sensorPos) {
+    private static double computeElevationAngle(final PosVector earthPoint, final PosVector sensorPos) {
 
+        final double xDiff = sensorPos.x - earthPoint.x;
+        final double yDiff = sensorPos.y - earthPoint.y;
+        final double zDiff = sensorPos.z - earthPoint.z;
+        final double slantRange = Math.sqrt(xDiff * xDiff + yDiff * yDiff + zDiff * zDiff);
         final double H2 = sensorPos.x * sensorPos.x + sensorPos.y * sensorPos.y + sensorPos.z * sensorPos.z;
         final double R2 = earthPoint.x * earthPoint.x + earthPoint.y * earthPoint.y + earthPoint.z * earthPoint.z;
 
@@ -1004,35 +998,59 @@ public final class TerrainFlatteningOp extends Operator {
         public final PosVector sensorPos;
         public final PosVector centerPoint;
 
-        public LocalGeometry(final PosVector earthPoint, final PosVector sensPos,
-                             final TerrainData terrainData, final int xx, final int yy) {
+        public LocalGeometry(final int x0, final int y0, final int x, final int y,
+                             final TileGeoreferencing tileGeoRef, final double[][] localDEM,
+                             final PosVector earthPoint, final PosVector sensorPos) {
 
-            t00Lat = terrainData.latPixels[yy][xx];
-            t00Lon = terrainData.lonPixels[yy][xx];
-            t00Height = terrainData.localDEM[yy][xx];
-            t01Lat = terrainData.latPixels[yy - 1][xx];
-            t01Lon = terrainData.lonPixels[yy - 1][xx];
-            t01Height = terrainData.localDEM[yy - 1][xx];
-            t10Lat = terrainData.latPixels[yy][xx + 1];
-            t10Lon = terrainData.lonPixels[yy][xx + 1];
-            t10Height = terrainData.localDEM[yy][xx + 1];
-            t11Lat = terrainData.latPixels[yy - 1][xx + 1];
-            t11Lon = terrainData.lonPixels[yy - 1][xx + 1];
-            t11Height = terrainData.localDEM[yy - 1][xx + 1];
-            centerPoint = earthPoint;
-            sensorPos = sensPos;
+            final GeoPos geo = new GeoPos();
+            final int yy = y - y0 + 1;
+            final int xx = x - x0 + 1;
+
+            tileGeoRef.getGeoPos(x, y, geo);
+            this.t00Lat = geo.lat;
+            this.t00Lon = geo.lon;
+            this.t00Height = localDEM[yy][xx];
+
+            tileGeoRef.getGeoPos(x, y - 1, geo);
+            this.t01Lat = geo.lat;
+            this.t01Lon = geo.lon;
+            this.t01Height = localDEM[yy - 1][xx];
+
+            tileGeoRef.getGeoPos(x + 1, y, geo);
+            this.t10Lat = geo.lat;
+            this.t10Lon = geo.lon;
+            this.t10Height = localDEM[yy][xx + 1];
+
+            tileGeoRef.getGeoPos(x + 1, y - 1, geo);
+            this.t11Lat = geo.lat;
+            this.t11Lon = geo.lon;
+            this.t11Height = localDEM[yy - 1][xx + 1];
+
+            this.centerPoint = earthPoint;
+            this.sensorPos = sensorPos;
         }
     }
 
-    private static class TerrainData {
-        final double[][] localDEM;
-        final double[][] latPixels;
-        final double[][] lonPixels;
+    private static class PositionData {
+        final PosVector earthPoint = new PosVector();
+        final PosVector sensorPos = new PosVector();
+        double azimuthIndex;
+        double rangeIndex;
+        double slantRange;
+    }
 
-        public TerrainData(int w, int h) {
-            localDEM = new double[h + 2][w + 2];
-            latPixels = new double[h + 2][w + 2];
-            lonPixels = new double[h + 2][w + 2];
+    private static class OverlapPercentage {
+        final double tileOverlapUp;
+        final double tileOverlapDown;
+        final double tileOverlapLeft;
+        final double tileOverlapRight;
+
+        public OverlapPercentage(final double tileOverlapUp, final double tileOverlapDown,
+                                 final double tileOverlapLeft, final double tileOverlapRight) {
+            this.tileOverlapUp = tileOverlapUp;
+            this.tileOverlapDown = tileOverlapDown;
+            this.tileOverlapLeft = tileOverlapLeft;
+            this.tileOverlapRight = tileOverlapRight;
         }
     }
 
