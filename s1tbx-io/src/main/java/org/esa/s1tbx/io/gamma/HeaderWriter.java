@@ -16,8 +16,10 @@
 package org.esa.s1tbx.io.gamma;
 
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.io.FileUtils;
 
@@ -33,22 +35,30 @@ public class HeaderWriter {
     private final File outputFile;
     private final Product srcProduct;
     private final MetadataElement absRoot;
+    private String baseFileName;
     private boolean isComplex = false;
     private boolean isCoregistered = false;
 
-    public HeaderWriter(final Product srcProduct, final File outputFile) {
+    private final static String sep = ":\t";
+
+    public HeaderWriter(final Product srcProduct, final File userOutputFile) {
         this.srcProduct = srcProduct;
 
         absRoot = AbstractMetadata.getAbstractedMetadata(srcProduct);
-        if(absRoot != null) {
+        if (absRoot != null) {
             try {
                 isComplex = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE).equals("COMPLEX");
                 isCoregistered = AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.coregistered_stack);
             } catch (Exception e) {
-                SystemUtils.LOG.severe("Unable to read metadata "+e.getMessage());
+                SystemUtils.LOG.severe("Unable to read metadata " + e.getMessage());
             }
         }
-        this.outputFile = createParFile(outputFile);
+        this.outputFile = createParFile(userOutputFile);
+        this.baseFileName = FileUtils.getFilenameWithoutExtension(this.outputFile);
+    }
+
+    public String getBaseFileName() {
+        return baseFileName;
     }
 
     public void writeParFile() {
@@ -57,13 +67,16 @@ public class HeaderWriter {
             final FileOutputStream out = new FileOutputStream(outputFile);
             p = new PrintStream(out);
 
-            p.println("Nrow");
-            p.println(srcProduct.getSceneRasterHeight());
-            p.println("---------");
-
-            p.println("Ncol");
-            p.println(srcProduct.getSceneRasterWidth());
-            p.println("---------");
+            p.println(GammaConstants.HEADER_KEY_NAME + sep + srcProduct.getName());
+            p.println(GammaConstants.HEADER_KEY_SENSOR_TYPE + sep + absRoot.getAttributeString(AbstractMetadata.MISSION));
+            p.println(GammaConstants.HEADER_KEY_SAMPLES + sep + srcProduct.getSceneRasterWidth());
+            p.println(GammaConstants.HEADER_KEY_LINES + sep + srcProduct.getSceneRasterHeight());
+            p.println(GammaConstants.HEADER_KEY_DATA_TYPE + sep + getDataType());
+            p.println(GammaConstants.HEADER_KEY_LINE_TIME_INTERVAL + sep + absRoot.getAttributeString(AbstractMetadata.line_time_interval));
+            p.println(GammaConstants.HEADER_KEY_RANGE_LOOKS + sep + absRoot.getAttributeInt(AbstractMetadata.range_looks));
+            p.println(GammaConstants.HEADER_KEY_AZIMUTH_LOOKS + sep + absRoot.getAttributeInt(AbstractMetadata.azimuth_looks));
+            p.println(GammaConstants.HEADER_KEY_RADAR_FREQUENCY + sep + absRoot.getAttributeString(AbstractMetadata.radar_frequency));
+            p.println(GammaConstants.HEADER_KEY_PRF + sep + absRoot.getAttributeString(AbstractMetadata.pulse_repetition_frequency));
 
         } catch (Exception e) {
             System.out.println("GammaWriter unable to write par file " + e.getMessage());
@@ -73,16 +86,26 @@ public class HeaderWriter {
         }
     }
 
+    private String getDataType() {
+        final Band band = srcProduct.getBandAt(0);
+        int elemSize = ProductData.getElemSize(band.getDataType());
+        if(elemSize >= 4) {
+            return "FCOMPLEX";
+        } else {
+            return "SCOMPLEX";
+        }
+    }
+
     private File createParFile(final File file) {
         String name = FileUtils.getFilenameWithoutExtension(file);
         String ext = FileUtils.getExtension(name);
         String newExt = GammaConstants.PAR_EXTENSION;
-        if(ext != null && !ext.endsWith("slc")) {
-            if(isComplex) {
-                if(isCoregistered) {
-                    newExt = ".rslc"+newExt;
+        if (ext != null && !ext.endsWith("slc")) {
+            if (isComplex) {
+                if (isCoregistered) {
+                    newExt = ".rslc" + newExt;
                 } else {
-                    newExt = ".slc"+newExt;
+                    newExt = ".slc" + newExt;
                 }
             }
         }

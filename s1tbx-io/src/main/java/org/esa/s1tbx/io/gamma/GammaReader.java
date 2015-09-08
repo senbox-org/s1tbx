@@ -60,6 +60,7 @@ public class GammaReader extends AbstractProductReader {
                 product.addBand(tgtBandQ);
 
                 ReaderUtils.createVirtualIntensityBand(product, tgtBandI, tgtBandQ, "_band");
+                ReaderUtils.createVirtualPhaseBand(product, tgtBandI, tgtBandQ, "_band");
             } else {
                 String bandName = getImageFile(inputParFile).getName();
                 final Band tgtBandI = new Band(bandName, dataType, header.getNumSamples(), header.getNumLines());
@@ -83,7 +84,7 @@ public class GammaReader extends AbstractProductReader {
         String name = file.getName().toLowerCase();
         name = FileUtils.getFilenameWithoutExtension(name);
         String ext = FileUtils.getExtension(name);
-        return ext != null && ext.endsWith("slc");
+        return ext != null && (ext.endsWith("slc") || ext.endsWith("diff"));
     }
 
     private boolean isCoregistered(final File file) {
@@ -147,35 +148,36 @@ public class GammaReader extends AbstractProductReader {
                                           ProgressMonitor pm) throws IOException {
         if (isComplex) {
 
-            final int sourceMaxY = sourceOffsetY + sourceHeight - 1;
+            final int sourceMaxY = sourceOffsetY + sourceHeight;
             Product product = destBand.getProduct();
             final int elemSize = destBuffer.getElemSize();
-
-            final int headerOffset = header.getHeaderOffset();
             final int bandIndex = product.getBandIndex(destBand.getName());
 
             // band interleaved by pixel
-            int numBands = 2;
-            final long lineSizeInBytes = header.getNumSamples() * numBands * elemSize;
-            ProductData lineData = ProductData.createInstance(destBuffer.getType(), sourceWidth * numBands);
+            int numInterleaved = 2;
+            final long lineSizeInBytes = header.getNumSamples() * numInterleaved * elemSize;
+            ProductData lineData = ProductData.createInstance(destBuffer.getType(), sourceWidth * numInterleaved);
 
             pm.beginTask("Reading band '" + destBand.getName() + "'...", sourceMaxY - sourceOffsetY);
             try {
-                int destPos = 0;
-                for (int sourceY = sourceOffsetY; sourceY <= sourceMaxY; sourceY += sourceStepY) {
+                final long xPos = elemSize * sourceOffsetX * numInterleaved;
+                final int xLength = sourceWidth * numInterleaved;
+                int dstCnt = 0;
+                for (int sourceY = sourceOffsetY; sourceY < sourceMaxY; sourceY += sourceStepY) {
                     if (pm.isCanceled()) {
                         break;
                     }
                     synchronized (inStream) {
-                        long lineStartPos = headerOffset + sourceY * lineSizeInBytes;
-                        inStream.seek(lineStartPos + elemSize * sourceOffsetX * numBands);
-                        lineData.readFrom(0, sourceWidth * numBands, inStream);
+                        inStream.seek(sourceY * lineSizeInBytes + xPos);
+                        lineData.readFrom(0, xLength, inStream);
                     }
                     for (int x = 0; x < sourceWidth; x++) {
-                        destBuffer.setElemDoubleAt(destPos++, lineData.getElemDoubleAt(x * numBands + bandIndex));
+                        destBuffer.setElemDoubleAt(dstCnt++, lineData.getElemDoubleAt(x * numInterleaved + bandIndex));
                     }
                     pm.worked(1);
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             } finally {
                 pm.done();
             }

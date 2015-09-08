@@ -51,7 +51,7 @@ public class GammaProductWriter extends AbstractProductWriter {
     private File outputFile;
     private Product srcProduct;
     private Map<Band, ImageOutputStream> bandOutputStreams;
-
+    private HeaderWriter headerWriter;
 
     public GammaProductWriter(final ProductWriterPlugIn writerPlugIn) {
         super(writerPlugIn);
@@ -79,7 +79,7 @@ public class GammaProductWriter extends AbstractProductWriter {
         srcProduct.setProductWriter(this);
         srcProduct.setFileLocation(outputDir);
 
-        HeaderWriter headerWriter = new HeaderWriter(srcProduct, outputFile);
+        headerWriter = new HeaderWriter(srcProduct, outputFile);
         headerWriter.writeParFile();
     }
 
@@ -90,47 +90,67 @@ public class GammaProductWriter extends AbstractProductWriter {
     }
 
     private String createImageFilename(final Band band) {
-        return band.getName() + GammaConstants.SLC_EXTENSION;
+        //return band.getName() + GammaConstants.SLC_EXTENSION;
+        return headerWriter.getBaseFileName();
     }
 
     /**
      * {@inheritDoc}
      */
-    public void writeBandRasterData(Band sourceBand,
-                                    int sourceOffsetX, int sourceOffsetY,
-                                    int sourceWidth, int sourceHeight,
-                                    ProductData sourceBuffer,
-                                    ProgressMonitor pm) throws IOException {
+    public synchronized void writeBandRasterData(Band sourceBand,
+                                                 int sourceOffsetX, int sourceOffsetY,
+                                                 int sourceWidth, int sourceHeight,
+                                                 ProductData sourceBuffer,
+                                                 ProgressMonitor pm) throws IOException {
         Guardian.assertNotNull("sourceBand", sourceBand);
         Guardian.assertNotNull("sourceBuffer", sourceBuffer);
         final int sourceBandWidth = sourceBand.getSceneRasterWidth();
-        final int sourceBandHeight = sourceBand.getSceneRasterHeight();
 
         final ImageOutputStream outputStream = getOrCreateImageOutputStream(sourceBand);
-        long outputPos = (long) sourceOffsetY * (long) sourceBandWidth + sourceOffsetX;
         pm.beginTask("Writing band '" + sourceBand.getName() + "'...", sourceHeight);
         try {
-            final long max = sourceHeight * sourceWidth;
-            if(isComplex(sourceBand)) {
+            if (isComplex(sourceBand)) {
+                int numInterleaved = 2;
                 final Rectangle rect = new Rectangle(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight);
                 final Tile sourceTile = getSourceTile(getComplexSrcBand(sourceBand), rect);
                 final ProductData qSourceBuffer = sourceTile.getRawSamples();
+                int srcCnt = 0;
 
-                for (int sourcePos = 0; sourcePos < max; sourcePos += sourceWidth) {
-                    float[] destBuffer = new float[sourceBuffer.getNumElems()*2];
-                    int dstCnt = 0;
-                    for (int srcCnt = 0; srcCnt < sourceBuffer.getNumElems(); srcCnt++) {
-                        destBuffer[dstCnt++] = sourceBuffer.getElemFloatAt(srcCnt);
-                        destBuffer[dstCnt++] = qSourceBuffer.getElemFloatAt(srcCnt);
+                if(sourceBuffer.getElemSize() > 4) {
+                    final float[] destBuffer = new float[sourceWidth * numInterleaved];
+                    for (int y = sourceOffsetY; y < sourceOffsetY + sourceHeight; ++y) {
+                        int dstCnt = 0;
+                        for (int x = sourceOffsetX; x < sourceOffsetX + sourceWidth; ++x) {
+
+                            destBuffer[dstCnt++] = sourceBuffer.getElemFloatAt(srcCnt);
+                            destBuffer[dstCnt++] = qSourceBuffer.getElemFloatAt(srcCnt);
+                            srcCnt++;
+                        }
+
+                        outputStream.seek(sourceBuffer.getElemSize() * (y * sourceBandWidth + sourceOffsetX) * numInterleaved);
+                        outputStream.writeFloats(destBuffer, 0, destBuffer.length);
                     }
+                } else {
+                    final short[] destBuffer = new short[sourceWidth * numInterleaved];
+                    for (int y = sourceOffsetY; y < sourceOffsetY + sourceHeight; ++y) {
+                        int dstCnt = 0;
+                        for (int x = sourceOffsetX; x < sourceOffsetX + sourceWidth; ++x) {
 
-                   // outputStream.seek(sourceBuffer.getElemSize() * outputPos);
-                    outputStream.writeFloats(destBuffer, 0, destBuffer.length);
-                    outputPos += sourceBandWidth;
+                            destBuffer[dstCnt++] = (short)sourceBuffer.getElemFloatAt(srcCnt);
+                            destBuffer[dstCnt++] = (short)qSourceBuffer.getElemFloatAt(srcCnt);
+                            srcCnt++;
+                        }
+
+                        outputStream.seek(sourceBuffer.getElemSize() * (y * sourceBandWidth + sourceOffsetX) * numInterleaved);
+                        outputStream.writeShorts(destBuffer, 0, destBuffer.length);
+                    }
                 }
 
-                System.out.println(rect.toString());
+                //System.out.println(rect.toString());
             } else {
+                //todo
+                long outputPos = (long) sourceOffsetY * (long) sourceBandWidth + sourceOffsetX;
+                final long max = sourceHeight * sourceWidth;
                 for (int sourcePos = 0; sourcePos < max; sourcePos += sourceWidth) {
                     sourceBuffer.writeTo(sourcePos, sourceWidth, outputStream, outputPos);
                     outputPos += sourceBandWidth;
@@ -144,9 +164,9 @@ public class GammaProductWriter extends AbstractProductWriter {
 
     private Band getComplexSrcBand(final Band iBand) {
         String name = iBand.getName();
-        if(name.startsWith("i_")) {
+        if (name.startsWith("i_")) {
             name.replace("i_", "q_");
-        } else if(name.startsWith("q_")) {
+        } else if (name.startsWith("q_")) {
             name.replace("q_", "i_");
         }
         return srcProduct.getBand(name);
@@ -232,9 +252,9 @@ public class GammaProductWriter extends AbstractProductWriter {
         if (node instanceof FilterBand) {
             return false;
         }
-        if(node instanceof Band) {
+        if (node instanceof Band) {
             Band band = (Band) node;
-            if(Unit.IMAGINARY.equals(band.getUnit()))
+            if (Unit.IMAGINARY.equals(band.getUnit()))
                 return false;
         }
         if (node.isModified()) {
@@ -277,7 +297,7 @@ public class GammaProductWriter extends AbstractProductWriter {
 
     private static long getImageFileSize(final RasterDataNode band) {
         long numInterleaved = 1;
-        if(isComplex(band)) {
+        if (isComplex(band)) {
             numInterleaved = 2;
         }
         return (long) ProductData.getElemSize(band.getDataType()) *

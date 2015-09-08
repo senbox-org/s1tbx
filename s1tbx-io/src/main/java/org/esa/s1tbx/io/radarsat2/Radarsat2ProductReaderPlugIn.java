@@ -212,5 +212,26 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
                                                        "Intensity_HH/Intensity_VV"
                                                }
         ));
+        manager.addProfile(new RGBImageProfile("Dual Pol Sigma0 HH+HV",
+                                               new String[]{
+                                                       "Sigma0_HH",
+                                                       "Sigma0_HV",
+                                                       "Sigma0_HH/Sigma0_HV"
+                                               }
+        ));
+        manager.addProfile(new RGBImageProfile("Dual Pol Sigma0 VV+VH",
+                                               new String[]{
+                                                       "Sigma0_VV",
+                                                       "Sigma0_VH",
+                                                       "Sigma0_VV/Sigma0_VH"
+                                               }
+        ));
+        manager.addProfile(new RGBImageProfile("Dual Pol Sigma0 HH+VV",
+                                               new String[]{
+                                                       "Sigma0_HH",
+                                                       "Sigma0_VV",
+                                                       "Sigma0_HH/Sigma0_VV"
+                                               }
+        ));
     }
 }
