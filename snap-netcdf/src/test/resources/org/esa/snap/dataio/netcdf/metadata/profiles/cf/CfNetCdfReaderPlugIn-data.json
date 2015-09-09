@@ -157,7 +157,7 @@
     },
     {
       "id": "MOD15A2_A2012121_h10v05_005_2012130084250",
-      "relativePath": "sensors_platforms/MODIS/MOD15/HDF4/MOD15A2.A2012121.h10v05.005.2012130084250.hdf",
+      "relativePath": "sensors_platforms/MODIS/old/MOD15/HDF4/MOD15A2.A2012121.h10v05.005.2012130084250.hdf",
       "description": "HDF4_Version: 4.1.5 (NCSA HDF Version 4.1 Release 5, November 5, 2001)"
     },
     {
@@ -187,7 +187,7 @@
     },
     {
       "id": "MYD02HKM_A2012136_0645_005_2012136170837",
-      "relativePath": "sensors_platforms/MODIS/MYD02HKM/HDF4/MYD02HKM.A2012136.0645.005.2012136170837.hdf",
+      "relativePath": "sensors_platforms/MODIS/old/MYD02HKM/HDF4/MYD02HKM.A2012136.0645.005.2012136170837.hdf",
       "description": "HDF4_Version: 4.2.5 (HDF Version 4.2 Release 5, February 17, 2010)"
     },
     {
