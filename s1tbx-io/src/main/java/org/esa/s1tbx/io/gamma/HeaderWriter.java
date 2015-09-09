@@ -38,10 +38,12 @@ public class HeaderWriter {
     private String baseFileName;
     private boolean isComplex = false;
     private boolean isCoregistered = false;
+    private final GammaProductWriter writer;
 
     private final static String sep = ":\t";
 
-    public HeaderWriter(final Product srcProduct, final File userOutputFile) {
+    public HeaderWriter(final GammaProductWriter writer, final Product srcProduct, final File userOutputFile) {
+        this.writer = writer;
         this.srcProduct = srcProduct;
 
         absRoot = AbstractMetadata.getAbstractedMetadata(srcProduct);
@@ -86,10 +88,23 @@ public class HeaderWriter {
         }
     }
 
+    public int getHighestElemSize() {
+        int highestElemSize = 0;
+        for(Band band : srcProduct.getBands()) {
+            if(writer.shouldWrite(band)) {
+                int elemSize = ProductData.getElemSize(band.getDataType());
+                if(elemSize > highestElemSize) {
+                    highestElemSize = elemSize;
+                }
+            }
+        }
+        return highestElemSize;
+    }
+
     private String getDataType() {
-        final Band band = srcProduct.getBandAt(0);
-        int elemSize = ProductData.getElemSize(band.getDataType());
-        if(elemSize >= 4) {
+        int highestElemSize = getHighestElemSize();
+
+        if(highestElemSize >= 4) {
             return "FCOMPLEX";
         } else {
             return "SCOMPLEX";
@@ -100,7 +115,7 @@ public class HeaderWriter {
         String name = FileUtils.getFilenameWithoutExtension(file);
         String ext = FileUtils.getExtension(name);
         String newExt = GammaConstants.PAR_EXTENSION;
-        if (ext != null && !ext.endsWith("slc")) {
+        if (ext == null || !ext.endsWith("slc")) {
             if (isComplex) {
                 if (isCoregistered) {
                     newExt = ".rslc" + newExt;

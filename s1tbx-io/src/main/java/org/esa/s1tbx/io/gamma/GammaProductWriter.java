@@ -77,21 +77,19 @@ public class GammaProductWriter extends AbstractProductWriter {
 
         srcProduct = getSourceProduct();
         srcProduct.setProductWriter(this);
-        srcProduct.setFileLocation(outputDir);
 
-        headerWriter = new HeaderWriter(srcProduct, outputFile);
+        headerWriter = new HeaderWriter(this, srcProduct, outputFile);
         headerWriter.writeParFile();
     }
 
     private ImageOutputStream createImageOutputStream(final Band band) throws IOException {
         final ImageOutputStream out = new FileImageOutputStreamExtImpl(getValidImageFile(band));
-        out.setByteOrder(ByteOrder.LITTLE_ENDIAN);
+        out.setByteOrder(ByteOrder.BIG_ENDIAN);
         return out;
     }
 
     private String createImageFilename(final Band band) {
-        //return band.getName() + GammaConstants.SLC_EXTENSION;
-        return headerWriter.getBaseFileName();
+        return headerWriter.getBaseFileName()+"_"+band.getName();
     }
 
     /**
@@ -105,6 +103,7 @@ public class GammaProductWriter extends AbstractProductWriter {
         Guardian.assertNotNull("sourceBand", sourceBand);
         Guardian.assertNotNull("sourceBuffer", sourceBuffer);
         final int sourceBandWidth = sourceBand.getSceneRasterWidth();
+        final int elemSize = headerWriter.getHighestElemSize();
 
         final ImageOutputStream outputStream = getOrCreateImageOutputStream(sourceBand);
         pm.beginTask("Writing band '" + sourceBand.getName() + "'...", sourceHeight);
@@ -116,7 +115,7 @@ public class GammaProductWriter extends AbstractProductWriter {
                 final ProductData qSourceBuffer = sourceTile.getRawSamples();
                 int srcCnt = 0;
 
-                if(sourceBuffer.getElemSize() > 4) {
+                if(elemSize >= 4) {
                     final float[] destBuffer = new float[sourceWidth * numInterleaved];
                     for (int y = sourceOffsetY; y < sourceOffsetY + sourceHeight; ++y) {
                         int dstCnt = 0;
@@ -127,7 +126,7 @@ public class GammaProductWriter extends AbstractProductWriter {
                             srcCnt++;
                         }
 
-                        outputStream.seek(sourceBuffer.getElemSize() * (y * sourceBandWidth + sourceOffsetX) * numInterleaved);
+                        outputStream.seek(elemSize * (y * sourceBandWidth + sourceOffsetX) * numInterleaved);
                         outputStream.writeFloats(destBuffer, 0, destBuffer.length);
                     }
                 } else {
@@ -141,7 +140,7 @@ public class GammaProductWriter extends AbstractProductWriter {
                             srcCnt++;
                         }
 
-                        outputStream.seek(sourceBuffer.getElemSize() * (y * sourceBandWidth + sourceOffsetX) * numInterleaved);
+                        outputStream.seek(elemSize * (y * sourceBandWidth + sourceOffsetX) * numInterleaved);
                         outputStream.writeShorts(destBuffer, 0, destBuffer.length);
                     }
                 }
@@ -283,16 +282,12 @@ public class GammaProductWriter extends AbstractProductWriter {
         final File file = getImageFile(band);
         if (file.exists()) {
             if (file.length() != getImageFileSize(band)) {
-                createPhysicalImageFile(band, file);
+                createPhysicalFile(file, getImageFileSize(band));
             }
         } else {
-            createPhysicalImageFile(band, file);
+            createPhysicalFile(file, getImageFileSize(band));
         }
         return file;
-    }
-
-    private static void createPhysicalImageFile(final Band band, final File file) throws IOException {
-        createPhysicalFile(file, getImageFileSize(band));
     }
 
     private static long getImageFileSize(final RasterDataNode band) {

@@ -2,6 +2,7 @@ package org.esa.s1tbx.io.gamma;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.Unit;
 import org.esa.snap.framework.dataio.AbstractProductReader;
 import org.esa.snap.framework.dataio.ProductReaderPlugIn;
 import org.esa.snap.framework.datamodel.Band;
@@ -17,6 +18,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Reader for stamps insar products
@@ -26,7 +31,7 @@ public class GammaReader extends AbstractProductReader {
     private Header header;
     private boolean isComplex = false;
     private boolean isCoregistered = false;
-    private ImageInputStream inStream;
+    private Map<Band, ImageInputStream> bandImageInputStreamMap = new HashMap<>();
 
     public GammaReader(ProductReaderPlugIn readerPlugIn) {
         super(readerPlugIn);
@@ -50,25 +55,33 @@ public class GammaReader extends AbstractProductReader {
             product.getMetadataRoot().addElement(header.getAsMetadata());
 
             final int dataType = getDataType();
-            if (isComplex) {
-                final Band tgtBandI = new Band("i_band", dataType, header.getNumSamples(), header.getNumLines());
-                tgtBandI.setUnit("real");
-                product.addBand(tgtBandI);
+            final File[] imageFiles = findImageFiles(inputParFile);
 
-                final Band tgtBandQ = new Band("q_band", dataType, header.getNumSamples(), header.getNumLines());
-                tgtBandQ.setUnit("imaginary");
-                product.addBand(tgtBandQ);
+            for(File imgFile : imageFiles) {
+                final ImageInputStream inStream = new FileImageInputStream(imgFile);
+                inStream.setByteOrder(header.getJavaByteOrder());
 
-                ReaderUtils.createVirtualIntensityBand(product, tgtBandI, tgtBandQ, "_band");
-                ReaderUtils.createVirtualPhaseBand(product, tgtBandI, tgtBandQ, "_band");
-            } else {
-                String bandName = getImageFile(inputParFile).getName();
-                final Band tgtBandI = new Band(bandName, dataType, header.getNumSamples(), header.getNumLines());
-                product.addBand(tgtBandI);
+                if (isComplex) {
+                    final Band tgtBandI = new Band("i_"+imgFile.getName(), dataType, header.getNumSamples(), header.getNumLines());
+                    tgtBandI.setUnit("real");
+                    product.addBand(tgtBandI);
+
+                    final Band tgtBandQ = new Band("q_"+imgFile.getName(), dataType, header.getNumSamples(), header.getNumLines());
+                    tgtBandQ.setUnit("imaginary");
+                    product.addBand(tgtBandQ);
+
+                    bandImageInputStreamMap.put(tgtBandI, inStream);
+                    bandImageInputStreamMap.put(tgtBandQ, inStream);
+
+                    ReaderUtils.createVirtualIntensityBand(product, tgtBandI, tgtBandQ, imgFile.getName());
+                    ReaderUtils.createVirtualPhaseBand(product, tgtBandI, tgtBandQ, "_"+imgFile.getName());
+                } else {
+                    final Band tgtBand = new Band(imgFile.getName(), dataType, header.getNumSamples(), header.getNumLines());
+                    product.addBand(tgtBand);
+
+                    bandImageInputStreamMap.put(tgtBand, inStream);
+                }
             }
-
-            inStream = new FileImageInputStream(getImageFile(inputParFile));
-            inStream.setByteOrder(header.getJavaByteOrder());
 
             addGeoCoding(product);
 
@@ -102,6 +115,20 @@ public class GammaReader extends AbstractProductReader {
             return ProductData.TYPE_FLOAT32;
         }
         return ProductData.TYPE_FLOAT32;
+    }
+
+    private File[] findImageFiles(final File parFile) {
+        final File[] files = parFile.getParentFile().listFiles();
+        final String baseName = FileUtils.getFilenameWithoutExtension(parFile);
+        final List<File> fileList = new ArrayList<>();
+        if(files != null) {
+            for(File file : files) {
+                if(file.getName().startsWith(baseName) && !file.getName().equals(parFile.getName())) {
+                    fileList.add(file);
+                }
+            }
+        }
+        return fileList.toArray(new File[fileList.size()]);
     }
 
     private File getImageFile(final File parFile) {
@@ -146,12 +173,17 @@ public class GammaReader extends AbstractProductReader {
                                           int destWidth, int destHeight,
                                           ProductData destBuffer,
                                           ProgressMonitor pm) throws IOException {
+
+        final ImageInputStream inStream = bandImageInputStreamMap.get(destBand);
+
         if (isComplex) {
 
             final int sourceMaxY = sourceOffsetY + sourceHeight;
-            Product product = destBand.getProduct();
             final int elemSize = destBuffer.getElemSize();
-            final int bandIndex = product.getBandIndex(destBand.getName());
+            int bandIndex = 0;
+            if(destBand.getUnit() != null && destBand.getUnit().equals(Unit.IMAGINARY)) {
+                bandIndex = 1;
+            }
 
             // band interleaved by pixel
             int numInterleaved = 2;
@@ -220,8 +252,10 @@ public class GammaReader extends AbstractProductReader {
 
     @Override
     public void close() throws IOException {
-        if (inStream != null) {
-            inStream.close();
+        for(ImageInputStream inStream : bandImageInputStreamMap.values()) {
+            if (inStream != null) {
+                inStream.close();
+            }
         }
         super.close();
     }
