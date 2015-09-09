@@ -177,7 +177,7 @@
     },
     {
       "id": "MODOCL2B_A2002074_1650_004_2002224193847",
-      "relativePath": "sensors_platforms/MODIS/MODOC/HDF4/MODOCL2B.A2002074.1650.004.2002224193847.hdf",
+      "relativePath": "sensors_platforms/MODIS/old/MODOC/HDF4/MODOCL2B.A2002074.1650.004.2002224193847.hdf",
       "description": "HDF4_Version: 4.1.1 (NCSA HDF Version 4.1 Release 1, February 21, 1997)"
     },
     {
