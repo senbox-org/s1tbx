@@ -477,7 +477,9 @@ public class ReprojectionOp extends Operator {
                 final int sourceLevel = sourceImage.getModel().getLevel(targetScale);
                 RenderedImage leveledSourceImage = sourceImage.getImage(sourceLevel);
 
-                final Rectangle sourceBounds = new Rectangle(leveledSourceImage.getWidth(),
+                final Rectangle sourceBounds = new Rectangle(leveledSourceImage.getMinX(),
+                                                             leveledSourceImage.getMinY(),
+                                                             leveledSourceImage.getWidth(),
                                                              leveledSourceImage.getHeight());
 
                 // the following transformation maps the source level image to level zero and then to the model,
@@ -496,7 +498,8 @@ public class ReprojectionOp extends Operator {
                         targetBand.getSceneRasterHeight(),
                         targetProduct.getPreferredTileSize(),
                         ResolutionLevel.create(getModel(), targetLevel));
-                Rectangle targetBounds = new Rectangle(imageLayout.getWidth(null), imageLayout.getHeight(null));
+                Rectangle targetBounds = new Rectangle(imageLayout.getMinX(null), imageLayout.getMinY(null),
+                                                       imageLayout.getWidth(null), imageLayout.getHeight(null));
 
                 // the following transformation maps the target level image to level zero and then to the model,
                 // which always is a map
