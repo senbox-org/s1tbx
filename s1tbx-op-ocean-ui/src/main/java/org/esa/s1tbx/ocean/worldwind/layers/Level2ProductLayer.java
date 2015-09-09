@@ -17,6 +17,7 @@ package org.esa.s1tbx.ocean.worldwind.layers;
 
 import com.bc.ceres.core.ProgressMonitor;
 import gov.nasa.worldwind.WorldWind;
+import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
 import gov.nasa.worldwind.event.SelectEvent;
@@ -24,6 +25,7 @@ import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Sector;
+import gov.nasa.worldwind.layers.Layer;
 import gov.nasa.worldwind.render.BasicShapeAttributes;
 import gov.nasa.worldwind.render.DrawContext;
 import gov.nasa.worldwind.render.Material;
@@ -33,22 +35,29 @@ import gov.nasa.worldwind.render.ScreenAnnotation;
 import gov.nasa.worldwind.render.ShapeAttributes;
 import gov.nasa.worldwind.util.BufferFactory;
 import gov.nasa.worldwind.util.BufferWrapper;
+import gov.nasa.worldwind.util.Logging;
 import gov.nasa.worldwind.util.WWMath;
 import gov.nasa.worldwindx.examples.analytics.AnalyticSurface;
 import gov.nasa.worldwindx.examples.analytics.AnalyticSurfaceAttributes;
 import gov.nasa.worldwindx.examples.util.DirectedPath;
+
+import org.esa.snap.worldwind.ArrowInfo;
+import org.esa.snap.worldwind.ColorBarLegend;
+import org.esa.snap.worldwind.ProductRenderablesInfo;
+
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.datamodel.PixelPos;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.util.SystemUtils;
-import org.esa.snap.worldwind.ArrowInfo;
 import org.esa.snap.worldwind.ColorBarLegend;
 import org.esa.snap.worldwind.ProductRenderablesInfo;
 import org.esa.snap.worldwind.layers.BaseLayer;
 import org.esa.snap.worldwind.layers.WWLayer;
 
+import javax.media.opengl.GL;
+import javax.media.opengl.GL2;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -59,6 +68,7 @@ import java.text.DecimalFormat;
 import java.text.Format;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 /**
     S-1 L2 OCN visualization
@@ -144,7 +154,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
         if (event.getEventAction().equals(SelectEvent.ROLLOVER) && (event.getTopObject() instanceof DirectedPath)) {
             SystemUtils.LOG.info("click " + event.getTopObject());
 
-            SystemUtils.LOG.info("DirectedPath:::");
+            //SystemUtils.LOG.info("DirectedPath:::");
             DirectedPath dp = (DirectedPath) event.getTopObject();
             //dp.getAttributes().setOutlineMaterial(Material.WHITE);
             dp.setHighlighted(true);
@@ -206,6 +216,9 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
         final Band owiIncAngleBand = product.getBand(prefix + "_001_owiIncidenceAngle");
         final Band owiWindSpeedBand = product.getBand(prefix + "_001_owiWindSpeed");
         final Band owiWindDirBand = product.getBand(prefix + "_001_owiWindDirection");
+
+        final Band rvlLonBand = product.getBand(prefix + "_001_rvlLon");
+        final Band rvlLatBand = product.getBand(prefix + "_001_rvlLat");
         final Band rvlRadVelBand = product.getBand(prefix + "_001_rvlRadVel");
 
         final Band waveLonBand = product.getBand(prefix + "_001_oswLon");
@@ -230,10 +243,10 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
 
         try {
             if(owiLonBand != null) {
-                final float[] lonValues = new float[owiLonBand.getRasterWidth() * owiLonBand.getRasterHeight()];
+                final double[] lonValues = new double[owiLonBand.getRasterWidth() * owiLonBand.getRasterHeight()];
                 owiLonBand.readPixels(0, 0, owiLonBand.getRasterWidth(), owiLonBand.getRasterHeight(), lonValues, ProgressMonitor.NULL);
 
-                final float[] latValues = new float[owiLatBand.getRasterWidth() * owiLatBand.getRasterHeight()];
+                final double[] latValues = new double[owiLatBand.getRasterWidth() * owiLatBand.getRasterHeight()];
                 owiLatBand.readPixels(0, 0, owiLatBand.getRasterWidth(), owiLatBand.getRasterHeight(), latValues, ProgressMonitor.NULL);
 
                 final double[] incAngleValues = new double[owiIncAngleBand.getRasterWidth() * owiIncAngleBand.getRasterHeight()];
@@ -258,22 +271,31 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
 
             }
             */
-            addWindSpeedArrows(latValues, lonValues, incAngleValues, windSpeedValues, windDirValues, owiLonBand.getRasterWidth(), owiLonBand.getRasterHeight(), productRenderablesInfo.theRenderableListHash.get("owi"));
+                addWindSpeedArrows(latValues, lonValues, incAngleValues, windSpeedValues, windDirValues, owiLonBand.getRasterWidth(), owiLonBand.getRasterHeight(), productRenderablesInfo.theRenderableListHash.get("owi"));
 
-            createColorSurfaceWithGradient(geoPos1, geoPos2, windSpeedValues, owiWindSpeedBand.getRasterWidth(), owiWindSpeedBand.getRasterHeight(), 0, 10, false, productRenderablesInfo.theRenderableListHash.get("owi"), productRenderablesInfo, "owi");
+                createColorSurfaceWithGradient(geoPos1, geoPos2, latValues, lonValues, windSpeedValues, owiWindSpeedBand.getRasterWidth(), owiWindSpeedBand.getRasterHeight(), 0, 10, false, productRenderablesInfo.theRenderableListHash.get("owi"), productRenderablesInfo, "owi");
 
             }
 
+            // right now, this happens: InvalidRangeException when reading variable rvlLon
             if (rvlRadVelBand != null) {
+                final double[] rvlLonValues = new double[rvlLonBand.getRasterWidth() * rvlLonBand.getRasterHeight()];
+                rvlLonBand.readPixels(0, 0, rvlLonBand.getRasterWidth(), rvlLonBand.getRasterHeight(), rvlLonValues, ProgressMonitor.NULL);
+
+                final double[] rvlLatValues = new double[rvlLatBand.getRasterWidth() * rvlLatBand.getRasterHeight()];
+                rvlLatBand.readPixels(0, 0, rvlLatBand.getRasterWidth(), rvlLatBand.getRasterHeight(), rvlLatValues, ProgressMonitor.NULL);
+
+
                 final double[] rvlRadVelValues = new double[rvlRadVelBand.getRasterWidth() * rvlRadVelBand.getRasterHeight()];
                 rvlRadVelBand.readPixels(0, 0, rvlRadVelBand.getRasterWidth(), rvlRadVelBand.getRasterHeight(), rvlRadVelValues, ProgressMonitor.NULL);
 
-		if (rvlRadVelValues != null) {
-                	createColorSurfaceWithGradient(geoPos1, geoPos2, rvlRadVelValues, rvlRadVelBand.getRasterWidth(), rvlRadVelBand.getRasterHeight(), -6, 6, true, productRenderablesInfo.theRenderableListHash.get("rvl"), productRenderablesInfo, "rvl");
+		        if (rvlRadVelValues != null) {
+                	createColorSurfaceWithGradient(geoPos1, geoPos2, rvlLatValues, rvlLonValues, rvlRadVelValues, rvlRadVelBand.getRasterWidth(), rvlRadVelBand.getRasterHeight(), -6, 6, true, productRenderablesInfo.theRenderableListHash.get("rvl"), productRenderablesInfo, "rvl");
             	}
             }
 
             if (waveLonBand != null) {
+
                 final double[] waveLonValues = new double[waveLonBand.getRasterWidth() * waveLonBand.getRasterHeight()];
                 waveLonBand.readPixels(0, 0, waveLonBand.getRasterWidth(), waveLonBand.getRasterHeight(), waveLonValues, ProgressMonitor.NULL);
 
@@ -294,7 +316,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
                                     waveLonBand.getRasterWidth(), waveLonBand.getRasterHeight(),
                                     productRenderablesInfo.theRenderableListHash.get("osw"));
 
-                createColorSurfaceWithGradient(geoPos1, geoPos2, waveHeightValues, waveHeightBand.getRasterWidth(),
+                createColorSurfaceWithGradient(geoPos1, geoPos2, waveLonValues, waveLatValues, waveHeightValues, waveHeightBand.getRasterWidth(),
                                                waveHeightBand.getRasterHeight(), 0, 10, false,
                                                productRenderablesInfo.theRenderableListHash.get("osw"),
                                                productRenderablesInfo, "osw");
@@ -309,9 +331,10 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
         }
     }
 
-    public void createColorSurfaceWithGradient(GeoPos geoPos1, GeoPos geoPos2, double[] values, int width, int height,
+    public void createColorSurfaceWithGradient(GeoPos geoPos1, GeoPos geoPos2, double[] latValues,
+                                               double[] lonValues, double[] values, int width, int height,
                                                double minValue, double maxValue, boolean whiteZero, ArrayList<Renderable> renderableList, ProductRenderablesInfo prodRenderInfo, String comp) {
-        createColorSurface(geoPos2.getLat(), geoPos1.getLat(), geoPos1.getLon(), geoPos2.getLon(), values, width, height,
+        createColorSurface(geoPos1, geoPos2, latValues, lonValues, values, width, height,
                            renderableList, prodRenderInfo, comp);
         //createColorSurface(geoPos2.getLat(), geoPos1.getLat(), geoPos1.getLon(), geoPos2.getLon(), rvlRadVelValues, 40, 40, minValue, maxValue, renderableList);
 
@@ -320,7 +343,6 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
 
         //createRandomColorSurface(25, 35, -110, -100, HUE_BLUE, HUE_RED, 40, 40, minValue, maxValue, this);
         //createRandomColorSurface(geoPos2.getLat(),  geoPos1.getLat(), 55, 57, HUE_BLUE, HUE_RED, 40, 40, minValue, maxValue, this);
-        System.out.println("geoPos1.getLat(), geoPos2.getLat(), geoPos1.getLon(), geoPos2.getLon() " + geoPos1.getLat() + " " + geoPos2.getLat() + " " + geoPos1.getLon() + " " + geoPos2.getLon());
 
         // don't create color legend if one already exists
         if (theColorBarLegendHash.get(comp) != null) {
@@ -371,13 +393,13 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
 
                 //ProductRenderablesInfo productRenderablesInfo = theProductRenderablesInfoHash.get(theColorBarLegendProduct);
                 for (ProductRenderablesInfo productRenderablesInfo : theProductRenderablesInfoHash.values()) {
-                    SystemUtils.LOG.info("::: productRenderablesInfo " + productRenderablesInfo);
+                    //SystemUtils.LOG.info("::: productRenderablesInfo " + productRenderablesInfo);
                     if (productRenderablesInfo != null) {
                         ArrayList<Renderable> renderableList = productRenderablesInfo.theRenderableListHash.get(currComp);
                         for (Renderable renderable : renderableList) {
                             removeRenderable(renderable);
                             if (currComp.equals(comp)) {
-                                //SystemUtils.LOG.info("::: add renderable " + renderable);
+
                                 addRenderable(renderable);
                             }
                         }
@@ -389,23 +411,23 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
         wwd.redrawNow();
     }
 
-    private void addWindSpeedArrows(float[] latValues,
-                                     float[] lonValues,
+    private void addWindSpeedArrows(double[] latValues,
+                                     double[] lonValues,
                                      double[] incAngleValues,
                                      double[] windSpeedValues,
                                      double[] windDirValues,
                                      int width,
                                      int height,
                                      ArrayList<Renderable> renderableList) {
-        float pixelWidth = Math.abs(lonValues[0] - lonValues[lonValues.length - 1]) / width;
-        float pixelHeight = Math.abs(latValues[0] - latValues[latValues.length - 1]) / height;
+        double pixelWidth = Math.abs(lonValues[0] - lonValues[lonValues.length - 1]) / width;
+        double pixelHeight = Math.abs(latValues[0] - latValues[latValues.length - 1]) / height;
 
         //SystemUtils.LOG.info("pixelWidth " + pixelWidth + " pixelHeight " + pixelHeight);
 
         //System.out.println("pixelWidth " + pixelWidth + " pixelHeight " + pixelHeight);
 
         // take the smaller dimension
-        float arrowLength_deg = pixelWidth;
+        double arrowLength_deg = pixelWidth;
         if (pixelHeight < pixelWidth) {
             arrowLength_deg = pixelHeight;
         }
@@ -768,16 +790,71 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
     }
 
     // ADDED
-    protected void createColorSurface(double minLat, double maxLat, double minLon, double maxLon, double[] values,
+    protected void createColorSurface(GeoPos geoPos1, GeoPos geoPos2, double[] latValues, double[] lonValues, double[] values,
                                       int width, int height, ArrayList<Renderable> renderableList,
                                       ProductRenderablesInfo prodRenderInfo, String comp)
     {
         //double minValue = -200e3;
         //double maxValue = 200e3;
-        SystemUtils.LOG.info("createColorSurface " + minLat + " " + maxLat + " " + minLon + " " + maxLon);
+        SystemUtils.LOG.info("createColorSurface " + latValues.length + " " + lonValues.length + " " + values.length + " " + width + " " + height);
 
-        AnalyticSurface analyticSurface = new AnalyticSurface();
-        analyticSurface.setSector(Sector.fromDegrees(minLat, maxLat, minLon, maxLon));
+        AnalyticSurface analyticSurface = new AnalyticSurface(){
+
+            protected void doUpdate(DrawContext dc)
+            {
+                this.referencePos = new Position(this.sector.getCentroid(),
+                        this.altitude);
+                this.referencePoint =
+                        dc.getGlobe().computePointFromPosition(this.referencePos);
+
+                if (this.surfaceRenderInfo == null ||
+                        this.surfaceRenderInfo.getGridWidth() != this.width ||
+                        this.surfaceRenderInfo.getGridHeight() != this.height)
+                {
+                    this.surfaceRenderInfo = new RenderInfo(this.width, this.height) {
+                        public void drawInterior(DrawContext dc)
+                        {
+                            if (dc == null) {
+                                cartesianVertexBuffer.rewind();
+                                geographicVertexBuffer.rewind();
+                                colorBuffer.rewind();
+                                shadowColorBuffer.rewind();
+                                return;
+                            }
+                            super.drawInterior(dc);
+                        }
+                    };
+                }
+
+                this.updateSurfacePoints(dc, this.surfaceRenderInfo);
+                this.updateSurfaceNormals(this.surfaceRenderInfo);
+            }
+
+            protected void updateSurfacePoints(DrawContext dc, RenderInfo
+                    outRenderInfo)
+            {
+                Iterator<? extends GridPointAttributes> iter =
+                        this.values.iterator();
+
+
+
+                for (int row = 0; row < this.height; row++) {
+                    for (int col = 0; col < this.width; col++) {
+                        int i = row*(this.width) + col;
+                        GridPointAttributes attr = iter.hasNext() ? iter.next() :
+                                null;
+                        this.updateNextSurfacePoint(dc, Angle.fromDegrees(latValues[i]),
+                                Angle.fromDegrees(lonValues[i]), attr, outRenderInfo);
+                    }
+                }
+                //outRenderInfo.rewindBuffers();
+                outRenderInfo.drawInterior(null);
+            }
+
+
+
+        };
+        analyticSurface.setSector(Sector.fromDegrees(geoPos2.getLat(), geoPos1.getLat(), geoPos1.getLon(), geoPos2.getLon()));
         analyticSurface.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
         analyticSurface.setDimensions(width, height);
 
@@ -1006,7 +1083,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
             }
         });
 
-        arrowDisplayPanel.add(new JLabel("Display Arrows:"));
+        arrowDisplayPanel.add(new JLabel("Display Wind Vectors:"));
         arrowDisplayPanel.add(theArrowsCB);
         controlLevel2Panel.add(arrowDisplayPanel);
 
@@ -1048,7 +1125,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
         minSP.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                System.out.println("new value " + ((JSpinner) e.getSource()).getValue());
+                SystemUtils.LOG.info("new value " + ((JSpinner) e.getSource()).getValue());
 
                 theOWILimitChanged = true;
             }
@@ -1084,7 +1161,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
                 }
 
                 if (theRVLLimitChanged) {
-                    System.out.println("theRVLLimitChanged");
+                    SystemUtils.LOG.info("theRVLLimitChanged");
 
                     //double minValue = ((Integer) minSP.getValue()) * 1.0e4;
                     //double maxValue = ((Integer) maxSP.getValue()) * 1.0e4;
