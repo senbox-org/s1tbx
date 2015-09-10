@@ -466,8 +466,8 @@ public class ReprojectionOp extends Operator {
                                                  MultiLevelModel targetModel, Reproject reprojection) {
         final CoordinateReferenceSystem sourceModelCrs = ImageManager.getModelCrs(sourceGeoCoding);
         final CoordinateReferenceSystem targetModelCrs = ImageManager.getModelCrs(targetBand.getGeoCoding());
-        final AffineTransform i2mSourceProduct = ImageManager.getImageToModelTransform(sourceGeoCoding);
-        final AffineTransform i2mTargetProduct = ImageManager.getImageToModelTransform(targetBand.getGeoCoding());
+        final AffineTransform sourceImageToMapTransform = ImageManager.getImageToModelTransform(sourceGeoCoding);
+        final AffineTransform targetImageToMapTransform = ImageManager.getImageToModelTransform(targetBand.getGeoCoding());
 
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(targetModel) {
 
@@ -486,7 +486,7 @@ public class ReprojectionOp extends Operator {
                 // which either is a map or an image CRS
                 final AffineTransform i2mSource = sourceModel.getImageToModelTransform(sourceLevel);
                 i2mSource.concatenate(sourceModel.getModelToImageTransform(0));
-                i2mSource.concatenate(i2mSourceProduct);
+                i2mSource.concatenate(sourceImageToMapTransform);
 
                 ImageGeometry sourceGeometry = new ImageGeometry(sourceBounds,
                                                                  sourceModelCrs,
@@ -505,7 +505,7 @@ public class ReprojectionOp extends Operator {
                 // which always is a map
                 final AffineTransform i2mTarget = getModel().getImageToModelTransform(targetLevel);
                 i2mTarget.concatenate(getModel().getModelToImageTransform(0));
-                i2mTarget.concatenate(i2mTargetProduct);
+                i2mTarget.concatenate(targetImageToMapTransform);
 
                 ImageGeometry targetGeometry = new ImageGeometry(targetBounds,
                                                                  targetModelCrs,
