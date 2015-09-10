@@ -24,7 +24,6 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.TopologyException;
-import org.esa.snap.framework.datamodel.GeoCoding;
 import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.jai.ImageManager;
@@ -54,7 +53,6 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -301,25 +299,5 @@ public class FeatureUtils {
             coordinates[coordinates.length - 1] = coordinates[0];
         }
         return gf.createPolygon(gf.createLinearRing(coordinates), null);
-    }
-
-    private static FeatureCollection<SimpleFeatureType, SimpleFeature> transformPixelPosToGeoPos(FeatureCollection<SimpleFeatureType, SimpleFeature> fc, GeoCoding geoCoding) {
-        Iterator<SimpleFeature> iterator = fc.iterator();
-        FeatureCollection<SimpleFeatureType, SimpleFeature> transformedFc = new DefaultFeatureCollection(fc.getID(), fc.getSchema());
-        while (iterator.hasNext()) {
-            SimpleFeature sourceFeature = iterator.next();
-            Geometry geometry = (Geometry) sourceFeature.getDefaultGeometry();
-            GeometryCoordinateSequenceTransformer transformer = new GeometryCoordinateSequenceTransformer();
-            transformer.setMathTransform(geoCoding.getImageToMapTransform());
-            transformer.setCoordinateReferenceSystem(geoCoding.getMapCRS());
-            try {
-                geometry = transformer.transform(geometry);
-            } catch (TransformException e) {
-                throw new IllegalStateException(e);
-            }
-            sourceFeature.setDefaultGeometry(geometry);
-            transformedFc.add(sourceFeature);
-        }
-        return transformedFc;
     }
 }
