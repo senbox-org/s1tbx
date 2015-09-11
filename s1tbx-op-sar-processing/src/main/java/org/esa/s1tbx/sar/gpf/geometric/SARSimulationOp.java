@@ -905,23 +905,23 @@ public final class SARSimulationOp extends Operator {
         final double wa = azimuthIndex - ia0;
         final double wac = 1 - wa;
 
-        if (ir0 >= x0) {
+        if (ir0 >= x0 && ir0 < x0 + w) {
             final double wrc = 1 - wr;
-            if (ia0 >= y0) {
+            if (ia0 >= y0 && ia0 < y0 + h) {
                 final int idx00 = targetTile.getDataBufferIndex(ir0, ia0);
                 masterBuffer.setElemDoubleAt(idx00, wrc * wac * v + masterBuffer.getElemDoubleAt(idx00));
             }
-            if (ia1 < y0 + h) {
+            if (ia1 >= y0 && ia1 < y0 + h) {
                 final int idx10 = targetTile.getDataBufferIndex(ir0, ia1);
                 masterBuffer.setElemDoubleAt(idx10, wrc * wa * v + masterBuffer.getElemDoubleAt(idx10));
             }
         }
-        if (ir1 < x0 + w) {
-            if (ia0 >= y0) {
+        if (ir1 >= x0 && ir1 < x0 + w) {
+            if (ia0 >= y0 && ia0 < y0 + h) {
                 final int idx01 = targetTile.getDataBufferIndex(ir1, ia0);
                 masterBuffer.setElemDoubleAt(idx01, wr * wac * v + masterBuffer.getElemDoubleAt(idx01));
             }
-            if (ia1 < y0 + h) {
+            if (ia1 >= y0 && ia1 < y0 + h) {
                 final int idx11 = targetTile.getDataBufferIndex(ir1, ia1);
                 masterBuffer.setElemDoubleAt(idx11, wr * wa * v + masterBuffer.getElemDoubleAt(idx11));
             }
