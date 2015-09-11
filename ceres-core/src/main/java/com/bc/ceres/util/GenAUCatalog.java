@@ -51,14 +51,21 @@ public class GenAUCatalog {
     private DocumentBuilder documentBuilder;
     private Path catalogXmlPath;
     private Path catalogXmlGzPath;
+    private String notificationMessage;
+    private String notificationURL;
 
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {
-            logErr("Please specify a path to a directory contain NetBeans modules (*.nbm)");
+            logErr("Please specify at least a path to a directory contain NetBeans modules (*.nbm)");
         }
         Path moduleDir = Paths.get(args[0]);
-
         GenAUCatalog generator = new GenAUCatalog(moduleDir);
+        if (args.length > 1) {
+            generator.setNotificationMessage(args[1]);
+        }
+        if (args.length > 2) {
+            generator.setNotificationURL(args[2]);
+        }
         generator.run();
     }
 
@@ -79,6 +86,14 @@ public class GenAUCatalog {
         xmlTransformer = TransformerFactory.newInstance().newTransformer();
         xmlTransformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
         xmlTransformer.setOutputProperty(OutputKeys.INDENT, "yes");
+    }
+
+    public void setNotificationMessage(String msg) {
+        this.notificationMessage = msg;
+    }
+
+    public void setNotificationURL(String url) {
+        this.notificationURL = url;
     }
 
     private void run() throws Exception {
@@ -115,11 +130,22 @@ public class GenAUCatalog {
     private void writeCatalogXml(ArrayList<Node> moduleList, HashMap<String, Node> licenseMap) throws Exception {
         BufferedWriter writer = Files.newBufferedWriter(catalogXmlPath);
         writer.write(XML_HEAD);
-        writer.write(String.format("<module_updates timestamp=\"%s\">", timeStampFormat.format(Date.from(Instant.now()))));
+        if(notificationMessage != null) {
+            writeNotificationElement(writer);
+        }
+        writer.write(String.format("<module_updates timestamp=\"%s\">\r\n", timeStampFormat.format(Date.from(Instant.now()))));
         writeNodeCollection(moduleList, writer);
         writeNodeCollection(licenseMap.values(), writer);
-        writer.write("</module_updates>");
+        writer.write("</module_updates>\r\n");
         writer.close();
+    }
+
+    private void writeNotificationElement(BufferedWriter writer) throws IOException {
+        String urlString = "";
+        if(notificationURL != null) {
+            urlString = String.format(" url=\"%s\"", notificationURL);
+        }
+        writer.write(String.format("<notification%s>%s</notification>\r\n\r\n", urlString, notificationMessage));
     }
 
     private boolean isNbmModuleFile(Path path) {
