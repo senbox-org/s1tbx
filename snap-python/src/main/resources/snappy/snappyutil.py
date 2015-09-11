@@ -104,10 +104,9 @@ def _configure_snappy(snap_home=None,
 
         #
         # See if user put a custom jpy platform wheel into snappy dir
-        # ./snappy/lib/jpy-{version}-{python_tag}-{abi_tag}-{platform_tag}.whl
+        # ./snappy/jpy-{version}-{python_tag}-{abi_tag}-{platform_tag}.whl
         #
-        custom_lib_dir = os.path.join(snappy_dir, 'lib')
-        jpy_wheel_file = _find_file(custom_lib_dir, jpy_wheel_file_rec)
+        jpy_wheel_file = _find_file(snappy_dir, jpy_wheel_file_rec)
         # No, then search for it in the snap-python module
         if not jpy_wheel_file:
             #
@@ -136,13 +135,13 @@ def _configure_snappy(snap_home=None,
         else:
             logging.error("The module 'jpy' is required to run snappy, but no binary 'jpy' wheel matching the pattern")
             logging.error("'" + jpy_wheel_file_pat + "' could be found.\n"
-                          + "You can try to build a 'jpy' wheel yourself and then copy (or unpack) it into\n"
-                          + "" + custom_lib_dir + "\n"
+                          + "You can try to build a 'jpy' wheel yourself and then copy it into\n"
+                          + "\"" + snappy_dir + "\" and then run the configuration again.\n"
                           + "Please go to https://github.com/bcdev/jpy and follow the build instructions. E.g.\n"
                           + "  > git clone https://github.com/bcdev/jpy.git\n"
                           + "  > cd jpy\n"
                           + "  > python setup.py bdist_wheel\n"
-                          + "  > cp dist/*.whl \"" + custom_lib_dir + "\"")
+                          + "  > cp dist/*.whl \"" + snappy_dir + "\"")
             return 10
     else:
         logging.info("jpy is already installed")
@@ -209,7 +208,11 @@ def _configure_snappy(snap_home=None,
     logging.info("Importing snappy for final test...")
     sys.path = [os.path.join(snappy_dir, '..')] + sys.path
     __import__('snappy')
-    logging.info("Success!")
+
+    logging.info("Done. The SNAP-Python interface is located in '%s'\n"
+                 "When using SNAP from Python, either do: sys.path.append('%s')\n"
+                 "or copy the snappy module into your Python's 'site-packages' directory."
+                 % (snappy_dir, snappy_dir.replace("\\", "\\\\")))
 
     return 0
 
