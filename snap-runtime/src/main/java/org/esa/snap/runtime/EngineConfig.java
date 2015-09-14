@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * <li>{@code snap.excludedClusters}: Used only in SNAP Engine stand-alone mode: List of comma-separated NetBeans cluster names to be excluded from the Engine. Valid values are the ones contained in {@code $snap.home/etc/snap.clusters} (expert setting)</li>
  * <li>{@code snap.excludedModules}: Used only in SNAP Engine stand-alone mode: List of comma-separated module names to be excluded from the Engine. Module name: {@code [groupId:]artifactId}, default {@code groupId} is {@code org.esa.snap} (expert setting)</li>
  * <li>{@code snap.debug}: Log debugging information about SNAP Engine configuration, runtime, and launcher (expert setting)</li>
- * <li>{@code snap.log.name}: Name for the logger to be used (expert setting)</li>
+ * <li>{@code snap.logger.name}: Name for the logger to be used (expert setting)</li>
  * <li>{@code snap.log.level}: The logging level to be used, one of OFF, ALL, DEBUG, INFO, WARNING, ERROR (expert setting)</li>
  * </ul>
  * Configurations are not read from any configured (Java properties) files until the {@link #load()} method is called.
@@ -165,7 +165,11 @@ public class EngineConfig extends Config {
     }
 
     public EngineConfig logLevel(Level level) {
-        preferences().put(PROPERTY_LOG_LEVEL, level.getName());
+        return logLevel(level.getName());
+    }
+
+    public EngineConfig logLevel(String levelName) {
+        preferences().put(PROPERTY_LOG_LEVEL, levelName);
         updateLogger();
         return this;
     }
