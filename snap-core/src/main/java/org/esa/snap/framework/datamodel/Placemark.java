@@ -369,7 +369,7 @@ public class Placemark extends ProductNode {
             if (geoCoding != null && geoCoding.canGetGeoPos()) {
                 geoPos = geoCoding.getGeoPos(imagePos, geoPos);
             }
-        } else if (Config.instance("snap-engine").preferences().getBoolean(sysprop_snap_to_exact_geolocation, true)) {
+        } else if (Config.instance().preferences().getBoolean(sysprop_snap_to_exact_geolocation, true)) {
             descriptor.updateGeoPos(geoCoding, imagePos, geoPos);
         }
 

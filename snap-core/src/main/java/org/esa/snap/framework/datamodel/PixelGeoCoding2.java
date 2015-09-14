@@ -86,7 +86,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
                     "latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2");
         }
 
-        fractionAccuracy = Config.instance("snap-engine").preferences().getBoolean(SYSPROP_PIXEL_GEO_CODING_FRACTION_ACCURACY, false);
+        fractionAccuracy = Config.instance().preferences().getBoolean(SYSPROP_PIXEL_GEO_CODING_FRACTION_ACCURACY, false);
         this.latBand = latBand;
         this.lonBand = lonBand;
         formerGeocoding = product.getGeoCoding();

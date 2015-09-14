@@ -298,7 +298,7 @@ public class Product extends ProductNode {
         groups.add(pinGroup);
         groups.add(gcpGroup);
 
-        snapToExactGeolocation = Config.instance("snap-engine").preferences().getBoolean(sysprop_snap_to_exact_geolocation, true);
+        snapToExactGeolocation = Config.instance().preferences().getBoolean(sysprop_snap_to_exact_geolocation, true);
 
         setModified(false);
 
