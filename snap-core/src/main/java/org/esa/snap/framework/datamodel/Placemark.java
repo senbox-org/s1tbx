@@ -47,7 +47,7 @@ import java.util.List;
  */
 public class Placemark extends ProductNode {
 
-    private static final String sysprop_snap_to_exact_geolocation = "snap.pin.adjust.geolocation";
+    private static final String SYSPROP_SNAP_TO_COMPUTED_GEOLOCATION = "snap.pin.adjust.geolocation";
 
     @Deprecated
     public static final String PLACEMARK_FEATURE_TYPE_NAME = "Placemark";
@@ -369,7 +369,7 @@ public class Placemark extends ProductNode {
             if (geoCoding != null && geoCoding.canGetGeoPos()) {
                 geoPos = geoCoding.getGeoPos(imagePos, geoPos);
             }
-        } else if (Config.instance().preferences().getBoolean(sysprop_snap_to_exact_geolocation, true)) {
+        } else if (Config.instance().preferences().getBoolean(SYSPROP_SNAP_TO_COMPUTED_GEOLOCATION, true)) {
             descriptor.updateGeoPos(geoCoding, imagePos, geoPos);
         }
 

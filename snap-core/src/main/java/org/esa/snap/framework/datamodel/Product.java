@@ -87,7 +87,7 @@ public class Product extends ProductNode {
     public static final String METADATA_ROOT_NAME = "metadata";
     public static final String HISTORY_ROOT_NAME = "history";
 
-    private static final String sysprop_snap_to_exact_geolocation = "snap.pin.adjust.geolocation";
+    private static final String SYSPROP_SNAP_TO_COMPUTED_GEOLOCATION = "snap.pin.adjust.geolocation";
 
     /**
      * @deprecated since BEAM 4.10, no replacement
@@ -298,7 +298,7 @@ public class Product extends ProductNode {
         groups.add(pinGroup);
         groups.add(gcpGroup);
 
-        snapToExactGeolocation = Config.instance().preferences().getBoolean(sysprop_snap_to_exact_geolocation, true);
+        snapToExactGeolocation = Config.instance().preferences().getBoolean(SYSPROP_SNAP_TO_COMPUTED_GEOLOCATION, true);
 
         setModified(false);
 
