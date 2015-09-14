@@ -2840,9 +2840,6 @@ public class Product extends ProductNode {
             if (maskImage == null) {
                 maskImage = createMaskImage(expression, associatedRaster);
                 maskCache.put(expression, new WeakReference<>(maskImage));
-                System.out.printf("%s.getMaskImage(%s, %s): new: maskCache.size() = %d%n", getClass().getSimpleName(), expression, associatedRaster != null ? associatedRaster.getName() : "null", maskCache.size());
-            } else {
-                System.out.printf("%s.getMaskImage(%s, %s): cached: maskCache.size() = %d%n", getClass().getSimpleName(), expression, associatedRaster != null ? associatedRaster.getName() : "null", maskCache.size());
             }
             return maskImage;
         }
