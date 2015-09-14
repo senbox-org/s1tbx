@@ -67,7 +67,6 @@ public class EngineConfig extends Config {
             "org.esa.snap:netbeans-docwin",
             "org.esa.snap:netbeans-tile",
             "org.esa.snap:snap-gui-utilities",
-            "org.esa.snap:snap-visat-rcp",
             "org.esa.snap:snap-worldwind",
             "org.esa.snap:snap-rcp",
             "org.esa.snap:snap-ui",
