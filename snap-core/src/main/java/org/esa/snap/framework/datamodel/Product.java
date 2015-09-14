@@ -43,6 +43,7 @@ import org.esa.snap.framework.dataop.maptransf.MapTransform;
 import org.esa.snap.jai.ImageManager;
 import org.esa.snap.jai.ResolutionLevel;
 import org.esa.snap.jai.VirtualBandOpImage;
+import org.esa.snap.runtime.Config;
 import org.esa.snap.util.BitRaster;
 import org.esa.snap.util.Debug;
 import org.esa.snap.util.Guardian;
@@ -58,7 +59,6 @@ import java.awt.geom.Point2D;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
-import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -86,6 +86,8 @@ public class Product extends ProductNode {
 
     public static final String METADATA_ROOT_NAME = "metadata";
     public static final String HISTORY_ROOT_NAME = "history";
+
+    private static final String sysprop_snap_to_exact_geolocation = "snap.pin.adjust.geolocation";
 
     /**
      * @deprecated since BEAM 4.10, no replacement
@@ -210,6 +212,7 @@ public class Product extends ProductNode {
      * @since BEAM 5.0
      */
     private int numResolutionsMax;
+    private boolean snapToExactGeolocation;
 
     /**
      * Creates a new product without any reader (in-memory product)
@@ -294,6 +297,8 @@ public class Product extends ProductNode {
         groups.add(maskGroup);
         groups.add(pinGroup);
         groups.add(gcpGroup);
+
+        snapToExactGeolocation = Config.instance("snap-engine").preferences().getBoolean(sysprop_snap_to_exact_geolocation, true);
 
         setModified(false);
 
@@ -404,7 +409,17 @@ public class Product extends ProductNode {
     private void handleGeoCodingChange() {
         for (int i = 0; i < pinGroup.getNodeCount(); i++) {
             final Placemark pin = pinGroup.get(i);
-            pin.setGeoPos(pin.getGeoPos());
+            if (snapToExactGeolocation) {
+                final PlacemarkDescriptor pinDescriptor = pin.getDescriptor();
+                final PixelPos pixelPos = pin.getPixelPos();
+                GeoPos geoPos = pin.getGeoPos();
+                if (pixelPos != null) {
+                    geoPos = pinDescriptor.updateGeoPos(getGeoCoding(), pixelPos, geoPos);
+                }
+                pin.setGeoPos(geoPos);
+            } else {
+                pin.setGeoPos(pin.getGeoPos());
+            }
         }
     }
 

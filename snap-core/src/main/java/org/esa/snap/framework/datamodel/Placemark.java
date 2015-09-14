@@ -20,6 +20,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 import org.esa.snap.framework.dataio.ProductSubsetDef;
 import org.esa.snap.jai.ImageManager;
+import org.esa.snap.runtime.Config;
 import org.esa.snap.util.Debug;
 import org.esa.snap.util.ObjectUtils;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
@@ -45,6 +46,8 @@ import java.util.List;
  * @since BEAM 2.0 (full revision since BEAM 4.10)
  */
 public class Placemark extends ProductNode {
+
+    private static final String sysprop_snap_to_exact_geolocation = "snap.pin.adjust.geolocation";
 
     @Deprecated
     public static final String PLACEMARK_FEATURE_TYPE_NAME = "Placemark";
@@ -366,6 +369,8 @@ public class Placemark extends ProductNode {
             if (geoCoding != null && geoCoding.canGetGeoPos()) {
                 geoPos = geoCoding.getGeoPos(imagePos, geoPos);
             }
+        } else if (Config.instance("snap-engine").preferences().getBoolean(sysprop_snap_to_exact_geolocation, true)) {
+            descriptor.updateGeoPos(geoCoding, imagePos, geoPos);
         }
 
         if (geoPos != null) {
