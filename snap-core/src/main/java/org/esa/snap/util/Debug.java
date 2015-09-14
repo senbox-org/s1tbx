@@ -61,7 +61,7 @@ public class Debug {
      */
     private static PrintWriter _defaultWriter = null;
 
-    private static final String _tracePrefix = "beam-debug: ";
+    private static final String _tracePrefix = "snap-debug: ";
 
     private static Logger _logger = null;
 
