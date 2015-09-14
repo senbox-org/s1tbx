@@ -448,11 +448,9 @@ public class SystemUtils {
             final Path manifestPath = pathFromURI.resolve("META-INF/MANIFEST.MF");
             final Manifest manifest = new Manifest(Files.newInputStream(manifestPath));
             return new ManifestModuleMetadata(manifest);
-
         } catch (Exception e) {
-            LOG.warning("Could not read manifest");
+            return null;
         }
-        return null;
     }
 
 
