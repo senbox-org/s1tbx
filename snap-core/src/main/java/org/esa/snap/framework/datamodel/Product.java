@@ -212,7 +212,7 @@ public class Product extends ProductNode {
      * @since BEAM 5.0
      */
     private int numResolutionsMax;
-    private boolean snapToExactGeolocation;
+    private boolean snapToComputedGeolocation;
 
     /**
      * Creates a new product without any reader (in-memory product)
@@ -298,7 +298,7 @@ public class Product extends ProductNode {
         groups.add(pinGroup);
         groups.add(gcpGroup);
 
-        snapToExactGeolocation = Config.instance().preferences().getBoolean(SYSPROP_SNAP_TO_COMPUTED_GEOLOCATION, true);
+        snapToComputedGeolocation = Config.instance().preferences().getBoolean(SYSPROP_SNAP_TO_COMPUTED_GEOLOCATION, true);
 
         setModified(false);
 
@@ -409,7 +409,7 @@ public class Product extends ProductNode {
     private void handleGeoCodingChange() {
         for (int i = 0; i < pinGroup.getNodeCount(); i++) {
             final Placemark pin = pinGroup.get(i);
-            if (snapToExactGeolocation) {
+            if (snapToComputedGeolocation) {
                 final PlacemarkDescriptor pinDescriptor = pin.getDescriptor();
                 final PixelPos pixelPos = pin.getPixelPos();
                 GeoPos geoPos = pin.getGeoPos();
