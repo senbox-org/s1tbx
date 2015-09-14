@@ -17,6 +17,7 @@ package org.esa.snap.util.io;
 
 import org.esa.snap.GlobalTestConfig;
 import org.esa.snap.GlobalTestTools;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
@@ -25,6 +26,9 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystemAlreadyExistsException;
+import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -297,6 +301,28 @@ public class FileUtilsTest {
         assertEquals("file-1.txt", folder2.relativize(file2).toString());
         assertEquals("../auxdata/file-1.txt", folder2WithSlash.relativize(file2).toString());
 
+    }
+
+    @Test
+    public void testToFile() throws Exception {
+        Path relDirPath = Paths.get(".");
+        Path absDirPath = relDirPath.toAbsolutePath().normalize();
+        assertEquals(relDirPath.toFile(), FileUtils.toFile(relDirPath));
+        assertEquals(absDirPath.toFile(), FileUtils.toFile(absDirPath));
+
+        URI fileUri = getClass().getResource("/resource-testdata.jar").toURI();
+        Path jarUriPath;
+        try {
+            // When running this test from IDEA IDE then the following code works:
+            FileSystem fs = FileSystems.newFileSystem(URI.create("jar:" + fileUri), Collections.emptyMap());
+            jarUriPath = fs.getPath("/");
+            fs.close();
+        } catch (FileSystemAlreadyExistsException e1) {
+            // When running this test from Maven (mvn install) we get a FileSystemAlreadyExistsException
+            // so we have to do:
+            jarUriPath = Paths.get(URI.create("jar:" + fileUri + "!/"));
+        }
+        Assert.assertEquals(new File(fileUri), FileUtils.toFile(jarUriPath));
     }
 }
 
