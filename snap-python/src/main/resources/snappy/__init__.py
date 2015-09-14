@@ -300,6 +300,8 @@ try:
     Operator = jpy.get_type('org.esa.snap.framework.gpf.Operator')
     Tile = jpy.get_type('org.esa.snap.framework.gpf.Tile')
 
+    EngineConfig = jpy.get_type('org.esa.snap.runtime.EngineConfig')
+
 except Exception:
     jpy.destroy_jvm()
     raise
@@ -308,4 +310,5 @@ except Exception:
 # Note: use the following code to initialise SNAP's 3rd party libraries, JAI and GeoTools.
 # Only needed, if SNAP Python API is not called from Java (e.g. from SNAP gpt or SNAP desktop).
 if not called_from_java:
+    EngineConfig.instance().load()
     SystemUtils.init3rdPartyLibs(None)
