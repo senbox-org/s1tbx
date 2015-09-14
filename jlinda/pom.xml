@@ -20,7 +20,7 @@
         <user.language>en</user.language>
 
         <jlinda.version>2.0.0-SNAPSHOT</jlinda.version>
-        <jlinda.nbmSpecVersion>2.0.0.6</jlinda.nbmSpecVersion>
+        <jlinda.nbmSpecVersion>2.0.0.7</jlinda.nbmSpecVersion>
 		<s1tbx.version>2.0.0-SNAPSHOT</s1tbx.version>
 		<snap.version>2.0.0-SNAPSHOT</snap.version>
         <jblas.version>1.2.4</jblas.version>
