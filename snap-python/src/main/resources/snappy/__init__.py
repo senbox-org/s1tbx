@@ -20,6 +20,29 @@ and a new Java Virtual Machine is created. They are ignored if the SNAP API is c
 and source code at https://github.com/bcdev/jpy
 """
 
+EXCLUDED_NB_CLUSTERS = set(['platform', 'ide', 'bin', 'etc'])
+
+EXCLUDED_DIR_NAMES = set([
+    'org.esa.snap.snap-worldwind',
+    'org.esa.snap.snap-rcp',
+    'org.esa.snap.snap-product-library',
+    'org.esa.snap.ceres-ui',
+    'org.esa.snap.snap-sta-ui',
+])
+
+EXCLUDED_JAR_NAMES = set([
+    'org-esa-snap-netbeans-docwin.jar',
+    'org-esa-snap-netbeans-tile.jar',
+    'org-esa-snap-snap-gui-utilities.jar',
+    'org-esa-snap-snap-worldwind.jar',
+    'org-esa-snap-snap-tango.jar',
+    'org-esa-snap-snap-rcp.jar',
+    'org-esa-snap-snap-ui.jar',
+    'org-esa-snap-snap-engine-examples.jar',
+    'org-esa-snap-snap-graph-builder.jar',
+    'org-esa-snap-snap-branding.jar'
+])
+
 import os
 import sys
 
@@ -48,6 +71,7 @@ if config.has_option('DEFAULT', 'debug'):
 if module_dir not in sys.path:
     sys.path.append(module_dir)
 import jpyutil
+
 jpyutil.preload_jvm_dll()
 import jpy
 
@@ -76,11 +100,12 @@ def _collect_snap_jvm_env(dir_path, env):
     for name in os.listdir(dir_path):
         path = os.path.join(dir_path, name)
         if os.path.isfile(path) and name.endswith('.jar'):
-            if not (name.endswith('-ui.jar') or name.endswith('-examples.jar')):
+            if not (name.endswith('-ui.jar') or name in EXCLUDED_JAR_NAMES):
                 env[0].append(path)
-        elif os.path.isdir(path):
+        elif os.path.isdir(path) and name not in EXCLUDED_DIR_NAMES:
             if name == 'lib':
                 import platform
+
                 os_arch = platform.machine().lower()
                 os_name = platform.system().lower()
                 lib_os_arch_path = os.path.join(path, os_arch)
@@ -100,7 +125,6 @@ def _collect_snap_jvm_env(dir_path, env):
 # Note: This function is called only if the 'snappy' module is not imported from Java.
 #
 def _get_snap_jvm_env():
-
     dir_names = []
     for name in os.listdir(snap_home):
         if os.path.isdir(os.path.join(snap_home, name)):
@@ -111,7 +135,7 @@ def _get_snap_jvm_env():
     if 'bin' in dir_names and 'etc' in dir_names and 'snap' in dir_names:
         # SNAP Desktop Distribution Directory
         for dir_name in dir_names:
-            if not (dir_name == 'platform' or dir_name == 'ide'):
+            if dir_name not in EXCLUDED_NB_CLUSTERS:
                 dir_path = os.path.join(snap_home, dir_name, 'modules')
                 if os.path.isdir(dir_path):
                     java_module_dirs.append(dir_path)
@@ -123,6 +147,7 @@ def _get_snap_jvm_env():
 
     if debug:
         import pprint
+
         print(module_dir + ': java_module_dirs = ')
         pprint.pprint(java_module_dirs)
 
@@ -132,6 +157,7 @@ def _get_snap_jvm_env():
 
     if debug:
         import pprint
+
         print(module_dir + ': env =')
         pprint.pprint(env)
 
@@ -175,6 +201,7 @@ def _get_snap_jvm_options():
     options = ['-Djava.awt.headless=true',
                '-Djava.class.path=' + os.pathsep.join(class_path),
                '-Djava.library.path=' + os.pathsep.join(library_path),
+               '-Dsnap.home=' + snap_home,
                '-Xmx' + max_mem]
 
     if config.has_option('DEFAULT', 'java_options'):
@@ -182,7 +209,6 @@ def _get_snap_jvm_options():
         options += extra_options.split('|')
 
     return options
-
 
 # Figure out if this module is called from a Java VM. If not, derive a list of Java VM options and create the Java VM.
 called_from_java = jpy.has_jvm()
