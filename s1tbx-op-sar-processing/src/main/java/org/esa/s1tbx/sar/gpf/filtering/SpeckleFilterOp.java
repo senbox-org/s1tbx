@@ -632,11 +632,9 @@ public class SpeckleFilterOp extends Operator {
                             neighborValues[k++] = noDataValue;
                         } else {
                             final double v = srcData1.getElemDoubleAt(srcIndex.getIndex(x));
+                            neighborValues[k++] = v;
                             if (v != noDataValue) {
-                                neighborValues[k++] = v;
                                 numValidSamples++;
-                            } else {
-                                neighborValues[k++] = noDataValue;
                             }
                         }
                     }
@@ -1068,12 +1066,9 @@ public class SpeckleFilterOp extends Operator {
                         neighborPixelValues[j][i] = noDataValue;
                     } else {
                         final int idx = srcIndex.getIndex(xi);
-                        final double v = srcData1.getElemDoubleAt(idx);
-                        if (v != noDataValue) {
-                            neighborPixelValues[j][i] = v;
+                        neighborPixelValues[j][i] = srcData1.getElemDoubleAt(idx);
+                        if (neighborPixelValues[j][i] != noDataValue) {
                             numSamples++;
-                        } else {
-                            neighborPixelValues[j][i] = noDataValue;
                         }
                     }
                 }
