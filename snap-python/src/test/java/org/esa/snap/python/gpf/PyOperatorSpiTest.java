@@ -23,6 +23,7 @@ import static org.junit.Assume.assumeTrue;
 
 /**
  * @author Norman Fomferra
+ * @see org.esa.snap.jython.PluginActivatorTest
  */
 public class PyOperatorSpiTest {
 
@@ -73,18 +74,6 @@ public class PyOperatorSpiTest {
         Path path2 = Paths.get(URI.create(file2.toUri().toString()));
         assertEquals("C:\\Program Files (x86)", path2.toString());
         assertEquals(path1, path2);
-    }
-
-    @Test
-    public void testGetPythonModulePath() throws Exception {
-
-        URI fileUri = PyOperatorSpiTest.class.getResource("test.zip").toURI();
-        FileSystem fs = FileSystems.newFileSystem(URI.create("jar:" + fileUri), Collections.emptyMap());
-        Path zipFsPath = fs.getPath("/");
-        Assert.assertEquals(new File(fileUri), PyOperatorSpi.getPythonModuleRootFile(zipFsPath));
-
-        Path dirPath = Paths.get(".").toAbsolutePath().normalize();
-        assertEquals(dirPath.toFile(), PyOperatorSpi.getPythonModuleRootFile(dirPath));
     }
 
 }

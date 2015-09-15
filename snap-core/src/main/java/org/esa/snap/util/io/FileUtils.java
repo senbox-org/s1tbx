@@ -497,6 +497,35 @@ public class FileUtils {
     }
 
     /**
+     * Converts the given path object into a file object.
+     * If opposite to {@link Path#toFile()}, the method unwraps paths that have a "jar" URI.
+     *
+     * @param path The path.
+     * @return The file object.
+     */
+    public static File toFile(Path path) {
+        URI uri = path.toUri();
+        if ("jar".equals(uri.getScheme())) {
+            // get the ZIP file from URI of form "jar:file:<path>!/"
+            String schemeSpecificPart = uri.getSchemeSpecificPart();
+            if (schemeSpecificPart != null && schemeSpecificPart.startsWith("file:")) {
+                int pos = schemeSpecificPart.lastIndexOf('!');
+                if (pos > 0) {
+                    if ("/".equals(schemeSpecificPart.substring(pos + 1))) {
+                        String fileUriString = schemeSpecificPart.substring(0, pos);
+                        if (fileUriString.startsWith("file:")) {
+                            return new File(URI.create(fileUriString));
+                        }
+                    }
+                } else {
+                    return new File(URI.create(schemeSpecificPart));
+                }
+            }
+        }
+        return path.toFile();
+    }
+
+    /**
      * Ensures that the given URI is a path into a jar file.
      * If the given URI points to a file and ends with '.jar' and starts with 'file:' the given URI is changed.
      * 'jar:' is prepended and '!/' appended to the uri.

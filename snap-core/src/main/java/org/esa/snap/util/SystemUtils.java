@@ -41,6 +41,7 @@ import java.util.ServiceLoader;
 import java.util.StringTokenizer;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
+import java.util.logging.Handler;
 import java.util.logging.Logger;
 
 /**
@@ -379,6 +380,9 @@ public class SystemUtils {
     }
 
     public static void initGeoTools() {
+        Logger logger = Logger.getLogger("org.geotools");
+        logger.setUseParentHandlers(false);
+
         // Must store EPSG database in BEAM home, otherwise it will be deleted from default temp location (Unix!, Windows?)
         File epsgDir = new File(SystemUtils.getApplicationDataDir(true), EPSG_DATABASE_DIR_NAME);
         System.setProperty(HsqlEpsgDatabase.DIRECTORY_KEY, epsgDir.getAbsolutePath());
@@ -448,11 +452,9 @@ public class SystemUtils {
             final Path manifestPath = pathFromURI.resolve("META-INF/MANIFEST.MF");
             final Manifest manifest = new Manifest(Files.newInputStream(manifestPath));
             return new ManifestModuleMetadata(manifest);
-
         } catch (Exception e) {
-            LOG.warning("Could not read manifest");
+            return null;
         }
-        return null;
     }
 
 

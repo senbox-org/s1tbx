@@ -82,7 +82,7 @@ public class GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
             if (zipEntry != null && !zipEntry.isDirectory()) {
                 entryCnt++;
                 final String name = zipEntry.getName().toLowerCase();
-                if(name.endsWith(".tif") || name.endsWith(".tiff") || name.endsWith(".btf")) {
+                if(!name.contains("/") && (name.endsWith(".tif") || name.endsWith(".tiff") || name.endsWith(".btf"))) {
                     foundTiff = true;
                 }
                 if(foundTiff && entryCnt > 1) {

@@ -38,6 +38,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -77,6 +78,26 @@ public class GeoTiffProductReaderPlugInTest {
         final ImageInputStream inputStream = writeToInputStream(product);
         final DecodeQualification decodeQualification = GeoTiffProductReaderPlugIn.getDecodeQualificationImpl(inputStream);
         assertEquals(DecodeQualification.SUITABLE, decodeQualification);
+    }
+
+    @Test
+    public void testDecodeQualification() throws URISyntaxException {
+        assertEquals(DecodeQualification.UNABLE, plugIn.getDecodeQualification("file.zip"));
+        assertEquals(DecodeQualification.UNABLE, plugIn.getDecodeQualification("file"));
+        assertEquals(DecodeQualification.INTENDED, plugIn.getDecodeQualification("file.tif"));
+        assertEquals(DecodeQualification.INTENDED, plugIn.getDecodeQualification("file.tiff"));
+        assertEquals(DecodeQualification.INTENDED, plugIn.getDecodeQualification("file.btf"));
+
+        final File zippedgeoTiff = new File(getClass().getResource("nearGreenwichMeridian.zip").toURI());
+        if(zippedgeoTiff.exists()) {
+            assertEquals(DecodeQualification.INTENDED, plugIn.getDecodeQualification(zippedgeoTiff));
+        }
+
+        final File tifInDirInZip = new File(getClass().getResource("tifInDirInZip.zip").toURI());
+        if(tifInDirInZip.exists()) {
+            assertEquals(DecodeQualification.UNABLE, plugIn.getDecodeQualification(tifInDirInZip));
+        }
+
     }
 
     @Test

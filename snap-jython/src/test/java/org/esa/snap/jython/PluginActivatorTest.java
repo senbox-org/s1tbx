@@ -8,48 +8,49 @@ import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
 
 import java.io.File;
-import java.nio.file.Paths;
+import java.net.URI;
+import java.net.URL;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Norman Fomferra
+ * @see org.esa.snap.python.gpf.PyOperatorSpiTest
  */
-public class JythonPluginActivatorTest {
+public class PluginActivatorTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        File resourceRootDir = Paths.get(JythonPluginActivatorTest.class.getResource("/").toURI()).toFile();
-        String extraPaths = String.join(File.pathSeparator,
-                                        new File(resourceRootDir, "mod_parent_a").getPath(),
-                                        new File(resourceRootDir, "mod_parent_b.zip").getPath());
-        System.setProperty(JythonPluginActivator.JYTHON_EXTRA_PATHS_PROPERTY, extraPaths);
+        File file = getResourceFile("/");
+        assertTrue(file.isDirectory());
+        System.setProperty(PluginActivator.JYTHON_EXTRA_PATHS_PROPERTY, file.getPath());
     }
 
     @AfterClass
     public static void tearDown() throws Exception {
-        System.clearProperty(JythonPluginActivator.JYTHON_EXTRA_PATHS_PROPERTY);
+        System.clearProperty(PluginActivator.JYTHON_EXTRA_PATHS_PROPERTY);
     }
 
     @Test
     public void testActivator() throws Exception {
 
-        JythonPluginActivator activator = new JythonPluginActivator();
+        PluginActivator activator = new PluginActivator();
 
         activator.start();
 
-        List<JythonPluginActivator.JythonPlugin> jythonPlugins = activator.getJythonPlugins();
+        List<PyObject> jythonPlugins = activator.getJythonActivators();
         assertNotNull(jythonPlugins);
-        assertEquals(3, jythonPlugins.size());
+        assertEquals(2, jythonPlugins.size());
 
         PythonInterpreter interpreter = activator.getJythonInterpreter();
         assertNotNull(interpreter);
 
-        assertNotNull(interpreter.get("plugin_1"));
-        assertNotNull(interpreter.get("plugin_2"));
-        assertNotNull(interpreter.get("plugin_3"));
+        // Import the already imported plugin modules to get them into the main namespace
+        interpreter.exec("import plugin_1");
+        interpreter.exec("import plugin_2");
 
         PyObject pi1Started = interpreter.eval("plugin_1.started");
         assertNotNull(pi1Started);
@@ -67,6 +68,7 @@ public class JythonPluginActivatorTest {
         assertNotNull(pi2Stopped);
         assertEquals("False", pi2Stopped.toString());
 
+        // tests importing a sub-module
         PyObject pi2Var = interpreter.eval("plugin_2.var");
         assertNotNull(pi2Var);
         assertEquals("42", pi2Var.toString());
@@ -77,5 +79,11 @@ public class JythonPluginActivatorTest {
         assertEquals("True", interpreter.eval("plugin_1.started").toString());
         assertEquals("True", interpreter.eval("plugin_2.stopped").toString());
         assertEquals("True", interpreter.eval("plugin_2.stopped").toString());
+    }
+
+    public static File getResourceFile(String name) {
+        URL resource = PluginActivatorTest.class.getResource(name);
+        assertNotNull("missing resource '" + name + "'", resource);
+        return new File(URI.create(resource.toString()));
     }
 }

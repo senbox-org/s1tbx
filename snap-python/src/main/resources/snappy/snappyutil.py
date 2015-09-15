@@ -1,11 +1,20 @@
 import sys
-import sysconfig
 import os
 import os.path
 import platform
 import argparse
 import zipfile
 import logging
+
+
+def _find_file(dir_path, regex):
+    if os.path.isdir(dir_path):
+        for filename in os.listdir(dir_path):
+            if regex.match(filename):
+                file = os.path.join(dir_path, filename)
+                if os.path.isfile(file):
+                    return file
+    return None
 
 
 def _configure_snappy(snap_home=None,
@@ -28,84 +37,124 @@ def _configure_snappy(snap_home=None,
     :return:
     """
 
-    ret_code = 0
-
-    logging.info("installing from Java module '" + java_module + "'")
+    logging.info("Installing from Java module '" + java_module + "'")
 
     if req_arch:
         req_arch = req_arch.lower()
         act_arch = platform.machine().lower()
+
         if req_arch != act_arch:
-            logging.warning("architecture requirement possibly not met: "
+            logging.warning("Architecture requirement possibly not met: "
                             "Python is " + act_arch + " but JVM requires " + req_arch)
         is64 = sys.maxsize > 2 ** 31 - 1
         if is64 and not req_arch in ('amd64', 'ia64', 'x64', 'x86_64'):
-            logging.warning("architecture requirement possibly not met: "
+            logging.warning("Architecture requirement possibly not met: "
                             "Python is 64 bit but JVM requires " + req_arch)
 
     snappy_dir = os.path.dirname(os.path.abspath(__file__))
-    snappy_install_dir = os.path.join(snappy_dir, '..')
     snappy_ini_file = os.path.join(snappy_dir, 'snappy.ini')
-    jpy_distr_name = 'jpy.' + sysconfig.get_platform() + '-' + sysconfig.get_python_version()
-    jpy_info_file = os.path.join(snappy_dir, jpy_distr_name + '.info')
+
     jpyutil_file = os.path.join(snappy_dir, 'jpyutil.py')
     jpyconfig_java_file = os.path.join(snappy_dir, 'jpyconfig.properties')
     jpyconfig_py_file = os.path.join(snappy_dir, 'jpyconfig.py')
 
-    #
-    # Write initial snappy.ini. Note, this file is only used if you use SNAP from Python, i.e. importing
-    # the snappy module in your Python programs.
-    #
-    if force or not os.path.exists(snappy_ini_file):
-        with open(snappy_ini_file, 'w') as file:
-            file.writelines(['[DEFAULT]\n',
-                             'snap_home = %s\n' % snap_home,
-                             '# java_class_path: ./target/classes\n',
-                             '# java_library_path: ./lib\n',
-                             '# java_options: -Djava.awt.headless=false\n',
-                             '# java_max_mem: 4G\n',
-                             '# debug: False\n'])
+    must_install_jpy = force \
+                       or not os.path.exists(jpyutil_file)
+    if not must_install_jpy:
+        try:
+            import jpyutil
+        except ImportError:
+            must_install_jpy = True
 
+    must_configure_jpy = force \
+                         or must_install_jpy \
+                         or not (os.path.exists(jpyconfig_java_file) and os.path.exists(jpyconfig_py_file))
+    if not must_configure_jpy:
+        try:
+            import jpyutil
 
-    #
-    # Extract a matching jpy binary distribution ..snap-python.jar!/lib/jpy.<platform>-<python-version>.zip
-    #
-    if os.path.isfile(java_module):
-        member = 'lib/' + jpy_distr_name + '.zip'
-        logging.info("extracting '" + member + "' from '" + java_module + "'")
-        with zipfile.ZipFile(java_module) as zf:
-            jpy_archive_file = zf.extract(member, snappy_dir)
-    else:
-        jpy_archive_file = os.path.join(java_module, 'lib', jpy_distr_name + '.zip')
+            jpyutil.preload_jvm_dll()
+            import jpy
+        except:
+            must_configure_jpy = True
 
+    must_configure_snappy = force \
+                            or must_configure_jpy \
+                            or not os.path.exists(snappy_ini_file)
 
     #
-    # Unpack jpy.<platform>-<python-version>.zip
+    # If jpy is not installed yet at all, try to do so by using any compatible binary wheel found
+    # in ${snappy_dir} or ${java_module}.
     #
-    if force or not os.path.exists(jpy_info_file):
-        if not os.path.exists(jpy_archive_file):
-            logging.error("Can't find binary distribution '" + jpy_archive_file + "'")
-            logging.error("... of Python module 'jpy' for this system. You can try to generate one yourself.")
-            logging.error("... Please go to https://github.com/bcdev/jpy and follow the build instructions")
-            logging.error("... given there.")
+    if must_install_jpy:
+        logging.info("Installing jpy...")
+
+        # See "PEP 0425 -- Compatibility Tags for Built Distributions"
+        # https://www.python.org/dev/peps/pep-0425/
+        import distutils.util
+
+        platform_tag = distutils.util.get_platform().replace('-', '_').replace('.', '_')
+        python_tag = 'cp%d%d' % (sys.version_info.major, sys.version_info.minor,)
+        jpy_wheel_file_pat = 'jpy-{version}-%s-{abi_tag}-%s.whl' % (python_tag, platform_tag)
+
+        import re
+
+        jpy_wheel_file_re = jpy_wheel_file_pat.replace('{version}', '[^\-]+').replace('{abi_tag}', '[^\-]+')
+        jpy_wheel_file_rec = re.compile(jpy_wheel_file_re)
+
+        #
+        # See if user put a custom jpy platform wheel into snappy dir
+        # ./snappy/jpy-{version}-{python_tag}-{abi_tag}-{platform_tag}.whl
+        #
+        jpy_wheel_file = _find_file(snappy_dir, jpy_wheel_file_rec)
+        # No, then search for it in the snap-python module
+        if not jpy_wheel_file:
+            #
+            # Look for
+            # ${java_module}/lib/jpy-{version}-{python_tag}-{abi_tag}-{platform_tag}.whl
+            # depending of whether ${java_module} it is a JAR file or directory
+            #
+            if os.path.isfile(java_module):
+                with zipfile.ZipFile(java_module) as zf:
+                    lib_prefix = 'lib/'
+                    for name in zf.namelist():
+                        if name.startswith(lib_prefix):
+                            basename = name[len(lib_prefix):]
+                            if jpy_wheel_file_rec.match(basename):
+                                logging.info("Extracting '" + name + "' from '" + java_module + "'")
+                                jpy_wheel_file = zf.extract(name, snappy_dir)
+                                break
+            else:
+                lib_dir = os.path.join(java_module, 'lib')
+                jpy_wheel_file = _find_file(lib_dir, jpy_wheel_file_rec)
+
+        if jpy_wheel_file and os.path.exists(jpy_wheel_file):
+            logging.info("Unzipping '" + jpy_wheel_file + "'")
+            with zipfile.ZipFile(jpy_wheel_file) as zf:
+                zf.extractall(snappy_dir)
+        else:
+            logging.error("The module 'jpy' is required to run snappy, but no binary 'jpy' wheel matching the pattern")
+            logging.error("'" + jpy_wheel_file_pat + "' could be found.\n"
+                          + "You can try to build a 'jpy' wheel yourself and then copy it into\n"
+                          + "\"" + snappy_dir + "\" and then run the configuration again.\n"
+                          + "Please go to https://github.com/bcdev/jpy and follow the build instructions. E.g.\n"
+                          + "  > git clone https://github.com/bcdev/jpy.git\n"
+                          + "  > cd jpy\n"
+                          + "  > python setup.py bdist_wheel\n"
+                          + "  > cp dist/*.whl \"" + snappy_dir + "\"")
             return 10
-
-        # print('Found binary distribution ' + archive_path)
-        # os.mkdir(os.path.join(basename)
-        logging.info("unzipping '" + jpy_archive_file + "'")
-        with zipfile.ZipFile(jpy_archive_file) as zf:
-            zf.extractall(snappy_dir)
+    else:
+        logging.info("jpy is already installed")
 
     #
-    # Execute jpyutil.py to write runtime configuration:
-    # - jpyconfig.properties - Configuration for Java about Python (jpy extension module)
-    # - jpyconfig.py - Configuration for Python about Java (JVM)
+    # If jpy isn't configured yet, do so by executing "jpyutil.py" which will write the runtime configurations:
+    # - "jpyconfig.properties" - Configuration for Java about Python (jpy extension module)
+    # - "jpyconfig.py" - Configuration for Python about Java (JVM)
     #
-    if force or \
-            not os.path.exists(jpyconfig_java_file) or \
-            not os.path.exists(jpyconfig_py_file):
+    if must_configure_jpy:
+        logging.info("Configuring jpy...")
         if os.path.exists(jpyutil_file):
-            # Note 'jpyutil.py' has been unpacked by previous step, so we safely import it
+            # Note 'jpyutil.py' has been unpacked by the previous step, so we can safely import it
             import jpyutil
 
             if not java_home:
@@ -124,16 +173,52 @@ def _configure_snappy(snap_home=None,
                                                   java_home_dir=java_home,
                                                   req_java_api_conf=req_java,
                                                   req_py_api_conf=req_py)
+            if ret_code:
+                return ret_code
         else:
-            logging.error("Missing Python module '" + jpyutil_file + "' required to complete the configuration.")
-            logging.error("This file should have been part of binary distribution '" + jpy_archive_file + "'.")
-            ret_code = 20
+            logging.error("Missing Python module '" + jpyutil_file + "'\n"
+                                                                     "which is required to complete the configuration.")
+            return 20
+    else:
+        logging.info("jpy is already configured")
 
-    return ret_code
+    #
+    # If snappy isn't configured yet, do so by writing a default "snappy.ini".
+    # Note, this file is only used if you use SNAP from Python, i.e. importing
+    # the snappy module in your Python programs.
+    #
+    if must_configure_snappy:
+        logging.info("Configuring snappy...")
+        with open(snappy_ini_file, 'w') as file:
+            file.writelines(['[DEFAULT]\n',
+                             'snap_home = %s\n' % snap_home,
+                             '# java_class_path: ./target/classes\n',
+                             '# java_library_path: ./lib\n',
+                             '# java_options: -Djava.awt.headless=false\n',
+                             '# java_max_mem: 4G\n',
+                             '# debug: False\n'])
+            logging.info("snappy configuration written to '" + snappy_ini_file + "'")
+    else:
+        logging.info("snappy is already configured")
+
+    #
+    # Finally, we test the snappy installation/configuration by importing it.
+    # If this won't succeed, _main() will catch the error and report it.
+    #
+    logging.info("Importing snappy for final test...")
+    sys.path = [os.path.join(snappy_dir, '..')] + sys.path
+    __import__('snappy')
+
+    logging.info("Done. The SNAP-Python interface is located in '%s'\n"
+                 "When using SNAP from Python, either do: sys.path.append('%s')\n"
+                 "or copy the snappy module into your Python's 'site-packages' directory."
+                 % (snappy_dir, snappy_dir.replace("\\", "\\\\")))
+
+    return 0
 
 
 def _main():
-    parser = argparse.ArgumentParser(description='Configures snappy, the BEAM Python interface.')
+    parser = argparse.ArgumentParser(description='Configures snappy, the SNAP-Python interface.')
     parser.add_argument('--snap_home', default=None,
                         help='SNAP distribution directory')
     parser.add_argument('--req_arch', default=None,
@@ -174,9 +259,11 @@ def _main():
                                      req_java=args.req_java,
                                      req_py=args.req_py,
                                      force=args.force)
+        if ret_code != 0:
+            logging.error("Configuration failed")
     except:
+        ret_code = 30
         logging.exception("Configuration failed")
-        ret_code = 10
 
     exit(ret_code)
 

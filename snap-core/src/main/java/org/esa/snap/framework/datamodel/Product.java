@@ -43,6 +43,7 @@ import org.esa.snap.framework.dataop.maptransf.MapTransform;
 import org.esa.snap.jai.ImageManager;
 import org.esa.snap.jai.ResolutionLevel;
 import org.esa.snap.jai.VirtualBandOpImage;
+import org.esa.snap.runtime.Config;
 import org.esa.snap.util.BitRaster;
 import org.esa.snap.util.Debug;
 import org.esa.snap.util.Guardian;
@@ -58,7 +59,6 @@ import java.awt.geom.Point2D;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
-import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -86,6 +86,8 @@ public class Product extends ProductNode {
 
     public static final String METADATA_ROOT_NAME = "metadata";
     public static final String HISTORY_ROOT_NAME = "history";
+
+    private static final String SYSPROP_SNAP_TO_COMPUTED_GEOLOCATION = "snap.pin.adjust.geolocation";
 
     /**
      * @deprecated since BEAM 4.10, no replacement
@@ -210,6 +212,7 @@ public class Product extends ProductNode {
      * @since BEAM 5.0
      */
     private int numResolutionsMax;
+    private boolean snapToComputedGeolocation;
 
     /**
      * Creates a new product without any reader (in-memory product)
@@ -294,6 +297,8 @@ public class Product extends ProductNode {
         groups.add(maskGroup);
         groups.add(pinGroup);
         groups.add(gcpGroup);
+
+        snapToComputedGeolocation = Config.instance().preferences().getBoolean(SYSPROP_SNAP_TO_COMPUTED_GEOLOCATION, true);
 
         setModified(false);
 
@@ -404,7 +409,17 @@ public class Product extends ProductNode {
     private void handleGeoCodingChange() {
         for (int i = 0; i < pinGroup.getNodeCount(); i++) {
             final Placemark pin = pinGroup.get(i);
-            pin.setGeoPos(pin.getGeoPos());
+            if (snapToComputedGeolocation) {
+                final PlacemarkDescriptor pinDescriptor = pin.getDescriptor();
+                final PixelPos pixelPos = pin.getPixelPos();
+                GeoPos geoPos = pin.getGeoPos();
+                if (pixelPos != null) {
+                    geoPos = pinDescriptor.updateGeoPos(getGeoCoding(), pixelPos, geoPos);
+                }
+                pin.setGeoPos(geoPos);
+            } else {
+                pin.setGeoPos(pin.getGeoPos());
+            }
         }
     }
 
@@ -2840,9 +2855,6 @@ public class Product extends ProductNode {
             if (maskImage == null) {
                 maskImage = createMaskImage(expression, associatedRaster);
                 maskCache.put(expression, new WeakReference<>(maskImage));
-                System.out.printf("%s.getMaskImage(%s, %s): new: maskCache.size() = %d%n", getClass().getSimpleName(), expression, associatedRaster != null ? associatedRaster.getName() : "null", maskCache.size());
-            } else {
-                System.out.printf("%s.getMaskImage(%s, %s): cached: maskCache.size() = %d%n", getClass().getSimpleName(), expression, associatedRaster != null ? associatedRaster.getName() : "null", maskCache.size());
             }
             return maskImage;
         }

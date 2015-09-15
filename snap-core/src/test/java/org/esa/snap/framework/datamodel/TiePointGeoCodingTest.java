@@ -44,7 +44,8 @@ public class TiePointGeoCodingTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        _lastDebugState = Debug.setEnabled(true);
+        _lastDebugState = Debug.setEnabled(false);
+        //_lastDebugState = Debug.setEnabled(true);
     }
 
     @Override

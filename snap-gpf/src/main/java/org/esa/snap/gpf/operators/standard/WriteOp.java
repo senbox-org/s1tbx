@@ -43,7 +43,6 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -86,12 +85,12 @@ import java.util.Map;
  * @since BEAM 4.2
  */
 @OperatorMetadata(alias = "Write",
-                  category = "Input-Output",
-                  version = "1.3",
-                  authors = "Marco Zuehlke, Norman Fomferra",
-                  copyright = "(c) 2010 by Brockmann Consult",
-                  description = "Writes a data product to a file.",
-                  autoWriteDisabled = true)
+        category = "Input-Output",
+        version = "1.3",
+        authors = "Marco Zuehlke, Norman Fomferra",
+        copyright = "(c) 2010 by Brockmann Consult",
+        description = "Writes a data product to a file.",
+        autoWriteDisabled = true)
 public class WriteOp extends Operator {
 
     @TargetProduct
@@ -104,22 +103,22 @@ public class WriteOp extends Operator {
     private File file;
 
     @Parameter(defaultValue = ProductIO.DEFAULT_FORMAT_NAME,
-               description = "The name of the output file format.")
+            description = "The name of the output file format.")
     private String formatName;
 
     @Parameter(defaultValue = "true",
-               description = "If true, all output files are deleted after a failed write operation.")
+            description = "If true, all output files are deleted after a failed write operation.")
     private boolean deleteOutputOnFailure = true;
 
     @Parameter(defaultValue = "true",
-               description = "If true, the write operation waits until an entire tile row is computed.")
+            description = "If true, the write operation waits until an entire tile row is computed.")
     private boolean writeEntireTileRows;
 
     /**
      * @since BEAM 4.9
      */
     @Parameter(defaultValue = "false",
-               description = "If true, the internal tile cache is cleared after a tile row has been written. Ignored if writeEntireTileRows=false.")
+            description = "If true, the internal tile cache is cleared after a tile row has been written. Ignored if writeEntireTileRows=false.")
     private boolean clearCacheAfterRowWrite;
 
     private boolean[][][] tilesWritten;
@@ -207,14 +206,15 @@ public class WriteOp extends Operator {
 
             getLogger().info("End writing product " + getTargetProduct().getName() + " to " + getFile());
 
-            double seconds = (System.nanoTime() - startNanos) / 1.0E9;
+            double millis = (System.nanoTime() - startNanos) / 1.0E6;
+            double seconds = millis / 1.0E3;
             int w = getTargetProduct().getSceneRasterWidth();
             int h = getTargetProduct().getSceneRasterHeight();
 
-            getLogger().info(MessageFormat.format("Time: {0} sec. total, {1} sec. per line, {2} sec. per pixel",
-                                                  seconds,
-                                                  seconds / h,
-                                                  seconds / h / w));
+            getLogger().info(String.format("Time: %6.3f s total, %6.3f ms per line, %3.6f ms per pixel",
+                                           seconds,
+                                           millis / h,
+                                           millis / h / w));
 
             stopTileComputationObservation();
         } catch (OperatorException e) {
@@ -262,7 +262,7 @@ public class WriteOp extends Operator {
             int tileCountY = MathUtils.ceilInt(writableBand.getSceneRasterHeight() / (double) tileSize.height);
             tilesWritten[i] = new boolean[tileCountY][tileCountX];
 
-            if(writeEntireTileRows && i > 0 && !tileSize.equals(tileSizes[0])) {
+            if (writeEntireTileRows && i > 0 && !tileSize.equals(tileSizes[0])) {
                 writeEntireTileRows = false;        // don't writeEntireTileRows for multisize bands
             }
         }
