@@ -62,6 +62,7 @@ public class ImageIOFile {
     public ImageIOFile(final File inputFile, final ImageReader iioReader) throws IOException {
 
         name = inputFile.getName();
+        ImageIO.setUseCache(false);
         stream = ImageIO.createImageInputStream(inputFile);
         if (stream == null)
             throw new IOException("Unable to open "+name);
@@ -128,13 +129,6 @@ public class ImageIOFile {
             throw new IOException("No ImageIO reader found for " + inputFile.toString());
 
         return imageReaders.next();
-    }
-
-    public static ImageReader getTiffIIOReader(final File inputFile) throws IOException {
-        final ImageInputStream stream = ImageIO.createImageInputStream(inputFile);
-        if (stream == null)
-            throw new IOException("Unable to open " + inputFile.toString());
-        return getTiffIIOReader(stream);
     }
 
     public static ImageReader getTiffIIOReader(final ImageInputStream stream) throws IOException {

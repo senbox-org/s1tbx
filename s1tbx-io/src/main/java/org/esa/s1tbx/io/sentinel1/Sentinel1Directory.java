@@ -11,13 +11,13 @@ import java.io.IOException;
  */
 public interface Sentinel1Directory {
 
-    public void close() throws IOException;
+    void close() throws IOException;
 
-    public void readProductDirectory() throws IOException;
+    void readProductDirectory() throws IOException;
 
-    public Product createProduct() throws IOException;
+    Product createProduct() throws IOException;
 
-    public ImageIOFile.BandInfo getBandInfo(final Band destBand);
+    ImageIOFile.BandInfo getBandInfo(final Band destBand);
 
-    public boolean isSLC();
+    boolean isSLC();
 }
