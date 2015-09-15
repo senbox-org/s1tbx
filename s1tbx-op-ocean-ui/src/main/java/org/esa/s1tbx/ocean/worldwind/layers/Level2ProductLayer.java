@@ -26,13 +26,7 @@ import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Sector;
 import gov.nasa.worldwind.layers.Layer;
-import gov.nasa.worldwind.render.BasicShapeAttributes;
-import gov.nasa.worldwind.render.DrawContext;
-import gov.nasa.worldwind.render.Material;
-import gov.nasa.worldwind.render.Path;
-import gov.nasa.worldwind.render.Renderable;
-import gov.nasa.worldwind.render.ScreenAnnotation;
-import gov.nasa.worldwind.render.ShapeAttributes;
+import gov.nasa.worldwind.render.*;
 import gov.nasa.worldwind.util.BufferFactory;
 import gov.nasa.worldwind.util.BufferWrapper;
 import gov.nasa.worldwind.util.Logging;
@@ -41,14 +35,11 @@ import gov.nasa.worldwindx.examples.analytics.AnalyticSurface;
 import gov.nasa.worldwindx.examples.analytics.AnalyticSurfaceAttributes;
 import gov.nasa.worldwindx.examples.util.DirectedPath;
 
+import org.esa.snap.framework.datamodel.*;
 import org.esa.snap.worldwind.ArrowInfo;
 import org.esa.snap.worldwind.ColorBarLegend;
 import org.esa.snap.worldwind.ProductRenderablesInfo;
 
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.worldwind.ColorBarLegend;
@@ -221,6 +212,8 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
         final Band rvlLatBand = product.getBand(prefix + "_001_rvlLat");
         final Band rvlRadVelBand = product.getBand(prefix + "_001_rvlRadVel");
 
+
+
         final Band waveLonBand = product.getBand(prefix + "_001_oswLon");
         final Band waveLatBand = product.getBand(prefix + "_001_oswLat");
         final Band waveHeightBand = product.getBand(prefix + "_001_oswHs");
@@ -294,8 +287,28 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
             	}
             }
 
-            if (waveLonBand != null) {
 
+            double[][] oswData = null;
+            MetadataElement metadataRoot = product.getMetadataRoot();
+            if (metadataRoot.getElement("Original_Product_Metadata") != null && metadataRoot.getElement("Original_Product_Metadata").getElement("annotation") != null) {
+                int numElements = metadataRoot.getElement("Original_Product_Metadata").getElement("annotation").getNumElements();
+                if (numElements > 0) {
+                    oswData = new double[5][numElements];
+                    int i = 0;
+                    for (MetadataElement element : metadataRoot.getElement("Original_Product_Metadata").getElement("annotation").getElements()) {
+                        oswData[0][i] = element.getElement("oswLon").getElement("Values").getAttribute("data").getData().getElemDouble();
+                        oswData[1][i] = element.getElement("oswLat").getElement("Values").getAttribute("data").getData().getElemDouble();
+                        oswData[2][i] = element.getElement("oswHs").getElement("Values").getAttribute("data").getData().getElemDouble();
+                        oswData[3][i] = element.getElement("oswWl").getElement("Values").getAttribute("data").getData().getElemDouble();
+                        oswData[4][i] = element.getElement("oswDirmet").getElement("Values").getAttribute("data").getData().getElemDouble();
+                        i++;
+                    }
+                }
+            }
+
+
+            if (oswData != null) {
+                /*
                 final double[] waveLonValues = new double[waveLonBand.getRasterWidth() * waveLonBand.getRasterHeight()];
                 waveLonBand.readPixels(0, 0, waveLonBand.getRasterWidth(), waveLonBand.getRasterHeight(), waveLonValues, ProgressMonitor.NULL);
 
@@ -311,15 +324,29 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
 
                 final double[] waveDirValues = new double[waveDirBand.getRasterWidth() * waveDirBand.getRasterHeight()];
                 waveDirBand.readPixels(0, 0, waveDirBand.getRasterWidth(), waveDirBand.getRasterHeight(), waveDirValues, ProgressMonitor.NULL);
+                */
 
-                addWaveLengthArrows(waveLatValues, waveLonValues, waveLengthValues, waveDirValues,
-                                    waveLonBand.getRasterWidth(), waveLonBand.getRasterHeight(),
-                                    productRenderablesInfo.theRenderableListHash.get("osw"));
+                addWaveLengthArrows(oswData[1], oswData[0], oswData[3], oswData[4], productRenderablesInfo.theRenderableListHash.get("osw"));
+                createOSWColorSurfaceWithGradient(oswData[1], oswData[0], oswData[2], 4, 23, productRenderablesInfo.theRenderableListHash.get("osw"), productRenderablesInfo);
+                /*
+                double arrowLength = 0.277392578125;
+                final Position startPos = new Position(Angle.fromDegreesLatitude(oswData[1][0]), Angle.fromDegreesLongitude(oswData[0][0]), 10.0);
+                final Position endPos = new Position(LatLon.greatCircleEndPosition(startPos, Angle.fromDegrees(oswData[3][0]), Angle.fromDegrees(arrowLength)), 10.0);
+                final ArrayList<Position> positions = new ArrayList<>();
+                positions.add(startPos);
+                positions.add(endPos);
+                ShapeAttributes dpAttrs = new BasicShapeAttributes();
+                dpAttrs.setOutlineMaterial(Material.WHITE);
+                DirectedPath directedPath = getDirectedPath(positions, dpAttrs);
+                addRenderable(directedPath);
+                */
 
-                createColorSurfaceWithGradient(geoPos1, geoPos2, waveLonValues, waveLatValues, waveHeightValues, waveHeightBand.getRasterWidth(),
-                                               waveHeightBand.getRasterHeight(), 0, 10, false,
+                /*
+                createColorSurfaceWithGradient(geoPos1, geoPos2, oswData[1], oswData[0], oswData[2], 6,
+                                               8, 0, 10, false,
                                                productRenderablesInfo.theRenderableListHash.get("osw"),
                                                productRenderablesInfo, "osw");
+                                               */
             }
 
             theProductRenderablesInfoHash.put(product, productRenderablesInfo);
@@ -692,79 +719,107 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
                                     double[] lonValues,
                                     double[] waveLengthValues,
                                     double[] waveDirValues,
-                                    int width,
-                                    int height,
                                     ArrayList<Renderable> renderableList) {
         SystemUtils.LOG.info(":: addWaveLengthArrows ");
-        for (int row = 0; row < height; row++) {
-            for (int col = 0; col < width; col++) {
 
-                int i = row*width + col;
-                double arrowLength = waveLengthValues[i] / 10000;
-                final Position startPos = new Position(Angle.fromDegreesLatitude(latValues[i]), Angle.fromDegreesLongitude(lonValues[i]), 10.0);
-                final Position endPos = new Position(LatLon.greatCircleEndPosition(startPos, Angle.fromDegrees(waveDirValues[i]), Angle.fromDegrees(arrowLength)), 10.0);
+        final ShapeAttributes dpAttrs = new BasicShapeAttributes();
+        dpAttrs.setOutlineMaterial(Material.WHITE);
+        dpAttrs.setOutlineWidth(2d);
 
-                //System.out.println("waveLengthValues[i] " + waveLengthValues[i]);
+        for (int ind = 0; ind < waveLengthValues.length; ind++) {
+            //int ind = row*width + col;
+            double arrowLength_deg = waveLengthValues[ind] / 4000;
+            //double arrowLength_deg = 0.277392578125;
 
-                final ArrayList<Position> positions = new ArrayList<>();
-                positions.add(startPos);
-                positions.add(endPos);
+            double arrowHeadLength = Angle.fromDegrees(arrowLength_deg).radians * GLOBE_RADIUS / 3;
 
-                final ShapeAttributes dpAttrs = new BasicShapeAttributes();
-                dpAttrs.setOutlineMaterial(Material.BLACK);
-                dpAttrs.setOutlineWidth(2d);
+            final Position startPos = new Position(Angle.fromDegreesLatitude(latValues[ind]), Angle.fromDegreesLongitude(lonValues[ind]), 10.0);
+            final Position endPos = new Position(LatLon.greatCircleEndPosition(startPos, Angle.fromDegrees(waveDirValues[ind]), Angle.fromDegrees(arrowLength_deg)), 10.0);
 
+            //System.out.println("waveLengthValues[i] " + waveLengthValues[i]);
 
-                final DirectedPath directedPath = new DirectedPath(positions);
-                /*
-                directedPath.setAttributes(dpAttrs);
-                directedPath.setVisible(true);
-                directedPath.setFollowTerrain(true);
-                directedPath.setAltitudeMode(WorldWind.RELATIVE_TO_GROUND);
-                directedPath.setPathType(AVKey.GREAT_CIRCLE);
-                double arrowHeadLength = computeSegmentLength(directedPath, getDrawContext(), startPos, endPos) / 4;
-                directedPath.setArrowLength(arrowHeadLength);
-                */
+            final ArrayList<Position> positions = new ArrayList<>();
+            positions.add(startPos);
+            positions.add(endPos);
 
-                directedPath.setAttributes(dpAttrs);
-                directedPath.setVisible(true);
-                directedPath.setFollowTerrain(true);
-                directedPath.setAltitudeMode(WorldWind.RELATIVE_TO_GROUND);
-                directedPath.setPathType(AVKey.GREAT_CIRCLE);
-                /*
-                Renderable renderable = new Renderable() {
-                    public void render (DrawContext dc) {
+            DirectedPath directedPath = getDirectedPath(positions, dpAttrs);
+            directedPath.setArrowLength(arrowHeadLength);
 
-                        directedPath.setAttributes(dpAttrs);
-                        directedPath.setVisible(true);
-                        directedPath.setFollowTerrain(true);
-                        directedPath.setAltitudeMode(WorldWind.RELATIVE_TO_GROUND);
-                        directedPath.setPathType(AVKey.GREAT_CIRCLE);
-
-                        // this is the length of the arrow head actually
-                        double arrowHeadLength = computeSegmentLength(directedPath, dc, startPos, endPos) / 4;
-                        SystemUtils.LOG.info(":: arrowHeadLength " + arrowHeadLength);
-                        directedPath.setArrowLength(arrowHeadLength);
-                        directedPath.render(dc);
-
-
-                        //System.out.println("eyePosition " + dc.getView().getCurrentEyePosition());
-                    }
-                };
-                */
-                addRenderable(directedPath);
-
-                if (renderableList != null) {
-                    renderableList.add(directedPath);
+            Renderable renderable = new Renderable() {
+                public void render (DrawContext dc) {
+                    directedPath.render(dc);
                 }
-                String info = "Wave length: " + waveLengthValues[i] + "<br/>";
-                //info += "Wind Direction: " + avgWindDir + "<br/>";
-                //info += "Incidence Angle: " + avgIncAngle + "<br/>";
-                theObjectInfoHash.put(directedPath, info);
+            };
+
+            addRenderable(renderable);
+            if (renderableList != null) {
+                renderableList.add(renderable);
             }
+
+            String info = "Wave length: " + waveLengthValues[ind] + "<br/>";
+            //info += "Wind Direction: " + avgWindDir + "<br/>";
+            //info += "Incidence Angle: " + avgIncAngle + "<br/>";
+            theObjectInfoHash.put(directedPath, info);
         }
     }
 
+    private void createOSWColorSurfaceWithGradient(double[] latValues,
+                                     double[] lonValues,
+                                     double[] waveHeightValues,
+                                     int width,
+                                     int height,
+                                     ArrayList<Renderable> renderableList,
+                                     ProductRenderablesInfo prodRenderInfo) {
+        SystemUtils.LOG.info(":: createOSWColorSurfaceWithGradient ");
+
+        final ShapeAttributes dpAttrs = new BasicShapeAttributes();
+        dpAttrs.setOutlineMaterial(Material.WHITE);
+        dpAttrs.setOutlineWidth(2d);
+
+        for (int ind = 0; ind < waveHeightValues.length; ind++) {
+            final ArrayList<Position> polygonPositions = new ArrayList<>();
+            double vignette_half_side_deg = (180 / Math.PI) * 10000 / GLOBE_RADIUS;
+
+            polygonPositions.add(new Position(Angle.fromDegreesLatitude(latValues[ind] - vignette_half_side_deg), Angle.fromDegreesLongitude(lonValues[ind] - vignette_half_side_deg), 10.0));
+            polygonPositions.add(new Position(Angle.fromDegreesLatitude(latValues[ind] - vignette_half_side_deg), Angle.fromDegreesLongitude(lonValues[ind] + vignette_half_side_deg), 10.0));
+            polygonPositions.add(new Position(Angle.fromDegreesLatitude(latValues[ind] + vignette_half_side_deg), Angle.fromDegreesLongitude(lonValues[ind] + vignette_half_side_deg), 10.0));
+            polygonPositions.add(new Position(Angle.fromDegreesLatitude(latValues[ind] + vignette_half_side_deg), Angle.fromDegreesLongitude(lonValues[ind] - vignette_half_side_deg), 10.0));
+            polygonPositions.add(new Position(Angle.fromDegreesLatitude(latValues[ind] - vignette_half_side_deg), Angle.fromDegreesLongitude(lonValues[ind] - vignette_half_side_deg), 10.0));
+
+
+            Polyline p = new Polyline();
+            p.setFollowTerrain(true);
+            p.setPositions(polygonPositions);
+            addRenderable(p);
+
+            AnalyticSurface analyticSurface = new AnalyticSurface();
+            analyticSurface.setSector(Sector.fromDegrees(latValues[ind] - vignette_half_side_deg, latValues[ind] + vignette_half_side_deg, lonValues[ind] - vignette_half_side_deg, lonValues[ind] + vignette_half_side_deg));
+            analyticSurface.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
+            // one by one square doesn't seem to work, so we'll just use the next smallest
+            // possible square and repeat the same value 4 times
+            analyticSurface.setDimensions(2, 2);
+
+            final ArrayList<AnalyticSurface.GridPointAttributes> attributesList = new ArrayList<>();
+            for (int i =0; i < 4; i++) {
+                attributesList.add(createColorGradientAttributes(waveHeightValues[ind], 0, 10, HUE_RED, HUE_MAX_RED, false));
+            }
+
+            analyticSurface.setValues(attributesList);
+
+            AnalyticSurfaceAttributes attr = new AnalyticSurfaceAttributes();
+            attr.setDrawShadow(false);
+            attr.setInteriorOpacity(1.0);
+            //attr.setOutlineWidth(3);
+            attr.setDrawOutline(false);
+            analyticSurface.setSurfaceAttributes(attr);
+            analyticSurface.setClientLayer(this);
+
+            addRenderable(analyticSurface);
+            if (renderableList != null) {
+                renderableList.add(analyticSurface);
+            }
+        }
+    }
 
     private double computeSegmentLength(Path path, DrawContext dc, Position posA, Position posB)
     {
@@ -798,6 +853,8 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
         //double maxValue = 200e3;
         SystemUtils.LOG.info("createColorSurface " + latValues.length + " " + lonValues.length + " " + values.length + " " + width + " " + height);
 
+        // analytic surface has to be overidden in order to allow for non-rectangular surfaces
+        // the approach is render the surface point by point and not use the sector as the boundary
         AnalyticSurface analyticSurface = new AnalyticSurface(){
 
             protected void doUpdate(DrawContext dc)
