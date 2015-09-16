@@ -223,11 +223,15 @@ public class CollocateOp extends Operator {
         for (final Band sourceBand : masterProduct.getBands()) {
             final Band targetBand = ProductUtils.copyBand(sourceBand.getName(), masterProduct, targetProduct, true);
             handleSampleCodings(sourceBand, targetBand, renameMasterComponents, masterComponentPattern);
-            if (renameMasterComponents) {
-                targetBand.setName(masterComponentPattern.replace(SOURCE_NAME_REFERENCE, targetBand.getName()));
-            }
             sourceRasterMap.put(targetBand, sourceBand);
         }
+
+        if (renameMasterComponents) {
+            for (final Band band : targetProduct.getBands()) {
+                band.setName(masterComponentPattern.replace(SOURCE_NAME_REFERENCE, band.getName()));
+            }
+        }
+
 
         copyMasks(masterProduct, renameMasterComponents, masterComponentPattern);
 
