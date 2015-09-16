@@ -25,6 +25,8 @@ import com.bc.jexp.WritableNamespace;
 import com.bc.jexp.impl.ParserImpl;
 import com.bc.jexp.impl.SymbolFactory;
 import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.FlagCoding;
+import org.esa.snap.framework.datamodel.IndexCoding;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.RasterDataNode;
@@ -273,8 +275,8 @@ public class BandMathsOp extends Operator {
 
             final Band targetBand = createBand(bandDescriptor, targetBandDimension);
 
-            if(!targetBandDimension.equals(targetProduct.getSceneRasterSize())) {
-                if(rasterDataSymbols.length > 0) {
+            if (!targetBandDimension.equals(targetProduct.getSceneRasterSize())) {
+                if (rasterDataSymbols.length > 0) {
                     transferGeoCoding(rasterDataSymbols[0].getRaster(), targetBand);
                 }
             }
@@ -286,12 +288,12 @@ public class BandMathsOp extends Operator {
 
         ProductUtils.copyMetadata(sourceProducts[0], targetProduct);
         ProductUtils.copyTiePointGrids(sourceProducts[0], targetProduct);
-        ProductUtils.copyFlagCodings(sourceProducts[0], targetProduct);
+        copyFlagCodingsIfPossible(sourceProducts[0], targetProduct);
+        copyIndexCodingsIfPossible(sourceProducts[0], targetProduct);
         // copying GeoCoding from product to product, bands which do not have a GC yet will be geo-coded afterwards
         ProductUtils.copyGeoCoding(sourceProducts[0], targetProduct);
         ProductUtils.copyMasks(sourceProducts[0], targetProduct);
         ProductUtils.copyVectorData(sourceProducts[0], targetProduct);
-        ProductUtils.copyIndexCodings(sourceProducts[0], targetProduct);
         targetProduct.setDescription(sourceProducts[0].getDescription());
         for (Product sourceProduct : sourceProducts) {
             if (sourceProduct.getStartTime() != null && sourceProduct.getEndTime() != null) {
@@ -301,6 +303,33 @@ public class BandMathsOp extends Operator {
             }
         }
     }
+
+    private static void copyFlagCodingsIfPossible(Product source, Product target) {
+        int numCodings = source.getFlagCodingGroup().getNodeCount();
+        for (int n = 0; n < numCodings; n++) {
+            FlagCoding sourceFlagCoding = source.getFlagCodingGroup().get(n);
+            final String sourceFlagCodingName = sourceFlagCoding.getName();
+            if (target.containsBand(sourceFlagCodingName) &&
+                    target.getBand(sourceFlagCodingName).hasIntPixels()) {
+                ProductUtils.copyFlagCoding(sourceFlagCoding, target);
+                target.getBand(sourceFlagCodingName).setSampleCoding(sourceFlagCoding);
+            }
+        }
+    }
+
+    private static void copyIndexCodingsIfPossible(Product source, Product target) {
+        int numCodings = source.getIndexCodingGroup().getNodeCount();
+        for (int n = 0; n < numCodings; n++) {
+            IndexCoding sourceIndexCoding = source.getIndexCodingGroup().get(n);
+            final String sourceIndexCodingName = sourceIndexCoding.getName();
+            if (target.containsBand(sourceIndexCodingName) &&
+                    target.getBand(sourceIndexCodingName).hasIntPixels()) {
+                ProductUtils.copyIndexCoding(sourceIndexCoding, target);
+                target.getBand(sourceIndexCodingName).setSampleCoding(sourceIndexCoding);
+            }
+        }
+    }
+
 
     @Override
     public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
@@ -408,7 +437,7 @@ public class BandMathsOp extends Operator {
         if (rasterDataSymbols.length > 0) {
             final RasterDataSymbol referenceSourceRaster = rasterDataSymbols[0];
             targetbandDimension = referenceSourceRaster.getRaster().getSceneRasterSize();
-        }else {
+        } else {
             targetbandDimension = targetProduct.getSceneRasterSize();
         }
         return targetbandDimension;

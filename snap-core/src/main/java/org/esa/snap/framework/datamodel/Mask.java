@@ -20,7 +20,6 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.MultiLevelImage;
@@ -37,7 +36,6 @@ import java.awt.Color;
 import java.awt.Shape;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
@@ -269,9 +267,7 @@ public class Mask extends Band {
                                 }
                             }
                         } else {
-                            if (!product.containsRasterDataNode(raster.getName())) {
-                                return false;
-                            }
+                            BandArithmetic.getRefRasters(expression, product);
                         }
                     }
                 } else { // the mask has not been added to a product yet

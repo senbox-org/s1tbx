@@ -4,10 +4,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -16,6 +18,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -48,7 +51,7 @@ public class GenAUCatalog {
     private final Path moduleDir;
     private final SimpleDateFormat timeStampFormat;
     private Transformer xmlTransformer;
-    private DocumentBuilder documentBuilder;
+    private DocumentBuilderFactory builderFactory;
     private Path catalogXmlPath;
     private Path catalogXmlGzPath;
     private String notificationMessage;
@@ -82,7 +85,9 @@ public class GenAUCatalog {
 
         timeStampFormat = new SimpleDateFormat("ss/mm/HH/dd/MM/yyyy");
         timeStampFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        builderFactory = DocumentBuilderFactory.newInstance();
+        builderFactory.setValidating(false);
+        builderFactory.setExpandEntityReferences(false);
         xmlTransformer = TransformerFactory.newInstance().newTransformer();
         xmlTransformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
         xmlTransformer.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -130,7 +135,7 @@ public class GenAUCatalog {
     private void writeCatalogXml(ArrayList<Node> moduleList, HashMap<String, Node> licenseMap) throws Exception {
         BufferedWriter writer = Files.newBufferedWriter(catalogXmlPath);
         writer.write(XML_HEAD);
-        if(notificationMessage != null) {
+        if (notificationMessage != null) {
             writeNotificationElement(writer);
         }
         writer.write(String.format("<module_updates timestamp=\"%s\">\r\n", timeStampFormat.format(Date.from(Instant.now()))));
@@ -142,7 +147,7 @@ public class GenAUCatalog {
 
     private void writeNotificationElement(BufferedWriter writer) throws IOException {
         String urlString = "";
-        if(notificationURL != null) {
+        if (notificationURL != null) {
             urlString = String.format(" url=\"%s\"", notificationURL);
         }
         writer.write(String.format("<notification%s>%s</notification>\r\n\r\n", urlString, notificationMessage));
@@ -157,6 +162,10 @@ public class GenAUCatalog {
             log("Processing file: " + path.getFileName());
             final FileSystem nbmFileSystem = FileSystems.newFileSystem(path, null);
             final Path infoFile = nbmFileSystem.getPath(PATH_INFO_XML);
+            DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
+            // This disables resolving the DTD given in the info.xml file.
+            // It is not necessary to resolve it and it boosts the execution performance.
+            documentBuilder.setEntityResolver((publicId, systemId) -> new InputSource(new StringReader("")));
             final Document document = documentBuilder.parse(Files.newInputStream(infoFile));
             final Node moduleElement = document.getElementsByTagName(TAG_NAME_MODULE).item(0);
             updateDownloadSizeAttribute(moduleElement, Files.size(path));
@@ -166,7 +175,7 @@ public class GenAUCatalog {
                 moduleElement.removeChild(licenseElement);
                 addLicenseToMap(licenseElement, licenseMap);
             }
-        } catch (IOException | SAXException e) {
+        } catch (IOException | SAXException | ParserConfigurationException e) {
             e.printStackTrace();
         }
     }
