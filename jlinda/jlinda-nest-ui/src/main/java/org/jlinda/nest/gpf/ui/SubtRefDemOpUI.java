@@ -34,7 +34,7 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
     private static final String[] demValueSet = DEMFactory.getDEMNameList();
 
     private final JTextField orbitDegree = new JTextField("");
-    private final JComboBox demName = new JComboBox(demValueSet);
+    private final JComboBox<String> demName = new JComboBox<>(demValueSet);
 
     private static final String externalDEMStr = "External DEM";
     private final JTextField externalDEMFile = new JTextField("");
@@ -48,7 +48,7 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
     private Double extNoDataValue = 0.0;
     private final DialogUtils.TextAreaKeyListener textAreaKeyListener = new DialogUtils.TextAreaKeyListener();
 
-    private final JComboBox tileExtensionPercent = new JComboBox(new String[]{"10", "20", "30", "40", "50", "60", "70", "80", "90", "100"});
+    private final JComboBox<String> tileExtensionPercent = new JComboBox<>(new String[]{"20", "40", "60", "80", "100", "150", "200"});
     
     @Override
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {
