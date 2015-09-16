@@ -21,6 +21,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.FlagCoding;
+import org.esa.snap.framework.datamodel.IndexCoding;
 import org.esa.snap.framework.datamodel.Mask;
 import org.esa.snap.framework.datamodel.PixelPos;
 import org.esa.snap.framework.datamodel.Product;
@@ -56,11 +57,11 @@ import java.util.Map;
  * @since BEAM 4.1
  */
 @OperatorMetadata(alias = "Collocate",
-                  category = "Raster/Geometric",
-                  version = "1.1",
-                  authors = "Ralf Quast, Norman Fomferra",
-                  copyright = "(c) 2007-2011 by Brockmann Consult",
-                  description = "Collocates two products based on their geo-codings.")
+        category = "Raster/Geometric",
+        version = "1.2",
+        authors = "Ralf Quast, Norman Fomferra",
+        copyright = "(c) 2007-2011 by Brockmann Consult",
+        description = "Collocates two products based on their geo-codings.")
 public class CollocateOp extends Operator {
 
     public static final String SOURCE_NAME_REFERENCE = "${ORIGINAL_NAME}";
@@ -80,28 +81,28 @@ public class CollocateOp extends Operator {
     private Product targetProduct;
 
     @Parameter(defaultValue = "_collocated",
-               description = "The name of the target product")
+            description = "The name of the target product")
     @Deprecated
     private String targetProductName;
 
     @Parameter(defaultValue = "COLLOCATED",
-               description = "The product type string for the target product (informal)")
+            description = "The product type string for the target product (informal)")
     private String targetProductType;
 
     @Parameter(defaultValue = "true",
-               description = "Whether or nor components of the master product shall be renamed in the target product.")
+            description = "Whether or not components of the master product shall be renamed in the target product.")
     private boolean renameMasterComponents;
 
     @Parameter(defaultValue = "true",
-               description = "Whether or nor components of the slave product shall be renamed in the target product.")
+            description = "Whether or not components of the slave product shall be renamed in the target product.")
     private boolean renameSlaveComponents;
 
     @Parameter(defaultValue = DEFAULT_MASTER_COMPONENT_PATTERN,
-               description = "The text pattern to be used when renaming master components.")
+            description = "The text pattern to be used when renaming master components.")
     private String masterComponentPattern;
 
     @Parameter(defaultValue = DEFAULT_SLAVE_COMPONENT_PATTERN,
-               description = "The text pattern to be used when renaming slave components.")
+            description = "The text pattern to be used when renaming slave components.")
     private String slaveComponentPattern;
 
 //    @Parameter(defaultValue = "true",
@@ -109,7 +110,7 @@ public class CollocateOp extends Operator {
 //    private boolean slaveTiePointGridsBecomeBands;
 
     @Parameter(defaultValue = NEAREST_NEIGHBOUR,
-               description = "The method to be used when resampling the slave grid onto the master grid.")
+            description = "The method to be used when resampling the slave grid onto the master grid.")
     private ResamplingType resamplingType;
 
     private transient Map<Band, RasterDataNode> sourceRasterMap;
@@ -199,7 +200,7 @@ public class CollocateOp extends Operator {
                                          "slaveComponentPattern"));
         }
 
-        sourceRasterMap = new HashMap<Band, RasterDataNode>(31);
+        sourceRasterMap = new HashMap<>(31);
 
         targetProduct = new Product(
                 targetProductName != null ? targetProductName : masterProduct.getName() + "_" + slaveProduct.getName(),
@@ -221,14 +222,17 @@ public class CollocateOp extends Operator {
 
         for (final Band sourceBand : masterProduct.getBands()) {
             final Band targetBand = ProductUtils.copyBand(sourceBand.getName(), masterProduct, targetProduct, true);
-            setFlagCoding(targetBand, sourceBand.getFlagCoding(), renameMasterComponents, masterComponentPattern);
+            handleSampleCodings(sourceBand, targetBand, renameMasterComponents, masterComponentPattern);
             sourceRasterMap.put(targetBand, sourceBand);
         }
+
         if (renameMasterComponents) {
             for (final Band band : targetProduct.getBands()) {
                 band.setName(masterComponentPattern.replace(SOURCE_NAME_REFERENCE, band.getName()));
             }
         }
+
+
         copyMasks(masterProduct, renameMasterComponents, masterComponentPattern);
 
         for (final Band sourceBand : slaveProduct.getBands()) {
@@ -238,7 +242,7 @@ public class CollocateOp extends Operator {
             }
             final Band targetBand = targetProduct.addBand(targetBandName, sourceBand.getDataType());
             ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
-            setFlagCoding(targetBand, sourceBand.getFlagCoding(), renameSlaveComponents, slaveComponentPattern);
+            handleSampleCodings(sourceBand, targetBand, renameSlaveComponents, slaveComponentPattern);
             sourceRasterMap.put(targetBand, sourceBand);
         }
 
@@ -273,7 +277,7 @@ public class CollocateOp extends Operator {
 
     @Override
     public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm) throws
-            OperatorException {
+                                                                                                               OperatorException {
         pm.beginTask("Collocating bands...", targetProduct.getNumBands() + 1);
         try {
             final PixelPos[] sourcePixelPositions = ProductUtils.computeSourcePixelCoordinates(
@@ -362,7 +366,7 @@ public class CollocateOp extends Operator {
                                                     sourceRasterWidth, sourceRasterHeight, resamplingIndex);
                             double sample;
                             if (resampling == Resampling.NEAREST_NEIGHBOUR) {
-                                sample = sourceTile.getSampleDouble((int)resamplingIndex.i0, (int)resamplingIndex.j0);
+                                sample = sourceTile.getSampleDouble((int) resamplingIndex.i0, (int) resamplingIndex.j0);
                             } else {
                                 try {
                                     sample = resampling.resample(resamplingRaster, resamplingIndex);
@@ -424,6 +428,27 @@ public class CollocateOp extends Operator {
         }
     }
 
+    private void handleSampleCodings(Band sourceBand, Band targetBand, boolean renameComponents, String renamePattern) {
+        handleFlagCoding(sourceBand, targetBand, renameComponents, renamePattern);
+        handleIndexCoding(sourceBand, targetBand, renameComponents, renamePattern);
+    }
+
+    private void handleFlagCoding(Band sourceBand, Band targetBand, boolean renameComponents, String renamePattern) {
+        if (sourceBand.getFlagCoding() != null) {
+            targetBand.getProduct().getFlagCodingGroup().remove(targetBand.getFlagCoding());
+            targetBand.setSampleCoding(null);
+        }
+        setFlagCoding(targetBand, sourceBand.getFlagCoding(), renameComponents, renamePattern);
+    }
+
+    private void handleIndexCoding(Band sourceBand, Band targetBand, boolean renameComponents, String renamePattern) {
+        if (sourceBand.getIndexCoding() != null) {
+            targetBand.getProduct().getIndexCodingGroup().remove(targetBand.getIndexCoding());
+            targetBand.setSampleCoding(null);
+        }
+        setIndexCoding(targetBand, sourceBand.getIndexCoding(), renameComponents, renamePattern);
+    }
+
     private static void setFlagCoding(Band band, FlagCoding flagCoding, boolean rename, String pattern) {
         if (flagCoding != null) {
             String flagCodingName = flagCoding.getName();
@@ -438,12 +463,34 @@ public class CollocateOp extends Operator {
         }
     }
 
+    private static void setIndexCoding(Band band, IndexCoding indexCoding, boolean rename, String pattern) {
+        if (indexCoding != null) {
+            String indexCodingName = indexCoding.getName();
+            if (rename) {
+                indexCodingName = pattern.replace(SOURCE_NAME_REFERENCE, indexCodingName);
+            }
+            final Product product = band.getProduct();
+            if (!product.getIndexCodingGroup().contains(indexCodingName)) {
+                addIndexCoding(product, indexCoding, indexCodingName);
+            }
+            band.setSampleCoding(product.getIndexCodingGroup().get(indexCodingName));
+        }
+    }
+
     private static void addFlagCoding(Product product, FlagCoding flagCoding, String flagCodingName) {
         final FlagCoding targetFlagCoding = new FlagCoding(flagCodingName);
 
         targetFlagCoding.setDescription(flagCoding.getDescription());
         ProductUtils.copyMetadata(flagCoding, targetFlagCoding);
         product.getFlagCodingGroup().add(targetFlagCoding);
+    }
+
+    private static void addIndexCoding(Product product, IndexCoding indexCoding, String indexCodingName) {
+        final IndexCoding targetIndexCoding = new IndexCoding(indexCodingName);
+
+        targetIndexCoding.setDescription(indexCoding.getDescription());
+        ProductUtils.copyMetadata(indexCoding, targetIndexCoding);
+        product.getIndexCodingGroup().add(targetIndexCoding);
     }
 
     private static Rectangle getBoundingBox(PixelPos[] pixelPositions, int maxWidth, int maxHeight) {
