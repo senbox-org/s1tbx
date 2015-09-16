@@ -33,6 +33,7 @@ import org.esa.snap.gpf.TileIndex;
 import org.esa.snap.util.ProductUtils;
 
 import java.awt.Rectangle;
+import java.util.Map;
 
 /**
  * Creates a new product with only selected bands
@@ -95,28 +96,49 @@ public final class TestPatternOp extends Operator {
         }
     }
 
-    /**
-     * Called by the framework in order to compute a tile for the given target band.
-     * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
-     *
-     * @param targetBand The target band.
-     * @param targetTile The current tile associated with the target band to be computed.
-     * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during computation of the target raster.
-     */
+//    @Override
+//    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+//        computePattern(targetBand, targetTile);
+//    }
+
     @Override
-    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+    public synchronized void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
+            throws OperatorException {
+        for(Band targetBand : targetProduct.getBands()) {
+            final Tile targetTile = targetTileMap.get(targetBand);
+            //computePattern(targetBand, targetTile);
+        }
+    }
+
+    private void computePattern(Band targetBand, Tile targetTile) {
         try {
-            final Rectangle targetTileRectangle = targetTile.getRectangle();
+            int minTileX = targetBand.getRasterWidth()-targetTile.getRectangle().x-1;
+            int minTileY = targetBand.getRasterHeight()-targetTile.getRectangle().y-1;
+            Rectangle targetTileRectangle = new Rectangle(targetTile.getRectangle().x, targetTile.getRectangle().y,
+                                                          Math.min(minTileX, targetTile.getRectangle().width),
+                                                          Math.min(minTileY, targetTile.getRectangle().height));
             final int x0 = targetTileRectangle.x;
             final int y0 = targetTileRectangle.y;
             final int w = targetTileRectangle.width;
             final int h = targetTileRectangle.height;
-            //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h + ", target band = " + targetBand.getName());
 
-            final String targetBandName = targetBand.getName();
-            final Band sourceBand = sourceProduct.getBand(targetBandName);
-            final Tile sourceRaster = getSourceTile(sourceBand, targetTileRectangle);
+            if(x0 >= targetBand.getRasterWidth() || y0 >= targetBand.getRasterHeight() || w <= 0 || h <= 0) {
+                return;
+            }
+            if(x0 >= 11880) {
+                return;
+            }
+
+            System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h + ", target band = " + targetBand.getName());
+
+            final Band sourceBand = sourceProduct.getBand(targetBand.getName());
+            Tile sourceRaster = null;
+            try {
+                sourceRaster = getSourceTile(sourceBand, targetTileRectangle);
+            } catch (Throwable t) {
+                t.printStackTrace();
+                sourceRaster = getSourceTile(sourceBand, targetTileRectangle);
+            }
             final ProductData srcData = sourceRaster.getDataBuffer();
 
             final ProductData trgData = targetTile.getDataBuffer();
@@ -125,6 +147,7 @@ public final class TestPatternOp extends Operator {
             final int maxY = y0 + h;
             final int maxX = x0 + w;
 
+            int cnt = 0;
             double dn;
             int srcIdx, trgIdx;
             for (int y = y0; y < maxY; ++y) {
