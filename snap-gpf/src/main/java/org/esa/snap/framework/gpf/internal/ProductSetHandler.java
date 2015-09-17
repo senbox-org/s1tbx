@@ -18,7 +18,6 @@ package org.esa.snap.framework.gpf.internal;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.XppDomElement;
 import org.esa.snap.framework.dataio.ProductIO;
-import org.esa.snap.framework.dataio.ProductReader;
 import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.snap.framework.gpf.graph.Graph;
 import org.esa.snap.framework.gpf.graph.GraphException;
@@ -28,6 +27,7 @@ import org.esa.snap.gpf.operators.standard.ReadOp;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -49,8 +49,8 @@ public class ProductSetHandler {
     public ProductSetData[] findProductSetStacks(final String fileListPath) throws GraphException {
 
         final List<ProductSetData> productSetDataList = new ArrayList<>();
-
-        for(Node n : graph.getNodes()) {
+        final Node[] nodes = graph.getNodes();
+        for(Node n : nodes) {
             if(n.getOperatorName().equalsIgnoreCase(PRODUCT_SET_READER_NAME)) {
                 final ProductSetData psData = new ProductSetData(n);
 
@@ -96,8 +96,9 @@ public class ProductSetHandler {
     private void resolveFolders(final ProductSetData psData) {
         final List<String> toAdd = new ArrayList<>();
         final ValidProductFileFilter dirFilter = new ValidProductFileFilter();
-        while(psData.fileList.iterator().hasNext()) {
-            final String path = psData.fileList.iterator().next();
+        final Iterator<String> itr = psData.fileList.iterator();
+        while(itr.hasNext()) {
+            final String path = itr.next();
             final File file = new File(path);
             if(file.exists() && file.isDirectory()) {
                 psData.fileList.remove(path);
