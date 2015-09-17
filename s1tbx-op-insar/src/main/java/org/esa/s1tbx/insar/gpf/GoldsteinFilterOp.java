@@ -420,7 +420,7 @@ public class GoldsteinFilterOp extends Operator {
                     }
                 }
                 if(k != 0) {
-                    fltSpec[r][c] = Math.pow(sum / k, alpha);
+                    fltSpec[r][c] = FastMath.pow(sum / k, alpha);
                 } else {
                     fltSpec[r][c] = 0;
                 }

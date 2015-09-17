@@ -32,6 +32,7 @@ import gov.nasa.worldwindx.examples.analytics.AnalyticSurface;
 import gov.nasa.worldwindx.examples.analytics.AnalyticSurfaceAttributes;
 import gov.nasa.worldwindx.examples.util.DirectedPath;
 
+import org.apache.commons.math3.util.FastMath;
 import org.esa.snap.framework.datamodel.*;
 import org.esa.snap.worldwind.ArrowInfo;
 import org.esa.snap.worldwind.ColorBarLegend;
@@ -532,7 +533,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
                 //if (currCellRow > 0 && currCellCol > 0) {
                     for (int cellSizeResolution = 1; cellSizeResolution < theOWIArrowNumLevels; cellSizeResolution++) {
                         // treating the original cell size as 1
-                        int currBigCellSize = (int) Math.pow(2, cellSizeResolution);
+                        int currBigCellSize = (int) FastMath.pow(2, cellSizeResolution);
                         if ((currCellRow % currBigCellSize == currBigCellSize - 1) && (currCellCol % currBigCellSize == currBigCellSize - 1)) {
                             int bigCellRow = (currCellRow / currBigCellSize);
                             int bigCellCol = (currCellCol / currBigCellSize);
@@ -636,7 +637,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
                         else if (selectedResolutionInd > 4) {
                             selectedResolutionInd = 4;
                         }
-                        int selectedInd = (int) Math.pow(2, selectedResolutionInd);
+                        int selectedInd = (int) FastMath.pow(2, selectedResolutionInd);
 
 
 

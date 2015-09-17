@@ -292,8 +292,8 @@ public class AzimuthShiftOp extends Operator {
                 col_fft.complexInverse(col2, true);
 
                 for (int r = 0; r < h; r++) {
-                    final double cosPhase = Math.cos(col2[2 * r]);
-                    final double sinPhase = Math.sin(col2[2 * r]);
+                    final double cosPhase = FastMath.cos(col2[2 * r]);
+                    final double sinPhase = FastMath.sin(col2[2 * r]);
                     tgtArrayI[r * w + c] = (float)(col1[2 * r] * cosPhase + col1[2 * r + 1] * sinPhase);
                     tgtArrayQ[r * w + c] = (float)(-col1[2 * r] * sinPhase + col1[2 * r + 1] * cosPhase);
                 }
@@ -525,8 +525,8 @@ public class AzimuthShiftOp extends Operator {
         double sumImag = 0.0;
         for (int i = 0; i < arrayLength; i++) {
             final double theta = Math.atan2(diffIntImag[i], diffIntReal[i]);
-            sumReal += Math.cos(theta);
-            sumImag += Math.sin(theta);
+            sumReal += FastMath.cos(theta);
+            sumImag += FastMath.sin(theta);
         }
 
         final double phase = Math.atan2(sumImag, sumReal);

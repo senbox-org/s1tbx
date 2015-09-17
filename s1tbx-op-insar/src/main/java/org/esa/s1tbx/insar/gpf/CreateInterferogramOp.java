@@ -16,6 +16,7 @@
 package org.esa.s1tbx.insar.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.PosVector;
 import org.esa.snap.datamodel.Unit;
@@ -208,8 +209,8 @@ public class CreateInterferogramOp extends Operator {
                 final String sProcSysId = slvRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
                 final float sVersion = Float.valueOf(sProcSysId.substring(sProcSysId.lastIndexOf(" ")));
                 if ((mVersion < 2.43 && sVersion >= 2.43) || (sVersion < 2.43 && mVersion >= 2.43)) {
-                    throw new OperatorException(
-                            "Source products cannot be InSAR pair: one with EAP phase correction, one without.");
+                    //throw new OperatorException(
+                    //        "Source products cannot be InSAR pairs: one is EAP phase corrected and the other is not. Apply EAP Correction.");
                 }
 
                 su = new Sentinel1Utils(sourceProduct);
@@ -547,7 +548,7 @@ public class CreateInterferogramOp extends Operator {
 
             for (int j = 0; j <= srpPolynomialDegree; j++) {
                 for (int k = 0; k <= j; k++) {
-                    A.put(i, index, (Math.pow(posL, (double) (j - k)) * Math.pow(posP, (double) k)));
+                    A.put(i, index, (FastMath.pow(posL, (double) (j - k)) * FastMath.pow(posP, (double) k)));
                     index++;
                 }
             }
@@ -621,7 +622,7 @@ public class CreateInterferogramOp extends Operator {
 
             for (int j = 0; j <= srpPolynomialDegree; j++) {
                 for (int k = 0; k <= j; k++) {
-                    A.put(i, index, (Math.pow(posL, (double) (j - k)) * Math.pow(posP, (double) k)));
+                    A.put(i, index, (FastMath.pow(posL, (double) (j - k)) * FastMath.pow(posP, (double) k)));
                     index++;
                 }
             }

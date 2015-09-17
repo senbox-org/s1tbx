@@ -292,7 +292,7 @@ public final class ComputeDerampedAzimuthSpectrumOp extends Operator {
                         final int tgtIdx = tgtIndex.getIndex(x);
                         final int xx = x - x0;
                         final double kt = subSwath[s].dopplerRate[burstIndex][x];
-                        final double deramp = -Math.PI * kt * Math.pow(ta - subSwath[s].referenceTime[burstIndex][x], 2);
+                        final double deramp = -Math.PI * kt * FastMath.pow(ta - subSwath[s].referenceTime[burstIndex][x], 2);
                         final double demod = -2 * Math.PI * subSwath[s].dopplerCentroid[burstIndex][x] * ta;
                         if (derampOnly) {
                             phase[yy][xx] = deramp;
@@ -318,7 +318,7 @@ public final class ComputeDerampedAzimuthSpectrumOp extends Operator {
                     for (int x = x0; x < xMax; x++) {
                         final int xx = x - x0;
                         final double kt = subSwath[s].dopplerRate[burstIndex][x];
-                        final double deramp = -Math.PI * kt * Math.pow(ta - subSwath[s].referenceTime[burstIndex][x], 2);
+                        final double deramp = -Math.PI * kt * FastMath.pow(ta - subSwath[s].referenceTime[burstIndex][x], 2);
                         if (derampOnly) {
                             phase[yy][xx] = deramp;
                         } else {

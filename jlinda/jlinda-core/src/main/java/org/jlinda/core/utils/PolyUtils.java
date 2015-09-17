@@ -788,7 +788,7 @@ public class PolyUtils {
             int coeffIndex = 0;
             for (int l = 0; l <= degree; l++) {
                 for (int k = 0; k <= l; k++) {
-                    sum += coeff[coeffIndex] * Math.pow(x, (double) (l - k)) * Math.pow(y, (double) k);
+                    sum += coeff[coeffIndex] * FastMath.pow(x, (double) (l - k)) * FastMath.pow(y, (double) k);
                     coeffIndex++;
                 }
             }
