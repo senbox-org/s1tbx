@@ -328,7 +328,7 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
         final String ext = FileUtils.getExtension(dataFile.getName());
         if (".zip".equalsIgnoreCase(ext)) {
             final String baseName = localFile.getName();
-            final File newFile = new File(ResourceUtils.getApplicationUserTempDataDir(), baseName);
+            final File newFile = new File(SystemUtils.getCacheDir(), baseName);
             if (newFile.exists())
                 return newFile;
 

@@ -64,18 +64,6 @@ public final class ResourceUtils {
         return Files.newInputStream(basePath.resolve(filename));
     }
 
-    /**
-     * get the temporary data folder in the user's application data directory
-     *
-     * @return the temp folder
-     */
-    public static File getApplicationUserTempDataDir() {
-        final File tmpDir = new File(SystemUtils.getApplicationDataDir(true), "temp");
-        if (!tmpDir.exists())
-            tmpDir.mkdirs();
-        return tmpDir;
-    }
-
     public static File getReportFolder() {
         final File reportFolder = new File(SystemUtils.getApplicationDataDir(true) + File.separator + "var" + File.separator + "log");
         if (!reportFolder.exists())
