@@ -52,8 +52,6 @@ import java.util.stream.DoubleStream;
  */
 public class CsvProductReader extends AbstractProductReader {
 
-    private static final String PROPERTY_NAME_SCENE_RASTER_WIDTH = "sceneRasterWidth";
-
     private CsvSourceParser parser;
     private CsvSource source;
     private Product product;

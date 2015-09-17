@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -9,7 +9,7 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
@@ -55,13 +55,15 @@ public class CsvProductWriterTest {
 
     @Test
     public void testWriteHeader() throws Exception {
-        assertEquals("featureId\tradiance_1:float\tradiance_2:double\tradiance_3:int", result.toString().trim());
+        StringWriter expected = getExpectedHeader();
+        assertEquals(expected.toString(), result.toString().trim());
     }
 
     @Test
     public void testWriteFeatures() throws Exception {
         writer.writeBandRasterData(null, -1, -1, -1, -1, null, ProgressMonitor.NULL);
-        final StringBuilder expected = new StringBuilder("featureId\tradiance_1:float\tradiance_2:double\tradiance_3:int\n");
+        final StringWriter expected = getExpectedHeader();
+        expected.append("\n");
         expected.append("0\t0.0\t10.0\t100\n");
         expected.append("1\t1.0\t11.0\t101\n");
         expected.append("2\t2.0\t12.0\t102\n");
@@ -69,6 +71,13 @@ public class CsvProductWriterTest {
         expected.append("4\t4.0\t14.0\t104\n");
         expected.append("5\t5.0\t15.0\t105");
         assertEquals(expected.toString(), result.toString().trim());
+    }
+
+    private StringWriter getExpectedHeader() {
+        final StringWriter expected = new StringWriter();
+        expected.write("#sceneRasterWidth=2\n");
+        expected.write("featureId\tradiance_1:float\tradiance_2:double\tradiance_3:int");
+        return expected;
     }
 
     private void fillBandDataInt(Band band, int startValue) {
