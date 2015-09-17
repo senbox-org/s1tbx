@@ -17,7 +17,7 @@ package org.esa.s1tbx.insar.gpf;
 
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.s1tbx.TestData;
+import org.esa.s1tbx.commons.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 

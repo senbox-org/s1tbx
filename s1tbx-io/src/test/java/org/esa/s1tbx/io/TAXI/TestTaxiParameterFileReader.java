@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.io.TAXI;
 
-import org.esa.s1tbx.TestData;
+import org.esa.s1tbx.commons.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 

@@ -16,7 +16,7 @@
 package org.esa.s1tbx.sar.gpf.geometric;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.s1tbx.S1TBXTests;
+import org.esa.s1tbx.commons.S1TBXTests;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.MetadataAttribute;

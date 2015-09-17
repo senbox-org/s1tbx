@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.io.ceos.jers;
 
-import org.esa.s1tbx.S1TBXTests;
+import org.esa.s1tbx.commons.S1TBXTests;
 import org.esa.snap.framework.dataio.ProductReader;
 import org.esa.snap.gpf.TestProcessor;
 import org.junit.Test;

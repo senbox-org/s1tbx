@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.dat;
+package org.esa.s1tbx.sar;
 
 import org.esa.s1tbx.commons.S1TBXSetup;
 import org.openide.modules.OnStart;
@@ -21,14 +21,14 @@ import org.openide.modules.OnStart;
 /**
  * Handle OnStart for module
  */
-public class s1tbxRCPModule {
+public class s1tbxSARProcessingModule {
 
     @OnStart
     public static class StartOp implements Runnable {
 
         @Override
         public void run() {
-            S1TBXSetup.installColorPalettes(this.getClass(), "org/esa/s1tbx/dat/auxdata/color_palettes/");
+            S1TBXSetup.installGraphs(this.getClass(), "org/esa/s1tbx/sar/graphs/");
         }
     }
 }

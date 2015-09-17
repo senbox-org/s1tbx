@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.sar.gpf.geometric;
 
-import org.esa.s1tbx.S1TBXTests;
+import org.esa.s1tbx.commons.S1TBXTests;
 import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.snap.gpf.TestProcessor;
 import org.esa.snap.util.TestUtils;

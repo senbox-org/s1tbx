@@ -16,8 +16,8 @@
 package org.esa.s1tbx.sar.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.s1tbx.S1TBXTests;
-import org.esa.s1tbx.TestData;
+import org.esa.s1tbx.commons.S1TBXTests;
+import org.esa.s1tbx.commons.TestData;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.framework.datamodel.Band;
