@@ -35,6 +35,15 @@ import java.util.TimeZone;
 import java.util.stream.Stream;
 import java.util.zip.GZIPOutputStream;
 
+/**
+ * This tool generates the catalog (update.xml/update.xml.gz) for a set of nbm files.
+ * The tool takes up to three parameters:
+ * <ol>
+ *     <li>The path to the directory containing the nbm files (mandatory)</li>
+ *     <li>A notification message which is shown to the user as a balloon message in the lower right (optional)</li>
+ *     <li>An URL for the notification message (optional)</li>
+ * </ol>
+ */
 public class GenAUCatalog {
 
     private static final String NBM_FILE_EXTENSION = ".nbm";
@@ -45,6 +54,7 @@ public class GenAUCatalog {
     private static final String TAG_NAME_MODULE = "module";
     private static final String ATTRIB_NAME_DOWNLOADSIZE = "downloadsize";
     private static final String ATTRIB_NAME_NAME = "name";
+    // todo - get this header from the first info.xml file (mp/17.09.2015)
     private static final String XML_HEAD = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
                                            "<!DOCTYPE module_updates PUBLIC \"-//NetBeans//DTD Autoupdate Catalog 2.5//EN\" \"http://www.netbeans.org/dtds/autoupdate-catalog-2_5.dtd\">\r\n\r\n";
 
