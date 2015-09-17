@@ -16,28 +16,31 @@
 
 package org.esa.snap.csv.dataio.reader;
 
+import static org.esa.snap.csv.dataio.Constants.*;
+
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.csv.dataio.Constants;
 import org.esa.snap.csv.dataio.CsvFile;
 import org.esa.snap.csv.dataio.CsvSource;
 import org.esa.snap.csv.dataio.CsvSourceParser;
 import org.esa.snap.framework.dataio.AbstractProductReader;
 import org.esa.snap.framework.dataio.ProductReaderPlugIn;
 import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.GeoCoding;
+import org.esa.snap.framework.datamodel.GeoCodingFactory;
+import org.esa.snap.framework.datamodel.MetadataAttribute;
+import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.RasterPixelTimeCoding;
 import org.esa.snap.util.StringUtils;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.io.FileUtils;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.stream.DoubleStream;
 
@@ -102,17 +105,57 @@ public class CsvProductReader extends AbstractProductReader {
         product = new Product(productName, "CSV", sceneRasterWidth, sceneRasterHeight);
         product.setPreferredTileSize(sceneRasterWidth, sceneRasterHeight);
         product.setFileLocation(inputFile);
+        product.setProductReader(this);
         initTimeCoding();
         initBands();
+        initGeocoding();
 
         // todo - somehow handle attributes which are of no band type, such as utc
+        //          timeCoding
         // todo - put properties into metadata
+        //          partly done
         // todo - separation of bands and tiepoint grids?!
         return product;
     }
 
+    private void initGeocoding() {
+        final Band latBand = fetchBand(LAT_NAMES);
+        if (latBand == null) {
+            SystemUtils.LOG.info("Latitude information not available.");
+            SystemUtils.LOG.warning("Unable to initialize PixelGeocoding.");
+            return;
+        }
+        final Band lonBand = fetchBand(LON_NAMES);
+        if (lonBand == null) {
+            SystemUtils.LOG.info("Longitude information not available.");
+            SystemUtils.LOG.warning("Unable to initialize PixelGeocoding.");
+            return;
+        }
+        final String validMask = latBand.getValidMaskExpression();
+        final int searchRadius = 5;
+        GeoCoding gc = GeoCodingFactory.createPixelGeoCoding(latBand, lonBand, validMask, searchRadius);
+//        GeoCoding gc = new PixelGeoCoding(latBand, lonBand, validMask, searchRadius);
+        product.setGeoCoding(gc);
+    }
+
+    private Band fetchBand(String[] names) {
+        for (String name : names) {
+            if (product.containsBand(name)) {
+                return product.getBand(name);
+            }
+        }
+        return null;
+    }
+
     private void initTimeCoding() throws IOException {
-        final String timeColumnName = source.getProperties().get(Constants.PROPERTY_NAME_TIME_COLUMN);
+        final String timeColumnName = source.getProperties().get(PROPERTY_NAME_TIME_COLUMN);
+        if (StringUtils.isNotNullAndNotEmpty(timeColumnName)) {
+            addCsvHeaderProperty(PROPERTY_NAME_TIME_COLUMN, timeColumnName);
+        }
+        final String timePattern = source.getProperties().get(PROPERTY_NAME_TIME_PATTERN);
+        if (StringUtils.isNotNullAndNotEmpty(timePattern)) {
+            addCsvHeaderProperty(PROPERTY_NAME_TIME_PATTERN, timePattern);
+        }
         for (AttributeDescriptor descriptor : source.getFeatureType().getAttributeDescriptors()) {
             final String colName = descriptor.getName().toString();
             if (timeColumnName != null && !timeColumnName.equals(colName)) {
@@ -132,6 +175,23 @@ public class CsvProductReader extends AbstractProductReader {
         SystemUtils.LOG.warning("Not able to create RasterPixelTimeCoding for product '" + product.getFileLocation().getAbsolutePath() + "'");
     }
 
+    private void addCsvHeaderProperty(String name, String stringValue) {
+        final MetadataElement headerElement = getCsvMetadataHeader();
+        headerElement.addAttribute(new MetadataAttribute(name, ProductData.createInstance(stringValue), true));
+    }
+
+    private MetadataElement getCsvMetadataHeader() {
+        final MetadataElement metadataRoot = product.getMetadataRoot();
+        final MetadataElement headerElement;
+        if (metadataRoot.containsElement(NAME_METADATA_ELEMENT_CSV_HEADER_PROPERTIES)) {
+            headerElement = metadataRoot.getElement(NAME_METADATA_ELEMENT_CSV_HEADER_PROPERTIES);
+        } else {
+            headerElement = new MetadataElement(NAME_METADATA_ELEMENT_CSV_HEADER_PROPERTIES);
+            metadataRoot.addElement(headerElement);
+        }
+        return headerElement;
+    }
+
     private void initStartEndTime(double[] timeMJD) {
         product.setStartTime(new ProductData.UTC(DoubleStream.of(timeMJD).min().getAsDouble()));
         product.setEndTime(new ProductData.UTC(DoubleStream.of(timeMJD).max().getAsDouble()));
@@ -143,12 +203,6 @@ public class CsvProductReader extends AbstractProductReader {
     }
 
     private double[] getTimeMJD(String colName) throws IOException {
-        final String timePattern = source.getProperties().get(Constants.PROPERTY_NAME_TIME_PATTERN);
-        if (StringUtils.isNotNullAndNotEmpty(timePattern)) {
-            final SimpleFeatureType featureType = source.getFeatureType();
-            final List<AttributeDescriptor> descriptors = featureType.getAttributeDescriptors();
-            final int colIdx = descriptors.indexOf(colName);
-        }
         Object[] objects = parser.parseRecords(0, source.getRecordCount(), colName);
         double[] timeMJD = new double[objects.length];
         for (int i = 0; i < objects.length; i++) {
@@ -286,6 +340,7 @@ public class CsvProductReader extends AbstractProductReader {
     }
 
     static class CSVTimeCoding extends RasterPixelTimeCoding {
+
         private final String dataSourceName;
 
         public CSVTimeCoding(double[] timeMJD, int rasterWidth, int rasterHeight, String dataSourceName) {

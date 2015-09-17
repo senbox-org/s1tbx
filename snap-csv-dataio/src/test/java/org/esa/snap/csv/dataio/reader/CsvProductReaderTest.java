@@ -286,7 +286,13 @@ public class CsvProductReaderTest {
 
     @Test
     public void testCreateTimeCoding_timeColumnAndTimePatternProperty() throws IOException {
-        Product product = readTestProduct("simple_format_with_time_column_and_time_pattern_property.txt");
+        final Product product = readTestProduct("simple_format_with_time_column_and_time_pattern_property.txt");
+        final MetadataElement metadataRoot = product.getMetadataRoot();
+        final MetadataElement element = metadataRoot.getElement(Constants.NAME_METADATA_ELEMENT_CSV_HEADER_PROPERTIES);
+
+        assertNotNull(element);
+        assertEquals("any_name", element.getAttributeString(Constants.PROPERTY_NAME_TIME_COLUMN));
+        assertEquals("yyyy-MM-dd HH:mm:ss", element.getAttributeString(Constants.PROPERTY_NAME_TIME_PATTERN));
 
         CsvProductReader.CSVTimeCoding timeCoding = (CsvProductReader.CSVTimeCoding) product.getTimeCoding();
         assertNotNull(timeCoding);
@@ -299,7 +305,6 @@ public class CsvProductReaderTest {
         assertEquals("01-JUN-2013 11:45:00.000000", getTimeString(timeCoding, 1.5, 0.5));
         assertEquals("01-JUN-2013 12:45:00.000000", getTimeString(timeCoding, 0.5, 1.5));
         assertEquals("NaN", Double.toString(timeCoding.getMJD(new PixelPos(1.5, 1.5))));
-
     }
 
     private String getTimeString(RasterPixelTimeCoding timeCoding, double x, double y) {
