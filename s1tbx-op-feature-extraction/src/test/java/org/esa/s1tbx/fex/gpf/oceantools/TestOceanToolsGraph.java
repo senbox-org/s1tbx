@@ -17,6 +17,7 @@ package org.esa.s1tbx.fex.gpf.oceantools;
 
 import org.esa.s1tbx.commons.S1TBXTests;
 import org.esa.snap.util.ResourceUtils;
+import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.TestUtils;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -36,7 +37,7 @@ public class TestOceanToolsGraph {
     @Ignore
     public void testProcessGraph() throws Exception {
         final File inputFile = new File(S1TBXTests.rootPathTestProducts, ASAR_IMM);
-        final File outputFile = new File(ResourceUtils.getApplicationUserTempDataDir(), "tmpOut.dim");
+        final File outputFile = new File(SystemUtils.getCacheDir(), "tmpOut.dim");
         if (!inputFile.exists()) {
             TestUtils.skipTest(this, inputFile +" not found");
             return;

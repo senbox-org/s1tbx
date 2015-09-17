@@ -20,6 +20,7 @@ import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.util.Maths;
 import org.esa.snap.util.ResourceUtils;
+import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.ZipUtils;
 import org.esa.snap.util.io.FileUtils;
 
@@ -94,7 +95,7 @@ public final class PrareOrbitReader {
         if (ZipUtils.isZipped(file)) {
             try {
                 // check if previously unzipped
-                final File tempFolder = ResourceUtils.getApplicationUserTempDataDir();
+                final File tempFolder = SystemUtils.getCacheDir();
                 final File prevFile = new File(tempFolder, FileUtils.getFilenameWithoutExtension(file));
                 if (prevFile.exists()) {
                     filePath = prevFile.getAbsolutePath();

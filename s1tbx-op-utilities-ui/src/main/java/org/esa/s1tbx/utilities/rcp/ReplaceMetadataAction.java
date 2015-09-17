@@ -25,6 +25,7 @@ import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.rcp.actions.AbstractSnapAction;
 import org.esa.snap.util.ResourceUtils;
+import org.esa.snap.util.SystemUtils;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
@@ -75,7 +76,7 @@ public class ReplaceMetadataAction extends AbstractSnapAction {
                 }
 
                 final MetadataElement srcAbsRoot = AbstractMetadata.getAbstractedMetadata(srcProduct);
-                final File tmpMetadataFile = new File(ResourceUtils.getApplicationUserTempDataDir(),
+                final File tmpMetadataFile = new File(SystemUtils.getCacheDir(),
                                                       srcProduct.getName() + "_metadata.xml");
                 AbstractMetadataIO.Save(srcProduct, srcAbsRoot, tmpMetadataFile);
 
