@@ -7,9 +7,9 @@
     </source>
 
     <sources>
-        #foreach ($key in $sourceProducts.keySet())
-            <$key>$sourceProducts.get($key).name</$key>
-        #end
+#foreach ($key in $sourceProducts.keySet())
+        <$key>$sourceProducts.get($key).name</$key>
+#end
     </sources>
 
     <target>
@@ -20,9 +20,9 @@
 
     <parameterMetadata>
         <parameters>
-            #foreach ($key in $parameters.keySet())
-                <$key>$parameters.get($key)</$key>
-            #end
+#foreach ($key in $parameters.keySet())
+            <$key>$parameters.get($key)</$key>
+#end
         </parameters>
         <parameterFile>$parameterFile.path</parameterFile>
         <parameterXml><![CDATA[$parameterFile.content]]></parameterXml>
@@ -35,8 +35,8 @@
     </operatorMetadata>
 
     <extraMetadata>
-        #foreach ($key in $metadata.map.keySet())
-            <$key>$metadata.map.get($key)</$key>
-        #end
+#foreach ($key in $metadata.map.keySet())
+        <$key>$metadata.map.get($key)</$key>
+#end
     </extraMetadata>
 </metadata>
