@@ -14,6 +14,7 @@ import org.esa.snap.framework.gpf.graph.Node;
 import org.esa.snap.util.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -24,6 +25,7 @@ import java.io.Reader;
 /**
  * test ProductSetReader usage in GPF
  */
+@Ignore
 public class ProductSetReaderOpTest {
 
     private static File outputFile;
