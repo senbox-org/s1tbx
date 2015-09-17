@@ -27,6 +27,8 @@ import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class VectorDataNodeIO {
     public static final char DEFAULT_DELIMITER_CHAR = '\t';
@@ -106,6 +108,7 @@ public class VectorDataNodeIO {
             FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = vectorDataNode.getFeatureCollection();
             SimpleFeature[] features = featureCollection.toArray(new SimpleFeature[0]);
             vectorDataNodes = new VectorDataNode[features.length];
+            Map<String, Integer> nameCountMap = new HashMap<>();
             for (int i = 0; i < features.length; i++) {
                 SimpleFeature feature = features[i];
                 String newName;
@@ -113,6 +116,13 @@ public class VectorDataNodeIO {
                     newName = feature.getAttribute(attributeName).toString().replace(" ", "_").replace("-", "_");
                 } else {
                     newName = vectorDataNode.getName() + "_" + (i + 1);
+                }
+                if (nameCountMap.containsKey(newName)) {
+                    final Integer count = nameCountMap.get(newName);
+                    nameCountMap.put(newName, count + 1);
+                    newName = newName + "_" + count;
+                } else {
+                    nameCountMap.put(newName, 1);
                 }
                 vectorDataNodes[i] = new VectorDataNode(newName,
                                                         new ListFeatureCollection(vectorDataNode.getFeatureType(), Arrays.asList(feature)));
