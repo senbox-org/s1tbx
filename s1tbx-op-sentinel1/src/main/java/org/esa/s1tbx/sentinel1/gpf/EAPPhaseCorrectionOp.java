@@ -16,6 +16,7 @@
 package org.esa.s1tbx.sentinel1.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.insar.gpf.Sentinel1Utils;
 import org.esa.snap.datamodel.*;
 import org.esa.snap.framework.datamodel.*;
@@ -215,7 +216,7 @@ public final class EAPPhaseCorrectionOp extends Operator {
 
         final double procTime = absRoot.getAttributeUTC(AbstractMetadata.PROC_TIME).getMJD();
         final Calendar calendar = absRoot.getAttributeUTC(AbstractMetadata.PROC_TIME).getAsCalendar();
-        final int year = calendar.get(Calendar.YEAR);
+        int year = calendar.get(Calendar.YEAR);
 
         auxCalFile = findAuxCalFile(procTime, year);
 
@@ -223,8 +224,13 @@ public final class EAPPhaseCorrectionOp extends Operator {
             getRemoteFiles(year);
             auxCalFile = findAuxCalFile(procTime, year);
             if(auxCalFile == null) {
-                String timeStr = absRoot.getAttributeUTC(AbstractMetadata.PROC_TIME).format();
-                throw new OperatorException("No valid AUX_CAL file found for " + timeStr);
+                --year;
+                getRemoteFiles(year);
+                auxCalFile = findAuxCalFile(procTime, year);
+                if (auxCalFile == null) {
+                    String timeStr = absRoot.getAttributeUTC(AbstractMetadata.PROC_TIME).format();
+                    throw new OperatorException("No valid AUX_CAL file found for " + timeStr);
+                }
             }
         }
 
@@ -452,7 +458,7 @@ public final class EAPPhaseCorrectionOp extends Operator {
                 //System.out.println("burstIndex = " + burstIndex + ": ntx0 = " + tx0 + ", nty0 = " + nty0 + ", ntw = " + tw + ", nth = " + nth);
 
                 computeTileForOneBurst(
-                        subSwathIndex, burstIndex, polarization, tx0, nty0, tw, nth, targetBand, targetTile, pm);
+                        subSwathIndex, burstIndex, polarization, tx0, nty0, tw, nth, targetBand, targetTile);
             }
 
         } catch (Exception e) {
@@ -487,7 +493,7 @@ public final class EAPPhaseCorrectionOp extends Operator {
 
     private void computeTileForOneBurst(final int subSwathIndex, final int burstIndex, final String polarization,
                                         final int x0, final int y0, final int w, final int h, final Band targetBand,
-                                        final Tile targetTile, ProgressMonitor pm) {
+                                        final Tile targetTile) {
 
         final double rollSteeringAngle = computeRollSteeringAngle(subSwathIndex, burstIndex);
 
@@ -505,16 +511,19 @@ public final class EAPPhaseCorrectionOp extends Operator {
         final TileIndex srcIndex = new TileIndex(sourceRasterI);
         final TileIndex trgIndex = new TileIndex(targetTile);
 
+        final String key = acquisitionMode + subSwathIndex + "_" + polarization;
+        final EAPVector eapVector = swathPolToEAPVector.get(key);
+
         final int yMax = y0 + h;
         final int xMax = x0 + w;
-        int srcIdx, tgtIdx;
+        int srcIdx;
+        final double[] eap = new double[2];
+        double val = targetBand.getNoDataValue();
         for (int y = y0; y < yMax; y++) {
             srcIndex.calculateStride(y);
             trgIndex.calculateStride(y);
 
             for (int x = x0; x < xMax; x++) {
-                srcIdx = srcIndex.getIndex(x);
-                tgtIdx = trgIndex.getIndex(x);
 
                 final double slantRangeTime = su.getSlantRangeTime(x, subSwathIndex) * 2.0; // 1-way to 2-way
                 final double elevationAngle = computeElevationAngle(subSwathIndex, burstIndex, slantRangeTime);
@@ -522,19 +531,17 @@ public final class EAPPhaseCorrectionOp extends Operator {
                     continue;
                 }
 
-                double[] eap = new double[2];
-                computeEAP(elevationAngle, rollSteeringAngle, subSwathIndex, polarization, eap);
+                computeEAP(elevationAngle, rollSteeringAngle, eapVector, eap);
 
-                final double i = srcDataI.getElemDoubleAt(srcIdx);
-                final double q = srcDataQ.getElemDoubleAt(srcIdx);
-
+                srcIdx = srcIndex.getIndex(x);
                 if (tgtBandUnit == Unit.UnitType.REAL) {
-                    final double nI = (i*eap[0] + q*eap[1]) / Math.sqrt(eap[0]*eap[0] + eap[1]*eap[1]);
-                    tgtData.setElemDoubleAt(tgtIdx, nI);
+                    val = (srcDataI.getElemDoubleAt(srcIdx)*eap[0] + srcDataQ.getElemDoubleAt(srcIdx)*eap[1])
+                            / Math.sqrt(eap[0]*eap[0] + eap[1]*eap[1]);
                 } else if (tgtBandUnit == Unit.UnitType.IMAGINARY) {
-                    final double nQ = (q*eap[0] - i*eap[1]) / Math.sqrt(eap[0]*eap[0] + eap[1]*eap[1]);
-                    tgtData.setElemDoubleAt(tgtIdx, nQ);
+                    val = (srcDataQ.getElemDoubleAt(srcIdx)*eap[0] - srcDataI.getElemDoubleAt(srcIdx)*eap[1])
+                            / Math.sqrt(eap[0]*eap[0] + eap[1]*eap[1]);
                 }
+                tgtData.setElemDoubleAt(trgIndex.getIndex(x), val);
             }
         }
     }
@@ -562,8 +569,8 @@ public final class EAPPhaseCorrectionOp extends Operator {
         final double delta = burstFirstLineTime - ascendingNodeTime;
         final double omegaByDelta = omega*delta;
 
-        return h0 + h1*Math.sin(omegaByDelta + phi1) + h2*Math.sin(2.0*omegaByDelta + phi2) +
-                h3*Math.sin(3.0*omegaByDelta + phi3) + h4*Math.sin(4.0*omegaByDelta + phi4);
+        return h0 + h1* FastMath.sin(omegaByDelta + phi1) + h2*FastMath.sin(2.0*omegaByDelta + phi2) +
+                h3*FastMath.sin(3.0*omegaByDelta + phi3) + h4*FastMath.sin(4.0*omegaByDelta + phi4);
     }
 
     private static double computeRollSteeringAngle(final double satelliteAltitude) {
@@ -578,9 +585,8 @@ public final class EAPPhaseCorrectionOp extends Operator {
 
         final double[] slantRangeTimeArray = subSwath[subSwathIndex - 1].apSlantRangeTime[burstIndex];
         final double[] elevationAngleArray = subSwath[subSwathIndex - 1].apElevationAngle[burstIndex];
-        final int n = slantRangeTimeArray.length;
 
-        if (slantRangeTime < slantRangeTimeArray[0] || slantRangeTime > slantRangeTimeArray[n - 1]) {
+        if (slantRangeTime < slantRangeTimeArray[0] || slantRangeTime > slantRangeTimeArray[slantRangeTimeArray.length - 1]) {
             return -1.0;
         }
 
@@ -605,11 +611,8 @@ public final class EAPPhaseCorrectionOp extends Operator {
         return (1 - lambda)*theta0 + lambda*theta1;
     }
 
-    private void computeEAP(final double elevationAngle, final double rollSteeringAngle, final int subSwathIndex,
-                            final String polarization, final double[] eap) {
-
-        final String key = acquisitionMode + subSwathIndex + "_" + polarization;
-        final EAPVector eapVector = swathPolToEAPVector.get(key);
+    private void computeEAP(final double elevationAngle, final double rollSteeringAngle,
+                            final EAPVector eapVector, final double[] eap) {
 
         final int i0 = (int)((elevationAngle - rollSteeringAngle) / eapVector.elevationAngleIncrement +
                 (eapVector.count - 1) /2.0);
