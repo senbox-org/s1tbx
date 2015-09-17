@@ -17,6 +17,8 @@ package org.esa.snap.framework.gpf.internal;
 
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.XppDomElement;
+import org.esa.snap.framework.dataio.ProductIO;
+import org.esa.snap.framework.dataio.ProductReader;
 import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.snap.framework.gpf.graph.Graph;
 import org.esa.snap.framework.gpf.graph.GraphException;
@@ -26,6 +28,7 @@ import org.esa.snap.gpf.operators.standard.ReadOp;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 /**
@@ -45,7 +48,7 @@ public class ProductSetHandler {
 
     public ProductSetData[] findProductSetStacks(final String fileListPath) throws GraphException {
 
-        final ArrayList<ProductSetData> productSetDataList = new ArrayList<>();
+        final List<ProductSetData> productSetDataList = new ArrayList<>();
 
         for(Node n : graph.getNodes()) {
             if(n.getOperatorName().equalsIgnoreCase(PRODUCT_SET_READER_NAME)) {
@@ -81,10 +84,36 @@ public class ProductSetHandler {
                 if(psData.fileList.size() == 0)
                     throw new GraphException("no input products found in "+fileListPath);
 
+                resolveFolders(psData);
+
                 productSetDataList.add(psData);
             }
         }
+
         return productSetDataList.toArray(new ProductSetData[productSetDataList.size()]);
+    }
+
+    private void resolveFolders(final ProductSetData psData) {
+        final List<String> toAdd = new ArrayList<>();
+        final ValidProductFileFilter dirFilter = new ValidProductFileFilter();
+        while(psData.fileList.iterator().hasNext()) {
+            final String path = psData.fileList.iterator().next();
+            final File file = new File(path);
+            if(file.exists() && file.isDirectory()) {
+                psData.fileList.remove(path);
+
+                final File[] files = file.listFiles(dirFilter);
+                if(files != null) {
+                    for (File f : files) {
+                        // test with readers
+                        if(ProductIO.getProductReaderForInput(f) != null) {
+                            toAdd.add(f.getAbsolutePath());
+                        }
+                    }
+                }
+            }
+        }
+        psData.fileList.addAll(toAdd);
     }
 
     public void replaceProductSetsWithReaders() throws GraphException {
@@ -158,7 +187,7 @@ public class ProductSetHandler {
 
     public static class ProductSetData {
         private final String nodeID;
-        final ArrayList<String> fileList = new ArrayList<>();
+        final List<String> fileList = new ArrayList<>();
 
         ProductSetData(final Node n) {
             this.nodeID = n.getId();
@@ -166,6 +195,18 @@ public class ProductSetHandler {
 
         public String getNodeID() {
             return nodeID;
+        }
+    }
+
+    public static class ValidProductFileFilter implements java.io.FileFilter {
+
+        public ValidProductFileFilter() {
+        }
+
+        public boolean accept(final File file) {
+            if (file.isDirectory())
+                return false;
+            return true;
         }
     }
 }
