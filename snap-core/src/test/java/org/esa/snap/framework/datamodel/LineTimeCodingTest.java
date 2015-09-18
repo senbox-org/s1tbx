@@ -7,19 +7,19 @@ import org.junit.*;
 /**
  * Created by Sabine on 20.08.2015.
  */
-public class RasterLineTimeCodingTest {
+public class LineTimeCodingTest {
 
-    private RasterLineTimeCoding timeCoding;
+    private LineTimeCoding timeCoding;
 
     @Before
     public void setUp() throws Exception {
-        timeCoding = new RasterLineTimeCoding(new double[]{
+        timeCoding = new LineTimeCoding(new double[]{
                     ProductData.UTC.parse("2000-01-01 12:00", "yyyy-MM-dd HH:mm").getMJD(),
                     ProductData.UTC.parse("2008-07-12 12:00", "yyyy-MM-dd HH:mm").getMJD(),
                     ProductData.UTC.parse("2003-03-07 12:00", "yyyy-MM-dd HH:mm").getMJD(),
                     ProductData.UTC.parse("2004-04-04 12:00", "yyyy-MM-dd HH:mm").getMJD(),
                     ProductData.UTC.parse("1995-02-02 12:00", "yyyy-MM-dd HH:mm").getMJD()
-        }, 20, 5);
+        });
     }
 
     @Test
@@ -47,16 +47,9 @@ public class RasterLineTimeCodingTest {
         assertEquals("-1793.5", "" + mjd);
         assertEquals("02-FEB-1995 12:00:00.000000", new ProductData.UTC(mjd).format());
 
-        final double validY = 2.5;
-        final double invalidNegY = -0.1;
-        final double invalidPosY = 5.1;
-        final double invalidNegX = -0.1;
-        final double invalidPosX = 20.1;
+        final double invalidNegY = 0.0 - 0.000000000000001;
+        final double invalidPosY = 5.0 + 0.000000000000001;
         assertEquals("NaN", "" + timeCoding.getMJD(new PixelPos(validX, invalidNegY)));
         assertEquals("NaN", "" + timeCoding.getMJD(new PixelPos(validX, invalidPosY)));
-        assertEquals("NaN", "" + timeCoding.getMJD(new PixelPos(invalidNegX, validY)));
-        assertEquals("NaN", "" + timeCoding.getMJD(new PixelPos(invalidPosX, validY)));
-
-
     }
 }

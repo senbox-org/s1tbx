@@ -28,7 +28,7 @@ import org.esa.snap.framework.datamodel.PointingFactoryRegistry;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.ProductNodeGroup;
-import org.esa.snap.framework.datamodel.RasterLineTimeCoding;
+import org.esa.snap.framework.datamodel.LineTimeCoding;
 import org.esa.snap.framework.datamodel.TiePointGeoCoding;
 import org.esa.snap.framework.datamodel.TiePointGrid;
 import org.esa.snap.framework.datamodel.VirtualBand;
@@ -225,7 +225,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         product.setDescription(getProductFile().getProductDescription());
         product.setStartTime(getProductFile().getSceneRasterStartTime());
         product.setEndTime(getProductFile().getSceneRasterStopTime());
-        product.setTimeCoding(new RasterLineTimeCoding(getMJDs(), sceneRasterWidth, sceneRasterHeight));
+        product.setTimeCoding(new LineTimeCoding(getMJDs()));
         product.setAutoGrouping(getProductFile().getAutoGroupingPattern());
 
         addBandsToProduct(product);

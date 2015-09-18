@@ -31,7 +31,7 @@ import org.esa.snap.framework.datamodel.MetadataAttribute;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.RasterPixelTimeCoding;
+import org.esa.snap.framework.datamodel.PixelTimeCoding;
 import org.esa.snap.util.StringUtils;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.io.FileUtils;
@@ -170,7 +170,7 @@ public class CsvProductReader extends AbstractProductReader {
                 }
             }
         }
-        SystemUtils.LOG.warning("Not able to create RasterPixelTimeCoding for product '" + product.getFileLocation().getAbsolutePath() + "'");
+        SystemUtils.LOG.warning("Not able to create PixelTimeCoding for product '" + product.getFileLocation().getAbsolutePath() + "'");
     }
 
     private void addCsvHeaderProperty(String name, String stringValue) {
@@ -337,7 +337,7 @@ public class CsvProductReader extends AbstractProductReader {
                className.equals("integer");
     }
 
-    static class CSVTimeCoding extends RasterPixelTimeCoding {
+    static class CSVTimeCoding extends PixelTimeCoding {
 
         private final String dataSourceName;
 

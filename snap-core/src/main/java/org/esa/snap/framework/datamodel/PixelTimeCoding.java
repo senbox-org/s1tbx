@@ -1,12 +1,12 @@
 package org.esa.snap.framework.datamodel;
 
-public class RasterPixelTimeCoding implements TimeCoding {
+public class PixelTimeCoding implements TimeCoding {
 
     private final int rasterWidth;
     private final double[] timeMJD;
     private final int rasterHeight;
 
-    public RasterPixelTimeCoding(double[] timeMJD, int rasterWidth, int rasterHeight) {
+    public PixelTimeCoding(double[] timeMJD, int rasterWidth, int rasterHeight) {
         this.rasterWidth = rasterWidth;
         this.rasterHeight = rasterHeight;
         this.timeMJD = timeMJD;

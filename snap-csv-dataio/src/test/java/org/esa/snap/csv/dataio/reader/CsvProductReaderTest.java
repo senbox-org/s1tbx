@@ -26,7 +26,7 @@ import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.PixelPos;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.RasterPixelTimeCoding;
+import org.esa.snap.framework.datamodel.PixelTimeCoding;
 import org.junit.*;
 
 import java.awt.image.Raster;
@@ -307,7 +307,7 @@ public class CsvProductReaderTest {
         assertEquals("NaN", Double.toString(timeCoding.getMJD(new PixelPos(1.5, 1.5))));
     }
 
-    private String getTimeString(RasterPixelTimeCoding timeCoding, double x, double y) {
+    private String getTimeString(PixelTimeCoding timeCoding, double x, double y) {
         return new ProductData.UTC(timeCoding.getMJD(new PixelPos(x, y))).format();
     }
 }
