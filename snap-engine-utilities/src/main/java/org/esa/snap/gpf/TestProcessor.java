@@ -120,7 +120,7 @@ public class TestProcessor {
         subsetDef.setTreatVirtualBandsAsRealBands(true);
 
         final Product subsetProduct = subsetReader.readProductNodes(sourceProduct, subsetDef);
-        final File tmpFile = new File(ResourceUtils.getApplicationUserTempDataDir(), "tmp_subset.dim");
+        final File tmpFile = new File(SystemUtils.getCacheDir(), "tmp_subset.dim");
         final WriteOp writer = new WriteOp(subsetProduct, tmpFile, DimapProductConstants.DIMAP_FORMAT_NAME);
         writer.writeProduct(ProgressMonitor.NULL);
 
