@@ -131,11 +131,11 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
                            final boolean mustPerformRetroCalibration, final boolean mustUpdateMetadata)
             throws OperatorException {
         try {
-            validate(sourceProduct);
+            this.calibrationOp = op;
+            this.sourceProduct = srcProduct;
+            this.targetProduct = tgtProduct;
 
-            calibrationOp = op;
-            sourceProduct = srcProduct;
-            targetProduct = tgtProduct;
+            validate(sourceProduct);
 
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
