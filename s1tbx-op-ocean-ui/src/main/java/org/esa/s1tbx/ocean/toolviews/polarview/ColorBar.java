@@ -38,7 +38,7 @@ class ColorBar implements ImageProducer {
     private final Rectangle imageArea = new Rectangle(imageSize);
     protected static final Point p0 = new Point(0, 0);
     private final Hashtable properties = new Hashtable(1);
-    private final Vector<ImageConsumer> theConsumers = new Vector<ImageConsumer>(1);
+    private final Vector<ImageConsumer> theConsumers = new Vector<>(1);
     private static final int hints = 3 & 0xffffffef;
 
     static {
@@ -103,7 +103,8 @@ class ColorBar implements ImageProducer {
     }
 
     @Override
-    protected void finalize() {
+    protected void finalize() throws Throwable {
+        super.finalize();
         removeAllConsumers();
     }
 

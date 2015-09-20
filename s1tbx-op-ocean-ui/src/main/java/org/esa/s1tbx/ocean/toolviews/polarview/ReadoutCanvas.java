@@ -9,7 +9,7 @@ import java.io.PrintStream;
 
 class ReadoutCanvas {
 
-    private final Point readoutOrigin = new Point(20, 40);
+    private final Point readoutOrigin = new Point(20, 20);
     private String[] readoutList = null;
     private String[] metadataList = null;
 

@@ -82,10 +82,12 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
 
     private final String[] unitTypes = new String[]{"Real", "Imaginary", "Amplitude", "Intensity"};
 
-    private enum WaveProductType {CROSS_SPECTRA, WAVE_SPECTRA}
+    private enum WaveProductType {CROSS_SPECTRA, WAVE_SPECTRA, S1_OCN_WV}
 
     private ControlPanel controlPanel;
     private PolarPanel polarPanel;
+    private Component emptyPanel;
+
     private Unit graphUnit = Unit.REAL;
     private WaveProductType waveProductType = WaveProductType.WAVE_SPECTRA;
     private float spectrum[][] = null;
@@ -104,26 +106,48 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
 
         this.setLayout(new BorderLayout());
 
+        emptyPanel = createEmptyPanel();
+        this.add(emptyPanel, BorderLayout.NORTH);
         polarPanel = new PolarPanel();
         this.add(polarPanel, BorderLayout.CENTER);
         controlPanel = new ControlPanel(this);
         this.add(controlPanel, BorderLayout.SOUTH);
+
+        enablePlot(false);
+    }
+
+    private Component createEmptyPanel() {
+        return new JLabel("<html>This tool window is used to analyse<br>" +
+                                  "<b>Level-2 Ocean Swell</b> data in a polar plot.<br>" +
+                                  "Please open and select a Sentinel-1 L2 OCN WV<br>" +
+                                  "or an ASAR L2 WV product.", SwingConstants.CENTER);
+    }
+
+    private void enablePlot(final boolean flag) {
+        emptyPanel.setVisible(!flag);
+        polarPanel.setVisible(flag);
+        controlPanel.setVisible(flag);
     }
 
     public void setProduct(final Product prod) {
         this.product = prod;
         if(product == null) {
+            enablePlot(false);
             return;
         }
 
-        if (product.getProductType().equals("ASA_WVW_2P")) {
-            waveProductType = WaveProductType.WAVE_SPECTRA;
-            graphUnit = Unit.AMPLITUDE;
-        } else if(product.getProductType().equals("ASA_WVS_2P")) {
-            waveProductType = WaveProductType.CROSS_SPECTRA;
-            graphUnit = Unit.INTENSITY;
-        } else {
-            waveProductType = null;
+        switch (product.getProductType()) {
+            case "ASA_WVW_2P":
+                waveProductType = WaveProductType.WAVE_SPECTRA;
+                graphUnit = Unit.AMPLITUDE;
+                break;
+            case "ASA_WVS_2P":
+                waveProductType = WaveProductType.CROSS_SPECTRA;
+                graphUnit = Unit.INTENSITY;
+                break;
+            default:
+                waveProductType = null;
+                break;
         }
 
         if(waveProductType != null) {
@@ -135,10 +159,7 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
 
             createPlot(currentRecord);
         }
-    }
-
-    public Product getProduct() {
-        return product;
+        enablePlot(waveProductType != null);
     }
 
     public void removeProduct(final Product product) {
@@ -193,7 +214,7 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
 
         final DecimalFormat frmt = new DecimalFormat("0.0000");
 
-        final List<String> metadataList = new ArrayList<String>(10);
+        final List<String> metadataList = new ArrayList<>(10);
         metadataList.add("Time: " + zeroDopplerTime.toString());
         metadataList.add("Peak Direction: " + maxSpecDir + " deg");
         metadataList.add("Peak Wavelength: " + frmt.format(maxSpecWL) + " m");
@@ -373,10 +394,6 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
 
     private static int sign(float f) {
         return f < 0.0F ? -1 : 1;
-    }
-
-    public JPopupMenu createPopupMenu(Component component) {
-        return null;
     }
 
     public JPopupMenu createPopupMenu(MouseEvent event) {
@@ -604,7 +621,7 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
                 direction = (int) (-((float) thBin * thStep + thStep / 2.0f + thFirst));
             }
 
-            final List<String> readoutList = new ArrayList<String>(5);
+            final List<String> readoutList = new ArrayList<>(5);
             readoutList.add("Record: " + (currentRecord + 1) + " of " + (numRecords + 1));
             readoutList.add("Wavelength: " + wl + " m");
             readoutList.add("Direction: " + direction + " deg");

@@ -68,12 +68,11 @@ public class OceanSwellTopComponent extends ToolTopComponent {
         setLayout(new BorderLayout(4, 4));
         setBorder(new EmptyBorder(4, 4, 4, 4));
         add(createControl(), BorderLayout.CENTER);
-        //SnapApp.getDefault().getSelectionSupport(ProductSceneView.class).addHandler((oldValue, newValue) -> setCurrentView(newValue));
     }
 
     public JComponent createControl() {
 
-        PolarView polarView = new PolarView();
+        final PolarView polarView = new PolarView();
 
         // update world map window with the information of the currently activated  product scene view.
         final SnapApp snapApp = SnapApp.getDefault();
@@ -81,15 +80,10 @@ public class OceanSwellTopComponent extends ToolTopComponent {
         snapApp.getSelectionSupport(ProductNode.class).addHandler(new SelectionSupport.Handler<ProductNode>() {
             @Override
             public void selectionChange(@NullAllowed ProductNode oldValue, @NullAllowed ProductNode newValue) {
-                if (newValue != null) {
-                    polarView.setProduct(newValue.getProduct());
-                } else {
-                    polarView.setProduct(null);
-                }
+                polarView.setProduct(newValue != null ? newValue.getProduct() : null);
             }
         });
         polarView.setProduct(snapApp.getSelectedProduct());
-
 
         return polarView;
     }

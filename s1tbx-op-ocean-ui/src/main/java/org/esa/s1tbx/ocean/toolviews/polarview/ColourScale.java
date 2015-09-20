@@ -27,7 +27,7 @@ public class ColourScale {
     private final Color[] colors;
     private final int thresholdCount;
     private final int[] colorIndexThresholds;
-    private final Vector<ColorBar> coloredClients = new Vector<ColorBar>();
+    private final Vector<ColorBar> coloredClients = new Vector<>();
 
     private double colorIndexValues[] = null;
     private double darkestValue = 0;

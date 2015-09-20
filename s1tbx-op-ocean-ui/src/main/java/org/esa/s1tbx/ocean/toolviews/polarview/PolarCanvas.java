@@ -207,10 +207,6 @@ class PolarCanvas extends Container {
         return colourAxis;
     }
 
-    public PolarData getData() {
-        return data;
-    }
-
     public void setData(PolarData data) {
         this.data = data;
         if (data != null) {
