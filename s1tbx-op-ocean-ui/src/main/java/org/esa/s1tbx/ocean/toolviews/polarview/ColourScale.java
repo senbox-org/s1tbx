@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.ocean.toolviews.polarview;
 
-import java.awt.Color;
+import java.awt.*;
 import java.awt.image.ColorModel;
 import java.awt.image.IndexColorModel;
 import java.util.Enumeration;

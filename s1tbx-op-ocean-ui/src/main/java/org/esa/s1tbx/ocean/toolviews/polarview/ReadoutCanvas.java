@@ -1,7 +1,6 @@
 package org.esa.s1tbx.ocean.toolviews.polarview;
 
-import java.awt.Graphics;
-import java.awt.Point;
+import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;

@@ -19,11 +19,8 @@ import org.esa.snap.framework.ui.ModalDialog;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.util.DialogUtils;
 
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import javax.swing.*;
+import java.awt.*;
 
 /**
 

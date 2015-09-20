@@ -131,7 +131,7 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
 
     public void setProduct(final Product prod) {
         this.product = prod;
-        if(product == null) {
+        if (product == null) {
             enablePlot(false);
             return;
         }
@@ -150,7 +150,7 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
                 break;
         }
 
-        if(waveProductType != null) {
+        if (waveProductType != null) {
             getMetadata();
 
             final RasterDataNode rasterNode = product.getBandAt(0);
@@ -163,8 +163,9 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
     }
 
     public void removeProduct(final Product product) {
-        if(this.product == product) {
+        if (this.product == product) {
             this.product = null;
+            enablePlot(false);
         }
     }
 
@@ -518,11 +519,11 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
 
     private void exportReadouts() {
         final File file = FileFolderUtils.GetFilePath("Export Wave Mode Readout", "txt", "txt",
-                product.getName() + "_rec" + currentRecord, "Wave mode readout", true);
+                                                      product.getName() + "_rec" + currentRecord, "Wave mode readout", true);
         try {
             polarPanel.exportReadout(file);
         } catch (Exception e) {
-            SnapDialogs.showError("Unable to export file "+file.toString()+": "+e.getMessage());
+            SnapDialogs.showError("Unable to export file " + file.toString() + ": " + e.getMessage());
         }
     }
 

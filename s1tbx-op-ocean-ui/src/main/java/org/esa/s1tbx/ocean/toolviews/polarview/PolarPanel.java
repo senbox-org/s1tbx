@@ -15,10 +15,8 @@
  */
 package org.esa.s1tbx.ocean.toolviews.polarview;
 
-import javax.swing.JPanel;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
@@ -45,7 +43,7 @@ class PolarPanel extends JPanel {
         super.paintComponent(g);
 
         ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
+                                          RenderingHints.VALUE_ANTIALIAS_ON);
 
         polarCanvas.setSize(getWidth(), getHeight());
         polarCanvas.paint(g);

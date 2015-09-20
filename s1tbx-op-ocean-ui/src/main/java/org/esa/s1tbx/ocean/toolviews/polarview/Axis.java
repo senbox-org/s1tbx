@@ -17,11 +17,7 @@ package org.esa.s1tbx.ocean.toolviews.polarview;
 
 import org.apache.commons.math3.util.FastMath;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
+import java.awt.*;
 
 public class Axis {
     private static final double stepValues[] = {0.1D, 1.0D, 2D, 3D, 5D, 10D};

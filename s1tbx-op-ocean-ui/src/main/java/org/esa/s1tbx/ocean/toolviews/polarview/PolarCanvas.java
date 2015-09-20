@@ -19,15 +19,7 @@ import org.apache.commons.math3.util.FastMath;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.util.Debug;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 
 class PolarCanvas extends Container {
 
@@ -130,7 +122,7 @@ class PolarCanvas extends Container {
         //insets.setValue(top, left, bottom, right);
         //Rectangle r = insets.shrinkRect(size);
         final Rectangle r = new Rectangle(x, y,
-                (int) size.getWidth() - x - right, (int) size.getHeight() - y - bottom);
+                                          (int) size.getWidth() - x - right, (int) size.getHeight() - y - bottom);
         origin = r.getLocation();
         graphSize.setSize(r.width, r.height);
         return r;
@@ -143,7 +135,7 @@ class PolarCanvas extends Container {
 
     private void drawColorBar(Graphics g, Axis cAxis) {
         final Dimension cbSize = new Dimension((int) (graphSize.width * 0.03),
-                (int) (Math.min(200, graphSize.height * 0.6)));
+                                               (int) (Math.min(200, graphSize.height * 0.6)));
         final Point at = new Point(20, -100);
 
         g.translate(at.x, at.y);

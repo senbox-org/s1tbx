@@ -16,7 +16,6 @@
 package org.esa.s1tbx.ocean.toolviews.polarview;
 
 
-import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductManager;
 import org.esa.snap.framework.datamodel.ProductNode;
 import org.esa.snap.rcp.SnapApp;
@@ -80,7 +79,9 @@ public class OceanSwellTopComponent extends ToolTopComponent {
         snapApp.getSelectionSupport(ProductNode.class).addHandler(new SelectionSupport.Handler<ProductNode>() {
             @Override
             public void selectionChange(@NullAllowed ProductNode oldValue, @NullAllowed ProductNode newValue) {
-                polarView.setProduct(newValue != null ? newValue.getProduct() : null);
+                if (newValue != null) {
+                    polarView.setProduct(newValue.getProduct());
+                }
             }
         });
         polarView.setProduct(snapApp.getSelectedProduct());
@@ -99,14 +100,12 @@ public class OceanSwellTopComponent extends ToolTopComponent {
 
         @Override
         public void productAdded(ProductManager.Event event) {
-            final Product product = event.getProduct();
-            polarView.setProduct(product);
+            polarView.setProduct(event.getProduct());
         }
 
         @Override
         public void productRemoved(ProductManager.Event event) {
-            final Product product = event.getProduct();
-            polarView.removeProduct(product);
+            polarView.removeProduct(event.getProduct());
         }
     }
 }

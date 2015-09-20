@@ -15,9 +15,7 @@
  */
 package org.esa.s1tbx.ocean.toolviews.polarview;
 
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.image.ColorModel;
 import java.awt.image.DirectColorModel;
 import java.awt.image.ImageConsumer;
