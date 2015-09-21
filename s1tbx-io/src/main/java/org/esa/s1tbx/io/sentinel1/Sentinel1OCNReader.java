@@ -32,10 +32,11 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * NetCDF reader for Level-2 OCN products
@@ -64,7 +65,16 @@ public class Sentinel1OCNReader {
     // MDS = Measurement Data Set
 
     // This maps the MDS .nc file name to the NetcdfFile
-    private final Map<String, NetcdfFile> bandNCFileMap = new HashMap<>(1);
+    private final Map<String, NCFileData> bandNCFileMap = new HashMap<>(1);
+
+    private static class NCFileData {
+        String name;
+        NetcdfFile netcdfFile;
+        NCFileData(String name, NetcdfFile netcdfFile) {
+            this.name = name;
+            this.netcdfFile = netcdfFile;
+        }
+    }
 
     private final Sentinel1Level2Directory dataDir;
     private String mode;
@@ -82,20 +92,24 @@ public class Sentinel1OCNReader {
     public void addImageFile(final File file, final String name) throws IOException {
 
         // The image file here is the MDS .nc file.
+        String imgNum = name.substring(name.lastIndexOf("-")+1, name.length());
 
         final NetcdfFile netcdfFile = NetcdfFile.open(file.getPath());
-        bandNCFileMap.put(name, netcdfFile);
+        bandNCFileMap.put(imgNum, new NCFileData(name, netcdfFile));
     }
 
     public void addNetCDFMetadata(final MetadataElement annotationElement) {
 
-        final Set<String> files = bandNCFileMap.keySet();
+        List<String> keys = new ArrayList<>(bandNCFileMap.keySet());
+        Collections.sort(keys);
 
-        for (String file : files) { // for each MDS which is a .nc file
+        for (String imgNum : keys) { // for each MDS which is a .nc file
 
             //System.out.println("Sentinel1OCNReader.addNetCDFMetadataAndBands: file = " + file);
 
-            final NetcdfFile netcdfFile = bandNCFileMap.get(file);
+            final NCFileData data = bandNCFileMap.get(imgNum);
+            final NetcdfFile netcdfFile = data.netcdfFile;
+            final String file = data.name;
 
             // Add Global Attributes as Metadata
             final MetadataElement bandElem = NetCDFUtils.addAttributes(annotationElement,
@@ -159,10 +173,14 @@ public class Sentinel1OCNReader {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         mode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
 
-        final Set<String> files = bandNCFileMap.keySet();
-        for (String file : files) { // for each MDS which is a .nc file
+        List<String> keys = new ArrayList<>(bandNCFileMap.keySet());
+        Collections.sort(keys);
 
-            final NetcdfFile netcdfFile = bandNCFileMap.get(file);
+        for (String imgNum : keys) { // for each MDS which is a .nc file
+
+            final NCFileData data = bandNCFileMap.get(imgNum);
+            final NetcdfFile netcdfFile = data.netcdfFile;
+            final String file = data.name;
 
             // Add bands to product...
 
