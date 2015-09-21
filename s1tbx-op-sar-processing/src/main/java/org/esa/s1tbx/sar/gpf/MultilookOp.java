@@ -284,8 +284,9 @@ public final class MultilookOp extends Operator {
         OperatorUtils.addSelectedBands(
                 sourceProduct, sourceBandNames, targetProduct, targetBandNameToSourceBandName, outputIntensity, false);
 
-        if (sourceBandNames == null || sourceBandNames.length == 0 ||
-                sourceBandNames.length == sourceProduct.getNumBands()) { // add virtual bands
+        if (sourceProduct.getName().contains("ifg") &&
+                (sourceBandNames == null || sourceBandNames.length == 0 ||
+                sourceBandNames.length == sourceProduct.getNumBands())) { // add virtual bands
 
             final Band[] bands = sourceProduct.getBands();
             for (Band band : bands) {
