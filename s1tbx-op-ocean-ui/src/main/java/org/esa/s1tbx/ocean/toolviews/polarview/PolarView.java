@@ -103,7 +103,7 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
                 spectraUnit = SpectraData.SpectraUnit.AMPLITUDE;
                 spectraData = new SpectraDataAsar(product, waveProductType);
                 break;
-            case "ASA_WVS_2P":
+            case "ASA_WVS_1P":
                 waveProductType = SpectraData.WaveProductType.CROSS_SPECTRA;
                 spectraUnit = SpectraData.SpectraUnit.INTENSITY;
                 spectraData = new SpectraDataAsar(product, waveProductType);
@@ -111,7 +111,7 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
             case "OCN":
                 waveProductType = SpectraData.WaveProductType.S1_OCN_WV;
                 spectraUnit = SpectraData.SpectraUnit.INTENSITY;
-                spectraData = new SpectraDataSentinel1(product);
+                spectraData = new SpectraDataSentinel1(product, waveProductType);
                 break;
             default:
                 waveProductType = null;

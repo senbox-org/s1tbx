@@ -23,8 +23,8 @@ import org.esa.snap.framework.datamodel.Product;
  */
 public class SpectraDataSentinel1 extends SpectraDataBase implements SpectraData {
 
-    public SpectraDataSentinel1(final Product product) {
-        super(product);
+    public SpectraDataSentinel1(final Product product, final WaveProductType waveProductType) {
+        super(product, waveProductType);
     }
 
     public String[] getSpectraMetadata(int rec) {

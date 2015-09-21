@@ -34,8 +34,6 @@ import java.util.List;
 public class SpectraDataAsar extends SpectraDataBase implements SpectraData {
 
     private MetadataElement spectraMetadataRoot = null;
-    private final int recordLength;
-
     private ProductData.UTC zeroDopplerTime = null;
 
     protected double minSpectrum = 0;
@@ -52,15 +50,8 @@ public class SpectraDataAsar extends SpectraDataBase implements SpectraData {
     private double sarAzShiftVar = 0;
     private double backscatter = 0;
 
-    private final WaveProductType waveProductType;
-
     public SpectraDataAsar(final Product product, final WaveProductType waveProductType) {
-        super(product);
-        this.waveProductType = waveProductType;
-
-        final RasterDataNode rasterNode = product.getBandAt(0);
-        numRecords = rasterNode.getRasterHeight() - 1;
-        recordLength = rasterNode.getRasterWidth();
+        super(product, waveProductType);
 
         final MetadataElement root = AbstractMetadata.getOriginalProductMetadata(product);
         final MetadataElement sph = root.getElement("SPH");
