@@ -58,7 +58,7 @@ public class PropertyPane {
 
         boolean displayUnitColumn = wantDisplayUnitColumn(properties);
         TableLayout layout = new TableLayout(displayUnitColumn ? 3 : 2);
-        layout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
+        layout.setTableAnchor(TableLayout.Anchor.WEST);
         layout.setTableFill(TableLayout.Fill.HORIZONTAL);
         layout.setTablePadding(3, 3);
         final JPanel panel = new JPanel(layout);
