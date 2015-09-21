@@ -46,7 +46,7 @@ import java.awt.*;
 @ActionID(category = "Window", id = "org.esa.s1tbx.ocean.toolviews.polarview.OceanSwellTopComponent")
 @ActionReferences({
         @ActionReference(path = "Menu/View/Tool Windows/Radar"),
-        @ActionReference(path = "Toolbars/Views")
+        @ActionReference(path = "Toolbars/Radar Tool Windows")
 })
 @TopComponent.OpenActionRegistration(
         displayName = "#CTL_OceanSwellTopComponentName",
