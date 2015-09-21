@@ -69,7 +69,7 @@ public class GenAUCatalog {
 
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {
-            logErr("Please specify at least a path to a directory contain NetBeans modules (*.nbm)");
+            logErr("Please specify at least a path to a directory which contains NetBeans modules (*.nbm)");
         }
         Path moduleDir = Paths.get(args[0]);
         GenAUCatalog generator = new GenAUCatalog(moduleDir);
