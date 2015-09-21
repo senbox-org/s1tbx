@@ -20,12 +20,7 @@ import org.apache.commons.math3.util.FastMath;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.TiePointGrid;
+import org.esa.snap.framework.datamodel.*;
 import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.OperatorSpi;
@@ -288,6 +283,30 @@ public final class MultilookOp extends Operator {
 
         OperatorUtils.addSelectedBands(
                 sourceProduct, sourceBandNames, targetProduct, targetBandNameToSourceBandName, outputIntensity, false);
+
+        if (sourceBandNames == null || sourceBandNames.length == 0 ||
+                sourceBandNames.length == sourceProduct.getNumBands()) { // add virtual bands
+
+            final Band[] bands = sourceProduct.getBands();
+            for (Band band : bands) {
+                if (band instanceof VirtualBand) {
+                    final String bandName = band.getName();
+                    final VirtualBand virtualBand = new VirtualBand(bandName,
+                            ProductData.TYPE_FLOAT32,
+                            targetImageWidth,
+                            targetImageHeight,
+                            ((VirtualBand) band).getExpression());
+
+                    virtualBand.setUnit(band.getUnit());
+                    virtualBand.setDescription(band.getDescription());
+
+                    if (targetProduct.getBand(bandName) != null) {
+                        targetProduct.removeBand(targetProduct.getBand(bandName));
+                    }
+                    targetProduct.addBand(virtualBand);
+                }
+            }
+        }
 
         ProductUtils.copyMetadata(sourceProduct, targetProduct);
         //ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
