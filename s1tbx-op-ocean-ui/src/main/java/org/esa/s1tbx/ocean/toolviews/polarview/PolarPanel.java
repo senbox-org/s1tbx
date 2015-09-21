@@ -15,6 +15,8 @@
  */
 package org.esa.s1tbx.ocean.toolviews.polarview;
 
+import org.esa.s1tbx.ocean.toolviews.polarview.polarplot.PolarCanvas;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;

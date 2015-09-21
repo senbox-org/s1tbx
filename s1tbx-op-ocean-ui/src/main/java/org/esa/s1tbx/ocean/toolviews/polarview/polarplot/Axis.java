@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.ocean.toolviews.polarview;
+package org.esa.s1tbx.ocean.toolviews.polarview.polarplot;
 
 import org.apache.commons.math3.util.FastMath;
 
@@ -109,7 +109,7 @@ public class Axis {
         setDataRange(range[0], range[1]);
     }
 
-    void setDataRange(double minValue, double maxValue) {
+    public void setDataRange(double minValue, double maxValue) {
         minData = minValue;
         maxData = maxValue;
         if (autoRange)

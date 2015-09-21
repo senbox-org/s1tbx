@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.ocean.toolviews.polarview;
+package org.esa.s1tbx.ocean.toolviews.polarview.polarplot;
 
 import org.apache.commons.math3.util.FastMath;
 import org.esa.snap.eo.Constants;
@@ -21,7 +21,7 @@ import org.esa.snap.util.Debug;
 
 import java.awt.*;
 
-class PolarCanvas extends Container {
+public class PolarCanvas extends Container {
 
     private final Axis radialAxis;
     private final Axis colourAxis;
