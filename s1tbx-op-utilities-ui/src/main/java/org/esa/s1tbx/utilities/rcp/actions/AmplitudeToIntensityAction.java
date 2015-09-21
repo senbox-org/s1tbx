@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.utilities.rcp;
+package org.esa.s1tbx.utilities.rcp.actions;
 
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.framework.datamodel.Band;
@@ -26,12 +26,18 @@ import org.esa.snap.rcp.actions.AbstractSnapAction;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
-import org.openide.util.*;
+import org.openide.util.ContextAwareAction;
+import org.openide.util.Lookup;
+import org.openide.util.LookupEvent;
+import org.openide.util.LookupListener;
+import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
+import org.openide.util.WeakListeners;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
-@ActionID(category = "Raster", id = "org.esa.s1tbx.dat.AmplitudeToIntensityAction")
+@ActionID(category = "Raster", id = "org.esa.s1tbx.utilities.rcp.actions.AmplitudeToIntensityAction")
 @ActionRegistration(displayName = "#CTL_AmplitudeToIntensityAction_Text")
 @ActionReference(path = "Menu/Raster/Data Conversion", position = 200)
 @NbBundle.Messages({

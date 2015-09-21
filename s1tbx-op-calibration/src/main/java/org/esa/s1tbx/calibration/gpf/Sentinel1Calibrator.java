@@ -115,6 +115,15 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         }
     }
 
+    private void validate(final Product sourceProduct) throws OperatorException {
+        final InputProductValidator validator = new InputProductValidator(sourceProduct);
+        validator.checkIfSentinel1Product();
+        validator.checkAcquisitionMode(new String[]{"IW", "EW", "SM"});
+        validator.checkProductType(new String[]{"SLC", "GRD"});
+
+        isMultiSwath = validator.isMultiSwath();
+    }
+
     /**
 
      */
@@ -122,17 +131,13 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
                            final boolean mustPerformRetroCalibration, final boolean mustUpdateMetadata)
             throws OperatorException {
         try {
-            calibrationOp = op;
-            sourceProduct = srcProduct;
-            targetProduct = tgtProduct;
+            this.calibrationOp = op;
+            this.sourceProduct = srcProduct;
+            this.targetProduct = tgtProduct;
 
-            final InputProductValidator validator = new InputProductValidator(sourceProduct);
-            validator.checkIfSentinel1Product();
-            validator.checkAcquisitionMode(new String[] {"IW","EW","SM"});
-            validator.checkProductType(new String[] {"SLC","GRD"});
+            validate(sourceProduct);
 
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-            isMultiSwath = validator.isMultiSwath();
 
             priorToIPFV234 = priorToIPFV234();
             if (priorToIPFV234) {
@@ -339,6 +344,8 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
      */
     @Override
     public Product createTargetProduct(final Product sourceProduct, final String[] sourceBandNames) {
+
+        validate(sourceProduct);
 
         targetProduct = new Product(sourceProduct.getName(),
                 sourceProduct.getProductType(),

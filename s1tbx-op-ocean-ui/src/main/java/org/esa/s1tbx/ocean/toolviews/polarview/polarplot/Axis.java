@@ -13,15 +13,11 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.ocean.toolviews.polarview;
+package org.esa.s1tbx.ocean.toolviews.polarview.polarplot;
 
 import org.apache.commons.math3.util.FastMath;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
+import java.awt.*;
 
 public class Axis {
     private static final double stepValues[] = {0.1D, 1.0D, 2D, 3D, 5D, 10D};
@@ -113,7 +109,7 @@ public class Axis {
         setDataRange(range[0], range[1]);
     }
 
-    void setDataRange(double minValue, double maxValue) {
+    public void setDataRange(double minValue, double maxValue) {
         minData = minValue;
         maxData = maxValue;
         if (autoRange)

@@ -13,9 +13,11 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.ocean.toolviews.polarview;
+package org.esa.s1tbx.ocean.toolviews.polarview.polarplot;
 
-import java.awt.Color;
+import org.esa.s1tbx.ocean.toolviews.polarview.PolarView;
+
+import java.awt.*;
 import java.awt.image.ColorModel;
 import java.awt.image.IndexColorModel;
 import java.util.Enumeration;
@@ -27,7 +29,7 @@ public class ColourScale {
     private final Color[] colors;
     private final int thresholdCount;
     private final int[] colorIndexThresholds;
-    private final Vector<ColorBar> coloredClients = new Vector<ColorBar>();
+    private final Vector<ColorBar> coloredClients = new Vector<>();
 
     private double colorIndexValues[] = null;
     private double darkestValue = 0;

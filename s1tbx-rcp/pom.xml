@@ -94,6 +94,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.esa.snap.netbeans</groupId>
+            <artifactId>doc-windows</artifactId>
+            <version>${doc-windows.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util</artifactId>
         </dependency>

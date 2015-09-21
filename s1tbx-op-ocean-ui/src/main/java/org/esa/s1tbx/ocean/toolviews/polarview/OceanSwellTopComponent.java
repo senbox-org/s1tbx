@@ -16,7 +16,6 @@
 package org.esa.s1tbx.ocean.toolviews.polarview;
 
 
-import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductManager;
 import org.esa.snap.framework.datamodel.ProductNode;
 import org.esa.snap.rcp.SnapApp;
@@ -68,12 +67,11 @@ public class OceanSwellTopComponent extends ToolTopComponent {
         setLayout(new BorderLayout(4, 4));
         setBorder(new EmptyBorder(4, 4, 4, 4));
         add(createControl(), BorderLayout.CENTER);
-        //SnapApp.getDefault().getSelectionSupport(ProductSceneView.class).addHandler((oldValue, newValue) -> setCurrentView(newValue));
     }
 
     public JComponent createControl() {
 
-        PolarView polarView = new PolarView();
+        final PolarView polarView = new PolarView();
 
         // update world map window with the information of the currently activated  product scene view.
         final SnapApp snapApp = SnapApp.getDefault();
@@ -83,13 +81,10 @@ public class OceanSwellTopComponent extends ToolTopComponent {
             public void selectionChange(@NullAllowed ProductNode oldValue, @NullAllowed ProductNode newValue) {
                 if (newValue != null) {
                     polarView.setProduct(newValue.getProduct());
-                } else {
-                    polarView.setProduct(null);
                 }
             }
         });
         polarView.setProduct(snapApp.getSelectedProduct());
-
 
         return polarView;
     }
@@ -105,14 +100,12 @@ public class OceanSwellTopComponent extends ToolTopComponent {
 
         @Override
         public void productAdded(ProductManager.Event event) {
-            final Product product = event.getProduct();
-            polarView.setProduct(product);
+            polarView.setProduct(event.getProduct());
         }
 
         @Override
         public void productRemoved(ProductManager.Event event) {
-            final Product product = event.getProduct();
-            polarView.removeProduct(product);
+            polarView.removeProduct(event.getProduct());
         }
     }
 }

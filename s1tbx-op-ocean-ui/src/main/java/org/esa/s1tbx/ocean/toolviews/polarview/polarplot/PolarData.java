@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.ocean.toolviews.polarview;
+package org.esa.s1tbx.ocean.toolviews.polarview.polarplot;
 
 import java.awt.*;
 
@@ -22,6 +22,9 @@ public class PolarData {
     private final float firstDir;
     private final float dirStep;
     private final float radii[];
+    private final float minValue;
+    private final float maxValue;
+
     private final int Nr;
     private final int Nth;
     private final AxisInfo rData = new AxisInfo();
@@ -36,22 +39,32 @@ public class PolarData {
     private ColourScale cScale = null;
     private int plotCount = 0;
 
-    public PolarData(float cValues[][], float firstDir, float dirStep, float radii[]) {
+    public PolarData(float cValues[][], float firstDir, float dirStep, float radii[], final float minValue, final float maxValue) {
         this.cValues = cValues;
         colors = null;
 
         this.firstDir = firstDir;
         this.dirStep = dirStep;
         this.radii = radii;
+        this.minValue = minValue;
+        this.maxValue = maxValue;
         Nth = cValues.length;
         Nr = cValues[0].length;
     }
 
-    public void setRAxis(Axis rAxis) {
+    public float getMinValue() {
+        return minValue;
+    }
+
+    public float getMaxValue() {
+        return maxValue;
+    }
+
+    public void setRAxis(final Axis rAxis) {
         rData.setAxis(rAxis);
     }
 
-    public void setDirOffset(float dirOffset) {
+    public void setDirOffset(final float dirOffset) {
         this.dirOffset = dirOffset;
     }
 
@@ -61,7 +74,7 @@ public class PolarData {
         prepareRTPoints();
     }
 
-    public void draw(Graphics g) {
+    public void draw(final Graphics g) {
         if (rData.axis == null)
             return;
         rData.axis.getAxisGraphics(g);
@@ -137,7 +150,7 @@ public class PolarData {
         }
     }
 
-    public double valueFromScreenPoint(int r) {
+    public double valueFromScreenPoint(final int r) {
         if (rScreenPoints[0] < rScreenPoints[Nr]) {
             if (r < rScreenPoints[0])
                 return (double) radii[0];
@@ -172,7 +185,7 @@ public class PolarData {
         return (double) radii[Nr];
     }
 
-    private static void computeScreenPoints(float values[][], int points[][], Axis axis) {
+    private static void computeScreenPoints(final float values[][], final int points[][], final Axis axis) {
         if (axis == null)
             return;
         final int np = values.length;
@@ -190,7 +203,7 @@ public class PolarData {
         }
     }
 
-    public void setCAxis(Axis cAxis) {
+    public void setCAxis(final Axis cAxis) {
         cData.setAxis(cAxis);
     }
 
@@ -198,12 +211,12 @@ public class PolarData {
         return cScale;
     }
 
-    public void setColorScale(ColourScale cScale) {
+    public void setColorScale(final ColourScale cScale) {
         this.cScale = cScale;
         cData.touch();
     }
 
-    private void prepareColors(Object cValues[]) {
+    private void prepareColors(final Object cValues[]) {
         if (cScale == null)
             return;
         if (colors == null || colors.length != plotCount) {
@@ -224,7 +237,7 @@ public class PolarData {
         }
     }
 
-    private static void computeColors(float values[][], Color colors[][], ColourScale cScale) {
+    private static void computeColors(final float values[][], final Color colors[][], final ColourScale cScale) {
         if (cScale == null)
             return;
         final int np = values.length;

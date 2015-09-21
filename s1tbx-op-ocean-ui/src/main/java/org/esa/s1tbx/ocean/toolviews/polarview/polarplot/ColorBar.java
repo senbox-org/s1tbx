@@ -13,11 +13,9 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.ocean.toolviews.polarview;
+package org.esa.s1tbx.ocean.toolviews.polarview.polarplot;
 
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.image.ColorModel;
 import java.awt.image.DirectColorModel;
 import java.awt.image.ImageConsumer;
@@ -38,7 +36,7 @@ class ColorBar implements ImageProducer {
     private final Rectangle imageArea = new Rectangle(imageSize);
     protected static final Point p0 = new Point(0, 0);
     private final Hashtable properties = new Hashtable(1);
-    private final Vector<ImageConsumer> theConsumers = new Vector<ImageConsumer>(1);
+    private final Vector<ImageConsumer> theConsumers = new Vector<>(1);
     private static final int hints = 3 & 0xffffffef;
 
     static {
@@ -103,7 +101,8 @@ class ColorBar implements ImageProducer {
     }
 
     @Override
-    protected void finalize() {
+    protected void finalize() throws Throwable {
+        super.finalize();
         removeAllConsumers();
     }
 

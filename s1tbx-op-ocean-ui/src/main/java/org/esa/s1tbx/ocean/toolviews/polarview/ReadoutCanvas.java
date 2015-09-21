@@ -1,7 +1,6 @@
 package org.esa.s1tbx.ocean.toolviews.polarview;
 
-import java.awt.Graphics;
-import java.awt.Point;
+import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -9,7 +8,7 @@ import java.io.PrintStream;
 
 class ReadoutCanvas {
 
-    private final Point readoutOrigin = new Point(20, 40);
+    private final Point readoutOrigin = new Point(20, 20);
     private String[] readoutList = null;
     private String[] metadataList = null;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.utilities.rcp;
+package org.esa.s1tbx.utilities.rcp.actions;
 
 import org.esa.s1tbx.utilities.gpf.ReplaceMetadataOp;
 import org.esa.snap.dat.dialogs.StringSelectorDialog;
@@ -21,36 +21,78 @@ import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.datamodel.ProductNode;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.rcp.actions.AbstractSnapAction;
-import org.esa.snap.util.ResourceUtils;
 import org.esa.snap.util.SystemUtils;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
+import org.openide.util.ContextAwareAction;
+import org.openide.util.Lookup;
+import org.openide.util.LookupEvent;
+import org.openide.util.LookupListener;
 import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
+import org.openide.util.WeakListeners;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-@ActionID(category = "Processing", id = "org.esa.s1tbx.dat.ReplaceMetadataAction")
+@ActionID(category = "Processing", id = "org.esa.s1tbx.utilities.rcp.actions.ReplaceMetadataAction")
 @ActionRegistration(displayName = "#CTL_ReplaceMetadataAction_Text")
-@ActionReference(path = "Menu/Tools", position = 400)
+@ActionReference(path = "Menu/Tools/Metadata", position = 400)
 @NbBundle.Messages({"CTL_ReplaceMetadataAction_Text=Replace Metadata"})
 /**
  * This action replaces the Metadata with that of another product
  *
  */
-public class ReplaceMetadataAction extends AbstractSnapAction {
+public class ReplaceMetadataAction extends AbstractSnapAction implements ContextAwareAction, LookupListener {
+
+    private final Lookup lkp;
+    private Product product;
+
+    public ReplaceMetadataAction() {
+        this(Utilities.actionsGlobalContext());
+    }
+
+    public ReplaceMetadataAction(Lookup lkp) {
+        this.lkp = lkp;
+        Lookup.Result<ProductNode> lkpContext = lkp.lookupResult(ProductNode.class);
+        lkpContext.addLookupListener(WeakListeners.create(LookupListener.class, this, lkpContext));
+        setEnableState();
+        putValue(Action.NAME, Bundle.CTL_ReplaceMetadataAction_Text());
+        //putValue(Action.SHORT_DESCRIPTION, Bundle.CTL_SearchMetadataValueAction_ShortDescription());
+    }
+
+    @Override
+    public Action createContextAwareInstance(Lookup actionContext) {
+        return new ReplaceMetadataAction(actionContext);
+    }
+
+    @Override
+    public void resultChanged(LookupEvent ev) {
+        setEnableState();
+    }
+
+    private void setEnableState() {
+        ProductNode productNode = lkp.lookup(ProductNode.class);
+        boolean state = false;
+        if (productNode != null) {
+            product = productNode.getProduct();
+            state = product.getMetadataRoot() != null;
+        }
+        setEnabled(state);
+    }
 
     @Override
     public void actionPerformed(final ActionEvent event) {
 
-        final Product destProduct = SnapApp.getDefault().getSelectedProduct();
-        final String[] compatibleProductNames = getCompatibleProducts(destProduct);
+        final String[] compatibleProductNames = getCompatibleProducts(product);
         if (compatibleProductNames.length == 0) {
             SnapDialogs.showError("There are not any compatible products currently opened\nDimensions must be the same");
             return;
@@ -60,7 +102,7 @@ public class ReplaceMetadataAction extends AbstractSnapAction {
         dlg.show();
         if (dlg.IsOK()) {
             try {
-                final MetadataElement origAbsRoot = AbstractMetadata.getAbstractedMetadata(destProduct);
+                final MetadataElement origAbsRoot = AbstractMetadata.getAbstractedMetadata(product);
                 final int isPolsar = origAbsRoot.getAttributeInt(AbstractMetadata.polsarData, 0);
                 final int isCalibrated = origAbsRoot.getAttributeInt(AbstractMetadata.abs_calibration_flag, 0);
 
@@ -80,14 +122,14 @@ public class ReplaceMetadataAction extends AbstractSnapAction {
                                                       srcProduct.getName() + "_metadata.xml");
                 AbstractMetadataIO.Save(srcProduct, srcAbsRoot, tmpMetadataFile);
 
-                clearProductMetadata(destProduct);
-                SnapApp.getDefault().getProductManager().removeProduct(destProduct);
+                clearProductMetadata(product);
+                SnapApp.getDefault().getProductManager().removeProduct(product);
 
-                final MetadataElement destAbsRoot = AbstractMetadata.getAbstractedMetadata(destProduct);
-                AbstractMetadataIO.Load(destProduct, destAbsRoot, tmpMetadataFile);
-                SnapApp.getDefault().getProductManager().addProduct(destProduct);
+                final MetadataElement destAbsRoot = AbstractMetadata.getAbstractedMetadata(product);
+                AbstractMetadataIO.Load(product, destAbsRoot, tmpMetadataFile);
+                SnapApp.getDefault().getProductManager().addProduct(product);
 
-                ReplaceMetadataOp.resetPolarizations(AbstractMetadata.getAbstractedMetadata(destProduct),
+                ReplaceMetadataOp.resetPolarizations(AbstractMetadata.getAbstractedMetadata(product),
                                                      isPolsar, isCalibrated);
 
                 tmpMetadataFile.delete();
@@ -96,12 +138,6 @@ public class ReplaceMetadataAction extends AbstractSnapAction {
             }
         }
     }
-
-// Code removed by nf, lv to review
-//    public void updateState(final CommandEvent event) {
-//        final Product product = SnapApp.getDefault().getSelectedProduct();
-//        setEnabled(product != null);
-//    }
 
     private static String[] getCompatibleProducts(final Product destProduct) {
         final List<String> prodList = new ArrayList<>();
