@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -9,28 +9,28 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
 package org.esa.snap.csv.dataio.reader;
 
+import static org.junit.Assert.*;
+
+import org.esa.snap.csv.dataio.Constants;
 import org.esa.snap.framework.dataio.ProductReader;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.MetadataAttribute;
 import org.esa.snap.framework.datamodel.MetadataElement;
+import org.esa.snap.framework.datamodel.PixelPos;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.util.io.Constants;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.esa.snap.framework.datamodel.PixelTimeCoding;
+import org.junit.*;
 
 import java.awt.image.Raster;
 import java.io.IOException;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Olaf Danne
@@ -150,7 +150,7 @@ public class CsvProductReaderTest {
     @Test
     public void testInvalidInput() throws Exception {
         try {
-            ((CsvProductReader)reader).getProductData(null, new ProductData.UTC());
+            ((CsvProductReader) reader).getProductData(null, new ProductData.UTC());
             fail();
         } catch (IllegalArgumentException expected) {
             assertTrue(expected.getMessage().matches("Unsupported type.*"));
@@ -159,10 +159,10 @@ public class CsvProductReaderTest {
 
     @Test
     public void testGetDataType() throws Exception {
-        assertEquals(ProductData.TYPE_ASCII, ((CsvProductReader)reader).getProductDataType(String.class));
-        assertEquals(ProductData.TYPE_FLOAT32, ((CsvProductReader)reader).getProductDataType(Float.class));
-        assertEquals(ProductData.TYPE_FLOAT64, ((CsvProductReader)reader).getProductDataType(Double.class));
-        assertEquals(ProductData.TYPE_INT8, ((CsvProductReader)reader).getProductDataType(Byte.class));
+        assertEquals(ProductData.TYPE_ASCII, ((CsvProductReader) reader).getProductDataType(String.class));
+        assertEquals(ProductData.TYPE_FLOAT32, ((CsvProductReader) reader).getProductDataType(Float.class));
+        assertEquals(ProductData.TYPE_FLOAT64, ((CsvProductReader) reader).getProductDataType(Double.class));
+        assertEquals(ProductData.TYPE_INT8, ((CsvProductReader) reader).getProductDataType(Byte.class));
     }
 
     @Test
@@ -190,13 +190,13 @@ public class CsvProductReaderTest {
         final MetadataElement[] records = recordElement.getElements();
 
         assertEquals(2, metadataElements.length);
-        
+
         assertEquals("Properties", propertyElement.getName());
         assertEquals("Records", recordElement.getName());
-        
+
         assertEquals(4, properties.length);
         assertEquals(3, records.length);
-        
+
         assertEquals("geometry1", properties[0].getName());
         assertEquals("POLYGON(1.0, 1.0, 1.1)", properties[0].getData().getElemString());
         assertEquals("geometry2", properties[1].getName());
@@ -229,5 +229,85 @@ public class CsvProductReaderTest {
         assertEquals("AMRU2", thirdRecord.getAttributes()[0].getData().getElemString());
         assertNull(thirdRecord.getAttribute("date_time"));
         assertEquals(ProductData.UTC.parse("2011-06-01T12:45:00", Constants.TIME_PATTERN).getAsDate().getTime(), thirdRecord.getAttributeUTC("testTime").getAsDate().getTime());
+    }
+
+    @Test
+    public void testCreateTimeCoding_firstTimeColumn() throws IOException {
+        Product product = readTestProduct("simple_format_no_properties_but_time_column.txt");
+
+        CsvProductReader.CSVTimeCoding timeCoding = (CsvProductReader.CSVTimeCoding) product.getTimeCoding();
+        assertNotNull(timeCoding);
+        assertEquals("date_time", timeCoding.getDataSourceName());
+
+        assertEquals(2, product.getSceneRasterWidth());
+        assertEquals(2, product.getSceneRasterHeight());
+
+        assertEquals("01-JUN-2010 12:45:00.000000", getTimeString(timeCoding, 0.5, 0.5));
+        assertEquals("01-JUN-2010 12:48:00.000000", getTimeString(timeCoding, 1.5, 0.5));
+        assertEquals("01-JUN-2010 12:47:00.000000", getTimeString(timeCoding, 0.5, 1.5));
+        assertEquals("NaN", Double.toString(timeCoding.getMJD(new PixelPos(1.5, 1.5))));
+    }
+
+    @Test
+    public void testCreateTimeCoding_firstCompleteTimeColumn() throws IOException {
+        Product product = readTestProduct("simple_format_no_properties_gaps_in_first_time_column.txt");
+
+        CsvProductReader.CSVTimeCoding timeCoding = (CsvProductReader.CSVTimeCoding) product.getTimeCoding();
+        assertNotNull(timeCoding);
+        assertEquals("complete_time", timeCoding.getDataSourceName());
+
+        assertEquals(2, product.getSceneRasterWidth());
+        assertEquals(2, product.getSceneRasterHeight());
+
+        assertEquals("01-JUN-2011 13:45:00.000000", getTimeString(timeCoding, 0.5, 0.5));
+        assertEquals("01-JUN-2011 14:45:00.000000", getTimeString(timeCoding, 1.5, 0.5));
+        assertEquals("01-JUN-2011 15:45:00.000000", getTimeString(timeCoding, 0.5, 1.5));
+        assertEquals("NaN", Double.toString(timeCoding.getMJD(new PixelPos(1.5, 1.5))));
+
+    }
+
+    @Test
+    public void testCreateTimeCoding_timeColumnProperty() throws IOException {
+        Product product = readTestProduct("simple_format_with_time_column_property.txt");
+
+        CsvProductReader.CSVTimeCoding timeCoding = (CsvProductReader.CSVTimeCoding) product.getTimeCoding();
+        assertNotNull(timeCoding);
+        assertEquals("any_name", timeCoding.getDataSourceName());
+
+        assertEquals(2, product.getSceneRasterWidth());
+        assertEquals(2, product.getSceneRasterHeight());
+
+        assertEquals("01-JUN-2011 10:45:00.000000", getTimeString(timeCoding, 0.5, 0.5));
+        assertEquals("01-JUN-2011 11:45:00.000000", getTimeString(timeCoding, 1.5, 0.5));
+        assertEquals("01-JUN-2011 12:45:00.000000", getTimeString(timeCoding, 0.5, 1.5));
+        assertEquals("NaN", Double.toString(timeCoding.getMJD(new PixelPos(1.5, 1.5))));
+
+    }
+
+    @Test
+    public void testCreateTimeCoding_timeColumnAndTimePatternProperty() throws IOException {
+        final Product product = readTestProduct("simple_format_with_time_column_and_time_pattern_property.txt");
+        final MetadataElement metadataRoot = product.getMetadataRoot();
+        final MetadataElement element = metadataRoot.getElement(Constants.NAME_METADATA_ELEMENT_CSV_HEADER_PROPERTIES);
+
+        assertNotNull(element);
+        assertEquals("any_name", element.getAttributeString(Constants.PROPERTY_NAME_TIME_COLUMN));
+        assertEquals("yyyy-MM-dd HH:mm:ss", element.getAttributeString(Constants.PROPERTY_NAME_TIME_PATTERN));
+
+        CsvProductReader.CSVTimeCoding timeCoding = (CsvProductReader.CSVTimeCoding) product.getTimeCoding();
+        assertNotNull(timeCoding);
+        assertEquals("any_name", timeCoding.getDataSourceName());
+
+        assertEquals(2, product.getSceneRasterWidth());
+        assertEquals(2, product.getSceneRasterHeight());
+
+        assertEquals("01-JUN-2013 10:45:00.000000", getTimeString(timeCoding, 0.5, 0.5));
+        assertEquals("01-JUN-2013 11:45:00.000000", getTimeString(timeCoding, 1.5, 0.5));
+        assertEquals("01-JUN-2013 12:45:00.000000", getTimeString(timeCoding, 0.5, 1.5));
+        assertEquals("NaN", Double.toString(timeCoding.getMJD(new PixelPos(1.5, 1.5))));
+    }
+
+    private String getTimeString(PixelTimeCoding timeCoding, double x, double y) {
+        return new ProductData.UTC(timeCoding.getMJD(new PixelPos(x, y))).format();
     }
 }

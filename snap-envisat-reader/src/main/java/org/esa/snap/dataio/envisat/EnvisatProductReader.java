@@ -28,6 +28,7 @@ import org.esa.snap.framework.datamodel.PointingFactoryRegistry;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.ProductNodeGroup;
+import org.esa.snap.framework.datamodel.LineTimeCoding;
 import org.esa.snap.framework.datamodel.TiePointGeoCoding;
 import org.esa.snap.framework.datamodel.TiePointGrid;
 import org.esa.snap.framework.datamodel.VirtualBand;
@@ -105,9 +106,8 @@ public class EnvisatProductReader extends AbstractProductReader {
      * Reads a data product and returns a in-memory representation of it. This method was called by
      * <code>readProductNodes(input, subsetInfo)</code> of the abstract superclass.
      *
-     * @throws java.lang.IllegalArgumentException
-     *                             if <code>input</code> type is not one of the supported input sources.
-     * @throws java.io.IOException if an I/O error occurs
+     * @throws java.lang.IllegalArgumentException if <code>input</code> type is not one of the supported input sources.
+     * @throws java.io.IOException                if an I/O error occurs
      */
     @Override
     protected Product readProductNodesImpl() throws IOException {
@@ -225,6 +225,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         product.setDescription(getProductFile().getProductDescription());
         product.setStartTime(getProductFile().getSceneRasterStartTime());
         product.setEndTime(getProductFile().getSceneRasterStopTime());
+        product.setTimeCoding(new LineTimeCoding(getMJDs()));
         product.setAutoGrouping(getProductFile().getAutoGroupingPattern());
 
         addBandsToProduct(product);
@@ -440,9 +441,9 @@ public class EnvisatProductReader extends AbstractProductReader {
             if (dsd != null) {
                 final MetadataElement dsdGroup = new MetadataElement("DSD." + (i + 1));
                 dsdGroup.addAttribute(
-                        new MetadataAttribute("DATASET_NAME",
-                                              ProductData.createInstance(getNonNullString(dsd.getDatasetName())),
-                                              true));
+                            new MetadataAttribute("DATASET_NAME",
+                                                  ProductData.createInstance(getNonNullString(dsd.getDatasetName())),
+                                                  true));
                 dsdGroup.addAttribute(new MetadataAttribute("DATASET_TYPE",
                                                             ProductData.createInstance(new String(new char[]{dsd.getDatasetType()})),
                                                             true));
@@ -476,7 +477,7 @@ public class EnvisatProductReader extends AbstractProductReader {
             final DSD dsd = productFile.getDSD(datasetName);
             final char dsdType = dsd.getDatasetType();
             if (dsdType == EnvisatConstants.DS_TYPE_ANNOTATION
-                    || dsdType == EnvisatConstants.DS_TYPE_GLOBAL_ANNOTATION) {
+                || dsdType == EnvisatConstants.DS_TYPE_GLOBAL_ANNOTATION) {
                 final RecordReader recordReader = productFile.getRecordReader(datasetName);
                 final int numRecords = recordReader.getNumRecords();
                 if (numRecords > 1) {
@@ -508,7 +509,7 @@ public class EnvisatProductReader extends AbstractProductReader {
                     ArrayUtils.swapArray(pixelData);
                 }
                 for (int x = 0; x < gridWidth; x++) {
-                    tiePoints[tiePointIndex] = (float)(scalingOffset + scalingFactor * pixelData[x]);
+                    tiePoints[tiePointIndex] = (float) (scalingOffset + scalingFactor * pixelData[x]);
                     tiePointIndex++;
                 }
             } else if (pixelDataType == ProductData.TYPE_UINT8) {
@@ -517,7 +518,7 @@ public class EnvisatProductReader extends AbstractProductReader {
                     ArrayUtils.swapArray(pixelData);
                 }
                 for (int x = 0; x < gridWidth; x++) {
-                    tiePoints[tiePointIndex] = (float)(scalingOffset + scalingFactor * (pixelData[x] & 0xff));
+                    tiePoints[tiePointIndex] = (float) (scalingOffset + scalingFactor * (pixelData[x] & 0xff));
                     tiePointIndex++;
                 }
             } else if (pixelDataType == ProductData.TYPE_INT16) {
@@ -526,7 +527,7 @@ public class EnvisatProductReader extends AbstractProductReader {
                     ArrayUtils.swapArray(pixelData);
                 }
                 for (int x = 0; x < gridWidth; x++) {
-                    tiePoints[tiePointIndex] = (float)(scalingOffset + scalingFactor * pixelData[x]);
+                    tiePoints[tiePointIndex] = (float) (scalingOffset + scalingFactor * pixelData[x]);
                     tiePointIndex++;
                 }
             } else if (pixelDataType == ProductData.TYPE_UINT16) {
@@ -535,7 +536,7 @@ public class EnvisatProductReader extends AbstractProductReader {
                     ArrayUtils.swapArray(pixelData);
                 }
                 for (int x = 0; x < gridWidth; x++) {
-                    tiePoints[tiePointIndex] = (float)(scalingOffset + scalingFactor * (pixelData[x] & 0xffff));
+                    tiePoints[tiePointIndex] = (float) (scalingOffset + scalingFactor * (pixelData[x] & 0xffff));
                     tiePointIndex++;
                 }
             } else if (pixelDataType == ProductData.TYPE_INT32) {
@@ -544,7 +545,7 @@ public class EnvisatProductReader extends AbstractProductReader {
                     ArrayUtils.swapArray(pixelData);
                 }
                 for (int x = 0; x < gridWidth; x++) {
-                    tiePoints[tiePointIndex] = (float)(scalingOffset + scalingFactor * pixelData[x]);
+                    tiePoints[tiePointIndex] = (float) (scalingOffset + scalingFactor * pixelData[x]);
                     tiePointIndex++;
                 }
             } else if (pixelDataType == ProductData.TYPE_UINT32) {
@@ -553,7 +554,7 @@ public class EnvisatProductReader extends AbstractProductReader {
                     ArrayUtils.swapArray(pixelData);
                 }
                 for (int x = 0; x < gridWidth; x++) {
-                    tiePoints[tiePointIndex] = (float)(scalingOffset + scalingFactor * (pixelData[x] & 0xffffffffL));
+                    tiePoints[tiePointIndex] = (float) (scalingOffset + scalingFactor * (pixelData[x] & 0xffffffffL));
                     tiePointIndex++;
                 }
             } else if (pixelDataType == ProductData.TYPE_FLOAT32) {
@@ -562,7 +563,7 @@ public class EnvisatProductReader extends AbstractProductReader {
                     ArrayUtils.swapArray(pixelData);
                 }
                 for (int x = 0; x < gridWidth; x++) {
-                    tiePoints[tiePointIndex] = (float)(scalingOffset + scalingFactor * pixelData[x]);
+                    tiePoints[tiePointIndex] = (float) (scalingOffset + scalingFactor * pixelData[x]);
                     tiePointIndex++;
                 }
             } else {
@@ -575,13 +576,13 @@ public class EnvisatProductReader extends AbstractProductReader {
         double subSamplingY = getProductFile().getTiePointSubSamplingY(gridWidth);
 
         final TiePointGrid tiePointGrid = createTiePointGrid(bandName,
-                                                       gridWidth,
-                                                       gridHeight,
-                                                       offsetX,
-                                                       offsetY,
-                                                       subSamplingX,
-                                                       subSamplingY,
-                                                       tiePoints);
+                                                             gridWidth,
+                                                             gridHeight,
+                                                             offsetX,
+                                                             offsetY,
+                                                             subSamplingX,
+                                                             subSamplingY,
+                                                             tiePoints);
         if (bandInfo.getPhysicalUnit() != null) {
             tiePointGrid.setUnit(bandInfo.getPhysicalUnit());
         }
@@ -675,4 +676,20 @@ public class EnvisatProductReader extends AbstractProductReader {
             return TiePointGrid.DISCONT_NONE;
         }
     }
+
+    private double[] getMJDs() throws IOException {
+        double[] mjDs;
+        ProductData.UTC[] allRecordTimes = productFile.getAllRecordTimes();
+        mjDs = new double[allRecordTimes.length];
+        for (int i = 0; i < allRecordTimes.length; i++) {
+            ProductData.UTC utc = allRecordTimes[i];
+            if (utc != null) {
+                mjDs[i] = utc.getMJD();
+            } else {
+                mjDs[i] = Double.NaN;
+            }
+        }
+        return mjDs;
+    }
+
 }

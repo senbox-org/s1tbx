@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -9,16 +9,18 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
 package org.esa.snap.csv.dataio;
 
+import static org.junit.Assert.*;
+
 import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.datamodel.ProductData;
-import org.junit.Test;
+import org.junit.*;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.PropertyDescriptor;
@@ -26,8 +28,6 @@ import org.opengis.feature.type.PropertyDescriptor;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Olaf Danne
@@ -42,7 +42,7 @@ public class CsvFileTest {
         parser.parseMetadata();
 
         final CsvSource source = parser.parseMetadata();
-        final Map<String,String> properties = source.getProperties();
+        final Map<String, String> properties = source.getProperties();
         assertNotNull(properties);
         assertEquals(5, properties.size());
         assertEquals("POLYGON(0.0, 1.0, 1.1)", properties.get("geometry1"));
@@ -109,12 +109,12 @@ public class CsvFileTest {
         assertEquals("AMRU1", features[1].getAttribute(0));
         assertEquals("AMRU2", features[2].getAttribute(0));
 
-        assertEquals(new GeoPos(30.0f, 50.0f), new GeoPos((Float)features[0].getAttribute(1), (Float)features[0].getAttribute(2)));
-        assertEquals(new GeoPos(30.0f, 50.0f), new GeoPos((Float)features[1].getAttribute(1), (Float)features[1].getAttribute(2)));
-        assertEquals(new GeoPos(40.0f, 120.0f), new GeoPos((Float)features[2].getAttribute(1), (Float)features[2].getAttribute(2)));
+        assertEquals(new GeoPos(30.0f, 50.0f), new GeoPos((Float) features[0].getAttribute(1), (Float) features[0].getAttribute(2)));
+        assertEquals(new GeoPos(30.0f, 50.0f), new GeoPos((Float) features[1].getAttribute(1), (Float) features[1].getAttribute(2)));
+        assertEquals(new GeoPos(40.0f, 120.0f), new GeoPos((Float) features[2].getAttribute(1), (Float) features[2].getAttribute(2)));
 
-        assertEquals(ProductData.UTC.parse("2010-06-01 12:45:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(), ((ProductData.UTC)features[0].getAttribute(3)).getAsDate().getTime());
-        assertEquals(ProductData.UTC.parse("2010-06-01 12:48:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(), ((ProductData.UTC)features[1].getAttribute(3)).getAsDate().getTime());
+        assertEquals(ProductData.UTC.parse("2010-06-01 12:45:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(), ((ProductData.UTC) features[0].getAttribute(3)).getAsDate().getTime());
+        assertEquals(ProductData.UTC.parse("2010-06-01 12:48:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(), ((ProductData.UTC) features[1].getAttribute(3)).getAsDate().getTime());
         assertEquals(null, features[2].getAttribute(3));
 
         assertEquals(Float.NaN, features[0].getAttribute(4));
@@ -122,7 +122,7 @@ public class CsvFileTest {
         assertEquals(10.6f, features[2].getAttribute(5));
 
         assertEquals(ProductData.UTC.parse("2011-06-01 10:45:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(),
-                     ((ProductData.UTC)features[0].getAttribute(6)).getAsDate().getTime());
+                     ((ProductData.UTC) features[0].getAttribute(6)).getAsDate().getTime());
 
     }
 
@@ -142,7 +142,7 @@ public class CsvFileTest {
         SimpleFeature feature = features[0];
 
         assertEquals(7, feature.getAttributeCount());
-        
+
         assertEquals("" + 0, feature.getID());
         assertEquals(String.class, feature.getAttribute(0).getClass());
         assertEquals(Float.class, feature.getAttribute(1).getClass());
@@ -181,12 +181,12 @@ public class CsvFileTest {
         assertEquals("AMRU1", features[1].getAttribute(0));
         assertEquals("AMRU2", features[2].getAttribute(0));
 
-        assertEquals(new GeoPos(30.0f, 50.0f), new GeoPos((Float)features[0].getAttribute(1), (Float)features[0].getAttribute(2)));
-        assertEquals(new GeoPos(30.0f, 50.0f), new GeoPos((Float)features[1].getAttribute(1), (Float)features[1].getAttribute(2)));
-        assertEquals(new GeoPos(40.0f, 120.0f), new GeoPos((Float)features[2].getAttribute(1), (Float)features[2].getAttribute(2)));
+        assertEquals(new GeoPos(30.0f, 50.0f), new GeoPos((Float) features[0].getAttribute(1), (Float) features[0].getAttribute(2)));
+        assertEquals(new GeoPos(30.0f, 50.0f), new GeoPos((Float) features[1].getAttribute(1), (Float) features[1].getAttribute(2)));
+        assertEquals(new GeoPos(40.0f, 120.0f), new GeoPos((Float) features[2].getAttribute(1), (Float) features[2].getAttribute(2)));
 
-        assertEquals(ProductData.UTC.parse("2010-06-01 12:45:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(), ((ProductData.UTC)features[0].getAttribute(3)).getAsDate().getTime());
-        assertEquals(ProductData.UTC.parse("2010-06-01 12:48:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(), ((ProductData.UTC)features[1].getAttribute(3)).getAsDate().getTime());
+        assertEquals(ProductData.UTC.parse("2010-06-01 12:45:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(), ((ProductData.UTC) features[0].getAttribute(3)).getAsDate().getTime());
+        assertEquals(ProductData.UTC.parse("2010-06-01 12:48:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(), ((ProductData.UTC) features[1].getAttribute(3)).getAsDate().getTime());
         assertEquals(null, features[2].getAttribute(3));
 
         assertEquals(Float.NaN, features[0].getAttribute(4));
@@ -194,7 +194,7 @@ public class CsvFileTest {
         assertEquals(10.6f, features[2].getAttribute(5));
 
         assertEquals(ProductData.UTC.parse("2011-06-01 10:45:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(),
-                     ((ProductData.UTC)features[0].getAttribute(6)).getAsDate().getTime());
+                     ((ProductData.UTC) features[0].getAttribute(6)).getAsDate().getTime());
 
     }
 
@@ -238,10 +238,10 @@ public class CsvFileTest {
         assertEquals("AMRU1", features[0].getAttribute(0));
         assertEquals("AMRU2", features[1].getAttribute(0));
 
-        assertEquals(new GeoPos(30.0f, 50.0f), new GeoPos((Float)features[0].getAttribute(1), (Float)features[0].getAttribute(2)));
-        assertEquals(new GeoPos(40.0f, 120.0f), new GeoPos((Float)features[1].getAttribute(1), (Float)features[1].getAttribute(2)));
+        assertEquals(new GeoPos(30.0f, 50.0f), new GeoPos((Float) features[0].getAttribute(1), (Float) features[0].getAttribute(2)));
+        assertEquals(new GeoPos(40.0f, 120.0f), new GeoPos((Float) features[1].getAttribute(1), (Float) features[1].getAttribute(2)));
 
-        assertEquals(ProductData.UTC.parse("2010-06-01 12:48:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(), ((ProductData.UTC)features[0].getAttribute(3)).getAsDate().getTime());
+        assertEquals(ProductData.UTC.parse("2010-06-01 12:48:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(), ((ProductData.UTC) features[0].getAttribute(3)).getAsDate().getTime());
         assertEquals(null, features[1].getAttribute(3));
 
         assertEquals(18.3f, features[0].getAttribute(4));
@@ -328,7 +328,7 @@ public class CsvFileTest {
         final Object[] objects = descriptors.toArray(new Object[descriptors.size()]);
         final PropertyDescriptor[] propertyDescriptors = new PropertyDescriptor[objects.length];
         for (int i = 0; i < propertyDescriptors.length; i++) {
-            propertyDescriptors[i] = (PropertyDescriptor)objects[i];
+            propertyDescriptors[i] = (PropertyDescriptor) objects[i];
 
         }
         return propertyDescriptors;

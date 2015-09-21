@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option)
@@ -9,7 +9,7 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
@@ -17,12 +17,12 @@
 package org.esa.snap.csv.dataio.writer;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.csv.dataio.Constants;
 import org.esa.snap.framework.dataio.AbstractProductWriter;
 import org.esa.snap.framework.dataio.ProductWriterPlugIn;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.util.io.Constants;
 
 import java.awt.image.DataBuffer;
 import java.io.File;
@@ -117,10 +117,11 @@ public class CsvProductWriter extends AbstractProductWriter {
         writer.write("\n");
     }
 
-    private void writeProperties() {
-        // todo - implement
+    private void writeProperties() throws IOException {
         if ((config & WRITE_PROPERTIES) != WRITE_PROPERTIES) {
+            return;
         }
+        writeLine("#" + Constants.PROPERTY_NAME_SCENE_RASTER_WIDTH + "=" + getSourceProduct().getSceneRasterWidth());
     }
 
     @Override
@@ -159,7 +160,7 @@ public class CsvProductWriter extends AbstractProductWriter {
                     final Number elem;
                     final int type = bandTypes[k];
                     if (type == DataBuffer.TYPE_INT || type == DataBuffer.TYPE_SHORT ||
-                            type == DataBuffer.TYPE_USHORT || type == DataBuffer.TYPE_BYTE) {
+                        type == DataBuffer.TYPE_USHORT || type == DataBuffer.TYPE_BYTE) {
                         elem = buffer.getElem(index);
                     } else if (type == DataBuffer.TYPE_FLOAT) {
                         elem = buffer.getElemFloat(index);
@@ -177,7 +178,7 @@ public class CsvProductWriter extends AbstractProductWriter {
                     final Number elem;
                     final int type = tpgTypes[k];
                     if (type == DataBuffer.TYPE_INT || type == DataBuffer.TYPE_SHORT ||
-                            type == DataBuffer.TYPE_USHORT || type == DataBuffer.TYPE_BYTE) {
+                        type == DataBuffer.TYPE_USHORT || type == DataBuffer.TYPE_BYTE) {
                         elem = buffer.getElem(index);
                     } else if (type == DataBuffer.TYPE_FLOAT) {
                         elem = buffer.getElemFloat(index);

@@ -32,12 +32,12 @@ public interface CsvSourceParser {
      *
      * @param offset     the offset from which to start parsing.
      * @param numRecords the number of records to parse. If -1 is given, all records are parsed.
-     * @param rowName    the name of the row.
+     * @param colName    the name of the column.
      * @throws IllegalStateException if this method is called before {@link CsvSourceParser#parseMetadata()} has
      *                               been called.
      * @throws IOException           if something goes wrong.
      */
-    Object[] parseRecords(int offset, int numRecords, String rowName) throws IOException;
+    Object[] parseRecords(int offset, int numRecords, String colName) throws IOException;
 
     /**
      * Triggers parsing of the records. Before calling this method, {@link CsvSourceParser#parseMetadata()} must
