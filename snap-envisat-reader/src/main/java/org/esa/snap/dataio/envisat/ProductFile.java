@@ -729,10 +729,13 @@ public abstract class ProductFile {
 
     public ProductData.UTC[] getAllRecordTimes() throws IOException {
         String[] datasetNames = getValidDatasetNames(EnvisatConstants.DS_TYPE_MEASUREMENT);
-        // todo - assert that datasetNames.length >= 1
+        if(datasetNames.length < 1) {
+            return new ProductData.UTC[0];
+        }
         RecordReader recordReader = getRecordReader(datasetNames[0]);
-        int fieldIndex = recordReader.getRecordInfo().getFieldInfoIndex("dsr_time");
-        // todo - assert that fieldIndex != -1 since all Envisat MDSRs must have a dsr_time field
+
+        int fieldIndex = getDSRTimeInfoFieldIndex(recordReader);
+
         long fieldOffset = recordReader.getRecordInfo().getFieldOffset(fieldIndex);
         FieldInfo dsrTime = recordReader.getRecordInfo().getFieldInfoAt(fieldIndex);
 
@@ -745,6 +748,14 @@ public abstract class ProductFile {
         }
 
         return recordTimes;
+    }
+
+    /**
+     * @param recordReader the record reader to provide the time info field.
+     * @return the index of the time info field of the dataset record.
+     */
+    protected int getDSRTimeInfoFieldIndex(RecordReader recordReader) {
+        return recordReader.getRecordInfo().getFieldInfoIndex("dsr_time");
     }
 
 
@@ -808,7 +819,7 @@ public abstract class ProductFile {
      */
     public synchronized BandLineReader getBandLineReader(final Band band) {
         if (bandLineReaderMap == null) {
-            bandLineReaderMap = new java.util.Hashtable<Band, BandLineReader>();
+            bandLineReaderMap = new java.util.Hashtable<>();
             BandLineReader[] bandLineReaders = getBandLineReaders();
             final Product product = band.getProduct();
             for (BandLineReader bandLineReader : bandLineReaders) {

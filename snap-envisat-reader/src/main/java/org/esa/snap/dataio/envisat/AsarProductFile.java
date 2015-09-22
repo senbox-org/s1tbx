@@ -595,6 +595,11 @@ public final class AsarProductFile extends ProductFile {
     }
 
     @Override
+    protected int getDSRTimeInfoFieldIndex(RecordReader recordReader) {
+        return recordReader.getRecordInfo().getFieldInfoIndex("zero_doppler_time");
+    }
+
+    @Override
     protected BandLineReader[] createBandLineReaders() {
 
         if (getProductType().equals("ASA_WVI_1P")) {
