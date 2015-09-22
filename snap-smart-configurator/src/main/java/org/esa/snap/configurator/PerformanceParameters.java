@@ -1,3 +1,21 @@
+/*
+ *
+ * Copyright (C) 2014-2015 CS SI
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *  This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ *
+ */
+
 
 package org.esa.snap.configurator;
 
@@ -5,10 +23,9 @@ package org.esa.snap.configurator;
 import org.esa.snap.runtime.Config;
 import org.esa.snap.runtime.EngineConfig;
 import org.esa.snap.util.SystemUtils;
-import org.esa.snap.util.io.FileUtils;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
@@ -39,7 +56,7 @@ public class PerformanceParameters {
 
 
     private VMParameters vmParameters;
-    private Path userDir;
+    private Path cachePath;
     private int nbThreads;
 
     private int defaultTileSize;
@@ -57,7 +74,7 @@ public class PerformanceParameters {
      */
     public PerformanceParameters(PerformanceParameters clone) {
         this.setVMParameters(clone.vmParameters.toString());
-        this.setUserDir(clone.getUserDir());
+        this.setCachePath(clone.getCachePath());
 
         this.setNbThreads(clone.getNbThreads());
         this.setDefaultTileSize(clone.getDefaultTileSize());
@@ -73,12 +90,12 @@ public class PerformanceParameters {
     }
 
 
-    public Path getUserDir() {
-        return userDir;
+    public Path getCachePath() {
+        return cachePath;
     }
 
-    public void setUserDir(Path largeTileCache) {
-        this.userDir = largeTileCache;
+    public void setCachePath(Path largeTileCache) {
+        this.cachePath = largeTileCache;
     }
 
     public int getNbThreads() {
@@ -142,7 +159,7 @@ public class PerformanceParameters {
 
         VMParameters netBeansVmParameters = VMParameters.load();
         actualParameters.setVMParameters(netBeansVmParameters.toString());
-        actualParameters.setUserDir(configuration.userDir());
+        actualParameters.setCachePath(SystemUtils.getCacheDir().toPath());
 
         final int defaultNbThreads = JavaSystemInfos.getInstance().getNbCPUs();
         actualParameters.setNbThreads(preferences.getInt(PROPERTY_JAI_PARALLELISM, defaultNbThreads));
@@ -167,28 +184,17 @@ public class PerformanceParameters {
         Config configuration = EngineConfig.instance().load();
         Preferences preferences = configuration.preferences();
 
-        String userDirString = confToSave.getUserDir().toString();
+        Path cachePath = confToSave.getCachePath();
 
-        String[] diskNames = JavaSystemInfos.getInstance().getDisksNames();
-        for(String diskName : diskNames) {
-            if (diskName.equalsIgnoreCase(userDirString)) {
-                userDirString = userDirString + File.separator + "." + SystemUtils.getApplicationContextId();
-                File contextFolderAsFile = new File(userDirString);
-                if(!contextFolderAsFile.mkdir()) {
-                    SystemUtils.LOG.severe("Could not create user dir " + userDirString);
-                } else {
-                    confToSave.setUserDir(FileUtils.getPathFromURI(contextFolderAsFile.toURI()));
-                }
-                break;
-            }
+        if(Files.exists(cachePath)) {
+            preferences.put(SystemUtils.SNAP_CACHE_DIR_PROPERTY_NAME, cachePath.toAbsolutePath().toString());
+        } else {
+            SystemUtils.LOG.severe("Directory for cache path does not exist");
         }
-        preferences.put(EngineConfig.PROPERTY_USER_DIR, userDirString);
 
         preferences.putInt(PROPERTY_JAI_PARALLELISM, confToSave.getNbThreads());
         preferences.putInt(PROPERTY_DEFAULT_TILE_SIZE, confToSave.getDefaultTileSize());
         preferences.putInt(PROPERTY_JAI_CACHE_SIZE, confToSave.getCacheSize());
         preferences.flush();
     }
-
-
 }

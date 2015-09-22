@@ -22,7 +22,6 @@ import org.esa.snap.util.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Path;
 import java.util.prefs.BackingStoreException;
 
@@ -171,21 +170,21 @@ public class ConfigurationOptimizer {
 
 
         if(fastestForUserDir != null) {
-            String actualLargeCacheDir = actualPerformanceParameters.getUserDir().toString();
+            String actualLargeCacheDir = actualPerformanceParameters.getCachePath().toString();
             DiskBenchmarker benchmarker = new DiskBenchmarker(actualLargeCacheDir);
             try {
                 double userDirWriteSpeed = benchmarker.getWriteSpeed();
                 double minSpeedToChange = userDirWriteSpeed * (1 + DISK_MIN_SPEED_INCREASE / 100);
                 if(minSpeedToChange < fastestForUserDirSpeed) {
-                    performanceParameters.setUserDir(fastestForUserDir);
+                    performanceParameters.setCachePath(fastestForUserDir);
                 }
             } catch (IOException e) {
                 // we could check actual large cache speed, so we change directory
-                performanceParameters.setUserDir(fastestForUserDir);
+                performanceParameters.setCachePath(fastestForUserDir);
 
                 SystemUtils.LOG.warning(
                         "Could not check performance of large cache dir: " +
-                                actualPerformanceParameters.getUserDir() +
+                                actualPerformanceParameters.getCachePath() +
                                 " error: " + e.getMessage());
                 e.printStackTrace();
             }
