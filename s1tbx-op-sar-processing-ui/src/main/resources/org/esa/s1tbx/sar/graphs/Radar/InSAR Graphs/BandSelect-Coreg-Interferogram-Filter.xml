@@ -116,7 +116,7 @@
       <sourceProduct refid="GoldsteinPhaseFiltering"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <file>E:\out\srp_ifgs.dim</file>
+      <file>srp_ifgs.dim</file>
       <formatName>BEAM-DIMAP</formatName>
     </parameters>
   </node>

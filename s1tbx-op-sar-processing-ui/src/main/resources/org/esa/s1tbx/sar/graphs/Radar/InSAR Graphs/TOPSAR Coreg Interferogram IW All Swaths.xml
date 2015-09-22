@@ -42,6 +42,7 @@
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <orbitType>Sentinel Precise (Auto Download)</orbitType>
       <polyDegree>3</polyDegree>
+	  <continueOnFail>false</continueOnFail>
     </parameters>
   </node>
   <node id="Apply-Orbit-File(2)">
@@ -52,6 +53,7 @@
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <orbitType>Sentinel Precise (Auto Download)</orbitType>
       <polyDegree>3</polyDegree>
+	  <continueOnFail>false</continueOnFail>
     </parameters>
   </node>
   <node id="Back-Geocoding">
