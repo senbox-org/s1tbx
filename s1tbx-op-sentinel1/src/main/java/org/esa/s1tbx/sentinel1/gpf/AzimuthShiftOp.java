@@ -19,10 +19,8 @@ import com.bc.ceres.core.ProgressMonitor;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.insar.gpf.Sentinel1Utils;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.VirtualBand;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.framework.datamodel.*;
 import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.OperatorSpi;
@@ -325,7 +323,7 @@ public class AzimuthShiftOp extends Operator {
         final ThreadManager threadManager = new ThreadManager();
         try {
             final List<Double> azOffsetArray = new ArrayList<>(numOverlaps);
-            final List<Integer> y0Array = new ArrayList<>(numOverlaps);
+            final List<Integer> overlapIndexArray = new ArrayList<>(numOverlaps);
 
             for (int i = 0; i < numOverlaps; i++) {
                 checkForCancellation();
@@ -333,6 +331,7 @@ public class AzimuthShiftOp extends Operator {
                 final int y0 = subSwath[subSwathIndex - 1].linesPerBurst * (i + 1);
                 final int w = subSwath[subSwathIndex - 1].samplesPerBurst;
                 final int h = overlapSizeArray[i];
+                final int overlapIndex = i;
 
                 final double tCycle =
                         subSwath[subSwathIndex - 1].linesPerBurst * subSwath[subSwathIndex - 1].azimuthTimeInterval;
@@ -363,7 +362,7 @@ public class AzimuthShiftOp extends Operator {
 
                             synchronized(azOffsetArray) {
                                 azOffsetArray.add(azOffset);
-                                y0Array.add(y0);
+                                overlapIndexArray.add(overlapIndex);
                             }
                         } catch (Throwable e) {
                             OperatorUtils.catchOperatorException("estimateOffset", e);
@@ -380,14 +379,13 @@ public class AzimuthShiftOp extends Operator {
             for (int i = 0; i < azOffsetArray.size(); i++) {
                 final double anAzOffset = azOffsetArray.get(i);
                 sumAzOffset += anAzOffset;
-                final int overlapAreaIndex = getOverlapAreaIndex(y0Array.get(i), numOverlaps);
-                if (overlapAreaIndex != -1) {
-                    SystemUtils.LOG.info(
-                            "AzimuthShiftOp: overlap area = " + overlapAreaIndex + ", azimuth offset = " + anAzOffset);
-                }
+                SystemUtils.LOG.info(
+                        "AzimuthShiftOp: overlap area = " + overlapIndexArray.get(i) + ", azimuth offset = " + anAzOffset);
             }
             azOffset = sumAzOffset / numOverlaps;
             SystemUtils.LOG.info("AzimuthShiftOp: whole image azimuth offset = " + azOffset);
+
+            saveAzimuthOffsetToMetadata(overlapIndexArray, azOffsetArray);
 
             status.done();
             threadManager.finish();
@@ -399,14 +397,30 @@ public class AzimuthShiftOp extends Operator {
         isOffsetAvailable = true;
     }
 
-    private int getOverlapAreaIndex(final int y0, final int numOverlaps) {
+    private void saveAzimuthOffsetToMetadata(final List<Integer> overlapIndexArray, final List<Double> azOffsetArray) {
 
-        for (int i = 0; i < numOverlaps; i++) {
-            if (y0 == subSwath[subSwathIndex - 1].linesPerBurst * (i + 1)) {
-                return i + 1;
-            }
+        final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
+        if (absTgt == null) {
+            return;
         }
-        return -1;
+
+        final double azimuthPixelSpacing = absTgt.getAttributeDouble(AbstractMetadata.azimuth_spacing);
+        final MetadataElement ESDMeasurement = new MetadataElement("ESD_Measurement");
+        final MetadataElement swathElem = new MetadataElement(subSwathNames[0]);
+        swathElem.addAttribute(new MetadataAttribute("count", ProductData.TYPE_INT16));
+        swathElem.setAttributeInt("count", overlapIndexArray.size());
+
+        for (int i = 0; i < azOffsetArray.size(); i++) {
+            final MetadataElement overlapListElem = new MetadataElement("OverlapList." + i);
+            overlapListElem.addAttribute(new MetadataAttribute("azimuthShift", ProductData.TYPE_FLOAT32));
+            overlapListElem.setAttributeDouble("azimuthShift", azOffsetArray.get(i)*azimuthPixelSpacing*100.0);
+            overlapListElem.addAttribute(new MetadataAttribute("overlapIndex", ProductData.TYPE_INT16));
+            overlapListElem.setAttributeInt("overlapIndex", overlapIndexArray.get(i));
+            swathElem.addElement(overlapListElem);
+        }
+
+        ESDMeasurement.addElement(swathElem);
+        absTgt.addElement(ESDMeasurement);
     }
 
     /**
@@ -519,7 +533,7 @@ public class AzimuthShiftOp extends Operator {
 
         final double[] diffIntReal = new double[arrayLength];
         final double[] diffIntImag = new double[arrayLength];
-        complexArrayMultiplication(backIntReal, backIntImag, forIntReal, forIntImag, diffIntReal, diffIntImag);
+        complexArrayMultiplication(forIntReal, forIntImag, backIntReal, backIntImag, diffIntReal, diffIntImag);
 
         double sumReal = 0.0;
         double sumImag = 0.0;
