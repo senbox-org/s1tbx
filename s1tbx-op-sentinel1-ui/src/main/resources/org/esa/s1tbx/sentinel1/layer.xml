@@ -29,6 +29,7 @@
                 <attr name="graphFile" stringvalue="TOPSARMergeGraph.xml"/>
                 <attr name="dialogTitle" stringvalue="S-1 TOPS Merge"/>
                 <attr name="ShortDescription" stringvalue="Merge TOPSAR subswaths together"/>
+                <attr name="targetProductNameSuffix" stringvalue="_mrg"/>
                 <attr name="icon" stringvalue="esaIcon"/>
                 <attr name="helpId" stringvalue="TOPSARMergeOp"/>
             </file>
