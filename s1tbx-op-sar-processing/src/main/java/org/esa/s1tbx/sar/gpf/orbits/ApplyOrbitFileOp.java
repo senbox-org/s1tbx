@@ -193,7 +193,7 @@ public final class ApplyOrbitFileOp extends Operator {
                 try {
                     updateOrbits();
                 } catch (Exception e) {
-                    if(continueOnFail) {
+                    if(continueOnFail != null && continueOnFail) {
                         SystemUtils.LOG.warning("ApplyOrbit ignoring error and continuing: "+e.toString());
                         productUpdated = true;
                     } else {
