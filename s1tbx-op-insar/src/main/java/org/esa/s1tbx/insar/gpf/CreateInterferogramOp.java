@@ -167,8 +167,10 @@ public class CreateInterferogramOp extends Operator {
             }
 
             mstRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-            MetadataElement slaveElem = sourceProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT);
-            slvRoot = slaveElem.getElements()[0];
+            final MetadataElement slaveElem = sourceProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT);
+            if(slaveElem != null) {
+                slvRoot = slaveElem.getElements()[0];
+            }
 
             checkUserInput();
 
@@ -209,8 +211,8 @@ public class CreateInterferogramOp extends Operator {
                 final String sProcSysId = slvRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
                 final float sVersion = Float.valueOf(sProcSysId.substring(sProcSysId.lastIndexOf(" ")));
                 if ((mVersion < 2.43 && sVersion >= 2.43) || (sVersion < 2.43 && mVersion >= 2.43)) {
-                    //throw new OperatorException(
-                    //        "Source products cannot be InSAR pairs: one is EAP phase corrected and the other is not. Apply EAP Correction.");
+                    throw new OperatorException(
+                            "Source products cannot be InSAR pairs: one is EAP phase corrected and the other is not. Apply EAP Correction.");
                 }
 
                 su = new Sentinel1Utils(sourceProduct);
