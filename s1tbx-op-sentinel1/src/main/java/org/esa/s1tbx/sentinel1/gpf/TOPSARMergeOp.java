@@ -669,7 +669,7 @@ public final class TOPSARMergeOp extends Operator {
             final int offset = srcTileIndex.calculateStride(sy0);
 
             final int sx0 = (int) Math.round(((targetSlantRangeTimeToFirstPixel + firstX * targetDeltaSlantRangeTime)
-                    - firstSubSwath.slrTimeToFirstValidPixel) / targetDeltaSlantRangeTime);
+                    - firstSubSwath.slrTimeToFirstPixel) / targetDeltaSlantRangeTime);
 
             System.arraycopy(srcArray, sx0 - offset, tgtArray, firstX - tgtOffset, lastX - firstX);
         }
@@ -710,7 +710,7 @@ public final class TOPSARMergeOp extends Operator {
             int offset = srcTileIndex.calculateStride(sy0);
 
             final int sx0 = (int) Math.round(((targetSlantRangeTimeToFirstPixel + firstX * targetDeltaSlantRangeTime)
-                    - firstSubSwath.slrTimeToFirstValidPixel) / targetDeltaSlantRangeTime);
+                    - firstSubSwath.slrTimeToFirstPixel) / targetDeltaSlantRangeTime);
 
             System.arraycopy(srcArray, sx0 - offset, tgtArray, firstX - tgtOffset, lastX - firstX);
         }
@@ -840,10 +840,9 @@ public final class TOPSARMergeOp extends Operator {
     private int getSampleIndexInSourceProduct(final int tx, final Sentinel1Utils.SubSwathInfo subSwath) {
 
         final int sx = (int)((((targetSlantRangeTimeToFirstPixel + tx * targetDeltaSlantRangeTime)
-                - subSwath.slrTimeToFirstValidPixel) / targetDeltaSlantRangeTime) + 0.5);
+                - subSwath.slrTimeToFirstPixel) / targetDeltaSlantRangeTime) + 0.5);
 
-        final int numOfValidSamples = subSwath.lastValidPixel - subSwath.firstValidPixel + 1;
-        return sx < 0 ? 0 : sx > numOfValidSamples - 1 ? numOfValidSamples - 1 : sx;
+        return sx < 0 ? 0 : sx > subSwath.numOfSamples - 1 ? subSwath.numOfSamples - 1 : sx;
     }
 
     private int getLineIndexInSourceProduct(final int ty, final Sentinel1Utils.SubSwathInfo subSwath) {
