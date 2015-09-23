@@ -150,11 +150,11 @@ public class GoldsteinFilterOp extends Operator {
                 continue;
             }
 
-            final Band targetBandI = targetProduct.addBand(srcBandI.getName(), ProductData.TYPE_FLOAT64);
+            final Band targetBandI = targetProduct.addBand(srcBandI.getName(), ProductData.TYPE_FLOAT32);
             targetBandI.setUnit(unit);
 
             final Band srcBandQ = sourceBands[i + 1];
-            final Band targetBandQ = targetProduct.addBand(srcBandQ.getName(), ProductData.TYPE_FLOAT64);
+            final Band targetBandQ = targetProduct.addBand(srcBandQ.getName(), ProductData.TYPE_FLOAT32);
             targetBandQ.setUnit(nextUnit);
 
             final String suffix = targetBandI.getName().substring(targetBandI.getName().indexOf("_"));
@@ -212,8 +212,8 @@ public class GoldsteinFilterOp extends Operator {
             final Tile qBandRaster = getSourceTile(qBand, sourceTileRectangle);
 
             // arrays saving filtered I/Q data for the tile, note tile size could be different from 512x512 on boundary
-            final double[] iBandFiltered = new double[w * h];
-            final double[] qBandFiltered = new double[w * h];
+            final float[] iBandFiltered = new float[w * h];
+            final float[] qBandFiltered = new float[w * h];
 
             // get target tiles
             final Band[] targetBands = targetProduct.getBands();
@@ -282,8 +282,8 @@ public class GoldsteinFilterOp extends Operator {
                 }
             }
 
-            iTargetTile.setRawSamples(new ProductData.Double(iBandFiltered));
-            qTargetTile.setRawSamples(new ProductData.Double(qBandFiltered));
+            iTargetTile.setRawSamples(new ProductData.Float(iBandFiltered));
+            qTargetTile.setRawSamples(new ProductData.Float(qBandFiltered));
 
         } catch (Exception e) {
             throw new OperatorException(e);
@@ -487,7 +487,7 @@ public class GoldsteinFilterOp extends Operator {
     private void updateFilteredBands(final int x0, final int y0, final int w, final int h,
                                      final int x, final int y, final double[][] I, final double[][] Q,
                                      final boolean[][] mask,
-                                     final double[] iBandFiltered, final double[] qBandFiltered) {
+                                     final float[] iBandFiltered, final float[] qBandFiltered) {
 
         final int xSt = FastMath.max(x, x0);
         final int ySt = FastMath.max(y, y0);
