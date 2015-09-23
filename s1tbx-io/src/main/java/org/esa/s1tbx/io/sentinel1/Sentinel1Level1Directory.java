@@ -40,7 +40,6 @@ import org.esa.snap.util.math.MathUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
-import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -77,9 +76,8 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         final String name = imgPath.substring(imgPath.lastIndexOf('/')+1, imgPath.length()).toLowerCase();
         if ((name.endsWith("tiff"))) {
             final InputStream inStream = getInputStream(imgPath);
-            final ImageInputStream imgStream = ImageIO.createImageInputStream(inStream);
-            if (imgStream == null)
-                throw new IOException("Unable to open " + imgPath);
+
+            final ImageInputStream imgStream = ImageIOFile.createImageInputStream(inStream);
 
             final ImageIOFile img;
             if(isSLC()) {

@@ -17,28 +17,22 @@ package org.esa.s1tbx.io.imageio;
 
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
 import org.esa.snap.datamodel.Unit;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.ColorPaletteDef;
-import org.esa.snap.framework.datamodel.ImageInfo;
-import org.esa.snap.framework.datamodel.IndexCoding;
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.datamodel.*;
+import org.esa.snap.runtime.Config;
+import org.esa.snap.util.SystemUtils;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageTypeSpecifier;
+import javax.imageio.stream.FileCacheImageInputStream;
 import javax.imageio.stream.ImageInputStream;
-import java.awt.Color;
-import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.IndexColorModel;
-import java.awt.image.Raster;
-import java.awt.image.RenderedImage;
-import java.awt.image.SampleModel;
+import javax.imageio.stream.MemoryCacheImageInputStream;
+import java.awt.*;
+import java.awt.image.*;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Iterator;
 
 /**
@@ -59,13 +53,14 @@ public class ImageIOFile {
     private ImageInputStream stream = null;
     private ImageReader reader;
 
+    private static final boolean useFileCache = Config.instance("s1tbx").preferences().getBoolean("s1tbx.readers.useFileCache", false);
+
     public ImageIOFile(final File inputFile, final ImageReader iioReader) throws IOException {
 
         name = inputFile.getName();
-        ImageIO.setUseCache(false);
         stream = ImageIO.createImageInputStream(inputFile);
         if (stream == null)
-            throw new IOException("Unable to open "+name);
+            throw new IOException("Unable to open " + name);
 
         createReader(iioReader);
     }
@@ -89,17 +84,23 @@ public class ImageIOFile {
             throw new IOException("Unable to open ");
 
         reader = iioReader;
-        reader.setInput(stream);
+        initReader();
 
         this.numImages = numImages;
         this.numBands = numBands;
         this.dataType = dataType;
     }
 
+    public void initReader() {
+        if (reader != null) {
+            reader.setInput(stream, true, true);
+        }
+    }
+
     private synchronized void createReader(final ImageReader iioReader) throws IOException {
 
         reader = iioReader;
-        reader.setInput(stream);
+        initReader();
 
         numImages = reader.getNumImages(true);
         numBands = 3;
@@ -117,7 +118,9 @@ public class ImageIOFile {
         }
     }
 
-    public String getName() { return name; }
+    public String getName() {
+        return name;
+    }
 
     public static ImageReader getIIOReader(final File inputFile) throws IOException {
         final ImageInputStream stream = ImageIO.createImageInputStream(inputFile);
@@ -311,5 +314,19 @@ public class ImageIOFile {
             bandSampleOffset = offset;
             isImaginary = band.getUnit() != null && band.getUnit().equals(Unit.IMAGINARY);
         }
+    }
+
+    private static File createCacheDir() throws IOException {
+        final File cacheDir = new File(SystemUtils.getCacheDir(), "temp");
+        if (!cacheDir.exists() && !cacheDir.mkdirs()) {
+            throw new IOException("Failed to create directory '" + cacheDir + "'.");
+        }
+        return cacheDir;
+    }
+
+    public static ImageInputStream createImageInputStream(final InputStream inStream) throws IOException {
+        return useFileCache ?
+                new FileCacheImageInputStream(inStream, createCacheDir()) :
+                new MemoryCacheImageInputStream(inStream);
     }
 }
