@@ -281,30 +281,26 @@ public final class MultilookOp extends Operator {
                 targetImageWidth,
                 targetImageHeight);
 
+        boolean noBandsSelected = sourceBandNames == null || sourceBandNames.length == 0;
+
         OperatorUtils.addSelectedBands(
                 sourceProduct, sourceBandNames, targetProduct, targetBandNameToSourceBandName, outputIntensity, false);
 
-        if (sourceProduct.getName().contains("ifg") &&
-                (sourceBandNames == null || sourceBandNames.length == 0 ||
-                sourceBandNames.length == sourceProduct.getNumBands())) { // add virtual bands
+        if (!outputIntensity && noBandsSelected) { // add virtual bands
 
             final Band[] bands = sourceProduct.getBands();
             for (Band band : bands) {
                 if (band instanceof VirtualBand) {
-                    final String bandName = band.getName();
-                    final VirtualBand virtualBand = new VirtualBand(bandName,
-                            ProductData.TYPE_FLOAT32,
-                            targetImageWidth,
-                            targetImageHeight,
-                            ((VirtualBand) band).getExpression());
+                    VirtualBand srcBand = (VirtualBand) band;
 
-                    virtualBand.setUnit(band.getUnit());
-                    virtualBand.setDescription(band.getDescription());
-
-                    if (targetProduct.getBand(bandName) != null) {
-                        targetProduct.removeBand(targetProduct.getBand(bandName));
-                    }
-                    targetProduct.addBand(virtualBand);
+                    final VirtualBand virtBand = new VirtualBand(srcBand.getName(), srcBand.getDataType(),
+                            targetImageWidth, targetImageHeight, srcBand.getExpression());
+                    virtBand.setUnit(srcBand.getUnit());
+                    virtBand.setDescription(srcBand.getDescription());
+                    virtBand.setNoDataValue(srcBand.getNoDataValue());
+                    virtBand.setNoDataValueUsed(srcBand.isNoDataValueUsed());
+                    virtBand.setOwner(targetProduct);
+                    targetProduct.addBand(virtBand);
                 }
             }
         }
