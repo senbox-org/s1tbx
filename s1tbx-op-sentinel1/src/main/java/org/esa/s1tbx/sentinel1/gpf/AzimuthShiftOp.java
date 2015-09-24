@@ -358,7 +358,7 @@ public class AzimuthShiftOp extends Operator {
 
                             final double azOffset = estimateAzOffsets(mBandI, mBandQ, sBandI, sBandQ,
                                     backwardRectangle, forwardRectangle, spectralSeparation);
-                            System.out.println("azOffset = " + azOffset);
+                            //System.out.println("azOffset = " + azOffset);
 
                             synchronized(azOffsetArray) {
                                 azOffsetArray.add(azOffset);
