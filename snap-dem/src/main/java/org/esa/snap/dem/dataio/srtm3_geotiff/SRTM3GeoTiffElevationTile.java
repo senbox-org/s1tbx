@@ -20,6 +20,7 @@ import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.datamodel.PixelPos;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.dataop.dem.BaseElevationTile;
+import org.esa.snap.gpf.TileGeoreferencing;
 
 import java.io.IOException;
 
@@ -33,12 +34,12 @@ public final class SRTM3GeoTiffElevationTile extends BaseElevationTile {
     }
 
     protected void addGravitationalModel(final int index, final float[] line) throws Exception {
-        final PixelPos pixPos = new PixelPos();
+        final GeoPos geoPos = new GeoPos();
+        final TileGeoreferencing tileGeoRef = new TileGeoreferencing(product, 0, index, line.length, 1);
         final double[][] v = new double[4][4];
         for (int i = 0; i < line.length; i++) {
             if (line[i] != noDataValue) {
-                pixPos.setLocation(i, index);
-                GeoPos geoPos = demModel.getGeoPos(pixPos);
+                tileGeoRef.getGeoPos(i, index, geoPos);
                 line[i] += egm.getEGM(geoPos.lat, geoPos.lon, v);
             }
         }
