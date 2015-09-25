@@ -23,12 +23,11 @@ import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.gpf.ReaderUtils;
-import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.io.FileUtils;
 
-import javax.imageio.stream.FileCacheImageInputStream;
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.MemoryCacheImageInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,9 +40,6 @@ import java.util.zip.ZipFile;
  * The product reader for SRTM HGT files.
  */
 public class SRTMHGTReader extends AbstractProductReader {
-
-    private int rasterWidth = 3600;
-    private int rasterHeight = 3600;
 
     private ZipFile zipFile;
     private ImageInputStream imageInputStream = null;
@@ -85,7 +81,7 @@ public class SRTMHGTReader extends AbstractProductReader {
                     final String name = zipEntry.getName().toLowerCase();
                     if(name.endsWith(".hgt")) {
                         final InputStream inputStream = productZip.getInputStream(zipEntry);
-                        imageInputStream = new FileCacheImageInputStream(inputStream, createCacheDir());
+                        imageInputStream = new MemoryCacheImageInputStream(inputStream);
                         break;
                     }
                 }
@@ -102,11 +98,16 @@ public class SRTMHGTReader extends AbstractProductReader {
             throw e;
         }
 
-        final Product product = new Product(inputFile.getName(), "HGT", rasterWidth, rasterHeight);
+        final int width = SRTM1HgtElevationModelDescriptor.PIXEL_RES;
+        final int height = SRTM1HgtElevationModelDescriptor.PIXEL_RES;
 
-        final Band band = new Band("elevation", ProductData.TYPE_INT16, rasterWidth, rasterHeight);
+        final Product product = new Product(inputFile.getName(), "HGT", width, height);
+
+        final Band band = new Band("elevation", ProductData.TYPE_INT16, width, height);
         band.setUnit(Unit.METERS);
         product.addBand(band);
+
+        addGeoCoding(product, inputFile);
 
         product.setProductReader(this);
         product.setFileLocation(inputFile);
@@ -115,12 +116,16 @@ public class SRTMHGTReader extends AbstractProductReader {
         return product;
     }
 
-    private static File createCacheDir() throws IOException {
-        final File cacheDir = new File(SystemUtils.getCacheDir(), "temp");
-        if (!cacheDir.exists() && !cacheDir.mkdirs()) {
-            throw new IOException("Failed to create directory '" + cacheDir + "'.");
-        }
-        return cacheDir;
+    private void addGeoCoding(final Product product, final File inputFile) throws IOException {
+
+        final SRTM1HgtFileInfo info = SRTM1HgtFileInfo.create(inputFile);
+        final float northing = info.getNorthing();
+        final float easting = info.getEasting();
+
+        float[] lat = new float[]{northing+1, northing+1, northing, northing};
+        float[] lon = new float[]{easting, easting+1, easting, easting+1};
+
+        ReaderUtils.addGeoCoding(product, lat, lon);
     }
 
     @Override
@@ -161,7 +166,7 @@ public class SRTMHGTReader extends AbstractProductReader {
         try {
             final int sourceMaxX = sourceMinX + sourceWidth;
             final int sourceMaxY = sourceMinY + sourceHeight;
-            final int sourceRasterWidth = destBand.getRasterWidth() +1;
+            final int sourceRasterWidth = destBand.getRasterWidth();
 
             final int elemSize = destBuffer.getElemSize();
             int destPos = 0;
