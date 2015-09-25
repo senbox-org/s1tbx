@@ -57,6 +57,7 @@ import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.gpf.TileGeoreferencing;
 import org.esa.snap.util.ProductUtils;
+import org.esa.snap.util.SystemUtils;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.*;
@@ -67,6 +68,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * Raw SAR images usually contain significant geometric distortions. One of the factors that cause the
@@ -963,6 +965,14 @@ public class RangeDopplerGeocodingOp extends Operator {
 
                     final double azimuthIndex = (zeroDopplerTime - firstLineUTC) / lineTimeInterval;
 
+                    //if(x == 300 && y == 300) {
+                    //    debugPrintPixel(x, y, alt, lat, lon,
+                    //            earthPoint,
+                    //            slantRange, zeroDopplerTime,
+                    //            orbit,
+                    //            rangeIndex, azimuthIndex);
+                    //}
+
                     if (!SARGeocoding.isValidCell(rangeIndex, azimuthIndex, lat, lon, diffLat, latitude, longitude,
                             srcMaxRange, srcMaxAzimuth, sensorPos)) {
                         if (saveDEM) {
@@ -1290,6 +1300,53 @@ public class RangeDopplerGeocodingOp extends Operator {
         }
     }
 
+    private void debugPrintMetadata() {
+        final Logger log = SystemUtils.LOG;
+
+        log.info("firstLineUTC: " + firstLineUTC);
+        log.info("lastLineUTC: " + lastLineUTC);
+        log.info("lineTimeInterval: " + lineTimeInterval);
+        log.info("nearEdgeSlantRange: " + nearEdgeSlantRange);
+        log.info("wavelength: " + wavelength);
+        log.info("pixelSpacingInMeter: " + pixelSpacingInMeter);
+        log.info("pixelSpacingInDegree: " + pixelSpacingInDegree);
+    }
+
+    private void debugPrintPixel(int x, int y, double alt, double lat, double lon,
+                                 final PosVector earthPoint,
+                                 double slantRange, double zeroDopplerTime,
+                                 SARGeocoding.Orbit orbit,
+                                 double rangeIndex, double azimuthIndex) {
+        final Logger log = SystemUtils.LOG;
+
+        debugPrintMetadata();
+
+        log.info("---------------------------------");
+        log.info("x: " + x + " y: " + y + " alt: " + alt + " lat: " + lat + " lon: " + lon);
+        log.info("earthPoint: " + earthPoint.x + "," + earthPoint.y + "," + earthPoint.z);
+        log.info("slantRange: " + slantRange);
+        log.info("zeroDopplerTime: " + zeroDopplerTime);
+        log.info("rangeIndex: " + rangeIndex);
+        log.info("azimuthIndex: " + azimuthIndex);
+        log.info("---------------------------------");
+
+        final int max = 3;
+        for(int i=0; i<max; ++i) {
+            PosVector sensorPos = orbit.sensorPosition[i];
+            log.info("sensorPos: " + sensorPos.x + ", " + sensorPos.y + ", " + sensorPos.z);
+        }
+        for(int i=0; i<max; ++i) {
+            PosVector sensorVel = orbit.sensorVelocity[i];
+            log.info("sensorVel: " + sensorVel.x + ", " + sensorVel.y + ", " + sensorVel.z);
+        }
+        for(int i=0; i<max; ++i) {
+            OrbitStateVector orb = orbit.orbitStateVectors[i];
+            log.info("orbitStateVector: " + orb.time.format() +
+                    " pos: " + orb.x_pos + ", " + orb.y_pos + ", " + orb.z_pos +
+                    " vel: " + orb.x_vel + ", " + orb.y_vel + ", " + orb.z_vel);
+        }
+        log.info("---------------------------------");
+    }
 
     /**
      * The SPI is used to register this operator in the graph processing framework
