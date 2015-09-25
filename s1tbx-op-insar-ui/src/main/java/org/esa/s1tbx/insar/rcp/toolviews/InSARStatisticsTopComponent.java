@@ -39,6 +39,7 @@ import java.util.List;
  */
 @TopComponent.Description(
         preferredID = "InSARStatisticsTopComponent",
+        iconBase = "org/esa/s1tbx/insar/icons/stack24.png",
         persistenceType = TopComponent.PERSISTENCE_NEVER
 )
 @TopComponent.Registration(mode = "rightSlidingSide", openAtStartup = false, position = 200)
