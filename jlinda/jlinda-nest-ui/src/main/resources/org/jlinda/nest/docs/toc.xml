@@ -15,7 +15,6 @@
                 <tocitem text="Cross Interferometry" target="CrossResamplingOp"/>
             </tocitem>
             <tocitem text="Interferometric">
-                <tocitem text="InSAR Stack Overview" target="InSARMaster"/>
                 <tocitem text="Products">
                     <tocitem text="Interferogram Formation" target="InterferogramOp"/>
                     <tocitem text="Coherence Estimation" target="CoherenceOp"/>

@@ -15,6 +15,7 @@
                 <tocitem text="Warp" target="WarpOp"/>
             </tocitem>
             <tocitem text="Interferometric">
+                <tocitem text="InSAR Stack Overview" target="InSARStackOverview"/>
                 <tocitem text="Filtering">
                     <tocitem text="Goldstein Phase Filtering" target="GoldsteinFilterOp"/>
                 </tocitem>

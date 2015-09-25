@@ -1,4 +1,19 @@
-package org.jlinda.nest.dat.dialogs;
+/*
+ * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+package org.esa.s1tbx.insar.rcp.dialogs;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
@@ -18,8 +33,6 @@ import org.esa.snap.util.DialogUtils;
 import org.esa.snap.util.ProductOpener;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.SLCImage;
-import org.jlinda.nest.stacks.MasterSelection;
-import org.jlinda.nest.stacks.OptimalMaster;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -43,7 +56,7 @@ import java.util.Map;
 /**
  * Find Optimal Master product for InSAR
  */
-public class InSARMasterDialog extends ModelessDialog {
+public class InSARStackOverviewDialog extends ModelessDialog {
 
     DecimalFormat df = new DecimalFormat("0.00");
 
@@ -54,13 +67,13 @@ public class InSARMasterDialog extends ModelessDialog {
     private final ProductSetPanel inputProductListPanel = new ProductSetPanel(appContext, "Input stack");
     private final ProductSetPanel outputProductListPanel = new ProductSetPanel(appContext, "Overview", outputFileModel);
 
-    private final Map<SLCImage, File> slcFileMap = new HashMap<SLCImage, File>(10);
+    private final Map<SLCImage, File> slcFileMap = new HashMap<>(10);
 
     private JButton openBtn;
     private final JCheckBox searchDBCheckBox = new JCheckBox("Search Product Library");
 
-    public InSARMasterDialog() {
-        super(SnapApp.getDefault().getMainFrame(), "Stack Overview and Optimal InSAR Master Selection", ModalDialog.ID_OK_CANCEL_HELP, "InSARMaster");
+    public InSARStackOverviewDialog() {
+        super(SnapApp.getDefault().getMainFrame(), "Stack Overview and Optimal InSAR Master Selection", ModalDialog.ID_OK_CANCEL_HELP, "InSARStackOverview");
 
         getButton(ID_OK).setText("Overview");
         getButton(ID_CANCEL).setText("Close");
@@ -77,7 +90,7 @@ public class InSARMasterDialog extends ModelessDialog {
 
             public void actionPerformed(final ActionEvent e) {
                 final Product[] products = SnapApp.getDefault().getProductManager().getProducts();
-                final List<File> fileList = new ArrayList<File>(products.length);
+                final List<File> fileList = new ArrayList<>(products.length);
                 for (Product prod : products) {
                     final File file = prod.getFileLocation();
                     if (file != null && file.exists()) {
@@ -180,7 +193,7 @@ public class InSARMasterDialog extends ModelessDialog {
     private void updateData(final MasterSelection.IfgPair[] slaveList, final int masterIndex) {
         outputFileModel.clear();
         final File mstFile = slcFileMap.get(slaveList[masterIndex].getMasterMetadata());
-//        String test = df.format(slaveList[masterIndex].getCoherence());
+
         try {
             final Product productMst = CommonReaders.readProduct(mstFile);
             final MetadataElement absRootMst = AbstractMetadata.getAbstractedMetadata(productMst);
@@ -230,8 +243,8 @@ public class InSARMasterDialog extends ModelessDialog {
 
     private MasterSelection.IfgStack[] findInSARProducts(final File[] inputFiles) {
         final int size = inputFiles.length;
-        final List<SLCImage> imgList = new ArrayList<SLCImage>(size);
-        final List<Orbit> orbList = new ArrayList<Orbit>(size);
+        final List<SLCImage> imgList = new ArrayList<>(size);
+        final List<Orbit> orbList = new ArrayList<>(size);
 
         for (File file : inputFiles) {
             try {

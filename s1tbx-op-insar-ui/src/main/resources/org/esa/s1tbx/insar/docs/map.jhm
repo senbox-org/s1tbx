@@ -14,5 +14,6 @@
     <!-- InSAR -->
     <mapID target="GoldsteinFilterOp" url="operators/GoldsteinFilterOp.html"/>
     <mapID target="DEMGenerationOp" url="operators/DEMGenerationOp.html"/>
+    <mapID target="InSARStackOverview" url="operators/InSARStackOverview.html"/>
 
 </map>
