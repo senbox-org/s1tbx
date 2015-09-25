@@ -37,12 +37,12 @@ public final class SRTM3GeoTiffElevationModel extends BaseElevationModel {
 
     @Override
     public double getIndexX(final GeoPos geoPos) {
-        return ((geoPos.lon + 180.0) * DEGREE_RES_BY_NUM_PIXELS_PER_TILEinv) + 0.25;// - 0.5;
+        return ((geoPos.lon + 180.0) * DEGREE_RES_BY_NUM_PIXELS_PER_TILEinv);
     }
 
     @Override
     public double getIndexY(final GeoPos geoPos) {
-        return ((60.0 - geoPos.lat) * DEGREE_RES_BY_NUM_PIXELS_PER_TILEinv) - 0.5;
+        return ((60.0 - geoPos.lat) * DEGREE_RES_BY_NUM_PIXELS_PER_TILEinv);
     }
 
     @Override
