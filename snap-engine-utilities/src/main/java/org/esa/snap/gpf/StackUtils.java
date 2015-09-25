@@ -37,7 +37,7 @@ public final class StackUtils {
         return absRoot != null && absRoot.getAttributeInt(AbstractMetadata.coregistered_stack, 0) == 1;
     }
 
-    public static String getBandTimeStamp(final Product product) {
+    public static String createBandTimeStamp(final Product product) {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         if (absRoot != null) {
             String dateString = OperatorUtils.getAcquisitionDate(absRoot);
@@ -87,7 +87,6 @@ public final class StackUtils {
         if (slaveMetadataRoot != null) {
             final String mstBandNames = slaveMetadataRoot.getAttributeString(AbstractMetadata.MASTER_BANDS, "");
             return StringUtils.stringToArray(mstBandNames, " ");
-
         }
         return new String[]{};
     }
