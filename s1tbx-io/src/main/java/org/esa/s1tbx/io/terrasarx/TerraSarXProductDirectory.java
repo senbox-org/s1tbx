@@ -1003,7 +1003,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                     } else if (level1ProductDirName.equals(slaveProductName)) {
                         extraInfo = "_slv1";
                     }
-                    extraInfo += StackUtils.getBandTimeStamp(product);
+                    extraInfo += StackUtils.createBandTimeStamp(product);
                 } else if (!polsUnique) {
                     final int polIndex = fileName.indexOf(pol);
                     extraInfo = fileName.substring(polIndex + 2, fileName.indexOf(".", polIndex + 3));

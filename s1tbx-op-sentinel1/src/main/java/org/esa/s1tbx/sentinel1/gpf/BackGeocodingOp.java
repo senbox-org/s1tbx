@@ -297,7 +297,7 @@ public final class BackGeocodingOp extends Operator {
         ProductUtils.copyProductNodes(masterProduct, targetProduct);
         
         final String[] masterBandNames = masterProduct.getBandNames();
-        final String mstSuffix = "_mst" + StackUtils.getBandTimeStamp(masterProduct);
+        final String mstSuffix = "_mst" + StackUtils.createBandTimeStamp(masterProduct);
         for (String bandName : masterBandNames) {
             if (masterProduct.getBand(bandName) instanceof VirtualBand) {
                 continue;
@@ -315,7 +315,7 @@ public final class BackGeocodingOp extends Operator {
         final int masterBandHeight = masterBand.getSceneRasterHeight();
 
         final String[] slaveBandNames = slaveProduct.getBandNames();
-        final String slvSuffix = "_slv1" + StackUtils.getBandTimeStamp(slaveProduct);
+        final String slvSuffix = "_slv1" + StackUtils.createBandTimeStamp(slaveProduct);
         for (String bandName:slaveBandNames) {
             final Band srcBand = slaveProduct.getBand(bandName);
             if (srcBand instanceof VirtualBand) {
@@ -384,7 +384,7 @@ public final class BackGeocodingOp extends Operator {
         final MetadataElement targetSlaveMetadataRoot = AbstractMetadata.getSlaveMetadata(targetProduct.getMetadataRoot());
         final MetadataElement slvAbsMetadata = AbstractMetadata.getAbstractedMetadata(slaveProduct);
         if (slvAbsMetadata != null) {
-            final String timeStamp = StackUtils.getBandTimeStamp(slaveProduct);
+            final String timeStamp = StackUtils.createBandTimeStamp(slaveProduct);
             final MetadataElement targetSlaveMetadata = new MetadataElement(slaveProduct.getName() + timeStamp);
             targetSlaveMetadataRoot.addElement(targetSlaveMetadata);
             ProductUtils.copyMetadata(slvAbsMetadata, targetSlaveMetadata);

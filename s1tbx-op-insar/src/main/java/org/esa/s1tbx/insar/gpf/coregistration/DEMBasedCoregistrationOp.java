@@ -221,12 +221,12 @@ public class DEMBasedCoregistrationOp extends Operator {
                 masterProduct.getSceneRasterWidth(),
                 masterProduct.getSceneRasterHeight());
 
-        String suffix = "_mst" + StackUtils.getBandTimeStamp(masterProduct);
+        String suffix = "_mst" + StackUtils.createBandTimeStamp(masterProduct);
         for (String bandName:masterBandNames) {
             ProductUtils.copyBand(bandName, masterProduct, bandName + suffix, targetProduct, true);
         }
 
-        suffix = "_slv1" + StackUtils.getBandTimeStamp(slaveProduct);
+        suffix = "_slv1" + StackUtils.createBandTimeStamp(slaveProduct);
         for (String bandName:slaveBandNames) {
 
             final Band band = slaveProduct.getBand(bandName);
@@ -251,7 +251,7 @@ public class DEMBasedCoregistrationOp extends Operator {
         final MetadataElement targetSlaveMetadataRoot = AbstractMetadata.getSlaveMetadata(targetProduct.getMetadataRoot());
         final MetadataElement slvAbsMetadata = AbstractMetadata.getAbstractedMetadata(slaveProduct);
         if (slvAbsMetadata != null) {
-            final String timeStamp = StackUtils.getBandTimeStamp(slaveProduct);
+            final String timeStamp = StackUtils.createBandTimeStamp(slaveProduct);
             final MetadataElement targetSlaveMetadata = new MetadataElement(slaveProduct.getName() + timeStamp);
             targetSlaveMetadataRoot.addElement(targetSlaveMetadata);
             ProductUtils.copyMetadata(slvAbsMetadata, targetSlaveMetadata);
@@ -323,7 +323,7 @@ public class DEMBasedCoregistrationOp extends Operator {
             }
 
             // Resample slave image to get coregistered slave image in master frame
-            final String suffix = "_slv1" + StackUtils.getBandTimeStamp(slaveProduct);
+            final String suffix = "_slv1" + StackUtils.createBandTimeStamp(slaveProduct);
             for (String bandName:slaveBandNames) {
                 final Band targetBand = targetProduct.getBand(bandName + suffix);
                 final Tile targetTile = targetTileMap.get(targetBand);

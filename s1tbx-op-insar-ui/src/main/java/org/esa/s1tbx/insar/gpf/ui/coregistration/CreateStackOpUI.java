@@ -27,7 +27,7 @@ import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.OperatorUIUtils;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.util.DialogUtils;
-import org.jlinda.nest.stacks.MasterSelection;
+import org.esa.s1tbx.insar.rcp.dialogs.MasterSelection;
 
 import javax.swing.*;
 import java.awt.*;

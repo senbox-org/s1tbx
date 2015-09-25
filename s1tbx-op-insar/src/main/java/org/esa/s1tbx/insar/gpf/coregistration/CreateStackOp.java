@@ -226,7 +226,7 @@ public class CreateStackOp extends Operator {
             if (!appendToMaster) {
                 for (final Band srcBand : slaveBandList) {
                     if (srcBand == masterBands[0] || (masterBands.length > 1 && srcBand == masterBands[1])) {
-                        suffix = "_mst" + StackUtils.getBandTimeStamp(srcBand.getProduct());
+                        suffix = "_mst" + StackUtils.createBandTimeStamp(srcBand.getProduct());
 
                         final Band targetBand = new Band(srcBand.getName() + suffix,
                                 srcBand.getDataType(),
@@ -256,7 +256,7 @@ public class CreateStackOp extends Operator {
                 if (!(srcBand == masterBands[0] || (masterBands.length > 1 && srcBand == masterBands[1]))) {
                     if (srcBand.getUnit() != null && srcBand.getUnit().equals(Unit.IMAGINARY)) {
                     } else {
-                        suffix = "_slv" + cnt++ + StackUtils.getBandTimeStamp(srcBand.getProduct());
+                        suffix = "_slv" + cnt++ + StackUtils.createBandTimeStamp(srcBand.getProduct());
                     }
                     final String tgtBandName = srcBand.getName() + suffix;
 
@@ -340,7 +340,7 @@ public class CreateStackOp extends Operator {
             if (prod != masterProduct) {
                 final MetadataElement slvAbsMetadata = AbstractMetadata.getAbstractedMetadata(prod);
                 if (slvAbsMetadata != null) {
-                    final String timeStamp = StackUtils.getBandTimeStamp(prod);
+                    final String timeStamp = StackUtils.createBandTimeStamp(prod);
                     final MetadataElement targetSlaveMetadata = new MetadataElement(prod.getName() + timeStamp);
                     targetSlaveMetadataRoot.addElement(targetSlaveMetadata);
                     ProductUtils.copyMetadata(slvAbsMetadata, targetSlaveMetadata);
@@ -353,7 +353,7 @@ public class CreateStackOp extends Operator {
 
         for (Product prod : sourceProduct) {
             if (prod != masterProduct) {
-                final String suffix = StackUtils.getBandTimeStamp(prod);
+                final String suffix = StackUtils.createBandTimeStamp(prod);
                 final List<String> bandNames = new ArrayList<>(10);
                 for (Band tgtBand : sourceRasterMap.keySet()) {
                     final Band srcBand = sourceRasterMap.get(tgtBand);
