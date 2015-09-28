@@ -16,7 +16,6 @@
 package org.esa.s1tbx.ocean.toolviews.polarview;
 
 import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.RasterDataNode;
 
 /**
  * Base class for SpectraData
@@ -25,8 +24,9 @@ public class SpectraDataBase {
 
     protected final Product product;
     protected final SpectraData.WaveProductType waveProductType;
-    protected final int recordLength;
-    protected final int numRecords;
+
+    protected int numRecords;
+    protected int recordLength;
 
     protected int numDirBins;
     protected int numWLBins;
@@ -46,10 +46,6 @@ public class SpectraDataBase {
     public SpectraDataBase(final Product product, final SpectraData.WaveProductType waveProductType) {
         this.product = product;
         this.waveProductType = waveProductType;
-
-        final RasterDataNode rasterNode = product.getBandAt(0);
-        numRecords = rasterNode.getRasterHeight() - 1;
-        recordLength = rasterNode.getRasterWidth();
     }
 
     public double getMinRadius() {
@@ -70,5 +66,9 @@ public class SpectraDataBase {
 
     public int getNumRecords() {
         return numRecords;
+    }
+
+    public int getRecordLength() {
+        return recordLength;
     }
 }

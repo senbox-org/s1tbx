@@ -26,11 +26,9 @@ public interface SpectraData {
 
     enum SpectraUnit {REAL, IMAGINARY, AMPLITUDE, INTENSITY}
 
-    String[] getSpectraMetadata(int rec);
+    String[] getSpectraMetadata(final int rec) throws Exception;
 
-    PolarData getPolarData(final int currentRec, final SpectraUnit spectraUnit);
-
-    float[][] getSpectrum(int imageNum, int rec, boolean getReal);
+    PolarData getPolarData(final int currentRec, final SpectraUnit spectraUnit) throws Exception;
 
     String[] updateReadouts(final double rTh[], final int currentRecord);
 
@@ -47,4 +45,8 @@ public interface SpectraData {
     float getMinValue(final boolean real);
 
     float getMaxValue(final boolean real);
+
+    default int sign(final float f) {
+        return f < 0.0F ? -1 : 1;
+    }
 }
