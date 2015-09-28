@@ -129,6 +129,7 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
         }
 
         if (waveProductType != null) {
+            currentRecord = 0;      // reset to 0
             createPlot(currentRecord);
         }
         enablePlot(waveProductType != null);
