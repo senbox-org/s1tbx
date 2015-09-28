@@ -22,7 +22,6 @@ import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.RasterDataNode;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,17 +74,31 @@ public class SpectraDataSentinel1 extends SpectraDataBase implements SpectraData
         final MetadataElement oswWindDirection = recElem.getElement("oswWindDirection");
         windDirection = oswWindDirection.getElement("Values").getAttributeDouble("data", 0);
 
-        final MetadataElement oswNrcs = recElem.getElement("oswNrcs");
-        double backscatter = oswNrcs.getElement("Values").getAttributeDouble("data", 0);
-
-        final DecimalFormat frmt = new DecimalFormat("0.0000");
         final List<String> metadataList = new ArrayList<>();
-        metadataList.add("Wind Speed: " + frmt.format(windSpeed) + " m/s");
-        metadataList.add("Wind Direction: " + windDirection + " deg");
-        //metadataList.add("SAR Swell Wave Height: " + frmt.format(sarWaveHeight) + " m");
-        //metadataList.add("SAR Azimuth Shift Var: " + frmt.format(sarAzShiftVar) + " m^2");
-        metadataList.add("Backscatter: " + frmt.format(backscatter) + " dB");
+        metadataList.add(createMetadataDouble("Wind Speed", recElem, "oswWindSpeed", null));
+        metadataList.add(createMetadataDouble("Wind Direction", recElem, "oswWindDirection", "°"));
+        metadataList.add(createMetadataDouble("Wind Sea Heights", recElem, "oswWindSeaHs", null));
+        metadataList.add(createMetadataDouble("Wave Age", recElem, "oswWaveAge", ""));
+        metadataList.add(createMetadataDouble("Az Cut-off Wavelength", recElem, "oswAzCutoff", null));
+        metadataList.add(createMetadataDouble("Ra Cut-off Wavelength", recElem, "oswRaCutoff", null));
+
+        metadataList.add(createMetadataDouble("Water Depth", recElem, "oswDepth", null));
+        metadataList.add(createMetadataDouble("Incidence Angle", recElem, "oswIncidenceAngle", "°"));
+        metadataList.add(createMetadataDouble("Backscatter", recElem, "oswNrcs", null));
         return metadataList.toArray(new String[metadataList.size()]);
+    }
+
+    private String createMetadataDouble(final String name, final MetadataElement recElem, final String elemName, String unit) {
+        final MetadataElement elem = recElem.getElement(elemName);
+        final double value = elem.getElement("Values").getAttributeDouble("data", 0);
+        String valueStr = String.valueOf(value);
+        if(value - (int)value != 0)
+            valueStr = frmt.format(value);
+        if(unit == null) {
+            unit = elem.getAttributeString("units");
+        }
+
+        return name+": " + valueStr + " "+unit;
     }
 
     public PolarData getPolarData(final int currentRec, final SpectraUnit spectraUnit) throws Exception {
@@ -107,7 +120,29 @@ public class SpectraDataSentinel1 extends SpectraDataBase implements SpectraData
                     maxValue = Math.max(maxValue, val);
                 }
             }
+        } else if (spectraUnit == SpectraUnit.AMPLITUDE || spectraUnit == SpectraUnit.INTENSITY) {
+            // complex data
+            final float imagSpectrum[][] = getSpectrum(1, currentRec, false);
+            minValue = Float.MAX_VALUE;
+            maxValue = Float.MIN_VALUE;
+            for (int i = 0; i < spectrum.length; i++) {
+                for (int j = 0; j < spectrum[0].length; j++) {
+                    final float realVal = spectrum[i][j];
+                    final float imagVal = imagSpectrum[i][j];
+                    float val;
+                    if (sign(realVal) == sign(imagVal))
+                        val = realVal * realVal + imagVal * imagVal;
+                    else
+                        val = 0.0F;
+                    if (spectraUnit == SpectraUnit.AMPLITUDE)
+                        val = (float) Math.sqrt(val);
+                    spectrum[i][j] = val;
+                    minValue = Math.min(minValue, val);
+                    maxValue = Math.max(maxValue, val);
+                }
+            }
         }
+
 
         final float rStep = (float) (Math.log(lastWLBin) - Math.log(firstWLBin)) / (float) (numWLBins - 1);
         double logr = Math.log(firstWLBin) - (rStep / 2.0);
@@ -164,41 +199,6 @@ public class SpectraDataSentinel1 extends SpectraDataBase implements SpectraData
             }
         }
         return spectrum;
-    }
-
-    public String[] updateReadouts(final double rTh[], final int currentRecord) {
-        if (spectrum == null)
-            return null;
-
-        final float rStep = (float) (Math.log(lastWLBin) - Math.log(firstWLBin)) / (float) (numWLBins - 1);
-        int wvBin = (int) (((rStep / 2.0 + Math.log(10000.0 / rTh[0])) - Math.log(firstWLBin)) / rStep);
-        wvBin = Math.min(wvBin, spectrum[0].length - 1);
-        final int wl = (int) Math.round(FastMath.exp((double) wvBin * rStep + Math.log(firstWLBin)));
-
-        final float thFirst, thStep;
-        final int thBin, element, direction;
-        if (waveProductType == WaveProductType.CROSS_SPECTRA) {
-            thFirst = firstDirBins - 5f;
-            thStep = dirBinStep;
-            thBin = (int) (((rTh[1] - (double) thFirst) % 360.0) / (double) thStep);
-            element = (thBin % (spectrum.length / 2)) * spectrum[0].length + wvBin;
-            direction = (int) ((float) thBin * thStep + thStep / 2.0f + thFirst);
-        } else {
-            thFirst = firstDirBins + 5f;
-            thStep = -dirBinStep;
-            thBin = (int) ((((360.0 - rTh[1]) + (double) thFirst) % 360.0) / (double) (-thStep));
-            element = thBin * spectrum[0].length + wvBin;
-            direction = (int) (-((float) thBin * thStep + thStep / 2.0f + thFirst));
-        }
-
-        final List<String> readoutList = new ArrayList<>(5);
-        readoutList.add("Record: " + (currentRecord + 1) + " of " + (numRecords + 1));
-        readoutList.add("Wavelength: " + wl + " m");
-        readoutList.add("Direction: " + direction + " deg");
-        readoutList.add("Bin: " + (thBin + 1) + "," + (wvBin + 1) + " Element: " + element);
-        readoutList.add("Value: " + spectrum[thBin][wvBin]);
-
-        return readoutList.toArray(new String[readoutList.size()]);
     }
 
     public float getMinValue(final boolean real) {
