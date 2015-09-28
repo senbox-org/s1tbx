@@ -102,6 +102,8 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
             return;
         }
 
+        waveProductType = null;
+        spectraData = null;
         switch (product.getProductType()) {
             case "ASA_WVW_2P":
                 waveProductType = SpectraData.WaveProductType.WAVE_SPECTRA;
@@ -123,8 +125,6 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
                 }
                 break;
             default:
-                waveProductType = null;
-                spectraData = null;
                 break;
         }
 
