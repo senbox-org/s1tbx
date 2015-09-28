@@ -22,7 +22,7 @@ import org.esa.s1tbx.ocean.toolviews.polarview.polarplot.PolarData;
  */
 public interface SpectraData {
 
-    enum WaveProductType {CROSS_SPECTRA, WAVE_SPECTRA, S1_OCN_WV}
+    enum WaveProductType {CROSS_SPECTRA, WAVE_SPECTRA}
 
     enum SpectraUnit {REAL, IMAGINARY, AMPLITUDE, INTENSITY}
 

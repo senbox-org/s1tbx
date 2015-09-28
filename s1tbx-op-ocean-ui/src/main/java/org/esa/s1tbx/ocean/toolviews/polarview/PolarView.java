@@ -117,7 +117,7 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
                 final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
                 final String mode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
                 if(mode.equals("WV")) {
-                    waveProductType = SpectraData.WaveProductType.S1_OCN_WV;
+                    waveProductType = SpectraData.WaveProductType.WAVE_SPECTRA;
                     spectraUnit = SpectraData.SpectraUnit.AMPLITUDE;
                     spectraData = new SpectraDataSentinel1(product, waveProductType);
                 }

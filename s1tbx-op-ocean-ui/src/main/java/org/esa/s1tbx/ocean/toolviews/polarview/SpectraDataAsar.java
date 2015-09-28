@@ -42,13 +42,6 @@ public class SpectraDataAsar extends SpectraDataBase implements SpectraData {
     private double minImaginary = 0;
     private double maxImaginary = 0;
 
-    private double maxSpecDir = 0;
-    private double maxSpecWL = 0;
-
-    private double sarWaveHeight = 0;
-    private double sarAzShiftVar = 0;
-    private double backscatter = 0;
-
     public SpectraDataAsar(final Product product, final WaveProductType waveProductType) {
         super(product, waveProductType);
 
@@ -97,9 +90,13 @@ public class SpectraDataAsar extends SpectraDataBase implements SpectraData {
             final MetadataElement spectraMetadata = spectraMetadataRoot.getElement(elemName);
 
             zeroDopplerTime = spectraMetadata.getAttributeUTC("zero_doppler_time");
-            maxSpecDir = spectraMetadata.getAttributeDouble("spec_max_dir", 0);
-            maxSpecWL = spectraMetadata.getAttributeDouble("spec_max_wl", 0);
 
+            final double maxSpecDir = spectraMetadata.getAttributeDouble("spec_max_dir", 0);
+            final double maxSpecWL = spectraMetadata.getAttributeDouble("spec_max_wl", 0);
+
+            double sarWaveHeight = 0;
+            double sarAzShiftVar = 0;
+            double backscatter = 0;
             if (waveProductType == WaveProductType.WAVE_SPECTRA) {
                 minSpectrum = spectraMetadata.getAttributeDouble("min_spectrum", 0);
                 maxSpectrum = spectraMetadata.getAttributeDouble("max_spectrum", 255);
@@ -126,7 +123,7 @@ public class SpectraDataAsar extends SpectraDataBase implements SpectraData {
                 metadataList.add("Min Spectrum: " + frmt.format(minSpectrum));
                 metadataList.add("Max Spectrum: " + frmt.format(maxSpectrum));
 
-                metadataList.add("Wind Speed: " + windSpeed + " m/s");
+                metadataList.add("Wind Speed: " + frmt.format(windSpeed) + " m/s");
                 metadataList.add("Wind Direction: " + windDirection + " deg");
                 metadataList.add("SAR Swell Wave Height: " + frmt.format(sarWaveHeight) + " m");
                 metadataList.add("SAR Azimuth Shift Var: " + frmt.format(sarAzShiftVar) + " m^2");
@@ -142,7 +139,7 @@ public class SpectraDataAsar extends SpectraDataBase implements SpectraData {
 
     public PolarData getPolarData(final int currentRec, final SpectraUnit spectraUnit) throws Exception {
         final boolean realBand = spectraUnit != SpectraUnit.IMAGINARY;
-        final float[][] spectrum = getSpectrum(0, currentRec, realBand);
+        spectrum = getSpectrum(0, currentRec, realBand);
 
         float minValue = getMinValue(realBand);
         float maxValue = getMaxValue(realBand);
@@ -252,17 +249,13 @@ public class SpectraDataAsar extends SpectraDataBase implements SpectraData {
         if (spectrum == null)
             return null;
 
-        final float thFirst;
-        final int thBin;
-        final float thStep;
-        final int element;
-        final int direction;
-
         final float rStep = (float) (Math.log(lastWLBin) - Math.log(firstWLBin)) / (float) (numWLBins - 1);
         int wvBin = (int) (((rStep / 2.0 + Math.log(10000.0 / rTh[0])) - Math.log(firstWLBin)) / rStep);
         wvBin = Math.min(wvBin, spectrum[0].length - 1);
         final int wl = (int) Math.round(FastMath.exp((double) wvBin * rStep + Math.log(firstWLBin)));
 
+        final float thFirst, thStep;
+        final int thBin, element, direction;
         if (waveProductType == WaveProductType.CROSS_SPECTRA) {
             thFirst = firstDirBins - 5f;
             thStep = dirBinStep;
