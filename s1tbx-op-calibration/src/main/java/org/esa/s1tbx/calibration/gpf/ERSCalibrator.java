@@ -2561,7 +2561,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
         final int tw = targetTileRectangle.width;
         final int th = targetTileRectangle.height;
         final ProductData trgData = targetTile.getDataBuffer();
-        //System.out.println("RetroOp: tx0 = " + tx0 + ", ty0 = " + ty0 + ", tw = " + tw + ", th = " + th);
+        //System.out.println("ERSCalibrator: tx0 = " + tx0 + ", ty0 = " + ty0 + ", tw = " + tw + ", th = " + th);
 
         final Band sourceBand1 = sourceProduct.getBand(srcBandName);
         final Tile sourceTile = getSourceTile(sourceBand1, targetTileRectangle);
@@ -2606,6 +2606,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
             for (int y = ty0; y < ty0 + th; y++) {
 
                 final int srcIndex = sourceTile.getDataBufferIndex(x, y);
+                final int tgtIndex = targetTile.getDataBufferIndex(x, y);
                 if (bandUnit == Unit.UnitType.AMPLITUDE) {
                     final double dn = srcData.getElemDoubleAt(srcIndex);
                     sigma = dn * dn;
@@ -2633,13 +2634,13 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
                 }
 
                 if (bandUnit == Unit.UnitType.AMPLITUDE) {
-                    trgData.setElemDoubleAt(srcIndex, Math.sqrt(sigma));
+                    trgData.setElemDoubleAt(tgtIndex, Math.sqrt(sigma));
                 } else if (bandUnit == Unit.UnitType.AMPLITUDE_DB) {
-                    trgData.setElemDoubleAt(srcIndex, 5.0 * Math.log10(sigma));
+                    trgData.setElemDoubleAt(tgtIndex, 5.0 * Math.log10(sigma));
                 } else if (bandUnit == Unit.UnitType.INTENSITY) {
-                    trgData.setElemDoubleAt(srcIndex, sigma);
+                    trgData.setElemDoubleAt(tgtIndex, sigma);
                 } else if (bandUnit == Unit.UnitType.INTENSITY_DB) {
-                    trgData.setElemDoubleAt(srcIndex, 10.0 * Math.log10(sigma));
+                    trgData.setElemDoubleAt(tgtIndex, 10.0 * Math.log10(sigma));
                 }
             }
         }
