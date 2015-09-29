@@ -19,8 +19,10 @@ import org.esa.s1tbx.ocean.toolviews.polarview.polarplot.Axis;
 import org.esa.s1tbx.ocean.toolviews.polarview.polarplot.ColourScale;
 import org.esa.s1tbx.ocean.toolviews.polarview.polarplot.PolarCanvas;
 import org.esa.s1tbx.ocean.toolviews.polarview.polarplot.PolarData;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.rcp.SnapDialogs;
+import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.util.FileFolderUtils;
 
 import javax.swing.*;
@@ -91,6 +93,9 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
     }
 
     public void setProduct(final Product prod) {
+        if(product == prod) {
+            return;
+        }
         this.product = prod;
         if (product == null) {
             enablePlot(false);
@@ -109,9 +114,13 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
                 spectraData = new SpectraDataAsar(product, waveProductType);
                 break;
             case "OCN":
-                waveProductType = SpectraData.WaveProductType.S1_OCN_WV;
-                spectraUnit = SpectraData.SpectraUnit.INTENSITY;
-                spectraData = new SpectraDataSentinel1(product, waveProductType);
+                final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+                final String mode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+                if(mode.equals("WV")) {
+                    waveProductType = SpectraData.WaveProductType.WAVE_SPECTRA;
+                    spectraUnit = SpectraData.SpectraUnit.AMPLITUDE;
+                    spectraData = new SpectraDataSentinel1(product, waveProductType);
+                }
                 break;
             default:
                 waveProductType = null;
@@ -120,6 +129,7 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
         }
 
         if (waveProductType != null) {
+            currentRecord = 0;      // reset to 0
             createPlot(currentRecord);
         }
         enablePlot(waveProductType != null);
@@ -133,38 +143,41 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
     }
 
     private void createPlot(final int rec) {
+        try {
+            final String[] readouts = spectraData.getSpectraMetadata(rec);
+            polarPanel.setMetadata(readouts);
 
-        final String[] readouts = spectraData.getSpectraMetadata(rec);
-        polarPanel.setMetadata(readouts);
+            final PolarCanvas polarCanvas = polarPanel.getPolarCanvas();
+            polarCanvas.setAxisNames("Azimuth", "Range");
 
-        final PolarCanvas polarCanvas = polarPanel.getPolarCanvas();
-        polarCanvas.setAxisNames("Azimuth", "Range");
+            if (waveProductType == SpectraData.WaveProductType.WAVE_SPECTRA) {
+                polarCanvas.setWindDirection(spectraData.getWindDirection());
+                polarCanvas.showWindDirection(true);
+                polarCanvas.setAxisNames("North", "East");
+            }
 
-        if (waveProductType == SpectraData.WaveProductType.WAVE_SPECTRA) {
-            polarCanvas.setWindDirection(spectraData.getWindDirection());
-            polarCanvas.showWindDirection(true);
-            polarCanvas.setAxisNames("North", "East");
+            final PolarData data = spectraData.getPolarData(currentRecord, spectraUnit);
+
+            final double colourRange[] = {(double) data.getMinValue(), (double) data.getMaxValue()};
+            final double radialRange[] = {spectraData.getMinRadius(), spectraData.getMaxRadius()};
+
+            final Axis colourAxis = polarCanvas.getColourAxis();
+            final Axis radialAxis = polarCanvas.getRadialAxis();
+            colourAxis.setDataRange(colourRange);
+            colourAxis.setUnit(unitTypes[spectraUnit.ordinal()]);
+            radialAxis.setAutoRange(false);
+            radialAxis.setDataRange(radialRange);
+            radialAxis.setRange(radialRange[0], radialRange[1], 4);
+            radialAxis.setTitle("Wavelength (m)");
+            polarCanvas.setRings(rings, ringTextStrings);
+            data.setColorScale(ColourScale.newCustomScale(colourRange));
+            polarCanvas.setData(data);
+
+            repaint();
+            controlPanel.updateControls();
+        } catch (Exception e) {
+            SnapApp.getDefault().handleError("Unable to read OSW data from product ", e);
         }
-
-        final PolarData data = spectraData.getPolarData(currentRecord, spectraUnit);
-
-        final double colourRange[] = {(double) data.getMinValue(), (double) data.getMaxValue()};
-        final double radialRange[] = {spectraData.getMinRadius(), spectraData.getMaxRadius()};
-
-        final Axis colourAxis = polarCanvas.getColourAxis();
-        final Axis radialAxis = polarCanvas.getRadialAxis();
-        colourAxis.setDataRange(colourRange);
-        colourAxis.setUnit(unitTypes[spectraUnit.ordinal()]);
-        radialAxis.setAutoRange(false);
-        radialAxis.setDataRange(radialRange);
-        radialAxis.setRange(radialRange[0], radialRange[1], 4);
-        radialAxis.setTitle("Wavelength (m)");
-        polarCanvas.setRings(rings, ringTextStrings);
-        data.setColorScale(ColourScale.newCustomScale(colourRange));
-        polarCanvas.setData(data);
-
-        repaint();
-        controlPanel.updateControls();
     }
 
     public JPopupMenu createPopupMenu(final MouseEvent event) {
@@ -293,7 +306,7 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
         try {
             polarPanel.exportReadout(file);
         } catch (Exception e) {
-            SnapDialogs.showError("Unable to export file " + file.toString() + ": " + e.getMessage());
+            SnapApp.getDefault().handleError("Unable to export file " + file.toString() + ": " + e.getMessage(), e);
         }
     }
 

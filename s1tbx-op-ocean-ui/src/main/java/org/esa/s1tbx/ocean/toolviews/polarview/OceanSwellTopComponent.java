@@ -16,6 +16,7 @@
 package org.esa.s1tbx.ocean.toolviews.polarview;
 
 
+import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductManager;
 import org.esa.snap.framework.datamodel.ProductNode;
 import org.esa.snap.rcp.SnapApp;
@@ -27,6 +28,7 @@ import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -62,6 +64,8 @@ import java.awt.*;
  */
 public class OceanSwellTopComponent extends ToolTopComponent {
 
+    private PolarView polarView;
+
     public OceanSwellTopComponent() {
         setDisplayName("Ocean Swell");
         setLayout(new BorderLayout(4, 4));
@@ -71,7 +75,7 @@ public class OceanSwellTopComponent extends ToolTopComponent {
 
     public JComponent createControl() {
 
-        final PolarView polarView = new PolarView();
+        polarView = new PolarView();
 
         // update world map window with the information of the currently activated  product scene view.
         final SnapApp snapApp = SnapApp.getDefault();
@@ -89,6 +93,10 @@ public class OceanSwellTopComponent extends ToolTopComponent {
         return polarView;
     }
 
+    void setSelectedRecord(final Product product, final int recNum) {
+        polarView.setProduct(product);
+        polarView.showPlot(recNum);
+    }
 
     public class OSWProductManagerListener implements ProductManager.Listener {
 
@@ -107,5 +115,20 @@ public class OceanSwellTopComponent extends ToolTopComponent {
         public void productRemoved(ProductManager.Event event) {
             polarView.removeProduct(event.getProduct());
         }
+    }
+
+    public static void setOSWRecord(final Product product, final int recNum) {
+
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                final OceanSwellTopComponent window = (OceanSwellTopComponent)
+                        WindowManager.getDefault().findTopComponent("OceanSwellTopComponent");
+
+                window.open();
+                window.requestActive();
+
+                window.setSelectedRecord(product, recNum);
+            }
+        });
     }
 }

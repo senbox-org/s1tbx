@@ -29,8 +29,6 @@ import org.esa.snap.eo.Constants;
 import org.esa.snap.eo.GeoUtils;
 import org.esa.snap.framework.datamodel.*;
 import org.esa.snap.framework.dataop.dem.ElevationModel;
-import org.esa.snap.framework.dataop.dem.ElevationModelDescriptor;
-import org.esa.snap.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.snap.framework.dataop.resamp.ResamplingFactory;
 import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorException;
@@ -94,12 +92,14 @@ public final class TerrainFlatteningOp extends Operator {
     private FileElevationModel fileElevationModel = null;
     private TiePointGrid latitudeTPG = null;
     private TiePointGrid longitudeTPG = null;
+    private TiePointGrid incidenceAngleTPG = null;
     private GeoCoding targetGeoCoding = null;
 
     private int sourceImageWidth = 0;
     private int sourceImageHeight = 0;
     private boolean srgrFlag = false;
     private boolean isElevationModelAvailable = false;
+    private boolean isGRD = false;
 
     private double rangeSpacing = 0.0;
     private double azimuthSpacing = 0.0;
@@ -117,12 +117,18 @@ public final class TerrainFlatteningOp extends Operator {
     private OrbitStateVector[] orbitStateVectors = null;
     private AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
     private Band[] targetBands = null;
-    protected final HashMap<Band, Band> targetBandToSourceBandMap = new HashMap<>(2);
+    private final HashMap<Band, Band> targetBandToSourceBandMap = new HashMap<>(2);
     private boolean nearRangeOnLeft = true;
     private boolean skipBistaticCorrection = false;
 
     // set this flag to true to output terrain flattened sigma0
     private boolean outputSigma0 = false;
+    private boolean reGridMethod = false;
+    private boolean detectShadow = true;
+    private double threshold = 0.05;
+    private double delLat = 0.0;
+    private double delLon = 0.0;
+
 
     enum UnitType {AMPLITUDE,INTENSITY,COMPLEX,RATIO}
 
@@ -168,6 +174,8 @@ public final class TerrainFlatteningOp extends Operator {
             noDataValue = sourceProduct.getBands()[0].getNoDataValue();
 
             beta0 = azimuthSpacing * rangeSpacing;
+
+            computeDEMTraversalSampleInterval();
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -217,6 +225,11 @@ public final class TerrainFlatteningOp extends Operator {
         if (mission.contains("CSKS") || mission.contains("TSX") || mission.equals("RS2") || mission.contains("SENTINEL")) {
             skipBistaticCorrection = true;
         }
+
+        final String prodType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
+        if (!prodType.contains("SLC")) {
+            isGRD = true;
+        }
     }
 
     /**
@@ -236,7 +249,7 @@ public final class TerrainFlatteningOp extends Operator {
     }
 
     /**
-     * Get incidence angle and slant range time tie point grids.
+     * Get tie point grids.
      */
     private void getTiePointGrid() {
         latitudeTPG = OperatorUtils.getLatitude(sourceProduct);
@@ -249,6 +262,10 @@ public final class TerrainFlatteningOp extends Operator {
             throw new OperatorException("Product without longitude tie point grid");
         }
 
+        incidenceAngleTPG = OperatorUtils.getIncidenceAngle(sourceProduct);
+        if (incidenceAngleTPG == null) {
+            throw new OperatorException("Product without incidence angle tie point grid");
+        }
     }
 
     /**
@@ -431,103 +448,206 @@ public final class TerrainFlatteningOp extends Operator {
             final int ymax = Math.min(y0 + h + (int) (h * tileOverlapPercentage.tileOverlapDown), sourceImageHeight);
             final int xmin = Math.max(x0 - (int) (w * tileOverlapPercentage.tileOverlapLeft), 0);
             final int xmax = Math.min(x0 + w + (int) (w * tileOverlapPercentage.tileOverlapRight), sourceImageWidth);
-            final int widthExt = xmax - xmin;
-            final int heightExt = ymax - ymin;
 
-            final double[][] localDEM = new double[heightExt + 2][widthExt + 2];
-            final TileGeoreferencing tileGeoRef = new TileGeoreferencing(
-                    targetProduct, xmin, ymin, widthExt, heightExt);
+            if (reGridMethod) {
+                final double[] latLonMinMax = new double[4];
+                computeImageGeoBoundary(xmin, xmax, ymin, ymax, latLonMinMax);
 
-            final boolean valid = DEMFactory.getLocalDEM(
-                    dem, demNoDataValue, demResamplingMethod, tileGeoRef, xmin, ymin, widthExt, heightExt,
-                    sourceProduct, true, localDEM);
+                final double latMin = latLonMinMax[0];
+                final double latMax = latLonMinMax[1];
+                final double lonMin = latLonMinMax[2];
+                final double lonMax = latLonMinMax[3];
+                final int nLat = (int) ((latMax - latMin) / delLat) + 1;
+                final int nLon = (int) ((lonMax - lonMin) / delLon) + 1;
 
-            if (!valid) {
-                return false;
-            }
+                final double[][] tileDEM = new double[nLat+1][nLon+1];
+                final GeoPos geoPos = new GeoPos();
+                final PositionData posData = new PositionData();
+                double alt;
 
-            final PositionData posData = new PositionData();
-            final GeoPos geoPos = new GeoPos();
-            for (int y = ymin; y < ymax; y++) {
-                final int yy = y - ymin;
+                for (int i = 0; i < nLat; i++) {
+                    final double lat = latMax - i * delLat;
 
-                final double[] azimuthIndex = new double[widthExt];
-                final double[] rangeIndex = new double[widthExt];
-                final double[] gamma0Area = new double[widthExt];
-                final double[] elevationAngle = new double[widthExt];
-                final boolean[] savePixel = new boolean[widthExt];
-                double[] sigma0Area = null;
-                if (outputSigma0) {
-                    sigma0Area = new double[widthExt];
-                }
-
-                for (int x = xmin; x < xmax; x++) {
-                    final int xx = x - xmin;
-
-                    double alt = localDEM[yy + 1][xx + 1];
-                    if (alt == demNoDataValue)
-                        continue;
-
-                    tileGeoRef.getGeoPos(x, y, geoPos);
-                    if (!geoPos.isValid())
-                        continue;
-
-                    double lat = geoPos.lat;
-                    double lon = geoPos.lon;
-                    if (lon >= 180.0) {
-                        lon -= 360.0;
-                    }
-
-                    if (!getPosition(lat, lon, alt, x0, y0, w, h, posData))
-                        continue;
-
-                    final LocalGeometry localGeometry = new LocalGeometry(
-                            xmin, ymin, x, y, tileGeoRef, localDEM, posData.earthPoint, posData.sensorPos);
-
-                    gamma0Area[xx] = computeGamma0Area(localGeometry, demNoDataValue);
-                    if (gamma0Area[xx] == noDataValue)
-                        continue;
-
+                    final double[] azimuthIndex = new double[nLon];
+                    final double[] rangeIndex = new double[nLon];
+                    final double[] gamma0Area = new double[nLon];
+                    final double[] elevationAngle = new double[nLon];
+                    final boolean[] savePixel = new boolean[nLon];
+                    double[] sigma0Area = null;
                     if (outputSigma0) {
-                        sigma0Area[xx] = computeSigma0Area(localGeometry, demNoDataValue);
+                        sigma0Area = new double[nLon];
                     }
 
-                    elevationAngle[xx] = computeElevationAngle(posData.earthPoint, posData.sensorPos);
+                    for (int j = 0; j < nLon; j++) {
+                        double lon = lonMin + j * delLon;
+                        if (lon >= 180.0) {
+                            lon -= 360.0;
+                        }
 
-                    rangeIndex[xx] = posData.rangeIndex;
-                    azimuthIndex[xx] = posData.azimuthIndex;
-                    savePixel[xx] = rangeIndex[xx] > x0 - 1 && rangeIndex[xx] < x0 + w &&
-                            azimuthIndex[xx] > y0 - 1 && azimuthIndex[xx] < y0 + h;
-                }
+                        geoPos.setLocation(lat, lon);
+                        alt = dem.getElevation(geoPos);
+                        if (alt == demNoDataValue)
+                            continue;
 
-                if (nearRangeOnLeft) {
-                    // traverse from near range to far range to detect shadowing area
-                    double maxElevAngle = 0.0;
-                    for (int i = 0; i < widthExt; i++) {
-                        if (savePixel[i] && elevationAngle[i] > maxElevAngle) {
-                            maxElevAngle = elevationAngle[i];
-                            saveGamma0Area(x0, y0, w, h, gamma0Area[i], azimuthIndex[i], rangeIndex[i],
-                                    gamma0ReferenceArea);
+                        tileDEM[i][j] = alt;
 
-                            if (outputSigma0) {
-                                saveSigma0Area(x0, y0, w, h, sigma0Area[i], azimuthIndex[i], rangeIndex[i],
-                                        sigma0ReferenceArea);
+                        if (!getPosition(lat, lon, alt, x0, y0, w, h, posData))
+                            continue;
+
+                        final LocalGeometry localGeometry = new LocalGeometry(i, j, tileDEM, dem,
+                                lat, lon, delLat, delLon, posData.earthPoint, posData.sensorPos);
+
+                        gamma0Area[j] = computeGamma0Area(localGeometry, demNoDataValue, noDataValue);
+                        if (gamma0Area[j] == noDataValue)
+                            continue;
+
+                        if (outputSigma0) {
+                            sigma0Area[j] = computeSigma0Area(localGeometry, demNoDataValue, noDataValue);
+                        }
+
+                        elevationAngle[j] = computeElevationAngle(posData.earthPoint, posData.sensorPos);
+
+                        rangeIndex[j] = posData.rangeIndex;
+                        azimuthIndex[j] = posData.azimuthIndex;
+                        savePixel[j] = rangeIndex[j] > x0 - 1 && rangeIndex[j] < x0 + w &&
+                                azimuthIndex[j] > y0 - 1 && azimuthIndex[j] < y0 + h;
+                    }
+
+                    if (nearRangeOnLeft) {
+                        // traverse from near range to far range to detect shadowing area
+                        double maxElevAngle = 0.0;
+                        for (int jj = 0; jj < nLon; jj++) {
+                            if (savePixel[jj] && (detectShadow && elevationAngle[jj] > maxElevAngle || !detectShadow)) {
+                                maxElevAngle = elevationAngle[jj];
+                                saveGamma0Area(x0, y0, w, h, gamma0Area[jj], azimuthIndex[jj], rangeIndex[jj],
+                                        gamma0ReferenceArea);
+
+                                if (outputSigma0) {
+                                    saveSigma0Area(x0, y0, w, h, sigma0Area[jj], azimuthIndex[jj], rangeIndex[jj],
+                                            sigma0ReferenceArea);
+                                }
+                            }
+                        }
+
+                    } else {
+                        // traverse from near range to far range to detect shadowing area
+                        double maxElevAngle = 0.0;
+                        for (int jj = nLon - 1; jj >= 0; --jj) {
+                            if (savePixel[jj] && (detectShadow && elevationAngle[jj] > maxElevAngle || !detectShadow)) {
+                                maxElevAngle = elevationAngle[jj];
+                                saveGamma0Area(x0, y0, w, h, gamma0Area[jj], azimuthIndex[jj], rangeIndex[jj],
+                                        gamma0ReferenceArea);
+
+                                if (outputSigma0) {
+                                    saveSigma0Area(x0, y0, w, h, sigma0Area[jj], azimuthIndex[jj], rangeIndex[jj],
+                                            sigma0ReferenceArea);
+                                }
                             }
                         }
                     }
+                }
 
-                } else {
-                    // traverse from near range to far range to detect shadowing area
-                    double maxElevAngle = 0.0;
-                    for (int i = widthExt - 1; i >= 0; --i) {
-                        if (savePixel[i] && elevationAngle[i] > maxElevAngle) {
-                            maxElevAngle = elevationAngle[i];
-                            saveGamma0Area(x0, y0, w, h, gamma0Area[i], azimuthIndex[i], rangeIndex[i],
-                                    gamma0ReferenceArea);
+            } else {
 
-                            if (outputSigma0) {
-                                saveSigma0Area(x0, y0, w, h, sigma0Area[i], azimuthIndex[i], rangeIndex[i],
-                                        sigma0ReferenceArea);
+                final int widthExt = xmax - xmin;
+                final int heightExt = ymax - ymin;
+
+                final double[][] localDEM = new double[heightExt + 2][widthExt + 2];
+                final TileGeoreferencing tileGeoRef = new TileGeoreferencing(
+                        targetProduct, xmin, ymin, widthExt, heightExt);
+
+                final boolean valid = DEMFactory.getLocalDEM(
+                        dem, demNoDataValue, demResamplingMethod, tileGeoRef, xmin, ymin, widthExt, heightExt,
+                        sourceProduct, true, localDEM);
+
+                if (!valid) {
+                    return false;
+                }
+
+                final PositionData posData = new PositionData();
+                final GeoPos geoPos = new GeoPos();
+                for (int y = ymin; y < ymax; y++) {
+                    final int yy = y - ymin;
+
+                    final double[] azimuthIndex = new double[widthExt];
+                    final double[] rangeIndex = new double[widthExt];
+                    final double[] gamma0Area = new double[widthExt];
+                    final double[] elevationAngle = new double[widthExt];
+                    final boolean[] savePixel = new boolean[widthExt];
+                    double[] sigma0Area = null;
+                    if (outputSigma0) {
+                        sigma0Area = new double[widthExt];
+                    }
+
+                    for (int x = xmin; x < xmax; x++) {
+                        final int xx = x - xmin;
+
+                        double alt = localDEM[yy + 1][xx + 1];
+                        if (alt == demNoDataValue)
+                            continue;
+
+                        tileGeoRef.getGeoPos(x, y, geoPos);
+                        if (!geoPos.isValid())
+                            continue;
+
+                        double lat = geoPos.lat;
+                        double lon = geoPos.lon;
+                        if (lon >= 180.0) {
+                            lon -= 360.0;
+                        }
+
+                        if (!getPosition(lat, lon, alt, x0, y0, w, h, posData))
+                            continue;
+
+                        final LocalGeometry localGeometry = new LocalGeometry(
+                                xmin, ymin, x, y, tileGeoRef, localDEM, posData.earthPoint, posData.sensorPos);
+
+                        gamma0Area[xx] = computeGamma0Area(localGeometry, demNoDataValue, noDataValue);
+                        if (gamma0Area[xx] == noDataValue)
+                            continue;
+
+                        if (outputSigma0) {
+                            sigma0Area[xx] = computeSigma0Area(localGeometry, demNoDataValue, noDataValue);
+                        }
+
+                        elevationAngle[xx] = computeElevationAngle(posData.earthPoint, posData.sensorPos);
+
+                        rangeIndex[xx] = posData.rangeIndex;
+                        azimuthIndex[xx] = posData.azimuthIndex;
+
+                        savePixel[xx] = rangeIndex[xx] > x0 - 1 && rangeIndex[xx] < x0 + w &&
+                                azimuthIndex[xx] > y0 - 1 && azimuthIndex[xx] < y0 + h;
+                    }
+
+                    if (nearRangeOnLeft) {
+                        // traverse from near range to far range to detect shadowing area
+                        double maxElevAngle = 0.0;
+                        for (int i = 0; i < widthExt; i++) {
+                            if (savePixel[i] && (detectShadow && elevationAngle[i] > maxElevAngle || !detectShadow)) {
+                                maxElevAngle = elevationAngle[i];
+                                saveGamma0Area(x0, y0, w, h, gamma0Area[i], azimuthIndex[i], rangeIndex[i],
+                                        gamma0ReferenceArea);
+
+                                if (outputSigma0) {
+                                    saveSigma0Area(x0, y0, w, h, sigma0Area[i], azimuthIndex[i], rangeIndex[i],
+                                            sigma0ReferenceArea);
+                                }
+                            }
+                        }
+
+                    } else {
+                        // traverse from near range to far range to detect shadowing area
+                        double maxElevAngle = 0.0;
+                        for (int i = widthExt - 1; i >= 0; --i) {
+                            if (savePixel[i] && (detectShadow && elevationAngle[i] > maxElevAngle || !detectShadow)) {
+                                maxElevAngle = elevationAngle[i];
+                                saveGamma0Area(x0, y0, w, h, gamma0Area[i], azimuthIndex[i], rangeIndex[i],
+                                        gamma0ReferenceArea);
+
+                                if (outputSigma0) {
+                                    saveSigma0Area(x0, y0, w, h, sigma0Area[i], azimuthIndex[i], rangeIndex[i],
+                                            sigma0ReferenceArea);
+                                }
                             }
                         }
                     }
@@ -540,6 +660,73 @@ public final class TerrainFlatteningOp extends Operator {
         return true;
     }
 
+    private void computeDEMTraversalSampleInterval() throws Exception {
+
+        double[] latLonMinMax = new double[4];
+        computeImageGeoBoundary(0, sourceProduct.getSceneRasterWidth() - 1, 0, sourceProduct.getSceneRasterHeight() - 1,
+                latLonMinMax);
+
+        final double groundRangeSpacing = SARGeocoding.getRangePixelSpacing(sourceProduct);
+        final double azimuthPixelSpacing = SARGeocoding.getAzimuthPixelSpacing(sourceProduct);
+        final double spacing = Math.min(groundRangeSpacing, azimuthPixelSpacing);
+        //final double spacing = (groundRangeSpacing + azimuthPixelSpacing)/2.0;
+        final double latMin = latLonMinMax[0];
+        final double latMax = latLonMinMax[1];
+        double minAbsLat;
+        if (latMin * latMax > 0) {
+            minAbsLat = Math.min(Math.abs(latMin), Math.abs(latMax)) * Constants.DTOR;
+        } else {
+            minAbsLat = 0.0;
+        }
+        delLat = spacing / Constants.MeanEarthRadius * Constants.RTOD;
+        delLon = spacing / (Constants.MeanEarthRadius * FastMath.cos(minAbsLat)) * Constants.RTOD;
+        delLat = Math.min(delLat, delLon); // (delLat + delLon)/2.0;
+        delLon = delLat;
+    }
+
+    private void computeImageGeoBoundary(final int xmin, final int xmax, final int ymin, final int ymax,
+                                         double[] latLonMinMax) throws Exception {
+
+        final GeoCoding geoCoding = sourceProduct.getGeoCoding();
+        if (geoCoding == null) {
+            throw new OperatorException("Product does not contain a geocoding");
+        }
+        final GeoPos geoPosFirstNear = geoCoding.getGeoPos(new PixelPos(xmin, ymin), null);
+        final GeoPos geoPosFirstFar = geoCoding.getGeoPos(new PixelPos(xmax, ymin), null);
+        final GeoPos geoPosLastNear = geoCoding.getGeoPos(new PixelPos(xmin, ymax), null);
+        final GeoPos geoPosLastFar = geoCoding.getGeoPos(new PixelPos(xmax, ymax), null);
+
+        final double[] lats = {geoPosFirstNear.getLat(), geoPosFirstFar.getLat(), geoPosLastNear.getLat(), geoPosLastFar.getLat()};
+        final double[] lons = {geoPosFirstNear.getLon(), geoPosFirstFar.getLon(), geoPosLastNear.getLon(), geoPosLastFar.getLon()};
+        double latMin = 90.0;
+        double latMax = -90.0;
+        for (double lat : lats) {
+            if (lat < latMin) {
+                latMin = lat;
+            }
+            if (lat > latMax) {
+                latMax = lat;
+            }
+        }
+
+        double lonMin = 180.0;
+        double lonMax = -180.0;
+        for (double lon : lons) {
+            if (lon < lonMin) {
+                lonMin = lon;
+            }
+            if (lon > lonMax) {
+                lonMax = lon;
+            }
+        }
+
+        latLonMinMax[0] = latMin;
+        latLonMinMax[1] = latMax;
+        latLonMinMax[2] = lonMin;
+        latLonMinMax[3] = lonMax;
+    }
+
+    //======================================
     private boolean getPosition(final double lat, final double lon, final double alt,
                                 final int x0, final int y0, final int w, final int h,
                                 final PositionData data) {
@@ -647,7 +834,7 @@ public final class TerrainFlatteningOp extends Operator {
                             final int tgtIdx = tgtIndex.getIndex(x);
                             final double simVal = simulatedImage[yy][xx];
                             if (simVal != noDataValue && simVal != 0.0) {
-                                targetData.setElemDoubleAt(tgtIdx, simVal);
+                                targetData.setElemDoubleAt(tgtIdx, simVal/beta0);
                             } else {
                                 targetData.setElemDoubleAt(tgtIdx, noDataValue);
                             }
@@ -668,20 +855,27 @@ public final class TerrainFlatteningOp extends Operator {
                             srcIdx = srcIndex.getIndex(x);
                             simVal = simulatedImage[yy][xx];
 
-                            if (simVal != noDataValue && simVal != 0.0) {
-                                switch (unitType) {
-                                    case AMPLITUDE :
-                                        v = sourceData.getElemDoubleAt(srcIdx);
-                                        targetData.setElemDoubleAt(tgtIdx, v*v / simVal);
-                                        break;
-                                    case INTENSITY:
-                                        v = sourceData.getElemDoubleAt(srcIdx);
-                                        targetData.setElemDoubleAt(tgtIdx, v / simVal);
-                                        break;
-                                    case COMPLEX:
-                                        v = sourceData.getElemDoubleAt(srcIdx);
-                                        targetData.setElemDoubleAt(tgtIdx, v / Math.sqrt(simVal));
-                                        break;
+                            if (simVal != noDataValue) {
+                                simVal /= beta0;
+                                if (isGRD) {
+                                    simVal /= Math.sin(incidenceAngleTPG.getPixelDouble(x, y)*Constants.DTOR);
+                                }
+
+                                if (simVal > threshold) {
+                                    switch (unitType) {
+                                        case AMPLITUDE :
+                                            v = sourceData.getElemDoubleAt(srcIdx);
+                                            targetData.setElemDoubleAt(tgtIdx, v*v / simVal);
+                                            break;
+                                        case INTENSITY:
+                                            v = sourceData.getElemDoubleAt(srcIdx);
+                                            targetData.setElemDoubleAt(tgtIdx, v / simVal);
+                                            break;
+                                        case COMPLEX:
+                                            v = sourceData.getElemDoubleAt(srcIdx);
+                                            targetData.setElemDoubleAt(tgtIdx, v / Math.sqrt(simVal));
+                                            break;
+                                    }
                                 }
                             } else {
                                 targetData.setElemDoubleAt(tgtIdx, noDataValue);
@@ -798,7 +992,7 @@ public final class TerrainFlatteningOp extends Operator {
      * @param rangeIndex      Range pixel index for the illuminated area.
      * @param gamma0ReferenceArea  Buffer for the simulated image.
      */
-    private void saveGamma0Area(final int x0, final int y0, final int w, final int h, final double gamma0Area,
+    private static void saveGamma0Area(final int x0, final int y0, final int w, final int h, final double gamma0Area,
                                 final double azimuthIndex, final double rangeIndex,
                                 final double[][] gamma0ReferenceArea) {
 
@@ -811,24 +1005,25 @@ public final class TerrainFlatteningOp extends Operator {
         final double wa = azimuthIndex - ia0;
         final double wac = 1 - wa;
 
-        if (ir0 >= x0) {
+        if (ir0 >= x0 && ir0 < x0 + w) {
             final double wrc = 1 - wr;
-            if (ia0 >= y0)
-                gamma0ReferenceArea[ia0 - y0][ir0 - x0] += wrc * wac * gamma0Area / beta0;
+            if (ia0 >= y0 && ia0 < y0 + h)
+                gamma0ReferenceArea[ia0 - y0][ir0 - x0] += wrc * wac * gamma0Area;
 
-            if (ia1 < y0 + h)
-                gamma0ReferenceArea[ia1 - y0][ir0 - x0] += wrc * wa * gamma0Area / beta0;
+            if (ia1 >= y0 && ia1 < y0 + h)
+                gamma0ReferenceArea[ia1 - y0][ir0 - x0] += wrc * wa * gamma0Area;
         }
-        if (ir1 < x0 + w) {
-            if (ia0 >= y0)
-                gamma0ReferenceArea[ia0 - y0][ir1 - x0] += wr * wac * gamma0Area / beta0;
 
-            if (ia1 < y0 + h)
-                gamma0ReferenceArea[ia1 - y0][ir1 - x0] += wr * wa * gamma0Area / beta0;
+        if (ir1 >= x0 && ir1 < x0 + w) {
+            if (ia0 >= y0 && ia0 < y0 + h)
+                gamma0ReferenceArea[ia0 - y0][ir1 - x0] += wr * wac * gamma0Area;
+
+            if (ia1 >= y0 && ia1 < y0 + h)
+                gamma0ReferenceArea[ia1 - y0][ir1 - x0] += wr * wa * gamma0Area;
         }
     }
 
-    private void saveSigma0Area(final int x0, final int y0, final int w, final int h, final double sigma0Area,
+    private static void saveSigma0Area(final int x0, final int y0, final int w, final int h, final double sigma0Area,
                                 final double azimuthIndex, final double rangeIndex,
                                 final double[][] sigma0ReferenceArea) {
 
@@ -844,17 +1039,17 @@ public final class TerrainFlatteningOp extends Operator {
         if (ir0 >= x0) {
             final double wrc = 1 - wr;
             if (ia0 >= y0)
-                sigma0ReferenceArea[ia0 - y0][ir0 - x0] += wrc * wac * sigma0Area / beta0;
+                sigma0ReferenceArea[ia0 - y0][ir0 - x0] += wrc * wac * sigma0Area;
 
             if (ia1 < y0 + h)
-                sigma0ReferenceArea[ia1 - y0][ir0 - x0] += wrc * wa * sigma0Area / beta0;
+                sigma0ReferenceArea[ia1 - y0][ir0 - x0] += wrc * wa * sigma0Area;
         }
         if (ir1 < x0 + w) {
             if (ia0 >= y0)
-                sigma0ReferenceArea[ia0 - y0][ir1 - x0] += wr * wac * sigma0Area / beta0;
+                sigma0ReferenceArea[ia0 - y0][ir1 - x0] += wr * wac * sigma0Area;
 
             if (ia1 < y0 + h)
-                sigma0ReferenceArea[ia1 - y0][ir1 - x0] += wr * wa * sigma0Area / beta0;
+                sigma0ReferenceArea[ia1 - y0][ir1 - x0] += wr * wa * sigma0Area;
         }
     }
 
@@ -884,7 +1079,8 @@ public final class TerrainFlatteningOp extends Operator {
      * @param demNoDataValue Invalid DEM value.
      * @return The computed local illuminated area.
      */
-    private double computeGamma0Area(final LocalGeometry lg, final double demNoDataValue) {
+    private static double computeGamma0Area(
+            final LocalGeometry lg, final double demNoDataValue, final double noDataValue) {
 
         if (lg.t00Height == demNoDataValue || lg.t01Height == demNoDataValue ||
                 lg.t10Height == demNoDataValue || lg.t11Height == demNoDataValue) {
@@ -936,7 +1132,8 @@ public final class TerrainFlatteningOp extends Operator {
                 Math.sqrt(h2 * (h2 - p11p01) * (h2 - p11p10) * (h2 - p10p01));
     }
 
-    private double computeSigma0Area(final LocalGeometry lg, final double demNoDataValue) {
+    private static double computeSigma0Area(
+            final LocalGeometry lg, final double demNoDataValue, final double noDataValue) {
 
         if (lg.t00Height == demNoDataValue || lg.t01Height == demNoDataValue ||
                 lg.t10Height == demNoDataValue || lg.t11Height == demNoDataValue) {
@@ -1025,6 +1222,47 @@ public final class TerrainFlatteningOp extends Operator {
             this.t11Lat = geo.lat;
             this.t11Lon = geo.lon;
             this.t11Height = localDEM[yy - 1][xx + 1];
+
+            this.centerPoint = earthPoint;
+            this.sensorPos = sensorPos;
+        }
+
+        public LocalGeometry(final int i, final int j, final double[][] tileDEM, final ElevationModel dem,
+                             final double lat, final double lon, final double delLat, final double delLon,
+                             final PosVector earthPoint, final PosVector sensorPos) throws Exception{
+
+            final GeoPos geo = new GeoPos();
+
+            this.t00Lat = lat;
+            this.t00Lon = lon;
+            this.t00Height = tileDEM[i][j];
+
+            this.t01Lat = lat + delLat;
+            this.t01Lon = lon;
+            if (i - 1 >= 0) {
+                this.t01Height = tileDEM[i - 1][j];
+            } else {
+                geo.setLocation(this.t01Lat, this.t01Lon);
+                this.t01Height = dem.getElevation(geo);
+            }
+
+            this.t10Lat = lat;
+            this.t10Lon = lon + delLon;
+            if (j + 1 < tileDEM[i].length) {
+                this.t10Height = tileDEM[i][j + 1];
+            } else {
+                geo.setLocation(this.t10Lat, this.t10Lon);
+                this.t10Height = dem.getElevation(geo);
+            }
+
+            this.t11Lat = lat + delLat;
+            this.t11Lon = lon + delLon;
+            if (i - 1 >= 0 && j + 1 < tileDEM[i - 1].length) {
+                this.t11Height = tileDEM[i - 1][j + 1];
+            } else {
+                geo.setLocation(this.t11Lat, this.t11Lon);
+                this.t11Height = dem.getElevation(geo);
+            }
 
             this.centerPoint = earthPoint;
             this.sensorPos = sensorPos;

@@ -101,6 +101,8 @@ class ControlPanel extends JPanel {
 
         prevBtn.setEnabled(currentRecord > 0 && !animate);
         nextBtn.setEnabled(currentRecord < numRecords && !animate);
+        recordSlider.setMinimum(0);
+        recordSlider.setMaximum(polarView.getNumRecords());
         recordSlider.setValue(currentRecord);
 
         recordLabel.setText("Record " + (currentRecord + 1) + " of " + (numRecords + 1));

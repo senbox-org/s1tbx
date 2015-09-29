@@ -23,7 +23,6 @@ import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.RasterDataNode;
 
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,19 +35,12 @@ public class SpectraDataAsar extends SpectraDataBase implements SpectraData {
     private MetadataElement spectraMetadataRoot = null;
     private ProductData.UTC zeroDopplerTime = null;
 
-    protected double minSpectrum = 0;
-    protected double maxSpectrum = 255;
-    protected double minReal = 0;
-    protected double maxReal = 0;
-    protected double minImaginary = 0;
-    protected double maxImaginary = 0;
-
-    private double maxSpecDir = 0;
-    private double maxSpecWL = 0;
-
-    private double sarWaveHeight = 0;
-    private double sarAzShiftVar = 0;
-    private double backscatter = 0;
+    private double minSpectrum = 0;
+    private double maxSpectrum = 255;
+    private double minReal = 0;
+    private double maxReal = 0;
+    private double minImaginary = 0;
+    private double maxImaginary = 0;
 
     public SpectraDataAsar(final Product product, final WaveProductType waveProductType) {
         super(product, waveProductType);
@@ -61,6 +53,10 @@ public class SpectraDataAsar extends SpectraDataBase implements SpectraData {
         dirBinStep = (float) sph.getAttributeDouble("DIR_BIN_STEP", 0);
         firstWLBin = (float) sph.getAttributeDouble("FIRST_WL_BIN", 0);
         lastWLBin = (float) sph.getAttributeDouble("LAST_WL_BIN", 0);
+
+        final RasterDataNode rasterNode = product.getBandAt(0);
+        numRecords = rasterNode.getRasterHeight() - 1;
+        recordLength = rasterNode.getRasterWidth();
 
         if (waveProductType == WaveProductType.WAVE_SPECTRA) {
             spectraMetadataRoot = root.getElement("OCEAN_WAVE_SPECTRA_MDS");
@@ -85,15 +81,22 @@ public class SpectraDataAsar extends SpectraDataBase implements SpectraData {
         }
     }
 
-    public String[] getSpectraMetadata(int rec) {
+    public String[] getSpectraMetadata(final int rec) throws Exception {
+        if(spectraMetadataRoot == null) {
+            throw new Exception("OSW Metadata not found in product");
+        }
         try {
             final String elemName = spectraMetadataRoot.getName() + '.' + (rec + 1);
             final MetadataElement spectraMetadata = spectraMetadataRoot.getElement(elemName);
 
             zeroDopplerTime = spectraMetadata.getAttributeUTC("zero_doppler_time");
-            maxSpecDir = spectraMetadata.getAttributeDouble("spec_max_dir", 0);
-            maxSpecWL = spectraMetadata.getAttributeDouble("spec_max_wl", 0);
 
+            final double maxSpecDir = spectraMetadata.getAttributeDouble("spec_max_dir", 0);
+            final double maxSpecWL = spectraMetadata.getAttributeDouble("spec_max_wl", 0);
+
+            double sarWaveHeight = 0;
+            double sarAzShiftVar = 0;
+            double backscatter = 0;
             if (waveProductType == WaveProductType.WAVE_SPECTRA) {
                 minSpectrum = spectraMetadata.getAttributeDouble("min_spectrum", 0);
                 maxSpectrum = spectraMetadata.getAttributeDouble("max_spectrum", 255);
@@ -108,83 +111,35 @@ public class SpectraDataAsar extends SpectraDataBase implements SpectraData {
                 minImaginary = spectraMetadata.getAttributeDouble("min_imag", 0);
                 maxImaginary = spectraMetadata.getAttributeDouble("max_imag", 255);
             }
+
+            final DecimalFormat frmt = new DecimalFormat("0.0000");
+
+            final List<String> metadataList = new ArrayList<>(10);
+            metadataList.add("Time: " + zeroDopplerTime.toString());
+            metadataList.add("Peak Direction: " + maxSpecDir + " deg");
+            metadataList.add("Peak Wavelength: " + frmt.format(maxSpecWL) + " m");
+
+            if (waveProductType == WaveProductType.WAVE_SPECTRA) {
+                metadataList.add("Min Spectrum: " + frmt.format(minSpectrum));
+                metadataList.add("Max Spectrum: " + frmt.format(maxSpectrum));
+
+                metadataList.add("Wind Speed: " + frmt.format(windSpeed) + " m/s");
+                metadataList.add("Wind Direction: " + windDirection + " deg");
+                metadataList.add("SAR Swell Wave Height: " + frmt.format(sarWaveHeight) + " m");
+                metadataList.add("SAR Azimuth Shift Var: " + frmt.format(sarAzShiftVar) + " m^2");
+                metadataList.add("Backscatter: " + frmt.format(backscatter) + " dB");
+            }
+
+            return metadataList.toArray(new String[metadataList.size()]);
+
         } catch (Exception e) {
-            System.out.println("Unable to get metadata for " + spectraMetadataRoot.getName());
+            throw new Exception("Unable to get metadata for " + spectraMetadataRoot.getName());
         }
-
-        final DecimalFormat frmt = new DecimalFormat("0.0000");
-
-        final List<String> metadataList = new ArrayList<>(10);
-        metadataList.add("Time: " + zeroDopplerTime.toString());
-        metadataList.add("Peak Direction: " + maxSpecDir + " deg");
-        metadataList.add("Peak Wavelength: " + frmt.format(maxSpecWL) + " m");
-
-        if (waveProductType == WaveProductType.WAVE_SPECTRA) {
-            metadataList.add("Min Spectrum: " + frmt.format(minSpectrum));
-            metadataList.add("Max Spectrum: " + frmt.format(maxSpectrum));
-
-            metadataList.add("Wind Speed: " + windSpeed + " m/s");
-            metadataList.add("Wind Direction: " + windDirection + " deg");
-            metadataList.add("SAR Swell Wave Height: " + frmt.format(sarWaveHeight) + " m");
-            metadataList.add("SAR Azimuth Shift Var: " + frmt.format(sarAzShiftVar) + " m^2");
-            metadataList.add("Backscatter: " + frmt.format(backscatter) + " dB");
-        }
-
-        return metadataList.toArray(new String[metadataList.size()]);
     }
 
-    public float[][] getSpectrum(int imageNum, int currentRec, boolean getReal) {
-
-        float[] dataset;
-        try {
-            final RasterDataNode rasterNode = product.getBandAt(imageNum);
-            rasterNode.loadRasterData();
-            dataset = new float[recordLength];
-            rasterNode.getPixels(0, currentRec, recordLength, 1, dataset);
-
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-            return null;
-        }
-
-        final float minValue = getMinValue(getReal);
-        final float maxValue = getMaxValue(getReal);
-        final float scale = (maxValue - minValue) / 255f;
-        final float spectrum[][] = new float[numDirBins][numWLBins];
-
-        int index = 0;
-        if (waveProductType == WaveProductType.WAVE_SPECTRA) {
-            for (int i = 0; i < numDirBins; i++) {
-                for (int j = 0; j < numWLBins; j++) {
-                    spectrum[i][j] = dataset[index++] * scale + minValue;
-                }
-            }
-        } else {
-            final int Nd2 = numDirBins / 2;
-            for (int i = 0; i < Nd2; i++) {
-                for (int j = 0; j < numWLBins; j++) {
-                    spectrum[i][j] = dataset[index++] * scale + minValue;
-                }
-            }
-
-            if (getReal) {
-                for (int i = 0; i < Nd2; i++) {
-                    System.arraycopy(spectrum[i], 0, spectrum[i + Nd2], 0, numWLBins);
-                }
-            } else {
-                for (int i = 0; i < Nd2; i++) {
-                    for (int j = 0; j < numWLBins; j++) {
-                        spectrum[i + Nd2][j] = -spectrum[i][j];
-                    }
-                }
-            }
-        }
-        return spectrum;
-    }
-
-    public PolarData getPolarData(final int currentRec, final SpectraUnit spectraUnit) {
+    public PolarData getPolarData(final int currentRec, final SpectraUnit spectraUnit) throws Exception {
         final boolean realBand = spectraUnit != SpectraUnit.IMAGINARY;
-        final float[][] spectrum = getSpectrum(0, currentRec, realBand);
+        spectrum = getSpectrum(0, currentRec, realBand);
 
         float minValue = getMinValue(realBand);
         float maxValue = getMaxValue(realBand);
@@ -248,25 +203,59 @@ public class SpectraDataAsar extends SpectraDataBase implements SpectraData {
         return new PolarData(spectrum, 90f + thFirst, thStep, radii, minValue, maxValue);
     }
 
-    private static int sign(final float f) {
-        return f < 0.0F ? -1 : 1;
+    private float[][] getSpectrum(final int imageNum, final int currentRec, final boolean getReal) throws Exception {
+
+        final RasterDataNode rasterNode = product.getBandAt(imageNum);
+        rasterNode.loadRasterData();
+        final float[] dataset = new float[recordLength];
+        rasterNode.getPixels(0, currentRec, recordLength, 1, dataset);
+
+        final float minValue = getMinValue(getReal);
+        final float maxValue = getMaxValue(getReal);
+        final float scale = (maxValue - minValue) / 255f;
+        final float spectrum[][] = new float[numDirBins][numWLBins];
+
+        int index = 0;
+        if (waveProductType == WaveProductType.WAVE_SPECTRA) {
+            for (int i = 0; i < numDirBins; i++) {
+                for (int j = 0; j < numWLBins; j++) {
+                    spectrum[i][j] = dataset[index++] * scale + minValue;
+                }
+            }
+        } else {
+            final int Nd2 = numDirBins / 2;
+            for (int i = 0; i < Nd2; i++) {
+                for (int j = 0; j < numWLBins; j++) {
+                    spectrum[i][j] = dataset[index++] * scale + minValue;
+                }
+            }
+
+            if (getReal) {
+                for (int i = 0; i < Nd2; i++) {
+                    System.arraycopy(spectrum[i], 0, spectrum[i + Nd2], 0, numWLBins);
+                }
+            } else {
+                for (int i = 0; i < Nd2; i++) {
+                    for (int j = 0; j < numWLBins; j++) {
+                        spectrum[i + Nd2][j] = -spectrum[i][j];
+                    }
+                }
+            }
+        }
+        return spectrum;
     }
 
     public String[] updateReadouts(final double rTh[], final int currentRecord) {
         if (spectrum == null)
             return null;
 
-        final float thFirst;
-        final int thBin;
-        final float thStep;
-        final int element;
-        final int direction;
-
         final float rStep = (float) (Math.log(lastWLBin) - Math.log(firstWLBin)) / (float) (numWLBins - 1);
         int wvBin = (int) (((rStep / 2.0 + Math.log(10000.0 / rTh[0])) - Math.log(firstWLBin)) / rStep);
         wvBin = Math.min(wvBin, spectrum[0].length - 1);
         final int wl = (int) Math.round(FastMath.exp((double) wvBin * rStep + Math.log(firstWLBin)));
 
+        final float thFirst, thStep;
+        final int thBin, element, direction;
         if (waveProductType == WaveProductType.CROSS_SPECTRA) {
             thFirst = firstDirBins - 5f;
             thStep = dirBinStep;
