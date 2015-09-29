@@ -16,7 +16,6 @@
 
 package org.esa.snap.configurator;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.esa.snap.runtime.Config;
 import org.esa.snap.util.SystemUtils;
 
@@ -250,9 +249,7 @@ public class VMParameters {
             parametersToSave.add("-J" + vmParameter);
         }
 
-        String vmParametersAsString = VMParameters.toString(parametersToSave);
-        vmParametersAsString = StringEscapeUtils.escapeJava(vmParametersAsString);
-        vmParametersAsString = "\"" + vmParametersAsString + "\"";
+        String vmParametersAsString = "\"" + VMParameters.toString(parametersToSave) + "\"";
         String defaultOptionAsString = DEFAULT_OPTION_PROPERTY_KEY + "=" + vmParametersAsString;
 
         // we replace the default option setting in the config path
