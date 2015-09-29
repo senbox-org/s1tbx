@@ -49,4 +49,6 @@ public interface SpectraData {
     default int sign(final float f) {
         return f < 0.0F ? -1 : 1;
     }
+
+    default boolean isASAR() { return this instanceof SpectraDataAsar; }
 }

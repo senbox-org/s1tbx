@@ -61,6 +61,7 @@ public class InSARStatisticsTopComponent extends TopComponent {
     public static final String EmptyMsg = "This tool window requires a coregistered stack product to be selected";
 
     private final List<InSARStatistic> statisticList = new ArrayList<>();
+    private ProductNode oldValue = null;
 
     public InSARStatisticsTopComponent() {
         setLayout(new BorderLayout());
@@ -73,11 +74,12 @@ public class InSARStatisticsTopComponent extends TopComponent {
         snapApp.getSelectionSupport(ProductNode.class).addHandler(new SelectionSupport.Handler<ProductNode>() {
             @Override
             public void selectionChange(@NullAllowed ProductNode oldValue, @NullAllowed ProductNode newValue) {
-                if (newValue != null) {
+                if (newValue != oldValue) {
                     final Product product = newValue.getProduct();
                     for (InSARStatistic statistic : statisticList) {
                         statistic.update(product);
                     }
+                    oldValue = newValue;
                 }
             }
         });
@@ -90,6 +92,7 @@ public class InSARStatisticsTopComponent extends TopComponent {
     public JPanel createPanel() {
 
         statisticList.add(new StatInSARInfo());
+        statisticList.add(new StatResiduals());
         statisticList.add(new StatESDMeasure());
         statisticList.add(new StatBaselines());
 

@@ -33,11 +33,9 @@ import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
 import org.esa.snap.framework.gpf.annotations.Parameter;
 import org.esa.snap.framework.gpf.annotations.SourceProduct;
 import org.esa.snap.framework.gpf.annotations.TargetProduct;
-import org.esa.snap.framework.gpf.experimental.Output;
 import org.esa.snap.util.io.FileUtils;
 
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -52,8 +50,9 @@ import java.util.Map;
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Writes a data product to a tiles.",
+        autoWriteDisabled = true,
         category = "Tools")
-public class TileWriterOp extends Operator implements Output {
+public class TileWriterOp extends Operator {
 
     @TargetProduct
     private Product targetProduct;

@@ -34,12 +34,10 @@ import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
 import org.esa.snap.framework.gpf.annotations.Parameter;
 import org.esa.snap.framework.gpf.annotations.SourceProduct;
 import org.esa.snap.framework.gpf.annotations.TargetProduct;
-import org.esa.snap.framework.gpf.experimental.Output;
 import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.StackUtils;
 
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -54,8 +52,9 @@ import java.util.Set;
         description = "Writes all bands to files.",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        autoWriteDisabled = true,
         category = "Radar/Coregistration/Stack Tools")
-public class StackSplitWriter extends Operator implements Output {
+public class StackSplitWriter extends Operator {
 
     @TargetProduct
     private Product targetProduct;
