@@ -523,7 +523,8 @@ public abstract class PointOperator extends Operator {
             Assert.state(validPixelMask == null, "valid pixel mask already defined");
 
             if (!getSourceProduct().isCompatibleBandArithmeticExpression(maskExpression)) {
-                throw new OperatorException("The valid-pixel mask expression can not be used with the source product.");
+                String msg = String.format("The valid-pixel mask expression '%s' can not be used with the source product.", maskExpression);
+                throw new OperatorException(msg);
             }
 
             validPixelMask = Mask.BandMathsType.create("__source_mask", null,

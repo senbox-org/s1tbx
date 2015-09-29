@@ -41,7 +41,6 @@ import java.util.ServiceLoader;
 import java.util.StringTokenizer;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
-import java.util.logging.Handler;
 import java.util.logging.Logger;
 
 /**
@@ -71,10 +70,9 @@ public class SystemUtils {
     private static final char _URL_DIR_SEPARATOR_CHAR = '/';
 
     /**
-     * Name of BEAM's auxdata directory.
+     * Name of SNAP's auxdata directory.
      */
     public static final String AUXDATA_DIR_NAME = "auxdata";
-    public static final String CACHE_DIR_NAME = "cache";
 
     private static final String EPSG_DATABASE_DIR_NAME = "epsg-database";
 
@@ -153,7 +151,7 @@ public class SystemUtils {
      * @see #getCacheDir()
      */
     public static File getDefaultCacheDir() {
-        return new File(getApplicationDataDir(), CACHE_DIR_NAME);
+        return new File(new File(getApplicationDataDir(), "var"), "cache");
     }
 
     /**
