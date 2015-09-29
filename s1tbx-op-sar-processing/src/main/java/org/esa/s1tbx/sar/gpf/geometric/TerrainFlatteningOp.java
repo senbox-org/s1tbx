@@ -123,11 +123,9 @@ public final class TerrainFlatteningOp extends Operator {
 
     // set this flag to true to output terrain flattened sigma0
     private boolean outputSigma0 = false;
-    private boolean reGridMethod = false;
+    private boolean reGridMethod = true;
     private boolean detectShadow = true;
     private double threshold = 0.05;
-    private double delLat = 0.0;
-    private double delLon = 0.0;
 
 
     enum UnitType {AMPLITUDE,INTENSITY,COMPLEX,RATIO}
@@ -174,8 +172,6 @@ public final class TerrainFlatteningOp extends Operator {
             noDataValue = sourceProduct.getBands()[0].getNoDataValue();
 
             beta0 = azimuthSpacing * rangeSpacing;
-
-            computeDEMTraversalSampleInterval();
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -453,21 +449,31 @@ public final class TerrainFlatteningOp extends Operator {
                 final double[] latLonMinMax = new double[4];
                 computeImageGeoBoundary(xmin, xmax, ymin, ymax, latLonMinMax);
 
-                final double latMin = latLonMinMax[0];
-                final double latMax = latLonMinMax[1];
-                final double lonMin = latLonMinMax[2];
-                final double lonMax = latLonMinMax[3];
-                final int nLat = (int) ((latMax - latMin) / delLat) + 1;
-                final int nLon = (int) ((lonMax - lonMin) / delLon) + 1;
+                final double delta = (double)dem.getDescriptor().getTileWidthInDegrees() /
+                        (double)dem.getDescriptor().getTileWidth();
 
-                final double[][] tileDEM = new double[nLat+1][nLon+1];
-                final GeoPos geoPos = new GeoPos();
+                final double extralat = 20*delta;
+                final double extralon = 20*delta;
+
+                final double latMin = latLonMinMax[0] - extralat;
+                final double latMax = latLonMinMax[1] + extralat;
+                final double lonMin = latLonMinMax[2] - extralon;
+                final double lonMax = latLonMinMax[3] + extralon;
+
+                final PixelPos upperLeft = dem.getIndex(new GeoPos(latMax, lonMin));
+                final PixelPos lowerRight = dem.getIndex(new GeoPos(latMin, lonMax));
+                final int latMaxIdx = (int)Math.floor(upperLeft.getY());
+                final int latMinIdx = (int)Math.ceil(lowerRight.getY());
+                final int lonMinIdx = (int)Math.floor(upperLeft.getX());
+                final int lonMaxIdx = (int)Math.ceil(lowerRight.getX());
+
+                final int nLat = latMinIdx - latMaxIdx;
+                final int nLon = lonMaxIdx - lonMinIdx;
+
+                final PixelPos pix = new PixelPos();
                 final PositionData posData = new PositionData();
-                double alt;
 
                 for (int i = 0; i < nLat; i++) {
-                    final double lat = latMax - i * delLat;
-
                     final double[] azimuthIndex = new double[nLon];
                     final double[] rangeIndex = new double[nLon];
                     final double[] gamma0Area = new double[nLon];
@@ -479,23 +485,17 @@ public final class TerrainFlatteningOp extends Operator {
                     }
 
                     for (int j = 0; j < nLon; j++) {
-                        double lon = lonMin + j * delLon;
-                        if (lon >= 180.0) {
-                            lon -= 360.0;
-                        }
-
-                        geoPos.setLocation(lat, lon);
-                        alt = dem.getElevation(geoPos);
+                        pix.setLocation(lonMinIdx + j, latMaxIdx + i);
+                        final GeoPos gp = dem.getGeoPos(pix);
+                        final double alt = dem.getElevation(gp);
                         if (alt == demNoDataValue)
                             continue;
 
-                        tileDEM[i][j] = alt;
-
-                        if (!getPosition(lat, lon, alt, x0, y0, w, h, posData))
+                        if (!getPosition(gp.lat, gp.lon, alt, x0, y0, w, h, posData))
                             continue;
 
-                        final LocalGeometry localGeometry = new LocalGeometry(i, j, tileDEM, dem,
-                                lat, lon, delLat, delLon, posData.earthPoint, posData.sensorPos);
+                        final LocalGeometry localGeometry = new LocalGeometry(i, j, dem,
+                                latMaxIdx, lonMinIdx, posData.earthPoint, posData.sensorPos);
 
                         gamma0Area[j] = computeGamma0Area(localGeometry, demNoDataValue, noDataValue);
                         if (gamma0Area[j] == noDataValue)
@@ -658,30 +658,6 @@ public final class TerrainFlatteningOp extends Operator {
             OperatorUtils.catchOperatorException(getId(), e);
         }
         return true;
-    }
-
-    private void computeDEMTraversalSampleInterval() throws Exception {
-
-        double[] latLonMinMax = new double[4];
-        computeImageGeoBoundary(0, sourceProduct.getSceneRasterWidth() - 1, 0, sourceProduct.getSceneRasterHeight() - 1,
-                latLonMinMax);
-
-        final double groundRangeSpacing = SARGeocoding.getRangePixelSpacing(sourceProduct);
-        final double azimuthPixelSpacing = SARGeocoding.getAzimuthPixelSpacing(sourceProduct);
-        final double spacing = Math.min(groundRangeSpacing, azimuthPixelSpacing);
-        //final double spacing = (groundRangeSpacing + azimuthPixelSpacing)/2.0;
-        final double latMin = latLonMinMax[0];
-        final double latMax = latLonMinMax[1];
-        double minAbsLat;
-        if (latMin * latMax > 0) {
-            minAbsLat = Math.min(Math.abs(latMin), Math.abs(latMax)) * Constants.DTOR;
-        } else {
-            minAbsLat = 0.0;
-        }
-        delLat = spacing / Constants.MeanEarthRadius * Constants.RTOD;
-        delLon = spacing / (Constants.MeanEarthRadius * FastMath.cos(minAbsLat)) * Constants.RTOD;
-        delLat = Math.min(delLat, delLon); // (delLat + delLon)/2.0;
-        delLon = delLat;
     }
 
     private void computeImageGeoBoundary(final int xmin, final int xmax, final int ymin, final int ymax,
@@ -1227,42 +1203,36 @@ public final class TerrainFlatteningOp extends Operator {
             this.sensorPos = sensorPos;
         }
 
-        public LocalGeometry(final int i, final int j, final double[][] tileDEM, final ElevationModel dem,
-                             final double lat, final double lon, final double delLat, final double delLon,
-                             final PosVector earthPoint, final PosVector sensorPos) throws Exception{
+        public LocalGeometry(final int i, final int j, final ElevationModel dem, final double latMaxIdx,
+                             final double lonMinIdx, final PosVector earthPoint, final PosVector sensorPos)
+                throws Exception{
 
-            final GeoPos geo = new GeoPos();
+            PixelPos pix = new PixelPos();
+            GeoPos gp;
 
-            this.t00Lat = lat;
-            this.t00Lon = lon;
-            this.t00Height = tileDEM[i][j];
+            pix.setLocation(lonMinIdx + j, latMaxIdx + i);
+            gp = dem.getGeoPos(pix);
+            this.t00Lat = gp.lat;
+            this.t00Lon = gp.lon;
+            this.t00Height = dem.getElevation(gp);
 
-            this.t01Lat = lat + delLat;
-            this.t01Lon = lon;
-            if (i - 1 >= 0) {
-                this.t01Height = tileDEM[i - 1][j];
-            } else {
-                geo.setLocation(this.t01Lat, this.t01Lon);
-                this.t01Height = dem.getElevation(geo);
-            }
+            pix.setLocation(lonMinIdx + j, latMaxIdx + i - 1);
+            gp = dem.getGeoPos(pix);
+            this.t01Lat = gp.lat;
+            this.t01Lon = gp.lon;
+            this.t01Height = dem.getElevation(gp);
 
-            this.t10Lat = lat;
-            this.t10Lon = lon + delLon;
-            if (j + 1 < tileDEM[i].length) {
-                this.t10Height = tileDEM[i][j + 1];
-            } else {
-                geo.setLocation(this.t10Lat, this.t10Lon);
-                this.t10Height = dem.getElevation(geo);
-            }
+            pix.setLocation(lonMinIdx + j + 1, latMaxIdx + i);
+            gp = dem.getGeoPos(pix);
+            this.t10Lat = gp.lat;
+            this.t10Lon = gp.lon;
+            this.t10Height = dem.getElevation(gp);
 
-            this.t11Lat = lat + delLat;
-            this.t11Lon = lon + delLon;
-            if (i - 1 >= 0 && j + 1 < tileDEM[i - 1].length) {
-                this.t11Height = tileDEM[i - 1][j + 1];
-            } else {
-                geo.setLocation(this.t11Lat, this.t11Lon);
-                this.t11Height = dem.getElevation(geo);
-            }
+            pix.setLocation(lonMinIdx + j + 1, latMaxIdx + i - 1);
+            gp = dem.getGeoPos(pix);
+            this.t11Lat = gp.lat;
+            this.t11Lon = gp.lon;
+            this.t11Height = dem.getElevation(gp);
 
             this.centerPoint = earthPoint;
             this.sensorPos = sensorPos;
