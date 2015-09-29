@@ -41,7 +41,7 @@ public class StatBaselines implements InSARStatistic {
     }
 
     private static class TileCacheTableModel extends AbstractTableModel {
-        private final static String[] COLUM_NAMES = {"Image", "#Tiles", "Size (kB)", "Level", "Comment"};
+        private final static String[] COLUM_NAMES = {"1", "2", "3", "4", "5"};
         private final static Class[] COLUM_CLASSES = {String.class, Integer.class, Long.class,
                 Integer.class, String.class};
         List<CachedTileInfo> data = new ArrayList<>(50);
