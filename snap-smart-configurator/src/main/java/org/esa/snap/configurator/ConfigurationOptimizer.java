@@ -35,8 +35,6 @@ public class ConfigurationOptimizer {
 
     private static ConfigurationOptimizer configurationOptimizer = null;
 
-    // Free space available for other applications in MegaBytes
-    private static long DEFAULT_MIN_FREE_RAM = 512;
 
     // defalut minumal XMS if enough memory is available in MegaBytes.
     private static long DEFAULT_MIN_XMS = 2048;
@@ -48,7 +46,7 @@ public class ConfigurationOptimizer {
     // Minimum free space on a disk for the large cache, in MegaByte
     private static long MIN_FREE_LARGE_CACHE_DISK_SPACE = 1024;
 
-    // The minimum peformance increase to propose a change of parameters
+    // The minimum peformance increase to propose a change of parameters, in percents
     private static int DISK_MIN_SPEED_INCREASE = 20;
 
     // System information: ram, disks, cpus, etc.
@@ -119,20 +117,15 @@ public class ConfigurationOptimizer {
      */
     private void computeOptimisedRAMParams(PerformanceParameters performanceParameters) {
         long freeRAM = sysInfos.getFreeRAM();
-        long thisAppRam = sysInfos.getThisAppRam();
+        long reservedRAM = sysInfos.getReservedRam();
 
-        long optisedJVMMem;
-        if(freeRAM > DEFAULT_MIN_FREE_RAM) {
-            optisedJVMMem = thisAppRam + freeRAM - DEFAULT_MIN_FREE_RAM;
-        } else {
-            optisedJVMMem = thisAppRam + freeRAM/2;
-        }
-        performanceParameters.setVmXMX(optisedJVMMem);
+        long optimisedJVMMem = reservedRAM + freeRAM;
+        performanceParameters.setVmXMX(optimisedJVMMem);
 
-        if(optisedJVMMem > DEFAULT_MIN_XMS) {
+        if(optimisedJVMMem > DEFAULT_MIN_XMS) {
             performanceParameters.setVmXMS(DEFAULT_MIN_XMS);
         } else {
-            performanceParameters.setVmXMS(optisedJVMMem);
+            performanceParameters.setVmXMS(optimisedJVMMem);
         }
     }
 
@@ -174,7 +167,7 @@ public class ConfigurationOptimizer {
             DiskBenchmarker benchmarker = new DiskBenchmarker(actualLargeCacheDir);
             try {
                 double userDirWriteSpeed = benchmarker.getWriteSpeed();
-                double minSpeedToChange = userDirWriteSpeed * (1 + DISK_MIN_SPEED_INCREASE / 100);
+                double minSpeedToChange = userDirWriteSpeed * (1 + (float) DISK_MIN_SPEED_INCREASE / 100);
                 if(minSpeedToChange < fastestForUserDirSpeed) {
                     performanceParameters.setCachePath(fastestForUserDir);
                 }

@@ -119,11 +119,11 @@ public class JavaSystemInfos implements SystemInfos {
     }
 
     @Override
-    public long getThisAppRam() {
-        long thisAppRAMInBytes = Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
-        long ramTakenBySNAP = Math.round(thisAppRAMInBytes / (1024 * 1024));
-        SystemUtils.LOG.fine("RAM taken by SNAP in MB: " + ramTakenBySNAP);
-        return ramTakenBySNAP;
+    public long getReservedRam() {
+        long reservedRAMInBytes = Runtime.getRuntime().totalMemory();
+        long reservedRAMInMB = Math.round(reservedRAMInBytes / (1024 * 1024));
+        SystemUtils.LOG.fine("RAM reserved by SNAP in MB: " + reservedRAMInMB);
+        return reservedRAMInMB;
 
     }
 

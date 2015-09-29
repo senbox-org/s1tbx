@@ -48,9 +48,9 @@ public interface SystemInfos {
 
     /**
      *
-     * @return the RAM currently consumed by SNAP
+     * @return the RAM currently reserved by SNAP
      */
-    long getThisAppRam();
+    long getReservedRam();
 
 
     /**
