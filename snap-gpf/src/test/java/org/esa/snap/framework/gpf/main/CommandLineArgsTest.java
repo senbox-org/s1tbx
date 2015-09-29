@@ -26,6 +26,7 @@ import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
 import org.esa.snap.framework.gpf.annotations.Parameter;
 import org.esa.snap.framework.gpf.annotations.SourceProduct;
 import org.esa.snap.framework.gpf.annotations.TargetProduct;
+import org.esa.snap.runtime.Config;
 import org.junit.Test;
 
 import java.util.Map;
@@ -211,8 +212,9 @@ public class CommandLineArgsTest {
         CommandLineArgs lineArgs;
 
         // test default value
+        int configuredDefaultCapacity = Config.instance().load().preferences().getInt("snap.jai.tileCacheSize", 512);
         lineArgs = parseArgs("Reproject", "source.dim");
-        assertEquals(512 * M, lineArgs.getTileCacheCapacity());
+        assertEquals(configuredDefaultCapacity * M, lineArgs.getTileCacheCapacity());
         assertEquals(CommandLineArgs.DEFAULT_TILE_SCHEDULER_PARALLELISM, lineArgs.getTileSchedulerParallelism());
 
         // test some valid value
