@@ -16,6 +16,7 @@
 package org.esa.snap.configurator;
 
 import com.sun.management.OperatingSystemMXBean;
+import org.esa.snap.util.SystemUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -93,28 +94,36 @@ public class JavaSystemInfos implements SystemInfos {
 
         @Override
     public int getNbCPUs() {
-        return Runtime.getRuntime().availableProcessors();
+            int nbCPUs = Runtime.getRuntime().availableProcessors();
+            SystemUtils.LOG.fine("NB CPUs: " + nbCPUs);
+            return nbCPUs;
     }
 
     @Override
     public long getRAM() {
-        OperatingSystemMXBean mxbean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
-        long totalRAMInByte = mxbean.getTotalPhysicalMemorySize();
-        return Math.round(totalRAMInByte/(1E6));
+        OperatingSystemMXBean mXBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+        long totalRAMInByte = mXBean.getTotalPhysicalMemorySize();
+        long totalRAMInMB = Math.round(totalRAMInByte/(1E6));
+        SystemUtils.LOG.fine("Total RAM in MB: " + totalRAMInMB);
+        return totalRAMInMB;
     }
 
     @Override
     public long getFreeRAM() {
-        OperatingSystemMXBean mxbean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+        OperatingSystemMXBean mXBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
 
-        long freeRAMInByte = mxbean.getFreePhysicalMemorySize();
-        return Math.round(freeRAMInByte/(1024*1024));
+        long freeRAMInByte = mXBean.getFreePhysicalMemorySize();
+        long freeRamInMegaBytes = Math.round(freeRAMInByte/(1024*1024));
+        SystemUtils.LOG.fine("Free RAM in MB: " + freeRamInMegaBytes);
+        return freeRamInMegaBytes;
     }
 
     @Override
     public long getThisAppRam() {
         long thisAppRAMInBytes = Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
-        return Math.round(thisAppRAMInBytes/(1024*1024));
+        long ramTakenBySNAP = Math.round(thisAppRAMInBytes / (1024 * 1024));
+        SystemUtils.LOG.fine("RAM taken by SNAP in MB: " + ramTakenBySNAP);
+        return ramTakenBySNAP;
 
     }
 
