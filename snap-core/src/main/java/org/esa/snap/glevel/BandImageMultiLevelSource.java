@@ -56,42 +56,6 @@ public class BandImageMultiLevelSource extends AbstractMultiLevelSource {
         return new BandImageMultiLevelSource(model, rasterDataNodes);
     }
 
-    /**
-     * @deprecated since BEAM 5 because it creates a {@code DefaultMultiLevelModel}, which is not the desired behaviour in many cases
-     */
-    @Deprecated
-    public static BandImageMultiLevelSource create(RasterDataNode rasterDataNode,
-                                                   AffineTransform i2mTransform, ProgressMonitor pm) {
-        return create(new RasterDataNode[]{rasterDataNode}, i2mTransform, pm);
-    }
-
-    /**
-     * @deprecated since BEAM 5 because it creates a {@code DefaultMultiLevelModel}, which is not the desired behaviour in many cases
-     */
-    @Deprecated
-    public static BandImageMultiLevelSource create(RasterDataNode[] rasterDataNodes,
-                                                   AffineTransform i2mTransform, ProgressMonitor pm) {
-        return create(rasterDataNodes, i2mTransform,
-                      DefaultMultiLevelModel.getLevelCount(rasterDataNodes[0].getSceneRasterWidth(),
-                                                           rasterDataNodes[0].getSceneRasterHeight()), pm);
-    }
-
-    /**
-     * @deprecated since BEAM 5 because it creates a {@code DefaultMultiLevelModel}, which is not the desired behaviour in many cases
-     */
-    @Deprecated
-    private static BandImageMultiLevelSource create(RasterDataNode[] rasterDataNodes,
-                                                    AffineTransform i2mTransform,
-                                                    int levelCount,
-                                                    ProgressMonitor pm) {
-        Assert.notNull(rasterDataNodes);
-        Assert.argument(rasterDataNodes.length > 0);
-        final int w = rasterDataNodes[0].getSceneRasterWidth();
-        final int h = rasterDataNodes[0].getSceneRasterHeight();
-        MultiLevelModel model = new DefaultMultiLevelModel(levelCount, i2mTransform, w, h);
-        return create(rasterDataNodes, model, pm);
-    }
-
     private BandImageMultiLevelSource(MultiLevelModel model, RasterDataNode[] rasterDataNodes) {
         super(model);
         this.rasterDataNodes = rasterDataNodes.clone();
