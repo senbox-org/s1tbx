@@ -851,15 +851,7 @@ public class WarpOp extends Operator {
                                                 final WarpData warpData, final boolean appendFlag,
                                                 final float threshold, final int parseIndex, final String bandName)
             throws OperatorException {
-        /*
-        float[] xCoeffs = null;
-        float[] yCoeffs = null;
 
-        if (!warpData.notEnoughGCPs) {
-            xCoeffs = warpData.jaiWarp.getXCoeffs();
-            yCoeffs = warpData.jaiWarp.getYCoeffs();
-        }
-        */
         final File residualFile = getResidualsFile(sourceProduct);
         PrintStream p = null; // declare a print stream object
 
