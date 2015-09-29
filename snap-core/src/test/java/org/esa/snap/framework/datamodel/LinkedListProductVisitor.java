@@ -21,7 +21,7 @@ import java.util.List;
 
 public class LinkedListProductVisitor extends ProductVisitorAdapter {
 
-    private List<String> visitedList = new LinkedList<String>();
+    private List<String> visitedList = new LinkedList<>();
 
     public LinkedListProductVisitor() {
     }
@@ -59,11 +59,6 @@ public class LinkedListProductVisitor extends ProductVisitorAdapter {
     @Override
     public void visit(MetadataAttribute attribute) {
         visitedList.add(attribute.getName());
-    }
-
-    @Override
-    public void visit(BitmaskDef bitmaskDef) {
-        visitedList.add(bitmaskDef.getName());
     }
 
     @Override

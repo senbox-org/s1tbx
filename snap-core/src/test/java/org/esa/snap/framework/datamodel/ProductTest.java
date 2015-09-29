@@ -69,7 +69,6 @@ public class ProductTest {
 
         assertEquals(true, visitedList.contains("bands"));
         assertEquals(true, visitedList.contains("tie_point_grids"));
-        assertEquals(true, visitedList.contains("bitmask_defs"));
         assertEquals(true, visitedList.contains("masks"));
         assertEquals(true, visitedList.contains("index_codings"));
         assertEquals(true, visitedList.contains("flag_codings"));

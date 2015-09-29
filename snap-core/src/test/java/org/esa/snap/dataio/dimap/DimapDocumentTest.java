@@ -21,7 +21,6 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.esa.snap.GlobalTestTools;
 import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.BitmaskDef;
 import org.esa.snap.framework.datamodel.ColorPaletteDef;
 import org.esa.snap.framework.datamodel.FlagCoding;
 import org.esa.snap.framework.datamodel.GcpGeoCoding;
@@ -253,7 +252,7 @@ public class DimapDocumentTest extends TestCase {
         product.setDescription("description");
         product.setStartTime(new ProductData.UTC(1234, 2045, 34));
         product.setEndTime(new ProductData.UTC(1234, 3045, 34));
-        addBitmaskDefs(product);
+        addMasks(product);
         addBands(product);
         addVirtualBands(product);
         addSampleCodings(product);
@@ -263,27 +262,10 @@ public class DimapDocumentTest extends TestCase {
         return product;
     }
 
-    private void addBitmaskDefs(Product product) {
-        String name = "name1";
-        String desc = "bitmask.description1";
-        String expr = "bitmask.expression1";
-        Color color = Color.black;
-        float trans = 1.0F;
-        product.addBitmaskDef(new BitmaskDef(name, desc, expr, color, trans));
-
-        name = "name2";
-        desc = "bitmask.description2";
-        expr = "bitmask.expression2";
-        color = Color.blue;
-        trans = 0.75F;
-        product.addBitmaskDef(new BitmaskDef(name, desc, expr, color, trans));
-
-        name = "name3";
-        desc = "bitmask.description3";
-        expr = "bitmask.expression3";
-        color = Color.green;
-        trans = 0.2341F;
-        product.addBitmaskDef(new BitmaskDef(name, desc, expr, color, trans));
+    private void addMasks(Product product) {
+        product.addMask("name1", "mask.expression1", "mask.description1", Color.black, 1.0F);
+        product.addMask("name2", "mask.expression2", "mask.description2", Color.blue, 0.75F);
+        product.addMask("name3", "mask.expression3", "mask.description3", Color.green, 0.2341F);
     }
 
     private void addMetadata(Product product) {
@@ -877,28 +859,28 @@ public class DimapDocumentTest extends TestCase {
         pw.println("            <NAME value=\"name1\" />");
         pw.println("            <MASK_RASTER_WIDTH value=\"1121\" />");
         pw.println("            <MASK_RASTER_HEIGHT value=\"2241\" />");
-        pw.println("            <DESCRIPTION value=\"bitmask.description1\" />");
+        pw.println("            <DESCRIPTION value=\"mask.description1\" />");
         pw.println("            <COLOR red=\"0\" green=\"0\" blue=\"0\" alpha=\"255\" />");
         pw.println("            <TRANSPARENCY value=\"1.0\" />");
-        pw.println("            <EXPRESSION value=\"bitmask.expression1\" />");
+        pw.println("            <EXPRESSION value=\"mask.expression1\" />");
         pw.println("        </Mask>");
         pw.println("        <Mask type=\"Maths\">");
         pw.println("            <NAME value=\"name2\" />");
         pw.println("            <MASK_RASTER_WIDTH value=\"1121\" />");
         pw.println("            <MASK_RASTER_HEIGHT value=\"2241\" />");
-        pw.println("            <DESCRIPTION value=\"bitmask.description2\" />");
+        pw.println("            <DESCRIPTION value=\"mask.description2\" />");
         pw.println("            <COLOR red=\"0\" green=\"0\" blue=\"255\" alpha=\"255\" />");
         pw.println("            <TRANSPARENCY value=\"0.75\" />");
-        pw.println("            <EXPRESSION value=\"bitmask.expression2\" />");
+        pw.println("            <EXPRESSION value=\"mask.expression2\" />");
         pw.println("        </Mask>");
         pw.println("        <Mask type=\"Maths\">");
         pw.println("            <NAME value=\"name3\" />");
         pw.println("            <MASK_RASTER_WIDTH value=\"1121\" />");
         pw.println("            <MASK_RASTER_HEIGHT value=\"2241\" />");
-        pw.println("            <DESCRIPTION value=\"bitmask.description3\" />");
+        pw.println("            <DESCRIPTION value=\"mask.description3\" />");
         pw.println("            <COLOR red=\"0\" green=\"255\" blue=\"0\" alpha=\"255\" />");
         pw.println("            <TRANSPARENCY value=\"0.23409999907016754\" />");
-        pw.println("            <EXPRESSION value=\"bitmask.expression3\" />");
+        pw.println("            <EXPRESSION value=\"mask.expression3\" />");
         pw.println("        </Mask>");
         pw.println("    </Masks>");
         pw.println("    <Image_Interpretation>");
@@ -1053,21 +1035,21 @@ public class DimapDocumentTest extends TestCase {
      */
     private static final class TestDOMBuilder {
 
-        private final Product _product;
-        private final String _nameDataDirectory;
-        private Element _root;
+        private final Product product;
+        private final String nameDataDirectory;
+        private Element root;
 
         TestDOMBuilder(Product product, String nameDataDirectory) {
-            _product = product;
-            _nameDataDirectory = nameDataDirectory;
+            this.product = product;
+            this.nameDataDirectory = nameDataDirectory;
         }
 
         final Product getProduct() {
-            return _product;
+            return product;
         }
 
         final Document createDOM() {
-            _root = createRootElement(getProductFilename());
+            root = createRootElement(getProductFilename());
             addMetadataIdElements();
             addDatasetIdElements();
             addProductionElements();
@@ -1077,50 +1059,19 @@ public class DimapDocumentTest extends TestCase {
             addDataAccessElements();
             addTiePointGridElements();
             addImageDisplayElements();
-            addBitmaskDefinitions();
             addImageInterpretationElements();
             addAnnotatonDataSet();
             final Document document = new Document();
-            document.setRootElement(_root);
+            document.setRootElement(root);
             return document;
         }
 
-        private void addBitmaskDefinitions() { //Übernommen
-            final String[] defNames = _product.getBitmaskDefNames();
-            for (String defName : defNames) {
-                final BitmaskDef bitmaskDef = _product.getBitmaskDef(defName);
-                final Element bitmaskDefElem = new Element(DimapProductConstants.TAG_BITMASK_DEFINITION);
-                bitmaskDefElem.setAttribute(DimapProductConstants.ATTRIB_NAME, bitmaskDef.getName());
-
-                Element descElem = new Element(DimapProductConstants.TAG_BITMASK_DESCRIPTION);
-                bitmaskDefElem.addContent(descElem);
-                if (bitmaskDef.getDescription() != null) {
-                    descElem.setAttribute(DimapProductConstants.ATTRIB_VALUE, bitmaskDef.getDescription());
-                } else {
-                    descElem.setAttribute(DimapProductConstants.ATTRIB_VALUE, "");
-                }
-
-                final Element exprElem = new Element(DimapProductConstants.TAG_BITMASK_EXPRESSION);
-                exprElem.setAttribute(DimapProductConstants.ATTRIB_VALUE, bitmaskDef.getExpr());
-                bitmaskDefElem.addContent(exprElem);
-
-                bitmaskDefElem.addContent(createColorElement(bitmaskDef.getColor()));
-
-                final Element transparency = new Element(DimapProductConstants.TAG_BITMASK_TRANSPARENCY);
-                transparency.setAttribute(DimapProductConstants.ATTRIB_VALUE,
-                                          String.valueOf(bitmaskDef.getTransparency()));
-                bitmaskDefElem.addContent(transparency);
-
-                _root.addContent(bitmaskDefElem);
-            }
-        }
-
         private void addAnnotatonDataSet() { //Übernommen
-            final MetadataElement metadataRoot = _product.getMetadataRoot();
+            final MetadataElement metadataRoot = product.getMetadataRoot();
             if (metadataRoot != null) {
                 final Element datasetSourcesElem = new Element(DimapProductConstants.TAG_DATASET_SOURCES);
                 addMetadataElements(new MetadataElement[]{metadataRoot}, datasetSourcesElem);
-                _root.addContent(datasetSourcesElem);
+                root.addContent(datasetSourcesElem);
             }
         }
 
@@ -1212,7 +1163,7 @@ public class DimapDocumentTest extends TestCase {
                 Element dataFile = new Element(DimapProductConstants.TAG_DATA_FILE);
                 Element dataFilePath = new Element(DimapProductConstants.TAG_DATA_FILE_PATH);
                 dataFilePath.setAttribute(DimapProductConstants.ATTRIB_HREF,
-                                          _nameDataDirectory + "/" + names[i] + EnviHeader.FILE_EXTENSION);
+                                          nameDataDirectory + "/" + names[i] + EnviHeader.FILE_EXTENSION);
                 dataFile.addContent(dataFilePath);
                 JDomHelper.addElement(DimapProductConstants.TAG_BAND_INDEX, i, dataFile);
                 dataAccess.addContent(dataFile);
@@ -1224,14 +1175,14 @@ public class DimapDocumentTest extends TestCase {
                 Element dataFile = new Element(DimapProductConstants.TAG_TIE_POINT_GRID_FILE);
                 Element dataFilePath = new Element(DimapProductConstants.TAG_TIE_POINT_GRID_FILE_PATH);
                 dataFilePath.setAttribute(DimapProductConstants.ATTRIB_HREF,
-                                          _nameDataDirectory + "/" + DimapProductConstants.TIE_POINT_GRID_DIR_NAME + "/" + names1[i] + EnviHeader.FILE_EXTENSION);
+                                          nameDataDirectory + "/" + DimapProductConstants.TIE_POINT_GRID_DIR_NAME + "/" + names1[i] + EnviHeader.FILE_EXTENSION);
                 dataFile.addContent(dataFilePath);
                 JDomHelper.addElement(DimapProductConstants.TAG_TIE_POINT_GRID_INDEX, i, dataFile);
                 dataAccess.addContent(dataFile);
             }
 
 
-            _root.addContent(dataAccess);
+            root.addContent(dataAccess);
         }
 
         private void addTiePointGridElements() { //Übernommen
@@ -1240,7 +1191,7 @@ public class DimapDocumentTest extends TestCase {
                 Element tiePointGrids = new Element(DimapProductConstants.TAG_TIE_POINT_GRIDS);
                 JDomHelper.addElement(DimapProductConstants.TAG_TIE_POINT_NUM_TIE_POINT_GRIDS, numTiePointGrids,
                                       tiePointGrids);
-                _root.addContent(tiePointGrids);
+                root.addContent(tiePointGrids);
                 String[] gridNames = getProduct().getTiePointGridNames();
                 for (int i = 0; i < gridNames.length; i++) {
                     String name = gridNames[i];
@@ -1322,7 +1273,7 @@ public class DimapDocumentTest extends TestCase {
             final List children = imageDisplayElem.getChildren();
             if (children != null && children.size() > 0) {
 //            if (imageDisplayElem.hasChildren()) {
-                _root.addContent(imageDisplayElem);
+                root.addContent(imageDisplayElem);
             }
         }
 
@@ -1340,7 +1291,7 @@ public class DimapDocumentTest extends TestCase {
             for (String codingName : codingNames) {
                 Element flagCodingElem = new Element(DimapProductConstants.TAG_FLAG_CODING);
                 flagCodingElem.setAttribute(DimapProductConstants.ATTRIB_NAME, codingName);
-                _root.addContent(flagCodingElem);
+                root.addContent(flagCodingElem);
                 FlagCoding flagCoding = getProduct().getFlagCodingGroup().get(codingName);
                 String[] flagNames = flagCoding.getFlagNames();
                 for (String flagName : flagNames) {
@@ -1385,7 +1336,7 @@ public class DimapDocumentTest extends TestCase {
                 }
                 imageInterpreElem.addContent(sbiElem);
             }
-            _root.addContent(imageInterpreElem);
+            root.addContent(imageInterpreElem);
         }
 
         private void addMetadataIdElements() { //Übernommen
@@ -1393,7 +1344,7 @@ public class DimapDocumentTest extends TestCase {
             addMetadataFormatElement(metadataID);
             JDomHelper.addElement(DimapProductConstants.TAG_METADATA_PROFILE,
                                   DimapProductConstants.DIMAP_METADATA_PROFILE, metadataID);
-            _root.addContent(metadataID);
+            root.addContent(metadataID);
         }
 
         private void addMetadataFormatElement(Element parent) {
@@ -1408,7 +1359,7 @@ public class DimapDocumentTest extends TestCase {
             JDomHelper.addElement(DimapProductConstants.TAG_NROWS, getProduct().getSceneRasterHeight(),
                                   rasterDimension);
             JDomHelper.addElement(DimapProductConstants.TAG_NBANDS, getProduct().getNumBands(), rasterDimension);
-            _root.addContent(rasterDimension);
+            root.addContent(rasterDimension);
         }
 
         private void addProductionElements() { //Übernommen
@@ -1416,7 +1367,7 @@ public class DimapDocumentTest extends TestCase {
             JDomHelper.addElement(DimapProductConstants.TAG_DATASET_PRODUCER_NAME,
                                   DimapProductConstants.DATASET_PRODUCER_NAME, production);
             JDomHelper.addElement(DimapProductConstants.TAG_PRODUCT_TYPE, getProduct().getProductType(), production);
-            _root.addContent(production);
+            root.addContent(production);
         }
 
         private void addGeocodingElements() { // Übernommen
@@ -1434,7 +1385,7 @@ public class DimapDocumentTest extends TestCase {
                     JDomHelper.addElement(DimapProductConstants.TAG_TIE_POINT_GRID_NAME_LAT, latGridName, gctpgElem);
                     JDomHelper.addElement(DimapProductConstants.TAG_TIE_POINT_GRID_NAME_LON, lonGridName, gctpgElem);
                     crsElem.addContent(gctpgElem);
-                    _root.addContent(crsElem);
+                    root.addContent(crsElem);
                 } else if (geoCoding instanceof MapGeoCoding) {
                     MapGeoCoding mapGeoCoding = (MapGeoCoding) geoCoding;
                     MapInfo info = mapGeoCoding.getMapInfo();
@@ -1448,7 +1399,7 @@ public class DimapDocumentTest extends TestCase {
                     final Element mgcElem = new Element(DimapProductConstants.TAG_GEOCODING_MAP);
                     JDomHelper.addElement(DimapProductConstants.TAG_GEOCODING_MAP_INFO, infoString, mgcElem);
                     crsElem.addContent(mgcElem);
-                    _root.addContent(crsElem);
+                    root.addContent(crsElem);
                 }
             }
         }
@@ -1462,7 +1413,7 @@ public class DimapDocumentTest extends TestCase {
             if (description != null && description.length() > 0) {
                 JDomHelper.addElement(DimapProductConstants.TAG_DATASET_DESCRIPTION, description, datasetID);
             }
-            _root.addContent(datasetID);
+            root.addContent(datasetID);
         }
     }
 }

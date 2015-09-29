@@ -33,7 +33,6 @@ import org.esa.snap.framework.dataio.ProductSubsetBuilder;
 import org.esa.snap.framework.dataio.ProductSubsetDef;
 import org.esa.snap.framework.dataio.ProductWriter;
 import org.esa.snap.framework.dataop.barithm.BandArithmetic;
-import org.esa.snap.framework.dataop.barithm.RasterDataEvalEnv;
 import org.esa.snap.framework.dataop.barithm.RasterDataLoop;
 import org.esa.snap.framework.dataop.barithm.RasterDataSymbol;
 import org.esa.snap.framework.dataop.barithm.SingleFlagSymbol;
@@ -80,7 +79,6 @@ import java.util.Map;
  * necessarily store data in the same format. Furthermore, it is not mandatory for a product to have both of them.
  *
  * @author Norman Fomferra
- * @version $Revision: 8401 $ $Date: 2010-02-12 17:17:06 +0100 (Fr, 12 Feb 2010) $
  */
 public class Product extends ProductNode {
 
@@ -279,7 +277,6 @@ public class Product extends ProductNode {
 
         this.bandGroup = new ProductNodeGroup<>(this, "bands", true);
         this.tiePointGridGroup = new ProductNodeGroup<>(this, "tie_point_grids", true);
-        this.bitmaskDefGroup = new ProductNodeGroup<>(this, "bitmask_defs", true);
         this.vectorDataGroup = new VectorDataNodeProductNodeGroup();
         this.indexCodingGroup = new ProductNodeGroup<>(this, "index_codings", true);
         this.flagCodingGroup = new ProductNodeGroup<>(this, "flag_codings", true);
@@ -342,7 +339,7 @@ public class Product extends ProductNode {
         // TODO - move code to where masks are created
         if (StringUtils.isNullOrEmpty(mask.getDescription()) && mask.getImageType() == Mask.BandMathsType.INSTANCE) {
             String expression = Mask.BandMathsType.getExpression(mask);
-            mask.setDescription(getSuitableBitmaskDefDescription(expression));
+            mask.setDescription(getSuitableMaskDefDescription(expression));
         }
     }
 
@@ -456,11 +453,6 @@ public class Product extends ProductNode {
             @Override
             public void visit(VirtualBand virtualBand) {
                 virtualBand.updateExpression(oldExternName, newExternName);
-            }
-
-            @Override
-            public void visit(BitmaskDef bitmaskDef) {
-                bitmaskDef.updateExpression(oldExternName, newExternName);
             }
 
             @Override
@@ -674,7 +666,6 @@ public class Product extends ProductNode {
         metadataRoot.dispose();
         bandGroup.dispose();
         tiePointGridGroup.dispose();
-        bitmaskDefGroup.dispose();
         flagCodingGroup.dispose();
         indexCodingGroup.dispose();
         maskGroup.dispose();
@@ -1491,7 +1482,6 @@ public class Product extends ProductNode {
         flagCodingGroup.acceptVisitor(visitor);
         indexCodingGroup.acceptVisitor(visitor);
         vectorDataGroup.acceptVisitor(visitor);
-        bitmaskDefGroup.acceptVisitor(visitor);
         maskGroup.acceptVisitor(visitor);
         metadataRoot.acceptVisitor(visitor);
         visitor.visit(this);
@@ -1776,7 +1766,6 @@ public class Product extends ProductNode {
             if (!modified) {
                 bandGroup.setModified(false);
                 tiePointGridGroup.setModified(false);
-                bitmaskDefGroup.setModified(false);
                 maskGroup.setModified(false);
                 vectorDataGroup.setModified(false);
                 flagCodingGroup.setModified(false);
@@ -2005,7 +1994,6 @@ public class Product extends ProductNode {
     public ProductNode[] getRemovedChildNodes() {
         final ArrayList<ProductNode> removedNodes = new ArrayList<>();
         removedNodes.addAll(bandGroup.getRemovedNodes());
-        removedNodes.addAll(bitmaskDefGroup.getRemovedNodes());
         removedNodes.addAll(flagCodingGroup.getRemovedNodes());
         removedNodes.addAll(indexCodingGroup.getRemovedNodes());
         removedNodes.addAll(tiePointGridGroup.getRemovedNodes());
@@ -2043,7 +2031,7 @@ public class Product extends ProductNode {
         return true;
     }
 
-    private String getSuitableBitmaskDefDescription(final String expr) {
+    private String getSuitableMaskDefDescription(final String expr) {
 
         if (StringUtils.isNullOrEmpty(expr)) {
             return null;
@@ -2057,14 +2045,14 @@ public class Product extends ProductNode {
         }
 
         if (term instanceof Term.Ref) {
-            return getSuitableBitmaskDefDescription((Term.Ref) term);
+            return getSuitableMaskDefDescription((Term.Ref) term);
         }
 
         if (term instanceof Term.NotB) {
             final Term.NotB notTerm = ((Term.NotB) term);
             final Term arg = notTerm.getArgs()[0];
             if (arg instanceof Term.Ref) {
-                final String description = getSuitableBitmaskDefDescription((Term.Ref) arg);
+                final String description = getSuitableMaskDefDescription((Term.Ref) arg);
                 if (description != null) {
                     return "Not " + description;
                 }
@@ -2074,7 +2062,7 @@ public class Product extends ProductNode {
         return null;
     }
 
-    private String getSuitableBitmaskDefDescription(Term.Ref ref) {
+    private String getSuitableMaskDefDescription(Term.Ref ref) {
         String description = null;
         final String symbolName = ref.getSymbol().getName();
         if (isFlagSymbol(symbolName)) {
@@ -2580,52 +2568,7 @@ public class Product extends ProductNode {
     // Deprecated API
 
     @Deprecated
-    private final ProductNodeGroup<BitmaskDef> bitmaskDefGroup;
-
-    @Deprecated
     private Map<String, BitRaster> validMasks;
-
-    /**
-     * Adds the given bitmask definition to this product.
-     *
-     * @param bitmaskDef the bitmask definition to added, ignored if <code>null</code>
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public void addBitmaskDef(final BitmaskDef bitmaskDef) {
-        if (StringUtils.isNullOrEmpty(bitmaskDef.getDescription())) {
-            final String defaultDescription = getSuitableBitmaskDefDescription(bitmaskDef.getExpr());
-            bitmaskDef.setDescription(defaultDescription);
-        }
-        bitmaskDefGroup.add(bitmaskDef);
-        maskGroup.add(bitmaskDef.createMask(getSceneRasterWidth(), getSceneRasterHeight()));
-    }
-
-    /**
-     * Returns a string array containing the names of the bitmask definitions contained in this product.
-     *
-     * @return a string array containing the names of the bitmask definitions contained in this product. If this product
-     * has no bitmask definitions a zero-length-array is returned.
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public String[] getBitmaskDefNames() {
-        return bitmaskDefGroup.getNodeNames();
-    }
-
-    /**
-     * Returns the bitmask definition with the given name.
-     *
-     * @param name the bitmask definition name
-     * @return the bitmask definition with the given name or <code>null</code> if a bitmask definition with the given
-     * name is not contained in this product.
-     * @deprecated since BEAM 4.7, use {@link #getMaskGroup()} instead
-     */
-    @Deprecated
-    public BitmaskDef getBitmaskDef(final String name) {
-        Guardian.assertNotNullOrEmpty("name", name);
-        return bitmaskDefGroup.get(name);
-    }
 
     /**
      * Gets a valid-mask for the given ID.
@@ -2723,12 +2666,9 @@ public class Product extends ProductNode {
         final RasterDataLoop loop = new RasterDataLoop(0, 0,
                                                        productWidth, productHeight,
                                                        new Term[]{term}, pm);
-        loop.forEachPixel(new RasterDataLoop.Body() {
-            @Override
-            public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
-                if (term.evalB(env)) {
-                    validMask.set(pixelIndex);
-                }
+        loop.forEachPixel((env, pixelIndex) -> {
+            if (term.evalB(env)) {
+                validMask.set(pixelIndex);
             }
         }, "Computing valid-mask..."); /*I18N*/
 
@@ -2777,12 +2717,7 @@ public class Product extends ProductNode {
         final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY,
                                                        width, height,
                                                        new Term[]{bitmaskTerm}, pm);
-        loop.forEachPixel(new RasterDataLoop.Body() {
-            @Override
-            public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
-                bitmask[pixelIndex] = bitmaskTerm.evalB(env);
-            }
-        });
+        loop.forEachPixel((env, pixelIndex) -> bitmask[pixelIndex] = bitmaskTerm.evalB(env));
     }
 
 
@@ -2829,14 +2764,11 @@ public class Product extends ProductNode {
         final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY,
                                                        width, height,
                                                        new Term[]{bitmaskTerm}, pm);
-        loop.forEachPixel(new RasterDataLoop.Body() {
-            @Override
-            public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
-                if (bitmaskTerm.evalB(env)) {
-                    bitmask[pixelIndex] = trueValue;
-                } else {
-                    bitmask[pixelIndex] = falseValue;
-                }
+        loop.forEachPixel((env, pixelIndex) -> {
+            if (bitmaskTerm.evalB(env)) {
+                bitmask[pixelIndex] = trueValue;
+            } else {
+                bitmask[pixelIndex] = falseValue;
             }
         }, "Reading bitmask...");  /*I18N*/
     }

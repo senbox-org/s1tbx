@@ -16,7 +16,6 @@
 package org.esa.snap.dataio.dimap;
 
 import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.BitmaskDef;
 import org.esa.snap.framework.datamodel.ConvolutionFilterBand;
 import org.esa.snap.framework.datamodel.CrsGeoCoding;
 import org.esa.snap.framework.datamodel.FXYGeoCoding;
@@ -48,7 +47,7 @@ import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.io.StringWriter;
 
-import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.*;
 
 public class DimapHeaderWriterTest {
 
@@ -220,8 +219,8 @@ public class DimapHeaderWriterTest {
     }
 
     @Test
-    public void testWriteBitmaskDefs() {
-        addBitmaskDefsToProduct();
+    public void testWriteMasks() {
+        addMasksToProduct();
 
         dimapHeaderWriter.writeHeader();
 
@@ -292,12 +291,9 @@ public class DimapHeaderWriterTest {
         assertEquals(expectedForCrsGeoCodingPerBand, stringWriter.toString());
     }
 
-    private void addBitmaskDefsToProduct() {
-        BitmaskDef bitmaskDef1 = new BitmaskDef("bitmaskDef1", "description1", "!l1_flags.INVALID", Color.BLUE, 0.75f);
-        product.addBitmaskDef(bitmaskDef1);
-
-        BitmaskDef bitmaskDef2 = new BitmaskDef("bitmaskDef2", "description2", "l1_flags.LAND", Color.GREEN, 0.5f);
-        product.addBitmaskDef(bitmaskDef2);
+    private void addMasksToProduct() {
+        product.addMask("bitmaskDef1", "!l1_flags.INVALID", "description1", Color.BLUE, 0.75f);
+        product.addMask("bitmaskDef2", "l1_flags.LAND", "description2", Color.GREEN, 0.5f);
     }
 
     private String getExpectedForWriteMasks() {

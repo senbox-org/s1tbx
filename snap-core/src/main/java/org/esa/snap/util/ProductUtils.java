@@ -23,7 +23,6 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.grender.support.BufferedImageRendering;
 import com.vividsolutions.jts.geom.Geometry;
 import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.BitmaskDef;
 import org.esa.snap.framework.datamodel.ColorPaletteDef;
 import org.esa.snap.framework.datamodel.DensityPlot;
 import org.esa.snap.framework.datamodel.FlagCoding;
@@ -1554,14 +1553,6 @@ public class ProductUtils {
         final ArrayList<String> messages = new ArrayList<>(10);
 
         product.acceptVisitor(new ProductVisitorAdapter() {
-            @Override
-            public void visit(BitmaskDef bitmaskDef) {
-                if (!product.isCompatibleBandArithmeticExpression(bitmaskDef.getExpr())) {
-                    String pattern = "Bitmask definition ''{0}'' removed from output product because it is not applicable."; /*I18N*/
-                    messages.add(MessageFormat.format(pattern, bitmaskDef.getName()));
-                }
-            }
-
             @Override
             public void visit(TiePointGrid grid) {
                 final String type = "tie point grid";

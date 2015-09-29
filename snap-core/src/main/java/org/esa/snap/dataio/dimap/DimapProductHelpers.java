@@ -19,7 +19,6 @@ import org.esa.snap.dataio.dimap.spi.DimapPersistable;
 import org.esa.snap.dataio.dimap.spi.DimapPersistence;
 import org.esa.snap.dataio.placemark.PlacemarkIO;
 import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.BitmaskDef;
 import org.esa.snap.framework.datamodel.ColorPaletteDef;
 import org.esa.snap.framework.datamodel.CrsGeoCoding;
 import org.esa.snap.framework.datamodel.FXYGeoCoding;
@@ -133,7 +132,7 @@ public class DimapProductHelpers {
         Guardian.assertNotNull("product", product);
         Guardian.assertNotNull("inputDir", inputDir);
 
-        final Map<Band, File> dataFilesMap = new HashMap<Band, File>();
+        final Map<Band, File> dataFilesMap = new HashMap<>();
         if (!dom.hasRootElement()) {
             return dataFilesMap;
         }
@@ -1053,7 +1052,7 @@ public class DimapProductHelpers {
             setSceneRasterStartAndStopTime(product);
             setDescription(product);
             addMasks(product);
-            addBitmaskDefinitions(product);
+            addOldBitmaskDefinitions(product);
             addFlagsCoding(product);
             addIndexCoding(product);
             addBands(product);
@@ -1463,7 +1462,7 @@ public class DimapProductHelpers {
         }
 
         // needed for backward compatibility
-        private void addBitmaskDefinitions(Product product) {
+        private void addOldBitmaskDefinitions(Product product) {
             final Element bitmaskDefs = getRootElement().getChild(DimapProductConstants.TAG_BITMASK_DEFINITIONS);
             List bitmaskDefList;
             if (bitmaskDefs != null) {
@@ -1473,10 +1472,25 @@ public class DimapProductHelpers {
             }
             for (Object child : bitmaskDefList) {
                 final Element bitmaskDefElem = (Element) child;
-                final BitmaskDef bitmaskDef = BitmaskDef.createBitmaskDef(bitmaskDefElem);
-                if (bitmaskDef != null) {
-                    product.addBitmaskDef(bitmaskDef);
+                String name = bitmaskDefElem.getAttributeValue(DimapProductConstants.ATTRIB_NAME);
+                String description = null;
+                Element descElem = bitmaskDefElem.getChild(DimapProductConstants.TAG_BITMASK_DESCRIPTION);
+                if (descElem != null) {
+                    description = descElem.getAttributeValue(DimapProductConstants.ATTRIB_VALUE).trim();
                 }
+                String expression = bitmaskDefElem.getChild(DimapProductConstants.TAG_BITMASK_EXPRESSION).getAttributeValue(
+                        DimapProductConstants.ATTRIB_VALUE).trim();
+                final Color color = DimapProductHelpers.createColor(bitmaskDefElem.getChild(DimapProductConstants.TAG_BITMASK_COLOR));
+                float transparency = 0.5F;
+                try {
+                    transparency = Float.parseFloat(bitmaskDefElem.getChild(DimapProductConstants.TAG_BITMASK_TRANSPARENCY).getAttributeValue(
+                            DimapProductConstants.ATTRIB_VALUE));
+                } catch (NumberFormatException e) {
+                    Debug.trace(e);
+                }
+
+                product.addMask(name, expression, description, color, transparency);
+
             }
         }
 
