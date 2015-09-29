@@ -15,7 +15,10 @@
  */
 package org.esa.s1tbx.insar.rcp.toolviews;
 
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.gpf.StackUtils;
 import org.esa.snap.rcp.SnapApp;
 
@@ -48,21 +51,39 @@ public class StatInSARInfo implements InSARStatistic {
             if (!InSARStatisticsTopComponent.isValidProduct(product)) {
                 textarea.setText(InSARStatisticsTopComponent.EmptyMsg);
             } else {
+                final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+                final String mstName = absRoot.getAttributeString(AbstractMetadata.PRODUCT);
+                final String mode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+                final String orbitFile = absRoot.getAttributeString(AbstractMetadata.orbit_state_vector_file);
+                final int relOrbit = absRoot.getAttributeInt(AbstractMetadata.REL_ORBIT);
+
                 final String[] slaveProductNames = StackUtils.getSlaveProductNames(product);
-                //final ProductData.UTC[] times = StackUtils.getProductTimes(product);
+                final ProductData.UTC[] times = StackUtils.getProductTimes(product);
+                final String mstTime = times[0].format();
 
                 final StringBuilder slaveNames = new StringBuilder();
                 int i = 1;
                 for (String slaveName : slaveProductNames) {
                     slaveNames.append("<b>Slave Product " + i + ": </b>");
                     slaveNames.append(slaveName.substring(0, slaveName.lastIndexOf("_")));
+                    slaveNames.append(" [" + times[i].format() + "]");
                     slaveNames.append("<br>");
+                    ++i;
+                }
+
+                String track = "";
+                if(relOrbit != AbstractMetadata.NO_METADATA) {
+                    track = "<b>Track: </b>" + relOrbit + "<br";
                 }
 
                 textarea.setText("<html>" +
-                                "<b>Master Product: </b>" + product.getName() + "<br>" +
-                                slaveNames.toString() +
-                                "</html>"
+                                         "<b>Product: </b>" + product.getProductRefString() +" "+ product.getName() + "<br" +
+                                         "<b>Master Product: </b>" + mstName + " [" + mstTime + "]" + "<br>" +
+                                         slaveNames.toString() + "<br>" +
+                                         "<b>Mode: </b>" + mode + "<br" +
+                                         "<b>Orbit: </b>" + orbitFile + "<br" +
+                                         track +
+                                         "</html>"
                 );
             }
         } catch (Exception e) {
