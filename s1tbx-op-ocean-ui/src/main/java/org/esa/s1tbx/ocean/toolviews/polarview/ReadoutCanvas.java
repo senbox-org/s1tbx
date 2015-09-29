@@ -39,7 +39,7 @@ class ReadoutCanvas {
             }
         }
         if (metadataList != null) {
-            g.translate((int) g.getClipBounds().getWidth() - 230, 0);
+            g.translate((int) g.getClipBounds().getWidth() - 200, 0);
 
             int x = 0, y = 0;
             for (String str : metadataList) {

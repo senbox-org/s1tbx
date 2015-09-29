@@ -136,7 +136,7 @@ public class PolarCanvas extends Container {
     private void drawColorBar(Graphics g, Axis cAxis) {
         final Dimension cbSize = new Dimension((int) (graphSize.width * 0.03),
                                                (int) (Math.min(200, graphSize.height * 0.6)));
-        final Point at = new Point(20, -100);
+        final Point at = new Point(20, -30);
 
         g.translate(at.x, at.y);
         g.drawImage(colorBar, 0, 0, cbSize.width, cbSize.height, this);
@@ -305,7 +305,7 @@ public class PolarCanvas extends Container {
 
     private void drawAxisLabels(Graphics graphics) {
         final int x = 20;
-        final int y = origin.y;
+        final int y = origin.y+50;
         final int d = 50;
 
         graphics.setColor(Color.black);

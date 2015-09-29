@@ -709,14 +709,6 @@ public class ResampleOp extends Operator {
                                                 final boolean appendFlag,
                                                 final String bandName) throws OperatorException, FileNotFoundException {
 
-//        float[] xCoeffs = null;
-//        float[] yCoeffs = null;
-//
-//        if (!CPM.noRedundancy) {
-//            xCoeffs = CPM.jaiWarp.getXCoeffs();
-//            yCoeffs = CPM.jaiWarp.getYCoeffs();
-//        }
-
         final File residualFile = getResidualsFile(sourceProduct);
         PrintStream p = null; // declare a print stream object
 

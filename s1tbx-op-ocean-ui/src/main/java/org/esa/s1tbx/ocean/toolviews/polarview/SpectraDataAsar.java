@@ -23,7 +23,6 @@ import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.RasterDataNode;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -112,11 +111,9 @@ public class SpectraDataAsar extends SpectraDataBase implements SpectraData {
                 maxImaginary = spectraMetadata.getAttributeDouble("max_imag", 255);
             }
 
-            final DecimalFormat frmt = new DecimalFormat("0.0000");
-
             final List<String> metadataList = new ArrayList<>(10);
             metadataList.add("Time: " + zeroDopplerTime.toString());
-            metadataList.add("Peak Direction: " + maxSpecDir + " deg");
+            metadataList.add("Peak Direction: " + maxSpecDir + " °");
             metadataList.add("Peak Wavelength: " + frmt.format(maxSpecWL) + " m");
 
             if (waveProductType == WaveProductType.WAVE_SPECTRA) {
@@ -124,7 +121,7 @@ public class SpectraDataAsar extends SpectraDataBase implements SpectraData {
                 metadataList.add("Max Spectrum: " + frmt.format(maxSpectrum));
 
                 metadataList.add("Wind Speed: " + frmt.format(windSpeed) + " m/s");
-                metadataList.add("Wind Direction: " + windDirection + " deg");
+                metadataList.add("Wind Direction: " + windDirection + " °");
                 metadataList.add("SAR Swell Wave Height: " + frmt.format(sarWaveHeight) + " m");
                 metadataList.add("SAR Azimuth Shift Var: " + frmt.format(sarAzShiftVar) + " m^2");
                 metadataList.add("Backscatter: " + frmt.format(backscatter) + " dB");
@@ -243,40 +240,5 @@ public class SpectraDataAsar extends SpectraDataBase implements SpectraData {
             }
         }
         return spectrum;
-    }
-
-    public String[] updateReadouts(final double rTh[], final int currentRecord) {
-        if (spectrum == null)
-            return null;
-
-        final float rStep = (float) (Math.log(lastWLBin) - Math.log(firstWLBin)) / (float) (numWLBins - 1);
-        int wvBin = (int) (((rStep / 2.0 + Math.log(10000.0 / rTh[0])) - Math.log(firstWLBin)) / rStep);
-        wvBin = Math.min(wvBin, spectrum[0].length - 1);
-        final int wl = (int) Math.round(FastMath.exp((double) wvBin * rStep + Math.log(firstWLBin)));
-
-        final float thFirst, thStep;
-        final int thBin, element, direction;
-        if (waveProductType == WaveProductType.CROSS_SPECTRA) {
-            thFirst = firstDirBins - 5f;
-            thStep = dirBinStep;
-            thBin = (int) (((rTh[1] - (double) thFirst) % 360.0) / (double) thStep);
-            element = (thBin % (spectrum.length / 2)) * spectrum[0].length + wvBin;
-            direction = (int) ((float) thBin * thStep + thStep / 2.0f + thFirst);
-        } else {
-            thFirst = firstDirBins + 5f;
-            thStep = -dirBinStep;
-            thBin = (int) ((((360.0 - rTh[1]) + (double) thFirst) % 360.0) / (double) (-thStep));
-            element = thBin * spectrum[0].length + wvBin;
-            direction = (int) (-((float) thBin * thStep + thStep / 2.0f + thFirst));
-        }
-
-        final List<String> readoutList = new ArrayList<>(5);
-        readoutList.add("Record: " + (currentRecord + 1) + " of " + (numRecords + 1));
-        readoutList.add("Wavelength: " + wl + " m");
-        readoutList.add("Direction: " + direction + " deg");
-        readoutList.add("Bin: " + (thBin + 1) + "," + (wvBin + 1) + " Element: " + element);
-        readoutList.add("Value: " + spectrum[thBin][wvBin]);
-
-        return readoutList.toArray(new String[readoutList.size()]);
     }
 }
