@@ -30,20 +30,20 @@ import org.esa.snap.gpf.ProcessTimeMonitor;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.NbBundle;
 
-import javax.swing.AbstractAction;
-import java.awt.Rectangle;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 @ActionID(
@@ -317,7 +317,7 @@ public class SupervisedTrainingAction extends AbstractAction {
                     final VectorDataNode vec = product.getVectorDataGroup().get(geometry);
                     final FeatureCollection featCollection = vec.getFeatureCollection();
                     int i = 1;
-                    Iterator f = featCollection.iterator();
+                    FeatureIterator f = featCollection.features();
                     while (f.hasNext()) {
                         final SimpleFeature feature = (SimpleFeature) f.next();
 
