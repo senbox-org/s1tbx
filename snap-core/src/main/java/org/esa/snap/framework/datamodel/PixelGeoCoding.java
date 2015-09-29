@@ -23,7 +23,6 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.jexp.ParseException;
 import org.esa.snap.framework.dataio.ProductSubsetDef;
 import org.esa.snap.framework.dataop.maptransf.Datum;
-import org.esa.snap.jai.ImageManager;
 import org.esa.snap.runtime.Config;
 import org.esa.snap.util.BitRaster;
 import org.esa.snap.util.Debug;
