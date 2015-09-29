@@ -85,27 +85,14 @@ public class Product extends ProductNode {
     public static final String METADATA_ROOT_NAME = "metadata";
     public static final String HISTORY_ROOT_NAME = "history";
 
-    private static final String SYSPROP_SNAP_TO_COMPUTED_GEOLOCATION = "snap.pin.adjust.geolocation";
-
-    /**
-     * @deprecated since BEAM 4.10, no replacement
-     */
-    @Deprecated
-    public static final String PIN_MASK_NAME = "pins";
-    /**
-     * @deprecated since BEAM 4.10, no replacement
-     */
-    @Deprecated
-    public static final String GCP_MASK_NAME = "ground_control_points";
-
-    private static final String PIN_GROUP_NAME = "pins";
-    private static final String GCP_GROUP_NAME = "ground_control_points";
-
     public static final String PROPERTY_NAME_GEOCODING = "geoCoding";
     public static final String PROPERTY_NAME_TIMECODING = "timeCoding";
     public static final String PROPERTY_NAME_PRODUCT_TYPE = "productType";
 
     public static final String GEOMETRY_FEATURE_TYPE_NAME = PlainFeatureFactory.DEFAULT_TYPE_NAME;
+
+    private static final String PIN_GROUP_NAME = "pins";
+    private static final String GCP_GROUP_NAME = "ground_control_points";
 
     /**
      * The location file of this product.
@@ -181,7 +168,6 @@ public class Product extends ProductNode {
      */
     private String refStr;
 
-    // todo - rename or change to "ProductContext" (nf - 01.2009)
     private ProductManager productManager;
 
     private PointingFactory pointingFactory;
@@ -210,7 +196,6 @@ public class Product extends ProductNode {
      * @since BEAM 5.0
      */
     private int numResolutionsMax;
-    private boolean snapToComputedGeolocation;
 
     /**
      * Creates a new product without any reader (in-memory product)
@@ -295,8 +280,6 @@ public class Product extends ProductNode {
         groups.add(pinGroup);
         groups.add(gcpGroup);
 
-        snapToComputedGeolocation = Config.instance().preferences().getBoolean(SYSPROP_SNAP_TO_COMPUTED_GEOLOCATION, true);
-
         setModified(false);
 
         addProductNodeListener(new ProductNodeListenerAdapter() {
@@ -336,7 +319,6 @@ public class Product extends ProductNode {
 
     private void handleMaskAdded(ProductNodeEvent event) {
         final Mask mask = (Mask) event.getSourceNode();
-        // TODO - move code to where masks are created
         if (StringUtils.isNullOrEmpty(mask.getDescription()) && mask.getImageType() == Mask.BandMathsType.INSTANCE) {
             String expression = Mask.BandMathsType.getExpression(mask);
             mask.setDescription(getSuitableMaskDefDescription(expression));
@@ -404,9 +386,10 @@ public class Product extends ProductNode {
     }
 
     private void handleGeoCodingChange() {
-        for (int i = 0; i < pinGroup.getNodeCount(); i++) {
-            final Placemark pin = pinGroup.get(i);
-            if (snapToComputedGeolocation) {
+        boolean adjustPinGeoPos = Config.instance().preferences().getBoolean(Placemark.PREFERENCE_KEY_ADJUST_PIN_GEO_POS, true);
+        if (adjustPinGeoPos) {
+            for (int i = 0; i < pinGroup.getNodeCount(); i++) {
+                final Placemark pin = pinGroup.get(i);
                 final PlacemarkDescriptor pinDescriptor = pin.getDescriptor();
                 final PixelPos pixelPos = pin.getPixelPos();
                 GeoPos geoPos = pin.getGeoPos();
@@ -414,8 +397,6 @@ public class Product extends ProductNode {
                     geoPos = pinDescriptor.updateGeoPos(getGeoCoding(), pixelPos, geoPos);
                 }
                 pin.setGeoPos(geoPos);
-            } else {
-                pin.setGeoPos(pin.getGeoPos());
             }
         }
     }
@@ -1074,7 +1055,6 @@ public class Product extends ProductNode {
                         "The Product '" + getName() + "' already contains " +
                                 "a band with the name '" + band.getName() + "'.");
         bandGroup.add(band);
-//        maybeInvalidateSceneRasterGeometry(band);
     }
 
     /**
@@ -1601,7 +1581,6 @@ public class Product extends ProductNode {
      *
      * @param refNo the reference number to set must be in the range 1 .. Integer.MAX_VALUE
      * @throws IllegalArgumentException if the refNo is out of range
-     * @throws IllegalStateException
      */
     public void setRefNo(final int refNo) {
         Guardian.assertWithinRange("refNo", refNo, 1, Integer.MAX_VALUE);
@@ -2781,7 +2760,7 @@ public class Product extends ProductNode {
      * this product's {@link #getPreferredTileSize() preferred tile size} (if any) while other image layout settings
      * are derived from {@link ImageManager#createMultiLevelModel(ProductNode)}.
      *
-     * @param expression The expression
+     * @param expression       The expression
      * @param associatedRaster The associated raster or {@code null}.
      * @return A multi-level mask image.
      */
