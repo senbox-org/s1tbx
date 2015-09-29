@@ -36,6 +36,9 @@ import java.util.Map;
 
 public class StatESDMeasure implements InSARStatistic {
 
+    private JPanel panel;
+    private ChartPanel chartPanel;
+    private JTextArea textarea;
     private JFreeChart chart;
     private XYSeriesCollection dataset;
     private Map<String, Map<Integer, Double>> esdData = new HashMap<>();
@@ -43,6 +46,8 @@ public class StatESDMeasure implements InSARStatistic {
     private static final String TITLE = "Estimated Shifts per Burst Overlap";
     private static final String XAXIS_LABEL = "Burst Overlap #";
     private static final String YAXIS_LABEL = "ESD Measurement [cm]";
+
+    public static final String EmptyMsg = "This tool window requires a coregistered TOPSAR stack product to be selected with Azimuth Shift applied to it.";
 
     public String getName() {
         return "ESD Measure";
@@ -65,16 +70,23 @@ public class StatESDMeasure implements InSARStatistic {
                 false // Configure chart to generate URLs?
         );
 
-        final ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new java.awt.Dimension(500, 470));
         chartPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        return chartPanel;
+        panel = new JPanel(new BorderLayout());
+        textarea = new JTextArea(EmptyMsg);
+        panel.add(textarea, BorderLayout.NORTH);
+        panel.add(chartPanel, BorderLayout.CENTER);
+        setVisible(false);
+
+        return panel;
     }
 
     public void update(final Product product) {
         try {
             if (InSARStatisticsTopComponent.isValidProduct(product) && readESDMeasure(product)) {
+                setVisible(true);
 
                 dataset.removeAllSeries();
 
@@ -96,11 +108,16 @@ public class StatESDMeasure implements InSARStatistic {
                     chart.getXYPlot().getDomainAxis().setStandardTickUnits(NumberAxis.createIntegerTickUnits());
                 }
             } else {
-                //textarea.setText(InSARStatisticsTopComponent.EmptyMsg);
+                setVisible(false);
             }
         } catch (Exception e) {
             SnapApp.getDefault().handleError("Unable to update product", e);
         }
+    }
+
+    private void setVisible(final boolean flag) {
+        textarea.setVisible(!flag);
+        chartPanel.setVisible(flag);
     }
 
     private synchronized boolean readESDMeasure(final Product product) {
