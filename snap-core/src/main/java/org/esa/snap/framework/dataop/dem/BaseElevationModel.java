@@ -95,7 +95,7 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
         final double elevation;
         //synchronized(resampling) {
         Resampling.Index newIndex = resampling.createIndex();
-        resampling.computeIndex(getIndexX(geoPos), pixelY, RASTER_WIDTH, RASTER_HEIGHT, newIndex);
+        resampling.computeCornerBasedIndex(getIndexX(geoPos), pixelY, RASTER_WIDTH, RASTER_HEIGHT, newIndex);
         elevation = resampling.resample(resamplingRaster, newIndex);
         //}
         return Double.isNaN(elevation) ? NO_DATA_VALUE : elevation;

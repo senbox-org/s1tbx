@@ -18,7 +18,6 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.LineNumberReader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.file.FileSystem;
@@ -32,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Optional;
 import java.util.TimeZone;
 import java.util.stream.Stream;
 import java.util.zip.GZIPOutputStream;
@@ -56,6 +54,8 @@ public class GenAUCatalog {
     private static final String TAG_NAME_MODULE = "module";
     private static final String ATTRIB_NAME_DOWNLOADSIZE = "downloadsize";
     private static final String ATTRIB_NAME_NAME = "name";
+    private static final String XML_HEAD = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n" +
+                                           "<!DOCTYPE module_updates PUBLIC \"-//NetBeans//DTD Autoupdate Catalog 2.5//EN\" \"http://www.netbeans.org/dtds/autoupdate-catalog-2_5.dtd\">\r\n\r\n";
 
     private final Path moduleDir;
     private final SimpleDateFormat timeStampFormat;
@@ -65,7 +65,6 @@ public class GenAUCatalog {
     private Path catalogXmlGzPath;
     private String notificationMessage;
     private String notificationURL;
-    private String xmlHeader;
 
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {
@@ -116,17 +115,6 @@ public class GenAUCatalog {
         ArrayList<Node> moduleList = new ArrayList<>();
         HashMap<String, Node> licenseMap = new HashMap<>();
 
-        Optional<Path> any = Files.list(moduleDir).filter(this::isNbmModuleFile).findAny();
-        if (any.isPresent()) {
-            Path pathToInfoXml = getPathToInfoXml(any.get());
-            try (LineNumberReader r = new LineNumberReader(Files.newBufferedReader(pathToInfoXml))) {
-                xmlHeader=String.format("%s\r\n%s\r\n\r\n",r.readLine(),r.readLine());
-            }
-        }else {
-            log("No modules found!");
-            return;
-        }
-
         final Stream<Path> nbmFiles = Files.list(moduleDir).filter(this::isNbmModuleFile);
         nbmFiles.forEach(path -> processModule(path, moduleList, licenseMap));
 
@@ -154,11 +142,11 @@ public class GenAUCatalog {
 
     private void writeCatalogXml(ArrayList<Node> moduleList, HashMap<String, Node> licenseMap) throws Exception {
         BufferedWriter writer = Files.newBufferedWriter(catalogXmlPath);
-        writer.write(xmlHeader);
+        writer.write(XML_HEAD);
         if (notificationMessage != null) {
             writeNotificationElement(writer);
         }
-        writer.write(String.format("<module_updates timestamp=\"%s\">\r\n", timeStampFormat.format(Date.from(Instant.now()))));
+        writer.write(String.format("<module_updates timestamp=\"%s\">\r\n\r\n", timeStampFormat.format(Date.from(Instant.now()))));
         writeNodeCollection(moduleList, writer);
         writeNodeCollection(licenseMap.values(), writer);
         writer.write("</module_updates>\r\n");
@@ -180,7 +168,8 @@ public class GenAUCatalog {
     private void processModule(Path path, ArrayList<Node> moduleList, HashMap<String, Node> licenseMap) {
         try {
             log("Processing file: " + path.getFileName());
-            final Path infoFile = getPathToInfoXml(path);
+            final FileSystem nbmFileSystem = FileSystems.newFileSystem(path, null);
+            final Path infoFile = nbmFileSystem.getPath(PATH_INFO_XML);
             DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
             // This disables resolving the DTD given in the info.xml file.
             // It is not necessary to resolve it and it boosts the execution performance.
@@ -197,11 +186,6 @@ public class GenAUCatalog {
         } catch (IOException | SAXException | ParserConfigurationException e) {
             e.printStackTrace();
         }
-    }
-
-    private Path getPathToInfoXml(Path path) throws IOException {
-        final FileSystem nbmFileSystem = FileSystems.newFileSystem(path, null);
-        return nbmFileSystem.getPath(PATH_INFO_XML);
     }
 
     private void addLicenseToMap(Node licenseElement, HashMap<String, Node> licenseMap) {

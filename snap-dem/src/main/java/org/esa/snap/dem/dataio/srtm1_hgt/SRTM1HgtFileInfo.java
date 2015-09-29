@@ -16,116 +16,46 @@
 package org.esa.snap.dem.dataio.srtm1_hgt;
 
 import org.esa.snap.util.Guardian;
-import org.esa.snap.util.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Enumeration;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 /**
  * Holds information about a HGT file.
  *
- * @author Norman Fomferra
  */
 public class SRTM1HgtFileInfo {
 
     private static final EastingNorthingParser PARSER = new EastingNorthingParser();
 
-    private String _fileName;
-    private long _fileSize;
-    private float _easting;
-    private float _northing;
-    private float _pixelSizeX;
-    private float _pixelSizeY;
-    private int _width;
-    private int _height;
-    private float _noDataValue;
+    private String fileName;
+    private float easting;
+    private float northing;
 
     private SRTM1HgtFileInfo() {
     }
 
     public String getFileName() {
-        return _fileName;
-    }
-
-    public long getFileSize() {
-        return _fileSize;
+        return fileName;
     }
 
     public float getEasting() {
-        return _easting;
+        return easting;
     }
 
     public float getNorthing() {
-        return _northing;
+        return northing;
     }
 
-    public float getPixelSizeX() {
-        return _pixelSizeX;
-    }
-
-    public float getPixelSizeY() {
-        return _pixelSizeY;
-    }
-
-    public int getWidth() {
-        return _width;
-    }
-
-    public int getHeight() {
-        return _height;
-    }
-
-    public float getNoDataValue() {
-        return _noDataValue;
-    }
-
-    public static SRTM1HgtFileInfo create(final File file) throws IOException {
-        return createFromDataFile(file);
-    }
-
-    private static SRTM1HgtFileInfo createFromDataFile(final File dataFile) throws IOException {
+    public static SRTM1HgtFileInfo create(final File dataFile) throws IOException {
         final SRTM1HgtFileInfo fileInfo = new SRTM1HgtFileInfo();
-        fileInfo.setFromData(dataFile);
+        fileInfo.setFromData(dataFile.getName());
         return fileInfo;
     }
 
-    private ZipEntry getZipEntryIgnoreCase(final ZipFile zipFile, final String name) {
-        final Enumeration enumeration = zipFile.entries();
-        while (enumeration.hasMoreElements()) {
-            final ZipEntry zipEntry = (ZipEntry) enumeration.nextElement();
-            if (zipEntry.getName().equalsIgnoreCase(name)) {
-                return zipEntry;
-            }
-        }
-        return null;
-    }
-
-    private void setFromData(final File dataFile) throws IOException {
-        final String ext = FileUtils.getExtension(dataFile.getName());
-        if (".zip".equalsIgnoreCase(ext)) {
-            final String baseName = FileUtils.getFilenameWithoutExtension(dataFile.getName()) + ".GETASSE30";
-            final ZipFile zipFile = new ZipFile(dataFile);
-            try {
-                final ZipEntry zipEntry = getZipEntryIgnoreCase(zipFile, baseName);
-                if (zipEntry == null) {
-                    throw new IOException("Entry '" + baseName + "' not found in zip file.");
-                }
-                setFromData(baseName, zipEntry.getSize());
-            } finally {
-                zipFile.close();
-            }
-        } else {
-            setFromData(dataFile.getName(), dataFile.length());
-        }
-    }
-
-    public void setFromData(final String fileName, final long fileSize) throws IOException {
-        _fileName = fileName;
-        _fileSize = fileSize;
+    public void setFromData(final String fileName) throws IOException {
+        this.fileName = fileName;
 
         final int[] eastingNorthing;
         try {
@@ -133,19 +63,8 @@ public class SRTM1HgtFileInfo {
         } catch (ParseException e) {
             throw new IOException("Illegal file name format: " + fileName);
         }
-        _easting = eastingNorthing[0];
-        _northing = eastingNorthing[1];
-
-        _width = (int) Math.sqrt(fileSize / 2);
-        _height = _width;
-        if (_width * _height * 2L != fileSize) {
-            throw new IOException("Illegal file size: " + fileSize);
-        }
-
-        _pixelSizeX = 30.0F / (60.0F * 60.0F);  // 30 arcsecond product
-        _pixelSizeY = _pixelSizeX;
-
-        _noDataValue = SRTM1HgtElevationModelDescriptor.NO_DATA_VALUE;
+        easting = eastingNorthing[0];
+        northing = eastingNorthing[1];
     }
 
     public static int[] parseEastingNorthing(final String text) throws ParseException {
@@ -154,16 +73,6 @@ public class SRTM1HgtFileInfo {
             return null;
         }
         return PARSER.parse(text);
-    }
-
-    public static boolean isValidFileSize(final long size) {
-        if (size > 0 && size % 2 == 0) {
-            final long w = (long) Math.sqrt(size / 2);
-            if (2 * w * w == size) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private static class EastingNorthingParser {
@@ -219,8 +128,8 @@ public class SRTM1HgtFileInfo {
         }
 
         private void parseDirectionValueAndAssign(final int[] eastingNorthing) throws ParseException {
-            int value = readNumber();
             final int direction = getDirection();
+            int value = readNumber();
             value = correctValueByDirection(value, direction);
             assignValueByDirection(eastingNorthing, value, direction);
         }

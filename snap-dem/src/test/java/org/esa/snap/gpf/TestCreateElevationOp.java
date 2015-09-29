@@ -33,26 +33,26 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Unit test for MultilookOperator.
+ * Unit test for CreateElevationOp.
  */
 public class TestCreateElevationOp {
 
     public final static String sep = File.separator;
-    public final static String rootPathTestProducts = SystemUtils.getApplicationHomeDir()+sep+".."+sep+".."+sep+".."+sep+".."+sep+"testdata";
+    public final static String rootPathTestProducts = SystemUtils.getApplicationHomeDir()+sep+".."+sep+".."+sep+"testdata";
     public final static String inputSAR = rootPathTestProducts + sep + "input" + sep + "SAR" + sep;
     public final static File inputASAR_WSM = new File(inputSAR + "ASAR" + sep + "subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim");
 
     private final static OperatorSpi spi = new AddElevationOp.Spi();
 
     private static double[] expectedValues = {
-            1526.9168701171875,
-            1527.808349609375,
-            1536.52783203125,
-            1548.83837890625,
-            1525.9425048828125,
-            1520.9635009765625,
-            1530.3455810546875,
-            1552.3145751953125,
+            1526.274658203125,
+            1522.37060546875,
+            1533.1915283203125,
+            1552.01318359375,
+            1524.1387939453125,
+            1519.0521240234375,
+            1533.115966796875,
+            1555.3663330078125
     };
 
     /**

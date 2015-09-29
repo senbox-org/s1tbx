@@ -505,10 +505,6 @@ public final class OperatorUtils {
                 if (suff != null) {
                     targetBandName += '_' + suff;
                 }
-                final String pol = getBandPolarization(srcBandNames[0], absRoot);
-                if (pol != null && !pol.isEmpty() && !isPolsar && !targetBandName.toLowerCase().contains(pol)) {
-                    targetBandName += '_' + pol.toUpperCase();
-                }
                 if (isPolsar) {
                     final String pre = getPrefixFromBandName(srcBandNames[0]);
                     targetBandName = "Intensity_" + pre;
@@ -523,10 +519,6 @@ public final class OperatorUtils {
 
                 final String[] srcBandNames = {srcBand.getName()};
                 targetBandName = srcBand.getName();
-                final String pol = getBandPolarization(targetBandName, absRoot);
-                if (pol != null && !pol.isEmpty() && !isPolsar && !targetBandName.toLowerCase().contains(pol)) {
-                    targetBandName += '_' + pol.toUpperCase();
-                }
                 if (targetProduct.getBand(targetBandName) == null) {
                     targetBandNameToSourceBandName.put(targetBandName, srcBandNames);
                     targetUnit = unit;

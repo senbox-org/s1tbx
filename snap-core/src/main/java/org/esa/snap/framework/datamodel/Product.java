@@ -2841,7 +2841,18 @@ public class Product extends ProductNode {
         }, "Reading bitmask...");  /*I18N*/
     }
 
-
+    /**
+     * Gets a multi-level mask image for the given band maths expression and an optional associated raster.
+     * The associated raster is used to infer the target mask's image (tile) layout.
+     * <p>
+     * If the associated raster is {@code null}, the mask's tile size is
+     * this product's {@link #getPreferredTileSize() preferred tile size} (if any) while other image layout settings
+     * are derived from {@link ImageManager#createMultiLevelModel(ProductNode)}.
+     *
+     * @param expression The expression
+     * @param associatedRaster The associated raster or {@code null}.
+     * @return A multi-level mask image.
+     */
     public MultiLevelImage getMaskImage(String expression, RasterDataNode associatedRaster) {
         synchronized (this) {
             if (maskCache == null) {
