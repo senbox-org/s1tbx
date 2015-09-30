@@ -23,6 +23,7 @@ import org.esa.snap.framework.dataop.maptransf.Datum;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import javax.media.jai.ImageFunction;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
 import javax.media.jai.operator.ConstantDescriptor;
@@ -37,10 +38,75 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
+import static java.lang.Math.PI;
+import static java.lang.Math.sin;
+import static java.lang.Math.sqrt;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class ProductSceneRasterSizeTest {
+
+
+    /**
+     * See https://senbox.atlassian.net/browse/SNAP-211
+     * Cannot create mask with size different than the scene raster size
+     */
+    @Test
+    public void testUseMasksWithMultiSizeProduct() throws Exception {
+
+        final int S1 = 120;
+        final int S2 = 60;
+        final int S3 = 20;
+
+        final long PC1 = S1 * S1;
+        final long PC2 = S2 * S2;
+        final long PC3 = S3 * S3;
+
+        Product p = new Product("N", "T", S1, S1);
+
+        Band b1 = new Band("B1", ProductData.TYPE_FLOAT32, S1, S1);
+        Band b2 = new Band("B2", ProductData.TYPE_FLOAT32, S2, S2);
+        Band b3 = new Band("B3", ProductData.TYPE_FLOAT32, S3, S3);
+
+        p.addBand(b1);
+        p.addBand(b2);
+        p.addBand(b3);
+
+        b1.setNoDataValueUsed(true);
+        b2.setNoDataValueUsed(true);
+        b3.setNoDataValueUsed(true);
+
+        b1.setNoDataValue(0);
+        b2.setNoDataValue(0);
+        b3.setNoDataValue(0);
+
+        String expr = "sin(4 * PI * sqrt(X*X/%1$s/%1$s + Y*Y/%1$s/%1$s))";
+        b1.setSourceImage(VirtualBand.createSourceImage(b1, String.format(expr, S1)));
+        b2.setSourceImage(VirtualBand.createSourceImage(b2, String.format(expr, S2)));
+        b3.setSourceImage(VirtualBand.createSourceImage(b3, String.format(expr, S3)));
+
+        Mask m1 = p.addMask("M1", "B1 > 0.0", "", Color.GREEN, 0.5);
+        Mask m2 = p.addMask("M2", "B2 > 0.0", "", Color.GREEN, 0.5);
+        Mask m3 = p.addMask("M3", "B3 > 0.0", "", Color.GREEN, 0.5);
+
+        b1.setValidPixelExpression("M1");
+        b2.setValidPixelExpression("M2");
+        b3.setValidPixelExpression("M3");
+
+        Stx stx1 = b1.getStx(true, ProgressMonitor.NULL);
+        Stx stx2 = b2.getStx(true, ProgressMonitor.NULL);
+        Stx stx3 = b3.getStx(true, ProgressMonitor.NULL);
+
+        assertEquals(new Dimension(S1, S1), m1.getRasterSize());
+        assertEquals(new Dimension(S2, S2), m2.getRasterSize());
+        assertEquals(new Dimension(S3, S3), m3.getRasterSize());
+
+        assertTrue(stx1.getSampleCount() > PC1 / 3 && stx1.getSampleCount() < PC1 / 2);
+        assertTrue(stx2.getSampleCount() > PC2 / 3 && stx2.getSampleCount() < PC2 / 2);
+        assertTrue(stx3.getSampleCount() > PC3 / 3 && stx3.getSampleCount() < PC3 / 2);
+    }
+
     @Test
     public void testSizeChangeWithInitialSize() throws Exception {
         Product product = new Product("N", "T", 30, 20);
@@ -282,6 +348,47 @@ public class ProductSceneRasterSizeTest {
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             Files.delete(file);
             return FileVisitResult.CONTINUE;
+        }
+    }
+
+    private static class MyImageFunction implements ImageFunction {
+
+        @Override
+        public boolean isComplex() {
+            return false;
+        }
+
+        @Override
+        public int getNumElements() {
+            return 1;
+        }
+
+        @Override
+        public void getElements(float startX, float startY, float deltaX, float deltaY, int countX, int countY, int element, float[] real, float[] imag) {
+            System.out.printf("getElements(F): startX = %1.4f, startY = %1.4f, countX=%5d, countY=%5d, element=%s, real.length = %10d, real = %s%n",
+                              startX, startY, countX, countY, element, real.length, real);
+            int k = 0;
+            for (int j = 0; j < countY; j++) {
+                for (int i = 0; i < countX; i++) {
+                    float x = startX + deltaX * i;
+                    float y = startY + deltaY * j;
+                    real[k++] = (float) sin(4 * PI * sqrt(x * x + y * y));
+                }
+            }
+        }
+
+        @Override
+        public void getElements(double startX, double startY, double deltaX, double deltaY, int countX, int countY, int element, double[] real, double[] imag) {
+            System.out.printf("getElements(D): startX = %1.4f, startY = %1.4f, countX=%5d, countY=%5d, element=%s, real.length = %10d, real = %s%n",
+                              startX, startY, countX, countY, element, real.length, real);
+            int k = 0;
+            for (int j = 0; j < countY; j++) {
+                for (int i = 0; i < countX; i++) {
+                    double x = startX + deltaX * i;
+                    double y = startY + deltaY * j;
+                    real[k++] = sin(4 * PI * sqrt(x * x + y * y));
+                }
+            }
         }
     }
 }
