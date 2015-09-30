@@ -20,7 +20,6 @@ import com.bc.ceres.core.VirtualDir;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.eo.Constants;
-import org.esa.snap.framework.dataio.ProductIO;
 import org.esa.snap.framework.dataio.ProductSubsetDef;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.ImageInfo;
@@ -104,7 +103,7 @@ public class QuickLookGenerator {
         final File browseFile = findProductBrowseImage(product.getFileLocation());
         if (browseFile != null) {
             try {
-                final Product sourceProduct = ProductIO.readProduct(browseFile);
+                final Product sourceProduct = CommonReaders.readProduct(browseFile);
                 if (sourceProduct != null) {
                     BufferedImage img = createQuickLookImage(product, true, true);
                     sourceProduct.dispose();
@@ -130,7 +129,7 @@ public class QuickLookGenerator {
             isBrowseFile = false;
         }
 
-        final Product sourceProduct = ProductIO.readProduct(browseFile);
+        final Product sourceProduct = CommonReaders.readProduct(browseFile);
         if (sourceProduct != null) {
             BufferedImage img = createQuickLook(id, sourceProduct, isBrowseFile);
             return img;
