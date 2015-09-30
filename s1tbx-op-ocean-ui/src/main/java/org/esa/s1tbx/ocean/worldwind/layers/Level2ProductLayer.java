@@ -33,6 +33,7 @@ import gov.nasa.worldwindx.examples.analytics.AnalyticSurfaceAttributes;
 import gov.nasa.worldwindx.examples.util.DirectedPath;
 
 import org.apache.commons.math3.util.FastMath;
+import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.framework.datamodel.*;
 import org.esa.snap.worldwind.ArrowInfo;
 import org.esa.snap.worldwind.ColorBarLegend;
@@ -196,15 +197,39 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
             prefix = "hh";
         }
 
+        MetadataElement metadataRoot = product.getMetadataRoot();
+        MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+
+        String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+
         final Band owiLonBand = product.getBand(prefix + "_001_owiLon");
         final Band owiLatBand = product.getBand(prefix + "_001_owiLat");
         final Band owiIncAngleBand = product.getBand(prefix + "_001_owiIncidenceAngle");
         final Band owiWindSpeedBand = product.getBand(prefix + "_001_owiWindSpeed");
         final Band owiWindDirBand = product.getBand(prefix + "_001_owiWindDirection");
 
-        final Band rvlLonBand = product.getBand(prefix + "_001_rvlLon");
-        final Band rvlLatBand = product.getBand(prefix + "_001_rvlLat");
-        final Band rvlRadVelBand = product.getBand(prefix + "_001_rvlRadVel");
+
+        int numRVLElements = 0;
+        int rvlSwathWidth = 0;
+        int rvlSwathHeight = 0;
+        int numSwaths = 0;
+
+
+        if (acquisitionMode.equalsIgnoreCase("IW")) {
+            numSwaths = 3;
+        }
+
+        else if (acquisitionMode.equalsIgnoreCase("EW")) {
+            numSwaths = 5;
+        }
+        for (int i = 0; i < numSwaths; i++) {
+            Band rvlLonBand = product.getBand(prefix + "_001_" + acquisitionMode.toUpperCase() + (i+1) + "_rvlLon");
+
+            numRVLElements += (rvlLonBand.getRasterWidth() * rvlLonBand.getRasterHeight());
+            rvlSwathWidth = rvlLonBand.getRasterWidth();
+            rvlSwathHeight = rvlLonBand.getRasterHeight();
+        }
+
 
 
 
@@ -252,25 +277,57 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
             }
 
             // right now, this happens: InvalidRangeException when reading variable rvlLon
-            if (rvlRadVelBand != null) {
-                final double[] rvlLonValues = new double[rvlLonBand.getRasterWidth() * rvlLonBand.getRasterHeight()];
-                rvlLonBand.readPixels(0, 0, rvlLonBand.getRasterWidth(), rvlLonBand.getRasterHeight(), rvlLonValues, ProgressMonitor.NULL);
+            if (numRVLElements > 0) {
 
-                final double[] rvlLatValues = new double[rvlLatBand.getRasterWidth() * rvlLatBand.getRasterHeight()];
-                rvlLatBand.readPixels(0, 0, rvlLatBand.getRasterWidth(), rvlLatBand.getRasterHeight(), rvlLatValues, ProgressMonitor.NULL);
+                boolean displayAsOne = false;
+
+                // with numRVLElements we get BufferOverflow exception
+                // it works with 2 swaths: 2*125 *233
+                double[] rvlLonValues = null;
+                double[] rvlLatValues = null;
+                double[] rvlRadVelValues = null;
+
+                if (displayAsOne) {
+                    rvlLonValues = new double[numRVLElements];
+                    rvlLatValues = new double[numRVLElements];
+                    rvlRadVelValues = new double[numRVLElements];
+                }
 
 
-                final double[] rvlRadVelValues = new double[rvlRadVelBand.getRasterWidth() * rvlRadVelBand.getRasterHeight()];
-                rvlRadVelBand.readPixels(0, 0, rvlRadVelBand.getRasterWidth(), rvlRadVelBand.getRasterHeight(), rvlRadVelValues, ProgressMonitor.NULL);
+                for (int i = 0; i < numSwaths; i++) {
+                    Band currRVLLonBand = product.getBand(prefix + "_001_" + acquisitionMode.toUpperCase() + (i+1) + "_rvlLon");
+                    Band currRVLLatBand = product.getBand(prefix + "_001_" + acquisitionMode.toUpperCase() + (i+1) + "_rvlLat");
+                    Band currRVLRadVelBand = product.getBand(prefix + "_001_" + acquisitionMode.toUpperCase() + (i+1) + "_rvlRadVel");
 
-		        if (rvlRadVelValues != null) {
-                	createColorSurfaceWithGradient(geoPos1, geoPos2, rvlLatValues, rvlLonValues, rvlRadVelValues, rvlRadVelBand.getRasterWidth(), rvlRadVelBand.getRasterHeight(), -6, 6, true, productRenderablesInfo.theRenderableListHash.get("rvl"), productRenderablesInfo, "rvl");
+                    double[] currRVLLonValues = new double[currRVLLonBand.getRasterWidth() * currRVLLonBand.getRasterHeight()];
+                    currRVLLonBand.readPixels(0, 0, currRVLLonBand.getRasterWidth(), currRVLLonBand.getRasterHeight(),currRVLLonValues, ProgressMonitor.NULL);
+
+                    double[] currRVLLatValues = new double[currRVLLatBand.getRasterWidth() * currRVLLatBand.getRasterHeight()];
+                    currRVLLatBand.readPixels(0, 0, currRVLLatBand.getRasterWidth(), currRVLLatBand.getRasterHeight(), currRVLLatValues, ProgressMonitor.NULL);
+
+                    double[] currRVLRadVelValues = new double[currRVLRadVelBand.getRasterWidth() * currRVLRadVelBand.getRasterHeight()];
+                    currRVLRadVelBand.readPixels(0, 0, currRVLRadVelBand.getRasterWidth(), currRVLRadVelBand.getRasterHeight(), currRVLRadVelValues, ProgressMonitor.NULL);
+
+                    if (displayAsOne) {
+                        System.arraycopy(currRVLLonValues, 0, rvlLonValues, i * currRVLLonBand.getRasterWidth() * currRVLLonBand.getRasterHeight(), currRVLLonBand.getRasterWidth() * currRVLLonBand.getRasterHeight());
+                        System.arraycopy(currRVLLatValues, 0, rvlLatValues, i * currRVLLatBand.getRasterWidth() * currRVLLatBand.getRasterHeight(), currRVLLatBand.getRasterWidth() * currRVLLatBand.getRasterHeight());
+                        System.arraycopy(currRVLRadVelValues, 0, rvlRadVelValues, i * currRVLRadVelBand.getRasterWidth() * currRVLRadVelBand.getRasterHeight(), currRVLRadVelBand.getRasterWidth() * currRVLRadVelBand.getRasterHeight());
+                    }
+                    else {
+                        createColorSurfaceWithGradient(geoPos1, geoPos2, currRVLLatValues, currRVLLonValues, currRVLRadVelValues, rvlSwathWidth, rvlSwathHeight, -6, 6, true, productRenderablesInfo.theRenderableListHash.get("rvl"), productRenderablesInfo, "rvl");
+                    }
+                }
+
+
+		        if (displayAsOne) {
+                	createColorSurfaceWithGradient(geoPos1, geoPos2, rvlLatValues, rvlLonValues, rvlRadVelValues, numSwaths*rvlSwathWidth, rvlSwathHeight, -6, 6, true, productRenderablesInfo.theRenderableListHash.get("rvl"), productRenderablesInfo, "rvl");
+                    //createColorSurfaceWithGradient(geoPos1, geoPos2, rvlLatValues, rvlLonValues, rvlRadVelValues, 10, 10, -6, 6, true, productRenderablesInfo.theRenderableListHash.get("rvl"), productRenderablesInfo, "rvl");
             	}
             }
 
 
             double[][] oswData = null;
-            MetadataElement metadataRoot = product.getMetadataRoot();
+
             if (metadataRoot.getElement("Original_Product_Metadata") != null && metadataRoot.getElement("Original_Product_Metadata").getElement("annotation") != null) {
                 int numElements = metadataRoot.getElement("Original_Product_Metadata").getElement("annotation").getNumElements();
                 if (numElements > 0) {
@@ -833,13 +890,13 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
     }
 
     // ADDED
-    protected void createColorSurface(GeoPos geoPos1, GeoPos geoPos2, double[] latValues, double[] lonValues, double[] values,
+    protected void createColorSurface(GeoPos geoPos1, GeoPos geoPos2, double[] latValues, double[] lonValues, double[] vals,
                                       int width, int height, ArrayList<Renderable> renderableList,
                                       ProductRenderablesInfo prodRenderInfo, String comp)
     {
         //double minValue = -200e3;
         //double maxValue = 200e3;
-        SystemUtils.LOG.info("createColorSurface " + latValues.length + " " + lonValues.length + " " + values.length + " " + width + " " + height);
+        SystemUtils.LOG.info("createColorSurface " + latValues.length + " " + lonValues.length + " " + vals.length + " " + width + " " + height);
 
         // analytic surface has to be overidden in order to allow for non-rectangular surfaces
         // the approach is render the surface point by point and not use the sector as the boundary
@@ -882,16 +939,22 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
                         this.values.iterator();
 
 
-
+                //int i = 0;
+                //while (iter.hasNext()) {
                 for (int row = 0; row < this.height; row++) {
                     for (int col = 0; col < this.width; col++) {
-                        int i = row*(this.width) + col;
-                        GridPointAttributes attr = iter.hasNext() ? iter.next() :
-                                null;
+                    int i = row * (this.width) + col;
+                    GridPointAttributes attr = iter.hasNext() ? iter.next() :
+                            null;
+                    if (vals[i] != -999) {
+                    //if (vals[i] > 0) {
                         this.updateNextSurfacePoint(dc, Angle.fromDegrees(latValues[i]),
                                 Angle.fromDegrees(lonValues[i]), attr, outRenderInfo);
                     }
+                    //i++;
+                    }
                 }
+                //}
                 //outRenderInfo.rewindBuffers();
                 outRenderInfo.drawInterior(null);
             }
@@ -914,8 +977,8 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
         //addRenderable(analyticSurface);
 
         //analyticSurfaceValueBuffer = randomGridValues(width, height, minValue, maxValue);
-        BufferWrapper analyticSurfaceValueBuffer = (new BufferFactory.DoubleBufferFactory()).newBuffer(values.length);
-        analyticSurfaceValueBuffer.putDouble(0, values, 0, values.length);
+        BufferWrapper analyticSurfaceValueBuffer = (new BufferFactory.DoubleBufferFactory()).newBuffer(vals.length);
+        analyticSurfaceValueBuffer.putDouble(0, vals, 0, vals.length);
 
         //smoothValues(width, height, values, 0.5d);
         //scaleValues(values, values.length, minValue, maxValue);
@@ -931,48 +994,37 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
     public void createColorGradient(double minValue, double maxValue, boolean whiteZero,
                                     ProductRenderablesInfo prodRenderInfo, String comp) {
         SystemUtils.LOG.info("createColorGradient " + minValue + " " + maxValue + " " + comp);
-        AnalyticSurface analyticSurface = null;
-        BufferWrapper analyticSurfaceValueBuffer = null;
+        ArrayList<AnalyticSurface> analyticSurfaces = null;
+        ArrayList<BufferWrapper> analyticSurfaceValueBuffers = null;
 
         if (comp.equalsIgnoreCase("owi")) {
-            analyticSurface = prodRenderInfo.owiAnalyticSurface;
-            analyticSurfaceValueBuffer = prodRenderInfo.owiAnalyticSurfaceValueBuffer;
+            analyticSurfaces = prodRenderInfo.owiAnalyticSurfaces;
+            analyticSurfaceValueBuffers = prodRenderInfo.owiAnalyticSurfaceValueBuffers;
         }
         else if (comp.equalsIgnoreCase("osw")) {
-            analyticSurface = prodRenderInfo.oswAnalyticSurface;
-            analyticSurfaceValueBuffer = prodRenderInfo.oswAnalyticSurfaceValueBuffer;
+            analyticSurfaces = prodRenderInfo.oswAnalyticSurfaces;
+            analyticSurfaceValueBuffers = prodRenderInfo.oswAnalyticSurfaceValueBuffers;
         }
         else if (comp.equalsIgnoreCase("rvl")) {
-            analyticSurface = prodRenderInfo.rvlAnalyticSurface;
-            analyticSurfaceValueBuffer = prodRenderInfo.rvlAnalyticSurfaceValueBuffer;
+            analyticSurfaces = prodRenderInfo.rvlAnalyticSurfaces;
+            analyticSurfaceValueBuffers = prodRenderInfo.rvlAnalyticSurfaceValueBuffers;
         }
 
-        if(analyticSurfaceValueBuffer != null) {
-            final ArrayList<AnalyticSurface.GridPointAttributes> attributesList = new ArrayList<>();
-            for (int i = 0; i < analyticSurfaceValueBuffer.length(); i++) {
-                /*
-                String s = analyticSurfaceValueBuffer.getDouble(i) + "";
-                System.out.print(s.substring(0, 3) + " ");
-                if (i % 82 == 0) {
-                    System.out.println();
-                }
-                */
-                double d = analyticSurfaceValueBuffer.getDouble(i);
-                /*
-                if (i % 82 == 0) {
-                    d = 0.0;
-                }
-                */
-                /*
-                if (i / 93 == 0) {
-                    d = 0.0;
-                }
-                */
-                attributesList.add(
-                        createColorGradientAttributes(d, minValue, maxValue, HUE_RED, HUE_MAX_RED, whiteZero));
-            }
+        if(analyticSurfaces != null) {
 
-            analyticSurface.setValues(attributesList);
+            for (int currSurfInd = 0; currSurfInd < analyticSurfaces.size(); currSurfInd++) {
+
+                AnalyticSurface analyticSurface = analyticSurfaces.get(currSurfInd);
+                BufferWrapper analyticSurfaceValueBuffer = analyticSurfaceValueBuffers.get(currSurfInd);
+                final ArrayList<AnalyticSurface.GridPointAttributes> attributesList = new ArrayList<>();
+                for (int i = 0; i < analyticSurfaceValueBuffer.length(); i++) {
+                    double d = analyticSurfaceValueBuffer.getDouble(i);
+                    attributesList.add(
+                            createColorGradientAttributes(d, minValue, maxValue, HUE_RED, HUE_MAX_RED, whiteZero));
+                }
+
+                analyticSurface.setValues(attributesList);
+            }
         }
     }
 
