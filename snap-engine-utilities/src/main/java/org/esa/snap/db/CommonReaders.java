@@ -21,7 +21,7 @@ public class CommonReaders {
     private final static ProductReaderPlugIn RS2ReadPlugIn = getReaderPlugIn("RADARSAT-2");
     private final static ProductReaderPlugIn S1ReadPlugIn = getReaderPlugIn("SENTINEL-1");
     private final static ProductReaderPlugIn GeoTiffReadPlugIn = getReaderPlugIn("GeoTIFF");
-
+    private final static ProductReaderPlugIn ImageIOReadPlugIn = getReaderPlugIn("PNG");
     private static ProductReaderPlugIn getReaderPlugIn(final String format) {
         final ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
         final Iterator<ProductReaderPlugIn> itr = registry.getReaderPlugIns(format);
@@ -65,6 +65,8 @@ public class CommonReaders {
             } else if (filename.startsWith("rs2")) {
                 return read(file, RS2ReadPlugIn);
             }
+        } else if (filename.endsWith("png")) {
+            return read(file, ImageIOReadPlugIn);
         }
         return null;
     }
