@@ -785,9 +785,11 @@ public final class TerrainFlatteningOp extends Operator {
                     srcIndex = new TileIndex(sourceTile);
                 }
 
-                double[][] simulatedImage = gamma0ReferenceArea;
+                double[][] simulatedImage = null;
                 if (bandName.contains("Sigma0")) {
-                    simulatedImage = sigma0ReferenceArea;
+                    simulatedImage = sigma0ReferenceArea.clone();
+                } else {
+                    simulatedImage = gamma0ReferenceArea.clone();
                 }
 
                 UnitType unitType = UnitType.AMPLITUDE;
@@ -808,9 +810,13 @@ public final class TerrainFlatteningOp extends Operator {
                         for (int x = x0; x < x0 + w; x++) {
                             final int xx = x - x0;
                             final int tgtIdx = tgtIndex.getIndex(x);
-                            final double simVal = simulatedImage[yy][xx];
+                            double simVal = simulatedImage[yy][xx];
                             if (simVal != noDataValue && simVal != 0.0) {
-                                targetData.setElemDoubleAt(tgtIdx, simVal/beta0);
+                                simVal /= beta0;
+                                if (isGRD) {
+                                    simVal /= Math.sin(incidenceAngleTPG.getPixelDouble(x, y)*Constants.DTOR);
+                                }
+                                targetData.setElemDoubleAt(tgtIdx, simVal);
                             } else {
                                 targetData.setElemDoubleAt(tgtIdx, noDataValue);
                             }
