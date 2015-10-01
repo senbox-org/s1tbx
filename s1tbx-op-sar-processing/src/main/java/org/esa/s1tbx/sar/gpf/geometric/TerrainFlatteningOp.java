@@ -146,7 +146,6 @@ public final class TerrainFlatteningOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
 
-        outputSimulatedImage = true;
         try {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
             validator.checkIfMapProjected(false);
@@ -216,9 +215,13 @@ public final class TerrainFlatteningOp extends Operator {
 
         final String mission = RangeDopplerGeocodingOp.getMissionType(absRoot);
         final String pass = absRoot.getAttributeString(AbstractMetadata.PASS);
-        final String antennaPointing = absRoot.getAttributeString(AbstractMetadata.antenna_pointing);
         if (mission.equals("RS2") && pass.contains("DESCENDING")) {
             nearRangeOnLeft = false;
+        }
+
+        String antennaPointing = absRoot.getAttributeString(AbstractMetadata.antenna_pointing);
+        if (!antennaPointing.contains("right") && !antennaPointing.contains("left")) {
+            antennaPointing = "right";
         }
 
         if ((pass.contains("DESCENDING") && antennaPointing.contains("right")) ||
