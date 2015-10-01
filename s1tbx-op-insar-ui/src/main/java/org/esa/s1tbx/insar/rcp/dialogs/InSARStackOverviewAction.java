@@ -15,20 +15,12 @@
  */
 package org.esa.s1tbx.insar.rcp.dialogs;
 
-import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.rcp.actions.AbstractSnapAction;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
-import org.openide.util.ContextAwareAction;
-import org.openide.util.Lookup;
-import org.openide.util.LookupEvent;
-import org.openide.util.LookupListener;
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
-import org.openide.util.WeakListeners;
 
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 @ActionID(category = "Raster", id = "InSARStackOverviewAction")
@@ -38,49 +30,16 @@ import java.awt.event.ActionEvent;
         "CTL_InSARStackOverviewActionName=InSAR Stack Overview",
         "CTL_InSARStackOverviewActionDescription=Show InSAR Stack Baselines"
 })
-public class InSARStackOverviewAction extends AbstractSnapAction implements ContextAwareAction, LookupListener {
-
-    private final Lookup lkp;
+public class InSARStackOverviewAction extends AbstractSnapAction {
 
     public InSARStackOverviewAction() {
-        this(Utilities.actionsGlobalContext());
-    }
-
-    public InSARStackOverviewAction(Lookup lkp) {
-        this.lkp = lkp;
-        Lookup.Result<Product> lkpContext = lkp.lookupResult(Product.class);
-        lkpContext.addLookupListener(WeakListeners.create(LookupListener.class, this, lkpContext));
-        setEnableState();
-
         putValue(NAME, Bundle.CTL_InSARStackOverviewActionName());
         putValue(SHORT_DESCRIPTION, Bundle.CTL_InSARStackOverviewActionDescription());
     }
 
     @Override
-    public Action createContextAwareInstance(Lookup actionContext) {
-        return new InSARStackOverviewAction(actionContext);
-    }
-
-    @Override
-    public void resultChanged(LookupEvent ev) {
-        setEnableState();
-    }
-
-    @Override
     public void actionPerformed(ActionEvent event) {
-        final Product product = lkp.lookup(Product.class);
-        if (product != null) {
-            final InSARStackOverviewDialog dialog = new InSARStackOverviewDialog();
-            dialog.show();
-        }
-    }
-
-    public void setEnableState() {
-        final Product product = lkp.lookup(Product.class);
-        if (product != null) {
-            setEnabled(true);
-            return;
-        }
-        setEnabled(false);
+        final InSARStackOverviewDialog dialog = new InSARStackOverviewDialog();
+        dialog.show();
     }
 }
