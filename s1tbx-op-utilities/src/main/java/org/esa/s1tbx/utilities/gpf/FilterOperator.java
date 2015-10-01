@@ -17,9 +17,13 @@ package org.esa.s1tbx.utilities.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.ConvolutionFilterBand;
+import org.esa.snap.framework.datamodel.FilterBand;
+import org.esa.snap.framework.datamodel.GeneralFilterBand;
 import org.esa.snap.framework.datamodel.Kernel;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.datamodel.RasterDataNode;
 import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.OperatorSpi;
@@ -28,19 +32,21 @@ import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
 import org.esa.snap.framework.gpf.annotations.Parameter;
 import org.esa.snap.framework.gpf.annotations.SourceProduct;
 import org.esa.snap.framework.gpf.annotations.TargetProduct;
+import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.util.ProductUtils;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The sample operator implementation for an algorithm
- * that can compute bands independently of each other.
+ * image filter operator
  */
 @OperatorMetadata(alias = "Image-Filter",
         category = "Raster",
-        authors = "Jun Lu, Luis Veci",
+        authors = "Norman Fomferra, Luis Veci",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Common Image Processing Filters")
 public class FilterOperator extends Operator {
@@ -60,7 +66,7 @@ public class FilterOperator extends Operator {
     @Parameter(description = "The kernel file", label = "Kernel File")
     private File userDefinedKernelFile = null;
 
-    private transient Map<Band, Band> bandMap;
+    private transient Map<Band, Band> bandMap = new HashMap<>(5);
     private transient final Map<String, Filter> filterMap = new HashMap<>(5);
 
     /**
@@ -97,7 +103,7 @@ public class FilterOperator extends Operator {
     @Override
     public void initialize() throws OperatorException {
 
- /*       try {
+        try {
             targetProduct = new Product(sourceProduct.getName(),
                                         sourceProduct.getProductType(),
                                         sourceProduct.getSceneRasterWidth(),
@@ -113,8 +119,7 @@ public class FilterOperator extends Operator {
             if(selectedFilter == null)
                 return;
 
-            bandMap = new HashMap<Band, Band>(5);
-            final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
+            final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, true);
 
             for(Band srcBand : sourceBands) {
                 final Band targetBand = new Band(srcBand.getName(), ProductData.TYPE_FLOAT32,
@@ -132,12 +137,12 @@ public class FilterOperator extends Operator {
                 sourceProduct.addBand(filterBand);
             }
 
-            OperatorUtils.copyProductNodes(sourceProduct, targetProduct);
+            ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
             targetProduct.setPreferredTileSize(sourceProduct.getSceneRasterWidth(), 512);
         } catch(Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
-        }    */
+        }
     }
 
     /**
@@ -163,21 +168,22 @@ public class FilterOperator extends Operator {
             }
         }
     }
- /*
-    private static FilterBand createFilterBand(Filter filter, String bandName, RasterDataNode raster) {
+
+    private static FilterBand createFilterBand(Filter filter, String bandName, RasterDataNode raster) throws Exception {
 
         final FilterBand filterBand;
         if (filter instanceof KernelFilter) {
             final KernelFilter kernelFilter = (KernelFilter) filter;
-            filterBand = new ConvolutionFilterBand(bandName, raster, kernelFilter.kernel);
+            filterBand = new ConvolutionFilterBand(bandName, raster, kernelFilter.kernel, 1);
         } else {
-            final GeneralFilter generalFilter = (GeneralFilter) filter;
-            filterBand = new GeneralFilterBand(bandName, raster, generalFilter.width, generalFilter.operator);
+            throw new Exception("unhandled filter type");
+            //final GeneralFilter generalFilter = (GeneralFilter) filter;
+            //filterBand = new GeneralFilterBand(bandName, raster, generalFilter.operator, kernel, 1);
         }
         final String descr = MessageFormat.format("Filter ''{0}''", filter.toString());
         filterBand.setDescription(descr);
         return filterBand;
-    }    */
+    }
 
     private static KernelFilter getUserDefinedFilter(File userDefinedKernelFile) {
         final float[][] kernelData = UndersamplingOp.readFile(userDefinedKernelFile.getAbsolutePath());
@@ -232,13 +238,13 @@ public class FilterOperator extends Operator {
         }
     }
 
- /*   private static class GeneralFilter extends Filter {
+    private static class GeneralFilter extends Filter {
 
         final int width;
         final int height;
-        final GeneralFilterBand.Operator operator;
+        final GeneralFilterBand.OpType operator;
 
-        public GeneralFilter(String name, int width, int height, GeneralFilterBand.Operator operator) {
+        public GeneralFilter(String name, int width, int height, GeneralFilterBand.OpType operator) {
             super(name);
             this.width = width;
             this.height = height;
@@ -255,7 +261,7 @@ public class FilterOperator extends Operator {
             }
             return false;
         }
-    }   */
+    }
 
     public static final Filter[] LINE_DETECTION_FILTERS = {
             new KernelFilter("Horizontal Edges", new Kernel(3, 3, new double[]{
@@ -400,21 +406,21 @@ public class FilterOperator extends Operator {
                     +1, +1, +1, +1, +1,
             })),
     };
- /*
+
     public static final Filter[] NON_LINEAR_FILTERS = {
-            new GeneralFilter("Minimum 3x3", 3, 3, GeneralFilterBand.MIN),
-            new GeneralFilter("Minimum 5x5", 5, 5, GeneralFilterBand.MIN),
-            new GeneralFilter("Maximum 3x3", 3, 3, GeneralFilterBand.MAX),
-            new GeneralFilter("Maximum 5x5", 5, 5, GeneralFilterBand.MAX),
-            new GeneralFilter("Mean 3x3", 3, 3, GeneralFilterBand.MEAN),
-            new GeneralFilter("Mean 5x5", 5, 5, GeneralFilterBand.MEAN),
-            new GeneralFilter("Median 3x3", 3, 3, GeneralFilterBand.MEDIAN),
-            new GeneralFilter("Median 5x5", 5, 5, GeneralFilterBand.MEDIAN),
+            new GeneralFilter("Minimum 3x3", 3, 3, GeneralFilterBand.OpType.MIN),
+            new GeneralFilter("Minimum 5x5", 5, 5, GeneralFilterBand.OpType.MIN),
+            new GeneralFilter("Maximum 3x3", 3, 3, GeneralFilterBand.OpType.MAX),
+            new GeneralFilter("Maximum 5x5", 5, 5, GeneralFilterBand.OpType.MAX),
+            new GeneralFilter("Mean 3x3", 3, 3, GeneralFilterBand.OpType.MEAN),
+            new GeneralFilter("Mean 5x5", 5, 5, GeneralFilterBand.OpType.MEAN),
+            new GeneralFilter("Median 3x3", 3, 3, GeneralFilterBand.OpType.MEDIAN),
+            new GeneralFilter("Median 5x5", 5, 5, GeneralFilterBand.OpType.MEDIAN),
             //new GeneralFilter("Standard Deviation 3x3", 3, 3, GeneralFilterBand.STDDEV),
             //new GeneralFilter("Standard Deviation 5x5", 5, 5, GeneralFilterBand.STDDEV),
             //new GeneralFilter("Root-Mean-Square 3x3", 3, 3, GeneralFilterBand.RMS),
             //new GeneralFilter("Root-Mean-Square 5x5", 5, 5, GeneralFilterBand.RMS),
-    }; */
+    };
 
     /**
      * The SPI is used to register this operator in the graph processing framework
