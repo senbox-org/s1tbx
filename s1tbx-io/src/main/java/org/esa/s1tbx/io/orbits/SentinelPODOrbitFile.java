@@ -28,11 +28,9 @@ import org.esa.snap.util.Settings;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -322,7 +320,6 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
     private void readOrbitFile() throws Exception {
 
-        try {
             final DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
             final DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
 
@@ -337,18 +334,11 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
                 doc = documentBuilder.parse(orbitFile);
             }
 
-            if (doc == null) {
-
-                System.out.println("SentinelPODOrbitFile.readOrbitFile: ERROR failed to create Document for orbit file");
-                return;
-            }
-
             doc.getDocumentElement().normalize();
 
             final NodeList nodeList = doc.getElementsByTagName("Earth_Explorer_File");
             if (nodeList.getLength() != 1) {
-                System.out.println("SentinelPODOrbitFile.readOrbitFile: ERROR found this many Earth_Explorer_File " + nodeList.getLength());
-                return;
+                throw new Exception("SentinelPODOrbitFile.readOrbitFile: ERROR found too many Earth_Explorer_File " + nodeList.getLength());
             }
 
             org.w3c.dom.Node fixedHeaderNode = null;
@@ -410,19 +400,6 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
                 readOSVList(listOfOSVsNode);
             }
-
-        } catch (IOException e) {
-
-            System.out.println("SentinelPODOrbitFile.readOrbitFile: IOException " + e.getMessage());
-
-        } catch (ParserConfigurationException e) {
-
-            System.out.println("SentinelPODOrbitFile.readOrbitFile: ParserConfigurationException " + e.getMessage());
-
-        } catch (SAXException e) {
-
-            System.out.println("SentinelPODOrbitFile.readOrbitFile: SAXException " + e.getMessage());
-        }
     }
 
     private void readFixedHeader(final org.w3c.dom.Node fixedHeaderNode) {

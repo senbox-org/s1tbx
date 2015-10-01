@@ -53,7 +53,7 @@ public class ImageIOFile {
     private ImageInputStream stream = null;
     private ImageReader reader;
 
-    private static final boolean useFileCache = Config.instance("s1tbx").preferences().getBoolean("s1tbx.readers.useFileCache", false);
+    private static final boolean useFileCache = Config.instance().preferences().getBoolean("s1tbx.readers.useFileCache", false);
 
     public ImageIOFile(final File inputFile, final ImageReader iioReader) throws IOException {
 
