@@ -119,6 +119,7 @@ public final class TerrainFlatteningOp extends Operator {
     private Band[] targetBands = null;
     private final HashMap<Band, Band> targetBandToSourceBandMap = new HashMap<>(2);
     private boolean nearRangeOnLeft = true;
+    private boolean orbitOnWest = true;
     private boolean skipBistaticCorrection = false;
 
     // set this flag to true to output terrain flattened sigma0
@@ -213,9 +214,19 @@ public final class TerrainFlatteningOp extends Operator {
         }
 
         final String mission = RangeDopplerGeocodingOp.getMissionType(absRoot);
-        final String pass = absRoot.getAttributeString("PASS");
+        final String pass = absRoot.getAttributeString(AbstractMetadata.PASS);
         if (mission.equals("RS2") && pass.contains("DESCENDING")) {
             nearRangeOnLeft = false;
+        }
+
+        String antennaPointing = absRoot.getAttributeString(AbstractMetadata.antenna_pointing);
+        if (!antennaPointing.contains("right") && !antennaPointing.contains("left")) {
+            antennaPointing = "right";
+        }
+
+        if ((pass.contains("DESCENDING") && antennaPointing.contains("right")) ||
+                (pass.contains("ASCENDING") && antennaPointing.contains("left"))) {
+            orbitOnWest = false;
         }
 
         if (mission.contains("CSKS") || mission.contains("TSX") || mission.equals("RS2") || mission.contains("SENTINEL")) {
@@ -506,18 +517,17 @@ public final class TerrainFlatteningOp extends Operator {
                         }
 
                         elevationAngle[j] = computeElevationAngle(posData.earthPoint, posData.sensorPos);
-
                         rangeIndex[j] = posData.rangeIndex;
                         azimuthIndex[j] = posData.azimuthIndex;
                         savePixel[j] = rangeIndex[j] > x0 - 1 && rangeIndex[j] < x0 + w &&
                                 azimuthIndex[j] > y0 - 1 && azimuthIndex[j] < y0 + h;
                     }
 
-                    if (nearRangeOnLeft) {
+                    if (orbitOnWest) {
                         // traverse from near range to far range to detect shadowing area
                         double maxElevAngle = 0.0;
                         for (int jj = 0; jj < nLon; jj++) {
-                            if (savePixel[jj] && (detectShadow && elevationAngle[jj] > maxElevAngle || !detectShadow)) {
+                            if (savePixel[jj] && (detectShadow && elevationAngle[jj] >= maxElevAngle || !detectShadow)) {
                                 maxElevAngle = elevationAngle[jj];
                                 saveGamma0Area(x0, y0, w, h, gamma0Area[jj], azimuthIndex[jj], rangeIndex[jj],
                                         gamma0ReferenceArea);
@@ -533,7 +543,7 @@ public final class TerrainFlatteningOp extends Operator {
                         // traverse from near range to far range to detect shadowing area
                         double maxElevAngle = 0.0;
                         for (int jj = nLon - 1; jj >= 0; --jj) {
-                            if (savePixel[jj] && (detectShadow && elevationAngle[jj] > maxElevAngle || !detectShadow)) {
+                            if (savePixel[jj] && (detectShadow && elevationAngle[jj] >= maxElevAngle || !detectShadow)) {
                                 maxElevAngle = elevationAngle[jj];
                                 saveGamma0Area(x0, y0, w, h, gamma0Area[jj], azimuthIndex[jj], rangeIndex[jj],
                                         gamma0ReferenceArea);
@@ -709,9 +719,12 @@ public final class TerrainFlatteningOp extends Operator {
 
         GeoUtils.geo2xyzWGS84(lat, lon, alt, data.earthPoint);
 
-        final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
-                firstLineUTC, lineTimeInterval, wavelength, data.earthPoint,
-                orbit.sensorPosition, orbit.sensorVelocity);
+//        final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
+//                firstLineUTC, lineTimeInterval, wavelength, data.earthPoint,
+//                orbit.sensorPosition, orbit.sensorVelocity);
+
+        final double zeroDopplerTime = SARGeocoding.getZeroDopplerTime(
+                firstLineUTC, lineTimeInterval, wavelength, data.earthPoint, orbit);
 
         if (zeroDopplerTime == SARGeocoding.NonValidZeroDopplerTime) {
             return false;
@@ -719,24 +732,18 @@ public final class TerrainFlatteningOp extends Operator {
 
         data.slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, data.earthPoint, data.sensorPos);
 
-        final double zeroDopplerTimeWithoutBias =
-                zeroDopplerTime + data.slantRange / Constants.lightSpeedInMetersPerDay;
-
-        data.azimuthIndex = (zeroDopplerTimeWithoutBias - firstLineUTC) / lineTimeInterval;
+        data.azimuthIndex = (zeroDopplerTime - firstLineUTC) / lineTimeInterval;
 
         if (!(data.azimuthIndex >= y0 - 1 && data.azimuthIndex <= y0 + h)) {
             return false;
         }
-
-        data.slantRange = SARGeocoding.computeSlantRange(
-                zeroDopplerTimeWithoutBias, orbit, data.earthPoint, data.sensorPos);
 
         if (!srgrFlag) {
             data.rangeIndex = (data.slantRange - nearEdgeSlantRange) / rangeSpacing;
         } else {
             data.rangeIndex = SARGeocoding.computeRangeIndex(
                     srgrFlag, sourceImageWidth, firstLineUTC, lastLineUTC, rangeSpacing,
-                    zeroDopplerTimeWithoutBias, data.slantRange, nearEdgeSlantRange, srgrConvParams);
+                    zeroDopplerTime, data.slantRange, nearEdgeSlantRange, srgrConvParams);
         }
 
         if (!nearRangeOnLeft) {

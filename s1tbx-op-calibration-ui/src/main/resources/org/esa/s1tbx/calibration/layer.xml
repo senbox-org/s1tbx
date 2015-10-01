@@ -76,16 +76,22 @@
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-calibration-gpf-Sentinel1RemoveThermalNoiseOp-Action.instance"/>
                     <attr name="position" intvalue="300"/>
                 </file>
-                <file name="org-esa-s1tbx-calibration-gpf-importXCAProduct-Action.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-calibration-gpf-importXCAProduct-Action.instance"/>
-                    <attr name="position" intvalue="400"/>
-                </file>
             </folder>
             <folder name="Sentinel-1 TOPS">
                 <file name="org-esa-s1tbx-calibration-gpf-RemoveGRDBorderNoiseOp.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-calibration-gpf-RemoveGRDBorderNoiseOp-Action.instance"/>
                     <attr name="position" intvalue="600"/>
                 </file>
+            </folder>
+            <folder name="SAR Utilities">
+                <attr name="position" intvalue="1000"/>
+                <folder name="Auxiliary Files">
+                    <attr name="position" intvalue="200"/>
+                    <file name="org-esa-s1tbx-calibration-gpf-importXCAProduct-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-calibration-gpf-importXCAProduct-Action.instance"/>
+                        <attr name="position" intvalue="100"/>
+                    </file>
+                </folder>
             </folder>
         </folder>
     </folder>
