@@ -22,30 +22,27 @@ import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.datamodel.PixelPos;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.TiePointGrid;
+import org.esa.snap.util.SystemUtils;
 
 /**
  * Handle getting the georefereing for the tile
  */
 public final class TileGeoreferencing {
 
-    final TiePointGrid latTPG;
-    final TiePointGrid lonTPG;
-    final GeoCoding geocoding;
-    final int width;
-    final int x1;
-    final int y1;
-    final int size;
+    private final GeoCoding geocoding;
+    private final int width, size;
+    private final int x1, y1;
 
-    boolean isCached;
-    double[] latPixels = null;
-    double[] lonPixels = null;
-    final boolean isCrossingMeridian;
+    private boolean isCached;
+    private double[] latPixels = null;
+    private double[] lonPixels = null;
+    private final boolean isCrossingMeridian;
 
     public TileGeoreferencing(final Product product, final int x1, final int y1, final int w, final int h) {
         geocoding = product.getGeoCoding();
         isCrossingMeridian = geocoding.isCrossingMeridianAt180();
-        latTPG = OperatorUtils.getLatitude(product);
-        lonTPG = OperatorUtils.getLongitude(product);
+        final TiePointGrid latTPG = OperatorUtils.getLatitude(product);
+        final TiePointGrid lonTPG = OperatorUtils.getLongitude(product);
         this.x1 = x1;
         this.y1 = y1;
         width = w;
@@ -71,7 +68,7 @@ public final class TileGeoreferencing {
                 }
             }
         } catch (Exception e) {
-            System.out.println("TileGeoreferencing tiepoint error " + e.getMessage());
+            SystemUtils.LOG.severe("TileGeoreferencing tiepoint error " + e.getMessage());
             isCached = false;
         }
     }
