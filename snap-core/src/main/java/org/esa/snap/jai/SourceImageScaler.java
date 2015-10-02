@@ -20,6 +20,7 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
+import org.apache.commons.math3.util.Precision;
 
 import javax.media.jai.BorderExtender;
 import javax.media.jai.BorderExtenderConstant;
@@ -55,6 +56,8 @@ public class SourceImageScaler {
         private final MultiLevelImage masterImage;
         private Interpolation interpolation;
 
+        private static double EPSILON = 1E-12;
+
         private ScaledMultiLevelSource(MultiLevelImage masterImage, MultiLevelImage sourceImage, float[] scalings,
                                        float[] offsets, RenderingHints renderingHints, double noDataValue,
                                        Interpolation interpolation) {
@@ -75,20 +78,22 @@ public class SourceImageScaler {
             final MultiLevelModel sourceModel = sourceImage.getModel();
             final MultiLevelModel targetModel = getModel();
             final double targetScale = targetModel.getScale(targetLevel);
-            final int sourceLevel = sourceModel.getLevel(targetScale);
+            final int sourceLevel = findBestSourceLevel(targetScale);
             final double sourceScale = sourceModel.getScale(sourceLevel);
             final RenderedImage image = sourceImage.getImage(sourceLevel);
             final float scaleRatio = (float) (sourceScale / targetScale);
             RenderedImage renderedImage = image;
             final float xScale = scalings[0] * scaleRatio;
             final float yScale = scalings[1] * scaleRatio;
-            if (xScale != 1.0f || yScale != 1.0f) {
+            if (Precision.compareTo((double) xScale, 1.0, EPSILON) != 0
+                    || Precision.compareTo((double) yScale, 1.0, EPSILON) != 0) {
                 renderedImage = ScaleDescriptor.create(image, xScale, yScale, 0.5f, 0.5f, interpolation, renderingHints);
             }
             final float scaledXOffset = (offsets != null) ? (float) (offsets[0] / targetScale) : 0f;
             final float scaledYOffset = (offsets != null) ? (float) (offsets[1] / targetScale) : 0f;
             if (masterWidth != renderedImage.getWidth() || masterHeight != renderedImage.getHeight() ||
-                    scaledXOffset != 0.0f || scaledYOffset != 0.0f) {
+                    Precision.compareTo((double) scaledXOffset, 0.0, EPSILON) != 0 ||
+                    Precision.compareTo((double) scaledYOffset, 0.0, EPSILON) != 0) {
                 final int padX = Math.round(scaledXOffset);
                 final int padY = Math.round(scaledYOffset);
                 int borderCorrectorX = (scaledXOffset - padX < 0) ? 1 : 0;
@@ -104,13 +109,49 @@ public class SourceImageScaler {
                                                         lowerPadY,
                                                         borderExtender, renderingHints);
             }
-            if (scaledXOffset != 0.0f || scaledYOffset != 0.0f) {
+            if (Precision.compareTo((double) scaledXOffset, 0.0, EPSILON) != 0 ||
+                    Precision.compareTo((double) scaledYOffset, 0.0, EPSILON) != 0) {
                 renderedImage = TranslateDescriptor.create(renderedImage, scaledXOffset, scaledYOffset, null,
                                                            renderingHints);
             }
             renderedImage = CropDescriptor.create(renderedImage, 0.0f, 0.0f, (float) masterWidth, (float) masterHeight,
                                                   renderingHints);
             return renderedImage;
+        }
+
+        private int findBestSourceLevel(double targetScale) {
+            /*
+             * Find the source level such that the final scaling factor is the closest to 1.0
+             *
+             * Example : When scaling a 20m resolution image to 10m resolution,
+             * when generating the level 1 image of the scaled image, we prefer using the source image data at level 0,
+             * since it will provide a better resolution than upscaling by 2 the source image data at level 1.
+             *
+             * We can't find the best on both X and Y directions if scaling factors are arbitrary, so we limit the
+             * search algorithm by optimizing only for the X direction.
+             * This will cover the most frequent use case where scaling factors in both directions are equal.
+             */
+            final MultiLevelModel sourceModel = sourceImage.getModel();
+            float optimizedScaling = 0;
+            int optimizedSourceLevel = 0;
+            boolean initialized = false;
+            for (int sourceLevel = 0; sourceLevel < sourceModel.getLevelCount(); sourceLevel++) {
+                final double sourceScale = sourceModel.getScale(sourceLevel);
+                final float scaleRatio = (float) (sourceScale / targetScale);
+                if (!initialized) {
+                    optimizedScaling = scalings[0] * scaleRatio;
+                    optimizedSourceLevel = sourceLevel;
+                    initialized = true;
+                }
+                else {
+                    // We want to be as close to 1.0 as possible
+                    if (Math.abs(1 - scalings[0] * scaleRatio) < Math.abs(1 - optimizedScaling)) {
+                        optimizedScaling = scalings[0] * scaleRatio;
+                        optimizedSourceLevel = sourceLevel;
+                    }
+                }
+            }
+            return optimizedSourceLevel;
         }
 
     }
