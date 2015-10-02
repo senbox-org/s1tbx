@@ -503,7 +503,7 @@ public final class TerrainFlatteningOp extends Operator {
                         pix.setLocation(pixelX, pixelY);
                         final GeoPos gp = dem.getGeoPos(pix);
                         final double alt = dem.getSample(pixelX, pixelY);
-                        if (alt == demNoDataValue)
+                        if (Double.isNaN(alt) || alt == demNoDataValue)
                             continue;
 
                         if (!getPosition(gp.lat, gp.lon, alt, x0, y0, w, h, posData))
@@ -912,8 +912,7 @@ public final class TerrainFlatteningOp extends Operator {
 
         final PixelPos pixPos = new PixelPos();
         final GeoPos geoPos = new GeoPos();
-        final PosVector earthPoint = new PosVector();
-        final PosVector sensorPos = new PosVector();
+        PositionData posData = new PositionData();
 
         double tileOverlapUp = 0.0, tileOverlapDown = 0.0, tileOverlapLeft = 0.0, tileOverlapRight = 0.0;
         for (int y = y0; y < y0 + h; y += 20) {
@@ -921,41 +920,21 @@ public final class TerrainFlatteningOp extends Operator {
                 pixPos.setLocation(x, y);
                 targetGeoCoding.getGeoPos(pixPos, geoPos);
                 final double alt = dem.getElevation(geoPos);
-                GeoUtils.geo2xyzWGS84(geoPos.getLat(), geoPos.getLon(), alt, earthPoint);
-
-                final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
-                        firstLineUTC, lineTimeInterval, wavelength, earthPoint, orbit.sensorPosition, orbit.sensorVelocity);
-
-                if (zeroDopplerTime == SARGeocoding.NonValidZeroDopplerTime) {
+                if (alt == noDataValue)
                     continue;
-                }
 
-                double slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, earthPoint, sensorPos);
+                if (!getPosition(geoPos.lat, geoPos.lon, alt, x0, y0, w, h, posData))
+                    continue;
 
-                final double zeroDopplerTimeWithoutBias = zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
-
-                final int azimuthIndex = (int) ((zeroDopplerTimeWithoutBias - firstLineUTC) / lineTimeInterval + 0.5);
-
-                slantRange = SARGeocoding.computeSlantRange(zeroDopplerTimeWithoutBias, orbit, earthPoint, sensorPos);
-
-                double rangeIndex;
-                if (!srgrFlag) {
-                    rangeIndex = (slantRange - nearEdgeSlantRange) / rangeSpacing;
-                } else {
-                    rangeIndex = SARGeocoding.computeRangeIndex(
-                            srgrFlag, sourceImageWidth, firstLineUTC, lastLineUTC, rangeSpacing,
-                            zeroDopplerTimeWithoutBias, slantRange, nearEdgeSlantRange, srgrConvParams);
-                }
-
-                final double azTileOverlapPercentage = (azimuthIndex - y) / (double) h;
+                final double azTileOverlapPercentage = (posData.azimuthIndex - y) / (double) h;
                 if (azTileOverlapPercentage > tileOverlapUp) {
                     tileOverlapUp = azTileOverlapPercentage;
                 } else if (azTileOverlapPercentage < -tileOverlapDown) {
                     tileOverlapDown = -azTileOverlapPercentage;
                 }
 
-                final double rgTileOverlapPercentage = (rangeIndex - x) / (double) w;
-                if (rangeIndex != -1) {
+                final double rgTileOverlapPercentage = (posData.rangeIndex - x) / (double) w;
+                if (posData.rangeIndex != -1) {
                     if (rgTileOverlapPercentage > tileOverlapLeft) {
                         tileOverlapLeft = rgTileOverlapPercentage;
                     } else if (rgTileOverlapPercentage < -tileOverlapRight) {
