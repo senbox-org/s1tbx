@@ -20,6 +20,7 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
+import org.apache.commons.math3.util.Precision;
 
 import javax.media.jai.BorderExtender;
 import javax.media.jai.BorderExtenderConstant;
@@ -55,6 +56,8 @@ public class SourceImageScaler {
         private final MultiLevelImage masterImage;
         private Interpolation interpolation;
 
+        private static double EPSILON = 1E-12;
+
         private ScaledMultiLevelSource(MultiLevelImage masterImage, MultiLevelImage sourceImage, float[] scalings,
                                        float[] offsets, RenderingHints renderingHints, double noDataValue,
                                        Interpolation interpolation) {
@@ -82,13 +85,15 @@ public class SourceImageScaler {
             RenderedImage renderedImage = image;
             final float xScale = scalings[0] * scaleRatio;
             final float yScale = scalings[1] * scaleRatio;
-            if (xScale != 1.0f || yScale != 1.0f) {
+            if (Precision.compareTo((double) xScale, 1.0, EPSILON) != 0
+                    || Precision.compareTo((double) yScale, 1.0, EPSILON) != 0) {
                 renderedImage = ScaleDescriptor.create(image, xScale, yScale, 0.5f, 0.5f, interpolation, renderingHints);
             }
             final float scaledXOffset = (offsets != null) ? (float) (offsets[0] / targetScale) : 0f;
             final float scaledYOffset = (offsets != null) ? (float) (offsets[1] / targetScale) : 0f;
             if (masterWidth != renderedImage.getWidth() || masterHeight != renderedImage.getHeight() ||
-                    scaledXOffset != 0.0f || scaledYOffset != 0.0f) {
+                    Precision.compareTo((double) scaledXOffset, 0.0, EPSILON) != 0 ||
+                    Precision.compareTo((double) scaledYOffset, 0.0, EPSILON) != 0) {
                 final int padX = Math.round(scaledXOffset);
                 final int padY = Math.round(scaledYOffset);
                 int borderCorrectorX = (scaledXOffset - padX < 0) ? 1 : 0;
@@ -104,7 +109,8 @@ public class SourceImageScaler {
                                                         lowerPadY,
                                                         borderExtender, renderingHints);
             }
-            if (scaledXOffset != 0.0f || scaledYOffset != 0.0f) {
+            if (Precision.compareTo((double) scaledXOffset, 0.0, EPSILON) != 0 ||
+                    Precision.compareTo((double) scaledYOffset, 0.0, EPSILON) != 0) {
                 renderedImage = TranslateDescriptor.create(renderedImage, scaledXOffset, scaledYOffset, null,
                                                            renderingHints);
             }
