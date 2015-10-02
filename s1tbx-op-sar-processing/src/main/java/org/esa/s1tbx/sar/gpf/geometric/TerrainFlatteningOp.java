@@ -496,17 +496,19 @@ public final class TerrainFlatteningOp extends Operator {
                     }
 
                     for (int j = 0; j < nLon; j++) {
-                        pix.setLocation(lonMinIdx + j, latMaxIdx + i);
+                        final double pixelX = lonMinIdx + j;
+                        final double pixelY = latMaxIdx + i;
+                        pix.setLocation(pixelX, pixelY);
                         final GeoPos gp = dem.getGeoPos(pix);
-                        final double alt = dem.getElevation(gp);
+                        final double alt = dem.getSample(pixelX, pixelY);
                         if (alt == demNoDataValue)
                             continue;
 
                         if (!getPosition(gp.lat, gp.lon, alt, x0, y0, w, h, posData))
                             continue;
 
-                        final LocalGeometry localGeometry = new LocalGeometry(i, j, dem,
-                                latMaxIdx, lonMinIdx, posData.earthPoint, posData.sensorPos);
+                        final LocalGeometry localGeometry = new LocalGeometry(pixelX, pixelY, dem,
+                                posData.earthPoint, posData.sensorPos);
 
                         gamma0Area[j] = computeGamma0Area(localGeometry, demNoDataValue, noDataValue);
                         if (gamma0Area[j] == noDataValue)
@@ -1216,36 +1218,35 @@ public final class TerrainFlatteningOp extends Operator {
             this.sensorPos = sensorPos;
         }
 
-        public LocalGeometry(final int i, final int j, final ElevationModel dem, final double latMaxIdx,
-                             final double lonMinIdx, final PosVector earthPoint, final PosVector sensorPos)
-                throws Exception{
+        public LocalGeometry(final double pixelX, final double pixelY, final ElevationModel dem,
+                             final PosVector earthPoint, final PosVector sensorPos) throws Exception{
 
             PixelPos pix = new PixelPos();
             GeoPos gp;
 
-            pix.setLocation(lonMinIdx + j, latMaxIdx + i);
+            pix.setLocation(pixelX, pixelY);
             gp = dem.getGeoPos(pix);
             this.t00Lat = gp.lat;
             this.t00Lon = gp.lon;
-            this.t00Height = dem.getElevation(gp);
+            this.t00Height = dem.getSample(pixelX, pixelY);
 
-            pix.setLocation(lonMinIdx + j, latMaxIdx + i - 1);
+            pix.setLocation(pixelX, pixelY - 1);
             gp = dem.getGeoPos(pix);
             this.t01Lat = gp.lat;
             this.t01Lon = gp.lon;
-            this.t01Height = dem.getElevation(gp);
+            this.t01Height = dem.getSample(pixelX, pixelY);
 
-            pix.setLocation(lonMinIdx + j + 1, latMaxIdx + i);
+            pix.setLocation(pixelX + 1, pixelY);
             gp = dem.getGeoPos(pix);
             this.t10Lat = gp.lat;
             this.t10Lon = gp.lon;
-            this.t10Height = dem.getElevation(gp);
+            this.t10Height = dem.getSample(pixelX, pixelY);
 
-            pix.setLocation(lonMinIdx + j + 1, latMaxIdx + i - 1);
+            pix.setLocation(pixelX + 1, pixelY - 1);
             gp = dem.getGeoPos(pix);
             this.t11Lat = gp.lat;
             this.t11Lon = gp.lon;
-            this.t11Height = dem.getElevation(gp);
+            this.t11Height = dem.getSample(pixelX, pixelY);
 
             this.centerPoint = earthPoint;
             this.sensorPos = sensorPos;
