@@ -44,6 +44,7 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
     private final JComboBox<String> demName = new JComboBox<>(DEMFactory.getDEMNameList());
     private static final String externalDEMStr = "External DEM";
     //private final JCheckBox outputSimulatedImageCheckBox = new JCheckBox("Output Simulated Image");
+    private final JCheckBox reGridMethodCheckBox = new JCheckBox("Re-grid method (slower)");
 
     private final JComboBox<String> demResamplingMethod = new JComboBox<>(ResamplingFactory.resamplingNames);
     private final JTextField externalDEMFile = new JTextField("");
@@ -52,7 +53,8 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
     private final JLabel externalDEMFileLabel = new JLabel("External DEM:");
     private final JLabel externalDEMNoDataValueLabel = new JLabel("DEM No Data Value:");
     private Double extNoDataValue = 0.0;
-    //private boolean outputSimulatedImage = false;
+    //private Boolean outputSimulatedImage = false;
+    private Boolean reGridMethod = false;
 
     private final DialogUtils.TextAreaKeyListener textAreaKeyListener = new DialogUtils.TextAreaKeyListener();
 
@@ -96,6 +98,12 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
             }
         });*/
 
+        reGridMethodCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                reGridMethod = (e.getStateChange() == ItemEvent.SELECTED);
+            }
+        });
+
         return new JScrollPane(panel);
     }
 
@@ -121,6 +129,9 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
         }
 
         //outputSimulatedImageCheckBox.setSelected(outputSimulatedImage);
+
+        reGridMethod = (Boolean) paramMap.get("reGridMethod");
+        reGridMethodCheckBox.setSelected(reGridMethod);
     }
 
     @Override
@@ -144,6 +155,7 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
         }
 
         //paramMap.put("outputSimulatedImage", outputSimulatedImage);
+        paramMap.put("reGridMethod", reGridMethod);
     }
 
     private JComponent createPanel() {
@@ -169,6 +181,8 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(contentPane, gbc, "DEM Resampling Method:", demResamplingMethod);
         //gbc.gridy++;
         //contentPane.add(outputSimulatedImageCheckBox, gbc);
+        gbc.gridy++;
+        contentPane.add(reGridMethodCheckBox, gbc);
 
         DialogUtils.fillPanel(contentPane, gbc);
 
