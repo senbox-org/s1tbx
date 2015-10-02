@@ -29,8 +29,8 @@ import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.graphbuilder.rcp.dialogs.ProductSetPanel;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
-import org.esa.snap.util.DialogUtils;
-import org.esa.snap.util.ProductOpener;
+import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
+import org.esa.snap.productlibrary.rcp.utils.ProductOpener;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.SLCImage;
 

@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.dat.layers.maptools;
 
-import org.esa.snap.util.DialogUtils;
+import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;

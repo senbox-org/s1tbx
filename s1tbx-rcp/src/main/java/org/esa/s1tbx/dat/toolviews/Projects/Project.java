@@ -33,7 +33,7 @@ import org.esa.snap.graphbuilder.rcp.dialogs.PromptDialog;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.rcp.actions.file.SaveProductAsAction;
-import org.esa.snap.util.FileFolderUtils;
+import org.esa.snap.graphbuilder.rcp.utils.FileFolderUtils;
 import org.esa.snap.util.ProductFunctions;
 import org.esa.snap.util.ResourceUtils;
 import org.jdom2.Attribute;

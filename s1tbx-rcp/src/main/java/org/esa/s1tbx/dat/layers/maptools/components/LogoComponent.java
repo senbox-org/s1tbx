@@ -17,7 +17,7 @@ package org.esa.s1tbx.dat.layers.maptools.components;
 
 import org.esa.s1tbx.dat.layers.ScreenPixelConverter;
 import org.esa.snap.framework.datamodel.RasterDataNode;
-import org.esa.snap.util.IconUtils;
+import org.esa.snap.graphbuilder.rcp.utils.IconUtils;
 
 import javax.swing.ImageIcon;
 import java.awt.Graphics2D;

@@ -20,7 +20,7 @@ import org.esa.snap.framework.ui.AppContext;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.OperatorUIUtils;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
-import org.esa.snap.util.DialogUtils;
+import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.geotools.referencing.wkt.UnformattableObjectException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 

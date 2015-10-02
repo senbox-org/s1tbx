@@ -26,7 +26,7 @@ import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.OperatorUIUtils;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
-import org.esa.snap.util.DialogUtils;
+import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.s1tbx.insar.rcp.dialogs.MasterSelection;
 
 import javax.swing.*;

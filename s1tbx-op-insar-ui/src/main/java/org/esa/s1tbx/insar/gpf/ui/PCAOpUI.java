@@ -21,7 +21,7 @@ import org.esa.snap.framework.ui.GridBagUtils;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.OperatorUIUtils;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
-import org.esa.snap.util.DialogUtils;
+import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
