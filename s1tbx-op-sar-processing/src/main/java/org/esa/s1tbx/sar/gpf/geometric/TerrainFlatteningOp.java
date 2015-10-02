@@ -86,7 +86,10 @@ public final class TerrainFlatteningOp extends Operator {
     private double externalDEMNoDataValue = 0;
 
     @Parameter(defaultValue = "false", label = "Output Simulated Image")
-    private boolean outputSimulatedImage = false;
+    private Boolean outputSimulatedImage = false;
+
+    @Parameter(defaultValue="false", label="Re-grid method (slower)")
+    private Boolean reGridMethod = false;
 
     private ElevationModel dem = null;
     private FileElevationModel fileElevationModel = null;
@@ -124,7 +127,6 @@ public final class TerrainFlatteningOp extends Operator {
 
     // set this flag to true to output terrain flattened sigma0
     private boolean outputSigma0 = false;
-    private boolean reGridMethod = true;
     private boolean detectShadow = true;
     private double threshold = 0.05;
 
