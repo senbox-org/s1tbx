@@ -33,7 +33,6 @@ EXCLUDED_DIR_NAMES = set([
 EXCLUDED_JAR_NAMES = set([
     'org-esa-snap-netbeans-docwin.jar',
     'org-esa-snap-netbeans-tile.jar',
-    'org-esa-snap-snap-gui-utilities.jar',
     'org-esa-snap-snap-worldwind.jar',
     'org-esa-snap-snap-tango.jar',
     'org-esa-snap-snap-rcp.jar',

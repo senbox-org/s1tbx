@@ -66,7 +66,6 @@ public class EngineConfig extends Config {
     static String[] DEFAULT_EXCLUDED_MODULE_NAMES = new String[]{
             "org.esa.snap:netbeans-docwin",
             "org.esa.snap:netbeans-tile",
-            "org.esa.snap:snap-gui-utilities",
             "org.esa.snap:snap-worldwind",
             "org.esa.snap:snap-rcp",
             "org.esa.snap:snap-ui",
