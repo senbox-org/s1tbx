@@ -17,10 +17,9 @@ package org.esa.s1tbx.insar.gpf.ui.coregistration;
 
 import org.esa.snap.framework.ui.AppContext;
 import org.esa.snap.gpf.InputProductValidator;
-import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
-import org.esa.snap.util.DialogUtils;
+import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;

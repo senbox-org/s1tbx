@@ -23,7 +23,7 @@ import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.rcp.SnapApp;
-import org.esa.snap.util.FileFolderUtils;
+import org.esa.snap.graphbuilder.rcp.utils.FileFolderUtils;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;

@@ -17,7 +17,7 @@ package org.csa.rstb.polarimetric.rcp.actions;
 
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
-import org.esa.snap.util.FileFolderUtils;
+import org.esa.snap.graphbuilder.rcp.utils.FileFolderUtils;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;

@@ -22,7 +22,7 @@ import org.esa.snap.framework.datamodel.GeoCoding;
 import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.datamodel.PixelPos;
 import org.esa.snap.framework.datamodel.RasterDataNode;
-import org.esa.snap.util.IconUtils;
+import org.esa.snap.graphbuilder.rcp.utils.IconUtils;
 
 import javax.swing.ImageIcon;
 import java.awt.Graphics2D;

@@ -16,7 +16,7 @@
 package org.esa.s1tbx.sar.gpf.ui.geometric;
 
 import org.esa.snap.framework.ui.AppContext;
-import org.esa.snap.util.DialogUtils;
+import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;

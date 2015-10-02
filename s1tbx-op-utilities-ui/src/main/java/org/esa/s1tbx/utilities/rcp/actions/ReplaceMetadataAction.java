@@ -16,7 +16,7 @@
 package org.esa.s1tbx.utilities.rcp.actions;
 
 import org.esa.s1tbx.utilities.gpf.ReplaceMetadataOp;
-import org.esa.snap.dat.dialogs.StringSelectorDialog;
+import org.esa.s1tbx.utilities.rcp.dialogs.StringSelectorDialog;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
 import org.esa.snap.framework.datamodel.MetadataElement;
