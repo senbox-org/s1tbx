@@ -75,7 +75,7 @@ public class SourceImageScaler {
             final MultiLevelModel sourceModel = sourceImage.getModel();
             final MultiLevelModel targetModel = getModel();
             final double targetScale = targetModel.getScale(targetLevel);
-            final int sourceLevel = sourceModel.getLevel(targetScale);
+            final int sourceLevel = findBestSourceLevel(targetScale);
             final double sourceScale = sourceModel.getScale(sourceLevel);
             final RenderedImage image = sourceImage.getImage(sourceLevel);
             final float scaleRatio = (float) (sourceScale / targetScale);
@@ -111,6 +111,41 @@ public class SourceImageScaler {
             renderedImage = CropDescriptor.create(renderedImage, 0.0f, 0.0f, (float) masterWidth, (float) masterHeight,
                                                   renderingHints);
             return renderedImage;
+        }
+
+        private int findBestSourceLevel(double targetScale) {
+            /*
+             * Find the source level such that the final scaling factor is the closest to 1.0
+             *
+             * Example : When scaling a 20m resolution image to 10m resolution,
+             * when generating the level 1 image of the scaled image, we prefer using the source image data at level 0,
+             * since it will provide a better resolution than upscaling by 2 the source image data at level 1.
+             *
+             * We can't find the best on both X and Y directions if scaling factors are arbitrary, so we limit the
+             * search algorithm by optimizing only for the X direction.
+             * This will cover the most frequent use case where scaling factors in both directions are equal.
+             */
+            final MultiLevelModel sourceModel = sourceImage.getModel();
+            float optimizedScaling = 0;
+            int optimizedSourceLevel = 0;
+            boolean initialized = false;
+            for (int sourceLevel = 0; sourceLevel < sourceModel.getLevelCount(); sourceLevel++) {
+                final double sourceScale = sourceModel.getScale(sourceLevel);
+                final float scaleRatio = (float) (sourceScale / targetScale);
+                if (!initialized) {
+                    optimizedScaling = scalings[0] * scaleRatio;
+                    optimizedSourceLevel = sourceLevel;
+                    initialized = true;
+                }
+                else {
+                    // We want to be as close to 1.0 as possible
+                    if (Math.abs(1 - scalings[0] * scaleRatio) < Math.abs(1 - optimizedScaling)) {
+                        optimizedScaling = scalings[0] * scaleRatio;
+                        optimizedSourceLevel = sourceLevel;
+                    }
+                }
+            }
+            return optimizedSourceLevel;
         }
 
     }
