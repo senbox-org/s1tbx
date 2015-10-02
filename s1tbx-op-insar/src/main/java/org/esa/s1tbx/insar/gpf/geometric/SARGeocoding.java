@@ -273,7 +273,10 @@ public final class SARGeocoding {
         double midTime = 0.0;
         double midFreq = 0.0;
         double diffTime = Math.abs(upperBoundTime - lowerBoundTime);
-        while (diffTime > Math.abs(lineTimeInterval)) {
+        final double absLineTimeInterval = Math.abs(lineTimeInterval);
+        final int totalIterations = (int)(diffTime/ absLineTimeInterval) + 1;
+        int numIterations = 0;
+        while (diffTime > absLineTimeInterval && numIterations <= totalIterations) {
 
             midTime = (upperBoundTime + lowerBoundTime) / 2.0;
             orbit.getPositionVelocity(midTime, sensorPosition, sensorVelocity);
@@ -290,7 +293,9 @@ public final class SARGeocoding {
             }
 
             diffTime = Math.abs(upperBoundTime - lowerBoundTime);
+            numIterations++;
         }
+
         /*
         midTime = (upperBoundTime + lowerBoundTime) / 2.0;
         orbit.getPositionVelocity(midTime, sensorPosition, sensorVelocity);
