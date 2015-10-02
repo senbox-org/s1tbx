@@ -43,11 +43,6 @@ import org.esa.snap.util.math.IndexValidator;
 import org.esa.snap.util.math.MathUtils;
 import org.esa.snap.util.math.Quantizer;
 import org.esa.snap.util.math.Range;
-import org.geotools.referencing.operation.transform.ConcatenatedTransform;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.MathTransform2D;
-import org.opengis.referencing.operation.NoninvertibleTransformException;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
@@ -64,7 +59,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.logging.Level;
 import java.util.prefs.BackingStoreException;
 
 /**
@@ -158,7 +152,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     private ProductNodeGroup<RasterDataNode> ancillaryVariables;
 
 
-    private SceneRasterTransform sceneRasterTransform;
     private String[] ancillaryRelations;
     private AncillaryBandRemover ancillaryBandRemover;
 
@@ -383,70 +376,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         return new Dimension(getSceneRasterWidth(), getSceneRasterHeight());
     }
 
-    /**
-     * Gets a transformation allowing to transform from this raster CS to the product's scene raster CS.
-     *
-     * @return The transformation or {@code null}, if no such exists.
-     * @since SNAP 2.0
-     */
-    public SceneRasterTransform getSceneRasterTransform() {
-        if (sceneRasterTransform != null) {
-            return sceneRasterTransform;
-        }
-        computeSceneRasterTransform();
-        return sceneRasterTransform;
-    }
-
-    /**
-     * Sets the transformation allowing to transform from this raster CS to the product's scene raster CS.
-     *
-     * @param sceneRasterTransform The transformation or {@code null}.
-     * @since SNAP 2.0
-     */
-    public void setSceneRasterTransform(SceneRasterTransform sceneRasterTransform) {
-        this.sceneRasterTransform = sceneRasterTransform;
-    }
-
-    /**
-     * Computes a transformation allowing to transform from this raster CS o the product's scene raster CS.
-     * This method is called if no transformation has been set using the
-     * {@link #setSceneRasterTransform(SceneRasterTransform)} method.
-     *
-     * @since SNAP 2.0
-     */
-    protected void computeSceneRasterTransform() {
-        Product product = getProduct();
-        if (product != null) {
-            GeoCoding pgc = product.getGeoCoding();
-            GeoCoding rgc = getGeoCoding();
-            if (pgc == rgc || pgc != null && rgc == null) {
-                sceneRasterTransform = SceneRasterTransform.IDENTITY;
-                return;
-            }
-            if (pgc != null) {
-                CoordinateReferenceSystem pcrs = pgc.getMapCRS();
-                CoordinateReferenceSystem rcrs = rgc.getMapCRS();
-                if (pcrs != null && rcrs != null && pcrs.equals(rcrs)) {
-                    try {
-                        MathTransform ri2m = rgc.getImageToMapTransform();
-                        MathTransform pm2i = pgc.getImageToMapTransform().inverse();
-                        MathTransform mathTransform = ConcatenatedTransform.create(ri2m, pm2i);
-                        if (mathTransform instanceof MathTransform2D) {
-                            MathTransform2D forward = (MathTransform2D) mathTransform;
-                            MathTransform2D inverse = forward.inverse();
-                            sceneRasterTransform = new DefaultSceneRasterTransform(forward, inverse);
-                            return;
-                        }
-                    } catch (NoninvertibleTransformException e) {
-                        SystemUtils.LOG.log(Level.SEVERE,
-                                            "failed to create SceneRasterTransform for raster '" + getName() + "'", e);
-                    }
-                }
-            }
-        }
-        sceneRasterTransform = null;
-    }
-
     @Override
     public void setModified(boolean modified) {
         boolean oldState = isModified();
@@ -493,7 +422,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                     product.setGeoCoding(this.geoCoding);
                 }
             }
-            computeSceneRasterTransform();
             fireProductNodeChanged(PROPERTY_NAME_GEOCODING);
         }
     }
