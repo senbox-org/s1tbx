@@ -18,6 +18,7 @@ import org.esa.snap.gpf.operators.standard.reproject.ReprojectionOp;
 import org.esa.snap.jai.ImageManager;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -61,6 +62,7 @@ public class MultiSizeSupportTest {
     }
 
     @Test
+    @Ignore
     public void testSubset() {
         final AffineTransform imageToModelTransform = ImageManager.getImageToModelTransform(product.getGeoCoding());
         final int height = product.getSceneRasterHeight();
@@ -110,6 +112,7 @@ public class MultiSizeSupportTest {
     }
 
     @Test
+    @Ignore
     public void testReprojection() {
         final String WGS84_CODE = "EPSG:4326";
         Map<String, Object> parameterMap = new HashMap<String, Object>(5);
@@ -136,6 +139,7 @@ public class MultiSizeSupportTest {
     }
 
     @Test
+    @Ignore
     public void testBandMaths() {
         final ProductNodeGroup<Band> bandGroup = product.getBandGroup();
         for (int i = 0; i < bandGroup.getNodeCount() - 1; i++) {
