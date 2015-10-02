@@ -184,4 +184,15 @@
         </file>
     </folder>
 
+    <folder name="ProductLibraryActions">
+        <file name="InSARStackOverviewActionExt">
+            <attr name="actionExtClass" stringvalue="org.esa.s1tbx.insar.rcp.actions.InSARStackOverviewActionExt"/>
+            <attr name="position" intvalue="100"/>
+        </file>
+        <file name="FindSlicesActionExt">
+            <attr name="actionExtClass" stringvalue="org.esa.s1tbx.insar.rcp.actions.FindSlicesActionExt"/>
+            <attr name="position" intvalue="110"/>
+        </file>
+    </folder>
+
 </filesystem>
