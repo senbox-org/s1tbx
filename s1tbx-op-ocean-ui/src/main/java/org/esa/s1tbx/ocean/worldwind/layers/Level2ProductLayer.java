@@ -33,6 +33,7 @@ import gov.nasa.worldwindx.examples.analytics.AnalyticSurfaceAttributes;
 import gov.nasa.worldwindx.examples.util.DirectedPath;
 
 import org.apache.commons.math3.util.FastMath;
+import org.esa.s1tbx.ocean.toolviews.polarview.OceanSwellTopComponent;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.framework.datamodel.*;
 import org.esa.snap.worldwind.ArrowInfo;
@@ -95,6 +96,9 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
     private String theSelectedComp = null;
 
     private final HashMap<DirectedPath, String> theObjectInfoHash = new HashMap<>();
+    private final HashMap<DirectedPath, Product> theOSWProductHash = new HashMap<>();
+    private final HashMap<DirectedPath, Integer> theOSWSequenceHash = new HashMap<>();
+
     private final HashMap<Product, ProductRenderablesInfo> theProductRenderablesInfoHash = new HashMap<>();
 
     //public ShapeAttributes dpAttrs = null;
@@ -138,7 +142,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
     public void updateInfoAnnotation(final SelectEvent event) {
 
         if (event.getEventAction().equals(SelectEvent.ROLLOVER) && (event.getTopObject() instanceof DirectedPath)) {
-            SystemUtils.LOG.info("click " + event.getTopObject());
+
 
             //SystemUtils.LOG.info("DirectedPath:::");
             DirectedPath dp = (DirectedPath) event.getTopObject();
@@ -153,7 +157,15 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
             //SystemUtils.LOG.info("selectedProduct " + getSelectedProduct());
             //final ExecCommand command = datApp.getCommandManager().getExecCommand("showPolarWaveView");
             //command.execute(2);
-        } else {
+        }
+        else if (event.getEventAction().equals(SelectEvent.LEFT_CLICK) && (event.getTopObject() instanceof DirectedPath))  {
+            SystemUtils.LOG.info("click " + event.getTopObject());
+            DirectedPath dp = (DirectedPath) event.getTopObject();
+            if (theOSWProductHash.get(dp) != null && theOSWSequenceHash.get(dp) != null) {
+                OceanSwellTopComponent.setOSWRecord(theOSWProductHash.get(dp), theOSWSequenceHash.get(dp));
+            }
+        }
+        else {
 
             if (theLastSelectedDP != null) {
                 theLastSelectedDP.setHighlighted(false);
@@ -364,7 +376,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
                 waveDirBand.readPixels(0, 0, waveDirBand.getRasterWidth(), waveDirBand.getRasterHeight(), waveDirValues, ProgressMonitor.NULL);
                 */
 
-                addWaveLengthArrows(oswData[1], oswData[0], oswData[3], oswData[4], productRenderablesInfo.theRenderableListHash.get("osw"));
+                addWaveLengthArrows(product, oswData[1], oswData[0], oswData[3], oswData[4], productRenderablesInfo.theRenderableListHash.get("osw"));
                 createOSWColorSurfaceWithGradient(oswData[1], oswData[0], oswData[2], 4, 23, productRenderablesInfo.theRenderableListHash.get("osw"), productRenderablesInfo);
                 /*
                 double arrowLength = 0.277392578125;
@@ -760,7 +772,8 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
         return directedPath;
     }
 
-    private void addWaveLengthArrows(double[] latValues,
+    private void addWaveLengthArrows(Product product,
+                                    double[] latValues,
                                     double[] lonValues,
                                     double[] waveLengthValues,
                                     double[] waveDirValues,
@@ -805,6 +818,8 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
             //info += "Wind Direction: " + avgWindDir + "<br/>";
             //info += "Incidence Angle: " + avgIncAngle + "<br/>";
             theObjectInfoHash.put(directedPath, info);
+            theOSWProductHash.put(directedPath, product);
+            theOSWSequenceHash.put(directedPath, ind);
         }
     }
 
@@ -836,7 +851,9 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
             p.setFollowTerrain(true);
             p.setPositions(polygonPositions);
             addRenderable(p);
-
+            if (renderableList != null) {
+                renderableList.add(p);
+            }
             AnalyticSurface analyticSurface = new AnalyticSurface();
             analyticSurface.setSector(Sector.fromDegrees(latValues[ind] - vignette_half_side_deg, latValues[ind] + vignette_half_side_deg, lonValues[ind] - vignette_half_side_deg, lonValues[ind] + vignette_half_side_deg));
             analyticSurface.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
@@ -1065,6 +1082,11 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
                 for (Renderable renderable : renderableList) {
                     //SystemUtils.LOG.info(":: renderable " + renderable);
                     removeRenderable(renderable);
+                    if (renderable  instanceof DirectedPath) {
+                        theObjectInfoHash.remove(renderable);
+                        theOSWProductHash.remove(renderable);
+                        theOSWSequenceHash.remove(renderable);
+                    }
                 }
                 renderableList.clear();
             }
