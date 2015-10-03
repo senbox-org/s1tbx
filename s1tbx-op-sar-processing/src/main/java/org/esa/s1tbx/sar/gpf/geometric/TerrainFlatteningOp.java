@@ -200,10 +200,25 @@ public final class TerrainFlatteningOp extends Operator {
     private void getMetadata() throws Exception {
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-        srgrFlag = AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.srgr_flag);
-        wavelength = SARUtils.getRadarFrequency(absRoot);
         rangeSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
         azimuthSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.azimuth_spacing);
+
+        if (reGridMethod) {
+            if (demName.contains("SRTM 3Sec") && (rangeSpacing < 90.0 || azimuthSpacing < 90.0) ||
+                    demName.contains("SRTM 1Sec") && (rangeSpacing < 30.0 || azimuthSpacing < 30.0) ||
+                    demName.contains("SRTM 1Sec Grid") && (rangeSpacing < 30.0 || azimuthSpacing < 30.0) ||
+                    demName.contains("ASTER 1sec GDEM") && (rangeSpacing < 30.0 || azimuthSpacing < 30.0) ||
+                    demName.contains("ACE30") && (rangeSpacing < 1000.0 || azimuthSpacing < 1000.0) ||
+                    demName.contains("ACE2_5Min") && (rangeSpacing < 10000.0 || azimuthSpacing < 10000.0) ||
+                    demName.contains("GETASSE30") && (rangeSpacing < 1000.0 || azimuthSpacing < 1000.0)) {
+                throw new OperatorException("The DEM resolution is lower than that of the source image. " +
+                        "Please multilook the source image or use higher resolution DEM (e.g. SRTM 1Sec HGT) " +
+                        "to make sure the DEM resolution is higher than that of the source image.");
+            }
+        }
+
+        srgrFlag = AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.srgr_flag);
+        wavelength = SARUtils.getRadarFrequency(absRoot);
         firstLineUTC = AbstractMetadata.parseUTC(absRoot.getAttributeString(AbstractMetadata.first_line_time)).getMJD(); // in days
         lastLineUTC = AbstractMetadata.parseUTC(absRoot.getAttributeString(AbstractMetadata.last_line_time)).getMJD(); // in days
         lineTimeInterval = absRoot.getAttributeDouble(AbstractMetadata.line_time_interval) / Constants.secondsInDay; // s to day
