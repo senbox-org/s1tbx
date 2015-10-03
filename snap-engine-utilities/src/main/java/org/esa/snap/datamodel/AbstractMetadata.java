@@ -465,6 +465,7 @@ public final class AbstractMetadata {
         MetadataAttribute attrib = dest.getAttribute(tag);
         if (attrib == null) {
             attrib = new MetadataAttribute(tag, ProductData.TYPE_ASCII);
+            dest.addAttribute(attrib);
         }
         if (value == null || value.isEmpty())
             attrib.getData().setElems(NO_METADATA_STRING);
