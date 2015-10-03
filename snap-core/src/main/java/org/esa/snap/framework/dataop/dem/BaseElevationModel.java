@@ -160,6 +160,7 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
                 if (tile == null) {
                     samples[i][j] = Double.NaN;
                     allValid = false;
+                    ++j;
                     continue;
                 }
 
