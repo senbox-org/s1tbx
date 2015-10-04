@@ -305,7 +305,7 @@ public class PolarCanvas extends Container {
 
     private void drawAxisLabels(Graphics graphics) {
         final int x = 20;
-        final int y = origin.y+50;
+        final int y = origin.y + 50;
         final int d = 50;
 
         graphics.setColor(Color.black);

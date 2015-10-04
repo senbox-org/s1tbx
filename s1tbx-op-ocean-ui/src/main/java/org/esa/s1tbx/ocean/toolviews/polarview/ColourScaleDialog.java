@@ -17,8 +17,8 @@ package org.esa.s1tbx.ocean.toolviews.polarview;
 
 import org.esa.s1tbx.ocean.toolviews.polarview.polarplot.Axis;
 import org.esa.snap.framework.ui.ModalDialog;
-import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
+import org.esa.snap.rcp.SnapApp;
 
 import javax.swing.*;
 import java.awt.*;
