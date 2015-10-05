@@ -349,7 +349,7 @@ public final class BackGeocodingOp extends Operator {
 
         if (outputRangeAzimuthOffset) {
             final Band azOffsetBand = new Band(
-                    "azOffset",
+                    "azOffset" + slvSuffix,
                     ProductData.TYPE_FLOAT32,
                     masterBandWidth,
                     masterBandHeight);
@@ -358,7 +358,7 @@ public final class BackGeocodingOp extends Operator {
             targetProduct.addBand(azOffsetBand);
 
             final Band rgOffsetBand = new Band(
-                    "rgOffset",
+                    "rgOffset" + slvSuffix,
                     ProductData.TYPE_FLOAT32,
                     masterBandWidth,
                     masterBandHeight);
@@ -369,7 +369,7 @@ public final class BackGeocodingOp extends Operator {
 
         if (outputDerampDemodPhase) {
             final Band phaseBand = new Band(
-                    "derampDemodPhase",
+                    "derampDemodPhase" + slvSuffix,
                     ProductData.TYPE_FLOAT32,
                     masterBandWidth,
                     masterBandHeight);
