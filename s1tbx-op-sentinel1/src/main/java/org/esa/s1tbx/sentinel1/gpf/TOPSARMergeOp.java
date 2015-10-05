@@ -505,6 +505,20 @@ public final class TOPSARMergeOp extends Operator {
             }
         }
         absTgt.addElement(burstBoundaryTgt);
+
+        absTgt.removeElement(absTgt.getElement("ESD_Measurement"));
+        final MetadataElement ESDMeasurementTgt = new MetadataElement("ESD_Measurement");
+        for (int p = 0; p < numOfSubSwath; p++) {
+            MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct[p]);
+            final MetadataElement ESDMeasurementSrc = absRoot.getElement("ESD_Measurement");
+            if (ESDMeasurementSrc != null) {
+                final MetadataElement element = ESDMeasurementSrc.getElementAt(0);
+                if (element != null) {
+                    ESDMeasurementTgt.addElement(element.createDeepClone());
+                }
+            }
+        }
+        absTgt.addElement(ESDMeasurementTgt);
     }
 
     private void updateOriginalMetadata() {
