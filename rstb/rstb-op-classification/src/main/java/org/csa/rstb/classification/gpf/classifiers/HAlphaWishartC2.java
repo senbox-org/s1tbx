@@ -15,17 +15,16 @@
  */
 package org.csa.rstb.classification.gpf.classifiers;
 
+import org.csa.rstb.classification.gpf.PolarimetricClassificationOp;
 import org.csa.rstb.polarimetric.gpf.DualPolOpUtils;
 import org.csa.rstb.polarimetric.gpf.HaAlphaDescriptor;
-import org.csa.rstb.polarimetric.gpf.PolOpUtils;
-import org.csa.rstb.classification.gpf.PolarimetricClassificationOp;
 import org.csa.rstb.polarimetric.gpf.decompositions.HAlphaC2;
 import org.esa.s1tbx.io.PolBandUtils;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.framework.gpf.Tile;
 import org.esa.snap.gpf.OperatorUtils;
-import org.esa.snap.framework.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.gpf.ThreadManager;
 import org.esa.snap.gpf.TileIndex;
 import org.esa.snap.util.SystemUtils;
