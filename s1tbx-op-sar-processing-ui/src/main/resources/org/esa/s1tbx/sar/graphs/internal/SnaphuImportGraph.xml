@@ -18,7 +18,7 @@
         <operator>SnaphuImport</operator>
         <sources>
             <sourceProduct refid="1-Read-Phase"/>
-            <sourceProduct refid="2-Read-Unwrapped-Phase"/>
+            <sourceProduct.1 refid="2-Read-Unwrapped-Phase"/>
         </sources>
         <parameters>
             <doNotKeepWrapped>false</doNotKeepWrapped>

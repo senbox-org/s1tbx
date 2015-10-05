@@ -96,7 +96,7 @@
     <operator>CreateStack</operator>
     <sources>
       <sourceProduct refid="Calibration"/>
-      <sourceProduct refid="Calibration(2)"/>
+      <sourceProduct.1 refid="Calibration(2)"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <masterBands>

@@ -236,10 +236,10 @@
     <operator>SAR-Mosaic</operator>
     <sources>
       <sourceProduct refid="11-Multilook"/>
-      <sourceProduct refid="12-Multilook"/>
-      <sourceProduct refid="13-Multilook"/>
-      <sourceProduct refid="14-Multilook"/>
-      <sourceProduct refid="15-Multilook"/>
+      <sourceProduct.1 refid="12-Multilook"/>
+      <sourceProduct.2 refid="13-Multilook"/>
+      <sourceProduct.3 refid="14-Multilook"/>
+      <sourceProduct.4 refid="15-Multilook"/>
     </sources>
     <parameters>
       <sourceBands/>
