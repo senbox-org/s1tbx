@@ -15,12 +15,10 @@
  */
 package org.csa.rstb.classification.gpf.classifiers;
 
+import org.csa.rstb.classification.gpf.PolarimetricClassificationOp;
 import org.csa.rstb.polarimetric.gpf.DualPolOpUtils;
 import org.csa.rstb.polarimetric.gpf.HaAlphaDescriptor;
-import org.csa.rstb.polarimetric.gpf.PolOpUtils;
-import org.csa.rstb.classification.gpf.PolarimetricClassificationOp;
 import org.csa.rstb.polarimetric.gpf.decompositions.HAlphaC2;
-import org.csa.rstb.polarimetric.gpf.decompositions.hAAlpha;
 import org.esa.s1tbx.io.PolBandUtils;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.ProductData;
