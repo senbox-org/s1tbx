@@ -31,7 +31,6 @@ import org.esa.snap.gpf.operators.standard.WriteOp;
 import org.esa.snap.util.MemUtils;
 import org.esa.snap.util.ProductFunctions;
 import org.esa.snap.util.ProductUtils;
-import org.esa.snap.util.ResourceUtils;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.TestUtils;
 

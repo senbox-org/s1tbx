@@ -18,9 +18,7 @@ package org.esa.snap.framework.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import com.bc.jexp.ParseException;
 import org.esa.snap.framework.dataio.ProductSubsetDef;
-import org.esa.snap.framework.dataop.barithm.BandArithmetic;
 import org.esa.snap.util.Debug;
 import org.esa.snap.util.Guardian;
 

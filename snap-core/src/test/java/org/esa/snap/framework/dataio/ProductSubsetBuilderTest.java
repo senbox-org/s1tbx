@@ -33,7 +33,6 @@ import org.esa.snap.framework.datamodel.TiePointGeoCoding;
 import org.esa.snap.framework.datamodel.TiePointGrid;
 import org.esa.snap.framework.dataop.maptransf.Datum;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.awt.Color;

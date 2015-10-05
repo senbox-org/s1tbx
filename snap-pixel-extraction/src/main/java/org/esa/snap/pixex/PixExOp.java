@@ -38,7 +38,6 @@ import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
 import org.esa.snap.framework.gpf.annotations.Parameter;
 import org.esa.snap.framework.gpf.annotations.SourceProducts;
 import org.esa.snap.framework.gpf.annotations.TargetProperty;
-import org.esa.snap.jai.ResolutionLevel;
 import org.esa.snap.jai.VirtualBandOpImage;
 import org.esa.snap.measurement.Measurement;
 import org.esa.snap.measurement.writer.FormatStrategy;

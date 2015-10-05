@@ -16,17 +16,14 @@
 
 package org.esa.snap.glevel;
 
-import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
-import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import org.esa.snap.framework.datamodel.ImageInfo;
 import org.esa.snap.framework.datamodel.RasterDataNode;
 import org.esa.snap.jai.ImageManager;
 
 import java.awt.Shape;
-import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
 
 /**

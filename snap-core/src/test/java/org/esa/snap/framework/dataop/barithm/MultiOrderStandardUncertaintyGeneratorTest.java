@@ -1,14 +1,12 @@
 package org.esa.snap.framework.dataop.barithm;
 
 import com.bc.jexp.ParseException;
-import com.bc.jexp.Term;
-import com.bc.jexp.impl.TermDecompiler;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 
 /**

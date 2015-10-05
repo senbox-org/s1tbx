@@ -8,7 +8,6 @@ import org.esa.snap.framework.gpf.descriptor.DefaultOperatorDescriptor;
 import org.esa.snap.framework.gpf.descriptor.OperatorDescriptor;
 import org.esa.snap.python.PyBridge;
 import org.esa.snap.util.ServiceFinder;
-import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.io.FileUtils;
 
 import java.io.BufferedReader;
@@ -17,7 +16,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.esa.snap.util.SystemUtils.LOG;
+import static org.esa.snap.util.SystemUtils.*;
 
 /**
  * The service provider interface (SPI) for the SNAP Python operator.
