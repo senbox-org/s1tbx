@@ -17,8 +17,6 @@ package org.esa.s1tbx.insar.gpf.coregistration;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
-import org.esa.s1tbx.insar.gpf.coregistration.GCPManager;
-import org.esa.s1tbx.insar.gpf.coregistration.GCPSelectionOp;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.framework.datamodel.Band;

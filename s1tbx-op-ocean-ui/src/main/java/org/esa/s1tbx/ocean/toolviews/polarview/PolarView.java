@@ -22,8 +22,8 @@ import org.esa.s1tbx.ocean.toolviews.polarview.polarplot.PolarData;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.graphbuilder.rcp.utils.FileFolderUtils;
+import org.esa.snap.rcp.SnapApp;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
@@ -69,6 +69,9 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
 
         this.setLayout(new BorderLayout());
 
+        waveProductType = null;
+        spectraData = null;
+
         emptyPanel = createEmptyPanel();
         this.add(emptyPanel, BorderLayout.NORTH);
         polarPanel = new PolarPanel();
@@ -93,7 +96,7 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
     }
 
     public void setProduct(final Product prod) {
-        if(product == prod) {
+        if (product == prod) {
             return;
         }
         this.product = prod;
@@ -102,30 +105,39 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
             return;
         }
 
-        waveProductType = null;
-        spectraData = null;
         switch (product.getProductType()) {
             case "ASA_WVW_2P":
-                waveProductType = SpectraData.WaveProductType.WAVE_SPECTRA;
-                spectraUnit = SpectraData.SpectraUnit.AMPLITUDE;
-                spectraData = new SpectraDataAsar(product, waveProductType);
+                if (spectraUnit == null) {
+                    spectraUnit = SpectraData.SpectraUnit.AMPLITUDE;
+                }
+                spectraData = new SpectraDataAsar(product, SpectraData.WaveProductType.WAVE_SPECTRA);
                 break;
             case "ASA_WVS_1P":
-                waveProductType = SpectraData.WaveProductType.CROSS_SPECTRA;
-                spectraUnit = SpectraData.SpectraUnit.INTENSITY;
-                spectraData = new SpectraDataAsar(product, waveProductType);
+                if (spectraUnit == null) {
+                    spectraUnit = SpectraData.SpectraUnit.INTENSITY;
+                }
+                spectraData = new SpectraDataAsar(product, SpectraData.WaveProductType.CROSS_SPECTRA);
                 break;
             case "OCN":
                 final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
                 final String mode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
-                if(mode.equals("WV")) {
-                    waveProductType = SpectraData.WaveProductType.WAVE_SPECTRA;
-                    spectraUnit = SpectraData.SpectraUnit.AMPLITUDE;
-                    spectraData = new SpectraDataSentinel1(product, waveProductType);
+                if (mode.equals("WV")) {
+                    if (spectraUnit == null) {
+                        spectraUnit = SpectraData.SpectraUnit.AMPLITUDE;
+                    }
+                    if (waveProductType == null) {
+                        waveProductType = SpectraData.WaveProductType.WAVE_SPECTRA;
+                    }
+                    spectraData = new SpectraDataSentinel1(product);
+                    spectraData.setWaveProductType(waveProductType);
+                } else {
+                    enablePlot(false);
+                    return;
                 }
                 break;
             default:
-                break;
+                enablePlot(false);
+                return;
         }
 
         if (waveProductType != null) {
@@ -150,7 +162,7 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
             final PolarCanvas polarCanvas = polarPanel.getPolarCanvas();
             polarCanvas.setAxisNames("Azimuth", "Range");
 
-            if (waveProductType == SpectraData.WaveProductType.WAVE_SPECTRA) {
+            if (!(spectraData instanceof SpectraDataAsar && spectraData.getWaveProductType() == SpectraData.WaveProductType.CROSS_SPECTRA)) {
                 polarCanvas.setWindDirection(spectraData.getWindDirection());
                 polarCanvas.showWindDirection(true);
                 polarCanvas.setAxisNames("North", "East");
@@ -194,10 +206,18 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
         final JMenuItem itemColourScale = createMenuItem("Colour Scale");
         popup.add(itemColourScale);
 
+        if (spectraData instanceof SpectraDataSentinel1) {
+            final JMenu dataMenu = new JMenu("Data");
+            popup.add(dataMenu);
+
+            createCheckedMenuItem("Wave Spectra", dataMenu, spectraData.getWaveProductType() == SpectraData.WaveProductType.WAVE_SPECTRA);
+            createCheckedMenuItem("Cross Spectra", dataMenu, spectraData.getWaveProductType() == SpectraData.WaveProductType.CROSS_SPECTRA);
+        }
+
         final JMenu unitMenu = new JMenu("Unit");
         popup.add(unitMenu);
 
-        if (waveProductType == SpectraData.WaveProductType.WAVE_SPECTRA) {
+        if (spectraData.getWaveProductType() == SpectraData.WaveProductType.WAVE_SPECTRA) {
             createCheckedMenuItem(unitTypes[SpectraData.SpectraUnit.AMPLITUDE.ordinal()], unitMenu, spectraUnit == SpectraData.SpectraUnit.AMPLITUDE);
             createCheckedMenuItem(unitTypes[SpectraData.SpectraUnit.INTENSITY.ordinal()], unitMenu, spectraUnit == SpectraData.SpectraUnit.INTENSITY);
         } else {
@@ -225,10 +245,11 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
         return item;
     }
 
-    private JCheckBoxMenuItem createCheckedMenuItem(final String name, final JMenu parent, boolean state) {
+    public JCheckBoxMenuItem createCheckedMenuItem(final String name, final JMenu parent, boolean state) {
         final JCheckBoxMenuItem item = new JCheckBoxMenuItem(name);
         item.setHorizontalTextPosition(JMenuItem.RIGHT);
         item.addActionListener(this);
+        item.setState(state);
         parent.add(item);
         return item;
     }
@@ -259,6 +280,17 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
             createPlot(currentRecord);
         } else if (event.getActionCommand().equals("Intensity")) {
             spectraUnit = SpectraData.SpectraUnit.INTENSITY;
+            createPlot(currentRecord);
+        } else if (event.getActionCommand().equals("Wave Spectra")) {
+            waveProductType = SpectraData.WaveProductType.WAVE_SPECTRA;
+            spectraData.setWaveProductType(waveProductType);
+            if (spectraUnit != SpectraData.SpectraUnit.AMPLITUDE && spectraUnit != SpectraData.SpectraUnit.INTENSITY) {
+                spectraUnit = SpectraData.SpectraUnit.AMPLITUDE;
+            }
+            createPlot(currentRecord);
+        } else if (event.getActionCommand().equals("Cross Spectra")) {
+            waveProductType = SpectraData.WaveProductType.CROSS_SPECTRA;
+            spectraData.setWaveProductType(waveProductType);
             createPlot(currentRecord);
         }
     }
@@ -304,7 +336,9 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
         final File file = FileFolderUtils.GetFilePath("Export Wave Mode Readout", "txt", "txt",
                                                       product.getName() + "_rec" + currentRecord, "Wave mode readout", true);
         try {
-            polarPanel.exportReadout(file);
+            if (file != null) {
+                polarPanel.exportReadout(file);
+            }
         } catch (Exception e) {
             SnapApp.getDefault().handleError("Unable to export file " + file.toString() + ": " + e.getMessage(), e);
         }

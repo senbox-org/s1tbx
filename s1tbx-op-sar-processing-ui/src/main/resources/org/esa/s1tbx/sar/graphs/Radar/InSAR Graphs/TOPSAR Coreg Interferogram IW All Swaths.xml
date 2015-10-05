@@ -70,7 +70,7 @@
       <resamplingType>BISINC_5_POINT_INTERPOLATION</resamplingType>
       <maskOutAreaWithoutElevation>true</maskOutAreaWithoutElevation>
       <outputRangeAzimuthOffset>false</outputRangeAzimuthOffset>
-      <outputDerampPhase>false</outputDerampPhase>
+      <outputDerampDemodPhase>false</outputDerampDemodPhase>
     </parameters>
   </node>
   <node id="Interferogram">
@@ -112,7 +112,7 @@
     <operator>Back-Geocoding</operator>
     <sources>
       <sourceProduct refid="TOPSAR-Split(3)"/>
-      <sourceProduct refid="TOPSAR-Split(4)"/>
+      <sourceProduct.1 refid="TOPSAR-Split(4)"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <demName>SRTM 3Sec</demName>
@@ -122,7 +122,7 @@
       <resamplingType>BISINC_5_POINT_INTERPOLATION</resamplingType>
       <maskOutAreaWithoutElevation>true</maskOutAreaWithoutElevation>
       <outputRangeAzimuthOffset>false</outputRangeAzimuthOffset>
-      <outputDerampPhase>false</outputDerampPhase>
+      <outputDerampDemodPhase>false</outputDerampDemodPhase>
     </parameters>
   </node>
   <node id="Interferogram(2)">
@@ -164,7 +164,7 @@
     <operator>Back-Geocoding</operator>
     <sources>
       <sourceProduct refid="TOPSAR-Split(5)"/>
-      <sourceProduct refid="TOPSAR-Split(6)"/>
+      <sourceProduct.1 refid="TOPSAR-Split(6)"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <demName>SRTM 3Sec</demName>
@@ -174,7 +174,7 @@
       <resamplingType>BISINC_5_POINT_INTERPOLATION</resamplingType>
       <maskOutAreaWithoutElevation>true</maskOutAreaWithoutElevation>
       <outputRangeAzimuthOffset>false</outputRangeAzimuthOffset>
-      <outputDerampPhase>false</outputDerampPhase>
+      <outputDerampDemodPhase>false</outputDerampDemodPhase>
     </parameters>
   </node>
   <node id="Interferogram(3)">
@@ -223,8 +223,8 @@
     <operator>TOPSAR-Merge</operator>
     <sources>
       <sourceProduct refid="TOPSAR-Deburst"/>
-      <sourceProduct refid="TOPSAR-Deburst(2)"/>
-      <sourceProduct refid="TOPSAR-Deburst(3)"/>
+      <sourceProduct.1 refid="TOPSAR-Deburst(2)"/>
+      <sourceProduct.2 refid="TOPSAR-Deburst(3)"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <selectedPolarisations/>

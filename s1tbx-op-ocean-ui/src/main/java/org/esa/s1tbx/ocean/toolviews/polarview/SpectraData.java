@@ -26,6 +26,10 @@ public interface SpectraData {
 
     enum SpectraUnit {REAL, IMAGINARY, AMPLITUDE, INTENSITY}
 
+    void setWaveProductType(final SpectraData.WaveProductType waveProductType);
+
+    SpectraData.WaveProductType getWaveProductType();
+
     String[] getSpectraMetadata(final int rec) throws Exception;
 
     PolarData getPolarData(final int currentRec, final SpectraUnit spectraUnit) throws Exception;
@@ -42,13 +46,11 @@ public interface SpectraData {
 
     double getMaxRadius();
 
-    float getMinValue(final boolean real);
-
-    float getMaxValue(final boolean real);
-
     default int sign(final float f) {
         return f < 0.0F ? -1 : 1;
     }
 
-    default boolean isASAR() { return this instanceof SpectraDataAsar; }
+    default boolean isASAR() {
+        return this instanceof SpectraDataAsar;
+    }
 }
