@@ -74,7 +74,6 @@
         <module>snap-collocation</module>
         <module>snap-csv-dataio</module>
         <module>snap-dem</module>
-        <module>snap-engine-examples</module>
         <module>snap-envi-reader</module>
         <module>snap-envisat-reader</module>
         <module>snap-getasse30-dem</module>

@@ -37,7 +37,6 @@ EXCLUDED_JAR_NAMES = set([
     'org-esa-snap-snap-tango.jar',
     'org-esa-snap-snap-rcp.jar',
     'org-esa-snap-snap-ui.jar',
-    'org-esa-snap-snap-engine-examples.jar',
     'org-esa-snap-snap-graph-builder.jar',
     'org-esa-snap-snap-branding.jar'
 ])
