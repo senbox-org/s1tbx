@@ -262,10 +262,10 @@ def annotate_RasterDataNode_methods(type_name, method):
     return True
 
 
-jpy.type_callbacks['RasterDataNode'] = annotate_RasterDataNode_methods
-jpy.type_callbacks['AbstractBand'] = annotate_RasterDataNode_methods
-jpy.type_callbacks['Band'] = annotate_RasterDataNode_methods
-jpy.type_callbacks['VirtualBand'] = annotate_RasterDataNode_methods
+jpy.type_callbacks['org.esa.snap.core.datamodel.RasterDataNode'] = annotate_RasterDataNode_methods
+jpy.type_callbacks['org.esa.snap.core.datamodel.AbstractBand'] = annotate_RasterDataNode_methods
+jpy.type_callbacks['org.esa.snap.core.datamodel.Band'] = annotate_RasterDataNode_methods
+jpy.type_callbacks['org.esa.snap.core.datamodel.VirtualBand'] = annotate_RasterDataNode_methods
 
 #
 # Preload and assign frequently used Java classes from the Java SE and SNAP Java API.
@@ -279,25 +279,24 @@ try:
     Rectangle = jpy.get_type('java.awt.Rectangle')
 
     SystemUtils = jpy.get_type('org.esa.snap.util.SystemUtils')
-    ProductIO = jpy.get_type('ProductIO')
-
-    Product = jpy.get_type('Product')
-    ProductData = jpy.get_type('ProductData')
-    RasterDataNode = jpy.get_type('RasterDataNode')
-    AbstractBand = jpy.get_type('AbstractBand')
-    Band = jpy.get_type('Band')
-    VirtualBand = jpy.get_type('VirtualBand')
-    GeoCoding = jpy.get_type('GeoCoding')
-    GeoPos = jpy.get_type('GeoPos')
-    PixelPos = jpy.get_type('PixelPos')
-    FlagCoding = jpy.get_type('FlagCoding')
-    ProductNodeGroup = jpy.get_type('ProductNodeGroup')
+    ProductIO = jpy.get_type('org.esa.snap.core.dataio.ProductIO')
+    Product = jpy.get_type('org.esa.snap.core.datamodel.Product')
+    ProductData = jpy.get_type('org.esa.snap.core.datamodel.ProductData')
+    RasterDataNode = jpy.get_type('org.esa.snap.core.datamodel.RasterDataNode')
+    AbstractBand = jpy.get_type('org.esa.snap.core.datamodel.AbstractBand')
+    Band = jpy.get_type('org.esa.snap.core.datamodel.Band')
+    VirtualBand = jpy.get_type('org.esa.snap.core.datamodel.VirtualBand')
+    GeoCoding = jpy.get_type('org.esa.snap.core.datamodel.GeoCoding')
+    GeoPos = jpy.get_type('org.esa.snap.core.datamodel.GeoPos')
+    PixelPos = jpy.get_type('org.esa.snap.core.datamodel.PixelPos')
+    FlagCoding = jpy.get_type('org.esa.snap.core.datamodel.FlagCoding')
+    ProductNodeGroup = jpy.get_type('org.esa.snap.core.datamodel.ProductNodeGroup')
 
     ProductUtils = jpy.get_type('org.esa.snap.util.ProductUtils')
 
-    GPF = jpy.get_type('GPF')
-    Operator = jpy.get_type('Operator')
-    Tile = jpy.get_type('Tile')
+    GPF = jpy.get_type('org.esa.snap.core.gpf.GPF')
+    Operator = jpy.get_type('org.esa.snap.core.gpf.Operator')
+    Tile = jpy.get_type('org.esa.snap.core.gpf.Tile')
 
     EngineConfig = jpy.get_type('org.esa.snap.runtime.EngineConfig')
 
