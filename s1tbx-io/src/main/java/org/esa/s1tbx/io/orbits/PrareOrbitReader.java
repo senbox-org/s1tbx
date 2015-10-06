@@ -17,11 +17,11 @@ package org.esa.s1tbx.io.orbits;
 
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.datamodel.Orbits;
 import org.esa.snap.util.Maths;
-import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.ZipUtils;
-import org.esa.snap.util.io.FileUtils;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;

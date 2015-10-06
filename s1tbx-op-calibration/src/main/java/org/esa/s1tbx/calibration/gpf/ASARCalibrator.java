@@ -29,6 +29,7 @@ import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.util.ResourceInstaller;
 import org.esa.snap.dataio.envisat.EnvisatAuxReader;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
@@ -38,7 +39,6 @@ import org.esa.snap.eo.GeoUtils;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.TileIndex;
 import org.esa.snap.util.Maths;
-import org.esa.snap.util.ResourceInstaller;
 
 import java.awt.Rectangle;
 import java.io.File;

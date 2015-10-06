@@ -16,8 +16,7 @@
 package org.esa.s1tbx.fex.gpf.oceantools;
 
 import org.esa.s1tbx.commons.S1TBXTests;
-import org.esa.snap.util.ResourceUtils;
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.util.TestUtils;
 import org.junit.Ignore;
 import org.junit.Test;

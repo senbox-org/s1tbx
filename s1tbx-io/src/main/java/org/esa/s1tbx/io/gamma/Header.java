@@ -2,8 +2,8 @@ package org.esa.s1tbx.io.gamma;
 
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.util.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;

@@ -16,9 +16,9 @@
 package org.esa.s1tbx.commons;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.util.ResourceInstaller;
-import org.esa.snap.util.SystemUtils;
-import org.esa.snap.util.io.TreeCopier;
+import org.esa.snap.core.util.ResourceInstaller;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.io.TreeCopier;
 
 import java.io.IOException;
 import java.nio.file.Files;

@@ -32,8 +32,8 @@ import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
+import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.dataio.dimap.DimapProductWriter;
-import org.esa.snap.util.io.FileUtils;
 
 import java.awt.Point;
 import java.awt.Rectangle;

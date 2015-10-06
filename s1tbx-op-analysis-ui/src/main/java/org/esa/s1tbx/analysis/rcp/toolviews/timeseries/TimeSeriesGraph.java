@@ -19,9 +19,9 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.support.ImageLayer;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.util.math.IndexValidator;
+import org.esa.snap.core.util.math.Range;
 import org.esa.snap.ui.diagram.AbstractDiagramGraph;
-import org.esa.snap.util.math.IndexValidator;
-import org.esa.snap.util.math.Range;
 
 import java.util.HashMap;
 import java.util.Map;

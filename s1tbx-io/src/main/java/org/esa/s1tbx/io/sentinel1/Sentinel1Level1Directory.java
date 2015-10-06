@@ -29,14 +29,14 @@ import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.dataop.downloadable.XMLSupport;
 import org.esa.snap.core.dataop.maptransf.Datum;
+import org.esa.snap.core.util.io.FileUtils;
+import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ReaderUtils;
-import org.esa.snap.util.io.FileUtils;
-import org.esa.snap.util.math.MathUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
 

@@ -25,10 +25,10 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ThreadManager;
 import org.esa.snap.gpf.TileIndex;
-import org.esa.snap.util.SystemUtils;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;

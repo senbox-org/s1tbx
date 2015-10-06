@@ -16,13 +16,13 @@
 package org.csa.rstb.classification.rcp.dialogs;
 
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.graphbuilder.rcp.utils.FileFolderUtils;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.ui.ModalDialog;
 import org.esa.snap.util.Settings;
-import org.esa.snap.util.StringUtils;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

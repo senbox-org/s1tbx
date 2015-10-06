@@ -19,7 +19,7 @@ import org.esa.s1tbx.io.binary.BinaryFileReader;
 import org.esa.s1tbx.io.binary.BinaryRecord;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.util.StringUtils;
+import org.esa.snap.core.util.StringUtils;
 import org.jdom2.Document;
 
 import java.io.File;

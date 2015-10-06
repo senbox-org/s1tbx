@@ -1,6 +1,6 @@
 package org.jlinda.core.geom;
 
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.jlinda.core.Constants;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;

@@ -45,9 +45,9 @@ import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.rcp.SnapApp;
-import org.esa.snap.util.SystemUtils;
 import org.esa.snap.worldwind.ArrowInfo;
 import org.esa.snap.worldwind.ColorBarLegend;
 import org.esa.snap.worldwind.ProductRenderablesInfo;
@@ -901,7 +901,8 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
                 }
             };
             */
-            analyticSurface.setSector(Sector.fromDegrees(latValues[ind] - vignette_half_side_deg, latValues[ind] + vignette_half_side_deg, lonValues[ind] - vignette_half_side_deg, lonValues[ind] + vignette_half_side_deg));
+            analyticSurface.setSector(Sector.fromDegrees(latValues[ind] - vignette_half_side_deg, latValues[ind] + vignette_half_side_deg,
+                                                         lonValues[ind] - vignette_half_side_deg, lonValues[ind] + vignette_half_side_deg));
             analyticSurface.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
             // one by one square doesn't seem to work, so we'll just use the next smallest
             // possible square and repeat the same value 4 times

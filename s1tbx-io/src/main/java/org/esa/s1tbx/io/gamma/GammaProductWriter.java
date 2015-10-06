@@ -29,8 +29,8 @@ import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.core.gpf.internal.TileImpl;
+import org.esa.snap.core.util.Guardian;
 import org.esa.snap.datamodel.Unit;
-import org.esa.snap.util.Guardian;
 
 import javax.imageio.stream.ImageOutputStream;
 import java.awt.Rectangle;

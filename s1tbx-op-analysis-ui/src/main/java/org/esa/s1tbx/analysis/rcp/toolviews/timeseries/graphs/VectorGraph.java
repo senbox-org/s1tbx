@@ -25,9 +25,9 @@ import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.VectorDataNode;
-import org.esa.snap.jai.ImageManager;
-import org.esa.snap.util.math.IndexValidator;
-import org.esa.snap.util.math.Range;
+import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.util.math.IndexValidator;
+import org.esa.snap.core.util.math.Range;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 
 import javax.media.jai.PlanarImage;

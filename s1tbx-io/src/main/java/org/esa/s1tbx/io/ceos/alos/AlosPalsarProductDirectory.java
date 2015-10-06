@@ -34,6 +34,8 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.dataop.maptransf.Datum;
+import org.esa.snap.core.util.Debug;
+import org.esa.snap.core.util.Guardian;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.datamodel.Orbits;
@@ -42,8 +44,6 @@ import org.esa.snap.eo.Constants;
 import org.esa.snap.eo.GeoUtils;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ReaderUtils;
-import org.esa.snap.util.Debug;
-import org.esa.snap.util.Guardian;
 import org.esa.snap.util.Maths;
 
 import java.io.File;

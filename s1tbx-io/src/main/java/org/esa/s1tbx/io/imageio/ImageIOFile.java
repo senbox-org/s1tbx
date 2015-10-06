@@ -21,9 +21,9 @@ import org.esa.snap.core.datamodel.ColorPaletteDef;
 import org.esa.snap.core.datamodel.ImageInfo;
 import org.esa.snap.core.datamodel.IndexCoding;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.runtime.Config;
-import org.esa.snap.util.SystemUtils;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReadParam;

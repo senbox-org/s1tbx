@@ -29,12 +29,12 @@ import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.util.ResourceInstaller;
 import org.esa.snap.dataio.envisat.EnvisatAuxReader;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.gpf.OperatorUtils;
-import org.esa.snap.util.ResourceInstaller;
 
 import javax.media.jai.BorderExtender;
 import javax.media.jai.JAI;
