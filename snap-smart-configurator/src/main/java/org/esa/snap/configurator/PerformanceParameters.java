@@ -24,6 +24,7 @@ import org.esa.snap.runtime.Config;
 import org.esa.snap.runtime.EngineConfig;
 import org.esa.snap.util.SystemUtils;
 
+import javax.media.jai.JAI;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -65,7 +66,9 @@ public class PerformanceParameters {
     /**
      * Default constructor
      */
-    public PerformanceParameters() {}
+    public PerformanceParameters() {
+        vmParameters = new VMParameters("");
+    }
 
     /**
      * Cloning constructor
@@ -87,6 +90,10 @@ public class PerformanceParameters {
 
     public void setVmXMS(long vmXMS) {
         vmParameters.setVmXMS(vmXMS);
+    }
+
+    public long getVmXMX() {
+        return vmParameters.getVmXMX();
     }
 
 
@@ -186,15 +193,22 @@ public class PerformanceParameters {
 
         Path cachePath = confToSave.getCachePath();
 
+        if(!Files.exists(cachePath)) {
+            Files.createDirectories(cachePath);
+        }
+
+
         if(Files.exists(cachePath)) {
             preferences.put(SystemUtils.SNAP_CACHE_DIR_PROPERTY_NAME, cachePath.toAbsolutePath().toString());
         } else {
-            SystemUtils.LOG.severe("Directory for cache path does not exist");
+            SystemUtils.LOG.severe("Directory for cache path does not exist and could not be created: " +
+                                           cachePath.toAbsolutePath().toString());
         }
 
         preferences.putInt(PROPERTY_JAI_PARALLELISM, confToSave.getNbThreads());
         preferences.putInt(PROPERTY_DEFAULT_TILE_SIZE, confToSave.getDefaultTileSize());
         preferences.putInt(PROPERTY_JAI_CACHE_SIZE, confToSave.getCacheSize());
+        JAI.getDefaultInstance().getTileCache().setMemoryCapacity(confToSave.getCacheSize());
         preferences.flush();
     }
 }

@@ -115,7 +115,7 @@ public class ConfigurationOptimizer {
      * @param performanceParameters the performance parameters to optimize, the object is updated
      *
      */
-    private void computeOptimisedRAMParams(PerformanceParameters performanceParameters) {
+    public void computeOptimisedRAMParams(PerformanceParameters performanceParameters) {
         long freeRAM = sysInfos.getFreeRAM();
         long reservedRAM = sysInfos.getReservedRam();
 
@@ -153,7 +153,7 @@ public class ConfigurationOptimizer {
                         sysInfos.getDiskFreeSize(diskName) > MIN_FREE_LARGE_CACHE_DISK_SPACE) {
                     fastestForUserDirSpeed = writeSpeed;
                     File diskNameAsFile = new File(diskName);
-                    fastestForUserDir = FileUtils.getPathFromURI(diskNameAsFile.toURI());
+                    fastestForUserDir = FileUtils.getPathFromURI(diskNameAsFile.toURI()).resolve("cache");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
