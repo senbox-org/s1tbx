@@ -26,15 +26,16 @@ import java.io.IOException;
 public final class SRTM1HgtElevationTile extends BaseElevationTile {
 
     private final EarthGravitationalModel96 egm;
+    private final TileGeoreferencing tileGeoRef;
 
     public SRTM1HgtElevationTile(final SRTM1HgtElevationModel dem, final Product product) throws IOException {
         super(dem, product);
         egm = EarthGravitationalModel96.instance();
+        tileGeoRef = new TileGeoreferencing(product, 0, 0, product.getSceneRasterWidth(), product.getSceneRasterHeight());
     }
 
     protected void addGravitationalModel(final int index, final float[] line) throws Exception {
         final GeoPos geoPos = new GeoPos();
-        final TileGeoreferencing tileGeoRef = new TileGeoreferencing(product, 0, index, line.length, 1);
         final double[][] v = new double[4][4];
         for (int i = 0; i < line.length; i++) {
             if (line[i] != noDataValue) {
