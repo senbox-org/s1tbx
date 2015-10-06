@@ -16,13 +16,13 @@
 
 package org.esa.snap.core.gpf.common;
 
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
-import org.esa.snap.framework.datamodel.Product;
 
 @OperatorMetadata(alias = "PassThrough",
                   description = "Sets target product to source product.",

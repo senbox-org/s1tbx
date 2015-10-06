@@ -18,8 +18,8 @@ package org.esa.snap.dataio.geometry;
 
 import com.bc.ceres.binding.Converter;
 import com.thoughtworks.xstream.core.util.OrderRetainingMap;
-import org.esa.snap.framework.datamodel.ProductNode;
-import org.esa.snap.framework.datamodel.VectorDataNode;
+import org.esa.snap.core.datamodel.ProductNode;
+import org.esa.snap.core.datamodel.VectorDataNode;
 import org.esa.snap.util.StringUtils;
 import org.esa.snap.util.converters.JavaTypeConverter;
 import org.geotools.feature.FeatureCollection;

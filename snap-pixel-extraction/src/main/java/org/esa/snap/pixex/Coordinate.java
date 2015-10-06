@@ -17,8 +17,8 @@
 package org.esa.snap.pixex;
 
 import com.bc.ceres.binding.converters.DateFormatConverter;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.annotations.Parameter;
-import org.esa.snap.framework.datamodel.ProductData;
 
 import java.util.Date;
 

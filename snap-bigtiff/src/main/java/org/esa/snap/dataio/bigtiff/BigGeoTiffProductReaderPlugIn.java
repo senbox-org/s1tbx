@@ -2,9 +2,9 @@ package org.esa.snap.dataio.bigtiff;
 
 
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
-import org.esa.snap.framework.dataio.DecodeQualification;
-import org.esa.snap.framework.dataio.ProductReader;
-import org.esa.snap.framework.dataio.ProductReaderPlugIn;
+import org.esa.snap.core.dataio.DecodeQualification;
+import org.esa.snap.core.dataio.ProductReader;
+import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.util.io.SnapFileFilter;
 
 import javax.imageio.ImageIO;

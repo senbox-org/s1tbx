@@ -15,14 +15,14 @@
  */
 package org.esa.snap.util;
 
-import org.esa.snap.framework.dataop.downloadable.ftpUtils;
+import org.esa.snap.core.dataop.downloadable.ftpUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
 import java.util.Map;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * FTPUtils Tester.

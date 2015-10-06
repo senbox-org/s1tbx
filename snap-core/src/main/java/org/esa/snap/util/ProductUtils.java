@@ -22,27 +22,27 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.grender.support.BufferedImageRendering;
 import com.vividsolutions.jts.geom.Geometry;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.ColorPaletteDef;
-import org.esa.snap.framework.datamodel.DensityPlot;
-import org.esa.snap.framework.datamodel.FlagCoding;
-import org.esa.snap.framework.datamodel.GeoCoding;
-import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.datamodel.ImageInfo;
-import org.esa.snap.framework.datamodel.IndexCoding;
-import org.esa.snap.framework.datamodel.Mask;
-import org.esa.snap.framework.datamodel.MetadataAttribute;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.ProductNodeGroup;
-import org.esa.snap.framework.datamodel.ProductVisitorAdapter;
-import org.esa.snap.framework.datamodel.RGBChannelDef;
-import org.esa.snap.framework.datamodel.RasterDataNode;
-import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.framework.datamodel.VectorDataNode;
-import org.esa.snap.framework.datamodel.VirtualBand;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.ColorPaletteDef;
+import org.esa.snap.core.datamodel.DensityPlot;
+import org.esa.snap.core.datamodel.FlagCoding;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.ImageInfo;
+import org.esa.snap.core.datamodel.IndexCoding;
+import org.esa.snap.core.datamodel.Mask;
+import org.esa.snap.core.datamodel.MetadataAttribute;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductNodeGroup;
+import org.esa.snap.core.datamodel.ProductVisitorAdapter;
+import org.esa.snap.core.datamodel.RGBChannelDef;
+import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.VectorDataNode;
+import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.glayer.MaskLayerType;
 import org.esa.snap.jai.ImageManager;
 import org.esa.snap.util.geotiff.GeoCoding2GeoTIFFMetadata;
@@ -83,7 +83,7 @@ import java.util.Map;
 /**
  * This class provides many static factory methods to be used in conjunction with data products.
  *
- * @see org.esa.snap.framework.datamodel.Product
+ * @see Product
  */
 public class ProductUtils {
 
@@ -146,7 +146,7 @@ public class ProductUtils {
      * @param pm        a monitor to inform the user about progress
      * @return the created image
      * @throws IOException if the given raster data is not loaded and reload causes an I/O error
-     * @see RasterDataNode#setImageInfo(org.esa.snap.framework.datamodel.ImageInfo)
+     * @see RasterDataNode#setImageInfo(ImageInfo)
      */
     public static BufferedImage createRgbImage(final RasterDataNode[] rasters,
                                                final ImageInfo imageInfo,
@@ -403,7 +403,7 @@ public class ProductUtils {
      * @param pm             a monitor to inform the user about progress
      * @return the color indexed image
      * @throws IOException if the given raster data is not loaded and reload causes an I/O error
-     * @see org.esa.snap.framework.datamodel.RasterDataNode#getImageInfo()
+     * @see RasterDataNode#getImageInfo()
      */
     public static BufferedImage createColorIndexedImage(final RasterDataNode rasterDataNode,
                                                         ProgressMonitor pm) throws IOException {
@@ -460,7 +460,7 @@ public class ProductUtils {
     /**
      * Creates the geographical boundary of the given region within the given product and returns it as a list of
      * geographical coordinates.
-     * <p> This method delegates to {@link #createGeoBoundary(org.esa.snap.framework.datamodel.Product, java.awt.Rectangle, int, boolean) createGeoBoundary(Product, Rectangle, int, boolean)}
+     * <p> This method delegates to {@link #createGeoBoundary(Product, java.awt.Rectangle, int, boolean) createGeoBoundary(Product, Rectangle, int, boolean)}
      * and the additional boolean parameter <code>usePixelCenter</code> is <code>true</code>.
      *
      * @param product the input product, must not be null
@@ -468,7 +468,7 @@ public class ProductUtils {
      * @param step    the step given in pixels
      * @return an array of geographical coordinates
      * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
-     * @see #createPixelBoundary(org.esa.snap.framework.datamodel.RasterDataNode, java.awt.Rectangle, int)
+     * @see #createPixelBoundary(RasterDataNode, java.awt.Rectangle, int)
      */
     public static GeoPos[] createGeoBoundary(Product product, Rectangle region, int step) {
         final boolean usePixelCenter = true;
@@ -485,7 +485,7 @@ public class ProductUtils {
      * @param usePixelCenter <code>true</code> if the pixel center should be used to create the boundary
      * @return an array of geographical coordinates
      * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
-     * @see #createPixelBoundary(org.esa.snap.framework.datamodel.Product, java.awt.Rectangle, int, boolean)
+     * @see #createPixelBoundary(Product, java.awt.Rectangle, int, boolean)
      */
     public static GeoPos[] createGeoBoundary(Product product, Rectangle region, int step,
                                              final boolean usePixelCenter) {
@@ -520,7 +520,7 @@ public class ProductUtils {
      * @param step   the step given in pixels
      * @return an array of geographical coordinates
      * @throws IllegalArgumentException if raster is null or if the raster has no {@link GeoCoding} is null
-     * @see #createPixelBoundary(org.esa.snap.framework.datamodel.RasterDataNode, java.awt.Rectangle, int)
+     * @see #createPixelBoundary(RasterDataNode, java.awt.Rectangle, int)
      */
     public static GeoPos[] createGeoBoundary(RasterDataNode raster, Rectangle region, int step) {
         Guardian.assertNotNull("raster", raster);
@@ -546,7 +546,7 @@ public class ProductUtils {
      * @param product the input product
      * @return an array of shape objects
      * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
-     * @see #createGeoBoundary(org.esa.snap.framework.datamodel.Product, int)
+     * @see #createGeoBoundary(Product, int)
      */
     public static GeneralPath[] createGeoBoundaryPaths(Product product) {
         final Rectangle rect = new Rectangle(0, 0, product.getSceneRasterWidth(), product.getSceneRasterHeight());
@@ -559,7 +559,7 @@ public class ProductUtils {
      * the product does not intersect the 180 degree meridian, a single general path is returned. Otherwise two or three
      * shapes are created and returned in the order from west to east.
      * <p>
-     * This method delegates to {@link #createGeoBoundaryPaths(org.esa.snap.framework.datamodel.Product, java.awt.Rectangle, int, boolean) createGeoBoundaryPaths(Product, Rectangle, int, boolean)}
+     * This method delegates to {@link #createGeoBoundaryPaths(Product, java.awt.Rectangle, int, boolean) createGeoBoundaryPaths(Product, Rectangle, int, boolean)}
      * and the additional parameter <code>usePixelCenter</code> is <code>true</code>.
      * <p>
      * The geographic boundary of the given product are returned as shapes comprising (longitude,latitude) pairs.
@@ -569,7 +569,7 @@ public class ProductUtils {
      * @param step    the step given in pixels
      * @return an array of shape objects
      * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
-     * @see #createGeoBoundary(org.esa.snap.framework.datamodel.Product, java.awt.Rectangle, int)
+     * @see #createGeoBoundary(Product, java.awt.Rectangle, int)
      */
     public static GeneralPath[] createGeoBoundaryPaths(Product product, Rectangle region, int step) {
         final boolean usePixelCenter = true;
@@ -589,7 +589,7 @@ public class ProductUtils {
      * @param usePixelCenter <code>true</code> if the pixel center should be used to create the pathes
      * @return an array of shape objects
      * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
-     * @see #createGeoBoundary(org.esa.snap.framework.datamodel.Product, java.awt.Rectangle, int, boolean)
+     * @see #createGeoBoundary(Product, java.awt.Rectangle, int, boolean)
      */
     public static GeneralPath[] createGeoBoundaryPaths(Product product, Rectangle region, int step,
                                                        final boolean usePixelCenter) {
@@ -612,7 +612,7 @@ public class ProductUtils {
      * + 2 * (5 - 2) = 26 pixel positions.
      * <p>This method is used for an intermediate step when determining a product boundary expressed in geographical
      * co-ordinates.
-     * <p> This method delegates to {@link #createPixelBoundary(org.esa.snap.framework.datamodel.Product, java.awt.Rectangle, int, boolean) createPixelBoundary(Product, Rectangle, int, boolean)}
+     * <p> This method delegates to {@link #createPixelBoundary(Product, java.awt.Rectangle, int, boolean) createPixelBoundary(Product, Rectangle, int, boolean)}
      * and the additional boolean parameter <code>usePixelCenter</code> is <code>true</code>.
      *
      * @param product the product
@@ -991,7 +991,7 @@ public class ProductUtils {
      *
      * @param sourceRaster the source band
      * @param targetRaster the target band
-     * @see #copySpectralBandProperties(org.esa.snap.framework.datamodel.Band, org.esa.snap.framework.datamodel.Band)
+     * @see #copySpectralBandProperties(Band, Band)
      */
     public static void copyRasterDataNodeProperties(RasterDataNode sourceRaster, RasterDataNode targetRaster) {
         targetRaster.setDescription(sourceRaster.getDescription());
@@ -1031,15 +1031,15 @@ public class ProductUtils {
     /**
      * Copies the spectral properties from source band to target band. These properties are:
      * <ul>
-     * <li>{@link org.esa.snap.framework.datamodel.Band#getSpectralBandIndex() spectral band index},</li>
-     * <li>{@link org.esa.snap.framework.datamodel.Band#getSpectralWavelength() the central wavelength},</li>
-     * <li>{@link org.esa.snap.framework.datamodel.Band#getSpectralBandwidth() the spectral bandwidth} and</li>
-     * <li>{@link org.esa.snap.framework.datamodel.Band#getSolarFlux() the solar spectral flux}.</li>
+     * <li>{@link Band#getSpectralBandIndex() spectral band index},</li>
+     * <li>{@link Band#getSpectralWavelength() the central wavelength},</li>
+     * <li>{@link Band#getSpectralBandwidth() the spectral bandwidth} and</li>
+     * <li>{@link Band#getSolarFlux() the solar spectral flux}.</li>
      * </ul>
      *
      * @param sourceBand the source band
      * @param targetBand the target band
-     * @see #copyRasterDataNodeProperties(org.esa.snap.framework.datamodel.RasterDataNode, org.esa.snap.framework.datamodel.RasterDataNode)
+     * @see #copyRasterDataNodeProperties(RasterDataNode, RasterDataNode)
      */
     public static void copySpectralBandProperties(Band sourceBand, Band targetBand) {
         Guardian.assertNotNull("source", sourceBand);
@@ -1384,7 +1384,7 @@ public class ProductUtils {
 
     /**
      * Denormalizes the longitude values which have been normalized using the
-     * {@link #normalizeGeoPolygon(org.esa.snap.framework.datamodel.GeoPos[])} method. The
+     * {@link #normalizeGeoPolygon(GeoPos[])} method. The
      * method operates only on the longitude values of the given polygon.
      *
      * @param polygon a geographical, closed polygon
@@ -1735,7 +1735,7 @@ public class ProductUtils {
     /**
      * Copies only the bands from source to target.
      *
-     * @see #copyBandsForGeomTransform(org.esa.snap.framework.datamodel.Product, org.esa.snap.framework.datamodel.Product, boolean, double, java.util.Map)
+     * @see #copyBandsForGeomTransform(Product, Product, boolean, double, java.util.Map)
      */
     public static void copyBandsForGeomTransform(final Product sourceProduct,
                                                  final Product targetProduct,

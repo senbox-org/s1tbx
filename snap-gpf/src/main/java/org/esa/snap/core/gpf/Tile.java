@@ -16,8 +16,10 @@
 
 package org.esa.snap.core.gpf;
 
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.TiePointGrid;
 
 import java.awt.Rectangle;
 import java.util.Iterator;
@@ -28,7 +30,7 @@ import java.util.Iterator;
  * Tiles are used to enable the sample data transfer from and to the source and target bands of data
  * products used within operator graphs.
  * <p>Target tiles to be computed are passed into an {@link Operator}'s
- * {@link Operator#computeTile(org.esa.snap.framework.datamodel.Band, Tile, com.bc.ceres.core.ProgressMonitor) computeTile}
+ * {@link Operator#computeTile(Band, Tile, com.bc.ceres.core.ProgressMonitor) computeTile}
  * and {@link Operator#computeTileStack(java.util.Map, java.awt.Rectangle, com.bc.ceres.core.ProgressMonitor) computeTileStack}  computeTileStack} methods.
  * Source tiles are obtained by using the
  * {@link Operator#getSourceTile(RasterDataNode, java.awt.Rectangle) getSourceTile} method.
@@ -102,8 +104,8 @@ public interface Tile extends Iterable<Tile.Pos> {
 
     /**
      * Gets the {@code RasterDataNode} associated with this tile,
-     * e.g. a {@link org.esa.snap.framework.datamodel.Band Band} for source and target tiles or
-     * {@link org.esa.snap.framework.datamodel.TiePointGrid TiePointGrid} for a source tile.
+     * e.g. a {@link Band Band} for source and target tiles or
+     * {@link TiePointGrid TiePointGrid} for a source tile.
      *
      * @return The {@code RasterDataNode} associated with this tile.
      */
@@ -356,7 +358,7 @@ public interface Tile extends Iterable<Tile.Pos> {
      * will cover exactly the region {@link #getRectangle()} rectangle} of this tile. Thus, the number
      * of returned samples will always equal {@link #getWidth() width} {@code *} {@link #getHeight() height}.
      * <p>In order to apply changes of the samples values to this tile, it is mandatory to call
-     * {@link #setRawSamples(org.esa.snap.framework.datamodel.ProductData)} with the modified
+     * {@link #setRawSamples(ProductData)} with the modified
      * {@code ProductData} instance.
      *
      * @return The raw samples copied from or wrapping the underlying data buffer.

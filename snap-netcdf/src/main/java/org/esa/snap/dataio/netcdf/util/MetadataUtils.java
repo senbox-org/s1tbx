@@ -16,9 +16,9 @@
 
 package org.esa.snap.dataio.netcdf.util;
 
-import org.esa.snap.framework.datamodel.MetadataAttribute;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.MetadataAttribute;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.runtime.Config;
 import org.esa.snap.util.Debug;
 import org.esa.snap.util.SystemUtils;

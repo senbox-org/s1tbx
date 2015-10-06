@@ -15,6 +15,7 @@
  */
 package org.esa.snap.core.gpf.monitor;
 
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.common.WriteOp;
 
@@ -27,7 +28,7 @@ import java.util.logging.Logger;
  * <ol>
  *     <li>{@link #start()} is called only once before any other method is called.</li>
  *     <li>{@link #tileComputed(TileComputationEvent)} is called for each tile computed by any GPF {@link Operator Operator}.</li>
- *     <li>{@link #stop()} is called after a {@link org.esa.snap.framework.datamodel.Product Product} has been
+ *     <li>{@link #stop()} is called after a {@link Product Product} has been
  *     fully written using the {@link WriteOp WriteOp} operator.</li>
  * </ol>
  * @author Norman Fomferra

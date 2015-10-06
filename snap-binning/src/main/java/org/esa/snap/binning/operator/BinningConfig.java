@@ -35,9 +35,10 @@ import org.esa.snap.binning.support.BinningContextImpl;
 import org.esa.snap.binning.support.SEAGrid;
 import org.esa.snap.binning.support.SpatialDataPeriod;
 import org.esa.snap.binning.support.VariableContextImpl;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.ParameterBlockConverter;
-import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.util.converters.JtsGeometryConverter;
 
 import java.lang.reflect.Constructor;
@@ -90,7 +91,7 @@ public class BinningConfig {
     private String maskExpr;
 
     /**
-     * List of variables. A variable will generate a {@link org.esa.snap.framework.datamodel.VirtualBand VirtualBand}
+     * List of variables. A variable will generate a {@link VirtualBand VirtualBand}
      * in the input data product to be binned, so that it can be used for binning.
      */
     @Parameter(alias = "variables", itemAlias = "variable",

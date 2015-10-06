@@ -1,10 +1,10 @@
 package org.esa.snap.core.gpf.pointop;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.RasterDataNode;
 
 import java.awt.Point;
 import java.awt.Rectangle;

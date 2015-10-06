@@ -17,7 +17,7 @@
 package org.esa.snap.binning;
 
 import com.bc.ceres.glevel.MultiLevelImage;
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.datamodel.Product;
 
 import java.awt.Rectangle;
 import java.util.Iterator;

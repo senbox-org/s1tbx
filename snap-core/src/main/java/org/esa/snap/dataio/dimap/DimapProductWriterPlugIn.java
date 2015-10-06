@@ -15,10 +15,16 @@
  */
 package org.esa.snap.dataio.dimap;
 
-import org.esa.snap.framework.dataio.EncodeQualification;
-import org.esa.snap.framework.dataio.ProductWriter;
-import org.esa.snap.framework.dataio.ProductWriterPlugIn;
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.dataio.AbstractProductWriter;
+import org.esa.snap.core.dataio.EncodeQualification;
+import org.esa.snap.core.dataio.ProductWriter;
+import org.esa.snap.core.dataio.ProductWriterPlugIn;
+import org.esa.snap.core.datamodel.ConvolutionFilterBand;
+import org.esa.snap.core.datamodel.FXYGeoCoding;
+import org.esa.snap.core.datamodel.GeneralFilterBand;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.dataop.maptransf.MapInfo;
 import org.esa.snap.util.io.SnapFileFilter;
 
 import java.io.File;
@@ -145,7 +151,7 @@ import java.util.Set;
  * new tags added:<br>
  * &lt;PRODUCT_SCENE_RASTER_START_TIME&gt; &lt;PRODUCT_SCENE_RASTER_STOP_TIME&gt;<br> </td> </tr>
  * <tr> <td valign="top">1.4.2</td>
- * <td> Since BEAM version 3.2 {@link org.esa.snap.framework.datamodel.RasterDataNode RasterDataNode} supports the
+ * <td> Since BEAM version 3.2 {@link RasterDataNode RasterDataNode} supports the
  * <code>NoDataValue</code>.<br>
  * Affected tag:<br>
  * &lt;Spectral_Band_Info&gt; inside of &lt;Image_Interpretation&gt;<br>
@@ -153,7 +159,7 @@ import java.util.Set;
  * &lt;INVALID_VALUE&gt; replaced by &lt;NO_DATA_VALUE&gt;<br>
  * &lt;USE_INVALID_VALUE&gt; replaced by &lt;NO_DATA_VALUE_USED&gt;<br> </td> </tr>
  * <tr> <td valign="top">2.0.0</td>
- * <td> Since version 3.5 BEAM supports {@link org.esa.snap.framework.datamodel.FXYGeoCoding}.<br>
+ * <td> Since version 3.5 BEAM supports {@link FXYGeoCoding}.<br>
  * New tags:<br>
  * <pre>
  * &lt;Geoposition&gt;
@@ -187,7 +193,7 @@ import java.util.Set;
  * </pre>
  * </td> </tr>
  * <tr> <td> </td>
- * <td> Since version 3.5 BEAM supports {@link org.esa.snap.framework.dataop.maptransf.MapInfo#setOrientation(float)}
+ * <td> Since version 3.5 BEAM supports {@link MapInfo#setOrientation(float)}
  * Affected tag:<br>
  * &lt;Map_Info&gt; it is now written as follows:<br>
  * <pre>
@@ -211,8 +217,8 @@ import java.util.Set;
  * </pre>
  * </td></tr>
  * <tr> <td valign="top">2.1.0</td>
- * <td> Since version 3.6 BEAM supports {@link org.esa.snap.framework.datamodel.GeneralFilterBand} and
- * {@link org.esa.snap.framework.datamodel.ConvolutionFilterBand}.<br>
+ * <td> Since version 3.6 BEAM supports {@link GeneralFilterBand} and
+ * {@link ConvolutionFilterBand}.<br>
  * Affected Tag:<br>
  * The tag Spectral_Band_Info can now have the following new tags
  * New tags:<br>
@@ -452,7 +458,7 @@ public class DimapProductWriterPlugIn implements ProductWriterPlugIn {
      * <code>InvalidArgumentException</code> in this case).
      *
      * @return an array containing valid output types, never <code>null</code>
-     * @see org.esa.snap.framework.dataio.AbstractProductWriter#writeProductNodes
+     * @see AbstractProductWriter#writeProductNodes
      */
     public Class[] getOutputTypes() {
         return new Class[]{String.class, File.class};

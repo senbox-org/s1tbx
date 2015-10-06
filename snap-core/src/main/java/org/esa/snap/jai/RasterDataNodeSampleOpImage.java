@@ -1,7 +1,7 @@
 package org.esa.snap.jai;
 
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.RasterDataNode;
 
 import java.awt.Rectangle;
 import java.io.IOException;

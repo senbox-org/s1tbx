@@ -21,16 +21,16 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
-import org.esa.snap.framework.dataio.ProductSubsetDef;
-import org.esa.snap.framework.datamodel.AbstractGeoCoding;
-import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.PlacemarkDescriptor;
-import org.esa.snap.framework.datamodel.PlacemarkDescriptorRegistry;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.Scene;
-import org.esa.snap.framework.datamodel.VectorDataNode;
-import org.esa.snap.framework.dataop.maptransf.Datum;
+import org.esa.snap.core.dataio.ProductSubsetDef;
+import org.esa.snap.core.datamodel.AbstractGeoCoding;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.PlacemarkDescriptor;
+import org.esa.snap.core.datamodel.PlacemarkDescriptorRegistry;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.Scene;
+import org.esa.snap.core.datamodel.VectorDataNode;
+import org.esa.snap.core.dataop.maptransf.Datum;
 import org.esa.snap.util.FeatureUtils;
 import org.esa.snap.util.io.CsvReader;
 import org.geotools.feature.FeatureCollection;
@@ -80,7 +80,7 @@ public class VectorDataNodeReaderTest {
         placemarkDescriptorProvider = new VectorDataNodeReader.PlacemarkDescriptorProvider() {
             @Override
             public PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType simpleFeatureType) {
-                return PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(org.esa.snap.framework.datamodel.GeometryDescriptor.class);
+                return PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(org.esa.snap.core.datamodel.GeometryDescriptor.class);
             }
         };
     }
@@ -181,7 +181,7 @@ public class VectorDataNodeReaderTest {
         assertEquals(4, properties.size());
         assertEquals("color:0,0,255", properties.get("styleCss"));
         assertEquals("TAB", properties.get("separator"));
-        assertEquals("org.esa.snap.framework.datamodel.GeometryDescriptor", properties.get("placemarkDescriptor"));
+        assertEquals("GeometryDescriptor", properties.get("placemarkDescriptor"));
         assertEquals("geom", properties.get("defaultGeometry"));
     }
 

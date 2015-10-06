@@ -2,7 +2,7 @@ package org.esa.snap.core.gpf.common.support;
 
 import com.bc.ceres.swing.figure.FigureStyle;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
-import org.esa.snap.framework.datamodel.PlainFeatureFactory;
+import org.esa.snap.core.datamodel.PlainFeatureFactory;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureTypes;

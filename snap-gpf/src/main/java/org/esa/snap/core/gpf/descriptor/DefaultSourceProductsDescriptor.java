@@ -1,6 +1,6 @@
 package org.esa.snap.core.gpf.descriptor;
 
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.datamodel.Product;
 
 /**
  * Default implementation of the {@link SourceProductsDescriptor} interface.

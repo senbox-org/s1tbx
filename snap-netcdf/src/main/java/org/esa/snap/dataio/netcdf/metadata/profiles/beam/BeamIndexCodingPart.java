@@ -15,6 +15,11 @@
  */
 package org.esa.snap.dataio.netcdf.metadata.profiles.beam;
 
+import org.esa.snap.core.dataio.ProductIOException;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.IndexCoding;
+import org.esa.snap.core.datamodel.MetadataAttribute;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.dataio.netcdf.ProfileReadContext;
 import org.esa.snap.dataio.netcdf.ProfileWriteContext;
 import org.esa.snap.dataio.netcdf.metadata.ProfilePartIO;
@@ -22,11 +27,6 @@ import org.esa.snap.dataio.netcdf.metadata.profiles.cf.CfIndexCodingPart;
 import org.esa.snap.dataio.netcdf.nc.NFileWriteable;
 import org.esa.snap.dataio.netcdf.nc.NVariable;
 import org.esa.snap.dataio.netcdf.util.ReaderUtils;
-import org.esa.snap.framework.dataio.ProductIOException;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.IndexCoding;
-import org.esa.snap.framework.datamodel.MetadataAttribute;
-import org.esa.snap.framework.datamodel.Product;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 

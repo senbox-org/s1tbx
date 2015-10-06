@@ -15,7 +15,7 @@
  */
 package org.esa.snap.util.math;
 
-import org.esa.snap.framework.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.util.Guardian;
 
 /**

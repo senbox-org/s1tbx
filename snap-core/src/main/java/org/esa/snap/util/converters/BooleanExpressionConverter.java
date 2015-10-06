@@ -23,7 +23,7 @@ import com.bc.ceres.binding.converters.StringConverter;
  * Empty marker subclass for StringConverter.
  *
  * Purpose: use as converter for valid pixel expressions in the
- * {@link org.esa.snap.framework.gpf.annotations.Parameter}-annotation in order to allow for generating a decent
+ * {@link org.esa.snap.core.gpf.annotations.Parameter}-annotation in order to allow for generating a decent
  * UI-component.
  *
  * @author Thomas Storm

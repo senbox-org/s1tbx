@@ -15,9 +15,9 @@
  */
 package org.esa.snap.dataio.arcbin;
 
-import org.esa.snap.framework.datamodel.ColorPaletteDef;
-import org.esa.snap.framework.datamodel.ColorPaletteDef.Point;
-import org.esa.snap.framework.datamodel.IndexCoding;
+import org.esa.snap.core.datamodel.ColorPaletteDef;
+import org.esa.snap.core.datamodel.ColorPaletteDef.Point;
+import org.esa.snap.core.datamodel.IndexCoding;
 
 import java.awt.Color;
 import java.io.BufferedReader;

@@ -17,9 +17,9 @@
 package org.esa.snap.core.gpf.internal;
 
 import com.bc.ceres.core.Assert;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.gpf.Tile;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.RasterDataNode;
 import org.esa.snap.util.BitSetter;
 import org.esa.snap.util.ImageUtils;
 

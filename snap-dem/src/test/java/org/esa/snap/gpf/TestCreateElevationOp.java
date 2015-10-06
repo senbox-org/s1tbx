@@ -16,12 +16,12 @@
 package org.esa.snap.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.dem.gpf.AddElevationOp;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;

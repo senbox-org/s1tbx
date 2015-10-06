@@ -1246,265 +1246,265 @@
         "masks": [
             {
                 "name": "coastline",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,255,0",
                 "description": "Coastline pixel"
             },
             {
                 "name": "land",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "102,102,102",
                 "description": "Land product available"
             },
             {
                 "name": "cloud",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,255,255",
                 "description": "Cloud product available"
             },
             {
                 "name": "water",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,0,0",
                 "description": "Water product available"
             },
             {
                 "name": "invalid_reflectances",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,0,0",
                 "description": "Pixels flagged for invalid reflectances"
             },
             {
                 "name": "invalid_water_vapour",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,0,0",
                 "description": "Pixels flagged for invalid water vapour"
             },
             {
                 "name": "invalid_algal_1",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,0,0",
                 "description": "Water pixels flagged for invalid algal1"
             },
             {
                 "name": "invalid_algal2_tsm_ys",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,0,0",
                 "description": "Water pixels flagged for invalid algal2 and yellow_subs and total_susp"
             },
             {
                 "name": "invalid_photosyn_rad",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,0,0",
                 "description": "Water pixels flagged for invalid PAR"
             },
             {
                 "name": "invalid_toa_veg",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,0,0",
                 "description": "Land pixels flagged for invalid toa_veg"
             },
             {
                 "name": "invalid_boa_veg",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,0,0",
                 "description": "Land pixels flagged for invalid boa_veg"
             },
             {
                 "name": "invalid_rect_refl",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,0,0",
                 "description": "Land pixels flagged for invalid rectified reflectances"
             },
             {
                 "name": "invalid_surf_press",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,0,0",
                 "description": "Land pixels flagged for invalid surf_press"
             },
             {
                 "name": "invalid_aero_products",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,0,0",
                 "description": "Land and water pixels flagged for invalid aero_alpha and aero_opt_thick_(i)"
             },
             {
                 "name": "invalid_cloud_albedo",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,0,0",
                 "description": "Cloud pixels flagged for invalid cloud_albedo"
             },
             {
                 "name": "invalid_cloud_opt_thick_and_type",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,0,0",
                 "description": "Cloud pixels flagged for invalid cloud_opt_thick and cloud_type"
             },
             {
                 "name": "invalid_cloud_top_press",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,0,0",
                 "description": "Cloud pixels flagged for invalid cloud_top_press"
             },
             {
                 "name": "low_sun",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "153,0,153",
                 "description": "Sun low above horizon (or conversely high sun zenith angle)"
             },
             {
                 "name": "high_glint",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "204,0,204",
                 "description": "High (uncorrected) glint (water)"
             },
             {
                 "name": "medium_glint",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,51,255",
                 "description": "Corrected for glint (water)"
             },
             {
                 "name": "ice_haze",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,255,0",
                 "description": "Ice or high aerosol load pixel"
             },
             {
                 "name": "absoa_dust",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,204,255",
                 "description": "Dust-like absorbing aerosol selected for atmosphere correction"
             },
             {
                 "name": "bpac_on",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "153,255,204",
                 "description": "Bright pixels atmospheric correction activated (water)"
             },
             {
                 "name": "case2_s",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,255,153",
                 "description": "Turbid (sediment dominated Case 2) water"
             },
             {
                 "name": "case2_anom",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "153,153,0",
                 "description": "Anomalous scattering water"
             },
             {
                 "name": "case2_y",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "204,204,0",
                 "description": "Yellow substance loaded water"
             },
             {
                 "name": "snow_ice",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,255,153",
                 "description": "Snow/Ice covered land"
             },
             {
                 "name": "dense_dark_veg",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "51,51,255",
                 "description": "Dense Dark Vegetation (land)"
             },
             {
                 "name": "uncertain_aerosol_model",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,204,0",
                 "description": "Aerosol model is out of aerosol model database"
             },
             {
                 "name": "toavi_bright",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,204,204",
                 "description": "Bright pixel flagged by MGVI processing"
             },
             {
                 "name": "toavi_bad",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,153,102",
                 "description": "Bad pixel flagged by MGVI processing"
             },
             {
                 "name": "toavi_csi",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,153,0",
                 "description": "Cloud, snow or ice over land pixel acc. to MGVI processing"
             },
             {
                 "name": "toavi_ws",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "204,102,0",
                 "description": "Water/shadow pixel acc. to MGVI processing (land)"
             },
             {
                 "name": "toavi_inval_rec",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "153,51,0",
                 "description": "Invalid rectification (land)"
             },
             {
                 "name": "white_scatterer",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "204,204,255",
                 "description": "Presence of white scatterer in water"
             },
             {
                 "name": "cosmetic",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "204,153,255",
                 "description": "Cosmetic pixel (from level-1b)"
             },
             {
                 "name": "suspect",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "204,102,255",
                 "description": "Suspect pixel (from level-1b)"
             },
             {
                 "name": "pcd_1_13",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,0,0",
                 "description": "Uncertain normalized surface reflectance"
             },
             {
                 "name": "pcd_14",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,0,0",
                 "description": "Uncertain total water vapour content"
             },
             {
                 "name": "pcd_15",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,0,0",
                 "description": "Uncertain algal pigment index 1 or cloud top pressure or top of atmosphere vegetation index"
             },
             {
                 "name": "pcd_16",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,0,0",
                 "description": "Uncertain yellow substance and total suspended matter or rectified reflectances"
             },
             {
                 "name": "pcd_17",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,0,0",
                 "description": "Uncertain algal pigment index 2 or bottom of atmosphere vegetation index"
             },
             {
                 "name": "pcd_18",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,0,0",
                 "description": "Uncertain PAR or cloud albedo or land surface pressure"
             },
             {
                 "name": "pcd_19",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,0,0",
                 "description": "Uncertain aerosol type and optical thickness or cloud optical thickness"
             }

@@ -1,6 +1,6 @@
 package org.esa.snap.statistics;
 
-import org.esa.snap.framework.datamodel.HistogramStxOp;
+import org.esa.snap.core.datamodel.HistogramStxOp;
 
 import javax.media.jai.Histogram;
 

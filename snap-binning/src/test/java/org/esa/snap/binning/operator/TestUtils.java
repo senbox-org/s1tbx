@@ -18,14 +18,14 @@ package org.esa.snap.binning.operator;
 
 import org.esa.snap.binning.DataPeriod;
 import org.esa.snap.binning.support.SpatialDataPeriod;
-import org.esa.snap.framework.dataio.ProductSubsetDef;
-import org.esa.snap.framework.datamodel.AbstractGeoCoding;
-import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.Scene;
-import org.esa.snap.framework.dataop.maptransf.Datum;
+import org.esa.snap.core.dataio.ProductSubsetDef;
+import org.esa.snap.core.datamodel.AbstractGeoCoding;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.Scene;
+import org.esa.snap.core.dataop.maptransf.Datum;
 import org.junit.Assert;
 
 import java.text.ParseException;

@@ -552,95 +552,95 @@
         "masks": [
             {
                 "name": "land",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,255,0",
                 "description": "Pixel is over land"
             },
             {
                 "name": "water",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,0,255"
             },
             {
                 "name": "cloud",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,255,255"
             },
             {
                 "name": "nadir_cloud",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,255,255",
                 "description": "Nadir-view pixel is cloudy"
             },
             {
                 "name": "nadir_blanking",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,200,0",
                 "description": "Nadir-view pixel has blanking pulse"
             },
             {
                 "name": "nadir_cosmetic",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,0,0",
                 "description": "Nadir-view pixel is cosmetic fill"
             },
             {
                 "name": "fward_cloud",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,255,255",
                 "description": "Forward-view pixel is cloudy"
             },
             {
                 "name": "fward_blanking",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,200,0",
                 "description": "Forward-view pixel has blanking pulse"
             },
             {
                 "name": "fward_cosmetic",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,0,0",
                 "description": "Forward-view pixel is cosmetic fill"
             },
             {
                 "name": "cloudy_16_my",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,255,255",
                 "description": "One or both views flagged cloudy by 1.6 micron test (daytime only)"
             },
             {
                 "name": "cloudy_11_12_my",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,255,255",
                 "description": "Cloud flagged by 11 micron/12 micron nadir-forward test"
             },
             {
                 "name": "cloudy_histo",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,255,255",
                 "description": "One or both views flagged cloudy by infra-red histogram test"
             },
             {
                 "name": "nadir_sst_only_valid",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,0,0",
                 "description": "Nadir-only SST is valid"
             },
             {
                 "name": "nadir_sst_only_37_my_valid",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,200,0",
                 "description": "Nadir-only SST retrieval includes 3.7 micron channel"
             },
             {
                 "name": "dual_sst_valid",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,0,0",
                 "description": "Dual-view SST is valid"
             },
             {
                 "name": "dual_sst_valid_37_my",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,200,0",
                 "description": "Dual-view SST retrieval includes 3.7 micron channel"
             }

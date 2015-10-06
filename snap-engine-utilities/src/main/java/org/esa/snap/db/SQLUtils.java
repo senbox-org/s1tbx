@@ -15,7 +15,7 @@
  */
 package org.esa.snap.db;
 
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductData;
 
 import java.sql.Date;
 import java.sql.ResultSet;

@@ -18,7 +18,7 @@ package org.esa.snap.dataio.geometry;
 
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.ConverterRegistry;
-import org.esa.snap.framework.datamodel.VectorDataNode;
+import org.esa.snap.core.datamodel.VectorDataNode;
 import org.esa.snap.util.converters.JtsGeometryConverter;
 import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.feature.FeatureCollection;

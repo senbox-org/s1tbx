@@ -1,6 +1,6 @@
 package org.esa.snap.statistics;
 
-import org.esa.snap.framework.datamodel.HistogramStxOp;
+import org.esa.snap.core.datamodel.HistogramStxOp;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

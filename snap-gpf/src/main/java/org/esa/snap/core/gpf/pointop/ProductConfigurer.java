@@ -16,9 +16,9 @@
 
 package org.esa.snap.core.gpf.pointop;
 
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductNodeFilter;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductNodeFilter;
 
 /**
  * A {@code ProductConfigurer} is used to configure a target product with respect to a current source product

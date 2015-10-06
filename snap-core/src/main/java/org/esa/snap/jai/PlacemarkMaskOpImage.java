@@ -16,11 +16,12 @@
 
 package org.esa.snap.jai;
 
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.Placemark;
-import org.esa.snap.framework.datamodel.PlacemarkDescriptor;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductNodeGroup;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Placemark;
+import org.esa.snap.core.datamodel.PlacemarkDescriptor;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductNodeGroup;
+import org.esa.snap.core.datamodel.RasterDataNode;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RasterFactory;
@@ -35,7 +36,7 @@ import java.awt.image.DataBufferByte;
 import java.awt.image.WritableRaster;
 
 /**
- * Creates a mask image for a given {@link org.esa.snap.framework.datamodel.RasterDataNode}.
+ * Creates a mask image for a given {@link RasterDataNode}.
  * The resulting image will have a single-band, interleaved sample model
  * with sample values 255 or 0.
  */

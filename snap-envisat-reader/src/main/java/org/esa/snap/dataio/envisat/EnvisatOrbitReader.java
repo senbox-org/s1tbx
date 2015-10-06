@@ -16,8 +16,8 @@
 
 package org.esa.snap.dataio.envisat;
 
-import org.esa.snap.framework.dataio.IllegalFileFormatException;
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.dataio.IllegalFileFormatException;
+import org.esa.snap.core.datamodel.ProductData;
 
 import java.io.IOException;
 import java.text.ParseException;

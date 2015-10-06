@@ -1,7 +1,7 @@
 package org.esa.snap.dataio.envi;
 
-import org.esa.snap.framework.dataio.ProductReader;
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.dataio.ProductReader;
+import org.esa.snap.core.datamodel.Product;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

@@ -15,7 +15,7 @@
  */
 package org.esa.snap.datamodel;
 
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductData;
 
 /**
  * Created by lveci on 03/06/2014.

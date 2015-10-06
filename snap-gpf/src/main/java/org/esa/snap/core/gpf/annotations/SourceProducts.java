@@ -16,6 +16,7 @@
 
 package org.esa.snap.core.gpf.annotations;
 
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.Operator;
 
 import java.lang.annotation.Documented;
@@ -27,7 +28,7 @@ import java.lang.annotation.Target;
 
 /**
  * Marks a source product array field of an {@link Operator Operator}.
- * The field must be of type {@link org.esa.snap.framework.datamodel.Product Product}{@code []}.
+ * The field must be of type {@link Product Product}{@code []}.
  */
 @Documented
 @Inherited

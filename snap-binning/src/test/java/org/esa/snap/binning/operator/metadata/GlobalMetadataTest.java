@@ -8,8 +8,8 @@ import org.esa.snap.binning.aggregators.AggregatorOnMaxSet;
 import org.esa.snap.binning.operator.BinningConfig;
 import org.esa.snap.binning.operator.BinningOp;
 import org.esa.snap.binning.operator.VariableConfig;
-import org.esa.snap.framework.datamodel.MetadataAttribute;
-import org.esa.snap.framework.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.MetadataAttribute;
+import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.util.io.FileUtils;
 import org.junit.Test;
 

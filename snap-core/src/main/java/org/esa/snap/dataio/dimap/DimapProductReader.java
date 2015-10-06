@@ -17,23 +17,24 @@ package org.esa.snap.dataio.dimap;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.dataio.AbstractProductReader;
+import org.esa.snap.core.dataio.IllegalFileFormatException;
+import org.esa.snap.core.dataio.ProductReaderPlugIn;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.FilterBand;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.GeoCodingFactory;
+import org.esa.snap.core.datamodel.GeometryDescriptor;
+import org.esa.snap.core.datamodel.PlacemarkDescriptor;
+import org.esa.snap.core.datamodel.PlacemarkDescriptorRegistry;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductNodeGroup;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.VectorDataNode;
+import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.dataio.geometry.VectorDataNodeIO;
 import org.esa.snap.dataio.geometry.VectorDataNodeReader;
-import org.esa.snap.framework.dataio.AbstractProductReader;
-import org.esa.snap.framework.dataio.ProductReaderPlugIn;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.FilterBand;
-import org.esa.snap.framework.datamodel.GeoCoding;
-import org.esa.snap.framework.datamodel.GeoCodingFactory;
-import org.esa.snap.framework.datamodel.GeometryDescriptor;
-import org.esa.snap.framework.datamodel.PlacemarkDescriptor;
-import org.esa.snap.framework.datamodel.PlacemarkDescriptorRegistry;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.ProductNodeGroup;
-import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.framework.datamodel.VectorDataNode;
-import org.esa.snap.framework.datamodel.VirtualBand;
 import org.esa.snap.jai.ImageManager;
 import org.esa.snap.util.Debug;
 import org.esa.snap.util.FeatureUtils;
@@ -110,7 +111,7 @@ public class DimapProductReader extends AbstractProductReader {
      * <p>This method is called as a last step in the <code>readProductNodes(input, subsetInfo)</code> method.
      *
      * @throws java.io.IOException                                      if an I/O error occurs
-     * @throws org.esa.snap.framework.dataio.IllegalFileFormatException if the input file in not decodeable
+     * @throws IllegalFileFormatException if the input file in not decodeable
      */
     @Override
     protected Product readProductNodesImpl() throws IOException {
@@ -273,10 +274,10 @@ public class DimapProductReader extends AbstractProductReader {
     }
 
     /**
-     * The template method which is called by the {@link org.esa.snap.framework.dataio.AbstractProductReader#readBandRasterDataImpl(int, int, int, int, int, int, org.esa.snap.framework.datamodel.Band, int, int, int, int, org.esa.snap.framework.datamodel.ProductData, com.bc.ceres.core.ProgressMonitor)} }
+     * The template method which is called by the {@link AbstractProductReader#readBandRasterDataImpl(int, int, int, int, int, int, Band, int, int, int, int, ProductData, com.bc.ceres.core.ProgressMonitor)} }
      * method after an optional spatial subset has been applied to the input parameters.
      * <p>The destination band, buffer and region parameters are exactly the ones passed to the original {@link
-     * org.esa.snap.framework.dataio.AbstractProductReader#readBandRasterDataImpl} call. Since the
+     * AbstractProductReader#readBandRasterDataImpl} call. Since the
      * <code>destOffsetX</code> and <code>destOffsetY</code> parameters are already taken into acount in the
      * <code>sourceOffsetX</code> and <code>sourceOffsetY</code> parameters, an implementor of this method is free to
      * ignore them.

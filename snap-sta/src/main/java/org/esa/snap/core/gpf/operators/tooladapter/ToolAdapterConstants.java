@@ -24,7 +24,7 @@ import java.io.File;
  */
 public interface ToolAdapterConstants {
 
-    String OPERATOR_NAMESPACE = "org.esa.snap.framework.gpf.operators.tooladapter.";
+    String OPERATOR_NAMESPACE = "org.esa.snap.core.gpf.operators.tooladapter.";
     String DESCRIPTOR_FILE = "META-INF" + File.separator + "descriptor.xml";
     /**
      * The id of the tool's source product.

@@ -17,11 +17,11 @@
 package org.esa.snap.dataio.dimap.spi;
 
 import com.bc.ceres.binding.PropertyContainer;
-import org.esa.snap.framework.datamodel.Mask;
+import org.esa.snap.core.datamodel.Mask;
 import org.jdom.Element;
 
+import static org.esa.snap.core.datamodel.Mask.RangeType.*;
 import static org.esa.snap.dataio.dimap.DimapProductConstants.*;
-import static org.esa.snap.framework.datamodel.Mask.RangeType.*;
 
 public class RangeTypeMaskPersistable extends MaskPersistable {
 

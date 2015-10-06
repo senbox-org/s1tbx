@@ -15,9 +15,9 @@
  */
 package org.esa.snap.db;
 
-import org.esa.snap.framework.dataio.ProductIO;
-import org.esa.snap.framework.dataio.ProductReader;
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.dataio.ProductIO;
+import org.esa.snap.core.dataio.ProductReader;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.util.ProductFunctions;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.TestUtils;

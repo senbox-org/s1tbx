@@ -16,10 +16,10 @@
 
 package org.esa.snap.core.gpf.main;
 
+import org.esa.snap.core.dataio.ProductIO;
+import org.esa.snap.core.dataio.ProductIOPlugInManager;
+import org.esa.snap.core.dataio.ProductWriterPlugIn;
 import org.esa.snap.core.gpf.GPF;
-import org.esa.snap.framework.dataio.ProductIO;
-import org.esa.snap.framework.dataio.ProductIOPlugInManager;
-import org.esa.snap.framework.dataio.ProductWriterPlugIn;
 import org.esa.snap.runtime.Config;
 import org.esa.snap.util.io.FileUtils;
 

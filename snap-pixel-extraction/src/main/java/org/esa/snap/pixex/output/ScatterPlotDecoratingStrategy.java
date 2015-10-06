@@ -16,7 +16,7 @@
 
 package org.esa.snap.pixex.output;
 
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.measurement.Measurement;
 import org.esa.snap.measurement.writer.FormatStrategy;
 import org.esa.snap.pixex.PixExOp;

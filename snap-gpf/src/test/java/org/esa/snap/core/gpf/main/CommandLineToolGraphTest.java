@@ -19,6 +19,7 @@ package org.esa.snap.core.gpf.main;
 import com.bc.ceres.binding.dom.DomElement;
 import com.sun.media.jai.util.SunTileScheduler;
 import junit.framework.TestCase;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.gpf.TestOps;
 import org.esa.snap.core.gpf.graph.Graph;
@@ -26,7 +27,6 @@ import org.esa.snap.core.gpf.graph.GraphException;
 import org.esa.snap.core.gpf.graph.GraphIO;
 import org.esa.snap.core.gpf.graph.GraphProcessingObserver;
 import org.esa.snap.core.gpf.graph.Node;
-import org.esa.snap.framework.datamodel.Product;
 
 import javax.media.jai.JAI;
 import javax.media.jai.TileScheduler;

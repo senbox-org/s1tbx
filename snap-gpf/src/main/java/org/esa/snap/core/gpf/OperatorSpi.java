@@ -17,6 +17,7 @@
 package org.esa.snap.core.gpf;
 
 import com.bc.ceres.core.Assert;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.descriptor.AnnotationOperatorDescriptor;
 import org.esa.snap.core.gpf.descriptor.AnnotationOperatorDescriptorBody;
@@ -27,7 +28,6 @@ import org.esa.snap.core.gpf.descriptor.SourceProductDescriptor;
 import org.esa.snap.core.gpf.descriptor.SourceProductsDescriptor;
 import org.esa.snap.core.gpf.descriptor.TargetProductDescriptor;
 import org.esa.snap.core.gpf.descriptor.TargetPropertyDescriptor;
-import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.util.ModuleMetadata;
 import org.esa.snap.util.SystemUtils;
 

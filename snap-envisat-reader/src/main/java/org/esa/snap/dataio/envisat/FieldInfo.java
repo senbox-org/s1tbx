@@ -16,7 +16,7 @@
 package org.esa.snap.dataio.envisat;
 
 
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.util.Debug;
 
 /**
@@ -42,13 +42,13 @@ public class FieldInfo extends DataItemInfo {
      *
      * @param fieldName    the field name, must not be null or empty
      * @param dataType     the internal data type. Must be one of the multiple <code>TYPE_</code>XXX constants defined
-     *                     in the <code>org.esa.snap.framework.datamodel.ProductData</code> interface.
+     *                     in the <code>ProductData</code> interface.
      * @param numDataElems the number of data elements contained in this field (field-width), must be <code>&gt;=
      *                     1</code>.
      * @param physicalUnit the field's unit (optional, can be null)
      * @param description  the field's description (optional, can be null)
      *
-     * @see org.esa.snap.framework.datamodel.ProductData
+     * @see ProductData
      */
     FieldInfo(String fieldName,
               int dataType,

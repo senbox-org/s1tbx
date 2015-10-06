@@ -19,8 +19,8 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.esa.snap.GlobalTestConfig;
-import org.esa.snap.framework.dataio.ProductWriter;
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.dataio.ProductWriter;
+import org.esa.snap.core.datamodel.Product;
 
 import java.io.File;
 import java.io.IOException;

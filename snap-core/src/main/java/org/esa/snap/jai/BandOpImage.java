@@ -17,9 +17,9 @@
 package org.esa.snap.jai;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.framework.dataio.ProductReader;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.dataio.ProductReader;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.ProductData;
 
 import java.awt.Rectangle;
 import java.io.IOException;

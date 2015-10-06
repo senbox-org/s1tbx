@@ -1,6 +1,6 @@
 package org.esa.snap.dataio.getasse30;
 
-import org.esa.snap.framework.dataop.resamp.Resampling;
+import org.esa.snap.core.dataop.resamp.Resampling;
 import org.junit.Test;
 
 import java.io.IOException;

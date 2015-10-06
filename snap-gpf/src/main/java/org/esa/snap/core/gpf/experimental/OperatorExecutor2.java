@@ -15,9 +15,9 @@
  */
 package org.esa.snap.core.gpf.experimental;
 
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;

@@ -17,11 +17,11 @@
 package org.esa.snap.util.geotiff;
 
 import com.sun.media.imageio.plugins.tiff.GeoTIFFTagSet;
-import org.esa.snap.framework.datamodel.CrsGeoCoding;
-import org.esa.snap.framework.datamodel.GeoCoding;
-import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.datamodel.MapGeoCoding;
-import org.esa.snap.framework.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.CrsGeoCoding;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.MapGeoCoding;
+import org.esa.snap.core.datamodel.PixelPos;
 import org.geotools.coverage.grid.io.imageio.geotiff.CRS2GeoTiffMetadataAdapter;
 import org.geotools.coverage.grid.io.imageio.geotiff.GeoKeyEntry;
 import org.geotools.coverage.grid.io.imageio.geotiff.GeoTiffException;

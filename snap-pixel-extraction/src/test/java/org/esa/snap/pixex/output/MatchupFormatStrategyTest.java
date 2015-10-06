@@ -1,6 +1,6 @@
 package org.esa.snap.pixex.output;
 
-import org.esa.snap.framework.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.measurement.Measurement;
 import org.esa.snap.measurement.writer.FormatStrategy;
 import org.junit.Test;

@@ -15,7 +15,7 @@
  */
 package org.esa.snap.dataio.envisat;
 
-import org.esa.snap.framework.datamodel.FlagCoding;
+import org.esa.snap.core.datamodel.FlagCoding;
 
 /**
  * The <code>BandInfo</code> class provides information for an available band within an ENVISAT product.

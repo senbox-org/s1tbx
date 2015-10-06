@@ -18,6 +18,10 @@ package org.esa.snap.core.gpf;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
@@ -25,9 +29,6 @@ import org.esa.snap.core.gpf.annotations.SourceProducts;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.gpf.annotations.TargetProperty;
 import org.esa.snap.core.gpf.internal.OperatorContext;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.RasterDataNode;
 
 import javax.media.jai.BorderExtender;
 import java.awt.Rectangle;
@@ -427,7 +428,7 @@ public abstract class Operator {
      *
      * @param rasterDataNode the raster data node of a data product,
      *                       e.g. a {@link Band Band} or
-     *                       {@link org.esa.snap.framework.datamodel.TiePointGrid TiePointGrid}.
+     *                       {@link TiePointGrid TiePointGrid}.
      * @param region         the image region in pixel coordinates
      *
      * @return a tile.
@@ -446,7 +447,7 @@ public abstract class Operator {
      *
      * @param rasterDataNode the raster data node of a data product,
      *                       e.g. a {@link Band Band} or
-     *                       {@link org.esa.snap.framework.datamodel.TiePointGrid TiePointGrid}.
+     *                       {@link TiePointGrid TiePointGrid}.
      * @param region         The image region in pixel coordinates
      * @param borderExtender A strategy used to fill the raster regions that lie outside the bounds of the source image.
      *

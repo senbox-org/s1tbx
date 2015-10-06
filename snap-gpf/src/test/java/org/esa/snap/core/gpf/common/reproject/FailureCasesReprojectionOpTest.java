@@ -16,8 +16,8 @@
 
 package org.esa.snap.core.gpf.common.reproject;
 
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.OperatorException;
-import org.esa.snap.framework.datamodel.Product;
 import org.junit.Test;
 
 import java.util.HashMap;

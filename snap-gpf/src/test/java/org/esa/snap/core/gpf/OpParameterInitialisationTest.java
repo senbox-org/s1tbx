@@ -16,8 +16,8 @@
 
 package org.esa.snap.core.gpf;
 
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.annotations.Parameter;
-import org.esa.snap.framework.datamodel.Product;
 import org.junit.Test;
 
 import java.io.File;

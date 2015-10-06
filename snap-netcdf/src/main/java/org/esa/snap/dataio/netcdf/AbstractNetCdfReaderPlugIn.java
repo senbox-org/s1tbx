@@ -16,13 +16,23 @@
 
 package org.esa.snap.dataio.netcdf;
 
+import org.esa.snap.core.dataio.DecodeQualification;
+import org.esa.snap.core.dataio.ProductReader;
+import org.esa.snap.core.dataio.ProductReaderPlugIn;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.FlagCoding;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.ImageInfo;
+import org.esa.snap.core.datamodel.IndexCoding;
+import org.esa.snap.core.datamodel.Mask;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.Stx;
+import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.dataio.netcdf.metadata.ProfileInitPartReader;
 import org.esa.snap.dataio.netcdf.metadata.ProfilePartReader;
 import org.esa.snap.dataio.netcdf.util.NetcdfFileOpener;
 import org.esa.snap.dataio.netcdf.util.RasterDigest;
-import org.esa.snap.framework.dataio.DecodeQualification;
-import org.esa.snap.framework.dataio.ProductReader;
-import org.esa.snap.framework.dataio.ProductReaderPlugIn;
 import org.esa.snap.util.io.SnapFileFilter;
 import ucar.nc2.NetcdfFile;
 
@@ -120,7 +130,7 @@ public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn 
 
     /**
      * Creates an instance of {@link ProfilePartReader} responsible for reading
-     * {@link org.esa.snap.framework.datamodel.Product#getMetadataRoot() metadata}.
+     * {@link Product#getMetadataRoot() metadata}.
      *
      * @return the {@link ProfilePartReader} for metadata
      */
@@ -130,7 +140,7 @@ public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn 
 
     /**
      * Creates an instance of {@link ProfilePartReader} responsible for reading
-     * {@link org.esa.snap.framework.datamodel.Band bands}.
+     * {@link Band bands}.
      *
      * @return the {@link ProfilePartReader} for bands
      */
@@ -140,7 +150,7 @@ public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn 
 
     /**
      * Creates an instance of {@link ProfilePartReader} responsible for reading
-     * {@link org.esa.snap.framework.datamodel.FlagCoding flag coding}.
+     * {@link FlagCoding flag coding}.
      *
      * @return the {@link ProfilePartReader} for flag coding
      */
@@ -150,7 +160,7 @@ public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn 
 
     /**
      * Creates an instance of {@link ProfilePartReader} responsible for reading
-     * {@link org.esa.snap.framework.datamodel.GeoCoding geo-coding}.
+     * {@link GeoCoding geo-coding}.
      *
      * @return the {@link ProfilePartReader} for geo-coding
      */
@@ -160,7 +170,7 @@ public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn 
 
     /**
      * Creates an instance of {@link ProfilePartReader} responsible for reading
-     * {@link org.esa.snap.framework.datamodel.ImageInfo image info}.
+     * {@link ImageInfo image info}.
      *
      * @return the {@link ProfilePartReader} for image-info
      */
@@ -170,7 +180,7 @@ public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn 
 
     /**
      * Creates an instance of {@link ProfilePartReader} responsible for reading
-     * {@link org.esa.snap.framework.datamodel.IndexCoding index coding}.
+     * {@link IndexCoding index coding}.
      *
      * @return the {@link ProfilePartReader} for index coding
      */
@@ -180,7 +190,7 @@ public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn 
 
     /**
      * Creates an instance of {@link ProfilePartReader} responsible for reading
-     * {@link org.esa.snap.framework.datamodel.Mask masks}.
+     * {@link Mask masks}.
      *
      * @return the {@link ProfilePartReader} for masks
      */
@@ -190,7 +200,7 @@ public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn 
 
     /**
      * Creates an instance of {@link ProfilePartReader} responsible for reading
-     * {@link org.esa.snap.framework.datamodel.Stx statistics}.
+     * {@link Stx statistics}.
      *
      * @return the {@link ProfilePartReader} for statistics
      */
@@ -200,7 +210,7 @@ public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn 
 
     /**
      * Creates an instance of {@link ProfilePartReader} responsible for reading
-     * {@link org.esa.snap.framework.datamodel.TiePointGrid tie-point grids}.
+     * {@link TiePointGrid tie-point grids}.
      *
      * @return the {@link ProfilePartReader} for tie-point grids
      */
@@ -210,8 +220,8 @@ public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn 
 
     /**
      * Creates an instance of {@link ProfilePartReader} responsible for reading
-     * {@link org.esa.snap.framework.datamodel.Product#setStartTime(org.esa.snap.framework.datamodel.ProductData.UTC)} and
-     * {@link org.esa.snap.framework.datamodel.Product#setEndTime(org.esa.snap.framework.datamodel.ProductData.UTC)}.
+     * {@link Product#setStartTime(ProductData.UTC)} and
+     * {@link Product#setEndTime(ProductData.UTC)}.
      *
      * @return the {@link ProfilePartReader} for time information
      */
@@ -221,7 +231,7 @@ public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn 
 
     /**
      * Creates an instance of {@link ProfilePartReader} responsible for reading
-     * {@link org.esa.snap.framework.datamodel.Product#setDescription(String)}.
+     * {@link Product#setDescription(String)}.
      *
      * @return the {@link ProfilePartReader} for description
      */

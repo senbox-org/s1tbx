@@ -15,10 +15,11 @@
  */
 package org.esa.snap.dataio.hdf5;
 
-import org.esa.snap.framework.dataio.EncodeQualification;
-import org.esa.snap.framework.dataio.ProductWriter;
-import org.esa.snap.framework.dataio.ProductWriterPlugIn;
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.dataio.AbstractProductWriter;
+import org.esa.snap.core.dataio.EncodeQualification;
+import org.esa.snap.core.dataio.ProductWriter;
+import org.esa.snap.core.dataio.ProductWriterPlugIn;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.io.SnapFileFilter;
 
@@ -95,7 +96,7 @@ public class Hdf5ProductWriterPlugIn implements ProductWriterPlugIn {
      *
      * @return an array containing valid output types, never <code>null</code>
      *
-     * @see org.esa.snap.framework.dataio.AbstractProductWriter#writeProductNodes
+     * @see AbstractProductWriter#writeProductNodes
      */
     public Class[] getOutputTypes() {
         if (!isHdf5LibAvailable()) {

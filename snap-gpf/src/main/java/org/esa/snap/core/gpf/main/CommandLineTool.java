@@ -32,6 +32,7 @@ import com.thoughtworks.xstream.io.xml.XppDomWriter;
 import com.thoughtworks.xstream.io.xml.XppReader;
 import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
 import org.apache.velocity.VelocityContext;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
@@ -51,7 +52,6 @@ import org.esa.snap.core.gpf.graph.Node;
 import org.esa.snap.core.gpf.graph.NodeContext;
 import org.esa.snap.core.gpf.graph.NodeSource;
 import org.esa.snap.core.gpf.internal.OperatorExecutor;
-import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.io.FileUtils;
 import org.xmlpull.mxp1.MXParser;
@@ -76,7 +76,7 @@ import java.util.logging.Logger;
 
 /**
  * The common command-line tool for the GPF.
- * For usage, see {@link org/esa/snap/framework/gpf/main/CommandLineUsage.txt}.
+ * For usage, see {@link org/esa/snap/core/gpf/main/CommandLineUsage.txt}.
  */
 class CommandLineTool implements GraphProcessingObserver {
 

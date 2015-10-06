@@ -16,9 +16,9 @@
 
 package org.esa.snap.dataio.dimap.spi;
 
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Mask;
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Mask;
+import org.esa.snap.core.datamodel.ProductData;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;

@@ -15,8 +15,8 @@
  */
 package org.esa.snap.datamodel;
 
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
 
 /**
  * Summary of an output product

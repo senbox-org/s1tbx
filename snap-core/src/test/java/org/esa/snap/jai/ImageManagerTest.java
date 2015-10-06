@@ -19,12 +19,12 @@ package org.esa.snap.jai;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.ColorPaletteDef;
-import org.esa.snap.framework.datamodel.ImageInfo;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.ColorPaletteDef;
+import org.esa.snap.core.datamodel.ImageInfo;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.RasterDataNode;
 import org.junit.Test;
 
 import javax.media.jai.ImageLayout;
@@ -248,7 +248,7 @@ public class ImageManagerTest {
      * {@code com.bc.ceres.glevel.support.DefaultMultiLevelSource#createImage(int)}
      * <p>
      * size of mask image is calculated in
-     * {@code org.esa.snap.jai.ImageManager#createSingleBandedImageLayout(org.esa.snap.framework.datamodel.RasterDataNode)}
+     * {@code org.esa.snap.jai.ImageManager#createSingleBandedImageLayout(RasterDataNode)}
      * <p>
      * they shall not produce different results.
      */

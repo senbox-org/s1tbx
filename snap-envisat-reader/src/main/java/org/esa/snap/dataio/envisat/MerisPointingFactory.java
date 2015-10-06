@@ -16,11 +16,11 @@
 
 package org.esa.snap.dataio.envisat;
 
-import org.esa.snap.framework.datamodel.Pointing;
-import org.esa.snap.framework.datamodel.PointingFactory;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.RasterDataNode;
-import org.esa.snap.framework.datamodel.TiePointGridPointing;
+import org.esa.snap.core.datamodel.Pointing;
+import org.esa.snap.core.datamodel.PointingFactory;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.TiePointGridPointing;
 
 /**
  * The {@link PointingFactory} for Envisat MERIS Level 1b/2 products.
@@ -39,7 +39,7 @@ public class MerisPointingFactory implements PointingFactory {
     };
 
     /**
-     * Retrieves the product types for which this instance can create {@link org.esa.snap.framework.datamodel.Pointing pointings}.
+     * Retrieves the product types for which this instance can create {@link Pointing pointings}.
      *
      * @return the product types
      */

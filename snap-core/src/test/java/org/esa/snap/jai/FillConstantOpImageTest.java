@@ -1,9 +1,9 @@
 package org.esa.snap.jai;
 
 import com.bc.ceres.glevel.MultiLevelImage;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.junit.Test;
 
 import javax.media.jai.PlanarImage;

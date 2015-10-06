@@ -16,23 +16,23 @@
 package org.esa.snap.dataio.envisat;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.framework.dataio.AbstractProductReader;
-import org.esa.snap.framework.dataio.IllegalFileFormatException;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.GeoCodingFactory;
-import org.esa.snap.framework.datamodel.Mask;
-import org.esa.snap.framework.datamodel.MetadataAttribute;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.PointingFactory;
-import org.esa.snap.framework.datamodel.PointingFactoryRegistry;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.ProductNodeGroup;
-import org.esa.snap.framework.datamodel.LineTimeCoding;
-import org.esa.snap.framework.datamodel.TiePointGeoCoding;
-import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.framework.datamodel.VirtualBand;
-import org.esa.snap.framework.dataop.maptransf.Datum;
+import org.esa.snap.core.dataio.AbstractProductReader;
+import org.esa.snap.core.dataio.IllegalFileFormatException;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.GeoCodingFactory;
+import org.esa.snap.core.datamodel.LineTimeCoding;
+import org.esa.snap.core.datamodel.Mask;
+import org.esa.snap.core.datamodel.MetadataAttribute;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.PointingFactory;
+import org.esa.snap.core.datamodel.PointingFactoryRegistry;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductNodeGroup;
+import org.esa.snap.core.datamodel.TiePointGeoCoding;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.dataop.maptransf.Datum;
 import org.esa.snap.util.ArrayUtils;
 import org.esa.snap.util.Debug;
 import org.esa.snap.util.io.FileUtils;
@@ -653,13 +653,13 @@ public class EnvisatProductReader extends AbstractProductReader {
     /**
      * Used by the {@link #createTiePointGrid(String, int, int, double, double, double, double, float[]) createTiePointGrid} method in order to determine
      * the discontinuity mode for angle tie-point grids.
-     * <p>The default implementation returns {@link org.esa.snap.framework.datamodel.TiePointGrid#DISCONT_AT_180} for
+     * <p>The default implementation returns {@link TiePointGrid#DISCONT_AT_180} for
      * the names "lon", "long" or "longitude" ignoring letter case,
-     * {@link org.esa.snap.framework.datamodel.TiePointGrid#DISCONT_NONE} otherwise.
+     * {@link TiePointGrid#DISCONT_NONE} otherwise.
      *
      * @param name the grid name
      *
-     * @return the discontinuity mode, always one of {@link org.esa.snap.framework.datamodel.TiePointGrid#DISCONT_NONE}, {@link org.esa.snap.framework.datamodel.TiePointGrid#DISCONT_AT_180} and {@link org.esa.snap.framework.datamodel.TiePointGrid#DISCONT_AT_360}.
+     * @return the discontinuity mode, always one of {@link TiePointGrid#DISCONT_NONE}, {@link TiePointGrid#DISCONT_AT_180} and {@link TiePointGrid#DISCONT_AT_360}.
      */
     @Override
     protected int getGridDiscontinutity(String name) {

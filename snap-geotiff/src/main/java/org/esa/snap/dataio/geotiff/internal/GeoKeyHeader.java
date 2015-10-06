@@ -15,7 +15,7 @@
  */
 package org.esa.snap.dataio.geotiff.internal;
 
-import org.esa.snap.framework.dataio.ProductIOException;
+import org.esa.snap.core.dataio.ProductIOException;
 
 public class GeoKeyHeader {
 

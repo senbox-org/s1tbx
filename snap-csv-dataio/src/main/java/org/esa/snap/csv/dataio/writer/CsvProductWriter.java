@@ -17,12 +17,13 @@
 package org.esa.snap.csv.dataio.writer;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.dataio.AbstractProductWriter;
+import org.esa.snap.core.dataio.ProductWriterPlugIn;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.csv.dataio.Constants;
-import org.esa.snap.framework.dataio.AbstractProductWriter;
-import org.esa.snap.framework.dataio.ProductWriterPlugIn;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.TiePointGrid;
 
 import java.awt.image.DataBuffer;
 import java.io.File;
@@ -31,7 +32,7 @@ import java.io.IOException;
 import java.io.Writer;
 
 /**
- * Allows writing a {@link org.esa.snap.framework.datamodel.Product} in CSV format.
+ * Allows writing a {@link Product} in CSV format.
  *
  * @author Olaf Danne
  * @author Thomas Storm

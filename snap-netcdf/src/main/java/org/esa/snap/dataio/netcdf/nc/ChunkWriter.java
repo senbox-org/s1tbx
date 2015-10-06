@@ -16,7 +16,7 @@
 
 package org.esa.snap.dataio.netcdf.nc;
 
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductData;
 
 import java.awt.Point;
 import java.awt.Rectangle;

@@ -16,10 +16,13 @@
 package org.esa.snap.examples.data_export;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.framework.dataio.ProductIO;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.TiePointGrid;
+import org.esa.snap.core.dataio.ProductIO;
+import org.esa.snap.core.dataio.ProductSubsetBuilder;
+import org.esa.snap.core.dataio.ProductSubsetDef;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.TiePointGrid;
 
 import javax.imageio.stream.FileImageOutputStream;
 import java.io.File;
@@ -83,15 +86,15 @@ import java.io.IOException;
  * <li><code>"sun_azimuth_fward" </code> type float in deg - Solar azimuth forward view         </li>
  * <li><code>"view_azimuth_fward"</code> type float in deg - Satellite azimuth forward view     </li> </ul>
  * <i><b>Note:</b> If you want to work with product subsets, you can use the {@link
- * org.esa.snap.framework.dataio.ProductSubsetBuilder} class. It has a static method which lets you create a subset of a
+ * ProductSubsetBuilder} class. It has a static method which lets you create a subset of a
  * given product and subset definition.</i>
  *
- * @see org.esa.snap.framework.dataio.ProductIO
- * @see org.esa.snap.framework.dataio.ProductSubsetBuilder
- * @see org.esa.snap.framework.dataio.ProductSubsetDef
- * @see org.esa.snap.framework.datamodel.Product
- * @see org.esa.snap.framework.datamodel.Band
- * @see org.esa.snap.framework.datamodel.TiePointGrid
+ * @see ProductIO
+ * @see ProductSubsetBuilder
+ * @see ProductSubsetDef
+ * @see Product
+ * @see Band
+ * @see TiePointGrid
  */
 public class TiePointGridWriterMain {
 

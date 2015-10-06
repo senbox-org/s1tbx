@@ -1,7 +1,7 @@
 package org.esa.snap.statistics.percentile.interpolated;
 
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.util.DateTimeUtils;
 import org.junit.Test;
 

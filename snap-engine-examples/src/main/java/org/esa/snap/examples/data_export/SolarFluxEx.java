@@ -16,10 +16,10 @@
 
 package org.esa.snap.examples.data_export;
 
-import org.esa.snap.framework.dataio.ProductIO;
-import org.esa.snap.framework.datamodel.MetadataAttribute;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.dataio.ProductIO;
+import org.esa.snap.core.datamodel.MetadataAttribute;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
 
 import java.io.IOException;
 

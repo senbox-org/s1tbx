@@ -17,8 +17,8 @@ package org.esa.snap.dem.dataio;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.util.CachingObjectArray;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
 
 import java.io.IOException;
 import java.util.ArrayList;

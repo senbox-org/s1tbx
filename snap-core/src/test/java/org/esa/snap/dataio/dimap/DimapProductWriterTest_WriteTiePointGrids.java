@@ -20,9 +20,9 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.esa.snap.GlobalTestConfig;
 import org.esa.snap.GlobalTestTools;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.util.BeamConstants;
 import org.esa.snap.util.io.FileUtils;
 

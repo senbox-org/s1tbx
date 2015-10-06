@@ -5,7 +5,7 @@
         <folder name="Writers">
             <file name="org-esa-snap-dataio-hdf5-ExportHDF5Product.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.context"/>
-                <attr name="type" stringvalue="org.esa.snap.framework.datamodel.ProductNode"/>
+                <attr name="type" stringvalue="org.esa.snap.core.datamodel.ProductNode"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ExportProductAction.create"/>
                 <attr name="selectionType" stringvalue="EXACTLY_ONE"/>
                 <attr name="displayName" stringvalue="HDF5"/>

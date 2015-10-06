@@ -25,7 +25,7 @@ import com.bc.ceres.glayer.annotations.LayerTypeMetadata;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
-import org.esa.snap.framework.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.glevel.MaskImageMultiLevelSource;
 
 import java.awt.Color;

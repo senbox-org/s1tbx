@@ -1,10 +1,11 @@
 
 package org.esa.snap.dataio.envi;
 
-import org.esa.snap.framework.dataio.EncodeQualification;
-import org.esa.snap.framework.dataio.ProductWriter;
-import org.esa.snap.framework.dataio.ProductWriterPlugIn;
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.dataio.AbstractProductWriter;
+import org.esa.snap.core.dataio.EncodeQualification;
+import org.esa.snap.core.dataio.ProductWriter;
+import org.esa.snap.core.dataio.ProductWriterPlugIn;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.util.io.SnapFileFilter;
 
 import java.io.File;
@@ -56,7 +57,7 @@ public class EnviProductWriterPlugIn implements ProductWriterPlugIn {
      *
      * @return an array containing valid output types, never <code>null</code>
      *
-     * @see org.esa.snap.framework.dataio.AbstractProductWriter#writeProductNodes
+     * @see AbstractProductWriter#writeProductNodes
      */
     public Class[] getOutputTypes() {
         return new Class[]{String.class, File.class};

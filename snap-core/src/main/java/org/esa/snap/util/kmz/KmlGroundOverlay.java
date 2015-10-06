@@ -16,7 +16,7 @@
 
 package org.esa.snap.util.kmz;
 
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductData;
 import org.opengis.geometry.BoundingBox;
 
 import java.awt.image.RenderedImage;

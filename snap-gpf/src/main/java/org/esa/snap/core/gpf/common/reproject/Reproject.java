@@ -16,7 +16,7 @@
 package org.esa.snap.core.gpf.common.reproject;
 
 
-import org.esa.snap.framework.datamodel.ImageGeometry;
+import org.esa.snap.core.datamodel.ImageGeometry;
 import org.geotools.factory.Hints;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;

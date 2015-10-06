@@ -1,5 +1,6 @@
 package org.esa.snap.core.gpf.descriptor;
 
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.Operator;
 
 /**
@@ -38,7 +39,7 @@ public interface OperatorDescriptor extends ElementDescriptor {
      * the operator or graph is responsible for outputting any computed results.
      * <p>
      * Setting this property on an operator will only be useful, if it either does not generate a new target
-     * {@link org.esa.snap.framework.datamodel.Product Product} and/or if it
+     * {@link Product Product} and/or if it
      * does its own outputting of non-{@code Product} targets to external files.
      *
      * @return If {@code true}, the framework will prevent automatic writing of the target product to the file system.

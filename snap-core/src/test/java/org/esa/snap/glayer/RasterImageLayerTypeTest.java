@@ -19,11 +19,11 @@ package org.esa.snap.glayer;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.support.ImageLayer;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.RasterDataNode;
-import org.esa.snap.framework.datamodel.VirtualBand;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.VirtualBand;
 import org.junit.Test;
 
 import java.awt.Color;

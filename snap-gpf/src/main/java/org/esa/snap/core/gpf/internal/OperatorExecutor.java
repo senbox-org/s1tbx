@@ -16,10 +16,10 @@
 package org.esa.snap.core.gpf.internal;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.runtime.Config;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.math.MathUtils;

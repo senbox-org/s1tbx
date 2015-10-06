@@ -17,10 +17,10 @@
 package org.esa.snap.core.gpf;
 
 import junit.framework.TestCase;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
-import org.esa.snap.framework.datamodel.Product;
 
 import java.io.IOException;
 

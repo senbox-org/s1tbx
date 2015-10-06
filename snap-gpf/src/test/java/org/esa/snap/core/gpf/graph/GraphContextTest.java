@@ -1,11 +1,11 @@
 package org.esa.snap.core.gpf.graph;
 
 import junit.framework.TestCase;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.OperatorSpiRegistry;
 import org.esa.snap.core.gpf.TestOps;
-import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.util.jai.VerbousTileCache;
 
 import javax.media.jai.JAI;

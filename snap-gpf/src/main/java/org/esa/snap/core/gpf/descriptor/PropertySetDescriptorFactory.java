@@ -20,8 +20,8 @@ import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.DefaultPropertySetDescriptor;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySetDescriptor;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.annotations.ParameterDescriptorFactory;
-import org.esa.snap.framework.datamodel.Product;
 
 import java.util.Map;
 

@@ -18,10 +18,11 @@ package org.esa.snap.dataio.geometry;
 
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
-import org.esa.snap.framework.datamodel.PlacemarkDescriptor;
-import org.esa.snap.framework.datamodel.PlacemarkDescriptorRegistry;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.VectorDataNode;
+import org.esa.snap.core.datamodel.GeometryDescriptor;
+import org.esa.snap.core.datamodel.PlacemarkDescriptor;
+import org.esa.snap.core.datamodel.PlacemarkDescriptorRegistry;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.VectorDataNode;
 import org.esa.snap.util.FeatureUtils;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -49,7 +50,7 @@ public class VectorDataNodeWriterTest extends TestCase {
 
     private static final String INPUT_2 =
             "#defaultGeometry=geom\n"
-            + "#placemarkDescriptor=org.esa.snap.framework.datamodel.GeometryDescriptor\n"
+            + "#placemarkDescriptor=GeometryDescriptor\n"
             + "org.esa.snap.FT2\tname:String\tgeom:Point\tweight:Float\n"
             + "ID65\tmark1\tPOINT (12.3 45.6)\t0.4\n";
 
@@ -60,7 +61,7 @@ public class VectorDataNodeWriterTest extends TestCase {
         placemarkDescriptorProvider = new VectorDataNodeReader.PlacemarkDescriptorProvider() {
             @Override
             public PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType simpleFeatureType) {
-                return PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(org.esa.snap.framework.datamodel.GeometryDescriptor.class);
+                return PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(GeometryDescriptor.class);
             }
         };
     }
@@ -70,7 +71,7 @@ public class VectorDataNodeWriterTest extends TestCase {
                         new String[]{
                                 "#defaultGeometry=geom",
                                 "#styleCss=color:0,0,255",
-                                "#placemarkDescriptor=org.esa.snap.framework.datamodel.GeometryDescriptor",
+                                "#placemarkDescriptor=GeometryDescriptor",
                                 "#separator=TAB"
                         },
                         "\norg.esa.snap.FT1\tname:String\tgeom:Geometry\tpixel:Integer\tdescription:String\n"
@@ -83,7 +84,7 @@ public class VectorDataNodeWriterTest extends TestCase {
         testInputOutput(INPUT_2,
                         new String[]{
                                 "#defaultGeometry=geom",
-                                "#placemarkDescriptor=org.esa.snap.framework.datamodel.GeometryDescriptor"
+                                "#placemarkDescriptor=GeometryDescriptor"
                         },
                         "org.esa.snap.FT2\tname:String\tgeom:Point\tweight:Float\nID65\tmark1\tPOINT (12.3 45.6)\t0.4\n");
     }

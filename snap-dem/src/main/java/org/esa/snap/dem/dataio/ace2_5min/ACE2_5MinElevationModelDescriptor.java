@@ -15,9 +15,9 @@
  */
 package org.esa.snap.dem.dataio.ace2_5min;
 
-import org.esa.snap.framework.dataop.dem.AbstractElevationModelDescriptor;
-import org.esa.snap.framework.dataop.dem.ElevationModel;
-import org.esa.snap.framework.dataop.resamp.Resampling;
+import org.esa.snap.core.dataop.dem.AbstractElevationModelDescriptor;
+import org.esa.snap.core.dataop.dem.ElevationModel;
+import org.esa.snap.core.dataop.resamp.Resampling;
 
 public class ACE2_5MinElevationModelDescriptor extends AbstractElevationModelDescriptor {
 

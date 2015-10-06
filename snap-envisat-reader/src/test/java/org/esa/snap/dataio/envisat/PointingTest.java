@@ -20,17 +20,17 @@ import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.esa.snap.framework.datamodel.AngularDirection;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.Pointing;
-import org.esa.snap.framework.datamodel.PointingFactory;
-import org.esa.snap.framework.datamodel.PointingFactoryRegistry;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.TiePointGeoCoding;
-import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.framework.dataop.maptransf.Datum;
+import org.esa.snap.core.datamodel.AngularDirection;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Pointing;
+import org.esa.snap.core.datamodel.PointingFactory;
+import org.esa.snap.core.datamodel.PointingFactoryRegistry;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.TiePointGeoCoding;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.dataop.maptransf.Datum;
 
 
 public class PointingTest extends TestCase {

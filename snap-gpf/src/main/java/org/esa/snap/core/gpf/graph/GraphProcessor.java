@@ -18,11 +18,11 @@ package org.esa.snap.core.gpf.graph;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.internal.OperatorContext;
 import org.esa.snap.core.gpf.internal.ProductSetHandler;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.math.MathUtils;
 

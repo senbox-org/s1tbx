@@ -17,8 +17,8 @@ package org.esa.snap.dataio.geotiff;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
-import org.esa.snap.framework.dataio.ProductIOPlugInManager;
-import org.esa.snap.framework.dataio.ProductWriterPlugIn;
+import org.esa.snap.core.dataio.ProductIOPlugInManager;
+import org.esa.snap.core.dataio.ProductWriterPlugIn;
 
 import java.util.Iterator;
 

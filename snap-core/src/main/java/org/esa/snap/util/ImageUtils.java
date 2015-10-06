@@ -18,7 +18,7 @@ package org.esa.snap.util;
 // Important: make sure that we get no dependencies to
 // other org.esa.snap packages here above org.esa.snap.util
 
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.jai.ImageManager;
 import org.esa.snap.util.jai.SingleBandedSampleModel;
 

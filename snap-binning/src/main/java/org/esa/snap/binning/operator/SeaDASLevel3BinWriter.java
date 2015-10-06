@@ -22,7 +22,7 @@ import org.esa.snap.binning.BinningContext;
 import org.esa.snap.binning.PlanetaryGrid;
 import org.esa.snap.binning.TemporalBin;
 import org.esa.snap.binning.support.SeadasGrid;
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;

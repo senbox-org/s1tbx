@@ -1,15 +1,18 @@
 package org.esa.snap.core.gpf.pointop;
 
-import org.esa.snap.framework.datamodel.GeneralFilterBand;
-import org.esa.snap.framework.datamodel.Kernel;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.ConvolutionFilterBand;
+import org.esa.snap.core.datamodel.GeneralFilterBand;
+import org.esa.snap.core.datamodel.Kernel;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.VirtualBand;
 
 /**
  * A {@code SourceSampleConfigurer} is used to define the source samples processed by a {@link PointOperator}.
  * <p>
  * The definition of a sample is given by its index within the pixel (a pixel comprises one or more samples) and
- * the name of a {@link org.esa.snap.framework.datamodel.RasterDataNode RasterDataNode} in one of the source products.
+ * the name of a {@link RasterDataNode RasterDataNode} in one of the source products.
  * <p>
  * Sample can also be computed on the fly, either by band maths expressions or by filters. See the various
  * {@code #defineComputedSample(...)} methods.
@@ -35,18 +38,18 @@ public interface SourceSampleConfigurer {
     void setValidPixelMask(String maskExpression);
 
     /**
-     * Defines a sample for a {@link org.esa.snap.framework.datamodel.RasterDataNode RasterDataNode}.
+     * Defines a sample for a {@link RasterDataNode RasterDataNode}.
      *
      * @param index The index of the sample within the sample arrays passed to
      *              {@link SampleOperator#computeSample(int, int, Sample[], WritableSample) computeSample()} or
      *              {@link PixelOperator#computePixel(int, int, Sample[], WritableSample[]) computePixel()} methods.
-     * @param name  The name of a {@link org.esa.snap.framework.datamodel.RasterDataNode RasterDataNode} to
+     * @param name  The name of a {@link RasterDataNode RasterDataNode} to
      *              which the sample belongs.
      */
     void defineSample(int index, String name);
 
     /**
-     * Defines a sample for a {@link org.esa.snap.framework.datamodel.RasterDataNode RasterDataNode} in the given product.
+     * Defines a sample for a {@link RasterDataNode RasterDataNode} in the given product.
      *
      * @param index   The index of the sample within the sample arrays passed to
      *                {@link SampleOperator#computeSample(int, int, Sample[], WritableSample) computeSample()} or
@@ -60,7 +63,7 @@ public interface SourceSampleConfigurer {
     /**
      * Defines an intermediate source sample computed from a band math expression.
      * <p>
-     * The method effectively creates a {@link org.esa.snap.framework.datamodel.VirtualBand VirtualBand}
+     * The method effectively creates a {@link VirtualBand VirtualBand}
      * from which it computes the source samples.
      * <p>
      * If multiple source products are used a reference number {@link Product#setRefNo(int)} has to be assigned.
@@ -68,7 +71,7 @@ public interface SourceSampleConfigurer {
      * @param index          The index of the sample within the sample arrays passed to
      *                       {@link SampleOperator#computeSample(int, int, Sample[], WritableSample) computeSample()} or
      *                       {@link PixelOperator#computePixel(int, int, Sample[], WritableSample[]) computePixel()} methods.
-     * @param dataType       The data type of the computed sample. See {@code TYPE_X} constants in {@link org.esa.snap.framework.datamodel.ProductData}.
+     * @param dataType       The data type of the computed sample. See {@code TYPE_X} constants in {@link ProductData}.
      * @param expression     The band maths expression.
      * @param sourceProducts Source products that are referenced in the expression.
      */
@@ -77,7 +80,7 @@ public interface SourceSampleConfigurer {
     /**
      * Defines an intermediate source sample computed from a linear image convolution.
      * <p>
-     * The method effectively creates a {@link org.esa.snap.framework.datamodel.ConvolutionFilterBand ConvolutionFilterBand}
+     * The method effectively creates a {@link ConvolutionFilterBand ConvolutionFilterBand}
      * from which it computes the source samples.
      *
      * @param index       The index of the sample within the sample arrays passed to
@@ -91,7 +94,7 @@ public interface SourceSampleConfigurer {
     /**
      * Defines an intermediate source sample computed from a non-linear image filter.
      * <p>
-     * The method effectively creates a {@link org.esa.snap.framework.datamodel.GeneralFilterBand GeneralFilterBand}
+     * The method effectively creates a {@link GeneralFilterBand GeneralFilterBand}
      * from which it computes the source samples.
      *
      * @param index              The index of the sample within the sample arrays passed to

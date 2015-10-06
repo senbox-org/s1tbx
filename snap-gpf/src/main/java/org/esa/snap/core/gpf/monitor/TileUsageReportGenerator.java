@@ -18,9 +18,9 @@ package org.esa.snap.core.gpf.monitor;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.internal.OperatorImage;
-import org.esa.snap.framework.datamodel.Band;
 
 import java.io.File;
 import java.io.FileWriter;

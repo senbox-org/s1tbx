@@ -17,6 +17,9 @@
 package org.esa.snap.core.gpf.main;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.dataio.ProductIO;
+import org.esa.snap.core.dataio.ProductReader;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.graph.Graph;
@@ -24,9 +27,6 @@ import org.esa.snap.core.gpf.graph.GraphException;
 import org.esa.snap.core.gpf.graph.GraphIO;
 import org.esa.snap.core.gpf.graph.GraphProcessingObserver;
 import org.esa.snap.core.gpf.graph.GraphProcessor;
-import org.esa.snap.framework.dataio.ProductIO;
-import org.esa.snap.framework.dataio.ProductReader;
-import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.util.SystemUtils;
 
 import java.io.File;

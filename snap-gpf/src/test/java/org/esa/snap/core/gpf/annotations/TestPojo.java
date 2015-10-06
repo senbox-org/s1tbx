@@ -16,7 +16,7 @@
 
 package org.esa.snap.core.gpf.annotations;
 
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.datamodel.Product;
 
 public class TestPojo {
 

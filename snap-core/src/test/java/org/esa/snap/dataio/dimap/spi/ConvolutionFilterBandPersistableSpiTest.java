@@ -17,11 +17,11 @@
 package org.esa.snap.dataio.dimap.spi;
 
 import junit.framework.TestCase;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.ConvolutionFilterBand;
+import org.esa.snap.core.datamodel.Kernel;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.dataio.dimap.DimapProductConstants;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.ConvolutionFilterBand;
-import org.esa.snap.framework.datamodel.Kernel;
-import org.esa.snap.framework.datamodel.ProductData;
 import org.jdom.Attribute;
 import org.jdom.Element;
 

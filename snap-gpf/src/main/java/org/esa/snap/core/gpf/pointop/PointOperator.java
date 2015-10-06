@@ -23,18 +23,21 @@ import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.jexp.Term;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.ConvolutionFilterBand;
+import org.esa.snap.core.datamodel.GeneralFilterBand;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.Kernel;
+import org.esa.snap.core.datamodel.Mask;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductNodeFilter;
+import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.SampleCoding;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.ConvolutionFilterBand;
-import org.esa.snap.framework.datamodel.GeneralFilterBand;
-import org.esa.snap.framework.datamodel.Kernel;
-import org.esa.snap.framework.datamodel.Mask;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductNodeFilter;
-import org.esa.snap.framework.datamodel.RasterDataNode;
-import org.esa.snap.framework.datamodel.VirtualBand;
 import org.esa.snap.jai.ImageManager;
 import org.esa.snap.jai.ResolutionLevel;
 import org.esa.snap.jai.VirtualBandOpImage;
@@ -56,7 +59,7 @@ import java.util.Map;
  * <li>whose target product and all source products share the same grid and coordinate reference system.</li>
  * </ol>
  * More specifically, the target product and all source products must share the same raster size and
- * {@link org.esa.snap.framework.datamodel.GeoCoding GeoCoding}.
+ * {@link GeoCoding GeoCoding}.
  *
  * @author Norman Fomferra
  * @since BEAM 4.9, revised in SNAP 2.0
@@ -150,9 +153,9 @@ public abstract class PointOperator extends Operator {
      * <p>
      * Client implementations of this method usually add product components to the given target product, such as
      * {@link Band bands} to be computed by this operator,
-     * {@link org.esa.snap.framework.datamodel.VirtualBand virtual bands},
-     * {@link org.esa.snap.framework.datamodel.Mask masks}
-     * or {@link org.esa.snap.framework.datamodel.SampleCoding sample codings}.
+     * {@link VirtualBand virtual bands},
+     * {@link Mask masks}
+     * or {@link SampleCoding sample codings}.
      * <p>
      * The default implementation retrieves the (first) source product and copies to the target product
      * <ul>
@@ -166,10 +169,10 @@ public abstract class PointOperator extends Operator {
      *
      * @param productConfigurer The target product configurer.
      * @throws OperatorException If the target product cannot be configured.
-     * @see Product#addBand(org.esa.snap.framework.datamodel.Band)
+     * @see Product#addBand(Band)
      * @see Product#addBand(String, String)
-     * @see Product#addTiePointGrid(org.esa.snap.framework.datamodel.TiePointGrid)
-     * @see org.esa.snap.framework.datamodel.Product#getMaskGroup()
+     * @see Product#addTiePointGrid(TiePointGrid)
+     * @see Product#getMaskGroup()
      */
     protected void configureTargetProduct(ProductConfigurer productConfigurer) {
         productConfigurer.copyTimeCoding();

@@ -16,8 +16,8 @@
 
 package org.esa.snap.dataio.dimap.spi;
 
-import org.esa.snap.framework.datamodel.Mask;
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.datamodel.Mask;
+import org.esa.snap.core.datamodel.Product;
 import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;

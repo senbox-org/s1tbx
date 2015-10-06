@@ -16,11 +16,11 @@
 
 package org.esa.snap.dataio.netcdf.metadata.profiles.cf;
 
+import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.dataio.netcdf.AbstractNetCdfReaderPlugIn;
 import org.esa.snap.dataio.netcdf.metadata.ProfileInitPartReader;
 import org.esa.snap.dataio.netcdf.metadata.ProfilePartReader;
 import org.esa.snap.dataio.netcdf.util.RasterDigest;
-import org.esa.snap.framework.dataio.DecodeQualification;
 import ucar.nc2.NetcdfFile;
 
 import java.util.Locale;

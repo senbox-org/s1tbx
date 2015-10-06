@@ -1,8 +1,8 @@
 package org.esa.snap.core.gpf.descriptor;
 
 import com.bc.ceres.core.Assert;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
-import org.esa.snap.framework.datamodel.Product;
 
 /**
  * A {@link SourceProductDescriptor} implementation for the

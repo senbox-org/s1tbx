@@ -1,6 +1,6 @@
 package org.esa.snap.core.gpf.pointop;
 
-import org.esa.snap.framework.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.RasterDataNode;
 
 /**
  * A sample represents the (geophysical) value of a {@link RasterDataNode} at a certain a certain pixel position.
@@ -28,7 +28,7 @@ public interface Sample {
 
     /**
      * @return The geophysical data type of this sample.
-     * @see org.esa.snap.framework.datamodel.RasterDataNode#getGeophysicalDataType()
+     * @see RasterDataNode#getGeophysicalDataType()
      */
     int getDataType();
 

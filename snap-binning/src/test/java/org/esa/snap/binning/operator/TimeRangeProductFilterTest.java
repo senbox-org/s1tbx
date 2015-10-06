@@ -30,8 +30,8 @@ package org.esa.snap.binning.operator;/*
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.junit.Before;
 import org.junit.Test;
 

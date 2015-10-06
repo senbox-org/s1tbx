@@ -3,7 +3,7 @@ package org.esa.snap.core.gpf.descriptor;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.dom.DomConverter;
-import org.esa.snap.framework.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.RasterDataNode;
 
 /**
  * Target parameter element metadata.

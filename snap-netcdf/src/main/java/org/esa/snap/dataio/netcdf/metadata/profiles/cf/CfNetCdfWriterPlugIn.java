@@ -16,14 +16,14 @@
 
 package org.esa.snap.dataio.netcdf.metadata.profiles.cf;
 
+import org.esa.snap.core.dataio.EncodeQualification;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.dataio.netcdf.AbstractNetCdfWriterPlugIn;
 import org.esa.snap.dataio.netcdf.metadata.ProfileInitPartWriter;
 import org.esa.snap.dataio.netcdf.metadata.ProfilePartWriter;
 import org.esa.snap.dataio.netcdf.nc.NFileWriteable;
 import org.esa.snap.dataio.netcdf.nc.NWritableFactory;
 import org.esa.snap.dataio.netcdf.util.Constants;
-import org.esa.snap.framework.dataio.EncodeQualification;
-import org.esa.snap.framework.datamodel.Product;
 
 import java.io.IOException;
 import java.util.Locale;

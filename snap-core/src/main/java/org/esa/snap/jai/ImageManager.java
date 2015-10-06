@@ -27,18 +27,18 @@ import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.jai.operator.PaintDescriptor;
 import com.bc.ceres.jai.operator.ReinterpretDescriptor;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.ColorPaletteDef;
-import org.esa.snap.framework.datamodel.GeoCoding;
-import org.esa.snap.framework.datamodel.ImageInfo;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.ProductNode;
-import org.esa.snap.framework.datamodel.RGBChannelDef;
-import org.esa.snap.framework.datamodel.RasterDataNode;
-import org.esa.snap.framework.datamodel.Scene;
-import org.esa.snap.framework.datamodel.SceneFactory;
-import org.esa.snap.framework.datamodel.Stx;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.ColorPaletteDef;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.ImageInfo;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductNode;
+import org.esa.snap.core.datamodel.RGBChannelDef;
+import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.Scene;
+import org.esa.snap.core.datamodel.SceneFactory;
+import org.esa.snap.core.datamodel.Stx;
 import org.esa.snap.runtime.Config;
 import org.esa.snap.util.Debug;
 import org.esa.snap.util.ImageUtils;
@@ -346,7 +346,7 @@ public class ImageManager {
 
     /**
      * Creates a model for an image pyramid. The method makes us of the
-     * {@link org.esa.snap.framework.datamodel.Product#getNumResolutionsMax()} method in order to determine the
+     * {@link Product#getNumResolutionsMax()} method in order to determine the
      * number of resolution levels for the pyramid.
      *
      * @param productNode The product node requesting the model.

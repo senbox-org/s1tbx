@@ -20,7 +20,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import org.esa.snap.binning.TemporalBin;
 import org.esa.snap.binning.support.SEAGrid;
 import org.esa.snap.binning.support.SeadasGrid;
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.io.FileUtils;
 import ucar.ma2.Array;

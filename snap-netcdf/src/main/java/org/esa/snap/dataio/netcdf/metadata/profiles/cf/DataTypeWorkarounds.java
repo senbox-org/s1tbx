@@ -15,7 +15,7 @@
  */
 package org.esa.snap.dataio.netcdf.metadata.profiles.cf;
 
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.util.StringUtils;
 import ucar.ma2.DataType;
 

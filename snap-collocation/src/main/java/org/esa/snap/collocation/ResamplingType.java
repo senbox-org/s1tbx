@@ -15,7 +15,7 @@
  */
 package org.esa.snap.collocation;
 
-import org.esa.snap.framework.dataop.resamp.Resampling;
+import org.esa.snap.core.dataop.resamp.Resampling;
 
 public enum ResamplingType {
     NEAREST_NEIGHBOUR(Resampling.NEAREST_NEIGHBOUR), 

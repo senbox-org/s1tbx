@@ -1,9 +1,9 @@
 package org.esa.snap.tutorials;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.framework.dataio.ProductIO;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.dataio.ProductIO;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

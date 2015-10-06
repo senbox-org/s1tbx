@@ -19,12 +19,12 @@ public class DefaultOperatorDescriptorXmlTest {
     @Test
     public void testXmlOfSimpleOne() throws Exception {
         DefaultOperatorDescriptor operatorDescriptor = new DefaultOperatorDescriptor();
-        operatorDescriptor.name = "org.esa.snap.framework.gpf.jpy.PyOperator";
+        operatorDescriptor.name = "org.esa.snap.core.gpf.jpy.PyOperator";
         operatorDescriptor.alias = "PyOp";
         operatorDescriptor.internal = true;
         operatorDescriptor.label = "Python operator";
         assertXmlCorrect(operatorDescriptor, "<operator>\n" +
-                                             "  <name>org.esa.snap.framework.gpf.jpy.PyOperator</name>\n" +
+                                             "  <name>org.esa.snap.core.gpf.jpy.PyOperator</name>\n" +
                                              "  <alias>PyOp</alias>\n" +
                                              "  <label>Python operator</label>\n" +
                                              "  <internal>true</internal>\n" +
@@ -34,7 +34,7 @@ public class DefaultOperatorDescriptorXmlTest {
     @Test
     public void testXmlOfPyOp() throws Exception {
         DefaultOperatorDescriptor operatorDescriptor = new DefaultOperatorDescriptor();
-        operatorDescriptor.name = "org.esa.snap.framework.gpf.jpy.PyOperator";
+        operatorDescriptor.name = "org.esa.snap.core.gpf.jpy.PyOperator";
         operatorDescriptor.alias = "MyPyOp";
         operatorDescriptor.internal = true;
         operatorDescriptor.label = "Python operator";
@@ -68,7 +68,7 @@ public class DefaultOperatorDescriptorXmlTest {
         operatorDescriptor.targetProductDescriptor = new DefaultTargetProductDescriptor();
 
         assertXmlCorrect(operatorDescriptor, "<operator>\n" +
-                                             "  <name>org.esa.snap.framework.gpf.jpy.PyOperator</name>\n" +
+                                             "  <name>org.esa.snap.core.gpf.jpy.PyOperator</name>\n" +
                                              "  <alias>MyPyOp</alias>\n" +
                                              "  <label>Python operator</label>\n" +
                                              "  <internal>true</internal>\n" +

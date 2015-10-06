@@ -15,12 +15,12 @@
  */
 package org.esa.snap.dem.dataio.srtm1_esrigrid;
 
-import org.esa.snap.framework.dataio.ProductReaderPlugIn;
-import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.dataop.dem.BaseElevationModel;
-import org.esa.snap.framework.dataop.dem.ElevationFile;
-import org.esa.snap.framework.dataop.resamp.Resampling;
+import org.esa.snap.core.dataio.ProductReaderPlugIn;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.dataop.dem.BaseElevationModel;
+import org.esa.snap.core.dataop.dem.ElevationFile;
+import org.esa.snap.core.dataop.resamp.Resampling;
 
 import java.io.File;
 

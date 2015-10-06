@@ -19,9 +19,9 @@ import com.bc.ceres.binio.util.ByteArrayCodec;
 import com.sun.media.imageioimpl.plugins.tiff.TIFFFaxDecompressor;
 import com.sun.media.jai.codec.ByteArraySeekableStream;
 import com.sun.media.jai.codec.SeekableStream;
+import org.esa.snap.core.dataio.ProductIOException;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.dataio.arcbin.TileIndex.IndexEntry;
-import org.esa.snap.framework.dataio.ProductIOException;
-import org.esa.snap.framework.datamodel.ProductData;
 
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.MemoryCacheImageInputStream;

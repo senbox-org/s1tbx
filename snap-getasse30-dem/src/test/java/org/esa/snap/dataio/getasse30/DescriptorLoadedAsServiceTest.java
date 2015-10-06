@@ -16,8 +16,8 @@
 package org.esa.snap.dataio.getasse30;
 
 import junit.framework.TestCase;
-import org.esa.snap.framework.dataop.dem.ElevationModelDescriptor;
-import org.esa.snap.framework.dataop.dem.ElevationModelRegistry;
+import org.esa.snap.core.dataop.dem.ElevationModelDescriptor;
+import org.esa.snap.core.dataop.dem.ElevationModelRegistry;
 
 public class DescriptorLoadedAsServiceTest extends TestCase {
 

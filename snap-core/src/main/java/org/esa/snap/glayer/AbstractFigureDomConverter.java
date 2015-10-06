@@ -23,11 +23,11 @@ import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DomConverter;
 import com.bc.ceres.binding.dom.DomElement;
-import org.esa.snap.framework.draw.AbstractFigure;
-import org.esa.snap.framework.draw.AreaFigure;
-import org.esa.snap.framework.draw.Figure;
-import org.esa.snap.framework.draw.LineFigure;
-import org.esa.snap.framework.draw.ShapeFigure;
+import org.esa.snap.core.draw.AbstractFigure;
+import org.esa.snap.core.draw.AreaFigure;
+import org.esa.snap.core.draw.Figure;
+import org.esa.snap.core.draw.LineFigure;
+import org.esa.snap.core.draw.ShapeFigure;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;

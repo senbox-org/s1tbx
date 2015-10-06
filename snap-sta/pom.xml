@@ -90,9 +90,9 @@
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
                     <publicPackages>
-                        <publicPackage>org.esa.snap.framework.gpf.descriptor.*</publicPackage>
-                        <publicPackage>org.esa.snap.framework.gpf.operators.*</publicPackage>
-                        <publicPackage>org.esa.snap.framework.gpf.operators.tooladapter.*</publicPackage>
+                        <publicPackage>org.esa.snap.core.gpf.descriptor.*</publicPackage>
+                        <publicPackage>org.esa.snap.core.gpf.operators.*</publicPackage>
+                        <publicPackage>org.esa.snap.core.gpf.operators.tooladapter.*</publicPackage>
                         <!--<publicPackage>org.esa.snap.utils.*</publicPackage>-->
                     </publicPackages>
                 </configuration>

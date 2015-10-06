@@ -15,7 +15,7 @@
  */
 package org.esa.snap.util.io;
 
-import org.esa.snap.framework.dataio.ProductIOPlugIn;
+import org.esa.snap.core.dataio.ProductIOPlugIn;
 import org.esa.snap.util.StringUtils;
 
 import javax.swing.JFileChooser;

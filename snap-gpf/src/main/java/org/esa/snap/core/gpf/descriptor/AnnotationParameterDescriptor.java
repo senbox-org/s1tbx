@@ -4,8 +4,8 @@ import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.dom.DomConverter;
 import com.bc.ceres.core.Assert;
+import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.gpf.annotations.Parameter;
-import org.esa.snap.framework.datamodel.RasterDataNode;
 
 /**
  * A {@link ParameterDescriptor} implementation for the

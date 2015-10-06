@@ -15,7 +15,7 @@
  */
 package org.esa.snap.dataio.envisat;
 
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.util.Guardian;
 
 import java.text.ParseException;
@@ -279,7 +279,7 @@ public final class Header {
     }
 
     /**
-     * Gets the {@link org.esa.snap.framework.datamodel.ProductData.UTC ProductData.UTC} value of the parameter with
+     * Gets the {@link ProductData.UTC ProductData.UTC} value of the parameter with
      * the given key. The method performs a case-insensitive search.
      *
      * @param key the parameter key
@@ -307,7 +307,7 @@ public final class Header {
 
     /**
      * Gets internal data type of the parameter with the given key. The data type is always one of the multiple
-     * <code>TYPE_</code>X constants defined in the <code>org.esa.snap.framework.datamodel.ProductData</code>
+     * <code>TYPE_</code>X constants defined in the <code>ProductData</code>
      * interface.
      *
      * @param key the parameter key
@@ -315,7 +315,7 @@ public final class Header {
      * @return the data type
      *
      * @throws HeaderEntryNotFoundException if an entry with the given key could not be found in the header
-     * @see org.esa.snap.framework.datamodel.ProductData
+     * @see ProductData
      */
     public final int getParamDataType(String key) throws HeaderEntryNotFoundException {
         return getParamImpl(key).getInfo().getDataType();

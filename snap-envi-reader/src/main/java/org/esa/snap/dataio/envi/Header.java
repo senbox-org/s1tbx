@@ -1,6 +1,6 @@
 package org.esa.snap.dataio.envi;
 
-import org.esa.snap.framework.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.MetadataElement;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;

@@ -16,8 +16,8 @@
 
 package org.esa.snap.dataio.dimap.spi;
 
+import org.esa.snap.core.datamodel.GeneralFilterBand;
 import org.esa.snap.dataio.dimap.DimapProductConstants;
-import org.esa.snap.framework.datamodel.GeneralFilterBand;
 import org.jdom.Element;
 
 /**

@@ -15,7 +15,7 @@
  */
 package org.esa.snap.util.math;
 
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductData;
 
 public class TestHelper {
 

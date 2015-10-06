@@ -18,13 +18,13 @@ package org.esa.snap.binning.reader;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.binning.support.SEAGrid;
+import org.esa.snap.core.dataio.AbstractProductReader;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.CrsGeoCoding;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.dataio.netcdf.util.MetadataUtils;
 import org.esa.snap.dataio.netcdf.util.NetcdfFileOpener;
-import org.esa.snap.framework.dataio.AbstractProductReader;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.CrsGeoCoding;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.util.StringUtils;
 import org.esa.snap.util.io.FileUtils;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -231,10 +231,10 @@ public class BinnedProductReader extends AbstractProductReader {
 
 
     /**
-     * The template method which is called by the {@link org.esa.snap.framework.dataio.AbstractProductReader#readBandRasterDataImpl(int, int, int, int, int, int, org.esa.snap.framework.datamodel.Band, int, int, int, int, org.esa.snap.framework.datamodel.ProductData, com.bc.ceres.core.ProgressMonitor)} }
+     * The template method which is called by the {@link AbstractProductReader#readBandRasterDataImpl(int, int, int, int, int, int, Band, int, int, int, int, ProductData, com.bc.ceres.core.ProgressMonitor)} }
      * method after an optional spatial subset has been applied to the input parameters.
      * <p>The destination band, buffer and region parameters are exactly the ones passed to the original {@link
-     * org.esa.snap.framework.dataio.AbstractProductReader#readBandRasterDataImpl} call. Since the
+     * AbstractProductReader#readBandRasterDataImpl} call. Since the
      * <code>destOffsetX</code> and <code>destOffsetY</code> parameters are already taken into acount in the
      * <code>sourceOffsetX</code> and <code>sourceOffsetY</code> parameters, an implementor of this method is free to
      * ignore them.

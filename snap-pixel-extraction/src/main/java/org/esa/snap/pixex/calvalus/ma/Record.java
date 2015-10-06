@@ -1,6 +1,6 @@
 package org.esa.snap.pixex.calvalus.ma;
 
-import org.esa.snap.framework.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.GeoPos;
 
 import java.util.Date;
 

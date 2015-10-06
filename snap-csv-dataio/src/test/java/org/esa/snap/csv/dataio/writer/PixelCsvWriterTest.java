@@ -1,7 +1,7 @@
 package org.esa.snap.csv.dataio.writer;
 
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Product;
 import org.junit.Ignore;
 import org.junit.Test;
 

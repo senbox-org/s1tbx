@@ -16,7 +16,7 @@
 
 package org.esa.snap.binning;
 
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.datamodel.Product;
 
 /**
  * Customize a product after its creation and before writing it.

@@ -16,13 +16,13 @@
 
 package org.esa.snap.dataio.netcdf.metadata.profiles.beam;
 
+import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.dataio.netcdf.AbstractNetCdfReaderPlugIn;
 import org.esa.snap.dataio.netcdf.metadata.ProfileInitPartReader;
 import org.esa.snap.dataio.netcdf.metadata.ProfilePartReader;
 import org.esa.snap.dataio.netcdf.metadata.profiles.cf.CfDescriptionPart;
 import org.esa.snap.dataio.netcdf.metadata.profiles.cf.CfTimePart;
 import org.esa.snap.dataio.netcdf.util.Constants;
-import org.esa.snap.framework.dataio.DecodeQualification;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 

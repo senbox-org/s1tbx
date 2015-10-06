@@ -16,8 +16,8 @@
 
 package org.esa.snap.dataio.netcdf.metadata;
 
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.dataio.netcdf.ProfileWriteContext;
-import org.esa.snap.framework.datamodel.Product;
 
 import java.io.IOException;
 

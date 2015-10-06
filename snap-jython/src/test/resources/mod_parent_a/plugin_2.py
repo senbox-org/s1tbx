@@ -6,8 +6,8 @@ class Activator:
     def start(self):
         global started
         started = True
-        from org.esa.snap.framework.dataio import ProductIOPlugInManager
-        from org.esa.snap.framework.gpf import GPF
+        from org.esa.snap.core.dataio import ProductIOPlugInManager
+        from org.esa.snap.core.gpf import GPF
 
         it = ProductIOPlugInManager.getInstance().getAllReaderPlugIns()
         while it.hasNext():

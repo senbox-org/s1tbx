@@ -16,13 +16,13 @@
 
 package org.esa.snap.core.gpf.graph;
 
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.TestOps;
 import org.esa.snap.core.gpf.internal.OperatorProductReader;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;

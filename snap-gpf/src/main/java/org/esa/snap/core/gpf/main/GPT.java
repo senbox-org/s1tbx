@@ -22,7 +22,7 @@ import java.util.Locale;
 
 /**
  * The entry point for the GPF command-line tool (Graph Processing Tool, GPT).
- * For usage, see org/esa/snap/framework/gpf/main/CommandLineUsage.txt
+ * For usage, see org/esa/snap/core/gpf/main/CommandLineUsage.txt
  * or use the option "-h".
  *
  * @since BEAM 4.10 (renamed from {@code Main}).

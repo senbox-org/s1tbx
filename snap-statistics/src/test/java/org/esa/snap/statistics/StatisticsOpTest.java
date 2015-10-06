@@ -18,11 +18,11 @@ package org.esa.snap.statistics;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.gpf.GPF;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.VirtualBand;
 import org.esa.snap.statistics.output.StatisticsOutputContext;
 import org.esa.snap.statistics.output.StatisticsOutputter;
 import org.esa.snap.util.io.FileUtils;

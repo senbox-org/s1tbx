@@ -15,12 +15,12 @@
  */
 package org.esa.snap.dataio.dimap.spi;
 
+import org.esa.snap.core.datamodel.GeneralFilterBand;
+import org.esa.snap.core.datamodel.Kernel;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.dataio.dimap.DimapProductConstants;
-import org.esa.snap.framework.datamodel.GeneralFilterBand;
-import org.esa.snap.framework.datamodel.Kernel;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.RasterDataNode;
 import org.esa.snap.util.SystemUtils;
 import org.jdom.Element;
 

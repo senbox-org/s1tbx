@@ -15,7 +15,7 @@
  */
 package org.esa.snap.db;
 
-import org.esa.snap.framework.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.GeoPos;
 
 /**
  * interface for AOI

@@ -15,8 +15,8 @@
  */
 package org.esa.snap.eo;
 
+import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.datamodel.PosVector;
-import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.gpf.TileGeoreferencing;
 
 /**

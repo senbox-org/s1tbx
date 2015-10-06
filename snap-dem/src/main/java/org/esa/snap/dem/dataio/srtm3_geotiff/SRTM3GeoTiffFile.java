@@ -15,10 +15,10 @@
  */
 package org.esa.snap.dem.dataio.srtm3_geotiff;
 
-import org.esa.snap.framework.dataio.ProductReader;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.dataop.dem.ElevationFile;
-import org.esa.snap.framework.dataop.dem.ElevationTile;
+import org.esa.snap.core.dataio.ProductReader;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.dataop.dem.ElevationFile;
+import org.esa.snap.core.dataop.dem.ElevationTile;
 import org.esa.snap.util.Settings;
 
 import java.io.File;

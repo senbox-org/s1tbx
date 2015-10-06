@@ -1,11 +1,11 @@
 package org.esa.snap.core.gpf.pointop;
 
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Kernel;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Kernel;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

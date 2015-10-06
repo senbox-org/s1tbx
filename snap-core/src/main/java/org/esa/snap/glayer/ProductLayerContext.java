@@ -18,8 +18,8 @@ package org.esa.snap.glayer;
 
 import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.LayerType;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductNode;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductNode;
 
 /**
  * A {@link LayerContext} for layers requiring access to a certain {@link Product} or a

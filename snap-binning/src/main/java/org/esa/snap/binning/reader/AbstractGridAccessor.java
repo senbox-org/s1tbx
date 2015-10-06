@@ -1,7 +1,7 @@
 package org.esa.snap.binning.reader;
 
 import org.esa.snap.binning.support.SEAGrid;
-import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.core.datamodel.Band;
 import ucar.ma2.Array;
 
 import java.io.IOException;

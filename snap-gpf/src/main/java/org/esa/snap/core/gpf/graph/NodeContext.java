@@ -17,6 +17,8 @@
 package org.esa.snap.core.gpf.graph;
 
 import com.bc.ceres.core.Assert;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
@@ -24,8 +26,6 @@ import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.OperatorSpiRegistry;
 import org.esa.snap.core.gpf.internal.OperatorConfiguration;
 import org.esa.snap.core.gpf.internal.OperatorContext;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
 
 import javax.media.jai.PlanarImage;
 import java.lang.reflect.Field;

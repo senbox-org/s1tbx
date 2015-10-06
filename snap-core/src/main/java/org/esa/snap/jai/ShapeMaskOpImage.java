@@ -16,6 +16,8 @@
 
 package org.esa.snap.jai;
 
+import org.esa.snap.core.datamodel.RasterDataNode;
+
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RasterFactory;
 import java.awt.Color;
@@ -32,7 +34,7 @@ import java.awt.image.DataBufferByte;
 import java.awt.image.WritableRaster;
 
 /**
- * Creates a mask image for a given {@link org.esa.snap.framework.datamodel.RasterDataNode}.
+ * Creates a mask image for a given {@link RasterDataNode}.
  * The resulting image will have a single-band, interleaved sample model
  * with sample values 255 or 0.
  */

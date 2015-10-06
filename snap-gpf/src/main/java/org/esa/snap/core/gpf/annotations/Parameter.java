@@ -19,8 +19,8 @@ package org.esa.snap.core.gpf.annotations;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.dom.DomConverter;
+import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.gpf.Operator;
-import org.esa.snap.framework.datamodel.RasterDataNode;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

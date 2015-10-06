@@ -17,13 +17,13 @@ package org.esa.snap.core.gpf.internal;
 
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.XppDomElement;
+import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.common.ReadOp;
 import org.esa.snap.core.gpf.graph.Graph;
 import org.esa.snap.core.gpf.graph.GraphException;
 import org.esa.snap.core.gpf.graph.Node;
 import org.esa.snap.core.gpf.graph.NodeSource;
-import org.esa.snap.framework.dataio.ProductIO;
 
 import java.io.File;
 import java.util.ArrayList;

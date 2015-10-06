@@ -16,8 +16,8 @@
 
 package org.esa.snap.dataio.netcdf.util;
 
+import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.dataio.netcdf.ProfileReadContext;
-import org.esa.snap.framework.datamodel.RasterDataNode;
 import org.esa.snap.jai.ImageManager;
 import org.esa.snap.jai.ResolutionLevel;
 import ucar.ma2.DataType;

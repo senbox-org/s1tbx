@@ -188,13 +188,13 @@
         "masks": [
             {
                 "name": "ground_control_points",
-                "type": "org.esa.snap.framework.datamodel.Mask$VectorDataType",
+                "type": "org.esa.snap.core.datamodel.Mask$VectorDataType",
                 "color": "255,0,0",
                 "description": "Mask derived from geometries in 'ground_control_points'"
             },
             {
                 "name": "pins",
-                "type": "org.esa.snap.framework.datamodel.Mask$VectorDataType",
+                "type": "org.esa.snap.core.datamodel.Mask$VectorDataType",
                 "color": "255,0,0",
                 "description": "Mask derived from geometries in 'pins'"
             }

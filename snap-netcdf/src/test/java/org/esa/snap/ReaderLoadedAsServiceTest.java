@@ -15,12 +15,12 @@
  */
 package org.esa.snap;
 
+import org.esa.snap.core.dataio.ProductIOPlugInManager;
+import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.dataio.netcdf.GenericNetCdfReaderPlugIn;
 import org.esa.snap.dataio.netcdf.metadata.profiles.beam.BeamNetCdfReaderPlugIn;
 import org.esa.snap.dataio.netcdf.metadata.profiles.cf.CfNetCdfReaderPlugIn;
 import org.esa.snap.dataio.netcdf.metadata.profiles.hdfeos.HdfEosNetCdfReaderPlugIn;
-import org.esa.snap.framework.dataio.ProductIOPlugInManager;
-import org.esa.snap.framework.dataio.ProductReaderPlugIn;
 import org.junit.Test;
 
 import java.util.Iterator;

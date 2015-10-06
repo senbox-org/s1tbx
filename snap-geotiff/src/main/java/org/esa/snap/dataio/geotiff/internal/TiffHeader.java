@@ -15,7 +15,7 @@
  */
 package org.esa.snap.dataio.geotiff.internal;
 
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.util.Guardian;
 
 import javax.imageio.stream.ImageOutputStream;

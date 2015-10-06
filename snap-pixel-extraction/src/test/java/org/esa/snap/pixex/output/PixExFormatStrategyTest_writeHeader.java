@@ -16,9 +16,9 @@
 
 package org.esa.snap.pixex.output;
 
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.measurement.writer.FormatStrategy;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;

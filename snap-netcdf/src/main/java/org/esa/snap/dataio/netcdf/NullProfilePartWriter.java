@@ -16,9 +16,9 @@
 
 package org.esa.snap.dataio.netcdf;
 
+import org.esa.snap.core.dataio.ProductIOException;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.dataio.netcdf.metadata.ProfilePartWriter;
-import org.esa.snap.framework.dataio.ProductIOException;
-import org.esa.snap.framework.datamodel.Product;
 
 public class NullProfilePartWriter implements ProfilePartWriter {
     @Override

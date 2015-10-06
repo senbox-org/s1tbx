@@ -1,6 +1,6 @@
 package org.esa.snap.binning.reader;
 
-import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.core.datamodel.Band;
 
 import java.util.HashMap;
 import java.util.Iterator;

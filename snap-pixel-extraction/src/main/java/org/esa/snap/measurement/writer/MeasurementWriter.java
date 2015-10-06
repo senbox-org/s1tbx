@@ -15,7 +15,7 @@
  */
 package org.esa.snap.measurement.writer;
 
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.measurement.Measurement;
 import org.esa.snap.pixex.output.TargetWriterFactoryAndMap;
 

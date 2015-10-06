@@ -25,8 +25,8 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.gpf.annotations.Parameter;
-import org.esa.snap.framework.datamodel.RasterDataNode;
 import org.esa.snap.util.StringUtils;
 
 import java.lang.reflect.Field;

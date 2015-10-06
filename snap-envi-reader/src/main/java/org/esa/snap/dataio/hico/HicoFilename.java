@@ -1,6 +1,6 @@
 package org.esa.snap.dataio.hico;
 
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.util.Debug;
 
 import java.io.File;

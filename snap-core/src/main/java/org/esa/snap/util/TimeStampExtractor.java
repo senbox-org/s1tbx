@@ -3,7 +3,7 @@ package org.esa.snap.util;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.Validator;
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductData;
 
 import java.text.MessageFormat;
 import java.text.ParseException;

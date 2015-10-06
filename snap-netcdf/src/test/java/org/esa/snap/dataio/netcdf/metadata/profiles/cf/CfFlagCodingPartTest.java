@@ -17,13 +17,13 @@
 package org.esa.snap.dataio.netcdf.metadata.profiles.cf;
 
 import junit.framework.TestCase;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.FlagCoding;
+import org.esa.snap.core.datamodel.MetadataAttribute;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.dataio.netcdf.nc.N3FileWriteable;
 import org.esa.snap.dataio.netcdf.nc.N3Variable;
 import org.esa.snap.dataio.netcdf.util.DataTypeUtils;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.FlagCoding;
-import org.esa.snap.framework.datamodel.MetadataAttribute;
-import org.esa.snap.framework.datamodel.ProductData;
 import ucar.ma2.DataType;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFileWriteable;

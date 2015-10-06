@@ -24,8 +24,8 @@ import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 import com.thoughtworks.xstream.io.xml.XppDomWriter;
 import com.thoughtworks.xstream.io.xml.XppReader;
 import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
-import org.esa.snap.framework.draw.Figure;
-import org.esa.snap.framework.draw.LineFigure;
+import org.esa.snap.core.draw.Figure;
+import org.esa.snap.core.draw.LineFigure;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -57,7 +57,7 @@ public class AbstractFigureDomConverterTest {
     @Test
     public void testAbstractFigurePersistenncy() throws ConversionException, ValidationException {
         String expectedXml =
-                "<figure class=\"org.esa.snap.framework.draw.LineFigure\">\n" +
+                "<figure class=\"LineFigure\">\n" +
                         "    <shape class=\"java.awt.Rectangle\">\n" +
                         "        <x>12</x>\n" +
                         "        <y>13</y>\n" +

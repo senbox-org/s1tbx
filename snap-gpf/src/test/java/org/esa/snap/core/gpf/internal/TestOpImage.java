@@ -16,7 +16,7 @@
 
 package org.esa.snap.core.gpf.internal;
 
-import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.jai.BandOpImage;
 
 import javax.media.jai.PlanarImage;

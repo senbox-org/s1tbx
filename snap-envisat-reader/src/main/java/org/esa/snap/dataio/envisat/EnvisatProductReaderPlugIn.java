@@ -15,12 +15,13 @@
  */
 package org.esa.snap.dataio.envisat;
 
-import org.esa.snap.framework.dataio.DecodeQualification;
-import org.esa.snap.framework.dataio.IllegalFileFormatException;
-import org.esa.snap.framework.dataio.ProductReader;
-import org.esa.snap.framework.dataio.ProductReaderPlugIn;
-import org.esa.snap.framework.datamodel.RGBImageProfile;
-import org.esa.snap.framework.datamodel.RGBImageProfileManager;
+import org.esa.snap.core.dataio.AbstractProductReader;
+import org.esa.snap.core.dataio.DecodeQualification;
+import org.esa.snap.core.dataio.IllegalFileFormatException;
+import org.esa.snap.core.dataio.ProductReader;
+import org.esa.snap.core.dataio.ProductReaderPlugIn;
+import org.esa.snap.core.datamodel.RGBImageProfile;
+import org.esa.snap.core.datamodel.RGBImageProfileManager;
 import org.esa.snap.util.io.SnapFileFilter;
 
 import javax.imageio.stream.ImageInputStream;
@@ -153,7 +154,7 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
      * <code>InvalidArgumentException</code> in this case).
      *
      * @return an array containing valid input types, never <code>null</code>
-     * @see org.esa.snap.framework.dataio.AbstractProductReader#readProductNodes
+     * @see AbstractProductReader#readProductNodes
      */
     public Class[] getInputTypes() {
         return new Class[]{String.class, File.class, ImageInputStream.class, ProductFile.class};

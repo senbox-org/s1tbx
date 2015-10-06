@@ -16,10 +16,10 @@
 
 package org.esa.snap.core.gpf.monitor;
 
+import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.gpf.internal.OperatorContext;
 import org.esa.snap.core.gpf.internal.OperatorImage;
 import org.esa.snap.core.gpf.internal.OperatorImageTileStack;
-import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.util.StringUtils;
 
 import java.util.ArrayList;

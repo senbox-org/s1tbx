@@ -1,6 +1,6 @@
 package org.esa.snap.core.gpf.descriptor;
 
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.datamodel.Product;
 
 /**
  * Target product element metadata.
@@ -11,7 +11,7 @@ import org.esa.snap.framework.datamodel.Product;
 public interface TargetProductDescriptor extends DataElementDescriptor {
     /**
      * @return The target product type.
-     * Defaults to {@link org.esa.snap.framework.datamodel.Product}.
+     * Defaults to {@link Product}.
      */
     Class<? extends Product> getDataType();
 }

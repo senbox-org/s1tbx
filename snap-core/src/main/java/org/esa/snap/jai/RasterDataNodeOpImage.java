@@ -16,9 +16,9 @@
 
 package org.esa.snap.jai;
 
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.util.ImageUtils;
 
 import javax.media.jai.PlanarImage;
@@ -32,7 +32,7 @@ import java.io.IOException;
 
 /**
  * A base class for {@code OpImage}s acting as source image for
- * a {@link org.esa.snap.framework.datamodel.RasterDataNode}.
+ * a {@link RasterDataNode}.
  *
  * @author Norman Fomferra
  * @see RasterDataNode#getSourceImage()
@@ -80,7 +80,7 @@ public abstract class RasterDataNodeOpImage extends SingleBandedOpImage {
      * @param band   A raster data node whose geophysical image shares the same multi-level model.
      * @param region The region in pixel coordinates of the given resolution level (see {@link #getLevel()}).
      * @return The retrieved pixel data in geophysical units.
-     * @see #getRawProductData(org.esa.snap.framework.datamodel.RasterDataNode, java.awt.Rectangle)
+     * @see #getRawProductData(RasterDataNode, java.awt.Rectangle)
      */
     protected ProductData getGeophysicalProductData(RasterDataNode band, Rectangle region) {
         return getProductData(band.getGeophysicalImage().getImage(getLevel()), band.getGeophysicalDataType(), region);
@@ -93,7 +93,7 @@ public abstract class RasterDataNodeOpImage extends SingleBandedOpImage {
      * @param band   A raster data node whose source image shares the same multi-level model.
      * @param region The region in pixel coordinates of the given resolution level (see {@link #getLevel()}).
      * @return The retrieved, raw and unscaled source pixel data.
-     * @see #getGeophysicalProductData(org.esa.snap.framework.datamodel.RasterDataNode, java.awt.Rectangle)
+     * @see #getGeophysicalProductData(RasterDataNode, java.awt.Rectangle)
      */
     protected ProductData getRawProductData(RasterDataNode band, Rectangle region) {
         return getProductData(band.getSourceImage().getImage(getLevel()), band.getDataType(), region);

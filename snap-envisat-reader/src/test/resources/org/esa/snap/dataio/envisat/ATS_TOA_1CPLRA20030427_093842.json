@@ -1127,301 +1127,301 @@
         "masks": [
             {
                 "name": "qln_blanking",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,0,0",
                 "description": "Blanking Pulse"
             },
             {
                 "name": "qln_cosmetic",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,255,0",
                 "description": "Cosmetic Fill Pixel"
             },
             {
                 "name": "qln_scan_absent",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,200,0",
                 "description": "Entire scan absent from telemetry"
             },
             {
                 "name": "qln_absent",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,255,0",
                 "description": "Pixel absent from telemetry"
             },
             {
                 "name": "qln_not_decompr",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,0,255",
                 "description": "Pixel not decompressed owing to error in packet validation"
             },
             {
                 "name": "qln_no_signal",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,0,255",
                 "description": "No signal in some channel (zero count)"
             },
             {
                 "name": "qln_saturation",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,255,0",
                 "description": "Saturation in some channel (maximum count)"
             },
             {
                 "name": "qln_out_of_range",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,0,0",
                 "description": "Derived radiance of some channel outside range of calibration"
             },
             {
                 "name": "qln_no_calib_param",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,255,255",
                 "description": "Calibration Parameters unavailable for pixel"
             },
             {
                 "name": "qln_unfilled",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,255,0",
                 "description": "Pixel unfilled (cosmetic fill algorithm unable to find nearest neighbour pixel)"
             },
             {
                 "name": "qlf_blanking",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,0,0",
                 "description": "Blanking Pulse"
             },
             {
                 "name": "qlf_cosmetic",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,255,0",
                 "description": "Cosmetic Fill Pixel"
             },
             {
                 "name": "qlf_scan_absent",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,200,0",
                 "description": "Entire scan absent from telemetry"
             },
             {
                 "name": "qlf_absent",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,255,0",
                 "description": "Pixel absent from telemetry"
             },
             {
                 "name": "qlf_not_decompr",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,0,255",
                 "description": "Pixel not decompressed owing to error in packet validation"
             },
             {
                 "name": "qlf_no_signal",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,0,255",
                 "description": "No signal in some channel (zero count)"
             },
             {
                 "name": "qlf_saturation",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,255,0",
                 "description": "Saturation in some channel (maximum count)"
             },
             {
                 "name": "qlf_out_of_range",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,0,0",
                 "description": "Derived radiance of some channel outside range of calibration"
             },
             {
                 "name": "qlf_no_calib_param",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,255,255",
                 "description": "Calibration Parameters unavailable for pixel"
             },
             {
                 "name": "qlf_unfilled",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,255,0",
                 "description": "Pixel unfilled (cosmetic fill algorithm unable to find nearest neighbour pixel)"
             },
             {
                 "name": "cln_land",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,255,0",
                 "description": "Pixel is over land"
             },
             {
                 "name": "cln_cloudy",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,255,255",
                 "description": "Pixel is cloudy (result of all cloud tests)"
             },
             {
                 "name": "cln_sun_glint",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,255,0",
                 "description": "Sunglint detected in pixel"
             },
             {
                 "name": "cln_cloudy_refl_hist",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,200,0",
                 "description": "1.6 micron reflectance histogram test shows pixel cloudy (day-time only)"
             },
             {
                 "name": "cln_cloudy_spat_coher_16",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,0,0",
                 "description": "1.6 micron spatial coherence test shows pixel cloudy (day-time only)"
             },
             {
                 "name": "cln_cloudy_spat_coher_11",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,0,255",
                 "description": "11 micron spatial coherence test shows pixel cloudy"
             },
             {
                 "name": "cln_cloudy_gross_12",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,0,255",
                 "description": "12 micron gross cloud test shows pixel cloudy"
             },
             {
                 "name": "cln_cloudy_cirrus_11_12",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,175,175",
                 "description": "11/12 micron thin cirrus test shows pixel cloudy"
             },
             {
                 "name": "cln_cloudy_med_hi_level_37_12",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,255,0",
                 "description": "3.7/12 micron medium/high level test shows pixel cloudy (night-time only)"
             },
             {
                 "name": "cln_cloudy_fog_low_stratus_11_37",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,200,0",
                 "description": "11/3.7 micron fog/low stratus test shows pixel cloudy (night-time only)"
             },
             {
                 "name": "cln_cloudy_vw_diff_11_12",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,0,0",
                 "description": "11/12 micron view-difference test shows pixel cloudy"
             },
             {
                 "name": "cln_cloudy_vw_diff_37_11",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,255,0",
                 "description": "3.7/11 micron view-difference test shows pixel cloudy (night-time only)"
             },
             {
                 "name": "cln_cloudy_therm_hist_11_12",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,0,255",
                 "description": "11/12 micron thermal histogram test shows pixel cloudy"
             },
             {
                 "name": "clf_land",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,255,0",
                 "description": "Pixel is over land"
             },
             {
                 "name": "clf_cloudy",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,255,255",
                 "description": "Pixel is cloudy (result of all cloud tests)"
             },
             {
                 "name": "clf_sun_glint",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,255,0",
                 "description": "Sunglint detected in pixel"
             },
             {
                 "name": "clf_cloudy_refl_hist",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,200,0",
                 "description": "1.6 micron reflectance histogram test shows pixel cloudy (day-time only)"
             },
             {
                 "name": "clf_cloudy_spat_coher_16",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,0,0",
                 "description": "1.6 micron spatial coherence test shows pixel cloudy (day-time only)"
             },
             {
                 "name": "clf_cloudy_spat_coher_11",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,0,255",
                 "description": "11 micron spatial coherence test shows pixel cloudy"
             },
             {
                 "name": "clf_cloudy_gross_12",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,0,255",
                 "description": "12 micron gross cloud test shows pixel cloudy"
             },
             {
                 "name": "clf_cloudy_cirrus_11_12",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,175,175",
                 "description": "11/12 micron thin cirrus test shows pixel cloudy"
             },
             {
                 "name": "clf_cloudy_med_hi_level_37_12",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,255,0",
                 "description": "3.7/12 micron medium/high level test shows pixel cloudy (night-time only)"
             },
             {
                 "name": "clf_cloudy_fog_low_stratus_11_37",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,200,0",
                 "description": "11/3.7 micron fog/low stratus test shows pixel cloudy (night-time only)"
             },
             {
                 "name": "clf_cloudy_vw_diff_11_12",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,0,0",
                 "description": "11/12 micron view-difference test shows pixel cloudy"
             },
             {
                 "name": "clf_cloudy_vw_diff_37_11",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,255,0",
                 "description": "3.7/11 micron view-difference test shows pixel cloudy (night-time only)"
             },
             {
                 "name": "clf_cloudy_therm_hist_11_12",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,0,255",
                 "description": "11/12 micron thermal histogram test shows pixel cloudy"
             },
             {
                 "name": "fire_nadir_1",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,0,0",
                 "description": "ATSR active fire (ALGO1)"
             },
             {
                 "name": "fire_nadir_2",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "178,0,0",
                 "description": "ATSR active fire (ALGO2)"
             },
             {
                 "name": "fire_fward_1",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,0,0",
                 "description": "ATSR active fire (ALGO1)"
             },
             {
                 "name": "fire_fward_2",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "178,0,0",
                 "description": "ATSR active fire (ALGO2)"
             }

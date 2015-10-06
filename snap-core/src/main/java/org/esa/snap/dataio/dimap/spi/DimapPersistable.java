@@ -15,7 +15,7 @@
  */
 package org.esa.snap.dataio.dimap.spi;
 
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.datamodel.Product;
 import org.jdom.Element;
 
 /**

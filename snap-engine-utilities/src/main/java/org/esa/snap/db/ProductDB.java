@@ -17,9 +17,9 @@ package org.esa.snap.db;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.io.FileDeleteStrategy;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
 
 import java.io.File;
 import java.io.IOException;

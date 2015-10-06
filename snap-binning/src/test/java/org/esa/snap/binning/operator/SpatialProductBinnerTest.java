@@ -30,11 +30,11 @@ import org.esa.snap.binning.aggregators.AggregatorAverage;
 import org.esa.snap.binning.support.BinningContextImpl;
 import org.esa.snap.binning.support.SEAGrid;
 import org.esa.snap.binning.support.VariableContextImpl;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.TiePointGeoCoding;
-import org.esa.snap.framework.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.TiePointGeoCoding;
+import org.esa.snap.core.datamodel.TiePointGrid;
 import org.junit.Assert;
 import org.junit.Test;
 

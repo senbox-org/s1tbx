@@ -15,21 +15,21 @@
  */
 package org.esa.snap.dataio.dimap;
 
-import org.esa.snap.framework.datamodel.BasicPixelGeoCoding;
-import org.esa.snap.framework.datamodel.CrsGeoCoding;
-import org.esa.snap.framework.datamodel.FXYGeoCoding;
-import org.esa.snap.framework.datamodel.GeoCoding;
-import org.esa.snap.framework.datamodel.MapGeoCoding;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.dataop.maptransf.Datum;
-import org.esa.snap.framework.dataop.maptransf.Ellipsoid;
-import org.esa.snap.framework.dataop.maptransf.LambertConformalConicDescriptor;
-import org.esa.snap.framework.dataop.maptransf.MapInfo;
-import org.esa.snap.framework.dataop.maptransf.MapProjection;
-import org.esa.snap.framework.dataop.maptransf.MapTransform;
-import org.esa.snap.framework.dataop.maptransf.MapTransformDescriptor;
-import org.esa.snap.framework.dataop.resamp.Resampling;
+import org.esa.snap.core.datamodel.BasicPixelGeoCoding;
+import org.esa.snap.core.datamodel.CrsGeoCoding;
+import org.esa.snap.core.datamodel.FXYGeoCoding;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.MapGeoCoding;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.dataop.maptransf.Datum;
+import org.esa.snap.core.dataop.maptransf.Ellipsoid;
+import org.esa.snap.core.dataop.maptransf.LambertConformalConicDescriptor;
+import org.esa.snap.core.dataop.maptransf.MapInfo;
+import org.esa.snap.core.dataop.maptransf.MapProjection;
+import org.esa.snap.core.dataop.maptransf.MapTransform;
+import org.esa.snap.core.dataop.maptransf.MapTransformDescriptor;
+import org.esa.snap.core.dataop.resamp.Resampling;
 import org.esa.snap.util.ArrayUtils;
 import org.esa.snap.util.StringUtils;
 import org.esa.snap.util.SystemUtils;
