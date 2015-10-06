@@ -69,7 +69,7 @@ import java.util.Set;
 
 @TopComponent.Description(
         preferredID = "TimeSeriesToolView",
-        iconBase = "array/rstb/analysis/icons/timeseries24.png",
+        iconBase = "org/esa/s1tbx/analysis/icons/timeseries24.png",
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(
@@ -126,8 +126,8 @@ public class TimeSeriesToolView extends ToolTopComponent {
 
     public TimeSeriesToolView() {
         setLayout(new BorderLayout());
-        setDisplayName("");//Bundle.CTL_TimeSeriesToolView_Name());
-        setToolTipText("");//Bundle.CTL_TimeSeriesToolViewDescription());
+        setDisplayName(Bundle.CTL_TimeSeriesToolView_Name());
+        setToolTipText(Bundle.CTL_TimeSeriesToolViewDescription());
         add(createPanel(), BorderLayout.CENTER);
 
         final SnapApp snapApp = SnapApp.getDefault();
@@ -313,8 +313,12 @@ public class TimeSeriesToolView extends ToolTopComponent {
     private static String getCoregBandName(final Band band) {
         String bandName = band.getName();
         int suffixLoc = bandName.indexOf("_mst");
-        if (suffixLoc < 0)
+        if (suffixLoc < 0) {
             suffixLoc = bandName.indexOf("_slv");
+        }
+        if (suffixLoc < 0) {
+            suffixLoc = bandName.indexOf("_");
+        }
         return bandName.substring(0, suffixLoc);
     }
 
@@ -494,8 +498,8 @@ public class TimeSeriesToolView extends ToolTopComponent {
     }
 
     private void exportImage() {
-        //GraphExportImageAction action = new GraphExportImageAction(getDiagram());
-        //action.exportImage();
+        GraphExportImageAction action = new GraphExportImageAction(getDiagram());
+        action.exportImage();
     }
 
     private VectorGraph.TYPE getVectorStatisticType() {
