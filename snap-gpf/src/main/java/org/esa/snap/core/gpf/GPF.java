@@ -17,12 +17,12 @@
 package org.esa.snap.core.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.gpf.common.WriteOp;
 import org.esa.snap.core.gpf.descriptor.OperatorDescriptor;
 import org.esa.snap.core.gpf.descriptor.SourceProductDescriptor;
 import org.esa.snap.core.gpf.descriptor.SourceProductsDescriptor;
 import org.esa.snap.core.gpf.internal.OperatorSpiRegistryImpl;
 import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.gpf.operators.standard.WriteOp;
 import org.esa.snap.util.Guardian;
 
 import java.awt.Dimension;

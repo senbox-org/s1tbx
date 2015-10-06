@@ -106,8 +106,7 @@
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
                     <publicPackages>
-                        <publicPackage>org.esa.snap.framework.gpf.*</publicPackage>
-                        <publicPackage>org.esa.snap.gpf.operators.*</publicPackage>
+                        <publicPackage>org.esa.snap.core.gpf.*</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>
