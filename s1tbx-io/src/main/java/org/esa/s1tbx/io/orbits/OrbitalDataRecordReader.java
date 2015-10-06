@@ -15,10 +15,10 @@
  */
 package org.esa.s1tbx.io.orbits;
 
+import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.eo.GeoUtils;
 import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.util.Maths;
 import org.esa.snap.util.ResourceUtils;
 

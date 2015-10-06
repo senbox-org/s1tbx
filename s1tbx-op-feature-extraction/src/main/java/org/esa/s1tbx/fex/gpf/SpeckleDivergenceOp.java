@@ -17,6 +17,14 @@ package org.esa.s1tbx.fex.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.fex.gpf.masks.TerrainMaskOp;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.gpf.annotations.OperatorMetadata;
+import org.esa.snap.core.gpf.annotations.Parameter;
+import org.esa.snap.core.gpf.annotations.SourceProduct;
+import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.framework.datamodel.Band;
@@ -24,14 +32,6 @@ import org.esa.snap.framework.datamodel.Mask;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.framework.gpf.Tile;
-import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
-import org.esa.snap.framework.gpf.annotations.Parameter;
-import org.esa.snap.framework.gpf.annotations.SourceProduct;
-import org.esa.snap.framework.gpf.annotations.TargetProduct;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.TileIndex;
 import org.esa.snap.util.ProductUtils;
@@ -252,7 +252,7 @@ public class SpeckleDivergenceOp extends Operator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during computation of the target raster.
+     * @throws OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {

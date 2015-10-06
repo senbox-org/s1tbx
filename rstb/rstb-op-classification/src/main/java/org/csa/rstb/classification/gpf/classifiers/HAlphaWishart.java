@@ -15,16 +15,17 @@
  */
 package org.csa.rstb.classification.gpf.classifiers;
 
+import org.csa.rstb.classification.gpf.PolarimetricClassificationOp;
 import org.csa.rstb.polarimetric.gpf.HaAlphaDescriptor;
 import org.csa.rstb.polarimetric.gpf.PolOpUtils;
-import org.csa.rstb.classification.gpf.PolarimetricClassificationOp;
 import org.csa.rstb.polarimetric.gpf.decompositions.hAAlpha;
 import org.esa.s1tbx.io.PolBandUtils;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.gpf.Tile;
-import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.framework.dataop.downloadable.StatusProgressMonitor;
+import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ThreadManager;
 import org.esa.snap.gpf.TileIndex;
 import org.esa.snap.util.SystemUtils;
@@ -80,7 +81,7 @@ public class HAlphaWishart extends PolClassifierBase implements PolClassifier {
      *
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
+     * @throws OperatorException If an error occurs during computation of the filtered value.
      */
     public void computeTile(final Band targetBand, final Tile targetTile) {
 

@@ -15,9 +15,9 @@
  */
 package org.esa.s1tbx.sar.gpf.geometric;
 
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 
 /**
  * This operator performs the same terrain correction as RangeDopplerGeocodingOp does except that it uses average
@@ -40,11 +40,11 @@ public final class EllipsoidCorrectionRDOp extends RangeDopplerGeocodingOp {
     /**
      * The SPI is used to register this operator in the graph processing framework
      * via the SPI configuration file
-     * {@code META-INF/services/org.esa.snap.framework.gpf.OperatorSpi}.
+     * {@code META-INF/services/OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
      *
-     * @see org.esa.snap.framework.gpf.OperatorSpi#createOperator()
-     * @see org.esa.snap.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
+     * @see OperatorSpi#createOperator()
+     * @see OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */
     public static class Spi extends OperatorSpi {
         public Spi() {

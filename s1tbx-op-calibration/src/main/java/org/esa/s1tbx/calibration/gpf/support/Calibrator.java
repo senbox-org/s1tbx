@@ -15,12 +15,12 @@
  */
 package org.esa.s1tbx.calibration.gpf.support;
 
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.Tile;
 
 import java.io.File;
 

@@ -20,14 +20,22 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import org.apache.commons.math3.util.FastMath;
-import org.esa.s1tbx.insar.gpf.geometric.SARGeocoding;
 import org.esa.s1tbx.insar.gpf.Sentinel1Utils;
-import org.esa.snap.dem.dataio.DEMFactory;
-import org.esa.snap.dem.dataio.FileElevationModel;
+import org.esa.s1tbx.insar.gpf.geometric.SARGeocoding;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.gpf.annotations.OperatorMetadata;
+import org.esa.snap.core.gpf.annotations.Parameter;
+import org.esa.snap.core.gpf.annotations.SourceProducts;
+import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.PosVector;
 import org.esa.snap.datamodel.ProductInformation;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.dem.dataio.DEMFactory;
+import org.esa.snap.dem.dataio.FileElevationModel;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.eo.GeoUtils;
 import org.esa.snap.framework.datamodel.Band;
@@ -42,14 +50,6 @@ import org.esa.snap.framework.datamodel.VirtualBand;
 import org.esa.snap.framework.dataop.dem.ElevationModel;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 import org.esa.snap.framework.dataop.resamp.ResamplingFactory;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.framework.gpf.Tile;
-import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
-import org.esa.snap.framework.gpf.annotations.Parameter;
-import org.esa.snap.framework.gpf.annotations.SourceProducts;
-import org.esa.snap.framework.gpf.annotations.TargetProduct;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.gpf.StackUtils;
@@ -60,7 +60,7 @@ import org.jlinda.core.delaunay.FastDelaunayTriangulator;
 import org.jlinda.core.delaunay.Triangle;
 import org.jlinda.core.delaunay.TriangulationException;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -153,13 +153,13 @@ public final class BackGeocodingOp extends Operator {
     /**
      * Initializes this operator and sets the one and only target product.
      * <p>The target product can be either defined by a field of type {@link org.esa.snap.framework.datamodel.Product} annotated with the
-     * {@link org.esa.snap.framework.gpf.annotations.TargetProduct TargetProduct} annotation or
+     * {@link TargetProduct TargetProduct} annotation or
      * by calling {@link #setTargetProduct} method.</p>
      * <p>The framework calls this method after it has created this operator.
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during operator initialisation.
+     * @throws OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -417,7 +417,7 @@ public final class BackGeocodingOp extends Operator {
      * @param targetTileMap   The target tiles associated with all target bands to be computed.
      * @param targetRectangle The rectangle of target tile.
      * @param pm              A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.snap.framework.gpf.OperatorException
+     * @throws OperatorException
      *          If an error occurs during computation of the target raster.
      */
     @Override
@@ -1598,11 +1598,11 @@ public final class BackGeocodingOp extends Operator {
     /**
      * The SPI is used to register this operator in the graph processing framework
      * via the SPI configuration file
-     * {@code META-INF/services/org.esa.snap.framework.gpf.OperatorSpi}.
+     * {@code META-INF/services/OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
      *
-     * @see org.esa.snap.framework.gpf.OperatorSpi#createOperator()
-     * @see org.esa.snap.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
+     * @see OperatorSpi#createOperator()
+     * @see OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */
     public static class Spi extends OperatorSpi {
         public Spi() {

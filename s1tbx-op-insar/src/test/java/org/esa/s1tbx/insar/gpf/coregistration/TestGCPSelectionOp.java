@@ -17,6 +17,7 @@ package org.esa.s1tbx.insar.gpf.coregistration;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
+import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.framework.datamodel.Band;
@@ -29,7 +30,6 @@ import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.ProductNodeGroup;
 import org.esa.snap.framework.datamodel.TiePointGeoCoding;
 import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;

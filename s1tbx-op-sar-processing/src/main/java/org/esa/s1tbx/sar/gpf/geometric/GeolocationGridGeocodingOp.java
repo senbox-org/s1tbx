@@ -17,6 +17,14 @@ package org.esa.s1tbx.sar.gpf.geometric;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.insar.gpf.geometric.SARGeocoding;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.gpf.annotations.OperatorMetadata;
+import org.esa.snap.core.gpf.annotations.Parameter;
+import org.esa.snap.core.gpf.annotations.SourceProduct;
+import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.framework.datamodel.Band;
@@ -29,14 +37,6 @@ import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.TiePointGrid;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 import org.esa.snap.framework.dataop.resamp.ResamplingFactory;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.framework.gpf.Tile;
-import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
-import org.esa.snap.framework.gpf.annotations.Parameter;
-import org.esa.snap.framework.gpf.annotations.SourceProduct;
-import org.esa.snap.framework.gpf.annotations.TargetProduct;
 import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ReaderUtils;
@@ -128,13 +128,13 @@ public final class GeolocationGridGeocodingOp extends Operator {
     /**
      * Initializes this operator and sets the one and only target product.
      * <p>The target product can be either defined by a field of type {@link org.esa.snap.framework.datamodel.Product} annotated with the
-     * {@link org.esa.snap.framework.gpf.annotations.TargetProduct TargetProduct} annotation or
+     * {@link TargetProduct TargetProduct} annotation or
      * by calling {@link #setTargetProduct} method.</p>
      * <p>The framework calls this method after it has created this operator.
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during operator initialisation.
+     * @throws OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -321,7 +321,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during computation of the target raster.
+     * @throws OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
@@ -606,11 +606,11 @@ public final class GeolocationGridGeocodingOp extends Operator {
     /**
      * The SPI is used to register this operator in the graph processing framework
      * via the SPI configuration file
-     * {@code META-INF/services/org.esa.snap.framework.gpf.OperatorSpi}.
+     * {@code META-INF/services/OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
      *
-     * @see org.esa.snap.framework.gpf.OperatorSpi#createOperator()
-     * @see org.esa.snap.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
+     * @see OperatorSpi#createOperator()
+     * @see OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */
     public static class Spi extends OperatorSpi {
         public Spi() {

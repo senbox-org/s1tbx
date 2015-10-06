@@ -1,8 +1,8 @@
 package org.esa.s1tbx.fex.gpf;
 
+import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.framework.datamodel.PixelPos;
 import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.gpf.Tile;
 import org.esa.snap.gpf.TileIndex;
 
 import java.util.ArrayList;

@@ -15,17 +15,17 @@
  */
 package org.esa.s1tbx.fex.gpf;
 
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.annotations.OperatorMetadata;
+import org.esa.snap.core.gpf.annotations.Parameter;
+import org.esa.snap.core.gpf.annotations.SourceProduct;
+import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Mask;
 import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
-import org.esa.snap.framework.gpf.annotations.Parameter;
-import org.esa.snap.framework.gpf.annotations.SourceProduct;
-import org.esa.snap.framework.gpf.annotations.TargetProduct;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.util.ProductUtils;
 
@@ -97,7 +97,7 @@ public class FloodDetectionOp extends Operator {
     /**
      * Add the user selected bands to target product.
      *
-     * @throws org.esa.snap.framework.gpf.OperatorException The exceptions.
+     * @throws OperatorException The exceptions.
      */
     private void addSelectedBands() throws OperatorException {
 

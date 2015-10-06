@@ -18,6 +18,7 @@ package org.esa.s1tbx.insar.gpf;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.insar.gpf.geometric.SARGeocoding;
 import org.esa.s1tbx.insar.gpf.geometric.SARUtils;
+import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.eo.Constants;
@@ -26,7 +27,6 @@ import org.esa.snap.framework.datamodel.MetadataAttribute;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.gpf.OperatorException;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
