@@ -15,10 +15,10 @@
  */
 package org.esa.snap.gpf.operators.meris;
 
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.annotations.Parameter;
 import org.esa.snap.util.ProductUtils;
 
 

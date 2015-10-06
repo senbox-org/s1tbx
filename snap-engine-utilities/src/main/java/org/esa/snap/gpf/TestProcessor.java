@@ -16,6 +16,8 @@
 package org.esa.snap.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.dataio.dimap.DimapProductConstants;
 import org.esa.snap.db.CommonReaders;
 import org.esa.snap.framework.dataio.DecodeQualification;
@@ -25,8 +27,6 @@ import org.esa.snap.framework.dataio.ProductReaderPlugIn;
 import org.esa.snap.framework.dataio.ProductSubsetBuilder;
 import org.esa.snap.framework.dataio.ProductSubsetDef;
 import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.snap.gpf.operators.standard.WriteOp;
 import org.esa.snap.util.MemUtils;
 import org.esa.snap.util.ProductFunctions;

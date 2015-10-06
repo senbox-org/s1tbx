@@ -17,6 +17,17 @@ package org.esa.snap.gpf.operators.standard;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.GlobalTestConfig;
+import org.esa.snap.core.gpf.GPF;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.gpf.Tile.Pos;
+import org.esa.snap.core.gpf.annotations.OperatorMetadata;
+import org.esa.snap.core.gpf.annotations.Parameter;
+import org.esa.snap.core.gpf.annotations.TargetProduct;
+import org.esa.snap.core.gpf.graph.Graph;
+import org.esa.snap.core.gpf.graph.GraphIO;
+import org.esa.snap.core.gpf.graph.GraphProcessor;
 import org.esa.snap.framework.dataio.ProductIO;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.PinDescriptor;
@@ -26,17 +37,6 @@ import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.ProductNodeGroup;
 import org.esa.snap.framework.datamodel.VirtualBand;
-import org.esa.snap.framework.gpf.GPF;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.framework.gpf.Tile;
-import org.esa.snap.framework.gpf.Tile.Pos;
-import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
-import org.esa.snap.framework.gpf.annotations.Parameter;
-import org.esa.snap.framework.gpf.annotations.TargetProduct;
-import org.esa.snap.framework.gpf.graph.Graph;
-import org.esa.snap.framework.gpf.graph.GraphIO;
-import org.esa.snap.framework.gpf.graph.GraphProcessor;
 import org.esa.snap.util.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -48,8 +48,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.StringReader;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.*;
 
 
 public class WriteOpTest {

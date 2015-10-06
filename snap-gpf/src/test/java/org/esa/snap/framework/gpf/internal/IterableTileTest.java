@@ -17,9 +17,10 @@
 package org.esa.snap.framework.gpf.internal;
 
 import junit.framework.TestCase;
+import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.gpf.internal.TileImpl;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.gpf.Tile;
 
 import java.awt.Point;
 import java.awt.image.DataBuffer;

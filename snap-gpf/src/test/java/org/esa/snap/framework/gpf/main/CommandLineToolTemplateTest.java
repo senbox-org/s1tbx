@@ -1,8 +1,9 @@
 package org.esa.snap.framework.gpf.main;
 
+import org.esa.snap.core.gpf.GPF;
+import org.esa.snap.core.gpf.main.CommandLineTool;
 import org.esa.snap.framework.datamodel.CrsGeoCoding;
 import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.gpf.GPF;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.Before;
 import org.junit.BeforeClass;

@@ -16,9 +16,9 @@
 
 package org.esa.snap.gpf.operators.standard;
 
+import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.gpf.OperatorException;
 import org.junit.Before;
 import org.junit.Test;
 

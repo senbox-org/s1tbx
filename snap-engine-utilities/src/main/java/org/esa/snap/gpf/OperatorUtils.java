@@ -15,6 +15,7 @@
  */
 package org.esa.snap.gpf;
 
+import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.framework.datamodel.Band;
@@ -32,12 +33,12 @@ import org.esa.snap.framework.datamodel.ProductNodeGroup;
 import org.esa.snap.framework.datamodel.TiePointGeoCoding;
 import org.esa.snap.framework.datamodel.TiePointGrid;
 import org.esa.snap.framework.datamodel.VirtualBand;
-import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.util.ExceptionLog;
 import org.esa.snap.util.ProductUtils;
 import org.esa.snap.util.math.MathUtils;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;

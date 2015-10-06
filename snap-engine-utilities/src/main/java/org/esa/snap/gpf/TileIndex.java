@@ -15,7 +15,7 @@
  */
 package org.esa.snap.gpf;
 
-import org.esa.snap.framework.gpf.Tile;
+import org.esa.snap.core.gpf.Tile;
 
 /**
  * calculates the index into a tile

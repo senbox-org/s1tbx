@@ -18,15 +18,20 @@ package org.esa.snap.framework.gpf.graph;
 
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
+import org.esa.snap.core.gpf.GPF;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.gpf.annotations.OperatorMetadata;
+import org.esa.snap.core.gpf.annotations.TargetProduct;
+import org.esa.snap.core.gpf.graph.Graph;
+import org.esa.snap.core.gpf.graph.GraphContext;
+import org.esa.snap.core.gpf.graph.GraphException;
+import org.esa.snap.core.gpf.graph.Node;
+import org.esa.snap.core.gpf.graph.NodeContext;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.gpf.GPF;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.framework.gpf.Tile;
-import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
-import org.esa.snap.framework.gpf.annotations.TargetProduct;
 
 public class TargetProductAnnotationValidationTest extends TestCase {
 

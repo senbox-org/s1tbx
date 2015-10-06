@@ -25,7 +25,7 @@ import com.bc.ceres.core.Assert;
 import org.esa.snap.binning.TypedConfig;
 import org.esa.snap.binning.TypedDescriptor;
 import org.esa.snap.binning.TypedDescriptorsRegistry;
-import org.esa.snap.framework.gpf.annotations.ParameterDescriptorFactory;
+import org.esa.snap.core.gpf.annotations.ParameterDescriptorFactory;
 
 /**
  * @author Norman Fomferra

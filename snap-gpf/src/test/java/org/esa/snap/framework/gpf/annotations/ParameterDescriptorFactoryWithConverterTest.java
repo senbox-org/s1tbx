@@ -2,6 +2,7 @@ package org.esa.snap.framework.gpf.annotations;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
+import org.esa.snap.core.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.snap.framework.gpf.TestOps;
 import org.junit.Test;
 

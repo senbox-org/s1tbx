@@ -17,7 +17,8 @@
 package org.esa.snap.framework.gpf.internal;
 
 import junit.framework.TestCase;
-import org.esa.snap.framework.gpf.Tile;
+import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.gpf.internal.DefaultTileIterator;
 
 import java.awt.Rectangle;
 import java.util.NoSuchElementException;

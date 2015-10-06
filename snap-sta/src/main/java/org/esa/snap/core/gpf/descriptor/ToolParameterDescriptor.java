@@ -16,7 +16,6 @@
 package org.esa.snap.core.gpf.descriptor;
 
 import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterConstants;
-import org.esa.snap.framework.gpf.descriptor.DefaultParameterDescriptor;
 
 import java.lang.reflect.Method;
 

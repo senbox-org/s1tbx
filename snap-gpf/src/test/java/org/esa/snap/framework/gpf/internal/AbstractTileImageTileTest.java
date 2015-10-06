@@ -17,6 +17,7 @@
 package org.esa.snap.framework.gpf.internal;
 
 import junit.framework.TestCase;
+import org.esa.snap.core.gpf.internal.TileImpl;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;

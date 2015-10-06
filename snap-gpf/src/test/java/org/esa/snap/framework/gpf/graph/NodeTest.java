@@ -16,6 +16,8 @@
 
 package org.esa.snap.framework.gpf.graph;
 
+import org.esa.snap.core.gpf.graph.Node;
+import org.esa.snap.core.gpf.graph.NodeSource;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

@@ -1,5 +1,9 @@
 package org.esa.snap.framework.gpf.descriptor;
 
+import org.esa.snap.core.gpf.descriptor.DefaultOperatorDescriptor;
+import org.esa.snap.core.gpf.descriptor.DefaultParameterDescriptor;
+import org.esa.snap.core.gpf.descriptor.DefaultSourceProductDescriptor;
+import org.esa.snap.core.gpf.descriptor.DefaultTargetProductDescriptor;
 import org.junit.Test;
 
 import java.net.URL;

@@ -1,6 +1,10 @@
 package org.esa.snap.framework.gpf.descriptor;
 
-import org.esa.snap.framework.gpf.Operator;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.descriptor.DefaultOperatorDescriptor;
+import org.esa.snap.core.gpf.descriptor.ParameterDescriptor;
+import org.esa.snap.core.gpf.descriptor.SourceProductDescriptor;
+import org.esa.snap.core.gpf.descriptor.TargetPropertyDescriptor;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

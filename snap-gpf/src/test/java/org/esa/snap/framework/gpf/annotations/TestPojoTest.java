@@ -17,6 +17,10 @@
 package org.esa.snap.framework.gpf.annotations;
 
 import junit.framework.TestCase;
+import org.esa.snap.core.gpf.annotations.Parameter;
+import org.esa.snap.core.gpf.annotations.SourceProduct;
+import org.esa.snap.core.gpf.annotations.TargetProduct;
+import org.esa.snap.core.gpf.annotations.TargetProperty;
 
 import java.lang.reflect.Field;
 

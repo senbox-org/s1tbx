@@ -17,7 +17,7 @@
 package org.esa.snap.unmixing;
 
 import com.bc.ceres.core.Assert;
-import org.esa.snap.framework.gpf.annotations.Parameter;
+import org.esa.snap.core.gpf.annotations.Parameter;
 
 public class Endmember {
     @Parameter(pattern = "[a-zA-Z_0-9]*")

@@ -1,6 +1,6 @@
 package org.esa.snap.binning.operator.metadata;
 
-import org.esa.snap.framework.gpf.descriptor.OperatorDescriptor;
+import org.esa.snap.core.gpf.descriptor.OperatorDescriptor;
 
 import java.io.File;
 

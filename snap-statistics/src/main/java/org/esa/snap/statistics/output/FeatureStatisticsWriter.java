@@ -16,7 +16,7 @@
 
 package org.esa.snap.statistics.output;
 
-import org.esa.snap.framework.gpf.OperatorException;
+import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.util.FeatureUtils;
 import org.geotools.data.FeatureSource;
 import org.geotools.feature.FeatureCollection;

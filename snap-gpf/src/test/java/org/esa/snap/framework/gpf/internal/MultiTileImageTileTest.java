@@ -16,6 +16,8 @@
 
 package org.esa.snap.framework.gpf.internal;
 
+import org.esa.snap.core.gpf.internal.TileImpl;
+
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.Raster;

@@ -17,10 +17,11 @@
 package org.esa.snap.framework.gpf.internal;
 
 import com.bc.ceres.core.ServiceRegistry;
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.framework.gpf.OperatorSpiRegistry;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.OperatorSpiRegistry;
+import org.esa.snap.core.gpf.annotations.OperatorMetadata;
+import org.esa.snap.core.gpf.internal.OperatorSpiRegistryImpl;
 import org.esa.snap.framework.gpf.TestOps;
-import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
 import org.junit.Before;
 import org.junit.Test;
 

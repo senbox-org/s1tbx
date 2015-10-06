@@ -22,20 +22,20 @@ import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.annotations.OperatorMetadata;
+import org.esa.snap.core.gpf.descriptor.ParameterDescriptor;
 import org.esa.snap.core.gpf.descriptor.SystemVariable;
 import org.esa.snap.core.gpf.descriptor.TemplateParameterDescriptor;
 import org.esa.snap.core.gpf.descriptor.ToolAdapterOperatorDescriptor;
 import org.esa.snap.core.gpf.descriptor.ToolParameterDescriptor;
+import org.esa.snap.core.gpf.internal.OperatorContext;
 import org.esa.snap.framework.dataio.ProductIO;
 import org.esa.snap.framework.dataio.ProductIOPlugInManager;
 import org.esa.snap.framework.dataio.ProductWriterPlugIn;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
-import org.esa.snap.framework.gpf.descriptor.ParameterDescriptor;
-import org.esa.snap.framework.gpf.internal.OperatorContext;
 import org.esa.snap.jai.ImageManager;
 import org.esa.snap.util.ProductUtils;
 import org.esa.snap.util.io.FileUtils;
@@ -192,7 +192,7 @@ public class ToolAdapterOp extends Operator {
      * This method will block until the tool finishes its execution.
      * </p>
      *
-     * @throws org.esa.snap.framework.gpf.OperatorException
+     * @throws OperatorException
      */
     @Override
     public void initialize() throws OperatorException {
@@ -288,7 +288,7 @@ public class ToolAdapterOp extends Operator {
     /**
      * Fill the templates with data and prepare the source product.
      *
-     * @throws org.esa.snap.framework.gpf.OperatorException in case of an error
+     * @throws OperatorException in case of an error
      */
     private void beforeExecute() throws OperatorException {
         reportProgress("Interpreting pre-execution template");
@@ -510,7 +510,7 @@ public class ToolAdapterOp extends Operator {
      * </p>
      *
      * @return the list of command line parameters
-     * @throws org.esa.snap.framework.gpf.OperatorException in case of an error.
+     * @throws OperatorException in case of an error.
      */
     private List<String> getCommandLineTokens() throws OperatorException {
         final List<String> tokens = new ArrayList<>();

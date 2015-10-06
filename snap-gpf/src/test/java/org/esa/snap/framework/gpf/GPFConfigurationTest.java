@@ -1,6 +1,7 @@
 package org.esa.snap.framework.gpf;
 
 
+import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.gpf.operators.standard.SubsetOp;

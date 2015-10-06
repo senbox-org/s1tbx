@@ -17,12 +17,12 @@
 package org.esa.snap.gpf.operators.standard;
 
 import junit.framework.TestCase;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.Tile;
 import org.esa.snap.util.jai.SingleBandedSampleModel;
 
 import javax.media.jai.Interpolation;

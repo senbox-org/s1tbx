@@ -17,13 +17,14 @@
 package org.esa.snap.framework.gpf.main;
 
 
+import org.esa.snap.core.gpf.GPF;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.annotations.Parameter;
+import org.esa.snap.core.gpf.annotations.SourceProduct;
+import org.esa.snap.core.gpf.main.CommandLineUsage;
 import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.gpf.GPF;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.framework.gpf.annotations.Parameter;
-import org.esa.snap.framework.gpf.annotations.SourceProduct;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;

@@ -10,12 +10,12 @@ import org.esa.snap.binning.AggregatorConfig;
 import org.esa.snap.binning.operator.BinningConfig;
 import org.esa.snap.binning.operator.BinningOp;
 import org.esa.snap.binning.operator.VariableConfig;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.descriptor.OperatorDescriptor;
 import org.esa.snap.framework.datamodel.MetadataAttribute;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.framework.gpf.descriptor.OperatorDescriptor;
 import org.esa.snap.util.StringUtils;
 import org.esa.snap.util.io.FileUtils;
 

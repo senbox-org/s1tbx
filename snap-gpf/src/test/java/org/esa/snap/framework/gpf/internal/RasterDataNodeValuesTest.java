@@ -16,6 +16,7 @@
 package org.esa.snap.framework.gpf.internal;
 
 import junit.framework.TestCase;
+import org.esa.snap.core.gpf.internal.RasterDataNodeValues;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Mask;
 import org.esa.snap.framework.datamodel.Product;

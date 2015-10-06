@@ -17,7 +17,18 @@
 package org.esa.snap.framework.gpf.graph;
 
 import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
-import org.esa.snap.framework.gpf.GPF;
+import org.esa.snap.core.gpf.GPF;
+import org.esa.snap.core.gpf.graph.Graph;
+import org.esa.snap.core.gpf.graph.GraphContext;
+import org.esa.snap.core.gpf.graph.GraphException;
+import org.esa.snap.core.gpf.graph.GraphIO;
+import org.esa.snap.core.gpf.graph.GraphProcessor;
+import org.esa.snap.core.gpf.graph.Header;
+import org.esa.snap.core.gpf.graph.HeaderParameter;
+import org.esa.snap.core.gpf.graph.HeaderSource;
+import org.esa.snap.core.gpf.graph.Node;
+import org.esa.snap.core.gpf.graph.NodeContext;
+import org.esa.snap.core.gpf.graph.NodeSource;
 import org.esa.snap.framework.gpf.TestOps;
 import org.junit.After;
 import org.junit.Before;
@@ -30,7 +41,9 @@ import java.util.List;
 import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.TestCase.*;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertSame;
+import static junit.framework.TestCase.fail;
 
 public class GraphIOTest {
 

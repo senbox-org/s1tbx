@@ -16,7 +16,7 @@
 
 package org.esa.snap.binning.operator;
 
-import org.esa.snap.framework.gpf.OperatorException;
+import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.util.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;

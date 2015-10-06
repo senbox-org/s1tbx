@@ -1,6 +1,6 @@
 package org.esa.snap.statistics;
 
-import org.esa.snap.framework.gpf.annotations.Parameter;
+import org.esa.snap.core.gpf.annotations.Parameter;
 
 public class BandConfiguration {
 

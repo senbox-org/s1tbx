@@ -2,6 +2,8 @@ package org.esa.snap.framework.gpf.annotations;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.ValidationException;
+import org.esa.snap.core.gpf.annotations.Parameter;
+import org.esa.snap.core.gpf.annotations.ParameterBlockConverter;
 import org.junit.Assert;
 import org.junit.Test;
 

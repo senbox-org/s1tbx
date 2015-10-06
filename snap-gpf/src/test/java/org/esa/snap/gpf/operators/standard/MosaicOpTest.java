@@ -16,6 +16,8 @@
 
 package org.esa.snap.gpf.operators.standard;
 
+import org.esa.snap.core.gpf.GPF;
+import org.esa.snap.core.gpf.OperatorSpiRegistry;
 import org.esa.snap.framework.dataio.ProductSubsetBuilder;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.CrsGeoCoding;
@@ -26,8 +28,6 @@ import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.PixelPos;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.gpf.GPF;
-import org.esa.snap.framework.gpf.OperatorSpiRegistry;
 import org.geotools.referencing.CRS;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

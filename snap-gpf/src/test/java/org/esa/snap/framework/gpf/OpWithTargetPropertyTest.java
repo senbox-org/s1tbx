@@ -17,8 +17,10 @@
 package org.esa.snap.framework.gpf;
 
 import junit.framework.TestCase;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.annotations.TargetProperty;
 import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.gpf.annotations.TargetProperty;
 
 
 public class OpWithTargetPropertyTest extends TestCase {

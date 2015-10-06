@@ -17,14 +17,16 @@
 package org.esa.snap.framework.gpf.main;
 
 import com.bc.ceres.binding.dom.DomElement;
+import org.esa.snap.core.gpf.GPF;
+import org.esa.snap.core.gpf.graph.Graph;
+import org.esa.snap.core.gpf.graph.GraphException;
+import org.esa.snap.core.gpf.graph.GraphIO;
+import org.esa.snap.core.gpf.graph.GraphProcessingObserver;
+import org.esa.snap.core.gpf.graph.Node;
+import org.esa.snap.core.gpf.main.CommandLineContext;
+import org.esa.snap.core.gpf.main.CommandLineTool;
 import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.gpf.GPF;
 import org.esa.snap.framework.gpf.TestOps;
-import org.esa.snap.framework.gpf.graph.Graph;
-import org.esa.snap.framework.gpf.graph.GraphException;
-import org.esa.snap.framework.gpf.graph.GraphIO;
-import org.esa.snap.framework.gpf.graph.GraphProcessingObserver;
-import org.esa.snap.framework.gpf.graph.Node;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;

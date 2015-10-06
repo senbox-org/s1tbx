@@ -18,11 +18,14 @@ package org.esa.snap.framework.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.VirtualBand;
-import org.esa.snap.framework.gpf.annotations.SourceProduct;
 
 import java.awt.Rectangle;
 import java.io.IOException;

@@ -20,12 +20,13 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.sun.media.jai.util.SunTileCache;
 import junit.framework.TestCase;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.gpf.internal.OperatorImageTileStack;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.Tile;
 
 import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;

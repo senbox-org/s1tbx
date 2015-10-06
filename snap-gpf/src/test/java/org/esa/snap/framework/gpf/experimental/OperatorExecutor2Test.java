@@ -15,14 +15,15 @@
  */
 package org.esa.snap.framework.gpf.experimental;
 
+import org.esa.snap.core.gpf.experimental.OperatorExecutor2;
+import org.esa.snap.core.gpf.pointop.PixelOperator;
+import org.esa.snap.core.gpf.pointop.ProductConfigurer;
+import org.esa.snap.core.gpf.pointop.Sample;
+import org.esa.snap.core.gpf.pointop.SourceSampleConfigurer;
+import org.esa.snap.core.gpf.pointop.TargetSampleConfigurer;
+import org.esa.snap.core.gpf.pointop.WritableSample;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.gpf.pointop.PixelOperator;
-import org.esa.snap.framework.gpf.pointop.ProductConfigurer;
-import org.esa.snap.framework.gpf.pointop.Sample;
-import org.esa.snap.framework.gpf.pointop.SourceSampleConfigurer;
-import org.esa.snap.framework.gpf.pointop.TargetSampleConfigurer;
-import org.esa.snap.framework.gpf.pointop.WritableSample;
 import org.junit.Ignore;
 import org.junit.Test;
 

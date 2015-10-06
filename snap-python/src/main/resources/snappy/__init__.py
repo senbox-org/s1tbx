@@ -295,9 +295,9 @@ try:
 
     ProductUtils = jpy.get_type('org.esa.snap.util.ProductUtils')
 
-    GPF = jpy.get_type('org.esa.snap.framework.gpf.GPF')
-    Operator = jpy.get_type('org.esa.snap.framework.gpf.Operator')
-    Tile = jpy.get_type('org.esa.snap.framework.gpf.Tile')
+    GPF = jpy.get_type('GPF')
+    Operator = jpy.get_type('Operator')
+    Tile = jpy.get_type('Tile')
 
     EngineConfig = jpy.get_type('org.esa.snap.runtime.EngineConfig')
 

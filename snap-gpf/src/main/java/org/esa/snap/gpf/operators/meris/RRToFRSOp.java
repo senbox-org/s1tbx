@@ -16,19 +16,19 @@
 package org.esa.snap.gpf.operators.meris;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.gpf.annotations.OperatorMetadata;
+import org.esa.snap.core.gpf.annotations.SourceProduct;
+import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.FlagCoding;
 import org.esa.snap.framework.datamodel.GeoCoding;
 import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.datamodel.PixelPos;
 import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.framework.gpf.Tile;
-import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
-import org.esa.snap.framework.gpf.annotations.SourceProduct;
-import org.esa.snap.framework.gpf.annotations.TargetProduct;
 import org.esa.snap.util.ProductUtils;
 
 import java.awt.Rectangle;

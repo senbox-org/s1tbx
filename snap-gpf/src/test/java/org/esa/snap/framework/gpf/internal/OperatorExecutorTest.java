@@ -16,12 +16,13 @@
 package org.esa.snap.framework.gpf.internal;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.annotations.SourceProduct;
+import org.esa.snap.core.gpf.internal.OperatorExecutor;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.annotations.SourceProduct;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

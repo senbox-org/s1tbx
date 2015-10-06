@@ -1,11 +1,11 @@
 package org.esa.snap.python.gpf;
 
-import org.esa.snap.framework.gpf.GPF;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.framework.gpf.descriptor.DefaultOperatorDescriptor;
-import org.esa.snap.framework.gpf.descriptor.OperatorDescriptor;
+import org.esa.snap.core.gpf.GPF;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.descriptor.DefaultOperatorDescriptor;
+import org.esa.snap.core.gpf.descriptor.OperatorDescriptor;
 import org.esa.snap.python.PyBridge;
 import org.esa.snap.util.ServiceFinder;
 import org.esa.snap.util.io.FileUtils;

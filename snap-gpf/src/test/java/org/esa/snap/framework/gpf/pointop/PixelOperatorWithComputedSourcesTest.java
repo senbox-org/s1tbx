@@ -1,16 +1,20 @@
 package org.esa.snap.framework.gpf.pointop;
 
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.pointop.ProductConfigurer;
+import org.esa.snap.core.gpf.pointop.Sample;
+import org.esa.snap.core.gpf.pointop.SampleOperator;
+import org.esa.snap.core.gpf.pointop.SourceSampleConfigurer;
+import org.esa.snap.core.gpf.pointop.TargetSampleConfigurer;
+import org.esa.snap.core.gpf.pointop.WritableSample;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Kernel;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class PixelOperatorWithComputedSourcesTest {
 

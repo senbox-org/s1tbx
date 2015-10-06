@@ -36,18 +36,19 @@ import org.esa.snap.binning.operator.metadata.GlobalMetadata;
 import org.esa.snap.binning.operator.metadata.MetadataAggregator;
 import org.esa.snap.binning.operator.metadata.MetadataAggregatorFactory;
 import org.esa.snap.binning.support.SpatialDataPeriod;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.gpf.annotations.OperatorMetadata;
+import org.esa.snap.core.gpf.annotations.Parameter;
+import org.esa.snap.core.gpf.annotations.SourceProducts;
+import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.framework.dataio.ProductIO;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
-import org.esa.snap.framework.gpf.annotations.Parameter;
-import org.esa.snap.framework.gpf.annotations.SourceProducts;
-import org.esa.snap.framework.gpf.annotations.TargetProduct;
 import org.esa.snap.gpf.operators.standard.SubsetOp;
 import org.esa.snap.util.ProductUtils;
 import org.esa.snap.util.StopWatch;
@@ -86,7 +87,7 @@ todo - address the following BinningOp requirements (nf, 2012-03-09)
  * product. The output is either a file comprising the resulting bins or a reprojected "map" of the bin cells
  * represented by a usual data product.
  * <p>
- * Unlike most other operators, that can compute single {@link org.esa.snap.framework.gpf.Tile tiles},
+ * Unlike most other operators, that can compute single {@link Tile tiles},
  * the binning operator processes all
  * of its source products in its {@link #initialize()} method.
  *
@@ -379,7 +380,7 @@ public class BinningOp extends Operator {
      * Processes all source products and writes the output file.
      * The target product represents the written output file
      *
-     * @throws org.esa.snap.framework.gpf.OperatorException If a processing error occurs.
+     * @throws OperatorException If a processing error occurs.
      */
     @Override
     public void initialize() throws OperatorException {
@@ -853,7 +854,7 @@ public class BinningOp extends Operator {
 
     /**
      * The service provider interface (SPI) which is referenced
-     * in {@code /META-INF/services/org.esa.snap.framework.gpf.OperatorSpi}.
+     * in {@code /META-INF/services/OperatorSpi}.
      */
     public static class Spi extends OperatorSpi {
 

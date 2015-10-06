@@ -16,23 +16,25 @@
 
 package org.esa.snap.framework.gpf.main;
 
+import org.esa.snap.core.gpf.GPF;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.OperatorSpiRegistry;
+import org.esa.snap.core.gpf.annotations.OperatorMetadata;
+import org.esa.snap.core.gpf.annotations.Parameter;
+import org.esa.snap.core.gpf.annotations.SourceProduct;
+import org.esa.snap.core.gpf.annotations.TargetProduct;
+import org.esa.snap.core.gpf.main.CommandLineArgs;
+import org.esa.snap.core.gpf.main.CommandLineUsage;
 import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.gpf.GPF;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.framework.gpf.OperatorSpiRegistry;
-import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
-import org.esa.snap.framework.gpf.annotations.Parameter;
-import org.esa.snap.framework.gpf.annotations.SourceProduct;
-import org.esa.snap.framework.gpf.annotations.TargetProduct;
 import org.esa.snap.runtime.Config;
 import org.junit.Test;
 
 import java.util.Map;
 import java.util.SortedMap;
 
-import static org.esa.snap.framework.gpf.main.CommandLineArgs.*;
+import static org.esa.snap.core.gpf.main.CommandLineArgs.*;
 import static org.junit.Assert.*;
 
 public class CommandLineArgsTest {

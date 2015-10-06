@@ -18,6 +18,8 @@ package org.esa.snap.framework.gpf.graph;
 
 import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
 import junit.framework.TestCase;
+import org.esa.snap.core.gpf.graph.Graph;
+import org.esa.snap.core.gpf.graph.Node;
 
 public class GraphTest extends TestCase {
 

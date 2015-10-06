@@ -1,10 +1,16 @@
 package org.esa.snap.framework.gpf.graph;
 
 import junit.framework.TestCase;
+import org.esa.snap.core.gpf.GPF;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.OperatorSpiRegistry;
+import org.esa.snap.core.gpf.graph.Graph;
+import org.esa.snap.core.gpf.graph.GraphContext;
+import org.esa.snap.core.gpf.graph.GraphException;
+import org.esa.snap.core.gpf.graph.Node;
+import org.esa.snap.core.gpf.graph.NodeContext;
+import org.esa.snap.core.gpf.graph.NodeSource;
 import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.gpf.GPF;
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.framework.gpf.OperatorSpiRegistry;
 import org.esa.snap.framework.gpf.TestOps;
 import org.esa.snap.util.jai.VerbousTileCache;
 

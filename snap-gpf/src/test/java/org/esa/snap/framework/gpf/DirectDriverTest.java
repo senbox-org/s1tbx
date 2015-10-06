@@ -3,13 +3,16 @@ package org.esa.snap.framework.gpf;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.gpf.annotations.SourceProduct;
+import org.esa.snap.core.gpf.annotations.TargetProduct;
+import org.esa.snap.core.gpf.internal.DefaultTileIterator;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.RasterDataNode;
-import org.esa.snap.framework.gpf.annotations.SourceProduct;
-import org.esa.snap.framework.gpf.annotations.TargetProduct;
-import org.esa.snap.framework.gpf.internal.DefaultTileIterator;
 import org.esa.snap.util.BitSetter;
 
 import javax.media.jai.operator.ConstantDescriptor;
@@ -74,7 +77,7 @@ public class DirectDriverTest extends TestCase {
     }
 
     /**
-     * Note: most of this code is copied from org.esa.snap.framework.gpf.internal.TileImpl.
+     * Note: most of this code is copied from TileImpl.
      * The class still shares most of its impl. code. (Try IDEA's compare with clipboard) 
      */
     private static class DirectTile implements Tile {

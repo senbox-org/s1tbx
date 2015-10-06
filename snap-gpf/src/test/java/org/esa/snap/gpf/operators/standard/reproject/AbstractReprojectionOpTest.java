@@ -16,6 +16,9 @@
 
 package org.esa.snap.gpf.operators.standard.reproject;
 
+import org.esa.snap.core.gpf.GPF;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.OperatorSpiRegistry;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.datamodel.PixelPos;
@@ -23,9 +26,6 @@ import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.TiePointGeoCoding;
 import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.framework.gpf.GPF;
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.framework.gpf.OperatorSpiRegistry;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;

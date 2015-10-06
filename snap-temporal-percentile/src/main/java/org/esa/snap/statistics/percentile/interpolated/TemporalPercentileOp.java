@@ -20,6 +20,14 @@ import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
+import org.esa.snap.core.gpf.GPF;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.gpf.annotations.OperatorMetadata;
+import org.esa.snap.core.gpf.annotations.Parameter;
+import org.esa.snap.core.gpf.annotations.SourceProducts;
 import org.esa.snap.dataio.dimap.DimapProductConstants;
 import org.esa.snap.framework.dataio.ProductIO;
 import org.esa.snap.framework.dataio.ProductWriter;
@@ -29,14 +37,6 @@ import org.esa.snap.framework.datamodel.MetadataAttribute;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.gpf.GPF;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.framework.gpf.Tile;
-import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
-import org.esa.snap.framework.gpf.annotations.Parameter;
-import org.esa.snap.framework.gpf.annotations.SourceProducts;
 import org.esa.snap.interpolators.Interpolator;
 import org.esa.snap.interpolators.InterpolatorFactory;
 import org.esa.snap.jai.ImageManager;
@@ -844,7 +844,7 @@ public class TemporalPercentileOp extends Operator {
 
     /**
      * The service provider interface (SPI) which is referenced
-     * in {@code /META-INF/services/org.esa.snap.framework.gpf.OperatorSpi}.
+     * in {@code /META-INF/services/OperatorSpi}.
      */
     public static class Spi extends OperatorSpi {
 

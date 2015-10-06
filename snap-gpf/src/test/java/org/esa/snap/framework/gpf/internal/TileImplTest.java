@@ -16,10 +16,11 @@
 
 package org.esa.snap.framework.gpf.internal;
 
+import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.gpf.internal.TileImpl;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.gpf.Tile;
 import org.junit.Ignore;
 import org.junit.Test;
 

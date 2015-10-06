@@ -16,14 +16,18 @@
 
 package org.esa.snap.framework.gpf.graph;
 
+import org.esa.snap.core.gpf.GPF;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.graph.Graph;
+import org.esa.snap.core.gpf.graph.GraphException;
+import org.esa.snap.core.gpf.graph.GraphIO;
+import org.esa.snap.core.gpf.graph.GraphOp;
+import org.esa.snap.core.gpf.internal.OperatorProductReader;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.gpf.GPF;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.snap.framework.gpf.TestOps;
 import org.esa.snap.framework.gpf.TestOps.Op2;
-import org.esa.snap.framework.gpf.internal.OperatorProductReader;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;

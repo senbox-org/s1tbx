@@ -35,9 +35,9 @@ import org.esa.snap.binning.support.BinningContextImpl;
 import org.esa.snap.binning.support.SEAGrid;
 import org.esa.snap.binning.support.SpatialDataPeriod;
 import org.esa.snap.binning.support.VariableContextImpl;
+import org.esa.snap.core.gpf.annotations.Parameter;
+import org.esa.snap.core.gpf.annotations.ParameterBlockConverter;
 import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.gpf.annotations.Parameter;
-import org.esa.snap.framework.gpf.annotations.ParameterBlockConverter;
 import org.esa.snap.util.converters.JtsGeometryConverter;
 
 import java.lang.reflect.Constructor;

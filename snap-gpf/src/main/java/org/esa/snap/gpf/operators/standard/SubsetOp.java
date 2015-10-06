@@ -25,6 +25,14 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.simplify.DouglasPeuckerSimplifier;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.gpf.annotations.OperatorMetadata;
+import org.esa.snap.core.gpf.annotations.Parameter;
+import org.esa.snap.core.gpf.annotations.SourceProduct;
+import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.framework.dataio.ProductReader;
 import org.esa.snap.framework.dataio.ProductSubsetBuilder;
 import org.esa.snap.framework.dataio.ProductSubsetDef;
@@ -37,14 +45,6 @@ import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.RasterDataNode;
 import org.esa.snap.framework.datamodel.VirtualBand;
 import org.esa.snap.framework.dataop.barithm.BandArithmetic;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.framework.gpf.Tile;
-import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
-import org.esa.snap.framework.gpf.annotations.Parameter;
-import org.esa.snap.framework.gpf.annotations.SourceProduct;
-import org.esa.snap.framework.gpf.annotations.TargetProduct;
 import org.esa.snap.util.ProductUtils;
 import org.esa.snap.util.converters.JtsGeometryConverter;
 import org.esa.snap.util.converters.RectangleConverter;
@@ -57,10 +57,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
-import static java.lang.Math.ceil;
-import static java.lang.Math.floor;
-import static java.lang.Math.max;
-import static java.lang.Math.min;
+import static java.lang.Math.*;
 
 /**
  * This operator is used to create either spatial and/or spectral subsets of a data product.

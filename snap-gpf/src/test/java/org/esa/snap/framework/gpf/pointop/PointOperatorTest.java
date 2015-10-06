@@ -1,14 +1,21 @@
 package org.esa.snap.framework.gpf.pointop;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.gpf.pointop.PixelOperator;
+import org.esa.snap.core.gpf.pointop.ProductConfigurer;
+import org.esa.snap.core.gpf.pointop.Sample;
+import org.esa.snap.core.gpf.pointop.SampleOperator;
+import org.esa.snap.core.gpf.pointop.SourceSampleConfigurer;
+import org.esa.snap.core.gpf.pointop.TargetSampleConfigurer;
+import org.esa.snap.core.gpf.pointop.WritableSample;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.TiePointGeoCoding;
 import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.Tile;
 import org.esa.snap.util.ProductUtils;
 import org.junit.Test;
 
@@ -19,9 +26,7 @@ import java.awt.image.Raster;
 import java.text.ParseException;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class PointOperatorTest {
 

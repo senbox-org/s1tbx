@@ -1,9 +1,9 @@
 package org.esa.snap.python.gpf;
 
 
-import org.esa.snap.framework.gpf.GPF;
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.framework.gpf.OperatorSpiRegistry;
+import org.esa.snap.core.gpf.GPF;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.OperatorSpiRegistry;
 import org.esa.snap.python.PyBridge;
 import org.esa.snap.runtime.Config;
 import org.junit.BeforeClass;

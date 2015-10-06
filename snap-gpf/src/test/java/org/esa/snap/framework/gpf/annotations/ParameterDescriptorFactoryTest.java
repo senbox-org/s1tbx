@@ -27,6 +27,7 @@ import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.binding.converters.ArrayConverter;
 import com.bc.ceres.binding.converters.DoubleConverter;
 import com.bc.ceres.binding.converters.EnumConverter;
+import org.esa.snap.core.gpf.annotations.ParameterDescriptorFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

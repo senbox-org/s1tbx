@@ -16,8 +16,10 @@
 
 package org.esa.snap.framework.gpf;
 
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.gpf.annotations.Parameter;
 import org.junit.Test;
 
 import java.io.File;

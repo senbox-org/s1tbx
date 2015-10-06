@@ -1,6 +1,6 @@
 package org.esa.snap.statistics.percentile.interpolated;
 
-import org.esa.snap.framework.gpf.OperatorException;
+import org.esa.snap.core.gpf.OperatorException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;

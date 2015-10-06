@@ -15,11 +15,11 @@
  */
 package org.esa.snap.core.gpf.operators.tooladapter;
 
+import org.esa.snap.core.gpf.GPF;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.OperatorSpiRegistry;
+import org.esa.snap.core.gpf.descriptor.OperatorDescriptor;
 import org.esa.snap.core.gpf.descriptor.ToolAdapterOperatorDescriptor;
-import org.esa.snap.framework.gpf.GPF;
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.framework.gpf.OperatorSpiRegistry;
-import org.esa.snap.framework.gpf.descriptor.OperatorDescriptor;
 
 import java.util.HashMap;
 import java.util.Map;

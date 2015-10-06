@@ -15,7 +15,7 @@
  */
 package org.esa.snap.gpf.operators.standard.reproject;
 
-import org.esa.snap.framework.gpf.internal.OperatorContext;
+import org.esa.snap.core.gpf.internal.OperatorContext;
 
 import javax.media.jai.PointOpImage;
 import javax.media.jai.RasterAccessor;

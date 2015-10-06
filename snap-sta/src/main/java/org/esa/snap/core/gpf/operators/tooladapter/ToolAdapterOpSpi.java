@@ -15,8 +15,8 @@
  */
 package org.esa.snap.core.gpf.operators.tooladapter;
 
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.framework.gpf.descriptor.OperatorDescriptor;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.descriptor.OperatorDescriptor;
 
 import java.io.File;
 

@@ -1,5 +1,6 @@
 package org.esa.snap.framework.gpf.main;
 
+import org.esa.snap.core.gpf.main.DefaultCommandLineContext;
 import org.junit.Ignore;
 
 import java.io.File;

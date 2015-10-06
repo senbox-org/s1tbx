@@ -15,11 +15,11 @@
  */
 package org.esa.snap.core.gpf.operators.tooladapter;
 
+import org.esa.snap.core.gpf.GPF;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.descriptor.ToolAdapterOperatorDescriptor;
-import org.esa.snap.framework.gpf.GPF;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.snap.runtime.Config;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.io.FileUtils;
