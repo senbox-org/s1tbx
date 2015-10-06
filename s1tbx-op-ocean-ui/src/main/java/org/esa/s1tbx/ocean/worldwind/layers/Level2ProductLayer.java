@@ -117,9 +117,9 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
     //private Product theColorBarLegendProduct = null;
     private String theSelectedComp = null;
 
-    private final HashMap<DirectedPath, String> theObjectInfoHash = new HashMap<>();
-    private final HashMap<DirectedPath, Product> theOSWProductHash = new HashMap<>();
-    private final HashMap<DirectedPath, Integer> theOSWSequenceHash = new HashMap<>();
+    private final HashMap<Object, String> theObjectInfoHash = new HashMap<>();
+    private final HashMap<Object, Product> theOSWProductHash = new HashMap<>();
+    private final HashMap<Object, Integer> theOSWSequenceHash = new HashMap<>();
 
     private final HashMap<Product, ProductRenderablesInfo> theProductRenderablesInfoHash = new HashMap<>();
 
@@ -162,30 +162,32 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
     }
 
     public void updateInfoAnnotation(final SelectEvent event) {
+        //SystemUtils.LOG.info("updateInfoAnnotation " + event.getTopObject() + " " + theObjectInfoHash.get(event.getTopObject()));
+        if (event.getEventAction().equals(SelectEvent.ROLLOVER) && theObjectInfoHash.get(event.getTopObject()) != null) {
 
-        if (event.getEventAction().equals(SelectEvent.ROLLOVER) && (event.getTopObject() instanceof DirectedPath)) {
+            String info = theObjectInfoHash.get(event.getTopObject());
+            if (event.getTopObject() instanceof DirectedPath) {
+                //SystemUtils.LOG.info("DirectedPath:::");
+                DirectedPath dp = (DirectedPath) event.getTopObject();
+                //dp.getAttributes().setOutlineMaterial(Material.WHITE);
+                dp.setHighlighted(true);
+                //dp.setAttributes(productLayer.dpHighlightAttrs);
+                //theSelectedObjectLabel.setText("" + productLayer.theObjectInfoHash.get(dp));
+                theLastSelectedDP = dp;
+            }
 
 
-            //SystemUtils.LOG.info("DirectedPath:::");
-            DirectedPath dp = (DirectedPath) event.getTopObject();
-            //dp.getAttributes().setOutlineMaterial(Material.WHITE);
-            dp.setHighlighted(true);
-            //dp.setAttributes(productLayer.dpHighlightAttrs);
-            //theSelectedObjectLabel.setText("" + productLayer.theObjectInfoHash.get(dp));
-
-            theInfoAnnotation.setText(theObjectInfoHash.get(dp));
+            theInfoAnnotation.setText(info);
             theInfoAnnotation.getAttributes().setVisible(true);
-            theLastSelectedDP = dp;
+
             //SystemUtils.LOG.info("selectedProduct " + getSelectedProduct());
             //final ExecCommand command = datApp.getCommandManager().getExecCommand("showPolarWaveView");
             //command.execute(2);
         }
-        else if (event.getEventAction().equals(SelectEvent.LEFT_CLICK) && (event.getTopObject() instanceof DirectedPath))  {
-            SystemUtils.LOG.info("click " + event.getTopObject());
-            DirectedPath dp = (DirectedPath) event.getTopObject();
-            if (theOSWProductHash.get(dp) != null && theOSWSequenceHash.get(dp) != null) {
-                OceanSwellTopComponent.setOSWRecord(theOSWProductHash.get(dp), theOSWSequenceHash.get(dp));
-            }
+        else if (event.getEventAction().equals(SelectEvent.LEFT_CLICK) && theOSWProductHash.get(event.getTopObject()) != null && theOSWSequenceHash.get(event.getTopObject()) != null)  {
+            //SystemUtils.LOG.info("click " + event.getTopObject());
+            OceanSwellTopComponent.setOSWRecord(theOSWProductHash.get(event.getTopObject()), theOSWSequenceHash.get(event.getTopObject()));
+
         }
         else {
 
@@ -398,8 +400,8 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
                 waveDirBand.readPixels(0, 0, waveDirBand.getRasterWidth(), waveDirBand.getRasterHeight(), waveDirValues, ProgressMonitor.NULL);
                 */
 
-                addWaveLengthArrows(product, oswData[1], oswData[0], oswData[3], oswData[4], productRenderablesInfo.theRenderableListHash.get("osw"));
-                createOSWColorSurfaceWithGradient(oswData[1], oswData[0], oswData[2], 4, 23, productRenderablesInfo.theRenderableListHash.get("osw"), productRenderablesInfo);
+                addWaveLengthArrows(oswData[1], oswData[0], oswData[3], oswData[4], productRenderablesInfo.theRenderableListHash.get("osw"));
+                createOSWColorSurfaceWithGradient(product, oswData[1], oswData[0], oswData[2], 4, 23, productRenderablesInfo.theRenderableListHash.get("osw"), productRenderablesInfo);
                 /*
                 double arrowLength = 0.277392578125;
                 final Position startPos = new Position(Angle.fromDegreesLatitude(oswData[1][0]), Angle.fromDegreesLongitude(oswData[0][0]), 10.0);
@@ -794,8 +796,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
         return directedPath;
     }
 
-    private void addWaveLengthArrows(Product product,
-                                    double[] latValues,
+    private void addWaveLengthArrows(double[] latValues,
                                     double[] lonValues,
                                     double[] waveLengthValues,
                                     double[] waveDirValues,
@@ -836,16 +837,12 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
                 renderableList.add(renderable);
             }
 
-            String info = "Wave length: " + waveLengthValues[ind] + "<br/>";
-            //info += "Wind Direction: " + avgWindDir + "<br/>";
-            //info += "Incidence Angle: " + avgIncAngle + "<br/>";
-            theObjectInfoHash.put(directedPath, info);
-            theOSWProductHash.put(directedPath, product);
-            theOSWSequenceHash.put(directedPath, ind);
+
         }
     }
 
-    private void createOSWColorSurfaceWithGradient(double[] latValues,
+    private void createOSWColorSurfaceWithGradient(Product product,
+                                     double[] latValues,
                                      double[] lonValues,
                                      double[] waveHeightValues,
                                      int width,
@@ -857,8 +854,12 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
         final ShapeAttributes dpAttrs = new BasicShapeAttributes();
         dpAttrs.setOutlineMaterial(Material.WHITE);
         dpAttrs.setOutlineWidth(2d);
+        // we cannot make it a scalar object because it has to be final and then we won't be able to assign to it
+        // we'll store it as a first object of a final array
+        //final ArrayList<Object> ctgSurfaceList = new ArrayList<Object>();
 
         for (int ind = 0; ind < waveHeightValues.length; ind++) {
+            final int finalInd = ind;
             final ArrayList<Position> polygonPositions = new ArrayList<>();
             double vignette_half_side_deg = (180 / Math.PI) * 10000 / GLOBE_RADIUS;
 
@@ -876,7 +877,30 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
             if (renderableList != null) {
                 renderableList.add(p);
             }
-            AnalyticSurface analyticSurface = new AnalyticSurface();
+
+            String info = "Wave length: " + waveHeightValues[ind] + "<br/>";
+            //AnalyticSurface analyticSurface = new AnalyticSurface();
+            AnalyticSurface analyticSurface = new AnalyticSurface() {
+                public void render(DrawContext dc) {
+                    super.render(dc);
+                    if (clampToGroundSurface != null) {
+                        theObjectInfoHash.put(clampToGroundSurface, info);
+                        theOSWProductHash.put(clampToGroundSurface, product);
+                        theOSWSequenceHash.put(clampToGroundSurface, finalInd);
+                    }
+                }
+            };
+            /*
+            AnalyticSurface analyticSurface = new AnalyticSurface() {
+                public void render(DrawContext dc) {
+                    if (clampToGroundSurface != null) {
+                        theObjectInfoHash.put(clampToGroundSurface, info);
+                        theOSWProductHash.put(clampToGroundSurface, product);
+                        theOSWSequenceHash.put(clampToGroundSurface, finalInd);
+                    }
+                }
+            };
+            */
             analyticSurface.setSector(Sector.fromDegrees(latValues[ind] - vignette_half_side_deg, latValues[ind] + vignette_half_side_deg, lonValues[ind] - vignette_half_side_deg, lonValues[ind] + vignette_half_side_deg));
             analyticSurface.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
             // one by one square doesn't seem to work, so we'll just use the next smallest
@@ -902,7 +926,22 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
             if (renderableList != null) {
                 renderableList.add(analyticSurface);
             }
+
+            //analyticSurface.render(null);
+            //System.out.println("ctgSurfaceList " + ctgSurfaceList);
+
+            //info += "Wind Direction: " + avgWindDir + "<br/>";
+            //info += "Incidence Angle: " + avgIncAngle + "<br/>";
+            /*
+            if (ctgSurfaceList.size() > ind) {
+                theObjectInfoHash.put(ctgSurfaceList.get(ind), info);
+                theOSWProductHash.put(ctgSurfaceList.get(ind), product);
+                theOSWSequenceHash.put(ctgSurfaceList.get(ind), ind);
+            }
+            */
         }
+
+
     }
 
     private double computeSegmentLength(Path path, DrawContext dc, Position posA, Position posB)
@@ -1184,6 +1223,9 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
                 theSelectedComp = "osw";
                 setComponentVisible("osw", wwd);
                 theArrowsCB.setEnabled(false);
+
+                //SystemUtils.LOG.info("theOSWProductHash " + theOSWProductHash);
+                //SystemUtils.LOG.info("theOSWSequenceHash " + theOSWSequenceHash);
             }
         });
 
