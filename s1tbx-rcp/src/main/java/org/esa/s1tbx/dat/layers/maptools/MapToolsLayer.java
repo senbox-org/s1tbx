@@ -30,9 +30,9 @@ import org.esa.s1tbx.dat.layers.maptools.components.LookDirectionComponent;
 import org.esa.s1tbx.dat.layers.maptools.components.MapToolsComponent;
 import org.esa.s1tbx.dat.layers.maptools.components.NorthArrowComponent;
 import org.esa.s1tbx.dat.layers.maptools.components.ScaleComponent;
-import org.esa.snap.framework.datamodel.GeoCoding;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.RasterDataNode;
 
 import java.awt.Graphics2D;
 import java.awt.Rectangle;

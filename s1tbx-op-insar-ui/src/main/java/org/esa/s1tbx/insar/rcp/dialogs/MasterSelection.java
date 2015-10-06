@@ -17,9 +17,9 @@ package org.esa.s1tbx.insar.rcp.dialogs;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.Debug;

@@ -17,11 +17,11 @@ package org.esa.s1tbx.insar.gpf.ui.coregistration;
 
 import org.esa.s1tbx.insar.gpf.coregistration.CreateStackOp;
 import org.esa.s1tbx.insar.rcp.dialogs.MasterSelection;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.dataop.resamp.ResamplingFactory;
 import org.esa.snap.datamodel.Unit;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.VirtualBand;
-import org.esa.snap.framework.dataop.resamp.ResamplingFactory;
 import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.OperatorUIUtils;

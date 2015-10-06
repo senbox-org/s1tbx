@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.dat.layers.maptools;
 
-import org.esa.snap.framework.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.ui.layer.AbstractLayerSourceAssistantPage;
 import org.esa.snap.ui.layer.LayerSource;

@@ -1,5 +1,7 @@
 package org.jlinda.nest.dataio;
 
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -9,8 +11,6 @@ import org.esa.snap.core.gpf.annotations.SourceProducts;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.util.ProductUtils;
 

@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.utilities.gpf.ui;
 
-import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.OperatorUIUtils;

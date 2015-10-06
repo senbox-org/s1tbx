@@ -19,12 +19,12 @@ import org.apache.commons.math3.util.FastMath;
 import org.csa.rstb.polarimetric.gpf.PolOpUtils;
 import org.esa.s1tbx.io.PolBandUtils;
 import org.esa.s1tbx.io.PolBandUtils.MATRIX;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.eo.Constants;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.gpf.TileIndex;
 
 import java.awt.Rectangle;

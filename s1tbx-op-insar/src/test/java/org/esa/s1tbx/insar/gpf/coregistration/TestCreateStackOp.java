@@ -16,11 +16,11 @@
 package org.esa.s1tbx.insar.gpf.coregistration;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.datamodel.Unit;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;

@@ -1,14 +1,14 @@
 package org.esa.s1tbx.io.gamma;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.dataio.AbstractProductReader;
+import org.esa.snap.core.dataio.ProductReaderPlugIn;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
-import org.esa.snap.framework.dataio.AbstractProductReader;
-import org.esa.snap.framework.dataio.ProductReaderPlugIn;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.util.io.FileUtils;
 

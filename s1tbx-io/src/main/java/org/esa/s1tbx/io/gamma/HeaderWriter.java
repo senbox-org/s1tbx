@@ -15,11 +15,11 @@
  */
 package org.esa.s1tbx.io.gamma;
 
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.io.FileUtils;
 

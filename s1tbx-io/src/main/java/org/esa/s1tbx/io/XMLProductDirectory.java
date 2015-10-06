@@ -17,14 +17,14 @@ package org.esa.s1tbx.io;
 
 import com.bc.ceres.core.VirtualDir;
 import org.esa.s1tbx.io.imageio.ImageIOFile;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.dataop.downloadable.XMLSupport;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.util.Guardian;
-import org.esa.snap.framework.dataop.downloadable.XMLSupport;
 import org.esa.snap.util.ZipUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;

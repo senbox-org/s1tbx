@@ -15,7 +15,7 @@
  */
 package org.csa.rstb.classification.rcp.dialogs;
 
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.graphbuilder.rcp.utils.FileFolderUtils;
 import org.esa.snap.rcp.SnapApp;

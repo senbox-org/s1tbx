@@ -18,7 +18,7 @@ package org.esa.s1tbx.io.ceos;
 import org.esa.s1tbx.io.binary.BinaryDBReader;
 import org.esa.s1tbx.io.binary.BinaryFileReader;
 import org.esa.s1tbx.io.binary.BinaryRecord;
-import org.esa.snap.framework.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.MetadataElement;
 import org.jdom2.Document;
 
 import java.io.IOException;

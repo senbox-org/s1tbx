@@ -15,8 +15,8 @@
  */
 package org.esa.s1tbx.fex.rcp.layersrc;
 
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.ui.layer.AbstractLayerSourceAssistantPage;
 import org.esa.snap.ui.layer.LayerSource;

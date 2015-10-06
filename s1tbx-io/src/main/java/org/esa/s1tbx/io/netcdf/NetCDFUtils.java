@@ -15,17 +15,17 @@
  */
 package org.esa.s1tbx.io.netcdf;
 
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataAttribute;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.dataop.maptransf.Datum;
+import org.esa.snap.core.dataop.maptransf.IdentityTransformDescriptor;
+import org.esa.snap.core.dataop.maptransf.MapInfo;
+import org.esa.snap.core.dataop.maptransf.MapProjection;
+import org.esa.snap.core.dataop.maptransf.MapProjectionRegistry;
 import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.MetadataAttribute;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.framework.dataop.maptransf.Datum;
-import org.esa.snap.framework.dataop.maptransf.IdentityTransformDescriptor;
-import org.esa.snap.framework.dataop.maptransf.MapInfo;
-import org.esa.snap.framework.dataop.maptransf.MapProjection;
-import org.esa.snap.framework.dataop.maptransf.MapProjectionRegistry;
 import org.esa.snap.util.SystemUtils;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
@@ -518,7 +518,7 @@ public class NetCDFUtils {
 
     /**
      * Return type of the {@link NetCDFUtils#createMapInfoX}()
-     * method. Comprises a {@link org.esa.snap.framework.dataop.maptransf.MapInfo} and a boolean indicating that the reader
+     * method. Comprises a {@link MapInfo} and a boolean indicating that the reader
      * should flip data along the Y-axis.
      */
     public static class MapInfoX {

@@ -17,13 +17,13 @@ package org.esa.s1tbx.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.utilities.gpf.DataAnalysisOp;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataAttribute;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.MetadataAttribute;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

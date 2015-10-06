@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.io.kml;
 
-import org.esa.snap.framework.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.GeoPos;
 
 import java.io.IOException;
 import java.io.Writer;

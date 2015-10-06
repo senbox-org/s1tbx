@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.analysis.rcp.toolviews.timeseries;
 
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.ui.diagram.DiagramAxis;
 
 import java.text.DateFormat;

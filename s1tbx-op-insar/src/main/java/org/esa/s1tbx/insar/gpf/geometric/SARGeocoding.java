@@ -1,6 +1,12 @@
 package org.esa.s1tbx.insar.gpf.geometric;
 
 import org.apache.commons.math3.util.FastMath;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.dataop.dem.ElevationModel;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
@@ -8,12 +14,6 @@ import org.esa.snap.datamodel.PosVector;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.eo.GeoUtils;
 import org.esa.snap.eo.LocalGeometry;
-import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.framework.dataop.dem.ElevationModel;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.TileGeoreferencing;
 import org.esa.snap.util.Maths;

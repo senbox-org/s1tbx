@@ -15,9 +15,9 @@
  */
 package org.esa.s1tbx.insar.rcp.toolviews;
 
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.rcp.SnapApp;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -28,8 +28,11 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import java.awt.BorderLayout;
+import java.awt.Component;
 import java.util.HashMap;
 import java.util.Map;
 

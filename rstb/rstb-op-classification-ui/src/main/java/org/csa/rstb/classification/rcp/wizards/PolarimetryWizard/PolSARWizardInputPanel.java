@@ -17,7 +17,7 @@ package org.csa.rstb.classification.rcp.wizards.PolarimetryWizard;
 
 import org.esa.s1tbx.dat.wizards.AbstractInputPanel;
 import org.esa.s1tbx.dat.wizards.WizardPanel;
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.gpf.InputProductValidator;
 
 /**

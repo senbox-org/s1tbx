@@ -17,14 +17,14 @@ package org.esa.s1tbx.io.polsarpro;
 
 import org.esa.s1tbx.io.FileImageOutputStreamExtImpl;
 import org.esa.s1tbx.io.PolBandUtils;
+import org.esa.snap.core.dataio.ProductWriterPlugIn;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.dataio.dimap.EnviHeader;
 import org.esa.snap.dataio.envi.EnviProductWriter;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
-import org.esa.snap.framework.dataio.ProductWriterPlugIn;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
 
 import javax.imageio.stream.ImageOutputStream;
 import java.io.File;

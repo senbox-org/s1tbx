@@ -16,7 +16,7 @@
 package org.esa.s1tbx.io.gtopo30;
 
 import org.esa.s1tbx.io.netcdf.NetCDFReaderPlugIn;
-import org.esa.snap.framework.dataio.DecodeQualification;
+import org.esa.snap.core.dataio.DecodeQualification;
 
 /**
  * The ReaderPlugIn for GTOPO30 tiles.

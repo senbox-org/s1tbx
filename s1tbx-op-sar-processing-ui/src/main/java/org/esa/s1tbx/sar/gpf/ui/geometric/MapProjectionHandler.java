@@ -16,8 +16,8 @@
 package org.esa.s1tbx.sar.gpf.ui.geometric;
 
 import com.bc.ceres.swing.TableLayout;
-import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.ui.AppContext;

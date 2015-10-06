@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.analysis.rcp.toolviews.timeseries;
 
-import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.ui.diagram.DiagramCanvas;
 
 import java.awt.BasicStroke;

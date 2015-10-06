@@ -18,6 +18,24 @@ package org.esa.s1tbx.insar.gpf.coregistration;
 import com.bc.ceres.core.ProgressMonitor;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 import org.apache.commons.math3.util.FastMath;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.GcpDescriptor;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.MetadataAttribute;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Placemark;
+import org.esa.snap.core.datamodel.PlacemarkNameFactory;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductNodeGroup;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.dataop.dem.ElevationModel;
+import org.esa.snap.core.dataop.dem.ElevationModelDescriptor;
+import org.esa.snap.core.dataop.dem.ElevationModelRegistry;
+import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;
+import org.esa.snap.core.dataop.resamp.ResamplingFactory;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -29,24 +47,6 @@ import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.GcpDescriptor;
-import org.esa.snap.framework.datamodel.GeoCoding;
-import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.datamodel.MetadataAttribute;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.Placemark;
-import org.esa.snap.framework.datamodel.PlacemarkNameFactory;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.ProductNodeGroup;
-import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.framework.dataop.dem.ElevationModel;
-import org.esa.snap.framework.dataop.dem.ElevationModelDescriptor;
-import org.esa.snap.framework.dataop.dem.ElevationModelRegistry;
-import org.esa.snap.framework.dataop.downloadable.StatusProgressMonitor;
-import org.esa.snap.framework.dataop.resamp.ResamplingFactory;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.StackUtils;
 import org.esa.snap.gpf.ThreadManager;
@@ -205,7 +205,7 @@ public class GCPSelectionOp extends Operator {
 
     /**
      * Initializes this operator and sets the one and only target product.
-     * <p>The target product can be either defined by a field of type {@link org.esa.snap.framework.datamodel.Product} annotated with the
+     * <p>The target product can be either defined by a field of type {@link Product} annotated with the
      * {@link TargetProduct TargetProduct} annotation or
      * by calling {@link #setTargetProduct} method.</p>
      * <p>The framework calls this method after it has created this operator.

@@ -15,10 +15,10 @@
  */
 package org.csa.rstb.classification.gpf.classifiers;
 
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.IndexCoding;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.IndexCoding;
 
 /**
  * Polarimetric Classifiers

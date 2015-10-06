@@ -18,11 +18,11 @@ package org.esa.s1tbx.io.ceos.alos;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.io.ceos.CEOSProductDirectory;
 import org.esa.s1tbx.io.ceos.CEOSProductReader;
+import org.esa.snap.core.dataio.DecodeQualification;
+import org.esa.snap.core.dataio.ProductReaderPlugIn;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.datamodel.Unit;
-import org.esa.snap.framework.dataio.DecodeQualification;
-import org.esa.snap.framework.dataio.ProductReaderPlugIn;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.ProductData;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,7 +1,7 @@
 package org.jlinda.nest.utils;
 
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.Tile;
-import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.gpf.TileIndex;
 import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;

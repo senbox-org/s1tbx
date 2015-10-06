@@ -15,10 +15,10 @@
  */
 package org.esa.s1tbx.utilities.rcp.actions;
 
-import org.esa.snap.framework.datamodel.MetadataAttribute;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductNode;
+import org.esa.snap.core.datamodel.MetadataAttribute;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductNode;
 import org.esa.snap.graphbuilder.rcp.dialogs.PromptDialog;
 import org.esa.snap.rcp.SnapDialogs;
 import org.openide.awt.ActionID;
@@ -33,7 +33,8 @@ import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.WeakListeners;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import java.awt.event.ActionEvent;
 
 @ActionID(category = "Metadata", id = "SearchMetadataValueAction" )

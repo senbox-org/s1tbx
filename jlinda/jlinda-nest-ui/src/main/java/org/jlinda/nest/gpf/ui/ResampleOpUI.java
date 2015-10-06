@@ -1,8 +1,8 @@
 package org.jlinda.nest.gpf.ui;
 
+import org.esa.snap.core.dataop.dem.ElevationModelDescriptor;
+import org.esa.snap.core.dataop.dem.ElevationModelRegistry;
 import org.esa.snap.dem.dataio.DEMFactory;
-import org.esa.snap.framework.dataop.dem.ElevationModelDescriptor;
-import org.esa.snap.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;

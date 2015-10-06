@@ -1,6 +1,10 @@
 package org.jlinda.nest.gpf.unwrapping;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -10,10 +14,6 @@ import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.util.ProductUtils;

@@ -1,6 +1,6 @@
 package org.jlinda.core.io;
 
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.util.SystemUtils;
 import org.jlinda.core.utils.DateUtils;
 

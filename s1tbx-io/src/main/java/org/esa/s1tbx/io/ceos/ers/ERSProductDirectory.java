@@ -21,13 +21,13 @@ import org.esa.s1tbx.io.ceos.CEOSImageFile;
 import org.esa.s1tbx.io.ceos.CEOSLeaderFile;
 import org.esa.s1tbx.io.ceos.CEOSProductDirectory;
 import org.esa.s1tbx.io.ceos.CeosHelper;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.util.Guardian;
 

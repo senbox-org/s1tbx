@@ -17,11 +17,11 @@ package org.esa.s1tbx.utilities.rcp.actions;
 
 import org.esa.s1tbx.utilities.gpf.ReplaceMetadataOp;
 import org.esa.s1tbx.utilities.rcp.dialogs.StringSelectorDialog;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductNode;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductNode;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.rcp.actions.AbstractSnapAction;
@@ -37,7 +37,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.WeakListeners;
 
-import javax.swing.*;
+import javax.swing.Action;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.ArrayList;

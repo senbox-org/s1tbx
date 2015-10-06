@@ -17,8 +17,8 @@ package org.esa.s1tbx.io.ceos.radarsat;
 
 import org.esa.s1tbx.io.ceos.CEOSProductDirectory;
 import org.esa.s1tbx.io.ceos.CEOSProductReader;
-import org.esa.snap.framework.dataio.DecodeQualification;
-import org.esa.snap.framework.dataio.ProductReaderPlugIn;
+import org.esa.snap.core.dataio.DecodeQualification;
+import org.esa.snap.core.dataio.ProductReaderPlugIn;
 
 import java.io.File;
 

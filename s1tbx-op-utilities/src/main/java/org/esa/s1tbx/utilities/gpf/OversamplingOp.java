@@ -18,6 +18,16 @@ package org.esa.s1tbx.utilities.gpf;
 import com.bc.ceres.core.ProgressMonitor;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 import org.apache.commons.math3.util.FastMath;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.CrsGeoCoding;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.MetadataAttribute;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -29,16 +39,6 @@ import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.CrsGeoCoding;
-import org.esa.snap.framework.datamodel.GeoCoding;
-import org.esa.snap.framework.datamodel.MetadataAttribute;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.framework.datamodel.VirtualBand;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.util.ProductUtils;
@@ -112,7 +112,7 @@ public class OversamplingOp extends Operator {
 
     /**
      * Initializes this operator and sets the one and only target product.
-     * <p>The target product can be either defined by a field of type {@link org.esa.snap.framework.datamodel.Product} annotated with the
+     * <p>The target product can be either defined by a field of type {@link Product} annotated with the
      * {@link TargetProduct TargetProduct} annotation or
      * by calling {@link #setTargetProduct} method.</p>
      * <p>The framework calls this method after it has created this operator.
