@@ -133,7 +133,7 @@ public class AzimuthShiftOp extends Operator {
         boolean hasDerampDemodPhaseBand = false;
         final Band[] sourceBands = sourceProduct.getBands();
         for (Band band:sourceBands) {
-            if (band.getName().equals(DerampDemodPhase)) {
+            if (band.getName().contains(DerampDemodPhase)) {
                 hasDerampDemodPhaseBand = true;
                 break;
             }
@@ -231,7 +231,7 @@ public class AzimuthShiftOp extends Operator {
                     tgtBandQ = targetProduct.getBand(bandName);
                 }
 
-                if (bandName.equals(DerampDemodPhase)) {
+                if (bandName.contains(DerampDemodPhase)) {
                     derampDemodPhaseBand = band;
                 }
             }
