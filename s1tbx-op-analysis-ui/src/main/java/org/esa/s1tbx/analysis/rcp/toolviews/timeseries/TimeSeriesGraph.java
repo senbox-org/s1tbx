@@ -19,7 +19,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.support.ImageLayer;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.ui.diagram.AbstractDiagramGraph;
+import org.esa.snap.ui.diagram.AbstractDiagramGraph;
 import org.esa.snap.util.math.IndexValidator;
 import org.esa.snap.util.math.Range;
 

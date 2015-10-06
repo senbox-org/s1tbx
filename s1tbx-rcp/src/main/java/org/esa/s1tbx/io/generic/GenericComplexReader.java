@@ -13,9 +13,9 @@ import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.ui.ModalDialog;
 import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.ui.ModalDialog;
 
 import javax.imageio.stream.ImageInputStream;
 import java.io.File;

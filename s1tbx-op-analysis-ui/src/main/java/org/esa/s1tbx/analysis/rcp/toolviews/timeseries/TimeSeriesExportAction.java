@@ -15,12 +15,12 @@
  */
 package org.esa.s1tbx.analysis.rcp.toolviews.timeseries;
 
-import org.esa.snap.framework.ui.diagram.DiagramGraph;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.runtime.Config;
+import org.esa.snap.ui.diagram.DiagramGraph;
 import org.esa.snap.util.io.SnapFileFilter;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 
 class TimeSeriesExportAction extends AbstractAction {

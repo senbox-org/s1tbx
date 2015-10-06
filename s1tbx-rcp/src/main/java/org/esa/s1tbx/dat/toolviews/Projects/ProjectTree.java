@@ -15,10 +15,10 @@
  */
 package org.esa.s1tbx.dat.toolviews.Projects;
 
-import org.esa.snap.framework.ui.PopupMenuFactory;
-import org.esa.snap.framework.ui.PopupMenuHandler;
-import org.esa.snap.framework.ui.UIUtils;
 import org.esa.snap.rcp.SnapDialogs;
+import org.esa.snap.ui.PopupMenuFactory;
+import org.esa.snap.ui.PopupMenuHandler;
+import org.esa.snap.ui.UIUtils;
 
 import javax.swing.DropMode;
 import javax.swing.ImageIcon;

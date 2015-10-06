@@ -16,12 +16,15 @@
 package org.esa.s1tbx.ocean.toolviews.polarview;
 
 import org.esa.s1tbx.ocean.toolviews.polarview.polarplot.Axis;
-import org.esa.snap.framework.ui.ModalDialog;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.ui.ModalDialog;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 
 /**
 

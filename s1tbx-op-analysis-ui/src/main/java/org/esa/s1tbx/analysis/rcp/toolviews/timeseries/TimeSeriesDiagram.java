@@ -27,12 +27,13 @@ import org.esa.snap.framework.datamodel.PixelPos;
 import org.esa.snap.framework.datamodel.Placemark;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.VectorDataNode;
-import org.esa.snap.framework.ui.diagram.DefaultDiagramGraphStyle;
-import org.esa.snap.framework.ui.diagram.Diagram;
-import org.esa.snap.framework.ui.diagram.DiagramAxis;
-import org.esa.snap.framework.ui.diagram.DiagramGraph;
+import org.esa.snap.ui.diagram.DefaultDiagramGraphStyle;
+import org.esa.snap.ui.diagram.Diagram;
+import org.esa.snap.ui.diagram.DiagramAxis;
+import org.esa.snap.ui.diagram.DiagramGraph;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.util.ArrayList;
 
 

@@ -19,10 +19,10 @@ import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.ui.layer.AbstractLayerSourceAssistantPage;
-import org.esa.snap.framework.ui.layer.LayerSource;
-import org.esa.snap.framework.ui.layer.LayerSourcePageContext;
 import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.ui.layer.AbstractLayerSourceAssistantPage;
+import org.esa.snap.ui.layer.LayerSource;
+import org.esa.snap.ui.layer.LayerSourcePageContext;
 
 /**
  * A source for GCP Vectors

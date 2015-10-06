@@ -3,12 +3,12 @@ package org.jlinda.nest.gpf.ui;
 import org.esa.snap.dem.dataio.DEMFactory;
 import org.esa.snap.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.snap.framework.dataop.dem.ElevationModelRegistry;
-import org.esa.snap.framework.ui.AppContext;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.OperatorUIUtils;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
-import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
+import org.esa.snap.rcp.SnapDialogs;
+import org.esa.snap.ui.AppContext;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
