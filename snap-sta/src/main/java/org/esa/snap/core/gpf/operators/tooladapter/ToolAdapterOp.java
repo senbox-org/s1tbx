@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  *  with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.snap.framework.gpf.operators.tooladapter;
+package org.esa.snap.core.gpf.operators.tooladapter;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.core.ProgressMonitor;
@@ -22,6 +22,10 @@ import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
+import org.esa.snap.core.gpf.descriptor.SystemVariable;
+import org.esa.snap.core.gpf.descriptor.TemplateParameterDescriptor;
+import org.esa.snap.core.gpf.descriptor.ToolAdapterOperatorDescriptor;
+import org.esa.snap.core.gpf.descriptor.ToolParameterDescriptor;
 import org.esa.snap.framework.dataio.ProductIO;
 import org.esa.snap.framework.dataio.ProductIOPlugInManager;
 import org.esa.snap.framework.dataio.ProductWriterPlugIn;
@@ -30,18 +34,29 @@ import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
-import org.esa.snap.framework.gpf.descriptor.*;
+import org.esa.snap.framework.gpf.descriptor.ParameterDescriptor;
 import org.esa.snap.framework.gpf.internal.OperatorContext;
 import org.esa.snap.jai.ImageManager;
 import org.esa.snap.util.ProductUtils;
 import org.esa.snap.util.io.FileUtils;
 import org.esa.snap.utils.PrivilegedAccessor;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;

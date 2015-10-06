@@ -1,4 +1,4 @@
-package org.esa.snap.framework.gpf.descriptor;
+package org.esa.snap.core.gpf.descriptor;
 
 import java.io.File;
 import java.io.IOException;

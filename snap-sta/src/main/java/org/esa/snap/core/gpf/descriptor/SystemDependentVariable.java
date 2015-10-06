@@ -1,8 +1,8 @@
-package org.esa.snap.framework.gpf.descriptor;
+package org.esa.snap.core.gpf.descriptor;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
-import org.esa.snap.framework.gpf.operators.tooladapter.ToolAdapterIO;
+import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterIO;
 
 import java.util.HashMap;
 import java.util.Map;

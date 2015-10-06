@@ -13,13 +13,13 @@
  * You should have received a copy of the GNU General Public License along
  *  with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.snap.framework.gpf.operators.tooladapter;
+package org.esa.snap.core.gpf.operators.tooladapter;
 
+import org.esa.snap.core.gpf.descriptor.ToolAdapterOperatorDescriptor;
 import org.esa.snap.framework.gpf.GPF;
 import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.snap.framework.gpf.OperatorSpiRegistry;
 import org.esa.snap.framework.gpf.descriptor.OperatorDescriptor;
-import org.esa.snap.framework.gpf.descriptor.ToolAdapterOperatorDescriptor;
 
 import java.util.HashMap;
 import java.util.Map;

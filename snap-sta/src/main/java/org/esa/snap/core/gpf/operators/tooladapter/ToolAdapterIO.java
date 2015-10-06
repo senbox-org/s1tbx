@@ -13,25 +13,36 @@
  * You should have received a copy of the GNU General Public License along
  *  with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.snap.framework.gpf.operators.tooladapter;
+package org.esa.snap.core.gpf.operators.tooladapter;
 
+import org.esa.snap.core.gpf.descriptor.ToolAdapterOperatorDescriptor;
 import org.esa.snap.framework.gpf.GPF;
 import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.framework.gpf.descriptor.ToolAdapterOperatorDescriptor;
 import org.esa.snap.runtime.Config;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.io.FileUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;

@@ -13,10 +13,10 @@
  * You should have received a copy of the GNU General Public License along
  *  with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.snap.framework.gpf.descriptor;
+package org.esa.snap.core.gpf.descriptor;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
-import org.esa.snap.framework.gpf.operators.tooladapter.ToolAdapterIO;
+import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterIO;
 
 /**
  * This class encapsulates an environment (or system) variable

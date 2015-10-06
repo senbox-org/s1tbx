@@ -13,17 +13,22 @@
  * You should have received a copy of the GNU General Public License along
  *  with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.snap.framework.gpf.descriptor;
+package org.esa.snap.core.gpf.descriptor;
 
 import com.bc.ceres.core.Assert;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.io.StreamException;
+import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterConstants;
 import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.operators.tooladapter.ToolAdapterConstants;
+import org.esa.snap.framework.gpf.descriptor.DefaultParameterDescriptor;
 import org.esa.snap.util.StringUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;

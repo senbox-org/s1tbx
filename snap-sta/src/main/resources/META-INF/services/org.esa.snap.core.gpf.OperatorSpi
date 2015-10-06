@@ -14,4 +14,4 @@
 #  with this program; if not, see http://www.gnu.org/licenses/
 #
 
-org.esa.snap.framework.gpf.operators.tooladapter.ToolAdapterOpSpi
+org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterOpSpi

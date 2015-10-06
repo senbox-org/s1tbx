@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  *  with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.snap.framework.gpf.operators.tooladapter;
+package org.esa.snap.core.gpf.operators.tooladapter;
 
 import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.snap.framework.gpf.descriptor.OperatorDescriptor;

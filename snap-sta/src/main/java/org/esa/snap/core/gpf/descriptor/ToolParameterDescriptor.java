@@ -13,9 +13,10 @@
  * You should have received a copy of the GNU General Public License along
  *  with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.snap.framework.gpf.descriptor;
+package org.esa.snap.core.gpf.descriptor;
 
-import org.esa.snap.framework.gpf.operators.tooladapter.ToolAdapterConstants;
+import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterConstants;
+import org.esa.snap.framework.gpf.descriptor.DefaultParameterDescriptor;
 
 import java.lang.reflect.Method;
 
