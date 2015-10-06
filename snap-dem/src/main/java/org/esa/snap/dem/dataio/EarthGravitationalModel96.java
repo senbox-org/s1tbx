@@ -15,7 +15,6 @@
  */
 package org.esa.snap.dem.dataio;
 
-import org.apache.commons.math3.util.FastMath;
 import org.esa.snap.util.Maths;
 
 import java.io.BufferedReader;
@@ -149,8 +148,8 @@ public final class EarthGravitationalModel96 {
         final double r = (90 - lat) / 0.25;
         final double c = (lon < 0 ? lon + 360 : lon) / 0.25;
 
-        final int r0 = FastMath.max(((int) r - 1), 0);
-        int c0 = FastMath.max(((int) c - 1), 0);
+        final int r0 = Math.max(((int) r - 1), 0);
+        int c0 = Math.max(((int) c - 1), 0);
 
         int ci1 = c0 + 1;
         int ci2 = c0 + 2;
