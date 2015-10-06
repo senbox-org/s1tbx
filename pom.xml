@@ -630,8 +630,8 @@
 	                            <link>http://docs.oracle.com/javase/7/docs/api/</link>
 	                    </links>
 	                    <subpackages>
-	                        org.esa.s1tbx:org.csa.rstb:org.esa.snap:org.esa.snap.core:org.esa.snap.util:org.esa.snap.visat:com.bc.jexp
-	                    </subpackages>
+                            org.esa.s1tbx:org.csa.rstb:org.esa.snap:org.esa.snap.core:org.esa.snap.util:org.esa.snap.visat:org.esa.snap.core.jexp
+                        </subpackages>
 	                    <quiet>false</quiet>
 					</configuration>
 	            </plugin>
