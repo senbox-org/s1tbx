@@ -18,7 +18,7 @@ package org.esa.snap.core.datamodel;
 
 import junit.framework.TestCase;
 import org.esa.snap.GlobalTestConfig;
-import org.esa.snap.util.io.FileUtils;
+import org.esa.snap.core.util.io.FileUtils;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.FileImageOutputStream;

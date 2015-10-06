@@ -15,7 +15,7 @@
  */
 package org.esa.snap.core.dataop.dem;
 
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.util.SystemUtils;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -24,8 +24,8 @@ import org.esa.snap.core.datamodel.MetadataAttribute;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.util.Debug;
-import org.esa.snap.util.StringUtils;
+import org.esa.snap.core.util.Debug;
+import org.esa.snap.core.util.StringUtils;
 
 import javax.imageio.stream.ImageInputStream;
 import java.io.File;

@@ -7,9 +7,9 @@ import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.jai.ImageManager;
-import org.esa.snap.jai.RasterDataNodeOpImage;
-import org.esa.snap.jai.ResolutionLevel;
+import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.image.RasterDataNodeOpImage;
+import org.esa.snap.core.image.ResolutionLevel;
 
 import java.awt.Rectangle;
 import java.awt.image.RenderedImage;

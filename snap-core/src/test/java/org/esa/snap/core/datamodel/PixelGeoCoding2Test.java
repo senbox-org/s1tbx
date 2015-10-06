@@ -2,8 +2,8 @@ package org.esa.snap.core.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.dataop.maptransf.Datum;
+import org.esa.snap.core.util.StopWatch;
 import org.esa.snap.runtime.Config;
-import org.esa.snap.util.StopWatch;
 import org.junit.Ignore;
 import org.junit.Test;
 

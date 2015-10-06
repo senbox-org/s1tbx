@@ -21,7 +21,7 @@ import com.thoughtworks.xstream.io.StreamException;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterConstants;
-import org.esa.snap.util.StringUtils;
+import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.utils.PrivilegedAccessor;
 
 import java.io.File;

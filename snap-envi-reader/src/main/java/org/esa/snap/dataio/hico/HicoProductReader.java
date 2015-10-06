@@ -12,8 +12,8 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.dataio.envi.EnviProductReaderPlugIn;
-import org.esa.snap.util.ProductUtils;
 
 import java.awt.Color;
 import java.io.File;

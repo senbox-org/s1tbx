@@ -2,8 +2,8 @@ package org.esa.snap.core.datamodel;
 
 import Jama.LUDecomposition;
 import Jama.Matrix;
-import org.esa.snap.util.math.DistanceMeasure;
-import org.esa.snap.util.math.SinusoidalDistance;
+import org.esa.snap.core.util.math.DistanceMeasure;
+import org.esa.snap.core.util.math.SinusoidalDistance;
 
 import javax.media.jai.PlanarImage;
 import java.awt.Rectangle;

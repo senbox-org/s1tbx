@@ -15,8 +15,8 @@
  */
 package org.esa.snap.core.datamodel;
 
-import org.esa.snap.jai.ImageManager;
-import org.esa.snap.util.math.MathUtils;
+import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.util.math.MathUtils;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.resources.geometry.XRectangle2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;

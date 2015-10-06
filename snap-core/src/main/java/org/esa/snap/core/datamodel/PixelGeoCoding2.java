@@ -19,10 +19,10 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.jexp.ParseException;
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.dataop.maptransf.Datum;
-import org.esa.snap.jai.ImageManager;
+import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.runtime.Config;
-import org.esa.snap.util.Guardian;
-import org.esa.snap.util.math.MathUtils;
 
 import javax.media.jai.PlanarImage;
 import java.awt.Rectangle;

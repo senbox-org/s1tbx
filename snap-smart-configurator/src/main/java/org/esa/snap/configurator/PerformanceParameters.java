@@ -20,9 +20,9 @@
 package org.esa.snap.configurator;
 
 
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.runtime.Config;
 import org.esa.snap.runtime.EngineConfig;
-import org.esa.snap.util.SystemUtils;
 
 import javax.media.jai.JAI;
 import java.io.IOException;

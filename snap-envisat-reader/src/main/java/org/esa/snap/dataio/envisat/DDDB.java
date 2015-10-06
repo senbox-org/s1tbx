@@ -17,9 +17,9 @@ package org.esa.snap.dataio.envisat;
 
 import org.esa.snap.core.datamodel.FlagCoding;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.util.Debug;
-import org.esa.snap.util.Guardian;
-import org.esa.snap.util.io.CsvReader;
+import org.esa.snap.core.util.Debug;
+import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.io.CsvReader;
 
 import java.io.IOException;
 import java.io.InputStreamReader;

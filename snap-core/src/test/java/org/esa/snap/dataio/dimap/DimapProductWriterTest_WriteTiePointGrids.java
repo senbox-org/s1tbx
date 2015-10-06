@@ -23,8 +23,8 @@ import org.esa.snap.GlobalTestTools;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGrid;
-import org.esa.snap.util.BeamConstants;
-import org.esa.snap.util.io.FileUtils;
+import org.esa.snap.core.util.BeamConstants;
+import org.esa.snap.core.util.io.FileUtils;
 
 import javax.imageio.stream.FileImageInputStream;
 import java.io.File;

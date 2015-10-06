@@ -26,12 +26,12 @@ import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
-import org.esa.snap.util.ProductUtils;
-import org.esa.snap.util.io.CsvReader;
-import org.esa.snap.util.math.ConstrainedLSU;
-import org.esa.snap.util.math.FullyConstrainedLSU;
-import org.esa.snap.util.math.SpectralUnmixing;
-import org.esa.snap.util.math.UnconstrainedLSU;
+import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.io.CsvReader;
+import org.esa.snap.core.util.math.ConstrainedLSU;
+import org.esa.snap.core.util.math.FullyConstrainedLSU;
+import org.esa.snap.core.util.math.SpectralUnmixing;
+import org.esa.snap.core.util.math.UnconstrainedLSU;
 
 import java.awt.Rectangle;
 import java.io.File;

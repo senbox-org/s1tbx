@@ -23,11 +23,11 @@ import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.dataio.ProductWriter;
-import org.esa.snap.jai.BandOpImage;
-import org.esa.snap.jai.ImageManager;
-import org.esa.snap.jai.ResolutionLevel;
-import org.esa.snap.util.Guardian;
-import org.esa.snap.util.ImageUtils;
+import org.esa.snap.core.image.BandOpImage;
+import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.image.ResolutionLevel;
+import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.ImageUtils;
 
 import javax.media.jai.PlanarImage;
 import java.awt.Color;

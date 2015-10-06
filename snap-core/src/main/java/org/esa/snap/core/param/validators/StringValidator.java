@@ -21,8 +21,8 @@ import org.esa.snap.core.param.ParamFormatException;
 import org.esa.snap.core.param.ParamParseException;
 import org.esa.snap.core.param.ParamValidateException;
 import org.esa.snap.core.param.Parameter;
-import org.esa.snap.util.Debug;
-import org.esa.snap.util.StringUtils;
+import org.esa.snap.core.util.Debug;
+import org.esa.snap.core.util.StringUtils;
 
 //@todo 1 se/** - add (more) class documentation
 

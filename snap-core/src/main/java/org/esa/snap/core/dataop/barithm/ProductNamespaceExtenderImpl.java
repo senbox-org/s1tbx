@@ -31,7 +31,7 @@ import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGrid;
-import org.esa.snap.util.ProductUtils;
+import org.esa.snap.core.util.ProductUtils;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;

@@ -18,8 +18,8 @@ package org.esa.snap.core.gpf.internal;
 
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.RasterDataNode;
-import org.esa.snap.util.math.MathUtils;
-import org.esa.snap.util.math.Range;
+import org.esa.snap.core.util.math.MathUtils;
+import org.esa.snap.core.util.math.Range;
 
 /**
  * Factory class, which is responsible for creating an instance of {@link SampleConverterFactory.SampleConverter}

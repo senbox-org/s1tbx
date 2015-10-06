@@ -16,8 +16,8 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.descriptor.OperatorDescriptor;
-import org.esa.snap.util.StringUtils;
-import org.esa.snap.util.io.FileUtils;
+import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.io.FileUtils;
 
 import java.io.File;
 import java.io.FileReader;

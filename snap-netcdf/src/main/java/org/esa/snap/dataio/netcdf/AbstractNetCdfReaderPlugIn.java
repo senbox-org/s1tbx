@@ -29,11 +29,11 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.Stx;
 import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.dataio.netcdf.metadata.ProfileInitPartReader;
 import org.esa.snap.dataio.netcdf.metadata.ProfilePartReader;
 import org.esa.snap.dataio.netcdf.util.NetcdfFileOpener;
 import org.esa.snap.dataio.netcdf.util.RasterDigest;
-import org.esa.snap.util.io.SnapFileFilter;
 import ucar.nc2.NetcdfFile;
 
 import java.io.File;

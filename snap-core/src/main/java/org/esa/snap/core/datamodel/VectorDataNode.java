@@ -18,8 +18,8 @@ package org.esa.snap.core.datamodel;
 
 import com.bc.ceres.core.Assert;
 import org.esa.snap.core.dataio.ProductSubsetDef;
-import org.esa.snap.util.Debug;
-import org.esa.snap.util.ObjectUtils;
+import org.esa.snap.core.util.Debug;
+import org.esa.snap.core.util.ObjectUtils;
 import org.geotools.feature.CollectionEvent;
 import org.geotools.feature.CollectionListener;
 import org.geotools.feature.DefaultFeatureCollection;

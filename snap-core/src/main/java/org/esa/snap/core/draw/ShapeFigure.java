@@ -15,7 +15,7 @@
  */
 package org.esa.snap.core.draw;
 
-import org.esa.snap.util.Guardian;
+import org.esa.snap.core.util.Guardian;
 
 import java.awt.BasicStroke;
 import java.awt.Composite;

@@ -30,6 +30,8 @@ import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProducts;
+import org.esa.snap.core.util.io.FileUtils;
+import org.esa.snap.core.util.io.WildcardMatcher;
 import org.esa.snap.statistics.output.BandNameCreator;
 import org.esa.snap.statistics.output.CsvStatisticsWriter;
 import org.esa.snap.statistics.output.FeatureStatisticsWriter;
@@ -37,8 +39,6 @@ import org.esa.snap.statistics.output.MetadataWriter;
 import org.esa.snap.statistics.output.StatisticsOutputContext;
 import org.esa.snap.statistics.output.StatisticsOutputter;
 import org.esa.snap.statistics.output.Util;
-import org.esa.snap.util.io.FileUtils;
-import org.esa.snap.util.io.WildcardMatcher;
 
 import javax.media.jai.Histogram;
 import java.io.File;

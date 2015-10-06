@@ -39,7 +39,7 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.ParameterBlockConverter;
-import org.esa.snap.util.converters.JtsGeometryConverter;
+import org.esa.snap.core.util.converters.JtsGeometryConverter;
 
 import java.lang.reflect.Constructor;
 

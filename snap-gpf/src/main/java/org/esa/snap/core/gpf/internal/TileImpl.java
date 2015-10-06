@@ -20,8 +20,8 @@ import com.bc.ceres.core.Assert;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.gpf.Tile;
-import org.esa.snap.util.BitSetter;
-import org.esa.snap.util.ImageUtils;
+import org.esa.snap.core.util.BitSetter;
+import org.esa.snap.core.util.ImageUtils;
 
 import java.awt.Rectangle;
 import java.awt.image.ComponentSampleModel;

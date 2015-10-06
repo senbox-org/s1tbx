@@ -45,8 +45,8 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProducts;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.gpf.common.support.BandDescriptorDomConverter;
-import org.esa.snap.util.ProductUtils;
-import org.esa.snap.util.StringUtils;
+import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.StringUtils;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;

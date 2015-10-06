@@ -23,10 +23,10 @@ import com.bc.ceres.glayer.LayerContext;
 import com.bc.ceres.glayer.annotations.LayerTypeMetadata;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
+import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.glayer.WorldMapLayerType;
 import org.esa.snap.glevel.TiledFileMultiLevelSource;
 import org.esa.snap.runtime.Config;
-import org.esa.snap.util.io.FileUtils;
 import org.geotools.referencing.AbstractIdentifiedObject;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 

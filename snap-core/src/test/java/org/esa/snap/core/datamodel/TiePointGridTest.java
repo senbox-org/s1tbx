@@ -19,7 +19,7 @@ package org.esa.snap.core.datamodel;
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.esa.snap.util.BeamConstants;
+import org.esa.snap.core.util.BeamConstants;
 
 import java.io.IOException;
 

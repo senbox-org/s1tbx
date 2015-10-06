@@ -19,7 +19,7 @@ package org.esa.snap.core.datamodel;
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.dataop.maptransf.Datum;
 import org.esa.snap.core.dataop.maptransf.Ellipsoid;
-import org.esa.snap.util.Debug;
+import org.esa.snap.core.util.Debug;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.GeneralDirectPosition;

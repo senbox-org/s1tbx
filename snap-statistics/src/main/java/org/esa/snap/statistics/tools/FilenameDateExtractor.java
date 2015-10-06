@@ -2,7 +2,7 @@ package org.esa.snap.statistics.tools;
 
 import com.bc.ceres.binding.ValidationException;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.util.TimeStampExtractor;
+import org.esa.snap.core.util.TimeStampExtractor;
 
 import java.io.File;
 

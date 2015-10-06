@@ -18,8 +18,8 @@ package org.esa.snap.core.param.editors;
 import org.esa.snap.core.param.AbstractParamEditor;
 import org.esa.snap.core.param.Parameter;
 import org.esa.snap.core.param.validators.StringArrayValidator;
-import org.esa.snap.util.Debug;
-import org.esa.snap.util.StringUtils;
+import org.esa.snap.core.util.Debug;
+import org.esa.snap.core.util.StringUtils;
 
 import javax.swing.JComponent;
 import javax.swing.JList;

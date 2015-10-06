@@ -46,7 +46,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import static org.esa.snap.util.StringUtils.*;
+import static org.esa.snap.core.util.StringUtils.*;
 
 public class ParameterDescriptorFactory implements PropertyDescriptorFactory {
 

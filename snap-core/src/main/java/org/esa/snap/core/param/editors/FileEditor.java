@@ -17,7 +17,7 @@ package org.esa.snap.core.param.editors;
 
 import org.esa.snap.core.param.ParamProperties;
 import org.esa.snap.core.param.Parameter;
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.util.SystemUtils;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;

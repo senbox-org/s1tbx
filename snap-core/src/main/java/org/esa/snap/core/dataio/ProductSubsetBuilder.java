@@ -33,8 +33,8 @@ import org.esa.snap.core.datamodel.Stx;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.datamodel.VirtualBand;
-import org.esa.snap.util.Debug;
-import org.esa.snap.util.ProductUtils;
+import org.esa.snap.core.util.Debug;
+import org.esa.snap.core.util.ProductUtils;
 
 import javax.media.jai.Histogram;
 import java.awt.Dimension;

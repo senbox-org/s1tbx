@@ -15,7 +15,7 @@
  */
 package org.esa.snap.core.param;
 
-import org.esa.snap.util.Debug;
+import org.esa.snap.core.util.Debug;
 
 import javax.swing.InputVerifier;
 import javax.swing.JComboBox;

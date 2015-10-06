@@ -7,9 +7,9 @@ import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.measurement.Measurement;
 import org.esa.snap.measurement.writer.MeasurementFactory;
-import org.esa.snap.util.ProductUtils;
 
 public abstract class AbstractMeasurementFactory implements MeasurementFactory {
 

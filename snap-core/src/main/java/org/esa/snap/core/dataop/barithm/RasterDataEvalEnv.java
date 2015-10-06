@@ -16,8 +16,8 @@
 package org.esa.snap.core.dataop.barithm;
 
 import com.bc.jexp.EvalEnv;
-import org.esa.snap.jai.LevelImageSupport;
-import org.esa.snap.jai.ResolutionLevel;
+import org.esa.snap.core.image.LevelImageSupport;
+import org.esa.snap.core.image.ResolutionLevel;
 
 /**
  * Represents an evaluation environment for {@link com.bc.jexp.Term Terms} which are operating on raster data.

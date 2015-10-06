@@ -29,20 +29,21 @@ import com.bc.ceres.jai.operator.ScalingType;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductWriter;
 import org.esa.snap.core.dataop.barithm.BandArithmetic;
-import org.esa.snap.jai.ImageManager;
+import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.image.SingleBandedOpImage;
+import org.esa.snap.core.util.BitRaster;
+import org.esa.snap.core.util.Debug;
+import org.esa.snap.core.util.ObjectUtils;
+import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.jai.SingleBandedSampleModel;
+import org.esa.snap.core.util.math.Histogram;
+import org.esa.snap.core.util.math.IndexValidator;
+import org.esa.snap.core.util.math.MathUtils;
+import org.esa.snap.core.util.math.Quantizer;
+import org.esa.snap.core.util.math.Range;
 import org.esa.snap.runtime.Config;
-import org.esa.snap.util.BitRaster;
-import org.esa.snap.util.Debug;
-import org.esa.snap.util.ObjectUtils;
-import org.esa.snap.util.ProductUtils;
-import org.esa.snap.util.StringUtils;
-import org.esa.snap.util.SystemUtils;
-import org.esa.snap.util.jai.SingleBandedSampleModel;
-import org.esa.snap.util.math.Histogram;
-import org.esa.snap.util.math.IndexValidator;
-import org.esa.snap.util.math.MathUtils;
-import org.esa.snap.util.math.Quantizer;
-import org.esa.snap.util.math.Range;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
@@ -2427,7 +2428,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * Processes the raster's data.
      * <p>
-     * Users of this method may also consider implementing a GPF {@code org.esa.snap.core.gpf.Operator} or a {@link org.esa.snap.jai.SingleBandedOpImage} instead.
+     * Users of this method may also consider implementing a GPF {@code org.esa.snap.core.gpf.Operator} or a {@link SingleBandedOpImage} instead.
      *
      * @param message   a task description
      * @param processor the raster processor
@@ -2469,7 +2470,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * A raster data processor which is called for a set of raster lines to be processed.
      * <p>
      * For maximum performance, implementors may also consider implementing a GPF {@code org.esa.snap.core.gpf.Operator} or a
-     * {@link org.esa.snap.jai.SingleBandedOpImage} instead.
+     * {@link SingleBandedOpImage} instead.
      */
     public interface RasterDataProcessor {
 

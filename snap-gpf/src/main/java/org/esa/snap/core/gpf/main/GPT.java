@@ -16,7 +16,7 @@
 
 package org.esa.snap.core.gpf.main;
 
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.util.SystemUtils;
 
 import java.util.Locale;
 

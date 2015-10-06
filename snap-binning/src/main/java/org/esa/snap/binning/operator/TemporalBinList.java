@@ -20,8 +20,8 @@ package org.esa.snap.binning.operator;
 
 import com.bc.ceres.core.VirtualDir;
 import org.esa.snap.binning.TemporalBin;
-import org.esa.snap.util.SystemUtils;
-import org.esa.snap.util.io.FileUtils;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.io.FileUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

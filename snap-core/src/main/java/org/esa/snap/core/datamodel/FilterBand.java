@@ -19,9 +19,9 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
-import org.esa.snap.jai.FillConstantOpImage;
-import org.esa.snap.jai.ImageManager;
-import org.esa.snap.util.Guardian;
+import org.esa.snap.core.image.FillConstantOpImage;
+import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.util.Guardian;
 
 import javax.media.jai.BorderExtender;
 import javax.media.jai.BorderExtenderCopy;

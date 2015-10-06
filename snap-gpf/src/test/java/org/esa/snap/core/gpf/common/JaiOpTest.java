@@ -23,7 +23,7 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
-import org.esa.snap.util.jai.SingleBandedSampleModel;
+import org.esa.snap.core.util.jai.SingleBandedSampleModel;
 
 import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;

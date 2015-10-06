@@ -25,7 +25,7 @@ import com.bc.ceres.core.runtime.ExtensionPoint;
 import com.bc.ceres.core.runtime.ModuleContext;
 import org.esa.snap.core.datamodel.RGBImageProfile;
 import org.esa.snap.core.datamodel.RGBImageProfileManager;
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.geotools.factory.FactoryIteratorProvider;
 import org.geotools.factory.GeoTools;
 import org.geotools.referencing.operation.MathTransformProvider;

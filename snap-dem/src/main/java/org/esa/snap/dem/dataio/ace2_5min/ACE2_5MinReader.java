@@ -26,10 +26,10 @@ import org.esa.snap.core.dataop.maptransf.Datum;
 import org.esa.snap.core.dataop.maptransf.IdentityTransformDescriptor;
 import org.esa.snap.core.dataop.maptransf.MapInfo;
 import org.esa.snap.core.dataop.maptransf.MapProjectionRegistry;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.gpf.ReaderUtils;
-import org.esa.snap.util.SystemUtils;
-import org.esa.snap.util.io.FileUtils;
 
 import javax.imageio.stream.FileCacheImageInputStream;
 import javax.imageio.stream.FileImageInputStream;

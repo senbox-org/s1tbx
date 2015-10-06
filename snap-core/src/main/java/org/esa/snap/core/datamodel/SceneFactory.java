@@ -17,9 +17,9 @@
 package org.esa.snap.core.datamodel;
 
 import org.esa.snap.core.dataio.ProductSubsetDef;
-import org.esa.snap.util.Guardian;
-import org.esa.snap.util.StringUtils;
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.SystemUtils;
 
 /**
  * This class is not public API yet.

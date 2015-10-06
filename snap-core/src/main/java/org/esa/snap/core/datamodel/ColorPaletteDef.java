@@ -16,9 +16,9 @@
 package org.esa.snap.core.datamodel;
 
 import com.bc.ceres.core.Assert;
-import org.esa.snap.util.DefaultPropertyMap;
-import org.esa.snap.util.Guardian;
-import org.esa.snap.util.PropertyMap;
+import org.esa.snap.core.util.DefaultPropertyMap;
+import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.PropertyMap;
 
 import java.awt.Color;
 import java.io.File;

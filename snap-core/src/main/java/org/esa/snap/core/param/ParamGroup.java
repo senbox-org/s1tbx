@@ -15,9 +15,9 @@
  */
 package org.esa.snap.core.param;
 
-import org.esa.snap.util.DefaultPropertyMap;
-import org.esa.snap.util.Guardian;
-import org.esa.snap.util.PropertyMap;
+import org.esa.snap.core.util.DefaultPropertyMap;
+import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.PropertyMap;
 
 import java.util.List;
 

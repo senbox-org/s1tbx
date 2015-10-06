@@ -1,6 +1,6 @@
 package org.esa.snap.binning.operator;
 
-import org.esa.snap.util.io.FileUtils;
+import org.esa.snap.core.util.io.FileUtils;
 
 import java.io.File;
 

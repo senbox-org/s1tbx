@@ -21,11 +21,11 @@ import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.util.Debug;
+import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.TreeNode;
 import org.esa.snap.runtime.Config;
-import org.esa.snap.util.Debug;
-import org.esa.snap.util.Guardian;
-import org.esa.snap.util.SystemUtils;
-import org.esa.snap.util.TreeNode;
 
 import java.awt.Dimension;
 import java.io.File;

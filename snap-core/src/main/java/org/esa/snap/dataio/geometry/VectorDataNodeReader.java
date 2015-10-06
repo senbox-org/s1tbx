@@ -32,12 +32,12 @@ import org.esa.snap.core.datamodel.PointDescriptor;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductNode;
 import org.esa.snap.core.datamodel.VectorDataNode;
-import org.esa.snap.util.FeatureUtils;
-import org.esa.snap.util.StringUtils;
-import org.esa.snap.util.SystemUtils;
-import org.esa.snap.util.converters.JavaTypeConverter;
-import org.esa.snap.util.io.CsvReader;
-import org.esa.snap.util.io.FileUtils;
+import org.esa.snap.core.util.FeatureUtils;
+import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.converters.JavaTypeConverter;
+import org.esa.snap.core.util.io.CsvReader;
+import org.esa.snap.core.util.io.FileUtils;
 import org.geotools.data.DataUtilities;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
@@ -62,7 +62,7 @@ import java.util.Map;
  * Clients need to specify:
  * <ul>
  * <li>a strategy for receiving the CRS the vector data is based on (given by an instance of
- * {@link org.esa.snap.util.FeatureUtils.FeatureCrsProvider})</li>
+ * {@link FeatureUtils.FeatureCrsProvider})</li>
  * <li>a strategy for receiving the instance of {@link PlacemarkDescriptor} which is responsible for creating placemarks
  * from the vector data (given by an instance of {@link PlacemarkDescriptorProvider})</li>
  * <li>The model CRS of the target product</li>

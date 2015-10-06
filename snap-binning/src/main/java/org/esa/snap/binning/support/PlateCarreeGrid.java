@@ -25,7 +25,7 @@ import com.vividsolutions.jts.simplify.DouglasPeuckerSimplifier;
 import org.esa.snap.binning.PlanetaryGrid;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.common.reproject.ReprojectionOp;
-import org.esa.snap.util.ProductUtils;
+import org.esa.snap.core.util.ProductUtils;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 
 import java.awt.Dimension;

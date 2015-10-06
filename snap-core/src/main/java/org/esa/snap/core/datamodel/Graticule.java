@@ -15,9 +15,9 @@
  */
 package org.esa.snap.core.datamodel;
 
-import org.esa.snap.util.Debug;
-import org.esa.snap.util.Guardian;
-import org.esa.snap.util.ProductUtils;
+import org.esa.snap.core.util.Debug;
+import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.ProductUtils;
 
 import java.awt.geom.GeneralPath;
 import java.util.ArrayList;

@@ -16,9 +16,9 @@
 package org.esa.snap.core.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.jai.ImageManager;
-import org.esa.snap.util.ShapeRasterizer;
-import org.esa.snap.util.math.MathUtils;
+import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.util.ShapeRasterizer;
+import org.esa.snap.core.util.math.MathUtils;
 
 import java.awt.Rectangle;
 import java.awt.Shape;

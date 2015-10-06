@@ -15,7 +15,7 @@
  */
 package org.esa.snap.dem.dataio.srtm1_hgt;
 
-import org.esa.snap.util.Guardian;
+import org.esa.snap.core.util.Guardian;
 
 import java.io.File;
 import java.io.IOException;

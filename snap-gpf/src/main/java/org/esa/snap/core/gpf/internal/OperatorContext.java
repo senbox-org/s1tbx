@@ -58,10 +58,10 @@ import org.esa.snap.core.gpf.descriptor.PropertySetDescriptorFactory;
 import org.esa.snap.core.gpf.graph.GraphOp;
 import org.esa.snap.core.gpf.monitor.TileComputationEvent;
 import org.esa.snap.core.gpf.monitor.TileComputationObserver;
+import org.esa.snap.core.util.ModuleMetadata;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.jai.JAIUtils;
 import org.esa.snap.runtime.Config;
-import org.esa.snap.util.ModuleMetadata;
-import org.esa.snap.util.SystemUtils;
-import org.esa.snap.util.jai.JAIUtils;
 
 import javax.media.jai.BorderExtender;
 import javax.media.jai.JAI;

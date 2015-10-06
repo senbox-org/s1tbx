@@ -22,8 +22,8 @@ import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.ProductNode;
+import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.dataio.geotiff.internal.TiffHeader;
-import org.esa.snap.util.io.FileUtils;
 
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;

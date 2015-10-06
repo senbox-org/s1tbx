@@ -21,7 +21,7 @@ import com.bc.ceres.binding.dom.DomElementXStreamConverter;
 import com.bc.ceres.util.TemplateReader;
 import com.thoughtworks.xstream.XStream;
 import org.esa.snap.core.gpf.internal.ApplicationData;
-import org.esa.snap.util.StringUtils;
+import org.esa.snap.core.util.StringUtils;
 
 import java.io.Reader;
 import java.io.Writer;

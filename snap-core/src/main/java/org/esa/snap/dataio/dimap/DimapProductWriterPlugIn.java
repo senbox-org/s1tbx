@@ -25,7 +25,7 @@ import org.esa.snap.core.datamodel.GeneralFilterBand;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.dataop.maptransf.MapInfo;
-import org.esa.snap.util.io.SnapFileFilter;
+import org.esa.snap.core.util.io.SnapFileFilter;
 
 import java.io.File;
 import java.util.HashSet;

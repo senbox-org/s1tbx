@@ -15,6 +15,7 @@
  */
 package org.esa.snap.util;
 
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.runtime.Config;
 
 import java.io.File;

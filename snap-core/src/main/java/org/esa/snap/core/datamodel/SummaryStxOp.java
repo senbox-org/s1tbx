@@ -16,7 +16,7 @@
 
 package org.esa.snap.core.datamodel;
 
-import org.esa.snap.util.math.DoubleList;
+import org.esa.snap.core.util.math.DoubleList;
 
 import javax.media.jai.UnpackedImageData;
 

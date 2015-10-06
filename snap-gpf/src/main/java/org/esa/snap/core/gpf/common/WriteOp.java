@@ -32,10 +32,10 @@ import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.gpf.internal.OperatorExecutor;
 import org.esa.snap.core.gpf.internal.OperatorExecutor.ExecutionOrder;
+import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.jai.JAIUtils;
+import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.dataio.dimap.DimapProductWriter;
-import org.esa.snap.util.Guardian;
-import org.esa.snap.util.jai.JAIUtils;
-import org.esa.snap.util.math.MathUtils;
 
 import javax.media.jai.JAI;
 import javax.media.jai.TileCache;

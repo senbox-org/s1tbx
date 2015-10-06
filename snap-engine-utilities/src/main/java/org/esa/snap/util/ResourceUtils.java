@@ -15,6 +15,9 @@
  */
 package org.esa.snap.util;
 
+import org.esa.snap.core.util.ResourceInstaller;
+import org.esa.snap.core.util.SystemUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

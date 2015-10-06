@@ -8,9 +8,9 @@ import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageMetadata;
 import org.esa.snap.core.datamodel.MetadataAttribute;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.geotiff.EPSGCodes;
+import org.esa.snap.core.util.geotiff.GeoTIFFCodes;
 import org.esa.snap.dataio.bigtiff.internal.GeoKeyEntry;
-import org.esa.snap.util.geotiff.EPSGCodes;
-import org.esa.snap.util.geotiff.GeoTIFFCodes;
 
 import java.util.Map;
 import java.util.SortedMap;

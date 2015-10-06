@@ -18,7 +18,7 @@ package org.esa.snap.core.datamodel;
 
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.dataop.maptransf.Datum;
-import org.esa.snap.util.math.FXYSum;
+import org.esa.snap.core.util.math.FXYSum;
 
 /**
  * A geo-coding based on equations. The geo-coordinates (lat, lon) and the pixel coordinates (x,y) are

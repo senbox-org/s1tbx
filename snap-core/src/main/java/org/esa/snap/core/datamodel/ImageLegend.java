@@ -15,9 +15,9 @@
  */
 package org.esa.snap.core.datamodel;
 
-import org.esa.snap.jai.ImageManager;
-import org.esa.snap.util.StringUtils;
-import org.esa.snap.util.math.MathUtils;
+import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.math.MathUtils;
 
 import java.awt.BasicStroke;
 import java.awt.Color;

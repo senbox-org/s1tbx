@@ -21,7 +21,7 @@ import org.esa.snap.core.param.ParamParseException;
 import org.esa.snap.core.param.ParamValidateException;
 import org.esa.snap.core.param.ParamValidator;
 import org.esa.snap.core.param.Parameter;
-import org.esa.snap.util.ObjectUtils;
+import org.esa.snap.core.util.ObjectUtils;
 
 public class ProductNodeNameValidator implements ParamValidator {
 

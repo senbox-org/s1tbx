@@ -14,8 +14,8 @@ package org.esa.snap.core.datamodel;/*
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-import org.esa.snap.util.math.DistanceMeasure;
-import org.esa.snap.util.math.SphericalDistance;
+import org.esa.snap.core.util.math.DistanceMeasure;
+import org.esa.snap.core.util.math.SphericalDistance;
 
 import javax.media.jai.PlanarImage;
 import java.awt.geom.Dimension2D;

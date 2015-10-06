@@ -16,7 +16,7 @@
 
 package org.esa.snap.statistics.output;
 
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.junit.Test;
 
 import java.io.PrintStream;

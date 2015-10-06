@@ -29,8 +29,8 @@ import com.bc.jexp.impl.ParserImpl;
 import com.bc.jexp.impl.Tokenizer;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.RasterDataNode;
-import org.esa.snap.util.Guardian;
-import org.esa.snap.util.StringUtils;
+import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;

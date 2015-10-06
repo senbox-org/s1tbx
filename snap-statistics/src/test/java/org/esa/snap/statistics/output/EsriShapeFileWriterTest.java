@@ -16,8 +16,8 @@
 
 package org.esa.snap.statistics.output;
 
+import org.esa.snap.core.util.FeatureUtils;
 import org.esa.snap.statistics.TestUtil;
-import org.esa.snap.util.FeatureUtils;
 import org.geotools.data.FeatureSource;
 import org.geotools.feature.FeatureCollection;
 import org.junit.After;

@@ -15,7 +15,7 @@
  */
 package org.esa.snap.core.dataio;
 
-import org.esa.snap.util.Guardian;
+import org.esa.snap.core.util.Guardian;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;

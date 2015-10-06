@@ -20,7 +20,7 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.jexp.Term;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.RasterDataNode;
-import org.esa.snap.util.Guardian;
+import org.esa.snap.core.util.Guardian;
 
 import java.io.IOException;
 import java.util.ArrayList;

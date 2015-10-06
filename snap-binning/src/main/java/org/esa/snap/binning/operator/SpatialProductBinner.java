@@ -35,12 +35,12 @@ import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.dataop.barithm.BandArithmetic;
 import org.esa.snap.core.gpf.OperatorException;
-import org.esa.snap.jai.ImageManager;
+import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.util.StopWatch;
+import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.runtime.Config;
-import org.esa.snap.util.StopWatch;
-import org.esa.snap.util.StringUtils;
-import org.esa.snap.util.SystemUtils;
-import org.esa.snap.util.math.MathUtils;
 
 import java.awt.Dimension;
 import java.awt.Point;

@@ -28,9 +28,9 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.ProductNodeEvent;
 import org.esa.snap.core.datamodel.ProductNodeListener;
 import org.esa.snap.core.datamodel.VirtualBand;
-import org.esa.snap.jai.ImageHeader;
-import org.esa.snap.jai.TiledFileOpImage;
-import org.esa.snap.util.io.FileUtils;
+import org.esa.snap.core.image.ImageHeader;
+import org.esa.snap.core.image.TiledFileOpImage;
+import org.esa.snap.core.util.io.FileUtils;
 
 import javax.imageio.stream.FileImageOutputStream;
 import java.awt.image.Raster;

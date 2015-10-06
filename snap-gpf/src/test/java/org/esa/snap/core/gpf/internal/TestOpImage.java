@@ -17,7 +17,7 @@
 package org.esa.snap.core.gpf.internal;
 
 import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.jai.BandOpImage;
+import org.esa.snap.core.image.BandOpImage;
 
 import javax.media.jai.PlanarImage;
 import java.awt.Rectangle;

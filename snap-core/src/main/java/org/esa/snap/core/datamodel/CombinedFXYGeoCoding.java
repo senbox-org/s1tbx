@@ -17,7 +17,7 @@ package org.esa.snap.core.datamodel;
 
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.dataop.maptransf.Datum;
-import org.esa.snap.util.Guardian;
+import org.esa.snap.core.util.Guardian;
 
 import java.awt.Dimension;
 import java.awt.Point;

@@ -15,7 +15,7 @@
  */
 package org.esa.snap.dataio.bigtiff.internal;
 
-import org.esa.snap.util.geotiff.GeoTIFFCodes;
+import org.esa.snap.core.util.geotiff.GeoTIFFCodes;
 
 public class GeoKeyEntry {
 

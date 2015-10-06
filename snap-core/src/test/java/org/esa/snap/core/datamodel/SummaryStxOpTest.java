@@ -16,8 +16,8 @@
 
 package org.esa.snap.core.datamodel;
 
-import org.esa.snap.jai.ImageManager;
-import org.esa.snap.util.ImageUtils;
+import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.util.ImageUtils;
 import org.junit.Test;
 
 import javax.media.jai.PixelAccessor;

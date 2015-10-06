@@ -21,7 +21,7 @@ import org.esa.snap.core.datamodel.FilterBand;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductNode;
 import org.esa.snap.core.datamodel.VirtualBand;
-import org.esa.snap.util.geotiff.GeoTIFFMetadata;
+import org.esa.snap.core.util.geotiff.GeoTIFFMetadata;
 
 import java.util.ArrayList;
 import java.util.List;

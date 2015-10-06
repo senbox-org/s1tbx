@@ -23,9 +23,9 @@ import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.util.ProductFunctions;
-import org.esa.snap.util.ProductUtils;
 
 import java.awt.image.BufferedImage;
 import java.io.File;

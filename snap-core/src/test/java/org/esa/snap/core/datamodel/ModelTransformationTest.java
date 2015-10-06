@@ -2,7 +2,7 @@ package org.esa.snap.core.datamodel;
 
 import com.bc.ceres.glevel.MultiLevelImage;
 import org.esa.snap.core.dataop.maptransf.Datum;
-import org.esa.snap.jai.ImageManager;
+import org.esa.snap.core.image.ImageManager;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.junit.Test;
 import org.opengis.referencing.operation.MathTransform;

@@ -16,8 +16,8 @@
 
 package org.esa.snap.dataio.getasse30;
 
-import org.esa.snap.util.Guardian;
-import org.esa.snap.util.io.FileUtils;
+import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;

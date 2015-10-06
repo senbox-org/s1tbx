@@ -17,7 +17,7 @@ package org.esa.snap.core.dataop.maptransf;
 
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.param.Parameter;
-import org.esa.snap.util.Guardian;
+import org.esa.snap.core.util.Guardian;
 
 import java.awt.geom.Point2D;
 

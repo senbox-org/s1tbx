@@ -6,7 +6,7 @@ import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.OperatorSpiRegistry;
 import org.esa.snap.core.gpf.TestOps;
-import org.esa.snap.util.jai.VerbousTileCache;
+import org.esa.snap.core.util.jai.VerbousTileCache;
 
 import javax.media.jai.JAI;
 import javax.media.jai.TileCache;

@@ -1,6 +1,6 @@
 package org.esa.snap.dataio.envi;
 
-import org.esa.snap.util.io.FileUtils;
+import org.esa.snap.core.util.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

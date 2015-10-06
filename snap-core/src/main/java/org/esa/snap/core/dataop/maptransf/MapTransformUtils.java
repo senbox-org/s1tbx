@@ -15,8 +15,8 @@
  */
 package org.esa.snap.core.dataop.maptransf;
 
-import org.esa.snap.util.Debug;
-import org.esa.snap.util.math.MathUtils;
+import org.esa.snap.core.util.Debug;
+import org.esa.snap.core.util.math.MathUtils;
 
 //@todo 1 se/** - add (more) class documentation
 /**

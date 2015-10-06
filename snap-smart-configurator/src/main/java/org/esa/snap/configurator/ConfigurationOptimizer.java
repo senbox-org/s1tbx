@@ -17,8 +17,8 @@
 
 package org.esa.snap.configurator;
 
-import org.esa.snap.util.SystemUtils;
-import org.esa.snap.util.io.FileUtils;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;

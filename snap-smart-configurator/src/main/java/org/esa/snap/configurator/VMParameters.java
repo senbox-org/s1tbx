@@ -17,8 +17,8 @@
 package org.esa.snap.configurator;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.runtime.Config;
-import org.esa.snap.util.SystemUtils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

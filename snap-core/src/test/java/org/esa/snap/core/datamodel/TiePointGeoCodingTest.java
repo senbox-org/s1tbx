@@ -20,7 +20,7 @@ import junit.framework.TestCase;
 import org.esa.snap.core.dataio.ProductSubsetBuilder;
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.dataop.maptransf.Datum;
-import org.esa.snap.util.Debug;
+import org.esa.snap.core.util.Debug;
 
 import java.awt.geom.AffineTransform;
 import java.io.IOException;

@@ -16,9 +16,9 @@
 
 package org.esa.snap.core.datamodel;
 
-import org.esa.snap.util.jai.JAIUtils;
-import org.esa.snap.util.math.CosineDistance;
-import org.esa.snap.util.math.DistanceMeasure;
+import org.esa.snap.core.util.jai.JAIUtils;
+import org.esa.snap.core.util.math.CosineDistance;
+import org.esa.snap.core.util.math.DistanceMeasure;
 
 import javax.media.jai.PlanarImage;
 import java.awt.Dimension;

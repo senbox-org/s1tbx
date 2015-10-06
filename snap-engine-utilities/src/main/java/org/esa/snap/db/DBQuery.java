@@ -16,9 +16,9 @@
 package org.esa.snap.db;
 
 import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.util.StringUtils;
-import org.esa.snap.util.SystemUtils;
 import org.jdom2.Attribute;
 import org.jdom2.Element;
 

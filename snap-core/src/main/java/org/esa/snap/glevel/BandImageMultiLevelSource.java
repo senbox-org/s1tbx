@@ -21,7 +21,7 @@ import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import org.esa.snap.core.datamodel.ImageInfo;
 import org.esa.snap.core.datamodel.RasterDataNode;
-import org.esa.snap.jai.ImageManager;
+import org.esa.snap.core.image.ImageManager;
 
 import java.awt.Shape;
 import java.awt.image.RenderedImage;

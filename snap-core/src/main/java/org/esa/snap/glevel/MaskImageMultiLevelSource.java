@@ -22,7 +22,7 @@ import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.jai.ImageManager;
+import org.esa.snap.core.image.ImageManager;
 
 import java.awt.Color;
 import java.awt.geom.AffineTransform;

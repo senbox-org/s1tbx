@@ -17,7 +17,7 @@ package org.esa.snap.dataio.envisat;
 
 
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.util.Debug;
+import org.esa.snap.core.util.Debug;
 
 /**
  * The <code>DataItemInfo</code> class represents a named item having a specific data type.

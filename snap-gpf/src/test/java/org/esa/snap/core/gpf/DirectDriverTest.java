@@ -10,7 +10,7 @@ import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.gpf.internal.DefaultTileIterator;
-import org.esa.snap.util.BitSetter;
+import org.esa.snap.core.util.BitSetter;
 
 import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.Rectangle;

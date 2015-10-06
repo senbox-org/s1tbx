@@ -28,7 +28,7 @@ import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.util.converters.JtsGeometryConverter;
+import org.esa.snap.core.util.converters.JtsGeometryConverter;
 import org.junit.Test;
 
 import javax.media.jai.operator.ConstantDescriptor;

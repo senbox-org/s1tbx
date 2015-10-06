@@ -16,8 +16,8 @@
 package org.esa.snap.dataio.arcbin;
 
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.jai.ResolutionLevel;
-import org.esa.snap.jai.SingleBandedOpImage;
+import org.esa.snap.core.image.ResolutionLevel;
+import org.esa.snap.core.image.SingleBandedOpImage;
 
 import javax.media.jai.PlanarImage;
 import java.awt.Dimension;

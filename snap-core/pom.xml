@@ -160,9 +160,7 @@
                         <publicPackage>org.esa.snap.core.*</publicPackage>
                         <publicPackage>org.esa.snap.glayer.*</publicPackage>
                         <publicPackage>org.esa.snap.glevel.*</publicPackage>
-                        <publicPackage>org.esa.snap.jai.*</publicPackage>
                         <publicPackage>org.esa.snap.nn.*</publicPackage>
-                        <publicPackage>org.esa.snap.util.*</publicPackage>
                         <publicPackage>org.esa.snap.examples.*</publicPackage>
                     </publicPackages>
                 </configuration>

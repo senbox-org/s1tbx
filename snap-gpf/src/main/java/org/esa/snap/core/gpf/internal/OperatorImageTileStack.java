@@ -19,8 +19,8 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.gpf.Tile;
-import org.esa.snap.jai.ImageManager;
-import org.esa.snap.util.ImageUtils;
+import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.util.ImageUtils;
 
 import javax.media.jai.PlanarImage;
 import java.awt.Dimension;

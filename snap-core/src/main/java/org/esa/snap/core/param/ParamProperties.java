@@ -15,11 +15,11 @@
  */
 package org.esa.snap.core.param;
 
-import org.esa.snap.util.Debug;
-import org.esa.snap.util.Guardian;
-import org.esa.snap.util.ObjectUtils;
-import org.esa.snap.util.PropertyMap;
-import org.esa.snap.util.StringUtils;
+import org.esa.snap.core.util.Debug;
+import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.ObjectUtils;
+import org.esa.snap.core.util.PropertyMap;
+import org.esa.snap.core.util.StringUtils;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;

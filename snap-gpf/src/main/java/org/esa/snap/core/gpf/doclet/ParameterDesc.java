@@ -18,7 +18,7 @@ package org.esa.snap.core.gpf.doclet;
 
 import com.sun.javadoc.FieldDoc;
 import org.esa.snap.core.gpf.annotations.Parameter;
-import org.esa.snap.util.StringUtils;
+import org.esa.snap.core.util.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;

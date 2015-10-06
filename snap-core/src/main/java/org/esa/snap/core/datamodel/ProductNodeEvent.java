@@ -15,7 +15,7 @@
  */
 package org.esa.snap.core.datamodel;
 
-import org.esa.snap.util.Guardian;
+import org.esa.snap.core.util.Guardian;
 
 import java.util.EventObject;
 

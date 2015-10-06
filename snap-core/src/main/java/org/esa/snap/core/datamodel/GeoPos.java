@@ -15,7 +15,7 @@
  */
 package org.esa.snap.core.datamodel;
 
-import org.esa.snap.util.math.MathUtils;
+import org.esa.snap.core.util.math.MathUtils;
 
 /**
  * The <code>GeoPos</code> class represents a geographical position measured in longitudes and latitudes.

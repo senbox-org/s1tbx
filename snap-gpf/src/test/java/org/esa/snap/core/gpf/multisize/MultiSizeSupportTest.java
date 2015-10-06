@@ -15,7 +15,7 @@ import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.common.BandMathsOp;
 import org.esa.snap.core.gpf.common.SubsetOp;
 import org.esa.snap.core.gpf.common.reproject.ReprojectionOp;
-import org.esa.snap.jai.ImageManager;
+import org.esa.snap.core.image.ImageManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;

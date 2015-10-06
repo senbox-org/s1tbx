@@ -42,9 +42,9 @@ import org.esa.snap.core.dataop.maptransf.LambertConformalConicDescriptor;
 import org.esa.snap.core.dataop.maptransf.MapInfo;
 import org.esa.snap.core.dataop.maptransf.MapProjection;
 import org.esa.snap.core.dataop.maptransf.MapTransform;
-import org.esa.snap.util.BeamConstants;
-import org.esa.snap.util.Debug;
-import org.esa.snap.util.StringUtils;
+import org.esa.snap.core.util.BeamConstants;
+import org.esa.snap.core.util.Debug;
+import org.esa.snap.core.util.StringUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 

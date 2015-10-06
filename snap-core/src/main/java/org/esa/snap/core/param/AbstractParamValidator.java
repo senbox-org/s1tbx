@@ -15,8 +15,8 @@
  */
 package org.esa.snap.core.param;
 
-import org.esa.snap.util.Debug;
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.util.Debug;
+import org.esa.snap.core.util.SystemUtils;
 
 import java.util.logging.Logger;
 

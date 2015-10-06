@@ -18,7 +18,7 @@ package org.esa.snap.cluster;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Mask;
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.util.StringUtils;
+import org.esa.snap.core.util.StringUtils;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.MinDescriptor;

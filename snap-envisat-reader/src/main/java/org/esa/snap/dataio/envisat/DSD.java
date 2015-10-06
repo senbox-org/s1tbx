@@ -15,8 +15,8 @@
  */
 package org.esa.snap.dataio.envisat;
 
-import org.esa.snap.util.Debug;
-import org.esa.snap.util.Guardian;
+import org.esa.snap.core.util.Debug;
+import org.esa.snap.core.util.Guardian;
 
 /**
  * The DSD structure represents a data set descriptor (DSD) found in the specific product header (SPH) of MERIS level 1b

@@ -19,8 +19,8 @@ import org.esa.snap.core.datamodel.AngularDirection;
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Pointing;
-import org.esa.snap.util.math.MathUtils;
-import org.esa.snap.util.math.RsMathUtils;
+import org.esa.snap.core.util.math.MathUtils;
+import org.esa.snap.core.util.math.RsMathUtils;
 
 /**
  * An experimental modification of the standard {@link Orthorectifier}.

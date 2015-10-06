@@ -32,10 +32,10 @@ import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
-import org.esa.snap.jai.ImageManager;
-import org.esa.snap.util.ProductUtils;
-import org.esa.snap.util.StringUtils;
-import org.esa.snap.util.math.MathUtils;
+import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.math.MathUtils;
 
 import java.awt.Color;
 import java.awt.Dimension;

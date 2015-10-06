@@ -21,9 +21,9 @@ import org.esa.snap.core.datamodel.MapGeoCoding;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
-import org.esa.snap.util.StringUtils;
 
 /**
  * Validates input products using commonly used verifications

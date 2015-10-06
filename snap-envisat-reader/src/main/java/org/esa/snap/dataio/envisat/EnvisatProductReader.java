@@ -33,9 +33,9 @@ import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.dataop.maptransf.Datum;
-import org.esa.snap.util.ArrayUtils;
-import org.esa.snap.util.Debug;
-import org.esa.snap.util.io.FileUtils;
+import org.esa.snap.core.util.ArrayUtils;
+import org.esa.snap.core.util.Debug;
+import org.esa.snap.core.util.io.FileUtils;
 
 import javax.imageio.stream.FileCacheImageInputStream;
 import javax.imageio.stream.ImageInputStream;

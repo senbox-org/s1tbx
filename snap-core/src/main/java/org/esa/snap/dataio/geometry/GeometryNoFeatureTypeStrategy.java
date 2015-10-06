@@ -17,7 +17,7 @@
 package org.esa.snap.dataio.geometry;
 
 import com.bc.ceres.binding.ConversionException;
-import org.esa.snap.util.FeatureUtils;
+import org.esa.snap.core.util.FeatureUtils;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.opengis.feature.simple.SimpleFeature;

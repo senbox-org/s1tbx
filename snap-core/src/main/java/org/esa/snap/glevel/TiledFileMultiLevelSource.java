@@ -20,8 +20,8 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
-import org.esa.snap.jai.TiledFileOpImage;
-import org.esa.snap.util.StringUtils;
+import org.esa.snap.core.image.TiledFileOpImage;
+import org.esa.snap.core.util.StringUtils;
 
 import javax.media.jai.PlanarImage;
 import java.awt.geom.AffineTransform;

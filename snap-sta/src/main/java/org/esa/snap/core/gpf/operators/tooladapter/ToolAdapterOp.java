@@ -36,9 +36,9 @@ import org.esa.snap.core.gpf.descriptor.TemplateParameterDescriptor;
 import org.esa.snap.core.gpf.descriptor.ToolAdapterOperatorDescriptor;
 import org.esa.snap.core.gpf.descriptor.ToolParameterDescriptor;
 import org.esa.snap.core.gpf.internal.OperatorContext;
-import org.esa.snap.jai.ImageManager;
-import org.esa.snap.util.ProductUtils;
-import org.esa.snap.util.io.FileUtils;
+import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.utils.PrivilegedAccessor;
 
 import java.io.BufferedReader;

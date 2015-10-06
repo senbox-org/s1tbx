@@ -17,10 +17,10 @@ package org.esa.snap.datamodel;
 
 import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.core.dataop.downloadable.ftpUtils;
-import org.esa.snap.util.DefaultPropertyMap;
-import org.esa.snap.util.PropertyMap;
-import org.esa.snap.util.SystemUtils;
-import org.esa.snap.util.io.FileUtils;
+import org.esa.snap.core.util.DefaultPropertyMap;
+import org.esa.snap.core.util.PropertyMap;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.io.FileUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

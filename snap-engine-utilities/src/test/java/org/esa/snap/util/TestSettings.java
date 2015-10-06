@@ -15,6 +15,7 @@
  */
 package org.esa.snap.util;
 
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.runtime.Config;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +24,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.*;
 
 /**
  * Settings Tester.

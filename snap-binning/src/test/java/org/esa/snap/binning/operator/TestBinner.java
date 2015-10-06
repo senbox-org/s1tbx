@@ -31,9 +31,9 @@ import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.util.Debug;
-import org.esa.snap.util.StopWatch;
-import org.esa.snap.util.io.FileUtils;
+import org.esa.snap.core.util.Debug;
+import org.esa.snap.core.util.StopWatch;
+import org.esa.snap.core.util.io.FileUtils;
 import org.junit.Ignore;
 
 import java.io.File;

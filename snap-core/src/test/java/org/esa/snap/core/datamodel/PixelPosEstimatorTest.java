@@ -14,7 +14,7 @@ package org.esa.snap.core.datamodel;/*
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-import org.esa.snap.util.jai.SingleBandedSampleModel;
+import org.esa.snap.core.util.jai.SingleBandedSampleModel;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;

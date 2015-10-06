@@ -52,8 +52,8 @@ import org.esa.snap.core.gpf.graph.Node;
 import org.esa.snap.core.gpf.graph.NodeContext;
 import org.esa.snap.core.gpf.graph.NodeSource;
 import org.esa.snap.core.gpf.internal.OperatorExecutor;
-import org.esa.snap.util.SystemUtils;
-import org.esa.snap.util.io.FileUtils;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.io.FileUtils;
 import org.xmlpull.mxp1.MXParser;
 
 import javax.media.jai.JAI;

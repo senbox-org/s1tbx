@@ -20,7 +20,7 @@ package org.esa.snap.core.datamodel;
 import junit.framework.TestCase;
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.dataop.maptransf.Datum;
-import org.esa.snap.util.math.FXYSum;
+import org.esa.snap.core.util.math.FXYSum;
 
 public class SceneTest extends TestCase {
 

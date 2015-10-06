@@ -26,10 +26,10 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.impl.Tokenizer;
 import org.esa.snap.core.dataop.barithm.BandArithmetic;
+import org.esa.snap.core.util.Debug;
+import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.dataio.dimap.DimapProductConstants;
 import org.esa.snap.dataio.dimap.DimapProductHelpers;
-import org.esa.snap.util.Debug;
-import org.esa.snap.util.StringUtils;
 import org.jdom.Element;
 
 import java.awt.Color;

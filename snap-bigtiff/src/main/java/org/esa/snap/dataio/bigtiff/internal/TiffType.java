@@ -16,7 +16,7 @@
 
 package org.esa.snap.dataio.bigtiff.internal;
 
-import org.esa.snap.util.Guardian;
+import org.esa.snap.core.util.Guardian;
 
 /**
  * TIFF types for the GeoTIFF format.

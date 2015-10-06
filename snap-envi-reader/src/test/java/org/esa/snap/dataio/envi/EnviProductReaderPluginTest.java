@@ -2,7 +2,7 @@ package org.esa.snap.dataio.envi;
 
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
-import org.esa.snap.util.io.SnapFileFilter;
+import org.esa.snap.core.util.io.SnapFileFilter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

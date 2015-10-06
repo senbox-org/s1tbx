@@ -4,9 +4,9 @@ package org.esa.snap.python.gpf;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.descriptor.DefaultOperatorDescriptor;
 import org.esa.snap.core.gpf.main.GPT;
+import org.esa.snap.core.util.io.TreeDeleter;
 import org.esa.snap.python.PyBridge;
 import org.esa.snap.runtime.Config;
-import org.esa.snap.util.io.TreeDeleter;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

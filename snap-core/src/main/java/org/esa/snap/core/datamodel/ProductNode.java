@@ -19,8 +19,8 @@ import com.bc.ceres.core.ExtensibleObject;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.dataio.ProductWriter;
-import org.esa.snap.util.Guardian;
-import org.esa.snap.util.ObjectUtils;
+import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.ObjectUtils;
 
 /**
  * The <code>ProductNode</code> is the base class for all nodes within a remote sensing data product and even the data

@@ -17,8 +17,8 @@ package org.esa.snap.core.datamodel;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.jai.ImageManager;
-import org.esa.snap.util.math.MathUtils;
+import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.util.math.MathUtils;
 
 import javax.media.jai.PixelAccessor;
 import javax.media.jai.PlanarImage;

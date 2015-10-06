@@ -22,7 +22,7 @@ import com.bc.ceres.core.ServiceRegistryManager;
 import org.esa.snap.SnapCoreActivator;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.OperatorSpiRegistry;
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.util.SystemUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;

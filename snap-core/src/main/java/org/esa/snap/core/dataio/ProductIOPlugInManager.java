@@ -18,8 +18,8 @@ package org.esa.snap.core.dataio;
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
 import org.esa.snap.SnapCoreActivator;
-import org.esa.snap.util.Debug;
-import org.esa.snap.util.Guardian;
+import org.esa.snap.core.util.Debug;
+import org.esa.snap.core.util.Guardian;
 
 import java.util.ArrayList;
 import java.util.Iterator;

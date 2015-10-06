@@ -20,7 +20,7 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.VirtualDir;
 import org.esa.snap.binning.BinningContext;
 import org.esa.snap.binning.SpatialBin;
-import org.esa.snap.util.io.FileUtils;
+import org.esa.snap.core.util.io.FileUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

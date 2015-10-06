@@ -15,7 +15,7 @@
  */
 package org.esa.snap;
 
-import org.esa.snap.util.io.FileUtils;
+import org.esa.snap.core.util.io.FileUtils;
 
 import javax.imageio.stream.ImageOutputStream;
 import java.io.File;

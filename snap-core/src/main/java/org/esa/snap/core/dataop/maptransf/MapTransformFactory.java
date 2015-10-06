@@ -15,7 +15,7 @@
  */
 package org.esa.snap.core.dataop.maptransf;
 
-import org.esa.snap.util.Guardian;
+import org.esa.snap.core.util.Guardian;
 
 /**
  * A factory for map transformation instances.

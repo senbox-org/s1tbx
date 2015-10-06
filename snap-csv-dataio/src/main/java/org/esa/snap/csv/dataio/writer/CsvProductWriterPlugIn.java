@@ -20,8 +20,8 @@ import org.esa.snap.core.dataio.EncodeQualification;
 import org.esa.snap.core.dataio.ProductWriter;
 import org.esa.snap.core.dataio.ProductWriterPlugIn;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.csv.dataio.Constants;
-import org.esa.snap.util.io.SnapFileFilter;
 
 import java.io.File;
 import java.io.Writer;

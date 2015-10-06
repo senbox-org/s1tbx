@@ -25,10 +25,10 @@ import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.dataop.maptransf.Datum;
+import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
-import org.esa.snap.util.Guardian;
-import org.esa.snap.util.math.MathUtils;
 
 import java.io.File;
 import java.text.DateFormat;

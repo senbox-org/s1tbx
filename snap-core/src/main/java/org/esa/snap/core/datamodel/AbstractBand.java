@@ -19,8 +19,8 @@ package org.esa.snap.core.datamodel;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.snap.core.dataio.ProductSubsetDef;
-import org.esa.snap.util.Debug;
-import org.esa.snap.util.Guardian;
+import org.esa.snap.core.util.Debug;
+import org.esa.snap.core.util.Guardian;
 
 import java.io.IOException;
 

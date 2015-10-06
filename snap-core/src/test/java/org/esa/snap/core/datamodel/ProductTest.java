@@ -28,11 +28,11 @@ import org.esa.snap.core.dataop.maptransf.IdentityTransformDescriptor;
 import org.esa.snap.core.dataop.maptransf.MapInfo;
 import org.esa.snap.core.dataop.maptransf.MapProjection;
 import org.esa.snap.core.dataop.maptransf.MapTransform;
-import org.esa.snap.util.BeamConstants;
-import org.esa.snap.util.BitRaster;
-import org.esa.snap.util.ObjectUtils;
-import org.esa.snap.util.ProductUtilsTest;
-import org.esa.snap.util.io.SnapFileFilter;
+import org.esa.snap.core.util.BeamConstants;
+import org.esa.snap.core.util.BitRaster;
+import org.esa.snap.core.util.ObjectUtils;
+import org.esa.snap.core.util.ProductUtilsTest;
+import org.esa.snap.core.util.io.SnapFileFilter;
 import org.junit.Before;
 import org.junit.Test;
 

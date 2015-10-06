@@ -17,7 +17,7 @@
 package org.esa.snap.dataio.netcdf.util;
 
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.util.SystemUtils;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 

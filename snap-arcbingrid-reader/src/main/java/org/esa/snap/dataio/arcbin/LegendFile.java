@@ -20,8 +20,8 @@ import jxl.Cell;
 import jxl.Sheet;
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
-import org.esa.snap.util.Debug;
-import org.esa.snap.util.StringUtils;
+import org.esa.snap.core.util.Debug;
+import org.esa.snap.core.util.StringUtils;
 import org.geotools.data.shapefile.dbf.DbaseFileReader;
 
 import java.io.File;

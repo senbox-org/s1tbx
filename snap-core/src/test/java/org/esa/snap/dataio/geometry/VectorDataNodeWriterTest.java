@@ -23,7 +23,7 @@ import org.esa.snap.core.datamodel.PlacemarkDescriptor;
 import org.esa.snap.core.datamodel.PlacemarkDescriptorRegistry;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.VectorDataNode;
-import org.esa.snap.util.FeatureUtils;
+import org.esa.snap.core.util.FeatureUtils;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;

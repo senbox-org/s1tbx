@@ -29,9 +29,9 @@ import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
-import org.esa.snap.util.ProductUtils;
-import org.esa.snap.util.math.Histogram;
-import org.esa.snap.util.math.Range;
+import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.math.Histogram;
+import org.esa.snap.core.util.math.Range;
 
 import java.util.ArrayList;
 import java.util.List;

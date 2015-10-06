@@ -31,7 +31,7 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.param.ParamParseException;
 import org.esa.snap.core.param.ParamProperties;
 import org.esa.snap.core.param.Parameter;
-import org.esa.snap.util.Debug;
+import org.esa.snap.core.util.Debug;
 
 /**
  * Validates boolean and general expressions.

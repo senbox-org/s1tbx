@@ -50,10 +50,10 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProducts;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.gpf.common.SubsetOp;
-import org.esa.snap.util.ProductUtils;
-import org.esa.snap.util.StopWatch;
-import org.esa.snap.util.converters.JtsGeometryConverter;
-import org.esa.snap.util.io.WildcardMatcher;
+import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.StopWatch;
+import org.esa.snap.core.util.converters.JtsGeometryConverter;
+import org.esa.snap.core.util.io.WildcardMatcher;
 import org.geotools.geometry.jts.JTS;
 
 import java.awt.geom.Area;

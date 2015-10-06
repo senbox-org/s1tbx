@@ -22,8 +22,8 @@ import org.esa.snap.core.datamodel.ConvolutionFilterBand;
 import org.esa.snap.core.datamodel.Kernel;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.ArrayUtils;
 import org.esa.snap.dataio.dimap.DimapProductConstants;
-import org.esa.snap.util.ArrayUtils;
 import org.jdom.Element;
 
 import java.util.ArrayList;

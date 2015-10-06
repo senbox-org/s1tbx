@@ -15,6 +15,8 @@
  */
 package org.esa.snap.util;
 
+import org.esa.snap.core.util.VersionChecker;
+
 /**
  * check if version of the software is up to date
  */

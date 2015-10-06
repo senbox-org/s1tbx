@@ -31,7 +31,7 @@ import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.SourceProducts;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.gpf.annotations.TargetProperty;
-import org.esa.snap.util.converters.JtsGeometryConverter;
+import org.esa.snap.core.util.converters.JtsGeometryConverter;
 import org.geotools.referencing.CRS;
 
 import java.awt.Rectangle;

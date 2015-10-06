@@ -19,7 +19,7 @@ package org.esa.snap.core.datamodel;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.esa.snap.util.Debug;
+import org.esa.snap.core.util.Debug;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

@@ -15,8 +15,8 @@
  */
 package org.esa.snap.core.param;
 
-import org.esa.snap.util.Guardian;
-import org.esa.snap.util.PropertyMap;
+import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.PropertyMap;
 
 import javax.swing.event.EventListenerList;
 import java.beans.PropertyChangeEvent;

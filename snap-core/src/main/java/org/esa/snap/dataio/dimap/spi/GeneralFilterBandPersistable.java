@@ -20,8 +20,8 @@ import org.esa.snap.core.datamodel.Kernel;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.dataio.dimap.DimapProductConstants;
-import org.esa.snap.util.SystemUtils;
 import org.jdom.Element;
 
 import java.awt.Dimension;

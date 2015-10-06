@@ -22,9 +22,9 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.RGBImageProfile;
 import org.esa.snap.core.datamodel.RGBImageProfileManager;
-import org.esa.snap.jai.ImageManager;
-import org.esa.snap.util.io.FileUtils;
-import org.esa.snap.util.jai.SingleBandedSampleModel;
+import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.util.io.FileUtils;
+import org.esa.snap.core.util.jai.SingleBandedSampleModel;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;

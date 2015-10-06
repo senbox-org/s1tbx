@@ -17,7 +17,7 @@ package org.esa.snap.util;
 
 //import org.jaitools.tilecache.DiskMemTileCache;
 
-import org.esa.snap.util.jai.JAIUtils;
+import org.esa.snap.core.util.jai.JAIUtils;
 
 import javax.media.jai.JAI;
 import java.awt.Dimension;

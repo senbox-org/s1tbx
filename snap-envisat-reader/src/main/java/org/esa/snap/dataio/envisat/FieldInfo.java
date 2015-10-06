@@ -17,7 +17,7 @@ package org.esa.snap.dataio.envisat;
 
 
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.util.Debug;
+import org.esa.snap.core.util.Debug;
 
 /**
  * The <code>FieldInfo</code> class contains the information about the structure of a particular record field.

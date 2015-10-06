@@ -27,7 +27,7 @@ import org.esa.snap.core.datamodel.IndexCoding;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGrid;
-import org.esa.snap.util.BeamConstants;
+import org.esa.snap.core.util.BeamConstants;
 
 import java.io.File;
 import java.io.IOException;

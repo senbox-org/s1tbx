@@ -28,8 +28,8 @@ import org.esa.snap.core.gpf.descriptor.SourceProductDescriptor;
 import org.esa.snap.core.gpf.descriptor.SourceProductsDescriptor;
 import org.esa.snap.core.gpf.descriptor.TargetProductDescriptor;
 import org.esa.snap.core.gpf.descriptor.TargetPropertyDescriptor;
-import org.esa.snap.util.ModuleMetadata;
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.util.ModuleMetadata;
+import org.esa.snap.core.util.SystemUtils;
 
 import java.awt.RenderingHints;
 import java.net.URL;

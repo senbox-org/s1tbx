@@ -21,8 +21,8 @@ import org.esa.snap.core.param.editors.ComboBoxEditor;
 import org.esa.snap.core.param.editors.FileEditor;
 import org.esa.snap.core.param.editors.ListEditor;
 import org.esa.snap.core.param.editors.TextFieldEditor;
-import org.esa.snap.util.Debug;
-import org.esa.snap.util.Guardian;
+import org.esa.snap.core.util.Debug;
+import org.esa.snap.core.util.Guardian;
 
 import java.awt.Color;
 import java.io.File;

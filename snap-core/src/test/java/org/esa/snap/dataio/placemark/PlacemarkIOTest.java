@@ -8,7 +8,7 @@ import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Placemark;
 import org.esa.snap.core.datamodel.PlacemarkDescriptor;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.util.io.CsvReader;
+import org.esa.snap.core.util.io.CsvReader;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.BeforeClass;
 import org.junit.Test;

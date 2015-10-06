@@ -16,7 +16,7 @@
 package org.esa.snap.dataio.envisat;
 
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.util.Guardian;
+import org.esa.snap.core.util.Guardian;
 
 import java.text.ParseException;
 import java.util.Date;
