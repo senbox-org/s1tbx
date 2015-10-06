@@ -18,7 +18,6 @@ package org.esa.snap.binning.operator;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
-import com.bc.jexp.ParseException;
 import com.vividsolutions.jts.geom.Geometry;
 import org.esa.snap.binning.BinningContext;
 import org.esa.snap.binning.CompositingType;
@@ -36,6 +35,7 @@ import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.dataop.barithm.BandArithmetic;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.jexp.ParseException;
 import org.esa.snap.core.util.StopWatch;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.SystemUtils;

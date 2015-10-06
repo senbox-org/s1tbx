@@ -15,17 +15,17 @@
  */
 package org.esa.snap.core.dataop.barithm;
 
-import com.bc.jexp.Namespace;
-import com.bc.jexp.ParseException;
-import com.bc.jexp.Parser;
-import com.bc.jexp.Term;
-import com.bc.jexp.impl.ParserImpl;
-import com.bc.jexp.impl.SymbolFactory;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.CrsGeoCoding;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.jexp.Namespace;
+import org.esa.snap.core.jexp.ParseException;
+import org.esa.snap.core.jexp.Parser;
+import org.esa.snap.core.jexp.Term;
+import org.esa.snap.core.jexp.impl.ParserImpl;
+import org.esa.snap.core.jexp.impl.SymbolFactory;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.Before;
 import org.junit.Test;

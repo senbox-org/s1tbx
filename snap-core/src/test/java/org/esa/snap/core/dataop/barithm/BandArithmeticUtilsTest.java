@@ -15,11 +15,11 @@
  */
 package org.esa.snap.core.dataop.barithm;
 
-import com.bc.jexp.ParseException;
 import org.esa.snap.core.datamodel.FlagCoding;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.jexp.ParseException;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

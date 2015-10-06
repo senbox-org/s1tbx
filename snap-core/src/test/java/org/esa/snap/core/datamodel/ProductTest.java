@@ -17,8 +17,6 @@
 package org.esa.snap.core.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.jexp.ParseException;
-import com.bc.jexp.Term;
 import org.esa.snap.core.dataio.AbstractProductReader;
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
@@ -28,6 +26,8 @@ import org.esa.snap.core.dataop.maptransf.IdentityTransformDescriptor;
 import org.esa.snap.core.dataop.maptransf.MapInfo;
 import org.esa.snap.core.dataop.maptransf.MapProjection;
 import org.esa.snap.core.dataop.maptransf.MapTransform;
+import org.esa.snap.core.jexp.ParseException;
+import org.esa.snap.core.jexp.Term;
 import org.esa.snap.core.util.BeamConstants;
 import org.esa.snap.core.util.BitRaster;
 import org.esa.snap.core.util.ObjectUtils;

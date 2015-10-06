@@ -16,10 +16,10 @@
 
 package org.esa.snap.core.dataop.barithm;
 
-import com.bc.jexp.Term;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.jexp.Term;
 import org.junit.Before;
 import org.junit.Test;
 

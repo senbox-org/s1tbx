@@ -22,7 +22,6 @@ import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
-import com.bc.jexp.Term;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ConvolutionFilterBand;
 import org.esa.snap.core.datamodel.GeneralFilterBand;
@@ -41,6 +40,7 @@ import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.image.ResolutionLevel;
 import org.esa.snap.core.image.VirtualBandOpImage;
+import org.esa.snap.core.jexp.Term;
 import org.esa.snap.core.util.ProductUtils;
 
 import java.awt.Color;

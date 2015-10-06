@@ -1,0 +1,131 @@
+<!--
+  ~ Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>org.esa.snap.core.jexp</TITLE>
+<!--
+
+  $Id: overview.html,v 1.1.1.1 2006/09/11 08:16:43 norman Exp $
+
+  Copyright (C) 2002 by Brockmann Consult (info@brockmann-consult.de)
+
+  This program is free software; you can redistribute it and/or modify it
+  under the terms of the GNU General Public License as published by the
+  Free Software Foundation. This program is distributed in the hope it will
+  be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+  of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+-->
+</HEAD>
+
+<BODY bgColor=white>
+
+<h2>JEXP - Expression for Java</h2>
+
+<p>JEXP is a small API for parsing and evaluating expressions given as text strings.
+The API provides classes which you can directly use in your own code in order
+to parse expressions. You don't have to implement any interfaces or override methods.
+But the API is also a tiny framework which lets you define your own symbols and functions
+tailored to your specific application environment.
+
+<p>The JEXP API consists of three packages.
+
+<p><ul>
+  <li><code>{@link com.bc.jex}</code>:
+    The main package of the JEX API. It defines the abstract
+    <code>{@link Term com.bc.jex.Term}</code> class which plays a central role in the API.
+    The other interfaces and classes in this package just support <code>Term</code>.
+    The <code>Term</code> class is used to represent the parsed expressions in memory
+    and also to evaluate them.
+  </li>
+  <li><code>{@link com.bc.jex.impl}</code>:
+    Provides some generally useful implementations of the interfaces defined in
+    the main package. The classes in this package define so to say the ready-to-use API.
+    Also contained is the UI component <code>{@link com.bc.jex.impl.ExpressionPane}</code> which
+    you can use as a base for your application's user interface.
+  </li>
+  <li><code>{@link com.bc.jex.ui}</code>:
+  </li>
+</ul></p>
+
+<h2>JEXP - Usage Examples</h2>
+
+<p>(A) Parsing a simple expression without any variables.
+<pre>
+    Parser parser = new ParserImpl();
+    Term term = null;
+    try {
+        term = parser.parse("2.3 * sin(2 * 0.56) / (1 + 0.56)");
+    } catch (ParseException e) {
+        fail("error: " + e.getMessage());
+    }
+    double result = term.evalD(null);
+</pre>
+</p>
+
+<p>(B) Parsing a simple expression with variables.
+<pre>
+    Variable x = SymbolFactory.createVariable("x", 0.56);
+    Variable y = SymbolFactory.createVariable("y", 2.3);
+    DefaultNamespace namespace = new DefaultNamespace();
+    namespace.registerSymbol(x);
+    namespace.registerSymbol(y);
+    Parser parser = new ParserImpl(namespace);
+    Term term = null;
+    try {
+        term = parser.parse("y * sin(2 * x) / (1 + x)");
+    } catch (ParseException e) {
+        fail("error: " + e.getMessage());
+    }
+    double result = term.evalD(null);
+</pre>
+</p>
+
+<p>(C) Parsing a simple expression with a new function.
+<pre>
+    DefaultNamespace namespace = new DefaultNamespace();
+    registerFunction(new AbstractFunction.D("rand", 2) {
+        public double evalD(EvalEnv env, Term[] args) {
+            double x1 = args[0].evalD(env);
+            double x2 = args[1].evalD(env);
+            return x1 + Math.radom() * (x2 - x1);
+        }
+    });
+    Parser parser = new ParserImpl(namespace);
+    Term term = null;
+    try {
+        term = parser.parse("rand(-1, +1)"));
+    } catch (ParseException e) {
+        fail("error: " + e.getMessage());
+    }
+    double result = term.evalD(null);
+</pre>
+
+<p>(D) Parsing a simple expression in a user-defined environment.
+<pre>
+       @todo add example here...
+</pre>
+</p>
+
+</BODY>
+</HTML>

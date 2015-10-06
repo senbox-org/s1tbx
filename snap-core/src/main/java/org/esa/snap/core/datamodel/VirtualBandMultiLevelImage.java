@@ -20,8 +20,8 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
-import com.bc.jexp.Term;
 import org.esa.snap.core.dataop.barithm.BandArithmetic;
+import org.esa.snap.core.jexp.Term;
 
 import java.util.AbstractSet;
 import java.util.Iterator;

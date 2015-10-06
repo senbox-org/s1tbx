@@ -18,9 +18,6 @@ package org.esa.snap.core.image;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.jai.NoDataRaster;
-import com.bc.jexp.ParseException;
-import com.bc.jexp.Term;
-import com.bc.jexp.impl.TermDecompiler;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.RasterDataNode;
@@ -28,6 +25,9 @@ import org.esa.snap.core.dataop.barithm.BandArithmetic;
 import org.esa.snap.core.dataop.barithm.RasterDataEvalEnv;
 import org.esa.snap.core.dataop.barithm.RasterDataSymbol;
 import org.esa.snap.core.dataop.barithm.RasterDataSymbolReplacer;
+import org.esa.snap.core.jexp.ParseException;
+import org.esa.snap.core.jexp.Term;
+import org.esa.snap.core.jexp.impl.TermDecompiler;
 import org.esa.snap.core.util.ImageUtils;
 
 import javax.media.jai.PlanarImage;

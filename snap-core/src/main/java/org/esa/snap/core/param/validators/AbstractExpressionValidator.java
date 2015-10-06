@@ -15,19 +15,19 @@
  */
 package org.esa.snap.core.param.validators;
 
-import com.bc.jexp.EvalEnv;
-import com.bc.jexp.EvalException;
-import com.bc.jexp.Function;
-import com.bc.jexp.Namespace;
-import com.bc.jexp.ParseException;
-import com.bc.jexp.Parser;
-import com.bc.jexp.Symbol;
-import com.bc.jexp.Term;
-import com.bc.jexp.impl.AbstractFunction;
-import com.bc.jexp.impl.AbstractSymbol;
-import com.bc.jexp.impl.DefaultNamespace;
-import com.bc.jexp.impl.ParserImpl;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.jexp.EvalEnv;
+import org.esa.snap.core.jexp.EvalException;
+import org.esa.snap.core.jexp.Function;
+import org.esa.snap.core.jexp.Namespace;
+import org.esa.snap.core.jexp.ParseException;
+import org.esa.snap.core.jexp.Parser;
+import org.esa.snap.core.jexp.Symbol;
+import org.esa.snap.core.jexp.Term;
+import org.esa.snap.core.jexp.impl.AbstractFunction;
+import org.esa.snap.core.jexp.impl.AbstractSymbol;
+import org.esa.snap.core.jexp.impl.DefaultNamespace;
+import org.esa.snap.core.jexp.impl.ParserImpl;
 import org.esa.snap.core.param.ParamParseException;
 import org.esa.snap.core.param.ParamProperties;
 import org.esa.snap.core.param.Parameter;

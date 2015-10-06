@@ -1,15 +1,15 @@
 package org.esa.snap.core.dataop.barithm;
 
 import com.bc.ceres.core.Assert;
-import com.bc.jexp.ParseException;
-import com.bc.jexp.Symbol;
-import com.bc.jexp.Term;
-import com.bc.jexp.WritableNamespace;
-import com.bc.jexp.impl.ParserImpl;
-import com.bc.jexp.impl.TermDecompiler;
-import com.bc.jexp.impl.TermFactory;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.jexp.ParseException;
+import org.esa.snap.core.jexp.Symbol;
+import org.esa.snap.core.jexp.Term;
+import org.esa.snap.core.jexp.WritableNamespace;
+import org.esa.snap.core.jexp.impl.ParserImpl;
+import org.esa.snap.core.jexp.impl.TermDecompiler;
+import org.esa.snap.core.jexp.impl.TermFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.bc.jexp.impl.TermFactory.*;
+import static org.esa.snap.core.jexp.impl.TermFactory.*;
 
 /**
  * Implementation of an {@link UncertaintyGenerator} which generates the Standard Combined Uncertainty

@@ -16,12 +16,6 @@
 
 package org.esa.snap.core.dataop.barithm;
 
-import com.bc.jexp.EvalEnv;
-import com.bc.jexp.EvalException;
-import com.bc.jexp.Symbol;
-import com.bc.jexp.WritableNamespace;
-import com.bc.jexp.impl.AbstractSymbol;
-import com.bc.jexp.impl.SymbolFactory;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.GeoPos;
@@ -31,6 +25,12 @@ import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.jexp.EvalEnv;
+import org.esa.snap.core.jexp.EvalException;
+import org.esa.snap.core.jexp.Symbol;
+import org.esa.snap.core.jexp.WritableNamespace;
+import org.esa.snap.core.jexp.impl.AbstractSymbol;
+import org.esa.snap.core.jexp.impl.SymbolFactory;
 import org.esa.snap.core.util.ProductUtils;
 
 import java.lang.ref.WeakReference;

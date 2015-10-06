@@ -15,7 +15,6 @@
  */
 package org.esa.snap.dataio.dimap;
 
-import com.bc.jexp.ParseException;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -42,6 +41,7 @@ import org.esa.snap.core.dataop.maptransf.LambertConformalConicDescriptor;
 import org.esa.snap.core.dataop.maptransf.MapInfo;
 import org.esa.snap.core.dataop.maptransf.MapProjection;
 import org.esa.snap.core.dataop.maptransf.MapTransform;
+import org.esa.snap.core.jexp.ParseException;
 import org.esa.snap.core.util.BeamConstants;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.StringUtils;

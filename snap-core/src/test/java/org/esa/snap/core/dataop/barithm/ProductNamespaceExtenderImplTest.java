@@ -16,10 +16,10 @@
 
 package org.esa.snap.core.dataop.barithm;
 
-import com.bc.jexp.Symbol;
 import org.esa.snap.core.datamodel.CrsGeoCoding;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.jexp.Symbol;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.Test;
 

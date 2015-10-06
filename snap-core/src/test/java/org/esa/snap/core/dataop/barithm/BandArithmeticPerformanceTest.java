@@ -15,13 +15,13 @@
  */
 package org.esa.snap.core.dataop.barithm;
 
-import com.bc.jexp.ParseException;
-import com.bc.jexp.Term;
-import com.bc.jexp.impl.DefaultNamespace;
-import com.bc.jexp.impl.ParserImpl;
 import junit.framework.TestCase;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.jexp.ParseException;
+import org.esa.snap.core.jexp.Term;
+import org.esa.snap.core.jexp.impl.DefaultNamespace;
+import org.esa.snap.core.jexp.impl.ParserImpl;
 
 import java.io.IOException;
 

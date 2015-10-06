@@ -16,10 +16,10 @@
 package org.esa.snap.core.datamodel;
 
 import com.bc.ceres.glevel.MultiLevelImage;
-import com.bc.jexp.ParseException;
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.dataop.maptransf.Datum;
 import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.jexp.ParseException;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.runtime.Config;

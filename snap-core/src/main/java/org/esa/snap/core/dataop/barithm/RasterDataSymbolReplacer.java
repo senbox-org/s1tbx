@@ -1,8 +1,8 @@
 package org.esa.snap.core.dataop.barithm;
 
-import com.bc.jexp.AbstractTermTransformer;
-import com.bc.jexp.Symbol;
-import com.bc.jexp.Term;
+import org.esa.snap.core.jexp.AbstractTermTransformer;
+import org.esa.snap.core.jexp.Symbol;
+import org.esa.snap.core.jexp.Term;
 
 /**
  * An implementation of a term transformer which replaces all occurrences of {@link RasterDataSymbol}s

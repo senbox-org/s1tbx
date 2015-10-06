@@ -15,17 +15,17 @@
  */
 package org.esa.snap.core.dataop.barithm;
 
-import com.bc.jexp.EvalEnv;
 import org.esa.snap.core.image.LevelImageSupport;
 import org.esa.snap.core.image.ResolutionLevel;
+import org.esa.snap.core.jexp.EvalEnv;
 
 /**
- * Represents an evaluation environment for {@link com.bc.jexp.Term Terms} which are operating on raster data.
- * <p>The evaluation environment is passed to the {@link com.bc.jexp.Term#evalB(com.bc.jexp.EvalEnv) evalB},
- * {@link com.bc.jexp.Term#evalI(com.bc.jexp.EvalEnv) evalI} and
- * {@link com.bc.jexp.Term#evalB(com.bc.jexp.EvalEnv) evalB} methods
- * of a {@link com.bc.jexp.Term Term}.
- * <p>Special implementations of the {@link com.bc.jexp.Symbol Symbol} and {@link com.bc.jexp.Function Function}
+ * Represents an evaluation environment for {@link org.esa.snap.core.jexp.Term Terms} which are operating on raster data.
+ * <p>The evaluation environment is passed to the {@link org.esa.snap.core.jexp.Term#evalB(org.esa.snap.core.jexp.EvalEnv) evalB},
+ * {@link org.esa.snap.core.jexp.Term#evalI(org.esa.snap.core.jexp.EvalEnv) evalI} and
+ * {@link org.esa.snap.core.jexp.Term#evalB(org.esa.snap.core.jexp.EvalEnv) evalB} methods
+ * of a {@link org.esa.snap.core.jexp.Term Term}.
+ * <p>Special implementations of the {@link org.esa.snap.core.jexp.Symbol Symbol} and {@link org.esa.snap.core.jexp.Function Function}
  * interfaces, such as {@link RasterDataSymbol}, can then use the environment in order to perform
  * raster data specific evaluations.
  */

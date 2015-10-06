@@ -17,8 +17,6 @@
 package org.esa.snap.core.gpf.common;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.jexp.ParseException;
-import com.bc.jexp.Term;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateFilter;
 import com.vividsolutions.jts.geom.Geometry;
@@ -45,6 +43,8 @@ import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
+import org.esa.snap.core.jexp.ParseException;
+import org.esa.snap.core.jexp.Term;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.converters.JtsGeometryConverter;
 import org.esa.snap.core.util.converters.RectangleConverter;

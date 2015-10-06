@@ -16,19 +16,19 @@
 package org.esa.snap.core.dataop.barithm;
 
 import com.bc.ceres.core.Assert;
-import com.bc.jexp.Function;
-import com.bc.jexp.Namespace;
-import com.bc.jexp.ParseException;
-import com.bc.jexp.Parser;
-import com.bc.jexp.Symbol;
-import com.bc.jexp.Term;
-import com.bc.jexp.WritableNamespace;
-import com.bc.jexp.impl.DefaultNamespace;
-import com.bc.jexp.impl.NamespaceImpl;
-import com.bc.jexp.impl.ParserImpl;
-import com.bc.jexp.impl.Tokenizer;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.jexp.Function;
+import org.esa.snap.core.jexp.Namespace;
+import org.esa.snap.core.jexp.ParseException;
+import org.esa.snap.core.jexp.Parser;
+import org.esa.snap.core.jexp.Symbol;
+import org.esa.snap.core.jexp.Term;
+import org.esa.snap.core.jexp.WritableNamespace;
+import org.esa.snap.core.jexp.impl.DefaultNamespace;
+import org.esa.snap.core.jexp.impl.NamespaceImpl;
+import org.esa.snap.core.jexp.impl.ParserImpl;
+import org.esa.snap.core.jexp.impl.Tokenizer;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.StringUtils;
 

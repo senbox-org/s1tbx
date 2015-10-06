@@ -15,20 +15,20 @@
  */
 package org.esa.snap.core.dataop.barithm;
 
-import com.bc.jexp.EvalEnv;
-import com.bc.jexp.EvalException;
-import com.bc.jexp.Symbol;
-import com.bc.jexp.Term;
 import org.esa.snap.core.datamodel.Mask;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.jexp.EvalEnv;
+import org.esa.snap.core.jexp.EvalException;
+import org.esa.snap.core.jexp.Symbol;
+import org.esa.snap.core.jexp.Term;
 
 /**
  * Represents a read-only symbol. A symbol can be a named constant or variable.
  * It has a return type an can be evaluated. This class is based on RasterData.
  * <p>Within an expression, a reference to a symbol is created if the parser
  * encounters a name and this name can be resolved through the parser's current namespace.
- * The resulting term in this case is an instance of <code>{@link com.bc.jexp.Term.Ref}</code>.
+ * The resulting term in this case is an instance of <code>{@link org.esa.snap.core.jexp.Term.Ref}</code>.
  *
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
  */

@@ -17,8 +17,6 @@
 package org.esa.snap.examples.codesnippets.core.datamodel;
 
 import com.bc.ceres.core.PrintWriterProgressMonitor;
-import com.bc.jexp.ParseException;
-import com.bc.jexp.Term;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.GeoCoding;
@@ -27,6 +25,8 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.dataop.maptransf.Datum;
+import org.esa.snap.core.jexp.ParseException;
+import org.esa.snap.core.jexp.Term;
 import org.esa.snap.dataio.dimap.DimapProductWriterPlugIn;
 
 import java.io.File;

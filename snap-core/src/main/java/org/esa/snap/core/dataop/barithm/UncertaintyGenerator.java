@@ -1,8 +1,8 @@
 package org.esa.snap.core.dataop.barithm;
 
-import com.bc.jexp.ParseException;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.jexp.ParseException;
 
 /**
  * Generates the combined uncertainty for a given band maths expression.

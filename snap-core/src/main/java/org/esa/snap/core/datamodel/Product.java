@@ -21,12 +21,6 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
-import com.bc.jexp.Namespace;
-import com.bc.jexp.ParseException;
-import com.bc.jexp.Parser;
-import com.bc.jexp.Term;
-import com.bc.jexp.WritableNamespace;
-import com.bc.jexp.impl.ParserImpl;
 import org.esa.snap.core.dataio.ProductFlipper;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductSubsetBuilder;
@@ -42,6 +36,12 @@ import org.esa.snap.core.dataop.maptransf.MapTransform;
 import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.image.ResolutionLevel;
 import org.esa.snap.core.image.VirtualBandOpImage;
+import org.esa.snap.core.jexp.Namespace;
+import org.esa.snap.core.jexp.ParseException;
+import org.esa.snap.core.jexp.Parser;
+import org.esa.snap.core.jexp.Term;
+import org.esa.snap.core.jexp.WritableNamespace;
+import org.esa.snap.core.jexp.impl.ParserImpl;
 import org.esa.snap.core.util.BitRaster;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.Guardian;
@@ -1632,7 +1632,7 @@ public class Product extends ProductNode {
      *
      * @param expression the mathematical expression
      * @return true, if the band arithmetic is compatible with this product
-     * @see #isCompatibleBandArithmeticExpression(String, com.bc.jexp.Parser)
+     * @see #isCompatibleBandArithmeticExpression(String, org.esa.snap.core.jexp.Parser)
      */
     public boolean isCompatibleBandArithmeticExpression(final String expression) {
         return isCompatibleBandArithmeticExpression(expression, null);

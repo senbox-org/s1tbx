@@ -15,7 +15,7 @@
  */
 package org.esa.snap.core.util;
 
-import com.bc.jexp.impl.Tokenizer;
+import org.esa.snap.core.jexp.impl.Tokenizer;
 
 import java.awt.Color;
 import java.lang.reflect.Array;

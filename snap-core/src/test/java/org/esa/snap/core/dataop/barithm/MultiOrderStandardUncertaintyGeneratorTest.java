@@ -1,8 +1,8 @@
 package org.esa.snap.core.dataop.barithm;
 
-import com.bc.jexp.ParseException;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.jexp.ParseException;
 import org.junit.Before;
 import org.junit.Test;
 

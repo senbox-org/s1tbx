@@ -21,11 +21,11 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
-import com.bc.jexp.Term;
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.image.ResolutionLevel;
 import org.esa.snap.core.image.VirtualBandOpImage;
+import org.esa.snap.core.jexp.Term;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.StringUtils;
 

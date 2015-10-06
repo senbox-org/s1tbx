@@ -1,7 +1,7 @@
 package org.esa.snap.core.dataop.barithm;
 
-import com.bc.jexp.WritableNamespace;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.jexp.WritableNamespace;
 
 /**
  * Extends product {@link WritableNamespace namespaces} which are used for expression evaluation.

@@ -31,9 +31,9 @@ package org.esa.snap.core.datamodel;/*
  */
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.jexp.ParseException;
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.dataop.barithm.BandArithmetic;
+import org.esa.snap.core.jexp.ParseException;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.runtime.Config;

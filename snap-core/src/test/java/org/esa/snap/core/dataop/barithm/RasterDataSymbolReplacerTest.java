@@ -1,9 +1,9 @@
 package org.esa.snap.core.dataop.barithm;
 
-import com.bc.jexp.Term;
 import org.esa.snap.core.datamodel.FlagCoding;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.jexp.Term;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

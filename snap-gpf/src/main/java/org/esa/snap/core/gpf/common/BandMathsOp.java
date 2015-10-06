@@ -16,14 +16,6 @@
 package org.esa.snap.core.gpf.common;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.jexp.Namespace;
-import com.bc.jexp.ParseException;
-import com.bc.jexp.Parser;
-import com.bc.jexp.Symbol;
-import com.bc.jexp.Term;
-import com.bc.jexp.WritableNamespace;
-import com.bc.jexp.impl.ParserImpl;
-import com.bc.jexp.impl.SymbolFactory;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.FlagCoding;
 import org.esa.snap.core.datamodel.IndexCoding;
@@ -45,6 +37,14 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProducts;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.gpf.common.support.BandDescriptorDomConverter;
+import org.esa.snap.core.jexp.Namespace;
+import org.esa.snap.core.jexp.ParseException;
+import org.esa.snap.core.jexp.Parser;
+import org.esa.snap.core.jexp.Symbol;
+import org.esa.snap.core.jexp.Term;
+import org.esa.snap.core.jexp.WritableNamespace;
+import org.esa.snap.core.jexp.impl.ParserImpl;
+import org.esa.snap.core.jexp.impl.SymbolFactory;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.StringUtils;
 

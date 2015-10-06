@@ -1,16 +1,16 @@
 package org.esa.snap.core.dataop.barithm;
 
-import com.bc.jexp.ParseException;
-import com.bc.jexp.Symbol;
-import com.bc.jexp.Term;
-import com.bc.jexp.TermTransformer;
-import com.bc.jexp.WritableNamespace;
-import com.bc.jexp.impl.Functions;
-import com.bc.jexp.impl.ParserImpl;
-import com.bc.jexp.impl.TermDecompiler;
-import com.bc.jexp.impl.TermSimplifier;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.jexp.ParseException;
+import org.esa.snap.core.jexp.Symbol;
+import org.esa.snap.core.jexp.Term;
+import org.esa.snap.core.jexp.TermTransformer;
+import org.esa.snap.core.jexp.WritableNamespace;
+import org.esa.snap.core.jexp.impl.Functions;
+import org.esa.snap.core.jexp.impl.ParserImpl;
+import org.esa.snap.core.jexp.impl.TermDecompiler;
+import org.esa.snap.core.jexp.impl.TermSimplifier;
 
 /**
  * @author Norman Fomferra

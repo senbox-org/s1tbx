@@ -16,14 +16,14 @@
 package org.esa.snap.examples.data_export;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.jexp.ParseException;
-import com.bc.jexp.Term;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.ProductSubsetBuilder;
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.jexp.ParseException;
+import org.esa.snap.core.jexp.Term;
 
 import java.io.FileOutputStream;
 import java.io.IOException;

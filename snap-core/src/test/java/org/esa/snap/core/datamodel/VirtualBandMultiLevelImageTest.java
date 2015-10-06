@@ -18,11 +18,11 @@ package org.esa.snap.core.datamodel;
 
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
-import com.bc.jexp.ParseException;
-import com.bc.jexp.Term;
 import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.image.ResolutionLevel;
 import org.esa.snap.core.image.VirtualBandOpImage;
+import org.esa.snap.core.jexp.ParseException;
+import org.esa.snap.core.jexp.Term;
 import org.junit.Before;
 import org.junit.Test;
 
