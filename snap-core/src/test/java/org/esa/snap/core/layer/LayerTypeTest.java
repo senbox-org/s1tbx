@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.snap.glayer;
+package org.esa.snap.core.layer;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyDescriptor;
