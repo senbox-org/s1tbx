@@ -14,13 +14,12 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.snap.glevel;
+package org.esa.snap.core.image;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
-import org.esa.snap.core.image.TiledFileOpImage;
 import org.esa.snap.core.util.StringUtils;
 
 import javax.media.jai.PlanarImage;

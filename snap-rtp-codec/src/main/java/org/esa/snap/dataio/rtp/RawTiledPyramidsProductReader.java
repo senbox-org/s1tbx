@@ -25,7 +25,7 @@ import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.VirtualBand;
-import org.esa.snap.glevel.TiledFileMultiLevelSource;
+import org.esa.snap.core.image.TiledFileMultiLevelSource;
 
 import java.io.File;
 import java.io.FileReader;

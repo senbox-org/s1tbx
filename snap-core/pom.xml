@@ -158,7 +158,6 @@
                         <publicPackage>org.esa.snap.runtime.*</publicPackage>
                         <publicPackage>org.esa.snap.dataio.*</publicPackage>
                         <publicPackage>org.esa.snap.core.*</publicPackage>
-                        <publicPackage>org.esa.snap.glevel.*</publicPackage>
                         <publicPackage>org.esa.snap.nn.*</publicPackage>
                         <publicPackage>org.esa.snap.examples.*</publicPackage>
                     </publicPackages>

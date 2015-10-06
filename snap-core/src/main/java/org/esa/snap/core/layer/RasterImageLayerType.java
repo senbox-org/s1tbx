@@ -25,7 +25,7 @@ import com.bc.ceres.glayer.annotations.LayerTypeMetadata;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.snap.core.datamodel.RasterDataNode;
-import org.esa.snap.glevel.BandImageMultiLevelSource;
+import org.esa.snap.core.image.BandImageMultiLevelSource;
 
 @LayerTypeMetadata(name = "RasterImageLayerType",
                    aliasNames = {"org.esa.snap.glayer.RasterImageLayerType"})

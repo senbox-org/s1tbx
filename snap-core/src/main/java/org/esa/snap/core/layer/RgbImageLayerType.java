@@ -31,7 +31,7 @@ import org.esa.snap.core.datamodel.RGBImageProfile;
 import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.dataop.barithm.BandArithmetic;
-import org.esa.snap.glevel.BandImageMultiLevelSource;
+import org.esa.snap.core.image.BandImageMultiLevelSource;
 
 @LayerTypeMetadata(name = "RgbImageLayerType",
                    aliasNames = {"org.esa.snap.glayer.RgbImageLayerType"})

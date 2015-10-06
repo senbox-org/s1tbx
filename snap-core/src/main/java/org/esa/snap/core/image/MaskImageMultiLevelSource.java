@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.snap.glevel;
+package org.esa.snap.core.image;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.MultiLevelModel;
@@ -22,7 +22,6 @@ import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.image.ImageManager;
 
 import java.awt.Color;
 import java.awt.geom.AffineTransform;

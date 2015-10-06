@@ -14,14 +14,13 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.snap.glevel;
+package org.esa.snap.core.image;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import org.esa.snap.core.datamodel.ImageInfo;
 import org.esa.snap.core.datamodel.RasterDataNode;
-import org.esa.snap.core.image.ImageManager;
 
 import java.awt.Shape;
 import java.awt.image.RenderedImage;
