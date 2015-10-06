@@ -110,10 +110,22 @@ public class SnaphuExportOp extends Operator {
                 OperatorUtils.catchOperatorException(getId() + "Metadata of input product is not in the format compatible for SNAPHU export.", e);
             }
 
+            boolean coherenceBandFound = false, phaseBandFound = false;
             for(Band srcBand : sourceProduct.getBands()) {
-                if(srcBand.getUnit().contains(Unit.COHERENCE) || (srcBand.getUnit().contains(Unit.PHASE) && !srcBand.getName().toLowerCase().contains("topo"))) {
+                if(srcBand.getUnit().contains(Unit.COHERENCE)) {
                     ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, true);
+                    coherenceBandFound = true;
+                } else if(srcBand.getUnit().contains(Unit.PHASE) && !srcBand.getName().toLowerCase().contains("topo")) {
+                    ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, true);
+                    phaseBandFound = true;
                 }
+            }
+
+            if(!coherenceBandFound) {
+                throw new OperatorException("Coherence band required. Please reprocess to include a coherence band");
+            }
+            if(!phaseBandFound) {
+                throw new OperatorException("Wrapped phase band required");
             }
 
             subsetInfo = new SubsetInfo();

@@ -102,10 +102,11 @@ public class StatESDMeasure implements InSARStatistic {
                     dataset.addSeries(series);
 
                     XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer)chart.getXYPlot().getRenderer();
-                    renderer.setSeriesLinesVisible(i, false);
+                    renderer.setSeriesLinesVisible(i, true);
                     renderer.setSeriesShapesVisible(i, true);
 
                     chart.getXYPlot().getDomainAxis().setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+                    ++i;
                 }
             } else {
                 setVisible(false);
