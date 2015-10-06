@@ -8,9 +8,6 @@ org.esa.snap.core.gpf.standard.PassThroughOp$Spi
 org.esa.snap.core.gpf.standard.ProductSetReaderOp$Spi
 org.esa.snap.core.gpf.standard.BandMathsOp$Spi
 org.esa.snap.core.gpf.standard.reproject.ReprojectionOp$Spi
-org.esa.snap.gpf.operators.meris.N1PatcherOp$Spi
-org.esa.snap.gpf.operators.meris.L3ToL1Op$Spi
-org.esa.snap.gpf.operators.meris.RRToFRSOp$Spi
 org.esa.snap.core.gpf.standard.FlipOp$Spi
 org.esa.snap.core.gpf.standard.ImportVectorOp$Spi
 org.esa.snap.core.gpf.standard.ConvertDataTypeOp$Spi
