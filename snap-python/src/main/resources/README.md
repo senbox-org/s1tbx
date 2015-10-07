@@ -205,7 +205,7 @@ For example:
     ColorPoint = jpy.get_type('org.esa.snap.core.datamodel.ColorPaletteDef$Point')
     ColorPaletteDef = jpy.get_type('org.esa.snap.core.datamodel.ColorPaletteDef')
     ImageInfo = jpy.get_type('org.esa.snap.core.datamodel.ImageInfo')
-    ImageManager = jpy.get_type('org.esa.snap.jai.ImageManager')
+    ImageManager = jpy.get_type('org.esa.snap.core.image.ImageManager')
     JAI = jpy.get_type('javax.media.jai.JAI')
     
 Due to the 1:1 translation of Java to Python, a lot of code in the Java programming tutorial applies to 
@@ -232,6 +232,6 @@ add new Python code directly to it. In this case
 Of course you will need to adapt the contents of the files accordingly.
 
 Again, please don't hesitate to contact the
-[SNAP user forum](http://www.brockmann-consult.de/cms/web/snap/forum).
+[SNAP user forum](http://forum.step.esa.int).
 
 *Have fun!*
