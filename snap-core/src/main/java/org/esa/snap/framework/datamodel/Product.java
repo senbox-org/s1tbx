@@ -2279,6 +2279,12 @@ public class Product extends ProductNode {
 
     private void recomputeSceneRasterGeometry() {
         // todo - [multisize_products] replace this numb algorithm by something reasonable that takes the bands' geographical coverage into account (nf)
+        // noticed by sabine:
+        // If a product subset 2 x 2 pixels is created,
+        // the product scene raster size is calculated 3 x 3 pixels.
+        // If a band is opened in snap it will be displayed correctly 2 x 2
+        // If the product ist exported with CSV-Writer the scene width is written as a CSV header parameter.
+        // If the product is reloaded the Bands are displayed in a different (wrong?) size 3 x 2 pixels
         RasterDataNode[] bands = getBands();
         RasterDataNode[] grids = getTiePointGrids();
         RasterDataNode[] masks = getMaskGroup().toArray(new Mask[0]);
