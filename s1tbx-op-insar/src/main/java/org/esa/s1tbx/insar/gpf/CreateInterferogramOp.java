@@ -22,10 +22,7 @@ import org.esa.snap.datamodel.PosVector;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.eo.GeoUtils;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.datamodel.*;
 import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.OperatorSpi;
@@ -210,9 +207,10 @@ public class CreateInterferogramOp extends Operator {
                 final float mVersion = Float.valueOf(mProcSysId.substring(mProcSysId.lastIndexOf(" ")));
                 final String sProcSysId = slvRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
                 final float sVersion = Float.valueOf(sProcSysId.substring(sProcSysId.lastIndexOf(" ")));
-                if ((mVersion < 2.43 && sVersion >= 2.43) || (sVersion < 2.43 && mVersion >= 2.43)) {
-                    throw new OperatorException(
-                            "Source products cannot be InSAR pairs: one is EAP phase corrected and the other is not. Apply EAP Correction.");
+                if ((mVersion < 2.43 && sVersion >= 2.43 && mstRoot.getAttribute("EAP Correction") == null) ||
+                        (sVersion < 2.43 && mVersion >= 2.43 && slvRoot.getAttribute("EAP Correction") == null)) {
+                    throw new OperatorException("Source products cannot be InSAR pairs: one is EAP phase corrected" +
+                            " and the other is not. Apply EAP Correction.");
                 }
 
                 su = new Sentinel1Utils(sourceProduct);

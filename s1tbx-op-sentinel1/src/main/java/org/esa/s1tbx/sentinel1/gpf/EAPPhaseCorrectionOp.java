@@ -82,8 +82,9 @@ public final class EAPPhaseCorrectionOp extends Operator {
     private Sentinel1Utils su = null;
     private Sentinel1Utils.SubSwathInfo[] subSwath = null;
     private File auxCalFile = null;
-    protected final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<>(2);
+    private final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<>(2);
     private final HashMap<String, EAPVector> swathPolToEAPVector = new HashMap<>();
+    private boolean isSplitProduct = false;
 
     private final static DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyyMMdd-HHmmss");
 
@@ -148,6 +149,7 @@ public final class EAPPhaseCorrectionOp extends Operator {
         su = new Sentinel1Utils(sourceProduct);
         subSwath = su.getSubSwath();
         acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+        isSplitProduct = (subSwath.length == 1);
     }
 
     /**
@@ -163,6 +165,7 @@ public final class EAPPhaseCorrectionOp extends Operator {
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
         addSelectedBands();
+        updateTargetProductMetadata();
     }
 
     private void addSelectedBands() {
@@ -217,6 +220,13 @@ public final class EAPPhaseCorrectionOp extends Operator {
             ReaderUtils.createVirtualIntensityBand(targetProduct, targetBandI, targetBandQ, suffix);
             i++;
         }
+    }
+
+    private void updateTargetProductMetadata() {
+        final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
+        AbstractMetadata.addAbstractedAttribute(
+                absTgt, "EAP Correction", ProductData.TYPE_UINT8, "flag", "EAP Correction Applied");
+        absTgt.getAttribute("EAP Correction").getData().setElemBoolean(true);
     }
 
     private void retrieveAuxCalFile() throws Exception {
@@ -448,7 +458,11 @@ public final class EAPPhaseCorrectionOp extends Operator {
             final int tyMax = ty0 + th;
             //System.out.println("tx0 = " + tx0 + ", ty0 = " + ty0 + ", tw = " + tw + ", th = " + th);
 
-            final int subSwathIndex = getSubSwathIndex(targetBand.getName());
+            int subSwathIndex = 1;
+            if (!isSplitProduct) {
+                subSwathIndex = getSubSwathIndex(targetBand.getName());
+            }
+
             final String polarization = getPolarization(targetBand.getName());
 
             for (int burstIndex = 0; burstIndex < subSwath[subSwathIndex - 1].numOfBursts; burstIndex++) {
@@ -518,7 +532,7 @@ public final class EAPPhaseCorrectionOp extends Operator {
         final TileIndex srcIndex = new TileIndex(sourceRasterI);
         final TileIndex trgIndex = new TileIndex(targetTile);
 
-        final String key = acquisitionMode + subSwathIndex + "_" + polarization;
+        final String key = subSwath[subSwathIndex - 1].subSwathName + "_" + polarization;
         final EAPVector eapVector = swathPolToEAPVector.get(key);
 
         final int yMax = y0 + h;
