@@ -34,6 +34,7 @@ import org.esa.snap.framework.gpf.descriptor.*;
 import org.esa.snap.framework.gpf.internal.OperatorContext;
 import org.esa.snap.jai.ImageManager;
 import org.esa.snap.util.ProductUtils;
+import org.esa.snap.util.StringUtils;
 import org.esa.snap.util.io.FileUtils;
 import org.esa.snap.utils.PrivilegedAccessor;
 
@@ -245,14 +246,13 @@ public class ToolAdapterOp extends Operator {
         }
 
         //Get the tool's working directory
-        File toolWorkingDirectory = descriptor.resolveVariables(descriptor.getWorkingDir());
+        /*File toolWorkingDirectory = descriptor.resolveVariables(descriptor.getWorkingDir());
         if (toolWorkingDirectory == null) {
             throw new OperatorException("Tool working directory not defined!");
         }
-        // check if the tool file exists
         if (!toolWorkingDirectory.exists() || !toolWorkingDirectory.isDirectory()) {
             throw new OperatorException(String.format("Invalid tool working directory: '%s'!", toolWorkingDirectory.getAbsolutePath()));
-        }
+        }*/
 
         ParameterDescriptor[] parameterDescriptors = descriptor.getParameterDescriptors();
         if (parameterDescriptors != null && parameterDescriptors.length > 0) {
@@ -534,6 +534,9 @@ public class ToolAdapterOp extends Operator {
                 Object paramValue = param.getValue();
                 if (ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE.equals(paramName)) {
                     paramValue = getNextFileName(descriptor.resolveVariables((File) paramValue));
+                }
+                if (param.getType().isArray()) {
+                    paramValue = StringUtils.arrayToString(paramValue, " ");
                 }
                 context.put(paramName, paramValue);
             }
