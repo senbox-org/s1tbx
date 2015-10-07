@@ -389,7 +389,7 @@ public final class PolarimetricMatricesOp extends Operator {
     /**
      * The SPI is used to register this operator in the graph processing framework
      * via the SPI configuration file
-     * {@code META-INF/services/OperatorSpi}.
+     * {@code META-INF/services/org.esa.snap.core.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
      *
      * @see OperatorSpi#createOperator()
