@@ -40,6 +40,31 @@ public class TileUtilsDoris {
         return result;
     }
 
+    public static void pullComplexDoubleMatrixMstSlv(final Tile tileMst1, final Tile tileMst2,
+                                                     final Tile tileSlv1, final Tile tileSlv2,
+                                                     ComplexDoubleMatrix mstMatrix, ComplexDoubleMatrix slvMatrix) {
+
+        final int height = tileMst1.getHeight();
+        final int width = tileMst1.getWidth();
+
+        final ProductData samplesMst1 = tileMst1.getRawSamples();
+        final ProductData samplesMst2 = tileMst2.getRawSamples();
+
+        final ProductData samplesSlv1 = tileSlv1.getRawSamples();
+        final ProductData samplesSlv2 = tileSlv2.getRawSamples();
+
+        for (int y = 0; y < height; y++) {
+            final int stride = y * width;
+            for (int x = 0; x < width; x++) {
+                final int xx = stride + x;
+                mstMatrix.put(y, x, new ComplexDouble(samplesMst1.getElemDoubleAt(xx),
+                        samplesMst2.getElemDoubleAt(xx)));
+                slvMatrix.put(y, x, new ComplexDouble(samplesSlv1.getElemDoubleAt(xx),
+                        samplesSlv2.getElemDoubleAt(xx)));
+            }
+        }
+    }
+
     // see javadoc for org.esa.snap.framework.gpf.Tile (interface)
     public static DoubleMatrix pullDoubleMatrix(final Tile tile) {
 
