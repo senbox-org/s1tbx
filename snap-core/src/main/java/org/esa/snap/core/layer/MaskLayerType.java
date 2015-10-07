@@ -39,8 +39,7 @@ import java.awt.image.RenderedImage;
  * @version $ Revision: $ Date: $
  * @since BEAM 4.7
  */
-@LayerTypeMetadata(name = "MaskLayerType",
-                   aliasNames = {"org.esa.snap.glayer.MaskLayerType"})
+@LayerTypeMetadata(name = "MaskLayerType", aliasNames = {"org.esa.snap.core.layer.MaskLayerType"})
 public class MaskLayerType extends ImageLayer.Type {
 
     public static final String PROPERTY_NAME_MASK = "mask";

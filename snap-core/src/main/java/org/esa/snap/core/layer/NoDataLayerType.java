@@ -39,8 +39,7 @@ import java.beans.PropertyChangeEvent;
  * @version $ Revision: $ Date: $
  * @since BEAM 4.6
  */
-@LayerTypeMetadata(name = "NoDataLayerType",
-                   aliasNames = {"org.esa.snap.glayer.NoDataLayerType"})
+@LayerTypeMetadata(name = "NoDataLayerType", aliasNames = {"org.esa.snap.core.layer.NoDataLayerType"})
 public class NoDataLayerType extends ImageLayer.Type {
 
     public static final String NO_DATA_LAYER_ID = "org.esa.snap.layers.noData";

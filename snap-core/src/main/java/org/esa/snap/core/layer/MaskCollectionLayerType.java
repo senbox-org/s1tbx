@@ -25,8 +25,7 @@ import com.bc.ceres.glayer.annotations.LayerTypeMetadata;
 import org.esa.snap.core.datamodel.RasterDataNode;
 
 
-@LayerTypeMetadata(name = "MaskCollectionLayerType",
-                   aliasNames = {"org.esa.snap.glayer.MaskCollectionLayerType"})
+@LayerTypeMetadata(name = "MaskCollectionLayerType", aliasNames = {"org.esa.snap.core.layer.MaskCollectionLayerType"})
 public class MaskCollectionLayerType extends CollectionLayer.Type {
 
     public static final String PROPERTY_NAME_RASTER = "raster";

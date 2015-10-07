@@ -33,8 +33,7 @@ import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.dataop.barithm.BandArithmetic;
 import org.esa.snap.core.image.BandImageMultiLevelSource;
 
-@LayerTypeMetadata(name = "RgbImageLayerType",
-                   aliasNames = {"org.esa.snap.glayer.RgbImageLayerType"})
+@LayerTypeMetadata(name = "RgbImageLayerType", aliasNames = {"org.esa.snap.core.layer.RgbImageLayerType"})
 public class RgbImageLayerType extends ImageLayer.Type {
 
     private static final String PROPERTY_NAME_PRODUCT = "product";

@@ -30,8 +30,7 @@ import java.awt.Font;
 import java.awt.geom.AffineTransform;
 
 
-@LayerTypeMetadata(name = "GraticuleLayerType",
-                   aliasNames = {"org.esa.snap.glayer.GraticuleLayerType"})
+@LayerTypeMetadata(name = "GraticuleLayerType", aliasNames = {"org.esa.snap.core.layer.GraticuleLayerType"})
 public class GraticuleLayerType extends LayerType {
 
     public static final String PROPERTY_NAME_RASTER = "raster";

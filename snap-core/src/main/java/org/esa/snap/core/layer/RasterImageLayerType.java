@@ -27,8 +27,7 @@ import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.image.BandImageMultiLevelSource;
 
-@LayerTypeMetadata(name = "RasterImageLayerType",
-                   aliasNames = {"org.esa.snap.glayer.RasterImageLayerType"})
+@LayerTypeMetadata(name = "RasterImageLayerType", aliasNames = {"org.esa.snap.core.layer.RasterImageLayerType"})
 public class RasterImageLayerType extends ImageLayer.Type {
 
     public static final String PROPERTY_NAME_RASTER = "raster";
