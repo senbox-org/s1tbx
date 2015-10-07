@@ -298,7 +298,7 @@ public class CommandLineToolGraphTest extends TestCase {
                         "<parameter name=\"expression\" type=\"String\"/>\n" +
                         "</header>\n" +
                         "<node id=\"node1\">" +
-                        "  <operator>TestOps$Op2$Spi</operator>\n" +
+                        "  <operator>org.esa.snap.core.gpf.TestOps$Op2$Spi</operator>\n" +
                         "  <sources>\n" +
                         "    <input>${sourceProduct}</input>\n" +
                         "  </sources>\n" +
@@ -307,7 +307,7 @@ public class CommandLineToolGraphTest extends TestCase {
                         "  </parameters>\n" +
                         "</node>" +
                         "<node id=\"node2\">" +
-                        "  <operator>TestOps$Op3$Spi</operator>\n" +
+                        "  <operator>org.esa.snap.core.gpf.TestOps$Op3$Spi</operator>\n" +
                         "  <sources>\n" +
                         "    <input1 refid=\"node1\"/>\n" +
                         "    <input2>${sourceProduct2}</input2>\n" +
@@ -321,7 +321,7 @@ public class CommandLineToolGraphTest extends TestCase {
                 xml = "<graph id=\"chain1\">" +
                         "<version>1.0</version>\n" +
                         "<node id=\"node1\">" +
-                        "  <operator>TestOps$OpImplementingOutput$Spi</operator>\n" +
+                        "  <operator>org.esa.snap.core.gpf.TestOps$OpImplementingOutput$Spi</operator>\n" +
                         "</node>" +
                         "</graph>";
             } else {

@@ -57,7 +57,7 @@ public class AbstractFigureDomConverterTest {
     @Test
     public void testAbstractFigurePersistenncy() throws ConversionException, ValidationException {
         String expectedXml =
-                "<figure class=\"LineFigure\">\n" +
+                "<figure class=\"org.esa.snap.core.draw.LineFigure\">\n" +
                         "    <shape class=\"java.awt.Rectangle\">\n" +
                         "        <x>12</x>\n" +
                         "        <y>13</y>\n" +

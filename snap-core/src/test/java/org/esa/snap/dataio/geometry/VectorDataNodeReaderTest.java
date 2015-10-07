@@ -181,7 +181,7 @@ public class VectorDataNodeReaderTest {
         assertEquals(4, properties.size());
         assertEquals("color:0,0,255", properties.get("styleCss"));
         assertEquals("TAB", properties.get("separator"));
-        assertEquals("GeometryDescriptor", properties.get("placemarkDescriptor"));
+        assertEquals("org.esa.snap.core.datamodel.GeometryDescriptor", properties.get("placemarkDescriptor"));
         assertEquals("geom", properties.get("defaultGeometry"));
     }
 

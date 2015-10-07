@@ -112,7 +112,7 @@ public class CommandLineToolTemplateTest {
                      "    <operatorMetadata>\n" +
                      "        <operatorName>Reproject</operatorName>\n" +
                      "        <operatorVersion>1.0</operatorVersion>\n" +
-                     "        <operatorClass>class ReprojectionOp</operatorClass>\n" +
+                     "        <operatorClass>class org.esa.snap.core.gpf.common.reproject.ReprojectionOp</operatorClass>\n" +
                      "    </operatorMetadata>\n" +
                      "\n" +
                      "    <extraMetadata>\n" +

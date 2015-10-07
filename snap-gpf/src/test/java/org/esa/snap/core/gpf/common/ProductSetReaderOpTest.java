@@ -43,9 +43,9 @@ public class ProductSetReaderOpTest {
 
     @Test
     public void testProductSetGraph() throws IOException, GraphException {
-        final String graphPath = ProductSetReaderOpTest.class.getResource("/org/esa/snap/gpf/operators/standard/productset/ProductSetMosaicGraph.xml").getFile();
-        final File product1 = new File(ProductSetReaderOpTest.class.getResource("/org/esa/snap/gpf/operators/standard/productset/subset1.dim").getFile());
-        final File product2 = new File(ProductSetReaderOpTest.class.getResource("/org/esa/snap/gpf/operators/standard/productset/subset2.dim").getFile());
+        final String graphPath = ProductSetReaderOpTest.class.getResource("/org/esa/snap/core/gpf/common/productset/ProductSetMosaicGraph.xml").getFile();
+        final File product1 = new File(ProductSetReaderOpTest.class.getResource("/org/esa/snap/core/gpf/common/productset/subset1.dim").getFile());
+        final File product2 = new File(ProductSetReaderOpTest.class.getResource("/org/esa/snap/core/gpf/common/productset/subset2.dim").getFile());
         final File[] srcFiles = new File[] { product1, product2 };
 
         Graph graph;

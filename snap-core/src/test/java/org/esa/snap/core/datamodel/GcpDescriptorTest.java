@@ -53,20 +53,20 @@ public class GcpDescriptorTest {
         instance.setUserDataOf(ft1);
         assertEquals(2, ft1.getUserData().size());
         assertEquals("geometry", ft1.getUserData().get("defaultGeometry"));
-        assertEquals("GcpDescriptor", ft1.getUserData().get("placemarkDescriptor"));
+        assertEquals("org.esa.snap.core.datamodel.GcpDescriptor", ft1.getUserData().get("placemarkDescriptor"));
 
         SimpleFeatureType ft2 = createCompatibleFT("org.esa.snap.GroundControlPoint");
         assertEquals(0, ft2.getUserData().size());
         instance.setUserDataOf(ft2);
         assertEquals(2, ft2.getUserData().size());
         assertEquals("geometry", ft2.getUserData().get("defaultGeometry"));
-        assertEquals("GcpDescriptor", ft2.getUserData().get("placemarkDescriptor"));
+        assertEquals("org.esa.snap.core.datamodel.GcpDescriptor", ft2.getUserData().get("placemarkDescriptor"));
 
         SimpleFeatureType ft3 = createIncompatibleFT("org.esa.snap.GroundControlPoint");
         assertEquals(0, ft3.getUserData().size());
         instance.setUserDataOf(ft3);
         assertEquals(1, ft3.getUserData().size());
-        assertEquals("GcpDescriptor", ft2.getUserData().get("placemarkDescriptor"));
+        assertEquals("org.esa.snap.core.datamodel.GcpDescriptor", ft2.getUserData().get("placemarkDescriptor"));
     }
 
     @Test

@@ -59,12 +59,12 @@ public class GraphContextTest extends TestCase {
 
         Graph graph = new Graph("chain1");
 
-        Node node1 = new Node("node1", "TestOps$Op1$Spi");
+        Node node1 = new Node("node1", "org.esa.snap.core.gpf.TestOps$Op1$Spi");
 
-        Node node2 = new Node("node2", "TestOps$Op2$Spi");
+        Node node2 = new Node("node2", "org.esa.snap.core.gpf.TestOps$Op2$Spi");
         node2.addSource(new NodeSource("input", "node1"));
 
-        Node node3 = new Node("node3", "TestOps$Op3$Spi");
+        Node node3 = new Node("node3", "org.esa.snap.core.gpf.TestOps$Op3$Spi");
         node3.addSource(new NodeSource("input1", "node1"));
         node3.addSource(new NodeSource("input2", "node2"));
 
@@ -90,7 +90,7 @@ public class GraphContextTest extends TestCase {
         GraphContext graphContext = new GraphContext(graph);
         NodeContext nodeContext = graphContext.getNodeContext(node1);
         assertEquals("Op1", graph.getNode("node1").getOperatorName());
-        assertEquals("TestOps$Op1", nodeContext.getOperator().getClass().getName());
+        assertEquals("org.esa.snap.core.gpf.TestOps$Op1", nodeContext.getOperator().getClass().getName());
     }
 
     public void testTargetProductCreation() throws GraphException {

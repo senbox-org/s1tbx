@@ -31,17 +31,17 @@ public class PlacemarkDescriptorUserDataTest {
     @Test
     public void testSetUserData() throws Exception {
 
-        testSetUserDataOf(new PinDescriptor(), "PinDescriptor");
-        testSetUserDataOf(new GcpDescriptor(), "GcpDescriptor");
-        testSetUserDataOf(new TrackPointDescriptor(), "TrackPointDescriptor");
-        testSetUserDataOf(new GeometryDescriptor(), "GeometryDescriptor");
+        testSetUserDataOf(new PinDescriptor(), "org.esa.snap.core.datamodel.PinDescriptor");
+        testSetUserDataOf(new GcpDescriptor(), "org.esa.snap.core.datamodel.GcpDescriptor");
+        testSetUserDataOf(new TrackPointDescriptor(), "org.esa.snap.core.datamodel.TrackPointDescriptor");
+        testSetUserDataOf(new GeometryDescriptor(), "org.esa.snap.core.datamodel.GeometryDescriptor");
 
         SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
         builder.setName("Horst");
         builder.setDefaultGeometry("the_geom");
         builder.add("the_geom", Point.class);
         SimpleFeatureType featureType = builder.buildFeatureType();
-        testSetUserDataOf(new GenericPlacemarkDescriptor(featureType), "GenericPlacemarkDescriptor");
+        testSetUserDataOf(new GenericPlacemarkDescriptor(featureType), "org.esa.snap.core.datamodel.GenericPlacemarkDescriptor");
     }
 
     private void testSetUserDataOf(PlacemarkDescriptor descriptor, String expected) {

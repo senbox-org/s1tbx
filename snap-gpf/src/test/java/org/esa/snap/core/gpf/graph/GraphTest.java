@@ -30,7 +30,7 @@ public class GraphTest extends TestCase {
 
     public void testOneNodeChain() {
         Graph graph = new Graph("chain1");
-        Node node = new Node("node1", "TestOps$Op1Spi");
+        Node node = new Node("node1", "org.esa.snap.core.gpf.TestOps$Op1Spi");
         try {
             graph.addNode(node);
         } catch (IllegalArgumentException e) {
@@ -45,7 +45,7 @@ public class GraphTest extends TestCase {
 
     public void testRemoveNode() {
         Graph graph = new Graph("chain1");
-        Node node = new Node("node1", "TestOps$Op1Spi");
+        Node node = new Node("node1", "org.esa.snap.core.gpf.TestOps$Op1Spi");
         try {
             graph.addNode(node);
         } catch (IllegalArgumentException e) {
@@ -61,8 +61,8 @@ public class GraphTest extends TestCase {
 
     public void testAddExistingNode() {
         Graph graph = new Graph("chain1");
-        Node node1 = new Node("node1", "TestOps$Op1Spi");
-        Node node2 = new Node("node1", "TestOps$Op2Spi");
+        Node node1 = new Node("node1", "org.esa.snap.core.gpf.TestOps$Op1Spi");
+        Node node2 = new Node("node1", "org.esa.snap.core.gpf.TestOps$Op2Spi");
         try {
             graph.addNode(node1);
             graph.addNode(node2);

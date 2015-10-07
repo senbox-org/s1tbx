@@ -50,7 +50,7 @@ public class VectorDataNodeWriterTest extends TestCase {
 
     private static final String INPUT_2 =
             "#defaultGeometry=geom\n"
-            + "#placemarkDescriptor=GeometryDescriptor\n"
+            + "#placemarkDescriptor=org.esa.snap.core.datamodel.GeometryDescriptor\n"
             + "org.esa.snap.FT2\tname:String\tgeom:Point\tweight:Float\n"
             + "ID65\tmark1\tPOINT (12.3 45.6)\t0.4\n";
 
@@ -71,7 +71,7 @@ public class VectorDataNodeWriterTest extends TestCase {
                         new String[]{
                                 "#defaultGeometry=geom",
                                 "#styleCss=color:0,0,255",
-                                "#placemarkDescriptor=GeometryDescriptor",
+                                "#placemarkDescriptor=org.esa.snap.core.datamodel.GeometryDescriptor",
                                 "#separator=TAB"
                         },
                         "\norg.esa.snap.FT1\tname:String\tgeom:Geometry\tpixel:Integer\tdescription:String\n"
@@ -84,7 +84,7 @@ public class VectorDataNodeWriterTest extends TestCase {
         testInputOutput(INPUT_2,
                         new String[]{
                                 "#defaultGeometry=geom",
-                                "#placemarkDescriptor=GeometryDescriptor"
+                                "#placemarkDescriptor=org.esa.snap.core.datamodel.GeometryDescriptor"
                         },
                         "org.esa.snap.FT2\tname:String\tgeom:Point\tweight:Float\nID65\tmark1\tPOINT (12.3 45.6)\t0.4\n");
     }

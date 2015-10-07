@@ -23,34 +23,34 @@ public class PlacemarkDescriptorRegistryTest {
     public void testThatRegistryHostsKnownPlacemarkDescriptors() throws Exception {
         PlacemarkDescriptorRegistry registry = PlacemarkDescriptorRegistry.getInstance();
         assertNotNull(registry);
-        assertNotNull(registry.getPlacemarkDescriptor("PinDescriptor"));
-        assertNotNull(registry.getPlacemarkDescriptor("GcpDescriptor"));
-        assertNotNull(registry.getPlacemarkDescriptor("GeometryDescriptor"));
-        assertNull(registry.getPlacemarkDescriptor("GenericPlacemarkDescriptor"));
+        assertNotNull(registry.getPlacemarkDescriptor("org.esa.snap.core.datamodel.PinDescriptor"));
+        assertNotNull(registry.getPlacemarkDescriptor("org.esa.snap.core.datamodel.GcpDescriptor"));
+        assertNotNull(registry.getPlacemarkDescriptor("org.esa.snap.core.datamodel.GeometryDescriptor"));
+        assertNull(registry.getPlacemarkDescriptor("org.esa.snap.core.datamodel.GenericPlacemarkDescriptor"));
 
         Set<PlacemarkDescriptor> descriptors = registry.getPlacemarkDescriptors();
         assertNotNull(descriptors);
         assertTrue("expected placemarkDescriptors.length >= 3, but was " + descriptors.size(),
                    descriptors.size() >= 3);
-        assertTrue(descriptors.contains(registry.getPlacemarkDescriptor("PinDescriptor")));
-        assertTrue(descriptors.contains(registry.getPlacemarkDescriptor("GcpDescriptor")));
-        assertTrue(descriptors.contains(registry.getPlacemarkDescriptor("GeometryDescriptor")));
-        assertFalse(descriptors.contains(registry.getPlacemarkDescriptor("GenericPlacemarkDescriptor")));
+        assertTrue(descriptors.contains(registry.getPlacemarkDescriptor("org.esa.snap.core.datamodel.PinDescriptor")));
+        assertTrue(descriptors.contains(registry.getPlacemarkDescriptor("org.esa.snap.core.datamodel.GcpDescriptor")));
+        assertTrue(descriptors.contains(registry.getPlacemarkDescriptor("org.esa.snap.core.datamodel.GeometryDescriptor")));
+        assertFalse(descriptors.contains(registry.getPlacemarkDescriptor("org.esa.snap.core.datamodel.GenericPlacemarkDescriptor")));
     }
 
     @Test
     public void testThatPlacemarkDescriptorIsFoundForPinFeatureType() throws Exception {
-        testThatPlacemarkDescriptorIsFound("org.esa.snap.Pin", "PinDescriptor", 3);
+        testThatPlacemarkDescriptorIsFound("org.esa.snap.Pin", "org.esa.snap.core.datamodel.PinDescriptor", 3);
     }
 
     @Test
     public void testThatPlacemarkDescriptorIsFoundForGcpFeatureType() throws Exception {
-        testThatPlacemarkDescriptorIsFound("org.esa.snap.GroundControlPoint", "GcpDescriptor", 3);
+        testThatPlacemarkDescriptorIsFound("org.esa.snap.GroundControlPoint", "org.esa.snap.core.datamodel.GcpDescriptor", 3);
     }
 
     @Test
     public void testThatPlacemarkDescriptorIsFoundForGeometryFeatureType() throws Exception {
-        testThatPlacemarkDescriptorIsFound("org.esa.snap.Geometry", "GeometryDescriptor", 2);
+        testThatPlacemarkDescriptorIsFound("org.esa.snap.Geometry", "org.esa.snap.core.datamodel.GeometryDescriptor", 2);
     }
 
     @Test
