@@ -104,9 +104,9 @@ public class OperatorDoclet extends Doclet {
                               "./modules/beam-ndvi-5.0;" +
                               "./modules/beam-unmix-5.0",
 
-                "org.esa.snap.core.gpf.standard",
-                "org.esa.snap.core.gpf.standard.reproject",
-                "org.esa.snap.gpf.operators.meris",
+                "org.esa.snap.core.gpf.common",
+                "org.esa.snap.core.gpf.common.reproject",
+                "org.esa.snap.s3tbx.meris",
                 "org.esa.snap.aatsr.sst",
                 "org.esa.snap.binning.operator",
                 "org.esa.snap.cluster",
