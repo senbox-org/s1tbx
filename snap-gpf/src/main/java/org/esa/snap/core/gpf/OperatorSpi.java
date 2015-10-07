@@ -45,7 +45,7 @@ import java.util.jar.Manifest;
  * <p>SPI are registered either pragmatically using the
  * {@link GPF#getOperatorSpiRegistry() OperatorSpiRegistry} or
  * automatically via standard Java services lookup mechanism. For the services approach, place a
- * file {@code META-INF/services/org.esa.snap.framework.gpf.OperatorSpi}
+ * file {@code META-INF/services/org.esa.snap.core.gpf.OperatorSpi}
  * in the JAR file containing your operators and associated SPIs.
  * For each SPI to be automatically registered, place a text line in the file containing the SPI's
  * fully qualified class name.
