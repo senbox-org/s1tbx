@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.jar.Manifest;
 
 /**
- * <p>The <code>OperatorSpi</code> class is the service provider interface (SPI) for {@link Operator}s.
+ * <p>The {@code OperatorSpi} class is the service provider interface (SPI) for {@link Operator}s.
  * Therefore this abstract class is intended to be derived by clients.
  * <p>The SPI is both a descriptor for the operator type and a factory for new {@link Operator} instances.
  * <p>An SPI is required for your operator if you want to make it accessible via an alias name in
@@ -45,7 +45,7 @@ import java.util.jar.Manifest;
  * <p>SPI are registered either pragmatically using the
  * {@link GPF#getOperatorSpiRegistry() OperatorSpiRegistry} or
  * automatically via standard Java services lookup mechanism. For the services approach, place a
- * file {@code META-INF/services/OperatorSpi}
+ * file {@code META-INF/services/org.esa.snap.framework.gpf.OperatorSpi}
  * in the JAR file containing your operators and associated SPIs.
  * For each SPI to be automatically registered, place a text line in the file containing the SPI's
  * fully qualified class name.
