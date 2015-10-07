@@ -15,19 +15,64 @@
  */
 package org.esa.s1tbx.analysis.rcp.toolviews.timeseries;
 
+import org.esa.snap.framework.ui.SnapFileChooser;
+import org.esa.snap.framework.ui.product.ProductSceneView;
+import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.rcp.actions.file.export.AbstractExportImageAction;
+import org.esa.snap.util.io.SnapFileFilter;
+import org.openide.util.Lookup;
+import org.openide.util.LookupEvent;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
+
 /**
  * Action for exporting graph as image.
- *//*
+ */
 public class GraphExportImageAction extends AbstractExportImageAction {
 
+    private final static String[][] SCENE_IMAGE_FORMAT_DESCRIPTIONS = {
+            BMP_FORMAT_DESCRIPTION,
+            PNG_FORMAT_DESCRIPTION,
+            JPEG_FORMAT_DESCRIPTION,
+            TIFF_FORMAT_DESCRIPTION,
+            GEOTIFF_FORMAT_DESCRIPTION,
+    };
+    private static final String HELP_ID = "exportImageFile";
+
     private final TimeSeriesDiagram diagram;
+    private SnapFileFilter[] sceneImageFileFilters;
 
     public GraphExportImageAction(final TimeSeriesDiagram diagram) {
+        super("Export Time Series Image", HELP_ID);
         this.diagram = diagram;
+
+        sceneImageFileFilters = new SnapFileFilter[SCENE_IMAGE_FORMAT_DESCRIPTIONS.length];
+        for (int i = 0; i < SCENE_IMAGE_FORMAT_DESCRIPTIONS.length; i++) {
+            sceneImageFileFilters[i] = createFileFilter(SCENE_IMAGE_FORMAT_DESCRIPTIONS[i]);
+        }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent event) {
+        exportImage(sceneImageFileFilters);
     }
 
     public void exportImage() {
-        exportImage(VisatApp.getApp(), getSceneImageFileFilters(), this);
+        exportImage(sceneImageFileFilters);
+    }
+
+    @Override
+    public Action createContextAwareInstance(Lookup lookup) {
+        return new GraphExportImageAction(diagram);
+    }
+
+    @Override
+    public void resultChanged(LookupEvent lookupEvent) {
+        setEnabled(SnapApp.getDefault().getSelectedProductSceneView() != null);
     }
 
     @Override
@@ -55,4 +100,4 @@ public class GraphExportImageAction extends AbstractExportImageAction {
     protected boolean isEntireImageSelected() {
         return true;
     }
-}*/
+}

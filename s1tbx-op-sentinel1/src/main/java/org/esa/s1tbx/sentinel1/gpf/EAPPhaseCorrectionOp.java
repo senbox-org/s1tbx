@@ -163,6 +163,7 @@ public final class EAPPhaseCorrectionOp extends Operator {
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
         addSelectedBands();
+        updateTargetProductMetadata();
     }
 
     private void addSelectedBands() {
@@ -217,6 +218,13 @@ public final class EAPPhaseCorrectionOp extends Operator {
             ReaderUtils.createVirtualIntensityBand(targetProduct, targetBandI, targetBandQ, suffix);
             i++;
         }
+    }
+
+    private void updateTargetProductMetadata() {
+        final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
+        AbstractMetadata.addAbstractedAttribute(
+                absTgt, "EAP Correction", ProductData.TYPE_UINT8, "flag", "EAP Correction Applied");
+        absTgt.getAttribute("EAP Correction").getData().setElemBoolean(true);
     }
 
     private void retrieveAuxCalFile() throws Exception {
