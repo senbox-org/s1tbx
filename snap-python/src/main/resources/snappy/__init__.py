@@ -277,7 +277,7 @@ try:
     File = jpy.get_type('java.io.File')
     Rectangle = jpy.get_type('java.awt.Rectangle')
 
-    SystemUtils = jpy.get_type('org.esa.snap.util.SystemUtils')
+    SystemUtils = jpy.get_type('org.esa.snap.core.util.SystemUtils')
     ProductIO = jpy.get_type('org.esa.snap.core.dataio.ProductIO')
     Product = jpy.get_type('org.esa.snap.core.datamodel.Product')
     ProductData = jpy.get_type('org.esa.snap.core.datamodel.ProductData')
@@ -291,7 +291,7 @@ try:
     FlagCoding = jpy.get_type('org.esa.snap.core.datamodel.FlagCoding')
     ProductNodeGroup = jpy.get_type('org.esa.snap.core.datamodel.ProductNodeGroup')
 
-    ProductUtils = jpy.get_type('org.esa.snap.util.ProductUtils')
+    ProductUtils = jpy.get_type('org.esa.snap.core.util.ProductUtils')
 
     GPF = jpy.get_type('org.esa.snap.core.gpf.GPF')
     Operator = jpy.get_type('org.esa.snap.core.gpf.Operator')
