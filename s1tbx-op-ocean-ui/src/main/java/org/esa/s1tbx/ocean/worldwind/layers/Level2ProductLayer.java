@@ -88,6 +88,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
     private static double HUE_RED = 0d / 360d;
     private static double HUE_MAX_RED = 1.0;
 
+    private JPanel theControlLevel2Panel;
     private boolean theOWILimitChanged = false;
 
     private boolean theRVLLimitChanged = false;
@@ -118,8 +119,8 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
     private String theSelectedComp = null;
 
     private final HashMap<Object, String> theObjectInfoHash = new HashMap<>();
-    private final HashMap<Object, Product> theOSWProductHash = new HashMap<>();
-    private final HashMap<Object, Integer> theOSWSequenceHash = new HashMap<>();
+    private final HashMap<Object, Product> theSurfaceProductHash = new HashMap<>();
+    private final HashMap<Object, Integer> theSurfaceSequenceHash = new HashMap<>();
 
     private final HashMap<Product, ProductRenderablesInfo> theProductRenderablesInfoHash = new HashMap<>();
 
@@ -184,9 +185,9 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
             //final ExecCommand command = datApp.getCommandManager().getExecCommand("showPolarWaveView");
             //command.execute(2);
         }
-        else if (event.getEventAction().equals(SelectEvent.LEFT_CLICK) && theOSWProductHash.get(event.getTopObject()) != null && theOSWSequenceHash.get(event.getTopObject()) != null)  {
+        else if (event.getEventAction().equals(SelectEvent.LEFT_CLICK) && theSurfaceProductHash.get(event.getTopObject()) != null && theSurfaceSequenceHash.get(event.getTopObject()) != null)  {
             //SystemUtils.LOG.info("click " + event.getTopObject());
-            OceanSwellTopComponent.setOSWRecord(theOSWProductHash.get(event.getTopObject()), theOSWSequenceHash.get(event.getTopObject()));
+            OceanSwellTopComponent.setOSWRecord(theSurfaceProductHash.get(event.getTopObject()), theSurfaceSequenceHash.get(event.getTopObject()));
 
         }
         else {
@@ -266,25 +267,6 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
             rvlSwathHeight = rvlLonBand.getRasterHeight();
         }
 
-
-
-
-        final Band waveLonBand = product.getBand(prefix + "_001_oswLon");
-        final Band waveLatBand = product.getBand(prefix + "_001_oswLat");
-        final Band waveHeightBand = product.getBand(prefix + "_001_oswHs");
-        final Band waveLengthBand = product.getBand(prefix + "_001_oswWl");
-        final Band waveDirBand = product.getBand(prefix + "_001_oswDirmet");
-
-        //final Band oswLonBand = theColorBarLegendProduct.getBand("hh_001_oswLon");
-        //final Band oswLatBand = theColorBarLegendProduct.getBand("hh_001_oswLat");
-        //final Band oswWindDirBand = theColorBarLegendProduct.getBand("hh_001_oswWindDirection");
-
-        //final Band rvlLonBand = theColorBarLegendProduct.getBand("hh_001_rvlLon");
-        //final Band rvlLatBand = theColorBarLegendProduct.getBand("hh_001_rvlLat");
-        //final Band rvlRadVelBand = theColorBarLegendProduct.getBand("hh_001_rvlRadVel");
-
-        //final Band band = theColorBarLegendProduct.getBand();
-
             final GeoPos geoPos1 = product.getGeoCoding().getGeoPos(new PixelPos(0, 0), null);
             final GeoPos geoPos2 = product.getGeoCoding().getGeoPos(new PixelPos(product.getSceneRasterWidth() - 1,
                     product.getSceneRasterHeight() - 1), null);
@@ -363,18 +345,32 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
 
 
             double[][] oswData = null;
+            double[][] owiData = null;
+            double[][] rvlData = null;
 
-            if (metadataRoot.getElement("Original_Product_Metadata") != null && metadataRoot.getElement("Original_Product_Metadata").getElement("annotation") != null) {
+            if (acquisitionMode.equalsIgnoreCase("WV") && metadataRoot.getElement("Original_Product_Metadata") != null && metadataRoot.getElement("Original_Product_Metadata").getElement("annotation") != null) {
                 int numElements = metadataRoot.getElement("Original_Product_Metadata").getElement("annotation").getNumElements();
                 if (numElements > 0) {
                     oswData = new double[5][numElements];
+                    owiData = new double[3][numElements];
+                    rvlData = new double[3][numElements];
+
                     int i = 0;
                     for (MetadataElement element : metadataRoot.getElement("Original_Product_Metadata").getElement("annotation").getElements()) {
-                        oswData[0][i] = element.getElement("oswLon").getElement("Values").getAttribute("data").getData().getElemDouble();
-                        oswData[1][i] = element.getElement("oswLat").getElement("Values").getAttribute("data").getData().getElemDouble();
-                        oswData[2][i] = element.getElement("oswHs").getElement("Values").getAttribute("data").getData().getElemDouble();
-                        oswData[3][i] = element.getElement("oswWl").getElement("Values").getAttribute("data").getData().getElemDouble();
-                        oswData[4][i] = element.getElement("oswDirmet").getElement("Values").getAttribute("data").getData().getElemDouble();
+                        oswData[0][i] = getData(element.getElement("oswLat"));
+                        oswData[1][i] = getData(element.getElement("oswLon"));
+                        oswData[2][i] = getData(element.getElement("oswHs"));
+                        oswData[3][i] = getData(element.getElement("oswWl"));
+                        oswData[4][i] = getData(element.getElement("oswDirmet"));
+
+                        owiData[0][i] = getData(element.getElement("owiLat"));
+                        owiData[1][i] = getData(element.getElement("owiLon"));
+                        owiData[2][i] = getData(element.getElement("owiWindSpeed"));
+
+                        rvlData[0][i] = getData(element.getElement("rvlLat"));
+                        rvlData[1][i] = getData(element.getElement("rvlLon"));
+                        rvlData[2][i] = getData(element.getElement("rvlRadVel"));
+
                         i++;
                     }
                 }
@@ -382,54 +378,36 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
 
 
             if (oswData != null) {
-                /*
-                final double[] waveLonValues = new double[waveLonBand.getRasterWidth() * waveLonBand.getRasterHeight()];
-                waveLonBand.readPixels(0, 0, waveLonBand.getRasterWidth(), waveLonBand.getRasterHeight(), waveLonValues, ProgressMonitor.NULL);
-
-                final double[] waveLatValues = new double[waveLatBand.getRasterWidth() * waveLatBand.getRasterHeight()];
-                waveLatBand.readPixels(0, 0, waveLatBand.getRasterWidth(), waveLatBand.getRasterHeight(), waveLatValues, ProgressMonitor.NULL);
-
-                final double[] waveHeightValues = new double[waveHeightBand.getRasterWidth() * waveHeightBand.getRasterHeight()];
-                waveHeightBand.readPixels(0, 0, waveHeightBand.getRasterWidth(), waveHeightBand.getRasterHeight(), waveHeightValues, ProgressMonitor.NULL);
-
-                final double[] waveLengthValues = new double[waveLengthBand.getRasterWidth() * waveLengthBand.getRasterHeight()];
-                waveLengthBand.readPixels(0, 0, waveLengthBand.getRasterWidth(), waveLengthBand.getRasterHeight(), waveLengthValues, ProgressMonitor.NULL);
+                addWaveLengthArrows(oswData[0], oswData[1], oswData[3], oswData[4], productRenderablesInfo.theRenderableListHash.get("osw"));
+                createWVColorSurfaceWithGradient(product, oswData[0], oswData[1], oswData[2], productRenderablesInfo.theRenderableListHash.get("osw"), "osw");
+            }
 
 
-                final double[] waveDirValues = new double[waveDirBand.getRasterWidth() * waveDirBand.getRasterHeight()];
-                waveDirBand.readPixels(0, 0, waveDirBand.getRasterWidth(), waveDirBand.getRasterHeight(), waveDirValues, ProgressMonitor.NULL);
-                */
 
-                addWaveLengthArrows(oswData[1], oswData[0], oswData[3], oswData[4], productRenderablesInfo.theRenderableListHash.get("osw"));
-                createOSWColorSurfaceWithGradient(product, oswData[1], oswData[0], oswData[2], 4, 23, productRenderablesInfo.theRenderableListHash.get("osw"), productRenderablesInfo);
-                /*
-                double arrowLength = 0.277392578125;
-                final Position startPos = new Position(Angle.fromDegreesLatitude(oswData[1][0]), Angle.fromDegreesLongitude(oswData[0][0]), 10.0);
-                final Position endPos = new Position(LatLon.greatCircleEndPosition(startPos, Angle.fromDegrees(oswData[3][0]), Angle.fromDegrees(arrowLength)), 10.0);
-                final ArrayList<Position> positions = new ArrayList<>();
-                positions.add(startPos);
-                positions.add(endPos);
-                ShapeAttributes dpAttrs = new BasicShapeAttributes();
-                dpAttrs.setOutlineMaterial(Material.WHITE);
-                DirectedPath directedPath = getDirectedPath(positions, dpAttrs);
-                addRenderable(directedPath);
-                */
+            //owiLonBand
+            if (owiData != null && owiLonBand == null) {
+                //addWaveLengthArrows(owiData[0], owiData[1], owiData[3], owiData[4], productRenderablesInfo.theRenderableListHash.get("owi"));
+                createWVColorSurfaceWithGradient(product, owiData[0], owiData[1], owiData[2], productRenderablesInfo.theRenderableListHash.get("owi"), "owi");
+            }
 
-                /*
-                createColorSurfaceWithGradient(geoPos1, geoPos2, oswData[1], oswData[0], oswData[2], 6,
-                                               8, 0, 10, false,
-                                               productRenderablesInfo.theRenderableListHash.get("osw"),
-                                               productRenderablesInfo, "osw");
-                                               */
+            if (rvlData != null && numRVLElements == 0) {
+                createWVColorSurfaceWithGradient(product, rvlData[0], rvlData[1], rvlData[2], productRenderablesInfo.theRenderableListHash.get("rvl"), "rvl");
             }
 
             theProductRenderablesInfoHash.put(product, productRenderablesInfo);
-
+            theControlLevel2Panel.setVisible(true);
             setComponentVisible(theSelectedComp, wwd);
 
         } catch (Exception e) {
             SnapApp.getDefault().handleError("L2ProductLayer unable to add product "+product.getName(), e);
         }
+    }
+
+    public double getData (MetadataElement element) {
+        if (element.getElement("Values") != null) {
+            return element.getElement("Values").getAttribute("data").getData().getElemDouble();
+        }
+        return 0;
     }
 
     public void createColorSurfaceWithGradient(GeoPos geoPos1, GeoPos geoPos2, double[] latValues,
@@ -458,7 +436,11 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
     public void createColorBarLegend(double minValue, double maxValue, String title, String comp) {
         //SystemUtils.LOG.info("createColorBarLegend " + minValue + " " + maxValue);
 
-        final Format legendLabelFormat = new DecimalFormat("# m/s");
+        String unit = "m/s";
+        if (comp.equalsIgnoreCase("osw")) {
+            unit = "m";
+        }
+        final Format legendLabelFormat = new DecimalFormat("# " + unit);
 
         final ColorBarLegend colorBarLegend = new ColorBarLegend();
         colorBarLegend.setColorGradient(32, 256, minValue, maxValue, HUE_RED, HUE_MAX_RED,
@@ -841,15 +823,13 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
         }
     }
 
-    private void createOSWColorSurfaceWithGradient(Product product,
-                                     double[] latValues,
-                                     double[] lonValues,
-                                     double[] waveHeightValues,
-                                     int width,
-                                     int height,
-                                     ArrayList<Renderable> renderableList,
-                                     ProductRenderablesInfo prodRenderInfo) {
-        SystemUtils.LOG.info(":: createOSWColorSurfaceWithGradient ");
+    private void createWVColorSurfaceWithGradient(Product product,
+                                                  double[] latValues,
+                                                  double[] lonValues,
+                                                  double[] values,
+                                                  ArrayList<Renderable> renderableList,
+                                                  String comp) {
+        SystemUtils.LOG.info(":: createWVColorSurfaceWithGradient ");
 
         final ShapeAttributes dpAttrs = new BasicShapeAttributes();
         dpAttrs.setOutlineMaterial(Material.WHITE);
@@ -858,7 +838,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
         // we'll store it as a first object of a final array
         //final ArrayList<Object> ctgSurfaceList = new ArrayList<Object>();
 
-        for (int ind = 0; ind < waveHeightValues.length; ind++) {
+        for (int ind = 0; ind < values.length; ind++) {
             final int finalInd = ind;
             final ArrayList<Position> polygonPositions = new ArrayList<>();
             double vignette_half_side_deg = (180 / Math.PI) * 10000 / GLOBE_RADIUS;
@@ -878,31 +858,31 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
                 renderableList.add(p);
             }
 
-            String info = "Wave length: " + waveHeightValues[ind] + "<br/>";
+            String info = "";
+            if (comp.equalsIgnoreCase("osw")) {
+                info = "Wave Length: " + values[ind] + "<br/>";
+            }
+            else if (comp.equalsIgnoreCase("owi")) {
+                info = "Wind Speed: " + values[ind] + "<br/>";
+            }
+            else if (comp.equalsIgnoreCase("rvl")) {
+                info = "Radial Velocity: " + values[ind] + "<br/>";
+            }
+            String finalInfo = info;
+
             //AnalyticSurface analyticSurface = new AnalyticSurface();
             AnalyticSurface analyticSurface = new AnalyticSurface() {
                 public void render(DrawContext dc) {
                     super.render(dc);
                     if (clampToGroundSurface != null) {
-                        theObjectInfoHash.put(clampToGroundSurface, info);
-                        theOSWProductHash.put(clampToGroundSurface, product);
-                        theOSWSequenceHash.put(clampToGroundSurface, finalInd);
+                        theObjectInfoHash.put(clampToGroundSurface, finalInfo);
+                        theSurfaceProductHash.put(clampToGroundSurface, product);
+                        theSurfaceSequenceHash.put(clampToGroundSurface, finalInd);
                     }
                 }
             };
-            /*
-            AnalyticSurface analyticSurface = new AnalyticSurface() {
-                public void render(DrawContext dc) {
-                    if (clampToGroundSurface != null) {
-                        theObjectInfoHash.put(clampToGroundSurface, info);
-                        theOSWProductHash.put(clampToGroundSurface, product);
-                        theOSWSequenceHash.put(clampToGroundSurface, finalInd);
-                    }
-                }
-            };
-            */
-            analyticSurface.setSector(Sector.fromDegrees(latValues[ind] - vignette_half_side_deg, latValues[ind] + vignette_half_side_deg,
-                                                         lonValues[ind] - vignette_half_side_deg, lonValues[ind] + vignette_half_side_deg));
+
+            analyticSurface.setSector(Sector.fromDegrees(latValues[ind] - vignette_half_side_deg, latValues[ind] + vignette_half_side_deg, lonValues[ind] - vignette_half_side_deg, lonValues[ind] + vignette_half_side_deg));
             analyticSurface.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
             // one by one square doesn't seem to work, so we'll just use the next smallest
             // possible square and repeat the same value 4 times
@@ -910,7 +890,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
 
             final ArrayList<AnalyticSurface.GridPointAttributes> attributesList = new ArrayList<>();
             for (int i =0; i < 4; i++) {
-                attributesList.add(createColorGradientAttributes(waveHeightValues[ind], 0, 10, HUE_RED, HUE_MAX_RED, false));
+                attributesList.add(createColorGradientAttributes(values[ind], 0, 10, HUE_RED, HUE_MAX_RED, false));
             }
 
             analyticSurface.setValues(attributesList);
@@ -928,18 +908,6 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
                 renderableList.add(analyticSurface);
             }
 
-            //analyticSurface.render(null);
-            //System.out.println("ctgSurfaceList " + ctgSurfaceList);
-
-            //info += "Wind Direction: " + avgWindDir + "<br/>";
-            //info += "Incidence Angle: " + avgIncAngle + "<br/>";
-            /*
-            if (ctgSurfaceList.size() > ind) {
-                theObjectInfoHash.put(ctgSurfaceList.get(ind), info);
-                theOSWProductHash.put(ctgSurfaceList.get(ind), product);
-                theOSWSequenceHash.put(ctgSurfaceList.get(ind), ind);
-            }
-            */
         }
 
 
@@ -1146,8 +1114,8 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
                     removeRenderable(renderable);
                     if (renderable  instanceof DirectedPath) {
                         theObjectInfoHash.remove(renderable);
-                        theOSWProductHash.remove(renderable);
-                        theOSWSequenceHash.remove(renderable);
+                        theSurfaceProductHash.remove(renderable);
+                        theSurfaceSequenceHash.remove(renderable);
                     }
                 }
                 renderableList.clear();
@@ -1162,6 +1130,14 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
             */
 
             theProductRenderablesInfoHash.remove(product);
+            if (theProductRenderablesInfoHash.size() == 0) {
+                theControlLevel2Panel.setVisible(false);
+                for (ColorBarLegend colorBarLegend : theColorBarLegendHash.values()) {
+                    removeRenderable(colorBarLegend);
+                }
+            }
+
+
             theWWD.redrawNow();
         //}
 
@@ -1207,8 +1183,8 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
     }
 
     public JPanel getControlPanel(final WorldWindowGLCanvas wwd) {
-        final JPanel controlLevel2Panel = new JPanel(new GridLayout(7, 1, 5, 5));
-
+        theControlLevel2Panel = new JPanel(new GridLayout(7, 1, 5, 5));
+        theControlLevel2Panel.setVisible(false);
         final JRadioButton owiBtn = new JRadioButton("OWI");
         owiBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
@@ -1225,8 +1201,8 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
                 setComponentVisible("osw", wwd);
                 theArrowsCB.setEnabled(false);
 
-                //SystemUtils.LOG.info("theOSWProductHash " + theOSWProductHash);
-                //SystemUtils.LOG.info("theOSWSequenceHash " + theOSWSequenceHash);
+                //SystemUtils.LOG.info("theSurfaceProductHash " + theSurfaceProductHash);
+                //SystemUtils.LOG.info("theSurfaceSequenceHash " + theSurfaceSequenceHash);
             }
         });
 
@@ -1256,7 +1232,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
         componentTypePanel.add(owiBtn);
         componentTypePanel.add(oswBtn);
         componentTypePanel.add(rvlBtn);
-        controlLevel2Panel.add(componentTypePanel);
+        theControlLevel2Panel.add(componentTypePanel);
 
         final JPanel arrowDisplayPanel = new JPanel(new GridLayout(1, 2, 5, 5));
 
@@ -1274,7 +1250,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
 
         arrowDisplayPanel.add(new JLabel("Display Wind Vectors:"));
         arrowDisplayPanel.add(theArrowsCB);
-        controlLevel2Panel.add(arrowDisplayPanel);
+        theControlLevel2Panel.add(arrowDisplayPanel);
 
         /*
         final JPanel subsectionPanel = new JPanel(new GridLayout(1, 2, 5, 5));
@@ -1289,7 +1265,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
         subsectionPanel.add(new JLabel("Subsection:"));
         subsectionPanel.add(sectionDropDown);
 
-        controlLevel2Panel.add(subsectionPanel);
+        theControlLevel2Panel.add(subsectionPanel);
         */
 
         final JPanel maxPanel = new JPanel(new GridLayout(1, 2, 5, 5));
@@ -1305,7 +1281,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
             }
         });
         maxPanel.add(maxSP);
-        controlLevel2Panel.add(maxPanel);
+        theControlLevel2Panel.add(maxPanel);
 
         final JPanel minPanel = new JPanel(new GridLayout(1, 2, 5, 5));
         minPanel.add(new JLabel("Min OWI Wind Speed:"));
@@ -1320,7 +1296,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
             }
         });
         minPanel.add(minSP);
-        controlLevel2Panel.add(minPanel);
+        theControlLevel2Panel.add(minPanel);
 
         final JPanel maxRVLPanel = new JPanel(new GridLayout(1, 2, 5, 5));
         maxRVLPanel.add(new JLabel("Max RVL Rad Vel.:"));
@@ -1334,7 +1310,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
             }
         });
         maxRVLPanel.add(maxRVLSP);
-        controlLevel2Panel.add(maxRVLPanel);
+        theControlLevel2Panel.add(maxRVLPanel);
 
         final JButton updateButton = new JButton("Update");
         updateButton.addActionListener(new ActionListener() {
@@ -1365,13 +1341,13 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
                 theRVLLimitChanged = false;
             }
         });
-        controlLevel2Panel.add(updateButton);
+        theControlLevel2Panel.add(updateButton);
 
         createColorBarLegend(0, 10, "OWI Wind Speed", "owi");
         createColorBarLegend(0, 10, "OSW Wave Height.", "osw");
         createColorBarLegend(-6, 6, "RVL Rad. Vel.", "rvl");
-        addRenderable(theColorBarLegendHash.get("owi"));
+        //addRenderable(theColorBarLegendHash.get("owi"));
 
-        return controlLevel2Panel;
+        return theControlLevel2Panel;
     }
 }
