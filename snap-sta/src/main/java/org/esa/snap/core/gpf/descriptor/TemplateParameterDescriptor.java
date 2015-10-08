@@ -31,6 +31,7 @@ import java.io.Reader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Ramona Manda
@@ -69,9 +70,7 @@ public class TemplateParameterDescriptor extends ToolParameterDescriptor {
     public TemplateParameterDescriptor(TemplateParameterDescriptor object) {
         super(object, object.getParameterType());
         this.toolParameterDescriptors = new ArrayList<>();
-            for (ToolParameterDescriptor subparameter : object.getToolParameterDescriptors()) {
-                this.toolParameterDescriptors.add(new TemplateParameterDescriptor(subparameter));
-            }
+        this.toolParameterDescriptors.addAll(object.getToolParameterDescriptors().stream().map(TemplateParameterDescriptor::new).collect(Collectors.toList()));
     }
 
     public void addParameterDescriptor(ToolParameterDescriptor descriptor){
