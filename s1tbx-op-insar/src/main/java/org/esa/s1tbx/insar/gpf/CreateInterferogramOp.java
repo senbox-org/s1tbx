@@ -929,14 +929,12 @@ public class CreateInterferogramOp extends Operator {
                 /// check out results from source ///
                 final Tile mstTileReal = getSourceTile(product.sourceMaster.realBand, targetRectangle);
                 final Tile mstTileImag = getSourceTile(product.sourceMaster.imagBand, targetRectangle);
-                final ComplexDoubleMatrix dataMaster = new ComplexDoubleMatrix(mstTileReal.getHeight(), mstTileReal.getWidth());
+                final ComplexDoubleMatrix dataMaster = TileUtilsDoris.pullComplexDoubleMatrix(mstTileReal, mstTileImag);
 
                 /// check out results from source ///
                 final Tile slvTileReal = getSourceTile(product.sourceSlave.realBand, targetRectangle);
                 final Tile slvTileImag = getSourceTile(product.sourceSlave.imagBand, targetRectangle);
-                final ComplexDoubleMatrix dataSlave = new ComplexDoubleMatrix(slvTileReal.getHeight(), slvTileReal.getWidth());
-                TileUtilsDoris.pullComplexDoubleMatrixMstSlv(mstTileReal, mstTileImag, slvTileReal, slvTileImag,
-                        dataMaster, dataSlave);
+                final ComplexDoubleMatrix dataSlave = TileUtilsDoris.pullComplexDoubleMatrix(slvTileReal, slvTileImag);
 
                 final double srcNoDataValue = product.sourceMaster.realBand.getNoDataValue();
 
@@ -946,10 +944,8 @@ public class CreateInterferogramOp extends Operator {
                     final Tile mstTileImag2 = getSourceTile(product.sourceMaster.imagBand, rect, border);
                     final Tile slvTileReal2 = getSourceTile(product.sourceSlave.realBand, rect, border);
                     final Tile slvTileImag2 = getSourceTile(product.sourceSlave.imagBand, rect, border);
-                    dataMaster2 = new ComplexDoubleMatrix(mstTileReal2.getHeight(), mstTileReal2.getWidth());
-                    dataSlave2 = new ComplexDoubleMatrix(slvTileReal2.getHeight(), slvTileReal2.getWidth());
-                    TileUtilsDoris.pullComplexDoubleMatrixMstSlv(mstTileReal2, mstTileImag2, slvTileReal2, slvTileImag2,
-                            dataMaster2, dataSlave2);
+                    dataMaster2 = TileUtilsDoris.pullComplexDoubleMatrix(mstTileReal2, mstTileImag2);
+                    dataSlave2 = TileUtilsDoris.pullComplexDoubleMatrix(slvTileReal2, slvTileImag2);
                 }
 
                 DoubleMatrix realReferencePhase = null;
