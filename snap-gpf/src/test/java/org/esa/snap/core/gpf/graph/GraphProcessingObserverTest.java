@@ -31,6 +31,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.media.jai.JAI;
+import javax.media.jai.TileScheduler;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.util.ArrayList;
@@ -39,15 +41,23 @@ import static org.junit.Assert.*;
 
 public class GraphProcessingObserverTest {
     private static OpMock.Spi opMockSpi = new OpMock.Spi();
+    private int oldParallelism;
 
     @Before
     public void setUp() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(opMockSpi);
+
+        TileScheduler tileScheduler = JAI.getDefaultInstance().getTileScheduler();
+        oldParallelism = tileScheduler.getParallelism();
+        tileScheduler.setParallelism(Runtime.getRuntime().availableProcessors());
     }
 
     @After
     public void tearDown() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(opMockSpi);
+
+        TileScheduler tileScheduler = JAI.getDefaultInstance().getTileScheduler();
+        tileScheduler.setParallelism(oldParallelism);
     }
 
     @Test
@@ -96,6 +106,7 @@ public class GraphProcessingObserverTest {
 
         @Override
         public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+            System.out.println("OpMock.computeTile");
         }
 
         public static class Spi extends OperatorSpi {

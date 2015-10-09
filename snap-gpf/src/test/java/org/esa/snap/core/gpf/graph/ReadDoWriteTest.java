@@ -40,7 +40,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
+import javax.media.jai.TileScheduler;
 import javax.media.jai.operator.ConstantDescriptor;
 import java.io.File;
 import java.io.StringReader;
@@ -56,6 +58,7 @@ public class ReadDoWriteTest {
     private WriteOp.Spi writeSpi = new WriteOp.Spi();
     private File outputFile;
     private File inputFile;
+    private int oldParallelism;
 
     @Before
     public void setUp() throws Exception {
@@ -66,6 +69,11 @@ public class ReadDoWriteTest {
         inputFile = new File(inputURI);
         outputFile = GlobalTestConfig.getBeamTestDataOutputFile("ReadDoWriteTest/writtenProduct.dim");
         outputFile.getParentFile().mkdirs();
+
+        TileScheduler tileScheduler = JAI.getDefaultInstance().getTileScheduler();
+        oldParallelism = tileScheduler.getParallelism();
+        tileScheduler.setParallelism(Runtime.getRuntime().availableProcessors());
+
     }
 
     @After
@@ -75,6 +83,10 @@ public class ReadDoWriteTest {
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(writeSpi);
         File parentFile = outputFile.getParentFile();
         FileUtils.deleteTree(parentFile);
+
+        TileScheduler tileScheduler = JAI.getDefaultInstance().getTileScheduler();
+        tileScheduler.setParallelism(oldParallelism);
+
     }
 
     @Test
