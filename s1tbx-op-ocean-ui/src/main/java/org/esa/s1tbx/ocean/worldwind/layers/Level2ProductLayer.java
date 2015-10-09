@@ -373,7 +373,9 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
             }
 
             theProductRenderablesInfoHash.put(product, productRenderablesInfo);
-            theControlLevel2Panel.setVisible(true);
+            if(theControlLevel2Panel != null) {
+                theControlLevel2Panel.setVisible(true);
+            }
             setComponentVisible(theSelectedComp, wwd);
 
         } catch (Exception e) {
