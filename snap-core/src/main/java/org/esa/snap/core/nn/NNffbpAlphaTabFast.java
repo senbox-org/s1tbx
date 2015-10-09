@@ -1,7 +1,5 @@
-package org.esa.snap.nn;
+package org.esa.snap.core.nn;
 
-
-import org.esa.snap.nn.util.FormattedStringReader;
 
 import java.io.BufferedReader;
 import java.io.IOException;

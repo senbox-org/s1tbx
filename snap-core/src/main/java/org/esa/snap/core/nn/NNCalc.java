@@ -1,9 +1,9 @@
-package org.esa.snap.nn;
+package org.esa.snap.core.nn;
 
 /**
  * This class serves for defining a structure containing the output of a NN together
  * with the corresponding Jacobi matrix. An instance of this class is returned by the
- * {@link org.esa.snap.nn.NNffbpAlphaTabFast#calcJacobi(double[])} method.
+ * {@link NNffbpAlphaTabFast#calcJacobi(double[])} method.
  *
  * @author K. Schiller
  *         Copyright GKSS/KOF
@@ -11,7 +11,7 @@ package org.esa.snap.nn;
  */
 public class NNCalc {
     /**
-     * The vector containing the output of a {@link org.esa.snap.nn.NNffbpAlphaTabFast}.
+     * The vector containing the output of a {@link NNffbpAlphaTabFast}.
      */
     private double[] nnOutput;
     /**

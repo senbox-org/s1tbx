@@ -1,4 +1,4 @@
-package org.esa.snap.nn;
+package org.esa.snap.core.nn;
 
 /*
  * $Id: NNffbpAlphaTabFastTest.java,v 1.2 2006/07/24 14:40:25 marcop Exp $

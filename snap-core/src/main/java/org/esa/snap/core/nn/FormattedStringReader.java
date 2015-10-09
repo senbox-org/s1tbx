@@ -1,4 +1,4 @@
-package org.esa.snap.nn.util;
+package org.esa.snap.core.nn;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -11,7 +11,7 @@ import java.util.StringTokenizer;
  *
  * @author H. Schiller / GKSS
  */
-public class FormattedStringReader {
+class FormattedStringReader {
 
     private StringReader inp;
     private String delimiters;
@@ -19,17 +19,10 @@ public class FormattedStringReader {
     private boolean echo_comments;
     private String comment_begin;
 
-    /**
-     * @param inp
-     */
     public FormattedStringReader(StringReader inp) {
         this(inp, " \t\n\r,;:");
     }
 
-    /**
-     * @param inp
-     * @param delimiters
-     */
     public FormattedStringReader(StringReader inp, String delimiters) {
         this.inp = inp;
         this.delimiters = delimiters;
@@ -38,47 +31,23 @@ public class FormattedStringReader {
         this.comment_begin = "#";
     }
 
-    /**
-     * Method commentStart
-     *
-     * @param comment_begin
-     */
     public void commentStart(String comment_begin) {
         this.comment_begin = comment_begin;
         this.file_has_comments = true;
     }
 
-    /**
-     * Method noComments
-     */
     public void noComments() {
         this.file_has_comments = false;
     }
 
-    /**
-     * Method setEcho
-     *
-     * @param echo_comments
-     */
     public void setEcho(boolean echo_comments) {
         this.echo_comments = echo_comments;
     }
 
-    /**
-     * Method setDelimiters
-     *
-     * @param delimiters
-     */
     public void setDelimiters(String delimiters) {
         this.delimiters = delimiters;
     }
 
-    /**
-     * Method readLine
-     *
-     * @param sr
-     * @return The line just read.
-     */
     private static String readLine(StringReader sr) throws IOException {
         String res = "";
         char[] helper = new char[1];
@@ -93,11 +62,6 @@ public class FormattedStringReader {
         return res.trim();
     }
 
-    /**
-     * Method rlong Read just one long.
-     *
-     * @return The long just read.
-     */
     public long rlong() throws IOException {
         boolean ready = false;
         long res = 0;
@@ -118,11 +82,6 @@ public class FormattedStringReader {
         return res;
     }
 
-    /**
-     * Method rdouble Read just one double.
-     *
-     * @return The double just read.
-     */
     public double rdouble() throws IOException {
         boolean ready = false;
         double res = 0;
@@ -143,11 +102,6 @@ public class FormattedStringReader {
         return res;
     }
 
-    /**
-     * Method rString Read just one line (skipping comments, delimiters dont care).
-     *
-     * @return The line just read.
-     */
     public String rString() throws IOException {
         String eing = null;
         boolean ready = false;
@@ -166,12 +120,6 @@ public class FormattedStringReader {
         return eing;
     }
 
-    /**
-     * Method rlong Read some long's.
-     *
-     * @param how_many long's should be read.
-     * @return Less than <code>how_many</code> long's if EOF is met.
-     */
     public long[] rlong(int how_many) throws IOException {
         boolean ready = false;
         long[] res = new long[how_many];
@@ -206,12 +154,6 @@ public class FormattedStringReader {
         }
     }
 
-    /**
-     * Method rdouble Read some double's.
-     *
-     * @param how_many double's should be read.
-     * @return Less than <code>how_many</code> double's if EOF is met.
-     */
     public double[] rdouble(int how_many) throws IOException {
         boolean ready = false;
         double[] res = new double[how_many];
@@ -250,12 +192,6 @@ public class FormattedStringReader {
         }
     }
 
-    /**
-     * Method rdoubleAll Read array of points of known dimension.
-     *
-     * @param dimension components belong to one point.
-     * @return The points[][dimension] read until EOF is met
-     */
     public double[][] rdoubleAll(int dimension) throws IOException {
         double[][] points;
         int npoints = 0;
@@ -276,12 +212,6 @@ public class FormattedStringReader {
         return points;
     }
 
-    /**
-     * Method rdoubleAll Read array of points.
-     * The dimension of the points is judged from the actual input line.
-     *
-     * @return The points[][] read until EOF is met.
-     */
     public double[][] rdoubleAll() throws IOException {
         this.inp.mark(100000000);
         String eing = this.rString();

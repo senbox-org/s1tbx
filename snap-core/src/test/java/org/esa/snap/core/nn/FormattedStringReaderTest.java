@@ -4,7 +4,7 @@
  * Copyright (c) 2003 Brockmann Consult GmbH. All right reserved.
  * http://www.brockmann-consult.de
  */
-package org.esa.snap.nn.util;
+package org.esa.snap.core.nn;
 
 import junit.framework.TestCase;
 
