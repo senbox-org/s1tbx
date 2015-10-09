@@ -159,6 +159,11 @@
             "id": "MOD15A2_A2012121_h10v05_005_2012130084250_gencf",
             "relativePath": "sensors_platforms/MODIS/old/MOD15/HDF4/MOD15A2.A2012121.h10v05.005.2012130084250.hdf",
             "description": "HDF4_Version: 4.1.5 (NCSA HDF Version 4.1 Release 5, November 5, 2001)"
+        },
+        {
+            "id": "SM_OPER_MIR_BWSF1C_20150522T124300",
+            "relativePath": "sensors_platforms/SMOS/MIR_BWSF1C/SM_OPER_MIR_BWSF1C_20150522T124300_20150522T133621_620_001_1.nc",
+            "description": "SMOS BWSF1C as Netcdf file, schema version 400"
         }
     ]
 }
