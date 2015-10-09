@@ -17,7 +17,6 @@
 package org.esa.snap.core.gpf.graph;
 
 import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.TestCase;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
@@ -28,24 +27,30 @@ import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 
-public class GraphProcessingObserverTest extends TestCase {
+import static org.junit.Assert.*;
+
+public class GraphProcessingObserverTest {
     private static OpMock.Spi opMockSpi = new OpMock.Spi();
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(opMockSpi);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(opMockSpi);
     }
 
+    @Test
     public void testAddingOberserverToChain() throws GraphException {
 
         GraphProcessor processor = new GraphProcessor();
@@ -101,7 +106,7 @@ public class GraphProcessingObserverTest extends TestCase {
     }
 
     static class GraphProcessingObserverMock implements GraphProcessingObserver {
-        ArrayList<String> entries = new ArrayList<String>();
+        ArrayList<String> entries = new ArrayList<>();
 
         public void graphProcessingStarted(GraphContext graphContext) {
             ralla("graph [" + graphContext.getGraph().getId() + "] started");
