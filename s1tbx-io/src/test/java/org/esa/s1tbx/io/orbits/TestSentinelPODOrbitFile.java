@@ -1,12 +1,12 @@
 package org.esa.s1tbx.io.orbits;
 
+import org.esa.s1tbx.commons.TestData;
+import org.esa.snap.core.dataio.ProductIO;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Orbits;
-import org.esa.snap.framework.dataio.ProductIO;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.s1tbx.commons.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Ignore;
 import org.junit.Test;

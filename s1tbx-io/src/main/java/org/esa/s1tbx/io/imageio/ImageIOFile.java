@@ -16,10 +16,14 @@
 package org.esa.s1tbx.io.imageio;
 
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.ColorPaletteDef;
+import org.esa.snap.core.datamodel.ImageInfo;
+import org.esa.snap.core.datamodel.IndexCoding;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.datamodel.Unit;
-import org.esa.snap.framework.datamodel.*;
 import org.esa.snap.runtime.Config;
-import org.esa.snap.util.SystemUtils;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReadParam;
@@ -28,8 +32,15 @@ import javax.imageio.ImageTypeSpecifier;
 import javax.imageio.stream.FileCacheImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.MemoryCacheImageInputStream;
-import java.awt.*;
-import java.awt.image.*;
+import java.awt.Color;
+import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.IndexColorModel;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

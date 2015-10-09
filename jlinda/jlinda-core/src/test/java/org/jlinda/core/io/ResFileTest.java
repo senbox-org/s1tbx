@@ -1,8 +1,8 @@
 package org.jlinda.core.io;
 
 import org.apache.commons.math3.util.FastMath;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.SystemUtils;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;

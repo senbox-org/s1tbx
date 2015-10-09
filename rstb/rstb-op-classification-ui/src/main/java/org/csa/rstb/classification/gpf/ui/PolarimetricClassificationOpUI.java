@@ -16,10 +16,10 @@
 package org.csa.rstb.classification.gpf.ui;
 
 import org.csa.rstb.classification.gpf.PolarimetricClassificationOp;
-import org.esa.snap.framework.ui.AppContext;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
+import org.esa.snap.ui.AppContext;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;

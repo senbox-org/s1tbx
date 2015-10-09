@@ -5,7 +5,7 @@ import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import org.apache.commons.math3.util.FastMath;
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
 import org.jlinda.core.coregistration.estimation.utils.SimpleAsciiFileParser;

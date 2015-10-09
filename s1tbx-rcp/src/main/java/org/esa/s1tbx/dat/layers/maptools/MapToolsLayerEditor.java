@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.dat.layers.maptools;
 
-import org.esa.snap.framework.ui.layer.AbstractLayerEditor;
+import org.esa.snap.ui.layer.AbstractLayerEditor;
 
 import javax.swing.JComponent;
 

@@ -18,8 +18,8 @@ package org.esa.s1tbx.dat.layers;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.grender.Viewport;
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.RasterDataNode;
 
 import java.awt.Point;
 import java.awt.Rectangle;

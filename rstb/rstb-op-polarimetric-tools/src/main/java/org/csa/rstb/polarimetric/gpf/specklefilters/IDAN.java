@@ -17,11 +17,11 @@ package org.csa.rstb.polarimetric.gpf.specklefilters;
 
 import org.csa.rstb.polarimetric.gpf.PolarimetricSpeckleFilterOp;
 import org.esa.s1tbx.io.PolBandUtils;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.Tile;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.gpf.TileIndex;
 
 import java.awt.Rectangle;
@@ -82,7 +82,7 @@ public class IDAN implements SpeckleFilter {
      * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed.
      * @param sourceRectangle The area in the source product
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
+     * @throws OperatorException If an error occurs during computation of the filtered value.
      */
     private void idanFilterC2(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle,
                               final Rectangle sourceRectangle) {
@@ -354,7 +354,7 @@ public class IDAN implements SpeckleFilter {
      * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed.
      * @param sourceRectangle The area in the source product
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
+     * @throws OperatorException If an error occurs during computation of the filtered value.
      */
     private void idanFilter(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle,
                             final Rectangle sourceRectangle) {

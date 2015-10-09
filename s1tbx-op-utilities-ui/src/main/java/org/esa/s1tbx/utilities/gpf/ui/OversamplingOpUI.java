@@ -16,11 +16,11 @@
 package org.esa.s1tbx.utilities.gpf.ui;
 
 import org.esa.s1tbx.utilities.gpf.UndersamplingOp;
-import org.esa.snap.framework.ui.AppContext;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.OperatorUIUtils;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
+import org.esa.snap.ui.AppContext;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;

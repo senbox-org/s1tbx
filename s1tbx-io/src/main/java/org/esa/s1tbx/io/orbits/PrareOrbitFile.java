@@ -16,13 +16,13 @@
 package org.esa.s1tbx.io.orbits;
 
 import com.bc.ceres.core.NullProgressMonitor;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.dataop.downloadable.ftpUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.DownloadableArchive;
 import org.esa.snap.datamodel.Orbits;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.util.Settings;
-import org.esa.snap.framework.dataop.downloadable.ftpUtils;
 
 import java.io.File;
 import java.io.IOException;

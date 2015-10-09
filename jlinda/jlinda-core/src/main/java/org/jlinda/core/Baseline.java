@@ -1,7 +1,7 @@
 package org.jlinda.core;
 
 import org.apache.commons.math3.util.FastMath;
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.jblas.Decompose;
 import org.jblas.DoubleMatrix;
 import org.jblas.Solve;

@@ -15,9 +15,9 @@
  */
 package org.esa.s1tbx.dat.dialogs;
 
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.ui.ModalDialog;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
+import org.esa.snap.ui.ModalDialog;
 
 import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;

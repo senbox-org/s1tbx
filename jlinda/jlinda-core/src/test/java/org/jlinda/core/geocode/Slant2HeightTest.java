@@ -1,6 +1,6 @@
 package org.jlinda.core.geocode;
 
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.SLCImage;

@@ -16,11 +16,11 @@
 package org.esa.s1tbx.dat;
 
 import org.esa.s1tbx.utilities.rcp.actions.AmplitudeToIntensityAction;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.datamodel.Unit;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.TiePointGrid;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;

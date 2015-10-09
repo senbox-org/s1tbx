@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.dat.toolviews.Projects;
 
-import org.esa.snap.framework.ui.UIUtils;
+import org.esa.snap.ui.UIUtils;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;

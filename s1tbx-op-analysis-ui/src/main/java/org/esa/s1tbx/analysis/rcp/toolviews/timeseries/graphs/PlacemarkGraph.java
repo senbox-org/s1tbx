@@ -18,13 +18,13 @@ package org.esa.s1tbx.analysis.rcp.toolviews.timeseries.graphs;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glayer.support.ImageLayer;
 import org.esa.s1tbx.analysis.rcp.toolviews.timeseries.TimeSeriesGraph;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.Placemark;
-import org.esa.snap.util.ProductUtils;
-import org.esa.snap.util.math.IndexValidator;
-import org.esa.snap.util.math.Range;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Placemark;
+import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.math.IndexValidator;
+import org.esa.snap.core.util.math.Range;
 
 public class PlacemarkGraph extends TimeSeriesGraph {
 

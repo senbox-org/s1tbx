@@ -1,16 +1,16 @@
 package org.esa.s1tbx.insar.gpf.coregistration;
 
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.RasterDataNode;
-import org.esa.snap.framework.dataop.resamp.Resampling;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.Tile;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.dataop.resamp.Resampling;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.gpf.TileIndex;
-import org.esa.snap.util.ProductUtils;
 
 import java.awt.Rectangle;
 

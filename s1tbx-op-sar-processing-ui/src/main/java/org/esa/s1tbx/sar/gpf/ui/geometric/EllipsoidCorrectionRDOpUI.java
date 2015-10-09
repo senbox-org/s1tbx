@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.sar.gpf.ui.geometric;
 
-import org.esa.snap.framework.ui.AppContext;
+import org.esa.snap.ui.AppContext;
 
 import javax.swing.JComponent;
 import java.util.Map;

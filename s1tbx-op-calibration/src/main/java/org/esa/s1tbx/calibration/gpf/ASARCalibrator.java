@@ -20,27 +20,27 @@ import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.calibration.gpf.support.BaseCalibrator;
 import org.esa.s1tbx.calibration.gpf.support.Calibrator;
 import org.esa.s1tbx.calibration.gpf.support.TiePointInterpolator;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataAttribute;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.util.ResourceInstaller;
 import org.esa.snap.dataio.envisat.EnvisatAuxReader;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.eo.GeoUtils;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.MetadataAttribute;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.Tile;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.TileIndex;
 import org.esa.snap.util.Maths;
-import org.esa.snap.util.ResourceInstaller;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -347,7 +347,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      *
      * @param sourceProduct The source prodict.
      * @return The number of records.
-     * @throws org.esa.snap.framework.gpf.OperatorException The exceptions.
+     * @throws OperatorException The exceptions.
      */
     static int getNumOfRecordsInMainProcParam(Product sourceProduct) throws OperatorException {
 
@@ -713,7 +713,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      * @param numOfGains   The number of gains for given swath and polarization (201).
      * @param refElevAngle The reference elevation angle array.
      * @param antPatArray  The antenna pattern array.
-     * @throws org.esa.snap.framework.gpf.OperatorException The IO exception.
+     * @throws OperatorException The IO exception.
      */
     public static void getSingleSwathAntennaPatternGainFromAuxData(
             String fileName, String swath, String[] pol, int numOfGains, double[] refElevAngle, float[][] antPatArray)
@@ -778,7 +778,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      * @param numOfGains   The number of gains for given swath and polarization (201).
      * @param refElevAngle The reference elevation angle array.
      * @param antPatArray  The antenna pattern array.
-     * @throws org.esa.snap.framework.gpf.OperatorException The IO exception.
+     * @throws OperatorException The IO exception.
      */
     public static void getWideSwathAntennaPatternGainFromAuxData(
             String fileName, String pol, int numOfGains, double[] refElevAngle, float[][] antPatArray)
@@ -860,7 +860,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during computation of the target raster.
+     * @throws OperatorException If an error occurs during computation of the target raster.
      */
     @Override
 

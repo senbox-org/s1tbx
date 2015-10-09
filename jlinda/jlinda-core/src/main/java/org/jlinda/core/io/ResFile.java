@@ -1,7 +1,7 @@
 package org.jlinda.core.io;
 
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.SystemUtils;
 import org.jlinda.core.utils.DateUtils;
 
 import java.io.BufferedReader;

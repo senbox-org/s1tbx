@@ -135,7 +135,7 @@
         <folder name="Writers">
             <file name="org-esa-s1tbx-io-exportPolSARPro.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.context"/>
-                <attr name="type" stringvalue="org.esa.snap.framework.datamodel.ProductNode"/>
+                <attr name="type" stringvalue="org.esa.snap.core.datamodel.ProductNode"/>
                 <attr name="selectionType" stringvalue="EXACTLY_ONE"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ExportProductAction.create"/>
                 <attr name="displayName" stringvalue="PolSARPro"/>
@@ -144,7 +144,7 @@
             </file>
             <file name="org-esa-s1tbx-io-exportGamma.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.context"/>
-                <attr name="type" stringvalue="org.esa.snap.framework.datamodel.ProductNode"/>
+                <attr name="type" stringvalue="org.esa.snap.core.datamodel.ProductNode"/>
                 <attr name="selectionType" stringvalue="EXACTLY_ONE"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ExportProductAction.create"/>
                 <attr name="displayName" stringvalue="Gamma"/>

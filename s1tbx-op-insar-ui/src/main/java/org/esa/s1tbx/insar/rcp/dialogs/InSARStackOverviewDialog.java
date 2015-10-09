@@ -17,20 +17,20 @@ package org.esa.s1tbx.insar.rcp.dialogs;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.db.CommonReaders;
 import org.esa.snap.db.ProductEntry;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.ui.AppContext;
-import org.esa.snap.framework.ui.ModalDialog;
-import org.esa.snap.framework.ui.ModelessDialog;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.graphbuilder.rcp.dialogs.ProductSetPanel;
-import org.esa.snap.rcp.SnapApp;
-import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.productlibrary.rcp.utils.ProductOpener;
+import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.rcp.SnapDialogs;
+import org.esa.snap.ui.AppContext;
+import org.esa.snap.ui.ModalDialog;
+import org.esa.snap.ui.ModelessDialog;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.SLCImage;
 

@@ -15,15 +15,15 @@
  */
 package org.esa.s1tbx.utilities.rcp.actions;
 
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.VirtualBand;
-import org.esa.snap.framework.ui.ModalDialog;
-import org.esa.snap.framework.ui.ModelessDialog;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
-import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
+import org.esa.snap.ui.ModalDialog;
+import org.esa.snap.ui.ModelessDialog;
 
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;

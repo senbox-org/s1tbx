@@ -15,9 +15,9 @@
  */
 package org.esa.s1tbx.insar.rcp.toolviews;
 
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.datamodel.Product;
 
-import java.awt.*;
+import java.awt.Component;
 
 /**
  * tab for InSARStatistic TopComponent
