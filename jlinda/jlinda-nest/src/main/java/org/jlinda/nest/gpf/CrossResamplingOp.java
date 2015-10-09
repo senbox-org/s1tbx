@@ -8,7 +8,6 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
-import org.esa.snap.core.dataop.maptransf.Datum;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -420,7 +419,7 @@ public class CrossResamplingOp extends Operator {
                 0.0f, 0.0f, subSamplingX, subSamplingY, targetLonTiePoints, TiePointGrid.DISCONT_AT_180);
         lonGrid.setUnit(Unit.DEGREES);
 
-        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
+        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
 
         for (TiePointGrid tpg : targetProduct.getTiePointGrids()) {
             targetProduct.removeTiePointGrid(tpg);

@@ -33,7 +33,6 @@ import org.esa.snap.core.datamodel.ProductNodeGroup;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.datamodel.VirtualBand;
-import org.esa.snap.core.dataop.maptransf.Datum;
 import org.esa.snap.core.dataop.resamp.Resampling;
 import org.esa.snap.core.dataop.resamp.ResamplingFactory;
 import org.esa.snap.core.gpf.Operator;
@@ -189,9 +188,9 @@ public class CreateStackOp extends Operator {
                 case MASTER_EXTENT:
 
                     targetProduct = new Product(masterProduct.getName(),
-                            masterProduct.getProductType(),
-                            masterProduct.getSceneRasterWidth(),
-                            masterProduct.getSceneRasterHeight());
+                                                masterProduct.getProductType(),
+                                                masterProduct.getSceneRasterWidth(),
+                                                masterProduct.getSceneRasterHeight());
 
                     ProductUtils.copyProductNodes(masterProduct, targetProduct);
                     break;
@@ -208,9 +207,9 @@ public class CreateStackOp extends Operator {
                 for (Band b : masterProduct.getBands()) {
                     if (!(b instanceof VirtualBand)) {
                         final Band targetBand = new Band(b.getName(),
-                                b.getDataType(),
-                                targetProduct.getSceneRasterWidth(),
-                                targetProduct.getSceneRasterHeight());
+                                                         b.getDataType(),
+                                                         targetProduct.getSceneRasterWidth(),
+                                                         targetProduct.getSceneRasterHeight());
                         ProductUtils.copyRasterDataNodeProperties(b, targetBand);
                         targetBand.setSourceImage(b.getSourceImage());
 
@@ -229,9 +228,9 @@ public class CreateStackOp extends Operator {
                         suffix = "_mst" + StackUtils.createBandTimeStamp(srcBand.getProduct());
 
                         final Band targetBand = new Band(srcBand.getName() + suffix,
-                                srcBand.getDataType(),
-                                targetProduct.getSceneRasterWidth(),
-                                targetProduct.getSceneRasterHeight());
+                                                         srcBand.getDataType(),
+                                                         targetProduct.getSceneRasterWidth(),
+                                                         targetProduct.getSceneRasterHeight());
                         ProductUtils.copyRasterDataNodeProperties(srcBand, targetBand);
                         if (extent.equals(MASTER_EXTENT)) {
                             targetBand.setSourceImage(srcBand.getSourceImage());
@@ -263,9 +262,9 @@ public class CreateStackOp extends Operator {
                     if (targetProduct.getBand(tgtBandName) == null) {
                         final Product srcProduct = srcBand.getProduct();
                         final Band targetBand = new Band(tgtBandName,
-                                srcBand.getDataType(),
-                                targetProduct.getSceneRasterWidth(),
-                                targetProduct.getSceneRasterHeight());
+                                                         srcBand.getDataType(),
+                                                         targetProduct.getSceneRasterWidth(),
+                                                         targetProduct.getSceneRasterHeight());
                         ProductUtils.copyRasterDataNodeProperties(srcBand, targetBand);
                         if (extent.equals(MASTER_EXTENT) &&
                                 (srcProduct == masterProduct || srcProduct.isCompatibleProduct(targetProduct, 1.0e-3f))) {
@@ -286,7 +285,7 @@ public class CreateStackOp extends Operator {
             copySlaveMetadata();
 
             StackUtils.saveMasterProductBandNames(targetProduct,
-                    masterProductBands.toArray(new String[masterProductBands.size()]));
+                                                  masterProductBands.toArray(new String[masterProductBands.size()]));
             saveSlaveProductNames(targetProduct, sourceRasterMap);
 
             updateMetadata();
@@ -295,19 +294,19 @@ public class CreateStackOp extends Operator {
             final ProductNodeGroup<Placemark> masterGCPgroup = masterProduct.getGcpGroup();
             if (masterGCPgroup.getNodeCount() > 0) {
                 OperatorUtils.copyGCPsToTarget(masterGCPgroup, GCPManager.instance().getGcpGroup(targetProduct.getBandAt(0)),
-                        targetProduct.getGeoCoding());
+                                               targetProduct.getGeoCoding());
             }
 
             if (!resamplingType.contains("NONE")) {
                 selectedResampling = ResamplingFactory.createResampling(resamplingType);
             } else {
-				if (initialOffsetMethod.equals(INITIAL_OFFSET_GCP)) {
-                	computeTargetSlaveCoordinateOffsets_GCP();
-            	}
+                if (initialOffsetMethod.equals(INITIAL_OFFSET_GCP)) {
+                    computeTargetSlaveCoordinateOffsets_GCP();
+                }
 
-            	if (initialOffsetMethod.equals(INITIAL_OFFSET_ORBIT)) {
-                	computeTargetSlaveCoordinateOffsets_Orbits();
-            	}
+                if (initialOffsetMethod.equals(INITIAL_OFFSET_ORBIT)) {
+                    computeTargetSlaveCoordinateOffsets_Orbits();
+                }
             }
 
         } catch (Throwable e) {
@@ -640,7 +639,7 @@ public class CreateStackOp extends Operator {
                             new PixelPos(0, slvProd.getSceneRasterHeight() - 1), null);
                     final GeoPos geoPosLastFar = slaveGeoCoding.getGeoPos(
                             new PixelPos(slvProd.getSceneRasterWidth() - 1,
-                                    slvProd.getSceneRasterHeight() - 1), null
+                                         slvProd.getSceneRasterHeight() - 1), null
                     );
 
                     masterGeoCoding.getPixelPos(geoPosFirstNear, pixelPosUL);
@@ -670,20 +669,20 @@ public class CreateStackOp extends Operator {
             masterGeoCoding.getGeoPos(new PixelPos(xMin, yMax), geoPosLL);
             masterGeoCoding.getGeoPos(new PixelPos(xMax, yMax), geoPosLR);
 
-            final float[] latTiePoints = {(float)geoPosUL.lat, (float)geoPosUR.lat, (float)geoPosLL.lat, (float)geoPosLR.lat};
-            final float[] lonTiePoints = {(float)geoPosUL.lon, (float)geoPosUR.lon, (float)geoPosLL.lon, (float)geoPosLR.lon};
+            final float[] latTiePoints = {(float) geoPosUL.lat, (float) geoPosUR.lat, (float) geoPosLL.lat, (float) geoPosLR.lat};
+            final float[] lonTiePoints = {(float) geoPosUL.lon, (float) geoPosUR.lon, (float) geoPosLL.lon, (float) geoPosLR.lon};
 
             final TiePointGrid latGrid = new TiePointGrid("latitude", 2, 2, 0.5f, 0.5f,
-                    sceneWidth - 1, sceneHeight - 1, latTiePoints);
+                                                          sceneWidth - 1, sceneHeight - 1, latTiePoints);
             latGrid.setUnit(Unit.DEGREES);
 
             final TiePointGrid lonGrid = new TiePointGrid("longitude", 2, 2, 0.5f, 0.5f,
-                    sceneWidth - 1, sceneHeight - 1, lonTiePoints, TiePointGrid.DISCONT_AT_180);
+                                                          sceneWidth - 1, sceneHeight - 1, lonTiePoints, TiePointGrid.DISCONT_AT_180);
             lonGrid.setUnit(Unit.DEGREES);
 
             targetProduct.addTiePointGrid(latGrid);
             targetProduct.addTiePointGrid(lonGrid);
-            targetProduct.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84));
+            targetProduct.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
@@ -926,7 +925,7 @@ public class CreateStackOp extends Operator {
                     (Math.abs(rangeSpacing - savedRangeSpacing) > 0.05 ||
                             Math.abs(azimuthSpacing - savedAzimuthSpacing) > 0.05)) {
                 throw new OperatorException("Resampling type cannot be NONE because pixel spacings" +
-                        " are different for master and slave products");
+                                                    " are different for master and slave products");
             } else {
                 savedRangeSpacing = rangeSpacing;
                 savedAzimuthSpacing = azimuthSpacing;

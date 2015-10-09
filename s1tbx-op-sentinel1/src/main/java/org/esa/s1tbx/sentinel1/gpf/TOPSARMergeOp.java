@@ -26,7 +26,6 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.datamodel.VirtualBand;
-import org.esa.snap.core.dataop.maptransf.Datum;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -189,7 +188,7 @@ public final class TOPSARMergeOp extends Operator {
         Arrays.sort(subSwathIndexArray);
         refSubSwathIndex = subSwathIndexArray[0];
         for (int s = 0; s < numOfSubSwath - 1; s++) {
-            if (subSwathIndexArray[s+1] - subSwathIndexArray[s] != 1) {
+            if (subSwathIndexArray[s + 1] - subSwathIndexArray[s] != 1) {
                 throw new OperatorException("Isolate sub-swath detected in source products");
             }
         }
@@ -260,9 +259,9 @@ public final class TOPSARMergeOp extends Operator {
      */
     private void computeTargetWidthAndHeight() {
 
-        targetHeight = (int)((targetLastLineTime - targetFirstLineTime) / targetLineTimeInterval);
+        targetHeight = (int) ((targetLastLineTime - targetFirstLineTime) / targetLineTimeInterval);
 
-        targetWidth = (int)((targetSlantRangeTimeToLastPixel - targetSlantRangeTimeToFirstPixel) /
+        targetWidth = (int) ((targetSlantRangeTimeToLastPixel - targetSlantRangeTimeToFirstPixel) /
                 targetDeltaSlantRangeTime);
     }
 
@@ -280,7 +279,7 @@ public final class TOPSARMergeOp extends Operator {
         // source band name is assumed in format: name_acquisitionModeAndSubSwathIndex_polarization_prefix
         // target band name is then in format: name_polarization_prefix
         boolean hasVirtualPhaseBand = false;
-        for (Band srcBand:sourceBands) {
+        for (Band srcBand : sourceBands) {
             final String srcBandName = srcBand.getName();
             if (!containSelectedPolarisations(srcBandName)) {
                 continue;
@@ -305,15 +304,15 @@ public final class TOPSARMergeOp extends Operator {
         final Band[] targetBands = targetProduct.getBands();
         for (int i = 0; i < targetBands.length; i++) {
             final Unit.UnitType iBandUnit = Unit.getUnitType(targetBands[i]);
-            if (iBandUnit == Unit.UnitType.REAL && i+1 < targetBands.length) {
-                final Unit.UnitType qBandUnit = Unit.getUnitType(targetBands[i+1]);
+            if (iBandUnit == Unit.UnitType.REAL && i + 1 < targetBands.length) {
+                final Unit.UnitType qBandUnit = Unit.getUnitType(targetBands[i + 1]);
                 if (qBandUnit == Unit.UnitType.IMAGINARY) {
                     ReaderUtils.createVirtualIntensityBand(
-                            targetProduct, targetBands[i], targetBands[i+1], '_' + getPrefix(targetBands[i].getName()));
+                            targetProduct, targetBands[i], targetBands[i + 1], '_' + getPrefix(targetBands[i].getName()));
 
                     if (hasVirtualPhaseBand) {
                         ReaderUtils.createVirtualPhaseBand(targetProduct,
-                                targetBands[i], targetBands[i+1], '_' + getPrefix(targetBands[i].getName()));
+                                                           targetBands[i], targetBands[i + 1], '_' + getPrefix(targetBands[i].getName()));
                     }
                     i++;
                 }
@@ -323,8 +322,8 @@ public final class TOPSARMergeOp extends Operator {
 
         ProductUtils.copyMetadata(sourceProduct[prodIdx], targetProduct);
         ProductUtils.copyFlagCodings(sourceProduct[prodIdx], targetProduct);
-        targetProduct.setStartTime(new ProductData.UTC(targetFirstLineTime/Constants.secondsInDay));
-        targetProduct.setEndTime(new ProductData.UTC(targetLastLineTime/Constants.secondsInDay));
+        targetProduct.setStartTime(new ProductData.UTC(targetFirstLineTime / Constants.secondsInDay));
+        targetProduct.setEndTime(new ProductData.UTC(targetLastLineTime / Constants.secondsInDay));
         targetProduct.setDescription(sourceProduct[prodIdx].getDescription());
 
         createTiePointGrids();
@@ -362,10 +361,10 @@ public final class TOPSARMergeOp extends Operator {
                 final int x = j * subSamplingX;
                 final double slrTime = targetSlantRangeTimeToFirstPixel + x * targetDeltaSlantRangeTime;
                 final int s = getSubSwathIndex(slrTime);
-                latList[k] = (float)su[s].getLatitude(azTime, slrTime);
-                lonList[k] = (float)su[s].getLongitude(azTime, slrTime);
-                slrtList[k] = (float)(su[s].getSlantRangeTime(azTime, slrTime) * 2 * Constants.oneBillion); // 2-way ns
-                incList[k] = (float)su[s].getIncidenceAngle(azTime, slrTime);
+                latList[k] = (float) su[s].getLatitude(azTime, slrTime);
+                lonList[k] = (float) su[s].getLongitude(azTime, slrTime);
+                slrtList[k] = (float) (su[s].getSlantRangeTime(azTime, slrTime) * 2 * Constants.oneBillion); // 2-way ns
+                incList[k] = (float) su[s].getIncidenceAngle(azTime, slrTime);
                 k++;
             }
         }
@@ -392,7 +391,7 @@ public final class TOPSARMergeOp extends Operator {
         targetProduct.addTiePointGrid(slrtGrid);
         targetProduct.addTiePointGrid(incGrid);
 
-        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
+        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
         targetProduct.setGeoCoding(tpGeoCoding);
     }
 
@@ -426,7 +425,7 @@ public final class TOPSARMergeOp extends Operator {
 
         for (int s = 0; s < numOfSubSwath; s++) {
             final String[] srcBandNames = sourceProduct[s].getBandNames();
-            for (String srcBandName:srcBandNames) {
+            for (String srcBandName : srcBandNames) {
                 if (srcBandName.contains(acquisitionMode + swathIndexStr) &&
                         getTargetBandNameFromSourceBandName(srcBandName).equals(tgtBandName)) {
                     return sourceProduct[s].getBand(srcBandName);
@@ -439,7 +438,7 @@ public final class TOPSARMergeOp extends Operator {
     private static String getPrefix(final String tgtBandName) {
 
         final int firstSeparationIdx = tgtBandName.indexOf("_");
-        return tgtBandName.substring(firstSeparationIdx+1);
+        return tgtBandName.substring(firstSeparationIdx + 1);
     }
 
     private boolean containSelectedPolarisations(final String bandName) {
@@ -467,9 +466,9 @@ public final class TOPSARMergeOp extends Operator {
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_output_lines, targetHeight);
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_samples_per_line, targetWidth);
         absTgt.setAttributeUTC(
-                AbstractMetadata.first_line_time, new ProductData.UTC(targetFirstLineTime/Constants.secondsInDay));
+                AbstractMetadata.first_line_time, new ProductData.UTC(targetFirstLineTime / Constants.secondsInDay));
         absTgt.setAttributeUTC(
-                AbstractMetadata.last_line_time, new ProductData.UTC(targetLastLineTime/Constants.secondsInDay));
+                AbstractMetadata.last_line_time, new ProductData.UTC(targetLastLineTime / Constants.secondsInDay));
         absTgt.setAttributeDouble(AbstractMetadata.line_time_interval, targetLineTimeInterval);
 
         TiePointGrid latGrid = targetProduct.getTiePointGrid(OperatorUtils.TPG_LATITUDE);
@@ -562,7 +561,7 @@ public final class TOPSARMergeOp extends Operator {
                     if (tileFirstLineTime >= subSwath[i].firstValidLineTime &&
                             tileFirstLineTime < subSwath[i].lastValidLineTime ||
                             tileLastLineTime >= subSwath[i].firstValidLineTime &&
-                            tileLastLineTime < subSwath[i].lastValidLineTime) {
+                                    tileLastLineTime < subSwath[i].lastValidLineTime) {
 
                         firstSubSwathIndex = i;
                         break;
@@ -580,7 +579,7 @@ public final class TOPSARMergeOp extends Operator {
                         if (tileFirstLineTime >= subSwath[i].firstValidLineTime &&
                                 tileFirstLineTime < subSwath[i].lastValidLineTime ||
                                 tileLastLineTime >= subSwath[i].firstValidLineTime &&
-                                tileLastLineTime < subSwath[i].lastValidLineTime) {
+                                        tileLastLineTime < subSwath[i].lastValidLineTime) {
 
                             lastSubSwathIndex = i;
                         }
@@ -613,7 +612,7 @@ public final class TOPSARMergeOp extends Operator {
             final int tyMax = ty0 + th;
 
             final Band[] tgtBands = targetProduct.getBands();
-            for (Band tgtBand:tgtBands) {
+            for (Band tgtBand : tgtBands) {
                 if (tgtBand instanceof VirtualBand) {
                     continue;
                 }
@@ -624,19 +623,19 @@ public final class TOPSARMergeOp extends Operator {
                 if (tileInOneSubSwath) {
                     if (dataType == ProductData.TYPE_INT16) {
                         computeTileInOneSwathShort(tx0, ty0, txMax, tyMax, firstSubSwathIndex,
-                                sourceRectangle, tgtBandName, tgtTile);
+                                                   sourceRectangle, tgtBandName, tgtTile);
                     } else {
                         computeTileInOneSwathFloat(tx0, ty0, txMax, tyMax, firstSubSwathIndex,
-                                sourceRectangle, tgtBandName, tgtTile);
+                                                   sourceRectangle, tgtBandName, tgtTile);
                     }
 
                 } else {
                     if (dataType == ProductData.TYPE_INT16) {
                         computeMultipleSubSwathsShort(tx0, ty0, txMax, tyMax, firstSubSwathIndex, lastSubSwathIndex,
-                                sourceRectangle, tgtBandName, tgtTile);
+                                                      sourceRectangle, tgtBandName, tgtTile);
                     } else {
                         computeMultipleSubSwathsFloat(tx0, ty0, txMax, tyMax, firstSubSwathIndex, lastSubSwathIndex,
-                                sourceRectangle, tgtBandName, tgtTile);
+                                                      sourceRectangle, tgtBandName, tgtTile);
                     }
                 }
             }
@@ -853,7 +852,7 @@ public final class TOPSARMergeOp extends Operator {
 
     private int getSampleIndexInSourceProduct(final int tx, final Sentinel1Utils.SubSwathInfo subSwath) {
 
-        final int sx = (int)((((targetSlantRangeTimeToFirstPixel + tx * targetDeltaSlantRangeTime)
+        final int sx = (int) ((((targetSlantRangeTimeToFirstPixel + tx * targetDeltaSlantRangeTime)
                 - subSwath.slrTimeToFirstPixel) / targetDeltaSlantRangeTime) + 0.5);
 
         return sx < 0 ? 0 : sx > subSwath.numOfSamples - 1 ? subSwath.numOfSamples - 1 : sx;
@@ -863,29 +862,29 @@ public final class TOPSARMergeOp extends Operator {
 
         final double targetLineTime = targetFirstLineTime + ty * targetLineTimeInterval;
 
-        final int sy = (int)((targetLineTime - subSwath.firstLineTime) / subSwath.azimuthTimeInterval + 0.5);
+        final int sy = (int) ((targetLineTime - subSwath.firstLineTime) / subSwath.azimuthTimeInterval + 0.5);
 
         return sy < 0 ? 0 : sy > subSwath.numOfLines - 1 ? subSwath.numOfLines - 1 : sy;
     }
 
     private int computeYMin(final Sentinel1Utils.SubSwathInfo subSwath) {
 
-        return (int)Math.round((subSwath.firstLineTime - targetFirstLineTime) / targetLineTimeInterval);
+        return (int) Math.round((subSwath.firstLineTime - targetFirstLineTime) / targetLineTimeInterval);
     }
 
     private int computeYMax(final Sentinel1Utils.SubSwathInfo subSwath) {
 
-        return (int)Math.round((subSwath.lastLineTime - targetFirstLineTime) / targetLineTimeInterval);
+        return (int) Math.round((subSwath.lastLineTime - targetFirstLineTime) / targetLineTimeInterval);
     }
 
     private int computeXMin(final Sentinel1Utils.SubSwathInfo subSwath) {
 
-        return (int)Math.round((subSwath.slrTimeToFirstValidPixel - targetSlantRangeTimeToFirstPixel) / targetDeltaSlantRangeTime);
+        return (int) Math.round((subSwath.slrTimeToFirstValidPixel - targetSlantRangeTimeToFirstPixel) / targetDeltaSlantRangeTime);
     }
 
     private int computeXMax(final Sentinel1Utils.SubSwathInfo subSwath) {
 
-        return (int)Math.round((subSwath.slrTimeToLastValidPixel - targetSlantRangeTimeToFirstPixel) / targetDeltaSlantRangeTime);
+        return (int) Math.round((subSwath.slrTimeToLastValidPixel - targetSlantRangeTimeToFirstPixel) / targetDeltaSlantRangeTime);
     }
 
     private int getSubSwathIndex(
@@ -916,7 +915,7 @@ public final class TOPSARMergeOp extends Operator {
 
         if (swath1 != -1) {
             final double middleTime = (subSwath[swath0].slrTimeToLastValidPixel +
-                    subSwath[swath1].slrTimeToFirstValidPixel)/2.0;
+                    subSwath[swath1].slrTimeToFirstValidPixel) / 2.0;
 
             if (targetSampleSlrTime > middleTime) {
                 return swath1;
@@ -931,7 +930,7 @@ public final class TOPSARMergeOp extends Operator {
         final Sentinel1Utils.NoiseVector[] vectorList = sw.noise.get(pol);
 
         final int sx = getSampleIndexInSourceProduct(tx, sw);
-        final int sy = (int) ((targetLineTime - vectorList[0].timeMJD*Constants.secondsInDay) / targetLineTimeInterval);
+        final int sy = (int) ((targetLineTime - vectorList[0].timeMJD * Constants.secondsInDay) / targetLineTimeInterval);
 
         int l0 = -1, l1 = -1;
         int vectorIdx0 = -1, vectorIdxInc = 0;
@@ -1006,8 +1005,8 @@ public final class TOPSARMergeOp extends Operator {
         }
 
         return Maths.interpolationBiLinear(noiseLUT0[pixelIdx0], noiseLUT0[pixelIdx0 + pixelIdxInc],
-                noiseLUT1[pixelIdx0], noiseLUT1[pixelIdx0 + pixelIdxInc],
-                dx, dy);
+                                           noiseLUT1[pixelIdx0], noiseLUT1[pixelIdx0 + pixelIdxInc],
+                                           dx, dy);
     }
 
     private static class SubSwathEffectStartEndPixels {

@@ -24,7 +24,6 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.datamodel.VirtualBand;
-import org.esa.snap.core.dataop.maptransf.Datum;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -203,7 +202,7 @@ public final class TOPSARSplitOp extends Operator {
 
     private void addGeocoding() {
         final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(targetProduct.getTiePointGrid(OperatorUtils.TPG_LATITUDE),
-                                                                    targetProduct.getTiePointGrid(OperatorUtils.TPG_LONGITUDE), Datum.WGS_84);
+                                                                    targetProduct.getTiePointGrid(OperatorUtils.TPG_LONGITUDE));
         targetProduct.setGeoCoding(tpGeoCoding);
     }
 

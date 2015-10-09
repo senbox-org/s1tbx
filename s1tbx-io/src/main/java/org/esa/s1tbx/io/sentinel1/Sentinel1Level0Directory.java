@@ -24,7 +24,6 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
-import org.esa.snap.core.dataop.maptransf.Datum;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
@@ -165,7 +164,7 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
                 final MetadataElement facility = processing.getElement("facility");
                 if (facility != null) {
                     final MetadataElement software = facility.getElement("software");
-                    if(software != null) {
+                    if (software != null) {
                         final String org = facility.getAttributeString("organisation");
                         final String name = software.getAttributeString("name");
                         final String version = software.getAttributeString("version");
@@ -402,24 +401,24 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
         final float subSamplingY = sceneRasterHeight / (newGridHeight - 1);
 
         getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, x, y, latList,
-                newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLatList);
+                                  newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLatList);
 
         getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, x, y, lngList,
-                newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLonList);
+                                  newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLonList);
 
         getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, x, y, incidenceAngleList,
-                newGridWidth, newGridHeight, subSamplingX, subSamplingY, newIncList);
+                                  newGridWidth, newGridHeight, subSamplingX, subSamplingY, newIncList);
 
         getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, x, y, elevAngleList,
-                newGridWidth, newGridHeight, subSamplingX, subSamplingY, newElevList);
+                                  newGridWidth, newGridHeight, subSamplingX, subSamplingY, newElevList);
 
         getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, x, y, rangeTimeList,
-                newGridWidth, newGridHeight, subSamplingX, subSamplingY, newslrtList);
+                                  newGridWidth, newGridHeight, subSamplingX, subSamplingY, newslrtList);
 
         TiePointGrid latGrid = product.getTiePointGrid(pre + OperatorUtils.TPG_LATITUDE);
         if (latGrid == null) {
             latGrid = new TiePointGrid(pre + OperatorUtils.TPG_LATITUDE,
-                    newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLatList);
+                                       newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLatList);
             latGrid.setUnit(Unit.DEGREES);
             product.addTiePointGrid(latGrid);
         }
@@ -427,33 +426,33 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
         TiePointGrid lonGrid = product.getTiePointGrid(pre + OperatorUtils.TPG_LONGITUDE);
         if (lonGrid == null) {
             lonGrid = new TiePointGrid(pre + OperatorUtils.TPG_LONGITUDE,
-                    newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLonList, TiePointGrid.DISCONT_AT_180);
+                                       newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLonList, TiePointGrid.DISCONT_AT_180);
             lonGrid.setUnit(Unit.DEGREES);
             product.addTiePointGrid(lonGrid);
         }
 
         if (product.getTiePointGrid(pre + OperatorUtils.TPG_INCIDENT_ANGLE) == null) {
             final TiePointGrid incidentAngleGrid = new TiePointGrid(pre + OperatorUtils.TPG_INCIDENT_ANGLE,
-                    newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newIncList);
+                                                                    newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newIncList);
             incidentAngleGrid.setUnit(Unit.DEGREES);
             product.addTiePointGrid(incidentAngleGrid);
         }
 
         if (product.getTiePointGrid(pre + OperatorUtils.TPG_ELEVATION_ANGLE) == null) {
             final TiePointGrid elevAngleGrid = new TiePointGrid(pre + OperatorUtils.TPG_ELEVATION_ANGLE,
-                    newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newElevList);
+                                                                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newElevList);
             elevAngleGrid.setUnit(Unit.DEGREES);
             product.addTiePointGrid(elevAngleGrid);
         }
 
         if (product.getTiePointGrid(pre + OperatorUtils.TPG_SLANT_RANGE_TIME) == null) {
             final TiePointGrid slantRangeGrid = new TiePointGrid(pre + OperatorUtils.TPG_SLANT_RANGE_TIME,
-                    newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newslrtList);
+                                                                 newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newslrtList);
             slantRangeGrid.setUnit(Unit.NANOSECONDS);
             product.addTiePointGrid(slantRangeGrid);
         }
 
-        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
+        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
         band.setGeoCoding(tpGeoCoding);
 
         //setLatLongMetadata(product, latGrid, lonGrid);
@@ -551,11 +550,11 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
                 }
                 final double wi = (newX - oldX0) / (oldX1 - oldX0);
 
-                targetPointList[k++] = (float)(MathUtils.interpolate2D(wi, wj,
-                        sourcePointList[i0 + j0 * sourceGridWidth],
-                        sourcePointList[i1 + j0 * sourceGridWidth],
-                        sourcePointList[i0 + j1 * sourceGridWidth],
-                        sourcePointList[i1 + j1 * sourceGridWidth]));
+                targetPointList[k++] = (float) (MathUtils.interpolate2D(wi, wj,
+                                                                        sourcePointList[i0 + j0 * sourceGridWidth],
+                                                                        sourcePointList[i1 + j0 * sourceGridWidth],
+                                                                        sourcePointList[i0 + j1 * sourceGridWidth],
+                                                                        sourcePointList[i1 + j1 * sourceGridWidth]));
             }
         }
     }
@@ -571,7 +570,7 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
     private void addBinaryDataToProduct(final MetadataElement root) {
 
         final Sentinel1Level0Reader reader = new Sentinel1Level0Reader(getBaseDir(),
-                AbstractMetadata.addOriginalProductMetadata(root));
+                                                                       AbstractMetadata.addOriginalProductMetadata(root));
         reader.readData();
     }
 

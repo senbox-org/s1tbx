@@ -28,7 +28,6 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.datamodel.VirtualBand;
-import org.esa.snap.core.dataop.maptransf.Datum;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -398,7 +397,7 @@ public final class TOPSARDeburstOp extends Operator {
         targetProduct.addTiePointGrid(slrtGrid);
         targetProduct.addTiePointGrid(incGrid);
 
-        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
+        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
         targetProduct.setGeoCoding(tpGeoCoding);
     }
 

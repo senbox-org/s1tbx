@@ -23,7 +23,6 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
-import org.esa.snap.core.dataop.maptransf.Datum;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -126,9 +125,9 @@ public final class DeburstWSSOp extends Operator {
             getSourceMetadata();
 
             targetProduct = new Product(sourceProduct.getName() + "_" + subSwath,
-                    sourceProduct.getProductType(),
-                    targetWidth,
-                    targetHeight);
+                                        sourceProduct.getProductType(),
+                                        targetWidth,
+                                        targetHeight);
 
             targetProduct.setPreferredTileSize(targetWidth, 50);
 
@@ -340,8 +339,8 @@ public final class DeburstWSSOp extends Operator {
         final float[] slantList = new float[length];
         final float[] incList = new float[length];
         for (int i = 0; i < length; ++i) {
-            latList[i] = (float)(lats.get(i) / Constants.oneMillion);
-            lonList[i] = (float)(lons.get(i) / Constants.oneMillion);
+            latList[i] = (float) (lats.get(i) / Constants.oneMillion);
+            lonList[i] = (float) (lons.get(i) / Constants.oneMillion);
             slantList[i] = slant.get(i);
             incList[i] = incidence.get(i);
         }
@@ -349,20 +348,20 @@ public final class DeburstWSSOp extends Operator {
         final int gridWidth = 11;
         final int gridHeight = length / 11;
         final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE,
-                gridWidth, gridHeight, 0, 0,
-                subSamplingX, subSamplingY, latList);
+                                                      gridWidth, gridHeight, 0, 0,
+                                                      subSamplingX, subSamplingY, latList);
         latGrid.setUnit(Unit.DEGREES);
         final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE,
-                gridWidth, gridHeight, 0, 0,
-                subSamplingX, subSamplingY, lonList, TiePointGrid.DISCONT_AT_180);
+                                                      gridWidth, gridHeight, 0, 0,
+                                                      subSamplingX, subSamplingY, lonList, TiePointGrid.DISCONT_AT_180);
         lonGrid.setUnit(Unit.DEGREES);
         final TiePointGrid slantGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME,
-                gridWidth, gridHeight, 0, 0,
-                subSamplingX, subSamplingY, slantList);
+                                                        gridWidth, gridHeight, 0, 0,
+                                                        subSamplingX, subSamplingY, slantList);
         slantGrid.setUnit(Unit.NANOSECONDS);
         final TiePointGrid incGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE,
-                gridWidth, gridHeight, 0, 0,
-                subSamplingX, subSamplingY, incList);
+                                                      gridWidth, gridHeight, 0, 0,
+                                                      subSamplingX, subSamplingY, incList);
         incGrid.setUnit(Unit.DEGREES);
 
         targetProduct.addTiePointGrid(latGrid);
@@ -370,7 +369,7 @@ public final class DeburstWSSOp extends Operator {
         targetProduct.addTiePointGrid(slantGrid);
         targetProduct.addTiePointGrid(incGrid);
 
-        targetProduct.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84));
+        targetProduct.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
     }
 
     private static void addTiePoints(final MetadataElement elem, final String tag, final List<Float> array) {
@@ -523,7 +522,7 @@ public final class DeburstWSSOp extends Operator {
                 if (!burstLines.isEmpty()) {
 
                     final boolean ok = deburstTile(burstLines, y, targetRectangle.x, maxX, cBand.i, cBand.q,
-                            targetTileI, targetTileQ, targetTileIntensity);
+                                                   targetTileI, targetTileQ, targetTileIntensity);
                     if (!ok)
                         System.out.println("not ok " + y);
                 }
