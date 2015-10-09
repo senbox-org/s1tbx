@@ -21,6 +21,8 @@ import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.math.FXYSum;
 import org.esa.snap.core.util.math.MathUtils;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -50,13 +52,39 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
     private Approximation[] approximations;
 
     /**
-     * Constructs geo-coding based on two given tie-point grids providing coordinates on the WGS-84 datum.
+     * Constructs geo-coding based on two given tie-point grids based on the WGS-84 CRS.
      *
      * @param latGrid the latitude grid
      * @param lonGrid the longitude grid
      */
     public TiePointGeoCoding(TiePointGrid latGrid, TiePointGrid lonGrid) {
-        this(latGrid, lonGrid, Datum.WGS_84);
+        this(latGrid, lonGrid, DefaultGeographicCRS.WGS84);
+    }
+
+    /**
+     * Constructs geo-coding based on two given tie-point grids.
+     *
+     * @param latGrid The latitude grid
+     * @param lonGrid The longitude grid
+     * @param geoCRS  The CRS to be used as both the geographic CRS and map CRS.
+     */
+    public TiePointGeoCoding(TiePointGrid latGrid, TiePointGrid lonGrid, CoordinateReferenceSystem geoCRS) {
+        super(geoCRS);
+        Guardian.assertNotNull("latGrid", latGrid);
+        Guardian.assertNotNull("lonGrid", lonGrid);
+        Guardian.assertNotNull("geoCRS", geoCRS);
+        if (latGrid.getRasterWidth() != lonGrid.getRasterWidth() ||
+                latGrid.getRasterHeight() != lonGrid.getRasterHeight() ||
+                latGrid.getOffsetX() != lonGrid.getOffsetX() ||
+                latGrid.getOffsetY() != lonGrid.getOffsetY() ||
+                latGrid.getSubSamplingX() != lonGrid.getSubSamplingX() ||
+                latGrid.getSubSamplingY() != lonGrid.getSubSamplingY()) {
+            throw new IllegalArgumentException("latGrid is not compatible with lonGrid");
+        }
+        this.latGrid = latGrid;
+        this.lonGrid = lonGrid;
+        this.datum = Datum.WGS_84; // todo delete me! I'm not used
+        approximationsComputed = false;
     }
 
     /**
@@ -65,17 +93,19 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
      * @param latGrid the latitude grid
      * @param lonGrid the longitude grid
      * @param datum   the geodetic datum
+     * @deprecated since SNAP 1.0, use {@link #TiePointGeoCoding(TiePointGrid, TiePointGrid, CoordinateReferenceSystem)}
      */
+    @Deprecated
     public TiePointGeoCoding(TiePointGrid latGrid, TiePointGrid lonGrid, Datum datum) {
         Guardian.assertNotNull("latGrid", latGrid);
         Guardian.assertNotNull("lonGrid", lonGrid);
         Guardian.assertNotNull("datum", datum);
         if (latGrid.getRasterWidth() != lonGrid.getRasterWidth() ||
-            latGrid.getRasterHeight() != lonGrid.getRasterHeight() ||
-            latGrid.getOffsetX() != lonGrid.getOffsetX() ||
-            latGrid.getOffsetY() != lonGrid.getOffsetY() ||
-            latGrid.getSubSamplingX() != lonGrid.getSubSamplingX() ||
-            latGrid.getSubSamplingY() != lonGrid.getSubSamplingY()) {
+                latGrid.getRasterHeight() != lonGrid.getRasterHeight() ||
+                latGrid.getOffsetX() != lonGrid.getOffsetX() ||
+                latGrid.getOffsetY() != lonGrid.getOffsetY() ||
+                latGrid.getSubSamplingX() != lonGrid.getSubSamplingX() ||
+                latGrid.getSubSamplingY() != lonGrid.getSubSamplingY()) {
             throw new IllegalArgumentException("latGrid is not compatible with lonGrid");
         }
         this.latGrid = latGrid;
@@ -130,7 +160,6 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
      * Gets the approximations for the given index.
      *
      * @param index the index, must be between 0 and {@link #getNumApproximations()} - 1
-     *
      * @return the approximation, never null
      */
     public Approximation getApproximation(int index) {
@@ -180,7 +209,6 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
      * @param pixelPos the pixel's co-ordinates given as x,y
      * @param geoPos   an instance of <code>GeoPos</code> to be used as retun value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
-     *
      * @return the geographical position as lat/lon.
      */
     @Override
@@ -189,7 +217,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
             geoPos = new GeoPos();
         }
         if (pixelPos.x < 0 || pixelPos.x > latGrid.getSceneRasterWidth()
-            || pixelPos.y < 0 || pixelPos.y > latGrid.getSceneRasterHeight()) {
+                || pixelPos.y < 0 || pixelPos.y > latGrid.getSceneRasterHeight()) {
             geoPos.setInvalid();
         } else {
             geoPos.lat = latGrid.getPixelDouble(pixelPos.x, pixelPos.y);
@@ -204,7 +232,6 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
      * @param geoPos   the geographical position as lat/lon.
      * @param pixelPos an instance of <code>Point</code> to be used as retun value. If this parameter is
      *                 <code>null</code>, the method creates a new instance which it then returns.
-     *
      * @return the pixel co-ordinates as x/y
      */
     @Override
@@ -262,7 +289,6 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
      * The method returns <code>Double.NaN</code> if the given latitude value is out of bounds.
      *
      * @param lat the raw latitude value in the range -90 to +90 degrees
-     *
      * @return the normalized latitude value, <code>Double.NaN</code> else
      */
     public static double normalizeLat(double lat) {
@@ -278,7 +304,6 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
      * or if it's normalized value is not in the value range of this geo-coding's normalized longitude grid..
      *
      * @param lon the raw longitude value in the range -180 to +180 degrees
-     *
      * @return the normalized longitude value, <code>Double.NaN</code> else
      */
     public final double normalizeLon(double lon) {
@@ -361,11 +386,11 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
                 if (lonDelta > 180.0) {
                     p2 -= 360.0;  // place new point in the west (with a lon. < -180)
                     westNormalized = true; // mark what we've done
-                    normalizedLongitudes[index] = (float)p2;
+                    normalizedLongitudes[index] = (float) p2;
                 } else if (lonDelta < -180.0) {
                     p2 += 360.0;  // place new point in the east (with a lon. > +180)
                     eastNormalized = true;  // mark what we've done
-                    normalizedLongitudes[index] = (float)p2;
+                    normalizedLongitudes[index] = (float) p2;
                 } else {
                     lonDeltaMax = Math.max(lonDeltaMax, Math.abs(lonDelta));
                 }
@@ -450,7 +475,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
             final double lonSpan = normalizedLonMax - normalizedLonMin;
             final double latSpan = latMax - latMin;
             final double angleSpan = Math.max(lonSpan, latSpan);
-            numTiles = (int)Math.round(angleSpan / 10.0);
+            numTiles = (int) Math.round(angleSpan / 10.0);
             if (numTiles < 1) {
                 numTiles = 1;
             }
@@ -737,7 +762,6 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
      * @param destScene the destination scene
      * @param subsetDef the definition of the subset, may be <code>null</code
      *                  >
-     *
      * @return true, if the geo-coding could be transferred.
      */
     @Override
@@ -756,7 +780,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
             destProduct.addTiePointGrid(lonGrid);
         }
         if (latGrid != null && lonGrid != null) {
-            destScene.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, getDatum()));
+            destScene.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
             return true;
         } else {
             return false;
@@ -807,7 +831,6 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
          *
          * @param lat the latitude value
          * @param lon the longitude value
-         *
          * @return the square distance
          */
         public final double getSquareDistance(double lat, double lon) {

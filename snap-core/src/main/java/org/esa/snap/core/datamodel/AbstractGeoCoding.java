@@ -31,7 +31,6 @@ import org.opengis.referencing.operation.MathTransform;
  * <p> <b> Note:</b> New geo-coding implementations shall implement this abstract class, instead of
  * implementing the interface {@link GeoCoding}.
  *
- *
  * @author Marco Peters
  */
 public abstract class AbstractGeoCoding implements GeoCoding {
@@ -41,8 +40,20 @@ public abstract class AbstractGeoCoding implements GeoCoding {
     private CoordinateReferenceSystem geoCRS;
     private volatile MathTransform image2Map;
 
+    /**
+     * Default constructor. Sets WGS84 as both the geographic CRS and map CRS.
+     */
     protected AbstractGeoCoding() {
-        setGeoCRS(DefaultGeographicCRS.WGS84);
+        this(DefaultGeographicCRS.WGS84);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param geoCRS The CRS to be used as both the geographic CRS and map CRS.
+     */
+    protected AbstractGeoCoding(CoordinateReferenceSystem geoCRS) {
+        setGeoCRS(geoCRS);
         setImageCRS(createImageCRS(geoCRS, new GeoCodingMathTransform(this)));
         setMapCRS(geoCRS);
     }
@@ -54,7 +65,6 @@ public abstract class AbstractGeoCoding implements GeoCoding {
      * @param srcScene  the source scene
      * @param destScene the destination scene
      * @param subsetDef the definition of the subset, may be <code>null</code>
-     *
      * @return true, if the geo-coding could be transferred.
      */
     public abstract boolean transferGeoCoding(Scene srcScene, Scene destScene, ProductSubsetDef subsetDef);
@@ -106,7 +116,7 @@ public abstract class AbstractGeoCoding implements GeoCoding {
         return image2Map;
     }
 
-     protected static DefaultDerivedCRS createImageCRS(CoordinateReferenceSystem baseCRS,
+    protected static DefaultDerivedCRS createImageCRS(CoordinateReferenceSystem baseCRS,
                                                       MathTransform baseToDerivedTransform) {
         return new DefaultDerivedCRS("Image CS based on " + baseCRS.getName(),
                                      baseCRS,
