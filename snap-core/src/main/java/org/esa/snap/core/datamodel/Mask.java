@@ -23,13 +23,13 @@ import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.accessors.DefaultPropertyAccessor;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.MultiLevelImage;
+import org.esa.snap.core.dataio.dimap.DimapProductConstants;
+import org.esa.snap.core.dataio.dimap.DimapProductHelpers;
 import org.esa.snap.core.dataop.barithm.BandArithmetic;
 import org.esa.snap.core.jexp.ParseException;
 import org.esa.snap.core.jexp.impl.Tokenizer;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.StringUtils;
-import org.esa.snap.dataio.dimap.DimapProductConstants;
-import org.esa.snap.dataio.dimap.DimapProductHelpers;
 import org.jdom.Element;
 
 import java.awt.Color;

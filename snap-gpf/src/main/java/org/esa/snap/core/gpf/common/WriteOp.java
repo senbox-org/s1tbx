@@ -19,6 +19,7 @@ package org.esa.snap.core.gpf.common;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.ProductWriter;
+import org.esa.snap.core.dataio.dimap.DimapProductWriter;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
@@ -35,7 +36,6 @@ import org.esa.snap.core.gpf.internal.OperatorExecutor.ExecutionOrder;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.jai.JAIUtils;
 import org.esa.snap.core.util.math.MathUtils;
-import org.esa.snap.dataio.dimap.DimapProductWriter;
 
 import javax.media.jai.JAI;
 import javax.media.jai.TileCache;

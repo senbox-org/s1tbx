@@ -23,9 +23,9 @@ import junit.framework.TestSuite;
 import org.esa.snap.GlobalTestConfig;
 import org.esa.snap.GlobalTestTools;
 import org.esa.snap.core.dataio.ProductIO;
-import org.esa.snap.dataio.dimap.DimapProductConstants;
-import org.esa.snap.dataio.dimap.DimapProductWriter;
-import org.esa.snap.dataio.dimap.DimapProductWriterPlugIn;
+import org.esa.snap.core.dataio.dimap.DimapProductConstants;
+import org.esa.snap.core.dataio.dimap.DimapProductWriter;
+import org.esa.snap.core.dataio.dimap.DimapProductWriterPlugIn;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;

@@ -18,6 +18,7 @@ package org.esa.snap.pconvert;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.ProductSubsetDef;
+import org.esa.snap.core.dataio.dimap.DimapProductWriterPlugIn;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ColorPaletteDef;
 import org.esa.snap.core.datamodel.ImageInfo;
@@ -34,7 +35,6 @@ import org.esa.snap.core.util.geotiff.GeoTIFF;
 import org.esa.snap.core.util.geotiff.GeoTIFFMetadata;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.core.util.jai.JAIUtils;
-import org.esa.snap.dataio.dimap.DimapProductWriterPlugIn;
 
 import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;

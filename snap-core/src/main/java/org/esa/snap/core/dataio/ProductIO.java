@@ -17,11 +17,11 @@ package org.esa.snap.core.dataio;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
+import org.esa.snap.core.dataio.dimap.DimapProductConstants;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.SystemUtils;
-import org.esa.snap.dataio.dimap.DimapProductConstants;
 
 import java.io.File;
 import java.io.FileNotFoundException;

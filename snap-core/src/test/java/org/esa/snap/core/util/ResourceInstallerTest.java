@@ -37,7 +37,7 @@ public class ResourceInstallerTest {
 
     @Test
     public void testInstall() throws Exception {
-        ResourceInstaller resourceInstaller = new ResourceInstaller(sourceDir.resolve("org/esa/snap/dataio/dimap"), targetDir);
+        ResourceInstaller resourceInstaller = new ResourceInstaller(sourceDir.resolve("org/esa/snap/core/dataio/dimap"), targetDir);
         resourceInstaller.install(".*xml", ProgressMonitor.NULL);
         assertEquals(1, Files.list(targetDir).toArray().length);
         Stream<Path> targetFileList = Files.list(targetDir.resolve("spi"));
@@ -49,7 +49,7 @@ public class ResourceInstallerTest {
         ResourceInstaller resourceInstaller = new ResourceInstaller(sourceDir, targetDir);
         resourceInstaller.install("glob:**/*xml", ProgressMonitor.NULL);
         assertEquals(1, Files.list(targetDir).toArray().length);
-        Stream<Path> targetFileList = Files.list(targetDir.resolve("org/esa/snap/dataio/dimap/spi"));
+        Stream<Path> targetFileList = Files.list(targetDir.resolve("org/esa/snap/core/dataio/dimap/spi"));
         assertEquals(4, targetFileList.toArray().length);
     }
 

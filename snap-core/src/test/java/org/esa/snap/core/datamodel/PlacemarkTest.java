@@ -16,10 +16,10 @@
 package org.esa.snap.core.datamodel;
 
 import junit.framework.TestCase;
+import org.esa.snap.core.dataio.dimap.DimapProductConstants;
+import org.esa.snap.core.dataio.placemark.PlacemarkIO;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.XmlWriter;
-import org.esa.snap.dataio.dimap.DimapProductConstants;
-import org.esa.snap.dataio.placemark.PlacemarkIO;
 import org.jdom.Element;
 
 import java.io.StringWriter;

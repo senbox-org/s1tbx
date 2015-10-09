@@ -12,6 +12,7 @@ import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageWriter;
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFLZWCompressor;
 import org.esa.snap.core.dataio.AbstractProductWriter;
 import org.esa.snap.core.dataio.ProductWriterPlugIn;
+import org.esa.snap.core.dataio.dimap.DimapHeaderWriter;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.FilterBand;
 import org.esa.snap.core.datamodel.Product;
@@ -25,7 +26,6 @@ import org.esa.snap.core.util.geotiff.GeoTIFF;
 import org.esa.snap.core.util.geotiff.GeoTIFFMetadata;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.dataio.bigtiff.internal.TiffIFD;
-import org.esa.snap.dataio.dimap.DimapHeaderWriter;
 import org.esa.snap.runtime.Config;
 
 import javax.imageio.IIOImage;

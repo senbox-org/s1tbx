@@ -17,6 +17,7 @@
 package org.esa.snap.dataio.geotiff.internal;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.dataio.dimap.DimapHeaderWriter;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ColorPaletteDef;
 import org.esa.snap.core.datamodel.ImageInfo;
@@ -25,7 +26,6 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.geotiff.GeoTIFFMetadata;
-import org.esa.snap.dataio.dimap.DimapHeaderWriter;
 import org.esa.snap.dataio.geotiff.Utils;
 
 import javax.imageio.stream.ImageOutputStream;
