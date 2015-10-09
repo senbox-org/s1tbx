@@ -24,7 +24,6 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.datamodel.VirtualBand;
-import org.esa.snap.core.dataop.maptransf.Datum;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
@@ -43,10 +42,10 @@ public final class ReaderUtils {
         final String expression = "atan2(" + bandQ.getName() + ',' + bandI.getName() + ')';
 
         final VirtualBand virtBand = new VirtualBand("Phase" + countStr,
-                ProductData.TYPE_FLOAT32,
-                bandI.getSceneRasterWidth(),
-                bandI.getSceneRasterHeight(),
-                expression);
+                                                     ProductData.TYPE_FLOAT32,
+                                                     bandI.getSceneRasterWidth(),
+                                                     bandI.getSceneRasterHeight(),
+                                                     expression);
         virtBand.setUnit(Unit.PHASE);
         virtBand.setDescription("Phase from complex data");
         virtBand.setNoDataValueUsed(true);
@@ -56,7 +55,7 @@ public final class ReaderUtils {
 
     private static String createName(String origName, String newPrefix) {
         int sepPos = origName.indexOf("_");
-        if(sepPos < 0) {
+        if (sepPos < 0) {
             sepPos = origName.length();
         }
         return newPrefix + origName.substring(sepPos, origName.length());
@@ -72,14 +71,14 @@ public final class ReaderUtils {
                 bandQ.getName() + " * " + bandQ.getName();
 
         String name = bandName;
-        if(!name.endsWith(suffix)) {
+        if (!name.endsWith(suffix)) {
             name += suffix;
         }
         final VirtualBand virtBand = new VirtualBand(name,
-                ProductData.TYPE_FLOAT32,
-                bandI.getSceneRasterWidth(),
-                bandI.getSceneRasterHeight(),
-                expression);
+                                                     ProductData.TYPE_FLOAT32,
+                                                     bandI.getSceneRasterWidth(),
+                                                     bandI.getSceneRasterHeight(),
+                                                     expression);
         virtBand.setUnit(Unit.INTENSITY);
         virtBand.setDescription("Intensity from complex data");
         virtBand.setNoDataValueUsed(true);
@@ -135,7 +134,7 @@ public final class ReaderUtils {
                                                       subSamplingX, subSamplingY, fineLonTiePoints, TiePointGrid.DISCONT_AT_180);
         lonGrid.setUnit(Unit.DEGREES);
 
-        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
+        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
 
         product.addTiePointGrid(latGrid);
         product.addTiePointGrid(lonGrid);
@@ -158,17 +157,17 @@ public final class ReaderUtils {
             return;
 
         final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
-                subSamplingX, subSamplingY, fineLatTiePoints);
+                                                      subSamplingX, subSamplingY, fineLatTiePoints);
         latGrid.setUnit(Unit.DEGREES);
 
         final float[] fineLonTiePoints = new float[gridWidth * gridHeight];
         ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, lonCorners, fineLonTiePoints);
 
         final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
-                subSamplingX, subSamplingY, fineLonTiePoints, TiePointGrid.DISCONT_AT_180);
+                                                      subSamplingX, subSamplingY, fineLonTiePoints, TiePointGrid.DISCONT_AT_180);
         lonGrid.setUnit(Unit.DEGREES);
 
-        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
+        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
 
         product.addTiePointGrid(latGrid);
         product.addTiePointGrid(lonGrid);
@@ -209,11 +208,11 @@ public final class ReaderUtils {
                 final int i1 = Math.min(i0 + 1, coarseGridWidth - 1);
                 final double wi = betaC - i0;
 
-                fineTiePoints[k++] = (float)MathUtils.interpolate2D(wi, wj,
-                                                                    coarseTiePoints[i0 + j0 * coarseGridWidth],
-                                                                    coarseTiePoints[i1 + j0 * coarseGridWidth],
-                                                                    coarseTiePoints[i0 + j1 * coarseGridWidth],
-                                                                    coarseTiePoints[i1 + j1 * coarseGridWidth]);
+                fineTiePoints[k++] = (float) MathUtils.interpolate2D(wi, wj,
+                                                                     coarseTiePoints[i0 + j0 * coarseGridWidth],
+                                                                     coarseTiePoints[i1 + j0 * coarseGridWidth],
+                                                                     coarseTiePoints[i0 + j1 * coarseGridWidth],
+                                                                     coarseTiePoints[i1 + j1 * coarseGridWidth]);
             }
         }
     }
@@ -252,11 +251,11 @@ public final class ReaderUtils {
                 final int i1 = Math.min(i0 + 1, coarseGridWidth - 1);
                 final double wi = betaC - i0;
 
-                fineTiePoints[k++] = (float)MathUtils.interpolate2D(wi, wj,
-                        coarseTiePoints[i0 + j0 * coarseGridWidth],
-                        coarseTiePoints[i1 + j0 * coarseGridWidth],
-                        coarseTiePoints[i0 + j1 * coarseGridWidth],
-                        coarseTiePoints[i1 + j1 * coarseGridWidth]);
+                fineTiePoints[k++] = (float) MathUtils.interpolate2D(wi, wj,
+                                                                     coarseTiePoints[i0 + j0 * coarseGridWidth],
+                                                                     coarseTiePoints[i1 + j0 * coarseGridWidth],
+                                                                     coarseTiePoints[i0 + j1 * coarseGridWidth],
+                                                                     coarseTiePoints[i1 + j1 * coarseGridWidth]);
             }
         }
     }
@@ -298,7 +297,7 @@ public final class ReaderUtils {
         if (elem == null)
             return AbstractMetadata.NO_METADATA_UTC;
         final String timeStr = createValidUTCString(elem.getAttributeString(tag, " ").toUpperCase(),
-                new char[]{':', '.', '-'}, ' ').trim();
+                                                    new char[]{':', '.', '-'}, ' ').trim();
         return AbstractMetadata.parseUTC(timeStr, timeFormat);
     }
 

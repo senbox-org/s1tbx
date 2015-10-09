@@ -1,7 +1,6 @@
 package org.esa.snap.core.datamodel;
 
 import com.bc.ceres.glevel.MultiLevelImage;
-import org.esa.snap.core.dataop.maptransf.Datum;
 import org.esa.snap.core.image.ImageManager;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.junit.Test;
@@ -11,7 +10,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 
-import static junit.framework.TestCase.*;
+import static junit.framework.TestCase.assertEquals;
 
 public class ModelTransformationTest {
 
@@ -32,7 +31,7 @@ public class ModelTransformationTest {
         TiePointGrid lonGrid = new TiePointGrid("lonGrid", tiePointGridWidth, tiePointGridHeight, 0.5, 0.5, subSampling, subSampling, createLonGridData());
         product.addTiePointGrid(latGrid);
         product.addTiePointGrid(lonGrid);
-        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84));
+        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
 
         final Band band1 = product.addBand("band1", "(X * 10) + Y", ProductData.TYPE_INT8);
 

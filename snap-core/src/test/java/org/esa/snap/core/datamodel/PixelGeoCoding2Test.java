@@ -1,7 +1,6 @@
 package org.esa.snap.core.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.core.dataop.maptransf.Datum;
 import org.esa.snap.core.util.StopWatch;
 import org.esa.snap.runtime.Config;
 import org.junit.Ignore;
@@ -9,7 +8,7 @@ import org.junit.Test;
 
 import java.util.Arrays;
 
-import static junit.framework.TestCase.*;
+import static junit.framework.TestCase.assertEquals;
 
 /**
  * @author Tonio Fincke
@@ -201,7 +200,7 @@ public class PixelGeoCoding2Test {
         flagomatBand.setRasterData(ProductData.createInstance(ProductData.TYPE_UINT8, flagomatData));
         flagomatBand.setSampleCoding(flagCoding);
 
-        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84));
+        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
 
         return product;
     }

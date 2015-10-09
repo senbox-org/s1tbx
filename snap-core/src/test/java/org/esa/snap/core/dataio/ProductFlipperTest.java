@@ -19,7 +19,6 @@ package org.esa.snap.core.dataio;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
-import org.esa.snap.core.dataop.maptransf.Datum;
 import org.esa.snap.core.util.ProductUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -29,7 +28,9 @@ import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class ProductFlipperTest {
 
@@ -52,7 +53,7 @@ public class ProductFlipperTest {
                 0.2f, 0.9f, 0.5f
         });
         product.addTiePointGrid(t2);
-        product.setGeoCoding(new TiePointGeoCoding(t1, t2, Datum.WGS_84));
+        product.setGeoCoding(new TiePointGeoCoding(t1, t2));
 
         TiePointGrid t3 = new TiePointGrid("t3", 3, 3, 1, 1, 3, 3, new float[]{
                 1, 2, 3,

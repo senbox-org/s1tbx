@@ -32,7 +32,6 @@ import org.esa.snap.core.datamodel.ProductNodeGroup;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.datamodel.VirtualBand;
-import org.esa.snap.core.dataop.maptransf.Datum;
 import org.esa.snap.core.util.ArrayUtils;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.io.FileUtils;
@@ -255,7 +254,7 @@ public class EnvisatProductReader extends AbstractProductReader {
             }
             if (!(bandLineReader instanceof BandLineReader.Virtual)) {
                 if (bandLineReader.getPixelDataReader().getDSD().getDatasetSize() == 0 ||
-                    bandLineReader.getPixelDataReader().getDSD().getNumRecords() == 0) {
+                        bandLineReader.getPixelDataReader().getDSD().getNumRecords() == 0) {
                     continue;
                 }
             }
@@ -414,7 +413,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         TiePointGrid latGrid = product.getTiePointGrid(EnvisatConstants.LAT_DS_NAME);
         TiePointGrid lonGrid = product.getTiePointGrid(EnvisatConstants.LON_DS_NAME);
         if (latGrid != null && lonGrid != null) {
-            product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84));
+            product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
         }
     }
 
@@ -441,9 +440,9 @@ public class EnvisatProductReader extends AbstractProductReader {
             if (dsd != null) {
                 final MetadataElement dsdGroup = new MetadataElement("DSD." + (i + 1));
                 dsdGroup.addAttribute(
-                            new MetadataAttribute("DATASET_NAME",
-                                                  ProductData.createInstance(getNonNullString(dsd.getDatasetName())),
-                                                  true));
+                        new MetadataAttribute("DATASET_NAME",
+                                              ProductData.createInstance(getNonNullString(dsd.getDatasetName())),
+                                              true));
                 dsdGroup.addAttribute(new MetadataAttribute("DATASET_TYPE",
                                                             ProductData.createInstance(new String(new char[]{dsd.getDatasetType()})),
                                                             true));
@@ -477,7 +476,7 @@ public class EnvisatProductReader extends AbstractProductReader {
             final DSD dsd = productFile.getDSD(datasetName);
             final char dsdType = dsd.getDatasetType();
             if (dsdType == EnvisatConstants.DS_TYPE_ANNOTATION
-                || dsdType == EnvisatConstants.DS_TYPE_GLOBAL_ANNOTATION) {
+                    || dsdType == EnvisatConstants.DS_TYPE_GLOBAL_ANNOTATION) {
                 final RecordReader recordReader = productFile.getRecordReader(datasetName);
                 final int numRecords = recordReader.getNumRecords();
                 if (numRecords > 1) {
@@ -658,19 +657,18 @@ public class EnvisatProductReader extends AbstractProductReader {
      * {@link TiePointGrid#DISCONT_NONE} otherwise.
      *
      * @param name the grid name
-     *
      * @return the discontinuity mode, always one of {@link TiePointGrid#DISCONT_NONE}, {@link TiePointGrid#DISCONT_AT_180} and {@link TiePointGrid#DISCONT_AT_360}.
      */
     @Override
     protected int getGridDiscontinutity(String name) {
         if (name.equalsIgnoreCase(EnvisatConstants.MERIS_SUN_AZIMUTH_DS_NAME) ||
-            name.equalsIgnoreCase(EnvisatConstants.MERIS_VIEW_AZIMUTH_DS_NAME)) {
+                name.equalsIgnoreCase(EnvisatConstants.MERIS_VIEW_AZIMUTH_DS_NAME)) {
             return TiePointGrid.DISCONT_AT_360;
         } else if (name.equalsIgnoreCase(EnvisatConstants.LON_DS_NAME) ||
-                   name.equalsIgnoreCase(EnvisatConstants.AATSR_SUN_AZIMUTH_NADIR_DS_NAME) ||
-                   name.equalsIgnoreCase(EnvisatConstants.AATSR_VIEW_AZIMUTH_NADIR_DS_NAME) ||
-                   name.equalsIgnoreCase(EnvisatConstants.AATSR_SUN_AZIMUTH_FWARD_DS_NAME) ||
-                   name.equalsIgnoreCase(EnvisatConstants.AATSR_VIEW_AZIMUTH_FWARD_DS_NAME)) {
+                name.equalsIgnoreCase(EnvisatConstants.AATSR_SUN_AZIMUTH_NADIR_DS_NAME) ||
+                name.equalsIgnoreCase(EnvisatConstants.AATSR_VIEW_AZIMUTH_NADIR_DS_NAME) ||
+                name.equalsIgnoreCase(EnvisatConstants.AATSR_SUN_AZIMUTH_FWARD_DS_NAME) ||
+                name.equalsIgnoreCase(EnvisatConstants.AATSR_VIEW_AZIMUTH_FWARD_DS_NAME)) {
             return TiePointGrid.DISCONT_AT_180;
         } else {
             return TiePointGrid.DISCONT_NONE;

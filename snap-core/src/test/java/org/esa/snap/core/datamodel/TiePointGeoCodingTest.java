@@ -19,7 +19,6 @@ package org.esa.snap.core.datamodel;
 import junit.framework.TestCase;
 import org.esa.snap.core.dataio.ProductSubsetBuilder;
 import org.esa.snap.core.dataio.ProductSubsetDef;
-import org.esa.snap.core.dataop.maptransf.Datum;
 import org.esa.snap.core.util.Debug;
 
 import java.awt.geom.AffineTransform;
@@ -179,7 +178,7 @@ public class TiePointGeoCodingTest extends TestCase {
         latBand.setRasterData(ProductData.createInstance(createBandData(latGrid)));
         lonBand.setRasterData(ProductData.createInstance(createBandData(lonGrid)));
 
-        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84));
+        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
 
         return product;
     }
@@ -360,7 +359,7 @@ public class TiePointGeoCodingTest extends TestCase {
             TiePointGrid latGrid = new TiePointGrid("lat", gridW, gridH, 0.0f, 0.0f, stepX, stepY, lats);
             TiePointGrid lonGrid = new TiePointGrid("lon", gridW, gridH, 0.0f, 0.0f, stepX, stepY, lons,
                                                     TiePointGrid.DISCONT_AT_180);
-            return new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
+            return new TiePointGeoCoding(latGrid, lonGrid);
         }
 
         private GeoPos[] createCoords() {

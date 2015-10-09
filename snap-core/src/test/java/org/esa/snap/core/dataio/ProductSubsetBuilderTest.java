@@ -31,14 +31,16 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
-import org.esa.snap.core.dataop.maptransf.Datum;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.awt.Color;
 import java.io.IOException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests for class {@link ProductSubsetBuilder}.
@@ -73,7 +75,7 @@ public class ProductSubsetBuilderTest {
                                                     0.0f, 1.0f, 2.0f
                                             });
         product.addTiePointGrid(lon);
-        product.setGeoCoding(new TiePointGeoCoding(lat, lon, Datum.WGS_84));
+        product.setGeoCoding(new TiePointGeoCoding(lat, lon));
         attachIndexCodedBand();
         attachColoredBand();
     }

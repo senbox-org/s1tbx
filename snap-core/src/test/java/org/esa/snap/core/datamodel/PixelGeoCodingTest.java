@@ -18,7 +18,6 @@ package org.esa.snap.core.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.dataio.ProductSubsetDef;
-import org.esa.snap.core.dataop.maptransf.Datum;
 import org.esa.snap.runtime.Config;
 import org.junit.Test;
 
@@ -30,7 +29,11 @@ import java.awt.image.Raster;
 import java.io.IOException;
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class PixelGeoCodingTest {
 
@@ -391,7 +394,7 @@ public class PixelGeoCodingTest {
         flagomatBand.setRasterData(ProductData.createInstance(ProductData.TYPE_UINT8, flagomatData));
         flagomatBand.setSampleCoding(flagCoding);
 
-        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84));
+        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
 
         return product;
     }

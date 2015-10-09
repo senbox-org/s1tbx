@@ -30,7 +30,6 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
-import org.esa.snap.core.dataop.maptransf.Datum;
 
 
 public class PointingTest extends TestCase {
@@ -89,7 +88,7 @@ public class PointingTest extends TestCase {
         product.addBand(band7);
         product.addBand(band13);
         product.addBand(flags);
-        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84));
+        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
         PointingFactoryRegistry registry = PointingFactoryRegistry.getInstance();
         PointingFactory pointingFactory = registry.getPointingFactory(product.getProductType());
         product.setPointingFactory(pointingFactory);
@@ -158,7 +157,7 @@ public class PointingTest extends TestCase {
         product.addBand(band670N);
         product.addBand(flagsF);
         product.addBand(flagsN);
-        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84));
+        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
         PointingFactoryRegistry registry = PointingFactoryRegistry.getInstance();
         PointingFactory pointingFactory = registry.getPointingFactory(product.getProductType());
         product.setPointingFactory(pointingFactory);

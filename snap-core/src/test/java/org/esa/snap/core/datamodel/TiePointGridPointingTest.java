@@ -17,7 +17,6 @@
 package org.esa.snap.core.datamodel;
 
 import junit.framework.TestCase;
-import org.esa.snap.core.dataop.maptransf.Datum;
 
 import java.util.HashMap;
 
@@ -26,7 +25,7 @@ public class TiePointGridPointingTest extends TestCase {
     public void testRequiresGeoCoding() {
         final TiePointGrid latGrid = new TiePointGrid("lat", 2, 2, 0, 0, 1, 1, new float[]{1, 2, 3, 4});
         final TiePointGrid lonGrid = new TiePointGrid("lon", 2, 2, 0, 0, 1, 1, new float[]{1, 2, 3, 4});
-        final TiePointGeoCoding geoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
+        final TiePointGeoCoding geoCoding = new TiePointGeoCoding(latGrid, lonGrid);
         try {
             new TiePointGridPointing(geoCoding,
                                      null, null, null, null, null);
@@ -49,8 +48,8 @@ public class TiePointGridPointingTest extends TestCase {
         final TiePointGrid lonGrid = new TiePointGrid("lon", 2, 2, 0, 0, 1, 1, new float[]{1, 2, 3, 4});
         final TiePointGrid lonGrid2 = new TiePointGrid("lon", 2, 2, 0, 0, 1, 1, new float[]{2, 3, 4, 5});
 
-        final TiePointGeoCoding geoCoding1 = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
-        final TiePointGeoCoding geoCoding2 = new TiePointGeoCoding(latGrid, lonGrid2, Datum.WGS_84);
+        final TiePointGeoCoding geoCoding1 = new TiePointGeoCoding(latGrid, lonGrid);
+        final TiePointGeoCoding geoCoding2 = new TiePointGeoCoding(latGrid, lonGrid2);
 
         final TiePointGridPointing tiePointGridPointing1 = new TiePointGridPointing(geoCoding1,
                                                                                     null, null, null, null, null);

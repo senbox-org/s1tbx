@@ -19,7 +19,6 @@ package org.esa.snap.core.datamodel;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
 import org.esa.snap.core.dataio.ProductIO;
-import org.esa.snap.core.dataop.maptransf.Datum;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -38,8 +37,12 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
-import static java.lang.Math.*;
-import static org.junit.Assert.*;
+import static java.lang.Math.PI;
+import static java.lang.Math.sin;
+import static java.lang.Math.sqrt;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class ProductSceneRasterSizeTest {
 
@@ -182,7 +185,7 @@ public class ProductSceneRasterSizeTest {
         product.addTiePointGrid(latGrid);
         product.addTiePointGrid(lonGrid);
 
-        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84));
+        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
 
         File file = new File("multisize_product.dim");
         try {

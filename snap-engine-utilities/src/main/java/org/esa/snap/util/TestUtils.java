@@ -25,7 +25,6 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
-import org.esa.snap.core.dataop.maptransf.Datum;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
@@ -73,8 +72,8 @@ public class TestUtils {
             throw new IOException(inputFile.getAbsolutePath() + " not found");
         }
         final Product product = CommonReaders.readProduct(inputFile);
-        if(product == null) {
-            throw new IOException("Unable to read "+inputFile.toString());
+        if (product == null) {
+            throw new IOException("Unable to read " + inputFile.toString());
         }
         return product;
     }
@@ -161,13 +160,13 @@ public class TestUtils {
     private static void addGeoCoding(final Product product) {
 
         final TiePointGrid latGrid = new TiePointGrid("lat", 2, 2, 0.5f, 0.5f,
-                product.getSceneRasterWidth(), product.getSceneRasterHeight(),
-                new float[]{10.0f, 10.0f, 5.0f, 5.0f});
+                                                      product.getSceneRasterWidth(), product.getSceneRasterHeight(),
+                                                      new float[]{10.0f, 10.0f, 5.0f, 5.0f});
         final TiePointGrid lonGrid = new TiePointGrid("lon", 2, 2, 0.5f, 0.5f,
-                product.getSceneRasterWidth(), product.getSceneRasterHeight(),
-                new float[]{10.0f, 10.0f, 5.0f, 5.0f},
-                TiePointGrid.DISCONT_AT_360);
-        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
+                                                      product.getSceneRasterWidth(), product.getSceneRasterHeight(),
+                                                      new float[]{10.0f, 10.0f, 5.0f, 5.0f},
+                                                      TiePointGrid.DISCONT_AT_360);
+        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
 
         product.addTiePointGrid(latGrid);
         product.addTiePointGrid(lonGrid);
@@ -222,7 +221,7 @@ public class TestUtils {
 
                 } else {
                     throwErr("Metadata attribute " + expectedAttrib.getName() + " expecting " + expectedAttrib.getData().toString()
-                            + " got " + result.getData().toString());
+                                     + " got " + result.getData().toString());
                 }
             }
         }
@@ -277,15 +276,15 @@ public class TestUtils {
     public static void comparePixels(final Product targetProduct, final String bandName,
                                      final int x, final int y, final float[] expected) throws IOException {
         final Band band = targetProduct.getBand(bandName);
-        if(band == null) {
-            throw new IOException(bandName+" not found");
+        if (band == null) {
+            throw new IOException(bandName + " not found");
         }
 
         final float[] actual = new float[expected.length];
         band.readPixels(x, y, expected.length, 1, actual, ProgressMonitor.NULL);
 
         for (int i = 0; i < expected.length; ++i) {
-            if((Math.abs(expected[i] - actual[i]) > 0.0001)) {
+            if ((Math.abs(expected[i] - actual[i]) > 0.0001)) {
                 String msg = "actual:";
                 for (float anActual : actual) {
                     msg += anActual + ", ";
@@ -296,7 +295,7 @@ public class TestUtils {
                     msg += anExpected + ", ";
                 }
                 TestUtils.log.info(msg);
-                throw new IOException("Mismatch ["+i+"] "+actual[i] +" is not "+ expected[i]);
+                throw new IOException("Mismatch [" + i + "] " + actual[i] + " is not " + expected[i]);
             }
         }
     }
@@ -341,7 +340,7 @@ public class TestUtils {
         }
 
         for (int i = 0; i < actual.length; ++i) {
-            if((Math.abs(expected[i] - actual[i]) > threshold)) {
+            if ((Math.abs(expected[i] - actual[i]) > threshold)) {
                 String msg = "actual:";
                 for (float anActual : actual) {
                     msg += anActual + ", ";

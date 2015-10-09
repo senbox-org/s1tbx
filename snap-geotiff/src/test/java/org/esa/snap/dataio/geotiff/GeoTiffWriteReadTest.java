@@ -70,7 +70,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings({"InstanceVariableMayNotBeInitialized"})
 public class GeoTiffWriteReadTest {
@@ -498,7 +501,7 @@ public class GeoTiffWriteReadTest {
         });
         product.addTiePointGrid(latGrid);
         product.addTiePointGrid(lonGrid);
-        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84));
+        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
     }
 
     private Product writeReadProduct() throws IOException {

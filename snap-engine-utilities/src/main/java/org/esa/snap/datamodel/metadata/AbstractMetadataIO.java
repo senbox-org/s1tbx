@@ -22,7 +22,6 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.dataop.downloadable.XMLSupport;
-import org.esa.snap.core.dataop.maptransf.Datum;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.gpf.ReaderUtils;
 import org.jdom2.Attribute;
@@ -230,7 +229,7 @@ public final class AbstractMetadataIO {
                 lonGrid = g;
         }
         if (latGrid != null && lonGrid != null) {
-            final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
+            final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
 
             product.setGeoCoding(tpGeoCoding);
         }
@@ -271,7 +270,7 @@ public final class AbstractMetadataIO {
         ReaderUtils.createFineTiePointGrid(inputWidth, inputHeight, gridWidth, gridHeight, inPoints, outPoints);
 
         final TiePointGrid newTPG = new TiePointGrid(name, gridWidth, gridHeight, 0, 0,
-                subSamplingX, subSamplingY, outPoints);
+                                                     subSamplingX, subSamplingY, outPoints);
 
         product.addTiePointGrid(newTPG);
     }
