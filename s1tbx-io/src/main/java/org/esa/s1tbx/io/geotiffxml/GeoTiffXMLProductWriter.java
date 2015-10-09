@@ -15,13 +15,13 @@
  */
 package org.esa.s1tbx.io.geotiffxml;
 
+import org.esa.snap.core.dataio.ProductWriterPlugIn;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.dataio.geotiff.GeoTiffProductWriter;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
-import org.esa.snap.framework.dataio.ProductWriterPlugIn;
-import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.gpf.ReaderUtils;
-import org.esa.snap.util.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;

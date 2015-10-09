@@ -43,17 +43,13 @@
 
 package org.esa.s1tbx.dat.wizards;
 
-import org.esa.snap.framework.help.HelpSys;
-import org.esa.snap.util.SystemUtils;
 import org.jfree.ui.L1R3ButtonPanel;
+import org.openide.util.HelpCtx;
 
-import javax.help.BadIDException;
-import javax.help.DefaultHelpBroker;
-import javax.help.HelpBroker;
-import javax.help.HelpSet;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
@@ -126,7 +122,6 @@ public class WizardDialog extends JDialog implements ActionListener {
 
     // Java help support
     private String helpId;
-    private HelpBroker helpBroker;
 
     /**
      * Standard constructor - builds and returns a new WizardDialog.
@@ -168,7 +163,7 @@ public class WizardDialog extends JDialog implements ActionListener {
         this.currentPanel = firstPanel;
         this.currentPanel.setOwner(this);
         this.step = 0;
-        this.panels = new ArrayList<WizardPanel>(4);
+        this.panels = new ArrayList<>(4);
         this.panels.add(firstPanel);
         setContentPane(createContent());
         setTitle(createTitle());
@@ -212,39 +207,11 @@ public class WizardDialog extends JDialog implements ActionListener {
         if (helpId == null) {
             return;
         }
-        if (helpBroker == null) {
-            initHelpBroker();
-        }
-        if (helpBroker == null) {
-            return;
-        }
-        final HelpSet helpSet = helpBroker.getHelpSet();
-        try {
-            helpBroker.setCurrentID(helpId);
-        } catch (BadIDException e) {
-            SystemUtils.LOG.severe("ModalDialog: '" + helpId + "' is not a valid helpID");
-        }
-        if (helpSet == null) {
-            return;
-        }
-        helpBroker.enableHelpKey(this, helpId, helpSet);
-        if (getContentPane() != null) {
-            helpBroker.enableHelpKey(getContentPane(), helpId, helpSet);
+        if (getContentPane() instanceof JComponent) {
+            HelpCtx.setHelpIDString((JComponent)getContentPane(), helpId);
         }
         if (helpButton != null) {
-            helpBroker.enableHelpKey(helpButton, helpId, helpSet);
-            helpBroker.enableHelpOnButton(helpButton, helpId, helpSet);
-        }
-    }
-
-    private void initHelpBroker() {
-        final HelpSet helpSet = HelpSys.getHelpSet();
-        if (helpSet != null) {
-            helpBroker = helpSet.createHelpBroker();
-            if (helpBroker instanceof DefaultHelpBroker) {
-                DefaultHelpBroker defaultHelpBroker = (DefaultHelpBroker) helpBroker;
-                defaultHelpBroker.setActivationWindow(this);
-            }
+            HelpCtx.setHelpIDString(helpButton, helpId);
         }
     }
 
@@ -434,6 +401,7 @@ public class WizardDialog extends JDialog implements ActionListener {
         final L1R3ButtonPanel buttons = new L1R3ButtonPanel("Help", "Previous", "Next", "Finish");
 
         this.helpButton = buttons.getLeftButton();
+        this.helpButton.addActionListener(e -> { new HelpCtx(helpId).display();});
         this.helpButton.setEnabled(false);
 
         this.previousButton = buttons.getRightButton1();

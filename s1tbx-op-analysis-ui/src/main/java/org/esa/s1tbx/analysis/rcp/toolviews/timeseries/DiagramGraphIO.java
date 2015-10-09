@@ -15,14 +15,14 @@
  */
 package org.esa.s1tbx.analysis.rcp.toolviews.timeseries;
 
-import org.esa.snap.framework.ui.SnapFileChooser;
-import org.esa.snap.framework.ui.diagram.DefaultDiagramGraph;
-import org.esa.snap.framework.ui.diagram.DiagramGraph;
-import org.esa.snap.util.io.CsvReader;
-import org.esa.snap.util.io.SnapFileFilter;
+import org.esa.snap.core.util.io.CsvReader;
+import org.esa.snap.core.util.io.SnapFileFilter;
+import org.esa.snap.ui.SnapFileChooser;
+import org.esa.snap.ui.diagram.DefaultDiagramGraph;
+import org.esa.snap.ui.diagram.DiagramGraph;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JOptionPane;
+import java.awt.Component;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;

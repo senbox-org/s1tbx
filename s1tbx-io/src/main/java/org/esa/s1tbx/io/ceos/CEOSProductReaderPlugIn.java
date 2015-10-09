@@ -16,11 +16,11 @@
 package org.esa.s1tbx.io.ceos;
 
 import org.esa.s1tbx.io.ceos.ers.ERSProductReader;
-import org.esa.snap.framework.dataio.DecodeQualification;
-import org.esa.snap.framework.dataio.ProductReader;
-import org.esa.snap.framework.dataio.ProductReaderPlugIn;
+import org.esa.snap.core.dataio.DecodeQualification;
+import org.esa.snap.core.dataio.ProductReader;
+import org.esa.snap.core.dataio.ProductReaderPlugIn;
+import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.gpf.ReaderUtils;
-import org.esa.snap.util.io.SnapFileFilter;
 
 import java.io.File;
 import java.util.Locale;

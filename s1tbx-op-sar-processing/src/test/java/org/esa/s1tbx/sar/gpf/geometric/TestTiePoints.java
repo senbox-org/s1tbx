@@ -16,10 +16,10 @@
 package org.esa.s1tbx.sar.gpf.geometric;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.framework.dataio.ProductIO;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.TiePointGrid;
 import org.esa.s1tbx.commons.TestData;
+import org.esa.snap.core.dataio.ProductIO;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.util.TestUtils;
 import org.junit.Before;
 import org.junit.Test;

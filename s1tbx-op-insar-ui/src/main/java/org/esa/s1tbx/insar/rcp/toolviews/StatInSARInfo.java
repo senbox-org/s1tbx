@@ -15,15 +15,16 @@
  */
 package org.esa.s1tbx.insar.rcp.toolviews;
 
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.gpf.StackUtils;
 import org.esa.snap.rcp.SnapApp;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JScrollPane;
+import javax.swing.JTextPane;
+import java.awt.Component;
 
 /**
  * Basic Stack Information

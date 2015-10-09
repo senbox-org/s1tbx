@@ -15,12 +15,12 @@
  */
 package org.esa.s1tbx.insar.gpf.coregistration;
 
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.Tile;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.gpf.TileIndex;
-import org.esa.snap.util.math.MathUtils;
 
 import javax.media.jai.BorderExtender;
 import javax.media.jai.JAI;

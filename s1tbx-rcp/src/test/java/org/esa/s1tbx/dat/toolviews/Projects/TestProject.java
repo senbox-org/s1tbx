@@ -16,7 +16,7 @@
 package org.esa.s1tbx.dat.toolviews.Projects;
 
 import org.apache.commons.io.FileUtils;
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

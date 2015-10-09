@@ -21,7 +21,7 @@ import org.esa.s1tbx.io.binary.BinaryFileReader;
 import org.esa.s1tbx.io.binary.BinaryRecord;
 import org.esa.s1tbx.io.binary.IllegalBinaryFormatException;
 import org.esa.s1tbx.io.ceos.CeosTestHelper;
-import org.esa.snap.framework.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.MetadataElement;
 import org.jdom2.Document;
 
 import javax.imageio.stream.MemoryCacheImageOutputStream;

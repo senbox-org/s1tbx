@@ -15,10 +15,16 @@
  */
 package org.esa.s1tbx.analysis.rcp.toolviews.timeseries;
 
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.ui.diagram.DiagramCanvas;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.ui.diagram.DiagramCanvas;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
 
 /**

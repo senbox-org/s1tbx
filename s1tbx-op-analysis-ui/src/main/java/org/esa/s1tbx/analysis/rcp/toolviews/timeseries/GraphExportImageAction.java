@@ -15,16 +15,18 @@
  */
 package org.esa.s1tbx.analysis.rcp.toolviews.timeseries;
 
-import org.esa.snap.framework.ui.SnapFileChooser;
-import org.esa.snap.framework.ui.product.ProductSceneView;
+import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.actions.file.export.AbstractExportImageAction;
-import org.esa.snap.util.io.SnapFileFilter;
+import org.esa.snap.ui.SnapFileChooser;
+import org.esa.snap.ui.product.ProductSceneView;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.Action;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;

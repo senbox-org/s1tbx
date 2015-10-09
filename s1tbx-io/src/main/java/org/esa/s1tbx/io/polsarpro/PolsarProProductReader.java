@@ -15,13 +15,13 @@
  */
 package org.esa.s1tbx.io.polsarpro;
 
+import org.esa.snap.core.dataio.ProductReaderPlugIn;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.dataio.envi.EnviProductReader;
 import org.esa.snap.dataio.envi.Header;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
-import org.esa.snap.framework.dataio.ProductReaderPlugIn;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.util.ResourceUtils;
 

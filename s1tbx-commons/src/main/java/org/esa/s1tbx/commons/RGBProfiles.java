@@ -15,8 +15,8 @@
  */
 package org.esa.s1tbx.commons;
 
-import org.esa.snap.framework.datamodel.RGBImageProfile;
-import org.esa.snap.framework.datamodel.RGBImageProfileManager;
+import org.esa.snap.core.datamodel.RGBImageProfile;
+import org.esa.snap.core.datamodel.RGBImageProfileManager;
 
 /**
  * RGB Profiles for dual pol and quad pol products

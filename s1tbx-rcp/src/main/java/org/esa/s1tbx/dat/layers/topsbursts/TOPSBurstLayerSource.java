@@ -15,15 +15,15 @@
  */
 package org.esa.s1tbx.dat.layers.topsbursts;
 
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.RasterDataNode;
-import org.esa.snap.framework.ui.layer.AbstractLayerSourceAssistantPage;
-import org.esa.snap.framework.ui.layer.LayerSource;
-import org.esa.snap.framework.ui.layer.LayerSourcePageContext;
 import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.ui.layer.AbstractLayerSourceAssistantPage;
+import org.esa.snap.ui.layer.LayerSource;
+import org.esa.snap.ui.layer.LayerSourcePageContext;
 
 /**
 

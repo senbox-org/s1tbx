@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.dat.layers.maptools;
 
-import org.esa.snap.framework.ui.layer.AbstractLayerSourceAssistantPage;
+import org.esa.snap.ui.layer.AbstractLayerSourceAssistantPage;
 
 import java.awt.Component;
 

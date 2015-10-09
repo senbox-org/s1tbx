@@ -2,7 +2,7 @@ package org.jlinda.core.unwrapping.mcf;
 
 import com.winvector.lp.LPException;
 import org.apache.commons.math3.util.FastMath;
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.Constants;
 import org.jlinda.core.unwrapping.mcf.utils.JblasUtils;
