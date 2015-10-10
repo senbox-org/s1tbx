@@ -17,17 +17,18 @@ package org.esa.s1tbx.gpf;
 
 import org.esa.s1tbx.utilities.gpf.FilterOperator;
 import org.esa.s1tbx.utilities.gpf.ui.FilterOpUI;
-import org.esa.snap.framework.gpf.GPF;
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.util.TestUtils;
+import org.esa.snap.core.gpf.GPF;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.engine_utilities.util.TestUtils;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.swing.JComponent;
+import javax.swing.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test for SingleTileOperator.

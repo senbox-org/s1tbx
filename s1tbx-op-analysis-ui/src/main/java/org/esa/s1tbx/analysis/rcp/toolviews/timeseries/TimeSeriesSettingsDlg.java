@@ -15,10 +15,10 @@
  */
 package org.esa.s1tbx.analysis.rcp.toolviews.timeseries;
 
-import org.esa.snap.framework.ui.ModalDialog;
-import org.esa.snap.framework.ui.ModelessDialog;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.ui.ModalDialog;
+import org.esa.snap.ui.ModelessDialog;
 
 import javax.swing.*;
 import java.awt.*;

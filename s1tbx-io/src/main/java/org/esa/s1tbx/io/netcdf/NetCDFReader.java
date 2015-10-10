@@ -16,22 +16,21 @@
 package org.esa.s1tbx.io.netcdf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.framework.dataio.AbstractProductReader;
-import org.esa.snap.framework.dataio.IllegalFileFormatException;
-import org.esa.snap.framework.dataio.ProductReaderPlugIn;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.MapGeoCoding;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.PixelGeoCoding;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.TiePointGeoCoding;
-import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.framework.dataop.maptransf.Datum;
-import org.esa.snap.gpf.ReaderUtils;
-import org.esa.snap.util.Guardian;
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.dataio.AbstractProductReader;
+import org.esa.snap.core.dataio.IllegalFileFormatException;
+import org.esa.snap.core.dataio.ProductReaderPlugIn;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MapGeoCoding;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.PixelGeoCoding;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.TiePointGeoCoding;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.Group;
@@ -74,7 +73,7 @@ public class NetCDFReader extends AbstractProductReader {
     /**
      * Provides an implementation of the <code>readProductNodes</code> interface method. Clients implementing this
      * method can be sure that the input object and eventually the subset information has already been set.
-     * <p/>
+     * <p>
      * <p>This method is called as a last step in the <code>readProductNodes(input, subsetInfo)</code> method.
      *
      * @throws java.io.IOException if an I/O error occurs
@@ -88,14 +87,14 @@ public class NetCDFReader extends AbstractProductReader {
         if (netcdfFile == null) {
             close();
             throw new IllegalFileFormatException(inputFile.getName() +
-                    " Could not be interpretted by the reader.");
+                                                         " Could not be interpretted by the reader.");
         }
 
         final Map<NcRasterDim, List<Variable>> variableListMap = NetCDFUtils.getVariableListMap(netcdfFile.getRootGroup());
         if (variableListMap.isEmpty()) {
             close();
             throw new IllegalFileFormatException("No netCDF variables found which could\n" +
-                    "be interpreted as remote sensing bands.");  /*I18N*/
+                                                         "be interpreted as remote sensing bands.");  /*I18N*/
         }
         final NcRasterDim rasterDim = NetCDFUtils.getBestRasterDim(variableListMap);
         final Variable[] rasterVariables = NetCDFUtils.getRasterVariables(variableListMap, rasterDim);
@@ -107,10 +106,10 @@ public class NetCDFReader extends AbstractProductReader {
         final NcAttributeMap globalAttributes = NcAttributeMap.create(netcdfFile);
 
         product = new Product(inputFile.getName(),
-                NetCDFUtils.getProductType(globalAttributes, readerPlugIn.getFormatNames()[0]),
-                rasterDim.getDimX().getLength(),
-                rasterDim.getDimY().getLength(),
-                this);
+                              NetCDFUtils.getProductType(globalAttributes, readerPlugIn.getFormatNames()[0]),
+                              rasterDim.getDimX().getLength(),
+                              rasterDim.getDimY().getLength(),
+                              this);
         product.setFileLocation(inputFile);
         product.setDescription(NetCDFUtils.getProductDescription(globalAttributes));
         product.setStartTime(NetCDFUtils.getSceneRasterStartTime(globalAttributes));
@@ -174,7 +173,7 @@ public class NetCDFReader extends AbstractProductReader {
             if (rank >= 3 && gridHeight <= 1)
                 gridHeight = variable.getDimension(rank - 3).getLength();
             final TiePointGrid tpg = NetCDFUtils.createTiePointGrid(variable, gridWidth, gridHeight,
-                    product.getSceneRasterWidth(), product.getSceneRasterHeight());
+                                                                    product.getSceneRasterWidth(), product.getSceneRasterHeight());
 
             product.addTiePointGrid(tpg);
         }
@@ -208,8 +207,8 @@ public class NetCDFReader extends AbstractProductReader {
         if (lonVar != null && latVar != null && rasterDim.fitsTo(lonVar, latVar)) {
             try {
                 final NetCDFUtils.MapInfoX mapInfoX = NetCDFUtils.createMapInfoX(lonVar, latVar,
-                        product.getSceneRasterWidth(),
-                        product.getSceneRasterHeight());
+                                                                                 product.getSceneRasterWidth(),
+                                                                                 product.getSceneRasterHeight());
                 if (mapInfoX != null) {
                     yFlipped = mapInfoX.isYFlipped();
                     product.setGeoCoding(new MapGeoCoding(mapInfoX.getMapInfo()));
@@ -234,7 +233,7 @@ public class NetCDFReader extends AbstractProductReader {
                 break;
         }
         if (latGrid != null && lonGrid != null) {
-            final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
+            final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
             product.setGeoCoding(tpGeoCoding);
         }
     }
@@ -253,8 +252,8 @@ public class NetCDFReader extends AbstractProductReader {
         }
         if (latBand != null && lonBand != null) {
             product.setGeoCoding(new PixelGeoCoding(latBand, lonBand,
-                    latBand.getValidPixelExpression(),
-                    5, ProgressMonitor.NULL));
+                                                    latBand.getValidPixelExpression(),
+                                                    5, ProgressMonitor.NULL));
         }
     }
 

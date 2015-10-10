@@ -18,45 +18,44 @@ package org.esa.s1tbx.insar.gpf.coregistration;
 import com.bc.ceres.core.ProgressMonitor;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
-import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.datamodel.ProductInformation;
-import org.esa.snap.datamodel.Unit;
-import org.esa.snap.framework.dataio.ProductSubsetBuilder;
-import org.esa.snap.framework.dataio.ProductSubsetDef;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.GeoCoding;
-import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.datamodel.MetadataAttribute;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.Placemark;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.ProductNodeGroup;
-import org.esa.snap.framework.datamodel.TiePointGeoCoding;
-import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.framework.datamodel.VirtualBand;
-import org.esa.snap.framework.dataop.maptransf.Datum;
-import org.esa.snap.framework.dataop.resamp.Resampling;
-import org.esa.snap.framework.dataop.resamp.ResamplingFactory;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.framework.gpf.Tile;
-import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
-import org.esa.snap.framework.gpf.annotations.Parameter;
-import org.esa.snap.framework.gpf.annotations.SourceProducts;
-import org.esa.snap.framework.gpf.annotations.TargetProduct;
-import org.esa.snap.gpf.OperatorUtils;
-import org.esa.snap.gpf.StackUtils;
-import org.esa.snap.gpf.TileIndex;
-import org.esa.snap.util.FeatureUtils;
-import org.esa.snap.util.ProductUtils;
+import org.esa.snap.core.dataio.ProductSubsetBuilder;
+import org.esa.snap.core.dataio.ProductSubsetDef;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.MetadataAttribute;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Placemark;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductNodeGroup;
+import org.esa.snap.core.datamodel.TiePointGeoCoding;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.dataop.resamp.Resampling;
+import org.esa.snap.core.dataop.resamp.ResamplingFactory;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.gpf.annotations.OperatorMetadata;
+import org.esa.snap.core.gpf.annotations.Parameter;
+import org.esa.snap.core.gpf.annotations.SourceProducts;
+import org.esa.snap.core.gpf.annotations.TargetProduct;
+import org.esa.snap.core.util.FeatureUtils;
+import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.datamodel.ProductInformation;
+import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.gpf.OperatorUtils;
+import org.esa.snap.engine_utilities.gpf.StackUtils;
+import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;
 import org.jlinda.core.SLCImage;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -109,17 +108,17 @@ public class CreateStackOp extends Operator {
     public final static String MIN_EXTENT = "Minimum";
     public final static String MAX_EXTENT = "Maximum";
 
-    @Parameter(valueSet = {"ORBIT", "GCP"},
-            defaultValue = "ORBIT",
+    public final static String INITIAL_OFFSET_GEOLOCATION = "Product Geolocation";
+    public final static String INITIAL_OFFSET_ORBIT = "Orbit";
+
+    @Parameter(valueSet = {INITIAL_OFFSET_ORBIT, INITIAL_OFFSET_GEOLOCATION},
+            defaultValue = INITIAL_OFFSET_ORBIT,
             description = "Method to be used in computation of initial offset between master and slave",
             label = "Initial Offset Method")
-    private String initialOffsetMethod = "ORBIT";
+    private String initialOffsetMethod = INITIAL_OFFSET_ORBIT;
 
-    public final static String INITIAL_OFFSET_GCP = "GCP";
-    public final static String INITIAL_OFFSET_ORBIT = "ORBIT";
-
-    private final Map<Band, Band> sourceRasterMap = new HashMap<Band, Band>(10);
-    private final Map<Product, int[]> slaveOffsettMap = new HashMap<Product, int[]>(10);
+    private final Map<Band, Band> sourceRasterMap = new HashMap<>(10);
+    private final Map<Product, int[]> slaveOffsettMap = new HashMap<>(10);
 
     private boolean appendToMaster = false;
     private boolean productPixelSpacingChecked = false;
@@ -189,9 +188,9 @@ public class CreateStackOp extends Operator {
                 case MASTER_EXTENT:
 
                     targetProduct = new Product(masterProduct.getName(),
-                            masterProduct.getProductType(),
-                            masterProduct.getSceneRasterWidth(),
-                            masterProduct.getSceneRasterHeight());
+                                                masterProduct.getProductType(),
+                                                masterProduct.getSceneRasterWidth(),
+                                                masterProduct.getSceneRasterHeight());
 
                     ProductUtils.copyProductNodes(masterProduct, targetProduct);
                     break;
@@ -208,9 +207,9 @@ public class CreateStackOp extends Operator {
                 for (Band b : masterProduct.getBands()) {
                     if (!(b instanceof VirtualBand)) {
                         final Band targetBand = new Band(b.getName(),
-                                b.getDataType(),
-                                targetProduct.getSceneRasterWidth(),
-                                targetProduct.getSceneRasterHeight());
+                                                         b.getDataType(),
+                                                         targetProduct.getSceneRasterWidth(),
+                                                         targetProduct.getSceneRasterHeight());
                         ProductUtils.copyRasterDataNodeProperties(b, targetBand);
                         targetBand.setSourceImage(b.getSourceImage());
 
@@ -229,9 +228,9 @@ public class CreateStackOp extends Operator {
                         suffix = "_mst" + StackUtils.createBandTimeStamp(srcBand.getProduct());
 
                         final Band targetBand = new Band(srcBand.getName() + suffix,
-                                srcBand.getDataType(),
-                                targetProduct.getSceneRasterWidth(),
-                                targetProduct.getSceneRasterHeight());
+                                                         srcBand.getDataType(),
+                                                         targetProduct.getSceneRasterWidth(),
+                                                         targetProduct.getSceneRasterHeight());
                         ProductUtils.copyRasterDataNodeProperties(srcBand, targetBand);
                         if (extent.equals(MASTER_EXTENT)) {
                             targetBand.setSourceImage(srcBand.getSourceImage());
@@ -263,9 +262,9 @@ public class CreateStackOp extends Operator {
                     if (targetProduct.getBand(tgtBandName) == null) {
                         final Product srcProduct = srcBand.getProduct();
                         final Band targetBand = new Band(tgtBandName,
-                                srcBand.getDataType(),
-                                targetProduct.getSceneRasterWidth(),
-                                targetProduct.getSceneRasterHeight());
+                                                         srcBand.getDataType(),
+                                                         targetProduct.getSceneRasterWidth(),
+                                                         targetProduct.getSceneRasterHeight());
                         ProductUtils.copyRasterDataNodeProperties(srcBand, targetBand);
                         if (extent.equals(MASTER_EXTENT) &&
                                 (srcProduct == masterProduct || srcProduct.isCompatibleProduct(targetProduct, 1.0e-3f))) {
@@ -286,7 +285,7 @@ public class CreateStackOp extends Operator {
             copySlaveMetadata();
 
             StackUtils.saveMasterProductBandNames(targetProduct,
-                    masterProductBands.toArray(new String[masterProductBands.size()]));
+                                                  masterProductBands.toArray(new String[masterProductBands.size()]));
             saveSlaveProductNames(targetProduct, sourceRasterMap);
 
             updateMetadata();
@@ -295,19 +294,19 @@ public class CreateStackOp extends Operator {
             final ProductNodeGroup<Placemark> masterGCPgroup = masterProduct.getGcpGroup();
             if (masterGCPgroup.getNodeCount() > 0) {
                 OperatorUtils.copyGCPsToTarget(masterGCPgroup, GCPManager.instance().getGcpGroup(targetProduct.getBandAt(0)),
-                        targetProduct.getGeoCoding());
+                                               targetProduct.getGeoCoding());
             }
 
             if (!resamplingType.contains("NONE")) {
                 selectedResampling = ResamplingFactory.createResampling(resamplingType);
             } else {
-				if (initialOffsetMethod.equals(INITIAL_OFFSET_GCP)) {
-                	computeTargetSlaveCoordinateOffsets_GCP();
-            	}
+                if (initialOffsetMethod.equals(INITIAL_OFFSET_GEOLOCATION)) {
+                    computeTargetSlaveCoordinateOffsets_GCP();
+                }
 
-            	if (initialOffsetMethod.equals(INITIAL_OFFSET_ORBIT)) {
-                	computeTargetSlaveCoordinateOffsets_Orbits();
-            	}
+                if (initialOffsetMethod.equals(INITIAL_OFFSET_ORBIT)) {
+                    computeTargetSlaveCoordinateOffsets_Orbits();
+                }
             }
 
         } catch (Throwable e) {
@@ -640,7 +639,7 @@ public class CreateStackOp extends Operator {
                             new PixelPos(0, slvProd.getSceneRasterHeight() - 1), null);
                     final GeoPos geoPosLastFar = slaveGeoCoding.getGeoPos(
                             new PixelPos(slvProd.getSceneRasterWidth() - 1,
-                                    slvProd.getSceneRasterHeight() - 1), null
+                                         slvProd.getSceneRasterHeight() - 1), null
                     );
 
                     masterGeoCoding.getPixelPos(geoPosFirstNear, pixelPosUL);
@@ -670,20 +669,20 @@ public class CreateStackOp extends Operator {
             masterGeoCoding.getGeoPos(new PixelPos(xMin, yMax), geoPosLL);
             masterGeoCoding.getGeoPos(new PixelPos(xMax, yMax), geoPosLR);
 
-            final float[] latTiePoints = {(float)geoPosUL.lat, (float)geoPosUR.lat, (float)geoPosLL.lat, (float)geoPosLR.lat};
-            final float[] lonTiePoints = {(float)geoPosUL.lon, (float)geoPosUR.lon, (float)geoPosLL.lon, (float)geoPosLR.lon};
+            final float[] latTiePoints = {(float) geoPosUL.lat, (float) geoPosUR.lat, (float) geoPosLL.lat, (float) geoPosLR.lat};
+            final float[] lonTiePoints = {(float) geoPosUL.lon, (float) geoPosUR.lon, (float) geoPosLL.lon, (float) geoPosLR.lon};
 
             final TiePointGrid latGrid = new TiePointGrid("latitude", 2, 2, 0.5f, 0.5f,
-                    sceneWidth - 1, sceneHeight - 1, latTiePoints);
+                                                          sceneWidth - 1, sceneHeight - 1, latTiePoints);
             latGrid.setUnit(Unit.DEGREES);
 
             final TiePointGrid lonGrid = new TiePointGrid("longitude", 2, 2, 0.5f, 0.5f,
-                    sceneWidth - 1, sceneHeight - 1, lonTiePoints, TiePointGrid.DISCONT_AT_180);
+                                                          sceneWidth - 1, sceneHeight - 1, lonTiePoints, TiePointGrid.DISCONT_AT_180);
             lonGrid.setUnit(Unit.DEGREES);
 
             targetProduct.addTiePointGrid(latGrid);
             targetProduct.addTiePointGrid(lonGrid);
-            targetProduct.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84));
+            targetProduct.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
@@ -926,7 +925,7 @@ public class CreateStackOp extends Operator {
                     (Math.abs(rangeSpacing - savedRangeSpacing) > 0.05 ||
                             Math.abs(azimuthSpacing - savedAzimuthSpacing) > 0.05)) {
                 throw new OperatorException("Resampling type cannot be NONE because pixel spacings" +
-                        " are different for master and slave products");
+                                                    " are different for master and slave products");
             } else {
                 savedRangeSpacing = rangeSpacing;
                 savedAzimuthSpacing = azimuthSpacing;

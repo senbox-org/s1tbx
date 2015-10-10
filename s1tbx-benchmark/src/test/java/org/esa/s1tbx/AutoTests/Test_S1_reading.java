@@ -16,7 +16,6 @@
 package org.esa.s1tbx.AutoTests;
 
 import org.esa.s1tbx.TestAutomatedGraphProcessing;
-import org.junit.Ignore;
 
 /**
  * Runs graphs as directed by the tests config file

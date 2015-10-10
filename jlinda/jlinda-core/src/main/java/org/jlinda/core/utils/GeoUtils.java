@@ -1,7 +1,11 @@
 package org.jlinda.core.utils;
 
-import org.jlinda.core.*;
+import org.jlinda.core.Constants;
 import org.jlinda.core.GeoPoint;
+import org.jlinda.core.Orbit;
+import org.jlinda.core.Point;
+import org.jlinda.core.SLCImage;
+import org.jlinda.core.Window;
 
 public class GeoUtils {
 

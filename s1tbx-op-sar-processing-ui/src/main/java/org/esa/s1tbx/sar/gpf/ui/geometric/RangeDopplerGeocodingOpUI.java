@@ -15,23 +15,23 @@
  */
 package org.esa.s1tbx.sar.gpf.ui.geometric;
 
+import org.esa.s1tbx.calibration.gpf.CalibrationOp;
 import org.esa.s1tbx.calibration.gpf.support.CalibrationFactory;
 import org.esa.s1tbx.calibration.gpf.support.Calibrator;
-import org.esa.s1tbx.calibration.gpf.CalibrationOp;
 import org.esa.s1tbx.insar.gpf.geometric.SARGeocoding;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.dataop.dem.ElevationModelDescriptor;
+import org.esa.snap.core.dataop.dem.ElevationModelRegistry;
+import org.esa.snap.core.dataop.resamp.ResamplingFactory;
 import org.esa.snap.dem.dataio.DEMFactory;
-import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.eo.Constants;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.dataop.dem.ElevationModelDescriptor;
-import org.esa.snap.framework.dataop.dem.ElevationModelRegistry;
-import org.esa.snap.framework.dataop.resamp.ResamplingFactory;
-import org.esa.snap.framework.ui.AppContext;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.OperatorUIUtils;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
-import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
+import org.esa.snap.rcp.SnapDialogs;
+import org.esa.snap.ui.AppContext;
 import org.geotools.referencing.wkt.UnformattableObjectException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 

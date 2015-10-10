@@ -1,7 +1,7 @@
 package org.jlinda.core.coregistration.legacy;
 
 import org.apache.commons.math3.util.FastMath;
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
@@ -27,8 +27,11 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.logging.Logger;
 
-import static java.lang.Math.*;
-import static org.jlinda.core.utils.PolyUtils.*;
+import static java.lang.Math.ceil;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+import static org.jlinda.core.utils.PolyUtils.normalize2;
+import static org.jlinda.core.utils.PolyUtils.polyval;
 
 public class Coregistration implements ICoregistration {
 

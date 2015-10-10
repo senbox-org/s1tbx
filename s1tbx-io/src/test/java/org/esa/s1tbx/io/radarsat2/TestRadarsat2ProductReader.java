@@ -17,11 +17,11 @@ package org.esa.s1tbx.io.radarsat2;
 
 import org.esa.s1tbx.commons.S1TBXTests;
 import org.esa.s1tbx.commons.TestData;
-import org.esa.snap.framework.dataio.DecodeQualification;
-import org.esa.snap.framework.dataio.ProductReader;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.gpf.TestProcessor;
-import org.esa.snap.util.TestUtils;
+import org.esa.snap.core.dataio.DecodeQualification;
+import org.esa.snap.core.dataio.ProductReader;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.engine_utilities.gpf.TestProcessor;
+import org.esa.snap.engine_utilities.util.TestUtils;
 import org.junit.Assert;
 import org.junit.Test;
 

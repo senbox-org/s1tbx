@@ -17,12 +17,12 @@ package org.esa.s1tbx;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.io.FileUtils;
-import org.esa.snap.framework.dataio.ProductIO;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.gpf.GPF;
+import org.esa.snap.core.dataio.ProductIO;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.gpf.GPFProcessor;
-import org.esa.snap.util.MemUtils;
 import org.esa.snap.gpf.ProcessTimeMonitor;
+import org.esa.snap.util.MemUtils;
 import org.esa.snap.util.TestUtils;
 import org.junit.Before;
 import org.junit.Test;

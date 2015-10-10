@@ -15,13 +15,12 @@
  */
 package org.csa.rstb.about;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-
 import org.esa.snap.rcp.about.AboutBox;
 import org.openide.modules.ModuleInfo;
 import org.openide.modules.Modules;
 
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 /**

@@ -20,26 +20,25 @@ import org.esa.s1tbx.io.FileImageInputStreamExtImpl;
 import org.esa.s1tbx.io.SARReader;
 import org.esa.s1tbx.io.XMLProductDirectory;
 import org.esa.s1tbx.io.imageio.ImageIOFile;
-import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.datamodel.Unit;
-import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
-import org.esa.snap.eo.Constants;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.MetadataAttribute;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.TiePointGeoCoding;
-import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.framework.dataop.maptransf.Datum;
-import org.esa.snap.gpf.OperatorUtils;
-import org.esa.snap.gpf.ReaderUtils;
-import org.esa.snap.gpf.StackUtils;
-import org.esa.snap.util.Maths;
-import org.esa.snap.util.ProductUtils;
-import org.esa.snap.framework.dataop.downloadable.XMLSupport;
-import org.esa.snap.util.ZipUtils;
-import org.esa.snap.util.math.MathUtils;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataAttribute;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.TiePointGeoCoding;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.dataop.downloadable.XMLSupport;
+import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.math.MathUtils;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.datamodel.metadata.AbstractMetadataIO;
+import org.esa.snap.engine_utilities.eo.Constants;
+import org.esa.snap.engine_utilities.gpf.OperatorUtils;
+import org.esa.snap.engine_utilities.gpf.ReaderUtils;
+import org.esa.snap.engine_utilities.gpf.StackUtils;
+import org.esa.snap.engine_utilities.util.Maths;
+import org.esa.snap.engine_utilities.util.ZipUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
@@ -99,7 +98,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     }
 
     protected String getRelativePathToImageFolder() {
-        return getRootFolder()+"IMAGEDATA" + '/';
+        return getRootFolder() + "IMAGEDATA" + '/';
     }
 
     private void replaceAbstractedMetadataField(final MetadataElement abstractedMetadata, final String attrName, final String newValue) {
@@ -195,7 +194,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         abstractedMetadata.setAttributeInt("coregistered_stack", 1);
 
         // Replace PRODUCT
-        productName = getHeaderFileName().substring(0, getHeaderFileName().length()-4);
+        productName = getHeaderFileName().substring(0, getHeaderFileName().length() - 4);
         replaceAbstractedMetadataField(abstractedMetadata, "PRODUCT", productName);
 
         // Replace PRODUCT_TYPE
@@ -272,16 +271,16 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         productType = productVariantInfo.getAttributeString("productType", defStr).replace("_____", "_").replace("__", "_");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, productType);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR,
-                generalHeader.getAttributeString("itemName", defStr));
+                                      generalHeader.getAttributeString("itemName", defStr));
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, "TSX");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME,
-                ReaderUtils.getTime(generalHeader, "generationTime", standardDateFormat));
+                                      ReaderUtils.getTime(generalHeader, "generationTime", standardDateFormat));
 
         MetadataElement elem = generalHeader.getElement("generationSystem");
         if (elem != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier,
-                    elem.getAttributeString("generationSystem", defStr));
+                                          elem.getAttributeString("generationSystem", defStr));
         }
 
         if (missionInfo != null) {
@@ -299,7 +298,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             final String lookDirection = acquisitionInfo.getAttributeString("lookDirection", defStr);
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, lookDirection);
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.BEAMS,
-                    acquisitionInfo.getAttributeString("elevationBeamConfiguration", defStr));
+                                          acquisitionInfo.getAttributeString("elevationBeamConfiguration", defStr));
             productDescription = productType + ' ' + imagingMode;
 
             if (missionInfo == null) {
@@ -315,13 +314,13 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
         final MetadataElement imageRaster = imageDataInfo.getElement("imageRaster");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
-                imageRaster.getAttributeDouble("azimuthLooks", defInt));
+                                      imageRaster.getAttributeDouble("azimuthLooks", defInt));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks,
-                imageRaster.getAttributeDouble("rangeLooks", defInt));
+                                      imageRaster.getAttributeDouble("rangeLooks", defInt));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line,
-                imageRaster.getAttributeInt("numberOfColumns", defInt));
+                                      imageRaster.getAttributeInt("numberOfColumns", defInt));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
-                imageRaster.getAttributeInt("numberOfRows", defInt));
+                                      imageRaster.getAttributeInt("numberOfRows", defInt));
 
         if (sceneInfo != null) {
             setStartStopTime(absRoot, sceneInfo, imageRaster.getAttributeInt("numberOfRows", defInt));
@@ -329,7 +328,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             getCornerCoords(sceneInfo, geocodedImageInfo);
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.avg_scene_height,
-                    sceneInfo.getAttributeDouble("sceneAverageHeight", defInt));
+                                          sceneInfo.getAttributeDouble("sceneAverageHeight", defInt));
         } else if (acquisitionInfo != null) {
             setStartStopTime(absRoot, acquisitionInfo, imageRaster.getAttributeInt("numberOfRows", defInt));
         }
@@ -348,16 +347,16 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         final String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE);
         if (sampleType.contains("COMPLEX") && complexImageInfo != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
-                    complexImageInfo.getAttributeDouble("projectedSpacingAzimuth", defInt));
+                                          complexImageInfo.getAttributeDouble("projectedSpacingAzimuth", defInt));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing,
-                    complexImageInfo.getElement("projectedSpacingRange").getAttributeDouble("slantRange", defInt));
+                                          complexImageInfo.getElement("projectedSpacingRange").getAttributeDouble("slantRange", defInt));
         } else {
             final MetadataElement rowSpacing = imageDataInfo.getElement("imageRaster").getElement("rowSpacing");
             final MetadataElement colSpacing = imageDataInfo.getElement("imageRaster").getElement("columnSpacing");
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
-                    rowSpacing.getAttributeDouble("rowSpacing", defInt));
+                                          rowSpacing.getAttributeDouble("rowSpacing", defInt));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing,
-                    colSpacing.getAttributeDouble("columnSpacing", defInt));
+                                          colSpacing.getAttributeDouble("columnSpacing", defInt));
         }
 
         if (instrument != null) {
@@ -365,13 +364,13 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             final MetadataElement settingRecord = settings.getElement("settingRecord");
             final MetadataElement PRF = settingRecord.getElement("PRF");
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency,
-                    PRF.getAttributeDouble("PRF", defInt));
+                                          PRF.getAttributeDouble("PRF", defInt));
             final MetadataElement RSF = settings.getElement("RSF");
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_sampling_rate,
-                    RSF.getAttributeDouble("RSF", defInt) / Constants.oneMillion);
+                                          RSF.getAttributeDouble("RSF", defInt) / Constants.oneMillion);
             final MetadataElement radarParameters = instrument.getElement("radarParameters");
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency,
-                    radarParameters.getAttributeDouble("centerFrequency", defInt) / Constants.oneMillion);
+                                          radarParameters.getAttributeDouble("centerFrequency", defInt) / Constants.oneMillion);
         }
 
         int srgr = 1;
@@ -403,7 +402,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
-                (Math.min(slantRangeCorners[0], slantRangeCorners[2]) / Constants.oneBillion) * Constants.halfLightSpeed);
+                                      (Math.min(slantRangeCorners[0], slantRangeCorners[2]) / Constants.oneBillion) * Constants.halfLightSpeed);
         // Note: Here we use the minimum of the slant range times of two corners because the original way cause
         //       problem for stripmap product when the two slant range times are different.
 
@@ -411,7 +410,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         if (calibration != null) {
             final MetadataElement calibrationConstant = calibration.getElement("calibrationConstant");
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.calibration_factor,
-                    calibrationConstant.getAttributeDouble("calFactor", defInt));
+                                          calibrationConstant.getAttributeDouble("calFactor", defInt));
         }
 
         if (platform != null) {
@@ -477,7 +476,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
-                ReaderUtils.getLineTimeInterval(startTime, stopTime, height));
+                                      ReaderUtils.getLineTimeInterval(startTime, stopTime, height));
     }
 
     private static String getAcquisitionMode(final String mode) {
@@ -511,10 +510,10 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 final int refCol = child.getAttributeInt("refColumn", 0);
 
                 coordList.add(new CornerCoord(refRow, refCol,
-                         child.getAttributeDouble("lat", 0),
-                         child.getAttributeDouble("lon", 0),
-                         child.getAttributeDouble("rangeTime", 0) * Constants.oneBillion,
-                         child.getAttributeDouble("incidenceAngle", 0)));
+                                              child.getAttributeDouble("lat", 0),
+                                              child.getAttributeDouble("lon", 0),
+                                              child.getAttributeDouble("rangeTime", 0) * Constants.oneBillion,
+                                              child.getAttributeDouble("incidenceAngle", 0)));
 
                 if (refRow > maxRow) maxRow = refRow;
                 if (refCol > maxCol) maxCol = refCol;
@@ -607,7 +606,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                     throw new IOException("Unable to open " + imgPath);
 
                 final ImageIOFile img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream),
-                        1, 1, ProductData.TYPE_UINT16);
+                                                        1, 1, ProductData.TYPE_UINT16);
                 bandImageFileMap.put(img.getName(), img);
             }
         }
@@ -751,13 +750,13 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
         if (regridNeeded) {
             getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, col, row, latList,
-                    newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLatList);
+                                      newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLatList);
 
             getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, col, row, lonList,
-                    newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLonList);
+                                      newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLonList);
 
             getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, col, row, incList,
-                    newGridWidth, newGridHeight, subSamplingX, subSamplingY, newIncList);
+                                      newGridWidth, newGridHeight, subSamplingX, subSamplingY, newIncList);
         } else {
             for (int m = 0; m < newLatList.length; ++m) {
                 newLatList[m] = (float) latList[m];
@@ -767,21 +766,21 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
 
         final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE,
-                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLatList);
+                                                      newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLatList);
         latGrid.setUnit(Unit.DEGREES);
         product.addTiePointGrid(latGrid);
 
         final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE,
-                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLonList, TiePointGrid.DISCONT_AT_180);
+                                                      newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLonList, TiePointGrid.DISCONT_AT_180);
         lonGrid.setUnit(Unit.DEGREES);
         product.addTiePointGrid(lonGrid);
 
         final TiePointGrid incidentAngleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE,
-                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newIncList);
+                                                                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newIncList);
         incidentAngleGrid.setUnit(Unit.DEGREES);
         product.addTiePointGrid(incidentAngleGrid);
 
-        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
+        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
         product.setGeoCoding(tpGeoCoding);
 
         // final TiePointGrid timeGrid = new TiePointGrid("Time", gridWidth, gridHeight, 0, 0,
@@ -847,10 +846,10 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 final double wi = (newX - oldX0) / (oldX1 - oldX0);
 
                 targetPointList[k++] = (float) MathUtils.interpolate2D(wi, wj,
-                        sourcePointList[i0 + j0 * sourceGridWidth],
-                        sourcePointList[i1 + j0 * sourceGridWidth],
-                        sourcePointList[i0 + j1 * sourceGridWidth],
-                        sourcePointList[i1 + j1 * sourceGridWidth]);
+                                                                       sourcePointList[i0 + j0 * sourceGridWidth],
+                                                                       sourcePointList[i1 + j0 * sourceGridWidth],
+                                                                       sourcePointList[i0 + j1 * sourceGridWidth],
+                                                                       sourcePointList[i1 + j1 * sourceGridWidth]);
             }
         }
     }
@@ -874,7 +873,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, flippedIncidenceCorners, fineAngles);
 
             final TiePointGrid incidentAngleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE, gridWidth, gridHeight, 0, 0,
-                    subSamplingX, subSamplingY, fineAngles);
+                                                                    subSamplingX, subSamplingY, fineAngles);
             incidentAngleGrid.setUnit(Unit.DEGREES);
             product.addTiePointGrid(incidentAngleGrid);
         }
@@ -883,7 +882,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, flippedSlantRangeCorners, fineSlantRange);
 
         final TiePointGrid slantRangeGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME, gridWidth, gridHeight, 0, 0,
-                subSamplingX, subSamplingY, fineSlantRange);
+                                                             subSamplingX, subSamplingY, fineSlantRange);
         slantRangeGrid.setUnit(Unit.NANOSECONDS);
         product.addTiePointGrid(slantRangeGrid);
     }
@@ -896,41 +895,41 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
         if (OperatorUtils.isMapProjected(product) || sampleType.contains("COMPLEX")) {
 
-            flippedSlantRangeCorners[0] = (float)slantRangeCorners[0];
-            flippedSlantRangeCorners[1] = (float)slantRangeCorners[1];
-            flippedSlantRangeCorners[2] = (float)slantRangeCorners[2];
-            flippedSlantRangeCorners[3] = (float)slantRangeCorners[3];
+            flippedSlantRangeCorners[0] = (float) slantRangeCorners[0];
+            flippedSlantRangeCorners[1] = (float) slantRangeCorners[1];
+            flippedSlantRangeCorners[2] = (float) slantRangeCorners[2];
+            flippedSlantRangeCorners[3] = (float) slantRangeCorners[3];
 
-            flippedIncidenceCorners[0] = (float)incidenceCorners[0];
-            flippedIncidenceCorners[1] = (float)incidenceCorners[1];
-            flippedIncidenceCorners[2] = (float)incidenceCorners[2];
-            flippedIncidenceCorners[3] = (float)incidenceCorners[3];
+            flippedIncidenceCorners[0] = (float) incidenceCorners[0];
+            flippedIncidenceCorners[1] = (float) incidenceCorners[1];
+            flippedIncidenceCorners[2] = (float) incidenceCorners[2];
+            flippedIncidenceCorners[3] = (float) incidenceCorners[3];
 
         } else {
 
             final boolean isAscending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("ASCENDING");
             if (isAscending) { // flip up and down
-                flippedSlantRangeCorners[0] = (float)slantRangeCorners[2];
-                flippedSlantRangeCorners[1] = (float)slantRangeCorners[3];
-                flippedSlantRangeCorners[2] = (float)slantRangeCorners[0];
-                flippedSlantRangeCorners[3] = (float)slantRangeCorners[1];
+                flippedSlantRangeCorners[0] = (float) slantRangeCorners[2];
+                flippedSlantRangeCorners[1] = (float) slantRangeCorners[3];
+                flippedSlantRangeCorners[2] = (float) slantRangeCorners[0];
+                flippedSlantRangeCorners[3] = (float) slantRangeCorners[1];
 
-                flippedIncidenceCorners[0] = (float)incidenceCorners[2];
-                flippedIncidenceCorners[1] = (float)incidenceCorners[3];
-                flippedIncidenceCorners[2] = (float)incidenceCorners[0];
-                flippedIncidenceCorners[3] = (float)incidenceCorners[1];
+                flippedIncidenceCorners[0] = (float) incidenceCorners[2];
+                flippedIncidenceCorners[1] = (float) incidenceCorners[3];
+                flippedIncidenceCorners[2] = (float) incidenceCorners[0];
+                flippedIncidenceCorners[3] = (float) incidenceCorners[1];
 
             } else { // flip left and right
 
-                flippedSlantRangeCorners[0] = (float)slantRangeCorners[1];
-                flippedSlantRangeCorners[1] = (float)slantRangeCorners[0];
-                flippedSlantRangeCorners[2] = (float)slantRangeCorners[3];
-                flippedSlantRangeCorners[3] = (float)slantRangeCorners[2];
+                flippedSlantRangeCorners[0] = (float) slantRangeCorners[1];
+                flippedSlantRangeCorners[1] = (float) slantRangeCorners[0];
+                flippedSlantRangeCorners[2] = (float) slantRangeCorners[3];
+                flippedSlantRangeCorners[3] = (float) slantRangeCorners[2];
 
-                flippedIncidenceCorners[0] = (float)incidenceCorners[1];
-                flippedIncidenceCorners[1] = (float)incidenceCorners[0];
-                flippedIncidenceCorners[2] = (float)incidenceCorners[3];
-                flippedIncidenceCorners[3] = (float)incidenceCorners[2];
+                flippedIncidenceCorners[0] = (float) incidenceCorners[1];
+                flippedIncidenceCorners[1] = (float) incidenceCorners[0];
+                flippedIncidenceCorners[2] = (float) incidenceCorners[3];
+                flippedIncidenceCorners[3] = (float) incidenceCorners[2];
             }
         }
     }
@@ -1081,7 +1080,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 equalElems(AbstractMetadata.NO_METADATA_UTC)) {
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME,
-                    ReaderUtils.getTime(stateVectorElems[1], "timeUTC", standardDateFormat));
+                                          ReaderUtils.getTime(stateVectorElems[1], "timeUTC", standardDateFormat));
         }
     }
 
@@ -1090,20 +1089,20 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         final MetadataElement orbitVectorElem = new MetadataElement(name + num);
 
         orbitVectorElem.setAttributeUTC(AbstractMetadata.orbit_vector_time,
-                ReaderUtils.getTime(srcElem, "timeUTC", standardDateFormat));
+                                        ReaderUtils.getTime(srcElem, "timeUTC", standardDateFormat));
 
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_x_pos,
-                srcElem.getAttributeDouble("posX", 0));
+                                           srcElem.getAttributeDouble("posX", 0));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_y_pos,
-                srcElem.getAttributeDouble("posY", 0));
+                                           srcElem.getAttributeDouble("posY", 0));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_z_pos,
-                srcElem.getAttributeDouble("posZ", 0));
+                                           srcElem.getAttributeDouble("posZ", 0));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_x_vel,
-                srcElem.getAttributeDouble("velX", 0));
+                                           srcElem.getAttributeDouble("velX", 0));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_y_vel,
-                srcElem.getAttributeDouble("velY", 0));
+                                           srcElem.getAttributeDouble("velY", 0));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_z_vel,
-                srcElem.getAttributeDouble("velZ", 0));
+                                           srcElem.getAttributeDouble("velZ", 0));
 
         orbitVectorListElem.addElement(orbitVectorElem);
     }
@@ -1183,14 +1182,14 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         final ProductData.UTC utcTime = absRoot.getAttributeUTC(AbstractMetadata.first_line_time, AbstractMetadata.NO_METADATA_UTC);
         srgrListElem.setAttributeUTC(AbstractMetadata.srgr_coef_time, utcTime);
         AbstractMetadata.addAbstractedAttribute(srgrListElem, AbstractMetadata.ground_range_origin,
-                ProductData.TYPE_FLOAT64, "m", "Ground Range Origin");
+                                                ProductData.TYPE_FLOAT64, "m", "Ground Range Origin");
         AbstractMetadata.setAttribute(srgrListElem, AbstractMetadata.ground_range_origin, 0.0);
 
         for (int i = 0; i <= m; i++) {
             final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + (i + 1));
             srgrListElem.addElement(coefElem);
             AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.srgr_coef,
-                    ProductData.TYPE_FLOAT64, "", "SRGR Coefficient");
+                                                    ProductData.TYPE_FLOAT64, "", "SRGR Coefficient");
             AbstractMetadata.setAttribute(coefElem, AbstractMetadata.srgr_coef, g2sCoef[i]);
         }
     }
@@ -1230,7 +1229,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                     ++cnt;
 
                     AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.dop_coef,
-                            ProductData.TYPE_FLOAT64, "", "Doppler Centroid Coefficient");
+                                                            ProductData.TYPE_FLOAT64, "", "Doppler Centroid Coefficient");
                     AbstractMetadata.setAttribute(coefElem, AbstractMetadata.dop_coef, coefValue);
                 }
             }

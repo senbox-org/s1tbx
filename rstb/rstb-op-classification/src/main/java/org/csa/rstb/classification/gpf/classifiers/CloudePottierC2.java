@@ -20,13 +20,14 @@ import org.csa.rstb.polarimetric.gpf.DualPolOpUtils;
 import org.csa.rstb.polarimetric.gpf.HaAlphaDescriptor;
 import org.csa.rstb.polarimetric.gpf.decompositions.HAlphaC2;
 import org.esa.s1tbx.io.PolBandUtils;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.gpf.Tile;
-import org.esa.snap.gpf.TileIndex;
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.engine_utilities.gpf.TileIndex;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.Map;
 
 /**
@@ -70,7 +71,7 @@ public class CloudePottierC2 extends PolClassifierBase implements PolClassifier 
      *
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
+     * @throws OperatorException If an error occurs during computation of the filtered value.
      */
     public void computeTile(final Band targetBand, final Tile targetTile) {
         final Rectangle targetRectangle = targetTile.getRectangle();

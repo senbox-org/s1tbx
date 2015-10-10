@@ -15,9 +15,9 @@
  */
 package org.esa.s1tbx.insar.rcp.toolviews;
 
-import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.rcp.SnapApp;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;

@@ -16,9 +16,9 @@
 package org.esa.s1tbx.io.orbits;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.datamodel.Orbits;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.dataop.downloadable.ftpUtils;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.dataop.downloadable.ftpUtils;
+import org.esa.snap.engine_utilities.datamodel.Orbits;
 
 import java.io.File;
 import java.util.Map;

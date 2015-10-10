@@ -15,19 +15,19 @@
  */
 package org.esa.s1tbx.insar.gpf.coregistration;
 
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.Tile;
-import org.esa.snap.gpf.TileIndex;
-import org.esa.snap.util.math.MathUtils;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.util.math.MathUtils;
+import org.esa.snap.engine_utilities.gpf.TileIndex;
 
 import javax.media.jai.BorderExtender;
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RasterFactory;
 import javax.media.jai.operator.DFTDescriptor;
-import java.awt.Point;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;

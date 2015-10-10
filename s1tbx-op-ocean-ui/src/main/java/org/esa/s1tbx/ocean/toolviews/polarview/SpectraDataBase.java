@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.ocean.toolviews.polarview;
 
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.datamodel.Product;
 
 import java.text.DecimalFormat;
 

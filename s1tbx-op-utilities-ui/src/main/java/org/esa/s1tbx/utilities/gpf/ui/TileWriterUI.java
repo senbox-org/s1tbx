@@ -16,26 +16,17 @@
 package org.esa.s1tbx.utilities.gpf.ui;
 
 import com.bc.ceres.swing.TableLayout;
-import org.esa.snap.framework.gpf.ui.TargetProductSelector;
-import org.esa.snap.framework.ui.AppContext;
+import org.esa.snap.core.gpf.ui.TargetProductSelector;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
+import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.actions.file.SaveProductAsAction;
-import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.ui.AppContext;
 
-import javax.swing.BorderFactory;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;

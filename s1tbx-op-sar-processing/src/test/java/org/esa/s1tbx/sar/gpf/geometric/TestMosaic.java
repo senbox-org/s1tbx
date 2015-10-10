@@ -1,14 +1,14 @@
 package org.esa.s1tbx.sar.gpf.geometric;
 
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.s1tbx.commons.TestData;
-import org.esa.snap.util.TestUtils;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.engine_utilities.util.TestUtils;
 import org.junit.Test;
 
 import java.io.File;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by lveci on 24/10/2014.

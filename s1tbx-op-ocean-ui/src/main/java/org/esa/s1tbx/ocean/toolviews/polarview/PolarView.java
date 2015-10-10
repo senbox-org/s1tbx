@@ -19,9 +19,9 @@ import org.esa.s1tbx.ocean.toolviews.polarview.polarplot.Axis;
 import org.esa.s1tbx.ocean.toolviews.polarview.polarplot.ColourScale;
 import org.esa.s1tbx.ocean.toolviews.polarview.polarplot.PolarCanvas;
 import org.esa.s1tbx.ocean.toolviews.polarview.polarplot.PolarData;
-import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.graphbuilder.rcp.utils.FileFolderUtils;
 import org.esa.snap.rcp.SnapApp;
 

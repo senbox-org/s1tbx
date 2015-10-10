@@ -1,6 +1,6 @@
 package org.jlinda.core.filtering;
 
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.SLCImage;
@@ -12,7 +12,7 @@ import org.jlinda.core.utils.WeightWindows;
 
 import java.util.logging.Logger;
 
-import static org.jblas.MatrixFunctions.*;
+import static org.jblas.MatrixFunctions.pow;
 
 /**
  * User: pmar@ppolabs.com

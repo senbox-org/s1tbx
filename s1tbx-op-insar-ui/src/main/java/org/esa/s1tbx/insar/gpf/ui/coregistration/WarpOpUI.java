@@ -16,11 +16,11 @@
 package org.esa.s1tbx.insar.gpf.ui.coregistration;
 
 import org.esa.s1tbx.insar.gpf.coregistration.WarpOp;
-import org.esa.snap.framework.ui.AppContext;
-import org.esa.snap.gpf.InputProductValidator;
+import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
+import org.esa.snap.ui.AppContext;
 
 import javax.swing.*;
 import java.awt.*;

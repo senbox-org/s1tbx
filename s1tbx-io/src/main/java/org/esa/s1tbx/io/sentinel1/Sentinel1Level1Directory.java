@@ -18,25 +18,24 @@ package org.esa.s1tbx.io.sentinel1;
 import org.esa.s1tbx.io.SARReader;
 import org.esa.s1tbx.io.XMLProductDirectory;
 import org.esa.s1tbx.io.imageio.ImageIOFile;
-import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.datamodel.Unit;
-import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
-import org.esa.snap.eo.Constants;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.GeoCoding;
-import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.TiePointGeoCoding;
-import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.framework.dataop.maptransf.Datum;
-import org.esa.snap.gpf.OperatorUtils;
-import org.esa.snap.gpf.ReaderUtils;
-import org.esa.snap.framework.dataop.downloadable.XMLSupport;
-import org.esa.snap.util.io.FileUtils;
-import org.esa.snap.util.math.MathUtils;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.TiePointGeoCoding;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.dataop.downloadable.XMLSupport;
+import org.esa.snap.core.util.io.FileUtils;
+import org.esa.snap.core.util.math.MathUtils;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.datamodel.metadata.AbstractMetadataIO;
+import org.esa.snap.engine_utilities.eo.Constants;
+import org.esa.snap.engine_utilities.gpf.OperatorUtils;
+import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
@@ -73,19 +72,19 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
     }
 
     protected void addImageFile(final String imgPath) throws IOException {
-        final String name = imgPath.substring(imgPath.lastIndexOf('/')+1, imgPath.length()).toLowerCase();
+        final String name = imgPath.substring(imgPath.lastIndexOf('/') + 1, imgPath.length()).toLowerCase();
         if ((name.endsWith("tiff"))) {
             final InputStream inStream = getInputStream(imgPath);
 
             final ImageInputStream imgStream = ImageIOFile.createImageInputStream(inStream);
 
             final ImageIOFile img;
-            if(isSLC()) {
+            if (isSLC()) {
                 img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream),
-                        1, 1, ProductData.TYPE_INT32);
+                                      1, 1, ProductData.TYPE_INT32);
             } else {
                 img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream),
-                        1, 1, ProductData.TYPE_INT32);
+                                      1, 1, ProductData.TYPE_INT32);
             }
             bandImageFileMap.put(img.getName(), img);
         }
@@ -341,7 +340,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         int numBands = 0;
         final String annotFolder = getRootFolder() + "annotation";
         final String[] filenames = listFiles(annotFolder);
-        if(filenames != null) {
+        if (filenames != null) {
             for (String metadataFile : filenames) {
 
                 final Document xmlDoc = XMLSupport.LoadXML(getInputStream(annotFolder + '/' + metadataFile));
@@ -370,7 +369,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.first_line_time, startTime);
                 AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.last_line_time, stopTime);
 
-                if(AbstractMetadata.isNoData(absRoot, AbstractMetadata.mds1_tx_rx_polar)) {
+                if (AbstractMetadata.isNoData(absRoot, AbstractMetadata.mds1_tx_rx_polar)) {
                     AbstractMetadata.setAttribute(absRoot, AbstractMetadata.mds1_tx_rx_polar, pol);
                 } else {
                     AbstractMetadata.setAttribute(absRoot, AbstractMetadata.mds2_tx_rx_polar, pol);
@@ -456,9 +455,9 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
 
         // set average to absRoot
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing,
-                rangeSpacingTotal / (double) numBands);
+                                      rangeSpacingTotal / (double) numBands);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
-                azimuthSpacingTotal / (double) numBands);
+                                      azimuthSpacingTotal / (double) numBands);
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.avg_scene_height, heightSum / filenames.length);
     }
@@ -471,7 +470,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
 
         final MetadataElement[] heightList = terrainHeightList.getElements();
         int cnt = 0;
-        for(MetadataElement terrainHeight : heightList) {
+        for (MetadataElement terrainHeight : heightList) {
             heightSum += terrainHeight.getAttributeDouble("value");
             ++cnt;
         }
@@ -485,10 +484,10 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
             calibrationElement = new MetadataElement("calibration");
             origProdRoot.addElement(calibrationElement);
         }
-        final String calibFolder = getRootFolder() + "annotation" +'/'+"calibration";
+        final String calibFolder = getRootFolder() + "annotation" + '/' + "calibration";
         final String[] filenames = listFiles(calibFolder);
 
-        if(filenames != null) {
+        if (filenames != null) {
             for (String metadataFile : filenames) {
                 if (metadataFile.startsWith("calibration")) {
 
@@ -510,10 +509,10 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
             noiseElement = new MetadataElement("noise");
             origProdRoot.addElement(noiseElement);
         }
-        final String calibFolder = getRootFolder() + "annotation" +'/'+"calibration";
+        final String calibFolder = getRootFolder() + "annotation" + '/' + "calibration";
         final String[] filenames = listFiles(calibFolder);
 
-        if(filenames != null) {
+        if (filenames != null) {
             for (String metadataFile : filenames) {
                 if (metadataFile.startsWith("noise")) {
 
@@ -560,7 +559,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 equalElems(AbstractMetadata.NO_METADATA_UTC)) {
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME,
-                    ReaderUtils.getTime(stateVectorElems[0], "time", standardDateFormat));
+                                          ReaderUtils.getTime(stateVectorElems[0], "time", standardDateFormat));
         }
     }
 
@@ -572,20 +571,20 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         final MetadataElement velocityElem = orbitElem.getElement("velocity");
 
         orbitVectorElem.setAttributeUTC(AbstractMetadata.orbit_vector_time,
-                ReaderUtils.getTime(orbitElem, "time", standardDateFormat));
+                                        ReaderUtils.getTime(orbitElem, "time", standardDateFormat));
 
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_x_pos,
-                positionElem.getAttributeDouble("x", 0));
+                                           positionElem.getAttributeDouble("x", 0));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_y_pos,
-                positionElem.getAttributeDouble("y", 0));
+                                           positionElem.getAttributeDouble("y", 0));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_z_pos,
-                positionElem.getAttributeDouble("z", 0));
+                                           positionElem.getAttributeDouble("z", 0));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_x_vel,
-                velocityElem.getAttributeDouble("x", 0));
+                                           velocityElem.getAttributeDouble("x", 0));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_y_vel,
-                velocityElem.getAttributeDouble("y", 0));
+                                           velocityElem.getAttributeDouble("y", 0));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_z_vel,
-                velocityElem.getAttributeDouble("z", 0));
+                                           velocityElem.getAttributeDouble("z", 0));
 
         orbitVectorListElem.addElement(orbitVectorElem);
     }
@@ -608,7 +607,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
 
             final double grOrigin = elem.getAttributeDouble("gr0", 0);
             AbstractMetadata.addAbstractedAttribute(srgrListElem, AbstractMetadata.ground_range_origin,
-                    ProductData.TYPE_FLOAT64, "m", "Ground Range Origin");
+                                                    ProductData.TYPE_FLOAT64, "m", "Ground Range Origin");
             AbstractMetadata.setAttribute(srgrListElem, AbstractMetadata.ground_range_origin, grOrigin);
 
             final String coeffStr = elem.getElement("grsrCoefficients").getAttributeString("grsrCoefficients", "");
@@ -622,7 +621,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                     srgrListElem.addElement(coefElem);
                     ++cnt;
                     AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.srgr_coef,
-                            ProductData.TYPE_FLOAT64, "", "SRGR Coefficient");
+                                                            ProductData.TYPE_FLOAT64, "", "SRGR Coefficient");
                     AbstractMetadata.setAttribute(coefElem, AbstractMetadata.srgr_coef, coefValue);
                 }
             }
@@ -648,7 +647,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
 
             final double refTime = elem.getAttributeDouble("t0", 0) * 1e9; // s to ns
             AbstractMetadata.addAbstractedAttribute(dopplerListElem, AbstractMetadata.slant_range_time,
-                    ProductData.TYPE_FLOAT64, "ns", "Slant Range Time");
+                                                    ProductData.TYPE_FLOAT64, "ns", "Slant Range Time");
             AbstractMetadata.setAttribute(dopplerListElem, AbstractMetadata.slant_range_time, refTime);
 
             final String coeffStr = elem.getElement("geometryDcPolynomial").getAttributeString("geometryDcPolynomial", "");
@@ -662,7 +661,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                     dopplerListElem.addElement(coefElem);
                     ++cnt;
                     AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.dop_coef,
-                            ProductData.TYPE_FLOAT64, "", "Doppler Centroid Coefficient");
+                                                            ProductData.TYPE_FLOAT64, "", "Doppler Centroid Coefficient");
                     AbstractMetadata.setAttribute(coefElem, AbstractMetadata.dop_coef, coefValue);
                 }
             }
@@ -677,7 +676,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         if (latGrid != null && lonGrid != null) {
             setLatLongMetadata(product, latGrid, lonGrid);
 
-            final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
+            final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
             product.setGeoCoding(tpGeoCoding);
             return;
         }
@@ -734,8 +733,8 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         lastSWBandGeoCoding.getGeoPos(urPix, urGeo);
         lastSWBandGeoCoding.getGeoPos(lrPix, lrGeo);
 
-        final float[] latCorners = {(float)ulGeo.getLat(), (float)urGeo.getLat(), (float)llGeo.getLat(), (float)lrGeo.getLat()};
-        final float[] lonCorners = {(float)ulGeo.getLon(), (float)urGeo.getLon(), (float)llGeo.getLon(), (float)lrGeo.getLon()};
+        final float[] latCorners = {(float) ulGeo.getLat(), (float) urGeo.getLat(), (float) llGeo.getLat(), (float) lrGeo.getLat()};
+        final float[] lonCorners = {(float) ulGeo.getLon(), (float) urGeo.getLon(), (float) llGeo.getLon(), (float) lrGeo.getLon()};
 
         ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
 
@@ -775,7 +774,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         if (existingLatTPG != null && existingLonTPG != null) {
             //System.out.println("for band = " + band.getName() + ", use existing TPG");
             // reuse geocoding
-            final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(existingLatTPG, existingLonTPG, Datum.WGS_84);
+            final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(existingLatTPG, existingLonTPG);
             band.setGeoCoding(tpGeoCoding);
             return;
         }
@@ -836,24 +835,24 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         final double subSamplingY = (double) sceneRasterHeight / (newGridHeight - 1);
 
         getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, x, y, latList,
-                newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLatList);
+                                  newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLatList);
 
         getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, x, y, lngList,
-                newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLonList);
+                                  newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLonList);
 
         getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, x, y, incidenceAngleList,
-                newGridWidth, newGridHeight, subSamplingX, subSamplingY, newIncList);
+                                  newGridWidth, newGridHeight, subSamplingX, subSamplingY, newIncList);
 
         getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, x, y, elevAngleList,
-                newGridWidth, newGridHeight, subSamplingX, subSamplingY, newElevList);
+                                  newGridWidth, newGridHeight, subSamplingX, subSamplingY, newElevList);
 
         getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, x, y, rangeTimeList,
-                newGridWidth, newGridHeight, subSamplingX, subSamplingY, newslrtList);
+                                  newGridWidth, newGridHeight, subSamplingX, subSamplingY, newslrtList);
 
         TiePointGrid latGrid = product.getTiePointGrid(pre + OperatorUtils.TPG_LATITUDE);
         if (latGrid == null) {
             latGrid = new TiePointGrid(pre + OperatorUtils.TPG_LATITUDE,
-                    newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLatList);
+                                       newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLatList);
             latGrid.setUnit(Unit.DEGREES);
             product.addTiePointGrid(latGrid);
         }
@@ -861,33 +860,33 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         TiePointGrid lonGrid = product.getTiePointGrid(pre + OperatorUtils.TPG_LONGITUDE);
         if (lonGrid == null) {
             lonGrid = new TiePointGrid(pre + OperatorUtils.TPG_LONGITUDE,
-                    newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLonList, TiePointGrid.DISCONT_AT_180);
+                                       newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLonList, TiePointGrid.DISCONT_AT_180);
             lonGrid.setUnit(Unit.DEGREES);
             product.addTiePointGrid(lonGrid);
         }
 
         if (product.getTiePointGrid(pre + OperatorUtils.TPG_INCIDENT_ANGLE) == null) {
             final TiePointGrid incidentAngleGrid = new TiePointGrid(pre + OperatorUtils.TPG_INCIDENT_ANGLE,
-                    newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newIncList);
+                                                                    newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newIncList);
             incidentAngleGrid.setUnit(Unit.DEGREES);
             product.addTiePointGrid(incidentAngleGrid);
         }
 
         if (product.getTiePointGrid(pre + OperatorUtils.TPG_ELEVATION_ANGLE) == null) {
             final TiePointGrid elevAngleGrid = new TiePointGrid(pre + OperatorUtils.TPG_ELEVATION_ANGLE,
-                    newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newElevList);
+                                                                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newElevList);
             elevAngleGrid.setUnit(Unit.DEGREES);
             product.addTiePointGrid(elevAngleGrid);
         }
 
         if (product.getTiePointGrid(pre + OperatorUtils.TPG_SLANT_RANGE_TIME) == null) {
             final TiePointGrid slantRangeGrid = new TiePointGrid(pre + OperatorUtils.TPG_SLANT_RANGE_TIME,
-                    newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newslrtList);
+                                                                 newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newslrtList);
             slantRangeGrid.setUnit(Unit.NANOSECONDS);
             product.addTiePointGrid(slantRangeGrid);
         }
 
-        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
+        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
         bandGeocodingMap.put(band, tpGeoCoding);
     }
 
@@ -982,11 +981,11 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 }
                 final double wi = (newX - oldX0) / (oldX1 - oldX0);
 
-                targetPointList[k++] = (float)(MathUtils.interpolate2D(wi, wj,
-                        sourcePointList[i0 + j0 * sourceGridWidth],
-                        sourcePointList[i1 + j0 * sourceGridWidth],
-                        sourcePointList[i0 + j1 * sourceGridWidth],
-                        sourcePointList[i1 + j1 * sourceGridWidth]));
+                targetPointList[k++] = (float) (MathUtils.interpolate2D(wi, wj,
+                                                                        sourcePointList[i0 + j0 * sourceGridWidth],
+                                                                        sourcePointList[i1 + j0 * sourceGridWidth],
+                                                                        sourcePointList[i0 + j1 * sourceGridWidth],
+                                                                        sourcePointList[i1 + j1 * sourceGridWidth]));
             }
         }
     }

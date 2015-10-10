@@ -1,8 +1,8 @@
 package org.esa.s1tbx.insar.gpf.coregistration;
 
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Placemark;
-import org.esa.snap.framework.datamodel.ProductNodeGroup;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Placemark;
+import org.esa.snap.core.datamodel.ProductNodeGroup;
 
 import java.util.HashMap;
 import java.util.Map;

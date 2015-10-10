@@ -15,9 +15,9 @@
  */
 package org.esa.s1tbx.insar.rcp.dialogs;
 
-import org.jlinda.core.SLCImage;
-import org.jlinda.core.Orbit;
 import com.bc.ceres.core.ProgressMonitor;
+import org.jlinda.core.Orbit;
+import org.jlinda.core.SLCImage;
 
 /**
  * Interface to selecting an optimal master for insar

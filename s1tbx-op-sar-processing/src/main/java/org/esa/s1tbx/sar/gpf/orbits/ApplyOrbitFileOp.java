@@ -21,29 +21,28 @@ import org.esa.s1tbx.io.orbits.DorisOrbitFile;
 import org.esa.s1tbx.io.orbits.OrbitFile;
 import org.esa.s1tbx.io.orbits.PrareOrbitFile;
 import org.esa.s1tbx.io.orbits.SentinelPODOrbitFile;
-import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.datamodel.OrbitStateVector;
-import org.esa.snap.datamodel.Orbits;
-import org.esa.snap.datamodel.Unit;
-import org.esa.snap.eo.Constants;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.TiePointGeoCoding;
-import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.framework.datamodel.VirtualBand;
-import org.esa.snap.framework.dataop.maptransf.Datum;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.framework.gpf.Tile;
-import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
-import org.esa.snap.framework.gpf.annotations.Parameter;
-import org.esa.snap.framework.gpf.annotations.SourceProduct;
-import org.esa.snap.framework.gpf.annotations.TargetProduct;
-import org.esa.snap.gpf.OperatorUtils;
-import org.esa.snap.util.ProductUtils;
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.TiePointGeoCoding;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.gpf.annotations.OperatorMetadata;
+import org.esa.snap.core.gpf.annotations.Parameter;
+import org.esa.snap.core.gpf.annotations.SourceProduct;
+import org.esa.snap.core.gpf.annotations.TargetProduct;
+import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.datamodel.OrbitStateVector;
+import org.esa.snap.engine_utilities.datamodel.Orbits;
+import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.eo.Constants;
+import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.jlinda.core.Ellipsoid;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;
@@ -53,9 +52,9 @@ import java.io.File;
 
 /**
  * This operator applies orbit file to a given product.
- * <p/>
+ * <p>
  * The following major processing steps are implemented:
- * <p/>
+ * <p>
  * 1. Get orbit file with valid time period and user specified orbit file type.
  * 2. Get the old tie point grid of the source image: latitude, longitude, slant range time and incidence angle.
  * 3. Repeat the following steps for each new tie point in the new tie point grid:
@@ -91,10 +90,10 @@ public final class ApplyOrbitFileOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(valueSet = {SentinelPODOrbitFile.PRECISE+" (Auto Download)", SentinelPODOrbitFile.RESTITUTED+" (Auto Download)",
-            DorisOrbitFile.DORIS_POR + " (ENVISAT)", DorisOrbitFile.DORIS_VOR + " (ENVISAT)"+" (Auto Download)",
-            DelftOrbitFile.DELFT_PRECISE + " (ENVISAT, ERS1&2)" +" (Auto Download)", PrareOrbitFile.PRARE_PRECISE + " (ERS1&2)"+" (Auto Download)"},
-            defaultValue = SentinelPODOrbitFile.PRECISE+" (Auto Download)", label = "Orbit State Vectors")
+    @Parameter(valueSet = {SentinelPODOrbitFile.PRECISE + " (Auto Download)", SentinelPODOrbitFile.RESTITUTED + " (Auto Download)",
+            DorisOrbitFile.DORIS_POR + " (ENVISAT)", DorisOrbitFile.DORIS_VOR + " (ENVISAT)" + " (Auto Download)",
+            DelftOrbitFile.DELFT_PRECISE + " (ENVISAT, ERS1&2)" + " (Auto Download)", PrareOrbitFile.PRARE_PRECISE + " (ERS1&2)" + " (Auto Download)"},
+            defaultValue = SentinelPODOrbitFile.PRECISE + " (Auto Download)", label = "Orbit State Vectors")
     private String orbitType = null;
 
     @Parameter(label = "Polynomial Degree", defaultValue = "3")
@@ -128,14 +127,14 @@ public final class ApplyOrbitFileOp extends Operator {
 
     /**
      * Initializes this operator and sets the one and only target product.
-     * <p>The target product can be either defined by a field of type {@link org.esa.snap.framework.datamodel.Product} annotated with the
-     * {@link org.esa.snap.framework.gpf.annotations.TargetProduct TargetProduct} annotation or
+     * <p>The target product can be either defined by a field of type {@link Product} annotated with the
+     * {@link TargetProduct TargetProduct} annotation or
      * by calling {@link #setTargetProduct} method.</p>
      * <p>The framework calls this method after it has created this operator.
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during operator initialisation.
+     * @throws OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -155,24 +154,24 @@ public final class ApplyOrbitFileOp extends Operator {
                     throw new OperatorException("Please select an orbit file type");
                 }
             }
-            if(mission.equals("ENVISAT")) {
+            if (mission.equals("ENVISAT")) {
                 if (!orbitType.startsWith(DelftOrbitFile.DELFT_PRECISE) && !orbitType.startsWith(DorisOrbitFile.DORIS_POR) &&
                         !orbitType.startsWith(DorisOrbitFile.DORIS_VOR)) {
                     //throw new OperatorException(orbitType + " is not suitable for an ENVISAT product");
                     orbitType = DorisOrbitFile.DORIS_VOR;
                 }
-            } else if(mission.startsWith("ERS")) {
-                    if (!orbitType.startsWith(DelftOrbitFile.DELFT_PRECISE) && !orbitType.startsWith(PrareOrbitFile.PRARE_PRECISE)) {
-                        //throw new OperatorException(orbitType + " is not suitable for an ERS1 product");
-                        orbitType = PrareOrbitFile.PRARE_PRECISE;
-                    }
-            } else if(mission.startsWith("SENTINEL")) {
+            } else if (mission.startsWith("ERS")) {
+                if (!orbitType.startsWith(DelftOrbitFile.DELFT_PRECISE) && !orbitType.startsWith(PrareOrbitFile.PRARE_PRECISE)) {
+                    //throw new OperatorException(orbitType + " is not suitable for an ERS1 product");
+                    orbitType = PrareOrbitFile.PRARE_PRECISE;
+                }
+            } else if (mission.startsWith("SENTINEL")) {
                 if (!orbitType.startsWith("Sentinel")) {
                     //throw new OperatorException(orbitType + " is not suitable for an ERS1 product");
                     orbitType = SentinelPODOrbitFile.PRECISE;
                 }
             } else {
-                    throw new OperatorException(orbitType + " is not suitable for a " + mission + " product");
+                throw new OperatorException(orbitType + " is not suitable for a " + mission + " product");
             }
 
             if (orbitType.contains("DORIS")) {
@@ -189,12 +188,12 @@ public final class ApplyOrbitFileOp extends Operator {
 
             createTargetProduct();
 
-            if(!productUpdated) {
+            if (!productUpdated) {
                 try {
                     updateOrbits();
                 } catch (Exception e) {
-                    if(continueOnFail != null && continueOnFail) {
-                        SystemUtils.LOG.warning("ApplyOrbit ignoring error and continuing: "+e.toString());
+                    if (continueOnFail != null && continueOnFail) {
+                        SystemUtils.LOG.warning("ApplyOrbit ignoring error and continuing: " + e.toString());
                         productUpdated = true;
                     } else {
                         throw e;
@@ -237,9 +236,9 @@ public final class ApplyOrbitFileOp extends Operator {
     void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName(),
-                sourceProduct.getProductType(),
-                sourceProduct.getSceneRasterWidth(),
-                sourceProduct.getSceneRasterHeight());
+                                    sourceProduct.getProductType(),
+                                    sourceProduct.getSceneRasterWidth(),
+                                    sourceProduct.getSceneRasterHeight());
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
@@ -261,12 +260,12 @@ public final class ApplyOrbitFileOp extends Operator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during computation of the target raster.
+     * @throws OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         try {
-            if(!productUpdated) {
+            if (!productUpdated) {
                 updateOrbits();
             }
 
@@ -278,14 +277,14 @@ public final class ApplyOrbitFileOp extends Operator {
     }
 
     private synchronized void updateOrbits() throws Exception {
-        if(productUpdated)
+        if (productUpdated)
             return;
 
         orbitProvider.retrieveOrbitFile();
 
         updateOrbitStateVectors();
 
-        if(!(orbitProvider instanceof SentinelPODOrbitFile)) {
+        if (!(orbitProvider instanceof SentinelPODOrbitFile)) {
             updateTargetProductGEOCodingJLinda();
         }
 
@@ -404,31 +403,31 @@ public final class ApplyOrbitFileOp extends Operator {
                 final double lat = refGeoPoint[0] * Constants.RTOD;
                 final double lon = refGeoPoint[1] * Constants.RTOD;
 
-                targetIncidenceAngleTiePoints[k] = (float)(incAngle * Constants.RTOD);
-                targetSlantRangeTimeTiePoints[k] = (float)slantRangeTime;
-                targetLatTiePoints[k] = (float)lat;
-                targetLonTiePoints[k] = (float)lon;
+                targetIncidenceAngleTiePoints[k] = (float) (incAngle * Constants.RTOD);
+                targetSlantRangeTimeTiePoints[k] = (float) slantRangeTime;
+                targetLatTiePoints[k] = (float) lat;
+                targetLonTiePoints[k] = (float) lon;
                 k++;
             }
         }
 
         final TiePointGrid angleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE, targetTiePointGridWidth, targetTiePointGridHeight,
-                0.0f, 0.0f, subSamplingX, subSamplingY, targetIncidenceAngleTiePoints);
+                                                        0.0f, 0.0f, subSamplingX, subSamplingY, targetIncidenceAngleTiePoints);
         angleGrid.setUnit(Unit.DEGREES);
 
         final TiePointGrid slrgtGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME, targetTiePointGridWidth, targetTiePointGridHeight,
-                0.0f, 0.0f, subSamplingX, subSamplingY, targetSlantRangeTimeTiePoints);
+                                                        0.0f, 0.0f, subSamplingX, subSamplingY, targetSlantRangeTimeTiePoints);
         slrgtGrid.setUnit(Unit.NANOSECONDS);
 
         final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, targetTiePointGridWidth, targetTiePointGridHeight,
-                0.0f, 0.0f, subSamplingX, subSamplingY, targetLatTiePoints);
+                                                      0.0f, 0.0f, subSamplingX, subSamplingY, targetLatTiePoints);
         latGrid.setUnit(Unit.DEGREES);
 
         final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE, targetTiePointGridWidth, targetTiePointGridHeight,
-                0.0f, 0.0f, subSamplingX, subSamplingY, targetLonTiePoints, TiePointGrid.DISCONT_AT_180);
+                                                      0.0f, 0.0f, subSamplingX, subSamplingY, targetLonTiePoints, TiePointGrid.DISCONT_AT_180);
         lonGrid.setUnit(Unit.DEGREES);
 
-        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
+        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
 
         for (TiePointGrid tpg : targetProduct.getTiePointGrids()) {
             targetProduct.removeTiePointGrid(tpg);
@@ -447,8 +446,8 @@ public final class ApplyOrbitFileOp extends Operator {
      * {@code META-INF/services/org.esa.snap.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
      *
-     * @see org.esa.snap.framework.gpf.OperatorSpi#createOperator()
-     * @see org.esa.snap.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
+     * @see OperatorSpi#createOperator()
+     * @see OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */
     public static class Spi extends OperatorSpi {
         public Spi() {

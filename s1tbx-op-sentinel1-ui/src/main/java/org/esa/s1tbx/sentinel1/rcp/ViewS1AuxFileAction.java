@@ -15,13 +15,13 @@
  */
 package org.esa.s1tbx.sentinel1.rcp;
 
-import org.esa.snap.framework.ui.ModalDialog;
-import org.esa.snap.framework.ui.SnapFileChooser;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.rcp.actions.AbstractSnapAction;
-import org.esa.snap.util.SystemUtils;
-import org.esa.snap.util.io.SnapFileFilter;
+import org.esa.snap.ui.ModalDialog;
+import org.esa.snap.ui.SnapFileChooser;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;

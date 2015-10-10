@@ -17,25 +17,25 @@ package org.esa.s1tbx.sar.gpf.filtering;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
-import org.esa.snap.datamodel.Unit;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.VirtualBand;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.framework.gpf.Tile;
-import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
-import org.esa.snap.framework.gpf.annotations.Parameter;
-import org.esa.snap.framework.gpf.annotations.SourceProduct;
-import org.esa.snap.framework.gpf.annotations.TargetProduct;
-import org.esa.snap.gpf.InputProductValidator;
-import org.esa.snap.gpf.OperatorUtils;
-import org.esa.snap.gpf.TileIndex;
-import org.esa.snap.util.ProductUtils;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.gpf.annotations.OperatorMetadata;
+import org.esa.snap.core.gpf.annotations.Parameter;
+import org.esa.snap.core.gpf.annotations.SourceProduct;
+import org.esa.snap.core.gpf.annotations.TargetProduct;
+import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.gpf.InputProductValidator;
+import org.esa.snap.engine_utilities.gpf.OperatorUtils;
+import org.esa.snap.engine_utilities.gpf.TileIndex;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -127,14 +127,14 @@ public class SpeckleFilterOp extends Operator {
 
     /**
      * Initializes this operator and sets the one and only target product.
-     * <p>The target product can be either defined by a field of type {@link org.esa.snap.framework.datamodel.Product} annotated with the
-     * {@link org.esa.snap.framework.gpf.annotations.TargetProduct TargetProduct} annotation or
+     * <p>The target product can be either defined by a field of type {@link Product} annotated with the
+     * {@link TargetProduct TargetProduct} annotation or
      * by calling {@link #setTargetProduct} method.</p>
      * <p>The framework calls this method after it has created this operator.
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during operator initialisation.
+     * @throws OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -205,7 +205,7 @@ public class SpeckleFilterOp extends Operator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during computation of the target raster.
+     * @throws OperatorException If an error occurs during computation of the target raster.
      */
     @Override
 
@@ -365,7 +365,7 @@ public class SpeckleFilterOp extends Operator {
      * @param ty0            Y coordinate for the upper-left point of the target_Tile_Rectangle.
      * @param tw             Width for the target_Tile_Rectangle.
      * @param th             Height for the target_Tile_Rectangle.
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
+     * @throws OperatorException If an error occurs during computation of the filtered value.
      */
     private void computeMean(final ProductData srcData1, final ProductData srcData2, final ProductData trgData,
                              final double noDataValue, final Unit.UnitType unit, final double[] neighborValues,
@@ -407,7 +407,7 @@ public class SpeckleFilterOp extends Operator {
      * @param y0             Y coordinate for the upper-left point of the target_Tile_Rectangle.
      * @param w              Width for the target_Tile_Rectangle.
      * @param h              Height for the target_Tile_Rectangle.
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
+     * @throws OperatorException If an error occurs during computation of the filtered value.
      */
     private void computeMedian(final ProductData srcData1, final ProductData srcData2, final ProductData trgData,
                                final double noDataValue, final Unit.UnitType unit, final double[] neighborValues,
@@ -449,7 +449,7 @@ public class SpeckleFilterOp extends Operator {
      * @param y0             Y coordinate for the upper-left point of the target_Tile_Rectangle.
      * @param w              Width for the target_Tile_Rectangle.
      * @param h              Height for the target_Tile_Rectangle.
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
+     * @throws OperatorException If an error occurs during computation of the filtered value.
      */
     private void computeFrost(final ProductData srcData1, final ProductData srcData2, final ProductData trgData,
                               final double noDataValue, final Unit.UnitType unit, final double[] neighborValues,
@@ -494,7 +494,7 @@ public class SpeckleFilterOp extends Operator {
      * @param y0             Y coordinate for the upper-left point of the target_Tile_Rectangle.
      * @param w              Width for the target_Tile_Rectangle.
      * @param h              Height for the target_Tile_Rectangle.
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
+     * @throws OperatorException If an error occurs during computation of the filtered value.
      */
     private void computeGammaMap(final ProductData srcData1, final ProductData srcData2, final ProductData trgData,
                                  final double noDataValue, final Unit.UnitType unit, final double[] neighborValues,
@@ -537,7 +537,7 @@ public class SpeckleFilterOp extends Operator {
      * @param y0             Y coordinate for the upper-left point of the target_Tile_Rectangle.
      * @param w              Width for the target_Tile_Rectangle.
      * @param h              Height for the target_Tile_Rectangle.
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
+     * @throws OperatorException If an error occurs during computation of the filtered value.
      */
     private void computeLee(final ProductData srcData1, final ProductData srcData2, final ProductData trgData,
                             final double noDataValue, final Unit.UnitType unit, final double[] neighborValues,
@@ -577,7 +577,7 @@ public class SpeckleFilterOp extends Operator {
      * @param isComplex      has i and q or not
      * @param neighborValues Array holding the pixel values.
      * @return The number of valid samples.
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs in obtaining the pixel values.
+     * @throws OperatorException If an error occurs in obtaining the pixel values.
      */
     private int getNeighborValues(final int tx, final int ty, final ProductData srcData1, final ProductData srcData2,
                                   final TileIndex srcIndex, final double noDataValue, final boolean isComplex,
@@ -674,7 +674,7 @@ public class SpeckleFilterOp extends Operator {
      * @param mean           the mean of neighborValues.
      * @param noDataValue    Place holder for no data value.
      * @return var The variance value.
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs in computation of the variance.
+     * @throws OperatorException If an error occurs in computation of the variance.
      */
     private static double getVarianceValue(
             final double[] neighborValues, final int numSamples, final double mean, final double noDataValue) {
@@ -701,7 +701,7 @@ public class SpeckleFilterOp extends Operator {
      * @param numSamples     The number of samples.
      * @param noDataValue    Place holder for no data value.
      * @return median The median value.
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs in computation of the median value.
+     * @throws OperatorException If an error occurs in computation of the median value.
      */
     private static double getMedianValue(
             final double[] neighborValues, final int numSamples, final double noDataValue) {
@@ -721,7 +721,7 @@ public class SpeckleFilterOp extends Operator {
      * Get Frost mask for given Frost filter size.
      *
      * @param mask Array holding Frost filter mask values.
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs in computation of the Frost mask.
+     * @throws OperatorException If an error occurs in computation of the Frost mask.
      */
     private void getFrostMask(final double[] mask) {
 
@@ -744,7 +744,7 @@ public class SpeckleFilterOp extends Operator {
      * @param noDataValue    Place holder for no data value.
      * @param mask           Array holding Frost filter mask values.
      * @return val The Frost filtered value.
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs in computation of the Frost filtered value.
+     * @throws OperatorException If an error occurs in computation of the Frost filtered value.
      */
     private double getFrostValue(
             final double[] neighborValues, final int numSamples, final double noDataValue, final double[] mask) {
@@ -780,7 +780,7 @@ public class SpeckleFilterOp extends Operator {
      * @param numSamples     The number of samples.
      * @param noDataValue    Place holder for no data value.
      * @return val The Gamma filtered value.
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs in computation of the Gamma filtered value.
+     * @throws OperatorException If an error occurs in computation of the Gamma filtered value.
      */
     private double getGammaMapValue(final double[] neighborValues, final int numSamples, final double noDataValue,
                                     final double cu, final double cu2, final double enl) {
@@ -822,7 +822,7 @@ public class SpeckleFilterOp extends Operator {
      * @param numSamples     The number of samples.
      * @param noDataValue    Place holder for no data value.
      * @return val The Lee filtered value.
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs in computation of the Lee filtered value.
+     * @throws OperatorException If an error occurs in computation of the Lee filtered value.
      */
     private double getLeeValue(final double[] neighborValues, final int numSamples, final double noDataValue,
                                final double cu, final double cu2) {
@@ -1003,7 +1003,7 @@ public class SpeckleFilterOp extends Operator {
      * @param sourceTileRectangle The source tile rectangle.
      * @param neighborPixelValues 2-D array holding the pixel values.
      * @return The number of valid pixels.
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs in obtaining the pixel values.
+     * @throws OperatorException If an error occurs in obtaining the pixel values.
      */
     private int getNeighborValuesWithoutBorderExt(final int x, final int y, final ProductData srcData1,
                                                   final ProductData srcData2, final TileIndex srcIndex,

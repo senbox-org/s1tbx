@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.commons;
 
-import org.esa.snap.gpf.TestProcessor;
+import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.esa.snap.runtime.Config;
 
 import java.io.File;

@@ -18,9 +18,9 @@ package org.esa.s1tbx.io.ceos;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.io.binary.BinaryFileReader;
 import org.esa.s1tbx.io.binary.BinaryRecord;
-import org.esa.snap.eo.Constants;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.engine_utilities.eo.Constants;
 
 import java.io.File;
 import java.io.IOException;

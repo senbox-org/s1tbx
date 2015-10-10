@@ -8,11 +8,11 @@ import org.ejml.data.RowD1Matrix64F;
 import org.ejml.factory.LinearSolver;
 import org.ejml.factory.LinearSolverFactory;
 import org.ejml.ops.CommonOps;
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.Placemark;
-import org.esa.snap.framework.datamodel.ProductNodeGroup;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Placemark;
+import org.esa.snap.core.datamodel.ProductNodeGroup;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.util.SystemUtils;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;
 import org.jlinda.core.SLCImage;
@@ -27,7 +27,10 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.jlinda.core.coregistration.utils.CPMUtils.*;
+import static org.jlinda.core.coregistration.utils.CPMUtils.absArgmax;
+import static org.jlinda.core.coregistration.utils.CPMUtils.diagxmat;
+import static org.jlinda.core.coregistration.utils.CPMUtils.onesEJML;
+import static org.jlinda.core.coregistration.utils.CPMUtils.scaleInputDiag;
 
 public class CPM {
 

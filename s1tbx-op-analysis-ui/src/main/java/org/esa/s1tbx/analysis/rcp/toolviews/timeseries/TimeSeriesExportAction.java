@@ -15,10 +15,10 @@
  */
 package org.esa.s1tbx.analysis.rcp.toolviews.timeseries;
 
-import org.esa.snap.framework.ui.diagram.DiagramGraph;
+import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.runtime.Config;
-import org.esa.snap.util.io.SnapFileFilter;
+import org.esa.snap.ui.diagram.DiagramGraph;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

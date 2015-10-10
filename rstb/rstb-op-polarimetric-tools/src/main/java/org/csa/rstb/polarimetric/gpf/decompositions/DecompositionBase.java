@@ -17,16 +17,15 @@ package org.csa.rstb.polarimetric.gpf.decompositions;
 
 import org.csa.rstb.polarimetric.gpf.PolOpUtils;
 import org.esa.s1tbx.io.PolBandUtils;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.Tile;
-import org.esa.snap.gpf.OperatorUtils;
-import org.esa.snap.framework.dataop.downloadable.StatusProgressMonitor;
-import org.esa.snap.gpf.ThreadManager;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.engine_utilities.gpf.OperatorUtils;
+import org.esa.snap.engine_utilities.gpf.ThreadManager;
 
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import java.awt.*;
 
 /**
  * Base class for polarimetric decompositions
@@ -82,7 +81,7 @@ public class DecompositionBase {
      * @param op       the decomposition operator
      * @param bandList the src band list
      * @return min max values
-     * @throws org.esa.snap.framework.gpf.OperatorException when thread fails
+     * @throws OperatorException when thread fails
      */
     public MinMax computeSpanMinMax(final Operator op, final PolBandUtils.PolSourceBand bandList)
             throws OperatorException {
@@ -197,7 +196,7 @@ public class DecompositionBase {
      *
      * @param op       the decomposition operator
      * @param bandList the src band list
-     * @throws org.esa.snap.framework.gpf.OperatorException when thread fails
+     * @throws OperatorException when thread fails
      */
     protected synchronized void setSpanMinMax(final Operator op, final PolBandUtils.PolSourceBand bandList)
             throws OperatorException {

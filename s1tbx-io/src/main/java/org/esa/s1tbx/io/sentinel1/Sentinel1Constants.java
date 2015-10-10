@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.io.sentinel1;
 
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductData;
 
 import java.io.File;
 import java.text.DateFormat;

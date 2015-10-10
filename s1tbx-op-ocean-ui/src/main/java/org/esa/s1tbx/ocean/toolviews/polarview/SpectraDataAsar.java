@@ -17,11 +17,11 @@ package org.esa.s1tbx.ocean.toolviews.polarview;
 
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.ocean.toolviews.polarview.polarplot.PolarData;
-import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 
 import java.util.ArrayList;
 import java.util.List;

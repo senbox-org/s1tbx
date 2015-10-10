@@ -16,18 +16,18 @@
 package org.esa.s1tbx.insar.gpf.ui.coregistration;
 
 import org.esa.s1tbx.insar.gpf.coregistration.CreateStackOp;
-import org.esa.snap.datamodel.Unit;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.VirtualBand;
-import org.esa.snap.framework.dataop.resamp.ResamplingFactory;
-import org.esa.snap.framework.ui.AppContext;
-import org.esa.snap.gpf.InputProductValidator;
+import org.esa.s1tbx.insar.rcp.dialogs.MasterSelection;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.dataop.resamp.ResamplingFactory;
+import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.OperatorUIUtils;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
-import org.esa.s1tbx.insar.rcp.dialogs.MasterSelection;
+import org.esa.snap.ui.AppContext;
 
 import javax.swing.*;
 import java.awt.*;
@@ -53,7 +53,7 @@ public class CreateStackOpUI extends BaseOperatorUI {
     private final JComboBox resamplingType = new JComboBox(ResamplingFactory.resamplingNames);
 
     private final JComboBox initialOffsetMethod = new JComboBox(new String[] {CreateStackOp.INITIAL_OFFSET_ORBIT,
-            CreateStackOp.INITIAL_OFFSET_GCP});
+            CreateStackOp.INITIAL_OFFSET_GEOLOCATION});
 
     private final JComboBox extent = new JComboBox(new String[]{CreateStackOp.MASTER_EXTENT,
             CreateStackOp.MIN_EXTENT,

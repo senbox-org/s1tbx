@@ -15,11 +15,12 @@
  */
 package org.esa.s1tbx.io.gamma;
 
-import org.esa.snap.framework.dataio.EncodeQualification;
-import org.esa.snap.framework.dataio.ProductWriter;
-import org.esa.snap.framework.dataio.ProductWriterPlugIn;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.util.io.SnapFileFilter;
+import org.esa.snap.core.dataio.AbstractProductWriter;
+import org.esa.snap.core.dataio.EncodeQualification;
+import org.esa.snap.core.dataio.ProductWriter;
+import org.esa.snap.core.dataio.ProductWriterPlugIn;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.util.io.SnapFileFilter;
 
 import java.io.File;
 import java.util.Locale;
@@ -69,7 +70,7 @@ public class GammaProductWriterPlugIn implements ProductWriterPlugIn {
      * <code>InvalidArgumentException</code> in this case).
      *
      * @return an array containing valid output types, never <code>null</code>
-     * @see org.esa.snap.framework.dataio.AbstractProductWriter#writeProductNodes
+     * @see AbstractProductWriter#writeProductNodes
      */
     public Class[] getOutputTypes() {
         return new Class[]{String.class, File.class};

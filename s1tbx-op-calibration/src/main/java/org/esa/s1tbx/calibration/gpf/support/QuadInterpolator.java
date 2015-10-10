@@ -16,9 +16,9 @@
 package org.esa.s1tbx.calibration.gpf.support;
 
 import Jama.Matrix;
-import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.gpf.OperatorUtils;
-import org.esa.snap.util.Maths;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.engine_utilities.gpf.OperatorUtils;
+import org.esa.snap.engine_utilities.util.Maths;
 
 /**
  * Created by IntelliJ IDEA.

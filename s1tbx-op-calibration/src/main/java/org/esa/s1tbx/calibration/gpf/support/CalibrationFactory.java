@@ -22,14 +22,14 @@ import org.esa.s1tbx.calibration.gpf.ERSCalibrator;
 import org.esa.s1tbx.calibration.gpf.Radarsat2Calibrator;
 import org.esa.s1tbx.calibration.gpf.Sentinel1Calibrator;
 import org.esa.s1tbx.calibration.gpf.TerraSARXCalibrator;
-import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.eo.Constants;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.VirtualBand;
-import org.esa.snap.framework.gpf.OperatorException;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.eo.Constants;
 
 /**
  * The abstract base class for all calibration operators intended to be extended by clients.

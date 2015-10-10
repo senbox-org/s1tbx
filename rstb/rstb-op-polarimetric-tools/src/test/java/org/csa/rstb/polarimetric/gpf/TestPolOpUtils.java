@@ -15,7 +15,7 @@
  */
 package org.csa.rstb.polarimetric.gpf;
 
-import org.esa.snap.util.TestUtils;
+import org.esa.snap.engine_utilities.util.TestUtils;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;

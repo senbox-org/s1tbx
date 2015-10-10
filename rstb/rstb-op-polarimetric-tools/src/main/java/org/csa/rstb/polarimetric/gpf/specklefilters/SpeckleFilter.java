@@ -18,13 +18,13 @@ package org.csa.rstb.polarimetric.gpf.specklefilters;
 import org.csa.rstb.polarimetric.gpf.DualPolOpUtils;
 import org.csa.rstb.polarimetric.gpf.PolOpUtils;
 import org.esa.s1tbx.io.PolBandUtils;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.Tile;
-import org.esa.snap.gpf.TileIndex;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.engine_utilities.gpf.TileIndex;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.Map;
 
 /**
@@ -44,7 +44,7 @@ public interface SpeckleFilter {
      *
      * @param neighborValues The pixel values in the given rectangular region.
      * @return mean The mean value.
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs in computation of the mean value.
+     * @throws OperatorException If an error occurs in computation of the mean value.
      */
     default double getMeanValue(final double[] neighborValues) {
 
@@ -63,7 +63,7 @@ public interface SpeckleFilter {
      * @param neighborValues The pixel values in the given rectanglar region.
      * @param mean           of neighbourhood
      * @return var The variance value.
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs in computation of the variance.
+     * @throws OperatorException If an error occurs in computation of the variance.
      */
     default  double getVarianceValue(final double[] neighborValues, final double mean) {
 

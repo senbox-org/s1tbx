@@ -15,17 +15,17 @@
  */
 package org.esa.s1tbx.io.imageio;
 
-import org.esa.snap.framework.dataio.ProductReader;
-import org.esa.snap.framework.datamodel.Product;
 import org.esa.s1tbx.commons.TestData;
-import org.esa.snap.util.TestUtils;
+import org.esa.snap.core.dataio.ProductReader;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.engine_utilities.util.TestUtils;
 import org.junit.Test;
 
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Test ERS CEOS Product Reader.

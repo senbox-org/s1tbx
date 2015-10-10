@@ -15,14 +15,14 @@
  */
 package org.esa.s1tbx.io;
 
-import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.datamodel.Unit;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.gpf.OperatorUtils;
-import org.esa.snap.gpf.StackUtils;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.gpf.OperatorUtils;
+import org.esa.snap.engine_utilities.gpf.StackUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -120,7 +120,7 @@ public class PolBandUtils {
      * @param srcProduct        the input product
      * @param sourceProductType The source product type
      * @return QuadSourceBand[]
-     * @throws org.esa.snap.framework.gpf.OperatorException if sourceProduct is not quad-pol
+     * @throws OperatorException if sourceProduct is not quad-pol
      */
     public static PolSourceBand[] getSourceBands(final Product srcProduct,
                                                   final MATRIX sourceProductType) throws Exception {

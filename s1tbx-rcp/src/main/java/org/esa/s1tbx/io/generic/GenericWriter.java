@@ -16,16 +16,16 @@
 package org.esa.s1tbx.io.generic;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
-import org.esa.snap.framework.dataio.AbstractProductWriter;
-import org.esa.snap.framework.dataio.ProductWriterPlugIn;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.ProductNode;
-import org.esa.snap.framework.datamodel.VirtualBand;
-import org.esa.snap.util.Guardian;
+import org.esa.snap.core.dataio.AbstractProductWriter;
+import org.esa.snap.core.dataio.ProductWriterPlugIn;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductNode;
+import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.util.Guardian;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.datamodel.metadata.AbstractMetadataIO;
 
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;

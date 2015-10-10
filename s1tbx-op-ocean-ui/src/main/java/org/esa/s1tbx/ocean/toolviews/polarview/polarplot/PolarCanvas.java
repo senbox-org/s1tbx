@@ -16,8 +16,8 @@
 package org.esa.s1tbx.ocean.toolviews.polarview.polarplot;
 
 import org.apache.commons.math3.util.FastMath;
-import org.esa.snap.eo.Constants;
-import org.esa.snap.util.Debug;
+import org.esa.snap.core.util.Debug;
+import org.esa.snap.engine_utilities.eo.Constants;
 
 import java.awt.*;
 

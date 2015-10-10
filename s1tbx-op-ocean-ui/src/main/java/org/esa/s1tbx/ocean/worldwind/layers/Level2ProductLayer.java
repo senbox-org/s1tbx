@@ -24,24 +24,33 @@ import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Sector;
-import gov.nasa.worldwind.render.*;
+import gov.nasa.worldwind.render.BasicShapeAttributes;
+import gov.nasa.worldwind.render.DrawContext;
+import gov.nasa.worldwind.render.Material;
+import gov.nasa.worldwind.render.Path;
+import gov.nasa.worldwind.render.Polyline;
+import gov.nasa.worldwind.render.Renderable;
+import gov.nasa.worldwind.render.ScreenAnnotation;
+import gov.nasa.worldwind.render.ShapeAttributes;
 import gov.nasa.worldwind.util.BufferFactory;
 import gov.nasa.worldwind.util.BufferWrapper;
 import gov.nasa.worldwind.util.WWMath;
 import gov.nasa.worldwindx.examples.analytics.AnalyticSurface;
 import gov.nasa.worldwindx.examples.analytics.AnalyticSurfaceAttributes;
 import gov.nasa.worldwindx.examples.util.DirectedPath;
-
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.ocean.toolviews.polarview.OceanSwellTopComponent;
-import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.framework.datamodel.*;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.worldwind.ArrowInfo;
 import org.esa.snap.worldwind.ColorBarLegend;
 import org.esa.snap.worldwind.ProductRenderablesInfo;
-
-import org.esa.snap.rcp.SnapApp;
-import org.esa.snap.util.SystemUtils;
 import org.esa.snap.worldwind.layers.BaseLayer;
 import org.esa.snap.worldwind.layers.WWLayer;
 
@@ -373,7 +382,9 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
             }
 
             theProductRenderablesInfoHash.put(product, productRenderablesInfo);
-            theControlLevel2Panel.setVisible(true);
+            if(theControlLevel2Panel != null) {
+                theControlLevel2Panel.setVisible(true);
+            }
             setComponentVisible(theSelectedComp, wwd);
 
         } catch (Exception e) {

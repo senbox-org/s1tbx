@@ -16,30 +16,29 @@
 package org.esa.s1tbx.sar.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.datamodel.Unit;
-import org.esa.snap.eo.Constants;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.MetadataAttribute;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.TiePointGeoCoding;
-import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.framework.dataop.maptransf.Datum;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.framework.gpf.Tile;
-import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
-import org.esa.snap.framework.gpf.annotations.Parameter;
-import org.esa.snap.framework.gpf.annotations.SourceProduct;
-import org.esa.snap.framework.gpf.annotations.TargetProduct;
-import org.esa.snap.gpf.OperatorUtils;
-import org.esa.snap.gpf.ReaderUtils;
-import org.esa.snap.util.ProductUtils;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataAttribute;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.TiePointGeoCoding;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.gpf.annotations.OperatorMetadata;
+import org.esa.snap.core.gpf.annotations.Parameter;
+import org.esa.snap.core.gpf.annotations.SourceProduct;
+import org.esa.snap.core.gpf.annotations.TargetProduct;
+import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.eo.Constants;
+import org.esa.snap.engine_utilities.gpf.OperatorUtils;
+import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -102,14 +101,14 @@ public final class DeburstWSSOp extends Operator {
 
     /**
      * Initializes this operator and sets the one and only target product.
-     * <p>The target product can be either defined by a field of type {@link org.esa.snap.framework.datamodel.Product} annotated with the
-     * {@link org.esa.snap.framework.gpf.annotations.TargetProduct TargetProduct} annotation or
+     * <p>The target product can be either defined by a field of type {@link Product} annotated with the
+     * {@link TargetProduct TargetProduct} annotation or
      * by calling {@link #setTargetProduct} method.</p>
      * <p>The framework calls this method after it has created this operator.
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during operator initialisation.
+     * @throws OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -126,9 +125,9 @@ public final class DeburstWSSOp extends Operator {
             getSourceMetadata();
 
             targetProduct = new Product(sourceProduct.getName() + "_" + subSwath,
-                    sourceProduct.getProductType(),
-                    targetWidth,
-                    targetHeight);
+                                        sourceProduct.getProductType(),
+                                        targetWidth,
+                                        targetHeight);
 
             targetProduct.setPreferredTileSize(targetWidth, 50);
 
@@ -340,8 +339,8 @@ public final class DeburstWSSOp extends Operator {
         final float[] slantList = new float[length];
         final float[] incList = new float[length];
         for (int i = 0; i < length; ++i) {
-            latList[i] = (float)(lats.get(i) / Constants.oneMillion);
-            lonList[i] = (float)(lons.get(i) / Constants.oneMillion);
+            latList[i] = (float) (lats.get(i) / Constants.oneMillion);
+            lonList[i] = (float) (lons.get(i) / Constants.oneMillion);
             slantList[i] = slant.get(i);
             incList[i] = incidence.get(i);
         }
@@ -349,20 +348,20 @@ public final class DeburstWSSOp extends Operator {
         final int gridWidth = 11;
         final int gridHeight = length / 11;
         final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE,
-                gridWidth, gridHeight, 0, 0,
-                subSamplingX, subSamplingY, latList);
+                                                      gridWidth, gridHeight, 0, 0,
+                                                      subSamplingX, subSamplingY, latList);
         latGrid.setUnit(Unit.DEGREES);
         final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE,
-                gridWidth, gridHeight, 0, 0,
-                subSamplingX, subSamplingY, lonList, TiePointGrid.DISCONT_AT_180);
+                                                      gridWidth, gridHeight, 0, 0,
+                                                      subSamplingX, subSamplingY, lonList, TiePointGrid.DISCONT_AT_180);
         lonGrid.setUnit(Unit.DEGREES);
         final TiePointGrid slantGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME,
-                gridWidth, gridHeight, 0, 0,
-                subSamplingX, subSamplingY, slantList);
+                                                        gridWidth, gridHeight, 0, 0,
+                                                        subSamplingX, subSamplingY, slantList);
         slantGrid.setUnit(Unit.NANOSECONDS);
         final TiePointGrid incGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE,
-                gridWidth, gridHeight, 0, 0,
-                subSamplingX, subSamplingY, incList);
+                                                      gridWidth, gridHeight, 0, 0,
+                                                      subSamplingX, subSamplingY, incList);
         incGrid.setUnit(Unit.DEGREES);
 
         targetProduct.addTiePointGrid(latGrid);
@@ -370,7 +369,7 @@ public final class DeburstWSSOp extends Operator {
         targetProduct.addTiePointGrid(slantGrid);
         targetProduct.addTiePointGrid(incGrid);
 
-        targetProduct.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84));
+        targetProduct.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
     }
 
     private static void addTiePoints(final MetadataElement elem, final String tag, final List<Float> array) {
@@ -434,7 +433,7 @@ public final class DeburstWSSOp extends Operator {
      *
      * @param targetTiles The current tiles to be computed for each target band.
      * @param pm          A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.snap.framework.gpf.OperatorException if an error occurs during computation of the target rasters.
+     * @throws OperatorException if an error occurs during computation of the target rasters.
      */
     @Override
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
@@ -523,7 +522,7 @@ public final class DeburstWSSOp extends Operator {
                 if (!burstLines.isEmpty()) {
 
                     final boolean ok = deburstTile(burstLines, y, targetRectangle.x, maxX, cBand.i, cBand.q,
-                            targetTileI, targetTileQ, targetTileIntensity);
+                                                   targetTileI, targetTileQ, targetTileIntensity);
                     if (!ok)
                         System.out.println("not ok " + y);
                 }
@@ -792,8 +791,8 @@ public final class DeburstWSSOp extends Operator {
      * {@code META-INF/services/org.esa.snap.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
      *
-     * @see org.esa.snap.framework.gpf.OperatorSpi#createOperator()
-     * @see org.esa.snap.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
+     * @see OperatorSpi#createOperator()
+     * @see OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */
     public static class Spi extends OperatorSpi {
         public Spi() {

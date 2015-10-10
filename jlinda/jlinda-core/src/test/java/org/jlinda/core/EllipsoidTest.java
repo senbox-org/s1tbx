@@ -1,6 +1,8 @@
 package org.jlinda.core;
 
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import static org.jlinda.core.Constants.DTOR;
 

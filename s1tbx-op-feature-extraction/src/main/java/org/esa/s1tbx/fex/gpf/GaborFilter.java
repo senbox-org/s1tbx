@@ -22,7 +22,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package org.esa.s1tbx.fex.gpf;
 
 import org.apache.commons.math3.util.FastMath;
-import org.esa.snap.eo.Constants;
+import org.esa.snap.engine_utilities.eo.Constants;
 
 /**
  * Date: May 7, 2010

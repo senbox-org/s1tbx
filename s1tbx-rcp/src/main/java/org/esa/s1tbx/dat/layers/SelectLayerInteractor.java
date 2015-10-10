@@ -19,10 +19,10 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerFilter;
 import com.bc.ceres.glayer.support.LayerUtils;
 import com.bc.ceres.swing.figure.interactions.SelectionInteractor;
-import org.esa.snap.framework.ui.product.ProductSceneView;
 import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.ui.product.ProductSceneView;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.List;
 

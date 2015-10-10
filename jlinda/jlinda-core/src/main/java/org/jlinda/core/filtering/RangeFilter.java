@@ -1,7 +1,7 @@
 package org.jlinda.core.filtering;
 
 import org.apache.commons.math3.util.FastMath;
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.Constants;
@@ -16,7 +16,9 @@ import org.jlinda.core.utils.WeightWindows;
 
 import java.util.logging.Logger;
 
-import static org.jlinda.core.utils.LinearAlgebraUtils.*;
+import static org.jlinda.core.utils.LinearAlgebraUtils.dotmult;
+import static org.jlinda.core.utils.LinearAlgebraUtils.fliplr_inplace;
+import static org.jlinda.core.utils.LinearAlgebraUtils.setdata;
 
 public class RangeFilter extends ProductDataFilter {
 

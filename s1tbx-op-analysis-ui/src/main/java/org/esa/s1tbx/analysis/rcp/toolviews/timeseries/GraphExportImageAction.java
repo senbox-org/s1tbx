@@ -15,11 +15,11 @@
  */
 package org.esa.s1tbx.analysis.rcp.toolviews.timeseries;
 
-import org.esa.snap.framework.ui.SnapFileChooser;
-import org.esa.snap.framework.ui.product.ProductSceneView;
+import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.actions.file.export.AbstractExportImageAction;
-import org.esa.snap.util.io.SnapFileFilter;
+import org.esa.snap.ui.SnapFileChooser;
+import org.esa.snap.ui.product.ProductSceneView;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 

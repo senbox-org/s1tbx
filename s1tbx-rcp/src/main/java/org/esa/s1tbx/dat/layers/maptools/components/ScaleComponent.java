@@ -17,16 +17,13 @@ package org.esa.s1tbx.dat.layers.maptools.components;
 
 import org.esa.s1tbx.dat.graphics.GraphicText;
 import org.esa.s1tbx.dat.layers.ScreenPixelConverter;
-import org.esa.snap.eo.GeoUtils;
-import org.esa.snap.framework.datamodel.GeoCoding;
-import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.engine_utilities.eo.GeoUtils;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Point;
+import java.awt.*;
 
 /**
  * map tools scale component

@@ -15,12 +15,12 @@
  */
 package org.esa.s1tbx.io.binary;
 
-import org.esa.snap.framework.datamodel.MetadataAttribute;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.dataop.downloadable.XMLSupport;
-import org.esa.snap.util.ResourceUtils;
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.datamodel.MetadataAttribute;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.dataop.downloadable.XMLSupport;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.engine_utilities.util.ResourceUtils;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;

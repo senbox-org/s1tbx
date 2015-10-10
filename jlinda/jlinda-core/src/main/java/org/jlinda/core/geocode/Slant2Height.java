@@ -1,7 +1,7 @@
 package org.jlinda.core.geocode;
 
 import org.apache.commons.math3.util.FastMath;
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
 import org.jlinda.core.Orbit;
@@ -14,9 +14,11 @@ import org.jlinda.core.utils.PolyUtils;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.jlinda.core.Constants.*;
-import static org.jlinda.core.utils.LinearAlgebraUtils.*;
-import static org.jlinda.core.utils.PolyUtils.*;
+import static org.jlinda.core.Constants.PI;
+import static org.jlinda.core.Constants.SOL;
+import static org.jlinda.core.utils.LinearAlgebraUtils.matTxmat;
+import static org.jlinda.core.utils.PolyUtils.normalize2;
+import static org.jlinda.core.utils.PolyUtils.polyFit;
 
 public class Slant2Height {
 

@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.io.orbits;
 
-import org.esa.snap.datamodel.Orbits;
+import org.esa.snap.engine_utilities.datamodel.Orbits;
 
 import java.io.File;
 

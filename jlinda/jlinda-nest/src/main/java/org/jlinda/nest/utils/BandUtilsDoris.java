@@ -1,7 +1,7 @@
 package org.jlinda.nest.utils;
 
-import org.esa.snap.datamodel.Unit;
-import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.engine_utilities.datamodel.Unit;
 
 public class BandUtilsDoris {
 

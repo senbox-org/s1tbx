@@ -1,7 +1,7 @@
 package org.jlinda.core.coregistration.cross;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.Window;
 import org.jlinda.core.utils.MathUtils;
@@ -14,7 +14,9 @@ import java.awt.geom.Point2D;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.jlinda.core.utils.PolyUtils.*;
+import static org.jlinda.core.utils.PolyUtils.normalize2;
+import static org.jlinda.core.utils.PolyUtils.polyFit2D;
+import static org.jlinda.core.utils.PolyUtils.polyval;
 
 /**
  * User: pmar@ppolabs.com

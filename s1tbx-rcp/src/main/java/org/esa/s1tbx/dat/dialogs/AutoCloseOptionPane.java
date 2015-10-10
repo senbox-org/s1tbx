@@ -17,9 +17,8 @@ package org.esa.s1tbx.dat.dialogs;
 
 import org.esa.snap.rcp.SnapApp;
 
-import javax.swing.JDialog;
-import javax.swing.JOptionPane;
-import java.awt.Component;
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * Auto close warning messages after timer

@@ -15,12 +15,12 @@
  */
 package org.esa.s1tbx.analysis.rcp.toolviews.timeseries;
 
-import org.esa.snap.framework.ui.AppContext;
-import org.esa.snap.framework.ui.color.ColorComboBox;
 import org.esa.snap.graphbuilder.rcp.dialogs.ProductSetPanel;
 import org.esa.snap.graphbuilder.rcp.dialogs.PromptDialog;
 import org.esa.snap.graphbuilder.rcp.dialogs.support.FileTable;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
+import org.esa.snap.ui.AppContext;
+import org.esa.snap.ui.color.ColorComboBox;
 
 import javax.swing.*;
 import java.awt.*;

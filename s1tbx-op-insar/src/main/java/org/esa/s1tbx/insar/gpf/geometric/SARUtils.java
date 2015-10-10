@@ -1,9 +1,9 @@
 package org.esa.s1tbx.insar.gpf.geometric;
 
-import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.eo.Constants;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.gpf.OperatorException;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.eo.Constants;
 
 /**
  * SAR specific common functions

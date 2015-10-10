@@ -2,7 +2,7 @@ package org.esa.s1tbx.calibration.gpf.support;
 
 import Jama.Matrix;
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.framework.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.TiePointGrid;
 
 /**
  * Created by lveci on 06/08/2014.

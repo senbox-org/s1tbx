@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.insar.rcp.toolviews;
 
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.datamodel.Product;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
