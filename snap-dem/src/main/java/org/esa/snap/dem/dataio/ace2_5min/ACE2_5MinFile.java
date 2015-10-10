@@ -20,7 +20,7 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.dataop.dem.BaseElevationTile;
 import org.esa.snap.core.dataop.dem.ElevationFile;
 import org.esa.snap.core.dataop.dem.ElevationTile;
-import org.esa.snap.util.Settings;
+import org.esa.snap.engine_utilities.util.Settings;
 
 import java.io.File;
 import java.io.IOException;

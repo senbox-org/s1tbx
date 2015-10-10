@@ -15,7 +15,7 @@
  */
 package org.esa.snap.dem.dataio;
 
-import org.esa.snap.util.Maths;
+import org.esa.snap.engine_utilities.util.Maths;
 
 import java.io.BufferedReader;
 import java.io.IOException;

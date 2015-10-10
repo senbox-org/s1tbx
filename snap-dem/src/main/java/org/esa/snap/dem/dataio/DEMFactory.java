@@ -24,7 +24,7 @@ import org.esa.snap.core.dataop.dem.ElevationModelDescriptor;
 import org.esa.snap.core.dataop.dem.ElevationModelRegistry;
 import org.esa.snap.core.dataop.resamp.Resampling;
 import org.esa.snap.core.dataop.resamp.ResamplingFactory;
-import org.esa.snap.gpf.TileGeoreferencing;
+import org.esa.snap.engine_utilities.gpf.TileGeoreferencing;
 
 import java.io.IOException;
 import java.util.ArrayList;
