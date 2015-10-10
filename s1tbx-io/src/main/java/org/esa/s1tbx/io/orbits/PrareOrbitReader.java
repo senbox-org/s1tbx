@@ -19,9 +19,9 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;
-import org.esa.snap.datamodel.Orbits;
-import org.esa.snap.util.Maths;
-import org.esa.snap.util.ZipUtils;
+import org.esa.snap.engine_utilities.datamodel.Orbits;
+import org.esa.snap.engine_utilities.util.Maths;
+import org.esa.snap.engine_utilities.util.ZipUtils;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;

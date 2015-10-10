@@ -12,7 +12,7 @@ import org.jlinda.core.utils.WeightWindows;
 
 import java.util.logging.Logger;
 
-import static org.jblas.MatrixFunctions.*;
+import static org.jblas.MatrixFunctions.pow;
 
 /**
  * User: pmar@ppolabs.com

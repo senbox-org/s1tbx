@@ -14,7 +14,9 @@ import java.awt.geom.Point2D;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.jlinda.core.utils.PolyUtils.*;
+import static org.jlinda.core.utils.PolyUtils.normalize2;
+import static org.jlinda.core.utils.PolyUtils.polyFit2D;
+import static org.jlinda.core.utils.PolyUtils.polyval;
 
 /**
  * User: pmar@ppolabs.com

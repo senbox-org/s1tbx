@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.io.orbits;
 
-import org.esa.snap.util.TestUtils;
+import org.esa.snap.engine_utilities.util.TestUtils;
 import org.junit.Assert;
 import org.junit.Test;
 

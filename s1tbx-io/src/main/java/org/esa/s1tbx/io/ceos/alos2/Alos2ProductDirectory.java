@@ -18,7 +18,10 @@ package org.esa.s1tbx.io.ceos.alos2;
 import org.esa.s1tbx.io.binary.IllegalBinaryFormatException;
 import org.esa.s1tbx.io.ceos.CEOSImageFile;
 import org.esa.s1tbx.io.ceos.CeosHelper;
-import org.esa.s1tbx.io.ceos.alos.*;
+import org.esa.s1tbx.io.ceos.alos.AlosPalsarConstants;
+import org.esa.s1tbx.io.ceos.alos.AlosPalsarImageFile;
+import org.esa.s1tbx.io.ceos.alos.AlosPalsarProductDirectory;
+import org.esa.s1tbx.io.ceos.alos.AlosPalsarTrailerFile;
 
 import java.io.File;
 import java.io.IOException;

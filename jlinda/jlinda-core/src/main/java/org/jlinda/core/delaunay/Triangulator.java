@@ -1,8 +1,9 @@
 package org.jlinda.core.delaunay;
 
 
-import java.util.Iterator;
 import com.vividsolutions.jts.geom.Geometry;
+
+import java.util.Iterator;
 
 /**
  * Triangulator is the interface implemented by all the tools performing

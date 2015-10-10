@@ -19,8 +19,8 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.graphbuilder.rcp.dialogs.SourceProductPanel;
 import org.esa.snap.rcp.SnapApp;
 
-import javax.swing.JPanel;
-import java.awt.BorderLayout;
+import javax.swing.*;
+import java.awt.*;
 
 /**
 

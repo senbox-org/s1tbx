@@ -8,7 +8,8 @@ import org.jlinda.core.Window;
 
 import java.util.logging.Logger;
 
-import static org.jblas.MatrixFunctions.*;
+import static org.jblas.MatrixFunctions.abs;
+import static org.jblas.MatrixFunctions.pow;
 
 public class LinearAlgebraUtils {
 

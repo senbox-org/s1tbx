@@ -23,10 +23,8 @@ import org.esa.snap.ui.product.ProductSceneView;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 
-import javax.swing.Action;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;

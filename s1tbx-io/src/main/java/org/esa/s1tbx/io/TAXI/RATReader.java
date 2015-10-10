@@ -8,7 +8,7 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.dataio.envi.EnviConstants;
 import org.esa.snap.dataio.envi.EnviProductReader;
 import org.esa.snap.dataio.envi.Header;
-import org.esa.snap.gpf.ReaderUtils;
+import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;

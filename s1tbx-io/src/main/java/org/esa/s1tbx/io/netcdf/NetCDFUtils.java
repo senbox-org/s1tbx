@@ -26,7 +26,7 @@ import org.esa.snap.core.dataop.maptransf.MapInfo;
 import org.esa.snap.core.dataop.maptransf.MapProjection;
 import org.esa.snap.core.dataop.maptransf.MapProjectionRegistry;
 import org.esa.snap.core.util.SystemUtils;
-import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.Index;

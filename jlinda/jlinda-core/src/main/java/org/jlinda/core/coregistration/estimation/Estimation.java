@@ -13,7 +13,7 @@ import org.jlinda.core.utils.PolyUtils;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-import static org.jblas.MatrixFunctions.*;
+import static org.jblas.MatrixFunctions.abs;
 
 /**
  * Stub for estimation in Java

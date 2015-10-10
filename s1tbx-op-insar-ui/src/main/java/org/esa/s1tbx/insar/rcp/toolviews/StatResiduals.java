@@ -17,13 +17,12 @@ package org.esa.s1tbx.insar.rcp.toolviews;
 
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.util.ResourceUtils;
 import org.esa.snap.rcp.SnapApp;
-import org.esa.snap.util.ResourceUtils;
 
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import java.awt.Component;
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;

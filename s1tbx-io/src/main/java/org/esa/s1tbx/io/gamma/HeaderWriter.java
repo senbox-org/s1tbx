@@ -21,7 +21,7 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;
-import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 
 import java.io.File;
 import java.io.FileOutputStream;

@@ -1,9 +1,8 @@
 package org.jlinda.core.simulation;
 
-import org.jlinda.core.utils.MathUtils;
-
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
+import org.jlinda.core.utils.MathUtils;
 
 import static org.jblas.MatrixFunctions.cos;
 import static org.jblas.MatrixFunctions.sin;

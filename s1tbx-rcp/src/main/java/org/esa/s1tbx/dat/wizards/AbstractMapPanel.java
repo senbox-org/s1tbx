@@ -15,11 +15,11 @@
  */
 package org.esa.s1tbx.dat.wizards;
 
-import org.esa.snap.db.ProductEntry;
+import org.esa.snap.engine_utilities.db.ProductEntry;
 import org.esa.snap.graphbuilder.gpf.ui.worldmap.WorldMapUI;
 
-import javax.swing.JPanel;
-import java.awt.BorderLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 
 /**

@@ -22,11 +22,10 @@ import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
-import org.esa.snap.gpf.OperatorUtils;
-import org.esa.snap.gpf.ThreadManager;
+import org.esa.snap.engine_utilities.gpf.OperatorUtils;
+import org.esa.snap.engine_utilities.gpf.ThreadManager;
 
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import java.awt.*;
 
 /**
  * Base class for polarimetric decompositions

@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.dat.layers;
 
-import java.awt.Rectangle;
+import java.awt.*;
 
 /**
  *

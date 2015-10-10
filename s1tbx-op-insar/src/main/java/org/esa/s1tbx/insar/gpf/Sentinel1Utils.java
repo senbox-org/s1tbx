@@ -24,9 +24,9 @@ import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.OperatorException;
-import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.datamodel.OrbitStateVector;
-import org.esa.snap.eo.Constants;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.datamodel.OrbitStateVector;
+import org.esa.snap.engine_utilities.eo.Constants;
 
 import java.text.DateFormat;
 import java.util.ArrayList;

@@ -17,8 +17,9 @@ import scpsolver.problems.LinearProgram;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.jblas.DoubleMatrix.*;
-import static org.jlinda.core.unwrapping.mcf.utils.JblasUtils.*;
+import static org.jblas.DoubleMatrix.concatHorizontally;
+import static org.jlinda.core.unwrapping.mcf.utils.JblasUtils.grid2D;
+import static org.jlinda.core.unwrapping.mcf.utils.JblasUtils.intRangeDoubleMatrix;
 
 /**
  * Description: Implementation of Linear Programming Unwrapping. Heavily based on Matlab package

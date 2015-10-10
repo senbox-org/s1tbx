@@ -20,7 +20,7 @@ import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.util.TestUtils;
+import org.esa.snap.engine_utilities.util.TestUtils;
 import org.junit.Test;
 
 import java.io.File;

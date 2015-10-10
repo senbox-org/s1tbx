@@ -26,7 +26,7 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
-import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 
 /**
  * Creates a new product with only selected bands

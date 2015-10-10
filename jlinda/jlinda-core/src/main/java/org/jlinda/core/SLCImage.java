@@ -2,13 +2,15 @@ package org.jlinda.core;
 
 import org.apache.commons.math3.util.FastMath;
 import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.jlinda.core.io.ResFile;
 import org.jlinda.core.utils.DateUtils;
 
 import java.io.File;
 
-import static org.jlinda.core.Constants.*;
+import static org.jlinda.core.Constants.EPS;
+import static org.jlinda.core.Constants.LIGHT_SPEED;
+import static org.jlinda.core.Constants.MEGA;
 
 public final class SLCImage {
 

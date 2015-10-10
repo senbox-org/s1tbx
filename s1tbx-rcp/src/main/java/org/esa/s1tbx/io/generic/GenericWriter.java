@@ -24,8 +24,8 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.ProductNode;
 import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.util.Guardian;
-import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.datamodel.metadata.AbstractMetadataIO;
 
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;

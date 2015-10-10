@@ -21,7 +21,7 @@ import org.esa.s1tbx.io.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.IndexCoding;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.Map;
 
 /**

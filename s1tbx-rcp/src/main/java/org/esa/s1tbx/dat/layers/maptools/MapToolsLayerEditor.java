@@ -17,7 +17,7 @@ package org.esa.s1tbx.dat.layers.maptools;
 
 import org.esa.snap.ui.layer.AbstractLayerEditor;
 
-import javax.swing.JComponent;
+import javax.swing.*;
 
 /**
  * Editor for GeoTags

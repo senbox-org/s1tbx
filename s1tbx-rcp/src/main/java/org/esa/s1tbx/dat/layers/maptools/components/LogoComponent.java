@@ -19,9 +19,8 @@ import org.esa.s1tbx.dat.layers.ScreenPixelConverter;
 import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.graphbuilder.rcp.utils.IconUtils;
 
-import javax.swing.ImageIcon;
-import java.awt.Graphics2D;
-import java.awt.Point;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 

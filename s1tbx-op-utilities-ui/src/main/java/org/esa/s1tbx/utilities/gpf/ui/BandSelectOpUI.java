@@ -16,19 +16,15 @@
 package org.esa.s1tbx.utilities.gpf.ui;
 
 import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.OperatorUIUtils;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.ui.AppContext;
 
-import javax.swing.JComponent;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;

@@ -17,17 +17,9 @@ package org.esa.s1tbx.ocean.toolviews.polarview.polarplot;
 
 import org.apache.commons.math3.util.FastMath;
 import org.esa.snap.core.util.Debug;
-import org.esa.snap.eo.Constants;
+import org.esa.snap.engine_utilities.eo.Constants;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 
 public class PolarCanvas extends Container {
 

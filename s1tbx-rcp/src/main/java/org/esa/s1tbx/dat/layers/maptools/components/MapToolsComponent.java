@@ -17,7 +17,7 @@ package org.esa.s1tbx.dat.layers.maptools.components;
 
 import org.esa.s1tbx.dat.layers.ScreenPixelConverter;
 
-import java.awt.Graphics2D;
+import java.awt.*;
 
 /**
  * map tools component interface

@@ -21,11 +21,11 @@ import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.RasterDataNode;
-import org.esa.snap.eo.Constants;
+import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.graphbuilder.rcp.utils.IconUtils;
 
-import javax.swing.ImageIcon;
-import java.awt.Graphics2D;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 

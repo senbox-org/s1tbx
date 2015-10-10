@@ -17,7 +17,7 @@ package org.esa.s1tbx.dat.layers.maptools;
 
 import org.esa.snap.ui.layer.AbstractLayerSourceAssistantPage;
 
-import java.awt.Component;
+import java.awt.*;
 
 class MapToolsAssistantPage extends AbstractLayerSourceAssistantPage {
 

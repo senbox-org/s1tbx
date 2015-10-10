@@ -25,12 +25,8 @@ import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.ui.ModalDialog;
 import org.esa.snap.ui.ModelessDialog;
 
-import javax.swing.JCheckBox;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * Scale data action dialog

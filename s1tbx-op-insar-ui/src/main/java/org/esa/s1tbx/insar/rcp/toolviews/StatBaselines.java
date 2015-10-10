@@ -17,10 +17,9 @@ package org.esa.s1tbx.insar.rcp.toolviews;
 
 import org.esa.snap.core.datamodel.Product;
 
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
-import java.awt.Component;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

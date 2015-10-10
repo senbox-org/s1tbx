@@ -19,12 +19,12 @@ import org.esa.s1tbx.commons.S1TBXTests;
 import org.esa.s1tbx.commons.TestData;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.OperatorSpi;
-import org.esa.snap.util.TestUtils;
+import org.esa.snap.engine_utilities.util.TestUtils;
 import org.junit.Test;
 
 import java.io.File;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit test for PolarimetricSpeckleFilterOp.

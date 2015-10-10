@@ -21,8 +21,8 @@ import org.esa.snap.ui.SnapFileChooser;
 import org.esa.snap.ui.diagram.DefaultDiagramGraph;
 import org.esa.snap.ui.diagram.DiagramGraph;
 
-import javax.swing.JOptionPane;
-import java.awt.Component;
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;

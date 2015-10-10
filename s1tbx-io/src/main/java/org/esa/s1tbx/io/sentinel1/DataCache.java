@@ -5,7 +5,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.esa.s1tbx.io.imageio.ImageIOFile;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.concurrent.TimeUnit;
 
 /**

@@ -15,9 +15,7 @@
  */
 package org.esa.s1tbx.dat.graphics;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.*;
 
 /**
  * Java 2D graphic utils

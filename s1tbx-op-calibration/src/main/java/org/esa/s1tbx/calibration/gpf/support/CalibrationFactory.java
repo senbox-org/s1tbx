@@ -28,8 +28,8 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.gpf.OperatorException;
-import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.eo.Constants;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.eo.Constants;
 
 /**
  * The abstract base class for all calibration operators intended to be extended by clients.

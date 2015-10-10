@@ -15,17 +15,13 @@
  */
 package org.esa.s1tbx.about;
 
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-import javax.swing.border.EmptyBorder;
-
 import org.esa.snap.rcp.about.AboutBox;
 import org.openide.modules.ModuleInfo;
 import org.openide.modules.Modules;
 
-import java.awt.BorderLayout;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
 
 /**
  * @author Norman

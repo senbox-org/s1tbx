@@ -17,7 +17,7 @@ package org.esa.s1tbx.sar.gpf.geometric;
 
 import org.esa.snap.core.datamodel.CrsGeoCoding;
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;

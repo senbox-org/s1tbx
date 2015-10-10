@@ -32,8 +32,7 @@ import org.esa.snap.ui.diagram.Diagram;
 import org.esa.snap.ui.diagram.DiagramAxis;
 import org.esa.snap.ui.diagram.DiagramGraph;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
+import java.awt.*;
 import java.util.ArrayList;
 
 

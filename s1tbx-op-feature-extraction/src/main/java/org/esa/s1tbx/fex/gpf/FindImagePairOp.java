@@ -28,11 +28,11 @@ import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
-import org.esa.snap.db.CommonReaders;
-import org.esa.snap.db.DBSearch;
-import org.esa.snap.db.ProductEntry;
+import org.esa.snap.engine_utilities.db.CommonReaders;
+import org.esa.snap.engine_utilities.db.DBSearch;
+import org.esa.snap.engine_utilities.db.ProductEntry;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 

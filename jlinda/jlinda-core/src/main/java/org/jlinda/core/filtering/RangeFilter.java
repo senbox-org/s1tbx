@@ -16,7 +16,9 @@ import org.jlinda.core.utils.WeightWindows;
 
 import java.util.logging.Logger;
 
-import static org.jlinda.core.utils.LinearAlgebraUtils.*;
+import static org.jlinda.core.utils.LinearAlgebraUtils.dotmult;
+import static org.jlinda.core.utils.LinearAlgebraUtils.fliplr_inplace;
+import static org.jlinda.core.utils.LinearAlgebraUtils.setdata;
 
 public class RangeFilter extends ProductDataFilter {
 

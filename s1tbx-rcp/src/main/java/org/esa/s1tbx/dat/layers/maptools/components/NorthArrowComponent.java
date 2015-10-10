@@ -22,10 +22,10 @@ import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.RasterDataNode;
-import org.esa.snap.eo.Constants;
-import org.esa.snap.eo.GeoUtils;
+import org.esa.snap.engine_utilities.eo.Constants;
+import org.esa.snap.engine_utilities.eo.GeoUtils;
 
-import java.awt.Graphics2D;
+import java.awt.*;
 
 /**
  * map tools compass component

@@ -29,8 +29,8 @@ import org.esa.snap.ui.crs.PredefinedCrsForm;
 import org.geotools.referencing.CRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import javax.swing.JPanel;
-import java.awt.Insets;
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * Helper for adding map projection components into an operator UI

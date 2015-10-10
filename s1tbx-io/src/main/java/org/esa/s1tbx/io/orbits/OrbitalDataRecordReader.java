@@ -17,10 +17,10 @@ package org.esa.s1tbx.io.orbits;
 
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.OperatorException;
-import org.esa.snap.eo.Constants;
-import org.esa.snap.eo.GeoUtils;
-import org.esa.snap.util.Maths;
-import org.esa.snap.util.ResourceUtils;
+import org.esa.snap.engine_utilities.eo.Constants;
+import org.esa.snap.engine_utilities.eo.GeoUtils;
+import org.esa.snap.engine_utilities.util.Maths;
+import org.esa.snap.engine_utilities.util.ResourceUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;

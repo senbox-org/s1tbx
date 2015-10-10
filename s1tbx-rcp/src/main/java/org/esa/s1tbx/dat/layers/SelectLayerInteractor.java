@@ -22,7 +22,7 @@ import com.bc.ceres.swing.figure.interactions.SelectionInteractor;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.ui.product.ProductSceneView;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.List;
 

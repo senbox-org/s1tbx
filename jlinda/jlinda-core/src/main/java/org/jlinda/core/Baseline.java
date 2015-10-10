@@ -9,10 +9,11 @@ import org.jlinda.core.utils.LinearAlgebraUtils;
 
 import java.util.logging.Logger;
 
-import static org.jblas.MatrixFunctions.*;
-import static org.jlinda.core.utils.LinearAlgebraUtils.*;
-import static org.jlinda.core.utils.MathUtils.*;
-import static org.jlinda.core.utils.PolyUtils.*;
+import static org.jblas.MatrixFunctions.abs;
+import static org.jlinda.core.utils.LinearAlgebraUtils.matTxmat;
+import static org.jlinda.core.utils.MathUtils.rad2deg;
+import static org.jlinda.core.utils.MathUtils.sqr;
+import static org.jlinda.core.utils.PolyUtils.normalize2;
 
 /**
  * User: pmar@ppolabs.com

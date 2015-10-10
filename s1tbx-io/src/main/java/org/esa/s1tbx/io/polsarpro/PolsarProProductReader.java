@@ -20,10 +20,10 @@ import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.dataio.envi.EnviProductReader;
 import org.esa.snap.dataio.envi.Header;
-import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
-import org.esa.snap.gpf.ReaderUtils;
-import org.esa.snap.util.ResourceUtils;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.datamodel.metadata.AbstractMetadataIO;
+import org.esa.snap.engine_utilities.gpf.ReaderUtils;
+import org.esa.snap.engine_utilities.util.ResourceUtils;
 
 import java.io.BufferedReader;
 import java.io.File;

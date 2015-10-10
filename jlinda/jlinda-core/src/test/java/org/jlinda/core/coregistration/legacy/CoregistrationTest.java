@@ -32,10 +32,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static java.lang.Math.ceil;
-import static java.lang.Math.*;
+import static java.lang.Math.min;
 import static org.jblas.MatrixFunctions.pow;
 import static org.jblas.MatrixFunctions.sqrt;
-import static org.jlinda.core.utils.PolyUtils.*;
+import static org.jlinda.core.utils.PolyUtils.normalize2;
+import static org.jlinda.core.utils.PolyUtils.polyval;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CoregistrationTest {

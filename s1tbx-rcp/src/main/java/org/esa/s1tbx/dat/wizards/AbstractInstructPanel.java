@@ -15,11 +15,8 @@
  */
 package org.esa.s1tbx.dat.wizards;
 
-import javax.swing.BorderFactory;
-import javax.swing.JPanel;
-import javax.swing.JTextPane;
-import java.awt.BorderLayout;
-import java.awt.Graphics;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 
 /**

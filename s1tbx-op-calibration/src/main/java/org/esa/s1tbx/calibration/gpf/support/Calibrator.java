@@ -20,7 +20,7 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
-import org.esa.snap.datamodel.Unit;
+import org.esa.snap.engine_utilities.datamodel.Unit;
 
 import java.io.File;
 

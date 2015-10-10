@@ -19,9 +19,8 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.ui.ModalDialog;
 
-import javax.swing.JComboBox;
-import javax.swing.JFormattedTextField;
-import java.awt.Window;
+import javax.swing.*;
+import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.nio.ByteOrder;

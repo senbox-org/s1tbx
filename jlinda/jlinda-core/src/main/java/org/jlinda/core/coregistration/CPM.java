@@ -27,7 +27,10 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.jlinda.core.coregistration.utils.CPMUtils.*;
+import static org.jlinda.core.coregistration.utils.CPMUtils.absArgmax;
+import static org.jlinda.core.coregistration.utils.CPMUtils.diagxmat;
+import static org.jlinda.core.coregistration.utils.CPMUtils.onesEJML;
+import static org.jlinda.core.coregistration.utils.CPMUtils.scaleInputDiag;
 
 public class CPM {
 

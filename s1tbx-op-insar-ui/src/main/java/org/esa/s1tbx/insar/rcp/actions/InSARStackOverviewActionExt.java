@@ -16,15 +16,13 @@
 package org.esa.s1tbx.insar.rcp.actions;
 
 import org.esa.s1tbx.insar.rcp.dialogs.InSARStackOverviewDialog;
-import org.esa.snap.db.ProductEntry;
+import org.esa.snap.engine_utilities.db.ProductEntry;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.productlibrary.rcp.toolviews.ProductLibraryActions;
 import org.esa.snap.productlibrary.rcp.toolviews.extensions.ProductLibraryActionExt;
 import org.esa.snap.ui.UIUtils;
 
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 /**
  * send ProductLibrary selection to InSARStackOverview

@@ -17,8 +17,8 @@ package org.esa.s1tbx.dat.toolviews.Projects;
 
 import org.esa.s1tbx.dat.dialogs.ProductSetDialog;
 import org.esa.snap.core.dataop.downloadable.XMLSupport;
+import org.esa.snap.engine_utilities.util.ProductFunctions;
 import org.esa.snap.rcp.SnapDialogs;
-import org.esa.snap.util.ProductFunctions;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;

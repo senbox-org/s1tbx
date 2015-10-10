@@ -24,7 +24,7 @@ import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.datamodel.Unit;
+import org.esa.snap.engine_utilities.datamodel.Unit;
 
 import java.io.File;
 import java.io.IOException;

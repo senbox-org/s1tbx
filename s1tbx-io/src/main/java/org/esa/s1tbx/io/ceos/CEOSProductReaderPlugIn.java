@@ -20,7 +20,7 @@ import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.util.io.SnapFileFilter;
-import org.esa.snap.gpf.ReaderUtils;
+import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import java.io.File;
 import java.util.Locale;

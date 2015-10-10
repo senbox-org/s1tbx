@@ -18,8 +18,8 @@ package org.esa.s1tbx.io.envisat;
 import org.esa.s1tbx.commons.S1TBXTests;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.dataio.envisat.EnvisatProductReaderPlugIn;
-import org.esa.snap.gpf.TestProcessor;
-import org.esa.snap.util.TestUtils;
+import org.esa.snap.engine_utilities.gpf.TestProcessor;
+import org.esa.snap.engine_utilities.util.TestUtils;
 import org.junit.Test;
 
 /**

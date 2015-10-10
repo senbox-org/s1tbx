@@ -26,10 +26,15 @@ import org.perf4j.StopWatch;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static cern.jet.math.Functions.*;
-import static org.jblas.DoubleMatrix.*;
-import static org.jlinda.core.unwrapping.mcf.utils.ColtUtils.*;
-import static org.jlinda.core.unwrapping.mcf.utils.JblasUtils.*;
+import static cern.jet.math.Functions.bindArg2;
+import static org.jblas.DoubleMatrix.concatHorizontally;
+import static org.jlinda.core.unwrapping.mcf.utils.ColtUtils.setUpSparseMatrixFromIdx;
+import static org.jlinda.core.unwrapping.mcf.utils.JblasUtils.getMatrixFromIdx;
+import static org.jlinda.core.unwrapping.mcf.utils.JblasUtils.getMatrixFromRange;
+import static org.jlinda.core.unwrapping.mcf.utils.JblasUtils.grid2D;
+import static org.jlinda.core.unwrapping.mcf.utils.JblasUtils.intRangeDoubleMatrix;
+import static org.jlinda.core.unwrapping.mcf.utils.JblasUtils.setUpMatrixFromIdx;
+import static org.jlinda.core.unwrapping.mcf.utils.JblasUtils.sub2ind;
 
 /**
  * Description: Implementation of MCF ~ Linear Programming Unwrapping. Based on work of Costantini.

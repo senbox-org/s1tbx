@@ -5,8 +5,9 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Utility class to test the Triangulation methods.

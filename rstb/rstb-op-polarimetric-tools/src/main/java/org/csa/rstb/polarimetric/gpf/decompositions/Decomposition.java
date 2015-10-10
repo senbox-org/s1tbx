@@ -20,7 +20,7 @@ import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.Map;
 
 /**

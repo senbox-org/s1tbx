@@ -18,7 +18,7 @@ package org.csa.rstb.polarimetric.gpf;
 import org.esa.s1tbx.io.PolBandUtils;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.Tile;
-import org.esa.snap.gpf.TileIndex;
+import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.jblas.DoubleMatrix;
 
 /**

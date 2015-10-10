@@ -15,12 +15,12 @@
  */
 package org.esa.s1tbx.dat.wizards;
 
-import org.esa.snap.graphbuilder.rcp.dialogs.support.FileTable;
 import org.esa.snap.graphbuilder.rcp.dialogs.ProductSetPanel;
+import org.esa.snap.graphbuilder.rcp.dialogs.support.FileTable;
 import org.esa.snap.rcp.SnapApp;
 
-import javax.swing.JPanel;
-import java.awt.BorderLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 
 /**

@@ -1,10 +1,10 @@
 package org.jlinda.core.delaunay;
 
+import com.vividsolutions.jts.geom.Geometry;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * Base class for Delaunay Triangulation implementations.

@@ -19,12 +19,9 @@ import org.esa.s1tbx.dat.graphics.GraphicText;
 import org.esa.s1tbx.dat.layers.ScreenPixelConverter;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.RasterDataNode;
-import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.Point;
+import java.awt.*;
 import java.util.ArrayList;
 
 /**

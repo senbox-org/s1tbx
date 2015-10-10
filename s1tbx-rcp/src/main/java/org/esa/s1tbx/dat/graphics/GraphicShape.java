@@ -2,8 +2,7 @@ package org.esa.s1tbx.dat.graphics;
 
 import org.esa.s1tbx.dat.layers.ScreenPixelConverter;
 
-import java.awt.Graphics2D;
-import java.awt.Polygon;
+import java.awt.*;
 import java.awt.geom.Line2D;
 
 /**

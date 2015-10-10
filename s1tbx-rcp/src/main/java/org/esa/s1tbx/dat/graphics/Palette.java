@@ -1,6 +1,6 @@
 package org.esa.s1tbx.dat.graphics;
 
-import java.awt.Color;
+import java.awt.*;
 
 /**
  * Create color maps

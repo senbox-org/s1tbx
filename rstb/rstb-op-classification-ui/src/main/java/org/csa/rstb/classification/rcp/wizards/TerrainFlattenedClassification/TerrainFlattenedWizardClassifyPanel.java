@@ -17,12 +17,12 @@ package org.csa.rstb.classification.rcp.wizards.TerrainFlattenedClassification;
 
 import org.esa.s1tbx.dat.wizards.WizardPanel;
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.db.CommonReaders;
+import org.esa.snap.engine_utilities.db.CommonReaders;
 import org.esa.snap.graphbuilder.rcp.dialogs.GraphBuilderDialog;
 import org.esa.snap.rcp.SnapApp;
 
-import javax.swing.JPanel;
-import java.awt.BorderLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 
 /**

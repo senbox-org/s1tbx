@@ -20,7 +20,7 @@ import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.runtime.Config;
 import org.esa.snap.ui.diagram.DiagramGraph;
 
-import javax.swing.AbstractAction;
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 class TimeSeriesExportAction extends AbstractAction {

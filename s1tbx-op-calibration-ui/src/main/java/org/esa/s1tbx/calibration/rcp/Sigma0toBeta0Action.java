@@ -18,7 +18,7 @@ package org.esa.s1tbx.calibration.rcp;
 import org.esa.s1tbx.calibration.gpf.CalibrationOp;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ProductNode;
-import org.esa.snap.datamodel.Unit;
+import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.rcp.actions.AbstractSnapAction;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -31,7 +31,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.WeakListeners;
 
-import javax.swing.Action;
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 /**

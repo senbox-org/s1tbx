@@ -13,7 +13,7 @@ import org.jlinda.core.utils.PolyUtils;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.jblas.MatrixFunctions.*;
+import static org.jblas.MatrixFunctions.pow;
 
 public class SystemOfEquations {
 

@@ -16,9 +16,9 @@
 package org.esa.s1tbx.analysis.rcp.toolviews.timeseries;
 
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.db.CommonReaders;
+import org.esa.snap.engine_utilities.db.CommonReaders;
 
-import java.awt.Color;
+import java.awt.*;
 import java.io.File;
 
 /**

@@ -11,7 +11,8 @@ import org.junit.Test;
 import java.io.File;
 import java.util.logging.Logger;
 
-import static org.jlinda.core.io.DataReader.*;
+import static org.jlinda.core.io.DataReader.readDoubleData;
+import static org.jlinda.core.io.DataReader.readFloatData;
 
 public class TopoPhaseTest {
 

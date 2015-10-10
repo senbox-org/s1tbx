@@ -9,7 +9,8 @@ import org.jlinda.core.Window;
 
 import java.util.logging.Logger;
 
-import static org.jblas.MatrixFunctions.*;
+import static org.jblas.MatrixFunctions.pow;
+import static org.jblas.MatrixFunctions.sqrt;
 
 public class SarUtils {
 
