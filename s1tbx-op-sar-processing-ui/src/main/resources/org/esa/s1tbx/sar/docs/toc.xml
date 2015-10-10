@@ -26,7 +26,6 @@
                 <tocitem text="SAR Simulation" target="SARSimOp"/>
                 <tocitem text="Geolocation Grid Ellipsoid Correction" target="GeolocationGridGeocodingOp"/>
                 <tocitem text="Average Height RD Ellipsoid Correction" target="EllipsoidCorrectionRDOp"/>
-                <tocitem text="Map Projection" target="MapProjectionOp"/>
                 <tocitem text="Slant Range to Ground Range" target="SRGROp"/>
                 <tocitem text="Mosaic" target="MosaicOp"/>
                 <tocitem text="ALOS Deskewing" target="ALOSDeskewingOp"/>
