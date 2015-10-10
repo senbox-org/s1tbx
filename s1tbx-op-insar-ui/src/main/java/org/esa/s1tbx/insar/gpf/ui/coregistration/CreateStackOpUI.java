@@ -60,7 +60,7 @@ public class CreateStackOpUI extends BaseOperatorUI {
     private final JComboBox resamplingType = new JComboBox(ResamplingFactory.resamplingNames);
 
     private final JComboBox initialOffsetMethod = new JComboBox(new String[] {CreateStackOp.INITIAL_OFFSET_ORBIT,
-            CreateStackOp.INITIAL_OFFSET_GCP});
+            CreateStackOp.INITIAL_OFFSET_GEOLOCATION});
 
     private final JComboBox extent = new JComboBox(new String[]{CreateStackOp.MASTER_EXTENT,
             CreateStackOp.MIN_EXTENT,

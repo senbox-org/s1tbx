@@ -108,17 +108,17 @@ public class CreateStackOp extends Operator {
     public final static String MIN_EXTENT = "Minimum";
     public final static String MAX_EXTENT = "Maximum";
 
-    @Parameter(valueSet = {"ORBIT", "GCP"},
-            defaultValue = "ORBIT",
+    public final static String INITIAL_OFFSET_GEOLOCATION = "Product Geolocation";
+    public final static String INITIAL_OFFSET_ORBIT = "Orbit";
+
+    @Parameter(valueSet = {INITIAL_OFFSET_ORBIT, INITIAL_OFFSET_GEOLOCATION},
+            defaultValue = INITIAL_OFFSET_ORBIT,
             description = "Method to be used in computation of initial offset between master and slave",
             label = "Initial Offset Method")
-    private String initialOffsetMethod = "ORBIT";
+    private String initialOffsetMethod = INITIAL_OFFSET_ORBIT;
 
-    public final static String INITIAL_OFFSET_GCP = "GCP";
-    public final static String INITIAL_OFFSET_ORBIT = "ORBIT";
-
-    private final Map<Band, Band> sourceRasterMap = new HashMap<Band, Band>(10);
-    private final Map<Product, int[]> slaveOffsettMap = new HashMap<Product, int[]>(10);
+    private final Map<Band, Band> sourceRasterMap = new HashMap<>(10);
+    private final Map<Product, int[]> slaveOffsettMap = new HashMap<>(10);
 
     private boolean appendToMaster = false;
     private boolean productPixelSpacingChecked = false;
@@ -300,7 +300,7 @@ public class CreateStackOp extends Operator {
             if (!resamplingType.contains("NONE")) {
                 selectedResampling = ResamplingFactory.createResampling(resamplingType);
             } else {
-                if (initialOffsetMethod.equals(INITIAL_OFFSET_GCP)) {
+                if (initialOffsetMethod.equals(INITIAL_OFFSET_GEOLOCATION)) {
                     computeTargetSlaveCoordinateOffsets_GCP();
                 }
 
