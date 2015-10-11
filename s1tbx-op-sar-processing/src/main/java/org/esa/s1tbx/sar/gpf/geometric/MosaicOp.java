@@ -39,6 +39,7 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProducts;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
@@ -511,9 +512,14 @@ public class MosaicOp extends Operator {
                             }
                         }
 
-                        final Tile srcTile = getSourceTile(srcBand, sourceRectangle);
-                        if (srcTile != null) {
-                            validSourceData.add(new SourceData(srcTile, pixPos, resampling, min, max, mean, std));
+                        try {
+                            final Tile srcTile = getSourceTile(srcBand, sourceRectangle);
+                            if (srcTile != null) {
+                                validSourceData.add(new SourceData(srcTile, pixPos, resampling, min, max, mean, std));
+                            }
+                        } catch (Exception e) {
+                            SystemUtils.LOG.severe("Mosaic getSourceTile failed "+e.getMessage());
+                            //continue
                         }
                     }
                     ++prodIndex;
@@ -706,9 +712,14 @@ public class MosaicOp extends Operator {
                         }
                     }
 
-                    final Tile srcTile = getSourceTile(srcBand, sourceRectangle);
-                    if (srcTile != null) {
-                        validSourceData.add(new SourceData(srcTile, pixPos, resampling, min, max, mean, std));
+                    try {
+                        final Tile srcTile = getSourceTile(srcBand, sourceRectangle);
+                        if (srcTile != null) {
+                            validSourceData.add(new SourceData(srcTile, pixPos, resampling, min, max, mean, std));
+                        }
+                    } catch (Exception e) {
+                        SystemUtils.LOG.severe("Mosaic getSourceTile failed "+e.getMessage());
+                        //continue
                     }
                 }
                 ++prodIndex;
