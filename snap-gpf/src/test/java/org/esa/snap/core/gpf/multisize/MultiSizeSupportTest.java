@@ -123,14 +123,14 @@ public class MultiSizeSupportTest {
         final ProductNodeGroup<Band> reprojectedProductBandGroup = reprojectedProduct.getBandGroup();
         for (int i = 0; i < productBandGroup.getNodeCount() - 1; i++) {
             final Band band1 = productBandGroup.get(i);
-            final CoordinateReferenceSystem modelCrs1 = ImageManager.getModelCrs(band1.getGeoCoding());
+            final CoordinateReferenceSystem modelCrs1 = Product.getAppropriateModelCRS(band1.getGeoCoding());
             final Band reprojectedBand1 = reprojectedProductBandGroup.get(band1.getName());
-            final CoordinateReferenceSystem reprojectedModelCrs1 = ImageManager.getModelCrs(reprojectedBand1.getGeoCoding());
+            final CoordinateReferenceSystem reprojectedModelCrs1 = Product.getAppropriateModelCRS(reprojectedBand1.getGeoCoding());
             for (int j = i + 1; j < productBandGroup.getNodeCount(); j++) {
                 final Band band2 = productBandGroup.get(j);
-                final CoordinateReferenceSystem modelCrs2 = ImageManager.getModelCrs(band2.getGeoCoding());
+                final CoordinateReferenceSystem modelCrs2 = Product.getAppropriateModelCRS(band2.getGeoCoding());
                 final Band reprojectedBand2 = reprojectedProductBandGroup.get(band2.getName());
-                final CoordinateReferenceSystem reprojectedModelCrs2 = ImageManager.getModelCrs(reprojectedBand2.getGeoCoding());
+                final CoordinateReferenceSystem reprojectedModelCrs2 = Product.getAppropriateModelCRS(reprojectedBand2.getGeoCoding());
                 assertEquals(band1.getRasterSize().equals(band2.getRasterSize()),
                              reprojectedBand1.getRasterSize().equals(reprojectedBand2.getRasterSize()));
                 assertEquals(modelCrs1 == modelCrs2, reprojectedModelCrs1 == reprojectedModelCrs2);

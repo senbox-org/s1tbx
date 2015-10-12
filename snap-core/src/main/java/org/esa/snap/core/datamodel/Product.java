@@ -51,9 +51,17 @@ import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.io.WildcardMatcher;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.runtime.Config;
+import org.geotools.referencing.crs.DefaultImageCRS;
+import org.geotools.referencing.cs.DefaultCartesianCS;
+import org.geotools.referencing.datum.DefaultImageDatum;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.crs.ImageCRS;
+import org.opengis.referencing.datum.PixelInCell;
+import org.opengis.referencing.operation.MathTransform;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.RenderedImage;
 import java.io.File;
@@ -93,6 +101,21 @@ public class Product extends ProductNode {
 
     private static final String PIN_GROUP_NAME = "pins";
     private static final String GCP_GROUP_NAME = "ground_control_points";
+
+    /**
+     * The default BEAM image coordinate reference system.
+     */
+    public static final ImageCRS DEFAULT_IMAGE_CRS = new DefaultImageCRS("SNAP_IMAGE_CRS",
+                                                                         new DefaultImageDatum("SNAP_IMAGE_DATUM", PixelInCell.CELL_CORNER),
+                                                                         DefaultCartesianCS.DISPLAY);
+
+
+    /**
+     * The model coordinate reference system.
+     *
+     * @since SNAP 2
+     */
+    private CoordinateReferenceSystem modelCrs;
 
     /**
      * The location file of this product.
@@ -317,131 +340,68 @@ public class Product extends ProductNode {
         });
     }
 
-    private void handleMaskAdded(ProductNodeEvent event) {
-        final Mask mask = (Mask) event.getSourceNode();
-        if (StringUtils.isNullOrEmpty(mask.getDescription()) && mask.getImageType() == Mask.BandMathsType.INSTANCE) {
-            String expression = Mask.BandMathsType.getExpression(mask);
-            mask.setDescription(getSuitableMaskDefDescription(expression));
+
+    /**
+     * Gets the model coordinate reference system (model CRS). It provides a common coordinate system
+     * <ul>
+     * <li>for the geometries used by all vector data;</li>
+     * <li>to which all raster data can resampled using affine transformations.</li>
+     * </ul>
+     * <p>
+     * If no model CRS has been set so far, the method will use an associated {@link #getGeoCoding() geo-coding}.
+     * If the geo-coding's {@link GeoCoding#getImageToMapTransform() image-to-map transform} is a linear transform, then
+     * the model CRS returned is the {@link GeoCoding#getMapCRS() map CRS}, otherwise it is the
+     * {@link GeoCoding#getImageCRS() image CRS}. If the product doesn't have any geo-coding,
+     * a default image CRS is returned.
+     *
+     * @return The model coordinate reference system.
+     */
+    public CoordinateReferenceSystem getModelCRS() {
+        if (modelCrs != null) {
+            return modelCrs;
         }
+        return getAppropriateModelCRS(getGeoCoding());
     }
 
-    private void handleVectorDataNodeAdded(ProductNodeEvent event) {
-        final VectorDataNode sourceNode = (VectorDataNode) event.getSourceNode();
-        if (sourceNode.getFeatureCollection().size() > 0) {
-            final Mask mask = getMask(sourceNode);
-            if (mask == null) {
-                addMask(sourceNode);
+
+    /**
+     * Gets a coordinate reference system (CRS) that is appropriate as a model CRS.
+     * <p>
+     * If the geo-coding's {@link GeoCoding#getImageToMapTransform() image-to-map transform} is a linear transform, then
+     * the model CRS returned is the {@link GeoCoding#getMapCRS() map CRS}, otherwise it is the
+     * {@link GeoCoding#getImageCRS() image CRS}. If the geo-coding is {@code null}, a default image CRS is returned
+     * ({@link Product#DEFAULT_IMAGE_CRS}).
+     *
+     * @param geoCoding The geo-coding or {@code null}.
+     * @return An appropriate model coordinate reference system.
+     */
+    public static CoordinateReferenceSystem getAppropriateModelCRS(GeoCoding geoCoding) {
+        if (geoCoding != null) {
+            final MathTransform image2Map = geoCoding.getImageToMapTransform();
+            if (image2Map instanceof AffineTransform) {
+                return geoCoding.getMapCRS();
             }
-        }
-    }
-
-    private void handleVectorDataNodeRemoved(ProductNodeEvent event) {
-        final Mask mask = getMask((VectorDataNode) event.getSourceNode());
-        if (mask != null) {
-            getMaskGroup().remove(mask);
-        }
-    }
-
-    private void handleMaskRemoved(ProductNodeEvent event) {
-        final Mask mask = (Mask) event.getSourceNode();
-        final Band[] bands = getBands();
-        for (Band band : bands) {
-            band.getOverlayMaskGroup().remove(mask);
-        }
-        final TiePointGrid[] tiePointGrids = getTiePointGrids();
-        for (TiePointGrid tiePointGrid : tiePointGrids) {
-            tiePointGrid.getOverlayMaskGroup().remove(mask);
-        }
-    }
-
-    private void addMask(VectorDataNode node) {
-        addMask(node.getName(), node,
-                "Mask derived from geometries in '" + node.getName() + "'", Color.RED, 0.5);
-    }
-
-    private void handleFeatureCollectionChange(ProductNodeEvent event) {
-        final VectorDataNode sourceNode = (VectorDataNode) event.getSourceNode();
-        final Mask mask = getMask(sourceNode);
-        if (sourceNode.getFeatureCollection().size() > 0) {
-            if (mask == null) {
-                addMask(sourceNode);
-            }
+            return geoCoding.getImageCRS();
         } else {
-            if (mask != null) {
-                getMaskGroup().remove(mask);
-            }
+            return Product.DEFAULT_IMAGE_CRS;
         }
     }
 
-    private Mask getMask(VectorDataNode sourceNode) {
-        final Mask[] masks = maskGroup.toArray(new Mask[maskGroup.getNodeCount()]);
-        for (final Mask mask : masks) {
-            if (mask.getImageType() == Mask.VectorDataType.INSTANCE) {
-                if (Mask.VectorDataType.getVectorData(mask) == sourceNode) {
-                    return mask;
-                }
+    /**
+     * Sets the model coordinate reference system.
+     *
+     * @param modelCrs The model coordinate reference system.
+     * @see #getModelCRS()
+     */
+    public void setModelCRS(CoordinateReferenceSystem modelCrs) {
+        Assert.notNull(modelCrs);
+        CoordinateReferenceSystem modelCrsOld = this.modelCrs;
+        if (!ObjectUtils.equalObjects(this.modelCrs, modelCrs)) {
+            this.modelCrs = modelCrs;
+            if (modelCrsOld != null) {
+                fireNodeChanged(this, "modelCrs", modelCrsOld, this.modelCrs);
             }
         }
-        return null;
-    }
-
-    private void handleGeoCodingChange() {
-        boolean adjustPinGeoPos = Config.instance().preferences().getBoolean(Placemark.PREFERENCE_KEY_ADJUST_PIN_GEO_POS, true);
-        if (adjustPinGeoPos) {
-            for (int i = 0; i < pinGroup.getNodeCount(); i++) {
-                final Placemark pin = pinGroup.get(i);
-                final PlacemarkDescriptor pinDescriptor = pin.getDescriptor();
-                final PixelPos pixelPos = pin.getPixelPos();
-                GeoPos geoPos = pin.getGeoPos();
-                if (pixelPos != null) {
-                    geoPos = pinDescriptor.updateGeoPos(getGeoCoding(), pixelPos, geoPos);
-                }
-                pin.setGeoPos(geoPos);
-            }
-        }
-    }
-
-    private void handleNameChange(final ProductNodeEvent event) {
-        final String oldName = (String) event.getOldValue();
-        final String newName = event.getSourceNode().getName();
-
-        final String oldExternName = BandArithmetic.createExternalName(oldName);
-        final String newExternName = BandArithmetic.createExternalName(newName);
-
-        final ProductVisitorAdapter productVisitorAdapter = new ProductVisitorAdapter() {
-            @Override
-            public void visit(Product product) {
-                if (product == event.getSourceNode()) {
-                    product.setFileLocation(null);
-                }
-            }
-
-            @Override
-            public void visit(TiePointGrid grid) {
-                grid.updateExpression(oldExternName, newExternName);
-            }
-
-            @Override
-            public void visit(Band band) {
-                band.updateExpression(oldExternName, newExternName);
-            }
-
-            @Override
-            public void visit(Mask mask) {
-                mask.updateExpression(oldExternName, newExternName);
-            }
-
-            @Override
-            public void visit(VirtualBand virtualBand) {
-                virtualBand.updateExpression(oldExternName, newExternName);
-            }
-
-            @Override
-            public void visit(ProductNodeGroup group) {
-                group.updateExpression(oldExternName, newExternName);
-            }
-        };
-        acceptVisitor(productVisitorAdapter);
     }
 
     /**
@@ -2822,6 +2782,133 @@ public class Product extends ProductNode {
         return new VirtualBandMultiLevelImage(multiLevelSource, term);
     }
 
+    private void handleMaskAdded(ProductNodeEvent event) {
+        final Mask mask = (Mask) event.getSourceNode();
+        if (StringUtils.isNullOrEmpty(mask.getDescription()) && mask.getImageType() == Mask.BandMathsType.INSTANCE) {
+            String expression = Mask.BandMathsType.getExpression(mask);
+            mask.setDescription(getSuitableMaskDefDescription(expression));
+        }
+    }
+
+    private void handleVectorDataNodeAdded(ProductNodeEvent event) {
+        final VectorDataNode sourceNode = (VectorDataNode) event.getSourceNode();
+        if (sourceNode.getFeatureCollection().size() > 0) {
+            final Mask mask = getMask(sourceNode);
+            if (mask == null) {
+                addMask(sourceNode);
+            }
+        }
+    }
+
+    private void handleVectorDataNodeRemoved(ProductNodeEvent event) {
+        final Mask mask = getMask((VectorDataNode) event.getSourceNode());
+        if (mask != null) {
+            getMaskGroup().remove(mask);
+        }
+    }
+
+    private void handleMaskRemoved(ProductNodeEvent event) {
+        final Mask mask = (Mask) event.getSourceNode();
+        final Band[] bands = getBands();
+        for (Band band : bands) {
+            band.getOverlayMaskGroup().remove(mask);
+        }
+        final TiePointGrid[] tiePointGrids = getTiePointGrids();
+        for (TiePointGrid tiePointGrid : tiePointGrids) {
+            tiePointGrid.getOverlayMaskGroup().remove(mask);
+        }
+    }
+
+    private void addMask(VectorDataNode node) {
+        addMask(node.getName(), node,
+                "Mask derived from geometries in '" + node.getName() + "'", Color.RED, 0.5);
+    }
+
+    private void handleFeatureCollectionChange(ProductNodeEvent event) {
+        final VectorDataNode sourceNode = (VectorDataNode) event.getSourceNode();
+        final Mask mask = getMask(sourceNode);
+        if (sourceNode.getFeatureCollection().size() > 0) {
+            if (mask == null) {
+                addMask(sourceNode);
+            }
+        } else {
+            if (mask != null) {
+                getMaskGroup().remove(mask);
+            }
+        }
+    }
+
+    private Mask getMask(VectorDataNode sourceNode) {
+        final Mask[] masks = maskGroup.toArray(new Mask[maskGroup.getNodeCount()]);
+        for (final Mask mask : masks) {
+            if (mask.getImageType() == Mask.VectorDataType.INSTANCE) {
+                if (Mask.VectorDataType.getVectorData(mask) == sourceNode) {
+                    return mask;
+                }
+            }
+        }
+        return null;
+    }
+
+    private void handleGeoCodingChange() {
+        boolean adjustPinGeoPos = Config.instance().preferences().getBoolean(Placemark.PREFERENCE_KEY_ADJUST_PIN_GEO_POS, true);
+        if (adjustPinGeoPos) {
+            for (int i = 0; i < pinGroup.getNodeCount(); i++) {
+                final Placemark pin = pinGroup.get(i);
+                final PlacemarkDescriptor pinDescriptor = pin.getDescriptor();
+                final PixelPos pixelPos = pin.getPixelPos();
+                GeoPos geoPos = pin.getGeoPos();
+                if (pixelPos != null) {
+                    geoPos = pinDescriptor.updateGeoPos(getGeoCoding(), pixelPos, geoPos);
+                }
+                pin.setGeoPos(geoPos);
+            }
+        }
+    }
+
+    private void handleNameChange(final ProductNodeEvent event) {
+        final String oldName = (String) event.getOldValue();
+        final String newName = event.getSourceNode().getName();
+
+        final String oldExternName = BandArithmetic.createExternalName(oldName);
+        final String newExternName = BandArithmetic.createExternalName(newName);
+
+        final ProductVisitorAdapter productVisitorAdapter = new ProductVisitorAdapter() {
+            @Override
+            public void visit(Product product) {
+                if (product == event.getSourceNode()) {
+                    product.setFileLocation(null);
+                }
+            }
+
+            @Override
+            public void visit(TiePointGrid grid) {
+                grid.updateExpression(oldExternName, newExternName);
+            }
+
+            @Override
+            public void visit(Band band) {
+                band.updateExpression(oldExternName, newExternName);
+            }
+
+            @Override
+            public void visit(Mask mask) {
+                mask.updateExpression(oldExternName, newExternName);
+            }
+
+            @Override
+            public void visit(VirtualBand virtualBand) {
+                virtualBand.updateExpression(oldExternName, newExternName);
+            }
+
+            @Override
+            public void visit(ProductNodeGroup group) {
+                group.updateExpression(oldExternName, newExternName);
+            }
+        };
+        acceptVisitor(productVisitorAdapter);
+    }
+
     private class VectorDataNodeProductNodeGroup extends ProductNodeGroup<VectorDataNode> {
 
         public VectorDataNodeProductNodeGroup() {
@@ -2864,4 +2951,6 @@ public class Product extends ProductNode {
             return null;
         }
     }
+
+
 }

@@ -35,7 +35,6 @@ import org.esa.snap.core.datamodel.ProductNodeGroup;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.datamodel.VectorDataNode;
 import org.esa.snap.core.datamodel.VirtualBand;
-import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.FeatureUtils;
 import org.esa.snap.core.util.SystemUtils;
@@ -145,14 +144,14 @@ public class DimapProductReader extends AbstractProductReader {
 
         bindBandsToFiles(dom);
         if (existingProduct == null) {
-            readVectorData(ImageManager.DEFAULT_IMAGE_CRS, true);
+            readVectorData(Product.DEFAULT_IMAGE_CRS, true);
 
             // read GCPs and pins from DOM (old-style)
             DimapProductHelpers.addGcps(dom, this.product);
             DimapProductHelpers.addPins(dom, this.product);
 
             initGeoCodings(dom);
-            readVectorData(ImageManager.getModelCrs(product.getGeoCoding()), false);
+            readVectorData(product.getModelCRS(), false);
             DimapProductHelpers.addMaskUsages(dom, this.product);
         }
         this.product.setProductReader(this);

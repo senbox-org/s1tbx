@@ -1144,8 +1144,8 @@ public class ProductUtils {
                 return;
             }
 
-            CoordinateReferenceSystem srcModelCrs = ImageManager.getModelCrs(sourceProduct.getGeoCoding());
-            CoordinateReferenceSystem targetModelCrs = ImageManager.getModelCrs(targetProduct.getGeoCoding());
+            CoordinateReferenceSystem srcModelCrs = sourceProduct.getModelCRS();
+            CoordinateReferenceSystem targetModelCrs = targetProduct.getModelCRS();
 
             for (int i = 0; i < vectorDataGroup.getNodeCount(); i++) {
                 VectorDataNode sourceVDN = vectorDataGroup.get(i);

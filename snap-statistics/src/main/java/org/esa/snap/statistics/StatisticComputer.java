@@ -12,7 +12,6 @@ import org.esa.snap.core.datamodel.StxFactory;
 import org.esa.snap.core.datamodel.SummaryStxOp;
 import org.esa.snap.core.datamodel.VectorDataNode;
 import org.esa.snap.core.gpf.OperatorException;
-import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.util.FeatureUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.statistics.output.Util;
@@ -61,8 +60,8 @@ public class StatisticComputer {
         crsProvider = new FeatureUtils.FeatureCrsProvider() {
             @Override
             public CoordinateReferenceSystem getFeatureCrs(Product targetProduct) {
-                if (ImageManager.getModelCrs(targetProduct.getGeoCoding()) == ImageManager.DEFAULT_IMAGE_CRS) {
-                    return ImageManager.DEFAULT_IMAGE_CRS;
+                if (targetProduct.getModelCRS() == Product.DEFAULT_IMAGE_CRS) {
+                    return Product.DEFAULT_IMAGE_CRS;
                 }
                 return DefaultGeographicCRS.WGS84;
             }

@@ -188,18 +188,11 @@ public class ImportVectorOp extends Operator {
             @Override
             public CoordinateReferenceSystem getFeatureCrs(final Product product) {
                 final CoordinateReferenceSystem[] featureCrsBuffer = new CoordinateReferenceSystem[1];
-                Runnable runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        featureCrsBuffer[0] = product.getGeoCoding().getMapCRS();
-                    }
-                };
+                Runnable runnable = () -> featureCrsBuffer[0] = product.getGeoCoding().getMapCRS();
                 if (!SwingUtilities.isEventDispatchThread()) {
                     try {
                         SwingUtilities.invokeAndWait(runnable);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    } catch (InvocationTargetException e) {
+                    } catch (InterruptedException | InvocationTargetException e) {
                         throw new RuntimeException(e);
                     }
                 } else {
@@ -326,7 +319,7 @@ public class ImportVectorOp extends Operator {
             if (geometry == null) {
                 return null;
             }
-            CoordinateReferenceSystem modelCrs = ImageManager.getModelCrs(geoCoding);
+            CoordinateReferenceSystem modelCrs = product.getModelCRS();
             AffineTransform imageToModelTransform = ImageManager.getImageToModelTransform(geoCoding);
             GeometryCoordinateSequenceTransformer transformer = new GeometryCoordinateSequenceTransformer();
             transformer.setMathTransform(new AffineTransform2D(imageToModelTransform));

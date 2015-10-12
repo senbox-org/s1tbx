@@ -208,7 +208,7 @@ public class ImageGeometry {
         final double referencePixelY = 0.0;
         final double referencePixelX = 0.0;
         return ImageGeometry.createTargetGeometry(targetProduct,
-                                                  ImageManager.getModelCrs(geoCoding),
+                                                  collocationProduct.getModelCRS(),
                                                   pixelSizeX, pixelSizeY,
                                                   width, height,
                                                   null,

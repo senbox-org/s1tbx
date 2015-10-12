@@ -45,12 +45,7 @@ import org.esa.snap.core.util.IntMap;
 import org.esa.snap.core.util.jai.JAIUtils;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.runtime.Config;
-import org.geotools.referencing.crs.DefaultImageCRS;
-import org.geotools.referencing.cs.DefaultCartesianCS;
-import org.geotools.referencing.datum.DefaultImageDatum;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.crs.ImageCRS;
-import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 
 import javax.media.jai.Histogram;
@@ -99,13 +94,6 @@ import java.util.Map;
  */
 public class ImageManager {
 
-    /**
-     * The default BEAM image coordinate reference system.
-     */
-    public static final ImageCRS DEFAULT_IMAGE_CRS = new DefaultImageCRS("SNAP_IMAGE_CRS",
-                                                                         new DefaultImageDatum("SNAP_IMAGE_DATUM", PixelInCell.CELL_CORNER),
-                                                                         DefaultCartesianCS.DISPLAY);
-
     private static final boolean CACHE_INTERMEDIATE_TILES = Config.instance().preferences().getBoolean("snap.enableIntermediateTileCaching", false);
 
 
@@ -149,17 +137,11 @@ public class ImageManager {
      * @param geoCoding A geo-coding, may be {@code null}.
      * @return The coordinate reference system used for the model space. If {@code geoCoding} is {@code null},
      * it will be a default image coordinate reference system (an instance of {@code org.opengis.referencing.crs.ImageCRS}).
+     * @deprecated since SNAP 2, use {@link Product#getAppropriateModelCRS(GeoCoding)}
      */
+    @Deprecated
     public static CoordinateReferenceSystem getModelCrs(GeoCoding geoCoding) {
-        if (geoCoding != null) {
-            final MathTransform image2Map = geoCoding.getImageToMapTransform();
-            if (image2Map instanceof AffineTransform) {
-                return geoCoding.getMapCRS();
-            }
-            return geoCoding.getImageCRS();
-        } else {
-            return DEFAULT_IMAGE_CRS;
-        }
+        return Product.getAppropriateModelCRS(geoCoding);
     }
 
     public PlanarImage getSourceImage(RasterDataNode rasterDataNode, int level) {

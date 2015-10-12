@@ -26,7 +26,6 @@ import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.TopologyException;
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.image.ImageManager;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.FeatureSource;
@@ -99,7 +98,7 @@ public class FeatureUtils {
     }
 
     public static FeatureCollection<SimpleFeatureType, SimpleFeature> clipFeatureCollectionToProductBounds(FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection, Product product, FeatureCrsProvider crsProvider, ProgressMonitor pm) {
-        final CoordinateReferenceSystem targetCrs = ImageManager.getModelCrs(product.getGeoCoding());
+        final CoordinateReferenceSystem targetCrs = product.getModelCRS();
         final Geometry clipGeometry = createGeoBoundaryPolygon(product);
         pm.worked(10);
         CoordinateReferenceSystem featureCrs = featureCollection.getSchema().getCoordinateReferenceSystem();
