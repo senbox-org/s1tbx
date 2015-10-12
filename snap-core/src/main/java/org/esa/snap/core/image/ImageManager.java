@@ -102,8 +102,8 @@ public class ImageManager {
     /**
      * The default BEAM image coordinate reference system.
      */
-    public static final ImageCRS DEFAULT_IMAGE_CRS = new DefaultImageCRS("BEAM_IMAGE_CRS",
-                                                                         new DefaultImageDatum("BEAM_IMAGE_DATUM", PixelInCell.CELL_CORNER),
+    public static final ImageCRS DEFAULT_IMAGE_CRS = new DefaultImageCRS("SNAP_IMAGE_CRS",
+                                                                         new DefaultImageDatum("SNAP_IMAGE_DATUM", PixelInCell.CELL_CORNER),
                                                                          DefaultCartesianCS.DISPLAY);
 
     private static final boolean CACHE_INTERMEDIATE_TILES = Config.instance().preferences().getBoolean("snap.enableIntermediateTileCaching", false);
