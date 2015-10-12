@@ -69,7 +69,7 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
         RASTER_WIDTH = product.getBandAt(0).getSceneRasterWidth();
         RASTER_HEIGHT = product.getBandAt(0).getSceneRasterHeight();
         fileElevationTile = new FileElevationTile(product);
-        tileGeocoding = product.getGeoCoding();
+        tileGeocoding = product.getSceneGeoCoding();
         if(tileGeocoding == null) {
             throw new IOException(file.toString()+" has an invalid or unsupported geocoding");
         }

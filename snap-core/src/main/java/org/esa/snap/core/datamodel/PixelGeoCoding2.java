@@ -89,7 +89,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
         fractionAccuracy = Config.instance().preferences().getBoolean(SYSPROP_PIXEL_GEO_CODING_FRACTION_ACCURACY, false);
         this.latBand = latBand;
         this.lonBand = lonBand;
-        formerGeocoding = product.getGeoCoding();
+        formerGeocoding = product.getSceneGeoCoding();
 
         this.rasterW = latBand.getSceneRasterWidth();
         this.rasterH = latBand.getSceneRasterHeight();

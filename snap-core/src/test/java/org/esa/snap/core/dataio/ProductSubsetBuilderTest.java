@@ -75,7 +75,7 @@ public class ProductSubsetBuilderTest {
                                                     0.0f, 1.0f, 2.0f
                                             });
         product.addTiePointGrid(lon);
-        product.setGeoCoding(new TiePointGeoCoding(lat, lon));
+        product.setSceneGeoCoding(new TiePointGeoCoding(lat, lon));
         attachIndexCodedBand();
         attachColoredBand();
     }
@@ -157,7 +157,7 @@ public class ProductSubsetBuilderTest {
     public void testCopyPlacemarkGroupsOnlyForRegionSubset() throws IOException {
         final PlacemarkDescriptor pinDescriptor = PinDescriptor.getInstance();
         final PlacemarkDescriptor gcpDescriptor = GcpDescriptor.getInstance();
-        GeoCoding geoCoding = product.getGeoCoding();
+        GeoCoding geoCoding = product.getSceneGeoCoding();
         final Placemark pin1 = Placemark.createPointPlacemark(pinDescriptor, "P1", "", "", new PixelPos(1.5, 1.5), null, geoCoding);
         final Placemark pin2 = Placemark.createPointPlacemark(pinDescriptor, "P2", "", "", new PixelPos(3.5, 3.5), null, geoCoding);
         final Placemark pin3 = Placemark.createPointPlacemark(pinDescriptor, "P3", "", "", new PixelPos(9.5, 9.5), null, geoCoding);
@@ -184,7 +184,7 @@ public class ProductSubsetBuilderTest {
     public void testCopyPlacemarkGroupsOnlyForNullSubset() throws IOException {
         final PlacemarkDescriptor pinDescriptor = PinDescriptor.getInstance();
         final PlacemarkDescriptor gcpDescriptor = GcpDescriptor.getInstance();
-        GeoCoding geoCoding = product.getGeoCoding();
+        GeoCoding geoCoding = product.getSceneGeoCoding();
         final Placemark pin1 = Placemark.createPointPlacemark(pinDescriptor, "P1", "", "", new PixelPos(1.5, 1.5), null, geoCoding);
         final Placemark pin2 = Placemark.createPointPlacemark(pinDescriptor, "P2", "", "", new PixelPos(3.5, 3.5), null, geoCoding);
         final Placemark pin3 = Placemark.createPointPlacemark(pinDescriptor, "P3", "", "", new PixelPos(9.5, 9.5), null, geoCoding);

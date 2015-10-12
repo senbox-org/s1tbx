@@ -45,12 +45,12 @@ public class BandArithmeticTest {
     @Before
     public void setUp() throws FactoryException, TransformException {
         product1 = new Product("p1", "t", width, height);
-        product1.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, width, height, 0, 10, 0.1, 0.1));
+        product1.setSceneGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, width, height, 0, 10, 0.1, 0.1));
         product1.addBand("b1", ProductData.TYPE_FLOAT32);
         product1.addBand("b2", ProductData.TYPE_UINT8);
         product1.setRefNo(1);
         product2 = new Product("p2", "t", width, height);
-        product2.setGeoCoding(null);
+        product2.setSceneGeoCoding(null);
         product2.addBand("b1", ProductData.TYPE_FLOAT32);
         product2.setRefNo(2);
     }

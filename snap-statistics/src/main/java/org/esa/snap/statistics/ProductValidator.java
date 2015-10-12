@@ -25,7 +25,7 @@ public class ProductValidator {
     }
 
     private boolean containsGeocoding(Product product) {
-        final boolean valid = product.getGeoCoding() != null;
+        final boolean valid = product.getSceneGeoCoding() != null;
         if (!valid) {
             logSkipped("The product '" + product.getName() + "' does not contain a geo coding.");
         }

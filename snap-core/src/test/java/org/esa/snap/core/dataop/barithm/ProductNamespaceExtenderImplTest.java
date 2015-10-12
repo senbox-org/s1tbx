@@ -60,9 +60,9 @@ public class ProductNamespaceExtenderImplTest {
     public void testPixelLatLonSymbols() throws Exception {
         final Product product = new Product("name", "type", 10, 10);
 
-        product.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, 10, 10, 0, 0, 0.1, 0.1));
-        Symbol pixelLatSymbol = new ProductNamespaceExtenderImpl.PixelLatSymbol("LAT", product.getGeoCoding(), 10, 10);
-        Symbol pixelLonSymbol = new ProductNamespaceExtenderImpl.PixelLonSymbol("LON", product.getGeoCoding(), 10, 10);
+        product.setSceneGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, 10, 10, 0, 0, 0.1, 0.1));
+        Symbol pixelLatSymbol = new ProductNamespaceExtenderImpl.PixelLatSymbol("LAT", product.getSceneGeoCoding(), 10, 10);
+        Symbol pixelLonSymbol = new ProductNamespaceExtenderImpl.PixelLonSymbol("LON", product.getSceneGeoCoding(), 10, 10);
 
         RasterDataEvalEnv rasterEnv;
 
@@ -87,8 +87,8 @@ public class ProductNamespaceExtenderImplTest {
     public void testPixelLatLonSymbols_no_geo() throws Exception {
         final Product product = new Product("name", "type", 10, 10);
 
-        Symbol pixelLatSymbol = new ProductNamespaceExtenderImpl.PixelLatSymbol("LAT", product.getGeoCoding(), 10, 10);
-        Symbol pixelLonSymbol = new ProductNamespaceExtenderImpl.PixelLonSymbol("LON", product.getGeoCoding(), 10, 10);
+        Symbol pixelLatSymbol = new ProductNamespaceExtenderImpl.PixelLatSymbol("LAT", product.getSceneGeoCoding(), 10, 10);
+        Symbol pixelLonSymbol = new ProductNamespaceExtenderImpl.PixelLonSymbol("LON", product.getSceneGeoCoding(), 10, 10);
 
         RasterDataEvalEnv rasterEnv;
 

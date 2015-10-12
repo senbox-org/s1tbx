@@ -199,7 +199,7 @@ public class GETASSE30Reader extends AbstractProductReader {
                                             Datum.WGS_84);
         mapInfo.setSceneWidth(width);
         mapInfo.setSceneHeight(height);
-        _product.setGeoCoding(new MapGeoCoding(mapInfo));
+        _product.setSceneGeoCoding(new MapGeoCoding(mapInfo));
         _product.setDescription("GETASSE30 DEM");
         Band elevationBand = new Band("elevation", ProductData.TYPE_INT16, width, height);
         elevationBand.setUnit("m");

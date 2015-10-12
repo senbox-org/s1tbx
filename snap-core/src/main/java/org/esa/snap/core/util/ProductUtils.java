@@ -490,7 +490,7 @@ public class ProductUtils {
     public static GeoPos[] createGeoBoundary(Product product, Rectangle region, int step,
                                              final boolean usePixelCenter) {
         Guardian.assertNotNull("product", product);
-        final GeoCoding gc = product.getGeoCoding();
+        final GeoCoding gc = product.getSceneGeoCoding();
         if (gc == null) {
             throw new IllegalArgumentException(UtilConstants.MSG_NO_GEO_CODING);
         }
@@ -594,7 +594,7 @@ public class ProductUtils {
     public static GeneralPath[] createGeoBoundaryPaths(Product product, Rectangle region, int step,
                                                        final boolean usePixelCenter) {
         Guardian.assertNotNull("product", product);
-        final GeoCoding gc = product.getGeoCoding();
+        final GeoCoding gc = product.getSceneGeoCoding();
         if (gc == null) {
             throw new IllegalArgumentException(UtilConstants.MSG_NO_GEO_CODING);
         }
@@ -980,7 +980,7 @@ public class ProductUtils {
         if (copySourceImage) {
             targetBand.setSourceImage(sourceBand.getSourceImage());
         }
-        if (sourceBand.getGeoCoding() != sourceProduct.getGeoCoding()) {
+        if (sourceBand.getGeoCoding() != sourceProduct.getSceneGeoCoding()) {
             targetBand.setGeoCoding(sourceBand.getGeoCoding());
         }
         return targetBand;
@@ -1129,7 +1129,7 @@ public class ProductUtils {
                 targetVDN.setDescription(sourceVDN.getDescription());
             }
         } else {
-            if (sourceProduct.getGeoCoding() == null || targetProduct.getGeoCoding() == null) {
+            if (sourceProduct.getSceneGeoCoding() == null || targetProduct.getSceneGeoCoding() == null) {
                 return;
             }
             Geometry clipGeometry;
@@ -1178,8 +1178,8 @@ public class ProductUtils {
      */
     public static boolean canGetPixelPos(Product product) {
         return product != null
-                && product.getGeoCoding() != null
-                && product.getGeoCoding().canGetPixelPos();
+                && product.getSceneGeoCoding() != null
+                && product.getSceneGeoCoding().canGetPixelPos();
     }
 
     /**
@@ -1311,7 +1311,7 @@ public class ProductUtils {
     }
 
     public static GeoPos getCenterGeoPos(final Product product) {
-        final GeoCoding geoCoding = product.getGeoCoding();
+        final GeoCoding geoCoding = product.getSceneGeoCoding();
         if (geoCoding != null) {
             final PixelPos centerPixelPos = new PixelPos(0.5 * product.getSceneRasterWidth() + 0.5,
                                                          0.5 * product.getSceneRasterHeight() + 0.5);
@@ -1483,7 +1483,7 @@ public class ProductUtils {
 
 
     public static GeoTIFFMetadata createGeoTIFFMetadata(final Product product) {
-        final GeoCoding geoCoding = product.getGeoCoding();
+        final GeoCoding geoCoding = product.getSceneGeoCoding();
         final int w = product.getSceneRasterWidth();
         final int h = product.getSceneRasterHeight();
         return createGeoTIFFMetadata(geoCoding, w, h);

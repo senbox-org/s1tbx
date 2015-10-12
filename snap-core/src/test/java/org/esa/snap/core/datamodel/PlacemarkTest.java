@@ -81,7 +81,7 @@ public class PlacemarkTest extends TestCase {
 
     public void testPinEvents() {
         final Placemark placemark1 = Placemark.createPointPlacemark(PinDescriptor.getInstance(), "pinName", "pinLabel", "", null, new GeoPos(),
-                                                                    product.getGeoCoding());
+                                                                    product.getSceneGeoCoding());
 
         assertEquals(0, product.getPinGroup().getNodeCount());
         assertEquals(0, events.size());
@@ -143,7 +143,7 @@ public class PlacemarkTest extends TestCase {
 
     public void testWriteXML_XmlWriterIsNull() {
         Placemark placemark = Placemark.createPointPlacemark(PinDescriptor.getInstance(), "pinName", "pinLabel", "", null, new GeoPos(),
-                                                             product.getGeoCoding());
+                                                             product.getSceneGeoCoding());
 
         try {
             PlacemarkIO.writeXML(placemark, null, 1);
@@ -156,7 +156,7 @@ public class PlacemarkTest extends TestCase {
     }
 
     public void testWriteXML_IndentIsSmallerThanZero() {
-        Placemark placemark = Placemark.createPointPlacemark(PinDescriptor.getInstance(), "pinName", "pinLabel", "", null, new GeoPos(), product.getGeoCoding());
+        Placemark placemark = Placemark.createPointPlacemark(PinDescriptor.getInstance(), "pinName", "pinLabel", "", null, new GeoPos(), product.getSceneGeoCoding());
 
         try {
             int indent = -1;
@@ -171,7 +171,7 @@ public class PlacemarkTest extends TestCase {
 
     public void testWriteXML_DifferentValidIndent() {
         Placemark placemark = Placemark.createPointPlacemark(PinDescriptor.getInstance(), "pinName", "pinLabel", "", null, new GeoPos(4f, 87f),
-                                                             product.getGeoCoding());
+                                                             product.getSceneGeoCoding());
         placemark.setDescription("pinDescription");
 
         StringWriter stringWriter = new StringWriter();
@@ -289,7 +289,7 @@ public class PlacemarkTest extends TestCase {
     }
 
     public void testLabelSettings() {
-        Placemark p = Placemark.createPointPlacemark(PinDescriptor.getInstance(), "rallamann", "rallamann", "", null, new GeoPos(), product.getGeoCoding());
+        Placemark p = Placemark.createPointPlacemark(PinDescriptor.getInstance(), "rallamann", "rallamann", "", null, new GeoPos(), product.getSceneGeoCoding());
         assertEquals("rallamann", p.getName());
         assertEquals("rallamann", p.getLabel());
 

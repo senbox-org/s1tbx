@@ -110,11 +110,11 @@ public class BandMathsOpTest {
         AffineTransform imageToMap = new AffineTransform();
         final GeoCoding geoCoding = new CrsGeoCoding(decode, imageBounds, imageToMap);
 
-        sourceProduct.setGeoCoding(geoCoding);
+        sourceProduct.setSceneGeoCoding(geoCoding);
         Product targetProduct = GPF.createProduct("BandMaths", parameters, sourceProduct);
 
         assertNotNull(targetProduct);
-        assertNotNull(targetProduct.getGeoCoding());
+        assertNotNull(targetProduct.getSceneGeoCoding());
         assertTrue(targetProduct.isUsingSingleGeoCoding());
     }
 
@@ -125,7 +125,7 @@ public class BandMathsOpTest {
         Rectangle imageBounds = new Rectangle(4, 4);
         AffineTransform imageToMap = new AffineTransform();
         final GeoCoding geoCoding = new CrsGeoCoding(decode, imageBounds, imageToMap);
-        sourceProduct.setGeoCoding(geoCoding);
+        sourceProduct.setSceneGeoCoding(geoCoding);
 
         Map<String, Object> parameters = new HashMap<>();
         BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
@@ -135,7 +135,7 @@ public class BandMathsOpTest {
         Product targetProduct = GPF.createProduct("BandMaths", parameters, sourceProduct);
 
         assertNotNull(targetProduct);
-        assertNotNull(targetProduct.getGeoCoding());
+        assertNotNull(targetProduct.getSceneGeoCoding());
         assertTrue(targetProduct.isUsingSingleGeoCoding());
     }
 
@@ -144,12 +144,12 @@ public class BandMathsOpTest {
         Product sourceProduct1 = createTestProduct(4, 4);
         AffineTransform imageToMap = new AffineTransform();
         final GeoCoding geoCoding = new CrsGeoCoding(CRS.decode("EPSG:32632"), new Rectangle(4, 4), imageToMap);
-        sourceProduct1.setGeoCoding(geoCoding);
+        sourceProduct1.setSceneGeoCoding(geoCoding);
 
         Product sourceProduct2 = createTestProduct(12,12);
         AffineTransform imageToMap2 = new AffineTransform();
         final GeoCoding geoCoding2 = new CrsGeoCoding(CRS.decode("EPSG:32632"), new Rectangle(12, 12), imageToMap2);
-        sourceProduct2.setGeoCoding(geoCoding2);
+        sourceProduct2.setSceneGeoCoding(geoCoding2);
 
         Map<String, Object> parameters = new HashMap<>();
         BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[2];
@@ -160,7 +160,7 @@ public class BandMathsOpTest {
         Product targetProduct = GPF.createProduct("BandMaths", parameters, sourceProduct1, sourceProduct2);
 
         assertNotNull(targetProduct);
-        assertNotNull(targetProduct.getGeoCoding());
+        assertNotNull(targetProduct.getSceneGeoCoding());
         assertFalse(targetProduct.isUsingSingleGeoCoding());
 
         final GeoCoding targetGC1 = targetProduct.getBand("aBandName1").getGeoCoding();
@@ -182,7 +182,7 @@ public class BandMathsOpTest {
         AffineTransform imageToMap = new AffineTransform();
         final GeoCoding geoCoding = new CrsGeoCoding(decode, imageBounds, imageToMap);
 
-        sourceProduct.setGeoCoding(geoCoding);
+        sourceProduct.setSceneGeoCoding(geoCoding);
 
         Map<String, Object> parameters = new HashMap<>();
         BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];

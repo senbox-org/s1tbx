@@ -53,7 +53,7 @@ public class ProductFlipperTest {
                 0.2f, 0.9f, 0.5f
         });
         product.addTiePointGrid(t2);
-        product.setGeoCoding(new TiePointGeoCoding(t1, t2));
+        product.setSceneGeoCoding(new TiePointGeoCoding(t1, t2));
 
         TiePointGrid t3 = new TiePointGrid("t3", 3, 3, 1, 1, 3, 3, new float[]{
                 1, 2, 3,

@@ -532,7 +532,7 @@ public class DimapProductHelpers {
             final Content posEstimatorContent = posEstimatorElement.detach();
             final Document dom = new Document();
             dom.addContent(posEstimatorContent);
-            product.setGeoCoding(createGeoCoding(dom, product)[0]);
+            product.setSceneGeoCoding(createGeoCoding(dom, product)[0]);
         }
 
         return GeoCodingFactory.createPixelGeoCoding(latBand, lonBand, validMask, searchRadius);
@@ -867,7 +867,7 @@ public class DimapProductHelpers {
         for (Object elementObj : elements) {
             final Element element = (Element) elementObj;
             final Placemark placemark = PlacemarkIO.createPlacemark(element, PinDescriptor.getInstance(),
-                                                                    product.getGeoCoding());
+                                                                    product.getSceneGeoCoding());
             if (placemark != null) {
                 product.getPinGroup().add(placemark);
             }
@@ -887,7 +887,7 @@ public class DimapProductHelpers {
         for (Object elementObj : elements) {
             final Element element = (Element) elementObj;
             final Placemark placemark = PlacemarkIO.createPlacemark(element, GcpDescriptor.getInstance(),
-                                                                    product.getGeoCoding());
+                                                                    product.getSceneGeoCoding());
             if (placemark != null) {
                 product.getGcpGroup().add(placemark);
             }

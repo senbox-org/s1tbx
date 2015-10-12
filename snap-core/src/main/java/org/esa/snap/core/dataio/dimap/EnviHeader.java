@@ -320,8 +320,8 @@ public class EnviHeader {
         String utmHemisphere = "";
         MapProjection mapProjection = null;
 
-        if (product.getGeoCoding() instanceof CrsGeoCoding) {
-            final CrsGeoCoding crsGeoCoding = (CrsGeoCoding) product.getGeoCoding();
+        if (product.getSceneGeoCoding() instanceof CrsGeoCoding) {
+            final CrsGeoCoding crsGeoCoding = (CrsGeoCoding) product.getSceneGeoCoding();
             final CoordinateReferenceSystem crs = crsGeoCoding.getMapCRS();
 
             final ImageGeometry imgGeom = ImageGeometry.createTargetGeometry(product, crs,
@@ -354,8 +354,8 @@ public class EnviHeader {
             pixelSizeY = imgGeom.getPixelSizeY();
             datumName = crsGeoCoding.getDatum().getName();
 
-        } else if (product.getGeoCoding() instanceof MapGeoCoding) {
-            final MapGeoCoding mapGeoCoding = (MapGeoCoding) product.getGeoCoding();
+        } else if (product.getSceneGeoCoding() instanceof MapGeoCoding) {
+            final MapGeoCoding mapGeoCoding = (MapGeoCoding) product.getSceneGeoCoding();
 
             final MapInfo info = mapGeoCoding.getMapInfo();
             if (info == null) {
@@ -464,7 +464,7 @@ public class EnviHeader {
         }
 
         // write coordinate system string
-        GeoCoding geoCoding = product.getGeoCoding();
+        GeoCoding geoCoding = product.getSceneGeoCoding();
         CoordinateReferenceSystem crs = geoCoding.getMapCRS();
         if (crs != null) {
             String wkt;

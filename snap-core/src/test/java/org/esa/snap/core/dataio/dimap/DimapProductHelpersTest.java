@@ -777,7 +777,7 @@ public class DimapProductHelpersTest {
         final GeoCoding[] geoCodings = DimapProductHelpers.createGeoCoding(dom, product);
 
         assertFalse(product.isUsingSingleGeoCoding());
-        assertTrue(product.getGeoCoding() == null);
+        assertTrue(product.getSceneGeoCoding() == null);
 
         final GeoCoding geoCoding1 = geoCodings[0];
         final GeoCoding geoCoding2 = geoCodings[1];

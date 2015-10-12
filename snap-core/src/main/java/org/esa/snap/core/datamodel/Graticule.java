@@ -62,7 +62,7 @@ public class Graticule {
                                    float latMajorStep,
                                    float lonMajorStep) {
         Guardian.assertNotNull("product", product);
-        final GeoCoding geoCoding = product.getGeoCoding();
+        final GeoCoding geoCoding = product.getSceneGeoCoding();
         if (geoCoding == null || product.getSceneRasterWidth() < 16 || product.getSceneRasterHeight() < 16) {
             return null;
         }
@@ -108,8 +108,8 @@ public class Graticule {
             yMax = Math.max(yMax, geoPos.lat);
         }
 
-        final List<List<Coord>> parallelList = computeParallelList(product.getGeoCoding(), geoBoundary, latMajorStep, lonMinorStep, yMin, yMax);
-        final List<List<Coord>> meridianList = computeMeridianList(product.getGeoCoding(), geoBoundary, lonMajorStep, latMinorStep, xMin, xMax);
+        final List<List<Coord>> parallelList = computeParallelList(product.getSceneGeoCoding(), geoBoundary, latMajorStep, lonMinorStep, yMin, yMax);
+        final List<List<Coord>> meridianList = computeMeridianList(product.getSceneGeoCoding(), geoBoundary, lonMajorStep, latMinorStep, xMin, xMax);
         final GeneralPath[] paths = createPaths(parallelList, meridianList);
         final TextGlyph[] textGlyphs = createTextGlyphs(parallelList, meridianList);
 

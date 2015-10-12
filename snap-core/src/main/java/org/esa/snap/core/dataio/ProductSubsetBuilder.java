@@ -201,8 +201,8 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                                            final String tagLat, final String tagLon, final float x, final float y) {
         final PixelPos pixelPos = new PixelPos(x, y);
         final GeoPos geoPos = new GeoPos();
-        if(product.getGeoCoding() == null) return;
-        product.getGeoCoding().getGeoPos(pixelPos, geoPos);
+        if(product.getSceneGeoCoding() == null) return;
+        product.getSceneGeoCoding().getGeoPos(pixelPos, geoPos);
 
         final MetadataAttribute lat = absRoot.getAttribute(tagLat);
         if(lat != null)
@@ -622,7 +622,7 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
     }
 
     protected void addTiePointGridsToProduct(final Product product) {
-        final GeoCoding geoCoding = getSourceProduct().getGeoCoding();
+        final GeoCoding geoCoding = getSourceProduct().getSceneGeoCoding();
         final String latGridName;
         final String lonGridName;
         if (geoCoding instanceof TiePointGeoCoding) {

@@ -315,7 +315,7 @@ public class MeasurementWriterTest {
         final double scaleY = 180 / bounds.height;
         i2mTransform.scale(scaleX, -scaleY);
         CrsGeoCoding geoCoding = new CrsGeoCoding(DefaultGeographicCRS.WGS84, bounds, i2mTransform);
-        product.setGeoCoding(geoCoding);
+        product.setSceneGeoCoding(geoCoding);
         for (int i = 0; i < bandNames.length; i++) {
             Band band = product.addBand(bandNames[i], ProductData.TYPE_FLOAT32);
             band.setSourceImage(ConstantDescriptor.create((float) bounds.width, (float) bounds.height,

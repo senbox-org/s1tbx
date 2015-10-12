@@ -46,8 +46,8 @@ public class RasterDataNodeTimeCodigTest {
         final ProductNodeEvent secondEvent = events.get(1);
         assertSame(rasterDataNode, firstEvent.getSourceNode());
         assertSame(rasterDataNode, secondEvent.getSourceNode());
-        assertEquals(RasterDataNode.PROPERTY_NAME_TIMECODING, firstEvent.getPropertyName());
-        assertEquals(RasterDataNode.PROPERTY_NAME_TIMECODING, secondEvent.getPropertyName());
+        assertEquals(RasterDataNode.PROPERTY_NAME_TIME_CODING, firstEvent.getPropertyName());
+        assertEquals(RasterDataNode.PROPERTY_NAME_TIME_CODING, secondEvent.getPropertyName());
         assertNull(firstEvent.getOldValue());
         assertSame(timeCoding, firstEvent.getNewValue());
         assertSame(timeCoding, secondEvent.getOldValue());

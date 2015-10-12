@@ -40,7 +40,7 @@ class SpatialDataDaySourceProductFilter extends BinningProductFilter {
 
     @Override
     protected boolean acceptForBinning(Product product) {
-            GeoCoding geoCoding = product.getGeoCoding();
+            GeoCoding geoCoding = product.getSceneGeoCoding();
             ProductData.UTC firstScanLineTime = ProductUtils.getScanLineTime(product, 0);
             ProductData.UTC lastScanLineTime = ProductUtils.getScanLineTime(product, product.getSceneRasterHeight() - 1);
             if (firstScanLineTime == null || lastScanLineTime == null) {

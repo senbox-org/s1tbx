@@ -86,7 +86,7 @@ abstract class ObservationIterator implements Iterator<Observation> {
         }
         this.product = product;
         this.productHasTime = product.getStartTime() != null || product.getEndTime() != null;
-        this.gc = product.getGeoCoding();
+        this.gc = product.getSceneGeoCoding();
         geometryFactory = new GeometryFactory();
     }
 

@@ -7,7 +7,7 @@ class GeoCodingProductFilter extends BinningProductFilter {
 
     @Override
     protected boolean acceptForBinning(Product product) {
-        final GeoCoding geoCoding = product.getGeoCoding();
+        final GeoCoding geoCoding = product.getSceneGeoCoding();
         if (geoCoding != null && geoCoding.canGetGeoPos()) {
             return true;
         }

@@ -70,17 +70,17 @@ public class EnvisatProductReaderTest {
 
             final GeoPos geoPos = new GeoPos();
 
-            product.getGeoCoding().getGeoPos(new PixelPos(0.0F + 1.0F, 0.0F), geoPos);
+            product.getSceneGeoCoding().getGeoPos(new PixelPos(0.0F + 1.0F, 0.0F), geoPos);
             assertEquals(44.550718F, geoPos.getLat(), 1.0E-5F);
             assertEquals(32.878792F, geoPos.getLon(), 1.0E-5F);
 
-            product.getGeoCoding().getGeoPos(new PixelPos(5.0F + 1.0F, 0.0F), geoPos);
+            product.getSceneGeoCoding().getGeoPos(new PixelPos(5.0F + 1.0F, 0.0F), geoPos);
             assertEquals(44.541008F, geoPos.getLat(), 1.0E-5F);
             assertEquals(32.940249F, geoPos.getLon(), 1.0E-5F);
 
             for (int i = 0; i < rowCount; i++) {
                 for (int j = 0, k = colCount - 1; j < colCount; j++, k--) {
-                    product.getGeoCoding().getGeoPos(new PixelPos(j + 1.0F, i + 0.0F), geoPos);
+                    product.getSceneGeoCoding().getGeoPos(new PixelPos(j + 1.0F, i + 0.0F), geoPos);
                     assertEquals(lats[i * colCount + k], geoPos.getLat(), 1.2E-5F);
                     assertEquals(lons[i * colCount + k], geoPos.getLon(), 1.2E-5F);
                 }
@@ -121,7 +121,7 @@ public class EnvisatProductReaderTest {
 
             for (int i = 0; i < rowCount; i++) {
                 for (int j = 0, k = colCount - 1; j < colCount; j++, k--) {
-                    product.getGeoCoding().getGeoPos(new PixelPos(j + 0.5F, i + 0.5F), geoPos);
+                    product.getSceneGeoCoding().getGeoPos(new PixelPos(j + 0.5F, i + 0.5F), geoPos);
                     assertEquals(lats[i * colCount + k], geoPos.getLat(), 1.2E-5F);
                     assertEquals(lons[i * colCount + k], geoPos.getLon(), 1.2E-5F);
                 }

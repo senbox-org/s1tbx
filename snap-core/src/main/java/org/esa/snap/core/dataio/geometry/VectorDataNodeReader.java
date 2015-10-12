@@ -153,12 +153,12 @@ public class VectorDataNodeReader {
         final boolean needsClipping = !CRS.equalsIgnoreMetadata(featureCrs, modelCrs);
         final boolean clipToProductBounds = crsProvider.clipToProductBounds();
         FeatureCollection<SimpleFeatureType, SimpleFeature> clippedCollection;
-        if (product.getGeoCoding() != null && featureCollection.size() > 0 && (needsClipping || clipToProductBounds)) {
+        if (product.getSceneGeoCoding() != null && featureCollection.size() > 0 && (needsClipping || clipToProductBounds)) {
             final Geometry clipGeometry = FeatureUtils.createGeoBoundaryPolygon(product);
             clippedCollection = FeatureUtils.clipCollection(featureCollection,
                                                             null,
                                                             clipGeometry,
-                                                            product.getGeoCoding().getGeoCRS(),
+                                                            product.getSceneGeoCoding().getGeoCRS(),
                                                             null,
                                                             modelCrs,
                                                             SubProgressMonitor.create(pm, 45));

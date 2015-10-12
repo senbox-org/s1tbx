@@ -86,7 +86,7 @@ public class ArcBinGridReader extends AbstractProductReader {
         product.setPreferredTileSize(imageTileSize);
 
         final AffineTransform i2m = createAffineTransform(georefBounds, header, width, height);
-        product.setGeoCoding(createGeoCoding(width, height, i2m));
+        product.setSceneGeoCoding(createGeoCoding(width, height, i2m));
 
         int productDataType = getDataType(header, rasterStatistics);
         final Band band = product.addBand(BAND_NAME, productDataType);

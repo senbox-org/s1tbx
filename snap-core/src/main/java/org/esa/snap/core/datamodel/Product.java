@@ -93,8 +93,8 @@ public class Product extends ProductNode {
     public static final String METADATA_ROOT_NAME = "metadata";
     public static final String HISTORY_ROOT_NAME = "history";
 
-    public static final String PROPERTY_NAME_GEOCODING = "geoCoding";
-    public static final String PROPERTY_NAME_TIMECODING = "timeCoding";
+    public static final String PROPERTY_NAME_SCENE_GEO_CODING = "sceneGeoCoding";
+    public static final String PROPERTY_NAME_SCENE_TIME_CODING = "sceneTimeCoding";
     public static final String PROPERTY_NAME_PRODUCT_TYPE = "productType";
 
     public static final String GEOMETRY_FEATURE_TYPE_NAME = PlainFeatureFactory.DEFAULT_TYPE_NAME;
@@ -135,12 +135,12 @@ public class Product extends ProductNode {
     /**
      * The time-coding of this product, if any.
      */
-    private TimeCoding timeCoding;
+    private TimeCoding sceneTimeCoding;
 
     /**
      * The geo-coding of this product, if any.
      */
-    private GeoCoding geoCoding;
+    private GeoCoding sceneGeoCoding;
 
     /**
      * The list of product listeners.
@@ -331,7 +331,7 @@ public class Product extends ProductNode {
             public void nodeChanged(final ProductNodeEvent event) {
                 if (PROPERTY_NAME_NAME.equals(event.getPropertyName())) {
                     handleNameChange(event);
-                } else if (PROPERTY_NAME_GEOCODING.equals(event.getPropertyName())) {
+                } else if (PROPERTY_NAME_SCENE_GEO_CODING.equals(event.getPropertyName())) {
                     handleGeoCodingChange();
                 } else if (VectorDataNode.PROPERTY_NAME_FEATURE_COLLECTION.equals(event.getPropertyName())) {
                     handleFeatureCollectionChange(event);
@@ -348,7 +348,7 @@ public class Product extends ProductNode {
      * <li>to which all raster data can resampled using affine transformations.</li>
      * </ul>
      * <p>
-     * If no model CRS has been set so far, the method will use an associated {@link #getGeoCoding() geo-coding}.
+     * If no model CRS has been set so far, the method will use an associated {@link #getSceneGeoCoding() geo-coding}.
      * If the geo-coding's {@link GeoCoding#getImageToMapTransform() image-to-map transform} is a linear transform, then
      * the model CRS returned is the {@link GeoCoding#getMapCRS() map CRS}, otherwise it is the
      * {@link GeoCoding#getImageCRS() image CRS}. If the product doesn't have any geo-coding,
@@ -360,7 +360,7 @@ public class Product extends ProductNode {
         if (modelCrs != null) {
             return modelCrs;
         }
-        return getAppropriateModelCRS(getGeoCoding());
+        return getAppropriateModelCRS(getSceneGeoCoding());
     }
 
 
@@ -615,9 +615,9 @@ public class Product extends ProductNode {
         pointingFactory = null;
         productManager = null;
 
-        if (geoCoding != null) {
-            geoCoding.dispose();
-            geoCoding = null;
+        if (sceneGeoCoding != null) {
+            sceneGeoCoding.dispose();
+            sceneGeoCoding = null;
         }
 
         if (validMasks != null) {
@@ -646,29 +646,29 @@ public class Product extends ProductNode {
     }
 
     /**
-     * Gets the time-coding of this {@link Product}.
+     * Gets the time-coding for the associated scene raster.
      *
      * @return the time-coding, or {@code null} if not available.
      * @see RasterDataNode#getTimeCoding()
      * @since SNAP 2.0
      */
-    public TimeCoding getTimeCoding() {
-        return timeCoding;
+    public TimeCoding getSceneTimeCoding() {
+        return sceneTimeCoding;
     }
 
 
     /**
-     * Sets the time-coding for this {@link Product}.
+     * Sets the time-coding for the associated scene raster.
      *
-     * @param timeCoding the new time-coding
+     * @param sceneTimeCoding The new time-coding, or {@code null}.
      * @see RasterDataNode#setTimeCoding(TimeCoding)
      * @since SNAP 2.0
      */
-    public void setTimeCoding(final TimeCoding timeCoding) {
-        if (!ObjectUtils.equalObjects(timeCoding, this.timeCoding)) {
-            final TimeCoding oldValue = this.timeCoding;
-            this.timeCoding = timeCoding;
-            fireNodeChanged(this, PROPERTY_NAME_TIMECODING, oldValue, timeCoding);
+    public void setSceneTimeCoding(final TimeCoding sceneTimeCoding) {
+        if (!ObjectUtils.equalObjects(sceneTimeCoding, this.sceneTimeCoding)) {
+            final TimeCoding oldValue = this.sceneTimeCoding;
+            this.sceneTimeCoding = sceneTimeCoding;
+            fireNodeChanged(this, PROPERTY_NAME_SCENE_TIME_CODING, oldValue, sceneTimeCoding);
         }
     }
 
@@ -692,9 +692,9 @@ public class Product extends ProductNode {
     }
 
     /**
-     * Geo-codes this data product.
+     * Sets the geo-coding to be associated with the scene raster.
      *
-     * @param geoCoding the geo-coding, if <code>null</code> geo-coding is removed
+     * @param sceneGeoCoding the geo-coding, or <code>null</code>
      * @throws IllegalArgumentException <br>- if the given <code>GeoCoding</code> is a <code>TiePointGeoCoding</code>
      *                                  and <code>latGrid</code> or <code>lonGrid</code> are not instances of tie point
      *                                  grids in this product. <br>- if the given <code>GeoCoding</code> is a
@@ -704,22 +704,22 @@ public class Product extends ProductNode {
      *                                  is not equal to this products <code>sceneRasterWidth</code> or
      *                                  <code>sceneRasterHeight</code>
      */
-    public void setGeoCoding(final GeoCoding geoCoding) {
-        checkGeoCoding(geoCoding);
-        if (!ObjectUtils.equalObjects(this.geoCoding, geoCoding)) {
-            this.geoCoding = geoCoding;
-            fireProductNodeChanged(PROPERTY_NAME_GEOCODING);
+    public void setSceneGeoCoding(final GeoCoding sceneGeoCoding) {
+        checkGeoCoding(sceneGeoCoding);
+        if (!ObjectUtils.equalObjects(this.sceneGeoCoding, sceneGeoCoding)) {
+            this.sceneGeoCoding = sceneGeoCoding;
+            fireProductNodeChanged(PROPERTY_NAME_SCENE_GEO_CODING);
             setModified(true);
         }
     }
 
     /**
-     * Returns the geo-coding used for this data product.
+     * Gets the geo-coding associated with the scene raster.
      *
      * @return the geo-coding, can be <code>null</code> if this product is not geo-coded.
      */
-    public GeoCoding getGeoCoding() {
-        return geoCoding;
+    public GeoCoding getSceneGeoCoding() {
+        return sceneGeoCoding;
     }
 
     /**
@@ -730,7 +730,7 @@ public class Product extends ProductNode {
      * @return true, if so
      */
     public boolean isUsingSingleGeoCoding() {
-        final GeoCoding geoCoding = getGeoCoding();
+        final GeoCoding geoCoding = getSceneGeoCoding();
         if (geoCoding == null) {
             return false;
         }
@@ -1317,11 +1317,11 @@ public class Product extends ProductNode {
         if (getSceneRasterHeight() != product.getSceneRasterHeight()) {
             return false;
         }
-        if (getGeoCoding() == null && product.getGeoCoding() != null) {
+        if (getSceneGeoCoding() == null && product.getSceneGeoCoding() != null) {
             return false;
         }
-        if (getGeoCoding() != null) {
-            if (product.getGeoCoding() == null) {
+        if (getSceneGeoCoding() != null) {
+            if (product.getSceneGeoCoding() == null) {
                 return false;
             }
 
@@ -1331,32 +1331,32 @@ public class Product extends ProductNode {
 
             pixelPos.x = 0.5f;
             pixelPos.y = 0.5f;
-            getGeoCoding().getGeoPos(pixelPos, geoPos1);
-            product.getGeoCoding().getGeoPos(pixelPos, geoPos2);
+            getSceneGeoCoding().getGeoPos(pixelPos, geoPos1);
+            product.getSceneGeoCoding().getGeoPos(pixelPos, geoPos2);
             if (!equalsLatLon(geoPos1, geoPos2, eps)) {
                 return false;
             }
 
             pixelPos.x = getSceneRasterWidth() - 1 + 0.5f;
             pixelPos.y = 0.5f;
-            getGeoCoding().getGeoPos(pixelPos, geoPos1);
-            product.getGeoCoding().getGeoPos(pixelPos, geoPos2);
+            getSceneGeoCoding().getGeoPos(pixelPos, geoPos1);
+            product.getSceneGeoCoding().getGeoPos(pixelPos, geoPos2);
             if (!equalsLatLon(geoPos1, geoPos2, eps)) {
                 return false;
             }
 
             pixelPos.x = 0.5f;
             pixelPos.y = getSceneRasterHeight() - 1 + 0.5f;
-            getGeoCoding().getGeoPos(pixelPos, geoPos1);
-            product.getGeoCoding().getGeoPos(pixelPos, geoPos2);
+            getSceneGeoCoding().getGeoPos(pixelPos, geoPos1);
+            product.getSceneGeoCoding().getGeoPos(pixelPos, geoPos2);
             if (!equalsLatLon(geoPos1, geoPos2, eps)) {
                 return false;
             }
 
             pixelPos.x = getSceneRasterWidth() - 1 + 0.5f;
             pixelPos.y = getSceneRasterHeight() - 1 + 0.5f;
-            getGeoCoding().getGeoPos(pixelPos, geoPos1);
-            product.getGeoCoding().getGeoPos(pixelPos, geoPos2);
+            getSceneGeoCoding().getGeoPos(pixelPos, geoPos1);
+            product.getSceneGeoCoding().getGeoPos(pixelPos, geoPos2);
             if (!equalsLatLon(geoPos1, geoPos2, eps)) {
                 return false;
             }
@@ -1790,9 +1790,9 @@ public class Product extends ProductNode {
         sb.append(pixelY);
         sb.append("\tpixel\n");
 
-        if (getGeoCoding() != null) {
+        if (getSceneGeoCoding() != null) {
             final PixelPos pt = new PixelPos(pixelX + 0.5f, pixelY + 0.5f);
-            final GeoPos geoPos = getGeoCoding().getGeoPos(pt, null);
+            final GeoPos geoPos = getSceneGeoCoding().getGeoPos(pt, null);
 
             sb.append("Longitude:\t");
             sb.append(geoPos.getLonString());
@@ -1802,8 +1802,8 @@ public class Product extends ProductNode {
             sb.append(geoPos.getLatString());
             sb.append("\tdegree\n");
 
-            if (getGeoCoding() instanceof MapGeoCoding) {
-                final MapGeoCoding mapGeoCoding = (MapGeoCoding) getGeoCoding();
+            if (getSceneGeoCoding() instanceof MapGeoCoding) {
+                final MapGeoCoding mapGeoCoding = (MapGeoCoding) getSceneGeoCoding();
                 final MapProjection mapProjection = mapGeoCoding.getMapInfo().getMapProjection();
                 final MapTransform mapTransform = mapProjection.getMapTransform();
                 final Point2D mapPoint = mapTransform.forward(geoPos, null);
@@ -2859,7 +2859,7 @@ public class Product extends ProductNode {
                 final PixelPos pixelPos = pin.getPixelPos();
                 GeoPos geoPos = pin.getGeoPos();
                 if (pixelPos != null) {
-                    geoPos = pinDescriptor.updateGeoPos(getGeoCoding(), pixelPos, geoPos);
+                    geoPos = pinDescriptor.updateGeoPos(getSceneGeoCoding(), pixelPos, geoPos);
                 }
                 pin.setGeoPos(geoPos);
             }

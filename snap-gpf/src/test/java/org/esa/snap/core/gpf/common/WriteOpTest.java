@@ -237,7 +237,7 @@ public class WriteOpTest {
                                                                  band.getName() + "-" + minX + "-" + minY,
                                                                  "label", "descr",
                                                                  new PixelPos(minX, minY), null,
-                                                                 targetProduct.getGeoCoding());
+                                                                 targetProduct.getSceneGeoCoding());
 
             targetProduct.getPinGroup().add(placemark);
 

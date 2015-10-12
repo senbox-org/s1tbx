@@ -867,7 +867,7 @@ public class BinningOpTest {
         });
         p.addTiePointGrid(latitude);
         p.addTiePointGrid(longitude);
-        p.setGeoCoding(new TiePointGeoCoding(latitude, longitude));
+        p.setSceneGeoCoding(new TiePointGeoCoding(latitude, longitude));
         p.addBand("chl", value + "");
         return p;
     }

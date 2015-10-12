@@ -204,7 +204,7 @@ public final class OperatorUtils {
 
     @Deprecated
     public static boolean isMapProjected(final Product product) {
-        if (product.getGeoCoding() instanceof MapGeoCoding || product.getGeoCoding() instanceof CrsGeoCoding)
+        if (product.getSceneGeoCoding() instanceof MapGeoCoding || product.getSceneGeoCoding() instanceof CrsGeoCoding)
             return true;
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         return absRoot != null && !AbstractMetadata.isNoData(absRoot, AbstractMetadata.map_projection);
@@ -305,7 +305,7 @@ public final class OperatorUtils {
 
         final TiePointGeoCoding gc = new TiePointGeoCoding(latGrid, lonGrid);
 
-        targetProduct.setGeoCoding(gc);
+        targetProduct.setSceneGeoCoding(gc);
     }
 
     /**
@@ -396,7 +396,7 @@ public final class OperatorUtils {
      */
     public static ImageGeoBoundary computeImageGeoBoundary(final Product sourceProduct) throws OperatorException {
         final ImageGeoBoundary geoBoundary = new ImageGeoBoundary();
-        final GeoCoding geoCoding = sourceProduct.getGeoCoding();
+        final GeoCoding geoCoding = sourceProduct.getSceneGeoCoding();
         if (geoCoding == null) {
             throw new OperatorException("Product does not contain a geocoding");
         }

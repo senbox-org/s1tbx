@@ -259,8 +259,8 @@ public class GeoTiffWriteReadTest {
         assertEquals(outProduct.getBandAt(0).getScalingFactor(), inProduct.getBandAt(0).getScalingFactor(), 1.0e-6);
         assertEquals(outProduct.getBandAt(0).getScalingOffset(), inProduct.getBandAt(0).getScalingOffset(), 1.0e-6);
         assertEquals(location, inProduct.getFileLocation());
-        assertNotNull(inProduct.getGeoCoding());
-        assertEquality(outProduct.getGeoCoding(), inProduct.getGeoCoding(), 2.0e-5f);
+        assertNotNull(inProduct.getSceneGeoCoding());
+        assertEquality(outProduct.getSceneGeoCoding(), inProduct.getSceneGeoCoding(), 2.0e-5f);
     }
 
     @Test
@@ -276,8 +276,8 @@ public class GeoTiffWriteReadTest {
         assertEquals(outProduct.getBandAt(0).getScalingFactor(), inProduct.getBandAt(0).getScalingFactor(), 1.0e-6);
         assertEquals(outProduct.getBandAt(0).getScalingOffset(), inProduct.getBandAt(0).getScalingOffset(), 1.0e-6);
         assertEquals(location, inProduct.getFileLocation());
-        assertNotNull(inProduct.getGeoCoding());
-        assertEquality(outProduct.getGeoCoding(), inProduct.getGeoCoding(), 2.0e-5f);
+        assertNotNull(inProduct.getSceneGeoCoding());
+        assertEquality(outProduct.getSceneGeoCoding(), inProduct.getSceneGeoCoding(), 2.0e-5f);
     }
 
     @Test
@@ -335,8 +335,8 @@ public class GeoTiffWriteReadTest {
             assertEquality(outProduct.getBandAt(i), inProduct.getBandAt(i));
         }
         assertEquals(location, inProduct.getFileLocation());
-        assertNotNull(inProduct.getGeoCoding());
-        assertEquality(outProduct.getGeoCoding(), inProduct.getGeoCoding(), accuracy);
+        assertNotNull(inProduct.getSceneGeoCoding());
+        assertEquality(outProduct.getSceneGeoCoding(), inProduct.getSceneGeoCoding(), accuracy);
     }
 
     private int getProductSize() {
@@ -420,7 +420,7 @@ public class GeoTiffWriteReadTest {
         imageToMap.translate(0.7, 0.8);
         imageToMap.scale(0.9, -0.8);
         imageToMap.translate(-0.5, -0.6);
-        product.setGeoCoding(new CrsGeoCoding(crs, imageBounds, imageToMap));
+        product.setSceneGeoCoding(new CrsGeoCoding(crs, imageBounds, imageToMap));
     }
 
     private static void setLambertConformalConicGeoCoding_MapGeoCoding(final Product product) {
@@ -435,7 +435,7 @@ public class GeoTiffWriteReadTest {
         final MapInfo mapInfo = new MapInfo(mapProjection, .5f, .6f, .7f, .8f, .09f, .08f, Datum.WGS_84);
         mapInfo.setSceneWidth(product.getSceneRasterWidth());
         mapInfo.setSceneHeight(product.getSceneRasterHeight());
-        product.setGeoCoding(new MapGeoCoding(mapInfo));
+        product.setSceneGeoCoding(new MapGeoCoding(mapInfo));
     }
 
     private static void setLambertConformalConicGeoCoding(final Product product) throws FactoryException,
@@ -459,7 +459,7 @@ public class GeoTiffWriteReadTest {
         imageToMap.scale(0.9, -0.8);
         imageToMap.translate(-0.5, -0.6);
         final Rectangle imageBounds = new Rectangle(product.getSceneRasterWidth(), product.getSceneRasterHeight());
-        product.setGeoCoding(new CrsGeoCoding(crs, imageBounds, imageToMap));
+        product.setSceneGeoCoding(new CrsGeoCoding(crs, imageBounds, imageToMap));
     }
 
     private static void setAlbersEqualAreaGeoCoding(final Product product) throws FactoryException, TransformException {
@@ -484,7 +484,7 @@ public class GeoTiffWriteReadTest {
         imageToMap.scale(0.9, -0.8);
         imageToMap.translate(-0.5, -0.6);
         final Rectangle imageBounds = new Rectangle(product.getSceneRasterWidth(), product.getSceneRasterHeight());
-        product.setGeoCoding(new CrsGeoCoding(crs, imageBounds, imageToMap));
+        product.setSceneGeoCoding(new CrsGeoCoding(crs, imageBounds, imageToMap));
 
     }
 
@@ -501,7 +501,7 @@ public class GeoTiffWriteReadTest {
         });
         product.addTiePointGrid(latGrid);
         product.addTiePointGrid(lonGrid);
-        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
+        product.setSceneGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
     }
 
     private Product writeReadProduct() throws IOException {

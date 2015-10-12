@@ -74,7 +74,7 @@ public class RegionPerformanceTest {
         int width = product.getSceneRasterWidth();
         int height = product.getSceneRasterHeight();
         System.out.println("num product pixels = " + height * width);
-        GeoCoding geoCoding = product.getGeoCoding();
+        GeoCoding geoCoding = product.getSceneGeoCoding();
         GeoPos geoPos = new GeoPos();
         PixelPos pixelPos = new PixelPos();
         PreparedGeometry preparedGeometry = PreparedGeometryFactory.prepare(geometry);

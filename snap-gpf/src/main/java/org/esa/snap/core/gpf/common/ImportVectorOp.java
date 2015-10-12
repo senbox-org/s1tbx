@@ -106,7 +106,7 @@ public class ImportVectorOp extends Operator {
 
     private void importGeometry(final Product product, final File file) {
 
-        final GeoCoding geoCoding = product.getGeoCoding();
+        final GeoCoding geoCoding = product.getSceneGeoCoding();
         if (isShapefile(file) && (geoCoding == null || !geoCoding.canGetPixelPos())) {
             throw new OperatorException("Current geo-coding cannot convert from geographic to pixel coordinates."); /* I18N */
         }
@@ -188,7 +188,7 @@ public class ImportVectorOp extends Operator {
             @Override
             public CoordinateReferenceSystem getFeatureCrs(final Product product) {
                 final CoordinateReferenceSystem[] featureCrsBuffer = new CoordinateReferenceSystem[1];
-                Runnable runnable = () -> featureCrsBuffer[0] = product.getGeoCoding().getMapCRS();
+                Runnable runnable = () -> featureCrsBuffer[0] = product.getSceneGeoCoding().getMapCRS();
                 if (!SwingUtilities.isEventDispatchThread()) {
                     try {
                         SwingUtilities.invokeAndWait(runnable);
@@ -215,7 +215,7 @@ public class ImportVectorOp extends Operator {
         @Override
         public VectorDataNode readVectorDataNode(File file, Product product, String helpId, ProgressMonitor pm) throws IOException {
             final ArrayList<PixelPos> pixelPositions = new ArrayList<>(256);
-            final GeoCoding geoCoding = product.getGeoCoding();
+            final GeoCoding geoCoding = product.getSceneGeoCoding();
 
             final FileReader fileReader = new FileReader(file);
             final LineNumberReader reader = new LineNumberReader(fileReader);

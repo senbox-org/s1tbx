@@ -85,7 +85,7 @@ public final class ReaderUtils {
         virtBand.setOwner(product);
         product.addBand(virtBand);
 
-        if (bandI.getGeoCoding() != product.getGeoCoding()) {
+        if (bandI.getGeoCoding() != product.getSceneGeoCoding()) {
             virtBand.setGeoCoding(bandI.getGeoCoding());
         }
         // set as band to use for quicklook
@@ -138,7 +138,7 @@ public final class ReaderUtils {
 
         product.addTiePointGrid(latGrid);
         product.addTiePointGrid(lonGrid);
-        product.setGeoCoding(tpGeoCoding);
+        product.setSceneGeoCoding(tpGeoCoding);
     }
 
     public static void addGeoCoding(final Product product, final double[] latCorners, final double[] lonCorners) {
@@ -171,7 +171,7 @@ public final class ReaderUtils {
 
         product.addTiePointGrid(latGrid);
         product.addTiePointGrid(lonGrid);
-        product.setGeoCoding(tpGeoCoding);
+        product.setSceneGeoCoding(tpGeoCoding);
     }
 
     public static void createFineTiePointGrid(final int coarseGridWidth,

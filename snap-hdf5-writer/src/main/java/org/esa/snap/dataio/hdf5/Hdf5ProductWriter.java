@@ -147,10 +147,10 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
 
     private void writeGeoCoding() throws IOException {
         final Product product = getSourceProduct();
-        if (product.getGeoCoding() instanceof TiePointGeoCoding) {
-            writeGeoCoding((TiePointGeoCoding) product.getGeoCoding());
-        } else if (product.getGeoCoding() instanceof MapGeoCoding) {
-            writeGeoCoding((MapGeoCoding) product.getGeoCoding());
+        if (product.getSceneGeoCoding() instanceof TiePointGeoCoding) {
+            writeGeoCoding((TiePointGeoCoding) product.getSceneGeoCoding());
+        } else if (product.getSceneGeoCoding() instanceof MapGeoCoding) {
+            writeGeoCoding((MapGeoCoding) product.getSceneGeoCoding());
         }
     }
 

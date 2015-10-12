@@ -758,7 +758,7 @@ public class TemporalPercentileOp extends Operator {
                                                             pixelSizeX, pixelSizeY);
 
             final Product product = new Product("Percentile", "TemporalPercentile", width, height);
-            product.setGeoCoding(geoCoding);
+            product.setSceneGeoCoding(geoCoding);
             final Dimension tileSize = JAIUtils.computePreferredTileSize(width, height, 1);
             product.setPreferredTileSize(tileSize);
             return product;

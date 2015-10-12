@@ -57,7 +57,7 @@ public class ProductValidatorTest {
 
         M_product = PowerMockito.mock(Product.class);
         PowerMockito.when(M_product.getName()).thenReturn("ProductMock");
-        PowerMockito.when(M_product.getGeoCoding()).thenReturn(M_geoCoding);
+        PowerMockito.when(M_product.getSceneGeoCoding()).thenReturn(M_geoCoding);
         PowerMockito.when(M_product.getStartTime()).thenReturn(productStartTime);
         PowerMockito.when(M_product.getEndTime()).thenReturn(productEndTime);
         PowerMockito.when(M_product.containsBand(sourceBandName)).thenReturn(true);
@@ -73,7 +73,7 @@ public class ProductValidatorTest {
 
     @Test
     public void testThatVerificationFailsIfProductHasNoGeoCoding() {
-        PowerMockito.when(M_product.getGeoCoding()).thenReturn(null);
+        PowerMockito.when(M_product.getSceneGeoCoding()).thenReturn(null);
 
         boolean result = _productValidator.isValid(M_product);
 

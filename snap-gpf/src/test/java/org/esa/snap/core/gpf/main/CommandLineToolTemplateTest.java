@@ -278,7 +278,7 @@ public class CommandLineToolTemplateTest {
     private Product createSourceProduct() throws FactoryException, TransformException {
         Product sourceProduct = new Product("MERIS", "MARCO", 10, 10);
         sourceProduct.addBand("x", "5.1");
-        sourceProduct.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, 10, 10, 0, 0, 1, 1));
+        sourceProduct.setSceneGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, 10, 10, 0, 0, 1, 1));
         return sourceProduct;
     }
 

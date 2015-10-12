@@ -138,7 +138,7 @@ public class CollocateOpTest {
         MapInfo mapInfo1 = new MapInfo(MapProjectionRegistry.getProjection("Geographic Lat/Lon"), 0.0f, 0.0f, 0.0f, 0.0f, 0.1f, 0.1f, Datum.WGS_84);
         mapInfo1.setSceneWidth(16);
         mapInfo1.setSceneHeight(16);
-        product.setGeoCoding(new MapGeoCoding(mapInfo1));
+        product.setSceneGeoCoding(new MapGeoCoding(mapInfo1));
         product.addMask("bitmask", "radiance_1 > 10", null, Color.RED, 0.5f);
         return product;
     }
@@ -161,7 +161,7 @@ public class CollocateOpTest {
         MapInfo mapInfo2 = new MapInfo(MapProjectionRegistry.getProjection("Geographic Lat/Lon"), 0.0f, 0.0f, 0.2f, 0.2f, 0.1f, 0.1f, Datum.WGS_84);
         mapInfo2.setSceneWidth(16);
         mapInfo2.setSceneHeight(16);
-        product.setGeoCoding(new MapGeoCoding(mapInfo2));
+        product.setSceneGeoCoding(new MapGeoCoding(mapInfo2));
         return product;
     }
 

@@ -235,7 +235,7 @@ public class Placemark extends ProductNode {
         if (defaultGeometry instanceof Point) {
             final Point point = (Point) defaultGeometry;
             if (getProduct() != null) {
-                final GeoCoding geoCoding = getProduct().getGeoCoding();
+                final GeoCoding geoCoding = getProduct().getSceneGeoCoding();
                 final AffineTransform i2m = ImageManager.getImageToModelTransform(geoCoding);
                 PixelPos pixelPos = new PixelPos(point.getX(), point.getY());
                 try {
@@ -276,7 +276,7 @@ public class Placemark extends ProductNode {
 
             if (updateGeoPos && getProduct() != null) {
                 final GeoPos geoPos = getGeoPos();
-                descriptor.updateGeoPos(getProduct().getGeoCoding(), pixelPos, geoPos);
+                descriptor.updateGeoPos(getProduct().getSceneGeoCoding(), pixelPos, geoPos);
                 setGeoPosAttribute(geoPos, false);
             }
 
@@ -307,7 +307,7 @@ public class Placemark extends ProductNode {
 
             if (updatePixelPos && getProduct() != null) {
                 final PixelPos pixelPos = getPixelPos();
-                descriptor.updatePixelPos(getProduct().getGeoCoding(), geoPos, pixelPos);
+                descriptor.updatePixelPos(getProduct().getSceneGeoCoding(), geoPos, pixelPos);
                 setPixelPosAttribute(pixelPos, false, true);
             }
 
@@ -319,7 +319,7 @@ public class Placemark extends ProductNode {
         final Product product = getProduct();
         final Point2D.Double geometryPoint = new Point2D.Double(pixelPos.x, pixelPos.y);
         if (product != null) {
-            final AffineTransform i2m = ImageManager.getImageToModelTransform(product.getGeoCoding());
+            final AffineTransform i2m = ImageManager.getImageToModelTransform(product.getSceneGeoCoding());
             i2m.transform(pixelPos, geometryPoint);
         }
         final Point point = (Point) feature.getDefaultGeometry();

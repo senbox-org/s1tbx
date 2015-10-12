@@ -308,7 +308,7 @@ class BigGeoTiffProductReader extends AbstractProductReader {
             }
         }
 
-        if (product.getGeoCoding() == null) {
+        if (product.getSceneGeoCoding() == null) {
             try {
                 applyGeoCodingFromGeoTiff(imageMetadata, product);
             } catch (Exception ignored) {
@@ -335,7 +335,7 @@ class BigGeoTiffProductReader extends AbstractProductReader {
             }
         }
         final CrsGeoCoding geoCoding = new CrsGeoCoding(crs, imageBounds, (AffineTransform) toModel);
-        product.setGeoCoding(geoCoding);
+        product.setSceneGeoCoding(geoCoding);
     }
 
     /*
@@ -467,7 +467,7 @@ class BigGeoTiffProductReader extends AbstractProductReader {
         product.addTiePointGrid(lonGrid);
         final SortedMap<Integer, GeoKeyEntry> geoKeyEntries = info.getGeoKeyEntries();
         final Datum datum = getDatum(geoKeyEntries);
-        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, datum));
+        product.setSceneGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, datum));
     }
 
     private static boolean canCreateGcpGeoCoding(final double[] tiePoints) {
@@ -521,14 +521,14 @@ class BigGeoTiffProductReader extends AbstractProductReader {
             final GeoPos geoPos = new GeoPos(lat, lon);
 
             final Placemark gcp = Placemark.createPointPlacemark(gcpDescriptor, "gcp_" + i, "GCP_" + i, "",
-                    pixelPos, geoPos, product.getGeoCoding());
+                    pixelPos, geoPos, product.getSceneGeoCoding());
             gcpGroup.add(gcp);
         }
 
         final Placemark[] gcps = gcpGroup.toArray(new Placemark[gcpGroup.getNodeCount()]);
         final SortedMap<Integer, GeoKeyEntry> geoKeyEntries = info.getGeoKeyEntries();
         final Datum datum = getDatum(geoKeyEntries);
-        product.setGeoCoding(new GcpGeoCoding(method, gcps, width, height, datum));
+        product.setSceneGeoCoding(new GcpGeoCoding(method, gcps, width, height, datum));
     }
 
     private static Datum getDatum(Map<Integer, GeoKeyEntry> geoKeyEntries) {
@@ -666,7 +666,7 @@ class BigGeoTiffProductReader extends AbstractProductReader {
     }
 
     private void removeGeoCodingAndTiePointGrids(Product product) {
-        product.setGeoCoding(null);
+        product.setSceneGeoCoding(null);
         final TiePointGrid[] pointGrids = product.getTiePointGrids();
         for (TiePointGrid pointGrid : pointGrids) {
             product.removeTiePointGrid(pointGrid);

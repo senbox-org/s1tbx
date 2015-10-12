@@ -40,7 +40,7 @@ public class ProductMultiSizeApiTest {
     public void testModelCrsWithMapCSGeoCoding() throws Exception {
         Product product = new Product("N", "T");
         DefaultProjectedCRS biboCrs = new DefaultProjectedCRS("bibo", DefaultGeographicCRS.WGS84, IdentityTransform.create(2), DefaultCartesianCS.PROJECTED);
-        product.setGeoCoding(new CrsGeoCoding(biboCrs, 10, 10, 0, 0, 1, 1));
+        product.setSceneGeoCoding(new CrsGeoCoding(biboCrs, 10, 10, 0, 0, 1, 1));
         assertEquals(biboCrs, product.getModelCRS());
     }
 
@@ -51,7 +51,7 @@ public class ProductMultiSizeApiTest {
         TiePointGrid lon = new TiePointGrid("lon", 4, 4, 0, 0, 4, 4, new float[16]);
         product.addTiePointGrid(lat);
         product.addTiePointGrid(lon);
-        product.setGeoCoding(new TiePointGeoCoding(lat, lon));
-        assertEquals(product.getGeoCoding().getImageCRS(), product.getModelCRS());
+        product.setSceneGeoCoding(new TiePointGeoCoding(lat, lon));
+        assertEquals(product.getSceneGeoCoding().getImageCRS(), product.getModelCRS());
     }
 }

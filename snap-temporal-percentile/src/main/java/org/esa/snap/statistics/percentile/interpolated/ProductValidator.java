@@ -37,7 +37,7 @@ public class ProductValidator {
     }
 
     private boolean containsGeoCodingWithReverseOperationSupport(Product product) {
-        GeoCoding geoCoding = product.getGeoCoding();
+        GeoCoding geoCoding = product.getSceneGeoCoding();
         if (geoCoding == null) {
             logSkipped("The product '" + product.getName() + "' does not contain a geo coding.");
             return false;

@@ -74,7 +74,7 @@ public class GeoTiffProductReaderPlugInTest {
         final MapInfo mapInfo = new MapInfo(UTM.createProjection(26, true), 0, 0, 0, 0, 1, 1, Datum.WGS_84);
         mapInfo.setSceneWidth(product.getSceneRasterWidth());
         mapInfo.setSceneHeight(product.getSceneRasterHeight());
-        product.setGeoCoding(new MapGeoCoding(mapInfo));
+        product.setSceneGeoCoding(new MapGeoCoding(mapInfo));
         final ImageInputStream inputStream = writeToInputStream(product);
         final DecodeQualification decodeQualification = GeoTiffProductReaderPlugIn.getDecodeQualificationImpl(inputStream);
         assertEquals(DecodeQualification.SUITABLE, decodeQualification);

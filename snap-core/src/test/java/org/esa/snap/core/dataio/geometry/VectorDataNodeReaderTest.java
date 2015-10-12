@@ -445,7 +445,7 @@ public class VectorDataNodeReaderTest {
 
     private static Product createDummyProduct() {
         Product dummyProduct = new Product("blah", "blahType", 360, 180);
-        dummyProduct.setGeoCoding(new DummyGeoCoding());
+        dummyProduct.setSceneGeoCoding(new DummyGeoCoding());
         return dummyProduct;
     }
 

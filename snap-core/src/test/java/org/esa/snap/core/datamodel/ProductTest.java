@@ -692,7 +692,7 @@ public class ProductTest {
         mapInfo.setSceneWidth(sceneRasterWidth + 1);
         mapInfo.setSceneHeight(sceneRasterHeight);
         try {
-            product.setGeoCoding(mapGeoCoding);
+            product.setSceneGeoCoding(mapGeoCoding);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ignored) {
             // IllegalArgumentException expected
@@ -702,7 +702,7 @@ public class ProductTest {
         mapInfo.setSceneHeight(sceneRasterHeight + 1);
 
         try {
-            product.setGeoCoding(mapGeoCoding);
+            product.setSceneGeoCoding(mapGeoCoding);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ignored) {
             // IllegalArgumentException expected
@@ -712,7 +712,7 @@ public class ProductTest {
         mapInfo.setSceneHeight(sceneRasterHeight);
 
         try {
-            product.setGeoCoding(mapGeoCoding);
+            product.setSceneGeoCoding(mapGeoCoding);
             // IllegalArgumentException not expected
         } catch (IllegalArgumentException ignored) {
             fail("IllegalArgumentException not expected");
@@ -776,7 +776,7 @@ public class ProductTest {
 
         final GeoCoding gc1 = new ProductUtilsTest.SGeoCoding();
         final GeoCoding gc2 = new ProductUtilsTest.DGeoCoding();
-        p.setGeoCoding(gc1);
+        p.setSceneGeoCoding(gc1);
 
         assertTrue(p.isUsingSingleGeoCoding());
 

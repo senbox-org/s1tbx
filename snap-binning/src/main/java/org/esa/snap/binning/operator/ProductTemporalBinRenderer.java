@@ -84,7 +84,7 @@ public final class ProductTemporalBinRenderer implements TemporalBinRenderer {
         product = new Product(outputFile.getName(), "BINNED-L3", outputRegion.width, outputRegion.height);
         product.setProductWriter(productWriter);
         product.setPreferredTileSize(64, 64);
-        product.setGeoCoding(geoCoding);
+        product.setSceneGeoCoding(geoCoding);
         product.setStartTime(startTime);
         product.setEndTime(endTime);
         for (MetadataElement metadataElement : metadataElements) {

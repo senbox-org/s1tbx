@@ -401,7 +401,7 @@ public class EnviProductReader extends AbstractProductReader {
                 Rectangle rect = new Rectangle(product.getSceneRasterWidth(), product.getSceneRasterHeight());
                 GeoCoding geoCoding = new CrsGeoCoding(crs, rect, i2m);
 
-                product.setGeoCoding(geoCoding);
+                product.setSceneGeoCoding(geoCoding);
             } catch (FactoryException | TransformException fe) {
                 Debug.trace(fe);
             }

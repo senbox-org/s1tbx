@@ -37,7 +37,7 @@ public class PixelGeoCoding_TransferGeoCodingToTest {
         final Band lonBand = sourceP.addBand(bandNameLon, ProductData.TYPE_FLOAT32);
         fillWithData(lonBand, 0.047f, 50f);
         pixelGeoCoding = GeoCodingFactory.createPixelGeoCoding(latBand, lonBand, null, 5);
-        sourceP.setGeoCoding(pixelGeoCoding);
+        sourceP.setSceneGeoCoding(pixelGeoCoding);
     }
 
     @After
@@ -54,8 +54,8 @@ public class PixelGeoCoding_TransferGeoCodingToTest {
         copyBandTo(destP, pixelGeoCoding.getLonBand());
 
         assertEquals(true, sourceP.transferGeoCodingTo(destP, subsetDef));
-        assertNotNull(destP.getGeoCoding());
-        assertEquals(true, destP.getGeoCoding() instanceof BasicPixelGeoCoding);
+        assertNotNull(destP.getSceneGeoCoding());
+        assertEquals(true, destP.getSceneGeoCoding() instanceof BasicPixelGeoCoding);
     }
 
     @Test
@@ -66,7 +66,7 @@ public class PixelGeoCoding_TransferGeoCodingToTest {
                                           sourceP.getSceneRasterHeight());
 
         assertEquals(true, sourceP.transferGeoCodingTo(destP, subsetDef));
-        final GeoCoding destGeoCoding = destP.getGeoCoding();
+        final GeoCoding destGeoCoding = destP.getSceneGeoCoding();
         assertNotNull(destGeoCoding);
         assertEquals(true, destGeoCoding instanceof BasicPixelGeoCoding);
     }

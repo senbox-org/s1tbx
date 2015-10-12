@@ -49,7 +49,7 @@ public class ObservationIteratorTest {
         PlanarImage[] sourceImages = createSourceImages(width, height);
         CrsGeoCoding gc = new CrsGeoCoding(DefaultGeographicCRS.WGS84, width, height, -180, 90, 10.0, 10.0);
         Product product = new Product("name", "desc", width, height);
-        product.setGeoCoding(gc);
+        product.setSceneGeoCoding(gc);
 
         BinningContext binningContext = createBinningContext();
         ObservationIterator iterator = ObservationIterator.create(sourceImages, null, product, new float[]{0.5f}, sourceImages[0].getBounds(), binningContext);
@@ -68,7 +68,7 @@ public class ObservationIteratorTest {
         PlanarImage[] sourceImages = createSourceImages(width, height);
         CrsGeoCoding gc = new CrsGeoCoding(DefaultGeographicCRS.WGS84, width, height, -180, 90, 10.0, 10.0);
         Product product = new Product("name", "desc", width, height);
-        product.setGeoCoding(gc);
+        product.setSceneGeoCoding(gc);
 
         BinningContext binningContext = createBinningContext();
         ObservationIterator iterator = ObservationIterator.create(sourceImages, null, product, new float[]{0.5f}, sourceImages[0].getBounds(), binningContext);
@@ -111,7 +111,7 @@ public class ObservationIteratorTest {
         maskTile.setPixels(0, 0, width, height, maskData);
         CrsGeoCoding gc = new CrsGeoCoding(DefaultGeographicCRS.WGS84, width, height, -180, 90, 10.0, 10.0);
         Product product = new Product("name", "desc", width, height);
-        product.setGeoCoding(gc);
+        product.setSceneGeoCoding(gc);
         ColorModel cm = PlanarImage.getDefaultColorModel(maskTile.getDataBuffer().getDataType(), 1);
         BufferedImage bufferedImage = new BufferedImage(cm, maskTile, false, null);
         PlanarImage maskImage = PlanarImage.wrapRenderedImage(bufferedImage);
@@ -147,7 +147,7 @@ public class ObservationIteratorTest {
         PlanarImage[] sourceImages = createSourceImages(width, height);
         CrsGeoCoding gc = new CrsGeoCoding(DefaultGeographicCRS.WGS84, width, height, -180, 90, 10.0, 10.0);
         Product product = new Product("name", "desc", width, height);
-        product.setGeoCoding(gc);
+        product.setSceneGeoCoding(gc);
 
         BinningContext binningContext = createBinningContext();
         ObservationIterator iterator = ObservationIterator.create(sourceImages, null, product, new float[]{0.25f, 0.75f}, sourceImages[0].getBounds(),

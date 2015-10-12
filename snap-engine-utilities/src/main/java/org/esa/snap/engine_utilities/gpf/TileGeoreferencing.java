@@ -39,7 +39,7 @@ public final class TileGeoreferencing {
     private final boolean isCrossingMeridian;
 
     public TileGeoreferencing(final Product product, final int x1, final int y1, final int w, final int h) {
-        geocoding = product.getGeoCoding();
+        geocoding = product.getSceneGeoCoding();
         isCrossingMeridian = geocoding.isCrossingMeridianAt180();
         final TiePointGrid latTPG = OperatorUtils.getLatitude(product);
         final TiePointGrid lonTPG = OperatorUtils.getLongitude(product);

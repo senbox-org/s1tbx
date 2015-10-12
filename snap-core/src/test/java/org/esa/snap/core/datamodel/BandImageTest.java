@@ -93,7 +93,7 @@ public class BandImageTest extends TestCase {
                 GeoCoding geoCoding = new CrsGeoCoding(DefaultGeographicCRS.WGS84,
                                                        new Rectangle(0, 0, SIZE, SIZE),
                                                        new AffineTransform(I2M));
-                product.setGeoCoding(geoCoding);
+                product.setSceneGeoCoding(geoCoding);
             } catch (FactoryException e) {
                 fail(e.getMessage());
             } catch (TransformException e) {

@@ -61,7 +61,7 @@ public class VectorDataMaskOpImage extends SingleBandedOpImage {
               null,
               level);
         this.vectorDataNode = vectorDataNode;
-        GeoCoding geoCoding = vectorDataNode.getProduct().getGeoCoding();
+        GeoCoding geoCoding = vectorDataNode.getProduct().getSceneGeoCoding();
         AffineTransform transform = ImageManager.getImageToModelTransform(geoCoding);
         try {
             transform.invert();

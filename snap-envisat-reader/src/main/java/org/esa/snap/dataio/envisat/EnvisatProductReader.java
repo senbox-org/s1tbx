@@ -224,7 +224,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         product.setDescription(getProductFile().getProductDescription());
         product.setStartTime(getProductFile().getSceneRasterStartTime());
         product.setEndTime(getProductFile().getSceneRasterStopTime());
-        product.setTimeCoding(new LineTimeCoding(getMJDs()));
+        product.setSceneTimeCoding(new LineTimeCoding(getMJDs()));
         product.setAutoGrouping(getProductFile().getAutoGroupingPattern());
 
         addBandsToProduct(product);
@@ -401,7 +401,7 @@ public class EnvisatProductReader extends AbstractProductReader {
                 } else {
                     validMask = "l2_flags.LAND or l2_flags.CLOUD or l2_flags.WATER";
                 }
-                product.setGeoCoding(GeoCodingFactory.createPixelGeoCoding(latBand, lonBand, validMask, 6));
+                product.setSceneGeoCoding(GeoCodingFactory.createPixelGeoCoding(latBand, lonBand, validMask, 6));
             }
         }
     }
@@ -413,7 +413,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         TiePointGrid latGrid = product.getTiePointGrid(EnvisatConstants.LAT_DS_NAME);
         TiePointGrid lonGrid = product.getTiePointGrid(EnvisatConstants.LON_DS_NAME);
         if (latGrid != null && lonGrid != null) {
-            product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
+            product.setSceneGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
         }
     }
 

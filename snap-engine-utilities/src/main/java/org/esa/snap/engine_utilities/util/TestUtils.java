@@ -86,7 +86,7 @@ public class TestUtils {
                                      final boolean verifyBandData) throws Exception {
         if (product == null)
             throw new Exception("product is null");
-        if (verifyGeoCoding && product.getGeoCoding() == null) {
+        if (verifyGeoCoding && product.getSceneGeoCoding() == null) {
             SystemUtils.LOG.warning("Geocoding is null for " + product.getFileLocation().getAbsolutePath());
             //throw new Exception("geocoding is null");
         }
@@ -170,7 +170,7 @@ public class TestUtils {
 
         product.addTiePointGrid(latGrid);
         product.addTiePointGrid(lonGrid);
-        product.setGeoCoding(tpGeoCoding);
+        product.setSceneGeoCoding(tpGeoCoding);
     }
 
     public static void attributeEquals(final MetadataElement elem, final String name,

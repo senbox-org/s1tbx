@@ -230,7 +230,7 @@ public class BeamBandPart extends ProfilePartIO {
 
     private void encodeGeoCoding(NFileWriteable ncFile, Band band, Product product, NVariable variable) throws IOException {
         final GeoCoding geoCoding = band.getGeoCoding();
-        if (!geoCoding.equals(product.getGeoCoding())) {
+        if (!geoCoding.equals(product.getSceneGeoCoding())) {
             if (geoCoding instanceof TiePointGeoCoding) {
                 final TiePointGeoCoding tpGC = (TiePointGeoCoding) geoCoding;
                 final String[] names = new String[2];

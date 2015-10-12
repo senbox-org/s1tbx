@@ -64,7 +64,7 @@ public class MultiSizeSupportTest {
     @Test
     @Ignore
     public void testSubset() {
-        final AffineTransform imageToModelTransform = ImageManager.getImageToModelTransform(product.getGeoCoding());
+        final AffineTransform imageToModelTransform = ImageManager.getImageToModelTransform(product.getSceneGeoCoding());
         final int height = product.getSceneRasterHeight();
         final int width = product.getSceneRasterWidth();
         double xCoord1 = (double) width * 0.25;
@@ -118,7 +118,7 @@ public class MultiSizeSupportTest {
         Map<String, Object> parameterMap = new HashMap<String, Object>(5);
         parameterMap.put("crs", WGS84_CODE);
         final Product reprojectedProduct = GPF.createProduct("Reproject", parameterMap, product);
-        assertNotNull(reprojectedProduct.getGeoCoding());
+        assertNotNull(reprojectedProduct.getSceneGeoCoding());
         final ProductNodeGroup<Band> productBandGroup = product.getBandGroup();
         final ProductNodeGroup<Band> reprojectedProductBandGroup = reprojectedProduct.getBandGroup();
         for (int i = 0; i < productBandGroup.getNodeCount() - 1; i++) {

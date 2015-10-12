@@ -336,7 +336,7 @@ public class ProductUtilsTest {
         assertEquals(0, bandMapping.size());
 
         // Geo-code source
-        source.setGeoCoding(new DGeoCoding());
+        source.setSceneGeoCoding(new DGeoCoding());
 
         // Should copy bands because source is now geo-coded
         final Product target2 = new Product("dest", "test", 300, 400);
@@ -878,7 +878,7 @@ public class ProductUtilsTest {
         final TiePointGrid latGrid = new TiePointGrid("latitudes", 6, 9, -3.5f, -7.5f, 16, 16, latitudes);
         product.addTiePointGrid(latGrid);
         final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
-        product.setGeoCoding(tpGeoCoding);
+        product.setSceneGeoCoding(tpGeoCoding);
         return product;
     }
 

@@ -51,7 +51,7 @@ public class TestUtils {
 
     static Product createProduct(DataPeriod dataPeriod, DataPeriod.Membership firstPeriod, DataPeriod.Membership lastPeriod) {
         Product product = new Product("name", "type", 100, SCENE_RASTER_HEIGHT);
-        product.setGeoCoding(new MockGeoCoding());
+        product.setSceneGeoCoding(new MockGeoCoding());
 
         switch (firstPeriod) {
             case PREVIOUS_PERIODS: {

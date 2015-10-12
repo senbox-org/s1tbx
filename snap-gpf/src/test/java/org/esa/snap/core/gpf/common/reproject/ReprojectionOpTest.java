@@ -43,7 +43,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         // because source is rectangular the size of source is preserved
         assertEquals(50, targetPoduct.getSceneRasterWidth());
         assertEquals(50, targetPoduct.getSceneRasterHeight());
-        assertNotNull(targetPoduct.getGeoCoding());
+        assertNotNull(targetPoduct.getSceneGeoCoding());
 
         assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 23.5f, 13.5f, (double) 299, EPS);
     }
@@ -109,7 +109,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         final Product targetPoduct = createReprojectedProduct();
 
         assertNotNull(targetPoduct);
-        assertNotNull(targetPoduct.getGeoCoding());
+        assertNotNull(targetPoduct.getSceneGeoCoding());
         // 299, 312
         // 322, 336
         // interpolated = 317.25 for pixel (24, 14)
@@ -157,7 +157,7 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         final Product targetPoduct = createReprojectedProduct();
 
         assertNotNull(targetPoduct);
-        final GeoPos geoPos = targetPoduct.getGeoCoding().getGeoPos(new PixelPos(0.5f, 0.5f), null);
+        final GeoPos geoPos = targetPoduct.getSceneGeoCoding().getGeoPos(new PixelPos(0.5f, 0.5f), null);
         assertEquals(new GeoPos(52.0f, 9.0f), geoPos);
         assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 23.5f, 13.5f, (double) 299, EPS);
     }
@@ -185,8 +185,8 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
     @Test
     public void testCopyPlacemarkGroups() throws IOException {
         final PlacemarkDescriptor pinDescriptor = PinDescriptor.getInstance();
-        final Placemark pin = Placemark.createPointPlacemark(pinDescriptor, "P1", "", "", new PixelPos(1.5f, 1.5f), null, sourceProduct.getGeoCoding());
-        final Placemark gcp = Placemark.createPointPlacemark(pinDescriptor, "G1", "", "", new PixelPos(2.5f, 2.5f), null, sourceProduct.getGeoCoding());
+        final Placemark pin = Placemark.createPointPlacemark(pinDescriptor, "P1", "", "", new PixelPos(1.5f, 1.5f), null, sourceProduct.getSceneGeoCoding());
+        final Placemark gcp = Placemark.createPointPlacemark(pinDescriptor, "G1", "", "", new PixelPos(2.5f, 2.5f), null, sourceProduct.getSceneGeoCoding());
 
         sourceProduct.getPinGroup().add(pin);
         sourceProduct.getGcpGroup().add(gcp);

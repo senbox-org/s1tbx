@@ -107,7 +107,7 @@ public class SubsetOpTest {
         final String expectedBandName = "radiance_3";
         parameters.put("sourceBands", new String[]{expectedBandName});
         final Product sp = createTestProduct(100, 100);
-        assertNotNull(sp.getGeoCoding());
+        assertNotNull(sp.getSceneGeoCoding());
 
         Product tp = GPF.createProduct("Subset", parameters, sp);
         assertNotNull(tp);
@@ -122,7 +122,7 @@ public class SubsetOpTest {
     public void testGeometry() throws Exception {
         final GeometryFactory gf = new GeometryFactory();
         final Product sp = createTestProduct(100, 100);
-        assertNotNull(sp.getGeoCoding());
+        assertNotNull(sp.getSceneGeoCoding());
 
         final Polygon roi = gf.createPolygon(gf.createLinearRing(new Coordinate[]{
                 new Coordinate(-5, 5),
@@ -155,7 +155,7 @@ public class SubsetOpTest {
         Product product = new Product("N", "T", 360, 180);
         AffineTransform at = AffineTransform.getTranslateInstance(-180, -90);
         CrsGeoCoding geoCoding = new CrsGeoCoding(DefaultGeographicCRS.WGS84, new Rectangle(360, 180), at);
-        product.setGeoCoding(geoCoding);
+        product.setSceneGeoCoding(geoCoding);
         geometry = SubsetOp.computeProductGeometry(product);
         assertTrue(geometry instanceof Polygon);
         assertEquals("POLYGON ((-179.5 -89.5, -179.5 89.5, 179.5 89.5, 179.5 -89.5, -179.5 -89.5))",
@@ -318,7 +318,7 @@ public class SubsetOpTest {
                 Placemark.createPointPlacemark(GcpDescriptor.getInstance(), "p4", "p4", "", new PixelPos(0.5f, h - 0.5f), new GeoPos(-10, -10),
                                                null),
         };
-        product.setGeoCoding(new GcpGeoCoding(GcpGeoCoding.Method.POLYNOMIAL1, gcps, w, h, Datum.WGS_84));
+        product.setSceneGeoCoding(new GcpGeoCoding(GcpGeoCoding.Method.POLYNOMIAL1, gcps, w, h, Datum.WGS_84));
 
         Band band1 = product.addBand("radiance_1", ProductData.TYPE_INT32);
         int[] intValues = new int[w * h];

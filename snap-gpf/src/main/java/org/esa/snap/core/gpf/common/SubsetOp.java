@@ -286,7 +286,7 @@ public class SubsetOp extends Operator {
         if (regionIntersection.isEmpty()) {
             return new Rectangle();
         }
-        final PixelRegionFinder pixelRegionFinder = new PixelRegionFinder(product.getGeoCoding());
+        final PixelRegionFinder pixelRegionFinder = new PixelRegionFinder(product.getSceneGeoCoding());
         regionIntersection.apply(pixelRegionFinder);
         final Rectangle pixelRegion = pixelRegionFinder.getPixelRegion();
         pixelRegion.grow(numBorderPixels, numBorderPixels);

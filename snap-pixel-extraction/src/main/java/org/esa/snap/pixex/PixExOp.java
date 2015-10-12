@@ -500,7 +500,7 @@ public class PixExOp extends Operator {
     }
 
     private PixelPos getPixelPosition(Product product, Coordinate coordinate) {
-        return product.getGeoCoding().getPixelPos(new GeoPos(coordinate.getLat(), coordinate.getLon()), null);
+        return product.getSceneGeoCoding().getPixelPos(new GeoPos(coordinate.getLat(), coordinate.getLon()), null);
     }
 
     private boolean isAnyPixelInWindowValid(int upperLeftX, int upperLeftY, Raster validData) {
@@ -790,7 +790,7 @@ public class PixExOp extends Operator {
         if (product == null) {
             return false;
         }
-        final GeoCoding geoCoding = product.getGeoCoding();
+        final GeoCoding geoCoding = product.getSceneGeoCoding();
         if (geoCoding == null) {
             final String msgPattern = "Product [%s] refused. Cause: Product is not geo-coded.";
             logger.warning(String.format(msgPattern, product.getFileLocation()));

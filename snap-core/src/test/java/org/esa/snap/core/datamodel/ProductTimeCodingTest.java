@@ -24,13 +24,13 @@ public class ProductTimeCodingTest {
     @Test
     public void testTimeCodingIsOptional() throws Exception {
         Product product = new Product("A", "B", 1, 1);
-        assertNull(product.getTimeCoding());
+        assertNull(product.getSceneTimeCoding());
 
-        product.setTimeCoding(timeCoding);
-        assertNotNull(product.getTimeCoding());
+        product.setSceneTimeCoding(timeCoding);
+        assertNotNull(product.getSceneTimeCoding());
 
-        product.setTimeCoding(null);
-        assertNull(product.getTimeCoding());
+        product.setSceneTimeCoding(null);
+        assertNull(product.getSceneTimeCoding());
     }
     @Test
     public void testPropertyChangeEventOnTimeCodingChange() {
@@ -38,8 +38,8 @@ public class ProductTimeCodingTest {
         final MyProductNodeListener nodeListener = new MyProductNodeListener();
         product.addProductNodeListener(nodeListener);
 
-        product.setTimeCoding(timeCoding);
-        product.setTimeCoding(null);
+        product.setSceneTimeCoding(timeCoding);
+        product.setSceneTimeCoding(null);
 
         final ArrayList<ProductNodeEvent> events = nodeListener.events;
         assertEquals(2, events.size());
@@ -47,8 +47,8 @@ public class ProductTimeCodingTest {
         final ProductNodeEvent secondEvent = events.get(1);
         assertSame(product, firstEvent.getSourceNode());
         assertSame(product, secondEvent.getSourceNode());
-        assertEquals(RasterDataNode.PROPERTY_NAME_TIMECODING, firstEvent.getPropertyName());
-        assertEquals(RasterDataNode.PROPERTY_NAME_TIMECODING, secondEvent.getPropertyName());
+        assertEquals(RasterDataNode.PROPERTY_NAME_TIME_CODING, firstEvent.getPropertyName());
+        assertEquals(RasterDataNode.PROPERTY_NAME_TIME_CODING, secondEvent.getPropertyName());
         assertNull(firstEvent.getOldValue());
         assertSame(timeCoding, firstEvent.getNewValue());
         assertSame(timeCoding, secondEvent.getOldValue());

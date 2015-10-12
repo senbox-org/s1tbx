@@ -118,7 +118,7 @@ public class SpatialDataDayComputer {
     }
 
     static DataPeriod.Membership[] analyseBasic(DataPeriod dataPeriod, Product product) {
-        GeoCoding geoCoding = product.getGeoCoding();
+        GeoCoding geoCoding = product.getSceneGeoCoding();
         ProductData.UTC firstScanLineTime = ProductUtils.getScanLineTime(product, 0);
         double firstLon = geoCoding.getGeoPos(new PixelPos(0, 0), null).lon;
         DataPeriod.Membership fl = dataPeriod.getObservationMembership(firstLon, firstScanLineTime.getMJD());
@@ -138,7 +138,7 @@ public class SpatialDataDayComputer {
     static int[] analysePrecise(DataPeriod dataPeriod, Product product) {
         int width = product.getSceneRasterWidth();
         int height = product.getSceneRasterHeight();
-        GeoCoding geoCoding = product.getGeoCoding();
+        GeoCoding geoCoding = product.getSceneGeoCoding();
         PixelPos pixelPos = new PixelPos();
         GeoPos geoPos = new GeoPos();
         int[] distribution = new int[DataPeriod.Membership.values().length];

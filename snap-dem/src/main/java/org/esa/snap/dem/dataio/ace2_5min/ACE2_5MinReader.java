@@ -203,7 +203,7 @@ class ACE2_5MinReader extends AbstractProductReader {
                 Datum.WGS_84);
         mapInfo.setSceneWidth(width);
         mapInfo.setSceneHeight(height);
-        _product.setGeoCoding(new MapGeoCoding(mapInfo));
+        _product.setSceneGeoCoding(new MapGeoCoding(mapInfo));
         _product.setDescription("ACE2 DEM");
         final Band elevationBand = new Band("elevation", ProductData.TYPE_FLOAT32, width, height);
         elevationBand.setUnit(Unit.METERS);

@@ -489,7 +489,7 @@ public final class DimapHeaderWriter extends XmlWriter {
 
     protected void writeGeoCoding(final int indent) {
         if (product.isUsingSingleGeoCoding()) {
-            writeGeoCoding(product.getGeoCoding(), indent, -1);
+            writeGeoCoding(product.getSceneGeoCoding(), indent, -1);
         } else {
             final Band[] bands = product.getBands();
             for (int i = 0; i < bands.length; i++) {

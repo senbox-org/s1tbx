@@ -152,7 +152,7 @@ class HicoProductReader extends AbstractProductReader {
                 TiePointGrid tpLon = new TiePointGrid("longitude", rasterWidth, rasterHeight, 0.5f, 0.5f, 1f, 1f, lonData);
                 product.addTiePointGrid(tpLon);
 
-                product.setGeoCoding(new TiePointGeoCoding(tpLat, tpLon));
+                product.setSceneGeoCoding(new TiePointGeoCoding(tpLat, tpLon));
             }
         }
     }

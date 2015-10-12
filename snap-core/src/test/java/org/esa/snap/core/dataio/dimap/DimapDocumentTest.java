@@ -95,7 +95,7 @@ public class DimapDocumentTest extends TestCase {
         final Document dom = createDom(code1);
         Product currentProduct = DimapProductHelpers.createProduct(dom);
         final GeoCoding geoCoding = DimapProductHelpers.createGeoCoding(dom, currentProduct)[0];
-        currentProduct.setGeoCoding(geoCoding);
+        currentProduct.setSceneGeoCoding(geoCoding);
         sw = new StringWriter();
         writer = new DimapHeaderWriter(currentProduct, sw, _nameDataDirectory);
         writer.writeHeader();
@@ -316,7 +316,7 @@ public class DimapDocumentTest extends TestCase {
                 mapInfo.setSceneHeight(product.getSceneRasterHeight());
                 mapInfo.setElevationModelName("GETASSE30");
                 final MapGeoCoding mapGeoCoding = new MapGeoCoding(mapInfo);
-                product.setGeoCoding(mapGeoCoding);
+                product.setSceneGeoCoding(mapGeoCoding);
                 break;
             case GCP_GEOCODING:
                 final double[] x = new double[]{1.0, 2.0, 3.0};
@@ -332,13 +332,13 @@ public class DimapDocumentTest extends TestCase {
                 gcpGeoCoding.setOriginalGeoCoding(new TiePointGeoCoding(product.getTiePointGrid("tpg1"),
                                                                         product.getTiePointGrid("tpg2"),
                                                                         Datum.WGS_84));
-                product.setGeoCoding(gcpGeoCoding);
+                product.setSceneGeoCoding(gcpGeoCoding);
                 break;
             default:
                 final TiePointGeoCoding tiePointGeoCoding = new TiePointGeoCoding(product.getTiePointGrid("tpg1"),
                                                                                   product.getTiePointGrid("tpg2"),
                                                                                   Datum.WGS_84);
-                product.setGeoCoding(tiePointGeoCoding);
+                product.setSceneGeoCoding(tiePointGeoCoding);
         }
     }
 
@@ -522,7 +522,7 @@ public class DimapDocumentTest extends TestCase {
         if (withGeocoding) {
             switch (geocodingType) {
                 case MAP_GEOCODING:
-                    final MapInfo mapInfo = ((MapGeoCoding) product.getGeoCoding()).getMapInfo();
+                    final MapInfo mapInfo = ((MapGeoCoding) product.getSceneGeoCoding()).getMapInfo();
                     pw.println("    <Coordinate_Reference_System>");
                     pw.println("        <GEO_TABLES version=\"1.0\">CUSTOM</GEO_TABLES>");
                     pw.println("        <Horizontal_CS>");
@@ -1371,7 +1371,7 @@ public class DimapDocumentTest extends TestCase {
         }
 
         private void addGeocodingElements() { // Übernommen
-            final GeoCoding geoCoding = getProduct().getGeoCoding();
+            final GeoCoding geoCoding = getProduct().getSceneGeoCoding();
             if (geoCoding != null) {
                 Element crsElem = new Element(DimapProductConstants.TAG_COORDINATE_REFERENCE_SYSTEM);
                 if (geoCoding instanceof TiePointGeoCoding) {

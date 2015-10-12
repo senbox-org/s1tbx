@@ -362,7 +362,7 @@ public class DimapHeaderWriterTest {
         mapInfo.setSceneHeight(sceneHeight);
         mapInfo.setSceneSizeFitted(sceneFitted);
         mapInfo.setResampling(resampling);
-        product.setGeoCoding(new MapGeoCoding(mapInfo));
+        product.setSceneGeoCoding(new MapGeoCoding(mapInfo));
 
         return header +
                 "    <Coordinate_Reference_System>" + LS +
@@ -468,7 +468,7 @@ public class DimapHeaderWriterTest {
                                                         pixelSizeX, pixelSizeY,
                                                         xFunction, yFunction, phiFunction, lambdaFunction,
                                                         datum);
-        product.setGeoCoding(geoCoding);
+        product.setSceneGeoCoding(geoCoding);
         final Ellipsoid ellipsoid = datum.getEllipsoid();
         return "    <Coordinate_Reference_System>" + LS +
                 "        <Horizontal_CS>" + LS +
@@ -774,7 +774,7 @@ public class DimapHeaderWriterTest {
 
         final String pixelPosEstimator = setFXYGeoCodingAndGetCore().replace(LS, LS + "        ");
         final PixelGeoCoding pixelGeoCoding = new PixelGeoCoding(b1, b2, "NOT NaN", 4);
-        product.setGeoCoding(pixelGeoCoding);
+        product.setSceneGeoCoding(pixelGeoCoding);
         return header +
                 "    <Geoposition>" + LS +
                 "        <LATITUDE_BAND>" + pixelGeoCoding.getLatBand().getName() + "</LATITUDE_BAND>" + LS +
@@ -913,7 +913,7 @@ public class DimapHeaderWriterTest {
         final AffineTransform i2m = new AffineTransform(0.12, 1.23, 2.34, 3.45, 4.56, 5.67);
         final CoordinateReferenceSystem crs = CRS.decode("EPSG:4326");
         final CrsGeoCoding crsGeoCoding = new CrsGeoCoding(crs, imageBounds, i2m);
-        product.setGeoCoding(crsGeoCoding);
+        product.setSceneGeoCoding(crsGeoCoding);
         return header +
                 "    <Coordinate_Reference_System>" + LS +
                 "        <WKT>" + LS +

@@ -204,7 +204,7 @@ public class ACEReader extends AbstractProductReader {
                 Datum.WGS_84);
         mapInfo.setSceneWidth(width);
         mapInfo.setSceneHeight(height);
-        _product.setGeoCoding(new MapGeoCoding(mapInfo));
+        _product.setSceneGeoCoding(new MapGeoCoding(mapInfo));
         _product.setDescription("ACE DEM");
         final Band elevationBand = new Band("elevation", ProductData.TYPE_INT16, width, height);
         elevationBand.setUnit(Unit.METERS);

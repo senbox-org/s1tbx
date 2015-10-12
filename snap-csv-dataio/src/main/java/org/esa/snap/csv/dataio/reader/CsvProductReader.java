@@ -133,7 +133,7 @@ public class CsvProductReader extends AbstractProductReader {
         final int searchRadius = 5;
         GeoCoding gc = GeoCodingFactory.createPixelGeoCoding(latBand, lonBand, validMask, searchRadius);
 //        GeoCoding gc = new PixelGeoCoding(latBand, lonBand, validMask, searchRadius);
-        product.setGeoCoding(gc);
+        product.setSceneGeoCoding(gc);
     }
 
     private Band fetchBand(String[] names) {
@@ -164,7 +164,7 @@ public class CsvProductReader extends AbstractProductReader {
                 if (timeMJD != null) {
                     final int width = product.getSceneRasterWidth();
                     final int height = product.getSceneRasterHeight();
-                    product.setTimeCoding(new CSVTimeCoding(timeMJD, width, height, colName));
+                    product.setSceneTimeCoding(new CSVTimeCoding(timeMJD, width, height, colName));
                     initStartEndTime(timeMJD);
                     return;
                 }

@@ -276,7 +276,7 @@ public class GraticuleLayer extends Layer {
          */
         @Override
         public void nodeChanged(ProductNodeEvent event) {
-            if (event.getSourceNode() == getProduct() && Product.PROPERTY_NAME_GEOCODING.equals(
+            if (event.getSourceNode() == getProduct() && Product.PROPERTY_NAME_SCENE_GEO_CODING.equals(
                     event.getPropertyName())) {
                 // Force recreation
                 graticule = null;

@@ -41,7 +41,7 @@ public class DBSearch {
 
     public static ProductEntry[] search(final Product srcProduct) throws Exception {
 
-        final GeoPos centerGeoPos = srcProduct.getGeoCoding().getGeoPos(
+        final GeoPos centerGeoPos = srcProduct.getSceneGeoCoding().getGeoPos(
                 new PixelPos(srcProduct.getSceneRasterWidth() / 2, srcProduct.getSceneRasterHeight() / 2), null);
         final ProductEntry masterEntry = new ProductEntry(srcProduct);
         return findCCDPairs(ProductDB.instance(), masterEntry, centerGeoPos, 1, false);

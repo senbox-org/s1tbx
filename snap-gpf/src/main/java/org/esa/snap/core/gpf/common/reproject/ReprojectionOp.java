@@ -224,7 +224,7 @@ public class ReprojectionOp extends Operator {
         * 1. Compute the target CRS
         */
         final GeoPos centerGeoPos =
-                getCenterGeoPos(sourceProduct.getGeoCoding(), sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
+                getCenterGeoPos(sourceProduct.getSceneGeoCoding(), sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
         CoordinateReferenceSystem targetCrs = createTargetCRS(centerGeoPos);
         /*
         * 2. Compute the target geometry
@@ -265,9 +265,9 @@ public class ReprojectionOp extends Operator {
         ProductUtils.copyFlagCodings(sourceProduct, targetProduct);
         copyIndexCoding();
         try {
-            targetProduct.setGeoCoding(new CrsGeoCoding(targetImageGeometry.getMapCrs(),
-                                                        targetRect,
-                                                        targetImageGeometry.getImage2MapTransform()));
+            targetProduct.setSceneGeoCoding(new CrsGeoCoding(targetImageGeometry.getMapCrs(),
+                                                             targetRect,
+                                                             targetImageGeometry.getImage2MapTransform()));
         } catch (Exception e) {
             throw new OperatorException(e);
         }
@@ -590,8 +590,8 @@ public class ReprojectionOp extends Operator {
                     return CRS.decode(crs, true);
                 }
             }
-            if (collocationProduct != null && collocationProduct.getGeoCoding() != null) {
-                return collocationProduct.getGeoCoding().getMapCRS();
+            if (collocationProduct != null && collocationProduct.getSceneGeoCoding() != null) {
+                return collocationProduct.getSceneGeoCoding().getMapCRS();
             }
         } catch (FactoryException | IOException e) {
             throw new OperatorException(String.format("Target CRS could not be created: %s", e.getMessage()), e);

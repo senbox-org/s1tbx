@@ -165,13 +165,13 @@ public class DimapProductReader extends AbstractProductReader {
         final GeoCoding[] geoCodings = DimapProductHelpers.createGeoCoding(dom, product);
         if (geoCodings != null) {
             if (geoCodings.length == 1) {
-                product.setGeoCoding(geoCodings[0]);
+                product.setSceneGeoCoding(geoCodings[0]);
             } else if (geoCodings.length == product.getNumBands()) {
                 for (int i = 0; i < geoCodings.length; i++) {
                     final Band band = product.getBandAt(i);
                     if (product.getSceneRasterWidth() == band.getRasterWidth() &&
                             product.getSceneRasterHeight() == band.getRasterHeight()) {
-                        product.setGeoCoding(geoCodings[i]);
+                        product.setSceneGeoCoding(geoCodings[i]);
                     }
                     band.setGeoCoding(geoCodings[i]);
                 }
@@ -181,7 +181,7 @@ public class DimapProductReader extends AbstractProductReader {
             final Band latBand = product.getBand("latitude");
             if (latBand != null && lonBand != null) {
                 final GeoCoding geoCoding = GeoCodingFactory.createPixelGeoCoding(latBand, lonBand, null, 6);
-                product.setGeoCoding(geoCoding);
+                product.setSceneGeoCoding(geoCoding);
             }
         }
     }

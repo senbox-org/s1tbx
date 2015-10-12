@@ -178,7 +178,7 @@ public class TiePointGeoCodingTest extends TestCase {
         latBand.setRasterData(ProductData.createInstance(createBandData(latGrid)));
         lonBand.setRasterData(ProductData.createInstance(createBandData(lonGrid)));
 
-        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
+        product.setSceneGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
 
         return product;
     }

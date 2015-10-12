@@ -187,7 +187,7 @@ public class SpatialProductBinnerTest {
                                                   new float[]{-80f, +80f, -80f, +80f});
         product.addTiePointGrid(lat);
         product.addTiePointGrid(lon);
-        product.setGeoCoding(new TiePointGeoCoding(lat, lon));
+        product.setSceneGeoCoding(new TiePointGeoCoding(lat, lon));
         product.setPreferredTileSize(32, 16);
         product.setStartTime(ProductData.UTC.parse("2003-01-01", "yyyy-MM-dd"));
         product.setEndTime(ProductData.UTC.parse("2003-01-02", "yyyy-MM-dd"));

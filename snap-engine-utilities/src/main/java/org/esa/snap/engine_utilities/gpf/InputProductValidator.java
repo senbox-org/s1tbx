@@ -206,7 +206,7 @@ public class InputProductValidator {
     }
 
     public boolean isMapProjected() {
-        if (product.getGeoCoding() instanceof MapGeoCoding || product.getGeoCoding() instanceof CrsGeoCoding)
+        if (product.getSceneGeoCoding() instanceof MapGeoCoding || product.getSceneGeoCoding() instanceof CrsGeoCoding)
             return true;
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         return absRoot != null && !AbstractMetadata.isNoData(absRoot, AbstractMetadata.map_projection);

@@ -197,7 +197,7 @@ public class ImageGeometry {
     }
 
     public static ImageGeometry createCollocationTargetGeometry(Product targetProduct, Product collocationProduct) {
-        GeoCoding geoCoding = collocationProduct.getGeoCoding();
+        GeoCoding geoCoding = collocationProduct.getSceneGeoCoding();
         final AffineTransform modelTransform = ImageManager.getImageToModelTransform(geoCoding);
         final double pixelSizeX = modelTransform.getScaleX();
         final double pixelSizeY = modelTransform.getScaleY();
@@ -241,7 +241,7 @@ public class ImageGeometry {
 
     private static Rectangle2D createMapBoundary(final Product product, CoordinateReferenceSystem targetCrs) {
         try {
-            final CoordinateReferenceSystem sourceCrs = product.getGeoCoding().getImageCRS();
+            final CoordinateReferenceSystem sourceCrs = product.getSceneGeoCoding().getImageCRS();
             final int sourceW = product.getSceneRasterWidth();
             final int sourceH = product.getSceneRasterHeight();
             final Rectangle2D rect = XRectangle2D.createFromExtremums(0.5, 0.5, sourceW - 0.5, sourceH - 0.5);
@@ -251,7 +251,7 @@ public class ImageGeometry {
             final ReferencedEnvelope targetEnvelope = sourceEnvelope.transform(targetCrs, true, pointsPerSide);
             double minX = targetEnvelope.getMinX();
             double width = targetEnvelope.getWidth();
-            if (product.getGeoCoding().isCrossingMeridianAt180()) {
+            if (product.getSceneGeoCoding().isCrossingMeridianAt180()) {
                 minX = -180.0;
                 width = 360;
             }

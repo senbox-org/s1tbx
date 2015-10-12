@@ -379,11 +379,11 @@ public class BinnedProductReader extends AbstractProductReader {
         pixelSizeX = 360.0 / sceneRasterWidth;
         double pixelSizeY = 180.0 / sceneRasterHeight;
         try {
-            product.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84,
-                    sceneRasterWidth, sceneRasterHeight,
-                    easting, northing,
-                    pixelSizeX, pixelSizeY,
-                    pixelX, pixelY));
+            product.setSceneGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84,
+                                                       sceneRasterWidth, sceneRasterHeight,
+                                                       easting, northing,
+                                                       pixelSizeX, pixelSizeY,
+                                                       pixelX, pixelY));
         } catch (FactoryException e) {
             throw new IOException(e);
         } catch (TransformException e) {

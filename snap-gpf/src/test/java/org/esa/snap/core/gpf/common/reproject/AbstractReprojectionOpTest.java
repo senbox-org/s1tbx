@@ -101,7 +101,7 @@ public abstract class AbstractReprojectionOpTest {
         final TiePointGrid lonGrid = new TiePointGrid("lonGrid", 2, 2, 0.5f, 0.5f, 49, 49, LONS);
         sourceProduct.addTiePointGrid(latGrid);
         sourceProduct.addTiePointGrid(lonGrid);
-        sourceProduct.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
+        sourceProduct.setSceneGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
         sourceProduct.setStartTime(ProductData.UTC.parse("02-Jan-2008 10:15:10"));
         sourceProduct.setEndTime(ProductData.UTC.parse("02-Jan-2008 10:45:50"));
         Band floatDataBand = sourceProduct.addBand(FLOAT_BAND_NAME, ProductData.TYPE_FLOAT32);

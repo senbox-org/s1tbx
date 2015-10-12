@@ -93,7 +93,7 @@ public class PointOperatorTest {
         assertEquals(sourceProduct.getEndTime(), targetProduct.getEndTime());
         assertNotNull(targetProduct.getTiePointGrid("latitude"));
         assertNotNull(targetProduct.getTiePointGrid("longitude"));
-        assertTrue(targetProduct.getGeoCoding() instanceof TiePointGeoCoding);
+        assertTrue(targetProduct.getSceneGeoCoding() instanceof TiePointGeoCoding);
         assertNotNull(targetProduct.getBand("ndvi"));
         assertNotNull(targetProduct.getBand("ndvi_flags"));
 
@@ -132,7 +132,7 @@ public class PointOperatorTest {
         TiePointGrid lon = new TiePointGrid("longitude", w, h, 0, 0, 1, 1, new float[w * h]);
         sourceProduct.addTiePointGrid(lat);
         sourceProduct.addTiePointGrid(lon);
-        sourceProduct.setGeoCoding(new TiePointGeoCoding(lat, lon));
+        sourceProduct.setSceneGeoCoding(new TiePointGeoCoding(lat, lon));
         return sourceProduct;
     }
 

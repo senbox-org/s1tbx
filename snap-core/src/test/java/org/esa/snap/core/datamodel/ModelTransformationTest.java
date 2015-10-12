@@ -31,7 +31,7 @@ public class ModelTransformationTest {
         TiePointGrid lonGrid = new TiePointGrid("lonGrid", tiePointGridWidth, tiePointGridHeight, 0.5, 0.5, subSampling, subSampling, createLonGridData());
         product.addTiePointGrid(latGrid);
         product.addTiePointGrid(lonGrid);
-        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
+        product.setSceneGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
 
         final Band band1 = product.addBand("band1", "(X * 10) + Y", ProductData.TYPE_INT8);
 

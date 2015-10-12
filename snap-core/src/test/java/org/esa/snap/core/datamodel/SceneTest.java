@@ -50,17 +50,17 @@ public class SceneTest extends TestCase {
     public void testTransferGCFromProductToProduct() {
 
         final AbstractGeoCoding geoCoding = createFXYSumGeoCoding();
-        _srcProduct.setGeoCoding(geoCoding);
+        _srcProduct.setSceneGeoCoding(geoCoding);
         final Scene srcScene = SceneFactory.createScene(_srcProduct);
         final Scene destScene = SceneFactory.createScene(_destProduct);
         srcScene.transferGeoCodingTo(destScene, _subsetDef);
 
-        assertNotNull(_destProduct.getGeoCoding());
-        assertTrue(_destProduct.getGeoCoding() instanceof FXYGeoCoding);
-        assertNotSame(_destProduct.getGeoCoding(), geoCoding);
+        assertNotNull(_destProduct.getSceneGeoCoding());
+        assertTrue(_destProduct.getSceneGeoCoding() instanceof FXYGeoCoding);
+        assertNotSame(_destProduct.getSceneGeoCoding(), geoCoding);
         assertTrue(_destProduct.isUsingSingleGeoCoding());
-        assertSame(_destBand1.getGeoCoding(), _destProduct.getGeoCoding());
-        assertSame(_destBand2.getGeoCoding(), _destProduct.getGeoCoding());
+        assertSame(_destBand1.getGeoCoding(), _destProduct.getSceneGeoCoding());
+        assertSame(_destBand2.getGeoCoding(), _destProduct.getSceneGeoCoding());
 
     }
 
@@ -72,19 +72,19 @@ public class SceneTest extends TestCase {
         final Scene destScene = SceneFactory.createScene(_destProduct);
         srcScene.transferGeoCodingTo(destScene, _subsetDef);
 
-        assertNotNull(_destProduct.getGeoCoding());
-        assertTrue(_destProduct.getGeoCoding() instanceof FXYGeoCoding);
-        assertNotSame(_destProduct.getGeoCoding(), geoCoding);
+        assertNotNull(_destProduct.getSceneGeoCoding());
+        assertTrue(_destProduct.getSceneGeoCoding() instanceof FXYGeoCoding);
+        assertNotSame(_destProduct.getSceneGeoCoding(), geoCoding);
         assertTrue(_destProduct.isUsingSingleGeoCoding());
-        assertSame(_destBand1.getGeoCoding(), _destProduct.getGeoCoding());
-        assertSame(_destBand2.getGeoCoding(), _destProduct.getGeoCoding());
+        assertSame(_destBand1.getGeoCoding(), _destProduct.getSceneGeoCoding());
+        assertSame(_destBand2.getGeoCoding(), _destProduct.getSceneGeoCoding());
 
     }
 
     public void testTransferGCFromProductToBand() {
 
         final AbstractGeoCoding geoCoding = createFXYSumGeoCoding();
-        _srcProduct.setGeoCoding(geoCoding);
+        _srcProduct.setSceneGeoCoding(geoCoding);
         _destBand2.setGeoCoding(createFXYSumGeoCoding());
         final Scene srcScene = SceneFactory.createScene(_srcProduct);
         final Scene destScene = SceneFactory.createScene(_destBand1);
@@ -110,7 +110,7 @@ public class SceneTest extends TestCase {
         final Scene destScene = SceneFactory.createScene(_destProduct);
         srcScene.transferGeoCodingTo(destScene, _subsetDef);
 
-        assertNotNull(_destProduct.getGeoCoding());
+        assertNotNull(_destProduct.getSceneGeoCoding());
         assertFalse(_destProduct.isUsingSingleGeoCoding());
         assertNotNull(_destBand1.getGeoCoding());
         assertNotNull(_destBand2.getGeoCoding());
@@ -131,7 +131,7 @@ public class SceneTest extends TestCase {
         final Scene destScene = SceneFactory.createScene(_destBand1);
         srcScene.transferGeoCodingTo(destScene, _subsetDef);
 
-        assertNotNull(_destProduct.getGeoCoding());
+        assertNotNull(_destProduct.getSceneGeoCoding());
         assertFalse(_destProduct.isUsingSingleGeoCoding());
         assertNotNull(_destBand1.getGeoCoding());
         assertNotNull(_destBand2.getGeoCoding());

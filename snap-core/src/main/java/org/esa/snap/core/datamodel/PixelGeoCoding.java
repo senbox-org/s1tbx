@@ -170,7 +170,7 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
         // fraction accuracy is only implemented in tiling mode (because tiling mode will be the default soon)
         fractionAccuracy = useTiling && Config.instance().preferences().getBoolean(SYSPROP_PIXEL_GEO_CODING_FRACTION_ACCURACY, false);
 
-        pixelPosEstimator = latBand.getProduct().getGeoCoding();
+        pixelPosEstimator = latBand.getProduct().getSceneGeoCoding();
 
         final int subSampling = 30;
         if (pixelPosEstimator == null && useTiling && rasterWidth / subSampling > 1 && rasterHeight / subSampling > 1) {
@@ -336,7 +336,7 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
      * @return an estimation of the required memory in bytes
      */
     public static long getRequiredMemory(Product product, boolean usesValidMask) {
-        final GeoCoding geoCoding = product.getGeoCoding();
+        final GeoCoding geoCoding = product.getSceneGeoCoding();
         if (geoCoding == null) {
             return 0;
         }

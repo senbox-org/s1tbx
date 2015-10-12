@@ -158,7 +158,7 @@ public class ProductEntry {
     }
 
     private void getCornerPoints(final Product product) {
-        final GeoCoding geoCoding = product.getGeoCoding();
+        final GeoCoding geoCoding = product.getSceneGeoCoding();
         if (geoCoding == null) return;
         if (!geoCoding.canGetGeoPos()) return;
 
@@ -172,7 +172,7 @@ public class ProductEntry {
     }
 
     private static GeoPos[] getSMOSGeoBoundary(final Product product) {
-        final GeoCoding gc = product.getGeoCoding();
+        final GeoCoding gc = product.getSceneGeoCoding();
         if (gc == null)
             return new GeoPos[0];
 
@@ -231,7 +231,7 @@ public class ProductEntry {
     }
 
     private static GeoPos[] getGeoBoundary(final Product product) {
-        final GeoCoding gc = product.getGeoCoding();
+        final GeoCoding gc = product.getSceneGeoCoding();
         if (gc == null)
             return new GeoPos[0];
         final int step = Math.max(30, (product.getSceneRasterWidth() + product.getSceneRasterHeight()) / 10);

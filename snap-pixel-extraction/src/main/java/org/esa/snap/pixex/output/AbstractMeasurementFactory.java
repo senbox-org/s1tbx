@@ -18,7 +18,7 @@ public abstract class AbstractMeasurementFactory implements MeasurementFactory {
                                                    String coordinateName, Number[] values,
                                                    boolean isValid, int x, int y) {
         final PixelPos pixelPos = new PixelPos(x + 0.5f, y + 0.5f);
-        final GeoCoding geoCoding = product.getGeoCoding();
+        final GeoCoding geoCoding = product.getSceneGeoCoding();
         final GeoPos currentGeoPos;
         if (geoCoding != null) {
             currentGeoPos = geoCoding.getGeoPos(pixelPos, null);

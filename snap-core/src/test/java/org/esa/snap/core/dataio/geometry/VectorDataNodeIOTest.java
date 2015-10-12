@@ -239,7 +239,7 @@ public class VectorDataNodeIOTest {
 
     private static Product createDummyProduct() {
         Product dummyProduct = new Product("blah", "blahType", 360, 180);
-        dummyProduct.setGeoCoding(new VectorDataNodeReaderTest.DummyGeoCoding());
+        dummyProduct.setSceneGeoCoding(new VectorDataNodeReaderTest.DummyGeoCoding());
         return dummyProduct;
     }
 

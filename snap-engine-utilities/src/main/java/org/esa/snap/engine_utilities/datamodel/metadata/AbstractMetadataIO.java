@@ -231,7 +231,7 @@ public final class AbstractMetadataIO {
         if (latGrid != null && lonGrid != null) {
             final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
 
-            product.setGeoCoding(tpGeoCoding);
+            product.setSceneGeoCoding(tpGeoCoding);
         }
     }
 

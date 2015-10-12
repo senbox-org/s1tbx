@@ -50,7 +50,7 @@ public class GeoTiffProductWriterPlugIn implements ProductWriterPlugIn {
 
     @Override
     public EncodeQualification getEncodeQualification(Product product) {
-        GeoCoding geoCoding = product.getGeoCoding();
+        GeoCoding geoCoding = product.getSceneGeoCoding();
         if (geoCoding == null) {
             return new EncodeQualification(EncodeQualification.Preservation.PARTIAL,
                                            "The product is not geo-coded. A usual TIFF file will be written instead.");

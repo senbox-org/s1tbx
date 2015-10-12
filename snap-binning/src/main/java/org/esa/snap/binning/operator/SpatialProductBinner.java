@@ -79,7 +79,7 @@ public class SpatialProductBinner {
                                       SpatialBinner spatialBinner,
                                       Map<Product, List<Band>> addedVariableBands,
                                       ProgressMonitor progressMonitor) throws IOException {
-        if (product.getGeoCoding() == null) {
+        if (product.getSceneGeoCoding() == null) {
             throw new IllegalArgumentException("product.getGeoCoding() == null");
         }
         BinningContext binningContext = spatialBinner.getBinningContext();

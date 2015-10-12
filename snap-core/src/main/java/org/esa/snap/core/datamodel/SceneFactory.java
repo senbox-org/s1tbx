@@ -98,11 +98,11 @@ public final class SceneFactory {
         }
 
         public void setGeoCoding(final GeoCoding geoCoding) {
-            product.setGeoCoding(geoCoding);
+            product.setSceneGeoCoding(geoCoding);
         }
 
         public GeoCoding getGeoCoding() {
-            return product.getGeoCoding();
+            return product.getSceneGeoCoding();
         }
 
         public boolean transferGeoCodingTo(final Scene targetScene, final ProductSubsetDef subsetDef) {

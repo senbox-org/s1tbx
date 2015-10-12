@@ -300,7 +300,7 @@ public class MosaicOpTest {
         transform.translate(easting, northing);
         transform.scale(1, -1);
         transform.translate(-0.5, -0.5);
-        product.setGeoCoding(
+        product.setSceneGeoCoding(
                 new CrsGeoCoding(CRS.decode("EPSG:4326", true), new Rectangle(0, 0, WIDTH, HEIGHT), transform));
         return product;
     }

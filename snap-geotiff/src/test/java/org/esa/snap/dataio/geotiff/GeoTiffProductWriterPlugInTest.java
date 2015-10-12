@@ -103,12 +103,12 @@ public class GeoTiffProductWriterPlugInTest {
         TiePointGrid lon = new TiePointGrid("lon", 2, 2, 0, 0, 1, 1, new float[4]);
         product.addTiePointGrid(lat);
         product.addTiePointGrid(lon);
-        product.setGeoCoding(new TiePointGeoCoding(lat, lon));
+        product.setSceneGeoCoding(new TiePointGeoCoding(lat, lon));
         encodeQualification = plugIn.getEncodeQualification(product);
         assertEquals(EncodeQualification.Preservation.PARTIAL, encodeQualification.getPreservation());
         assertNotNull(encodeQualification.getInfoString());
 
-        product.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, 2, 2, 0, 0, 1, 1));
+        product.setSceneGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, 2, 2, 0, 0, 1, 1));
         encodeQualification = plugIn.getEncodeQualification(product);
         assertEquals(EncodeQualification.Preservation.FULL, encodeQualification.getPreservation());
     }

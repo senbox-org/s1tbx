@@ -356,7 +356,7 @@ public class MosaicOp extends Operator {
         List<Product> reprojProductList = new ArrayList<Product>(sourceProducts.length);
         final HashMap<String, Object> projParameters = createProjectionParameters();
         for (Product sourceProduct : sourceProducts) {
-            if (sourceProduct.getGeoCoding() == null) {
+            if (sourceProduct.getSceneGeoCoding() == null) {
                 String msg = "Source product: '" + sourceProduct.getName() + "' contains no geo-coding. Skipped for further processing.";
                 getLogger().warning(msg);
                 continue;
@@ -402,7 +402,7 @@ public class MosaicOp extends Operator {
                                                             pixelSizeX, pixelSizeY);
 
             final Product product = new Product("mosaic", "BEAM_MOSAIC", width, height);
-            product.setGeoCoding(geoCoding);
+            product.setSceneGeoCoding(geoCoding);
             final Dimension tileSize = JAIUtils.computePreferredTileSize(width, height, 1);
             product.setPreferredTileSize(tileSize);
             addTargetBands(product);

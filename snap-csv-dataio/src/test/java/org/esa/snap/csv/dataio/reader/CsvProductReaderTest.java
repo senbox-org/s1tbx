@@ -237,7 +237,7 @@ public class CsvProductReaderTest {
     public void testCreateTimeCoding_firstTimeColumn() throws IOException {
         Product product = readTestProduct("simple_format_no_properties_but_time_column.txt");
 
-        CsvProductReader.CSVTimeCoding timeCoding = (CsvProductReader.CSVTimeCoding) product.getTimeCoding();
+        CsvProductReader.CSVTimeCoding timeCoding = (CsvProductReader.CSVTimeCoding) product.getSceneTimeCoding();
         assertNotNull(timeCoding);
         assertEquals("date_time", timeCoding.getDataSourceName());
 
@@ -254,7 +254,7 @@ public class CsvProductReaderTest {
     public void testCreateTimeCoding_firstCompleteTimeColumn() throws IOException {
         Product product = readTestProduct("simple_format_no_properties_gaps_in_first_time_column.txt");
 
-        CsvProductReader.CSVTimeCoding timeCoding = (CsvProductReader.CSVTimeCoding) product.getTimeCoding();
+        CsvProductReader.CSVTimeCoding timeCoding = (CsvProductReader.CSVTimeCoding) product.getSceneTimeCoding();
         assertNotNull(timeCoding);
         assertEquals("complete_time", timeCoding.getDataSourceName());
 
@@ -272,7 +272,7 @@ public class CsvProductReaderTest {
     public void testCreateTimeCoding_timeColumnProperty() throws IOException {
         Product product = readTestProduct("simple_format_with_time_column_property.txt");
 
-        CsvProductReader.CSVTimeCoding timeCoding = (CsvProductReader.CSVTimeCoding) product.getTimeCoding();
+        CsvProductReader.CSVTimeCoding timeCoding = (CsvProductReader.CSVTimeCoding) product.getSceneTimeCoding();
         assertNotNull(timeCoding);
         assertEquals("any_name", timeCoding.getDataSourceName());
 
@@ -296,7 +296,7 @@ public class CsvProductReaderTest {
         assertEquals("any_name", element.getAttributeString(Constants.PROPERTY_NAME_TIME_COLUMN));
         assertEquals("yyyy-MM-dd HH:mm:ss", element.getAttributeString(Constants.PROPERTY_NAME_TIME_PATTERN));
 
-        CsvProductReader.CSVTimeCoding timeCoding = (CsvProductReader.CSVTimeCoding) product.getTimeCoding();
+        CsvProductReader.CSVTimeCoding timeCoding = (CsvProductReader.CSVTimeCoding) product.getSceneTimeCoding();
         assertNotNull(timeCoding);
         assertEquals("any_name", timeCoding.getDataSourceName());
 

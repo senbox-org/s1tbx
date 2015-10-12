@@ -181,11 +181,11 @@ public class CollocateOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        if (masterProduct.getGeoCoding() == null) {
+        if (masterProduct.getSceneGeoCoding() == null) {
             throw new OperatorException(
                     MessageFormat.format("Product ''{0}'' has no geo-coding.", masterProduct.getName()));
         }
-        if (slaveProduct.getGeoCoding() == null) {
+        if (slaveProduct.getSceneGeoCoding() == null) {
             throw new OperatorException(
                     MessageFormat.format("Product ''{0}'' has no geo-coding.", slaveProduct.getName()));
         }
@@ -281,10 +281,10 @@ public class CollocateOp extends Operator {
         pm.beginTask("Collocating bands...", targetProduct.getNumBands() + 1);
         try {
             final PixelPos[] sourcePixelPositions = ProductUtils.computeSourcePixelCoordinates(
-                    slaveProduct.getGeoCoding(),
+                    slaveProduct.getSceneGeoCoding(),
                     slaveProduct.getSceneRasterWidth(),
                     slaveProduct.getSceneRasterHeight(),
-                    masterProduct.getGeoCoding(),
+                    masterProduct.getSceneGeoCoding(),
                     targetRectangle);
             final Rectangle sourceRectangle = getBoundingBox(
                     sourcePixelPositions,
@@ -311,10 +311,10 @@ public class CollocateOp extends Operator {
 
         if (sourceRaster.getProduct() == slaveProduct) {
             final PixelPos[] sourcePixelPositions = ProductUtils.computeSourcePixelCoordinates(
-                    slaveProduct.getGeoCoding(),
+                    slaveProduct.getSceneGeoCoding(),
                     slaveProduct.getSceneRasterWidth(),
                     slaveProduct.getSceneRasterHeight(),
-                    masterProduct.getGeoCoding(),
+                    masterProduct.getSceneGeoCoding(),
                     targetTile.getRectangle());
             final Rectangle sourceRectangle = getBoundingBox(
                     sourcePixelPositions,

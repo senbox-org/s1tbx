@@ -86,8 +86,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public static final String PROPERTY_NAME_NO_DATA_VALUE = "noDataValue";
     public static final String PROPERTY_NAME_NO_DATA_VALUE_USED = "noDataValueUsed";
     public static final String PROPERTY_NAME_VALID_PIXEL_EXPRESSION = "validPixelExpression";
-    public static final String PROPERTY_NAME_GEOCODING = Product.PROPERTY_NAME_GEOCODING;
-    public static final String PROPERTY_NAME_TIMECODING = Product.PROPERTY_NAME_TIMECODING;
+    public static final String PROPERTY_NAME_GEO_CODING = "geoCoding";
+    public static final String PROPERTY_NAME_TIME_CODING = "timeCoding";
     public static final String PROPERTY_NAME_STX = "stx";
     public static final String PROPERTY_NAME_ANCILLARY_VARIABLES = "ancillaryVariables";
     public static final String PROPERTY_NAME_ANCILLARY_RELATIONS = "ancillaryRelations";
@@ -397,7 +397,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (geoCoding == null) {
             final Product product = getProduct();
             if (product != null) {
-                return product.getGeoCoding();
+                return product.getSceneGeoCoding();
             }
         }
         return geoCoding;
@@ -407,10 +407,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Sets the geo-coding for this {@link RasterDataNode}.
      * Also sets the geo-coding of the parent {@link Product} if it has no geo-coding yet.
      * <p>On property change, the method calls {@link #fireProductNodeChanged(String)} with the property
-     * name {@link #PROPERTY_NAME_GEOCODING}.
+     * name {@link #PROPERTY_NAME_GEO_CODING}.
      *
      * @param geoCoding the new geo-coding
-     * @see Product#setGeoCoding(GeoCoding)
+     * @see Product#setSceneGeoCoding(GeoCoding)
      */
     public void setGeoCoding(final GeoCoding geoCoding) {
         if (!ObjectUtils.equalObjects(geoCoding, this.geoCoding)) {
@@ -419,11 +419,11 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             // If our product has no geo-coding yet, it is set to the current one, if any
             if (this.geoCoding != null) {
                 final Product product = getProduct();
-                if (product != null && product.getGeoCoding() == null) {
-                    product.setGeoCoding(this.geoCoding);
+                if (product != null && product.getSceneGeoCoding() == null) {
+                    product.setSceneGeoCoding(this.geoCoding);
                 }
             }
-            fireProductNodeChanged(PROPERTY_NAME_GEOCODING);
+            fireProductNodeChanged(PROPERTY_NAME_GEO_CODING);
         }
     }
 
@@ -431,7 +431,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Gets the time-coding of this {@link RasterDataNode}.
      *
      * @return the time-coding, or {@code null} if not available.
-     * @see Product#getTimeCoding()
+     * @see Product#getSceneTimeCoding()
      * @since SNAP 2.0
      */
     public TimeCoding getTimeCoding() {
@@ -443,14 +443,14 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Sets the time-coding for this {@link RasterDataNode}.
      *
      * @param timeCoding the new time-coding
-     * @see Product#setTimeCoding(TimeCoding)
+     * @see Product#setSceneTimeCoding(TimeCoding)
      * @since SNAP 2.0
      */
     public void setTimeCoding(final TimeCoding timeCoding) {
         if (!ObjectUtils.equalObjects(timeCoding, this.timeCoding)) {
             final TimeCoding oldValue = this.timeCoding;
             this.timeCoding = timeCoding;
-            fireProductNodeChanged(PROPERTY_NAME_TIMECODING, oldValue, timeCoding);
+            fireProductNodeChanged(PROPERTY_NAME_TIME_CODING, oldValue, timeCoding);
         }
     }
 

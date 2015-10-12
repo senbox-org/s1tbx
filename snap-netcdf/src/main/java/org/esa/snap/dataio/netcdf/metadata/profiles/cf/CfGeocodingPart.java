@@ -66,7 +66,7 @@ public class CfGeocodingPart extends ProfilePartIO {
             hdfDecode(ctx, p);
         }
         if (geoCoding != null) {
-            p.setGeoCoding(geoCoding);
+            p.setSceneGeoCoding(geoCoding);
         }
     }
 
@@ -97,7 +97,7 @@ public class CfGeocodingPart extends ProfilePartIO {
 
     @Override
     public void preEncode(ProfileWriteContext ctx, Product product) throws IOException {
-        final GeoCoding geoCoding = product.getGeoCoding();
+        final GeoCoding geoCoding = product.getSceneGeoCoding();
         if (geoCoding == null) {
             return;
         }
@@ -131,7 +131,7 @@ public class CfGeocodingPart extends ProfilePartIO {
         final int h = product.getSceneRasterHeight();
         final int w = product.getSceneRasterWidth();
 
-        final GeoCoding geoCoding = product.getGeoCoding();
+        final GeoCoding geoCoding = product.getSceneGeoCoding();
         final PixelPos pixelPos = new PixelPos();
         final GeoPos geoPos = new GeoPos();
 

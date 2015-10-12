@@ -185,7 +185,7 @@ public class ProductSceneRasterSizeTest {
         product.addTiePointGrid(latGrid);
         product.addTiePointGrid(lonGrid);
 
-        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
+        product.setSceneGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
 
         File file = new File("multisize_product.dim");
         try {

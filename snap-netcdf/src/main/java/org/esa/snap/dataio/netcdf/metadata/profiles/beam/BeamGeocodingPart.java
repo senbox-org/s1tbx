@@ -72,7 +72,7 @@ public class BeamGeocodingPart extends CfGeocodingPart {
             }
         }
         if (geoCoding != null) {
-            p.setGeoCoding(geoCoding);
+            p.setSceneGeoCoding(geoCoding);
         } else {
             super.decode(ctx, p);
         }
@@ -98,7 +98,7 @@ public class BeamGeocodingPart extends CfGeocodingPart {
     @Override
     public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
         super.preEncode(ctx, p);
-        final GeoCoding geoCoding = p.getGeoCoding();
+        final GeoCoding geoCoding = p.getSceneGeoCoding();
         if (geoCoding instanceof TiePointGeoCoding) {
             final TiePointGeoCoding tpGC = (TiePointGeoCoding) geoCoding;
             final String[] names = new String[2];

@@ -34,7 +34,7 @@ public class PixelGeoCoding2Test {
             GeoCoding pixelGeoCoding = GeoCodingFactory.createPixelGeoCoding(product.getBand("latBand"),
                                                                              product.getBand("lonBand"), null, 5,
                                                                              ProgressMonitor.NULL);
-            product.setGeoCoding(pixelGeoCoding);
+            product.setSceneGeoCoding(pixelGeoCoding);
 
             PixelPos calculatedPixelPos = new PixelPos();
             GeoPos gp = new GeoPos();
@@ -68,7 +68,7 @@ public class PixelGeoCoding2Test {
             GeoCoding pixelGeoCoding = GeoCodingFactory.createPixelGeoCoding(product.getBand("latBand"),
                                                                              product.getBand("lonBand"), null, 5,
                                                                              ProgressMonitor.NULL);
-            product.setGeoCoding(pixelGeoCoding);
+            product.setSceneGeoCoding(pixelGeoCoding);
 
 
             PixelPos calculatedPixelPos = new PixelPos();
@@ -103,7 +103,7 @@ public class PixelGeoCoding2Test {
             GeoCoding pixelGeoCoding = GeoCodingFactory.createPixelGeoCoding(product.getBand("latBand"),
                                                                              product.getBand("lonBand"), null, 5,
                                                                              ProgressMonitor.NULL);
-            product.setGeoCoding(pixelGeoCoding);
+            product.setSceneGeoCoding(pixelGeoCoding);
 
             PixelPos calculatedPixelPos = new PixelPos();
             GeoPos gp = new GeoPos();
@@ -144,7 +144,7 @@ public class PixelGeoCoding2Test {
             GeoCoding pixelGeoCoding = GeoCodingFactory.createPixelGeoCoding(product.getBand("latBand"),
                                                                              product.getBand("lonBand"), null, 5,
                                                                              ProgressMonitor.NULL);
-            product.setGeoCoding(pixelGeoCoding);
+            product.setSceneGeoCoding(pixelGeoCoding);
 
 
             PixelPos calculatedPixelPos = new PixelPos();
@@ -200,7 +200,7 @@ public class PixelGeoCoding2Test {
         flagomatBand.setRasterData(ProductData.createInstance(ProductData.TYPE_UINT8, flagomatData));
         flagomatBand.setSampleCoding(flagCoding);
 
-        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
+        product.setSceneGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
 
         return product;
     }

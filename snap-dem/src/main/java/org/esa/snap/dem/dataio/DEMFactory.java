@@ -94,7 +94,7 @@ public class DEMFactory {
     public static void validateDEM(final String demName, final Product srcProduct) throws IOException {
         // check if outside dem area
         if (demName.contains("SRTM")) {
-            final GeoCoding geocoding = srcProduct.getGeoCoding();
+            final GeoCoding geocoding = srcProduct.getSceneGeoCoding();
             final int w = srcProduct.getSceneRasterWidth();
             final int h = srcProduct.getSceneRasterHeight();
             final GeoPos geo1 = geocoding.getGeoPos(new PixelPos(0, 0), null);
