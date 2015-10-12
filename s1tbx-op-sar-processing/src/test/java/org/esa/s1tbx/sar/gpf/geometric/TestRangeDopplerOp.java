@@ -97,7 +97,7 @@ public class TestRangeDopplerOp {
         final ElevationModelRegistry elevationModelRegistry = ElevationModelRegistry.getInstance();
         final ElevationModelDescriptor demDescriptor = elevationModelRegistry.getDescriptor("SRTM 3Sec");
         final ElevationModel dem = demDescriptor.createDem(ResamplingFactory.createResampling(ResamplingFactory.BILINEAR_INTERPOLATION_NAME));
-        final GeoCoding targetGeoCoding = sourceProduct.getGeoCoding();
+        final GeoCoding targetGeoCoding = sourceProduct.getSceneGeoCoding();
 
         final int width = sourceProduct.getSceneRasterWidth();
         final int height = sourceProduct.getSceneRasterHeight();

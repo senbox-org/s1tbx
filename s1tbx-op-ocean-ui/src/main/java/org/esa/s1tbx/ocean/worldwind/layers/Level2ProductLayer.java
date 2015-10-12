@@ -254,8 +254,8 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
             rvlSwathHeight = rvlLonBand.getRasterHeight();
         }
 
-            final GeoPos geoPos1 = product.getGeoCoding().getGeoPos(new PixelPos(0, 0), null);
-            final GeoPos geoPos2 = product.getGeoCoding().getGeoPos(new PixelPos(product.getSceneRasterWidth() - 1,
+            final GeoPos geoPos1 = product.getSceneGeoCoding().getGeoPos(new PixelPos(0, 0), null);
+            final GeoPos geoPos2 = product.getSceneGeoCoding().getGeoPos(new PixelPos(product.getSceneRasterWidth() - 1,
                     product.getSceneRasterHeight() - 1), null);
 
         try {

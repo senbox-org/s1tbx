@@ -305,7 +305,7 @@ public final class OrbitBasedCoregistrationOp extends Operator {
             targetProduct.addBand(rgOffsetBand);
         }
 
-        targetGeoCoding = targetProduct.getGeoCoding();
+        targetGeoCoding = targetProduct.getSceneGeoCoding();
     }
 
     private void copySlaveMetadata() {

@@ -51,7 +51,7 @@ public class TestGeocoding {
         }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
-        GeoCoding gc = sourceProduct.getGeoCoding();
+        GeoCoding gc = sourceProduct.getSceneGeoCoding();
         GeoPos geo = new GeoPos();
         PixelPos pix1 = new PixelPos();
         PixelPos pix2 = new PixelPos();

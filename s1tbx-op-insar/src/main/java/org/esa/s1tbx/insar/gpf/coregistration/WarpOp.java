@@ -254,7 +254,7 @@ public class WarpOp extends Operator {
 
     private void addSlaveGCPs(final WarpData warpData, final String bandName) {
 
-        final GeoCoding targetGeoCoding = targetProduct.getGeoCoding();
+        final GeoCoding targetGeoCoding = targetProduct.getSceneGeoCoding();
         final ProductNodeGroup<Placemark> targetGCPGroup = GCPManager.instance().getGcpGroup(targetProduct.getBand(bandName));
         targetGCPGroup.removeAll();
 

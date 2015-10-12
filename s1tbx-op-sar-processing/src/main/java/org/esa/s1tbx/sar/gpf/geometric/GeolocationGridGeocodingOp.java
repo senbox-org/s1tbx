@@ -222,12 +222,12 @@ public final class GeolocationGridGeocodingOp extends Operator {
 
             targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                     sourceProduct.getProductType(), crsHandler.getTargetWidth(), crsHandler.getTargetHeight());
-            targetProduct.setGeoCoding(crsHandler.getCrsGeoCoding());
+            targetProduct.setSceneGeoCoding(crsHandler.getCrsGeoCoding());
 
             OperatorUtils.addSelectedBands(
                     sourceProduct, sourceBandNames, targetProduct, targetBandNameToSourceBandName, true, true);
 
-            targetGeoCoding = targetProduct.getGeoCoding();
+            targetGeoCoding = targetProduct.getSceneGeoCoding();
 
             ProductUtils.copyMetadata(sourceProduct, targetProduct);
             ProductUtils.copyMasks(sourceProduct, targetProduct);

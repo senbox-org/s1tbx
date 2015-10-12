@@ -134,7 +134,7 @@ public class SRGROp extends Operator {
 
             getSourceImageDimension();
 
-            geoCoding = sourceProduct.getGeoCoding();
+            geoCoding = sourceProduct.getSceneGeoCoding();
             if (geoCoding == null) {
                 throw new OperatorException("GeoCoding is null");
             }

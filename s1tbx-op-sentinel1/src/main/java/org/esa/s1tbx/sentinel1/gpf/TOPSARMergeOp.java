@@ -392,7 +392,7 @@ public final class TOPSARMergeOp extends Operator {
         targetProduct.addTiePointGrid(incGrid);
 
         final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
-        targetProduct.setGeoCoding(tpGeoCoding);
+        targetProduct.setSceneGeoCoding(tpGeoCoding);
     }
 
     private int getSubSwathIndex(final double slrTime) {

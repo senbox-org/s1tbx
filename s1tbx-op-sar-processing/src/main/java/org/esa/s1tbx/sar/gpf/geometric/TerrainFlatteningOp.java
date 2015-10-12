@@ -332,7 +332,7 @@ public final class TerrainFlatteningOp extends Operator {
             absTgt.setAttributeDouble("external DEM no data value", externalDEMNoDataValue);
         }
 
-        targetGeoCoding = targetProduct.getGeoCoding();
+        targetGeoCoding = targetProduct.getSceneGeoCoding();
     }
 
     /**
@@ -703,7 +703,7 @@ public final class TerrainFlatteningOp extends Operator {
     private void computeImageGeoBoundary(final int xmin, final int xmax, final int ymin, final int ymax,
                                          double[] latLonMinMax) throws Exception {
 
-        final GeoCoding geoCoding = sourceProduct.getGeoCoding();
+        final GeoCoding geoCoding = sourceProduct.getSceneGeoCoding();
         if (geoCoding == null) {
             throw new OperatorException("Product does not contain a geocoding");
         }

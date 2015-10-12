@@ -372,8 +372,8 @@ public class DEMBasedCoregistrationOp extends Operator {
         final Rectangle[] tileRectangles = OperatorUtils.getAllTileRectangles(masterProduct, tileSize, 0);
         final int numRandomTiles = Math.min(numGCPs, tileRectangles.length);
 
-        final GeoCoding mGeoCoding = masterProduct.getGeoCoding();
-        final GeoCoding sGeoCoding = slaveProduct.getGeoCoding();
+        final GeoCoding mGeoCoding = masterProduct.getSceneGeoCoding();
+        final GeoCoding sGeoCoding = slaveProduct.getSceneGeoCoding();
         final Rectangle[] randomTileArray = getRandomTiles(numRandomTiles, tileRectangles, mGeoCoding, sGeoCoding);
 
         final Band masterBand = getAmplitudeOrIntensityBand(masterProduct);
@@ -674,7 +674,7 @@ public class DEMBasedCoregistrationOp extends Operator {
     private void computeImageGeoBoundary(final int xmin, final int xmax, final int ymin, final int ymax,
                                          final Product sourceProduct, double[] latLonMinMax) throws Exception {
 
-        final GeoCoding geoCoding = sourceProduct.getGeoCoding();
+        final GeoCoding geoCoding = sourceProduct.getSceneGeoCoding();
         if (geoCoding == null) {
             throw new OperatorException("Product does not contain a geocoding");
         }

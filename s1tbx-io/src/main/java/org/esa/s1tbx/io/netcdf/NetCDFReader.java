@@ -181,10 +181,10 @@ public class NetCDFReader extends AbstractProductReader {
 
     private void addGeoCodingToProduct(final NcRasterDim rasterDim) throws IOException {
         setTiePointGeoCoding(product);
-        if (product.getGeoCoding() == null) {
+        if (product.getSceneGeoCoding() == null) {
             setPixelGeoCoding(product);
         }
-        if (product.getGeoCoding() == null) {
+        if (product.getSceneGeoCoding() == null) {
             yFlipped = setMapGeoCoding(rasterDim, product, netcdfFile, yFlipped);
         }
     }
@@ -211,7 +211,7 @@ public class NetCDFReader extends AbstractProductReader {
                                                                                  product.getSceneRasterHeight());
                 if (mapInfoX != null) {
                     yFlipped = mapInfoX.isYFlipped();
-                    product.setGeoCoding(new MapGeoCoding(mapInfoX.getMapInfo()));
+                    product.setSceneGeoCoding(new MapGeoCoding(mapInfoX.getMapInfo()));
                 }
             } catch (IOException e) {
                 SystemUtils.LOG.warning("Failed to create NetCDF geo-coding");
@@ -234,7 +234,7 @@ public class NetCDFReader extends AbstractProductReader {
         }
         if (latGrid != null && lonGrid != null) {
             final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
-            product.setGeoCoding(tpGeoCoding);
+            product.setSceneGeoCoding(tpGeoCoding);
         }
     }
 
@@ -251,9 +251,9 @@ public class NetCDFReader extends AbstractProductReader {
                 break;
         }
         if (latBand != null && lonBand != null) {
-            product.setGeoCoding(new PixelGeoCoding(latBand, lonBand,
-                                                    latBand.getValidPixelExpression(),
-                                                    5, ProgressMonitor.NULL));
+            product.setSceneGeoCoding(new PixelGeoCoding(latBand, lonBand,
+                                                         latBand.getValidPixelExpression(),
+                                                         5, ProgressMonitor.NULL));
         }
     }
 

@@ -206,7 +206,7 @@ public class CoarseFineCoregOp extends Operator {
             masterGcpGroup = GCPManager.instance().getGcpGroup(masterBand1);
             if (masterGcpGroup.getNodeCount() <= 0) {
                 addGCPGrid(sourceImageWidth, sourceImageHeight, numWindows, masterGcpGroup,
-                        targetProduct.getGeoCoding());
+                        targetProduct.getSceneGeoCoding());
             }
 
         } catch (Throwable e) {
@@ -466,7 +466,7 @@ public class CoarseFineCoregOp extends Operator {
         try {
 
             final ProductNodeGroup<Placemark> targetGCPGroup = GCPManager.instance().getGcpGroup(targetBand);
-            final GeoCoding tgtGeoCoding = targetProduct.getGeoCoding();
+            final GeoCoding tgtGeoCoding = targetProduct.getSceneGeoCoding();
 
             final ThreadManager threadManager = new ThreadManager();
 

@@ -389,7 +389,7 @@ public class ALOSDeskewingOp extends Operator {
 
         GeoPos geoPos = new GeoPos();
         for (int y = 0; y < sourceImageHeight; y++) {
-            sourceProduct.getGeoCoding().getGeoPos(new PixelPos(0.5f, y + 0.5f), geoPos);
+            sourceProduct.getSceneGeoCoding().getGeoPos(new PixelPos(0.5f, y + 0.5f), geoPos);
             final double lat = geoPos.lat;
             double lon = geoPos.lon;
             if (lon >= 180.0) {
@@ -532,7 +532,7 @@ public class ALOSDeskewingOp extends Operator {
 
     private boolean getLook(final stateVector v, final double slant, final double yaw, final double[] plook) {
 
-        final GeoCoding geoCoding = sourceProduct.getGeoCoding();
+        final GeoCoding geoCoding = sourceProduct.getSceneGeoCoding();
         if (geoCoding == null) {
             throw new OperatorException("GeoCoding is null");
         }

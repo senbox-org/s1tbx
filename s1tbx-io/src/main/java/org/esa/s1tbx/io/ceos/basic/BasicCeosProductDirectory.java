@@ -175,11 +175,11 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
             ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
         }
 
-        if (product.getGeoCoding() == null) {
+        if (product.getSceneGeoCoding() == null) {
             addGeoCodingFromSceneLabel(product);
         }
 
-        if (product.getGeoCoding() == null) {
+        if (product.getSceneGeoCoding() == null) {
             addTPGGeoCoding(product, sceneRec);
         }
 
@@ -798,7 +798,7 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
 
         product.addTiePointGrid(latGrid);
         product.addTiePointGrid(lonGrid);
-        product.setGeoCoding(tpGeoCoding);
+        product.setSceneGeoCoding(tpGeoCoding);
     }
 
     private static boolean checkStateVectorValidity(OrbitStateVector[] orbitStateVectors) {
@@ -820,15 +820,15 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
     }
 
     private static void setLatLonMetadata(final Product product, final MetadataElement absRoot) {
-        final GeoCoding geoCoding = product.getGeoCoding();
+        final GeoCoding geoCoding = product.getSceneGeoCoding();
         if (geoCoding == null) return;
 
-        final GeoPos geoPosFirstNear = product.getGeoCoding().getGeoPos(new PixelPos(0, 0), null);
-        final GeoPos geoPosFirstFar = product.getGeoCoding().getGeoPos(new PixelPos(product.getSceneRasterWidth() - 1,
+        final GeoPos geoPosFirstNear = product.getSceneGeoCoding().getGeoPos(new PixelPos(0, 0), null);
+        final GeoPos geoPosFirstFar = product.getSceneGeoCoding().getGeoPos(new PixelPos(product.getSceneRasterWidth() - 1,
                 0), null);
-        final GeoPos geoPosLastNear = product.getGeoCoding().getGeoPos(new PixelPos(0,
+        final GeoPos geoPosLastNear = product.getSceneGeoCoding().getGeoPos(new PixelPos(0,
                 product.getSceneRasterHeight() - 1), null);
-        final GeoPos geoPosLastFar = product.getGeoCoding().getGeoPos(new PixelPos(product.getSceneRasterWidth() - 1,
+        final GeoPos geoPosLastFar = product.getSceneGeoCoding().getGeoPos(new PixelPos(product.getSceneRasterWidth() - 1,
                 product.getSceneRasterHeight() - 1), null);
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat, geoPosFirstNear.getLat());

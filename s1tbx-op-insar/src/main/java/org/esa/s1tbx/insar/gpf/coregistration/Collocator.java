@@ -26,10 +26,10 @@ public class Collocator {
     public Collocator(final Operator op, final Product srcProduct, final Product trgProduct, final Rectangle trgRectangle) {
         this.operator = op;
         sourcePixelPositions = ProductUtils.computeSourcePixelCoordinates(
-                srcProduct.getGeoCoding(),
+                srcProduct.getSceneGeoCoding(),
                 srcProduct.getSceneRasterWidth(),
                 srcProduct.getSceneRasterHeight(),
-                trgProduct.getGeoCoding(),
+                trgProduct.getSceneGeoCoding(),
                 trgRectangle);
 
         sourceRectangle = getBoundingBox(

@@ -816,7 +816,7 @@ public final class SliceAssemblyOp extends Operator {
         final TiePointGrid lonGrid = targetProduct.getTiePointGrid(OperatorUtils.TPG_LONGITUDE);
 
         final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
-        targetProduct.setGeoCoding(tpGeoCoding);
+        targetProduct.setSceneGeoCoding(tpGeoCoding);
     }
 
     private String extractImageNumber(final String filename) {
