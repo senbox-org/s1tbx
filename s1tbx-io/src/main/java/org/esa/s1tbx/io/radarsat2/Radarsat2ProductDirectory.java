@@ -603,7 +603,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
 
         product.addTiePointGrid(latGrid);
         product.addTiePointGrid(lonGrid);
-        product.setGeoCoding(tpGeoCoding);
+        product.setSceneGeoCoding(tpGeoCoding);
 
         setLatLongMetadata(product, latGrid, lonGrid);
     }
@@ -648,7 +648,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
 
         // get scene center latitude
         final GeoPos sceneCenterPos =
-                product.getGeoCoding().getGeoPos(new PixelPos(sourceImageWidth / 2.0f, sourceImageHeight / 2.0f), null);
+                product.getSceneGeoCoding().getGeoPos(new PixelPos(sourceImageWidth / 2.0f, sourceImageHeight / 2.0f), null);
         double sceneCenterLatitude = sceneCenterPos.lat; // in deg
 
         // get near range incidence angle

@@ -136,7 +136,7 @@ public class CreateStackOp extends Operator {
             }
 
             for (final Product prod : sourceProduct) {
-                if (prod.getGeoCoding() == null) {
+                if (prod.getSceneGeoCoding() == null) {
                     throw new OperatorException(
                             MessageFormat.format("Product ''{0}'' has no geo-coding.", prod.getName()));
                 }
@@ -294,7 +294,7 @@ public class CreateStackOp extends Operator {
             final ProductNodeGroup<Placemark> masterGCPgroup = masterProduct.getGcpGroup();
             if (masterGCPgroup.getNodeCount() > 0) {
                 OperatorUtils.copyGCPsToTarget(masterGCPgroup, GCPManager.instance().getGcpGroup(targetProduct.getBandAt(0)),
-                                               targetProduct.getGeoCoding());
+                                               targetProduct.getSceneGeoCoding());
             }
 
             if (!resamplingType.contains("NONE")) {
@@ -527,7 +527,7 @@ public class CreateStackOp extends Operator {
             tgtGeometry = tgtGeometry.intersection(slvGeometry);
         }
 
-        final GeoCoding mstGeoCoding = masterProduct.getGeoCoding();
+        final GeoCoding mstGeoCoding = masterProduct.getSceneGeoCoding();
         final PixelPos pixPos = new PixelPos();
         final GeoPos geoPos = new GeoPos();
         final double mstWidth = masterProduct.getSceneRasterWidth();
@@ -611,7 +611,7 @@ public class CreateStackOp extends Operator {
         */
 
         try {
-            final GeoCoding masterGeoCoding = masterProduct.getGeoCoding();
+            final GeoCoding masterGeoCoding = masterProduct.getSceneGeoCoding();
 
             double xMin = 0;
             double xMax = masterProduct.getSceneRasterWidth();
@@ -629,7 +629,7 @@ public class CreateStackOp extends Operator {
 
             for (final Product slvProd : sourceProduct) {
                 if (slvProd != masterProduct) {
-                    final GeoCoding slaveGeoCoding = slvProd.getGeoCoding();
+                    final GeoCoding slaveGeoCoding = slvProd.getSceneGeoCoding();
 
                     final GeoPos geoPosFirstNear = slaveGeoCoding.getGeoPos(
                             new PixelPos(0, 0), null);
@@ -682,7 +682,7 @@ public class CreateStackOp extends Operator {
 
             targetProduct.addTiePointGrid(latGrid);
             targetProduct.addTiePointGrid(lonGrid);
-            targetProduct.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
+            targetProduct.setSceneGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
@@ -690,7 +690,7 @@ public class CreateStackOp extends Operator {
 
     private void computeTargetSlaveCoordinateOffsets_GCP() {
 
-        final GeoCoding targGeoCoding = targetProduct.getGeoCoding();
+        final GeoCoding targGeoCoding = targetProduct.getSceneGeoCoding();
         final int targImageWidth = targetProduct.getSceneRasterWidth();
         final int targImageHeight = targetProduct.getSceneRasterHeight();
 
@@ -706,7 +706,7 @@ public class CreateStackOp extends Operator {
                 continue;
             }
 
-            final GeoCoding slvGeoCoding = slvProd.getGeoCoding();
+            final GeoCoding slvGeoCoding = slvProd.getSceneGeoCoding();
             final int slvImageWidth = slvProd.getSceneRasterWidth();
             final int slvImageHeight = slvProd.getSceneRasterHeight();
 

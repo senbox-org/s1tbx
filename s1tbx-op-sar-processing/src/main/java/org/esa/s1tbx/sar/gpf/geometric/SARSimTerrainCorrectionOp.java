@@ -503,7 +503,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
         targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                                     sourceProduct.getProductType(), crsHandler.getTargetWidth(), crsHandler.getTargetHeight());
-        targetProduct.setGeoCoding(crsHandler.getCrsGeoCoding());
+        targetProduct.setSceneGeoCoding(crsHandler.getCrsGeoCoding());
 
         targetImageWidth = targetProduct.getSceneRasterWidth();
         targetImageHeight = targetProduct.getSceneRasterHeight();
@@ -673,7 +673,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_output_lines, targetImageHeight);
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_samples_per_line, targetImageWidth);
 
-        final GeoCoding targetGeoCoding = targetProduct.getGeoCoding();
+        final GeoCoding targetGeoCoding = targetProduct.getSceneGeoCoding();
         final GeoPos geoPosFirstNear = targetGeoCoding.getGeoPos(new PixelPos(0, 0), null);
         final GeoPos geoPosFirstFar = targetGeoCoding.getGeoPos(new PixelPos(targetImageWidth - 1, 0), null);
         final GeoPos geoPosLastNear = targetGeoCoding.getGeoPos(new PixelPos(0, targetImageHeight - 1), null);

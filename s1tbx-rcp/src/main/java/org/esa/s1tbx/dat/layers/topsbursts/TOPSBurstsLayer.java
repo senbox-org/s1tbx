@@ -79,7 +79,7 @@ public class TOPSBurstsLayer extends Layer implements LayerSelection {
     @Override
     protected void renderLayer(final Rendering rendering) {
 
-        final GeoCoding geoCoding = product.getGeoCoding();
+        final GeoCoding geoCoding = product.getSceneGeoCoding();
         if (geoCoding == null) return;
 
         final ScreenPixelConverter screenPixel = new ScreenPixelConverter(rendering.getViewport(), raster);
@@ -144,7 +144,7 @@ public class TOPSBurstsLayer extends Layer implements LayerSelection {
                 return;
             }
 
-            final GeoCoding geoCoding = product.getGeoCoding();
+            final GeoCoding geoCoding = product.getSceneGeoCoding();
             final GeoPos pos0 = geoCoding.getGeoPos(new PixelPos(0,0), null);
             final GeoPos posH = geoCoding.getGeoPos(new PixelPos(0,product.getSceneRasterHeight()), null);
             final double minLon = Math.min(pos0.getLon(), posH.getLon());

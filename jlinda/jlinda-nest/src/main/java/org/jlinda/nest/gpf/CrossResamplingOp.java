@@ -429,7 +429,7 @@ public class CrossResamplingOp extends Operator {
         targetProduct.addTiePointGrid(slrgtGrid);
         targetProduct.addTiePointGrid(latGrid);
         targetProduct.addTiePointGrid(lonGrid);
-        targetProduct.setGeoCoding(tpGeoCoding);
+        targetProduct.setSceneGeoCoding(tpGeoCoding);
 
     }
     

@@ -161,18 +161,18 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
 
         addGeoCodingFromPixelToLatLonCoefficients(product, leaderFile.getFacilityRecord());
 
-        if (product.getGeoCoding() == null) {
+        if (product.getSceneGeoCoding() == null) {
             ReaderUtils.addGeoCoding(product, leaderFile.getLatCorners(leaderFile.getMapProjRecord()),
                     leaderFile.getLonCorners(leaderFile.getMapProjRecord()));
         }
         addTiePointGrids(product);
         addMetaData(product);
 
-        if (product.getGeoCoding() == null) {
+        if (product.getSceneGeoCoding() == null) {
             addGeoCodingFromWorkReport(product);
         }
 
-        if (product.getGeoCoding() == null) {
+        if (product.getSceneGeoCoding() == null) {
             Double refLat = leaderFile.getSceneRecord().getAttributeDouble("scene centre geodetic latitude");
             Double refLon = leaderFile.getSceneRecord().getAttributeDouble("scene centre geodetic longitude");
             if (refLat == null || refLat == 0 || refLon == null || refLon == 0) {
@@ -267,11 +267,11 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
 
         product.addTiePointGrid(latGrid);
         product.addTiePointGrid(lonGrid);
-        product.setGeoCoding(tpGeoCoding);
+        product.setSceneGeoCoding(tpGeoCoding);
     }
 
     private static void updateMetadata(final Product product) {
-        final GeoCoding geoCoding = product.getGeoCoding();
+        final GeoCoding geoCoding = product.getSceneGeoCoding();
         if (geoCoding == null) return;
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
@@ -959,7 +959,7 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
 
         product.addTiePointGrid(latGrid);
         product.addTiePointGrid(lonGrid);
-        product.setGeoCoding(tpGeoCoding);
+        product.setSceneGeoCoding(tpGeoCoding);
     }
 
     /**

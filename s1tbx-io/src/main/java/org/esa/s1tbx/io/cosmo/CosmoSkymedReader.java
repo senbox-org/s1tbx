@@ -759,13 +759,13 @@ public class CosmoSkymedReader extends SARReader {
     }
 
     private void addGeoCodingToProduct(final NcRasterDim rasterDim) throws IOException {
-        if (product.getGeoCoding() == null) {
+        if (product.getSceneGeoCoding() == null) {
             NetCDFReader.setTiePointGeoCoding(product);
         }
-        if (product.getGeoCoding() == null) {
+        if (product.getSceneGeoCoding() == null) {
             NetCDFReader.setPixelGeoCoding(product);
         }
-        if (product.getGeoCoding() == null) {
+        if (product.getSceneGeoCoding() == null) {
             yFlipped = NetCDFReader.setMapGeoCoding(rasterDim, product, netcdfFile, yFlipped);
         }
     }

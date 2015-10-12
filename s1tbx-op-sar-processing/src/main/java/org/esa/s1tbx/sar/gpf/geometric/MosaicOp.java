@@ -128,12 +128,12 @@ public class MosaicOp extends Operator {
 
             GeoCoding srcGeocoding = null;
             for (final Product prod : sourceProduct) {
-                if (prod.getGeoCoding() == null) {
+                if (prod.getSceneGeoCoding() == null) {
                     throw new OperatorException(
                             MessageFormat.format("Product ''{0}'' has no geo-coding.", prod.getName()));
                 }
                 if (srcGeocoding == null) {
-                    srcGeocoding = prod.getGeoCoding();
+                    srcGeocoding = prod.getSceneGeoCoding();
                 }
                 // todo check that all source products have same geocoding
 
@@ -166,7 +166,7 @@ public class MosaicOp extends Operator {
             }
 
             targetProduct = new Product("mosaic", "mosaic", sceneWidth, sceneHeight);
-            targetProduct.setGeoCoding(createCRSGeoCoding(srcGeocoding));
+            targetProduct.setSceneGeoCoding(createCRSGeoCoding(srcGeocoding));
 
             // add all bands
             for (Map.Entry<Integer, Band> integerBandEntry : bandIndexSet.entrySet()) {
@@ -205,7 +205,7 @@ public class MosaicOp extends Operator {
             }
 
             for (Product srcProduct : selectedProducts) {
-                final Rectangle srcRect = getSrcRect(targetProduct.getGeoCoding(),
+                final Rectangle srcRect = getSrcRect(targetProduct.getSceneGeoCoding(),
                         scnProp.srcCornerLatitudeMap.get(srcProduct),
                         scnProp.srcCornerLongitudeMap.get(srcProduct));
                 srcRectMap.put(srcProduct, srcRect);
@@ -455,7 +455,7 @@ public class MosaicOp extends Operator {
 
                     prodIndex = 0;
                     for (final Product srcProduct : validProducts) {
-                        srcProduct.getGeoCoding().getPixelPos(geoPos, pixelPos);
+                        srcProduct.getSceneGeoCoding().getPixelPos(geoPos, pixelPos);
 
                         if (pixelPos.x >= feather && pixelPos.y >= feather &&
                                 pixelPos.x < srcProduct.getSceneRasterWidth() - feather &&
@@ -1049,7 +1049,7 @@ public class MosaicOp extends Operator {
         scnProp.lonMax = -180.0f;
 
         for (final Product srcProd : sourceProducts) {
-            final GeoCoding geoCoding = srcProd.getGeoCoding();
+            final GeoCoding geoCoding = srcProd.getSceneGeoCoding();
             final GeoPos geoPosFirstNear = geoCoding.getGeoPos(new PixelPos(0, 0), null);
             final GeoPos geoPosFirstFar = geoCoding.getGeoPos(new PixelPos(srcProd.getSceneRasterWidth() - 1, 0), null);
             final GeoPos geoPosLastNear = geoCoding.getGeoPos(new PixelPos(0, srcProd.getSceneRasterHeight() - 1), null);

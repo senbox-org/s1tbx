@@ -106,7 +106,7 @@ class TimeSeriesDiagram extends Diagram {
 
     public void updateDiagram(final ImageLayer imageLayer, final int pixelX, final int pixelY, final int level) {
         // get lat lons
-        final GeoPos geoPos = product.getGeoCoding().getGeoPos(new PixelPos(pixelX + 0.5f, pixelY + 0.5f), null);
+        final GeoPos geoPos = product.getSceneGeoCoding().getGeoPos(new PixelPos(pixelX + 0.5f, pixelY + 0.5f), null);
 
         final DiagramGraph[] graphs = getGraphs();
         for (DiagramGraph graph : graphs) {

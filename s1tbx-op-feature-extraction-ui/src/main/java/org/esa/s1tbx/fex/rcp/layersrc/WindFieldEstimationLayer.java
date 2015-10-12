@@ -146,7 +146,7 @@ public class WindFieldEstimationLayer extends Layer {
             return;
         }
 
-        final GeoCoding geoCoding = product.getGeoCoding();
+        final GeoCoding geoCoding = product.getSceneGeoCoding();
         final GeoPos geo = new GeoPos();
         final PixelPos pix = new PixelPos();
 

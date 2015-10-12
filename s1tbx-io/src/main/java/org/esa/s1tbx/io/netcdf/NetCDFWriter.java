@@ -154,7 +154,7 @@ public class NetCDFWriter extends AbstractProductWriter {
         netCDFWriteable.create();
 
 
-        final GeoCoding sourceGeoCoding = product.getGeoCoding();
+        final GeoCoding sourceGeoCoding = product.getSceneGeoCoding();
         String latGridName = "latitude";
         String lonGridName = "longitude";
         if (sourceGeoCoding instanceof TiePointGeoCoding) {

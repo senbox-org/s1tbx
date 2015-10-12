@@ -55,7 +55,7 @@ public class TestUpdateGeoRef {
         final float[] expected = new float[] { 446224.0f,318096.0f,329476.0f };
         TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), expected);
 
-        final GeoCoding geoCoding = targetProduct.getGeoCoding();
+        final GeoCoding geoCoding = targetProduct.getSceneGeoCoding();
         final GeoPos geoPos = geoCoding.getGeoPos(new PixelPos(100, 100), null);
         assertEquals(46.727386, geoPos.getLat(), 0.00001);
         assertEquals(10.363166, geoPos.getLon(), 0.00001);

@@ -781,7 +781,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         product.addTiePointGrid(incidentAngleGrid);
 
         final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
-        product.setGeoCoding(tpGeoCoding);
+        product.setSceneGeoCoding(tpGeoCoding);
 
         // final TiePointGrid timeGrid = new TiePointGrid("Time", gridWidth, gridHeight, 0, 0,
         //          subSamplingX, subSamplingY, timeList);

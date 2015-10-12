@@ -398,7 +398,7 @@ public final class TOPSARDeburstOp extends Operator {
         targetProduct.addTiePointGrid(incGrid);
 
         final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
-        targetProduct.setGeoCoding(tpGeoCoding);
+        targetProduct.setSceneGeoCoding(tpGeoCoding);
     }
 
     /**
@@ -463,7 +463,7 @@ public final class TOPSARDeburstOp extends Operator {
 
     private void addBurstBoundary(final MetadataElement absTgt) {
 
-        final GeoCoding targetGeoCoding = targetProduct.getGeoCoding();
+        final GeoCoding targetGeoCoding = targetProduct.getSceneGeoCoding();
 
         final List<String> swathList = new ArrayList<>(5);
         for(MetadataElement elem : absTgt.getElements()) {
