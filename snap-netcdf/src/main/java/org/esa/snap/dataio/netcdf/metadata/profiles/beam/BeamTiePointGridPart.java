@@ -96,13 +96,13 @@ public class BeamTiePointGridPart extends ProfilePartIO {
         final NFileWriteable ncFile = ctx.getNetcdfFileWriteable();
 
         for (TiePointGrid tiePointGrid : p.getTiePointGrids()) {
-            final String key = "" + tiePointGrid.getRasterHeight() + " " + tiePointGrid.getRasterWidth();
+            final String key = "" + tiePointGrid.getGridHeight() + " " + tiePointGrid.getGridWidth();
             String dimString = dimMap.get(key);
             if (dimString == null) {
                 final int size = dimMap.size();
                 final String suffix = size > 0 ? "" + (size + 1) : "";
-                ncFile.addDimension("tp_y" + suffix, tiePointGrid.getRasterHeight());
-                ncFile.addDimension("tp_x" + suffix, tiePointGrid.getRasterWidth());
+                ncFile.addDimension("tp_y" + suffix, tiePointGrid.getGridHeight());
+                ncFile.addDimension("tp_x" + suffix, tiePointGrid.getGridWidth());
                 dimString = "tp_y" + suffix + " " + "tp_x" + suffix;
                 dimMap.put(key, dimString);
             }
@@ -118,8 +118,8 @@ public class BeamTiePointGridPart extends ProfilePartIO {
     @Override
     public void encode(ProfileWriteContext ctx, Product p) throws IOException {
         for (TiePointGrid tiePointGrid : p.getTiePointGrids()) {
-            final int y = tiePointGrid.getRasterHeight();
-            final int x = tiePointGrid.getRasterWidth();
+            final int y = tiePointGrid.getGridHeight();
+            final int x = tiePointGrid.getGridWidth();
             final int[] shape = new int[]{y, x};
             final Array values = Array.factory(DataType.FLOAT, shape, tiePointGrid.getDataElems());
             String variableName = ReaderUtils.getVariableName(tiePointGrid);

@@ -73,8 +73,8 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         Guardian.assertNotNull("latGrid", latGrid);
         Guardian.assertNotNull("lonGrid", lonGrid);
         Guardian.assertNotNull("geoCRS", geoCRS);
-        if (latGrid.getRasterWidth() != lonGrid.getRasterWidth() ||
-                latGrid.getRasterHeight() != lonGrid.getRasterHeight() ||
+        if (latGrid.getGridWidth() != lonGrid.getGridWidth() ||
+                latGrid.getGridHeight() != lonGrid.getGridHeight() ||
                 latGrid.getOffsetX() != lonGrid.getOffsetX() ||
                 latGrid.getOffsetY() != lonGrid.getOffsetY() ||
                 latGrid.getSubSamplingX() != lonGrid.getSubSamplingX() ||
@@ -100,8 +100,8 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         Guardian.assertNotNull("latGrid", latGrid);
         Guardian.assertNotNull("lonGrid", lonGrid);
         Guardian.assertNotNull("datum", datum);
-        if (latGrid.getRasterWidth() != lonGrid.getRasterWidth() ||
-                latGrid.getRasterHeight() != lonGrid.getRasterHeight() ||
+        if (latGrid.getGridWidth() != lonGrid.getGridWidth() ||
+                latGrid.getGridHeight() != lonGrid.getGridHeight() ||
                 latGrid.getOffsetX() != lonGrid.getOffsetX() ||
                 latGrid.getOffsetY() != lonGrid.getOffsetY() ||
                 latGrid.getSubSamplingX() != lonGrid.getSubSamplingX() ||
@@ -356,8 +356,8 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
     // Private stuff
 
     private TiePointGrid initNormalizedLonGrid() {
-        final int w = lonGrid.getRasterWidth();
-        final int h = lonGrid.getRasterHeight();
+        final int w = lonGrid.getGridWidth();
+        final int h = lonGrid.getGridHeight();
 
         double p1;
         double p2;
@@ -410,8 +410,8 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         final TiePointGrid normalizedLonGrid;
         if (normalized) {
             normalizedLonGrid = new TiePointGrid(lonGrid.getName(),
-                                                 lonGrid.getRasterWidth(),
-                                                 lonGrid.getRasterHeight(),
+                                                 lonGrid.getGridWidth(),
+                                                 lonGrid.getGridHeight(),
                                                  lonGrid.getOffsetX(),
                                                  lonGrid.getOffsetY(),
                                                  lonGrid.getSubSamplingX(),
@@ -464,9 +464,9 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
     }
 
     private Approximation[] initApproximations(TiePointGrid normalizedLonGrid) {
-        final int numPoints = latGrid.getRasterData().getNumElems();
-        final int w = latGrid.getRasterWidth();
-        final int h = latGrid.getRasterHeight();
+        final int numPoints = latGrid.getGridData().getNumElems();
+        final int w = latGrid.getGridWidth();
+        final int h = latGrid.getGridHeight();
 
         // Compute number of required approximation tiles
         //
@@ -564,7 +564,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
 
     private double[][] createWarpPoints(TiePointGrid lonGrid, Rectangle subsetRect) {
         final TiePointGrid latGrid = getLatGrid();
-        final int w = latGrid.getRasterWidth();
+        final int w = latGrid.getGridWidth();
         final int sw = subsetRect.width;
         final int sh = subsetRect.height;
         final int i1 = subsetRect.x;
@@ -630,8 +630,8 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
                 if (i > i2) {
                     i = i2;
                 }
-                lat = latGrid.getRasterData().getElemDoubleAt(j * w + i);
-                lon = lonGrid.getRasterData().getElemDoubleAt(j * w + i);
+                lat = latGrid.getGridData().getElemDoubleAt(j * w + i);
+                lon = lonGrid.getGridData().getElemDoubleAt(j * w + i);
                 x = latGrid.getOffsetX() + i * latGrid.getSubSamplingX();
                 y = latGrid.getOffsetY() + j * latGrid.getSubSamplingY();
                 data[k][0] = lat;

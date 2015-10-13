@@ -17,20 +17,10 @@
 package org.esa.snap.core.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import java.io.IOException;
 
 public class VirtualBandTest extends AbstractRasterDataNodeTest {
-
-    public VirtualBandTest(String testName) {
-        super(testName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(VirtualBandTest.class);
-    }
 
     @Override
     protected void setUp() {

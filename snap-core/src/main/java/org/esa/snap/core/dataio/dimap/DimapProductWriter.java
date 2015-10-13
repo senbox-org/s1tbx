@@ -282,7 +282,7 @@ public class DimapProductWriter extends AbstractProductWriter {
     private void writeTiePointGrid(TiePointGrid tiePointGrid) throws IOException {
         ensureExistingTiePointGridDir();
         final ImageOutputStream outputStream = createImageOutputStream(tiePointGrid);
-        tiePointGrid.getData().writeTo(outputStream);
+        tiePointGrid.getGridData().writeTo(outputStream);
         outputStream.close();
     }
 
@@ -359,8 +359,8 @@ public class DimapProductWriter extends AbstractProductWriter {
     private void writeEnviHeader(TiePointGrid tiePointGrid) throws IOException {
         EnviHeader.createPhysicalFile(getEnviHeaderFile(tiePointGrid),
                                       tiePointGrid,
-                                      tiePointGrid.getRasterWidth(),
-                                      tiePointGrid.getRasterHeight());
+                                      tiePointGrid.getGridWidth(),
+                                      tiePointGrid.getGridHeight());
     }
 
     private ImageOutputStream createImageOutputStream(Band band) throws IOException {
@@ -371,10 +371,16 @@ public class DimapProductWriter extends AbstractProductWriter {
         return new FileImageOutputStream(getValidImageFile(tiePointGrid));
     }
 
-    private static long getImageFileSize(RasterDataNode band) {
+    private static long getImageFileSize(Band band) {
         return (long) ProductData.getElemSize(band.getDataType()) *
                 (long) band.getRasterWidth() *
                 (long) band.getRasterHeight();
+    }
+
+    private static long getImageFileSize(TiePointGrid tpg) {
+        return (long) ProductData.getElemSize(tpg.getDataType()) *
+                (long) tpg.getGridWidth() *
+                (long) tpg.getGridHeight();
     }
 
     private File getEnviHeaderFile(Band band) {
@@ -408,11 +414,8 @@ public class DimapProductWriter extends AbstractProductWriter {
         if (parentDir != null) {
             parentDir.mkdirs();
         }
-        final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
-        try {
+        try (RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw")) {
             randomAccessFile.setLength(fileSize);
-        } finally {
-            randomAccessFile.close();
         }
     }
 

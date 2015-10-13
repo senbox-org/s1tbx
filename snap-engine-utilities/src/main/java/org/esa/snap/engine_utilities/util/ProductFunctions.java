@@ -37,13 +37,13 @@ public class ProductFunctions {
     private final static String[] xmlPrefix = {"product", "tsx1_sar", "tsx2_sar", "tdx1_sar", "tdx2_sar"};
 
     // valid but not products
-    private static final String[] excludedExtensions = { "pix", "tif" };
+    private static final String[] excludedExtensions = {"pix", "tif"};
 
     private static final String[] nonValidExtensions = {"xsd", "xsl", "xls", "pdf", "doc", "ps", "db", "rtf",
             "ief", "ord", "rrd", "lbl", "aux", "ovr", "brs",
             "self", "report", "raw", "tgz", "pox", "img", "hdr", "ras", "ntf",
             "tfw", "gif", "jpg", "jgw", "log", "html", "htm", "png", "bmp", "kml", "kmz",
-            "sav", "7z",  "z", "gz", "tar", "exe", "so", "dll", "bat", "sh",
+            "sav", "7z", "z", "gz", "tar", "exe", "so", "dll", "bat", "sh",
             "prj", "dbf", "shx", "shp", "ace", "ace2", "tooldes"};
     private static final String[] nonValidprefixes = {"led", "trl", "tra_", "nul", "lea", "dat", "img", "imop", "sarl", "sart", "par_",
             "dfas", "dfdn", "lut",
@@ -79,14 +79,14 @@ public class ProductFunctions {
 
     public static boolean isSARProduct(final Product product) {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        if(absRoot != null) {
+        if (absRoot != null) {
             final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-            if(mission.equals("ENVISAT")) {
-                if(product.getProductType().startsWith("ASA")) {
+            if (mission.equals("ENVISAT")) {
+                if (product.getProductType().startsWith("ASA")) {
                     return true;
                 }
             }
-            for(String sar : SARMISSIONS) {
+            for (String sar : SARMISSIONS) {
                 if (mission.startsWith(sar)) {
                     return true;
                 }
@@ -104,7 +104,7 @@ public class ProductFunctions {
     public static void scanForValidProducts(final File inputFolder, final ArrayList<String> pathList) {
         final ValidProductFileFilter dirFilter = new ValidProductFileFilter();
         final File[] files = inputFolder.listFiles(dirFilter);
-        if(files != null) {
+        if (files != null) {
             for (File file : files) {
                 if (file.isDirectory()) {
                     scanForValidProducts(file, pathList);
@@ -184,7 +184,7 @@ public class ProductFunctions {
      */
     public static long getRawStorageSize(final Product product) {
         long size = 0;
-        if(product != null) {
+        if (product != null) {
             for (Band band : product.getBands()) {
                 size += band.getRawStorageSize(null);
             }
@@ -195,8 +195,8 @@ public class ProductFunctions {
     public static long getTotalPixels(final Product product) {
         long size = 0;
         for (Band band : product.getBands()) {
-            if(!(band instanceof VirtualBand)) {
-                size += band.getRasterWidth()*band.getRasterHeight();
+            if (!(band instanceof VirtualBand)) {
+                size += band.getRasterWidth() * band.getRasterHeight();
             }
         }
         return size;
@@ -217,12 +217,12 @@ public class ProductFunctions {
         }
 
         String throughPutStr = "";
-        if(totalBytes != null && totalBytes > 0 && totalSeconds > 0) {
+        if (totalBytes != null && totalBytes > 0 && totalSeconds > 0) {
             final long BperSec = totalBytes / totalSeconds;
-            if(BperSec > Constants.oneBillion) {
+            if (BperSec > Constants.oneBillion) {
                 final long GiBperSec = Math.round(totalBytes / (1024.0 * 1024.0 * 1024.0)) / totalSeconds;
                 throughPutStr = " (" + GiBperSec + " GB/s)";
-            } else if(BperSec > Constants.oneMillion) {
+            } else if (BperSec > Constants.oneMillion) {
                 final long MiBperSec = Math.round(totalBytes / (1024.0 * 1024.0)) / totalSeconds;
                 throughPutStr = " (" + MiBperSec + " MB/s";
             } else {
@@ -231,12 +231,12 @@ public class ProductFunctions {
         }
 
         String pixelsRateStr = "";
-        if(totalPixels != null && totalPixels > 0 && totalSeconds > 0) {
+        if (totalPixels != null && totalPixels > 0 && totalSeconds > 0) {
             final long PperSec = totalPixels / totalSeconds;
-            if(PperSec > Constants.oneBillion) {
+            if (PperSec > Constants.oneBillion) {
                 final long GiBperSec = Math.round(totalPixels / (1000 * 1000 * 1000)) / totalSeconds;
                 pixelsRateStr = " (" + GiBperSec + " GPixel/s)";
-            } else if(PperSec > Constants.oneMillion) {
+            } else if (PperSec > Constants.oneMillion) {
                 final long MiBperSec = Math.round(totalPixels / (1000 * 1000)) / totalSeconds;
                 pixelsRateStr = " " + MiBperSec + " MPixel/s)";
             } else {

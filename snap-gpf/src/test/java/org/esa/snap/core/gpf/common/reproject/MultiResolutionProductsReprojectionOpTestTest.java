@@ -43,13 +43,25 @@ public class MultiResolutionProductsReprojectionOpTestTest extends AbstractRepro
 
         assertNotNull(reprojectedProduct);
         assertEquals(6, reprojectedProduct.getNumBands());
+
+        assertEquals(true, reprojectedProduct.containsBand(FLOAT_BAND_NAME));
+        final Band reprojectedFloatBand = reprojectedProduct.getBand(FLOAT_BAND_NAME);
+        assertEquals(50, reprojectedFloatBand.getSceneRasterWidth());
+        assertEquals(50, reprojectedFloatBand.getSceneRasterHeight());
+
+        assertEquals(true, reprojectedProduct.containsBand(INT_BAND_NAME));
+        final Band reprojectedIntBand = reprojectedProduct.getBand(INT_BAND_NAME);
+        assertEquals(50, reprojectedIntBand.getSceneRasterWidth());
+        assertEquals(50, reprojectedIntBand.getSceneRasterHeight());
+
         assertEquals(true, reprojectedProduct.containsBand("otherSize"));
         final Band reprojectedBandOfOtherSize = reprojectedProduct.getBand("otherSize");
         assertEquals(26, reprojectedBandOfOtherSize.getSceneRasterWidth());
         assertEquals(26, reprojectedBandOfOtherSize.getSceneRasterHeight());
+
         assertEquals(true, reprojectedProduct.containsBand("yetAnotherSize"));
         final Band reprojectedBandOfYetAnotherSize = reprojectedProduct.getBand("yetAnotherSize");
-        assertEquals(139, reprojectedBandOfYetAnotherSize.getSceneRasterWidth());
+        assertEquals(93, reprojectedBandOfYetAnotherSize.getSceneRasterWidth());
         assertEquals(26, reprojectedBandOfYetAnotherSize.getSceneRasterHeight());
     }
 

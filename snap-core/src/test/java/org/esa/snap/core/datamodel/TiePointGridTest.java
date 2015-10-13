@@ -17,8 +17,6 @@
 package org.esa.snap.core.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.esa.snap.core.util.BeamConstants;
 
 import java.io.IOException;
@@ -26,10 +24,10 @@ import java.io.IOException;
 
 public class TiePointGridTest extends AbstractRasterDataNodeTest {
 
-    private final float _eps = 1.e-10F;
-    private final int _gridWidth = 3;
-    private final int _gridHeight = 5;
-    private final static float[] _tiePoints = new float[]{
+    private final float eps = 1.e-10F;
+    private final int gridWidth = 3;
+    private final int gridHeight = 5;
+    private final float[] tiePoints = new float[]{
             0.0F, 1.0F, 2.0F,
             1.0F, 2.0F, 3.0F,
             2.0F, 3.0F, 4.0F,
@@ -37,72 +35,55 @@ public class TiePointGridTest extends AbstractRasterDataNodeTest {
             4.0F, 5.0F, 6.0F
     };
 
-    public TiePointGridTest(String testName) {
-        super(testName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(TiePointGridTest.class);
-    }
-
-    @Override
-    protected void setUp() {
-    }
-
-    @Override
-    protected void tearDown() {
-    }
-
     @Override
     protected RasterDataNode createRasterDataNode() {
-        return new TiePointGrid("dafault", 2, 2, 0, 0, 1, 1, new float[]{1f, 2f, 3f, 4f});
+        return new TiePointGrid("default", 2, 2, 0, 0, 1, 1, new float[]{1f, 2f, 3f, 4f});
     }
 
     public void testConstructors() {
         try {
-            new TiePointGrid("x", _gridWidth, _gridHeight, 0, 0, 4, 2, _tiePoints);
+            new TiePointGrid("x", gridWidth, gridHeight, 0, 0, 4, 2, tiePoints);
         } catch (IllegalArgumentException e) {
             fail("IllegalArgumentException not expected");
         }
         try {
-            new TiePointGrid(null, _gridWidth, _gridHeight, 0, 0, 4, 2, _tiePoints);
+            new TiePointGrid(null, gridWidth, gridHeight, 0, 0, 4, 2, tiePoints);
             fail("IllegalArgumentException expected, name was null");
         } catch (IllegalArgumentException e) {
             // IllegalArgumentException expected
         }
         try {
-            new TiePointGrid("x", _gridWidth, _gridHeight, 0, 0, 0, 2, _tiePoints);
+            new TiePointGrid("x", gridWidth, gridHeight, 0, 0, 0, 2, tiePoints);
             fail("IllegalArgumentException expected, sunSamplingX was less than 1");
         } catch (IllegalArgumentException e) {
             // IllegalArgumentException expected
         }
         try {
-            new TiePointGrid("x", _gridWidth, _gridHeight, 0, 0, 4, 0, _tiePoints);
+            new TiePointGrid("x", gridWidth, gridHeight, 0, 0, 4, 0, tiePoints);
             fail("IllegalArgumentException expected, sunSamplingY was less than 1");
         } catch (IllegalArgumentException e) {
             // IllegalArgumentException expected
         }
         try {
-            new TiePointGrid("x", _gridWidth, _gridHeight, 0, 0, 4, 2, null);
-            fail("IllegalArgumentException expected, tiePoints was null");
-        } catch (IllegalArgumentException e) {
+            new TiePointGrid("x", gridWidth, gridHeight, 0, 0, 4, 2, null);
+            fail("NullPointerException expected, tiePoints was null");
+        } catch (NullPointerException e) {
             // IllegalArgumentException expected
         }
         try {
-            new TiePointGrid("x", _gridWidth, 6, 0, 0, 4, 2, _tiePoints);
+            new TiePointGrid("x", gridWidth, 6, 0, 0, 4, 2, tiePoints);
             fail("IllegalArgumentException expected, to few tiePoints");
         } catch (IllegalArgumentException e) {
             // IllegalArgumentException expected
         }
     }
 
-    public void testAttributeQueries() {
-        TiePointGrid grid = new TiePointGrid("x", 3, 5, 0, 0, 4, 2, _tiePoints);
+    public void testProperties() {
+        TiePointGrid grid = new TiePointGrid("x", gridWidth, gridHeight, 0, 0, 4, 2, tiePoints);
 
         assertEquals("x", grid.getName());
-        assertEquals(3, grid.getRasterWidth());
-        assertEquals(5, grid.getRasterHeight());
-        assertEquals(9, grid.getSceneRasterHeight());
+        assertEquals(3, grid.getGridWidth());
+        assertEquals(5, grid.getGridHeight());
         assertEquals(9, grid.getSceneRasterWidth());
         assertEquals(9, grid.getSceneRasterHeight());
         assertEquals(0, grid.getOffsetX(), 1e-6F);
@@ -110,17 +91,47 @@ public class TiePointGridTest extends AbstractRasterDataNodeTest {
         assertEquals(4, grid.getSubSamplingX(), 1e-6F);
         assertEquals(2, grid.getSubSamplingY(), 1e-6F);
 
+        assertNotNull(grid.getData());
+        assertEquals(3 * 5, grid.getData().getNumElems());
+        assertSame(grid.getData(), grid.getGridData());
+        assertSame(grid.getGridData(), grid.getGridData());
+
+        assertNotNull(grid.getRasterData());
+        assertEquals(9 * 9, grid.getRasterData().getNumElems());
+        assertSame(grid.getRasterData(), grid.getRasterData());
+
         assertNotNull(grid.getTiePoints());
-        assertSame(grid.getTiePoints(), _tiePoints);
+        assertSame(grid.getTiePoints(), tiePoints);
         assertEquals(15, grid.getTiePoints().length);
         for (int i = 0; i < 15; i++) {
-            assertEquals(_tiePoints[i], grid.getTiePoints()[i], 1e-10F);
+            assertEquals(tiePoints[i], grid.getTiePoints()[i], 1e-10F);
         }
+    }
+
+    public void testPropertiesNoSubSampling() {
+        TiePointGrid grid = new TiePointGrid("x", gridWidth, gridHeight, 0, 0, 1, 1, tiePoints);
+
+        assertEquals("x", grid.getName());
+        assertEquals(3, grid.getGridWidth());
+        assertEquals(5, grid.getGridHeight());
+        assertEquals(3, grid.getSceneRasterWidth());
+        assertEquals(5, grid.getSceneRasterHeight());
+        assertEquals(0, grid.getOffsetX(), 1e-6F);
+        assertEquals(0, grid.getOffsetY(), 1e-6F);
+        assertEquals(1, grid.getSubSamplingX(), 1e-6F);
+        assertEquals(1, grid.getSubSamplingY(), 1e-6F);
+
+        assertNotNull(grid.getData());
+        assertEquals(3 * 5, grid.getData().getNumElems());
+        assertSame(grid.getData(), grid.getGridData());
+        assertSame(grid.getGridData(), grid.getGridData());
+        assertSame(grid.getData(), grid.getRasterData());
+        assertSame(grid.getRasterData(), grid.getRasterData());
     }
 
     public void testInterpolation() {
 
-        TiePointGrid grid = new TiePointGrid("x", 3, 5, 0.5f, 0.5f, 4, 2, _tiePoints);
+        TiePointGrid grid = new TiePointGrid("x", gridWidth, gridHeight, 0.5f, 0.5f, 4, 2, tiePoints);
 
         float[][] interpolated = new float[][]{
                 {0.0F, 0.5F, 1.0F, 1.5F, 2.0F},
@@ -138,24 +149,34 @@ public class TiePointGridTest extends AbstractRasterDataNodeTest {
             for (int i = 0; i < 4; i++) {
                 int x = i * 4 / 2;
                 int y = j * 2 / 2;
-                assertEquals(interpolated[j][i], grid.getPixelFloat(x, y), _eps);
+                assertEquals(interpolated[j][i], grid.getPixelFloat(x, y), eps);
+            }
+        }
+
+        int rasterWidth = grid.getSceneRasterWidth();
+        ProductData rasterData = grid.getRasterData();
+        for (int j = 0; j < 8; j++) {
+            for (int i = 0; i < 4; i++) {
+                int x = i * 4 / 2;
+                int y = j * 2 / 2;
+                assertEquals(interpolated[j][i], rasterData.getElemFloatAt(rasterWidth * y + x), eps);
             }
         }
     }
 
     public void testExtrapolation() {
 
-        TiePointGrid grid = new TiePointGrid("x", 3, 5, 0.5f, 0.5f, 4, 2, _tiePoints);
+        TiePointGrid grid = new TiePointGrid("x", gridWidth, gridHeight, 0.5f, 0.5f, 4, 2, tiePoints);
 
-        assertEquals(-0.75F, grid.getPixelFloat(-1, -1), _eps);
-        assertEquals(+0.50F, grid.getPixelFloat(4, -1), _eps);
-        assertEquals(+1.75F, grid.getPixelFloat(9, -1), _eps);
-        assertEquals(+1.75F, grid.getPixelFloat(-1, 4), _eps);
-        assertEquals(+3.00F, grid.getPixelFloat(4, 4), _eps);
-        assertEquals(+4.25F, grid.getPixelFloat(9, 4), _eps);
-        assertEquals(+4.25F, grid.getPixelFloat(-1, 9), _eps);
-        assertEquals(+5.50F, grid.getPixelFloat(4, 9), _eps);
-        assertEquals(+6.75F, grid.getPixelFloat(9, 9), _eps);
+        assertEquals(-0.75F, grid.getPixelFloat(-1, -1), eps);
+        assertEquals(+0.50F, grid.getPixelFloat(4, -1), eps);
+        assertEquals(+1.75F, grid.getPixelFloat(9, -1), eps);
+        assertEquals(+1.75F, grid.getPixelFloat(-1, 4), eps);
+        assertEquals(+3.00F, grid.getPixelFloat(4, 4), eps);
+        assertEquals(+4.25F, grid.getPixelFloat(9, 4), eps);
+        assertEquals(+4.25F, grid.getPixelFloat(-1, 9), eps);
+        assertEquals(+5.50F, grid.getPixelFloat(4, 9), eps);
+        assertEquals(+6.75F, grid.getPixelFloat(9, 9), eps);
     }
 
     public void testAccess_TiePointGrid() {
@@ -578,8 +599,8 @@ public class TiePointGridTest extends AbstractRasterDataNodeTest {
         assertEquals("abc", gridClone.getName());
         assertEquals("Aha!", gridClone.getDescription());
         assertEquals(TiePointGrid.DISCONT_AT_180, gridClone.getDiscontinuity());
-        assertEquals(2, gridClone.getRasterWidth());
-        assertEquals(2, gridClone.getRasterHeight());
+        assertEquals(2, gridClone.getGridWidth());
+        assertEquals(2, gridClone.getGridHeight());
         assertEquals(0.1, gridClone.getOffsetX());
         assertEquals(0.2, gridClone.getOffsetY());
         assertEquals(0.3, gridClone.getSubSamplingX());

@@ -20,10 +20,6 @@ import junit.framework.TestCase;
 
 public class AbstractNamedNodeTest extends TestCase {
 
-    public AbstractNamedNodeTest(String testName) {
-        super(testName);
-    }
-
     public void testDummy() {
         // this dummy test is required for in order to avoid the following JUnit error message
         // junit.framework.AssertionFailedError: No tests found in org.esa.snap.core.datamodel.AbstractNamedNodeTest

@@ -19,10 +19,6 @@ package org.esa.snap.core.datamodel;
 
 public abstract class AbstractRasterDataNodeTest extends AbstractDataNodeTest {
 
-    public AbstractRasterDataNodeTest(String testName) {
-        super(testName);
-    }
-
     protected abstract RasterDataNode createRasterDataNode();
 
     public void testSetAndGetBandStatistics() {

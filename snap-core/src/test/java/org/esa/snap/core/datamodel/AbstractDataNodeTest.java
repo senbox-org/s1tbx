@@ -19,9 +19,6 @@ package org.esa.snap.core.datamodel;
 
 public class AbstractDataNodeTest extends AbstractNamedNodeTest {
 
-    public AbstractDataNodeTest(String testName) {
-        super(testName);
-    }    
 
     @Override
     public void testSetUnit(DataNode dataNode) {

@@ -1206,9 +1206,9 @@ public class DimapDocumentTest extends TestCase {
                                           tiePointGridInfo);
                     JDomHelper.addElement(DimapProductConstants.TAG_TIE_POINT_DATA_TYPE,
                                           ProductData.getTypeString(tiePointGrid.getDataType()), tiePointGridInfo);
-                    JDomHelper.addElement(DimapProductConstants.TAG_TIE_POINT_NCOLS, tiePointGrid.getRasterWidth(),
+                    JDomHelper.addElement(DimapProductConstants.TAG_TIE_POINT_NCOLS, tiePointGrid.getGridWidth(),
                                           tiePointGridInfo);
-                    JDomHelper.addElement(DimapProductConstants.TAG_TIE_POINT_NROWS, tiePointGrid.getRasterHeight(),
+                    JDomHelper.addElement(DimapProductConstants.TAG_TIE_POINT_NROWS, tiePointGrid.getGridHeight(),
                                           tiePointGridInfo);
                     JDomHelper.addElement(DimapProductConstants.TAG_TIE_POINT_OFFSET_X, tiePointGrid.getOffsetX(),
                                           tiePointGridInfo);

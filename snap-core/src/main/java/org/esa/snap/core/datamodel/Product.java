@@ -71,9 +71,11 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * <code>Product</code> instances are an in-memory representation of a remote sensing data product. The product is more
@@ -156,12 +158,6 @@ public class Product extends ProductNode {
      * The product's scene raster size in pixels.
      */
     private Dimension sceneRasterSize;
-
-    /**
-     * Has the product's scene raster geometry been invalidated?
-     * Used to determine whether the geometry must be recomputed.
-     */
-    private boolean sceneRasterGeometryInvalidated;
 
     /**
      * The start time of the first raster line.
@@ -308,9 +304,6 @@ public class Product extends ProductNode {
         addProductNodeListener(new ProductNodeListenerAdapter() {
             @Override
             public void nodeAdded(ProductNodeEvent event) {
-                if (event.getSourceNode() instanceof RasterDataNode) {
-                    maybeInvalidateSceneRasterGeometry((RasterDataNode) event.getSourceNode());
-                }
                 if (event.getGroup() == vectorDataGroup) {
                     handleVectorDataNodeAdded(event);
                 } else if (event.getGroup() == maskGroup) {
@@ -766,31 +759,34 @@ public class Product extends ProductNode {
         return destScene != null && srcScene.transferGeoCodingTo(destScene, subsetDef);
     }
 
-    public Dimension getSceneRasterSize() {
-        if (sceneRasterGeometryInvalidated) {
-            recomputeSceneRasterGeometry();
-        }
-        return sceneRasterSize != null ? (Dimension) sceneRasterSize.clone() : null;
+    /**
+     * @return The scene raster width in pixels.
+     * @throws IllegalStateException if the scene size wasn't specified yet and cannot be derived
+     */
+    public final int getSceneRasterWidth() {
+        return getSceneRasterSize().width;
     }
 
     /**
-     * @return The scene raster width in pixels, or 0 if the scene raster geometry is not (yet) determined.
+     * @return The scene raster height in pixels
+     * @throws IllegalStateException if the scene size wasn't specified yet and cannot be derived
      */
-    public int getSceneRasterWidth() {
-        if (sceneRasterGeometryInvalidated) {
-            recomputeSceneRasterGeometry();
-        }
-        return sceneRasterSize != null ? sceneRasterSize.width : 0;
+    public final int getSceneRasterHeight() {
+        return getSceneRasterSize().height;
     }
 
     /**
-     * @return The scene raster height in pixels, or 0 if the scene raster geometry is not (yet) determined.
+     * @return The scene size in pixels.
+     * @throws IllegalStateException if the scene size wasn't specified yet and cannot be derived
      */
-    public int getSceneRasterHeight() {
-        if (sceneRasterGeometryInvalidated) {
-            recomputeSceneRasterGeometry();
+    public final Dimension getSceneRasterSize() {
+        if (sceneRasterSize != null) {
+            return sceneRasterSize;
         }
-        return sceneRasterSize != null ? sceneRasterSize.height : 0;
+        if (!initSceneProperties()) {
+            throw new IllegalStateException("scene raster size not set and no reference band found to derive it from");
+        }
+        return sceneRasterSize;
     }
 
     /**
@@ -2188,8 +2184,10 @@ public class Product extends ProductNode {
                                              expression, color, transparency);
         } else {
             final RasterDataNode refRaster = refRasters[0];
-            mask = Mask.BandMathsType.create(maskName, description, refRaster.getSceneRasterWidth(),
-                                             refRaster.getSceneRasterHeight(), expression, color, transparency);
+            mask = Mask.BandMathsType.create(maskName, description,
+                                             refRaster.getSceneRasterWidth(),
+                                             refRaster.getSceneRasterHeight(),
+                                             expression, color, transparency);
             mask.setGeoCoding(refRaster.getGeoCoding());
         }
         addMask(mask);
@@ -2229,43 +2227,6 @@ public class Product extends ProductNode {
      */
     public void addMask(Mask mask) {
         getMaskGroup().add(mask);
-    }
-
-    private void maybeInvalidateSceneRasterGeometry(RasterDataNode rasterDataNode) {
-        if (sceneRasterGeometryInvalidated || !rasterDataNode.getRasterSize().equals(sceneRasterSize)) {
-            sceneRasterGeometryInvalidated = true;
-        }
-    }
-
-    private void recomputeSceneRasterGeometry() {
-        // todo - [multisize_products] replace this numb algorithm by something reasonable that takes the bands' geographical coverage into account (nf)
-        // noticed by sabine:
-        // If a product subset 2 x 2 pixels is created,
-        // the product scene raster size is calculated 3 x 3 pixels.
-        // If a band is opened in snap it will be displayed correctly 2 x 2
-        // If the product ist exported with CSV-Writer the scene width is written as a CSV header parameter.
-        // If the product is reloaded the Bands are displayed in a different (wrong?) size 3 x 2 pixels
-        RasterDataNode[] bands = getBands();
-        RasterDataNode[] grids = getTiePointGrids();
-        RasterDataNode[] masks = getMaskGroup().toArray(new Mask[0]);
-        List<RasterDataNode> rasters = new ArrayList<>();
-        rasters.addAll(Arrays.asList(bands));
-        rasters.addAll(Arrays.asList(grids));
-        rasters.addAll(Arrays.asList(masks));
-        Object oldSceneRasterSize = sceneRasterSize != null ? sceneRasterSize.clone() : null;
-        Dimension dimension = sceneRasterSize;
-        for (RasterDataNode band : rasters) {
-            if (dimension == null) {
-                dimension = new Dimension();
-            }
-            dimension.width = Math.max(dimension.width, band.getRasterWidth());
-            dimension.height = Math.max(dimension.height, band.getRasterHeight());
-        }
-        sceneRasterSize = dimension;
-        sceneRasterGeometryInvalidated = false;
-        if (sceneRasterSize != null && !sceneRasterSize.equals(oldSceneRasterSize)) {
-            fireNodeChanged(this, "sceneRasterSize", oldSceneRasterSize, sceneRasterSize);
-        }
     }
 
     /**
@@ -2780,6 +2741,31 @@ public class Product extends ProductNode {
             }
         };
         return new VirtualBandMultiLevelImage(multiLevelSource, term);
+    }
+
+    private synchronized boolean initSceneProperties() {
+        Comparator<Band> maxAreaComparator = (o1, o2) -> {
+            final long a1 = o1.getRasterWidth() * (long) o1.getRasterHeight();
+            final long a2 = o2.getRasterWidth() * (long) o2.getRasterHeight();
+            return new Long(a2).compareTo(a1);
+        };
+        Band refBand = Stream.of(getBands())
+                .filter(b -> b.getGeoCoding() != null)
+                .sorted(maxAreaComparator).findFirst().orElse(null);
+        if (refBand == null) {
+            refBand = Stream.of(getBands())
+                    .sorted(maxAreaComparator).findFirst().orElse(null);
+        }
+        if (refBand != null) {
+            if (sceneRasterSize == null) {
+                sceneRasterSize = new Dimension(refBand.getRasterWidth(), refBand.getRasterHeight());
+                if (sceneGeoCoding == null) {
+                    sceneGeoCoding = refBand.getGeoCoding();
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     private void handleMaskAdded(ProductNodeEvent event) {

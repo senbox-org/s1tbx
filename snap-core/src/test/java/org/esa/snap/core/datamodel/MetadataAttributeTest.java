@@ -16,9 +16,6 @@
 
 package org.esa.snap.core.datamodel;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import java.util.Arrays;
 
 public class MetadataAttributeTest extends AbstractNamedNodeTest {
@@ -26,14 +23,6 @@ public class MetadataAttributeTest extends AbstractNamedNodeTest {
     MetadataAttribute _attributeInt = null;
     MetadataAttribute _attributeFloat = null;
     MetadataAttribute _attributeString = null;
-
-    public MetadataAttributeTest(String testName) {
-        super(testName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(MetadataAttributeTest.class);
-    }
 
     @Override
     protected void setUp() {
@@ -52,7 +41,7 @@ public class MetadataAttributeTest extends AbstractNamedNodeTest {
     public void testRsAttribute() {
         try {
             new MetadataAttribute(null, ProductData.createInstance(ProductData.TYPE_FLOAT32),
-                                                         false);
+                                  false);
             fail("new MetadataAttribute(null, false, Value.create(Value.TYPE_FLOAT32)) should not be possible");
         } catch (IllegalArgumentException e) {
         }

@@ -18,8 +18,6 @@ package org.esa.snap.core.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.esa.snap.GlobalTestConfig;
 import org.esa.snap.GlobalTestTools;
 import org.esa.snap.core.dataio.ProductIO;
@@ -46,14 +44,6 @@ public class BandTest extends AbstractRasterDataNodeTest {
     private Band _rsBandBlimFloat2323;
     private Band _rsBandZippFloat1005;
     private Band _rsBandBlepDouble100100;
-
-    public BandTest(String testName) {
-        super(testName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(BandTest.class);
-    }
 
     @Override
     protected void setUp() {

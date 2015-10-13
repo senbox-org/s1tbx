@@ -381,8 +381,8 @@ public final class DimapHeaderWriter extends XmlWriter {
                 printLine(indent + 2, DimapProductConstants.TAG_TIE_POINT_GRID_NAME, tiePointGrid.getName());
                 printLine(indent + 2, DimapProductConstants.TAG_TIE_POINT_DATA_TYPE,
                           ProductData.getTypeString(tiePointGrid.getDataType()));
-                printLine(indent + 2, DimapProductConstants.TAG_TIE_POINT_NCOLS, tiePointGrid.getRasterWidth());
-                printLine(indent + 2, DimapProductConstants.TAG_TIE_POINT_NROWS, tiePointGrid.getRasterHeight());
+                printLine(indent + 2, DimapProductConstants.TAG_TIE_POINT_NCOLS, tiePointGrid.getGridWidth());
+                printLine(indent + 2, DimapProductConstants.TAG_TIE_POINT_NROWS, tiePointGrid.getGridHeight());
                 printLine(indent + 2, DimapProductConstants.TAG_TIE_POINT_OFFSET_X, tiePointGrid.getOffsetX());
                 printLine(indent + 2, DimapProductConstants.TAG_TIE_POINT_OFFSET_Y, tiePointGrid.getOffsetY());
                 printLine(indent + 2, DimapProductConstants.TAG_TIE_POINT_STEP_X, tiePointGrid.getSubSamplingX());

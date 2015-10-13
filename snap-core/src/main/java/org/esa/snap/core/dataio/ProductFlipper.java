@@ -372,8 +372,8 @@ public class ProductFlipper extends AbstractProductBuilder {
 
                 final float[] sourcePoints = sourceTiePointGrid.getTiePoints();
                 final float[] targetPoints = new float[sourcePoints.length];
-                final int width = sourceTiePointGrid.getRasterWidth();
-                final int height = sourceTiePointGrid.getRasterHeight();
+                final int width = sourceTiePointGrid.getGridWidth();
+                final int height = sourceTiePointGrid.getGridHeight();
 
                 if (flipType == FLIP_HORIZONTAL) {
                     sourceOffsetX = (sourceTiePointGrid.getSceneRasterWidth() - (width - 1) * sourceStepX) - sourceOffsetX;
@@ -399,8 +399,8 @@ public class ProductFlipper extends AbstractProductBuilder {
                 }
 
                 final TiePointGrid tiePointGrid = new TiePointGrid(sourceTiePointGrid.getName(),
-                                                                   sourceTiePointGrid.getRasterWidth(),
-                                                                   sourceTiePointGrid.getRasterHeight(),
+                                                                   sourceTiePointGrid.getGridWidth(),
+                                                                   sourceTiePointGrid.getGridHeight(),
                                                                    sourceOffsetX, sourceOffsetY,
                                                                    sourceStepX, sourceStepY,
                                                                    targetPoints,

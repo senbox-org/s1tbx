@@ -215,7 +215,7 @@ public class ProductUtils {
                     sampleColorIndexMap.putValue((int) points[colorIndex].getSample(), colorIndex);
                 }
                 final int noDataIndex = points.length < 255 ? points.length + 1 : 0;
-                final ProductData data = raster.getSceneRasterData();
+                final ProductData data = raster.getRasterData();
                 for (int pixelIndex = 0; pixelIndex < data.getNumElems(); pixelIndex++) {
                     int sample = data.getElemIntAt(pixelIndex);
                     int colorIndex = sampleColorIndexMap.getValue(sample);

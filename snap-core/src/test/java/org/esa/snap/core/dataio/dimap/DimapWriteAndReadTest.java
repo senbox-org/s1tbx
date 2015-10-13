@@ -197,13 +197,13 @@ public class DimapWriteAndReadTest extends TestCase {
                 diff.append(
                         "DataType of TiePointGrid " + i + " expected <" + expTPGrid.getDataType() + "> but was <" + currentTPGrid.getDataType() + ">\r\n");
             }
-            if (expTPGrid.getRasterWidth() != currentTPGrid.getRasterWidth()) {
+            if (expTPGrid.getGridWidth() != currentTPGrid.getGridWidth()) {
                 diff.append(
-                        "RasterWidth of TiePointGrid " + i + " expected <" + expTPGrid.getRasterWidth() + "> but was <" + currentTPGrid.getRasterWidth() + ">\r\n");
+                        "GridWidth of TiePointGrid " + i + " expected <" + expTPGrid.getGridWidth() + "> but was <" + currentTPGrid.getGridWidth() + ">\r\n");
             }
-            if (expTPGrid.getRasterHeight() != currentTPGrid.getRasterHeight()) {
+            if (expTPGrid.getGridHeight() != currentTPGrid.getGridHeight()) {
                 diff.append(
-                        "RasterHeight of TiePointGrid " + i + " expected <" + expTPGrid.getRasterHeight() + "> but was <" + currentTPGrid.getRasterHeight() + ">\r\n");
+                        "GridHeight of TiePointGrid " + i + " expected <" + expTPGrid.getGridHeight() + "> but was <" + currentTPGrid.getGridHeight() + ">\r\n");
             }
             if (expTPGrid.getOffsetX() != currentTPGrid.getOffsetX()) {
                 diff.append(
@@ -221,7 +221,7 @@ public class DimapWriteAndReadTest extends TestCase {
                 diff.append(
                         "SubSamplingY of TiePointGrid " + i + " expected <" + expTPGrid.getSubSamplingY() + "> but was <" + currentTPGrid.getSubSamplingY() + ">\r\n");
             }
-            if (!expTPGrid.getData().equalElems(currentTPGrid.getData())) {
+            if (!expTPGrid.getGridData().equalElems(currentTPGrid.getGridData())) {
                 diff.append("Data of TiePointGrid " + i + " are not equal>\r\n");
             }
             if (!expTPGrid.getDescription().equals(currentTPGrid.getDescription())) {

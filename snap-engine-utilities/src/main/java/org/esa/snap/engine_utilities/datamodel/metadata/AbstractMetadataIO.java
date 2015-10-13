@@ -287,8 +287,8 @@ public final class AbstractMetadataIO {
             gridElem.setAttribute("unit", unit == null ? "" : unit);
             gridElem.setAttribute("desc", desc == null ? "" : desc);
 
-            final int width = g.getRasterWidth();
-            final int height = g.getRasterHeight();
+            final int width = g.getGridWidth();
+            final int height = g.getGridHeight();
             final float[] tiePoints = g.getTiePoints();
             int index = 0;
             for (int r = 0; r < height; ++r) {

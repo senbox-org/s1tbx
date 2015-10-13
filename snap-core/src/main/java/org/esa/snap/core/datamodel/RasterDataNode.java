@@ -113,16 +113,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public static final String IO_ERROR_TEXT = "I/O error"; /*I18N*/
 
 
-    /**
-     * The raster's width.
-     */
-    private final int rasterWidth;
-
-    /**
-     * The raster's height.
-     */
-    private final int rasterHeight;
-
     private double scalingFactor;
     private double scalingOffset;
     private boolean log10Scaled;
@@ -156,18 +146,16 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     private String[] ancillaryRelations;
     private AncillaryBandRemover ancillaryBandRemover;
 
-
     /**
      * Constructs an object of type <code>RasterDataNode</code>.
      *
      * @param name     the name of the new object
      * @param dataType the data type used by the raster, must be one of the multiple <code>ProductData.TYPE_<i>X</i></code>
      *                 constants, with the exception of <code>ProductData.TYPE_UINT32</code>
-     * @param width    the width of the raster in pixels
-     * @param height   the height of the raster in pixels
+     * @param numElems the number of elements in this data node.
      */
-    protected RasterDataNode(String name, int dataType, int width, int height) {
-        super(name, dataType, (long) width * height);
+    protected RasterDataNode(String name, int dataType, long numElems) {
+        super(name, dataType, numElems);
         if (dataType != ProductData.TYPE_INT8
                 && dataType != ProductData.TYPE_INT16
                 && dataType != ProductData.TYPE_INT32
@@ -178,8 +166,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                 && dataType != ProductData.TYPE_FLOAT64) {
             throw new IllegalArgumentException("dataType is invalid");
         }
-        rasterWidth = width;
-        rasterHeight = height;
+
         scalingFactor = 1.0;
         scalingOffset = 0.0;
         log10Scaled = false;
@@ -194,170 +181,27 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Finds the first associated ancillary band for the specified relations.
-     *
-     * @param relations Names of relations such as {@code "uncertainty"}, {@code "variance"}, or {@code null} (any).
-     * @return The associated ancillary band or {@code null}.
-     * @since SNAP 2.0
-     */
-    public RasterDataNode getAncillaryVariable(String... relations) {
-        RasterDataNode[] variables = getAncillaryVariables(relations);
-        return variables.length > 0 ? variables[0] : null;
-    }
-
-    /**
-     * Finds any associated ancillary band for the specified relation.
-     *
-     * @param relations Names of relations such as {@code "uncertainty"}, {@code "variance"}, or {@code null} (any).
-     * @return The associated ancillary bands or an empty array.
-     * @since SNAP 2.0
-     */
-    public RasterDataNode[] getAncillaryVariables(String... relations) {
-        if (ancillaryVariables == null) {
-            return new RasterDataNode[0];
-        }
-        if (relations.length == 0) {
-            return ancillaryVariables.toArray(new RasterDataNode[0]);
-        }
-        assertRelationsAreAllNoneNull(relations);
-        ArrayList<RasterDataNode> rasterDataNodes = new ArrayList<>();
-        for (RasterDataNode ancillaryVariable : ancillaryVariables.toArray(new RasterDataNode[ancillaryVariables.getNodeCount()])) {
-            String[] ancillaryRelations = ancillaryVariable.getAncillaryRelations();
-            if (ancillaryRelations == null) {
-                ancillaryRelations = new String[0];
-            }
-            for (String relation1 : relations) {
-                if (equalAncillaryRelations(relation1, ancillaryRelations) && !rasterDataNodes.contains(ancillaryVariable)) {
-                    rasterDataNodes.add(ancillaryVariable);
-                }
-            }
-        }
-        return rasterDataNodes.toArray(new RasterDataNode[rasterDataNodes.size()]);
-    }
-
-    // Compare "rel" attribute according to NetCDF-U convention
-    private static boolean equalAncillaryRelations(String relation1, String... relations2) {
-        if (relations2.length == 0) {
-            return relation1.equalsIgnoreCase("uncertainty");
-        }
-        for (String relation2 : relations2) {
-            if (relation1.equalsIgnoreCase(relation2)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Adds an associated ancillary variable and sets its relation name.
-     *
-     * @param variable  The associated ancillary variable.
-     * @param relations The name of the relation, may be {@code "uncertainty"}, {@code "variance"}, or {@code null} (not set).
-     * @since SNAP 2.0
-     */
-    public void addAncillaryVariable(RasterDataNode variable, String... relations) {
-        boolean change = false;
-        if (ancillaryVariables == null) {
-            ancillaryVariables = new ProductNodeGroup<>(this, "ancillaryVariables", false);
-        }
-        if (!ancillaryVariables.contains(variable)) {
-            change = ancillaryVariables.add(variable);
-        }
-        if (relations.length > 0) {
-            assertRelationsAreAllNoneNull(relations);
-            for (String relation : relations) {
-                if (!equalAncillaryRelations(relation, variable.getAncillaryRelations())) {
-                    change = true;
-                }
-            }
-            variable.setAncillaryRelations(relations);
-        }
-        if (change) {
-            fireProductNodeChanged(PROPERTY_NAME_ANCILLARY_VARIABLES, ancillaryVariables, ancillaryVariables);
-        }
-
-        Product product = getProduct();
-        if (ancillaryVariables.getNodeCount() > 0 && ancillaryBandRemover == null && product != null) {
-            ancillaryBandRemover = new AncillaryBandRemover();
-            product.addProductNodeListener(ancillaryBandRemover);
-        }
-    }
-
-    /**
-     * Removes an associated ancillary variable.
-     *
-     * @param variable The associated ancillary variable.
-     * @since SNAP 2.0
-     */
-    public void removeAncillaryVariable(RasterDataNode variable) {
-        if (ancillaryVariables != null && ancillaryVariables.remove(variable)) {
-            fireProductNodeChanged(PROPERTY_NAME_ANCILLARY_VARIABLES, ancillaryVariables, ancillaryVariables);
-        }
-    }
-
-    /**
-     * Gets the names of an ancillary relations to another raster data node.
-     * See NetCDF-U 'rel' attribute.
-     *
-     * @return The names of an ancillary relations to another raster data node, or an empty array.
-     * @see #addAncillaryVariable(RasterDataNode, String...)
-     * @see #removeAncillaryVariable(RasterDataNode)
-     * @see #getAncillaryVariable(String...)
-     * @since SNAP 2.0
-     */
-    public String[] getAncillaryRelations() {
-        return ancillaryRelations != null ? ancillaryRelations.clone() : new String[0];
-    }
-
-    /**
-     * Sets the names of an ancillary relations to another raster data node.
-     * See NetCDF-U 'rel' attribute.
-     *
-     * @param relations The names of an ancillary relations.
-     * @see #addAncillaryVariable(RasterDataNode, String...)
-     * @see #getAncillaryVariable(String...)
-     * @since SNAP 2.0
-     */
-    public void setAncillaryRelations(String... relations) {
-        assertRelationsAreAllNoneNull(relations);
-        String[] oldValue = getAncillaryRelations();
-        this.ancillaryRelations = relations;
-        if (!ObjectUtils.equalObjects(oldValue, this.ancillaryRelations)) {
-            fireProductNodeChanged(PROPERTY_NAME_ANCILLARY_RELATIONS, oldValue, getAncillaryRelations());
-        }
-    }
-
-    private void assertRelationsAreAllNoneNull(String[] relations) {
-        for (int i = 0; i < relations.length; i++) {
-            Assert.argument(relations[i] != null, "relations has null element at index " + i);
-        }
-    }
-
-    /**
      * @return The native width of the raster in pixels.
      */
-    public final int getRasterWidth() {
-        return rasterWidth;
-    }
+    public abstract int getRasterWidth();
 
     /**
      * @return The native height of the raster in pixels.
      */
-    public final int getRasterHeight() {
-        return rasterHeight;
-    }
+    public abstract int getRasterHeight();
 
     /**
      * @return The native size of the raster in pixels.
      */
     public Dimension getRasterSize() {
-        return new Dimension(rasterWidth, rasterHeight);
+        return new Dimension(getRasterWidth(), getRasterHeight());
     }
 
     /**
      * @return The width of the product's scene raster in pixels. By default, the method simply
      * returns <code>getRasterWidth()</code>.
      */
+    @Deprecated
     public int getSceneRasterWidth() {
         return getRasterWidth();
     }
@@ -366,6 +210,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @return The height of the product's scene raster in pixels. By default, the method simply
      * returns <code>getRasterHeight()</code>.
      */
+    @Deprecated
     public int getSceneRasterHeight() {
         return getRasterHeight();
     }
@@ -900,23 +745,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Gets a raster data holding this dataset's pixel data for an entire product scene. If the data has'nt been loaded
-     * so far the method returns <code>null</code>.
-     * <p>In oposite to the <code>getRasterData</code> method, this method returns raster data that has at least
-     * <code>getBandOutputRasterWidth()*getBandOutputRasterHeight()</code> elements of the given data type to store the
-     * scene's pixels.
-     *
-     * @return raster data covering the pixels for a complete scene
-     * @see #getRasterData
-     * @see #getRasterWidth
-     * @see #getRasterHeight
-     * @see #getSceneRasterWidth
-     * @see #getSceneRasterHeight
-     */
-    public abstract ProductData getSceneRasterData();
-
-
-    /**
      * Returns true if the raster data of this <code>RasterDataNode</code> is loaded or elsewhere available, otherwise
      * false.
      *
@@ -941,13 +769,24 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Sets the raster data of this dataset.
      * <p> Note that this method does not copy data at all. If the supplied raster data is compatible with this product
      * raster, then simply its reference is stored. Modifications in the supplied raster data will also affect this
-     * dataset's data!
+     * dataset's data.
      *
-     * @param rasterData the raster data for this dataset
+     * @param rasterData The raster data for this raster data node.
      * @see #getRasterData()
      */
     public void setRasterData(ProductData rasterData) {
-        setData(rasterData);
+        ProductData oldData = getData();
+        if (oldData != rasterData) {
+            if (rasterData != null) {
+                if (rasterData.getType() != getDataType()) {
+                    throw new IllegalArgumentException("rasterData.getType() != getDataType()");
+                }
+                if (rasterData.getNumElems() != getSceneRasterWidth() * getSceneRasterHeight()) {
+                    throw new IllegalArgumentException("rasterData.getNumElems() != getRasterWidth() * getRasterHeight()");
+                }
+            }
+            setData(rasterData);
+        }
     }
 
     /**
@@ -1456,6 +1295,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * @see #writePixels(int, int, int, int, float[], ProgressMonitor)
      */
+    @SuppressWarnings("unused") // may be useful API for scripting languages
     public synchronized void writePixels(int x, int y, int w, int h, float[] pixels) throws IOException {
         writePixels(x, y, w, h, pixels, ProgressMonitor.NULL);
     }
@@ -1946,7 +1786,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     public void quantizeRasterData(double newMin, double newMax, double gamma, byte[] samples, int offset, int stride,
                                    ProgressMonitor pm) throws IOException {
-        final ProductData sceneRasterData = getSceneRasterData();
+        final ProductData sceneRasterData = getRasterData();
         final double rawMin = scaleInverse(newMin);
         final double rawMax = scaleInverse(newMax);
         byte[] gammaCurve = null;
@@ -2398,6 +2238,146 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         return validMaskImage != null ? validMaskImage.getImageShape(0) : null;
     }
 
+    /**
+     * Finds the first associated ancillary band for the specified relations.
+     *
+     * @param relations Names of relations such as {@code "uncertainty"}, {@code "variance"}, or {@code null} (any).
+     * @return The associated ancillary band or {@code null}.
+     * @since SNAP 2.0
+     */
+    public RasterDataNode getAncillaryVariable(String... relations) {
+        RasterDataNode[] variables = getAncillaryVariables(relations);
+        return variables.length > 0 ? variables[0] : null;
+    }
+
+    /**
+     * Finds any associated ancillary band for the specified relation.
+     *
+     * @param relations Names of relations such as {@code "uncertainty"}, {@code "variance"}, or {@code null} (any).
+     * @return The associated ancillary bands or an empty array.
+     * @since SNAP 2.0
+     */
+    public RasterDataNode[] getAncillaryVariables(String... relations) {
+        if (ancillaryVariables == null) {
+            return new RasterDataNode[0];
+        }
+        if (relations.length == 0) {
+            return ancillaryVariables.toArray(new RasterDataNode[0]);
+        }
+        assertRelationsAreAllNoneNull(relations);
+        ArrayList<RasterDataNode> rasterDataNodes = new ArrayList<>();
+        for (RasterDataNode ancillaryVariable : ancillaryVariables.toArray(new RasterDataNode[ancillaryVariables.getNodeCount()])) {
+            String[] ancillaryRelations = ancillaryVariable.getAncillaryRelations();
+            if (ancillaryRelations == null) {
+                ancillaryRelations = new String[0];
+            }
+            for (String relation1 : relations) {
+                if (equalAncillaryRelations(relation1, ancillaryRelations) && !rasterDataNodes.contains(ancillaryVariable)) {
+                    rasterDataNodes.add(ancillaryVariable);
+                }
+            }
+        }
+        return rasterDataNodes.toArray(new RasterDataNode[rasterDataNodes.size()]);
+    }
+
+    // Compare "rel" attribute according to NetCDF-U convention
+    private static boolean equalAncillaryRelations(String relation1, String... relations2) {
+        if (relations2.length == 0) {
+            return relation1.equalsIgnoreCase("uncertainty");
+        }
+        for (String relation2 : relations2) {
+            if (relation1.equalsIgnoreCase(relation2)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Adds an associated ancillary variable and sets its relation name.
+     *
+     * @param variable  The associated ancillary variable.
+     * @param relations The name of the relation, may be {@code "uncertainty"}, {@code "variance"}, or {@code null} (not set).
+     * @since SNAP 2.0
+     */
+    public void addAncillaryVariable(RasterDataNode variable, String... relations) {
+        boolean change = false;
+        if (ancillaryVariables == null) {
+            ancillaryVariables = new ProductNodeGroup<>(this, "ancillaryVariables", false);
+        }
+        if (!ancillaryVariables.contains(variable)) {
+            change = ancillaryVariables.add(variable);
+        }
+        if (relations.length > 0) {
+            assertRelationsAreAllNoneNull(relations);
+            for (String relation : relations) {
+                if (!equalAncillaryRelations(relation, variable.getAncillaryRelations())) {
+                    change = true;
+                }
+            }
+            variable.setAncillaryRelations(relations);
+        }
+        if (change) {
+            fireProductNodeChanged(PROPERTY_NAME_ANCILLARY_VARIABLES, ancillaryVariables, ancillaryVariables);
+        }
+
+        Product product = getProduct();
+        if (ancillaryVariables.getNodeCount() > 0 && ancillaryBandRemover == null && product != null) {
+            ancillaryBandRemover = new AncillaryBandRemover();
+            product.addProductNodeListener(ancillaryBandRemover);
+        }
+    }
+
+    /**
+     * Removes an associated ancillary variable.
+     *
+     * @param variable The associated ancillary variable.
+     * @since SNAP 2.0
+     */
+    public void removeAncillaryVariable(RasterDataNode variable) {
+        if (ancillaryVariables != null && ancillaryVariables.remove(variable)) {
+            fireProductNodeChanged(PROPERTY_NAME_ANCILLARY_VARIABLES, ancillaryVariables, ancillaryVariables);
+        }
+    }
+
+    /**
+     * Gets the names of an ancillary relations to another raster data node.
+     * See NetCDF-U 'rel' attribute.
+     *
+     * @return The names of an ancillary relations to another raster data node, or an empty array.
+     * @see #addAncillaryVariable(RasterDataNode, String...)
+     * @see #removeAncillaryVariable(RasterDataNode)
+     * @see #getAncillaryVariable(String...)
+     * @since SNAP 2.0
+     */
+    public String[] getAncillaryRelations() {
+        return ancillaryRelations != null ? ancillaryRelations.clone() : new String[0];
+    }
+
+    /**
+     * Sets the names of an ancillary relations to another raster data node.
+     * See NetCDF-U 'rel' attribute.
+     *
+     * @param relations The names of an ancillary relations.
+     * @see #addAncillaryVariable(RasterDataNode, String...)
+     * @see #getAncillaryVariable(String...)
+     * @since SNAP 2.0
+     */
+    public void setAncillaryRelations(String... relations) {
+        assertRelationsAreAllNoneNull(relations);
+        String[] oldValue = getAncillaryRelations();
+        this.ancillaryRelations = relations;
+        if (!ObjectUtils.equalObjects(oldValue, this.ancillaryRelations)) {
+            fireProductNodeChanged(PROPERTY_NAME_ANCILLARY_RELATIONS, oldValue, getAncillaryRelations());
+        }
+    }
+
+    private void assertRelationsAreAllNoneNull(String[] relations) {
+        for (int i = 0; i < relations.length; i++) {
+            Assert.argument(relations[i] != null, "relations has null element at index " + i);
+        }
+    }
+
     private MultiLevelImage toMultiLevelImage(RenderedImage sourceImage) {
         MultiLevelImage mli;
         if (sourceImage instanceof MultiLevelImage) {
@@ -2481,7 +2461,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
          * @param y0       The index of the first line.
          * @param numLines The number of lines.
          * @param pm       a progress monitor
-         * @throws IOException
          */
         void processRasterDataBuffer(ProductData buffer, int y0, int numLines, ProgressMonitor pm) throws IOException;
     }

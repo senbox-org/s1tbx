@@ -213,23 +213,23 @@ public class DimapProductReader extends AbstractProductReader {
             FileImageInputStream inputStream = null;
             try {
                 inputStream = new FileImageInputStream(new File(inputDir, dataFile));
-                final float[] data = ((float[]) tiePointGrid.getData().getElems());
+                final float[] gridData = ((float[]) tiePointGrid.getGridData().getElems());
                 inputStream.seek(0);
                 if (dataType == ProductData.TYPE_FLOAT32) {
-                    inputStream.readFully(data, 0, data.length);
+                    inputStream.readFully(gridData, 0, gridData.length);
                 } else {
-                    final double[] doubles = new double[data.length];
+                    final double[] doubles = new double[gridData.length];
                     inputStream.readFully(doubles, 0, doubles.length);
                     int i = 0;
                     for (double d : doubles) {
-                        data[i++] = (float) d;
+                        gridData[i++] = (float) d;
                     }
                 }
                 inputStream.close();
                 inputStream = null;
                 // See if we have a -180...+180 or a 0...360 degree discontinuity
                 if (tiePointGrid.getDiscontinuity() != TiePointGrid.DISCONT_NONE) {
-                    tiePointGrid.setDiscontinuity(TiePointGrid.getDiscontinuity(data));
+                    tiePointGrid.setDiscontinuity(TiePointGrid.getDiscontinuity(gridData));
                 }
             } catch (Exception e) {
                 throw new IOException(

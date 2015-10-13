@@ -33,8 +33,37 @@ import java.io.IOException;
  */
 public abstract class AbstractBand extends RasterDataNode {
 
-    public AbstractBand(String name, int dataType, int width, int height) {
-        super(name, dataType, width, height);
+    /**
+     * The raster's width.
+     */
+    private final int rasterWidth;
+
+    /**
+     * The raster's height.
+     */
+    private final int rasterHeight;
+
+
+    public AbstractBand(String name, int dataType, int rasterWidth, int rasterHeight) {
+        super(name, dataType, (long) rasterWidth * (long) rasterHeight);
+        this.rasterWidth = rasterWidth;
+        this.rasterHeight = rasterHeight;
+    }
+
+    /**
+     * @return The width of the raster in pixels.
+     */
+    @Override
+    public int getRasterWidth() {
+        return rasterWidth;
+    }
+
+    /**
+     * @return The height of the raster in pixels.
+     */
+    @Override
+    public int getRasterHeight() {
+        return rasterHeight;
     }
 
     /**
@@ -191,26 +220,6 @@ public abstract class AbstractBand extends RasterDataNode {
             throw new IllegalArgumentException("The length of the given array is less than " + length);
         }
         return array;
-    }
-
-    /////////////////////////////////////////////////////////////////////////
-    // Deprecated API
-
-    /**
-     * Gets a raster data holding this band's pixel data for an entire product scene. If the data has'nt been loaded so
-     * far the method returns <code>null</code>.
-     * <p>In opposite to the <code>getRasterData</code> method, this method returns raster data that has at least
-     * <code>getBandOutputRasterWidth()*getBandOutputRasterHeight()</code> elements of the given data type to store the
-     * scene's pixels.
-     *
-     * @return raster data covering the pixels for a complete scene
-     * @see #getRasterData
-     * @see RasterDataNode#getSceneRasterWidth
-     * @see RasterDataNode#getSceneRasterHeight
-     */
-    @Override
-    public ProductData getSceneRasterData() {
-        return getRasterData();
     }
 
     /**

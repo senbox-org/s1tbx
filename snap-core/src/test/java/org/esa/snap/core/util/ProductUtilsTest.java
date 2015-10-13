@@ -238,16 +238,16 @@ public class ProductUtilsTest {
 
         assertEquals(2, sourceProduct.getNumTiePointGrids());
         assertEquals("tpg1n", sourceProduct.getTiePointGridAt(0).getName());
-        assertEquals(5, sourceProduct.getTiePointGridAt(0).getRasterWidth());
-        assertEquals(4, sourceProduct.getTiePointGridAt(0).getRasterHeight());
+        assertEquals(5, sourceProduct.getTiePointGridAt(0).getGridWidth());
+        assertEquals(4, sourceProduct.getTiePointGridAt(0).getGridHeight());
         assertEquals(2.0f, sourceProduct.getTiePointGridAt(0).getOffsetX(), 1.0e-5);
         assertEquals(3.0f, sourceProduct.getTiePointGridAt(0).getOffsetY(), 1.0e-5);
         assertEquals(4.0f, sourceProduct.getTiePointGridAt(0).getSubSamplingX(), 1.0e-5);
         assertEquals(5.0f, sourceProduct.getTiePointGridAt(0).getSubSamplingY(), 1.0e-5);
         assertEquals(tpg1tp, sourceProduct.getTiePointGridAt(0).getDataElems());
         assertEquals("tpg2n", sourceProduct.getTiePointGridAt(1).getName());
-        assertEquals(4, sourceProduct.getTiePointGridAt(1).getRasterWidth());
-        assertEquals(5, sourceProduct.getTiePointGridAt(1).getRasterHeight());
+        assertEquals(4, sourceProduct.getTiePointGridAt(1).getGridWidth());
+        assertEquals(5, sourceProduct.getTiePointGridAt(1).getGridHeight());
         assertEquals(1.2f, sourceProduct.getTiePointGridAt(1).getOffsetX(), 1.0e-5);
         assertEquals(1.4f, sourceProduct.getTiePointGridAt(1).getOffsetY(), 1.0e-5);
         assertEquals(5.0f, sourceProduct.getTiePointGridAt(1).getSubSamplingX(), 1.0e-5);
@@ -256,16 +256,16 @@ public class ProductUtilsTest {
 
         assertEquals(2, targetProduct.getNumTiePointGrids());
         assertEquals("tpg1n", targetProduct.getTiePointGridAt(0).getName());
-        assertEquals(5, targetProduct.getTiePointGridAt(0).getRasterWidth());
-        assertEquals(4, targetProduct.getTiePointGridAt(0).getRasterHeight());
+        assertEquals(5, targetProduct.getTiePointGridAt(0).getGridWidth());
+        assertEquals(4, targetProduct.getTiePointGridAt(0).getGridHeight());
         assertEquals(2.0f, targetProduct.getTiePointGridAt(0).getOffsetX(), 1.0e-5);
         assertEquals(3.0f, targetProduct.getTiePointGridAt(0).getOffsetY(), 1.0e-5);
         assertEquals(4.0f, targetProduct.getTiePointGridAt(0).getSubSamplingX(), 1.0e-5);
         assertEquals(5.0f, targetProduct.getTiePointGridAt(0).getSubSamplingY(), 1.0e-5);
         assertTrue(Arrays.equals(tpg1tp, (float[]) targetProduct.getTiePointGridAt(0).getDataElems()));
         assertEquals("tpg2n", targetProduct.getTiePointGridAt(1).getName());
-        assertEquals(4, targetProduct.getTiePointGridAt(1).getRasterWidth());
-        assertEquals(5, targetProduct.getTiePointGridAt(1).getRasterHeight());
+        assertEquals(4, targetProduct.getTiePointGridAt(1).getGridWidth());
+        assertEquals(5, targetProduct.getTiePointGridAt(1).getGridHeight());
         assertEquals(1.2f, targetProduct.getTiePointGridAt(1).getOffsetX(), 1.0e-5);
         assertEquals(1.4f, targetProduct.getTiePointGridAt(1).getOffsetY(), 1.0e-5);
         assertEquals(5.0f, targetProduct.getTiePointGridAt(1).getSubSamplingX(), 1.0e-5);

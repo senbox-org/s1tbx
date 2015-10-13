@@ -470,8 +470,8 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
     }
 
     private void writeTiePointGrid(TiePointGrid grid, String path) throws IOException {
-        final int w = grid.getRasterWidth();
-        final int h = grid.getRasterHeight();
+        final int w = grid.getGridWidth();
+        final int h = grid.getGridHeight();
         long[] dims = new long[]{h, w};
         int dataTypeID = -1;
         int dataSpaceID = -1;
@@ -495,8 +495,8 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
 
             // Less important attributes
             try {
-                createScalarAttribute(datasetID, "raster_width", grid.getRasterWidth());
-                createScalarAttribute(datasetID, "raster_height", grid.getRasterHeight());
+                createScalarAttribute(datasetID, "raster_width", grid.getGridWidth());
+                createScalarAttribute(datasetID, "raster_height", grid.getGridHeight());
                 createScalarAttribute(datasetID, "unit", grid.getUnit());
                 createScalarAttribute(datasetID, "description", grid.getDescription());
                 createScalarAttribute(datasetID, "CLASS", "IMAGE");
@@ -511,7 +511,7 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
                         HDF5Constants.H5S_ALL,
                         HDF5Constants.H5S_ALL,
                         HDF5Constants.H5P_DEFAULT,
-                        grid.getData().getElems());
+                        grid.getGridData().getElems());
 
         } catch (HDF5Exception e) {
             throw new ProductIOException(createErrorMessage(e));
@@ -641,7 +641,6 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
                                      HDF5Constants.H5P_DEFAULT);
 
             try {
-                // @todo 1 nf/tb - MEMOPT: add min, max here
                 createScalarAttribute(datasetID, "raster_width", band.getRasterWidth());
                 createScalarAttribute(datasetID, "raster_height", band.getRasterHeight());
                 createScalarAttribute(datasetID, "scaling_factor", band.getScalingFactor());
