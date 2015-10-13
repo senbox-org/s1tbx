@@ -20,26 +20,15 @@ and a new Java Virtual Machine is created. They are ignored if the SNAP API is c
 and source code at https://github.com/bcdev/jpy
 """
 
-EXCLUDED_NB_CLUSTERS = set(['platform', 'ide', 'bin', 'etc'])
+EXCLUDED_NB_CLUSTERS = {'platform', 'ide', 'bin', 'etc'}
 
-EXCLUDED_DIR_NAMES = set([
-    'org.esa.snap.snap-worldwind',
-    'org.esa.snap.snap-rcp',
-    'org.esa.snap.snap-product-library',
-    'org.esa.snap.ceres-ui',
-    'org.esa.snap.snap-sta-ui',
-])
+EXCLUDED_DIR_NAMES = {'org.esa.snap.snap-worldwind', 'org.esa.snap.snap-rcp', 'org.esa.snap.snap-product-library',
+                      'org.esa.snap.ceres-ui', 'org.esa.snap.snap-sta-ui'}
 
-EXCLUDED_JAR_NAMES = set([
-    'org-esa-snap-netbeans-docwin.jar',
-    'org-esa-snap-netbeans-tile.jar',
-    'org-esa-snap-snap-worldwind.jar',
-    'org-esa-snap-snap-tango.jar',
-    'org-esa-snap-snap-rcp.jar',
-    'org-esa-snap-snap-ui.jar',
-    'org-esa-snap-snap-graph-builder.jar',
-    'org-esa-snap-snap-branding.jar'
-])
+EXCLUDED_JAR_NAMES = {'org-esa-snap-netbeans-docwin.jar', 'org-esa-snap-netbeans-tile.jar',
+                      'org-esa-snap-snap-worldwind.jar', 'org-esa-snap-snap-tango.jar', 'org-esa-snap-snap-rcp.jar',
+                      'org-esa-snap-snap-ui.jar', 'org-esa-snap-snap-graph-builder.jar',
+                      'org-esa-snap-snap-branding.jar'}
 
 import os
 import sys
@@ -118,6 +107,28 @@ def _collect_snap_jvm_env(dir_path, env):
 
 
 #
+# Get the NetBeans user directory for installed extra modules
+#
+def _get_nb_user_modules_dir():
+    import platform
+
+    nb_user_dir = None
+    if platform.system() == 'Windows':
+        home_dir = os.getenv('HOMEPATH')
+        if home_dir:
+            nb_user_dir = os.path.join(home_dir, 'AppData\\Roaming\\SNAP')
+    else:
+        home_dir = os.getenv('HOME')
+        if home_dir:
+            nb_user_dir = os.path.join(home_dir, '.snap/system')
+
+    if nb_user_dir:
+        return os.path.join(nb_user_dir, 'modules')
+
+    return None
+
+
+#
 # Searches for *.jar files in directory given by global 'snap_home' variable and returns them as a list.
 #
 # Note: This function is called only if the 'snappy' module is not imported from Java.
@@ -142,6 +153,10 @@ def _get_snap_jvm_env():
         java_module_dirs = [os.path.join(snap_home, 'modules'), os.path.join(snap_home, 'lib')]
     else:
         raise RuntimeError('does not seem to be a valid SNAP distribution directory: ' + snap_home)
+
+    nb_user_modules_dir = _get_nb_user_modules_dir()
+    if nb_user_modules_dir and os.path.isdir(nb_user_modules_dir):
+        java_module_dirs.append(nb_user_modules_dir)
 
     if debug:
         import pprint
@@ -207,6 +222,7 @@ def _get_snap_jvm_options():
         options += extra_options.split('|')
 
     return options
+
 
 # Figure out if this module is called from a Java VM. If not, derive a list of Java VM options and create the Java VM.
 called_from_java = jpy.has_jvm()

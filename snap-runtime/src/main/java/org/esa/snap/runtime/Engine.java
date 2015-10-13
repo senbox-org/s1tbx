@@ -349,6 +349,16 @@ public class Engine {
             }
         }
 
+        Path unixNbUserDir = getConfig().userDir().resolve("system");
+        if (Files.isDirectory(unixNbUserDir)) {
+            clusterPaths.add(unixNbUserDir);
+        }
+
+        Path windowsNbUserDir = Paths.get(System.getProperty("user.home")).resolve("AppData").resolve("Roaming").resolve("SNAP");
+        if (Files.isDirectory(windowsNbUserDir)) {
+            clusterPaths.add(windowsNbUserDir);
+        }
+
         Set<String> excludedModuleNames = new HashSet<>();
         String[] moduleNames = getConfig().excludedModuleNames();
         for (String mavenName : moduleNames) {
