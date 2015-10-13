@@ -214,8 +214,8 @@ public final class ApplyOrbitFileOp extends Operator {
         latitude = OperatorUtils.getLatitude(sourceProduct);
         longitude = OperatorUtils.getLongitude(sourceProduct);
 
-        targetTiePointGridWidth = latitude.getRasterWidth();
-        targetTiePointGridHeight = latitude.getRasterHeight();
+        targetTiePointGridWidth = latitude.getGridWidth();
+        targetTiePointGridHeight = latitude.getGridHeight();
     }
 
     /**

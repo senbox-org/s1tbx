@@ -367,8 +367,8 @@ public class CrossResamplingOp extends Operator {
         slantRangeTimeTPG = OperatorUtils.getSlantRangeTime(sourceProduct);
         incidenceAngleTPG = OperatorUtils.getIncidenceAngle(sourceProduct);
 
-        targetTPGWidth = latitudeTPG.getRasterWidth();
-        targetTPGHeight = latitudeTPG.getRasterHeight();
+        targetTPGWidth = latitudeTPG.getGridWidth();
+        targetTPGHeight = latitudeTPG.getGridHeight();
 
         final float[] targetLatTiePoints = new float[targetTPGHeight * targetTPGWidth];
         final float[] targetLonTiePoints = new float[targetTPGHeight * targetTPGWidth];

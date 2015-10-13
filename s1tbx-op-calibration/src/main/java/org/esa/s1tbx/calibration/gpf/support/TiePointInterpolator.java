@@ -35,8 +35,8 @@ public class TiePointInterpolator {
         if (quadraticInterpCoeffs != null) return;
 
         final int numCoeff = 3;
-        final int width = tpg.getRasterWidth();
-        final int height = tpg.getRasterHeight();
+        final int width = tpg.getGridWidth();
+        final int height = tpg.getGridHeight();
 
         final double[][] sampleIndexArray = new double[width][numCoeff];
         for (int c = 0; c < width; c++) {
@@ -70,8 +70,8 @@ public class TiePointInterpolator {
         if (biquadraticInterpCoeffs != null) return;
 
         final int numCoeff = 6;
-        final int w = tpg.getRasterWidth();
-        final int h = tpg.getRasterHeight();
+        final int w = tpg.getGridWidth();
+        final int h = tpg.getGridHeight();
         final int n = w * h;
 
         // prepare matrix A
