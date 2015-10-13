@@ -46,5 +46,6 @@ public class TestExecutable {
             System.out.println("Progress " + ((i + 1) * 100) / steps + "%");
         }
         System.out.println("Done");
+        System.out.flush();
     }
 }
