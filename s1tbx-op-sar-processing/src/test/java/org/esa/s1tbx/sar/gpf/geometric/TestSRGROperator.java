@@ -158,7 +158,7 @@ public class TestSRGROperator {
         AbstractMetadata.getOriginalProductMetadata(testProduct).addElement(abs);
 
         // create geoCoding
-        testProduct.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
+        testProduct.setSceneGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
         return testProduct;
     }
 

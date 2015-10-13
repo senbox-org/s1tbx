@@ -127,7 +127,7 @@ public class OversamplingOp extends Operator {
 
         try {
 
-            GeoCoding sourceGeoCoding = sourceProduct.getGeoCoding();
+            GeoCoding sourceGeoCoding = sourceProduct.getSceneGeoCoding();
             if (sourceGeoCoding instanceof CrsGeoCoding) {
                 throw new OperatorException("Oversampling is not intended for map projected products");
             }

@@ -160,11 +160,11 @@ public class PolBandUtils {
     private static Band[] getBands(final Product srcProduct, final MATRIX sourceProductType, final String[] bandNames) throws Exception {
 
         if (sourceProductType == MATRIX.DUAL_HH_HV) { // dual pol HH HV
-            return getDualPolSrcBands(srcProduct, getDualPolHHHVBandNames());
+            return getDualPolSrcBands(srcProduct, getComplexBandNames());
         } else if (sourceProductType == MATRIX.DUAL_VH_VV) { // dual VH VV
-            return getDualPolSrcBands(srcProduct, getDualPolVHVVBandNames());
+            return getDualPolSrcBands(srcProduct, getComplexBandNames());
         } else if (sourceProductType == MATRIX.DUAL_HH_VV) { // dual HH VV
-            return getDualPolSrcBands(srcProduct, getDualPolHHVVBandNames());
+            return getDualPolSrcBands(srcProduct, getComplexBandNames());
         }else if (sourceProductType == MATRIX.FULL) { // full pol
             return getQuadPolSrcBands(srcProduct, bandNames);
         } else if (sourceProductType == MATRIX.C3) { // C3
@@ -187,12 +187,16 @@ public class PolBandUtils {
 
     private static Band[] getDualPolSrcBands(final Product srcProduct, final String[] srcBandNames) {
 
-        Band[] bands = new Band[srcBandNames.length];
-        int idx = 0;
-        for (String s : srcBandNames) {
-            bands[idx++] = srcProduct.getBand(s);
+        final List<Band> bandList = new ArrayList<>();
+        for(Band srcBand : srcProduct.getBands()) {
+            final String bandName = srcBand.getName();
+            for (String s : srcBandNames) {
+                if(bandName.startsWith(s)) {
+                    bandList.add(srcBand);
+                }
+            }
         }
-        return bands;
+        return bandList.toArray(new Band[bandList.size()]);
     }
 
     private static Band[] getQuadPolSrcBands(final Product srcProduct, final String[] srcBandNames)
@@ -298,30 +302,10 @@ public class PolBandUtils {
         return m == MATRIX.FULL;
     }
 
-    public static String[] getDualPolHHHVBandNames() {
+    public static String[] getComplexBandNames() {
         return new String[]{
-                "i_HH",
-                "q_HH",
-                "i_HV",
-                "q_HV"
-        };
-    }
-
-    public static String[] getDualPolVHVVBandNames() {
-        return new String[]{
-                "i_VH",
-                "q_VH",
-                "i_VV",
-                "q_VV"
-        };
-    }
-
-    public static String[] getDualPolHHVVBandNames() {
-        return new String[]{
-                "i_HH",
-                "q_HH",
-                "i_VV",
-                "q_VV"
+                "i_",
+                "q_"
         };
     }
 

@@ -244,7 +244,7 @@ public class GCPSelectionOp extends Operator {
             masterGcpGroup = GCPManager.instance().getGcpGroup(masterBand1);
             if (masterGcpGroup.getNodeCount() <= 0) {
                 addGCPGrid(sourceImageWidth, sourceImageHeight, numGCPtoGenerate, masterGcpGroup,
-                        targetProduct.getGeoCoding());
+                        targetProduct.getSceneGeoCoding());
             }
 
             if (complexCoregistration && applyFineRegistration) {
@@ -505,7 +505,7 @@ public class GCPSelectionOp extends Operator {
         try {
 
             final ProductNodeGroup<Placemark> targetGCPGroup = GCPManager.instance().getGcpGroup(targetBand);
-            final GeoCoding tgtGeoCoding = targetProduct.getGeoCoding();
+            final GeoCoding tgtGeoCoding = targetProduct.getSceneGeoCoding();
 
             final int[] offset = new int[2]; // 0-x, 1-y
             if (computeOffset) {

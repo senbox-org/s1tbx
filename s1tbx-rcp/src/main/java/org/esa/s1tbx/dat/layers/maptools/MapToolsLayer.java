@@ -91,7 +91,7 @@ public class MapToolsLayer extends Layer implements LayerSelection {
     @Override
     protected void renderLayer(final Rendering rendering) {
 
-        final GeoCoding geoCoding = product.getGeoCoding();
+        final GeoCoding geoCoding = product.getSceneGeoCoding();
         if (geoCoding == null) return;
 
         final ScreenPixelConverter screenPixel = new ScreenPixelConverter(rendering.getViewport(), raster);

@@ -280,7 +280,7 @@ public final class UpdateGeoRefOp extends Operator {
             absTgt.setAttributeDouble("external DEM no data value", externalDEMNoDataValue);
         }
 
-        sourceGeoCoding = sourceProduct.getGeoCoding();
+        sourceGeoCoding = sourceProduct.getSceneGeoCoding();
 
         targetProduct.setPreferredTileSize(targetProduct.getSceneRasterWidth(), tileSize);
     }
@@ -321,7 +321,7 @@ public final class UpdateGeoRefOp extends Operator {
         targetProduct.addBand(latBand);
         targetProduct.addBand(lonBand);
 
-        targetProduct.setGeoCoding(new PixelGeoCoding(latBand, lonBand, null, 6));
+        targetProduct.setSceneGeoCoding(new PixelGeoCoding(latBand, lonBand, null, 6));
     }
 
     private void computeTileOverlapPercentage(final int x0, final int y0, final int w, final int h,
@@ -702,7 +702,7 @@ public final class UpdateGeoRefOp extends Operator {
     private void computeImageGeoBoundary(final int xmin, final int xmax, final int ymin, final int ymax,
                                          double[] latLonMinMax) throws Exception {
 
-        final GeoCoding geoCoding = sourceProduct.getGeoCoding();
+        final GeoCoding geoCoding = sourceProduct.getSceneGeoCoding();
         if (geoCoding == null) {
             throw new OperatorException("Product does not contain a geocoding");
         }

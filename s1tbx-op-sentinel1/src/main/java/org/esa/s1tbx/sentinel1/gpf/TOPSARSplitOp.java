@@ -203,7 +203,7 @@ public final class TOPSARSplitOp extends Operator {
     private void addGeocoding() {
         final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(targetProduct.getTiePointGrid(OperatorUtils.TPG_LATITUDE),
                                                                     targetProduct.getTiePointGrid(OperatorUtils.TPG_LONGITUDE));
-        targetProduct.setGeoCoding(tpGeoCoding);
+        targetProduct.setSceneGeoCoding(tpGeoCoding);
     }
 
     /**

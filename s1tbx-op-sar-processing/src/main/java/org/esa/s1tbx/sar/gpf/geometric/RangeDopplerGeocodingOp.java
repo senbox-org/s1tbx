@@ -526,14 +526,14 @@ public class RangeDopplerGeocodingOp extends Operator {
 
             targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                     sourceProduct.getProductType(), crsHandler.getTargetWidth(), crsHandler.getTargetHeight());
-            targetProduct.setGeoCoding(crsHandler.getCrsGeoCoding());
+            targetProduct.setSceneGeoCoding(crsHandler.getCrsGeoCoding());
 
             targetImageWidth = targetProduct.getSceneRasterWidth();
             targetImageHeight = targetProduct.getSceneRasterHeight();
 
             addSelectedBands();
 
-            targetGeoCoding = targetProduct.getGeoCoding();
+            targetGeoCoding = targetProduct.getSceneGeoCoding();
 
             ProductUtils.copyMetadata(sourceProduct, targetProduct);
             ProductUtils.copyMasks(sourceProduct, targetProduct);

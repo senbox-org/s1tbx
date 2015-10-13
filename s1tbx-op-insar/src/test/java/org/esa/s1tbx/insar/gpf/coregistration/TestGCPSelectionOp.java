@@ -112,7 +112,7 @@ public class TestGCPSelectionOp {
         product.addTiePointGrid(lonGrid);
 
         // create Geo coding
-        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
+        product.setSceneGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
 
         // create GCP
         final ProductNodeGroup<Placemark> masterGcpGroup = GCPManager.instance().getGcpGroup(band);
@@ -123,7 +123,7 @@ public class TestGCPSelectionOp {
                 "",
                 new PixelPos(19.0f, 19.0f),
                 new GeoPos(lat[w * h / 2], lon[w * h / 2]),
-                product.getGeoCoding());
+                product.getSceneGeoCoding());
 
         masterGcpGroup.add(pin1);
 

@@ -149,7 +149,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                         addTiePointGrids(band, imgName, tpgPrefix);
 
                         // reset to null so it doesn't adopt a geocoding from the bands
-                        product.setGeoCoding(null);
+                        product.setSceneGeoCoding(null);
                     }
                 } else {
                     for (int b = 0; b < img.getNumBands(); ++b) {
@@ -677,7 +677,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
             setLatLongMetadata(product, latGrid, lonGrid);
 
             final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
-            product.setGeoCoding(tpGeoCoding);
+            product.setSceneGeoCoding(tpGeoCoding);
             return;
         }
 

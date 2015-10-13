@@ -183,7 +183,7 @@ public class UndersamplingOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
 
-        GeoCoding sourceGeoCoding = sourceProduct.getGeoCoding();
+        GeoCoding sourceGeoCoding = sourceProduct.getSceneGeoCoding();
         if (sourceGeoCoding instanceof CrsGeoCoding) {
             throw new OperatorException("Undersampling is not intended for map projected products");
         }

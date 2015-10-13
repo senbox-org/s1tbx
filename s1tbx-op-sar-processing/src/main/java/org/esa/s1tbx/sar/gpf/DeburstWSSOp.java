@@ -369,7 +369,7 @@ public final class DeburstWSSOp extends Operator {
         targetProduct.addTiePointGrid(slantGrid);
         targetProduct.addTiePointGrid(incGrid);
 
-        targetProduct.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
+        targetProduct.setSceneGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
     }
 
     private static void addTiePoints(final MetadataElement elem, final String tag, final List<Float> array) {
