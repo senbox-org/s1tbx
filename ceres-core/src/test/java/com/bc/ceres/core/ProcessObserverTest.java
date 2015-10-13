@@ -69,6 +69,7 @@ public class ProcessObserverTest {
                 .setHandler(handler).start();
         Thread.sleep(250);
         observedProcess.cancel();
+        Thread.sleep(250);
 
         assertTrue(handler.started);
         assertEquals("Start\n", handler.out);
