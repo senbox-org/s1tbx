@@ -844,7 +844,7 @@
                     <version>2.10.3</version>
                     <configuration>
                         <aggregate>true</aggregate>
-                        <subpackages>org.esa.snap.core</subpackages>
+                        <subpackages>com.bc.ceres:org.esa.snap.core</subpackages>
                         <!-- Not possible to exclude packages; it is not considered by the plugin -->
                         <!--<excludePackageNames>*.internal,*.impl,*.experimental,org.esa.snap.core.gpf.common.support</excludePackageNames>-->
                         <maxmemory>512M</maxmemory>
