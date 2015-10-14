@@ -64,7 +64,9 @@ import org.esa.snap.engine_utilities.gpf.TileGeoreferencing;
 import org.esa.snap.engine_utilities.util.ResourceUtils;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Desktop;
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -1335,7 +1337,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
     /**
      * The SPI is used to register this operator in the graph processing framework
      * via the SPI configuration file
-     * {@code META-INF/services/org.esa.snap.framework.gpf.OperatorSpi}.
+     * {@code META-INF/services/org.esa.snap.core.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
      *
      * @see OperatorSpi#createOperator()

@@ -62,7 +62,8 @@ import javax.media.jai.PlanarImage;
 import javax.media.jai.RasterFactory;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.DFTDescriptor;
-import java.awt.*;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
@@ -2059,7 +2060,7 @@ public class GCPSelectionOp extends Operator {
     /**
      * The SPI is used to register this operator in the graph processing framework
      * via the SPI configuration file
-     * {@code META-INF/services/org.esa.snap.framework.gpf.OperatorSpi}.
+     * {@code META-INF/services/org.esa.snap.core.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
      *
      * @see OperatorSpi#createOperator()

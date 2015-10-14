@@ -54,7 +54,8 @@ import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -62,7 +63,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static org.esa.s1tbx.io.sentinel1.Sentinel1Level1Directory.getListInEvenlySpacedGrid;
+import static org.esa.s1tbx.io.sentinel1.Sentinel1Level1Directory.*;
 
 /**
  * Merges Sentinel-1 slice products
@@ -1682,7 +1683,7 @@ public final class SliceAssemblyOp extends Operator {
     /**
      * The SPI is used to register this operator in the graph processing framework
      * via the SPI configuration file
-     * {@code META-INF/services/org.esa.snap.framework.gpf.OperatorSpi}.
+     * {@code META-INF/services/org.esa.snap.core.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
      *
      * @see OperatorSpi#createOperator()
