@@ -27,7 +27,6 @@ import org.esa.snap.core.gpf.graph.NodeSource;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -46,7 +45,14 @@ public class ProductSetHandler {
         this.graph = graph;
     }
 
-    public ProductSetData[] findProductSetStacks(final String fileListPath) throws GraphException {
+    public void replaceProductSetsWithReaders() throws GraphException {
+        final ProductSetHandler.ProductSetData[] productSetDataList = findProductSetStacks("");
+        if(productSetDataList.length != 0) {
+            replaceAllProductSets(productSetDataList);
+        }
+    }
+
+    private ProductSetData[] findProductSetStacks(final String fileListPath) throws GraphException {
 
         final List<ProductSetData> productSetDataList = new ArrayList<>();
         final Node[] nodes = graph.getNodes();
@@ -95,13 +101,12 @@ public class ProductSetHandler {
 
     private void resolveFolders(final ProductSetData psData) {
         final List<String> toAdd = new ArrayList<>();
+        final List<String> toRemove = new ArrayList<>();
         final ValidProductFileFilter dirFilter = new ValidProductFileFilter();
-        final Iterator<String> itr = psData.fileList.iterator();
-        while(itr.hasNext()) {
-            final String path = itr.next();
+        for(String path : psData.fileList) {
             final File file = new File(path);
             if(file.exists() && file.isDirectory()) {
-                psData.fileList.remove(path);
+                toRemove.add(path);
 
                 final File[] files = file.listFiles(dirFilter);
                 if(files != null) {
@@ -114,17 +119,13 @@ public class ProductSetHandler {
                 }
             }
         }
+        for(String path : toRemove) {
+            psData.fileList.remove(path);
+        }
         psData.fileList.addAll(toAdd);
     }
 
-    public void replaceProductSetsWithReaders() throws GraphException {
-        final ProductSetHandler.ProductSetData[] productSetDataList = findProductSetStacks("");
-        if(productSetDataList.length != 0) {
-            replaceAllProductSets(productSetDataList);
-        }
-    }
-
-    public void replaceAllProductSets(final ProductSetData[] productSetDataList) throws GraphException {
+    private void replaceAllProductSets(final ProductSetData[] productSetDataList) {
         int cnt = 0;
         for(ProductSetData psData : productSetDataList) {
 
@@ -186,9 +187,9 @@ public class ProductSetHandler {
     }
 
 
-    public static class ProductSetData {
+    private static class ProductSetData {
         private final String nodeID;
-        final List<String> fileList = new ArrayList<>();
+        private final List<String> fileList = new ArrayList<>();
 
         ProductSetData(final Node n) {
             this.nodeID = n.getId();
@@ -199,15 +200,13 @@ public class ProductSetHandler {
         }
     }
 
-    public static class ValidProductFileFilter implements java.io.FileFilter {
+    private static class ValidProductFileFilter implements java.io.FileFilter {
 
         public ValidProductFileFilter() {
         }
 
         public boolean accept(final File file) {
-            if (file.isDirectory())
-                return false;
-            return true;
+            return !file.isDirectory();
         }
     }
 }

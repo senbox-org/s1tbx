@@ -59,6 +59,23 @@ public class ProductSetReaderOpTest {
         processor.executeGraph(graph, ProgressMonitor.NULL);
     }
 
+    @Test
+    public void testFolderProductSetGraph() throws IOException, GraphException {
+        final String graphPath = ProductSetReaderOpTest.class.getResource("/org/esa/snap/core/gpf/common/productset/ProductSetMosaicGraph.xml").getFile();
+        final File product1 = new File(ProductSetReaderOpTest.class.getResource("/org/esa/snap/core/gpf/common/productset/subset1.dim").getFile());
+        final File[] srcFiles = new File[] { product1.getParentFile() };
+
+        Graph graph;
+        try (Reader fileReader = new FileReader(graphPath)) {
+            graph = GraphIO.read(fileReader);
+        }
+
+        final GraphProcessor processor = new GraphProcessor();
+        setIO(graph, srcFiles, outputFile, "BEAM-DIMAP");
+
+        processor.executeGraph(graph, ProgressMonitor.NULL);
+    }
+
     private void setIO(final Graph graph, final File[] srcFiles, final File tgtFile, final String format) {
         final String readOperatorAlias = OperatorSpi.getOperatorAlias(ProductSetReaderOp.class);
         final Node readerNode = findNode(graph, readOperatorAlias);
