@@ -119,15 +119,12 @@ public class ImageManager {
         return createMultiLevelModel(rasterDataNode);
     }
 
+    /**
+     * @deprecated since SNAP 2, use {@link Product#getAppropriateImageToModelTransform(GeoCoding)}
+     */
+    @Deprecated
     public static AffineTransform getImageToModelTransform(GeoCoding geoCoding) {
-        if (geoCoding == null) {
-            return new AffineTransform();
-        }
-        final MathTransform image2Map = geoCoding.getImageToMapTransform();
-        if (image2Map instanceof AffineTransform) {
-            return new AffineTransform((AffineTransform) image2Map);
-        }
-        return new AffineTransform();
+        return Product.getAppropriateImageToModelTransform(geoCoding);
     }
 
     /**

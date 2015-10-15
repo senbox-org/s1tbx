@@ -98,6 +98,8 @@ public class Product extends ProductNode {
     public static final String PROPERTY_NAME_SCENE_GEO_CODING = "sceneGeoCoding";
     public static final String PROPERTY_NAME_SCENE_TIME_CODING = "sceneTimeCoding";
     public static final String PROPERTY_NAME_PRODUCT_TYPE = "productType";
+    public static final String PROPERTY_NAME_MODEL_CRS = "modelCRS";
+    public static final String PROPERTY_NAME_FILE_LOCATION = "fileLocation";
 
     public static final String GEOMETRY_FEATURE_TYPE_NAME = PlainFeatureFactory.DEFAULT_TYPE_NAME;
 
@@ -348,36 +350,13 @@ public class Product extends ProductNode {
      * a default image CRS is returned.
      *
      * @return The model coordinate reference system.
+     * @see #setModelCRS(CoordinateReferenceSystem)
      */
     public CoordinateReferenceSystem getModelCRS() {
         if (modelCrs != null) {
             return modelCrs;
         }
         return getAppropriateModelCRS(getSceneGeoCoding());
-    }
-
-
-    /**
-     * Gets a coordinate reference system (CRS) that is appropriate as a model CRS.
-     * <p>
-     * If the geo-coding's {@link GeoCoding#getImageToMapTransform() image-to-map transform} is a linear transform, then
-     * the model CRS returned is the {@link GeoCoding#getMapCRS() map CRS}, otherwise it is the
-     * {@link GeoCoding#getImageCRS() image CRS}. If the geo-coding is {@code null}, a default image CRS is returned
-     * ({@link Product#DEFAULT_IMAGE_CRS}).
-     *
-     * @param geoCoding The geo-coding or {@code null}.
-     * @return An appropriate model coordinate reference system.
-     */
-    public static CoordinateReferenceSystem getAppropriateModelCRS(GeoCoding geoCoding) {
-        if (geoCoding != null) {
-            final MathTransform image2Map = geoCoding.getImageToMapTransform();
-            if (image2Map instanceof AffineTransform) {
-                return geoCoding.getMapCRS();
-            }
-            return geoCoding.getImageCRS();
-        } else {
-            return Product.DEFAULT_IMAGE_CRS;
-        }
     }
 
     /**
@@ -392,8 +371,48 @@ public class Product extends ProductNode {
         if (!ObjectUtils.equalObjects(this.modelCrs, modelCrs)) {
             this.modelCrs = modelCrs;
             if (modelCrsOld != null) {
-                fireNodeChanged(this, "modelCrs", modelCrsOld, this.modelCrs);
+                fireNodeChanged(this, PROPERTY_NAME_MODEL_CRS, modelCrsOld, this.modelCrs);
             }
+        }
+    }
+
+    /**
+     * @param geoCoding The geo-coding or {@code null}.
+     * @return An appropriate image-to-model transformation.
+     * @see #getAppropriateModelCRS
+     */
+    public static AffineTransform getAppropriateImageToModelTransform(GeoCoding geoCoding) {
+        if (geoCoding != null) {
+            MathTransform image2Map = geoCoding.getImageToMapTransform();
+            if (image2Map instanceof AffineTransform) {
+                return new AffineTransform((AffineTransform) image2Map);
+            }
+        }
+        return new AffineTransform();
+    }
+
+
+    /**
+     * Gets a coordinate reference system (CRS) that is appropriate as a model CRS.
+     * <p>
+     * If the geo-coding's {@link GeoCoding#getImageToMapTransform() image-to-map transform} is a linear transform, then
+     * the model CRS returned is the {@link GeoCoding#getMapCRS() map CRS}, otherwise it is the
+     * {@link GeoCoding#getImageCRS() image CRS}. If the geo-coding is {@code null}, a default image CRS is returned
+     * ({@link Product#DEFAULT_IMAGE_CRS}).
+     *
+     * @param geoCoding The geo-coding or {@code null}.
+     * @return An appropriate model coordinate reference system.
+     * @see #getAppropriateImageToModelTransform
+     */
+    public static CoordinateReferenceSystem getAppropriateModelCRS(GeoCoding geoCoding) {
+        if (geoCoding != null) {
+            MathTransform image2Map = geoCoding.getImageToMapTransform();
+            if (image2Map instanceof AffineTransform) {
+                return geoCoding.getMapCRS();
+            }
+            return geoCoding.getImageCRS();
+        } else {
+            return Product.DEFAULT_IMAGE_CRS;
         }
     }
 
@@ -416,7 +435,7 @@ public class Product extends ProductNode {
         if (!ObjectUtils.equalObjects(this.fileLocation, fileLocation)) {
             File oldValue = this.fileLocation;
             this.fileLocation = fileLocation;
-            fireNodeChanged(this, "fileLocation", oldValue, fileLocation);
+            fireNodeChanged(this, PROPERTY_NAME_FILE_LOCATION, oldValue, fileLocation);
         }
     }
 
@@ -905,7 +924,6 @@ public class Product extends ProductNode {
                                                        "a tie-point grid with the name '" + tiePointGrid.getName() + "'.");
         }
         tiePointGridGroup.add(tiePointGrid);
-//        maybeInvalidateSceneRasterGeometry(tiePointGrid);
     }
 
     /**
