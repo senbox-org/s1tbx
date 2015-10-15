@@ -25,6 +25,7 @@ import org.esa.snap.runtime.EngineConfig;
 import org.esa.snap.util.SystemUtils;
 
 import javax.media.jai.JAI;
+import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -50,10 +51,6 @@ public class PerformanceParameters {
      */
     public static final String PROPERTY_JAI_CACHE_SIZE = "snap.jai.tileCacheSize";
 
-    /**
-     * Preferences key for the number of processors which may be employed for JAI image processing.
-     */
-    public static final String PROPERTY_JAI_PARALLELISM = "snap.jai.parallelism";
 
 
     private VMParameters vmParameters;
@@ -169,7 +166,7 @@ public class PerformanceParameters {
         actualParameters.setCachePath(SystemUtils.getCacheDir().toPath());
 
         final int defaultNbThreads = JavaSystemInfos.getInstance().getNbCPUs();
-        actualParameters.setNbThreads(preferences.getInt(PROPERTY_JAI_PARALLELISM, defaultNbThreads));
+        actualParameters.setNbThreads(preferences.getInt(SystemUtils.SNAP_PARALLELISM_PROPERTY_NAME, defaultNbThreads));
         actualParameters.setDefaultTileSize(preferences.getInt(PROPERTY_DEFAULT_TILE_SIZE, 0));
         actualParameters.setCacheSize(preferences.getInt(PROPERTY_JAI_CACHE_SIZE, 0));
 
@@ -201,14 +198,21 @@ public class PerformanceParameters {
         if(Files.exists(cachePath)) {
             preferences.put(SystemUtils.SNAP_CACHE_DIR_PROPERTY_NAME, cachePath.toAbsolutePath().toString());
         } else {
-            SystemUtils.LOG.severe("Directory for cache path does not exist and could not be created: " +
-                                           cachePath.toAbsolutePath().toString());
+            SystemUtils.LOG.severe("Directory for cache path does not exist");
         }
 
-        preferences.putInt(PROPERTY_JAI_PARALLELISM, confToSave.getNbThreads());
-        preferences.putInt(PROPERTY_DEFAULT_TILE_SIZE, confToSave.getDefaultTileSize());
-        preferences.putInt(PROPERTY_JAI_CACHE_SIZE, confToSave.getCacheSize());
-        JAI.getDefaultInstance().getTileCache().setMemoryCapacity(confToSave.getCacheSize());
+        int parallelism = confToSave.getNbThreads();
+        int defaultTileSize = confToSave.getDefaultTileSize();
+        int jaiCacheSize = confToSave.getCacheSize();
+        preferences.putInt(SystemUtils.SNAP_PARALLELISM_PROPERTY_NAME, parallelism);
+        preferences.putInt(PROPERTY_DEFAULT_TILE_SIZE, defaultTileSize);
+        preferences.putInt(PROPERTY_JAI_CACHE_SIZE, jaiCacheSize);
+
+        // effective change of jai parameters
+        JAI.getDefaultInstance().getTileCache().setMemoryCapacity(jaiCacheSize);
+        JAI.getDefaultInstance().getTileScheduler().setParallelism(parallelism);
+        JAI.setDefaultTileSize(new Dimension(defaultTileSize, defaultTileSize));
+
         preferences.flush();
     }
 }
