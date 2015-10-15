@@ -19,6 +19,8 @@ package com.bc.ceres.glevel;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 
+// todo - [multisize_products] add getImageLayout() to MultiLevelModel to force same image / tile sizes (nf 20151015)
+// todo - [multisize_products] rename MultiLevelModel to MultiLevelImageLayout because MultiLevel*Model* and its getImageTo*Model*Transform are confusing
 /**
  * The {@code MultiLevelModel} class represents a layout model for multi-resolution images such as image pyramids.
  * <p>It provides the number of resolution levels, the affine transformation
@@ -28,7 +30,6 @@ import java.awt.geom.Rectangle2D;
  *
  * @author Norman Fomferra
  * @author Marco Zuehlke
- * @version $revision$ $date$
  */
 public interface MultiLevelModel {
     /**

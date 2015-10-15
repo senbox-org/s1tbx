@@ -104,6 +104,9 @@ public class ImageManager {
     public ImageManager() {
     }
 
+    // todo - [multisize_products] create a replacement for getMultiLevelModel() which must be based on the new
+    //        RasterDataNode.getImageToModelTransform() and should eventually also include tile size and #resolution levels
+    //        (nf 20151015)
     /**
      * Gets the model that describes an image pyramid.
      * If the given raster data node gas a source image set, its model will be returned.
@@ -112,11 +115,42 @@ public class ImageManager {
      * @param rasterDataNode The raster data node, for which an image pyramid model is requested.
      * @return The image pyramid model.
      */
+    @Deprecated
     public static MultiLevelModel getMultiLevelModel(RasterDataNode rasterDataNode) {
         if (rasterDataNode.isSourceImageSet()) {
             return rasterDataNode.getSourceImage().getModel();
         }
         return createMultiLevelModel(rasterDataNode);
+    }
+
+    // todo - [multisize_products] create a replacement for createMultiLevelModel() which must be based on the new
+    //        RasterDataNode.getImageToModelTransform() and should eventually also include tile size and #resolution levels
+    //        (nf 20151015)
+    /**
+     * Creates a model for an image pyramid. The method makes us of the
+     * {@link Product#getNumResolutionsMax()} method in order to determine the
+     * number of resolution levels for the pyramid.
+     *
+     * @param productNode The product node requesting the model.
+     * @return A new image pyramid model.
+     * @deprecated no replacement yet, but will provide one for final 2.0 API
+     */
+    @Deprecated
+    public static MultiLevelModel createMultiLevelModel(ProductNode productNode) {
+        final Scene scene = SceneFactory.createScene(productNode);
+        if (scene == null) {
+            return null;
+        }
+        final int w = scene.getRasterWidth();
+        final int h = scene.getRasterHeight();
+
+        final AffineTransform i2mTransform = getImageToModelTransform(scene.getGeoCoding());
+        final Product product = scene.getProduct();
+        if (product != null && product.getNumResolutionsMax() > 0) {
+            return new DefaultMultiLevelModel(product.getNumResolutionsMax(), i2mTransform, w, h);
+        } else {
+            return new DefaultMultiLevelModel(i2mTransform, w, h);
+        }
     }
 
     /**
@@ -320,36 +354,6 @@ public class ImageManager {
             return createColored1BandImage(rasterDataNodes[0], imageInfo, level);
         } else {
             return createColored3BandImage(rasterDataNodes, imageInfo, level);
-        }
-    }
-
-    // todo - [multisize_products] create a replacement for createMultiLevelModel() which must be based on the new
-    //        RasterDataNode.getImageToModelTransform() and should eventually also include tile size and #resolution levels
-    //        (nf 20151015)
-    /**
-     * Creates a model for an image pyramid. The method makes us of the
-     * {@link Product#getNumResolutionsMax()} method in order to determine the
-     * number of resolution levels for the pyramid.
-     *
-     * @param productNode The product node requesting the model.
-     * @return A new image pyramid model.
-     * @deprecated no replacement yet, but will provide one for final 2.0 API
-     */
-    @Deprecated
-    public static MultiLevelModel createMultiLevelModel(ProductNode productNode) {
-        final Scene scene = SceneFactory.createScene(productNode);
-        if (scene == null) {
-            return null;
-        }
-        final int w = scene.getRasterWidth();
-        final int h = scene.getRasterHeight();
-
-        final AffineTransform i2mTransform = getImageToModelTransform(scene.getGeoCoding());
-        final Product product = scene.getProduct();
-        if (product != null && product.getNumResolutionsMax() > 0) {
-            return new DefaultMultiLevelModel(product.getNumResolutionsMax(), i2mTransform, w, h);
-        } else {
-            return new DefaultMultiLevelModel(i2mTransform, w, h);
         }
     }
 
