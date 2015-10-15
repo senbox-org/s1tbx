@@ -30,11 +30,11 @@ import org.esa.snap.binning.aggregators.AggregatorAverage;
 import org.esa.snap.binning.support.BinningContextImpl;
 import org.esa.snap.binning.support.SEAGrid;
 import org.esa.snap.binning.support.VariableContextImpl;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.TiePointGeoCoding;
-import org.esa.snap.framework.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.TiePointGeoCoding;
+import org.esa.snap.core.datamodel.TiePointGrid;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -187,7 +187,7 @@ public class SpatialProductBinnerTest {
                                                   new float[]{-80f, +80f, -80f, +80f});
         product.addTiePointGrid(lat);
         product.addTiePointGrid(lon);
-        product.setGeoCoding(new TiePointGeoCoding(lat, lon));
+        product.setSceneGeoCoding(new TiePointGeoCoding(lat, lon));
         product.setPreferredTileSize(32, 16);
         product.setStartTime(ProductData.UTC.parse("2003-01-01", "yyyy-MM-dd"));
         product.setEndTime(ProductData.UTC.parse("2003-01-02", "yyyy-MM-dd"));

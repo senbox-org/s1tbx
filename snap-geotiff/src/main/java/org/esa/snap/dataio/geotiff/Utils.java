@@ -17,11 +17,11 @@ package org.esa.snap.dataio.geotiff;
 
 import com.sun.media.jai.codec.TIFFField;
 import it.geosolutions.imageio.plugins.tiff.GeoTIFFTagSet;
-import org.esa.snap.framework.datamodel.FilterBand;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductNode;
-import org.esa.snap.framework.datamodel.VirtualBand;
-import org.esa.snap.util.geotiff.GeoTIFFMetadata;
+import org.esa.snap.core.datamodel.FilterBand;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductNode;
+import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.util.geotiff.GeoTIFFMetadata;
 
 import java.util.ArrayList;
 import java.util.List;

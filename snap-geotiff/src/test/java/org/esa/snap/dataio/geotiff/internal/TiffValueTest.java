@@ -18,7 +18,7 @@ package org.esa.snap.dataio.geotiff.internal;
 
 
 import junit.framework.TestCase;
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductData;
 
 import javax.imageio.stream.ImageOutputStream;
 import javax.imageio.stream.MemoryCacheImageOutputStream;

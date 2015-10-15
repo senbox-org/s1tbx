@@ -16,7 +16,7 @@
 package org.esa.snap.dataio.envisat;
 
 
-import org.esa.snap.util.StringUtils;
+import org.esa.snap.core.util.StringUtils;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

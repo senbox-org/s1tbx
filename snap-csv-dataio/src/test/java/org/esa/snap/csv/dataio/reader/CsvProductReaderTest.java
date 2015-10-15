@@ -16,21 +16,23 @@
 
 package org.esa.snap.csv.dataio.reader;
 
-import static org.junit.Assert.*;
-
+import org.esa.snap.core.dataio.ProductReader;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataAttribute;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.PixelTimeCoding;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.csv.dataio.Constants;
-import org.esa.snap.framework.dataio.ProductReader;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.MetadataAttribute;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.PixelTimeCoding;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.awt.image.Raster;
 import java.io.IOException;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Olaf Danne
@@ -235,7 +237,7 @@ public class CsvProductReaderTest {
     public void testCreateTimeCoding_firstTimeColumn() throws IOException {
         Product product = readTestProduct("simple_format_no_properties_but_time_column.txt");
 
-        CsvProductReader.CSVTimeCoding timeCoding = (CsvProductReader.CSVTimeCoding) product.getTimeCoding();
+        CsvProductReader.CSVTimeCoding timeCoding = (CsvProductReader.CSVTimeCoding) product.getSceneTimeCoding();
         assertNotNull(timeCoding);
         assertEquals("date_time", timeCoding.getDataSourceName());
 
@@ -252,7 +254,7 @@ public class CsvProductReaderTest {
     public void testCreateTimeCoding_firstCompleteTimeColumn() throws IOException {
         Product product = readTestProduct("simple_format_no_properties_gaps_in_first_time_column.txt");
 
-        CsvProductReader.CSVTimeCoding timeCoding = (CsvProductReader.CSVTimeCoding) product.getTimeCoding();
+        CsvProductReader.CSVTimeCoding timeCoding = (CsvProductReader.CSVTimeCoding) product.getSceneTimeCoding();
         assertNotNull(timeCoding);
         assertEquals("complete_time", timeCoding.getDataSourceName());
 
@@ -270,7 +272,7 @@ public class CsvProductReaderTest {
     public void testCreateTimeCoding_timeColumnProperty() throws IOException {
         Product product = readTestProduct("simple_format_with_time_column_property.txt");
 
-        CsvProductReader.CSVTimeCoding timeCoding = (CsvProductReader.CSVTimeCoding) product.getTimeCoding();
+        CsvProductReader.CSVTimeCoding timeCoding = (CsvProductReader.CSVTimeCoding) product.getSceneTimeCoding();
         assertNotNull(timeCoding);
         assertEquals("any_name", timeCoding.getDataSourceName());
 
@@ -294,7 +296,7 @@ public class CsvProductReaderTest {
         assertEquals("any_name", element.getAttributeString(Constants.PROPERTY_NAME_TIME_COLUMN));
         assertEquals("yyyy-MM-dd HH:mm:ss", element.getAttributeString(Constants.PROPERTY_NAME_TIME_PATTERN));
 
-        CsvProductReader.CSVTimeCoding timeCoding = (CsvProductReader.CSVTimeCoding) product.getTimeCoding();
+        CsvProductReader.CSVTimeCoding timeCoding = (CsvProductReader.CSVTimeCoding) product.getSceneTimeCoding();
         assertNotNull(timeCoding);
         assertEquals("any_name", timeCoding.getDataSourceName());
 

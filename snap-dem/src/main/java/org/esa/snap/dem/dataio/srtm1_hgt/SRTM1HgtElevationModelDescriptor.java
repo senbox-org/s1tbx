@@ -15,9 +15,9 @@
  */
 package org.esa.snap.dem.dataio.srtm1_hgt;
 
-import org.esa.snap.framework.dataop.dem.AbstractElevationModelDescriptor;
-import org.esa.snap.framework.dataop.dem.ElevationModel;
-import org.esa.snap.framework.dataop.resamp.Resampling;
+import org.esa.snap.core.dataop.dem.AbstractElevationModelDescriptor;
+import org.esa.snap.core.dataop.dem.ElevationModel;
+import org.esa.snap.core.dataop.resamp.Resampling;
 
 import java.io.IOException;
 

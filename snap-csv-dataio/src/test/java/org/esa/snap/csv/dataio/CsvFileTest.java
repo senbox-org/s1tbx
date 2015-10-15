@@ -16,11 +16,9 @@
 
 package org.esa.snap.csv.dataio;
 
-import static org.junit.Assert.*;
-
-import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.junit.*;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.ProductData;
+import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.PropertyDescriptor;
@@ -28,6 +26,8 @@ import org.opengis.feature.type.PropertyDescriptor;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Olaf Danne

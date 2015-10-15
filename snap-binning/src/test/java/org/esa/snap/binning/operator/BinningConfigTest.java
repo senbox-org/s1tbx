@@ -30,7 +30,7 @@ import org.esa.snap.binning.aggregators.AggregatorOnMaxSet;
 import org.esa.snap.binning.cellprocessor.FeatureSelection;
 import org.esa.snap.binning.support.PlateCarreeGrid;
 import org.esa.snap.binning.support.SEAGrid;
-import org.esa.snap.util.io.FileUtils;
+import org.esa.snap.core.util.io.FileUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

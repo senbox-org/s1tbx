@@ -16,12 +16,12 @@
 
 package org.esa.snap.pixex.output;
 
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.measurement.Measurement;
 import org.esa.snap.measurement.writer.FormatStrategy;
 import org.esa.snap.pixex.PixExOp;
-import org.esa.snap.util.StringUtils;
-import org.esa.snap.util.SystemUtils;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;

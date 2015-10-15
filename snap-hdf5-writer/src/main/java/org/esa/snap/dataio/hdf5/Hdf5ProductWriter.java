@@ -20,30 +20,30 @@ import ncsa.hdf.hdf5lib.H5;
 import ncsa.hdf.hdf5lib.HDF5Constants;
 import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
 import ncsa.hdf.hdf5lib.exceptions.HDF5LibraryException;
-import org.esa.snap.framework.dataio.AbstractProductWriter;
-import org.esa.snap.framework.dataio.ProductIOException;
-import org.esa.snap.framework.dataio.ProductWriterPlugIn;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.ColorPaletteDef;
-import org.esa.snap.framework.datamodel.FlagCoding;
-import org.esa.snap.framework.datamodel.MapGeoCoding;
-import org.esa.snap.framework.datamodel.MetadataAttribute;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.ProductNode;
-import org.esa.snap.framework.datamodel.Stx;
-import org.esa.snap.framework.datamodel.TiePointGeoCoding;
-import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.framework.datamodel.VirtualBand;
-import org.esa.snap.framework.dataop.maptransf.MapInfo;
-import org.esa.snap.framework.dataop.maptransf.MapProjection;
-import org.esa.snap.framework.dataop.maptransf.MapTransform;
-import org.esa.snap.framework.dataop.maptransf.MapTransformDescriptor;
-import org.esa.snap.framework.param.Parameter;
-import org.esa.snap.util.Debug;
-import org.esa.snap.util.Guardian;
-import org.esa.snap.util.io.FileUtils;
+import org.esa.snap.core.dataio.AbstractProductWriter;
+import org.esa.snap.core.dataio.ProductIOException;
+import org.esa.snap.core.dataio.ProductWriterPlugIn;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.ColorPaletteDef;
+import org.esa.snap.core.datamodel.FlagCoding;
+import org.esa.snap.core.datamodel.MapGeoCoding;
+import org.esa.snap.core.datamodel.MetadataAttribute;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductNode;
+import org.esa.snap.core.datamodel.Stx;
+import org.esa.snap.core.datamodel.TiePointGeoCoding;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.dataop.maptransf.MapInfo;
+import org.esa.snap.core.dataop.maptransf.MapProjection;
+import org.esa.snap.core.dataop.maptransf.MapTransform;
+import org.esa.snap.core.dataop.maptransf.MapTransformDescriptor;
+import org.esa.snap.core.param.Parameter;
+import org.esa.snap.core.util.Debug;
+import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -147,10 +147,10 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
 
     private void writeGeoCoding() throws IOException {
         final Product product = getSourceProduct();
-        if (product.getGeoCoding() instanceof TiePointGeoCoding) {
-            writeGeoCoding((TiePointGeoCoding) product.getGeoCoding());
-        } else if (product.getGeoCoding() instanceof MapGeoCoding) {
-            writeGeoCoding((MapGeoCoding) product.getGeoCoding());
+        if (product.getSceneGeoCoding() instanceof TiePointGeoCoding) {
+            writeGeoCoding((TiePointGeoCoding) product.getSceneGeoCoding());
+        } else if (product.getSceneGeoCoding() instanceof MapGeoCoding) {
+            writeGeoCoding((MapGeoCoding) product.getSceneGeoCoding());
         }
     }
 
@@ -470,8 +470,8 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
     }
 
     private void writeTiePointGrid(TiePointGrid grid, String path) throws IOException {
-        final int w = grid.getRasterWidth();
-        final int h = grid.getRasterHeight();
+        final int w = grid.getGridWidth();
+        final int h = grid.getGridHeight();
         long[] dims = new long[]{h, w};
         int dataTypeID = -1;
         int dataSpaceID = -1;
@@ -495,8 +495,8 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
 
             // Less important attributes
             try {
-                createScalarAttribute(datasetID, "raster_width", grid.getRasterWidth());
-                createScalarAttribute(datasetID, "raster_height", grid.getRasterHeight());
+                createScalarAttribute(datasetID, "raster_width", grid.getGridWidth());
+                createScalarAttribute(datasetID, "raster_height", grid.getGridHeight());
                 createScalarAttribute(datasetID, "unit", grid.getUnit());
                 createScalarAttribute(datasetID, "description", grid.getDescription());
                 createScalarAttribute(datasetID, "CLASS", "IMAGE");
@@ -511,7 +511,7 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
                         HDF5Constants.H5S_ALL,
                         HDF5Constants.H5S_ALL,
                         HDF5Constants.H5P_DEFAULT,
-                        grid.getData().getElems());
+                        grid.getGridData().getElems());
 
         } catch (HDF5Exception e) {
             throw new ProductIOException(createErrorMessage(e));
@@ -641,7 +641,6 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
                                      HDF5Constants.H5P_DEFAULT);
 
             try {
-                // @todo 1 nf/tb - MEMOPT: add min, max here
                 createScalarAttribute(datasetID, "raster_width", band.getRasterWidth());
                 createScalarAttribute(datasetID, "raster_height", band.getRasterHeight());
                 createScalarAttribute(datasetID, "scaling_factor", band.getScalingFactor());

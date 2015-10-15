@@ -183,29 +183,29 @@ Please check:
 
 snappy imports the most frequently used Java API classes by default
  
-* `org.esa.snap.framework.dataio.ProductIO`
-* `org.esa.snap.framework.datamodel.Product`
-* `org.esa.snap.framework.datamodel.RasterDataNode`
-* `org.esa.snap.framework.datamodel.AbstractBand`
-* `org.esa.snap.framework.datamodel.Band`
-* `org.esa.snap.framework.datamodel.VirtualBand`
-* `org.esa.snap.framework.datamodel.GeoCoding`
-* `org.esa.snap.framework.datamodel.PixelPos`
-* `org.esa.snap.framework.datamodel.PixelPos`
+* `org.esa.snap.core.dataio.ProductIO`
+* `org.esa.snap.core.datamodel.Product`
+* `org.esa.snap.core.datamodel.RasterDataNode`
+* `org.esa.snap.core.datamodel.AbstractBand`
+* `org.esa.snap.core.datamodel.Band`
+* `org.esa.snap.core.datamodel.VirtualBand`
+* `org.esa.snap.core.datamodel.GeoCoding`
+* `org.esa.snap.core.datamodel.PixelPos`
+* `org.esa.snap.core.datamodel.PixelPos`
 * `org.esa.snap.util.ProductUtils`
-* `org.esa.snap.framework.gpf.GPF`
-* `org.esa.snap.framework.gpf.Operator`
-* `org.esa.snap.framework.gpf.Tile`
+* `org.esa.snap.core.gpf.GPF`
+* `org.esa.snap.core.gpf.Operator`
+* `org.esa.snap.core.gpf.Tile`
 
 To import other Java API classes, get the fully qualified type name from the API reference and import it using jpy. 
 For example:
 
     jpy = snappy.jpy
     Color = jpy.get_type('java.awt.Color')
-    ColorPoint = jpy.get_type('org.esa.snap.framework.datamodel.ColorPaletteDef$Point')
-    ColorPaletteDef = jpy.get_type('org.esa.snap.framework.datamodel.ColorPaletteDef')
-    ImageInfo = jpy.get_type('org.esa.snap.framework.datamodel.ImageInfo')
-    ImageManager = jpy.get_type('org.esa.snap.jai.ImageManager')
+    ColorPoint = jpy.get_type('org.esa.snap.core.datamodel.ColorPaletteDef$Point')
+    ColorPaletteDef = jpy.get_type('org.esa.snap.core.datamodel.ColorPaletteDef')
+    ImageInfo = jpy.get_type('org.esa.snap.core.datamodel.ImageInfo')
+    ImageManager = jpy.get_type('org.esa.snap.core.image.ImageManager')
     JAI = jpy.get_type('javax.media.jai.JAI')
     
 Due to the 1:1 translation of Java to Python, a lot of code in the Java programming tutorial applies to 
@@ -232,6 +232,6 @@ add new Python code directly to it. In this case
 Of course you will need to adapt the contents of the files accordingly.
 
 Again, please don't hesitate to contact the
-[SNAP user forum](http://www.brockmann-consult.de/cms/web/snap/forum).
+[SNAP user forum](http://forum.step.esa.int).
 
 *Have fun!*

@@ -1,11 +1,11 @@
 package org.esa.snap.pixex.output;
 
 import com.bc.ceres.glevel.MultiLevelImage;
-import org.esa.snap.framework.datamodel.Mask;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.ProductNodeGroup;
-import org.esa.snap.framework.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.Mask;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductNodeGroup;
+import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.pixex.aggregators.AggregatorStrategy;
 import org.esa.snap.pixex.calvalus.ma.Record;
 import org.junit.Before;

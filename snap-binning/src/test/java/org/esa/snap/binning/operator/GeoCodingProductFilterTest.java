@@ -1,7 +1,7 @@
 package org.esa.snap.binning.operator;
 
-import org.esa.snap.framework.datamodel.GeoCoding;
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.Product;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,7 +24,7 @@ public class GeoCodingProductFilterTest {
 
     @Test
     public void testAcceptProduct_WithProperGeoCoding() throws Exception {
-        when(product.getGeoCoding()).thenReturn(geoCoding);
+        when(product.getSceneGeoCoding()).thenReturn(geoCoding);
         when(geoCoding.canGetGeoPos()).thenReturn(true);
 
         assertThat(filter.accept(product), is(true));
@@ -33,7 +33,7 @@ public class GeoCodingProductFilterTest {
 
     @Test
     public void testRejectProduct_WhenGeoCodingCanNotGetGeoPos() throws Exception {
-        when(product.getGeoCoding()).thenReturn(geoCoding);
+        when(product.getSceneGeoCoding()).thenReturn(geoCoding);
         when(geoCoding.canGetGeoPos()).thenReturn(false); // reject condition
 
         assertThat(filter.accept(product), is(false));
@@ -42,7 +42,7 @@ public class GeoCodingProductFilterTest {
 
     @Test
     public void testRejectProduct_WhenProductContainsNoGeoCoding() throws Exception {
-        when(product.getGeoCoding()).thenReturn(null); // reject condition
+        when(product.getSceneGeoCoding()).thenReturn(null); // reject condition
 
         assertThat(filter.accept(product), is(false));
         assertThat(filter.getReason(), is("Rejected because it does not contain a proper geo coding."));

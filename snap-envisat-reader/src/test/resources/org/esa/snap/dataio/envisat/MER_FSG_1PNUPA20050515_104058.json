@@ -795,55 +795,55 @@
         "masks": [
             {
                 "name": "coastline",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "0,255,0",
                 "description": "Pixel is part of a coastline"
             },
             {
                 "name": "land",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "51,153,0",
                 "description": "Pixel is over land, not ocean"
             },
             {
                 "name": "water",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "153,153,255",
                 "description": "Not Pixel is over land, not ocean"
             },
             {
                 "name": "cosmetic",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "204,153,255",
                 "description": "Pixel is cosmetic"
             },
             {
                 "name": "duplicated",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,200,0",
                 "description": "Pixel has been duplicated (filled in)"
             },
             {
                 "name": "glint_risk",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,0,255",
                 "description": "Pixel has glint risk"
             },
             {
                 "name": "suspect",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "204,102,255",
                 "description": "Pixel is suspect"
             },
             {
                 "name": "bright",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,255,0",
                 "description": "Pixel is bright"
             },
             {
                 "name": "invalid",
-                "type": "org.esa.snap.framework.datamodel.Mask$BandMathsType",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
                 "color": "255,0,0",
                 "description": "Pixel is invalid"
             }

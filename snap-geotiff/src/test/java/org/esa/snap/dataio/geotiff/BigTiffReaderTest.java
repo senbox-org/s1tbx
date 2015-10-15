@@ -16,8 +16,8 @@
 package org.esa.snap.dataio.geotiff;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
 import org.junit.Test;
 
 import javax.imageio.stream.FileCacheImageInputStream;

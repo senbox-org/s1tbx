@@ -15,8 +15,8 @@
  */
 package org.esa.snap.dataio.envisat;
 
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.util.Guardian;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.Guardian;
 
 import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
@@ -32,7 +32,7 @@ import java.io.IOException;
  * @version $Revision$ $Date$
  * @see org.esa.snap.dataio.envisat.Record
  * @see org.esa.snap.dataio.envisat.FieldInfo
- * @see org.esa.snap.framework.datamodel.ProductData
+ * @see ProductData
  */
 public class Field {
 
@@ -87,11 +87,11 @@ public class Field {
 
     /**
      * Gets the field's internal data type which is always one of the multiple <code>TYPE_</code>XXX constants defined
-     * in the <code>org.esa.snap.framework.datamodel.ProductData</code> interface.
+     * in the <code>ProductData</code> interface.
      *
      * @return the data type
      *
-     * @see org.esa.snap.framework.datamodel.ProductData
+     * @see ProductData
      */
     public final int getDataType() {
         return getInfo().getDataType();

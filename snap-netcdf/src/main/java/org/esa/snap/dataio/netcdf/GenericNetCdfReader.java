@@ -17,13 +17,13 @@
 package org.esa.snap.dataio.netcdf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.dataio.AbstractProductReader;
+import org.esa.snap.core.dataio.DecodeQualification;
+import org.esa.snap.core.dataio.ProductReader;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.dataio.netcdf.util.NetcdfFileOpener;
-import org.esa.snap.framework.dataio.AbstractProductReader;
-import org.esa.snap.framework.dataio.DecodeQualification;
-import org.esa.snap.framework.dataio.ProductReader;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
 import ucar.nc2.NetcdfFile;
 
 import java.io.File;

@@ -15,6 +15,19 @@
  */
 package org.esa.snap.dataio.netcdf.metadata.profiles.beam;
 
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.BasicPixelGeoCoding;
+import org.esa.snap.core.datamodel.CrsGeoCoding;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.MetadataAttribute;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.TiePointGeoCoding;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.jai.JAIUtils;
 import org.esa.snap.dataio.netcdf.ProfileReadContext;
 import org.esa.snap.dataio.netcdf.ProfileWriteContext;
 import org.esa.snap.dataio.netcdf.metadata.ProfilePartIO;
@@ -25,19 +38,6 @@ import org.esa.snap.dataio.netcdf.util.Constants;
 import org.esa.snap.dataio.netcdf.util.DataTypeUtils;
 import org.esa.snap.dataio.netcdf.util.NetcdfMultiLevelImage;
 import org.esa.snap.dataio.netcdf.util.ReaderUtils;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.BasicPixelGeoCoding;
-import org.esa.snap.framework.datamodel.CrsGeoCoding;
-import org.esa.snap.framework.datamodel.GeoCoding;
-import org.esa.snap.framework.datamodel.MetadataAttribute;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.TiePointGeoCoding;
-import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.jai.ImageManager;
-import org.esa.snap.util.StringUtils;
-import org.esa.snap.util.jai.JAIUtils;
 import org.geotools.referencing.CRS;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -230,7 +230,7 @@ public class BeamBandPart extends ProfilePartIO {
 
     private void encodeGeoCoding(NFileWriteable ncFile, Band band, Product product, NVariable variable) throws IOException {
         final GeoCoding geoCoding = band.getGeoCoding();
-        if (!geoCoding.equals(product.getGeoCoding())) {
+        if (!geoCoding.equals(product.getSceneGeoCoding())) {
             if (geoCoding instanceof TiePointGeoCoding) {
                 final TiePointGeoCoding tpGC = (TiePointGeoCoding) geoCoding;
                 final String[] names = new String[2];

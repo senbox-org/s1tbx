@@ -15,7 +15,7 @@
  */
 package org.esa.snap.cluster;
 
-import org.esa.snap.framework.gpf.Tile;
+import org.esa.snap.core.gpf.Tile;
 
 import java.util.Iterator;
 

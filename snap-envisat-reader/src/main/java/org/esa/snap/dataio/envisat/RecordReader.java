@@ -15,7 +15,7 @@
  */
 package org.esa.snap.dataio.envisat;
 
-import org.esa.snap.util.Debug;
+import org.esa.snap.core.util.Debug;
 
 import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;

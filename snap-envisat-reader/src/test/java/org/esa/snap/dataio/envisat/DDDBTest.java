@@ -20,9 +20,9 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.esa.snap.TestNotExecutableException;
-import org.esa.snap.framework.datamodel.FlagCoding;
-import org.esa.snap.framework.datamodel.MetadataAttribute;
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.FlagCoding;
+import org.esa.snap.core.datamodel.MetadataAttribute;
+import org.esa.snap.core.datamodel.ProductData;
 
 public class DDDBTest extends TestCase {
 

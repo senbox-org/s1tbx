@@ -17,13 +17,13 @@
 package org.esa.snap.binning.support;
 
 import org.esa.snap.binning.DataPeriod;
-import org.esa.snap.framework.dataio.ProductIO;
-import org.esa.snap.framework.datamodel.GeoCoding;
-import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.util.ProductUtils;
+import org.esa.snap.core.dataio.ProductIO;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.ProductUtils;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -118,7 +118,7 @@ public class SpatialDataDayComputer {
     }
 
     static DataPeriod.Membership[] analyseBasic(DataPeriod dataPeriod, Product product) {
-        GeoCoding geoCoding = product.getGeoCoding();
+        GeoCoding geoCoding = product.getSceneGeoCoding();
         ProductData.UTC firstScanLineTime = ProductUtils.getScanLineTime(product, 0);
         double firstLon = geoCoding.getGeoPos(new PixelPos(0, 0), null).lon;
         DataPeriod.Membership fl = dataPeriod.getObservationMembership(firstLon, firstScanLineTime.getMJD());
@@ -138,7 +138,7 @@ public class SpatialDataDayComputer {
     static int[] analysePrecise(DataPeriod dataPeriod, Product product) {
         int width = product.getSceneRasterWidth();
         int height = product.getSceneRasterHeight();
-        GeoCoding geoCoding = product.getGeoCoding();
+        GeoCoding geoCoding = product.getSceneGeoCoding();
         PixelPos pixelPos = new PixelPos();
         GeoPos geoPos = new GeoPos();
         int[] distribution = new int[DataPeriod.Membership.values().length];

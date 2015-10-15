@@ -15,11 +15,11 @@
  */
 package org.esa.snap.dataio.getasse30;
 
-import org.esa.snap.framework.dataio.ProductReader;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.dataop.dem.BaseElevationTile;
-import org.esa.snap.framework.dataop.dem.ElevationFile;
-import org.esa.snap.framework.dataop.dem.ElevationTile;
+import org.esa.snap.core.dataio.ProductReader;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.dataop.dem.BaseElevationTile;
+import org.esa.snap.core.dataop.dem.ElevationFile;
+import org.esa.snap.core.dataop.dem.ElevationTile;
 
 import java.io.File;
 import java.io.IOException;

@@ -15,8 +15,8 @@
  */
 package org.esa.snap.dem.dataio.ace;
 
-import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.dataop.resamp.Resampling;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.dataop.resamp.Resampling;
 import org.junit.Ignore;
 import org.junit.Test;
 

@@ -1,7 +1,7 @@
 package org.esa.snap.dataio.netcdf.util;
 
 import com.bc.ceres.core.Assert;
-import org.esa.snap.util.StringUtils;
+import org.esa.snap.core.util.StringUtils;
 
 import java.util.regex.Pattern;
 

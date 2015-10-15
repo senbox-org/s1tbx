@@ -16,7 +16,7 @@
 
 package org.esa.snap.configurator;
 
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.util.SystemUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;

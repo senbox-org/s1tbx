@@ -1,8 +1,8 @@
 package org.esa.snap.statistics.percentile.interpolated;
 
-import org.esa.snap.framework.dataio.ProductIO;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.util.io.WildcardMatcher;
+import org.esa.snap.core.dataio.ProductIO;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.util.io.WildcardMatcher;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

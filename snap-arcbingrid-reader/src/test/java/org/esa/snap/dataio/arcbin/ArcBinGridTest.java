@@ -15,10 +15,10 @@
  */
 package org.esa.snap.dataio.arcbin;
 
-import org.esa.snap.framework.dataio.DecodeQualification;
-import org.esa.snap.framework.dataio.ProductIO;
-import org.esa.snap.framework.dataio.ProductReader;
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.dataio.DecodeQualification;
+import org.esa.snap.core.dataio.ProductIO;
+import org.esa.snap.core.dataio.ProductReader;
+import org.esa.snap.core.datamodel.Product;
 import org.junit.Test;
 
 import java.io.File;

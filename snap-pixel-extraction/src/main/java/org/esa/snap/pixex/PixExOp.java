@@ -20,26 +20,34 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.Validator;
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.dataio.placemark.PlacemarkIO;
-import org.esa.snap.framework.dataio.ProductIO;
-import org.esa.snap.framework.dataio.ProductSubsetBuilder;
-import org.esa.snap.framework.dataio.ProductSubsetDef;
-import org.esa.snap.framework.datamodel.GeoCoding;
-import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.datamodel.PinDescriptor;
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.Placemark;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
-import org.esa.snap.framework.gpf.annotations.Parameter;
-import org.esa.snap.framework.gpf.annotations.SourceProducts;
-import org.esa.snap.framework.gpf.annotations.TargetProperty;
-import org.esa.snap.jai.ResolutionLevel;
-import org.esa.snap.jai.VirtualBandOpImage;
+import org.esa.snap.core.dataio.ProductIO;
+import org.esa.snap.core.dataio.ProductSubsetBuilder;
+import org.esa.snap.core.dataio.ProductSubsetDef;
+import org.esa.snap.core.dataio.placemark.PlacemarkIO;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.PinDescriptor;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Placemark;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.annotations.OperatorMetadata;
+import org.esa.snap.core.gpf.annotations.Parameter;
+import org.esa.snap.core.gpf.annotations.SourceProducts;
+import org.esa.snap.core.gpf.annotations.TargetProperty;
+import org.esa.snap.core.image.VirtualBandOpImage;
+import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.TimeStampExtractor;
+import org.esa.snap.core.util.io.WildcardMatcher;
+import org.esa.snap.core.util.kmz.KmlDocument;
+import org.esa.snap.core.util.kmz.KmlPlacemark;
+import org.esa.snap.core.util.kmz.KmzExporter;
+import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.measurement.Measurement;
 import org.esa.snap.measurement.writer.FormatStrategy;
 import org.esa.snap.measurement.writer.MeasurementFactory;
@@ -58,15 +66,6 @@ import org.esa.snap.pixex.output.PixExRasterNamesFactory;
 import org.esa.snap.pixex.output.ProductRegistry;
 import org.esa.snap.pixex.output.ScatterPlotDecoratingStrategy;
 import org.esa.snap.pixex.output.TargetWriterFactoryAndMap;
-import org.esa.snap.util.ProductUtils;
-import org.esa.snap.util.StringUtils;
-import org.esa.snap.util.SystemUtils;
-import org.esa.snap.util.TimeStampExtractor;
-import org.esa.snap.util.io.WildcardMatcher;
-import org.esa.snap.util.kmz.KmlDocument;
-import org.esa.snap.util.kmz.KmlPlacemark;
-import org.esa.snap.util.kmz.KmzExporter;
-import org.esa.snap.util.math.MathUtils;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.type.AttributeDescriptor;
 
@@ -501,7 +500,7 @@ public class PixExOp extends Operator {
     }
 
     private PixelPos getPixelPosition(Product product, Coordinate coordinate) {
-        return product.getGeoCoding().getPixelPos(new GeoPos(coordinate.getLat(), coordinate.getLon()), null);
+        return product.getSceneGeoCoding().getPixelPos(new GeoPos(coordinate.getLat(), coordinate.getLon()), null);
     }
 
     private boolean isAnyPixelInWindowValid(int upperLeftX, int upperLeftY, Raster validData) {
@@ -791,7 +790,7 @@ public class PixExOp extends Operator {
         if (product == null) {
             return false;
         }
-        final GeoCoding geoCoding = product.getGeoCoding();
+        final GeoCoding geoCoding = product.getSceneGeoCoding();
         if (geoCoding == null) {
             final String msgPattern = "Product [%s] refused. Cause: Product is not geo-coded.";
             logger.warning(String.format(msgPattern, product.getFileLocation()));

@@ -16,18 +16,18 @@
 
 package org.esa.snap.collocation;
 
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.FlagCoding;
-import org.esa.snap.framework.datamodel.IndexCoding;
-import org.esa.snap.framework.datamodel.MapGeoCoding;
-import org.esa.snap.framework.datamodel.Mask;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.framework.datamodel.VirtualBand;
-import org.esa.snap.framework.dataop.maptransf.Datum;
-import org.esa.snap.framework.dataop.maptransf.MapInfo;
-import org.esa.snap.framework.dataop.maptransf.MapProjectionRegistry;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.FlagCoding;
+import org.esa.snap.core.datamodel.IndexCoding;
+import org.esa.snap.core.datamodel.MapGeoCoding;
+import org.esa.snap.core.datamodel.Mask;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.dataop.maptransf.Datum;
+import org.esa.snap.core.dataop.maptransf.MapInfo;
+import org.esa.snap.core.dataop.maptransf.MapProjectionRegistry;
 import org.junit.Test;
 
 import java.awt.Color;
@@ -138,7 +138,7 @@ public class CollocateOpTest {
         MapInfo mapInfo1 = new MapInfo(MapProjectionRegistry.getProjection("Geographic Lat/Lon"), 0.0f, 0.0f, 0.0f, 0.0f, 0.1f, 0.1f, Datum.WGS_84);
         mapInfo1.setSceneWidth(16);
         mapInfo1.setSceneHeight(16);
-        product.setGeoCoding(new MapGeoCoding(mapInfo1));
+        product.setSceneGeoCoding(new MapGeoCoding(mapInfo1));
         product.addMask("bitmask", "radiance_1 > 10", null, Color.RED, 0.5f);
         return product;
     }
@@ -161,7 +161,7 @@ public class CollocateOpTest {
         MapInfo mapInfo2 = new MapInfo(MapProjectionRegistry.getProjection("Geographic Lat/Lon"), 0.0f, 0.0f, 0.2f, 0.2f, 0.1f, 0.1f, Datum.WGS_84);
         mapInfo2.setSceneWidth(16);
         mapInfo2.setSceneHeight(16);
-        product.setGeoCoding(new MapGeoCoding(mapInfo2));
+        product.setSceneGeoCoding(new MapGeoCoding(mapInfo2));
         return product;
     }
 

@@ -19,9 +19,9 @@ import com.bc.ceres.core.Assert;
 import it.geosolutions.imageio.plugins.tiff.GeoTIFFTagSet;
 import it.geosolutions.imageio.plugins.tiff.TIFFDirectory;
 import it.geosolutions.imageio.plugins.tiff.TIFFField;
+import org.esa.snap.core.dataio.ProductIOException;
 import org.esa.snap.dataio.geotiff.internal.GeoKeyEntry;
 import org.esa.snap.dataio.geotiff.internal.GeoKeyHeader;
-import org.esa.snap.framework.dataio.ProductIOException;
 
 import java.util.ArrayList;
 import java.util.Arrays;

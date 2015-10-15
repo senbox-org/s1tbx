@@ -15,6 +15,17 @@
  */
 package org.esa.snap.dataio.netcdf.metadata.profiles.cf;
 
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.CrsGeoCoding;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.GeoCodingFactory;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.MapGeoCoding;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.dataio.netcdf.ProfileReadContext;
 import org.esa.snap.dataio.netcdf.ProfileWriteContext;
 import org.esa.snap.dataio.netcdf.metadata.ProfilePartIO;
@@ -24,17 +35,6 @@ import org.esa.snap.dataio.netcdf.nc.NVariable;
 import org.esa.snap.dataio.netcdf.util.Constants;
 import org.esa.snap.dataio.netcdf.util.DimKey;
 import org.esa.snap.dataio.netcdf.util.ReaderUtils;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.CrsGeoCoding;
-import org.esa.snap.framework.datamodel.GeoCoding;
-import org.esa.snap.framework.datamodel.GeoCodingFactory;
-import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.datamodel.MapGeoCoding;
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.jai.ImageManager;
-import org.esa.snap.util.SystemUtils;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import ucar.ma2.Array;
@@ -66,7 +66,7 @@ public class CfGeocodingPart extends ProfilePartIO {
             hdfDecode(ctx, p);
         }
         if (geoCoding != null) {
-            p.setGeoCoding(geoCoding);
+            p.setSceneGeoCoding(geoCoding);
         }
     }
 
@@ -97,7 +97,7 @@ public class CfGeocodingPart extends ProfilePartIO {
 
     @Override
     public void preEncode(ProfileWriteContext ctx, Product product) throws IOException {
-        final GeoCoding geoCoding = product.getGeoCoding();
+        final GeoCoding geoCoding = product.getSceneGeoCoding();
         if (geoCoding == null) {
             return;
         }
@@ -131,7 +131,7 @@ public class CfGeocodingPart extends ProfilePartIO {
         final int h = product.getSceneRasterHeight();
         final int w = product.getSceneRasterWidth();
 
-        final GeoCoding geoCoding = product.getGeoCoding();
+        final GeoCoding geoCoding = product.getSceneGeoCoding();
         final PixelPos pixelPos = new PixelPos();
         final GeoPos geoPos = new GeoPos();
 

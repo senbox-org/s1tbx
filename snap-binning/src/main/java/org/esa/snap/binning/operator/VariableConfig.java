@@ -16,7 +16,7 @@
 
 package org.esa.snap.binning.operator;
 
-import org.esa.snap.framework.gpf.annotations.Parameter;
+import org.esa.snap.core.gpf.annotations.Parameter;
 
 /**
  * Configuration of a binning variable.

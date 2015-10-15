@@ -16,14 +16,14 @@
 package org.esa.snap.dataio.geotiff;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.dataio.AbstractProductWriter;
+import org.esa.snap.core.dataio.ProductWriterPlugIn;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductNode;
+import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.dataio.geotiff.internal.TiffHeader;
-import org.esa.snap.framework.dataio.AbstractProductWriter;
-import org.esa.snap.framework.dataio.ProductWriterPlugIn;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.ProductNode;
-import org.esa.snap.util.io.FileUtils;
 
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;

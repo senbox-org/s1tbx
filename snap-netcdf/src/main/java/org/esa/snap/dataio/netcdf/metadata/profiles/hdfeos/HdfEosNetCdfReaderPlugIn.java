@@ -1,5 +1,7 @@
 package org.esa.snap.dataio.netcdf.metadata.profiles.hdfeos;
 
+import org.esa.snap.core.dataio.DecodeQualification;
+import org.esa.snap.core.dataio.ProductIOException;
 import org.esa.snap.dataio.netcdf.AbstractNetCdfReaderPlugIn;
 import org.esa.snap.dataio.netcdf.ProfileReadContext;
 import org.esa.snap.dataio.netcdf.metadata.ProfileInitPartReader;
@@ -7,8 +9,6 @@ import org.esa.snap.dataio.netcdf.metadata.ProfilePartReader;
 import org.esa.snap.dataio.netcdf.metadata.profiles.cf.CfInitialisationPart;
 import org.esa.snap.dataio.netcdf.util.Constants;
 import org.esa.snap.dataio.netcdf.util.RasterDigest;
-import org.esa.snap.framework.dataio.DecodeQualification;
-import org.esa.snap.framework.dataio.ProductIOException;
 import org.jdom2.Element;
 import ucar.nc2.Group;
 import ucar.nc2.NetcdfFile;

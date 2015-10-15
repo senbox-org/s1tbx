@@ -18,7 +18,7 @@ package org.esa.snap.dataio.envisat;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.esa.snap.util.io.CsvReader;
+import org.esa.snap.core.util.io.CsvReader;
 
 import java.io.IOException;
 import java.io.InputStreamReader;

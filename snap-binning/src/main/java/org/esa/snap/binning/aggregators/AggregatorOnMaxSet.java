@@ -25,8 +25,8 @@ import org.esa.snap.binning.Observation;
 import org.esa.snap.binning.VariableContext;
 import org.esa.snap.binning.Vector;
 import org.esa.snap.binning.WritableVector;
-import org.esa.snap.framework.gpf.annotations.Parameter;
-import org.esa.snap.util.StringUtils;
+import org.esa.snap.core.gpf.annotations.Parameter;
+import org.esa.snap.core.util.StringUtils;
 
 import java.util.Arrays;
 

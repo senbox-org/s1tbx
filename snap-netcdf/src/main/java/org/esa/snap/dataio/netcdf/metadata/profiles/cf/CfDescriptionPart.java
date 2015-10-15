@@ -16,12 +16,12 @@
 
 package org.esa.snap.dataio.netcdf.metadata.profiles.cf;
 
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.dataio.netcdf.ProfileReadContext;
 import org.esa.snap.dataio.netcdf.ProfileWriteContext;
 import org.esa.snap.dataio.netcdf.metadata.ProfilePartIO;
 import org.esa.snap.dataio.netcdf.nc.NFileWriteable;
 import org.esa.snap.dataio.netcdf.util.Constants;
-import org.esa.snap.framework.datamodel.Product;
 import ucar.nc2.Attribute;
 
 import java.io.IOException;

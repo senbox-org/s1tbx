@@ -1,6 +1,6 @@
 package org.esa.snap.pixex.output;
 
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.datamodel.Product;
 
 public interface RasterNamesFactory {
 

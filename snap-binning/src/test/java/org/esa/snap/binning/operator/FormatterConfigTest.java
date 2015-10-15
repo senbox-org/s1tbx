@@ -17,7 +17,7 @@
 package org.esa.snap.binning.operator;
 
 import com.bc.ceres.binding.BindingException;
-import org.esa.snap.util.io.FileUtils;
+import org.esa.snap.core.util.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 

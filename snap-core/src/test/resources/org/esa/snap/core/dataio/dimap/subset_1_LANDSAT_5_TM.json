@@ -1,0 +1,213 @@
+{
+    "id": "subset_1_LANDSAT_5_TM",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 2945,
+        "sceneHeight": 4003,
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 2061.502,
+                    "y": 238.50777,
+                    "lat": 54.772298,
+                    "lon": 9.11945
+                },
+                {
+                    "x": 449.49768,
+                    "y": 3264.493,
+                    "lat": 54.093531,
+                    "lon": 8.043003
+                },
+                {
+                    "x": 2667.5,
+                    "y": 2868.5,
+                    "lat": 54.045135,
+                    "lon": 9.072594
+                }
+            ],
+            "reverseAccuracy": 0.01
+        },
+        "bands": [
+            {
+                "name": "radiance_1_blue_30m",
+                "description": "LANDSAT 5 TM SCENE",
+                "geophysicalUnit": "mW/(cm^2*sr*nm)",
+                "noDataValue": "-1.5",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "490.0",
+                "spectralBandwidth": "66.0",
+                "expectedPixels": [
+                    {
+                        "x": 2061,
+                        "y": 238,
+                        "value": 36.4512
+                    },
+                    {
+                        "x": 449,
+                        "y": 3264,
+                        "value": 34.0416
+                    },
+                    {
+                        "x": 2667,
+                        "y": 2868,
+                        "value": 34.0416
+                    }
+                ]
+            },
+            {
+                "name": "radiance_2_green_30m",
+                "description": "LANDSAT 5 TM SCENE",
+                "geophysicalUnit": "mW/(cm^2*sr*nm)",
+                "noDataValue": "-2.8",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "560.0",
+                "spectralBandwidth": "82.0",
+                "expectedPixels": [
+                    {
+                        "x": 2061,
+                        "y": 238,
+                        "value": 31.2721
+                    },
+                    {
+                        "x": 449,
+                        "y": 3264,
+                        "value": 20.698
+                    },
+                    {
+                        "x": 2667,
+                        "y": 2868,
+                        "value": 28.9223
+                    }
+                ]
+            },
+            {
+                "name": "radiance_3_red_30m",
+                "description": "LANDSAT 5 TM SCENE",
+                "geophysicalUnit": "mW/(cm^2*sr*nm)",
+                "noDataValue": "-1.2",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "660.0",
+                "spectralBandwidth": "67.0",
+                "expectedPixels": [
+                    {
+                        "x": 2061,
+                        "y": 238,
+                        "value": 21.3652
+                    },
+                    {
+                        "x": 449,
+                        "y": 3264,
+                        "value": 11.6944
+                    },
+                    {
+                        "x": 2667,
+                        "y": 2868,
+                        "value": 20.5593
+                    }
+                ]
+            },
+            {
+                "name": "radiance_4_nearir_30m",
+                "description": "LANDSAT 5 TM SCENE",
+                "geophysicalUnit": "mW/(cm^2*sr*nm)",
+                "noDataValue": "-1.5",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "830.0",
+                "spectralBandwidth": "128.0",
+                "expectedPixels": [
+                    {
+                        "x": 2061,
+                        "y": 238,
+                        "value": 91.353
+                    },
+                    {
+                        "x": 449,
+                        "y": 3264,
+                        "value": 5.8305
+                    },
+                    {
+                        "x": 2667,
+                        "y": 2868,
+                        "value": 51.4425
+                    }
+                ]
+            },
+            {
+                "name": "radiance_5_midir_30m",
+                "description": "LANDSAT 5 TM SCENE",
+                "geophysicalUnit": "mW/(cm^2*sr*nm)",
+                "noDataValue": "-0.37",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "1670.0",
+                "spectralBandwidth": "217.0",
+                "expectedPixels": [
+                    {
+                        "x": 2061,
+                        "y": 238,
+                        "value": 11.4129
+                    },
+                    {
+                        "x": 449,
+                        "y": 3264,
+                        "value": 0.3867
+                    },
+                    {
+                        "x": 2667,
+                        "y": 2868,
+                        "value": 8.0618
+                    }
+                ]
+            },
+            {
+                "name": "radiance_7_midir_30m",
+                "description": "LANDSAT 5 TM SCENE",
+                "geophysicalUnit": "mW/(cm^2*sr*nm)",
+                "noDataValue": "-0.15",
+                "noDataValueUsed": "true",
+                "spectralWavelength": "2240.0",
+                "spectralBandwidth": "252.0",
+                "expectedPixels": [
+                    {
+                        "x": 2061,
+                        "y": 238,
+                        "value": 2.187
+                    },
+                    {
+                        "x": 449,
+                        "y": 3264,
+                        "value": 0.135
+                    },
+                    {
+                        "x": 2667,
+                        "y": 2868,
+                        "value": 1.503
+                    }
+                ]
+            }
+        ],
+        "masks": [
+            {
+                "name": "ground_control_points",
+                "type": "org.esa.snap.core.datamodel.Mask$VectorDataType",
+                "color": "255,0,0",
+                "description": "Mask derived from geometries in 'ground_control_points'"
+            },
+            {
+                "name": "pins",
+                "type": "org.esa.snap.core.datamodel.Mask$VectorDataType",
+                "color": "255,0,0",
+                "description": "Mask derived from geometries in 'pins'"
+            }
+        ],
+        "metadata": [
+            {
+                "path": "Geometric/Lower left/easting",
+                "value": "302120.46875"
+            },
+            {
+                "path": "Radiance/Band1/MaxRad",
+                "value": "152.11200000000002"
+            }
+        ]
+    }
+}

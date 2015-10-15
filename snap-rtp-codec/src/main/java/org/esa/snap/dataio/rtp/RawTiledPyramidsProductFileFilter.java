@@ -16,7 +16,7 @@
 
 package org.esa.snap.dataio.rtp;
 
-import org.esa.snap.util.io.SnapFileFilter;
+import org.esa.snap.core.util.io.SnapFileFilter;
 
 import java.io.File;
 

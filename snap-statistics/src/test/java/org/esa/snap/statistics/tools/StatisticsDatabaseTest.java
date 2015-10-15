@@ -1,9 +1,9 @@
 package org.esa.snap.statistics.tools;
 
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.FeatureUtils;
 import org.esa.snap.statistics.StatisticsOp;
 import org.esa.snap.statistics.output.UtilTest;
-import org.esa.snap.util.FeatureUtils;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.junit.Before;

@@ -1,16 +1,16 @@
 package org.esa.snap.pixex;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.CrsGeoCoding;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.gpf.GPF;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.graph.Graph;
-import org.esa.snap.framework.gpf.graph.GraphException;
-import org.esa.snap.framework.gpf.graph.GraphIO;
-import org.esa.snap.framework.gpf.graph.GraphProcessor;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.CrsGeoCoding;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.gpf.GPF;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.graph.Graph;
+import org.esa.snap.core.gpf.graph.GraphException;
+import org.esa.snap.core.gpf.graph.GraphIO;
+import org.esa.snap.core.gpf.graph.GraphProcessor;
 import org.esa.snap.measurement.Measurement;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.AfterClass;
@@ -484,7 +484,7 @@ public class PixExOpTest {
         final double scaleY = 180 / bounds.height;
         i2mTransform.scale(scaleX, -scaleY);
         CrsGeoCoding geoCoding = new CrsGeoCoding(DefaultGeographicCRS.WGS84, bounds, i2mTransform);
-        product.setGeoCoding(geoCoding);
+        product.setSceneGeoCoding(geoCoding);
         for (int i = 0; i < bandNames.length; i++) {
             Band band = product.addBand(bandNames[i], ProductData.TYPE_FLOAT32);
             band.setSourceImage(ConstantDescriptor.create((float) bounds.width, (float) bounds.height,

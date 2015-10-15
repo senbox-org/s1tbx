@@ -14,7 +14,7 @@
             <file name="org-esa-snap-dataio-geotiff-ExportGeoTIFFProduct.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.context"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ExportProductAction.create"/>
-                <attr name="type" stringvalue="org.esa.snap.framework.datamodel.ProductNode"/>
+                <attr name="type" stringvalue="org.esa.snap.core.datamodel.ProductNode"/>
                 <attr name="selectionType" stringvalue="EXACTLY_ONE"/>
                 <attr name="displayName" stringvalue="GeoTIFF"/>
                 <attr name="formatName" stringvalue="GeoTIFF"/>

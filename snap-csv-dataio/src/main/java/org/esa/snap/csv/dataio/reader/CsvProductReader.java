@@ -16,25 +16,23 @@
 
 package org.esa.snap.csv.dataio.reader;
 
-import static org.esa.snap.csv.dataio.Constants.*;
-
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.dataio.AbstractProductReader;
+import org.esa.snap.core.dataio.ProductReaderPlugIn;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.GeoCodingFactory;
+import org.esa.snap.core.datamodel.MetadataAttribute;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.PixelTimeCoding;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.csv.dataio.CsvFile;
 import org.esa.snap.csv.dataio.CsvSource;
 import org.esa.snap.csv.dataio.CsvSourceParser;
-import org.esa.snap.framework.dataio.AbstractProductReader;
-import org.esa.snap.framework.dataio.ProductReaderPlugIn;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.GeoCoding;
-import org.esa.snap.framework.datamodel.GeoCodingFactory;
-import org.esa.snap.framework.datamodel.MetadataAttribute;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.PixelTimeCoding;
-import org.esa.snap.util.StringUtils;
-import org.esa.snap.util.SystemUtils;
-import org.esa.snap.util.io.FileUtils;
 import org.opengis.feature.type.AttributeDescriptor;
 
 import java.io.File;
@@ -43,6 +41,8 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.logging.Level;
 import java.util.stream.DoubleStream;
+
+import static org.esa.snap.csv.dataio.Constants.*;
 
 /**
  * The CsvProductReader is able to read a CSV file as a product.
@@ -133,7 +133,7 @@ public class CsvProductReader extends AbstractProductReader {
         final int searchRadius = 5;
         GeoCoding gc = GeoCodingFactory.createPixelGeoCoding(latBand, lonBand, validMask, searchRadius);
 //        GeoCoding gc = new PixelGeoCoding(latBand, lonBand, validMask, searchRadius);
-        product.setGeoCoding(gc);
+        product.setSceneGeoCoding(gc);
     }
 
     private Band fetchBand(String[] names) {
@@ -164,7 +164,7 @@ public class CsvProductReader extends AbstractProductReader {
                 if (timeMJD != null) {
                     final int width = product.getSceneRasterWidth();
                     final int height = product.getSceneRasterHeight();
-                    product.setTimeCoding(new CSVTimeCoding(timeMJD, width, height, colName));
+                    product.setSceneTimeCoding(new CSVTimeCoding(timeMJD, width, height, colName));
                     initStartEndTime(timeMJD);
                     return;
                 }

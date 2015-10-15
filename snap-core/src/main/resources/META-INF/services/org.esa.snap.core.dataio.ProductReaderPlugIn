@@ -1,0 +1,2 @@
+org.esa.snap.core.dataio.dimap.DimapProductReaderPlugIn
+org.esa.snap.core.dataio.rgb.ImageProductReaderPlugIn

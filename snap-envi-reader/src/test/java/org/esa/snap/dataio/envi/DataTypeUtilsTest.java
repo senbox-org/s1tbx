@@ -1,6 +1,6 @@
 package org.esa.snap.dataio.envi;
 
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductData;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

@@ -17,14 +17,14 @@
 package org.esa.snap.dataio.netcdf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.dataio.AbstractProductWriter;
+import org.esa.snap.core.dataio.ProductIOException;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.dataio.netcdf.nc.NFileWriteable;
 import org.esa.snap.dataio.netcdf.nc.NVariable;
 import org.esa.snap.dataio.netcdf.util.Constants;
 import org.esa.snap.dataio.netcdf.util.ReaderUtils;
-import org.esa.snap.framework.dataio.AbstractProductWriter;
-import org.esa.snap.framework.dataio.ProductIOException;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.ProductData;
 
 import java.io.File;
 import java.io.IOException;

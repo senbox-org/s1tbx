@@ -16,7 +16,7 @@
 
 package org.esa.snap.dataio.bigtiff.internal;
 
-import org.esa.snap.util.Guardian;
+import org.esa.snap.core.util.Guardian;
 
 /**
  * This class provides static methods for checking values if they are within the value range

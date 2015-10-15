@@ -16,14 +16,14 @@
 
 package org.esa.snap.dataio.netcdf.metadata.profiles.cf;
 
+import org.esa.snap.core.dataio.ProductIOException;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.dataio.netcdf.ProfileReadContext;
 import org.esa.snap.dataio.netcdf.ProfileWriteContext;
 import org.esa.snap.dataio.netcdf.metadata.ProfileInitPartIO;
 import org.esa.snap.dataio.netcdf.nc.NFileWriteable;
 import org.esa.snap.dataio.netcdf.util.Constants;
-import org.esa.snap.framework.dataio.ProductIOException;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.jai.ImageManager;
 import ucar.nc2.Attribute;
 
 import java.awt.Dimension;
@@ -61,7 +61,7 @@ public class CfInitialisationPart extends ProfileInitPartIO {
     public void writeProductBody(ProfileWriteContext ctx, Product product) throws IOException {
         NFileWriteable writeable = ctx.getNetcdfFileWriteable();
         writeable.addGlobalAttribute("Conventions", "CF-1.4");
-        if (CfGeocodingPart.isGeographicCRS(product.getGeoCoding())) {
+        if (CfGeocodingPart.isGeographicCRS(product.getSceneGeoCoding())) {
             writeDimensions(writeable, product, "lat", "lon");
         } else {
             writeDimensions(writeable, product, "y", "x");

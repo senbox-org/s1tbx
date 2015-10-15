@@ -16,14 +16,14 @@
 package org.esa.snap.dataio.geotiff;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.dataio.geotiff.internal.TiffIFD;
 import org.esa.snap.dataio.geotiff.internal.TiffLong;
 import org.esa.snap.dataio.geotiff.internal.TiffShort;
 import org.esa.snap.dataio.geotiff.internal.TiffTag;
 import org.esa.snap.dataio.geotiff.internal.TiffValue;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
 
 import javax.imageio.stream.ImageOutputStream;
 import java.io.IOException;
@@ -90,8 +90,8 @@ class GeoTiffBandWriter {
      * @throws java.io.IOException      if an I/O error occurs
      * @throws IllegalArgumentException if the number of elements source buffer not equals <code>sourceWidth *
      *                                  sourceHeight</code> or the source region is out of the band's raster
-     * @see org.esa.snap.framework.datamodel.Band#getRasterWidth()
-     * @see org.esa.snap.framework.datamodel.Band#getRasterHeight()
+     * @see Band#getRasterWidth()
+     * @see Band#getRasterHeight()
      */
     public void writeBandRasterData(final Band sourceBand,
                                     final int regionX,

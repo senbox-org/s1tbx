@@ -15,7 +15,7 @@
  */
 package org.esa.snap.dataio.envisat;
 
-import org.esa.snap.framework.dataio.ProductIOException;
+import org.esa.snap.core.dataio.ProductIOException;
 
 /**
  * Thrown if an entry in an ENVISAT header could not be found.

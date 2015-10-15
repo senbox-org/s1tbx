@@ -17,12 +17,12 @@
 package org.esa.snap.binning.operator;
 
 import org.esa.snap.binning.DataPeriod;
-import org.esa.snap.framework.datamodel.GeoCoding;
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.util.ProductUtils;
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.SystemUtils;
 
 /**
  * Filters out all products that do not overlap with the given data day.
@@ -40,7 +40,7 @@ class SpatialDataDaySourceProductFilter extends BinningProductFilter {
 
     @Override
     protected boolean acceptForBinning(Product product) {
-            GeoCoding geoCoding = product.getGeoCoding();
+            GeoCoding geoCoding = product.getSceneGeoCoding();
             ProductData.UTC firstScanLineTime = ProductUtils.getScanLineTime(product, 0);
             ProductData.UTC lastScanLineTime = ProductUtils.getScanLineTime(product, product.getSceneRasterHeight() - 1);
             if (firstScanLineTime == null || lastScanLineTime == null) {

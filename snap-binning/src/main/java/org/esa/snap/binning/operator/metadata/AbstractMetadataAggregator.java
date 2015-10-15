@@ -1,6 +1,6 @@
 package org.esa.snap.binning.operator.metadata;
 
-import org.esa.snap.framework.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.MetadataElement;
 
 abstract class AbstractMetadataAggregator implements MetadataAggregator {
 

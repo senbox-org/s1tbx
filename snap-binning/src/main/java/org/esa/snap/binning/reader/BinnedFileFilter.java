@@ -1,6 +1,6 @@
 package org.esa.snap.binning.reader;
 
-import org.esa.snap.util.io.SnapFileFilter;
+import org.esa.snap.core.util.io.SnapFileFilter;
 
 import java.io.File;
 

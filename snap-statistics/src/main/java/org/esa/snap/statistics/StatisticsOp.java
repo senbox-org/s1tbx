@@ -18,17 +18,20 @@ package org.esa.snap.statistics;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.HistogramStxOp;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.SummaryStxOp;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
-import org.esa.snap.framework.gpf.annotations.Parameter;
-import org.esa.snap.framework.gpf.annotations.SourceProducts;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.HistogramStxOp;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.SummaryStxOp;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.gpf.annotations.OperatorMetadata;
+import org.esa.snap.core.gpf.annotations.Parameter;
+import org.esa.snap.core.gpf.annotations.SourceProducts;
+import org.esa.snap.core.util.io.FileUtils;
+import org.esa.snap.core.util.io.WildcardMatcher;
 import org.esa.snap.statistics.output.BandNameCreator;
 import org.esa.snap.statistics.output.CsvStatisticsWriter;
 import org.esa.snap.statistics.output.FeatureStatisticsWriter;
@@ -36,8 +39,6 @@ import org.esa.snap.statistics.output.MetadataWriter;
 import org.esa.snap.statistics.output.StatisticsOutputContext;
 import org.esa.snap.statistics.output.StatisticsOutputter;
 import org.esa.snap.statistics.output.Util;
-import org.esa.snap.util.io.FileUtils;
-import org.esa.snap.util.io.WildcardMatcher;
 
 import javax.media.jai.Histogram;
 import java.io.File;
@@ -69,7 +70,7 @@ import java.util.logging.Level;
  * <li>a shapefile that corresponds to the input shapefile, enriched with the statistics for the regions defined by the shapefile</li>
  * </ul>
  * <p>
- * Unlike most other operators, that can compute single {@link org.esa.snap.framework.gpf.Tile tiles},
+ * Unlike most other operators, that can compute single {@link Tile tiles},
  * the statistics operator processes all of its source products in its {@link #initialize()} method.
  *
  * @author Sabine Embacher
@@ -468,7 +469,7 @@ public class StatisticsOp extends Operator {
 
     /**
      * The service provider interface (SPI) which is referenced
-     * in {@code /META-INF/services/org.esa.snap.framework.gpf.OperatorSpi}.
+     * in {@code /META-INF/services/OperatorSpi}.
      */
     public static class Spi extends OperatorSpi {
 

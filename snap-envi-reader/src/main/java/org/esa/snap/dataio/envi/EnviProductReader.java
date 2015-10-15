@@ -1,22 +1,22 @@
 package org.esa.snap.dataio.envi;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.dataio.AbstractProductReader;
+import org.esa.snap.core.dataio.ProductReaderPlugIn;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.ColorPaletteDef;
+import org.esa.snap.core.datamodel.CrsGeoCoding;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.ImageInfo;
+import org.esa.snap.core.datamodel.IndexCoding;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductNode;
+import org.esa.snap.core.util.Debug;
+import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.TreeNode;
+import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.dataio.envi.Header.BeamProperties;
-import org.esa.snap.framework.dataio.AbstractProductReader;
-import org.esa.snap.framework.dataio.ProductReaderPlugIn;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.ColorPaletteDef;
-import org.esa.snap.framework.datamodel.CrsGeoCoding;
-import org.esa.snap.framework.datamodel.GeoCoding;
-import org.esa.snap.framework.datamodel.ImageInfo;
-import org.esa.snap.framework.datamodel.IndexCoding;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.ProductNode;
-import org.esa.snap.util.Debug;
-import org.esa.snap.util.StringUtils;
-import org.esa.snap.util.TreeNode;
-import org.esa.snap.util.io.FileUtils;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.FactoryException;
@@ -401,7 +401,7 @@ public class EnviProductReader extends AbstractProductReader {
                 Rectangle rect = new Rectangle(product.getSceneRasterWidth(), product.getSceneRasterHeight());
                 GeoCoding geoCoding = new CrsGeoCoding(crs, rect, i2m);
 
-                product.setGeoCoding(geoCoding);
+                product.setSceneGeoCoding(geoCoding);
             } catch (FactoryException | TransformException fe) {
                 Debug.trace(fe);
             }

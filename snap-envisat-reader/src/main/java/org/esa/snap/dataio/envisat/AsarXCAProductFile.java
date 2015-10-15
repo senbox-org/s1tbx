@@ -16,11 +16,11 @@
 
 package org.esa.snap.dataio.envisat;
 
-import org.esa.snap.framework.dataio.IllegalFileFormatException;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.util.StringUtils;
+import org.esa.snap.core.dataio.IllegalFileFormatException;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.util.StringUtils;
 
 import javax.imageio.stream.ImageInputStream;
 import java.io.File;

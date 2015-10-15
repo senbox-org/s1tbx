@@ -16,26 +16,25 @@
 package org.esa.snap.dataio.envisat;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.framework.dataio.AbstractProductReader;
-import org.esa.snap.framework.dataio.IllegalFileFormatException;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.GeoCodingFactory;
-import org.esa.snap.framework.datamodel.Mask;
-import org.esa.snap.framework.datamodel.MetadataAttribute;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.PointingFactory;
-import org.esa.snap.framework.datamodel.PointingFactoryRegistry;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.ProductNodeGroup;
-import org.esa.snap.framework.datamodel.LineTimeCoding;
-import org.esa.snap.framework.datamodel.TiePointGeoCoding;
-import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.framework.datamodel.VirtualBand;
-import org.esa.snap.framework.dataop.maptransf.Datum;
-import org.esa.snap.util.ArrayUtils;
-import org.esa.snap.util.Debug;
-import org.esa.snap.util.io.FileUtils;
+import org.esa.snap.core.dataio.AbstractProductReader;
+import org.esa.snap.core.dataio.IllegalFileFormatException;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.GeoCodingFactory;
+import org.esa.snap.core.datamodel.LineTimeCoding;
+import org.esa.snap.core.datamodel.Mask;
+import org.esa.snap.core.datamodel.MetadataAttribute;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.PointingFactory;
+import org.esa.snap.core.datamodel.PointingFactoryRegistry;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductNodeGroup;
+import org.esa.snap.core.datamodel.TiePointGeoCoding;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.util.ArrayUtils;
+import org.esa.snap.core.util.Debug;
+import org.esa.snap.core.util.io.FileUtils;
 
 import javax.imageio.stream.FileCacheImageInputStream;
 import javax.imageio.stream.ImageInputStream;
@@ -225,7 +224,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         product.setDescription(getProductFile().getProductDescription());
         product.setStartTime(getProductFile().getSceneRasterStartTime());
         product.setEndTime(getProductFile().getSceneRasterStopTime());
-        product.setTimeCoding(new LineTimeCoding(getMJDs()));
+        product.setSceneTimeCoding(new LineTimeCoding(getMJDs()));
         product.setAutoGrouping(getProductFile().getAutoGroupingPattern());
 
         addBandsToProduct(product);
@@ -255,7 +254,7 @@ public class EnvisatProductReader extends AbstractProductReader {
             }
             if (!(bandLineReader instanceof BandLineReader.Virtual)) {
                 if (bandLineReader.getPixelDataReader().getDSD().getDatasetSize() == 0 ||
-                    bandLineReader.getPixelDataReader().getDSD().getNumRecords() == 0) {
+                        bandLineReader.getPixelDataReader().getDSD().getNumRecords() == 0) {
                     continue;
                 }
             }
@@ -402,7 +401,7 @@ public class EnvisatProductReader extends AbstractProductReader {
                 } else {
                     validMask = "l2_flags.LAND or l2_flags.CLOUD or l2_flags.WATER";
                 }
-                product.setGeoCoding(GeoCodingFactory.createPixelGeoCoding(latBand, lonBand, validMask, 6));
+                product.setSceneGeoCoding(GeoCodingFactory.createPixelGeoCoding(latBand, lonBand, validMask, 6));
             }
         }
     }
@@ -414,7 +413,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         TiePointGrid latGrid = product.getTiePointGrid(EnvisatConstants.LAT_DS_NAME);
         TiePointGrid lonGrid = product.getTiePointGrid(EnvisatConstants.LON_DS_NAME);
         if (latGrid != null && lonGrid != null) {
-            product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84));
+            product.setSceneGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
         }
     }
 
@@ -441,9 +440,9 @@ public class EnvisatProductReader extends AbstractProductReader {
             if (dsd != null) {
                 final MetadataElement dsdGroup = new MetadataElement("DSD." + (i + 1));
                 dsdGroup.addAttribute(
-                            new MetadataAttribute("DATASET_NAME",
-                                                  ProductData.createInstance(getNonNullString(dsd.getDatasetName())),
-                                                  true));
+                        new MetadataAttribute("DATASET_NAME",
+                                              ProductData.createInstance(getNonNullString(dsd.getDatasetName())),
+                                              true));
                 dsdGroup.addAttribute(new MetadataAttribute("DATASET_TYPE",
                                                             ProductData.createInstance(new String(new char[]{dsd.getDatasetType()})),
                                                             true));
@@ -477,7 +476,7 @@ public class EnvisatProductReader extends AbstractProductReader {
             final DSD dsd = productFile.getDSD(datasetName);
             final char dsdType = dsd.getDatasetType();
             if (dsdType == EnvisatConstants.DS_TYPE_ANNOTATION
-                || dsdType == EnvisatConstants.DS_TYPE_GLOBAL_ANNOTATION) {
+                    || dsdType == EnvisatConstants.DS_TYPE_GLOBAL_ANNOTATION) {
                 final RecordReader recordReader = productFile.getRecordReader(datasetName);
                 final int numRecords = recordReader.getNumRecords();
                 if (numRecords > 1) {
@@ -653,24 +652,23 @@ public class EnvisatProductReader extends AbstractProductReader {
     /**
      * Used by the {@link #createTiePointGrid(String, int, int, double, double, double, double, float[]) createTiePointGrid} method in order to determine
      * the discontinuity mode for angle tie-point grids.
-     * <p>The default implementation returns {@link org.esa.snap.framework.datamodel.TiePointGrid#DISCONT_AT_180} for
+     * <p>The default implementation returns {@link TiePointGrid#DISCONT_AT_180} for
      * the names "lon", "long" or "longitude" ignoring letter case,
-     * {@link org.esa.snap.framework.datamodel.TiePointGrid#DISCONT_NONE} otherwise.
+     * {@link TiePointGrid#DISCONT_NONE} otherwise.
      *
      * @param name the grid name
-     *
-     * @return the discontinuity mode, always one of {@link org.esa.snap.framework.datamodel.TiePointGrid#DISCONT_NONE}, {@link org.esa.snap.framework.datamodel.TiePointGrid#DISCONT_AT_180} and {@link org.esa.snap.framework.datamodel.TiePointGrid#DISCONT_AT_360}.
+     * @return the discontinuity mode, always one of {@link TiePointGrid#DISCONT_NONE}, {@link TiePointGrid#DISCONT_AT_180} and {@link TiePointGrid#DISCONT_AT_360}.
      */
     @Override
     protected int getGridDiscontinutity(String name) {
         if (name.equalsIgnoreCase(EnvisatConstants.MERIS_SUN_AZIMUTH_DS_NAME) ||
-            name.equalsIgnoreCase(EnvisatConstants.MERIS_VIEW_AZIMUTH_DS_NAME)) {
+                name.equalsIgnoreCase(EnvisatConstants.MERIS_VIEW_AZIMUTH_DS_NAME)) {
             return TiePointGrid.DISCONT_AT_360;
         } else if (name.equalsIgnoreCase(EnvisatConstants.LON_DS_NAME) ||
-                   name.equalsIgnoreCase(EnvisatConstants.AATSR_SUN_AZIMUTH_NADIR_DS_NAME) ||
-                   name.equalsIgnoreCase(EnvisatConstants.AATSR_VIEW_AZIMUTH_NADIR_DS_NAME) ||
-                   name.equalsIgnoreCase(EnvisatConstants.AATSR_SUN_AZIMUTH_FWARD_DS_NAME) ||
-                   name.equalsIgnoreCase(EnvisatConstants.AATSR_VIEW_AZIMUTH_FWARD_DS_NAME)) {
+                name.equalsIgnoreCase(EnvisatConstants.AATSR_SUN_AZIMUTH_NADIR_DS_NAME) ||
+                name.equalsIgnoreCase(EnvisatConstants.AATSR_VIEW_AZIMUTH_NADIR_DS_NAME) ||
+                name.equalsIgnoreCase(EnvisatConstants.AATSR_SUN_AZIMUTH_FWARD_DS_NAME) ||
+                name.equalsIgnoreCase(EnvisatConstants.AATSR_VIEW_AZIMUTH_FWARD_DS_NAME)) {
             return TiePointGrid.DISCONT_AT_180;
         } else {
             return TiePointGrid.DISCONT_NONE;

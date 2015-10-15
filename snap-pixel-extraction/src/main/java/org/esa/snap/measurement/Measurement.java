@@ -16,9 +16,9 @@
 
 package org.esa.snap.measurement;
 
-import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.util.ObjectUtils;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.ObjectUtils;
 
 import java.util.Arrays;
 

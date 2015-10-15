@@ -43,7 +43,7 @@
         <folder name="Writers">
             <file name="org-esa-snap-dataio-netcdf-ExportNetCdfCFProduct.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.context"/>
-                <attr name="type" stringvalue="org.esa.snap.framework.datamodel.ProductNode"/>
+                <attr name="type" stringvalue="org.esa.snap.core.datamodel.ProductNode"/>
                 <attr name="selectionType" stringvalue="EXACTLY_ONE"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ExportProductAction.create"/>
                 <attr name="displayName" stringvalue="NetCDF-CF"/>
@@ -54,7 +54,7 @@
             </file>
             <file name="org-esa-snap-dataio-netcdf-ExportNetCdf4CFProduct.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.context"/>
-                <attr name="type" stringvalue="org.esa.snap.framework.datamodel.ProductNode"/>
+                <attr name="type" stringvalue="org.esa.snap.core.datamodel.ProductNode"/>
                 <attr name="selectionType" stringvalue="EXACTLY_ONE"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ExportProductAction.create"/>
                 <attr name="displayName" stringvalue="NetCDF4-CF"/>
@@ -65,7 +65,7 @@
             </file>
             <file name="org-esa-snap-dataio-netcdf-ExportNetCdfBEAMProduct.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.context"/>
-                <attr name="type" stringvalue="org.esa.snap.framework.datamodel.ProductNode"/>
+                <attr name="type" stringvalue="org.esa.snap.core.datamodel.ProductNode"/>
                 <attr name="selectionType" stringvalue="EXACTLY_ONE"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ExportProductAction.create"/>
                 <attr name="displayName" stringvalue="NetCDF-BEAM"/>
@@ -76,7 +76,7 @@
             </file>
             <file name="org-esa-snap-dataio-netcdf-ExportNetCdf4BEAMProduct.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.context"/>
-                <attr name="type" stringvalue="org.esa.snap.framework.datamodel.ProductNode"/>
+                <attr name="type" stringvalue="org.esa.snap.core.datamodel.ProductNode"/>
                 <attr name="selectionType" stringvalue="EXACTLY_ONE"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ExportProductAction.create"/>
                 <attr name="displayName" stringvalue="NetCDF4-BEAM"/>

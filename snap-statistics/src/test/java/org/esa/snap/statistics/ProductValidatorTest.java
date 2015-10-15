@@ -1,8 +1,8 @@
 package org.esa.snap.statistics;
 
-import org.esa.snap.framework.datamodel.GeoCoding;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,7 +33,7 @@ public class ProductValidatorTest {
         _endDate = ProductData.UTC.parse("2012-11-08 00:00:00", StatisticsOp.DATETIME_PATTERN);
         _productValidator = new ProductValidator(_bandConfigurations, _startDate, _endDate, _loggerMock);
         _product = mock(Product.class);
-        when(_product.getGeoCoding()).thenReturn(mock(GeoCoding.class));
+        when(_product.getSceneGeoCoding()).thenReturn(mock(GeoCoding.class));
         when(_product.getStartTime()).thenReturn(_startDate);
         when(_product.getEndTime()).thenReturn(_endDate);
     }
@@ -53,7 +53,7 @@ public class ProductValidatorTest {
     @Test
     public void testIsInvalid_IfProductDoesNotContainAGeoCoding() {
         //preparation
-        when(_product.getGeoCoding()).thenReturn(null);
+        when(_product.getSceneGeoCoding()).thenReturn(null);
         when(_product.getName()).thenReturn("No Geocoding");
 
         //execution

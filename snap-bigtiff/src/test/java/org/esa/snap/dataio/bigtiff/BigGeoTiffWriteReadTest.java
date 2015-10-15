@@ -19,30 +19,30 @@ package org.esa.snap.dataio.bigtiff;
 import com.bc.ceres.core.ProgressMonitor;
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFRenderedImage;
-import org.esa.snap.framework.dataio.ProductIO;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.ColorPaletteDef;
-import org.esa.snap.framework.datamodel.CrsGeoCoding;
-import org.esa.snap.framework.datamodel.GeoCoding;
-import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.datamodel.IndexCoding;
-import org.esa.snap.framework.datamodel.MapGeoCoding;
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.TiePointGeoCoding;
-import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.framework.datamodel.VirtualBand;
-import org.esa.snap.framework.dataop.maptransf.Datum;
-import org.esa.snap.framework.dataop.maptransf.LambertConformalConicDescriptor;
-import org.esa.snap.framework.dataop.maptransf.MapInfo;
-import org.esa.snap.framework.dataop.maptransf.MapProjection;
-import org.esa.snap.framework.dataop.maptransf.MapProjectionRegistry;
-import org.esa.snap.framework.dataop.maptransf.MapTransform;
-import org.esa.snap.framework.dataop.maptransf.MapTransformDescriptor;
-import org.esa.snap.jai.ImageManager;
+import org.esa.snap.core.dataio.ProductIO;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.ColorPaletteDef;
+import org.esa.snap.core.datamodel.CrsGeoCoding;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.IndexCoding;
+import org.esa.snap.core.datamodel.MapGeoCoding;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.TiePointGeoCoding;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.dataop.maptransf.Datum;
+import org.esa.snap.core.dataop.maptransf.LambertConformalConicDescriptor;
+import org.esa.snap.core.dataop.maptransf.MapInfo;
+import org.esa.snap.core.dataop.maptransf.MapProjection;
+import org.esa.snap.core.dataop.maptransf.MapProjectionRegistry;
+import org.esa.snap.core.dataop.maptransf.MapTransform;
+import org.esa.snap.core.dataop.maptransf.MapTransformDescriptor;
+import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.runtime.Config;
-import org.esa.snap.util.io.FileUtils;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.crs.DefaultProjectedCRS;
@@ -69,7 +69,11 @@ import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @SuppressWarnings({"InstanceVariableMayNotBeInitialized"})
 public class BigGeoTiffWriteReadTest {
@@ -265,8 +269,8 @@ public class BigGeoTiffWriteReadTest {
             assertEquals(outProduct.getBandAt(0).getScalingFactor(), inProduct.getBandAt(0).getScalingFactor(), 1.0e-6);
             assertEquals(outProduct.getBandAt(0).getScalingOffset(), inProduct.getBandAt(0).getScalingOffset(), 1.0e-6);
             assertEquals(location, inProduct.getFileLocation());
-            assertNotNull(inProduct.getGeoCoding());
-            assertEquality(outProduct.getGeoCoding(), inProduct.getGeoCoding(), 2.0e-5f);
+            assertNotNull(inProduct.getSceneGeoCoding());
+            assertEquality(outProduct.getSceneGeoCoding(), inProduct.getSceneGeoCoding(), 2.0e-5f);
         } finally {
             inProduct.dispose();
         }
@@ -286,8 +290,8 @@ public class BigGeoTiffWriteReadTest {
             assertEquals(outProduct.getBandAt(0).getScalingFactor(), inProduct.getBandAt(0).getScalingFactor(), 1.0e-6);
             assertEquals(outProduct.getBandAt(0).getScalingOffset(), inProduct.getBandAt(0).getScalingOffset(), 1.0e-6);
             assertEquals(location, inProduct.getFileLocation());
-            assertNotNull(inProduct.getGeoCoding());
-            assertEquality(outProduct.getGeoCoding(), inProduct.getGeoCoding(), 2.0e-5f);
+            assertNotNull(inProduct.getSceneGeoCoding());
+            assertEquality(outProduct.getSceneGeoCoding(), inProduct.getSceneGeoCoding(), 2.0e-5f);
         } finally {
             inProduct.dispose();
         }
@@ -412,8 +416,8 @@ public class BigGeoTiffWriteReadTest {
                 assertEquality(outProduct.getBandAt(i), inProduct.getBandAt(i));
             }
             assertEquals(location, inProduct.getFileLocation());
-            assertNotNull(inProduct.getGeoCoding());
-            assertEquality(outProduct.getGeoCoding(), inProduct.getGeoCoding(), accuracy);
+            assertNotNull(inProduct.getSceneGeoCoding());
+            assertEquality(outProduct.getSceneGeoCoding(), inProduct.getSceneGeoCoding(), accuracy);
         } finally {
             inProduct.dispose();
         }
@@ -500,7 +504,7 @@ public class BigGeoTiffWriteReadTest {
         imageToMap.translate(0.7, 0.8);
         imageToMap.scale(0.9, -0.8);
         imageToMap.translate(-0.5, -0.6);
-        product.setGeoCoding(new CrsGeoCoding(crs, imageBounds, imageToMap));
+        product.setSceneGeoCoding(new CrsGeoCoding(crs, imageBounds, imageToMap));
     }
 
     private static void setLambertConformalConicGeoCoding_MapGeoCoding(final Product product) {
@@ -515,7 +519,7 @@ public class BigGeoTiffWriteReadTest {
         final MapInfo mapInfo = new MapInfo(mapProjection, .5f, .6f, .7f, .8f, .09f, .08f, Datum.WGS_84);
         mapInfo.setSceneWidth(product.getSceneRasterWidth());
         mapInfo.setSceneHeight(product.getSceneRasterHeight());
-        product.setGeoCoding(new MapGeoCoding(mapInfo));
+        product.setSceneGeoCoding(new MapGeoCoding(mapInfo));
     }
 
     private static void setLambertConformalConicGeoCoding(final Product product) throws FactoryException,
@@ -539,7 +543,7 @@ public class BigGeoTiffWriteReadTest {
         imageToMap.scale(0.9, -0.8);
         imageToMap.translate(-0.5, -0.6);
         final Rectangle imageBounds = new Rectangle(product.getSceneRasterWidth(), product.getSceneRasterHeight());
-        product.setGeoCoding(new CrsGeoCoding(crs, imageBounds, imageToMap));
+        product.setSceneGeoCoding(new CrsGeoCoding(crs, imageBounds, imageToMap));
     }
 
     private static void setAlbersEqualAreaGeoCoding(final Product product) throws FactoryException, TransformException {
@@ -564,7 +568,7 @@ public class BigGeoTiffWriteReadTest {
         imageToMap.scale(0.9, -0.8);
         imageToMap.translate(-0.5, -0.6);
         final Rectangle imageBounds = new Rectangle(product.getSceneRasterWidth(), product.getSceneRasterHeight());
-        product.setGeoCoding(new CrsGeoCoding(crs, imageBounds, imageToMap));
+        product.setSceneGeoCoding(new CrsGeoCoding(crs, imageBounds, imageToMap));
 
     }
 
@@ -581,7 +585,7 @@ public class BigGeoTiffWriteReadTest {
         });
         product.addTiePointGrid(latGrid);
         product.addTiePointGrid(lonGrid);
-        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84));
+        product.setSceneGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
     }
 
     private Product writeReadProduct() throws IOException {

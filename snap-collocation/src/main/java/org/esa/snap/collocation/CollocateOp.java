@@ -19,28 +19,28 @@ package org.esa.snap.collocation;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.FlagCoding;
-import org.esa.snap.framework.datamodel.IndexCoding;
-import org.esa.snap.framework.datamodel.Mask;
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.ProductNodeGroup;
-import org.esa.snap.framework.datamodel.RasterDataNode;
-import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.framework.dataop.barithm.BandArithmetic;
-import org.esa.snap.framework.dataop.resamp.Resampling;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.framework.gpf.Tile;
-import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
-import org.esa.snap.framework.gpf.annotations.Parameter;
-import org.esa.snap.framework.gpf.annotations.SourceProduct;
-import org.esa.snap.framework.gpf.annotations.TargetProduct;
-import org.esa.snap.util.ProductUtils;
-import org.esa.snap.util.StringUtils;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.FlagCoding;
+import org.esa.snap.core.datamodel.IndexCoding;
+import org.esa.snap.core.datamodel.Mask;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductNodeGroup;
+import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.dataop.barithm.BandArithmetic;
+import org.esa.snap.core.dataop.resamp.Resampling;
+import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.core.gpf.annotations.OperatorMetadata;
+import org.esa.snap.core.gpf.annotations.Parameter;
+import org.esa.snap.core.gpf.annotations.SourceProduct;
+import org.esa.snap.core.gpf.annotations.TargetProduct;
+import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.StringUtils;
 
 import java.awt.Rectangle;
 import java.text.MessageFormat;
@@ -181,11 +181,11 @@ public class CollocateOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        if (masterProduct.getGeoCoding() == null) {
+        if (masterProduct.getSceneGeoCoding() == null) {
             throw new OperatorException(
                     MessageFormat.format("Product ''{0}'' has no geo-coding.", masterProduct.getName()));
         }
-        if (slaveProduct.getGeoCoding() == null) {
+        if (slaveProduct.getSceneGeoCoding() == null) {
             throw new OperatorException(
                     MessageFormat.format("Product ''{0}'' has no geo-coding.", slaveProduct.getName()));
         }
@@ -281,10 +281,10 @@ public class CollocateOp extends Operator {
         pm.beginTask("Collocating bands...", targetProduct.getNumBands() + 1);
         try {
             final PixelPos[] sourcePixelPositions = ProductUtils.computeSourcePixelCoordinates(
-                    slaveProduct.getGeoCoding(),
+                    slaveProduct.getSceneGeoCoding(),
                     slaveProduct.getSceneRasterWidth(),
                     slaveProduct.getSceneRasterHeight(),
-                    masterProduct.getGeoCoding(),
+                    masterProduct.getSceneGeoCoding(),
                     targetRectangle);
             final Rectangle sourceRectangle = getBoundingBox(
                     sourcePixelPositions,
@@ -311,10 +311,10 @@ public class CollocateOp extends Operator {
 
         if (sourceRaster.getProduct() == slaveProduct) {
             final PixelPos[] sourcePixelPositions = ProductUtils.computeSourcePixelCoordinates(
-                    slaveProduct.getGeoCoding(),
+                    slaveProduct.getSceneGeoCoding(),
                     slaveProduct.getSceneRasterWidth(),
                     slaveProduct.getSceneRasterHeight(),
-                    masterProduct.getGeoCoding(),
+                    masterProduct.getSceneGeoCoding(),
                     targetTile.getRectangle());
             final Rectangle sourceRectangle = getBoundingBox(
                     sourcePixelPositions,

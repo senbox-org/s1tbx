@@ -16,8 +16,8 @@
 
 package org.esa.snap.dataio.netcdf;
 
+import org.esa.snap.core.dataio.ProductWriter;
 import org.esa.snap.dataio.netcdf.metadata.profiles.beam.BeamNetCdfWriterPlugIn;
-import org.esa.snap.framework.dataio.ProductWriter;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

@@ -16,10 +16,10 @@
 
 package org.esa.snap.dataio.netcdf;
 
+import org.esa.snap.core.dataio.AbstractProductReader;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.dataio.netcdf.metadata.ProfileInitPartReader;
 import org.esa.snap.dataio.netcdf.metadata.ProfilePartReader;
-import org.esa.snap.framework.dataio.AbstractProductReader;
-import org.esa.snap.framework.datamodel.Product;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -15,11 +15,11 @@
  */
 package org.esa.snap.dataio.envisat;
 
-import org.esa.snap.framework.datamodel.FlagCoding;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.util.Debug;
-import org.esa.snap.util.Guardian;
-import org.esa.snap.util.io.CsvReader;
+import org.esa.snap.core.datamodel.FlagCoding;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.Debug;
+import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.io.CsvReader;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -573,13 +573,13 @@ public class DDDB {
 
     /**
      * Utility method which converts a field data type name as used in the DDDB into a unique integer identifier as
-     * enumerated by the several <code>TYPE_</code>X constants in <code>org.esa.snap.framework.datamodel.ProductData</code>
+     * enumerated by the several <code>TYPE_</code>X constants in <code>ProductData</code>
      * interface.
      *
      * @param dataTypeName the data type name
      *
      * @return the data type ID as enumerated by the several <code>TYPE_</code>X constants in
-     *         <code>org.esa.snap.framework.datamodel.ProductData</code> interface, can also be
+     *         <code>ProductData</code> interface, can also be
      *         <code>TYPE_UNDEFINED</code> if the name is unknown
      *
      * @throws java.lang.IllegalArgumentException
@@ -631,9 +631,9 @@ public class DDDB {
      * Utility method which converts a data type ID to a data type name as used in the DDDB.
      *
      * @param dataType the data type name as enumerated by the several <code>TYPE_</code>X constants in
-     *                 <code>org.esa.snap.framework.datamodel.ProductData</code> interface.
+     *                 <code>ProductData</code> interface.
      *
-     * @return a data type name, never <code>null</code>. If the type is <code>org.esa.snap.framework.datamodel.ProductData.TYPE_UNKNOWN</code>
+     * @return a data type name, never <code>null</code>. If the type is <code>ProductData.TYPE_UNKNOWN</code>
      *         the string &quot;?&quot; is returned
      *
      * @throws java.lang.IllegalArgumentException

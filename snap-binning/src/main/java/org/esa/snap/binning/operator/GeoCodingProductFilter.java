@@ -1,13 +1,13 @@
 package org.esa.snap.binning.operator;
 
-import org.esa.snap.framework.datamodel.GeoCoding;
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.Product;
 
 class GeoCodingProductFilter extends BinningProductFilter {
 
     @Override
     protected boolean acceptForBinning(Product product) {
-        final GeoCoding geoCoding = product.getGeoCoding();
+        final GeoCoding geoCoding = product.getSceneGeoCoding();
         if (geoCoding != null && geoCoding.canGetGeoPos()) {
             return true;
         }

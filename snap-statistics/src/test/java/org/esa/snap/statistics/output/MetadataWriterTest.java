@@ -1,7 +1,7 @@
 package org.esa.snap.statistics.output;
 
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

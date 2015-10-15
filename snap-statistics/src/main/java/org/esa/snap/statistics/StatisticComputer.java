@@ -3,19 +3,18 @@ package org.esa.snap.statistics;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.HistogramStxOp;
-import org.esa.snap.framework.datamodel.Mask;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.StxFactory;
-import org.esa.snap.framework.datamodel.SummaryStxOp;
-import org.esa.snap.framework.datamodel.VectorDataNode;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.jai.ImageManager;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.HistogramStxOp;
+import org.esa.snap.core.datamodel.Mask;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.StxFactory;
+import org.esa.snap.core.datamodel.SummaryStxOp;
+import org.esa.snap.core.datamodel.VectorDataNode;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.util.FeatureUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.statistics.output.Util;
-import org.esa.snap.util.FeatureUtils;
-import org.esa.snap.util.SystemUtils;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
@@ -61,8 +60,8 @@ public class StatisticComputer {
         crsProvider = new FeatureUtils.FeatureCrsProvider() {
             @Override
             public CoordinateReferenceSystem getFeatureCrs(Product targetProduct) {
-                if (ImageManager.getModelCrs(targetProduct.getGeoCoding()) == ImageManager.DEFAULT_IMAGE_CRS) {
-                    return ImageManager.DEFAULT_IMAGE_CRS;
+                if (targetProduct.getModelCRS() == Product.DEFAULT_IMAGE_CRS) {
+                    return Product.DEFAULT_IMAGE_CRS;
                 }
                 return DefaultGeographicCRS.WGS84;
             }

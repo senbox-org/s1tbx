@@ -1,10 +1,10 @@
 package org.esa.snap.statistics.percentile.interpolated;
 
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.util.DateTimeUtils;
-import org.esa.snap.util.Guardian;
-import org.esa.snap.util.ProductUtils;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.DateTimeUtils;
+import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.ProductUtils;
 
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;

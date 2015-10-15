@@ -1,10 +1,10 @@
 package org.esa.snap.jython;
 
 
+import org.esa.snap.core.util.ServiceFinder;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.runtime.Activator;
-import org.esa.snap.util.ServiceFinder;
-import org.esa.snap.util.SystemUtils;
-import org.esa.snap.util.io.FileUtils;
 import org.python.core.PyDictionary;
 import org.python.core.PyObject;
 import org.python.core.PySystemState;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
-import static org.esa.snap.util.SystemUtils.LOG;
+import static org.esa.snap.core.util.SystemUtils.*;
 
 /**
  * Activator for Jython plugin support.

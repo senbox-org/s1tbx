@@ -1,6 +1,6 @@
 package org.esa.snap.statistics.percentile.interpolated;
 
-import org.esa.snap.framework.gpf.OperatorException;
+import org.esa.snap.core.gpf.OperatorException;
 
 import javax.media.jai.PointOpImage;
 import javax.media.jai.RasterAccessor;

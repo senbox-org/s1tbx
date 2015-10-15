@@ -15,12 +15,12 @@
  */
 package org.esa.snap.dataio.envisat;
 
-import org.esa.snap.framework.dataio.IllegalFileFormatException;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.FlagCoding;
-import org.esa.snap.framework.datamodel.Mask;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.util.Debug;
+import org.esa.snap.core.dataio.IllegalFileFormatException;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.FlagCoding;
+import org.esa.snap.core.datamodel.Mask;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.Debug;
 
 import javax.imageio.stream.ImageInputStream;
 import java.awt.Color;

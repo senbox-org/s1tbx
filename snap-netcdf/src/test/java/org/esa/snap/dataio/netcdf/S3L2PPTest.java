@@ -1,10 +1,10 @@
 package org.esa.snap.dataio.netcdf;
 
+import org.esa.snap.core.dataio.ProductReader;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.dataio.netcdf.metadata.profiles.cf.CfNetCdfReaderPlugIn;
 import org.esa.snap.dataio.netcdf.util.NetcdfFileOpener;
-import org.esa.snap.framework.dataio.ProductReader;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
 import org.junit.Test;
 import ucar.nc2.NetcdfFile;
 

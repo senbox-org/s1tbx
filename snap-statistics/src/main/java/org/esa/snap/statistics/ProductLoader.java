@@ -1,7 +1,7 @@
 package org.esa.snap.statistics;
 
-import org.esa.snap.framework.dataio.ProductIO;
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.dataio.ProductIO;
+import org.esa.snap.core.datamodel.Product;
 
 import java.io.File;
 import java.io.IOException;

@@ -15,7 +15,8 @@
  */
 package org.esa.snap.dataio.envisat;
 
-import org.esa.snap.util.Guardian;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.Guardian;
 
 
 /**
@@ -47,7 +48,7 @@ public abstract class ItemInfo {
      * @param name        the items name, must not be null or empty
      * @param description this items's description (optional, can be null)
      *
-     * @see org.esa.snap.framework.datamodel.ProductData
+     * @see ProductData
      */
     protected ItemInfo(String name, String description) {
         if (name == null || name.trim().length() == 0) {

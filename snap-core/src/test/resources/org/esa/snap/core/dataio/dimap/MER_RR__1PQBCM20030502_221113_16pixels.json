@@ -1,0 +1,3135 @@
+{
+    "id": "MER_RR__1PQBCM20030502_221113_16pixels",
+    "decodeQualification": "INTENDED",
+    "expectedContent": {
+        "sceneWidth": 4,
+        "sceneHeight": 4,
+        "startTime": "02-MAY-2003 22:13:21.218690",
+        "endTime": "02-MAY-2003 22:13:22.746653",
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 0.5,
+                    "y": 0.5,
+                    "lat": 38.124657,
+                    "lon": 179.98396
+                },
+                {
+                    "x": 0.5,
+                    "y": 1.5,
+                    "lat": 38.114285,
+                    "lon": 179.981201
+                },
+                {
+                    "x": 0.492998,
+                    "y": 2.5027983,
+                    "lat": 38.103895,
+                    "lon": 179.978353
+                },
+                {
+                    "x": 0.49418193,
+                    "y": 3.5024714,
+                    "lat": 38.093523,
+                    "lon": 179.975608
+                },
+                {
+                    "x": 1.4905698,
+                    "y": 0.5022947,
+                    "lat": 38.122723,
+                    "lon": 179.99545
+                },
+                {
+                    "x": 1.5,
+                    "y": 1.5,
+                    "lat": 38.112355,
+                    "lon": 179.992805
+                },
+                {
+                    "x": 1.5,
+                    "y": 2.5,
+                    "lat": 38.101981,
+                    "lon": 179.990045
+                },
+                {
+                    "x": 1.5,
+                    "y": 3.5,
+                    "lat": 38.091608,
+                    "lon": 179.987284
+                },
+                {
+                    "x": 2.5,
+                    "y": 0.5,
+                    "lat": 38.1208,
+                    "lon": -179.992827
+                },
+                {
+                    "x": 2.5,
+                    "y": 1.5,
+                    "lat": 38.110426,
+                    "lon": -179.99559
+                },
+                {
+                    "x": 2.5,
+                    "y": 2.5,
+                    "lat": 38.100052,
+                    "lon": -179.998352
+                },
+                {
+                    "x": 2.5,
+                    "y": 3.5,
+                    "lat": 38.08968,
+                    "lon": 179.998885
+                },
+                {
+                    "x": 3.4931448,
+                    "y": 0.50025254,
+                    "lat": 38.118881,
+                    "lon": -179.981301
+                },
+                {
+                    "x": 3.5,
+                    "y": 1.5,
+                    "lat": 38.108498,
+                    "lon": -179.983985
+                },
+                {
+                    "x": 3.5,
+                    "y": 2.5,
+                    "lat": 38.098123,
+                    "lon": -179.986749
+                },
+                {
+                    "x": 3.5,
+                    "y": 3.5,
+                    "lat": 38.08775,
+                    "lon": -179.989513
+                }
+            ],
+            "reverseAccuracy": 0.01
+        },
+        "flagCodings": [
+            {
+                "name": "l1_flags",
+                "samples": [
+                    {
+                        "name": "COSMETIC",
+                        "value": 1,
+                        "description": "Pixel is cosmetic"
+                    },
+                    {
+                        "name": "DUPLICATED",
+                        "value": 2,
+                        "description": "Pixel has been duplicated (filled in)"
+                    },
+                    {
+                        "name": "GLINT_RISK",
+                        "value": 4,
+                        "description": "Pixel has glint risk"
+                    },
+                    {
+                        "name": "SUSPECT",
+                        "value": 8,
+                        "description": "Pixel is suspect"
+                    },
+                    {
+                        "name": "LAND_OCEAN",
+                        "value": 16,
+                        "description": "Pixel is over land, not ocean"
+                    },
+                    {
+                        "name": "BRIGHT",
+                        "value": 32,
+                        "description": "Pixel is bright"
+                    },
+                    {
+                        "name": "COASTLINE",
+                        "value": 64,
+                        "description": "Pixel is part of a coastline"
+                    },
+                    {
+                        "name": "INVALID",
+                        "value": 128,
+                        "description": "Pixel is invalid"
+                    }
+                ]
+            }
+        ],
+        "tiePointGrids": [
+            {
+                "name": "latitude",
+                "description": "Latitude of the tie points (WGS-84), positive N",
+                "offsetX": "-2.5",
+                "offsetY": "-11.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 38.124657
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 38.114285
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 38.103912
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 38.093536
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 38.12273
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 38.112354
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 38.101982
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 38.09161
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": 38.1208
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": 38.110428
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": 38.10005
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 38.08968
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": 38.11887
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": 38.108498
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": 38.098125
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": 38.08775
+                    }
+                ]
+            },
+            {
+                "name": "longitude",
+                "description": "Longitude of the tie points (WGS-84), Greenwich origin, positive E",
+                "offsetX": "-2.5",
+                "offsetY": "-11.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 179.98396
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 179.9812
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 179.97844
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 179.97568
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 179.99556
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 179.99281
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 179.99005
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 179.98729
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": -179.99283
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": -179.99559
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": -179.99835
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 179.99889
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": -179.98122
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": -179.98398
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": -179.98676
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": -179.98952
+                    }
+                ]
+            },
+            {
+                "name": "dem_alt",
+                "description": "Digital elevation model altitude",
+                "offsetX": "-2.5",
+                "offsetY": "-11.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": -5458.5625
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": -5457.828
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": -5457.0938
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": -5456.3594
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": -5458.5
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": -5457.75
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": -5457.0
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": -5456.25
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": -5458.4375
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": -5457.672
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": -5456.9062
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": -5456.1406
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": -5458.375
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": -5457.5938
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": -5456.8125
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": -5456.0312
+                    }
+                ]
+            },
+            {
+                "name": "dem_rough",
+                "description": "Digital elevation model roughness",
+                "offsetX": "-2.5",
+                "offsetY": "-11.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "lat_corr",
+                "description": "Digital elevation model latitude corrections",
+                "offsetX": "-2.5",
+                "offsetY": "-11.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "lon_corr",
+                "description": "Digital elevation model longitude corrections",
+                "offsetX": "-2.5",
+                "offsetY": "-11.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": 0.0
+                    }
+                ]
+            },
+            {
+                "name": "sun_zenith",
+                "description": "Sun zenith angle",
+                "offsetX": "-2.5",
+                "offsetY": "-11.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 32.16446
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 32.15937
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 32.154278
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 32.14919
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 32.15606
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 32.150967
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 32.145874
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 32.140785
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": 32.14766
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": 32.142567
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": 32.137474
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 32.13238
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": 32.139256
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": 32.134163
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": 32.12907
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": 32.123974
+                    }
+                ]
+            },
+            {
+                "name": "sun_azimuth",
+                "description": "Sun azimuth angles",
+                "offsetX": "-2.5",
+                "offsetY": "-11.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 127.67652
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 127.66069
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 127.64485
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 127.62901
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 127.69016
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 127.67432
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 127.65848
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 127.64264
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": 127.7038
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": 127.68795
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": 127.672104
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 127.65626
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": 127.71743
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": 127.701584
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": 127.68573
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": 127.669876
+                    }
+                ]
+            },
+            {
+                "name": "view_zenith",
+                "description": "Viewing zenith angles",
+                "offsetX": "-2.5",
+                "offsetY": "-11.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 23.089
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 23.08905
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 23.0891
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 23.08915
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 23.014761
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 23.01481
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 23.01486
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 23.014908
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": 22.940521
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": 22.94057
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": 22.94062
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 22.940668
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": 22.866282
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": 22.866331
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": 22.86638
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": 22.866428
+                    }
+                ]
+            },
+            {
+                "name": "view_azimuth",
+                "description": "Viewing azimuth angles",
+                "offsetX": "-2.5",
+                "offsetY": "-11.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 101.85206
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 101.851746
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 101.851425
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 101.851105
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 101.85923
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 101.85891
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 101.85859
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 101.85827
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": 101.8664
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": 101.86607
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": 101.86575
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 101.86543
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": 101.873566
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": 101.873245
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": 101.87292
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": 101.87259
+                    }
+                ]
+            },
+            {
+                "name": "zonal_wind",
+                "description": "Zonal wind",
+                "offsetX": "-2.5",
+                "offsetY": "-11.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 4.2046876
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 4.3222656
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 4.4398437
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 4.5574217
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 4.23125
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 4.3484373
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 4.465625
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 4.5828123
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": 4.2578125
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": 4.3746095
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": 4.491406
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 4.608203
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": 4.284375
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": 4.400781
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": 4.5171876
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": 4.6335936
+                    }
+                ]
+            },
+            {
+                "name": "merid_wind",
+                "description": "Meridional wind",
+                "offsetX": "-2.5",
+                "offsetY": "-11.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": -2.2234375
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": -2.2097657
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": -2.1960938
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": -2.182422
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": -2.18125
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": -2.1671875
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": -2.153125
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": -2.1390624
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": -2.1390624
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": -2.1246095
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": -2.1101563
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": -2.0957031
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": -2.096875
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": -2.0820312
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": -2.0671875
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": -2.0523438
+                    }
+                ]
+            },
+            {
+                "name": "atm_press",
+                "description": "Mean sea level pressure",
+                "offsetX": "-2.5",
+                "offsetY": "-11.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 1007.35004
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 1007.36255
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 1007.375
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 1007.3875
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 1007.35004
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 1007.36255
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 1007.375
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 1007.3875
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": 1007.35004
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": 1007.36255
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": 1007.375
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 1007.3875
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": 1007.35004
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": 1007.36255
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": 1007.375
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": 1007.3875
+                    }
+                ]
+            },
+            {
+                "name": "ozone",
+                "description": "Total ozone",
+                "offsetX": "-2.5",
+                "offsetY": "-11.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 457.41608
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 457.7105
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 458.004913
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 458.29932
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 457.39062
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 457.6867
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 457.9828
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 458.2789
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": 457.36514
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": 457.6629
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": 457.9607
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 458.25845
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": 457.33966
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": 457.63913
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": 457.938568
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": 458.23804
+                    }
+                ]
+            },
+            {
+                "name": "rel_hum",
+                "description": "Relative humidity",
+                "offsetX": "-2.5",
+                "offsetY": "-11.5",
+                "subSamplingX": "16.0",
+                "subSamplingY": "16.0",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 70.55469
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 70.266014
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 69.97735
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 69.688675
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 70.55625
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 70.26719
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 69.97813
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 69.689064
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": 70.557816
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": 70.268364
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": 69.978905
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 69.68945
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": 70.55938
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": 70.26953
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": 69.97969
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": 69.68984
+                    }
+                ]
+            }
+        ],
+        "bands": [
+            {
+                "name": "radiance_1",
+                "description": "TOA radiance band 1",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "412.691",
+                "spectralBandwidth": "9.937",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 192.79402
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 193.48569
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 198.54526
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 190.60533
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 195.5891
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 214.36824
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 220.05313
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 205.67033
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": 198.57368
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": 230.88287
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": 242.16742
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 237.17418
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": 201.8804
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": 215.60944
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": 231.56506
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": 249.6999
+                    }
+                ]
+            },
+            {
+                "name": "radiance_2",
+                "description": "TOA radiance band 2",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "442.55902",
+                "spectralBandwidth": "9.946",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 199.16512
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 199.93916
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 206.00435
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 196.48244
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 202.57944
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 224.82553
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 231.91925
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 214.47653
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": 206.1528
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": 244.76007
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": 258.39615
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 252.07646
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": 210.46841
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": 226.81898
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": 245.68257
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": 267.759
+                    }
+                ]
+            },
+            {
+                "name": "radiance_3",
+                "description": "TOA radiance band 3",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "489.88202",
+                "spectralBandwidth": "9.957001",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 188.46547
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 189.32271
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 195.93736
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 185.15236
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 192.29988
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 216.62698
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 224.8982
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 205.35542
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": 196.41232
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": 239.1585
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": 254.33397
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 246.92
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": 201.34724
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": 219.29137
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": 240.38644
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": 265.1653
+                    }
+                ]
+            },
+            {
+                "name": "radiance_4",
+                "description": "TOA radiance band 4",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "509.81903",
+                "spectralBandwidth": "9.961",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 179.68413
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 180.51917
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 187.03893
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 176.07631
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 183.47394
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 207.76512
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 216.10484
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 196.42781
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": 187.61703
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": 230.63246
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": 245.83452
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 238.23349
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": 192.52023
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": 210.55931
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": 231.6602
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": 256.94702
+                    }
+                ]
+            },
+            {
+                "name": "radiance_5",
+                "description": "TOA radiance band 5",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "559.69403",
+                "spectralBandwidth": "9.97",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 150.63153
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 151.57379
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 157.5819
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 147.36626
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 154.26997
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 176.86563
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 184.69295
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 166.3608
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": 158.13232
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": 198.08989
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": 212.04659
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 204.94695
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": 162.9276
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": 179.3379
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": 199.0788
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": 222.37416
+                    }
+                ]
+            },
+            {
+                "name": "radiance_6",
+                "description": "TOA radiance band 6",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "619.601",
+                "spectralBandwidth": "9.979",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 132.50021
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 133.35997
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 139.00159
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 129.23315
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 135.84097
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 157.37573
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 164.97432
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 147.32072
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": 139.66483
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": 177.69867
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": 191.0535
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 184.24916
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": 144.373
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": 160.07782
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": 178.69762
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": 200.81374
+                    }
+                ]
+            },
+            {
+                "name": "radiance_7",
+                "description": "TOA radiance band 7",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "664.57306",
+                "spectralBandwidth": "9.985001",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 129.44916
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 130.33255
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 136.08493
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 126.01142
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 132.77731
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 154.57474
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 162.60068
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 144.52176
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": 136.68756
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": 175.42027
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": 188.88359
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 181.9191
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": 141.5497
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": 157.41669
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": 176.42694
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": 199.05983
+                    }
+                ]
+            },
+            {
+                "name": "radiance_8",
+                "description": "TOA radiance band 8",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "680.82104",
+                "spectralBandwidth": "7.4880004",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 125.89643
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 126.687355
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 132.41118
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 122.593956
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 129.18503
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 150.67886
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 158.5049
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 140.75063
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": 133.07722
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": 171.20831
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": 184.44597
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 177.57738
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": 137.91994
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": 153.37773
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": 172.12413
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": 194.40889
+                    }
+                ]
+            },
+            {
+                "name": "radiance_9",
+                "description": "TOA radiance band 9",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "708.32904",
+                "spectralBandwidth": "9.992001",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 119.97773
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 120.7979
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 126.2867
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 116.791695
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 123.16376
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 143.93921
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 151.49104
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 134.3117
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": 126.879745
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": 163.74307
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": 176.44302
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 169.82492
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": 131.49791
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": 146.6079
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": 164.58847
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": 185.97589
+                    }
+                ]
+            },
+            {
+                "name": "radiance_10",
+                "description": "TOA radiance band 10",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "753.37103",
+                "spectralBandwidth": "7.4950004",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 109.512314
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 110.33545
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 115.412926
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 106.41037
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 112.38897
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 131.9537
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 139.14536
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 122.9165
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": 116.0801
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": 150.62599
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": 162.47055
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 156.37932
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": 120.551056
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": 134.44046
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": 151.37115
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": 171.48177
+                    }
+                ]
+            },
+            {
+                "name": "radiance_11",
+                "description": "TOA radiance band 11",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "761.50806",
+                "spectralBandwidth": "3.7440002",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 39.6887
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 39.89278
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 41.78272
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 39.387024
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 40.895424
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 47.452534
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 48.943188
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 44.28489
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": 42.02229
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": 53.166714
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": 56.875607
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 54.87032
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": 43.149155
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": 48.268845
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": 53.47727
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": 59.5996
+                    }
+                ]
+            },
+            {
+                "name": "radiance_12",
+                "description": "TOA radiance band 12",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "778.40906",
+                "spectralBandwidth": "15.010001",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 101.578766
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 102.32708
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 107.08581
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 98.71263
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 104.252365
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 122.60796
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 129.38278
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 114.10038
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": 107.68882
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": 140.06993
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": 151.15666
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 145.45709
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": 111.895386
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": 124.83112
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": 140.67657
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": 159.60976
+                    }
+                ]
+            },
+            {
+                "name": "radiance_13",
+                "description": "TOA radiance band 13",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "864.87604",
+                "spectralBandwidth": "20.047",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 82.53181
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 83.23912
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 87.28396
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 80.10064
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 84.73194
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 100.03339
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 105.88027
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 93.01711
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": 87.64651
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": 114.6595
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": 123.90434
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 119.01712
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": 91.19729
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": 102.03803
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": 115.29217
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": 130.93483
+                    }
+                ]
+            },
+            {
+                "name": "radiance_14",
+                "description": "TOA radiance band 14",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "884.94403",
+                "spectralBandwidth": "10.018001",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 79.56194
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 80.3127
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 84.097
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 77.19981
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 81.704346
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 96.47534
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 102.09076
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 89.816185
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": 84.48154
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": 110.52609
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": 119.529076
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 114.78649
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": 87.98507
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": 98.52619
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": 111.37451
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": 126.33472
+                    }
+                ]
+            },
+            {
+                "name": "radiance_15",
+                "description": "TOA radiance band 15",
+                "geophysicalUnit": "mW/(m^2*sr*nm)",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "900.00006",
+                "spectralBandwidth": "10.02",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 65.199295
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 65.75321
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 69.04413
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 63.87967
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 67.083694
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 78.92232
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 82.76172
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 73.42659
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": 69.369965
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": 90.08755
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": 97.0278
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 93.068924
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": 71.835434
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": 80.63294
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": 90.66862
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": 101.92073
+                    }
+                ]
+            },
+            {
+                "name": "l1_flags",
+                "description": "Level 1b classification and quality flags",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 32.0
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 32.0
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 32.0
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 32.0
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 32.0
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 32.0
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 32.0
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 32.0
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": 32.0
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": 32.0
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": 32.0
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 32.0
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": 34.0
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": 34.0
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": 34.0
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": 34.0
+                    }
+                ]
+            },
+            {
+                "name": "detector_index",
+                "description": "Detector index",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "value": 743.0
+                    },
+                    {
+                        "x": 0,
+                        "y": 1,
+                        "value": 743.0
+                    },
+                    {
+                        "x": 0,
+                        "y": 2,
+                        "value": 743.0
+                    },
+                    {
+                        "x": 0,
+                        "y": 3,
+                        "value": 743.0
+                    },
+                    {
+                        "x": 1,
+                        "y": 0,
+                        "value": 742.0
+                    },
+                    {
+                        "x": 1,
+                        "y": 1,
+                        "value": 742.0
+                    },
+                    {
+                        "x": 1,
+                        "y": 2,
+                        "value": 742.0
+                    },
+                    {
+                        "x": 1,
+                        "y": 3,
+                        "value": 742.0
+                    },
+                    {
+                        "x": 2,
+                        "y": 0,
+                        "value": 741.0
+                    },
+                    {
+                        "x": 2,
+                        "y": 1,
+                        "value": 741.0
+                    },
+                    {
+                        "x": 2,
+                        "y": 2,
+                        "value": 741.0
+                    },
+                    {
+                        "x": 2,
+                        "y": 3,
+                        "value": 741.0
+                    },
+                    {
+                        "x": 3,
+                        "y": 0,
+                        "value": 740.0
+                    },
+                    {
+                        "x": 3,
+                        "y": 1,
+                        "value": 740.0
+                    },
+                    {
+                        "x": 3,
+                        "y": 2,
+                        "value": 740.0
+                    },
+                    {
+                        "x": 3,
+                        "y": 3,
+                        "value": 740.0
+                    }
+                ]
+            }
+        ],
+        "masks": [
+            {
+                "name": "coastline",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
+                "color": "0,255,0",
+                "description": "Pixel is part of a coastline"
+            },
+            {
+                "name": "land",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
+                "color": "51,153,0",
+                "description": "Pixel is over land, not ocean"
+            },
+            {
+                "name": "water",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
+                "color": "153,153,255",
+                "description": "Not Pixel is over land, not ocean"
+            },
+            {
+                "name": "cosmetic",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
+                "color": "204,153,255",
+                "description": "Pixel is cosmetic"
+            },
+            {
+                "name": "duplicated",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
+                "color": "255,200,0",
+                "description": "Pixel has been duplicated (filled in)"
+            },
+            {
+                "name": "glint_risk",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
+                "color": "255,0,255",
+                "description": "Pixel has glint risk"
+            },
+            {
+                "name": "suspect",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
+                "color": "204,102,255",
+                "description": "Pixel is suspect"
+            },
+            {
+                "name": "bright",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
+                "color": "255,255,0",
+                "description": "Pixel is bright"
+            },
+            {
+                "name": "invalid",
+                "type": "org.esa.snap.core.datamodel.Mask$BandMathsType",
+                "color": "255,0,0",
+                "description": "Pixel is invalid"
+            },
+            {
+                "name": "ground_control_points",
+                "type": "org.esa.snap.core.datamodel.Mask$VectorDataType",
+                "color": "255,0,0",
+                "description": "Mask derived from geometries in 'ground_control_points'"
+            },
+            {
+                "name": "pins",
+                "type": "org.esa.snap.core.datamodel.Mask$VectorDataType",
+                "color": "255,0,0",
+                "description": "Mask derived from geometries in 'pins'"
+            }
+        ],
+        "metadata": [
+            {
+                "path": "SPH/DATABASE_FLAG",
+                "value": "0"
+            },
+            {
+                "path": "DSD/DSD.20/DATASET_NAME",
+                "value": "Level 0"
+            }
+        ]
+    }
+}

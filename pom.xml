@@ -74,7 +74,6 @@
         <module>snap-collocation</module>
         <module>snap-csv-dataio</module>
         <module>snap-dem</module>
-        <module>snap-engine-examples</module>
         <module>snap-envi-reader</module>
         <module>snap-envisat-reader</module>
         <module>snap-getasse30-dem</module>
@@ -844,8 +843,18 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>2.10.3</version>
                     <configuration>
-                        <quiet>true</quiet><!-- show only warnings and errors -->
-                        <excludePackageNames>*.internal:*.impl</excludePackageNames>
+                        <aggregate>true</aggregate>
+                        <subpackages>com.bc.ceres:org.esa.snap.core</subpackages>
+                        <!-- Not possible to exclude packages; it is not considered by the plugin -->
+                        <!--<excludePackageNames>*.internal,*.impl,*.experimental,org.esa.snap.core.gpf.common.support</excludePackageNames>-->
+                        <maxmemory>512M</maxmemory>
+                        <doctitle>SNAP Engine 2.0 API</doctitle>
+                        <windowtitle>SNAP Engine 2.0 API</windowtitle>
+                        <quiet>true</quiet> <!-- show only warnings and errors -->
+                        <failOnError>false</failOnError> <!-- Actually we should fix the errors -->
+                        <author>false</author>
+                        <detectJavaApiLink>true</detectJavaApiLink>
+                        <detectLinks>true</detectLinks>
                     </configuration>
                 </plugin>
 

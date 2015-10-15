@@ -15,8 +15,8 @@
  */
 package org.esa.snap.dem.dataio.ace;
 
-import org.esa.snap.framework.dataio.DecodeQualification;
-import org.esa.snap.framework.dataio.ProductReader;
+import org.esa.snap.core.dataio.DecodeQualification;
+import org.esa.snap.core.dataio.ProductReader;
 import org.junit.Test;
 
 import java.io.File;

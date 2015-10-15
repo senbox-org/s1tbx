@@ -15,8 +15,8 @@
  */
 package org.esa.snap.dem.dataio.ace2_5min;
 
-import org.esa.snap.util.Guardian;
-import org.esa.snap.util.io.FileUtils;
+import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;

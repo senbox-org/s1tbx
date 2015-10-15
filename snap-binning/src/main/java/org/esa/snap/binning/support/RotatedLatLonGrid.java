@@ -1,7 +1,7 @@
 package org.esa.snap.binning.support;
 
 import org.esa.snap.binning.PlanetaryGrid;
-import org.esa.snap.framework.datamodel.Rotator;
+import org.esa.snap.core.datamodel.Rotator;
 
 /**
  * A {@link PlanetaryGrid} implementation representing a rotated Lat/Lon grid.

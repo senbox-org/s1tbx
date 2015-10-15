@@ -15,16 +15,16 @@
  */
 package org.esa.snap.dem.dataio;
 
-import org.esa.snap.framework.datamodel.GeoCoding;
-import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.dataop.dem.ElevationModel;
-import org.esa.snap.framework.dataop.dem.ElevationModelDescriptor;
-import org.esa.snap.framework.dataop.dem.ElevationModelRegistry;
-import org.esa.snap.framework.dataop.resamp.Resampling;
-import org.esa.snap.framework.dataop.resamp.ResamplingFactory;
-import org.esa.snap.gpf.TileGeoreferencing;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.dataop.dem.ElevationModel;
+import org.esa.snap.core.dataop.dem.ElevationModelDescriptor;
+import org.esa.snap.core.dataop.dem.ElevationModelRegistry;
+import org.esa.snap.core.dataop.resamp.Resampling;
+import org.esa.snap.core.dataop.resamp.ResamplingFactory;
+import org.esa.snap.engine_utilities.gpf.TileGeoreferencing;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -94,7 +94,7 @@ public class DEMFactory {
     public static void validateDEM(final String demName, final Product srcProduct) throws IOException {
         // check if outside dem area
         if (demName.contains("SRTM")) {
-            final GeoCoding geocoding = srcProduct.getGeoCoding();
+            final GeoCoding geocoding = srcProduct.getSceneGeoCoding();
             final int w = srcProduct.getSceneRasterWidth();
             final int h = srcProduct.getSceneRasterHeight();
             final GeoPos geo1 = geocoding.getGeoPos(new PixelPos(0, 0), null);

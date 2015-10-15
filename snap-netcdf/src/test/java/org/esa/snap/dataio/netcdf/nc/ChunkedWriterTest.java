@@ -17,7 +17,7 @@
 package org.esa.snap.dataio.netcdf.nc;
 
 
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductData;
 import org.junit.Test;
 
 import java.awt.Point;

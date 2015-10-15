@@ -16,11 +16,11 @@
 
 package org.esa.snap.pixex;
 
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.CrsGeoCoding;
-import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.CrsGeoCoding;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.measurement.Measurement;
 import org.esa.snap.measurement.writer.MeasurementWriter;
 import org.esa.snap.pixex.output.DefaultFormatStrategy;
@@ -315,7 +315,7 @@ public class MeasurementWriterTest {
         final double scaleY = 180 / bounds.height;
         i2mTransform.scale(scaleX, -scaleY);
         CrsGeoCoding geoCoding = new CrsGeoCoding(DefaultGeographicCRS.WGS84, bounds, i2mTransform);
-        product.setGeoCoding(geoCoding);
+        product.setSceneGeoCoding(geoCoding);
         for (int i = 0; i < bandNames.length; i++) {
             Band band = product.addBand(bandNames[i], ProductData.TYPE_FLOAT32);
             band.setSourceImage(ConstantDescriptor.create((float) bounds.width, (float) bounds.height,

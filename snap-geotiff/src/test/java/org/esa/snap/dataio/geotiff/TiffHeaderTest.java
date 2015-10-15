@@ -17,10 +17,10 @@
 package org.esa.snap.dataio.geotiff;
 
 import junit.framework.TestCase;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.dataio.geotiff.internal.TiffHeader;
 import org.esa.snap.dataio.geotiff.internal.TiffIFD;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
 
 import javax.imageio.stream.MemoryCacheImageOutputStream;
 import java.io.ByteArrayOutputStream;

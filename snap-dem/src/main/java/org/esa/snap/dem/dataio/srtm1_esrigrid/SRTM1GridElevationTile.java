@@ -15,11 +15,11 @@
  */
 package org.esa.snap.dem.dataio.srtm1_esrigrid;
 
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.dataop.dem.BaseElevationTile;
 import org.esa.snap.dem.dataio.EarthGravitationalModel96;
-import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.dataop.dem.BaseElevationTile;
-import org.esa.snap.gpf.TileGeoreferencing;
+import org.esa.snap.engine_utilities.gpf.TileGeoreferencing;
 
 import java.io.IOException;
 

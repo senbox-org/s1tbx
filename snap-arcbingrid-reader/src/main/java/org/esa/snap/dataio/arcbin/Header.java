@@ -20,7 +20,7 @@ import com.bc.ceres.binio.CompoundType;
 import com.bc.ceres.binio.DataContext;
 import com.bc.ceres.binio.DataFormat;
 import com.bc.ceres.binio.SequenceData;
-import org.esa.snap.framework.dataio.ProductIOException;
+import org.esa.snap.core.dataio.ProductIOException;
 
 import java.io.File;
 import java.io.IOException;

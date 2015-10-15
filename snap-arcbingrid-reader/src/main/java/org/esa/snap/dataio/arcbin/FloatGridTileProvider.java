@@ -16,8 +16,8 @@
 package org.esa.snap.dataio.arcbin;
 
 import com.bc.ceres.binio.util.ByteArrayCodec;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.dataio.arcbin.TileIndex.IndexEntry;
-import org.esa.snap.framework.datamodel.ProductData;
 
 import java.awt.image.DataBuffer;
 import java.nio.ByteOrder;

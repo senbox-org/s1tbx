@@ -1,6 +1,6 @@
 package org.esa.snap.dataio.envi;
 
-import org.esa.snap.util.Debug;
+import org.esa.snap.core.util.Debug;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.crs.DefaultProjectedCRS;

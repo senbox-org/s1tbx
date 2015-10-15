@@ -16,12 +16,21 @@
 
 package org.esa.snap.dataio.netcdf;
 
+import org.esa.snap.core.dataio.ProductWriter;
+import org.esa.snap.core.dataio.ProductWriterPlugIn;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.FlagCoding;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.ImageInfo;
+import org.esa.snap.core.datamodel.IndexCoding;
+import org.esa.snap.core.datamodel.Mask;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.Stx;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.dataio.netcdf.metadata.ProfileInitPartWriter;
 import org.esa.snap.dataio.netcdf.metadata.ProfilePartWriter;
 import org.esa.snap.dataio.netcdf.nc.NFileWriteable;
-import org.esa.snap.framework.dataio.ProductWriter;
-import org.esa.snap.framework.dataio.ProductWriterPlugIn;
-import org.esa.snap.util.io.SnapFileFilter;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,7 +74,7 @@ public abstract class AbstractNetCdfWriterPlugIn implements ProductWriterPlugIn 
 
     /**
      * Creates an instance of {@link org.esa.snap.dataio.netcdf.metadata.ProfilePartWriter} responsible for writing
-     * {@link org.esa.snap.framework.datamodel.Product#getMetadataRoot() metadata}.
+     * {@link Product#getMetadataRoot() metadata}.
      *
      * @return the {@link org.esa.snap.dataio.netcdf.metadata.ProfilePartWriter} for metadata
      */
@@ -75,7 +84,7 @@ public abstract class AbstractNetCdfWriterPlugIn implements ProductWriterPlugIn 
 
     /**
      * Creates an instance of {@link org.esa.snap.dataio.netcdf.metadata.ProfilePartWriter} responsible for writing
-     * {@link org.esa.snap.framework.datamodel.Band bands}.
+     * {@link Band bands}.
      *
      * @return the {@link org.esa.snap.dataio.netcdf.metadata.ProfilePartWriter} for bands
      */
@@ -85,7 +94,7 @@ public abstract class AbstractNetCdfWriterPlugIn implements ProductWriterPlugIn 
 
     /**
      * Creates an instance of {@link org.esa.snap.dataio.netcdf.metadata.ProfilePartWriter} responsible for writing
-     * {@link org.esa.snap.framework.datamodel.FlagCoding flag coding}.
+     * {@link FlagCoding flag coding}.
      *
      * @return the {@link org.esa.snap.dataio.netcdf.metadata.ProfilePartWriter} for flag coding
      */
@@ -95,7 +104,7 @@ public abstract class AbstractNetCdfWriterPlugIn implements ProductWriterPlugIn 
 
     /**
      * Creates an instance of {@link ProfilePartWriter} responsible for writing
-     * {@link org.esa.snap.framework.datamodel.GeoCoding geo-coding}.
+     * {@link GeoCoding geo-coding}.
      *
      * @return the {@link ProfilePartWriter} for geo-coding
      */
@@ -105,7 +114,7 @@ public abstract class AbstractNetCdfWriterPlugIn implements ProductWriterPlugIn 
 
     /**
      * Creates an instance of {@link org.esa.snap.dataio.netcdf.metadata.ProfilePartWriter} responsible for writing
-     * {@link org.esa.snap.framework.datamodel.ImageInfo image info}.
+     * {@link ImageInfo image info}.
      *
      * @return the {@link org.esa.snap.dataio.netcdf.metadata.ProfilePartWriter} for image-info
      */
@@ -115,7 +124,7 @@ public abstract class AbstractNetCdfWriterPlugIn implements ProductWriterPlugIn 
 
     /**
      * Creates an instance of {@link org.esa.snap.dataio.netcdf.metadata.ProfilePartWriter} responsible for writing
-     * {@link org.esa.snap.framework.datamodel.IndexCoding index coding}.
+     * {@link IndexCoding index coding}.
      *
      * @return the {@link org.esa.snap.dataio.netcdf.metadata.ProfilePartWriter} for index coding
      */
@@ -124,7 +133,7 @@ public abstract class AbstractNetCdfWriterPlugIn implements ProductWriterPlugIn 
     }
     /**
      * Creates an instance of {@link org.esa.snap.dataio.netcdf.metadata.ProfilePartWriter} responsible for writing
-     * {@link org.esa.snap.framework.datamodel.Mask masks}.
+     * {@link Mask masks}.
      *
      * @return the {@link org.esa.snap.dataio.netcdf.metadata.ProfilePartWriter} for masks
      */
@@ -134,7 +143,7 @@ public abstract class AbstractNetCdfWriterPlugIn implements ProductWriterPlugIn 
 
     /**
      * Creates an instance of {@link ProfilePartWriter} responsible for writing
-     * {@link org.esa.snap.framework.datamodel.Stx statistics}.
+     * {@link Stx statistics}.
      *
      * @return the {@link ProfilePartWriter} for statistics
      */
@@ -144,7 +153,7 @@ public abstract class AbstractNetCdfWriterPlugIn implements ProductWriterPlugIn 
 
     /**
      * Creates an instance of {@link org.esa.snap.dataio.netcdf.metadata.ProfilePartWriter} responsible for writing
-     * {@link org.esa.snap.framework.datamodel.TiePointGrid tie-point grids}.
+     * {@link TiePointGrid tie-point grids}.
      *
      * @return the {@link org.esa.snap.dataio.netcdf.metadata.ProfilePartWriter} for tie-point grids
      */
@@ -154,8 +163,8 @@ public abstract class AbstractNetCdfWriterPlugIn implements ProductWriterPlugIn 
 
     /**
      * Creates an instance of {@link org.esa.snap.dataio.netcdf.metadata.ProfilePartWriter} responsible for writing
-     * {@link org.esa.snap.framework.datamodel.Product#getStartTime()} and
-     * {@link org.esa.snap.framework.datamodel.Product#getEndTime()}.
+     * {@link Product#getStartTime()} and
+     * {@link Product#getEndTime()}.
      *
      * @return the {@link org.esa.snap.dataio.netcdf.metadata.ProfilePartWriter} for time information
      */
@@ -165,7 +174,7 @@ public abstract class AbstractNetCdfWriterPlugIn implements ProductWriterPlugIn 
 
     /**
      * Creates an instance of {@link org.esa.snap.dataio.netcdf.metadata.ProfilePartWriter} responsible for writing
-     * {@link org.esa.snap.framework.datamodel.Product#getDescription()}.
+     * {@link Product#getDescription()}.
      *
      * @return the {@link org.esa.snap.dataio.netcdf.metadata.ProfilePartWriter} for description
      */

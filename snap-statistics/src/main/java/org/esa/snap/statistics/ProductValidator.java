@@ -1,7 +1,7 @@
 package org.esa.snap.statistics;
 
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -25,7 +25,7 @@ public class ProductValidator {
     }
 
     private boolean containsGeocoding(Product product) {
-        final boolean valid = product.getGeoCoding() != null;
+        final boolean valid = product.getSceneGeoCoding() != null;
         if (!valid) {
             logSkipped("The product '" + product.getName() + "' does not contain a geo coding.");
         }

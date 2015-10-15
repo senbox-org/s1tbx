@@ -1,8 +1,8 @@
 package org.esa.snap.statistics.percentile.interpolated;
 
-import org.esa.snap.framework.datamodel.GeoCoding;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 
 import java.awt.geom.Area;
 import java.util.logging.Logger;
@@ -37,7 +37,7 @@ public class ProductValidator {
     }
 
     private boolean containsGeoCodingWithReverseOperationSupport(Product product) {
-        GeoCoding geoCoding = product.getGeoCoding();
+        GeoCoding geoCoding = product.getSceneGeoCoding();
         if (geoCoding == null) {
             logSkipped("The product '" + product.getName() + "' does not contain a geo coding.");
             return false;

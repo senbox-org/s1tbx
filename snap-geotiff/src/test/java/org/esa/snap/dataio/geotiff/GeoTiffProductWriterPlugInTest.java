@@ -16,12 +16,12 @@
 
 package org.esa.snap.dataio.geotiff;
 
-import org.esa.snap.framework.dataio.EncodeQualification;
-import org.esa.snap.framework.datamodel.CrsGeoCoding;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.TiePointGeoCoding;
-import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.util.io.SnapFileFilter;
+import org.esa.snap.core.dataio.EncodeQualification;
+import org.esa.snap.core.datamodel.CrsGeoCoding;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.TiePointGeoCoding;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.util.io.SnapFileFilter;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.Before;
 import org.junit.Test;
@@ -103,12 +103,12 @@ public class GeoTiffProductWriterPlugInTest {
         TiePointGrid lon = new TiePointGrid("lon", 2, 2, 0, 0, 1, 1, new float[4]);
         product.addTiePointGrid(lat);
         product.addTiePointGrid(lon);
-        product.setGeoCoding(new TiePointGeoCoding(lat, lon));
+        product.setSceneGeoCoding(new TiePointGeoCoding(lat, lon));
         encodeQualification = plugIn.getEncodeQualification(product);
         assertEquals(EncodeQualification.Preservation.PARTIAL, encodeQualification.getPreservation());
         assertNotNull(encodeQualification.getInfoString());
 
-        product.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, 2, 2, 0, 0, 1, 1));
+        product.setSceneGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, 2, 2, 0, 0, 1, 1));
         encodeQualification = plugIn.getEncodeQualification(product);
         assertEquals(EncodeQualification.Preservation.FULL, encodeQualification.getPreservation());
     }

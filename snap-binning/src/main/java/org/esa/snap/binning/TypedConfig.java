@@ -20,9 +20,9 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.core.ExtensibleObject;
-import org.esa.snap.framework.gpf.annotations.Parameter;
-import org.esa.snap.framework.gpf.annotations.ParameterDescriptorFactory;
-import org.esa.snap.util.ObjectUtils;
+import org.esa.snap.core.gpf.annotations.Parameter;
+import org.esa.snap.core.gpf.annotations.ParameterDescriptorFactory;
+import org.esa.snap.core.util.ObjectUtils;
 
 /**
  * Configuration of a typed object.

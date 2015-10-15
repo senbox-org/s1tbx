@@ -16,7 +16,7 @@
 
 package org.esa.snap.dataio.bigtiff.internal;
 
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductData;
 
 /**
  * A TIFFValue implementation for the GeoTIFF format.

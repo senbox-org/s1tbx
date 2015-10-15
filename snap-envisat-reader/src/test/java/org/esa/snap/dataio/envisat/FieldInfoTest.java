@@ -19,7 +19,7 @@ package org.esa.snap.dataio.envisat;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.esa.snap.util.Debug;
+import org.esa.snap.core.util.Debug;
 
 public class FieldInfoTest extends TestCase {
 

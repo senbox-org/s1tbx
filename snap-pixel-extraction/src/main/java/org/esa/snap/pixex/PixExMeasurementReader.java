@@ -16,8 +16,8 @@
 
 package org.esa.snap.pixex;
 
-import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.measurement.Measurement;
 
 import java.io.BufferedReader;

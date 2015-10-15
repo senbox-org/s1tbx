@@ -15,7 +15,7 @@
  */
 package org.esa.snap.dataio.envisat;
 
-import org.esa.snap.util.Guardian;
+import org.esa.snap.core.util.Guardian;
 
 import java.util.Vector;
 

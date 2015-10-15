@@ -20,17 +20,16 @@ import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.esa.snap.framework.datamodel.AngularDirection;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.Pointing;
-import org.esa.snap.framework.datamodel.PointingFactory;
-import org.esa.snap.framework.datamodel.PointingFactoryRegistry;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.TiePointGeoCoding;
-import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.framework.dataop.maptransf.Datum;
+import org.esa.snap.core.datamodel.AngularDirection;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Pointing;
+import org.esa.snap.core.datamodel.PointingFactory;
+import org.esa.snap.core.datamodel.PointingFactoryRegistry;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.TiePointGeoCoding;
+import org.esa.snap.core.datamodel.TiePointGrid;
 
 
 public class PointingTest extends TestCase {
@@ -89,7 +88,7 @@ public class PointingTest extends TestCase {
         product.addBand(band7);
         product.addBand(band13);
         product.addBand(flags);
-        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84));
+        product.setSceneGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
         PointingFactoryRegistry registry = PointingFactoryRegistry.getInstance();
         PointingFactory pointingFactory = registry.getPointingFactory(product.getProductType());
         product.setPointingFactory(pointingFactory);
@@ -98,7 +97,7 @@ public class PointingTest extends TestCase {
 
     private void testMerisPointingAt00(Product product, final Pointing pointing) {
         assertNotNull(pointing);
-        assertSame(product.getGeoCoding(), pointing.getGeoCoding());
+        assertSame(product.getSceneGeoCoding(), pointing.getGeoCoding());
         final PixelPos pixel00 = new PixelPos(0, 0);
         Assert.assertEquals(new AngularDirection(2, 1), pointing.getSunDir(pixel00, null));
         assertEquals(new AngularDirection(10, 0), pointing.getViewDir(pixel00, null));
@@ -158,7 +157,7 @@ public class PointingTest extends TestCase {
         product.addBand(band670N);
         product.addBand(flagsF);
         product.addBand(flagsN);
-        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84));
+        product.setSceneGeoCoding(new TiePointGeoCoding(latGrid, lonGrid));
         PointingFactoryRegistry registry = PointingFactoryRegistry.getInstance();
         PointingFactory pointingFactory = registry.getPointingFactory(product.getProductType());
         product.setPointingFactory(pointingFactory);
@@ -167,7 +166,7 @@ public class PointingTest extends TestCase {
 
     private void testAatsrPointingAt00Fward(Product product, final Pointing pointing) {
         assertNotNull(pointing);
-        assertSame(product.getGeoCoding(), pointing.getGeoCoding());
+        assertSame(product.getSceneGeoCoding(), pointing.getGeoCoding());
         final PixelPos pixel00 = new PixelPos(0, 0);
         assertEquals(new AngularDirection(22, 75), pointing.getSunDir(pixel00, null));
         assertEquals(new AngularDirection(72, 29), pointing.getViewDir(pixel00, null));
@@ -176,7 +175,7 @@ public class PointingTest extends TestCase {
 
     private void testAatsrPointingAt00Nadir(Product product, final Pointing pointing) {
         assertNotNull(pointing);
-        assertSame(product.getGeoCoding(), pointing.getGeoCoding());
+        assertSame(product.getSceneGeoCoding(), pointing.getGeoCoding());
         final PixelPos pixel00 = new PixelPos(0, 0);
         assertEquals(new AngularDirection(10, 90), pointing.getSunDir(pixel00, null));
         assertEquals(new AngularDirection(-2, 73), pointing.getViewDir(pixel00, null));

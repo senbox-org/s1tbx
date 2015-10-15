@@ -1,10 +1,10 @@
 package org.esa.snap.python;
 
+import org.esa.snap.core.util.Debug;
+import org.esa.snap.core.util.ResourceInstaller;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.io.TreeCopier;
 import org.esa.snap.runtime.Config;
-import org.esa.snap.util.Debug;
-import org.esa.snap.util.ResourceInstaller;
-import org.esa.snap.util.SystemUtils;
-import org.esa.snap.util.io.TreeCopier;
 import org.jpy.PyLib;
 
 import java.io.BufferedReader;
@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import static org.esa.snap.util.SystemUtils.LOG;
+import static org.esa.snap.core.util.SystemUtils.*;
 
 /**
  * This class is used to establish the bridge between Java and Python.

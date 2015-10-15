@@ -17,10 +17,10 @@
 package org.esa.snap.dataio.envisat;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.framework.dataio.ProductIO;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.StxFactory;
+import org.esa.snap.core.dataio.ProductIO;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.StxFactory;
 
 import java.io.IOException;
 

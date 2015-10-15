@@ -18,15 +18,15 @@ package org.esa.snap.dataio.geotiff;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.sun.media.jai.codec.ByteArraySeekableStream;
-import org.esa.snap.framework.dataio.DecodeQualification;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.MapGeoCoding;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.dataop.maptransf.Datum;
-import org.esa.snap.framework.dataop.maptransf.MapInfo;
-import org.esa.snap.framework.dataop.maptransf.UTM;
-import org.esa.snap.util.io.SnapFileFilter;
+import org.esa.snap.core.dataio.DecodeQualification;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MapGeoCoding;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.dataop.maptransf.Datum;
+import org.esa.snap.core.dataop.maptransf.MapInfo;
+import org.esa.snap.core.dataop.maptransf.UTM;
+import org.esa.snap.core.util.io.SnapFileFilter;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -74,7 +74,7 @@ public class GeoTiffProductReaderPlugInTest {
         final MapInfo mapInfo = new MapInfo(UTM.createProjection(26, true), 0, 0, 0, 0, 1, 1, Datum.WGS_84);
         mapInfo.setSceneWidth(product.getSceneRasterWidth());
         mapInfo.setSceneHeight(product.getSceneRasterHeight());
-        product.setGeoCoding(new MapGeoCoding(mapInfo));
+        product.setSceneGeoCoding(new MapGeoCoding(mapInfo));
         final ImageInputStream inputStream = writeToInputStream(product);
         final DecodeQualification decodeQualification = GeoTiffProductReaderPlugIn.getDecodeQualificationImpl(inputStream);
         assertEquals(DecodeQualification.SUITABLE, decodeQualification);

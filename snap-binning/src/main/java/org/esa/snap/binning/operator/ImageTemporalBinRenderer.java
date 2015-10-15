@@ -19,7 +19,7 @@ package org.esa.snap.binning.operator;
 import org.esa.snap.binning.TemporalBin;
 import org.esa.snap.binning.TemporalBinRenderer;
 import org.esa.snap.binning.Vector;
-import org.esa.snap.util.io.FileUtils;
+import org.esa.snap.core.util.io.FileUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.Rectangle;

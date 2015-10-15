@@ -16,7 +16,7 @@
 
 package org.esa.snap.dataio.netcdf.util;
 
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.core.util.SystemUtils;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.iosp.IOServiceProvider;
 import ucar.nc2.iosp.hdf4.H4iosp;

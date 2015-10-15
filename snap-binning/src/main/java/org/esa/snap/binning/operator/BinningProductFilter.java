@@ -1,7 +1,7 @@
 package org.esa.snap.binning.operator;
 
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductFilter;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductFilter;
 
 abstract class BinningProductFilter implements ProductFilter {
 

@@ -22,7 +22,7 @@ import org.esa.snap.binning.CellProcessorDescriptor;
 import org.esa.snap.binning.VariableContext;
 import org.esa.snap.binning.Vector;
 import org.esa.snap.binning.WritableVector;
-import org.esa.snap.framework.gpf.annotations.Parameter;
+import org.esa.snap.core.gpf.annotations.Parameter;
 
 /**
  * A cell processor that select a number of features from the available ones.

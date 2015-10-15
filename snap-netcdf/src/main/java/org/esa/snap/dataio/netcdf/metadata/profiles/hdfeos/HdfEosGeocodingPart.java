@@ -16,11 +16,11 @@
 
 package org.esa.snap.dataio.netcdf.metadata.profiles.hdfeos;
 
+import org.esa.snap.core.datamodel.CrsGeoCoding;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.dataio.netcdf.ProfileReadContext;
 import org.esa.snap.dataio.netcdf.ProfileWriteContext;
 import org.esa.snap.dataio.netcdf.metadata.ProfilePartIO;
-import org.esa.snap.framework.datamodel.CrsGeoCoding;
-import org.esa.snap.framework.datamodel.Product;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.crs.DefaultProjectedCRS;
@@ -88,7 +88,7 @@ public class HdfEosGeocodingPart extends ProfilePartIO {
             if ((upperLeftLon >= -180 && upperLeftLon <= 180) && (upperLeftLat >= -90 && upperLeftLat <= 90) &&
                     (lowerRightLon >= -180 && lowerRightLon <= 180) && (lowerRightLat >= -90 && lowerRightLat <= 90)) {
                 try {
-                    p.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, imageBounds, transform));
+                    p.setSceneGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, imageBounds, transform));
                 } catch (FactoryException | TransformException ignore) {
                 }
             }
@@ -131,7 +131,7 @@ public class HdfEosGeocodingPart extends ProfilePartIO {
                 try {
                     CrsGeoCoding geoCoding = new CrsGeoCoding(modelCrs, imageBounds, transform);
 
-                    p.setGeoCoding(geoCoding);
+                    p.setSceneGeoCoding(geoCoding);
                 } catch (Exception ignore) {
                 }
             }

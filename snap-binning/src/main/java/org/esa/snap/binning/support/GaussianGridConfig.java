@@ -1,7 +1,7 @@
 package org.esa.snap.binning.support;
 
-import org.esa.snap.util.StringUtils;
-import org.esa.snap.util.io.CsvReader;
+import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.io.CsvReader;
 
 import java.io.IOException;
 import java.io.InputStream;

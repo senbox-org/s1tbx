@@ -23,8 +23,8 @@ import org.esa.snap.binning.ProductCustomizer;
 import org.esa.snap.binning.ProductCustomizerConfig;
 import org.esa.snap.binning.ProductCustomizerDescriptor;
 import org.esa.snap.binning.TypedDescriptorsRegistry;
-import org.esa.snap.framework.gpf.annotations.Parameter;
-import org.esa.snap.framework.gpf.annotations.ParameterBlockConverter;
+import org.esa.snap.core.gpf.annotations.Parameter;
+import org.esa.snap.core.gpf.annotations.ParameterBlockConverter;
 
 /**
  * The configuration for the {@link Formatter}.

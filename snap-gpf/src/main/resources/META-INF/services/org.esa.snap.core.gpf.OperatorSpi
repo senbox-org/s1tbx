@@ -1,0 +1,13 @@
+org.esa.snap.core.gpf.common.ReadOp$Spi
+org.esa.snap.core.gpf.common.MergeOp$Spi
+org.esa.snap.core.gpf.common.WriteOp$Spi
+org.esa.snap.core.gpf.common.MosaicOp$Spi
+org.esa.snap.core.gpf.common.SubsetOp$Spi
+org.esa.snap.core.gpf.common.WriteRGBOp$Spi
+org.esa.snap.core.gpf.common.PassThroughOp$Spi
+org.esa.snap.core.gpf.common.ProductSetReaderOp$Spi
+org.esa.snap.core.gpf.common.BandMathsOp$Spi
+org.esa.snap.core.gpf.common.reproject.ReprojectionOp$Spi
+org.esa.snap.core.gpf.common.FlipOp$Spi
+org.esa.snap.core.gpf.common.ImportVectorOp$Spi
+org.esa.snap.core.gpf.common.ConvertDataTypeOp$Spi

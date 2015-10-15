@@ -17,14 +17,14 @@
 package org.esa.snap.dataio.rtp;
 
 import com.thoughtworks.xstream.XStream;
-import org.esa.snap.framework.dataio.DecodeQualification;
-import org.esa.snap.framework.dataio.EncodeQualification;
-import org.esa.snap.framework.dataio.ProductReader;
-import org.esa.snap.framework.dataio.ProductReaderPlugIn;
-import org.esa.snap.framework.dataio.ProductWriter;
-import org.esa.snap.framework.dataio.ProductWriterPlugIn;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.util.io.SnapFileFilter;
+import org.esa.snap.core.dataio.DecodeQualification;
+import org.esa.snap.core.dataio.EncodeQualification;
+import org.esa.snap.core.dataio.ProductReader;
+import org.esa.snap.core.dataio.ProductReaderPlugIn;
+import org.esa.snap.core.dataio.ProductWriter;
+import org.esa.snap.core.dataio.ProductWriterPlugIn;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.util.io.SnapFileFilter;
 
 import java.io.File;
 import java.util.Locale;

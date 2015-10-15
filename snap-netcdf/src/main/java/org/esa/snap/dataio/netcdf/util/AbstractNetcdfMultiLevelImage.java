@@ -19,8 +19,8 @@ package org.esa.snap.dataio.netcdf.util;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
-import org.esa.snap.framework.datamodel.RasterDataNode;
-import org.esa.snap.jai.ImageManager;
+import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.image.ImageManager;
 
 import javax.media.jai.PlanarImage;
 import java.awt.Shape;

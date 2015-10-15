@@ -19,7 +19,7 @@ package org.esa.snap.dataio.netcdf.nc;
 import edu.ucar.ral.nujan.netcdf.NhDimension;
 import edu.ucar.ral.nujan.netcdf.NhException;
 import edu.ucar.ral.nujan.netcdf.NhVariable;
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductData;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 

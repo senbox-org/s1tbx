@@ -16,8 +16,8 @@
 package org.esa.snap.dataio.envisat;
 
 
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.util.Debug;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.Debug;
 
 /**
  * The <code>DataItemInfo</code> class represents a named item having a specific data type.
@@ -28,7 +28,7 @@ import org.esa.snap.util.Debug;
 public abstract class DataItemInfo extends ItemInfo {
 
     /**
-     * This items's data type. Always one of the multiple <code>org.esa.snap.framework.datamodel.ProductData.TYPE_</code>X
+     * This items's data type. Always one of the multiple <code>ProductData.TYPE_</code>X
      * constants
      */
     private final int _dataType;
@@ -42,12 +42,12 @@ public abstract class DataItemInfo extends ItemInfo {
      * Constructs a new data item info from the supplied parameters.
      *
      * @param itemName     the item name, must not be null or empty
-     * @param dataType     the internal data type. Must be one of the multiple <code>org.esa.snap.framework.datamodel.ProductData.TYPE_</code>X
+     * @param dataType     the internal data type. Must be one of the multiple <code>ProductData.TYPE_</code>X
      *                     constants
      * @param physicalUnit the item's physical unit (optional, can be null)
      * @param description  the item's description (optional, can be null)
      *
-     * @see org.esa.snap.framework.datamodel.ProductData
+     * @see ProductData
      */
     protected DataItemInfo(String itemName,
                            int dataType,
@@ -62,11 +62,11 @@ public abstract class DataItemInfo extends ItemInfo {
 
     /**
      * Gets the field's internal data type which is always one of the multiple <code>TYPE_</code>X constants defined in
-     * the <code>org.esa.snap.framework.datamodel.ProductData</code> interface.
+     * the <code>ProductData</code> interface.
      *
      * @return the data type
      *
-     * @see org.esa.snap.framework.datamodel.ProductData
+     * @see ProductData
      */
     public final int getDataType() {
         return _dataType;
@@ -89,13 +89,13 @@ public abstract class DataItemInfo extends ItemInfo {
      * <code>ProductData.TYPE_UTC</code>, since the DDDB interprets an UTC value as a single element, where as the
      * <code>ProductData.UTC</code> stores it as three <code>int</code>s.
      *
-     * @param itemDataType the item's data type, must be one of the <code>org.esa.snap.framework.datamodel.ProductData.TYPE_</code>X
+     * @param itemDataType the item's data type, must be one of the <code>ProductData.TYPE_</code>X
      *                     constants
      *
      * @return the data element size in bytes
      *
-     * @see org.esa.snap.framework.datamodel.ProductData
-     * @see org.esa.snap.framework.datamodel.ProductData.UTC
+     * @see ProductData
+     * @see ProductData.UTC
      */
     public static int getDataTypeElemSize(int itemDataType) {
         switch (itemDataType) {

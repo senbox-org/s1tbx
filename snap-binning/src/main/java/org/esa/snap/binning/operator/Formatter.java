@@ -23,8 +23,8 @@ import org.esa.snap.binning.ProductCustomizer;
 import org.esa.snap.binning.Reprojector;
 import org.esa.snap.binning.TemporalBinRenderer;
 import org.esa.snap.binning.TemporalBinSource;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.ProductData;
 
 import java.awt.Rectangle;
 import java.io.File;

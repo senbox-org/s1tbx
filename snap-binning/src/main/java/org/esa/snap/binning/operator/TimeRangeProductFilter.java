@@ -31,8 +31,8 @@ package org.esa.snap.binning.operator;/*
  */
 
 import com.bc.ceres.core.Assert;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 
 import java.util.Date;
 

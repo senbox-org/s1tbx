@@ -15,8 +15,8 @@
  */
 package org.esa.snap.dataio.envisat;
 
-import org.esa.snap.util.Guardian;
-import org.esa.snap.util.StringUtils;
+import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.StringUtils;
 
 /**
  * A class representing a refernce to a field or field element.

@@ -15,8 +15,8 @@
  */
 package org.esa.snap.dataio.dem;
 
-import org.esa.snap.framework.dataio.ProductIOPlugInManager;
-import org.esa.snap.framework.dataio.ProductReaderPlugIn;
+import org.esa.snap.core.dataio.ProductIOPlugInManager;
+import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.junit.Test;
 
 import java.util.Iterator;

@@ -303,12 +303,7 @@ public class ProcessObserver {
                 awaitTermination();
             } else /*if (mode == Mode.NON_BLOCKING)*/ {
                 Thread mainThread = new Thread(threadGroup,
-                                               new Runnable() {
-                                                   @Override
-                                                   public void run() {
-                                                       awaitTermination();
-                                                   }
-                                               },
+                                               this::awaitTermination,
                                                name + "-" + MAIN);
                 mainThread.start();
             }
@@ -370,15 +365,12 @@ public class ProcessObserver {
         }
 
         private void read() throws IOException {
-            final BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(type == STDOUT ? process.getInputStream() : process.getErrorStream()));
-            try {
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(type == STDOUT ? process.getInputStream() : process.getErrorStream()))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     fireLineReceived(line);
                 }
-            } finally {
-                reader.close();
             }
         }
 

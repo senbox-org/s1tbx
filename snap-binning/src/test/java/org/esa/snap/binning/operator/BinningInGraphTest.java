@@ -1,7 +1,7 @@
 package org.esa.snap.binning.operator;
 
-import org.esa.snap.framework.gpf.graph.Graph;
-import org.esa.snap.framework.gpf.graph.GraphIO;
+import org.esa.snap.core.gpf.graph.Graph;
+import org.esa.snap.core.gpf.graph.GraphIO;
 import org.junit.Assert;
 import org.junit.Test;
 

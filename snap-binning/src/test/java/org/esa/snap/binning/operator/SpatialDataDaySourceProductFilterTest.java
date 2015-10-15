@@ -17,7 +17,7 @@
 package org.esa.snap.binning.operator;
 
 import org.esa.snap.binning.DataPeriod;
-import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.core.datamodel.Product;
 import org.junit.Before;
 import org.junit.Test;
 

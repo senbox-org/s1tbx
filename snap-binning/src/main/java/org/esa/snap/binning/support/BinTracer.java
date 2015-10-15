@@ -24,8 +24,8 @@ import org.esa.snap.binning.SpatialBin;
 import org.esa.snap.binning.TemporalBin;
 import org.esa.snap.binning.VariableContext;
 import org.esa.snap.binning.Vector;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.runtime.Config;
-import org.esa.snap.util.SystemUtils;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;

@@ -12,10 +12,10 @@ jpy = snappy.jpy
 
 # More Java type definitions required for image generation
 Color = jpy.get_type('java.awt.Color')
-ColorPoint = jpy.get_type('org.esa.snap.framework.datamodel.ColorPaletteDef$Point')
-ColorPaletteDef = jpy.get_type('org.esa.snap.framework.datamodel.ColorPaletteDef')
-ImageInfo = jpy.get_type('org.esa.snap.framework.datamodel.ImageInfo')
-ImageManager = jpy.get_type('org.esa.snap.jai.ImageManager')
+ColorPoint = jpy.get_type('org.esa.snap.core.datamodel.ColorPaletteDef$Point')
+ColorPaletteDef = jpy.get_type('org.esa.snap.core.datamodel.ColorPaletteDef')
+ImageInfo = jpy.get_type('org.esa.snap.core.datamodel.ImageInfo')
+ImageManager = jpy.get_type('org.esa.snap.core.image.ImageManager')
 JAI = jpy.get_type('javax.media.jai.JAI')
 
 # Disable JAI native MediaLib extensions 

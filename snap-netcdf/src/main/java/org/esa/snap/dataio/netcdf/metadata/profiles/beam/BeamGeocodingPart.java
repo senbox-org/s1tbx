@@ -15,17 +15,17 @@
  */
 package org.esa.snap.dataio.netcdf.metadata.profiles.beam;
 
+import org.esa.snap.core.datamodel.CrsGeoCoding;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.TiePointGeoCoding;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.dataio.netcdf.ProfileReadContext;
 import org.esa.snap.dataio.netcdf.ProfileWriteContext;
 import org.esa.snap.dataio.netcdf.metadata.profiles.cf.CfGeocodingPart;
 import org.esa.snap.dataio.netcdf.nc.NFileWriteable;
 import org.esa.snap.dataio.netcdf.nc.NVariable;
-import org.esa.snap.framework.datamodel.CrsGeoCoding;
-import org.esa.snap.framework.datamodel.GeoCoding;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.TiePointGeoCoding;
-import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.util.StringUtils;
 import org.geotools.referencing.CRS;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -72,7 +72,7 @@ public class BeamGeocodingPart extends CfGeocodingPart {
             }
         }
         if (geoCoding != null) {
-            p.setGeoCoding(geoCoding);
+            p.setSceneGeoCoding(geoCoding);
         } else {
             super.decode(ctx, p);
         }
@@ -98,7 +98,7 @@ public class BeamGeocodingPart extends CfGeocodingPart {
     @Override
     public void preEncode(ProfileWriteContext ctx, Product p) throws IOException {
         super.preEncode(ctx, p);
-        final GeoCoding geoCoding = p.getGeoCoding();
+        final GeoCoding geoCoding = p.getSceneGeoCoding();
         if (geoCoding instanceof TiePointGeoCoding) {
             final TiePointGeoCoding tpGC = (TiePointGeoCoding) geoCoding;
             final String[] names = new String[2];

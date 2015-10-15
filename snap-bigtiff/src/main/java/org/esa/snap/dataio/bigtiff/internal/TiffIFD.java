@@ -17,18 +17,18 @@
 package org.esa.snap.dataio.bigtiff.internal;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.dataio.dimap.DimapHeaderWriter;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.ColorPaletteDef;
-import org.esa.snap.framework.datamodel.FilterBand;
-import org.esa.snap.framework.datamodel.ImageInfo;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.ProductNode;
-import org.esa.snap.framework.datamodel.VirtualBand;
-import org.esa.snap.util.Guardian;
-import org.esa.snap.util.ProductUtils;
-import org.esa.snap.util.geotiff.GeoTIFFMetadata;
+import org.esa.snap.core.dataio.dimap.DimapHeaderWriter;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.ColorPaletteDef;
+import org.esa.snap.core.datamodel.FilterBand;
+import org.esa.snap.core.datamodel.ImageInfo;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductNode;
+import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.geotiff.GeoTIFFMetadata;
 
 import javax.imageio.stream.ImageOutputStream;
 import java.awt.Color;

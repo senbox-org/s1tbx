@@ -18,14 +18,14 @@ package org.esa.snap.dataio.geotiff;
 
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.dataio.geotiff.internal.TiffDirectoryEntry;
 import org.esa.snap.dataio.geotiff.internal.TiffHeader;
 import org.esa.snap.dataio.geotiff.internal.TiffIFD;
 import org.esa.snap.dataio.geotiff.internal.TiffLong;
 import org.esa.snap.dataio.geotiff.internal.TiffTag;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
 
 import javax.imageio.stream.MemoryCacheImageOutputStream;
 import java.awt.Rectangle;

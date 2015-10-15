@@ -18,7 +18,6 @@ package org.esa.snap.binning.operator;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
-import com.bc.jexp.ParseException;
 import com.vividsolutions.jts.geom.Geometry;
 import org.esa.snap.binning.BinningContext;
 import org.esa.snap.binning.CompositingType;
@@ -28,19 +27,20 @@ import org.esa.snap.binning.SpatialBinner;
 import org.esa.snap.binning.VariableContext;
 import org.esa.snap.binning.support.BinTracer;
 import org.esa.snap.binning.support.PlateCarreeGrid;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.RasterDataNode;
-import org.esa.snap.framework.datamodel.VirtualBand;
-import org.esa.snap.framework.dataop.barithm.BandArithmetic;
-import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.jai.ImageManager;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.dataop.barithm.BandArithmetic;
+import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.jexp.ParseException;
+import org.esa.snap.core.util.StopWatch;
+import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.runtime.Config;
-import org.esa.snap.util.StopWatch;
-import org.esa.snap.util.StringUtils;
-import org.esa.snap.util.SystemUtils;
-import org.esa.snap.util.math.MathUtils;
 
 import java.awt.Dimension;
 import java.awt.Point;
@@ -79,7 +79,7 @@ public class SpatialProductBinner {
                                       SpatialBinner spatialBinner,
                                       Map<Product, List<Band>> addedVariableBands,
                                       ProgressMonitor progressMonitor) throws IOException {
-        if (product.getGeoCoding() == null) {
+        if (product.getSceneGeoCoding() == null) {
             throw new IllegalArgumentException("product.getGeoCoding() == null");
         }
         BinningContext binningContext = spatialBinner.getBinningContext();

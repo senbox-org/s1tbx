@@ -1,6 +1,6 @@
-org.esa.snap.glayer.GraticuleLayerType
-org.esa.snap.glayer.NoDataLayerType
-org.esa.snap.glayer.RasterImageLayerType
-org.esa.snap.glayer.RgbImageLayerType
-org.esa.snap.glayer.MaskCollectionLayerType
-org.esa.snap.glayer.MaskLayerType
+org.esa.snap.core.layer.GraticuleLayerType
+org.esa.snap.core.layer.NoDataLayerType
+org.esa.snap.core.layer.RasterImageLayerType
+org.esa.snap.core.layer.RgbImageLayerType
+org.esa.snap.core.layer.MaskCollectionLayerType
+org.esa.snap.core.layer.MaskLayerType

@@ -15,34 +15,34 @@ import it.geosolutions.imageioimpl.plugins.tiff.TIFFIFD;
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageMetadata;
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFRenderedImage;
+import org.esa.snap.core.dataio.AbstractProductReader;
+import org.esa.snap.core.dataio.ProductReaderPlugIn;
+import org.esa.snap.core.dataio.dimap.DimapProductHelpers;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.ColorPaletteDef;
+import org.esa.snap.core.datamodel.CrsGeoCoding;
+import org.esa.snap.core.datamodel.FilterBand;
+import org.esa.snap.core.datamodel.GcpDescriptor;
+import org.esa.snap.core.datamodel.GcpGeoCoding;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.ImageInfo;
+import org.esa.snap.core.datamodel.IndexCoding;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Placemark;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductNodeGroup;
+import org.esa.snap.core.datamodel.TiePointGeoCoding;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.dataop.maptransf.Datum;
+import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.geotiff.EPSGCodes;
+import org.esa.snap.core.util.geotiff.GeoTIFFCodes;
+import org.esa.snap.core.util.io.FileUtils;
+import org.esa.snap.core.util.jai.JAIUtils;
 import org.esa.snap.dataio.bigtiff.internal.GeoKeyEntry;
-import org.esa.snap.dataio.dimap.DimapProductHelpers;
-import org.esa.snap.framework.dataio.AbstractProductReader;
-import org.esa.snap.framework.dataio.ProductReaderPlugIn;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.ColorPaletteDef;
-import org.esa.snap.framework.datamodel.CrsGeoCoding;
-import org.esa.snap.framework.datamodel.FilterBand;
-import org.esa.snap.framework.datamodel.GcpDescriptor;
-import org.esa.snap.framework.datamodel.GcpGeoCoding;
-import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.datamodel.ImageInfo;
-import org.esa.snap.framework.datamodel.IndexCoding;
-import org.esa.snap.framework.datamodel.PixelPos;
-import org.esa.snap.framework.datamodel.Placemark;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.ProductNodeGroup;
-import org.esa.snap.framework.datamodel.TiePointGeoCoding;
-import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.framework.datamodel.VirtualBand;
-import org.esa.snap.framework.dataop.maptransf.Datum;
-import org.esa.snap.jai.ImageManager;
-import org.esa.snap.util.SystemUtils;
-import org.esa.snap.util.geotiff.EPSGCodes;
-import org.esa.snap.util.geotiff.GeoTIFFCodes;
-import org.esa.snap.util.io.FileUtils;
-import org.esa.snap.util.jai.JAIUtils;
 import org.geotools.coverage.grid.io.imageio.geotiff.GeoTiffConstants;
 import org.geotools.coverage.grid.io.imageio.geotiff.GeoTiffException;
 import org.geotools.coverage.grid.io.imageio.geotiff.GeoTiffIIOMetadataDecoder;
@@ -308,7 +308,7 @@ class BigGeoTiffProductReader extends AbstractProductReader {
             }
         }
 
-        if (product.getGeoCoding() == null) {
+        if (product.getSceneGeoCoding() == null) {
             try {
                 applyGeoCodingFromGeoTiff(imageMetadata, product);
             } catch (Exception ignored) {
@@ -335,7 +335,7 @@ class BigGeoTiffProductReader extends AbstractProductReader {
             }
         }
         final CrsGeoCoding geoCoding = new CrsGeoCoding(crs, imageBounds, (AffineTransform) toModel);
-        product.setGeoCoding(geoCoding);
+        product.setSceneGeoCoding(geoCoding);
     }
 
     /*
@@ -467,7 +467,7 @@ class BigGeoTiffProductReader extends AbstractProductReader {
         product.addTiePointGrid(lonGrid);
         final SortedMap<Integer, GeoKeyEntry> geoKeyEntries = info.getGeoKeyEntries();
         final Datum datum = getDatum(geoKeyEntries);
-        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, datum));
+        product.setSceneGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, datum));
     }
 
     private static boolean canCreateGcpGeoCoding(final double[] tiePoints) {
@@ -521,14 +521,14 @@ class BigGeoTiffProductReader extends AbstractProductReader {
             final GeoPos geoPos = new GeoPos(lat, lon);
 
             final Placemark gcp = Placemark.createPointPlacemark(gcpDescriptor, "gcp_" + i, "GCP_" + i, "",
-                    pixelPos, geoPos, product.getGeoCoding());
+                    pixelPos, geoPos, product.getSceneGeoCoding());
             gcpGroup.add(gcp);
         }
 
         final Placemark[] gcps = gcpGroup.toArray(new Placemark[gcpGroup.getNodeCount()]);
         final SortedMap<Integer, GeoKeyEntry> geoKeyEntries = info.getGeoKeyEntries();
         final Datum datum = getDatum(geoKeyEntries);
-        product.setGeoCoding(new GcpGeoCoding(method, gcps, width, height, datum));
+        product.setSceneGeoCoding(new GcpGeoCoding(method, gcps, width, height, datum));
     }
 
     private static Datum getDatum(Map<Integer, GeoKeyEntry> geoKeyEntries) {
@@ -666,7 +666,7 @@ class BigGeoTiffProductReader extends AbstractProductReader {
     }
 
     private void removeGeoCodingAndTiePointGrids(Product product) {
-        product.setGeoCoding(null);
+        product.setSceneGeoCoding(null);
         final TiePointGrid[] pointGrids = product.getTiePointGrids();
         for (TiePointGrid pointGrid : pointGrids) {
             product.removeTiePointGrid(pointGrid);

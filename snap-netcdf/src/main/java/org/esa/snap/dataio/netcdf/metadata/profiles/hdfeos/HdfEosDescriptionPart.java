@@ -16,10 +16,10 @@
 
 package org.esa.snap.dataio.netcdf.metadata.profiles.hdfeos;
 
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.dataio.netcdf.ProfileReadContext;
 import org.esa.snap.dataio.netcdf.ProfileWriteContext;
 import org.esa.snap.dataio.netcdf.metadata.ProfilePartIO;
-import org.esa.snap.framework.datamodel.Product;
 import org.jdom2.Element;
 
 import java.io.IOException;
