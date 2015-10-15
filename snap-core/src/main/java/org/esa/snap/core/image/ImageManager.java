@@ -323,6 +323,9 @@ public class ImageManager {
         }
     }
 
+    // todo - [multisize_products] create a replacement for createMultiLevelModel() which must be based on the new
+    //        RasterDataNode.getImageToModelTransform() and should eventually also include tile size and #resolution levels
+    //        (nf 20151015)
     /**
      * Creates a model for an image pyramid. The method makes us of the
      * {@link Product#getNumResolutionsMax()} method in order to determine the
@@ -330,7 +333,9 @@ public class ImageManager {
      *
      * @param productNode The product node requesting the model.
      * @return A new image pyramid model.
+     * @deprecated no replacement yet, but will provide one for final 2.0 API
      */
+    @Deprecated
     public static MultiLevelModel createMultiLevelModel(ProductNode productNode) {
         final Scene scene = SceneFactory.createScene(productNode);
         if (scene == null) {
