@@ -22,6 +22,7 @@ import org.esa.snap.util.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.prefs.BackingStoreException;
 
@@ -156,16 +157,21 @@ public class ConfigurationOptimizer {
                     fastestForUserDir = FileUtils.getPathFromURI(diskNameAsFile.toURI()).resolve("cache");
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                SystemUtils.LOG.warning(
+                        "Could not perform bechmark for disk: " + diskName);
             }
         }
 
-
-
         if(fastestForUserDir != null) {
-            String actualLargeCacheDir = actualPerformanceParameters.getCachePath().toString();
-            DiskBenchmarker benchmarker = new DiskBenchmarker(actualLargeCacheDir);
+            Path actualCache = actualPerformanceParameters.getCachePath();
+            //if cache path doesn't exist we create it to perform benchmark
             try {
+                if (!Files.exists(actualCache)) {
+                    Files.createDirectories(actualCache);
+                }
+                String actualLargeCacheDir = actualCache.toString();
+                DiskBenchmarker benchmarker = new DiskBenchmarker(actualLargeCacheDir);
+
                 double userDirWriteSpeed = benchmarker.getWriteSpeed();
                 double minSpeedToChange = userDirWriteSpeed * (1 + (float) DISK_MIN_SPEED_INCREASE / 100);
                 if(minSpeedToChange < fastestForUserDirSpeed) {
