@@ -37,6 +37,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 
+import static org.junit.Assert.*;
+
 public class GeoCodingMathTransformTest {
 
     @Test
