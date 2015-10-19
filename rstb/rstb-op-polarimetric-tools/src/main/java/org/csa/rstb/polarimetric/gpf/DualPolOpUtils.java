@@ -51,9 +51,6 @@ public final class DualPolOpUtils {
             final int sourceImageHeight, final PolBandUtils.MATRIX sourceProductType,
             final Tile[] sourceTiles, final ProductData[] dataBuffers, final double[][] Cr, final double[][] Ci) {
 
-        final double[][] tempCr = new double[2][2];
-        final double[][] tempCi = new double[2][2];
-
         final int xSt = Math.max(x - halfWindowSizeX, 0);
         final int xEd = Math.min(x + halfWindowSizeX, sourceImageWidth - 1);
         final int ySt = Math.max(y - halfWindowSizeY, 0);
@@ -70,9 +67,11 @@ public final class DualPolOpUtils {
             for (int yy = ySt; yy <= yEd; ++yy) {
                 srcIndex.calculateStride(yy);
                 for (int xx = xSt; xx <= xEd; ++xx) {
-                    getCovarianceMatrixC2(srcIndex.getIndex(xx), dataBuffers, tempCr, tempCi);
-                    CrMat.plusEquals(new Matrix(tempCr));
-                    CiMat.plusEquals(new Matrix(tempCi));
+                    final Matrix tmpCrMat = new Matrix(2, 2);
+                    final Matrix tmpCiMat = new Matrix(2, 2);
+                    getCovarianceMatrixC2(srcIndex.getIndex(xx), dataBuffers, tmpCrMat.getArray(), tmpCiMat.getArray());
+                    CrMat.plusEquals(tmpCrMat);
+                    CiMat.plusEquals(tmpCiMat);
                 }
             }
 
@@ -88,10 +87,12 @@ public final class DualPolOpUtils {
             for (int yy = ySt; yy <= yEd; ++yy) {
                 srcIndex.calculateStride(yy);
                 for (int xx = xSt; xx <= xEd; ++xx) {
+                    final Matrix tmpCrMat = new Matrix(2, 2);
+                    final Matrix tmpCiMat = new Matrix(2, 2);
                     getScatterVector(srcIndex.getIndex(xx), dataBuffers, tempKr, tempKi);
-                    computeCovarianceMatrixC2(tempKr, tempKi, tempCr, tempCi);
-                    CrMat.plusEquals(new Matrix(tempCr));
-                    CiMat.plusEquals(new Matrix(tempCi));
+                    computeCovarianceMatrixC2(tempKr, tempKi, tmpCrMat.getArray(), tmpCiMat.getArray());
+                    CrMat.plusEquals(tmpCrMat);
+                    CiMat.plusEquals(tmpCiMat);
                 }
             }
 
@@ -101,13 +102,16 @@ public final class DualPolOpUtils {
 
         CrMat.timesEquals(1.0 / num);
         CiMat.timesEquals(1.0 / num);
-        for (int i = 0; i < 2; i++) {
-            Cr[i][0] = CrMat.get(i, 0);
-            Ci[i][0] = CiMat.get(i, 0);
 
-            Cr[i][1] = CrMat.get(i, 1);
-            Ci[i][1] = CiMat.get(i, 1);
-        }
+        Cr[0][0] = CrMat.get(0, 0);
+        Ci[0][0] = CiMat.get(0, 0);
+        Cr[0][1] = CrMat.get(0, 1);
+        Ci[0][1] = CiMat.get(0, 1);
+
+        Cr[1][0] = CrMat.get(1, 0);
+        Ci[1][0] = CiMat.get(1, 0);
+        Cr[1][1] = CrMat.get(1, 1);
+        Ci[1][1] = CiMat.get(1, 1);
     }
 
     /**
