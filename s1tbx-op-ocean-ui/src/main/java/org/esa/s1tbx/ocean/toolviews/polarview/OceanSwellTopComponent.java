@@ -123,11 +123,12 @@ public class OceanSwellTopComponent extends ToolTopComponent {
             public void run() {
                 final OceanSwellTopComponent window = (OceanSwellTopComponent)
                         WindowManager.getDefault().findTopComponent("OceanSwellTopComponent");
+                if(window != null) {
+                    window.open();
+                    window.requestActive();
 
-                window.open();
-                window.requestActive();
-
-                window.setSelectedRecord(product, recNum);
+                    window.setSelectedRecord(product, recNum);
+                }
             }
         });
     }
