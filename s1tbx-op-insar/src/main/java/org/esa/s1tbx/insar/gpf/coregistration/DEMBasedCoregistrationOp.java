@@ -61,7 +61,8 @@ import org.jlinda.core.delaunay.FastDelaunayTriangulator;
 import org.jlinda.core.delaunay.Triangle;
 import org.jlinda.core.delaunay.TriangulationException;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1196,7 +1197,7 @@ public class DEMBasedCoregistrationOp extends Operator {
     /**
      * The SPI is used to register this operator in the graph processing framework
      * via the SPI configuration file
-     * {@code META-INF/services/org.esa.snap.framework.gpf.OperatorSpi}.
+     * {@code META-INF/services/org.esa.snap.core.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
      *
      * @see OperatorSpi#createOperator()

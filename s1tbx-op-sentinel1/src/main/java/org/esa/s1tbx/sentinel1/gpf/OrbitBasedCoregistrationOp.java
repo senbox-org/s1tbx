@@ -61,7 +61,7 @@ import org.jlinda.core.delaunay.FastDelaunayTriangulator;
 import org.jlinda.core.delaunay.Triangle;
 import org.jlinda.core.delaunay.TriangulationException;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -133,7 +133,7 @@ public final class OrbitBasedCoregistrationOp extends Operator {
 
     /**
      * Initializes this operator and sets the one and only target product.
-     * <p>The target product can be either defined by a field of type {@link org.esa.snap.framework.datamodel.Product} annotated with the
+     * <p>The target product can be either defined by a field of type {@link Product} annotated with the
      * {@link TargetProduct TargetProduct} annotation or
      * by calling {@link #setTargetProduct} method.</p>
      * <p>The framework calls this method after it has created this operator.
@@ -1081,7 +1081,7 @@ public final class OrbitBasedCoregistrationOp extends Operator {
     /**
      * The SPI is used to register this operator in the graph processing framework
      * via the SPI configuration file
-     * {@code META-INF/services/org.esa.snap.framework.gpf.OperatorSpi}.
+     * {@code META-INF/services/org.esa.snap.core.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
      *
      * @see OperatorSpi#createOperator()

@@ -58,7 +58,7 @@ import org.jlinda.nest.utils.ProductContainer;
 import org.jlinda.nest.utils.TileUtilsDoris;
 
 import javax.media.jai.BorderExtender;
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -1061,7 +1061,7 @@ public class CreateInterferogramOp extends Operator {
     /**
      * The SPI is used to register this operator in the graph processing framework
      * via the SPI configuration file
-     * {@code META-INF/services/org.esa.snap.framework.gpf.OperatorSpi}.
+     * {@code META-INF/services/org.esa.snap.core.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
      *
      * @see org.esa.snap.core.gpf.OperatorSpi#createOperator()

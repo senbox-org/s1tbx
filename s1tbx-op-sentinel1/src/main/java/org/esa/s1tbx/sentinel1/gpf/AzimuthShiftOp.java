@@ -41,7 +41,7 @@ import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.gpf.ThreadManager;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -270,13 +270,14 @@ public class AzimuthShiftOp extends Operator {
             // perform azimuth shift using FFT, and perform reramp and remodulation
             final Tile tgtTileI = targetTileMap.get(tgtBandI);
             final Tile tgtTileQ = targetTileMap.get(tgtBandQ);
-            final float[] tgtArrayI = (float[]) tgtTileI.getDataBuffer().getElems();
-            final float[] tgtArrayQ = (float[]) tgtTileQ.getDataBuffer().getElems();
+            final ProductData tgtDataI = tgtTileI.getDataBuffer();
+            final ProductData tgtDataQ = tgtTileQ.getDataBuffer();
 
             final double[] col1 = new double[2 * h];
             final double[] col2 = new double[2 * h];
             final DoubleFFT_1D col_fft = new DoubleFFT_1D(h);
             for (int c = 0; c < w; c++) {
+                final int x = x0 + c;
                 for (int r = 0; r < h; r++) {
                     col1[2 * r] = derampDemodI[r][c];
                     col1[2 * r + 1] = derampDemodQ[r][c];
@@ -295,10 +296,12 @@ public class AzimuthShiftOp extends Operator {
                 col_fft.complexInverse(col2, true);
 
                 for (int r = 0; r < h; r++) {
+                    final int y = y0 + r;
                     final double cosPhase = FastMath.cos(col2[2 * r]);
                     final double sinPhase = FastMath.sin(col2[2 * r]);
-                    tgtArrayI[r * w + c] = (float)(col1[2 * r] * cosPhase + col1[2 * r + 1] * sinPhase);
-                    tgtArrayQ[r * w + c] = (float)(-col1[2 * r] * sinPhase + col1[2 * r + 1] * cosPhase);
+                    final int idx = tgtTileI.getDataBufferIndex(x, y);
+                    tgtDataI.setElemDoubleAt(idx, (float)(col1[2 * r] * cosPhase + col1[2 * r + 1] * sinPhase));
+                    tgtDataQ.setElemDoubleAt(idx, (float)(-col1[2 * r] * sinPhase + col1[2 * r + 1] * cosPhase));
                 }
             }
 
@@ -619,7 +622,7 @@ public class AzimuthShiftOp extends Operator {
     /**
      * The SPI is used to register this operator in the graph processing framework
      * via the SPI configuration file
-     * {@code META-INF/services/org.esa.snap.framework.gpf.OperatorSpi}.
+     * {@code META-INF/services/org.esa.snap.core.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
      *
      * @see OperatorSpi#createOperator()

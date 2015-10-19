@@ -77,12 +77,14 @@ public class NetCDFWriter extends AbstractProductWriter {
     }
 
     private static float[][] getTiePointGridData(final TiePointGrid tpg) {
-        final float[][] data = new float[tpg.getRasterHeight()][tpg.getRasterWidth()];
-        final ProductData productData = tpg.getData();
-        for (int y = 0; y < tpg.getRasterHeight(); ++y) {
-            final int stride = y * tpg.getRasterWidth();
-            for (int x = 0; x < tpg.getRasterWidth(); ++x) {
-                data[y][x] = productData.getElemFloatAt(stride + x);
+        int gridWidth = tpg.getGridWidth();
+        int gridHeight = tpg.getGridHeight();
+        final float[][] data = new float[gridHeight][gridWidth];
+        final ProductData gridData = tpg.getGridData();
+        for (int y = 0; y < gridHeight; ++y) {
+            final int stride = y * gridWidth;
+            for (int x = 0; x < gridWidth; ++x) {
+                data[y][x] = gridData.getElemFloatAt(stride + x);
             }
         }
         return data;
@@ -139,8 +141,8 @@ public class NetCDFWriter extends AbstractProductWriter {
 
         for (TiePointGrid tpg : product.getTiePointGrids()) {
             final String name = tpg.getName();
-            netCDFWriteable.addDimension(name + 'x', tpg.getRasterWidth());
-            netCDFWriteable.addDimension(name + 'y', tpg.getRasterHeight());
+            netCDFWriteable.addDimension(name + 'x', tpg.getGridWidth());
+            netCDFWriteable.addDimension(name + 'y', tpg.getGridHeight());
             netCDFWriteable.addVariable(name, DataType.FLOAT,
                     new Dimension[]{rootGroup.findDimension(name + 'y'), rootGroup.findDimension(name + 'x')});
             if (tpg.getDescription() != null)

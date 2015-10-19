@@ -37,7 +37,7 @@ import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.WarpGeneralPolynomial;
 import javax.media.jai.WarpPolynomial;
-import java.awt.*;
+import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
@@ -367,8 +367,8 @@ public class CrossResamplingOp extends Operator {
         slantRangeTimeTPG = OperatorUtils.getSlantRangeTime(sourceProduct);
         incidenceAngleTPG = OperatorUtils.getIncidenceAngle(sourceProduct);
 
-        targetTPGWidth = latitudeTPG.getRasterWidth();
-        targetTPGHeight = latitudeTPG.getRasterHeight();
+        targetTPGWidth = latitudeTPG.getGridWidth();
+        targetTPGHeight = latitudeTPG.getGridHeight();
 
         final float[] targetLatTiePoints = new float[targetTPGHeight * targetTPGWidth];
         final float[] targetLonTiePoints = new float[targetTPGHeight * targetTPGWidth];
@@ -560,7 +560,7 @@ public class CrossResamplingOp extends Operator {
     /**
      * The SPI is used to register this operator in the graph processing framework
      * via the SPI configuration file
-     * {@code META-INF/services/org.esa.snap.framework.gpf.OperatorSpi}.
+     * {@code META-INF/services/org.esa.snap.core.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
      *
      * @see OperatorSpi#createOperator()
