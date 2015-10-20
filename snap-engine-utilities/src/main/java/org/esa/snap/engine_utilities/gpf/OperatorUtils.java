@@ -191,8 +191,8 @@ public final class OperatorUtils {
 
         final VirtualBand virtBand = new VirtualBand(name,
                 srcBand.getDataType(),
-                srcBand.getSceneRasterWidth(),
-                srcBand.getSceneRasterHeight(),
+                srcBand.getRasterWidth(),
+                srcBand.getRasterHeight(),
                 srcBand.getExpression());
         virtBand.setUnit(srcBand.getUnit());
         virtBand.setDescription(srcBand.getDescription());

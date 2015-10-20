@@ -66,8 +66,8 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
             throw new IOException("No product reader found for "+file.toString());
         }
         final Product product = productReader.readProductNodes(file, null);
-        RASTER_WIDTH = product.getBandAt(0).getSceneRasterWidth();
-        RASTER_HEIGHT = product.getBandAt(0).getSceneRasterHeight();
+        RASTER_WIDTH = product.getBandAt(0).getRasterWidth();
+        RASTER_HEIGHT = product.getBandAt(0).getRasterHeight();
         fileElevationTile = new FileElevationTile(product);
         tileGeocoding = product.getSceneGeoCoding();
         if(tileGeocoding == null) {

@@ -108,8 +108,8 @@ public class TestUtils {
                     throw new Exception("band " + b.getName() + " has null unit");
 
                 // readPixels gets computeTiles to be executed
-                final int w = b.getSceneRasterWidth() / 2;
-                final int h = b.getSceneRasterHeight() / 2;
+                final int w = b.getRasterWidth() / 2;
+                final int h = b.getRasterHeight() / 2;
                 if (FailOnLargeTestProducts && (w > LARGE_DIMENSION * 2 || h > LARGE_DIMENSION * 2)) {
                     throw new IOException("Test product too large " + w + "," + h);
                 }
