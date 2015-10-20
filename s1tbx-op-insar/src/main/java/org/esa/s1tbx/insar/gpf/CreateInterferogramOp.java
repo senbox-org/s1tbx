@@ -139,6 +139,7 @@ public class CreateInterferogramOp extends Operator {
     private MetadataElement slvRoot = null;
 
     private boolean outputFlatEarthPhase = false;
+    private static final String COHERENCE_PHASE = "coherence_phase";
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -373,6 +374,7 @@ public class CreateInterferogramOp extends Operator {
                         cohTag += "_" + topsarTag;
                     }
                     product.addBand(Unit.COHERENCE, cohTag + "_" + master.date + "_" + slave.date);
+                    product.addBand(COHERENCE_PHASE, "Phase_" + cohTag + "_" + master.date + "_" + slave.date);
                 }
 
                 if(subtractFlatEarthPhase && outputFlatEarthPhase) {
@@ -489,6 +491,10 @@ public class CreateInterferogramOp extends Operator {
                 final String targetBandCoh = targetMap.get(key).getBandName(Unit.COHERENCE);
                 final Band cohBand = targetProduct.addBand(targetBandCoh, ProductData.TYPE_FLOAT32);
                 cohBand.setUnit(Unit.COHERENCE);
+
+                final String cohPhaseBandName = targetMap.get(key).getBandName(COHERENCE_PHASE);
+                final Band cohPhaseBand = targetProduct.addBand(cohPhaseBandName, ProductData.TYPE_FLOAT32);
+                cohPhaseBand.setUnit(Unit.PHASE);
             }
 
             if(subtractFlatEarthPhase && outputFlatEarthPhase) {
@@ -805,8 +811,8 @@ public class CreateInterferogramOp extends Operator {
                 final Tile tileOutImag = targetTileMap.get(targetBand_Q);
 
                 // coherence
-                DoubleMatrix cohMatrix = null;
-                ProductData samplesCoh = null;
+                DoubleMatrix cohDataReal = null, cohDataImag = null;
+                ProductData tgtCohData = null, tgtCohPhaseData = null;
                 if(includeCoherence) {
                     for (int i = 0; i < dataMaster.length; i++) {
                         double tmp = norm(dataMaster2.get(i));
@@ -814,12 +820,17 @@ public class CreateInterferogramOp extends Operator {
                         dataSlave2.put(i, new ComplexDouble(norm(dataSlave2.get(i)), tmp));
                     }
 
-                    cohMatrix = SarUtils.coherence2(dataMaster2, dataSlave2, cohWinAz, cohWinRg);
+                    final ComplexDoubleMatrix cohMatrix = SarUtils.cplxCoherence(dataMaster2, dataSlave2, cohWinAz, cohWinRg);
+                    cohDataReal = cohMatrix.real();
+                    cohDataImag = cohMatrix.imag();
 
-                    final Band targetBandCoh = targetProduct.getBand(product.getBandName(Unit.COHERENCE));
-                    final Tile tileOutCoh = targetTileMap.get(targetBandCoh);
+                    final Band tgtCohBand = targetProduct.getBand(product.getBandName(Unit.COHERENCE));
+                    final Tile tgtCohTile = targetTileMap.get(tgtCohBand);
+                    tgtCohData = tgtCohTile.getDataBuffer();
 
-                    samplesCoh = tileOutCoh.getDataBuffer();
+                    final Band tgtCohPhaseBand = targetProduct.getBand(product.getBandName(COHERENCE_PHASE));
+                    final Tile tgtCohPhaseTile = targetTileMap.get(tgtCohPhaseBand);
+                    tgtCohPhaseData = tgtCohPhaseTile.getDataBuffer();
                 }
 
                 // push all
@@ -836,14 +847,19 @@ public class CreateInterferogramOp extends Operator {
                 for (int y = rect.y; y < maxY; y++) {
                     tgtIndex.calculateStride(y);
                     final int yy = y - rect.y;
-                    final int yy2 = yy+azOffset;
+                    final int yy2 = yy + azOffset;
                     for (int x = rect.x; x < maxX; x++) {
                         final int trgIndex = tgtIndex.getIndex(x);
                         final int xx = x - rect.x;
-                        samplesReal.setElemFloatAt(trgIndex, (float)dataReal.get(yy2, xx+rgOffset));
-                        samplesImag.setElemFloatAt(trgIndex, (float)dataImag.get(yy2, xx+rgOffset));
-                        if(samplesCoh != null) {
-                            samplesCoh.setElemFloatAt(trgIndex, (float) cohMatrix.get(yy, xx));
+                        samplesReal.setElemFloatAt(trgIndex, (float)dataReal.get(yy2, xx + rgOffset));
+                        samplesImag.setElemFloatAt(trgIndex, (float)dataImag.get(yy2, xx + rgOffset));
+                        if(tgtCohData != null) {
+                            final double cohI = cohDataReal.get(yy, xx);
+                            final double cohQ = cohDataImag.get(yy, xx);
+                            final double coh = Math.sqrt(cohI * cohI + cohQ * cohQ);
+                            final double cohPhase = Math.atan2(cohQ, cohI);
+                            tgtCohData.setElemFloatAt(trgIndex, (float)coh);
+                            tgtCohPhaseData.setElemFloatAt(trgIndex, (float)cohPhase);
                         }
                     }
                 }
@@ -903,10 +919,8 @@ public class CreateInterferogramOp extends Operator {
                                     final Map<Band, Tile> targetTileMap) throws Exception {
 
         try {
-            final int rgOffset = (cohWinRg - 1) / 2;
-            final int azOffset = (cohWinAz - 1) / 2;
-            final int cohx0 = targetRectangle.x - rgOffset;
-            final int cohy0 = targetRectangle.y - azOffset;
+            final int cohx0 = targetRectangle.x - (cohWinRg - 1) / 2;
+            final int cohy0 = targetRectangle.y - (cohWinAz - 1) / 2;
             final int cohw = targetRectangle.width + cohWinRg - 1;
             final int cohh = targetRectangle.height + cohWinAz - 1;
             final Rectangle rect = new Rectangle(cohx0, cohy0, cohw, cohh);
@@ -982,21 +996,33 @@ public class CreateInterferogramOp extends Operator {
                 Tile tileOutImag = targetTileMap.get(targetBand_Q);
 
                 // coherence
-                DoubleMatrix cohMatrix = null;
-                ProductData samplesCoh = null;
+                DoubleMatrix cohDataReal = null, cohDataImag = null;
+                ProductData tgtCohData = null, tgtCohPhaseData = null;
                 if(includeCoherence) {
-                    for (int i = 0; i < dataMaster2.length; i++) {
-                        double tmp = norm(dataMaster2.get(i));
-                        dataMaster2.put(i, dataMaster2.get(i).mul(dataSlave2.get(i).conj()));
-                        dataSlave2.put(i, new ComplexDouble(norm(dataSlave2.get(i)), tmp));
+                    for (int r = 0; r < dataMaster2.rows; r++) {
+                        final int y = cohy0 + r;
+                        for (int c = 0; c < dataMaster2.columns; c++) {
+                            double tmp = norm(dataMaster2.get(r, c));
+                            if (y < minLine || y > maxLine) {
+                                dataMaster2.put(r, c, 0.0);
+                            } else {
+                                dataMaster2.put(r, c, dataMaster2.get(r, c).mul(dataSlave2.get(r,c).conj()));
+                            }
+                            dataSlave2.put(r, c, new ComplexDouble(norm(dataSlave2.get(r, c)), tmp));
+                        }
                     }
 
-                    cohMatrix = SarUtils.coherence2(dataMaster2, dataSlave2, cohWinAz, cohWinRg);
+                    final ComplexDoubleMatrix cohMatrix = SarUtils.cplxCoherence(dataMaster2, dataSlave2, cohWinAz, cohWinRg);
+                    cohDataReal = cohMatrix.real();
+                    cohDataImag = cohMatrix.imag();
 
-                    final Band targetBandCoh = targetProduct.getBand(product.getBandName(Unit.COHERENCE));
-                    final Tile tileOutCoh = targetTileMap.get(targetBandCoh);
+                    final Band tgtCohBand = targetProduct.getBand(product.getBandName(Unit.COHERENCE));
+                    final Tile tgtCohTile = targetTileMap.get(tgtCohBand);
+                    tgtCohData = tgtCohTile.getDataBuffer();
 
-                    samplesCoh = tileOutCoh.getDataBuffer();
+                    final Band tgtCohPhaseBand = targetProduct.getBand(product.getBandName(COHERENCE_PHASE));
+                    final Tile tgtCohPhaseTile = targetTileMap.get(tgtCohPhaseBand);
+                    tgtCohPhaseData = tgtCohPhaseTile.getDataBuffer();
                 }
 
                 ProductData samplesFep = null;
@@ -1021,26 +1047,32 @@ public class CreateInterferogramOp extends Operator {
                     srcSlvIndex.calculateStride(y);
                     final int yy = y - y0;
                     for (int x = x0; x <= xN; x++) {
-                        final int trgIdx = tgtIndex.getIndex(x);
+                        final int tgtIdx = tgtIndex.getIndex(x);
                         final int xx = x - x0;
 
                         if (srcSlvData.getElemDoubleAt(srcSlvIndex.getIndex(x)) == srcNoDataValue) {
-                            samplesReal.setElemFloatAt(trgIdx, (float)srcNoDataValue);
-                            samplesImag.setElemFloatAt(trgIdx, (float)srcNoDataValue);
-                            if(samplesCoh != null) {
-                                samplesCoh.setElemFloatAt(trgIdx, (float)srcNoDataValue);
+                            samplesReal.setElemFloatAt(tgtIdx, (float)srcNoDataValue);
+                            samplesImag.setElemFloatAt(tgtIdx, (float)srcNoDataValue);
+                            if(tgtCohData != null) {
+                                tgtCohData.setElemFloatAt(tgtIdx, (float)srcNoDataValue);
+                                tgtCohPhaseData.setElemFloatAt(tgtIdx, (float)srcNoDataValue);
                             }
                             if (samplesFep != null) {
-                                samplesFep.setElemFloatAt(trgIdx, (float)srcNoDataValue);
+                                samplesFep.setElemFloatAt(tgtIdx, (float)srcNoDataValue);
                             }
                         } else {
-                            samplesReal.setElemFloatAt(trgIdx, (float)dataReal.get(yy, xx));
-                            samplesImag.setElemFloatAt(trgIdx, (float)dataImag.get(yy, xx));
-                            if(samplesCoh != null) {
-                                samplesCoh.setElemFloatAt(trgIdx, (float)cohMatrix.get(yy, xx));
+                            samplesReal.setElemFloatAt(tgtIdx, (float)dataReal.get(yy, xx));
+                            samplesImag.setElemFloatAt(tgtIdx, (float)dataImag.get(yy, xx));
+                            if(tgtCohData != null) {
+                                final double cohI = cohDataReal.get(yy, xx);
+                                final double cohQ = cohDataImag.get(yy, xx);
+                                final double coh = Math.sqrt(cohI * cohI + cohQ * cohQ);
+                                final double cohPhase = Math.atan2(cohQ, cohI);
+                                tgtCohData.setElemFloatAt(tgtIdx, (float)coh);
+                                tgtCohPhaseData.setElemFloatAt(tgtIdx, (float)cohPhase);
                             }
                             if (samplesFep != null && realReferencePhase != null) {
-                                samplesFep.setElemFloatAt(trgIdx, (float)realReferencePhase.get(yy, xx));
+                                samplesFep.setElemFloatAt(tgtIdx, (float)realReferencePhase.get(yy, xx));
                             }
                         }
                     }
