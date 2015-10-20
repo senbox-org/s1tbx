@@ -21,7 +21,7 @@ public class TiePointInterpolator {
     public TiePointInterpolator(final TiePointGrid tpg) {
         this.tpg = tpg;
         this.tiePoints = tpg.getTiePoints();
-        this.rasterWidth = tpg.getSceneRasterWidth();
+        this.rasterWidth = tpg.getRasterWidth();
     }
 
     /**=========================== Quadratic/Biquadratic Interpolations ================================**/

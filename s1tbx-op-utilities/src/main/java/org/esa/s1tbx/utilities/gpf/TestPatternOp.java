@@ -85,7 +85,7 @@ public final class TestPatternOp extends Operator {
                     continue;
                 } else {
                     //ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, false);
-                    final Band targetBand = new Band(srcBand.getName(), ProductData.TYPE_FLOAT32, srcBand.getSceneRasterWidth(), srcBand.getSceneRasterHeight());
+                    final Band targetBand = new Band(srcBand.getName(), ProductData.TYPE_FLOAT32, srcBand.getRasterWidth(), srcBand.getRasterHeight());
                     targetProduct.addBand(targetBand);
                     ProductUtils.copyRasterDataNodeProperties(srcBand, targetBand);
                 }

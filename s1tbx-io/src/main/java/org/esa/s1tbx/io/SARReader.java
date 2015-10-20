@@ -83,8 +83,8 @@ public abstract class SARReader extends AbstractProductReader {
 
         final VirtualBand virtBand = new VirtualBand("Intensity" + countStr,
                 ProductData.TYPE_FLOAT32,
-                band.getSceneRasterWidth(),
-                band.getSceneRasterHeight(),
+                band.getRasterWidth(),
+                band.getRasterHeight(),
                 expression);
         virtBand.setUnit(Unit.INTENSITY);
         virtBand.setDescription("Intensity from complex data");

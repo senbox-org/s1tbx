@@ -102,7 +102,7 @@ public class GammaProductWriter extends AbstractProductWriter {
                                                  ProgressMonitor pm) throws IOException {
         Guardian.assertNotNull("sourceBand", sourceBand);
         Guardian.assertNotNull("sourceBuffer", sourceBuffer);
-        final int sourceBandWidth = sourceBand.getSceneRasterWidth();
+        final int sourceBandWidth = sourceBand.getRasterWidth();
         final int elemSize = headerWriter.getHighestElemSize();
 
         final ImageOutputStream outputStream = getOrCreateImageOutputStream(sourceBand);

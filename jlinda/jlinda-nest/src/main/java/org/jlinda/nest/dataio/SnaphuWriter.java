@@ -162,8 +162,8 @@ public class SnaphuWriter extends AbstractProductWriter {
         Guardian.assertNotNull("sourceBand", sourceBand);
         Guardian.assertNotNull("sourceBuffer", sourceBuffer);
         checkBufferSize(sourceWidth, sourceHeight, sourceBuffer);
-        final int sourceBandWidth = sourceBand.getSceneRasterWidth();
-        final int sourceBandHeight = sourceBand.getSceneRasterHeight();
+        final int sourceBandWidth = sourceBand.getRasterWidth();
+        final int sourceBandHeight = sourceBand.getRasterHeight();
         checkSourceRegionInsideBandRegion(sourceWidth, sourceBandWidth, sourceHeight, sourceBandHeight, sourceOffsetX,
                 sourceOffsetY);
         final ImageOutputStream outputStream = getOrCreateImageOutputStream(sourceBand);

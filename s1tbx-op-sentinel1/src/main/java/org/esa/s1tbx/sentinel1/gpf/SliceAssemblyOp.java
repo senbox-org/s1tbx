@@ -306,8 +306,8 @@ public final class SliceAssemblyOp extends Operator {
 
         for (Band b : bands) {
             if (b.getName().contains(swath)) {
-                dim[0] = b.getSceneRasterHeight();
-                dim[1] = b.getSceneRasterWidth();
+                dim[0] = b.getRasterHeight();
+                dim[1] = b.getRasterWidth();
                 break;
             }
         }

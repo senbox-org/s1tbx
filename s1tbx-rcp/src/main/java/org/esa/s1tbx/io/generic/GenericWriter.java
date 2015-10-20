@@ -102,8 +102,8 @@ public class GenericWriter extends AbstractProductWriter {
 
         checkBufferSize(sourceWidth, sourceHeight, sourceBuffer);
 
-        final int sourceBandWidth = sourceBand.getSceneRasterWidth();
-        final int sourceBandHeight = sourceBand.getSceneRasterHeight();
+        final int sourceBandWidth = sourceBand.getRasterWidth();
+        final int sourceBandHeight = sourceBand.getRasterHeight();
 
         checkSourceRegionInsideBandRegion(sourceWidth, sourceBandWidth, sourceHeight, sourceBandHeight, sourceOffsetX, sourceOffsetY);
 

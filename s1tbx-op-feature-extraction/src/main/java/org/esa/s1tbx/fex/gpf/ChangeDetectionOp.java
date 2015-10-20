@@ -185,8 +185,8 @@ public class ChangeDetectionOp extends Operator {
         String expression = targetRatioBand.getName() + " > "+ maskUpperThreshold+" ? 1 : " + targetRatioBand.getName() + " < "+maskLowerThreshold+" ? -1 : 0";
 
         final Mask mask = new Mask(targetRatioBand.getName() + MASK_NAME,
-                                   targetRatioBand.getSceneRasterWidth(),
-                                   targetRatioBand.getSceneRasterHeight(),
+                                   targetRatioBand.getRasterWidth(),
+                                   targetRatioBand.getRasterHeight(),
                                    Mask.BandMathsType.INSTANCE);
 
         mask.setDescription("Change");

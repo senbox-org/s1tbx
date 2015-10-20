@@ -153,8 +153,8 @@ public class FloodDetectionOp extends Operator {
         }
 
         final Mask mask = new Mask(mstBand.getName() + "_flood",
-                mstBand.getSceneRasterWidth(),
-                mstBand.getSceneRasterHeight(),
+                mstBand.getRasterWidth(),
+                mstBand.getRasterHeight(),
                 Mask.BandMathsType.INSTANCE);
 
         mask.setDescription("Flood");

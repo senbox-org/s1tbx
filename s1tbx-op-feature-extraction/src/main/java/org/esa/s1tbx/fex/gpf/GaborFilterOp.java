@@ -138,8 +138,8 @@ public class GaborFilterOp extends Operator {
         final Band srcBand = sourceProduct.getBand(srcBandName[0]);
         final int minBoundx = Math.max(0, x0 - xmax);
         final int minBoundy = Math.max(0, y0 - ymax);
-        final int boundW = Math.min(w + minBoundx + xmax, srcBand.getSceneRasterWidth() - x0);
-        final int boundH = Math.min(h + minBoundy + ymax, srcBand.getSceneRasterHeight() - y0);
+        final int boundW = Math.min(w + minBoundx + xmax, srcBand.getRasterWidth() - x0);
+        final int boundH = Math.min(h + minBoundy + ymax, srcBand.getRasterHeight() - y0);
         final Rectangle srcRect = new Rectangle(minBoundx, minBoundy, boundW, boundH);
 
         final Tile sourceTile = getSourceTile(srcBand, srcRect);

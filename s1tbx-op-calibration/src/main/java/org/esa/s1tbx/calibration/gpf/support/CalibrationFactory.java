@@ -113,8 +113,8 @@ public class CalibrationFactory {
 
             final VirtualBand band = new VirtualBand(sigmaNoughtVirtualBandName,
                     ProductData.TYPE_FLOAT32,
-                    trgBand.getSceneRasterWidth(),
-                    trgBand.getSceneRasterHeight(),
+                    trgBand.getRasterWidth(),
+                    trgBand.getRasterHeight(),
                     expression);
             band.setUnit(trgBand.getUnit());
             band.setDescription(description);
@@ -177,9 +177,9 @@ public class CalibrationFactory {
 
             final VirtualBand band = new VirtualBand(gammaNoughtVirtualBandName,
                     ProductData.TYPE_FLOAT32,
-                    trgBand.getSceneRasterWidth(),
-                    trgBand.getSceneRasterHeight(),
-                    expression);
+                    trgBand.getRasterWidth(),
+                                                     trgBand.getRasterHeight(),
+                                                     expression);
             band.setUnit(trgBand.getUnit());
             band.setDescription(description);
             band.setNoDataValueUsed(true);
@@ -207,8 +207,8 @@ public class CalibrationFactory {
             String betaNoughtVirtualBandName = trgBandName.replace("Sigma0", "Beta0");
             final VirtualBand band = new VirtualBand(betaNoughtVirtualBandName,
                     ProductData.TYPE_FLOAT32,
-                    trgBand.getSceneRasterWidth(),
-                    trgBand.getSceneRasterHeight(),
+                    trgBand.getRasterWidth(),
+                    trgBand.getRasterHeight(),
                     expression);
             band.setUnit(trgBand.getUnit());
             band.setDescription("Beta0 image");
