@@ -18,6 +18,8 @@ import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
+import org.esa.snap.engine_utilities.gpf.ReaderUtils;
+import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
@@ -32,6 +34,7 @@ import org.jlinda.nest.utils.TileUtilsDoris;
 import javax.media.jai.BorderExtender;
 import java.awt.Rectangle;
 import java.util.HashMap;
+import java.util.Map;
 
 @OperatorMetadata(alias = "Coherence",
         category = "Radar/Interferometric/Products",
@@ -74,6 +77,7 @@ public class CreateCoherenceImageOp extends Operator {
     private int subSwathIndex = 0;
 
     private static final int ORBIT_DEGREE = 3; // hardcoded
+    private static final String COHERENCE_PHASE = "coherence_phase";
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -210,7 +214,8 @@ public class CreateCoherenceImageOp extends Operator {
                 final CplxContainer slave = slaveMap.get(keySlave);
                 final ProductContainer product = new ProductContainer(productName, master, slave, false);
 
-                product.targetBandName_I = productTag + "_" + master.date + "_" + slave.date;
+                product.addBand(Unit.COHERENCE, productTag + "_" + master.date + "_" + slave.date);
+                product.addBand(COHERENCE_PHASE, "Phase_" + productTag + "_" + master.date + "_" + slave.date);
 
                 // put ifg-product bands into map
                 targetMap.put(productName, product);
@@ -228,8 +233,13 @@ public class CreateCoherenceImageOp extends Operator {
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
         for (String key : targetMap.keySet()) {
-            final Band cohBand = targetProduct.addBand(targetMap.get(key).targetBandName_I, ProductData.TYPE_FLOAT32);
-            cohBand.setUnit(Unit.COHERENCE);
+            final String coherenceBandName = targetMap.get(key).getBandName(Unit.COHERENCE);
+            final Band coherenceBand = targetProduct.addBand(coherenceBandName, ProductData.TYPE_FLOAT32);
+            coherenceBand.setUnit(Unit.COHERENCE);
+
+            final String coherencePhaseBandName = targetMap.get(key).getBandName(COHERENCE_PHASE);
+            final Band coherencePhaseBand = targetProduct.addBand(coherencePhaseBandName, ProductData.TYPE_FLOAT32);
+            coherencePhaseBand.setUnit(Unit.PHASE);
         }
     }
 
@@ -237,35 +247,33 @@ public class CreateCoherenceImageOp extends Operator {
      * Called by the framework in order to compute a tile for the given target band.
      * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
      *
-     * @param targetBand The target band.
-     * @param targetTile The current tile associated with the target band to be computed.
-     * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws OperatorException
+     * @param targetTileMap   The target tiles associated with all target bands to be computed.
+     * @param targetRectangle The rectangle of target tile.
+     * @param pm              A progress monitor which should be used to determine computation cancelation requests.
+     * @throws org.esa.snap.core.gpf.OperatorException
      *          If an error occurs during computation of the target raster.
      */
     @Override
-    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+    public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
+            throws OperatorException {
 
         if (isTOPSARBurstProduct) {
-            computeTileForTOPSARProduct(targetBand, targetTile, pm);
+            computeTileForTOPSARProduct(targetTileMap, targetRectangle, pm);
         } else {
-            computeTileForNormalProduct(targetBand, targetTile, pm);
+            computeTileForNormalProduct(targetTileMap, targetRectangle, pm);
         }
     }
 
-    private void computeTileForNormalProduct(Band targetBand, Tile targetTile, ProgressMonitor pm)
+    private void computeTileForNormalProduct(
+            final Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
             throws OperatorException {
 
         try {
-            final Rectangle rect = targetTile.getRectangle();
-            final int x0 = rect.x - (cohWinRg - 1) / 2;
-            final int y0 = rect.y - (cohWinAz - 1) / 2;
-            final int w = rect.width + cohWinRg - 1;
-            final int h = rect.height + cohWinAz - 1;
-            rect.x = x0;
-            rect.y = y0;
-            rect.width = w;
-            rect.height = h;
+            final int x0 = targetRectangle.x - (cohWinRg - 1) / 2;
+            final int y0 = targetRectangle.y - (cohWinAz - 1) / 2;
+            final int w = targetRectangle.width + cohWinRg - 1;
+            final int h = targetRectangle.height + cohWinAz - 1;
+            final Rectangle extRect = new Rectangle(x0, y0, w, h);
 
             final BorderExtender border = BorderExtender.createInstance(BorderExtender.BORDER_ZERO);
 
@@ -273,28 +281,25 @@ public class CreateCoherenceImageOp extends Operator {
 
                 final ProductContainer product = targetMap.get(cohKey);
 
-                if (targetBand.getName().equals(product.targetBandName_I)) {
+                final Tile tileRealMaster = getSourceTile(product.sourceMaster.realBand, extRect, border);
+                final Tile tileImagMaster = getSourceTile(product.sourceMaster.imagBand, extRect, border);
+                final ComplexDoubleMatrix dataMaster =
+                        TileUtilsDoris.pullComplexDoubleMatrix(tileRealMaster, tileImagMaster);
 
-                    Tile tileRealMaster = getSourceTile(product.sourceMaster.realBand, rect, border);
-                    Tile tileImagMaster = getSourceTile(product.sourceMaster.imagBand, rect, border);
-                    final ComplexDoubleMatrix dataMaster =
-                            TileUtilsDoris.pullComplexDoubleMatrix(tileRealMaster, tileImagMaster);
+                final Tile tileRealSlave = getSourceTile(product.sourceSlave.realBand, extRect, border);
+                final Tile tileImagSlave = getSourceTile(product.sourceSlave.imagBand, extRect, border);
+                final ComplexDoubleMatrix dataSlave =
+                        TileUtilsDoris.pullComplexDoubleMatrix(tileRealSlave, tileImagSlave);
 
-                    Tile tileRealSlave = getSourceTile(product.sourceSlave.realBand, rect, border);
-                    Tile tileImagSlave = getSourceTile(product.sourceSlave.imagBand, rect, border);
-                    final ComplexDoubleMatrix dataSlave =
-                            TileUtilsDoris.pullComplexDoubleMatrix(tileRealSlave, tileImagSlave);
-
-                    for (int i = 0; i < dataMaster.length; i++) {
-                        double tmp = norm(dataMaster.get(i));
-                        dataMaster.put(i, dataMaster.get(i).mul(dataSlave.get(i).conj()));
-                        dataSlave.put(i, new ComplexDouble(norm(dataSlave.get(i)), tmp));
-                    }
-
-                    DoubleMatrix cohMatrix = SarUtils.coherence2(dataMaster, dataSlave, cohWinAz, cohWinRg);
-
-                    TileUtilsDoris.pushDoubleMatrix(cohMatrix, targetTile, targetTile.getRectangle());
+                for (int i = 0; i < dataMaster.length; i++) {
+                    double tmp = norm(dataMaster.get(i));
+                    dataMaster.put(i, dataMaster.get(i).mul(dataSlave.get(i).conj()));
+                    dataSlave.put(i, new ComplexDouble(norm(dataSlave.get(i)), tmp));
                 }
+
+                ComplexDoubleMatrix cohMatrix = SarUtils.cplxCoherence(dataMaster, dataSlave, cohWinAz, cohWinRg);
+
+                saveComplexCoherence(cohMatrix, product, targetTileMap, targetRectangle);
             }
 
         } catch (Throwable e) {
@@ -304,76 +309,11 @@ public class CreateCoherenceImageOp extends Operator {
         }
     }
 
-    private void computeTileForNormalProduct2(Band targetBand, Tile targetTile, ProgressMonitor pm)
+    private void computeTileForTOPSARProduct(
+            final Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
             throws OperatorException {
 
         try {
-            final Rectangle rect = targetTile.getRectangle();
-            final int x0 = rect.x - (cohWinRg - 1) / 2;
-            final int y0 = rect.y - (cohWinAz - 1) / 2;
-            final int w = rect.width + cohWinRg - 1;
-            final int h = rect.height + cohWinAz - 1;
-            rect.x = x0;
-            rect.y = y0;
-            rect.width = w;
-            rect.height = h;
-
-            final BorderExtender border = BorderExtender.createInstance(BorderExtender.BORDER_ZERO);
-
-            for (String cohKey : targetMap.keySet()) {
-
-                final ProductContainer product = targetMap.get(cohKey);
-
-                if (targetBand.getName().equals(product.targetBandName_I)) {
-
-                    final Tile tileRealMaster = getSourceTile(product.sourceMaster.realBand, rect, border);
-                    final Tile tileImagMaster = getSourceTile(product.sourceMaster.imagBand, rect, border);
-
-                    final Tile tileRealSlave = getSourceTile(product.sourceSlave.realBand, rect, border);
-                    final Tile tileImagSlave = getSourceTile(product.sourceSlave.imagBand, rect, border);
-
-                    final ProductData iMstDB = tileRealMaster.getDataBuffer();
-                    final ProductData qMstDB = tileImagMaster.getDataBuffer();
-                    final ProductData iSlvDB = tileRealSlave.getDataBuffer();
-                    final ProductData qSlvDB = tileImagSlave.getDataBuffer();
-
-                    final int numElems = iMstDB.getNumElems();
-                    final double[] iMst = new double[numElems];
-                    final double[] qMst = new double[numElems];
-                    final double[] iSlv = new double[numElems];
-                    final double[] qSlv = new double[numElems];
-                    for (int i = 0; i < numElems; i++) {
-                        double iM = iMstDB.getElemDoubleAt(i);
-                        double qM = qMstDB.getElemDoubleAt(i);
-                        double iS = iSlvDB.getElemDoubleAt(i);
-                        double qS = qSlvDB.getElemDoubleAt(i);
-                        double tmp = norm(iM, qM);
-                        iMst[i] = iM * iS - qM * -qS;
-                        qMst[i] = iM * -qS + qM * iS;
-
-                        iSlv[i] = norm(iS, qS);
-                        qSlv[i] = tmp;
-                    }
-
-                    DoubleMatrix cohMatrix = coherence(iMst, qMst, iSlv, qSlv, cohWinAz, cohWinRg,
-                            tileRealMaster.getWidth(), tileRealMaster.getHeight());
-
-                    TileUtilsDoris.pushDoubleMatrix(cohMatrix, targetTile, targetTile.getRectangle());
-                }
-            }
-
-        } catch (Throwable e) {
-            OperatorUtils.catchOperatorException(getId(), e);
-        } finally {
-            pm.done();
-        }
-    }
-
-    private void computeTileForTOPSARProduct(final Band targetBand, final Tile targetTile, final ProgressMonitor pm)
-            throws OperatorException {
-
-        try {
-            final Rectangle targetRectangle = targetTile.getRectangle();
             final int tx0 = targetRectangle.x;
             final int ty0 = targetRectangle.y;
             final int tw = targetRectangle.width;
@@ -398,7 +338,7 @@ public class CreateCoherenceImageOp extends Operator {
                 final Rectangle partialTileRectangle = new Rectangle(ntx0, nty0, ntw, nth);
                 //System.out.println("burst = " + burstIndex + ": ntx0 = " + ntx0 + ", nty0 = " + nty0 + ", ntw = " + ntw + ", nth = " + nth);
 
-                computePartialTile(subSwathIndex, burstIndex, targetBand, targetTile, partialTileRectangle);
+                computePartialTile(subSwathIndex, burstIndex, targetTileMap, partialTileRectangle);
             }
 
         } catch (Throwable e) {
@@ -408,8 +348,8 @@ public class CreateCoherenceImageOp extends Operator {
         }
     }
 
-    private void computePartialTile(final int subSwathIndex, final int burstIndex, final Band targetBand,
-                                    final Tile targetTile, final Rectangle targetRectangle) {
+    private void computePartialTile(final int subSwathIndex, final int burstIndex,
+                                    final Map<Band, Tile> targetTileMap, final Rectangle targetRectangle) {
 
         try {
             final int cohx0 = targetRectangle.x - (cohWinRg - 1) / 2;
@@ -426,39 +366,72 @@ public class CreateCoherenceImageOp extends Operator {
             for (String cohKey : targetMap.keySet()) {
                 final ProductContainer product = targetMap.get(cohKey);
 
-                if (targetBand.getName().equals(product.targetBandName_I)) {
+                Tile tileRealMaster = getSourceTile(product.sourceMaster.realBand, rect, border);
+                Tile tileImagMaster = getSourceTile(product.sourceMaster.imagBand, rect, border);
+                final ComplexDoubleMatrix dataMaster =
+                        TileUtilsDoris.pullComplexDoubleMatrix(tileRealMaster, tileImagMaster);
 
-                    Tile tileRealMaster = getSourceTile(product.sourceMaster.realBand, rect, border);
-                    Tile tileImagMaster = getSourceTile(product.sourceMaster.imagBand, rect, border);
-                    final ComplexDoubleMatrix dataMaster =
-                            TileUtilsDoris.pullComplexDoubleMatrix(tileRealMaster, tileImagMaster);
+                Tile tileRealSlave = getSourceTile(product.sourceSlave.realBand, rect, border);
+                Tile tileImagSlave = getSourceTile(product.sourceSlave.imagBand, rect, border);
+                final ComplexDoubleMatrix dataSlave =
+                        TileUtilsDoris.pullComplexDoubleMatrix(tileRealSlave, tileImagSlave);
 
-                    Tile tileRealSlave = getSourceTile(product.sourceSlave.realBand, rect, border);
-                    Tile tileImagSlave = getSourceTile(product.sourceSlave.imagBand, rect, border);
-                    final ComplexDoubleMatrix dataSlave =
-                            TileUtilsDoris.pullComplexDoubleMatrix(tileRealSlave, tileImagSlave);
-
-                    for (int r = 0; r < dataMaster.rows; r++) {
-                        final int y = cohy0 + r;
-                        for (int c = 0; c < dataMaster.columns; c++) {
-                            double tmp = norm(dataMaster.get(r, c));
-                            if (y < yMin || y > yMax) {
-                                dataMaster.put(r, c, 0.0);
-                            } else {
-                                dataMaster.put(r, c, dataMaster.get(r, c).mul(dataSlave.get(r,c).conj()));
-                            }
-                            dataSlave.put(r, c, new ComplexDouble(norm(dataSlave.get(r, c)), tmp));
+                for (int r = 0; r < dataMaster.rows; r++) {
+                    final int y = cohy0 + r;
+                    for (int c = 0; c < dataMaster.columns; c++) {
+                        double tmp = norm(dataMaster.get(r, c));
+                        if (y < yMin || y > yMax) {
+                            dataMaster.put(r, c, 0.0);
+                        } else {
+                            dataMaster.put(r, c, dataMaster.get(r, c).mul(dataSlave.get(r,c).conj()));
                         }
+                        dataSlave.put(r, c, new ComplexDouble(norm(dataSlave.get(r, c)), tmp));
                     }
-
-                    DoubleMatrix cohMatrix = SarUtils.coherence2(dataMaster, dataSlave, cohWinAz, cohWinRg);
-
-                    TileUtilsDoris.pushDoubleMatrix(cohMatrix, targetTile, targetRectangle);
                 }
+
+                ComplexDoubleMatrix  cohMatrix = SarUtils.cplxCoherence(dataMaster, dataSlave, cohWinAz, cohWinRg);
+
+                saveComplexCoherence(cohMatrix, product, targetTileMap, targetRectangle);
             }
 
         } catch (Exception e) {
             throw new OperatorException(e);
+        }
+    }
+
+    private void saveComplexCoherence(final ComplexDoubleMatrix  cohMatrix, final ProductContainer product,
+                                      final Map<Band, Tile> targetTileMap, final Rectangle targetRectangle) {
+
+        final int x0 = targetRectangle.x;
+        final int y0 = targetRectangle.y;
+        final int maxX = x0 + targetRectangle.width;
+        final int maxY = y0 + targetRectangle.height;
+
+        final Band coherenceBand = targetProduct.getBand(product.getBandName(Unit.COHERENCE));
+        final Tile coherenceTile = targetTileMap.get(coherenceBand);
+        final ProductData coherenceData = coherenceTile.getDataBuffer();
+
+        final Band coherencePhaseBand = targetProduct.getBand(product.getBandName(COHERENCE_PHASE));
+        final Tile coherencePhaseTile = targetTileMap.get(coherencePhaseBand);
+        final ProductData coherencePhaseData = coherencePhaseTile.getDataBuffer();
+
+        final DoubleMatrix dataReal = cohMatrix.real();
+        final DoubleMatrix dataImag = cohMatrix.imag();
+
+        final TileIndex tgtIndex = new TileIndex(coherenceTile);
+        for (int y = y0; y < maxY; y++) {
+            tgtIndex.calculateStride(y);
+            final int yy = y - y0;
+            for (int x = x0; x < maxX; x++) {
+                final int tgtIdx = tgtIndex.getIndex(x);
+                final int xx = x - x0;
+                final double cohI = dataReal.get(yy, xx);
+                final double cohQ = dataImag.get(yy, xx);
+                final double coh = Math.sqrt(cohI * cohI + cohQ * cohQ);
+                final double cohPhase = Math.atan2(cohQ, cohI);
+                coherenceData.setElemFloatAt(tgtIdx, (float)coh);
+                coherencePhaseData.setElemFloatAt(tgtIdx, (float)cohPhase);
+            }
         }
     }
 
