@@ -24,11 +24,7 @@ import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterConstants;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.utils.PrivilegedAccessor;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -171,12 +167,6 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
         this(obj);
         this.name = newName;
         this.alias = newAlias;
-        List<SystemVariable> variableList = obj.getVariables();
-        if (variableList != null) {
-            this.variables.addAll(variableList.stream()
-                    .filter(systemVariable -> systemVariable != null)
-                    .map(SystemVariable::createCopy).collect(Collectors.toList()));
-        }
     }
 
     /**
