@@ -86,7 +86,7 @@ public class CreateInterferogramOp extends Operator {
     @Parameter(valueSet = {"301", "401", "501", "601", "701", "801", "901", "1001"},
             description = "Number of points for the 'flat earth phase' polynomial estimation",
             defaultValue = "501",
-            label = "Number of 'Flat earth' estimation points")
+            label = "Number of \"Flat Earth\" estimation points")
     private int srpNumberPoints = 501;
 
     @Parameter(valueSet = {"1", "2", "3", "4", "5"},
@@ -132,7 +132,7 @@ public class CreateInterferogramOp extends Operator {
     private Sentinel1Utils.SubSwathInfo[] subSwath = null;
     private int numSubSwaths = 0;
     private org.jlinda.core.Point[] mstSceneCentreXYZ = null;
-    private double slvScenseCentreAzimuthTime = 0.0;
+    private double slvSceneCentreAzimuthTime = 0.0;
     private int subSwathIndex = 0;
     private double avgSceneHeight = 0.0;
     private MetadataElement mstRoot = null;
@@ -297,7 +297,7 @@ public class CreateInterferogramOp extends Operator {
         final double lastLineTimeInDays = slvRoot.getAttributeUTC(AbstractMetadata.last_line_time).getMJD();
         final double lastLineTime = (lastLineTimeInDays - (int)lastLineTimeInDays) * Constants.secondsInDay;
 
-        slvScenseCentreAzimuthTime = 0.5*(firstLineTime + lastLineTime);
+        slvSceneCentreAzimuthTime = 0.5*(firstLineTime + lastLineTime);
     }
 
     private void getSourceImageDimension() {
@@ -320,7 +320,8 @@ public class CreateInterferogramOp extends Operator {
                 CplxContainer slave = slaveMap.get(keySlave);
 
                 flatEarthPolyMap.put(slave.name, estimateFlatEarthPolynomial(
-                        master.metaData, master.orbit, slave.metaData, slave.orbit));
+                        master.metaData, master.orbit, slave.metaData, slave.orbit, sourceImageWidth,
+                        sourceImageHeight, srpPolynomialDegree, srpNumberPoints, avgSceneHeight, sourceProduct));
             }
         }
     }
@@ -343,7 +344,9 @@ public class CreateInterferogramOp extends Operator {
 
                         final String polynomialName = slave.name + "_" + s + "_" + b;
 
-                        flatEarthPolyMap.put(polynomialName, estimateFlatEarthPolynomial(master, slave, s+1, b));
+                        flatEarthPolyMap.put(polynomialName, estimateFlatEarthPolynomial(
+                                master, slave, s+1, b, mstSceneCentreXYZ, orbitDegree, srpPolynomialDegree,
+                                srpNumberPoints, avgSceneHeight, slvSceneCentreAzimuthTime, subSwath, su));
                     }
                 }
             }
@@ -505,8 +508,12 @@ public class CreateInterferogramOp extends Operator {
         }
     }
 
-    private DoubleMatrix estimateFlatEarthPolynomial(
-            SLCImage masterMetadata, Orbit masterOrbit, SLCImage slaveMetadata, Orbit slaveOrbit) throws Exception {
+    public static DoubleMatrix estimateFlatEarthPolynomial(
+            final SLCImage masterMetadata, final Orbit masterOrbit, final SLCImage slaveMetadata,
+            final Orbit slaveOrbit, final int sourceImageWidth, final int sourceImageHeight,
+            final int srpPolynomialDegree, final int srpNumberPoints, final double avgSceneHeight,
+            final Product sourceProduct)
+            throws Exception {
 
         long minLine = 0;
         long maxLine = sourceImageHeight;
@@ -574,8 +581,11 @@ public class CreateInterferogramOp extends Operator {
     /**
      * Create a flat earth phase polynomial for a given burst in TOPSAR product.
      */
-    private DoubleMatrix estimateFlatEarthPolynomial(
-            final CplxContainer master, final CplxContainer slave, final int subSwathIndex, final int burstIndex)
+    public static DoubleMatrix estimateFlatEarthPolynomial(
+            final CplxContainer master, final CplxContainer slave, final int subSwathIndex, final int burstIndex,
+            final org.jlinda.core.Point[] mstSceneCentreXYZ, final int orbitDegree, final int srpPolynomialDegree,
+            final int srpNumberPoints, final double avgSceneHeight, final double slvSceneCentreAzimuthTime,
+            final Sentinel1Utils.SubSwathInfo[] subSwath, final Sentinel1Utils su)
             throws Exception {
 
         final double[][] masterOSV = getAdjacentOrbitStateVectors(master, mstSceneCentreXYZ[burstIndex]);
@@ -609,13 +619,13 @@ public class CreateInterferogramOp extends Operator {
             final double mstRgTime = subSwath[subSwathIndex - 1].slrTimeToFirstPixel +
                     pixel*su.rangeSpacing/Constants.lightSpeed;
 
-            final double mstAzTime = line2AzimuthTime(line, subSwathIndex, burstIndex);
+            final double mstAzTime = line2AzimuthTime(line, subSwathIndex, burstIndex, subSwath);
 
             // compute xyz of this point : sourceMaster
             org.jlinda.core.Point xyzMaster = masterOrbit.lph2xyz(
                     mstAzTime, mstRgTime, avgSceneHeight, mstSceneCentreXYZ[burstIndex]);
 
-            org.jlinda.core.Point slaveTimeVector = slaveOrbit.xyz2t(xyzMaster, slvScenseCentreAzimuthTime);
+            org.jlinda.core.Point slaveTimeVector = slaveOrbit.xyz2t(xyzMaster, slvSceneCentreAzimuthTime);
 
             final double slaveTimeRange = slaveTimeVector.x;
 
@@ -645,7 +655,7 @@ public class CreateInterferogramOp extends Operator {
         return Solve.solve(N, rhs);
     }
 
-    private double[][] getAdjacentOrbitStateVectors(
+    private static double[][] getAdjacentOrbitStateVectors(
             final CplxContainer container, final org.jlinda.core.Point sceneCentreXYZ) {
 
         try {
@@ -698,12 +708,13 @@ public class CreateInterferogramOp extends Operator {
 
             return adjacentOSV;
         } catch (Throwable e) {
-            OperatorUtils.catchOperatorException(getId(), e);
+            e.printStackTrace();
         }
         return null;
     }
 
-    private double line2AzimuthTime(final double line, final int subSwathIndex, final int burstIndex) {
+    private static double line2AzimuthTime(final double line, final int subSwathIndex, final int burstIndex,
+                                           final Sentinel1Utils.SubSwathInfo[] subSwath) {
 
         final double firstLineTimeInDays = subSwath[subSwathIndex - 1].burstFirstLineTime[burstIndex] /
                 Constants.secondsInDay;
@@ -1110,7 +1121,7 @@ public class CreateInterferogramOp extends Operator {
         }
     }
 
-    private static DoubleMatrix normalizeDoubleMatrix(DoubleMatrix matrix, final double min, final double max) {
+    public static DoubleMatrix normalizeDoubleMatrix(DoubleMatrix matrix, final double min, final double max) {
         matrix.subi(0.5 * (min + max));
         matrix.divi(0.25 * (max - min));
         return matrix;
