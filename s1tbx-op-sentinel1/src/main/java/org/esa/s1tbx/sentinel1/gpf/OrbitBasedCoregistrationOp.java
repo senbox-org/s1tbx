@@ -104,6 +104,10 @@ public final class OrbitBasedCoregistrationOp extends Operator {
             label = "Resampling Type")
     private String resamplingType = ResamplingFactory.BISINC_5_POINT_INTERPOLATION_NAME;
 
+    @Parameter(label = "Tile Extension [%]", description = "Define tile extension percentage.", interval = "[0, *)",
+            defaultValue = "50")
+    private int tileExtensionPercent = 50;
+
     @Parameter(defaultValue = "true", label = "Mask out areas with no elevation")
     private boolean maskOutAreaWithoutElevation = true;
 
@@ -122,7 +126,6 @@ public final class OrbitBasedCoregistrationOp extends Operator {
     private GeoCoding targetGeoCoding = null;
     private final HashMap<Band, Band> targetBandToSlaveBandMap = new HashMap<>(2);
     private final double invalidIndex = -9999.0;
-    private final double extendedPercentage = 0.1; // extend DEM tile by 10%
 
     /**
      * Default constructor. The graph processing framework
@@ -422,8 +425,8 @@ public final class OrbitBasedCoregistrationOp extends Operator {
             final double[] latLonMinMax = new double[4];
             computeImageGeoBoundary(x0, x0 + w, y0, y0 + h, latLonMinMax);
 
-            final double extralat = extendedPercentage*(latLonMinMax[1] - latLonMinMax[0]);
-            final double extralon = extendedPercentage*(latLonMinMax[3] - latLonMinMax[2]);
+            final double extralat = (latLonMinMax[1] - latLonMinMax[0]) * tileExtensionPercent / 100.0;
+            final double extralon = (latLonMinMax[3] - latLonMinMax[2]) * tileExtensionPercent / 100.0;
 
             final double latMin = latLonMinMax[0] - extralat;
             final double latMax = latLonMinMax[1] + extralat;
@@ -512,7 +515,9 @@ public final class OrbitBasedCoregistrationOp extends Operator {
             double alt = 0;
             for(int yy = 0; yy < h; yy++) {
                 for (int xx = 0; xx < w; xx++) {
-                    if (rgArray[yy][xx] == invalidIndex || azArray[yy][xx] == invalidIndex) {
+                    if (rgArray[yy][xx] == invalidIndex || azArray[yy][xx] == invalidIndex ||
+                            rgArray[yy][xx] < 0 || rgArray[yy][xx] >= slvMetadata.sourceImageWidth ||
+                            azArray[yy][xx] < 0 || azArray[yy][xx] >= slvMetadata.sourceImageHeight) {
                         slavePixelPos[yy][xx] = null;
                     } else {
                         if (maskOutAreaWithoutElevation) {
