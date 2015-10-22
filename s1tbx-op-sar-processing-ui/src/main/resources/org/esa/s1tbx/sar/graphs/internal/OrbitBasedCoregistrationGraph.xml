@@ -18,6 +18,7 @@
       <externalDEMFile/>
       <externalDEMNoDataValue>0.0</externalDEMNoDataValue>
       <resamplingType>BISINC_5_POINT_INTERPOLATION</resamplingType>
+      <tileExtensionPercent>50</tileExtensionPercent>
       <maskOutAreaWithoutElevation>true</maskOutAreaWithoutElevation>
       <outputRangeAzimuthOffset>false</outputRangeAzimuthOffset>
     </parameters>
