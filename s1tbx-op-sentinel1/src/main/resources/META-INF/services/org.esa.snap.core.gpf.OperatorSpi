@@ -9,4 +9,3 @@ org.esa.s1tbx.sentinel1.gpf.ComputeDerampDemodPhaseOp$Spi
 org.esa.s1tbx.sentinel1.gpf.TOPSARMergeOp$Spi
 org.esa.s1tbx.sentinel1.gpf.GRDPostProcessOp$Spi
 org.esa.s1tbx.sentinel1.gpf.EAPPhaseCorrectionOp$Spi
-org.esa.s1tbx.sentinel1.gpf.OrbitBasedCoregistrationOp$Spi
