@@ -43,6 +43,7 @@ public class OrbitBasedCoregistrationOpUI extends BaseOperatorUI {
     private final JComboBox<String> demName = new JComboBox<>(DEMFactory.getDEMNameList());
     private final JComboBox demResamplingMethod = new JComboBox<>(ResamplingFactory.resamplingNames);
     private final JComboBox resamplingType = new JComboBox(ResamplingFactory.resamplingNames);
+    private final JTextField tileExtensionPercent = new JTextField("");
     final JCheckBox maskOutAreaWithoutElevationCheckBox = new JCheckBox("Mask out areas with no elevation");
     final JCheckBox outputRangeAzimuthOffsetCheckBox = new JCheckBox("Output Range and Azimuth Offset");
 
@@ -51,6 +52,7 @@ public class OrbitBasedCoregistrationOpUI extends BaseOperatorUI {
     private final JButton externalDEMBrowseButton = new JButton("...");
     private final JLabel externalDEMFileLabel = new JLabel("External DEM:");
     private final JLabel externalDEMNoDataValueLabel = new JLabel("DEM No Data Value:");
+    private final JLabel tileExtensionPercentLabel = new JLabel("Tile Extension [%]:");
     private static final String externalDEMStr = "External DEM";
     private Double extNoDataValue = 0.0;
     private Boolean maskOutAreaWithoutElevation = false;
@@ -128,6 +130,8 @@ public class OrbitBasedCoregistrationOpUI extends BaseOperatorUI {
 
         resamplingType.setSelectedItem(paramMap.get("resamplingType"));
 
+        tileExtensionPercent.setText(String.valueOf(paramMap.get("tileExtensionPercent")));
+
         maskOutAreaWithoutElevation = (Boolean)paramMap.get("maskOutAreaWithoutElevation");
         outputRangeAzimuthOffset = (Boolean)paramMap.get("outputRangeAzimuthOffset");
 
@@ -158,6 +162,8 @@ public class OrbitBasedCoregistrationOpUI extends BaseOperatorUI {
 
         paramMap.put("resamplingType", resamplingType.getSelectedItem());
 
+        paramMap.put("tileExtensionPercent", Integer.parseInt(tileExtensionPercent.getText()));
+
         paramMap.put("maskOutAreaWithoutElevation", maskOutAreaWithoutElevation);
         paramMap.put("outputRangeAzimuthOffset", outputRangeAzimuthOffset);
     }
@@ -181,6 +187,8 @@ public class OrbitBasedCoregistrationOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(contentPane, gbc, "DEM Resampling Method:", demResamplingMethod);
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, "Resampling Type:", resamplingType);
+        gbc.gridy++;
+        DialogUtils.addComponent(contentPane, gbc, tileExtensionPercentLabel, tileExtensionPercent);
         gbc.gridy++;
         contentPane.add(maskOutAreaWithoutElevationCheckBox, gbc);
         if(includeOutputRangeAzimuthOffset) {
