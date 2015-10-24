@@ -18,38 +18,13 @@ package org.esa.s1tbx.io.ceos;
 import org.esa.s1tbx.io.binary.BinaryFileReader;
 import org.esa.s1tbx.io.binary.BinaryRecord;
 import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.StringUtils;
 import org.jdom2.Document;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.Calendar;
 
 public class CeosHelper {
-
-    public static File getVolumeFile(final File baseDir, final CEOSConstants constants) throws IOException {
-        final File[] files = baseDir.listFiles(new FilenameFilter() {
-            public boolean accept(final File dir, final String fileName) {
-                final String name = fileName.toUpperCase();
-                for (String prefix : constants.getVolumeFilePrefix()) {
-                    if (name.startsWith(prefix) || name.endsWith('.' + prefix))
-                        return true;
-                }
-                return false;
-            }
-        });
-        if (files == null || files.length < 1) {
-            throw new IOException("No volume descriptor file found in directory:\n"
-                    + baseDir.getPath());
-        }
-        if (files.length > 1) {
-            throw new IOException("Multiple volume descriptor files found in directory:\n"
-                    + baseDir.getPath());
-        }
-        return files[0];
-    }
 
     public static FilePointerRecord[] readFilePointers(final BinaryRecord vdr, final Document filePointerXML,
                                                        final String recName) throws IOException {
@@ -63,16 +38,27 @@ public class CeosHelper {
         return filePointers;
     }
 
+    private static String[] ExcludedExt = new String[] {".TXT",".JPG",".TIF",".PNG","KML"};
+
     public static File getCEOSFile(final File baseDir, final String[] prefixList) throws IOException {
-        final File[] fileList = baseDir.listFiles();
-        if(fileList != null) {
-            for (File file : fileList) {
-                final String name = file.getName().toUpperCase();
-                for (String prefix : prefixList) {
-                    if (name.startsWith(prefix) || name.endsWith('.' + prefix))
-                        return file;
+        final File[] fileList = baseDir.listFiles((file, fileName) -> {
+            final String name = fileName.toUpperCase();
+            for (String ext : ExcludedExt) {
+                if(name.endsWith(ext)) {
+                    return false;
                 }
             }
+            for (String prefix : prefixList) {
+                if (name.startsWith(prefix) || name.endsWith('.' + prefix))
+                    return true;
+            }
+            return false;
+        });
+        if(fileList != null) {
+            if (fileList.length > 1) {
+                throw new IOException("Multiple descriptor files found in directory:\n" + baseDir.getPath());
+            }
+            return fileList[0];
         }
         return null;
     }
@@ -97,16 +83,6 @@ public class CeosHelper {
         return type.trim();
     }
 
-    public static ProductData.UTC createUTCDate(final int year, final int dayOfYear, final int millisInDay) {
-        final Calendar calendar = ProductData.UTC.createCalendar();
-
-        calendar.set(Calendar.YEAR, year);
-        calendar.set(Calendar.DAY_OF_YEAR, dayOfYear);
-        calendar.add(Calendar.MILLISECOND, millisInDay);
-
-        return ProductData.UTC.create(calendar.getTime(), 0);
-    }
-
     public static void addMetadata(MetadataElement sphElem, BinaryRecord rec, String name) {
         if (rec != null) {
             final MetadataElement metadata = new MetadataElement(name);
@@ -114,5 +90,4 @@ public class CeosHelper {
             sphElem.addElement(metadata);
         }
     }
-
 }
