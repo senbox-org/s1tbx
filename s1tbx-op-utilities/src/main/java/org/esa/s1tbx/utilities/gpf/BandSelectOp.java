@@ -28,6 +28,9 @@ import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Creates a new product with only selected bands
  */
@@ -50,6 +53,9 @@ public final class BandSelectOp extends Operator {
     @Parameter(description = "The list of source bands.", alias = "sourceBands",
             rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames;
+
+    @Parameter(description = "Band name regular expression pattern", label = "Band Name Pattern")
+    private String bandNamePattern;
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -95,8 +101,19 @@ public final class BandSelectOp extends Operator {
                         foundPol = true;
                     }
                 }
-                if(!foundPol)
+                if(!foundPol) {
                     continue;
+                }
+            }
+
+            if(bandNamePattern != null && !bandNamePattern.isEmpty()) {
+                // check regular expression such as contain mst "^.*mst.*$"
+
+                Pattern pattern = Pattern.compile(bandNamePattern);
+                Matcher matcher = pattern.matcher(srcBand.getName());
+                if (!matcher.matches()) {
+                    continue;
+                }
             }
 
             if (srcBand instanceof VirtualBand) {

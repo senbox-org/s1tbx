@@ -36,6 +36,7 @@ public class BandSelectOpUI extends BaseOperatorUI {
 
     private final JList<String> polList = new JList<>();
     private final JList bandList = new JList();
+    private final JTextField bandNamePattern = new JTextField();
 
     @Override
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {
@@ -62,6 +63,11 @@ public class BandSelectOpUI extends BaseOperatorUI {
         }
 
         OperatorUIUtils.initParamList(bandList, getBandNames());
+
+        String bandNamePatternStr = (String)paramMap.get("bandNamePattern");
+        if(bandNamePattern != null) {
+            bandNamePattern.setText(bandNamePatternStr);
+        }
     }
 
     @Override
@@ -75,6 +81,8 @@ public class BandSelectOpUI extends BaseOperatorUI {
         OperatorUIUtils.updateParamList(polList, paramMap, "selectedPolarisations");
 
         OperatorUIUtils.updateParamList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
+
+        paramMap.put("bandNamePattern", bandNamePattern.getText());
     }
 
     private JComponent createPanel() {
@@ -86,6 +94,9 @@ public class BandSelectOpUI extends BaseOperatorUI {
 
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, "Source Bands:", new JScrollPane(bandList));
+
+        gbc.gridy++;
+        DialogUtils.addComponent(contentPane, gbc, "Band Name Pattern:", bandNamePattern);
 
         DialogUtils.fillPanel(contentPane, gbc);
 
