@@ -263,7 +263,7 @@ public final class TerrainMaskOp extends Operator {
                 sourceImageWidth,
                 sourceImageHeight);
 
-        targetBand.setUnit(Unit.AMPLITUDE);
+        targetBand.setUnit(Unit.CLASS);
         targetProduct.addBand(targetBand);
     }
 
