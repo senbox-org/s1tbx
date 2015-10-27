@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.snap.configurator;
+package org.esa.snap.smart.configurator;
 
 /**
  * Benchmark calcul (test one processing with a set of parameters)

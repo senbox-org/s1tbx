@@ -17,7 +17,7 @@
  */
 
 
-package org.esa.snap.configurator;
+package org.esa.snap.smart.configurator;
 
 
 import org.esa.snap.core.util.SystemUtils;
@@ -25,6 +25,7 @@ import org.esa.snap.runtime.Config;
 import org.esa.snap.runtime.EngineConfig;
 
 import javax.media.jai.JAI;
+import javax.media.jai.TileCache;
 import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -208,11 +209,12 @@ public class PerformanceParameters {
         preferences.putInt(PROPERTY_DEFAULT_TILE_SIZE, defaultTileSize);
         preferences.putInt(PROPERTY_JAI_CACHE_SIZE, jaiCacheSize);
 
+        preferences.flush();
+
         // effective change of jai parameters
-        JAI.getDefaultInstance().getTileCache().setMemoryCapacity(jaiCacheSize);
+        TileCache thisTileCache = JAI.createTileCache();
+        JAI.getDefaultInstance().setTileCache(thisTileCache);
         JAI.getDefaultInstance().getTileScheduler().setParallelism(parallelism);
         JAI.setDefaultTileSize(new Dimension(defaultTileSize, defaultTileSize));
-
-        preferences.flush();
     }
 }

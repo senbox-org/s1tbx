@@ -1,4 +1,4 @@
-package org.esa.snap.configurator;
+package org.esa.snap.smart.configurator;
 
 import org.junit.Assert;
 import org.junit.Test;

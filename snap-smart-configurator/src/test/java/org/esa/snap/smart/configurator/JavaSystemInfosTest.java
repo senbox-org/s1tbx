@@ -1,4 +1,4 @@
-package org.esa.snap.configurator;/*
+package org.esa.snap.smart.configurator;/*
  * Copyright (C) 2015 CS SI
  *
  * This program is free software; you can redistribute it and/or modify it

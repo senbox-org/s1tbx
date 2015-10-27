@@ -15,7 +15,7 @@
  */
 
 
-package org.esa.snap.configurator;
+package org.esa.snap.smart.configurator;
 
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;
