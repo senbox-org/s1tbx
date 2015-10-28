@@ -222,9 +222,11 @@ public class EnvisatProductReader extends AbstractProductReader {
 
         product.setFileLocation(getProductFile().getFile());
         product.setDescription(getProductFile().getProductDescription());
-        product.setStartTime(getProductFile().getSceneRasterStartTime());
-        product.setEndTime(getProductFile().getSceneRasterStopTime());
-        product.setSceneTimeCoding(new LineTimeCoding(getMJDs()));
+        final ProductData.UTC startTime = getProductFile().getSceneRasterStartTime();
+        final ProductData.UTC endTime = getProductFile().getSceneRasterStopTime();
+        product.setStartTime(startTime);
+        product.setEndTime(endTime);
+        product.setSceneTimeCoding(new LineTimeCoding(getSceneRasterHeight(),startTime.getMJD(), endTime.getMJD());
         product.setAutoGrouping(getProductFile().getAutoGroupingPattern());
 
         addBandsToProduct(product);
@@ -674,20 +676,4 @@ public class EnvisatProductReader extends AbstractProductReader {
             return TiePointGrid.DISCONT_NONE;
         }
     }
-
-    private double[] getMJDs() throws IOException {
-        double[] mjDs;
-        ProductData.UTC[] allRecordTimes = productFile.getAllRecordTimes();
-        mjDs = new double[allRecordTimes.length];
-        for (int i = 0; i < allRecordTimes.length; i++) {
-            ProductData.UTC utc = allRecordTimes[i];
-            if (utc != null) {
-                mjDs[i] = utc.getMJD();
-            } else {
-                mjDs[i] = Double.NaN;
-            }
-        }
-        return mjDs;
-    }
-
 }
