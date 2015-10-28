@@ -226,7 +226,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         final ProductData.UTC endTime = getProductFile().getSceneRasterStopTime();
         product.setStartTime(startTime);
         product.setEndTime(endTime);
-        product.setSceneTimeCoding(new LineTimeCoding(getSceneRasterHeight(),startTime.getMJD(), endTime.getMJD());
+        product.setSceneTimeCoding(new LineTimeCoding(getSceneRasterHeight(),startTime.getMJD(), endTime.getMJD()));
         product.setAutoGrouping(getProductFile().getAutoGroupingPattern());
 
         addBandsToProduct(product);
