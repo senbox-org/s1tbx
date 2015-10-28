@@ -69,7 +69,7 @@ public final class GLCMOp extends Operator {
     private Product targetProduct;
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands",
-            rasterDataNodeType = Band.class, label = "Source Bands")
+            label = "Source Bands")
     private String[] sourceBandNames = null;
 
     @Parameter(valueSet = {WINDOW_SIZE_5x5, WINDOW_SIZE_7x7, WINDOW_SIZE_9x9, WINDOW_SIZE_11x11},
@@ -156,6 +156,8 @@ public final class GLCMOp extends Operator {
     private static final String WINDOW_SIZE_7x7 = "7x7";
     private static final String WINDOW_SIZE_9x9 = "9x9";
     private static final String WINDOW_SIZE_11x11 = "11x11";
+
+    private static double epsilon = 1.0e-10;
 
     enum GLCM_TYPES {
         Contrast,
@@ -339,11 +341,14 @@ public final class GLCMOp extends Operator {
             bandUnit = sourceProduct.getBand(sourceBandNames[0]).getUnit();
         }
 
-        final Band targetBand = ProductUtils.copyBand(sourceBandNames[0], sourceProduct, targetProduct, false);
-        targetBand.setSourceImage(sourceProduct.getBand(sourceBandNames[0]).getSourceImage());
+        //final Band targetBand = ProductUtils.copyBand(sourceBandNames[0], sourceProduct, targetProduct, false);
+        //targetBand.setSourceImage(sourceProduct.getBand(sourceBandNames[0]).getSourceImage());
 
         final String[] targetBandNames = getTargetBandNames();
-        OperatorUtils.addBands(targetProduct, targetBandNames, "");
+        final Band[] bands = OperatorUtils.addBands(targetProduct, targetBandNames, "");
+        for(Band band : bands) {
+            band.setNoDataValueUsed(true);
+        }
     }
 
     private String[] getTargetBandNames() {
@@ -475,15 +480,26 @@ public final class GLCMOp extends Operator {
             final Band sourceBand = sourceProduct.getBand(srcBandName);
             final Tile sourceTile = getSourceTile(sourceBand, sourceTileRectangle);
             final ProductData srcData = sourceTile.getDataBuffer();
-            final double noDataValue = sourceBand.getNoDataValue();
+            final float noDataValue = (float)sourceBand.getNoDataValue();
+
+            TextureFeatures tfNoData = new TextureFeatures(
+                    noDataValue, noDataValue, noDataValue, noDataValue, noDataValue,
+                    noDataValue, noDataValue, noDataValue, noDataValue, noDataValue);
+            TextureFeatures tf;
 
             for (int ty = ty0; ty < maxY; ty++) {
                 trgIndex.calculateStride(ty);
                 for (int tx = tx0; tx < maxX; tx++) {
                     final int idx = trgIndex.getIndex(tx);
 
-                    final GLCMElem[] GLCMElemList = computeGLCM(tx, ty, sourceTile, srcData, noDataValue);
-                    final TextureFeatures tf = computeTextureFeatures(GLCMElemList);
+                    float val = srcData.getElemFloatAt(sourceTile.getDataBufferIndex(tx, ty));
+                    if(Math.abs(val - noDataValue) < epsilon) {
+                        tf = tfNoData;
+                    } else {
+
+                        final GLCMElem[] GLCMElemList = computeGLCM(tx, ty, sourceTile, srcData, noDataValue);
+                        tf = computeTextureFeatures(GLCMElemList);
+                    }
 
                     for (final TileData tileData : tileDataList) {
 

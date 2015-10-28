@@ -199,7 +199,7 @@ public class StackSplitWriter extends Operator {
 
             //final String newBandName = StackUtils.getBandNameWithoutDate(bandName);
             info.productWriter.writeBandRasterData(trgBand,
-                    0, 0, trgBand.getSceneRasterWidth(), trgBand.getSceneRasterHeight(), rawSamples, ProgressMonitor.NULL);
+                    0, 0, trgBand.getRasterWidth(), trgBand.getRasterHeight(), rawSamples, ProgressMonitor.NULL);
         }
         info.written = true;
     }

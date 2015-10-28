@@ -93,7 +93,7 @@ public final class FastDelaunayTriangulator extends AbstractInMemoryTriangulator
     }
 
 
-    private List<Triangle> buildTrianglesBetweenNewVertexAndConvexHull(Coordinate c)
+    private List<Triangle> buildTrianglesBetweenNewVertexAndConvexHull(final Coordinate c)
                                                 throws TriangulationException {
 
         //Triangle currentT = beforeMaxT;
@@ -106,7 +106,7 @@ public final class FastDelaunayTriangulator extends AbstractInMemoryTriangulator
         Triangle firstVisibleT = null;
         Triangle lastVisibleT = null;
         Triangle afterLastVisibleT = nextExternalTriangle;
-        List<Triangle> newT = new ArrayList<>();
+        final List<Triangle> newT = new ArrayList<>();
         boolean oneCycleCompleted = false;
         //if (debug) System.out.println("   searching visible sides of convex hull");
         while (true) {
@@ -122,16 +122,12 @@ public final class FastDelaunayTriangulator extends AbstractInMemoryTriangulator
                     currentT.setC(c);
                     newT.add(currentT);
                 }
-                else {
+                //else {
                     //if (debugLevel>=VERBOSE) debug(2,"before first visible side : " + currentT.getA()+"-"+currentT.getB());
-                }
-            }
-            else {
-                //if (debugLevel>=VERBOSE) debug(2,"invisible side : " + currentT);
-                if (firstVisibleT!=null && lastCCW>0) {
-                    lastVisibleT = currentT.getCBO();
-                    afterLastVisibleT = currentT;
-                }
+                //}
+            } else if (firstVisibleT!=null && lastCCW>0) {
+                lastVisibleT = currentT.getCBO();
+                afterLastVisibleT = currentT;
             }
             lastCCW = currentCCW;
             if (firstVisibleT!=null && lastVisibleT!=null) break;

@@ -22,7 +22,6 @@ import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.annotations.OperatorMetadata;
-import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
@@ -35,14 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * The urban area detection operator.
- * <p/>
- * The operator implements the algorithm given in [1].
- * <p/>
- * [1] T. Esch, M. Thiel, A. Schenk, A. Roth, A. Müller, and S. Dech,
- * "Delineation of Urban Footprints From TerraSAR-X Data by Analyzing
- * Speckle Characteristics and Intensity Information," IEEE Transactions
- * on Geoscience and Remote Sensing, vol. 48, no. 2, pp. 905-916, 2010.
+ simple detection of water in slave where there wasn't any water in the master
  */
 
 @OperatorMetadata(alias = "Flood-Detection",
@@ -57,8 +49,8 @@ public class FloodDetectionOp extends Operator {
     @TargetProduct
     private Product targetProduct = null;
 
-    @Parameter(description = "The list of source bands.", alias = "sourceBands",
-            rasterDataNodeType = Band.class, label = "Source Bands")
+   // @Parameter(description = "The list of source bands.", alias = "sourceBands",
+    //        rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames = null;
 
     private final HashMap<String, String> targetBandNameToSourceBandName = new HashMap<>();
@@ -70,28 +62,18 @@ public class FloodDetectionOp extends Operator {
 
         try {
 
-            createTargetProduct();
+            targetProduct = new Product(sourceProduct.getName(),
+                                        sourceProduct.getProductType(),
+                                        sourceProduct.getSceneRasterWidth(),
+                                        sourceProduct.getSceneRasterHeight());
+
+            addSelectedBands();
+
+            ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
-    }
-
-    /**
-     * Create target product.
-     *
-     * @throws Exception The exception.
-     */
-    private void createTargetProduct() throws Exception {
-
-        targetProduct = new Product(sourceProduct.getName(),
-                sourceProduct.getProductType(),
-                sourceProduct.getSceneRasterWidth(),
-                sourceProduct.getSceneRasterHeight());
-
-        ProductUtils.copyProductNodes(sourceProduct, targetProduct);
-
-        addSelectedBands();
     }
 
     /**
@@ -101,15 +83,15 @@ public class FloodDetectionOp extends Operator {
      */
     private void addSelectedBands() throws OperatorException {
 
-        if (sourceBandNames == null || sourceBandNames.length == 0) { // if user did not select any band
+       // if (sourceBandNames == null || sourceBandNames.length == 0) { // if user did not select any band
             final Band[] bands = sourceProduct.getBands();
             final List<String> bandNameList = new ArrayList<>(sourceProduct.getNumBands());
             for (Band band : bands) {
-                if (band.getUnit() != null && band.getUnit().equals(Unit.INTENSITY))
+                if (band.getUnit() != null && (band.getUnit().startsWith(Unit.INTENSITY) || band.getUnit().startsWith(Unit.CLASS)))
                     bandNameList.add(band.getName());
             }
             sourceBandNames = bandNameList.toArray(new String[bandNameList.size()]);
-        }
+        //}
 
         final Band[] sourceBands = new Band[sourceBandNames.length];
         for (int i = 0; i < sourceBandNames.length; i++) {
@@ -119,6 +101,10 @@ public class FloodDetectionOp extends Operator {
                 throw new OperatorException("Source band not found: " + sourceBandName);
             }
             sourceBands[i] = sourceBand;
+        }
+
+        if(sourceBandNames.length == 0) {
+            throw new OperatorException("No calibrated bands founds");
         }
 
         for (Band srcBand : sourceBands) {
@@ -135,26 +121,50 @@ public class FloodDetectionOp extends Operator {
             final String targetBandName = srcBandNames + MASK_NAME;
             targetBandNameToSourceBandName.put(targetBandName, srcBandNames);
 
-            final Band targetBand = ProductUtils.copyBand(srcBandNames, sourceProduct, targetProduct, false);
-            targetBand.setSourceImage(srcBand.getSourceImage());
+            ProductUtils.copyBand(srcBandNames, sourceProduct, targetProduct, true);
         }
 
         final Band mstBand = targetProduct.getBandAt(0);
-        final Band slvBand = targetProduct.getBandAt(1);
+        final Band slvBand = targetProduct.getNumBands() > 1 ? targetProduct.getBandAt(1) : null;
         final Band terrainMask = targetProduct.getBand("Terrain_Mask");
+        final Band globCover = targetProduct.getBand("GlobCover");
+        final Band homogeneity = targetProduct.getBand("Homogeneity");
+        final Band energy = targetProduct.getBand("Energy");
+
+        final boolean isdB = mstBand.getUnit().contains(Unit.DB);
 
         //create Mask
-        String expression = "(" + mstBand.getName() + " < 0.05 && " + mstBand.getName() + " > 0)";
-        if (slvBand != null) {
-            expression += " && !(" + slvBand.getName() + " < 0.05 && " + slvBand.getName() + " > 0)";
+        String expression;
+        if(isdB) {
+            expression = "(" + mstBand.getName() + " < -13 )";
+            if (slvBand != null) {
+                expression = "!(" + mstBand.getName() + " < -13 )" +
+                        " && (" + slvBand.getName() + " < -13 )";
+            }
+        } else {
+            expression = "(" + mstBand.getName() + " < 0.05 && " + mstBand.getName() + " > 0)";
+            if (slvBand != null) {
+                expression = "!(" + mstBand.getName() + " < 0.05 && " + mstBand.getName() + " > 0)" +
+                        " && (" + slvBand.getName() + " < 0.05 && " + slvBand.getName() + " > 0)";
+            }
         }
+
         if (terrainMask != null) {
             expression += " && " + terrainMask.getName() + " == 0";
         }
+        if (globCover != null) {
+            expression += " && " + globCover.getName() + " != 210"; // existing water
+        }
+
+        if (energy != null) {
+          //  expression += " && " + energy.getName() + " > 0.8";
+        } else if (homogeneity != null) {
+         //   expression += " && " + homogeneity.getName() + " > 0.6";
+        }
 
         final Mask mask = new Mask(mstBand.getName() + "_flood",
-                mstBand.getSceneRasterWidth(),
-                mstBand.getSceneRasterHeight(),
+                mstBand.getRasterWidth(),
+                mstBand.getRasterHeight(),
                 Mask.BandMathsType.INSTANCE);
 
         mask.setDescription("Flood");

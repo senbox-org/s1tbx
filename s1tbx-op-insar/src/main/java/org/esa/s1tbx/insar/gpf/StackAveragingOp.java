@@ -212,8 +212,8 @@ public class StackAveragingOp extends Operator {
 
         final VirtualBand virtBand = new VirtualBand(trgBandName,
                 srcBand.getDataType(),
-                srcBand.getSceneRasterWidth(),
-                srcBand.getSceneRasterHeight(),
+                srcBand.getRasterWidth(),
+                srcBand.getRasterHeight(),
                 expression);
         virtBand.setUnit(srcBand.getUnit());
         virtBand.setDescription(srcBand.getDescription());

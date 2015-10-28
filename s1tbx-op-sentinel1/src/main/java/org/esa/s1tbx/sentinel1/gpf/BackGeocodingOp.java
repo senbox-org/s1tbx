@@ -311,8 +311,8 @@ public final class BackGeocodingOp extends Operator {
         }
 
         final Band masterBand = masterProduct.getBand(masterBandNames[0]);
-        final int masterBandWidth = masterBand.getSceneRasterWidth();
-        final int masterBandHeight = masterBand.getSceneRasterHeight();
+        final int masterBandWidth = masterBand.getRasterWidth();
+        final int masterBandHeight = masterBand.getRasterHeight();
 
         final String[] slaveBandNames = slaveProduct.getBandNames();
         final String slvSuffix = "_slv1" + StackUtils.createBandTimeStamp(slaveProduct);

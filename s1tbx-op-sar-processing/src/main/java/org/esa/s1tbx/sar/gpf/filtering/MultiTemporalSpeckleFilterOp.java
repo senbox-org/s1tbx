@@ -87,10 +87,16 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
             rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames;
 
-    @Parameter(valueSet = {WINDOW_SIZE_3x3, WINDOW_SIZE_5x5, WINDOW_SIZE_7x7, WINDOW_SIZE_9x9, WINDOW_SIZE_11x11},
-            defaultValue = WINDOW_SIZE_3x3, label = "Window Size")
-    private String windowSize = WINDOW_SIZE_3x3;
+    @Parameter(description = "The gradient threshold for Refined Lee filter", interval = "(0, *)",
+            defaultValue = "5000", label = "Edge detection threshold")
+    private double gradThreshold = 5000.0;
 
+//    @Parameter(valueSet = {WINDOW_SIZE_3x3, WINDOW_SIZE_5x5, WINDOW_SIZE_7x7, WINDOW_SIZE_9x9, WINDOW_SIZE_11x11},
+//            defaultValue = WINDOW_SIZE_3x3, label = "Window Size")
+    private String windowSize = WINDOW_SIZE_7x7;
+
+    private int windowWidth = 0;
+    private int windowHeight = 0;
     private int halfWindowWidth = 0;
     private int halfWindowHeight = 0;
     private int sourceImageWidth = 0;
@@ -143,8 +149,6 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
             // The tile width has to be the image width, otherwise the index calculation in the last tile is not correct.
             //targetProduct.setPreferredTileSize(targetProduct.getSceneRasterWidth(), 50);
 
-            int windowWidth = 0;
-            int windowHeight = 0;
             switch (windowSize) {
                 case WINDOW_SIZE_3x3:
                     windowWidth = 3;
@@ -327,25 +331,40 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
      * @return The mean value.
      */
     private double computeLocalMean(int xc, int yc, Tile srcTile, ProductData srcData, double noDataValue) {
+
+        final double[][] neighborPixelValues = new double[windowHeight][windowWidth];
+
         final int x0 = Math.max(0, xc - halfWindowWidth);
         final int y0 = Math.max(0, yc - halfWindowHeight);
         final int xMax = Math.min(xc + halfWindowWidth, sourceImageWidth - 1);
         final int yMax = Math.min(yc + halfWindowHeight, sourceImageHeight - 1);
 
-        double mean = 0.0;
-        double value = 0.0;
-        int n = 0;
-        for (int y = y0; y < yMax; y++) {
-            for (int x = x0; x < xMax; x++) {
-                final int index = srcTile.getDataBufferIndex(x, y);
-                value = srcData.getElemDoubleAt(index);
-                if (value != noDataValue) {
-                    mean += value;
-                    n++;
+        int numSamples = 0;
+        for (int r = 0; r < windowHeight; r++) {
+            final int y = yc - halfWindowHeight + r;
+            if (y < y0 || y > yMax) {
+                for (int i = 0; i < windowWidth; i++) {
+                    neighborPixelValues[r][i] = noDataValue;
+                }
+                continue;
+            }
+
+            for (int c = 0; c < windowWidth; c++) {
+                final int x = xc - halfWindowWidth + c;
+                if (x < x0 || x > xMax) {
+                    neighborPixelValues[r][c] = noDataValue;
+                } else {
+                    neighborPixelValues[r][c] = srcData.getElemDoubleAt(srcTile.getDataBufferIndex(x, y));
+                    numSamples++;
                 }
             }
         }
-        return mean / n;
+
+        return SpeckleFilterOp.getRefinedLeeValueUsingGradientThreshold(
+                windowWidth, windowHeight, gradThreshold, numSamples, noDataValue, neighborPixelValues);
+
+//        return SpeckleFilterOp.getRefinedLeeValueUsingEdgeThreshold(
+//                windowWidth, windowHeight, gradThreshold, numSamples, noDataValue, neighborPixelValues);
     }
 
 

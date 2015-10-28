@@ -36,7 +36,7 @@ class QuadInterpolator {
 
     public QuadInterpolator(final TiePointGrid tpg) {
 
-        final int imageWidth = tpg.getSceneRasterWidth();
+        final int imageWidth = tpg.getRasterWidth();
         subSamplinX = tpg.getSubSamplingX();
         subSamplinY = tpg.getSubSamplingY();
         final int width = tpg.getGridWidth();

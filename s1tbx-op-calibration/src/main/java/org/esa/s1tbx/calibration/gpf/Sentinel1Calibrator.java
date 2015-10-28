@@ -405,8 +405,8 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
             targetBandNameToSourceBandName.put(srcBandNames[0], srcBandNames);
             final Band targetBandI = new Band(srcBandNames[0],
                     ProductData.TYPE_FLOAT32,
-                    srcBandI.getSceneRasterWidth(),
-                    srcBandI.getSceneRasterHeight());
+                    srcBandI.getRasterWidth(),
+                    srcBandI.getRasterHeight());
             targetBandI.setUnit(unit);
             targetBandI.setNoDataValueUsed(true);
             targetProduct.addBand(targetBandI);
@@ -414,8 +414,8 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
             targetBandNameToSourceBandName.put(srcBandNames[1], srcBandNames);
             final Band targetBandQ = new Band(srcBandNames[1],
                     ProductData.TYPE_FLOAT32,
-                    srcBandQ.getSceneRasterWidth(),
-                    srcBandQ.getSceneRasterHeight());
+                    srcBandQ.getRasterWidth(),
+                    srcBandQ.getRasterHeight());
             targetBandQ.setUnit(nextUnit);
             targetBandQ.setNoDataValueUsed(true);
             targetProduct.addBand(targetBandQ);
@@ -477,8 +477,8 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
                     final Band targetBand = new Band(tgtBandName,
                             ProductData.TYPE_FLOAT32,
-                            srcBand.getSceneRasterWidth(),
-                            srcBand.getSceneRasterHeight());
+                            srcBand.getRasterWidth(),
+                            srcBand.getRasterHeight());
 
                     targetBand.setUnit(Unit.INTENSITY);
                     targetBand.setNoDataValueUsed(true);

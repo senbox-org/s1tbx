@@ -89,6 +89,16 @@
                 <attr name="icon" stringvalue="csaIcon"/>
                 <attr name="helpId" stringvalue="PhaseToDisplacementOp"/>
             </file>
+            <file name="org-esa-s1tbx-insar-gpf-coregistration-DEMAssistedCoregistrationOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="DEM Assisted Coregistration"/>
+                <attr name="graphFile" stringvalue="DEMAssistedCoregistrationGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="DEM Assisted Coregistration"/>
+                <attr name="ShortDescription" stringvalue="DEM Assisted Coregistration"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="DEMAssistedCoregistrationOp"/>
+            </file>
         </folder>
     </folder>
 
@@ -100,6 +110,10 @@
                 <file name="org-esa-s1tbx-insar-gpf-coregistration-CoregistrationGraph-Action.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-coregistration-CoregistrationGraph-Action.instance"/>
                     <attr name="position" intvalue="250"/>
+                </file>
+                <file name="org-esa-s1tbx-insar-gpf-coregistration-DEMAssistedCoregistrationOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-coregistration-DEMAssistedCoregistrationOp-Action.instance"/>
+                    <attr name="position" intvalue="260"/>
                 </file>
                 <folder name="Stack Tools">
                     <attr name="position" intvalue="300"/>
@@ -173,6 +187,10 @@
         <file name="org.esa.s1tbx.gpf.DEMGenerationOpUI">
             <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.DEMGenerationOpUI"/>
             <attr name="operatorName" stringvalue="DEMGeneration"/>
+        </file>
+        <file name="org.esa.s1tbx.gpf.DEMAssistedCoregistrationOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.coregistration.DEMAssistedCoregistrationOpUI"/>
+            <attr name="operatorName" stringvalue="DEM-Assisted-Coregistration"/>
         </file>
     </folder>
 

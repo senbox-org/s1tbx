@@ -55,21 +55,18 @@ public class FindImagePairOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
         try {
-            final File mstFile = sourceProduct.getFileLocation();
-            if (mstFile.exists()) {
-                final ProductEntry[] entryList = DBSearch.search(mstFile);
-                if (entryList.length > 0) {
+            final ProductEntry[] entryList = DBSearch.search(sourceProduct);
+            if (entryList.length > 0) {
 
-                    final File file = entryList[0].getFile();
-                    final Product targetProduct = CommonReaders.readProduct(file);
-                    this.productReader = targetProduct.getProductReader();
-                    targetProduct.setFileLocation(file);
-                    super.setTargetProduct(targetProduct);
+                final File file = entryList[0].getFile();
+                final Product targetProduct = CommonReaders.readProduct(file);
+                this.productReader = targetProduct.getProductReader();
+                targetProduct.setFileLocation(file);
+                super.setTargetProduct(targetProduct);
 
-                    updateMetadata();
-                } else {
-                    throw new OperatorException("No image pair found in database");
-                }
+                updateMetadata();
+            } else {
+                throw new OperatorException("No image pair found in database");
             }
         } catch (Exception e) {
             throw new OperatorException(e);

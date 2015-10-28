@@ -234,8 +234,8 @@ public class CalibrationOp extends Operator {
 
             final VirtualBand band = new VirtualBand(gammeBandName,
                     ProductData.TYPE_FLOAT32,
-                    trgBand.getSceneRasterWidth(),
-                    trgBand.getSceneRasterHeight(),
+                    trgBand.getRasterWidth(),
+                    trgBand.getRasterHeight(),
                     expression);
             band.setUnit(unit);
             band.setDescription("Gamma0 image");
@@ -292,9 +292,9 @@ public class CalibrationOp extends Operator {
 
             final VirtualBand band = new VirtualBand(betaBandName,
                     ProductData.TYPE_FLOAT32,
-                    trgBand.getSceneRasterWidth(),
-                    trgBand.getSceneRasterHeight(),
-                    expression);
+                    trgBand.getRasterWidth(),
+                    trgBand.getRasterHeight(),
+                                                     expression);
             band.setUnit(unit);
             band.setDescription("Beta0 image");
             trgProduct.addBand(band);

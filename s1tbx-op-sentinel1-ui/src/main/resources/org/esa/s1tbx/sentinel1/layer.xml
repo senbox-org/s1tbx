@@ -118,16 +118,6 @@
                 <attr name="icon" stringvalue="esaIcon"/>
                 <attr name="helpId" stringvalue="EAPPhaseCorrectionOp"/>
             </file>
-            <file name="org-esa-s1tbx-gpf-OrbitBasedCoregistrationOp-Action.instance">
-                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
-                <attr name="displayName" stringvalue="S-1 Orbit Based Coregistration"/>
-                <attr name="graphFile" stringvalue="OrbitBasedCoregistrationGraph.xml"/>
-                <attr name="dialogTitle" stringvalue="S-1 Orbit Based Coregistration"/>
-                <attr name="ShortDescription" stringvalue="Orbit Based Coregistration"/>
-                <attr name="icon" stringvalue="esaIcon"/>
-                <attr name="helpId" stringvalue="OrbitBasedCoregistrationOp"/>
-            </file>
         </folder>
     </folder>
 
@@ -157,10 +147,6 @@
                     <file name="org-esa-s1tbx-gpf-AzimuthShiftOp-Action.shadow">
                         <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-gpf-AzimuthShiftOp-Action.instance"/>
                         <attr name="position" intvalue="400"/>
-                    </file>
-                    <file name="org-esa-s1tbx-gpf-OrbitBasedCoregistrationOp-Action.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-gpf-OrbitBasedCoregistrationOp-Action.instance"/>
-                        <attr name="position" intvalue="500"/>
                     </file>
                 </folder>
             </folder>
@@ -219,10 +205,6 @@
         <file name="org.esa.s1tbx.sentinel1.gpf.ui.TOPSARMergeOpUI">
             <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.sentinel1.gpf.ui.TOPSARMergeOpUI"/>
             <attr name="operatorName" stringvalue="TOPSAR-Merge"/>
-        </file>
-        <file name="org.esa.s1tbx.sentinel1.gpf.ui.OrbitBasedCoregistrationOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.sentinel1.gpf.ui.OrbitBasedCoregistrationOpUI"/>
-            <attr name="operatorName" stringvalue="Orbit-Based-Coregistration"/>
         </file>
     </folder>
 

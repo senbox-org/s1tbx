@@ -193,6 +193,28 @@ public class TileUtilsDoris {
 
     }
 
+    public static void pushComplexDoubleMatrix(
+            final ComplexDoubleMatrix data, final Tile tileI, final Tile tileQ, final Rectangle rect) {
+
+        final int maxX = rect.x + rect.width;
+        final int maxY = rect.y + rect.height;
+
+        final ProductData samplesReal = tileI.getDataBuffer();
+        final ProductData samplesImag = tileQ.getDataBuffer();
+        final DoubleMatrix dataReal = data.real();
+        final DoubleMatrix dataImag = data.imag();
+
+        final TileIndex tgtIndex = new TileIndex(tileI);
+        for (int y = rect.y; y < maxY; y++) {
+            tgtIndex.calculateStride(y);
+            final int yy = y - rect.y;
+            for (int x = rect.x; x < maxX; x++) {
+                final int xx = x - rect.x;
+                samplesReal.setElemFloatAt(tgtIndex.getIndex(x), (float)dataReal.get(yy, xx));
+                samplesImag.setElemFloatAt(tgtIndex.getIndex(x), (float)dataImag.get(yy, xx));
+            }
+        }
+    }
 
 
 

@@ -250,8 +250,8 @@ public class SarUtils {
                     //sum.addi(input.get(k, l));
                     //power.addi(norms.get(k, l));
                     int inI = 2 * input.index(k, l);
-                    sum.set(sum.real()+input.data[inI], sum.imag()+input.data[inI+1]);
-                    power.set(power.real()+norms.data[inI], power.imag()+norms.data[inI+1]);
+                    sum.set(sum.real() + input.data[inI], sum.imag() + input.data[inI + 1]);
+                    power.set(power.real() + norms.data[inI], power.imag() + norms.data[inI + 1]);
                 }
             }
             result.put(0, minL, coherenceProduct(sum, power));
@@ -266,10 +266,67 @@ public class SarUtils {
 
                     int inI = 2 * input.index(i, l);
                     int inWinL = 2 * input.index(iwinL, l);
-                    sum.set(sum.real()+(input.data[inWinL]-input.data[inI]), sum.imag()+(input.data[inWinL+1]-input.data[inI+1]));
-                    power.set(power.real()+(norms.data[inWinL]-norms.data[inI]), power.imag()+(norms.data[inWinL+1]-norms.data[inI+1]));
+                    sum.set(sum.real() + (input.data[inWinL] - input.data[inI]), sum.imag() + (input.data[inWinL + 1] - input.data[inI + 1]));
+                    power.set(power.real() + (norms.data[inWinL] - norms.data[inI]), power.imag() + (norms.data[inWinL + 1] - norms.data[inI + 1]));
                 }
                 result.put(i + 1, j - leadingZeros, coherenceProduct(sum, power));
+            }
+        }
+        return result;
+    }
+
+    public static ComplexDoubleMatrix cplxCoherence(
+            final ComplexDoubleMatrix input, final ComplexDoubleMatrix norms, final int winL, final int winP) {
+
+        logger.info("cplx coherence");
+        if (!(winL >= winP)) {
+            logger.warning("coherence: estimator window size L<P not very efficiently programmed.");
+        }
+
+        if (input.rows != norms.rows) {
+            logger.severe("coherence: not same dimensions.");
+            throw new IllegalArgumentException("coherence: not the same dimensions.");
+        }
+
+        final int extent_RG = input.columns;
+        final int extent_AZ = input.rows - winL + 1;
+        final ComplexDoubleMatrix result = new ComplexDoubleMatrix(input.rows - winL + 1, input.columns - winP + 1);
+
+        int i, j, k, l;
+        ComplexDouble sum;
+        ComplexDouble power;
+        final int leadingZeros = (winP - 1) / 2;
+        final int trailingZeros = (winP) / 2;
+
+        for (j = leadingZeros; j < extent_RG - trailingZeros; j++) {
+
+            sum = new ComplexDouble(0);
+            power = new ComplexDouble(0);
+
+            int minL = j - leadingZeros;
+            int maxL = minL + winP;
+            for (k = 0; k < winL; k++) {
+                for (l = minL; l < maxL; l++) {
+                    int inI = 2 * input.index(k, l);
+                    sum.set(sum.real() + input.data[inI], sum.imag() + input.data[inI+1]);
+                    power.set(power.real() + norms.data[inI], power.imag() + norms.data[inI+1]);
+                }
+            }
+            result.put(0, minL, cplxCoherenceProduct(sum, power));
+
+            final int maxI = extent_AZ - 1;
+            for (i = 0; i < maxI; i++) {
+                final int iwinL = i + winL;
+                for (l = minL; l < maxL; l++) {
+
+                    int inI = 2 * input.index(i, l);
+                    int inWinL = 2 * input.index(iwinL, l);
+                    sum.set(sum.real() + (input.data[inWinL] - input.data[inI]),
+                            sum.imag() + (input.data[inWinL+1] - input.data[inI+1]));
+                    power.set(power.real() + (norms.data[inWinL] - norms.data[inI]),
+                            power.imag() + (norms.data[inWinL+1] - norms.data[inI+1]));
+                }
+                result.put(i + 1, j - leadingZeros, cplxCoherenceProduct(sum, power));
             }
         }
         return result;
@@ -279,6 +336,11 @@ public class SarUtils {
         final double product = power.real() * power.imag();
 //        return (product > 0.0) ? Math.sqrt(Math.pow(sum.abs(),2) / product) : 0.0;
         return (product > 0.0) ? sum.abs() / Math.sqrt(product) : 0.0;
+    }
+
+    static ComplexDouble cplxCoherenceProduct(final ComplexDouble sum, final ComplexDouble power) {
+        final double product = power.real() * power.imag();
+        return (product > 0.0) ? sum.div(Math.sqrt(product)) : new ComplexDouble(0.0, 0.0);
     }
 
     public static ComplexDoubleMatrix multilook(final ComplexDoubleMatrix inputMatrix, final int factorRow, final int factorColumn) {

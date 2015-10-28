@@ -250,8 +250,8 @@ public final class LinearTodBOp extends Operator {
 
                 final Band targetBand = new Band(targetBandName,
                         ProductData.TYPE_FLOAT32,
-                        srcBand.getSceneRasterWidth(),
-                        srcBand.getSceneRasterHeight());
+                        srcBand.getRasterWidth(),
+                        srcBand.getRasterHeight());
 
                 targetBand.setUnit(targetUnit);
                 targetBand.setDescription(srcBand.getDescription());

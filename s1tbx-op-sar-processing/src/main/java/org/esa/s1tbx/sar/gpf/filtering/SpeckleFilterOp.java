@@ -982,7 +982,8 @@ public class SpeckleFilterOp extends Operator {
                         x, y, srcData1, srcData2, srcIndex, noDataValue, unit, sourceTileRectangle, neighborPixelValues);
 
                 if (numSamples > 0) {
-                    trgData.setElemDoubleAt(idx, getRefinedLeeValue(numSamples, noDataValue, neighborPixelValues));
+                    trgData.setElemDoubleAt(idx, getRefinedLeeValueUsingEdgeThreshold(
+                            filterSizeX, filterSizeY, edgeThreshold, numSamples, noDataValue, neighborPixelValues));
                 } else {
                     trgData.setElemDoubleAt(idx, noDataValue);
                 }
@@ -1086,7 +1087,8 @@ public class SpeckleFilterOp extends Operator {
      * @param neighborPixelValues The neighbor pixel values.
      * @return The filtered pixel value.
      */
-    private double getRefinedLeeValue(
+    public static double getRefinedLeeValueUsingEdgeThreshold(
+            final int filterSizeX, final int filterSizeY, final double edgeThreshold,
             final int numSamples, final double noDataValue, final double[][] neighborPixelValues) {
 
         if (numSamples < filterSizeX * filterSizeY) {
@@ -1099,7 +1101,52 @@ public class SpeckleFilterOp extends Operator {
             return computePixelValueUsingLocalStatistics(neighborPixelValues, noDataValue);
         }
 
-        return computePixelValueUsingEdgeDetection(neighborPixelValues, noDataValue);
+        final double[][] subAreaMeans = new double[3][3];
+        computeSubAreaMeans(neighborPixelValues, subAreaMeans);
+
+        final double[] gradients = new double[4];
+        computeGradients(subAreaMeans, gradients);
+
+        return computePixelValueUsingEdgeDetection(neighborPixelValues, noDataValue, subAreaMeans, gradients);
+    }
+
+    public static double getRefinedLeeValueUsingGradientThreshold(
+            final int filterSizeX, final int filterSizeY, final double gradThreshold,
+            final int numSamples, final double noDataValue, final double[][] neighborPixelValues) {
+
+        if (numSamples < filterSizeX * filterSizeY) {
+            return getMeanValue(neighborPixelValues, noDataValue);
+        }
+
+        final double[][] subAreaMeans = new double[3][3];
+        computeSubAreaMeans(neighborPixelValues, subAreaMeans);
+
+        final double[] gradients = new double[4];
+        computeGradients(subAreaMeans, gradients);
+
+        if (gradients[0] < gradThreshold && gradients[1] < gradThreshold &&
+                gradients[2] < gradThreshold && gradients[3] < gradThreshold) {
+            return getMeanValue(neighborPixelValues, noDataValue);
+        }
+
+        return computePixelValueUsingEdgeDetection(neighborPixelValues, noDataValue, subAreaMeans, gradients);
+    }
+
+    private static double getMeanValue(final double[][] neighborValues, final double noDataValue) {
+
+        double mean = 0.0;
+        int numSamples = 0;
+        for (double[] row : neighborValues) {
+            for (double v : row) {
+                if (v != noDataValue) {
+                    mean += v;
+                    numSamples++;
+                }
+            }
+        }
+        mean /= numSamples;
+
+        return mean;
     }
 
     /**
@@ -1109,10 +1156,10 @@ public class SpeckleFilterOp extends Operator {
      * @param noDataValue         The place holder for no data.
      * @return The filtered pixel value.
      */
-    private double computePixelValueUsingLocalStatistics(
+    private static double computePixelValueUsingLocalStatistics(
             final double[][] neighborPixelValues, final double noDataValue) {
 
-        if (neighborPixelValues[halfSizeY][halfSizeX] == noDataValue) {
+        if (neighborPixelValues[neighborPixelValues.length/2][neighborPixelValues[0].length/2] == noDataValue) {
             return noDataValue;
         }
 
@@ -1148,31 +1195,16 @@ public class SpeckleFilterOp extends Operator {
      * @return The filtered pixel value.
      */
     private static double computePixelValueUsingEdgeDetection(
-            final double[][] neighborPixelValues, final double noDataValue) {
-
-        final double[][] subAreaMeans = new double[3][3];
-        computeSubAreaMeans(neighborPixelValues, subAreaMeans);
-
-        final double gradient0 = Math.abs(subAreaMeans[1][0] - subAreaMeans[1][2]);
-        final double gradient1 = Math.abs(subAreaMeans[0][2] - subAreaMeans[2][0]);
-        final double gradient2 = Math.abs(subAreaMeans[0][1] - subAreaMeans[2][1]);
-        final double gradient3 = Math.abs(subAreaMeans[0][0] - subAreaMeans[2][2]);
+            final double[][] neighborPixelValues, final double noDataValue,
+            final double[][] subAreaMeans, final double[] gradients) {
 
         int direction = 0;
-        double maxGradient = gradient0;
-        if (gradient1 > maxGradient) {
-            maxGradient = gradient1;
-            direction = 1;
-        }
-
-        if (gradient2 > maxGradient) {
-            maxGradient = gradient2;
-            direction = 2;
-        }
-
-        if (gradient3 > maxGradient) {
-            maxGradient = gradient3;
-            direction = 3;
+        double maxGradient = -Double.MAX_VALUE;
+        for (int i = 0; i < gradients.length; i++) {
+            if (maxGradient < gradients[i]) {
+                maxGradient = gradients[i];
+                direction = i;
+            }
         }
 
         int d = 0;
@@ -1233,12 +1265,12 @@ public class SpeckleFilterOp extends Operator {
      * @param noDataValue         The place holder for no data.
      * @return The local mean.
      */
-    private double getLocalMeanValue(final double[][] neighborPixelValues, final double noDataValue) {
+    private static double getLocalMeanValue(final double[][] neighborPixelValues, final double noDataValue) {
 
         int k = 0;
         double mean = 0;
-        for (int j = 0; j < filterSizeY; ++j) {
-            for (int i = 0; i < filterSizeX; ++i) {
+        for (int j = 0; j < neighborPixelValues.length; ++j) {
+            for (int i = 0; i < neighborPixelValues[0].length; ++i) {
                 if (neighborPixelValues[j][i] != noDataValue) {
                     mean += neighborPixelValues[j][i];
                     k++;
@@ -1261,13 +1293,13 @@ public class SpeckleFilterOp extends Operator {
      * @param noDataValue         The place holder for no data.
      * @return The local variance.
      */
-    private double getLocalVarianceValue(
+    private static double getLocalVarianceValue(
             final double mean, final double[][] neighborPixelValues, final double noDataValue) {
 
         int k = 0;
         double var = 0.0;
-        for (int j = 0; j < filterSizeY; ++j) {
-            for (int i = 0; i < filterSizeX; ++i) {
+        for (int j = 0; j < neighborPixelValues.length; ++j) {
+            for (int i = 0; i < neighborPixelValues[0].length; ++i) {
                 if (neighborPixelValues[j][i] != noDataValue) {
                     final double diff = neighborPixelValues[j][i] - mean;
                     var += diff * diff;
@@ -1362,6 +1394,14 @@ public class SpeckleFilterOp extends Operator {
                 subAreaMeans[j][i] = mean / k;
             }
         }
+    }
+
+    private static void computeGradients(final double[][] subAreaMeans, final double[] gradients) {
+
+        gradients[0] = Math.abs(subAreaMeans[1][0] - subAreaMeans[1][2]);
+        gradients[1] = Math.abs(subAreaMeans[0][2] - subAreaMeans[2][0]);
+        gradients[2] = Math.abs(subAreaMeans[0][1] - subAreaMeans[2][1]);
+        gradients[3] = Math.abs(subAreaMeans[0][0] - subAreaMeans[2][2]);
     }
 
     /**

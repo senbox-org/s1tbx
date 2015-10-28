@@ -113,8 +113,8 @@ class ScaleDataDialog extends ModelessDialog {
 
         final VirtualBand virtBand = new VirtualBand(targetName,
                 ProductData.TYPE_FLOAT32,
-                band.getSceneRasterWidth(),
-                band.getSceneRasterHeight(),
+                band.getRasterWidth(),
+                band.getRasterHeight(),
                 expression);
         virtBand.setUnit(unit);
         virtBand.setDescription(band.getDescription());

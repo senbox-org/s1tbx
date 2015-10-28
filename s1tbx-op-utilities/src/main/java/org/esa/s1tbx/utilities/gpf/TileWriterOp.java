@@ -189,7 +189,7 @@ public class TileWriterOp extends Operator {
 
         final Band trgBand = info.product.getBand(bandName);
         info.productWriter.writeBandRasterData(trgBand,
-                0, 0, trgBand.getSceneRasterWidth(), trgBand.getSceneRasterHeight(), rawSamples, ProgressMonitor.NULL);
+                0, 0, trgBand.getRasterWidth(), trgBand.getRasterHeight(), rawSamples, ProgressMonitor.NULL);
     }
 
     private void markTileDone(Band targetBand, Tile targetTile) throws IOException {

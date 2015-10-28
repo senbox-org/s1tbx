@@ -41,7 +41,7 @@ public class LookDirectionComponent implements MapToolsComponent {
 
     public LookDirectionComponent(final RasterDataNode raster) {
         try {
-            final int arrowLength = (int) (raster.getSceneRasterWidth() * 0.05);
+            final int arrowLength = (int) (raster.getRasterWidth() * 0.05);
             final Product product = raster.getProduct();
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
             final MetadataElement lookDirectionListElem = absRoot.getElement("Look_Direction_List");
@@ -84,10 +84,10 @@ public class LookDirectionComponent implements MapToolsComponent {
                 int y = 0;
                 tails.add(new Point(x, y));
                 heads.add(new Point(x + length, y));
-                y = raster.getSceneRasterHeight() / 2;
+                y = raster.getRasterHeight() / 2;
                 tails.add(new Point(x, y));
                 heads.add(new Point(x + length, y));
-                y = raster.getSceneRasterHeight();
+                y = raster.getRasterHeight();
                 tails.add(new Point(x, y));
                 heads.add(new Point(x + length, y));
             }

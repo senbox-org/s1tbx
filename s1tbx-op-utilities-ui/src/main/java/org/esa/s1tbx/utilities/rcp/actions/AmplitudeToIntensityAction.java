@@ -164,8 +164,8 @@ public class AmplitudeToIntensityAction extends AbstractSnapAction implements Co
 
         final VirtualBand virtBand = new VirtualBand(bandName,
                                                      ProductData.TYPE_FLOAT32,
-                                                     band.getSceneRasterWidth(),
-                                                     band.getSceneRasterHeight(),
+                                                     band.getRasterWidth(),
+                                                     band.getRasterHeight(),
                                                      expression);
         virtBand.setUnit(unit);
         virtBand.setDescription(band.getDescription());

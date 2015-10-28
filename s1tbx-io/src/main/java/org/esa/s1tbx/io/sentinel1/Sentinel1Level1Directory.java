@@ -829,8 +829,8 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         final float[] newIncList = new float[newGridWidth * newGridHeight];
         final float[] newElevList = new float[newGridWidth * newGridHeight];
         final float[] newslrtList = new float[newGridWidth * newGridHeight];
-        final int sceneRasterWidth = band.getSceneRasterWidth();
-        final int sceneRasterHeight = band.getSceneRasterHeight();
+        final int sceneRasterWidth = band.getRasterWidth();
+        final int sceneRasterHeight = band.getRasterHeight();
         final double subSamplingX = (double) sceneRasterWidth / (newGridWidth - 1);
         final double subSamplingY = (double) sceneRasterHeight / (newGridHeight - 1);
 

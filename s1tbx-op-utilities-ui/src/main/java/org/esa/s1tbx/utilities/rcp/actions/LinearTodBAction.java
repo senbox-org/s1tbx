@@ -152,8 +152,8 @@ public class LinearTodBAction extends AbstractSnapAction implements ContextAware
 
         final VirtualBand virtBand = new VirtualBand(newBandName,
                                                      ProductData.TYPE_FLOAT32,
-                                                     band.getSceneRasterWidth(),
-                                                     band.getSceneRasterHeight(),
+                                                     band.getRasterWidth(),
+                                                     band.getRasterHeight(),
                                                      expression);
         virtBand.setUnit(unit);
         virtBand.setDescription(band.getDescription());

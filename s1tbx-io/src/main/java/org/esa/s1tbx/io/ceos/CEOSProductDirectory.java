@@ -73,7 +73,7 @@ public abstract class CEOSProductDirectory {
         Guardian.assertNotNull("baseDir", baseDir);
         Guardian.assertNotNull("constants", constants);
 
-        final File volumeFile = CeosHelper.getVolumeFile(baseDir, constants);
+        final File volumeFile = CeosHelper.getCEOSFile(baseDir, constants.getVolumeFilePrefix());
         final BinaryFileReader binaryReader = new BinaryFileReader(new FileImageInputStream(volumeFile));
         final String mission = constants.getMission();
 
@@ -90,7 +90,7 @@ public abstract class CEOSProductDirectory {
     }
 
     private void readVolumeDiscriptor() throws IOException {
-        final File volumeFile = CeosHelper.getVolumeFile(baseDir, constants);
+        final File volumeFile = CeosHelper.getCEOSFile(baseDir, constants.getVolumeFilePrefix());
         final BinaryFileReader binaryReader = new BinaryFileReader(new FileImageInputStream(volumeFile));
         final String mission = constants.getMission();
 

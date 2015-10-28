@@ -358,8 +358,8 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                 final Band targetBand = new Band(
                         targetBandName,
                         ProductData.TYPE_FLOAT32,
-                        srcBand.getSceneRasterWidth(),
-                        srcBand.getSceneRasterHeight());
+                        srcBand.getRasterWidth(),
+                        srcBand.getRasterHeight());
 
                 targetBand.setUnit(Unit.INTENSITY);
                 targetProduct.addBand(targetBand);
