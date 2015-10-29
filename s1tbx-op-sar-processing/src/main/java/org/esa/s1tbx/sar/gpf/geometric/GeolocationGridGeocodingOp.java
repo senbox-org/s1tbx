@@ -96,8 +96,8 @@ public final class GeolocationGridGeocodingOp extends Operator {
             defaultValue = ResamplingFactory.BILINEAR_INTERPOLATION_NAME, label = "Image Resampling Method")
     private String imgResamplingMethod = ResamplingFactory.BILINEAR_INTERPOLATION_NAME;
 
-    @Parameter(description = "The coordinate reference system in well known text format")
-    private String mapProjection;
+    @Parameter(description = "The coordinate reference system in well known text format", defaultValue = "WGS84(DD)")
+    private String mapProjection = "WGS84(DD)";
 
     private boolean srgrFlag = false;
 
