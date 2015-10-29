@@ -103,7 +103,7 @@ public class ImageIOFile {
 
     public void initReader() {
         if (reader != null) {
-            reader.setInput(stream, true, true);
+            reader.setInput(stream, false, true);
         }
     }
 
@@ -112,7 +112,9 @@ public class ImageIOFile {
         reader = iioReader;
         initReader();
 
-        numImages = reader.getNumImages(true);
+        numImages = reader.getNumImages(!reader.isSeekForwardOnly());
+        if(numImages < 0)
+            numImages = 1;
         numBands = 3;
 
         dataType = ProductData.TYPE_INT32;
