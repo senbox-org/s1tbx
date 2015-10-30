@@ -37,6 +37,8 @@ public interface NVariable {
 
     void addAttribute(String name, Number value) throws IOException;
 
+    void addAttribute(String name, Number value, boolean unsigned) throws IOException;
+
     void addAttribute(String name, Array value) throws IOException;
 
     void writeFully(Array values) throws IOException;
