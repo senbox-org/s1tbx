@@ -63,15 +63,20 @@ public class N4Variable implements NVariable {
 
     @Override
     public void addAttribute(String name, Number value) throws IOException {
+        addAttribute(name, value, false);
+    }
+
+    @Override
+    public void addAttribute(String name, Number value, boolean isUnsigned) throws IOException {
         DataType dataType = DataType.getType(value.getClass());
-        int nhType = N4DataType.convert(dataType, false);
+        int nhType = N4DataType.convert(dataType, isUnsigned);
         addAttributeImpl(name, value, nhType);
     }
 
     @Override
     public void addAttribute(String name, Array value) throws IOException {
         DataType dataType = DataType.getType(value.getElementType());
-        int nhType = N4DataType.convert(dataType, false);
+        int nhType = N4DataType.convert(dataType, value.isUnsigned());
         addAttributeImpl(name, value.getStorage(), nhType);
     }
 
