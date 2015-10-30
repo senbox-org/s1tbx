@@ -204,7 +204,7 @@ public class CreateInterferogramOp extends Operator {
         try {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
             validator.checkIfCoregisteredStack();
-            isTOPSARBurstProduct = validator.isTOPSARProduct();
+            isTOPSARBurstProduct = !validator.isDebursted();
 
             if (isTOPSARBurstProduct) {
                 final String mProcSysId = mstRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);

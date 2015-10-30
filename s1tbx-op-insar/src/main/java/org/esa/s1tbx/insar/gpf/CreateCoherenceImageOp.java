@@ -174,7 +174,7 @@ public class CreateCoherenceImageOp extends Operator {
         try {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
             validator.checkIfCoregisteredStack();
-            isTOPSARBurstProduct = validator.isTOPSARProduct();
+            isTOPSARBurstProduct = !validator.isDebursted();
 
             if (isTOPSARBurstProduct) {
                 su = new Sentinel1Utils(sourceProduct);
