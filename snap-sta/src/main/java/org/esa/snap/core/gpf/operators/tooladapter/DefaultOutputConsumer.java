@@ -35,6 +35,7 @@ class DefaultOutputConsumer implements ProcessOutputConsumer {
 
     private Pattern error;
     private Pattern progress;
+    private Pattern step;
     private Logger logger;
     private ProgressMonitor progressMonitor;
     private List<String> processOutput;
@@ -45,13 +46,18 @@ class DefaultOutputConsumer implements ProcessOutputConsumer {
     }
 
     public DefaultOutputConsumer(String progressPattern, ProgressMonitor pm) {
-        this(progressPattern, null, pm);
+        this(progressPattern, null, null, pm);
     }
 
-    public DefaultOutputConsumer(String progressPattern, String errorPattern, ProgressMonitor pm) {
+    public DefaultOutputConsumer(String progressPattern, String errorPattern, ProgressMonitor pm) { this(progressPattern, errorPattern, null, pm); }
+
+    public DefaultOutputConsumer(String progressPattern, String errorPattern, String stepPattern, ProgressMonitor pm) {
         progressMonitor = pm;
         if (errorPattern != null && errorPattern.trim().length() > 0) {
             error = Pattern.compile(errorPattern, Pattern.CASE_INSENSITIVE);
+        }
+        if (stepPattern != null && stepPattern.trim().length() > 0) {
+            step = Pattern.compile(stepPattern, Pattern.CASE_INSENSITIVE);
         }
         if (progressPattern != null && progressPattern.trim().length() > 0) {
             progress = Pattern.compile(progressPattern, Pattern.CASE_INSENSITIVE);
@@ -79,7 +85,7 @@ class DefaultOutputConsumer implements ProcessOutputConsumer {
 
     @Override
     public void consumeOutput(String line) {
-        Matcher matcher = null;
+        Matcher matcher;
         try {
             if (progress != null && (matcher = progress.matcher(line)).matches()) {
                 int worked;
@@ -90,12 +96,14 @@ class DefaultOutputConsumer implements ProcessOutputConsumer {
                 }
                 progressMonitor.worked(Math.min(worked, MAX_UNITS));
                 progressMonitor.setSubTaskName(line);
-                getLogger().info(line);
-            } else if (error != null && (matcher = error.matcher(line)).matches()) {
+            }
+            if (step != null && (matcher = step.matcher(line)).matches()) {
+                progressMonitor.setTaskName(matcher.group(1));
+            }
+            if (error != null && (matcher = error.matcher(line)).matches()) {
                 getLogger().severe(matcher.group(1));
             } else {
                 getLogger().info(line);
-                progressMonitor.setSubTaskName(line);
             }
         } catch (Exception ignored) {
         }

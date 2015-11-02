@@ -66,6 +66,7 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
     private String templateFileLocation;
     private String progressPattern;
     private String errorPattern;
+    private String stepPattern;
     @XStreamAlias("variables")
     private List<SystemVariable> variables;
     @XStreamAlias("parameters")
@@ -128,6 +129,7 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
 
         this.progressPattern = obj.progressPattern;
         this.errorPattern = obj.errorPattern;
+        this.stepPattern = obj.stepPattern;
 
         List<SystemVariable> variableList = obj.getVariables();
         if (variableList != null) {
@@ -425,6 +427,14 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
      * Getter for the Error Pattern field
      */
     public String getErrorPattern() { return errorPattern; }
+    /**
+     * Setter for the Step progress Pattern field. The pattern is a regular expression.
+     */
+    public void setStepPattern(String pattern) { this.stepPattern = pattern; }
+    /**
+     * Getter for the Step progress Pattern field
+     */
+    public String getStepPattern() { return this.stepPattern ; }
     /**
      * Getter for the Pre-processing Writer field
      */
