@@ -195,6 +195,8 @@ public final class GLCMOp extends Operator {
                 throw new OperatorException("Please select output features.");
             }
 
+            getSourceBands();
+
             setWindowSize();
 
             setQuantizer();
@@ -314,12 +316,12 @@ public final class GLCMOp extends Operator {
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
     }
 
-    /**
-     * Add bands to the target product.
-     *
-     * @throws OperatorException The exception.
-     */
-    private void addSelectedBands() throws OperatorException {
+    private void getSourceBands() {
+        if(sourceBandNames != null) {
+            if(sourceProduct.getBand(sourceBandNames[0]) == null) {
+                sourceBandNames = null;
+            }
+        }
 
         // if user did not select any band, use the first intensity band
         if (sourceBandNames == null || sourceBandNames.length == 0) {
@@ -340,6 +342,14 @@ public final class GLCMOp extends Operator {
         } else {
             bandUnit = sourceProduct.getBand(sourceBandNames[0]).getUnit();
         }
+    }
+
+    /**
+     * Add bands to the target product.
+     *
+     * @throws OperatorException The exception.
+     */
+    private void addSelectedBands() throws OperatorException {
 
         //final Band targetBand = ProductUtils.copyBand(sourceBandNames[0], sourceProduct, targetProduct, false);
         //targetBand.setSourceImage(sourceProduct.getBand(sourceBandNames[0]).getSourceImage());
