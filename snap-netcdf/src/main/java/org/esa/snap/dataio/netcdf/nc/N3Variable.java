@@ -62,6 +62,12 @@ public class N3Variable implements NVariable {
     }
 
     @Override
+    public void addAttribute(String name, Number value, boolean isUnsigned) {
+        final Attribute attribute = new Attribute(name, value);
+        variable.addAttribute(attribute);
+    }
+
+    @Override
     public void addAttribute(String name, Array value) {
         variable.addAttribute(new Attribute(name, value));
     }
