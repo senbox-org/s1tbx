@@ -30,6 +30,7 @@ import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.util.ExceptionLog;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * Common functions for readers
@@ -148,5 +149,11 @@ public abstract class SARReader extends AbstractProductReader {
 
         SystemUtils.LOG.severe(message);
         throw new IOException(message);
+    }
+
+    public static boolean checkIfCrossMeridian(final float[] longitudeList) {
+
+        Arrays.sort(longitudeList);
+        return (longitudeList[longitudeList.length-1] - longitudeList[0] > 270.0f);
     }
 }
