@@ -1,0 +1,6 @@
+#sceneRasterWidth=2
+featureId	new_band_2:float	new_band_3:float	latitude:float	longitude:float	
+0	0.5	0.5	-1.7417102	33.581543
+1	1.5	0.5	-1.7422192	33.583824
+2	0.5	1.5	-1.74432	33.580963
+3	1.5	1.5	-1.7448289	33.58325

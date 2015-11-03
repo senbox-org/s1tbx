@@ -1,0 +1,2 @@
+#defaultCSS=symbol:plus; stroke:#ff8800; stroke-opacity:0.8; stroke-width:1.0
+org.esa.snap.GroundControlPoint	geometry:Point	style_css:String	label:String	text:String	pixelPos:Point	geoPos:Point	dateTime:Date
