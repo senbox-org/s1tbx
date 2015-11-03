@@ -21,8 +21,6 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.dataop.dem.ElevationModel;
-import org.esa.snap.core.dataop.dem.ElevationModelDescriptor;
-import org.esa.snap.core.dataop.dem.ElevationModelRegistry;
 import org.esa.snap.core.dataop.resamp.ResamplingFactory;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
@@ -39,6 +37,7 @@ import org.esa.snap.engine_utilities.gpf.TileGeoreferencing;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
 import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -219,15 +218,14 @@ public class CreateLandMaskOp extends Operator {
         }
     }
 
-    private synchronized void createDEM() {
+    private synchronized void createDEM() throws IOException {
         if (dem != null) return;
 
-        final ElevationModelRegistry elevationModelRegistry = ElevationModelRegistry.getInstance();
-        ElevationModelDescriptor demDescriptor = elevationModelRegistry.getDescriptor("ACE2_5Min");
         if (useSRTM) {
-            demDescriptor = elevationModelRegistry.getDescriptor("SRTM 3Sec");
+            dem = DEMFactory.createElevationModel("SRTM 3Sec", ResamplingFactory.NEAREST_NEIGHBOUR_NAME);
+        } else {
+            dem = DEMFactory.createElevationModel("ACE2_5Min", ResamplingFactory.NEAREST_NEIGHBOUR_NAME);
         }
-        dem = demDescriptor.createDem(ResamplingFactory.createResampling(ResamplingFactory.NEAREST_NEIGHBOUR_NAME));
     }
 
     private TileData[] getTargetTiles(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle,
