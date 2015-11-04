@@ -215,6 +215,11 @@ public class ReprojectionOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
+        if(sourceProduct.isMultiSizeProduct()) {
+            throw new OperatorException("Limited Functionality - Reprojecting a product which contains " +
+                                        "bands of different sizes is currently not possible.");
+        }
+
         validateCrsParameters();
         validateResamplingParameter();
         validateReferencingParameters();
