@@ -920,7 +920,7 @@ public class BinningOp extends Operator {
             if (!product.isMultiSizeProduct()) {
                 return true;
             } else {
-                setReason("Product with bands of different size are not yupported yet.");
+                setReason("Product with bands of different size are not supported yet.");
                 return false;
             }
         }
