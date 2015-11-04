@@ -46,6 +46,7 @@ import org.esa.snap.core.util.BitRaster;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.ObjectUtils;
+import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.StopWatch;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.io.WildcardMatcher;
@@ -792,6 +793,16 @@ public class Product extends ProductNode {
      */
     public final int getSceneRasterHeight() {
         return getSceneRasterSize().height;
+    }
+
+    public boolean isMultiSizeProduct() {
+        final ProductNodeGroup<Mask> maskGroup = getMaskGroup();
+        final Stream<RasterDataNode> masks = Arrays.stream(maskGroup.toArray(new Mask[maskGroup.getNodeCount()]));
+        final Stream<RasterDataNode> bands = Arrays.stream(getBands());
+        final Stream<RasterDataNode> tpg = Arrays.stream(getTiePointGrids());
+        final RasterDataNode[] rdns = Stream.concat(Stream.concat(masks, bands), tpg).toArray(RasterDataNode[]::new);
+
+        return !ProductUtils.areRastersEqualInSize(rdns);
     }
 
     /**
