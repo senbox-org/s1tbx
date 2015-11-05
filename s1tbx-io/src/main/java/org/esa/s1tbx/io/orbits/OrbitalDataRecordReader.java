@@ -20,7 +20,6 @@ import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.eo.GeoUtils;
 import org.esa.snap.engine_utilities.util.Maths;
-import org.esa.snap.engine_utilities.util.ResourceUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -30,6 +29,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -63,7 +64,7 @@ public final class OrbitalDataRecordReader {
 
     private static final int INTERPOLATION_ORDER = 8; // this is minima with which we can get required interp smoothness
 
-    public boolean readOrbitFile(String path) throws Exception {
+    public boolean readOrbitFile(Path path) throws Exception {
 
         if (OpenOrbitFile(path)) {
             parseHeader1();
@@ -88,10 +89,10 @@ public final class OrbitalDataRecordReader {
         return false;
     }
 
-    boolean OpenOrbitFile(String path) {
+    boolean OpenOrbitFile(Path path) {
 
         try {
-            in = new DataInputStream(new BufferedInputStream(ResourceUtils.getResourceAsStream(path, OrbitalDataRecordReader.class)));
+            in = new DataInputStream(new BufferedInputStream(Files.newInputStream(path)));
         } catch (Exception e) {
             in = null;
             return false;

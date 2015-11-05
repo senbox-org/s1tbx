@@ -141,7 +141,7 @@ public class DelftOrbitFile extends BaseOrbitFile {
         }
 
         // read content of the orbit file
-        delftReader.readOrbitFile(orbitFile.getAbsolutePath());
+        delftReader.readOrbitFile(orbitFile.toPath());
 
         return orbitFile;
     }

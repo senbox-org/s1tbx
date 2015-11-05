@@ -19,6 +19,9 @@ import org.esa.snap.engine_utilities.util.TestUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 /**
  * OrbitalDataRecordReader Tester.
  *
@@ -35,7 +38,7 @@ public class TestOrbitalDataRecordReader {
 
         final OrbitalDataRecordReader reader = new OrbitalDataRecordReader();
 
-        Assert.assertTrue(reader.OpenOrbitFile(envisatOrbitFilePath));
+        Assert.assertTrue(reader.OpenOrbitFile(Paths.get(envisatOrbitFilePath)));
     }
 
     @Test
@@ -43,7 +46,7 @@ public class TestOrbitalDataRecordReader {
 
         final OrbitalDataRecordReader reader = new OrbitalDataRecordReader();
 
-        if (reader.OpenOrbitFile(envisatOrbitFilePath)) {
+        if (reader.OpenOrbitFile(Paths.get(envisatOrbitFilePath))) {
 
             reader.parseHeader1();
             reader.parseHeader2();
@@ -54,20 +57,20 @@ public class TestOrbitalDataRecordReader {
 
     @Test
     public void testReadERS1OrbitFiles() throws Exception {
-        readOrbitFile("ERS1 ORD", ers1OrbitFilePath);
+        readOrbitFile("ERS1 ORD", Paths.get(ers1OrbitFilePath));
     }
 
     @Test
     public void testReadERS2OrbitFile() throws Exception {
-        readOrbitFile("ERS2 ORD", ers2OrbitFilePath);
+        readOrbitFile("ERS2 ORD", Paths.get(ers2OrbitFilePath));
     }
 
     @Test
     public void testReadEnvisatOrbitFile() throws Exception {
-        readOrbitFile("Envisat ORD", envisatOrbitFilePath);
+        readOrbitFile("Envisat ORD", Paths.get(envisatOrbitFilePath));
     }
 
-    private static void readOrbitFile(final String name, final String path) throws Exception {
+    private static void readOrbitFile(final String name, final Path path) throws Exception {
         final OrbitalDataRecordReader reader = new OrbitalDataRecordReader();
         final boolean res = reader.readOrbitFile(path);
         assert(res);
