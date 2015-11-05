@@ -31,6 +31,7 @@ import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.DownloadableArchive;
 import org.esa.snap.engine_utilities.datamodel.Unit;
@@ -260,8 +261,8 @@ public final class EAPPhaseCorrectionOp extends Operator {
 
         final String prefix;
         prefix = "S1A_AUX_CAL_";
-        final File auxCalFileFolder = new File(
-                Settings.getPath("AuxCalFiles.sentinel1AuxCalPath") + File.separator + year);
+        final File localFolder = SystemUtils.getAuxDataPath().resolve("AuxCal").resolve("S1").toFile();
+        final File auxCalFileFolder = new File(localFolder, String.valueOf(year));
 
         final File[] files = auxCalFileFolder.listFiles(new FilenameFilter() {
             @Override
@@ -309,8 +310,8 @@ public final class EAPPhaseCorrectionOp extends Operator {
 
     private void getRemoteFiles(final int year) throws Exception {
 
-        final File localFolder = new File(Settings.getPath("AuxCalFiles.sentinel1AuxCalPath"), String.valueOf(year));
-        final URL remotePath = new URL(Settings.instance().getPath("AuxCalFiles.sentinel1AuxCal_remotePath"));
+        final File localFolder = SystemUtils.getAuxDataPath().resolve("AuxCal").resolve("S1").resolve(String.valueOf(year)).toFile();
+        final URL remotePath = new URL(Settings.getPath("AuxCal.Sentinel1.remotePath"));
 
         final File localFile = new File(localFolder, year + ".zip");
         final DownloadableArchive archive = new DownloadableArchive(localFile, remotePath);

@@ -29,12 +29,15 @@ import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
-import org.esa.snap.core.util.ResourceInstaller;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.dataio.envisat.EnvisatAuxReader;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.datamodel.DownloadableArchive;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
+import org.esa.snap.engine_utilities.util.ResourceUtils;
+import org.esa.snap.engine_utilities.util.Settings;
 
 import javax.media.jai.BorderExtender;
 import javax.media.jai.JAI;
@@ -53,11 +56,10 @@ import java.awt.image.WritableRaster;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Path;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -783,7 +785,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
     /**
      * Read ERS-1 or ERS-2 antenna pattern from files.
      */
-    private void getAntennaPatternFromFile() {
+    private void getAntennaPatternFromFile() throws IOException {
 
         if (isERS1Mission) { // ERS-1
 
@@ -806,15 +808,24 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
 
             } else { // PGS (CEOS or ENVISAT)
 
-                // get antenna pattern from ERS1 XCA file
-                final Path moduleBasePath = ResourceInstaller.findModuleCodeBasePath(this.getClass());
-                final Path xcaFile = moduleBasePath.resolve("org/esa/s1tbx/auxdata/ers/"+
-                                                                    "ER1_XCA_AXNXXX20050321_000000_19910101_000000_20100101_000000.zip");
+                try {
+                    final File localFolder = SystemUtils.getAuxDataPath().resolve("AuxCal").resolve("ERS").toFile();
+                    final URL remotePath = new URL(Settings.getPath("AuxCal.ERS.remotePath"));
 
-                getAntennaPatternGainFromAuxData(xcaFile.toFile());
+                    final File xcaFile = new File(localFolder, "ER1_XCA_AXNXXX20050321_000000_19910101_000000_20100101_000000.zip");
+                    if(!xcaFile.exists()) {
+                        final File localFile = new File(localFolder, "ERS_XCA.zip");
+                        final DownloadableArchive archive = new DownloadableArchive(localFile, remotePath);
+                        archive.getContentFiles();
+                    }
 
-                extXCAFileName = "ER1_XCA_AXNXXX20050321_000000_19910101_000000_20100101_000000.zip";
-                useExtXCAFile = true;
+                    getAntennaPatternGainFromAuxData(xcaFile);
+
+                    extXCAFileName = "ER1_XCA_AXNXXX20050321_000000_19910101_000000_20100101_000000.zip";
+                    useExtXCAFile = true;
+                } catch (Exception e) {
+                    throw new IOException("Unable to read ERS XCA file "+e.getMessage());
+                }
             }
 
         } else { // ERS-2
@@ -825,15 +836,24 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
 
             } else { // PGS (CEOS or ENVISAT)
 
-                // get antenna pattern from ERS2 XCA file
-                final Path moduleBasePath = ResourceInstaller.findModuleCodeBasePath(this.getClass());
-                final Path xcaFile = moduleBasePath.resolve("org/esa/s1tbx/auxdata/ers/"+
-                                                                    "ER2_XCA_AXNXXX20050321_000000_19950101_000000_20100101_000000.zip");
+                try {
+                    final File localFolder = SystemUtils.getAuxDataPath().resolve("AuxCal").resolve("ERS").toFile();
+                    final URL remotePath = new URL(Settings.getPath("AuxCal.ERS.remotePath"));
 
-                getAntennaPatternGainFromAuxData(xcaFile.toFile());
+                    final File xcaFile = new File(localFolder, "ER2_XCA_AXNXXX20050321_000000_19950101_000000_20100101_000000.zip");
+                    if(!xcaFile.exists()) {
+                        final File localFile = new File(localFolder, "ERS_XCA.zip");
+                        final DownloadableArchive archive = new DownloadableArchive(localFile, remotePath);
+                        archive.getContentFiles();
+                    }
 
-                extXCAFileName = "ER2_XCA_AXNXXX20050321_000000_19950101_000000_20100101_000000.zip";
-                useExtXCAFile = true;
+                    getAntennaPatternGainFromAuxData(xcaFile);
+
+                    extXCAFileName = "ER2_XCA_AXNXXX20050321_000000_19950101_000000_20100101_000000.zip";
+                    useExtXCAFile = true;
+                } catch (Exception e) {
+                    throw new IOException("Unable to read ERS XCA file "+e.getMessage());
+                }
             }
         }
 
@@ -844,7 +864,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
     /**
      * Get the initial ERS-1 SAR antenna pattern (Appendix G1).
      */
-    private void getInitialERS1ElevAntPat() {
+    private void getInitialERS1ElevAntPat() throws IOException {
 
         // The following time checking is ignored. See Andrea's email dated Sep. 15, 2008.
         //if (processingTime.compareTo(time19950716) >= 0) {
@@ -852,13 +872,13 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
         //}
 
         final String fileName = "Appendix_G1.txt";
-        appendixG1 = readFile(getERSAuxFile(fileName).toFile());
+        appendixG1 = readFile(getERSAuxFile(fileName), fileName);
     }
 
     /**
      * Get the improved ERS-1 SAR antenna pattern (Appendix G2).
      */
-    private void getImprovedERS1ElevAntPat() {
+    private void getImprovedERS1ElevAntPat() throws IOException {
 
         String fileName = "";
         if (processingTime.compareTo(time19950716) >= 0 && pvID.compareTo("6.8") < 0) {
@@ -869,13 +889,13 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
             throw new OperatorException("The operator does not support VMP product processed before 1995-07-16");
         }
 
-        appendixG2 = readFile(getERSAuxFile(fileName).toFile());
+        appendixG2 = readFile(getERSAuxFile(fileName), fileName);
     }
 
     /**
      * Get the UK-PAF ERS-1 antenna pattern (Appendix H).
      */
-    private void getUKPAFElevAntPatCor() {
+    private void getUKPAFElevAntPatCor() throws IOException {
 
         String fileName = "";
         if (acquisitionTime.compareTo(time19920401) <= 0) { //orbit repeat period: 3 days;
@@ -886,13 +906,13 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
             throw new OperatorException("Incorrect acquisition date");
         }
 
-        appendixH = readFile(getERSAuxFile(fileName).toFile());
+        appendixH = readFile(getERSAuxFile(fileName), fileName);
     }
 
     /**
      * Get the ERS-2 antenna pattern (Appendix G3).
      */
-    private void getERS2ElevAntPat() {
+    private void getERS2ElevAntPat() throws IOException {
 
         String fileName = "";
         if (pvID.compareTo("6.8") < 0) {
@@ -901,30 +921,24 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
             fileName = "Appendix_G3_c.txt";
         }
 
-        appendixG3 = readFile(getERSAuxFile(fileName).toFile());
+        appendixG3 = readFile(getERSAuxFile(fileName), fileName);
     }
 
-    private Path getERSAuxFile(final String fileName) {
-        final Path moduleBasePath = ResourceInstaller.findModuleCodeBasePath(this.getClass());
-        return moduleBasePath.resolve("org/esa/s1tbx/auxdata/ers/"+ fileName);
+    private InputStream getERSAuxFile(final String fileName) throws IOException {
+        final String path = "org/esa/s1tbx/auxdata/ers/"+ fileName;
+        return ResourceUtils.getResourceAsStream(path, this.getClass());
     }
 
     /**
      * Read antenna pattern data from file and save them in a 2D array.
      *
-     * @param file The file
+     * @param stream The FileInputStream
+     * @param fileName the name of the file being read
      * @return array The 2D array holding antenna pattern data
      */
-    private static double[][] readFile(final File file) {
+    private static double[][] readFile(final InputStream stream, final String fileName) {
 
         // get reader
-        FileInputStream stream;
-        try {
-            stream = new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-            throw new OperatorException("File not found: " + file);
-        }
-
         final BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
 
         // read data from file and save them in 2-D array
@@ -936,12 +950,12 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
         try {
             // get the 1st line
             if ((line = reader.readLine()) == null) {
-                throw new OperatorException("Empty file: " + file);
+                throw new OperatorException("Empty file: " + fileName);
             }
 
             st = new StringTokenizer(line);
             if (st.countTokens() != 2) {
-                throw new OperatorException("Incorrect file format: " + file);
+                throw new OperatorException("Incorrect file format: " + fileName);
             }
 
             final int numRows = Integer.parseInt(st.nextToken());
@@ -953,7 +967,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
 
                 st = new StringTokenizer(line);
                 if (st.countTokens() != numCols) {
-                    throw new OperatorException("Incorrect file format: " + file);
+                    throw new OperatorException("Incorrect file format: " + fileName);
                 }
 
                 for (int j = 0; j < numCols; j++) {
@@ -963,7 +977,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
             }
 
             if (numRows != rowIdx) {
-                throw new OperatorException("Incorrect number of lines in file: " + file);
+                throw new OperatorException("Incorrect number of lines in file: " + fileName);
             }
 
             reader.close();
@@ -1689,7 +1703,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
 
 //================================================= ADC ======================================================
 
-    private void prepareForADCCorrection() {
+    private void prepareForADCCorrection() throws IOException {
 
         getADCPowerLossCorrLUT();
 
@@ -1703,12 +1717,12 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
     /**
      * Get ADC Power Loss Correction Look-up Table (Appendix F1 or F2).
      */
-    private void getADCPowerLossCorrLUT() {
+    private void getADCPowerLossCorrLUT() throws IOException {
 
         if (isERS1Mission) {
-            appendixF1 = readFile(getERSAuxFile("Appendix_F1.txt").toFile());
+            appendixF1 = readFile(getERSAuxFile("Appendix_F1.txt"), "Appendix_F1.txt");
         } else {
-            appendixF2 = readFile(getERSAuxFile("Appendix_F2.txt").toFile());
+            appendixF2 = readFile(getERSAuxFile("Appendix_F2.txt"), "Appendix_F2.txt");
         }
     }
 

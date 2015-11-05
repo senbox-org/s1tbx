@@ -30,8 +30,10 @@ import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.core.util.ResourceInstaller;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.dataio.envisat.EnvisatAuxReader;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.datamodel.DownloadableArchive;
 import org.esa.snap.engine_utilities.datamodel.OrbitStateVector;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
@@ -39,10 +41,12 @@ import org.esa.snap.engine_utilities.eo.GeoUtils;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.esa.snap.engine_utilities.util.Maths;
+import org.esa.snap.engine_utilities.util.Settings;
 
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -461,11 +465,18 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
             final Date startDate = sourceProduct.getStartTime().getAsDate();
             final Date endDate = sourceProduct.getEndTime().getAsDate();
 
-            final Path moduleBasePath = ResourceInstaller.findModuleCodeBasePath(this.getClass());
-            final Path xcaFileDir = moduleBasePath.resolve("org/esa/s1tbx/auxdata/envisat/");
+            final File localFolder = SystemUtils.getAuxDataPath().resolve("AuxCal").resolve("ENVISAT").toFile();
 
-            newXCAFileName = findXCAFile(xcaFileDir.toFile(), startDate, endDate);
-            newXCAFilePath = xcaFileDir.toString() + File.separator + newXCAFileName;
+            newXCAFileName = findXCAFile(localFolder, startDate, endDate);
+            if(newXCAFileName == null) {
+                final URL remotePath = new URL(Settings.getPath("AuxCal.ENVISAT.remotePath"));
+                final File localFile = new File(localFolder, "ENVISAT_XCA.zip");
+                final DownloadableArchive archive = new DownloadableArchive(localFile, remotePath);
+                archive.getContentFiles();
+
+                newXCAFileName = findXCAFile(localFolder, startDate, endDate);
+            }
+            newXCAFilePath = localFolder.toString() + File.separator + newXCAFileName;
         }
     }
 
