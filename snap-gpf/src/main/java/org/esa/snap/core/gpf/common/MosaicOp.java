@@ -361,6 +361,11 @@ public class MosaicOp extends Operator {
                 getLogger().warning(msg);
                 continue;
             }
+            if (sourceProduct.isMultiSizeProduct()) {
+                String msg = "Source product: '" + sourceProduct.getName() + "' contains bands of different sizes. Skipped for further processing.";
+                getLogger().warning(msg);
+                continue;
+            }
             HashMap<String, Product> projProducts = new HashMap<String, Product>();
             projProducts.put("source", sourceProduct);
             projProducts.put("collocateWith", targetProduct);
