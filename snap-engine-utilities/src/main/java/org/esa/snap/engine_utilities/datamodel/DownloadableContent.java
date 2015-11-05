@@ -18,13 +18,13 @@ package org.esa.snap.engine_utilities.datamodel;
 import java.io.IOException;
 
 /**
- * Interface for Land Cover tiles
+ * Interface for DownloadableContent
  */
 public interface DownloadableContent {
 
-    public void dispose();
+    void dispose();
 
-    public DownloadableFile getContentFile() throws IOException;
+    DownloadableFile getContentFile() throws IOException;
 
-    public String getFileName();
+    String getFileName();
 }
