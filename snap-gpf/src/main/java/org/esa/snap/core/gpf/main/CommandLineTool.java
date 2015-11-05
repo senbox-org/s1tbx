@@ -43,7 +43,6 @@ import org.esa.snap.core.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.snap.core.gpf.common.ReadOp;
 import org.esa.snap.core.gpf.common.WriteOp;
 import org.esa.snap.core.gpf.descriptor.OperatorDescriptor;
-import org.esa.snap.core.gpf.experimental.Output;
 import org.esa.snap.core.gpf.graph.Graph;
 import org.esa.snap.core.gpf.graph.GraphContext;
 import org.esa.snap.core.gpf.graph.GraphException;
@@ -269,8 +268,7 @@ class CommandLineTool implements GraphProcessingObserver {
         Product targetProduct = operator.getTargetProduct();
 
         OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
-        boolean autoWriteDisabled = operator instanceof Output || operatorDescriptor.isAutoWriteDisabled();
-        if (autoWriteDisabled) {
+        if (operatorDescriptor.isAutoWriteDisabled()) {
             // operator has its own output management, we "execute" by pulling at tiles
             final OperatorExecutor executor = OperatorExecutor.create(operator);
             executor.execute(ProgressMonitor.NULL);
@@ -332,12 +330,7 @@ class CommandLineTool implements GraphProcessingObserver {
         }
         OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
 
-        boolean autoWriteDisabled = false;
-        if (Output.class.isAssignableFrom(operatorDescriptor.getOperatorClass()) || operatorDescriptor.isAutoWriteDisabled()) {
-            autoWriteDisabled = true;
-        }
-
-        if (!autoWriteDisabled) {
+        if (!operatorDescriptor.isAutoWriteDisabled()) {
             // Auto-writing is permitted, so add a WriteOp as last node
             String writeOperatorAlias = OperatorSpi.getOperatorAlias(WriteOp.class);
 
