@@ -21,7 +21,6 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.esa.snap.engine_utilities.util.TestUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -46,7 +45,6 @@ public class TestRemoveAntennaPatternOp {
             "Cannot apply calibration to coregistered product"};
 
     @Test
-    @Ignore("fails")
     public void testProcessingASAR_WSM() throws Exception {
         processFile(TestData.inputASAR_WSM);
     }

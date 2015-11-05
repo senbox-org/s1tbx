@@ -29,7 +29,6 @@ import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
-import org.esa.snap.core.util.ResourceInstaller;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.dataio.envisat.EnvisatAuxReader;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
@@ -315,20 +314,34 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      *
      * @return The complete path to the XCA file.
      */
-    private Path getOldXCAFilePath() {
+    private Path getOldXCAFilePath() throws Exception {
         oldXCAFileName = absRoot.getAttributeString(AbstractMetadata.external_calibration_file);
 
-        final Path moduleBasePath = ResourceInstaller.findModuleCodeBasePath(this.getClass());
-        return moduleBasePath.resolve("org/esa/s1tbx/auxdata/envisat/"+oldXCAFileName);
+        final File localFolder = SystemUtils.getAuxDataPath().resolve("AuxCal").resolve("ENVISAT").toFile();
+        final URL remotePath = new URL(Settings.getPath("AuxCal.ENVISAT.remotePath"));
+
+        File xcaFile = new File(localFolder, oldXCAFileName);
+        if(xcaFile.exists()) {  // unzipped
+            return xcaFile.toPath();
+        } else {
+            xcaFile = new File(localFolder, oldXCAFileName + ".zip");
+            if(xcaFile.exists()) {  // zipped
+                return xcaFile.toPath();
+            } else {
+                final File localFile = new File(localFolder, "ENVISAT_XCA.zip");
+                final DownloadableArchive archive = new DownloadableArchive(localFile, remotePath);
+                archive.getContentFiles();
+            }
+            return xcaFile.toPath();
+        }
     }
 
     /**
      * Get old antenna pattern gains.
      */
-    private void getOldAntennaPattern() {
+    private void getOldAntennaPattern() throws Exception {
 
-        final Path moduleBasePath = ResourceInstaller.findModuleCodeBasePath(this.getClass());
-        final String xcaFilePath = moduleBasePath.resolve("org/esa/s1tbx/auxdata/envisat/"+oldXCAFileName).toString();
+        final String xcaFilePath = getOldXCAFilePath().toString();
 
         if (wideSwathProductFlag) {
 
@@ -387,8 +400,8 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
         incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
         latitude = OperatorUtils.getLatitude(sourceProduct);
 
-         incidenceTPGInterp = new TiePointInterpolator(incidenceAngle);
-         slantRangeTPGInterp = new TiePointInterpolator(slantRangeTime);
+        incidenceTPGInterp = new TiePointInterpolator(incidenceAngle);
+        slantRangeTPGInterp = new TiePointInterpolator(slantRangeTime);
     }
 
     /**
