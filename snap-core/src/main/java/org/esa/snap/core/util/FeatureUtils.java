@@ -98,7 +98,7 @@ public class FeatureUtils {
     }
 
     public static FeatureCollection<SimpleFeatureType, SimpleFeature> clipFeatureCollectionToProductBounds(FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection, Product product, FeatureCrsProvider crsProvider, ProgressMonitor pm) {
-        final CoordinateReferenceSystem targetCrs = product.getModelCRS();
+        final CoordinateReferenceSystem targetCrs = product.getSceneCRS();
         final Geometry clipGeometry = createGeoBoundaryPolygon(product);
         pm.worked(10);
         CoordinateReferenceSystem featureCrs = featureCollection.getSchema().getCoordinateReferenceSystem();

@@ -46,7 +46,6 @@ import org.esa.snap.core.util.jai.JAIUtils;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.runtime.Config;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
 
 import javax.media.jai.Histogram;
 import javax.media.jai.ImageLayout;
@@ -154,11 +153,11 @@ public class ImageManager {
     }
 
     /**
-     * @deprecated since SNAP 2, use {@link Product#getAppropriateImageToModelTransform(GeoCoding)}
+     * @deprecated since SNAP 2, use {@link Product#getAppropriateImageToSceneTransform(GeoCoding)}
      */
     @Deprecated
     public static AffineTransform getImageToModelTransform(GeoCoding geoCoding) {
-        return Product.getAppropriateImageToModelTransform(geoCoding);
+        return Product.getAppropriateImageToSceneTransform(geoCoding);
     }
 
     /**
@@ -168,11 +167,11 @@ public class ImageManager {
      * @param geoCoding A geo-coding, may be {@code null}.
      * @return The coordinate reference system used for the model space. If {@code geoCoding} is {@code null},
      * it will be a default image coordinate reference system (an instance of {@code org.opengis.referencing.crs.ImageCRS}).
-     * @deprecated since SNAP 2, use {@link Product#getAppropriateModelCRS(GeoCoding)}
+     * @deprecated since SNAP 2, use {@link Product#getAppropriateSceneCRS(GeoCoding)}
      */
     @Deprecated
     public static CoordinateReferenceSystem getModelCrs(GeoCoding geoCoding) {
-        return Product.getAppropriateModelCRS(geoCoding);
+        return Product.getAppropriateSceneCRS(geoCoding);
     }
 
     public PlanarImage getSourceImage(RasterDataNode rasterDataNode, int level) {

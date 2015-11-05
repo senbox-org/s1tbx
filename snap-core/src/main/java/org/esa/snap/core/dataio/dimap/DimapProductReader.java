@@ -151,7 +151,7 @@ public class DimapProductReader extends AbstractProductReader {
             DimapProductHelpers.addPins(dom, this.product);
 
             initGeoCodings(dom);
-            readVectorData(product.getModelCRS(), false);
+            readVectorData(product.getSceneCRS(), false);
             DimapProductHelpers.addMaskUsages(dom, this.product);
         }
         this.product.setProductReader(this);

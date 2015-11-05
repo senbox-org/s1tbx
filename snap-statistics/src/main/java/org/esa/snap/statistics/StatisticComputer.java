@@ -60,7 +60,7 @@ public class StatisticComputer {
         crsProvider = new FeatureUtils.FeatureCrsProvider() {
             @Override
             public CoordinateReferenceSystem getFeatureCrs(Product targetProduct) {
-                if (targetProduct.getModelCRS() == Product.DEFAULT_IMAGE_CRS) {
+                if (targetProduct.getSceneCRS() == Product.DEFAULT_IMAGE_CRS) {
                     return Product.DEFAULT_IMAGE_CRS;
                 }
                 return DefaultGeographicCRS.WGS84;

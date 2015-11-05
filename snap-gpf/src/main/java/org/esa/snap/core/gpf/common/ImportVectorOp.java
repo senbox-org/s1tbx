@@ -319,7 +319,7 @@ public class ImportVectorOp extends Operator {
             if (geometry == null) {
                 return null;
             }
-            CoordinateReferenceSystem modelCrs = product.getModelCRS();
+            CoordinateReferenceSystem modelCrs = product.getSceneCRS();
             AffineTransform imageToModelTransform = ImageManager.getImageToModelTransform(geoCoding);
             GeometryCoordinateSequenceTransformer transformer = new GeometryCoordinateSequenceTransformer();
             transformer.setMathTransform(new AffineTransform2D(imageToModelTransform));

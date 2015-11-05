@@ -233,7 +233,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @return The image-to-model transformation, or {@code null} if it can't be determined.
      * @see #getProduct()
-     * @see Product#getModelCRS()
+     * @see Product#getSceneCRS()
      * @see #setImageToModelTransform(AffineTransform)
      */
     public AffineTransform getImageToModelTransform() {
@@ -248,13 +248,13 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         // Try to derive from source product
         Product product = getProduct();
         if (product != null) {
-            CoordinateReferenceSystem modelCRS = product.getModelCRS();
+            CoordinateReferenceSystem modelCRS = product.getSceneCRS();
             GeoCoding sceneGeoCoding = product.getSceneGeoCoding();
             GeoCoding rasterGeoCoding = getGeoCoding();
-            CoordinateReferenceSystem appropriateModelCRS = Product.getAppropriateModelCRS(rasterGeoCoding);
+            CoordinateReferenceSystem appropriateModelCRS = Product.getAppropriateSceneCRS(rasterGeoCoding);
             if (modelCRS.equals(appropriateModelCRS)) {
                 // If both model CRS are equal
-                return Product.getAppropriateImageToModelTransform(rasterGeoCoding);
+                return Product.getAppropriateImageToSceneTransform(rasterGeoCoding);
             }
             if (sceneGeoCoding == null && rasterGeoCoding == null) {
                 // Fallback: identity transform, works fine for (single-size) products without geo-coding
