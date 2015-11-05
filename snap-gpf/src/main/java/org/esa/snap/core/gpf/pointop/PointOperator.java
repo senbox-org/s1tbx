@@ -215,6 +215,10 @@ public abstract class PointOperator extends Operator {
         int h = 0;
         for (int i = 0; i < sourceProducts.length; i++) {
             Product sourceProduct = sourceProducts[i];
+            if (sourceProduct.isMultiSizeProduct()) {
+                throw new OperatorException("Source products with rasters of different size are currently not supported.");
+            }
+
             if (i == 0) {
                 w = sourceProduct.getSceneRasterWidth();
                 h = sourceProduct.getSceneRasterHeight();
