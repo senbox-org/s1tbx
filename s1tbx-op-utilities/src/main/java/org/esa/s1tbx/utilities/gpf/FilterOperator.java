@@ -37,6 +37,8 @@ import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 
 import java.awt.Rectangle;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -185,8 +187,9 @@ public class FilterOperator extends Operator {
         return filterBand;
     }
 
-    private static KernelFilter getUserDefinedFilter(File userDefinedKernelFile) {
-        final float[][] kernelData = UndersamplingOp.readFile(userDefinedKernelFile.getAbsolutePath());
+    private static KernelFilter getUserDefinedFilter(File userDefinedKernelFile) throws IOException {
+        FileInputStream fis = new FileInputStream(userDefinedKernelFile);
+        final float[][] kernelData = UndersamplingOp.readFile(fis, userDefinedKernelFile.getName());
         final int filterWidth = kernelData.length;
         final int filterHeight = kernelData[0].length;
         final double[] data = new double[filterWidth * filterHeight];

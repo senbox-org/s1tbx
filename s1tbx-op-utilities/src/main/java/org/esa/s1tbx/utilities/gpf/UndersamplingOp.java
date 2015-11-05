@@ -41,13 +41,12 @@ import org.esa.snap.core.util.ResourceInstaller;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
+import org.esa.snap.engine_utilities.util.ResourceUtils;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -118,9 +117,6 @@ public class UndersamplingOp extends Operator {
     @Parameter(valueSet = {FILTER_SIZE_3x3, FILTER_SIZE_5x5, FILTER_SIZE_7x7},
             defaultValue = FILTER_SIZE_3x3, label = "Filter Size")
     private String filterSize = FILTER_SIZE_3x3;
-
-    //    @Parameter(description = "The kernel file", label="Kernel File")
-    private File kernelFile = null;
 
     @Parameter(defaultValue = "2", label = "Sub-Sampling in X")
     private int subSamplingX = 2;
@@ -396,18 +392,16 @@ public class UndersamplingOp extends Operator {
     /**
      * Read pre-defined or user defined kernel file.
      */
-    private void getKernelFile() {
+    private void getKernelFile() throws IOException {
 
         String fileName = "";
-        boolean isPreDefinedKernel;
 
         if (filterType.equals(USER_DEFINED)) { // user defined kernel file
 
-            isPreDefinedKernel = false;
+            filterHeight = kernel.length;
+            filterWidth = kernel[0].length;
 
         } else { // pre-defined kernel file with user specified filter diemnsion
-
-            isPreDefinedKernel = true;
 
             switch (filterType) {
                 case SUMMARY:
@@ -435,24 +429,18 @@ public class UndersamplingOp extends Operator {
                     throw new OperatorException("Incorrect filter type: " + filterType);
             }
 
-            kernelFile = getResFile(fileName);
-        }
+            kernel = readFile(getResFile(fileName), fileName);
 
-        kernel = readFile(kernelFile.getAbsolutePath());
-        if (isPreDefinedKernel) {
             if (filterHeight != kernel.length || filterWidth != kernel[0].length) {
                 throw new OperatorException("Kernel size does not match given filter size");
             }
-        } else { // user defined kernel
-            filterHeight = kernel.length;
-            filterWidth = kernel[0].length;
         }
     }
 
-    private File getResFile(String fileName) {
+    private InputStream getResFile(String fileName) throws IOException {
         final Path moduleBasePath = ResourceInstaller.findModuleCodeBasePath(this.getClass());
         final Path kernelPath = moduleBasePath.resolve("org/esa/s1tbx/kernels/"+ fileName);
-        return kernelPath.toFile();
+        return ResourceUtils.getResourceAsStream(kernelPath.toString(), this.getClass());
     }
 
     /**
@@ -461,16 +449,9 @@ public class UndersamplingOp extends Operator {
      * @param fileName The kernel file name
      * @return array The 2D array holding kernel data
      */
-    public static float[][] readFile(String fileName) {
+    public static float[][] readFile(final InputStream stream, final String fileName) {
 
         // get reader
-        FileInputStream stream;
-        try {
-            stream = new FileInputStream(fileName);
-        } catch (FileNotFoundException e) {
-            throw new OperatorException("File not found: " + fileName);
-        }
-
         final BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
 
         // read data from file and save them in 2-D array
