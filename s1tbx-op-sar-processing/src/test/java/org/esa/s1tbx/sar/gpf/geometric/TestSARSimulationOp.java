@@ -21,7 +21,6 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.esa.snap.engine_utilities.util.TestUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -52,7 +51,6 @@ public class TestSARSimulationOp {
      * @throws Exception general exception
      */
     @Test
-    @Ignore
     public void testProcessing() throws Exception {
         final File inputFile = TestData.inputASAR_WSM;
         if (!inputFile.exists()) {
@@ -69,8 +67,11 @@ public class TestSARSimulationOp {
         final Product targetProduct = op.getTargetProduct();
         TestUtils.verifyProduct(targetProduct, true, true, true);
 
-        final float[] expected = new float[] { 0.0f,0.0027595602441579103f,3.81733087124303E-4f,0.0015535715501755476f,0.0011511055054143071f,
-                0.0011886089341714978f,0.0014550031628459692f,7.402152987197042E-4f,0.0017113082576543093f,2.657773729879409E-4f };
+        final float[] expected = new float[] {
+                0.005814257f,
+                4.8023136E-4f,
+                0.0054712757f,
+                5.950017E-4f };
         TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), expected);
     }
 

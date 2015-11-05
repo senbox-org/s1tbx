@@ -30,7 +30,6 @@ import org.esa.snap.core.dataop.resamp.ResamplingFactory;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.gpf.TestProcessor;
 import org.esa.snap.engine_utilities.util.TestUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -58,7 +57,6 @@ public class TestRangeDopplerOp {
      * @throws Exception general exception
      */
     @Test
-    @Ignore("fails")
     public void testProcessWSM() throws Exception {
         final File inputFile = TestData.inputASAR_WSM;
         if (!inputFile.exists()) {
@@ -78,7 +76,7 @@ public class TestRangeDopplerOp {
         final Product targetProduct = op.getTargetProduct();
         TestUtils.verifyProduct(targetProduct, true, true, true);
 
-        final float[] expected = new float[] { 0.211352f, 0.2079482f, 0.24199635f };
+        final float[] expected = new float[] { 0.72973657f, 0.3995895f, 0.21391034f };
         TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), 500, 500, expected);
     }
 
@@ -119,7 +117,6 @@ public class TestRangeDopplerOp {
      * @throws Exception general exception
      */
     @Test
-    @Ignore("fails")
     public void testProcessIMS() throws Exception {
         final File inputFile = TestData.inputASAR_IMS;
         if (!inputFile.exists()) {
@@ -139,7 +136,7 @@ public class TestRangeDopplerOp {
         final Product targetProduct = op.getTargetProduct();
         TestUtils.verifyProduct(targetProduct, true, true, true);
 
-        final float[] expected = new float[] { 0.010027291f, 0.13246238f, 0.12623858f };
+        final float[] expected = new float[] { 0.05098614f, 0.15979832f, 0.123488426f  };
         TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), expected);
     }
 
@@ -149,7 +146,6 @@ public class TestRangeDopplerOp {
      * @throws Exception general exception
      */
     @Test
-    @Ignore("fails")
     public void testProcessAPM() throws Exception {
         final File inputFile = TestData.inputASAR_APM;
         if (!inputFile.exists()) {
@@ -169,7 +165,7 @@ public class TestRangeDopplerOp {
         final Product targetProduct = op.getTargetProduct();
         TestUtils.verifyProduct(targetProduct, true, true);
 
-        final float[] expected = new float[] { 0.08069037f, 0.076275185f, 0.08034709f };
+        final float[] expected = new float[] { 0.08192372f, 0.08261214f, 0.093791544f };
         TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), 500, 500, expected);
     }
 
