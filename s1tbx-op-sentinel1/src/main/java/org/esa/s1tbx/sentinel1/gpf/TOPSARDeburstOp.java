@@ -247,7 +247,14 @@ public final class TOPSARDeburstOp extends Operator {
 
         // source band name is assumed in format: name_acquisitionModeAndSubSwathIndex_polarization_prefix
         // target band name is then in format: name_polarization_prefix
-        boolean hasVirtualPhaseBand = false;
+        boolean hasVirtualPhaseBands = false;
+        for (Band srcBand:sourceBands) {
+            if (srcBand instanceof VirtualBand && srcBand.getName().toLowerCase().contains("phase")) {
+                hasVirtualPhaseBands = true;
+                break;
+            }
+        }
+
         for (Band srcBand:sourceBands) {
             final String srcBandName = srcBand.getName();
             if (!containSelectedPolarisations(srcBandName)) {
@@ -255,9 +262,6 @@ public final class TOPSARDeburstOp extends Operator {
             }
 
             if (srcBand instanceof VirtualBand) {
-                if (srcBandName.toLowerCase().contains("phase")) {
-                    hasVirtualPhaseBand = true;
-                }
                 continue;
             }
 
@@ -267,23 +271,19 @@ public final class TOPSARDeburstOp extends Operator {
                 trgBand.setUnit(srcBand.getUnit());
                 trgBand.setNoDataValueUsed(true);
                 trgBand.setNoDataValue(srcBand.getNoDataValue());
-            }
-        }
 
-        final Band[] targetBands = targetProduct.getBands();
-        for (int i = 0; i < targetBands.length; i++) {
-            final Unit.UnitType iBandUnit = Unit.getUnitType(targetBands[i]);
-            if (iBandUnit == Unit.UnitType.REAL && i+1 < targetBands.length) {
-                final Unit.UnitType qBandUnit = Unit.getUnitType(targetBands[i+1]);
-                if (qBandUnit == Unit.UnitType.IMAGINARY) {
-                    ReaderUtils.createVirtualIntensityBand(
-                            targetProduct, targetBands[i], targetBands[i+1], '_' + getPrefix(targetBands[i].getName()));
+                int i = targetProduct.getBandIndex(tgtBandName);
+                if (trgBand.getUnit().equals(Unit.IMAGINARY) && i-1 >= 0) {
+                    Band iBand = targetProduct.getBandAt(i-1);
+                    if (iBand.getUnit().equals(Unit.REAL)) {
+                        ReaderUtils.createVirtualIntensityBand(
+                                targetProduct, iBand, trgBand, '_' + getPrefix(trgBand.getName()));
 
-                    if (hasVirtualPhaseBand) {
-                        ReaderUtils.createVirtualPhaseBand(targetProduct,
-                                targetBands[i], targetBands[i+1], '_' + getPrefix(targetBands[i].getName()));
+                        if (hasVirtualPhaseBands) {
+                            ReaderUtils.createVirtualPhaseBand(targetProduct,
+                                iBand, trgBand, '_' + getPrefix(trgBand.getName()));
+                        }
                     }
-                    i++;
                 }
             }
         }
