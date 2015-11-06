@@ -20,6 +20,7 @@
                 <attr name="operatorName" stringvalue="TOPSAR-Split"/>
                 <attr name="dialogTitle" stringvalue="S-1 TOPS Split"/>
                 <attr name="ShortDescription" stringvalue="Split a Sentinel1 TOPSAR product into subswaths"/>
+                <attr name="targetProductNameSuffix" stringvalue="_split"/>
                 <attr name="helpId" stringvalue="TOPSARSplitOp"/>
             </file>
             <file name="org-esa-s1tbx-gpf-TOPSARMergeOp-Action.instance">
@@ -127,7 +128,7 @@
             <folder name="Coregistration">
                 <attr name="position" intvalue="300"/>
                 <folder name="S1 TOPS Coregistration">
-                    <attr name="position" intvalue="200"/>
+                    <attr name="position" intvalue="250"/>
                     <file name="org-esa-s1tbx-gpf-TOPSCoregistration-Action.shadow">
                         <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-gpf-TOPSCoregistration-Action.instance"/>
                         <attr name="position" intvalue="100"/>
