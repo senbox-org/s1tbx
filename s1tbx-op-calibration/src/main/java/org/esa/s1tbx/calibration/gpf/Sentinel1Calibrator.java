@@ -48,9 +48,6 @@ import java.util.List;
 
 public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
-    private String productType = null;
-    private String acquisitionMode = null;
-    private String polarization = null;
     private CalibrationInfo[] calibration = null;
     private boolean isMultiSwath = false;
     private boolean priorToIPFV234 = false;
@@ -145,10 +142,6 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
                         "therefore the calibration result may not be reliable.");
             }
 
-            getProductType();
-
-            getProductPolarization();
-
             getSampleType();
 
             if (absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().getElemBoolean()) {
@@ -172,32 +165,6 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         final String procSysId = absRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
         final float version = Float.valueOf(procSysId.substring(procSysId.lastIndexOf(" ")));
         return (version < 2.34f);
-    }
-
-    /**
-     * Get product type from abstracted metadata.
-     */
-    private void getProductType() {
-        productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
-    }
-
-    /**
-     * Get product polarization.
-     */
-    private void getProductPolarization() {
-
-        final String productName = absRoot.getAttributeString(AbstractMetadata.PRODUCT);
-        final String level = productName.substring(12, 14);
-        if (!level.equals("1S")) {
-            throw new OperatorException("Invalid source product");
-        }
-
-        polarization = productName.substring(14, 16);
-        if (!polarization.equals("SH") && !polarization.equals("SV") && !polarization.equals("DH") &&
-                !polarization.equals("DV") && !polarization.equals("HH") && !polarization.equals("HV") &&
-                !polarization.equals("VV") && !polarization.equals("VH")) {
-            throw new OperatorException("Invalid source product");
-        }
     }
 
     private void getVectors() {

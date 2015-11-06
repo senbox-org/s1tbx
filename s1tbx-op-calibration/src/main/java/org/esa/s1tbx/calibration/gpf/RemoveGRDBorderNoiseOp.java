@@ -35,6 +35,7 @@ import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ThreadManager;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
@@ -116,6 +117,11 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfSentinel1Product();
+            validator.checkIfGRD();
+            validator.checkIfCalibrated(false);
+
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
             origMetadataRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
 
@@ -126,8 +132,6 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
             bottomBorder = sourceImageHeight - borderLimit;
             leftBorder = borderLimit;
             rightBorder = sourceImageWidth - borderLimit;
-
-            checkSourceProductValidity();
 
             getIPFVersion();
 
@@ -147,39 +151,6 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
-        }
-    }
-
-    /**
-     * Check source product validity.
-     */
-    private void checkSourceProductValidity() {
-
-        final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        if (!mission.startsWith("SENTINEL-1")) {
-            throw new OperatorException("Input should be a Sentinel-1 GRD product.");
-        }
-
-        final String productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
-        if (!productType.equals("GRD")) {
-            throw new OperatorException("Input should be a GRD product.");
-        }
-
-        final String productName = absRoot.getAttributeString(AbstractMetadata.PRODUCT);
-        final String level = productName.substring(12, 14);
-        if (!level.equals("1S")) {
-            throw new OperatorException("Input should be a level-1 product.");
-        }
-
-        final String polarization = productName.substring(14, 16);
-        if (!polarization.equals("SH") && !polarization.equals("SV") && !polarization.equals("DH") &&
-                !polarization.equals("DV") && !polarization.equals("HH") && !polarization.equals("HV") &&
-                !polarization.equals("VV") && !polarization.equals("VH")) {
-            throw new OperatorException("Unknown source product polarization");
-        }
-
-        if (absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().getElemBoolean()) {
-            throw new OperatorException("Cannot apply the operator to calibrated product.");
         }
     }
 

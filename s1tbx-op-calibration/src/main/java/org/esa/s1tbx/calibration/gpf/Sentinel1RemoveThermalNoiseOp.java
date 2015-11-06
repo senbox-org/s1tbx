@@ -116,8 +116,6 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
             getAcquisitionMode();
 
-            getProductPolarization();
-
             getThermalNoiseCorrectionFlag();
 
             setSelectedPolarisations();
@@ -162,25 +160,6 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             } else if (acquisitionMode.equals("EW")) {
                 numOfSubSwath = 5;
             }
-        }
-    }
-
-    /**
-     * Get product polarization.
-     */
-    private void getProductPolarization() {
-
-        final String productName = absRoot.getAttributeString(AbstractMetadata.PRODUCT);
-        final String level = productName.substring(12, 14);
-        if (!level.equals("1S")) {
-            throw new OperatorException("Invalid source product");
-        }
-
-        final String polarization = productName.substring(14, 16);
-        if (!polarization.equals("SH") && !polarization.equals("SV") && !polarization.equals("DH") &&
-                !polarization.equals("DV") && !polarization.equals("HH") && !polarization.equals("HV") &&
-                !polarization.equals("VV") && !polarization.equals("VH")) {
-            throw new OperatorException("Invalid source product");
         }
     }
 
