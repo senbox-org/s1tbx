@@ -109,7 +109,7 @@
                 <attr name="position" intvalue="300"/>
                 <file name="org-esa-s1tbx-insar-gpf-coregistration-CoregistrationGraph-Action.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-coregistration-CoregistrationGraph-Action.instance"/>
-                    <attr name="position" intvalue="250"/>
+                    <attr name="position" intvalue="100"/>
                 </file>
                 <file name="org-esa-s1tbx-insar-gpf-coregistration-DEMAssistedCoregistrationOp-Action.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-coregistration-DEMAssistedCoregistrationOp-Action.instance"/>
