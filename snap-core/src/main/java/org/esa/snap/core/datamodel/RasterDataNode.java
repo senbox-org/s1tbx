@@ -44,7 +44,12 @@ import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.core.util.math.Quantizer;
 import org.esa.snap.core.util.math.Range;
 import org.esa.snap.runtime.Config;
+import org.geotools.referencing.CRS;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.MathTransform2D;
+import org.opengis.referencing.operation.NoninvertibleTransformException;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
@@ -62,6 +67,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.logging.Level;
 import java.util.prefs.BackingStoreException;
 
 /**
@@ -150,6 +156,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     private String[] ancillaryRelations;
     private AncillaryBandRemover ancillaryBandRemover;
+    private SceneRasterTransform sceneRasterTransform;
 
     /**
      * Constructs an object of type <code>RasterDataNode</code>.
@@ -320,7 +327,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public void setGeoCoding(final GeoCoding geoCoding) {
         if (!ObjectUtils.equalObjects(geoCoding, this.geoCoding)) {
             this.geoCoding = geoCoding;
-
             // If our product has no geo-coding yet, it is set to the current one, if any
             if (this.geoCoding != null) {
                 final Product product = getProduct();
@@ -328,6 +334,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                     product.setSceneGeoCoding(this.geoCoding);
                 }
             }
+            computeSceneRasterTransform();
             fireProductNodeChanged(PROPERTY_NAME_GEO_CODING);
         }
     }
@@ -2504,6 +2511,67 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             pm.done();
         }
         Debug.trace("RasterDataNode.processRasterData: done");
+    }
+
+    /**
+     * Gets a transformation allowing to transform from this raster CS to the product's scene raster CS.
+     *
+     * @return The transformation or {@code null}, if no such exists.
+     * @since SNAP 2.0
+     */
+    public SceneRasterTransform getSceneRasterTransform() {
+        if (sceneRasterTransform != null) {
+            return sceneRasterTransform;
+        }
+        computeSceneRasterTransform();
+        return sceneRasterTransform;
+    }
+
+    /**
+     * Sets the transformation allowing to transform from this raster CS to the product's scene raster CS.
+     *
+     * @param sceneRasterTransform The transformation or {@code null}.
+     * @since SNAP 2.0
+     */
+    public void setSceneRasterTransform(SceneRasterTransform sceneRasterTransform) {
+        this.sceneRasterTransform = sceneRasterTransform;
+    }
+
+    /**
+     * Computes a transformation allowing to transform from this raster CS to the product's scene raster CS.
+     * This method is called if no transformation has been set using the
+     * {@link #setSceneRasterTransform(SceneRasterTransform)} method.
+     *
+     * @since SNAP 2.0
+     */
+    protected void computeSceneRasterTransform() {
+        if (getProduct() == null) {
+            sceneRasterTransform = null;
+            return;
+        }
+        final GeoCoding geoCoding = getGeoCoding();
+        if (geoCoding != null && geoCoding instanceof CrsGeoCoding && geoCoding.getMapCRS().equals(getProduct().getSceneCRS())) {
+            try {
+                final MathTransform mathTransform = CRS.findMathTransform(getProduct().getSceneCRS(), geoCoding.getMapCRS());
+                if (mathTransform instanceof MathTransform2D) {
+                    final MathTransform2D inverse = (MathTransform2D) mathTransform;
+                    MathTransform2D forward;
+                    try {
+                        forward = inverse.inverse();
+                    } catch (NoninvertibleTransformException e) {
+                        forward = null;
+                        SystemUtils.LOG.log(Level.SEVERE, "failed to create forward transform for raster '" + getName() + "'", e);
+                    }
+                    sceneRasterTransform = new DefaultSceneRasterTransform(forward, inverse);
+                }
+            } catch (FactoryException e) {
+                SystemUtils.LOG.log(Level.SEVERE, "failed to create SceneRasterTransform for raster '" + getName() + "'", e);
+                //todo [Multisize_Products] decide what to do in this case
+                sceneRasterTransform = SceneRasterTransform.IDENTITY;
+            }
+        } else {
+            sceneRasterTransform = SceneRasterTransform.IDENTITY;
+        }
     }
 
     /**
