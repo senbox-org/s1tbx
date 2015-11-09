@@ -20,6 +20,7 @@
                 <attr name="operatorName" stringvalue="CrossResampling"/>
                 <attr name="dialogTitle" stringvalue="Cross InSAR resampling"/>
                 <attr name="ShortDescription" stringvalue="Perform resampling of SAR geometries for Cross-InSAR"/>
+                <attr name="targetProductNameSuffix" stringvalue="_cross"/>
                 <attr name="icon" stringvalue="esaIcon"/>
                 <attr name="helpId" stringvalue="CrossResamplingOp"/>
             </file>
