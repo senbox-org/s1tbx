@@ -15,12 +15,11 @@
  */
 package org.esa.snap.core.datamodel;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.*;
+
+import org.junit.*;
 
 import java.util.Arrays;
-
-import static org.junit.Assert.*;
 
 public class RasterDataNodeAncillaryTest {
 
@@ -78,11 +77,11 @@ public class RasterDataNodeAncillaryTest {
         assertArrayEquals(new String[]{"uncertainty"}, a_var.getAncillaryRelations());
 
         assertEquals("" +
-                             "ancillaryRelations;ancillaryVariables;" +
-                             "ancillaryRelations;ancillaryVariables;" +
-                             "ancillaryRelations;ancillaryVariables;" +
-                             "ancillaryVariables;" +
-                             "ancillaryVariables;", pnl.simpleTrace);
+                     "ancillaryRelations;ancillaryVariables;" +
+                     "ancillaryRelations;ancillaryVariables;" +
+                     "ancillaryRelations;ancillaryVariables;" +
+                     "ancillaryVariables;" +
+                     "ancillaryVariables;", pnl.simpleTrace);
     }
 
     @Test
@@ -144,13 +143,38 @@ public class RasterDataNodeAncillaryTest {
         a_unc.setAncillaryRelations("uncertainty");
 
         assertEquals("" +
-                             "ancillaryRelations([],[error]);" +
-                             "ancillaryRelations([error],[]);" +
-                             "ancillaryRelations([],[uncertainty]);", pnl.detailedTrace);
+                     "ancillaryRelations([],[error]);" +
+                     "ancillaryRelations([error],[]);" +
+                     "ancillaryRelations([],[uncertainty]);", pnl.detailedTrace);
     }
 
+    @Test
+    public void testAncillaryRelationLost() {
+        Band an_anc_var = product.addBand("anyAncillarryBand", "X / (Y + 1)");
+        Band an_other_band = product.addBand("any_Band", "Y / (X + 1)");
+
+        a.addAncillaryVariable(an_anc_var, "relation 1", "relation 2");
+        an_other_band.addAncillaryVariable(an_anc_var, "relation 3");
+
+        String actual = actual(an_anc_var.getAncillaryRelations());
+        String expected = expected(new String[]{"relation 1", "relation 2", "relation 3"});
+        assertEquals(expected, actual);
+    }
+
+    private String actual(final String[] arr) {
+        return getString(arr);
+    }
+
+    private String expected(final String[] arr) {
+        return getString(arr);
+    }
+
+    private String getString(final String[] arr) {
+        return Arrays.toString(arr);
+    }
 
     private static class TracingPNL extends ProductNodeListenerAdapter {
+
         String simpleTrace = "";
         String detailedTrace = "";
 
