@@ -332,7 +332,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                     product.setSceneGeoCoding(this.geoCoding);
                 }
             }
-            computeSceneRasterTransform();
             fireProductNodeChanged(PROPERTY_NAME_GEO_CODING);
         }
     }
