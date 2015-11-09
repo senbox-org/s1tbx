@@ -49,7 +49,19 @@ public class SceneRasterTransformUtils {
      * @throws SceneRasterTransformException When the transformation could not be applied
      */
     public static PixelPos transformToImageCoords(RasterDataNode rasterDataNode, PixelPos orig) throws SceneRasterTransformException {
-        final SceneRasterTransform sceneRasterTransform = rasterDataNode.getSceneRasterTransform();
+        return transformToImageCoords(rasterDataNode.getSceneRasterTransform(), orig);
+    }
+
+    /**
+     * Converts a {@link PixelPos} from raster coordinates of the {@link Product}
+     * to raster coordinates of a {@link RasterDataNode}
+     *
+     * @param sceneRasterTransform The {@link SceneRasterTransform} to use to transform
+     * @param orig The {@link PixelPos} in raster coordinates of the {@link Product}
+     * @return A {@link PixelPos} in raster coordinates of the {@link RasterDataNode}
+     * @throws SceneRasterTransformException When the transformation could not be applied
+     */
+    public static PixelPos transformToImageCoords(SceneRasterTransform sceneRasterTransform, PixelPos orig) throws SceneRasterTransformException {
         if(sceneRasterTransform == SceneRasterTransform.IDENTITY) {
             return orig;
         }
