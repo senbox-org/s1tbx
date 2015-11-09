@@ -70,9 +70,9 @@ public final class FlipOp extends Operator {
      */
     @Override
     public void initialize() throws OperatorException {
+
         if(sourceProduct.isMultiSizeProduct()) {
-            throw new OperatorException("Limited Functionality - Flipping a product which contains " +
-                                        "rasters of different sizes is currently not possible.");
+            throw createMultiSizeException(sourceProduct);
         }
 
         try {
