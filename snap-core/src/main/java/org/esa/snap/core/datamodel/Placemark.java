@@ -338,7 +338,7 @@ public class Placemark extends ProductNode {
             throw new IllegalArgumentException("pixelPos == null && geoPos == null");
         }
         final GeometryFactory geometryFactory = new GeometryFactory();
-        final AffineTransform i2m = ImageManager.getImageToModelTransform(geoCoding);
+        final AffineTransform i2m = Product.getAppropriateImageToSceneTransform(geoCoding);
         PixelPos imagePos = pixelPos;
 
         // todo - remove instanceof - bad code smell  (nf while revising Placemark API)
