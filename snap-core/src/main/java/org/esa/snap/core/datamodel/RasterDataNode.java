@@ -49,7 +49,6 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.MathTransform2D;
-import org.opengis.referencing.operation.NoninvertibleTransformException;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
@@ -67,7 +66,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.logging.Level;
 import java.util.prefs.BackingStoreException;
 
 /**
@@ -2523,8 +2521,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (sceneRasterTransform != null) {
             return sceneRasterTransform;
         }
-        computeSceneRasterTransform();
-        return sceneRasterTransform;
+        return computeSceneRasterTransform();
     }
 
     /**
@@ -2544,33 +2541,36 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @since SNAP 2.0
      */
-    protected void computeSceneRasterTransform() {
+    private SceneRasterTransform computeSceneRasterTransform() {
         if (getProduct() == null) {
-            sceneRasterTransform = null;
-            return;
+            return null;
         }
         final GeoCoding geoCoding = getGeoCoding();
         if (geoCoding != null && geoCoding instanceof CrsGeoCoding && geoCoding.getMapCRS().equals(getProduct().getSceneCRS())) {
+            MathTransform2D forward = null;
+            MathTransform2D inverse = null;
             try {
-                final MathTransform mathTransform = CRS.findMathTransform(getProduct().getSceneCRS(), geoCoding.getMapCRS());
-                if (mathTransform instanceof MathTransform2D) {
-                    final MathTransform2D inverse = (MathTransform2D) mathTransform;
-                    MathTransform2D forward;
-                    try {
-                        forward = inverse.inverse();
-                    } catch (NoninvertibleTransformException e) {
-                        forward = null;
-                        SystemUtils.LOG.log(Level.SEVERE, "failed to create forward transform for raster '" + getName() + "'", e);
-                    }
-                    sceneRasterTransform = new DefaultSceneRasterTransform(forward, inverse);
+                final MathTransform transform = CRS.findMathTransform(geoCoding.getMapCRS(), getProduct().getSceneCRS());
+                if (transform instanceof MathTransform2D) {
+                    forward = (MathTransform2D) transform;
                 }
             } catch (FactoryException e) {
-                SystemUtils.LOG.log(Level.SEVERE, "failed to create SceneRasterTransform for raster '" + getName() + "'", e);
-                //todo [Multisize_Products] decide what to do in this case
-                sceneRasterTransform = SceneRasterTransform.IDENTITY;
+                forward = null;
             }
+            try {
+                final MathTransform transform = CRS.findMathTransform(getProduct().getSceneCRS(), geoCoding.getMapCRS());
+                if (transform instanceof MathTransform2D) {
+                    inverse = (MathTransform2D) transform;
+                }
+            } catch (FactoryException e) {
+                inverse = null;
+            }
+            if (forward == null && inverse == null) {
+                return null;
+            }
+            return new DefaultSceneRasterTransform(forward, inverse);
         } else {
-            sceneRasterTransform = SceneRasterTransform.IDENTITY;
+            return SceneRasterTransform.IDENTITY;
         }
     }
 
