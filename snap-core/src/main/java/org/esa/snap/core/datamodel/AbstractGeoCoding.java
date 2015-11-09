@@ -54,8 +54,8 @@ public abstract class AbstractGeoCoding implements GeoCoding {
      */
     protected AbstractGeoCoding(CoordinateReferenceSystem geoCRS) {
         setGeoCRS(geoCRS);
-        setImageCRS(createImageCRS(geoCRS, new GeoCodingMathTransform(this)));
         setMapCRS(geoCRS);
+        setImageCRS(createImageCRS(getMapCRS(), new GeoCodingMathTransform(this)));
     }
 
     /**

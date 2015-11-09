@@ -271,7 +271,7 @@ public class CollocateOp extends Operator {
             throw new OperatorException(format("Product ''{0}'' has no geo-coding.", product.getName()));
         }
         if (product.isMultiSizeProduct()) {
-            throw new OperatorException(format("Product ''{0}'' has bands of different sizes.", product.getName()));
+            throw new OperatorException(format("Product ''{0}'' has rasters of different sizes.", product.getName()));
         }
     }
 

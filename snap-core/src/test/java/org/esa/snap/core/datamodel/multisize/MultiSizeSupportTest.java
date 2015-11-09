@@ -34,7 +34,7 @@ public class MultiSizeSupportTest {
     @Test
     @Ignore
     public void testThatEachProductHasAnExpectedModelCRS() {
-        final CoordinateReferenceSystem productModelCrs = product.getModelCRS();
+        final CoordinateReferenceSystem productModelCrs = product.getSceneCRS();
         assertNotNull(productModelCrs);
         final ProductNodeGroup<Band> bandGroup = product.getBandGroup();
         for (int i = 0; i < bandGroup.getNodeCount(); i++) {
