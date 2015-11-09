@@ -17,6 +17,7 @@ package org.esa.s1tbx.sar.gpf.filtering;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.Operator;
@@ -28,6 +29,7 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
@@ -146,8 +148,7 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
 
             addSelectedBands();
 
-            // The tile width has to be the image width, otherwise the index calculation in the last tile is not correct.
-            //targetProduct.setPreferredTileSize(targetProduct.getSceneRasterWidth(), 50);
+            updateTargetProductMetadata();
 
             switch (windowSize) {
                 case WINDOW_SIZE_3x3:
@@ -178,6 +179,17 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
             halfWindowHeight = windowHeight / 2;
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
+        }
+    }
+
+    /**
+     * Update metadata in the target product.
+     */
+    private void updateTargetProductMetadata() {
+
+        final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
+        if(absTgt != null) {
+            absTgt.setAttributeString(AbstractMetadata.SAMPLE_TYPE, "DETECTED");
         }
     }
 

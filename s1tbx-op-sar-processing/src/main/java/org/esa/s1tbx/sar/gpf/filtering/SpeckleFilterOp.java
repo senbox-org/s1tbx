@@ -17,10 +17,7 @@ package org.esa.s1tbx.sar.gpf.filtering;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -30,7 +27,9 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
@@ -195,6 +194,19 @@ public class SpeckleFilterOp extends Operator {
         } else {
             OperatorUtils.addSelectedBands(
                     sourceProduct, sourceBandNames, targetProduct, targetBandNameToSourceBandName, true, true);
+        }
+
+        updateTargetProductMetadata();
+    }
+
+    /**
+     * Update metadata in the target product.
+     */
+    private void updateTargetProductMetadata() {
+
+        final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
+        if(absTgt != null) {
+            absTgt.setAttributeString(AbstractMetadata.SAMPLE_TYPE, "DETECTED");
         }
     }
 

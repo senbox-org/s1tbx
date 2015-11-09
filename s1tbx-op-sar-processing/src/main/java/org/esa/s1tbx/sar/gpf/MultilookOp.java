@@ -393,7 +393,7 @@ public final class MultilookOp extends Operator {
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_line_time, new ProductData.UTC(newFirstLineUTC));
 
         if(outputIntensity) {
-            absRoot.setAttributeString(AbstractMetadata.SAMPLE_TYPE, "DETECTED");
+            absTgt.setAttributeString(AbstractMetadata.SAMPLE_TYPE, "DETECTED");
         }
     }
 
