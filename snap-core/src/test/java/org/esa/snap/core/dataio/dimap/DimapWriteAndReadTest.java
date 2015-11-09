@@ -26,13 +26,13 @@ import org.esa.snap.core.datamodel.FlagCoding;
 import org.esa.snap.core.datamodel.IndexCoding;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.util.SnapConstants;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.TreeSet;
 
 public class DimapWriteAndReadTest extends TestCase {
 
@@ -319,22 +319,26 @@ public class DimapWriteAndReadTest extends TestCase {
                 }
             }
         }
-        TreeSet<String> relations = new TreeSet<>();
         for (int i = 0; i < expBands.length; i++) {
-            Band expBand = expBands[i];
-            Band currentBand = currentBands[i];
-            String[] ancillaryRelations = expBand.getAncillaryRelations();
-            relations.addAll(Arrays.asList(ancillaryRelations));
+            final Band expBand = expBands[i];
+            final Band currentBand = currentBands[i];
+            final String[] ancillaryRelations = expBand.getAncillaryRelations();
             if (!Arrays.equals(ancillaryRelations, currentBand.getAncillaryRelations())) {
                 diff.append("The ancillary relations of expected band " + i + " are not equal to the current band.\r\n");
             }
         }
         for (int i = 0; i < expBands.length; i++) {
-            Band expBand = expBands[i];
-            Band currentBand = currentBands[i];
-            for (String relation : relations) {
-                if (!Arrays.equals(expBand.getAncillaryVariables(relation), currentBand.getAncillaryVariables(relation))) {
-                    diff.append("The ancillary variables of expected band " + i + " for relation '" + relation + "' are not equal to the variables of the current band.\r\n");
+            final Band expBand = expBands[i];
+            final Band currentBand = currentBands[i];
+            final RasterDataNode[] expectedVariables = expBand.getAncillaryVariables();
+            final RasterDataNode[] actualVariables = currentBand.getAncillaryVariables();
+            for (int j = 0; j < expectedVariables.length; j++) {
+                final RasterDataNode expectedVariable = expectedVariables[j];
+                final RasterDataNode actualVariable = actualVariables[j];
+                final String expVarName = expectedVariable.getName();
+                final String actVarName = actualVariable.getName();
+                if (!expVarName.equals(actVarName)) {
+                    diff.append("Ancillary variable named '" + expVarName + "' expected atband " + i + ".\r\n");
                 }
             }
         }

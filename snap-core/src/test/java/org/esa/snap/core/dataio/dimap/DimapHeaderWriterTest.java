@@ -68,12 +68,6 @@ public class DimapHeaderWriterTest {
                 "        <PRODUCT_SCENE_RASTER_START_TIME>19-MAY-2003 00:34:05.000034</PRODUCT_SCENE_RASTER_START_TIME>" + LS + // product scene sensing start
                 "        <PRODUCT_SCENE_RASTER_STOP_TIME>19-MAY-2003 00:50:45.000034</PRODUCT_SCENE_RASTER_STOP_TIME>" + LS + // product scene sensing stopt
                 "    </Production>" + LS;
-    private static final String rasterDimensions =
-                "    <Raster_Dimensions>" + LS +
-                "        <NCOLS>200</NCOLS>" + LS +
-                "        <NROWS>300</NROWS>" + LS +
-                "        <NBANDS>0</NBANDS>" + LS +
-                "    </Raster_Dimensions>" + LS;
     private static final String dataAccess =
                 "    <Data_Access>" + LS +
                 "        <DATA_FILE_FORMAT>ENVI</DATA_FILE_FORMAT>" + LS +
@@ -212,17 +206,17 @@ public class DimapHeaderWriterTest {
     public void testWriteXmlHeaderLines() {
         dimapHeaderWriter.writeHeader();
 
-        final String expected = header + rasterDimensions + footer;
+        final String expected = header + getRasterDimensions() + footer;
         assertEquals(expected, stringWriter.toString());
     }
 
     @Test
     public void testWriteMasks() {
-        addMasksToProduct();
+        String expected = addMasksToProductAndGetExpected();
 
         dimapHeaderWriter.writeHeader();
 
-        assertEquals(getExpectedForWriteMasks(), stringWriter.toString());
+        assertEquals(expected, stringWriter.toString());
     }
 
     @Test
@@ -236,30 +230,30 @@ public class DimapHeaderWriterTest {
 
     @Test
     public void testWriteFXYGeoCoding() {
-        final String expectedForFXYGeoCoding = setFXYGeoCodingAndGetExpected();
+        final String expected = setFXYGeoCodingAndGetExpected();
 
         dimapHeaderWriter.writeHeader();
 
-        assertEquals(expectedForFXYGeoCoding, stringWriter.toString());
+        assertEquals(expected, stringWriter.toString());
     }
 
     @Test
     public void testWriteBandedFXYGeoCoding() {
-        final String expectedForBandedFXYGeoCoding = setBandedFXYGeoCodingAndGetExpected();
+        final String expected = setBandedFXYGeoCodingAndGetExpected();
 
         dimapHeaderWriter.writeHeader();
 
-        assertEquals(expectedForBandedFXYGeoCoding, stringWriter.toString());
+        assertEquals(expected, stringWriter.toString());
     }
 
     @Test
     @Ignore
     public void testWritePixelGeoCoding() throws IOException {
-        final String expectedForPixelGeoCoding = setPixelGeoCodingAndGetExpected();
+        final String expected = setPixelGeoCodingAndGetExpected();
 
         dimapHeaderWriter.writeHeader();
 
-        assertEquals(expectedForPixelGeoCoding, stringWriter.toString());
+        assertEquals(expected, stringWriter.toString());
     }
 
 //    @Test
@@ -273,52 +267,120 @@ public class DimapHeaderWriterTest {
 
     @Test
     public void testWriteCrsGeoCoding() throws Exception {
-        final String expectedForCrsGeoCoding = setCrsGeoCodingAndGetExpected();
+        final String expected = setCrsGeoCodingAndGetExpected();
 
         dimapHeaderWriter.writeHeader();
 
-        assertEquals(expectedForCrsGeoCoding, stringWriter.toString());
+        assertEquals(expected, stringWriter.toString());
     }
 
     @Test
     public void testWriteCrsGeoCodingPerBand() throws Exception {
-        final String expectedForCrsGeoCodingPerBand = setCrsGeoCodingPerBandAndGetExpected();
+        final String expected = setCrsGeoCodingPerBandAndGetExpected();
 
         dimapHeaderWriter.writeHeader();
 
-        assertEquals(expectedForCrsGeoCodingPerBand, stringWriter.toString());
+        assertEquals(expected, stringWriter.toString());
     }
 
-    private void addMasksToProduct() {
+    @Test
+    public void testWriteAncillaryInformation() throws Exception {
+        String expected = addAncillaryBandsAndGetExpected();
+
+        dimapHeaderWriter.writeHeader();
+
+        assertEquals(expected, stringWriter.toString());
+    }
+
+    private String addAncillaryBandsAndGetExpected() {
+        final Band anyBand = product.addBand("anyBand", "X + Y");
+        final Band ancBand = product.addBand("ancillaryBand", "Y - X");
+        anyBand.addAncillaryVariable(ancBand, "relation");
+        return header +
+               getRasterDimensions() +
+               "    <Data_Access>" + LS +
+               "        <DATA_FILE_FORMAT>ENVI</DATA_FILE_FORMAT>" + LS +
+               "        <DATA_FILE_FORMAT_DESC>ENVI File Format</DATA_FILE_FORMAT_DESC>" + LS +
+               "        <DATA_FILE_ORGANISATION>BAND_SEPARATE</DATA_FILE_ORGANISATION>" + LS +
+               "    </Data_Access>" + LS +
+               "    <Image_Interpretation>" + LS +
+               "        <Spectral_Band_Info>" + LS +
+               "            <BAND_INDEX>0</BAND_INDEX>" + LS +
+               "            <BAND_DESCRIPTION />" + LS +
+               "            <BAND_NAME>anyBand</BAND_NAME>" + LS +
+               "            <BAND_RASTER_WIDTH>200</BAND_RASTER_WIDTH>" + LS +
+               "            <BAND_RASTER_HEIGHT>300</BAND_RASTER_HEIGHT>" + LS +
+               "            <DATA_TYPE>float32</DATA_TYPE>" + LS +
+               "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
+               "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
+               "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
+               "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
+               "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
+               "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
+               "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
+               "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
+               "            <VIRTUAL_BAND>true</VIRTUAL_BAND>" + LS +
+               "            <EXPRESSION>X + Y</EXPRESSION>" + LS +
+               "            <ANCILLARY_VARIABLE>ancillaryBand</ANCILLARY_VARIABLE>" + LS +
+               "        </Spectral_Band_Info>" + LS +
+               "        <Spectral_Band_Info>" + LS +
+               "            <BAND_INDEX>1</BAND_INDEX>" + LS +
+               "            <BAND_DESCRIPTION />" + LS +
+               "            <BAND_NAME>ancillaryBand</BAND_NAME>" + LS +
+               "            <BAND_RASTER_WIDTH>200</BAND_RASTER_WIDTH>" + LS +
+               "            <BAND_RASTER_HEIGHT>300</BAND_RASTER_HEIGHT>" + LS +
+               "            <DATA_TYPE>float32</DATA_TYPE>" + LS +
+               "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
+               "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
+               "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
+               "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
+               "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
+               "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
+               "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
+               "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
+               "            <VIRTUAL_BAND>true</VIRTUAL_BAND>" + LS +
+               "            <EXPRESSION>Y - X</EXPRESSION>" + LS +
+               "            <ANCILLARY_RELATION>relation</ANCILLARY_RELATION>" + LS +
+               "        </Spectral_Band_Info>" + LS +
+               "    </Image_Interpretation>" + LS +
+               footer;
+    }
+
+    private String getRasterDimensions() {
+        return "    <Raster_Dimensions>" + LS +
+               "        <NCOLS>200</NCOLS>" + LS +
+               "        <NROWS>300</NROWS>" + LS +
+               "        <NBANDS>" + product.getNumBands() + "</NBANDS>" + LS +
+               "    </Raster_Dimensions>" + LS;
+    }
+
+    private String addMasksToProductAndGetExpected() {
         product.addMask("bitmaskDef1", "!l1_flags.INVALID", "description1", Color.BLUE, 0.75f);
         product.addMask("bitmaskDef2", "l1_flags.LAND", "description2", Color.GREEN, 0.5f);
-    }
 
-    private String getExpectedForWriteMasks() {
-        return
-                    header +
-                    rasterDimensions +
-                    "    <Masks>" + LS +
-                    "        <Mask type=\"Maths\">" + LS +
-                    "            <NAME value=\"bitmaskDef1\" />" + LS +
-                    "            <MASK_RASTER_WIDTH value=\"200\" />" + LS +
-                    "            <MASK_RASTER_HEIGHT value=\"300\" />" + LS +
-                    "            <DESCRIPTION value=\"description1\" />" + LS +
-                    "            <COLOR red=\"0\" green=\"0\" blue=\"255\" alpha=\"255\" />" + LS +
-                    "            <TRANSPARENCY value=\"0.75\" />" + LS +
-                    "            <EXPRESSION value=\"!l1_flags.INVALID\" />" + LS +
-                    "        </Mask>" + LS +
-                    "        <Mask type=\"Maths\">" + LS +
-                    "            <NAME value=\"bitmaskDef2\" />" + LS +
-                    "            <MASK_RASTER_WIDTH value=\"200\" />" + LS +
-                    "            <MASK_RASTER_HEIGHT value=\"300\" />" + LS +
-                    "            <DESCRIPTION value=\"description2\" />" + LS +
-                    "            <COLOR red=\"0\" green=\"255\" blue=\"0\" alpha=\"255\" />" + LS +
-                    "            <TRANSPARENCY value=\"0.5\" />" + LS +
-                    "            <EXPRESSION value=\"l1_flags.LAND\" />" + LS +
-                    "        </Mask>" + LS +
-                    "    </Masks>" + LS +
-                    footer;
+        return header +
+               getRasterDimensions() +
+               "    <Masks>" + LS +
+               "        <Mask type=\"Maths\">" + LS +
+               "            <NAME value=\"bitmaskDef1\" />" + LS +
+               "            <MASK_RASTER_WIDTH value=\"200\" />" + LS +
+               "            <MASK_RASTER_HEIGHT value=\"300\" />" + LS +
+               "            <DESCRIPTION value=\"description1\" />" + LS +
+               "            <COLOR red=\"0\" green=\"0\" blue=\"255\" alpha=\"255\" />" + LS +
+               "            <TRANSPARENCY value=\"0.75\" />" + LS +
+               "            <EXPRESSION value=\"!l1_flags.INVALID\" />" + LS +
+               "        </Mask>" + LS +
+               "        <Mask type=\"Maths\">" + LS +
+               "            <NAME value=\"bitmaskDef2\" />" + LS +
+               "            <MASK_RASTER_WIDTH value=\"200\" />" + LS +
+               "            <MASK_RASTER_HEIGHT value=\"300\" />" + LS +
+               "            <DESCRIPTION value=\"description2\" />" + LS +
+               "            <COLOR red=\"0\" green=\"255\" blue=\"0\" alpha=\"255\" />" + LS +
+               "            <TRANSPARENCY value=\"0.5\" />" + LS +
+               "            <EXPRESSION value=\"l1_flags.LAND\" />" + LS +
+               "        </Mask>" + LS +
+               "    </Masks>" + LS +
+               footer;
     }
 
     private String addMapGeocodingToProductAndGetExpected() {
@@ -436,7 +498,7 @@ public class DimapHeaderWriterTest {
                "            </MAP_INFO>" + LS +
                "        </Horizontal_CS>" + LS +
                "    </Coordinate_Reference_System>" + LS +
-               rasterDimensions +
+               getRasterDimensions() +
                footer;
     }
 
@@ -444,7 +506,7 @@ public class DimapHeaderWriterTest {
         final String fxyGeoCoding = setFXYGeoCodingAndGetCore();
         return header +
                fxyGeoCoding + LS +
-               rasterDimensions +
+               getRasterDimensions() +
                footer;
     }
 

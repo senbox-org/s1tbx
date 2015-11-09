@@ -90,6 +90,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Level;
 
 /**
@@ -1190,7 +1192,7 @@ public class DimapProductHelpers {
                 final MetadataAttribute metadataAttribute = new MetadataAttribute(attName, data, readOnly);
 
                 metadataAttribute.setDescription(
-                        attribElement.getAttributeValue(DimapProductConstants.ATTRIB_DESCRIPTION));
+                            attribElement.getAttributeValue(DimapProductConstants.ATTRIB_DESCRIPTION));
                 metadataAttribute.setUnit(attribElement.getAttributeValue(DimapProductConstants.ATTRIB_UNIT));
                 mdElem.addAttribute(metadataAttribute);
             }
@@ -1360,7 +1362,7 @@ public class DimapProductHelpers {
                     final int height = Integer.parseInt(
                             gridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_NROWS));
                     final double offsX = Double.parseDouble(
-                            gridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_OFFSET_X));
+                                gridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_OFFSET_X));
                     final double offsY = Double.parseDouble(
                                 gridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_OFFSET_Y));
                     final double subsX = Double.parseDouble(
@@ -1511,6 +1513,7 @@ public class DimapProductHelpers {
         }
 
         private static void addSpectralBands(final Element parent, Product product) {
+            HashMap<Band, List<String>> ancillaryVariables = new HashMap<Band, List<String>>();
             final List children = parent.getChildren(DimapProductConstants.TAG_SPECTRAL_BAND_INFO);
             final List<Element> filterBandElementList = new ArrayList<Element>();
             for (Object child : children) {
@@ -1522,12 +1525,21 @@ public class DimapProductHelpers {
                 } else {
                     final Band band = addBand(element, product);
                     setGeneralBandProperties(band, element, product);
+                    collectAncillaryVariables(band, element, ancillaryVariables);
                 }
             }
             for (Object child : filterBandElementList) {
                 final Element element = (Element) child;
                 final Band band = addBand(element, product);
                 setGeneralBandProperties(band, element, product);
+                collectAncillaryVariables(band, element, ancillaryVariables);
+            }
+            Set<Map.Entry<Band, List<String>>> entries = ancillaryVariables.entrySet();
+            for (Map.Entry<Band, List<String>> entry : entries) {
+                List<String> variableNames = entry.getValue();
+                for (String variableName : variableNames) {
+                    entry.getKey().addAncillaryVariable(product.getBand(variableName));
+                }
             }
         }
 
@@ -1547,6 +1559,7 @@ public class DimapProductHelpers {
                 setIndexCoding(element, band, product);
                 setNoDataValueUsed(element, band);
                 setNoDataValue(element, band);
+                setAncillaryRelations(element, band);
             }
         }
 
@@ -1711,6 +1724,28 @@ public class DimapProductHelpers {
             if (bandWidth != null) {
                 band.setSpectralBandwidth(Float.parseFloat(bandWidth));
             }
+        }
+
+        private static void collectAncillaryVariables(Band band, Element element, HashMap<Band, List<String>> ancillaryVariables) {
+            final List<Element> children = element.getChildren(DimapProductConstants.TAG_ANCILLARY_VARIABLE);
+            if (children.size() == 0) return;
+            if (!ancillaryVariables.containsKey(band)) {
+                ancillaryVariables.put(band, new ArrayList<>());
+            }
+            for (Element child : children) {
+                List<String> variableNames = ancillaryVariables.get(band);
+                variableNames.add(child.getTextTrim());
+            }
+        }
+
+        private static void setAncillaryRelations(Element element, Band band) {
+            final List<Element> children = element.getChildren(DimapProductConstants.TAG_ANCILLARY_RELATION);
+            TreeSet<String> relationsSet = new TreeSet<>();
+            for (Element child : children) {
+                relationsSet.add(child.getTextTrim());
+            }
+            String[] relations = relationsSet.toArray(new String[relationsSet.size()]);
+            band.setAncillaryRelations(relations);
         }
 
         private static void setNoDataValue(final Element element, final Band band) {

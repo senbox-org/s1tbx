@@ -238,6 +238,14 @@ public final class DimapHeaderWriter extends XmlWriter {
                     if (validMaskExpression != null) {
                         printLine(indent + 2, DimapProductConstants.TAG_VALID_MASK_TERM, validMaskExpression);
                     }
+                    String[] ancillaryRelations = band.getAncillaryRelations();
+                    for (String ancillaryRelation : ancillaryRelations) {
+                        printLine(indent + 2, DimapProductConstants.TAG_ANCILLARY_RELATION, ancillaryRelation);
+                    }
+                    RasterDataNode[] ancillaryVariables = band.getAncillaryVariables();
+                    for (RasterDataNode ancillaryVariable : ancillaryVariables) {
+                        printLine(indent + 2, DimapProductConstants.TAG_ANCILLARY_VARIABLE, ancillaryVariable.getName());
+                    }
                     println(sbiTags[1]);
                 }
             }

@@ -290,6 +290,10 @@ public final class DimapProductConstants {
     public static final String TAG_NO_DATA_VALUE_USED = "NO_DATA_VALUE_USED";
     public static final String TAG_NO_DATA_VALUE = "NO_DATA_VALUE";
 
+    //Ancillary support
+    public static final String TAG_ANCILLARY_RELATION = "ANCILLARY_RELATION";
+    public static final String TAG_ANCILLARY_VARIABLE = "ANCILLARY_VARIABLE";
+
     //Virtual bands support
     public static final String TAG_VIRTUAL_BAND = "VIRTUAL_BAND";
     public static final String TAG_VIRTUAL_BAND_CHECK_INVALIDS = "CHECK_INVALIDS";
