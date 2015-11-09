@@ -24,7 +24,7 @@ import org.esa.snap.GlobalTestTools;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.util.BeamConstants;
+import org.esa.snap.core.util.SnapConstants;
 import org.esa.snap.core.util.io.FileUtils;
 
 import javax.imageio.stream.FileImageInputStream;
@@ -67,7 +67,7 @@ public class DimapProductWriterTest_WriteBandRasterData extends TestCase {
         int offsetY = 1;
         int sourceWidth = sceneWidth - 2;
         int sourceHeight = sceneHeight - 2;
-        Product product = new Product("name", BeamConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME,
+        Product product = new Product("name", SnapConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME,
                                       sceneWidth, sceneHeight);
         Band band = new Band("band", ProductData.TYPE_INT8, sceneWidth, sceneHeight);
         product.addBand(band);
@@ -90,7 +90,7 @@ public class DimapProductWriterTest_WriteBandRasterData extends TestCase {
     public void testWriteBandRasterData_SourceBuffer_toSmall() {
         int sceneWidth = 16;
         int sceneHeight = 12;
-        Product product = new Product("name", BeamConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME,
+        Product product = new Product("name", SnapConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME,
                                       sceneWidth, sceneHeight);
         Band band = new Band("band", ProductData.TYPE_INT8, sceneWidth, sceneHeight);
         product.addBand(band);
@@ -116,7 +116,7 @@ public class DimapProductWriterTest_WriteBandRasterData extends TestCase {
     public void testWriteBandRasterData_SourceBuffer_toBig() {
         int sceneWidth = 16;
         int sceneHeight = 12;
-        Product product = new Product("name", BeamConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME,
+        Product product = new Product("name", SnapConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME,
                                       sceneWidth, sceneHeight);
         Band band = new Band("band", ProductData.TYPE_INT8, sceneWidth, sceneHeight);
         product.addBand(band);
@@ -142,7 +142,7 @@ public class DimapProductWriterTest_WriteBandRasterData extends TestCase {
     public void testWriteBandRasterData_SourceRegionIsOutOfBandsRaster() {
         int sceneWidth = 16;
         int sceneHeight = 12;
-        Product product = new Product("name", BeamConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME,
+        Product product = new Product("name", SnapConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME,
                                       sceneWidth, sceneHeight);
         Band band = new Band("band", ProductData.TYPE_INT8, sceneWidth, sceneHeight);
         product.addBand(band);

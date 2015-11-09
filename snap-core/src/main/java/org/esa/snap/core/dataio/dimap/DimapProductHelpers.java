@@ -455,7 +455,7 @@ public class DimapProductHelpers {
                                                 product.getSceneRasterHeight(),
                                                 datum);
             } catch (Exception e) {
-                // ignore
+//  todo se 2         e.printStackTrace();
             }
         }
         // 4. try creating the original geo-coding
@@ -1359,14 +1359,14 @@ public class DimapProductHelpers {
                             gridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_NCOLS));
                     final int height = Integer.parseInt(
                             gridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_NROWS));
-                    final float offsX = Float.parseFloat(
+                    final double offsX = Double.parseDouble(
                             gridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_OFFSET_X));
-                    final float offsY = Float.parseFloat(
-                            gridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_OFFSET_Y));
-                    final float subsX = Float.parseFloat(
-                            gridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_STEP_X));
-                    final float subsY = Float.parseFloat(
-                            gridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_STEP_Y));
+                    final double offsY = Double.parseDouble(
+                                gridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_OFFSET_Y));
+                    final double subsX = Double.parseDouble(
+                                gridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_STEP_X));
+                    final double subsY = Double.parseDouble(
+                                gridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_STEP_Y));
                     final float[] floats = new float[width * height];
                     boolean cyclic = false;
                     final String cyclicText = gridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_CYCLIC);

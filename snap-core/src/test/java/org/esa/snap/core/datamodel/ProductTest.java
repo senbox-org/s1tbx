@@ -28,7 +28,7 @@ import org.esa.snap.core.dataop.maptransf.MapProjection;
 import org.esa.snap.core.dataop.maptransf.MapTransform;
 import org.esa.snap.core.jexp.ParseException;
 import org.esa.snap.core.jexp.Term;
-import org.esa.snap.core.util.BeamConstants;
+import org.esa.snap.core.util.SnapConstants;
 import org.esa.snap.core.util.BitRaster;
 import org.esa.snap.core.util.ObjectUtils;
 import org.esa.snap.core.util.ProductUtilsTest;
@@ -93,7 +93,7 @@ public class ProductTest {
 
     @Test
     public void testSetAndGetReader() {
-        Product product = new Product("name", BeamConstants.MERIS_RR_L1B_PRODUCT_TYPE_NAME, 312, 213);
+        Product product = new Product("name", SnapConstants.MERIS_RR_L1B_PRODUCT_TYPE_NAME, 312, 213);
 
         assertNull(product.getProductReader());
 
