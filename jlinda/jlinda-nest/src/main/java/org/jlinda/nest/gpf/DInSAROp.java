@@ -16,6 +16,7 @@ import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.jblas.ComplexDoubleMatrix;
@@ -110,6 +111,7 @@ public class DInSAROp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
+            checkUserInput();
 
             if (sourceProducts.length != 2) {
                 throw new OperatorException("DInSAROp: requires 2 InSAR products, 'TOPO pair' and 'DEFO pairs' products.");
@@ -334,12 +336,9 @@ public class DInSAROp extends Operator {
     }
 
     private void checkUserInput() throws OperatorException {
-        // check for the logic in input paramaters
-        final MetadataElement masterMeta = AbstractMetadata.getAbstractedMetadata(defoProduct);
-        final int isCoregStack = masterMeta.getAttributeInt(AbstractMetadata.coregistered_stack);
-        if (isCoregStack != 1) {
-            throw new OperatorException("Input should be a coregistered SLC stack");
-        }
+        final InputProductValidator validator = new InputProductValidator(defoProduct);
+        validator.checkIfCoregisteredStack();
+        validator.checkIfSLC();
     }
 
     @Override

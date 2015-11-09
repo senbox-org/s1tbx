@@ -16,6 +16,7 @@ import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.jblas.ComplexDoubleMatrix;
@@ -300,14 +301,10 @@ public class RangeFilterOp extends Operator {
     }
 
     private void checkUserInput() throws OperatorException {
-//        TILE_OVERLAP_X = rangeTileOverlap;
-        // check for the logic in input paramaters
 
-        final MetadataElement masterMeta = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-        final int isCoregStack = masterMeta.getAttributeInt(AbstractMetadata.coregistered_stack);
-        if(isCoregStack != 1) {
-            throw new OperatorException("Input should be a coregistered SLC stack");
-        }
+        final InputProductValidator validator = new InputProductValidator(sourceProduct);
+        validator.checkIfCoregisteredStack();
+        validator.checkIfSLC();
 
         boolean mstSlvBandsFound = false;
         for (Band band : sourceProduct.getBands()) {
