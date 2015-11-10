@@ -54,7 +54,7 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
         return Sentinel1Constants.PRODUCT_HEADER_NAME;
     }
 
-    protected void addImageFile(final String imgPath) throws IOException {
+    protected void addImageFile(final String imgPath, final MetadataElement newRoot) throws IOException {
 
     }
 
@@ -674,7 +674,7 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
 
         final MetadataElement newRoot = addMetaData();
         addBinaryDataToProduct(newRoot);
-        findImages();
+        findImages(newRoot);
 
         final MetadataElement absRoot = newRoot.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
         final int sceneWidth = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);

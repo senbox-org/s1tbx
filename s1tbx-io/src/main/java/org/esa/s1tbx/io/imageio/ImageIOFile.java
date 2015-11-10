@@ -336,8 +336,9 @@ public class ImageIOFile {
         return cacheDir;
     }
 
-    public static ImageInputStream createImageInputStream(final InputStream inStream) throws IOException {
-        return useFileCache ?
+    public static ImageInputStream createImageInputStream(final InputStream inStream, final Dimension bandDimensions) throws IOException {
+        long size = bandDimensions.width*bandDimensions.height;
+        return useFileCache || size > 500000000 ?
                 new FileCacheImageInputStream(inStream, createCacheDir()) :
                 new MemoryCacheImageInputStream(inStream);
     }

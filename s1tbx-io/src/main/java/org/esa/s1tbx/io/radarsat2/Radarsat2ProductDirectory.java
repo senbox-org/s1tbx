@@ -34,8 +34,8 @@ import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
-import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -73,8 +73,8 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         return Radarsat2Constants.PRODUCT_HEADER_NAME;
     }
 
-    protected void addImageFile(final String imgPath) throws IOException {
-        final String name = imgPath.substring(imgPath.lastIndexOf("/") + 1, imgPath.length()).toLowerCase();
+    protected void addImageFile(final String imgPath, final MetadataElement newRoot) throws IOException {
+        final String name = getBandFileNameFromImage(imgPath);
         if ((name.endsWith("tif") || name.endsWith("tiff"))) {
             boolean valid = false;
             int dataType = ProductData.TYPE_INT32;
@@ -85,8 +85,9 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
                 dataType = ProductData.TYPE_FLOAT32;
             }
             if (valid) {
+                final Dimension bandDimensions = getBandDimensions(newRoot, name);
                 final InputStream inStream = getInputStream(imgPath);
-                final ImageInputStream imgStream = ImageIO.createImageInputStream(inStream);
+                final ImageInputStream imgStream = ImageIOFile.createImageInputStream(inStream, bandDimensions);
                 if (imgStream == null)
                     throw new IOException("Unable to open " + imgPath);
 

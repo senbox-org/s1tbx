@@ -46,8 +46,8 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
         return getRootFolder() + "measurement" + '/';
     }
 
-    protected void addImageFile(final String imgPath) throws IOException {
-        final String name = imgPath.substring(imgPath.lastIndexOf('/')+1, imgPath.length()).toLowerCase();
+    protected void addImageFile(final String imgPath, final MetadataElement newRoot) throws IOException {
+        final String name = getBandFileNameFromImage(imgPath);
         if (name.endsWith(".nc")) {
             if (OCNReader == null) {
                 OCNReader = new Sentinel1OCNReader(this);
@@ -133,7 +133,7 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
         // in addBandAbstractedMetadata() (which is called by addAbstractedMetadataHeader() which is called by
         // addMetaData()), for it to add annotations to metadata, OCNReader has to have already been created by
         // addImageFile() (which is called by findImages()).
-        findImages();
+        findImages(null);
         final MetadataElement newRoot = addMetaData();
 
         final MetadataElement absRoot = newRoot.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);

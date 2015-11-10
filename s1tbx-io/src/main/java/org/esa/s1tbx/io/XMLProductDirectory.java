@@ -29,6 +29,7 @@ import org.esa.snap.engine_utilities.util.ZipUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -97,7 +98,7 @@ public abstract class XMLProductDirectory {
 
     protected abstract String getHeaderFileName();
 
-    protected abstract void addImageFile(final String imgPath) throws IOException;
+    protected abstract void addImageFile(final String imgPath, final MetadataElement newRoot) throws IOException;
 
     public boolean isSLC() {
         return isSLC;
@@ -111,7 +112,7 @@ public abstract class XMLProductDirectory {
         return productDir.isCompressed();
     }
 
-    protected void findImages(final String parentPath) throws IOException {
+    protected final void findImages(final String parentPath, final MetadataElement newRoot) throws IOException {
         String[] listing;
         try {
             listing = productDir.list(parentPath);
@@ -119,15 +120,33 @@ public abstract class XMLProductDirectory {
             listing = null;
         }
         if (listing != null) {
-            for (String imgPath : listing) {
-                addImageFile(parentPath + imgPath);
+            for (String fileName : listing) {
+                addImageFile(parentPath + fileName, newRoot);
             }
         }
     }
 
-    protected void findImages() throws IOException {
+    protected String getBandFileNameFromImage(final String imgPath) {
+        return imgPath.substring(imgPath.lastIndexOf('/') + 1, imgPath.length()).toLowerCase();
+    }
+
+    protected Dimension getBandDimensions(final MetadataElement newRoot, final String bandMetadataName) {
+        final MetadataElement absRoot = newRoot.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
+        final MetadataElement bandMetadata = absRoot.getElement(bandMetadataName);
+        final int width, height;
+        if(bandMetadata != null) {
+            width = bandMetadata.getAttributeInt(AbstractMetadata.num_samples_per_line);
+            height = bandMetadata.getAttributeInt(AbstractMetadata.num_output_lines);
+        } else {
+            width = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
+            height = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
+        }
+        return new Dimension(width, height);
+    }
+
+    protected void findImages(final MetadataElement newRoot) throws IOException {
         final String parentPath = getRelativePathToImageFolder();
-        findImages(parentPath);
+        findImages(parentPath, newRoot);
     }
 
     public ImageIOFile.BandInfo getBandInfo(final Band destBand) {
@@ -228,7 +247,7 @@ public abstract class XMLProductDirectory {
     public Product createProduct() throws Exception {
 
         final MetadataElement newRoot = addMetaData();
-        findImages();
+        findImages(newRoot);
 
         final MetadataElement absRoot = newRoot.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
         final int sceneWidth = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);

@@ -40,6 +40,7 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 
 import javax.imageio.stream.ImageInputStream;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -71,12 +72,12 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         return getRootFolder() + "measurement" + '/';
     }
 
-    protected void addImageFile(final String imgPath) throws IOException {
-        final String name = imgPath.substring(imgPath.lastIndexOf('/') + 1, imgPath.length()).toLowerCase();
+    protected void addImageFile(final String imgPath, final MetadataElement newRoot) throws IOException {
+        final String name = getBandFileNameFromImage(imgPath);
         if ((name.endsWith("tiff"))) {
+            final Dimension bandDimensions = getBandDimensions(newRoot, imgBandMetadataMap.get(name));
             final InputStream inStream = getInputStream(imgPath);
-
-            final ImageInputStream imgStream = ImageIOFile.createImageInputStream(inStream);
+            final ImageInputStream imgStream = ImageIOFile.createImageInputStream(inStream, bandDimensions);
 
             final ImageIOFile img;
             if (isSLC()) {
@@ -1002,7 +1003,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
     public Product createProduct() throws IOException {
 
         final MetadataElement newRoot = addMetaData();
-        findImages();
+        findImages(newRoot);
 
         final MetadataElement absRoot = newRoot.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
         determineProductDimensions(absRoot);

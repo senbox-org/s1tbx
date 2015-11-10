@@ -42,8 +42,8 @@ import org.esa.snap.engine_utilities.util.ZipUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
-import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -446,24 +446,24 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
     }
 
-    private void findImagedForTanDemX() throws IOException {
+    private void findImagedForTanDemX(final MetadataElement newRoot) throws IOException {
 
         String parentPath = masterProductName + "/" + getRelativePathToImageFolder();
-        findImages(parentPath);
+        findImages(parentPath, newRoot);
 
         numMasterBands = cosarFileList.size();
 
         parentPath = slaveProductName + "/" + getRelativePathToImageFolder();
-        findImages(parentPath);
+        findImages(parentPath, newRoot);
     }
 
     @Override
-    protected void findImages() throws IOException {
+    protected void findImages(final MetadataElement newRoot) throws IOException {
 
         if (getHeaderFileName().startsWith("TSX") || getHeaderFileName().startsWith("TDX")) {
-            super.findImages();
+            super.findImages(newRoot);
         } else if (getHeaderFileName().startsWith("TDM")) {
-            findImagedForTanDemX();
+            findImagedForTanDemX(newRoot);
         } else {
             throw new IOException("Invalid header file: " + getHeaderFileName());
         }
@@ -590,7 +590,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
     }
 
-    protected void addImageFile(final String imgPath) throws IOException {
+    protected void addImageFile(final String imgPath, final MetadataElement newRoot) throws IOException {
         if (imgPath.toUpperCase().endsWith("COS")) {
             final File file = new File(getBaseDir(), imgPath);
 
@@ -598,10 +598,11 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             setSLC(true);
 
         } else {
-            final String name = imgPath.toLowerCase();
+            final String name = getBandFileNameFromImage(imgPath);
             if ((name.endsWith("tif") || name.endsWith("tiff")) && name.startsWith("image")) {
+                final Dimension bandDimensions = getBandDimensions(newRoot, name);
                 final InputStream inStream = getInputStream(imgPath);
-                final ImageInputStream imgStream = ImageIO.createImageInputStream(inStream);
+                final ImageInputStream imgStream = ImageIOFile.createImageInputStream(inStream, bandDimensions);
                 if (imgStream == null)
                     throw new IOException("Unable to open " + imgPath);
 
