@@ -46,7 +46,6 @@ import org.esa.snap.core.util.math.Range;
 import org.esa.snap.runtime.Config;
 import org.geotools.referencing.CRS;
 import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.MathTransform2D;
 
@@ -57,7 +56,6 @@ import javax.media.jai.ROI;
 import java.awt.Dimension;
 import java.awt.RenderingHints;
 import java.awt.Shape;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
@@ -97,7 +95,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public static final String PROPERTY_NAME_STX = "stx";
     public static final String PROPERTY_NAME_ANCILLARY_VARIABLES = "ancillaryVariables";
     public static final String PROPERTY_NAME_ANCILLARY_RELATIONS = "ancillaryRelations";
-    public static final String PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM = "imageToModelTransform";
 
     /**
      * Number of bytes used for internal read buffer.
@@ -131,7 +128,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     private double geophysicalNoDataValue; // invariant, depending on _noData
     private String validPixelExpression;
 
-    private AffineTransform imageToModelTransform;
     private GeoCoding geoCoding;
     private TimeCoding timeCoding;
 
@@ -228,63 +224,11 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * @return The size of the product's scene raster in pixels.
      */
+    @Deprecated
     public Dimension getSceneRasterSize() {
         return new Dimension(getSceneRasterWidth(), getSceneRasterHeight());
     }
 
-    /**
-     * Gets the transformation used to convert this raster's image (pixel) coordinates to model coordinates
-     * defined by the product's model coordinate reference system.
-     *
-     * @return The image-to-model transformation, or {@code null} if it can't be determined.
-     * @see #getProduct()
-     * @see Product#getSceneCRS()
-     * @see #setImageToModelTransform(AffineTransform)
-     */
-    public AffineTransform getImageToModelTransform() {
-        // If a source image is already set, we must return the actual image-to-model transformation in use
-        if (isSourceImageSet()) {
-            return getSourceImage().getModel().getImageToModelTransform(0);
-        }
-        // If image-to-model transformation is explicitly set, return it
-        if (imageToModelTransform != null) {
-            return imageToModelTransform;
-        }
-        // Try to derive from source product
-        Product product = getProduct();
-        if (product != null) {
-            CoordinateReferenceSystem modelCRS = product.getSceneCRS();
-            GeoCoding sceneGeoCoding = product.getSceneGeoCoding();
-            GeoCoding rasterGeoCoding = getGeoCoding();
-            CoordinateReferenceSystem appropriateModelCRS = Product.getAppropriateSceneCRS(rasterGeoCoding);
-            if (modelCRS.equals(appropriateModelCRS)) {
-                // If both model CRS are equal
-                return Product.getAppropriateImageToSceneTransform(rasterGeoCoding);
-            }
-            if (sceneGeoCoding == null && rasterGeoCoding == null) {
-                // Fallback: identity transform, works fine for (single-size) products without geo-coding
-                return new AffineTransform();
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Sets the image-to-model transformation used for this raster data.
-     *
-     * @param imageToModelTransform The new image-to-model transformation
-     * @see #getImageToModelTransform()
-     */
-    public void setImageToModelTransform(AffineTransform imageToModelTransform) {
-        Assert.notNull(imageToModelTransform, "imageToModelTransform");
-        AffineTransform imageToModelTransformOld = this.imageToModelTransform;
-        if (imageToModelTransformOld != imageToModelTransform) {
-            this.imageToModelTransform = imageToModelTransform;
-            if (imageToModelTransformOld != null) {
-                fireProductNodeChanged(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransformOld, imageToModelTransform);
-            }
-        }
-    }
 
     @Override
     public void setModified(boolean modified) {
@@ -296,7 +240,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             super.setModified(modified);
         }
     }
-
 
     /**
      * Returns the geo-coding of this {@link RasterDataNode}.
