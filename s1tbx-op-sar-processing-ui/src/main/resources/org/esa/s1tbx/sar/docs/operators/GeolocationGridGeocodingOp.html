@@ -1,24 +1,21 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head><title>Help - Geolocation Grid Terrain Correction</title>
+<html><head><title>Help - Geolocation Grid Terrain Correction</title>
 
 
-    <link rel="stylesheet" href="../style.css">
-</head>
+    <link rel="stylesheet" href="../style.css"></head>
+
 <body>
 <table class="header">
     <tbody>
     <tr class="header">
         <td class="header">&nbsp; Ellipsoid Correction</td>
-        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg"
-                                                                                 border="0"></a></td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg" border="0"></a></td>
     </tr>
     </tbody>
 </table>
 <h3>Ellipsoid Correction GG Operator</h3>
 
-<p>The operator implements the Geolocation-Grid (GG) method [1]. The implementation is exactly the same as for the&nbsp;<a
-        href="RangeDopplerGeocodingOp.html">Range Doppler Terrain Correction operator</a>
+<p>The operator implements the Geolocation-Grid (GG) method [1]. The implementation is exactly the same as for the&nbsp;<a href="RangeDopplerGeocodingOp.html">Range Doppler Terrain Correction operator</a>
     except that the slant range is computed from slant range time tie point of the source product&nbsp;instead of using
     DEM.</p><h4>Major Processing Steps</h4>
 
@@ -46,35 +43,7 @@
         <li> Compute pixel value x(Ia,Ir) using bi-linear interpolation and set it for current sample in target image.
         </li>
     </ol>
-</ol>
-<h4>Resampling Method Supported</h4>
-<ul>
-    <li>nearest_neighbour</li>
-    <li>bilinear_interpolation</li>
-    <li>cubic_convolution</li>
-</ul>
-<h4>Map Projection Supported</h4>
-
-<p>Right now&nbsp;the following projections&nbsp;<span
-        style="font-size: 11pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span><i><span
-        style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span></i><span
-        style="font-size: 7pt; font-family: Symbol;" lang="EN-GB"></span><i><span
-        style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span></i><span
-        style="font-size: 7pt; font-family: Symbol;" lang="EN-GB"></span><i><span
-        style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span><span
-        style="font-size: 8pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span></i><span
-        style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span>are&nbsp;supported by
-    NEXT:&nbsp;</p>
-<ul>
-    <li> Geographic Lat/Lon</li>
-    <li>Lambert Conformal Conic</li>
-    <li>Stereographic</li>
-    <li>Transverse Mercator</li>
-    <li>UTM</li>
-    <li>Universal Polar Stereographic North</li>
-    <li>Universal Polar Stereographic South</li>
-</ul>
-<h4>Parameters Used</h4>
+</ol><h4>Parameters Used</h4>
 
 <p>
     The following parameters are used by the operator:
@@ -86,9 +55,7 @@
     </li>
     <li value="2">Image resampling method: Interpolation methods for
         obtaining pixel values from
-        source image. There are three interpolation methods available: nearest
-        neighbour,
-        bi-linear and cubic interpolations.
+        source image.
     </li>
     <li>Map Projection: The map projection types. The orthorectified image will&nbsp;be presented with the user selected
         map projection.
@@ -106,5 +73,4 @@
     ASAR Geocoding, Issue 1.0, 19.03.2008</p>
 <br>
 <hr>
-</body>
-</html>
+</body></html>
