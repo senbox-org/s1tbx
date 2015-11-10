@@ -239,7 +239,8 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
 
                 getProcessingFacilityIDFromENVISAT(); // MPH
                 getNumOfRecordsInMainProcParam(); // DSR.3
-                getCalibrationConstantFromENVISAT(); // MPP
+
+                calibrationConstant = absRoot.getAttributeDouble(AbstractMetadata.calibration_factor);
             }
 
             if (absRoot.getAttribute("retro-calibration performed flag") != null) { // product from removeAntennaPatternOp
@@ -2248,56 +2249,10 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
     }
 
     /**
-     * Get calibration factors from Metadata for each band in the product.
-     */
-    private void getCalibrationConstantFromENVISAT() {
-
-        MetadataElement ads;
-
-        if (numMPPRecords == 1) {
-            ads = origMetadataRoot.getElement("MAIN_PROCESSING_PARAMS_ADS");
-        } else {
-            ads = origMetadataRoot.getElement("MAIN_PROCESSING_PARAMS_ADS").
-                    getElement("MAIN_PROCESSING_PARAMS_ADS.1");
-        }
-
-        if (ads == null) {
-            throw new OperatorException("MAIN_PROCESSING_PARAMS_ADS not found");
-        }
-
-        MetadataAttribute calibrationFactorsAttr =
-                ads.getAttribute("ASAR_Main_ADSR.sd/calibration_factors.1.ext_cal_fact");
-
-        if (calibrationFactorsAttr == null) {
-            throw new OperatorException("calibration_factors.1.ext_cal_fact not found");
-        }
-
-        calibrationConstant = (double) calibrationFactorsAttr.getData().getElemFloat();
-        /*
-        calibrationFactor[0] = (double) calibrationFactorsAttr.getData().getElemFloat();
-
-        calibrationFactorsAttr = ads.getAttribute("ASAR_Main_ADSR.sd/calibration_factors.2.ext_cal_fact");
-
-        if (calibrationFactorsAttr == null) {
-            throw new OperatorException("calibration_factors.2.ext_cal_fact not found");
-        }
-
-        calibrationFactor[1] = (double) calibrationFactorsAttr.getData().getElemFloat();
-
-        if (Double.compare(calibrationFactor[0], 0.0) == 0 && Double.compare(calibrationFactor[1], 0.0) == 0) {
-            throw new OperatorException("Calibration factors in metadata are zero");
-        }
-        */
-        //System.out.println("calibration factor for band 1 is " + calibrationFactor[0]);
-        //System.out.println("calibration factor for band 2 is " + calibrationFactor[1]);
-    }
-
-    /**
      * Compute incidence angles (in radian), look angles (in radian) and range spreading loss
      * for pixels in a complete range line.
      */
     private void computeIncidenceAnglesLookAnglesRangeSpreadingLossForENVISAT() {
-//   private void computeIncidenceAnglesLookAnglesRangeSpreadingLoss() {
 
         incidenceAngles = new double[sourceImageWidth];
         lookAngles = new double[sourceImageWidth];
@@ -2307,14 +2262,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
         final TiePointGrid slantRangeTimeTiePointGrid = OperatorUtils.getSlantRangeTime(sourceProduct);
 
         final double rSat = getSatelliteToEarthCenterDistanceForENVISAT();
-        /*
-        double rSat;
-        if (isCEOSFormat) {
-            rSat = getSatelliteToEarthCenterDistanceForCEOS();
-        } else {
-            rSat = getSatelliteToEarthCenterDistanceForENVISAT();
-        }
-        */
+
         final int y = sourceImageHeight / 2;
         for (int x = 0; x < sourceImageWidth; x++) {
 
@@ -2350,40 +2298,13 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
      */
     private double getSatelliteToEarthCenterDistanceForENVISAT() {
 
-        final MetadataElement mppAds = origMetadataRoot.getElement("MAIN_PROCESSING_PARAMS_ADS");
-        if (mppAds == null) {
-            throw new OperatorException("MAIN_PROCESSING_PARAMS_ADS not found");
-        }
+        final MetadataElement orbit_state_vectors = absRoot.getElement(AbstractMetadata.orbit_state_vectors);
+        final MetadataElement orbit_vector = orbit_state_vectors.getElement(AbstractMetadata.orbit_vector + 3);
+        final float xpos = (float)orbit_vector.getAttributeDouble("x_pos");
+        final float ypos = (float)orbit_vector.getAttributeDouble("y_pos");
+        final float zpos = (float)orbit_vector.getAttributeDouble("z_pos");
 
-        MetadataElement ads;
-        if (numMPPRecords == 1) {
-            ads = mppAds;
-        } else {
-            ads = mppAds.getElement("MAIN_PROCESSING_PARAMS_ADS." + 1);
-        }
-
-        final MetadataAttribute xPositionAttr = ads.getAttribute("ASAR_Main_ADSR.sd/orbit_state_vectors.3.x_pos_1");
-        if (xPositionAttr == null) {
-            throw new OperatorException("x_pos_1 not found");
-        }
-        final float x_pos = xPositionAttr.getData().getElemInt() / 100.0f; // divide 100 to convert unit from 10^-2 m to m
-        //System.out.println("x position is " + x_pos);
-
-        final MetadataAttribute yPositionAttr = ads.getAttribute("ASAR_Main_ADSR.sd/orbit_state_vectors.3.y_pos_1");
-        if (yPositionAttr == null) {
-            throw new OperatorException("y_pos_1 not found");
-        }
-        final float y_pos = yPositionAttr.getData().getElemInt() / 100.0f; // divide 100 to convert unit from 10^-2 m to m
-        //System.out.println("y position is " + y_pos);
-
-        final MetadataAttribute zPositionAttr = ads.getAttribute("ASAR_Main_ADSR.sd/orbit_state_vectors.3.z_pos_1");
-        if (zPositionAttr == null) {
-            throw new OperatorException("z_pos_1 not found");
-        }
-        final float z_pos = zPositionAttr.getData().getElemInt() / 100.0f; // divide 100 to convert unit from 10^-2 m to m
-        //System.out.println("z position is " + z_pos);
-
-        final double rSat = Math.sqrt(x_pos * x_pos + y_pos * y_pos + z_pos * z_pos); // in m
+        final double rSat = Math.sqrt(xpos * xpos + ypos * ypos + zpos * zpos); // in m
         if (Double.compare(rSat, 0.0) == 0) {
             throw new OperatorException("x, y and z positions in orbit_state_vectors are all zeros");
         }
@@ -2397,53 +2318,12 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
      * @return The replica pulse power.
      */
     private double getReplicaPulsePowerForENVISAT() {
-        // Field 9 in CHIRP_PARAMS_ADS
-        final MetadataElement dsd = origMetadataRoot.getElement("CHIRP_PARAMS_ADS");
-        if (dsd == null) {
-            throw new OperatorException("CHIRP_PARAMS_ADS not found");
-        }
 
-        final MetadataAttribute attr = dsd.getAttribute("chirp_power");
-        if (attr == null) {
-            throw new OperatorException("chirp_power not found");
-        }
-
-        double replicaPulsePower = attr.getData().getElemFloat(); // in dB
+        double replicaPulsePower = absRoot.getAttributeDouble(AbstractMetadata.chirp_power); // in dB
         replicaPulsePower = FastMath.pow(10.0, replicaPulsePower / 10.0); // convert to linear scale
         //System.out.println("Replica pulse power is " + replicaPulsePower);
 
         return replicaPulsePower;
-    }
-
-    private double getSatelliteToEarthCenterDistanceForCEOS() {
-        // Field 99 - 101 in PRI Facility Related Data Record
-        final MetadataElement facility = origMetadataRoot.getElement("Leader").getElement("Facility Related");
-        if (facility == null) {
-            throw new OperatorException("Facility Related not found");
-        }
-
-        final MetadataAttribute xAttr = facility.getAttribute("Input state vector - Position vector X");
-        if (xAttr == null) {
-            throw new OperatorException("Input state vector - Position vector X");
-        }
-
-        final double x = xAttr.getData().getElemDouble();
-
-        final MetadataAttribute yAttr = facility.getAttribute("Input state vector - Position vector Y");
-        if (yAttr == null) {
-            throw new OperatorException("Input state vector - Position vector Y");
-        }
-
-        final double y = yAttr.getData().getElemDouble();
-
-        final MetadataAttribute zAttr = facility.getAttribute("Input state vector - Position vector Z");
-        if (zAttr == null) {
-            throw new OperatorException("Input state vector - Position vector Z");
-        }
-
-        final double z = zAttr.getData().getElemDouble();
-
-        return Math.sqrt(x * x + y * y + z * z);
     }
 
     /**
