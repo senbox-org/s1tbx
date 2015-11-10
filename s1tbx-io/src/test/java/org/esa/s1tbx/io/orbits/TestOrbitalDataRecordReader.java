@@ -15,12 +15,12 @@
  */
 package org.esa.s1tbx.io.orbits;
 
+import org.esa.snap.core.util.ResourceInstaller;
 import org.esa.snap.engine_utilities.util.TestUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * OrbitalDataRecordReader Tester.
@@ -32,13 +32,14 @@ public class TestOrbitalDataRecordReader {
     private final static String envisatOrbitFilePath = "org/esa/s1tbx/io/orbits/envisat_ODR.051";
     private final static String ers1OrbitFilePath = "org/esa/s1tbx/io/orbits/ers1_ODR.079";
     private final static String ers2OrbitFilePath = "org/esa/s1tbx/io/orbits/ers2_ODR.015";
+    private final Path basePath = ResourceInstaller.findModuleCodeBasePath(this.getClass());
 
     @Test
     public void testOpenFile() {
 
         final OrbitalDataRecordReader reader = new OrbitalDataRecordReader();
 
-        Assert.assertTrue(reader.OpenOrbitFile(Paths.get(envisatOrbitFilePath)));
+        Assert.assertTrue(reader.OpenOrbitFile(basePath.resolve(envisatOrbitFilePath)));
     }
 
     @Test
@@ -46,7 +47,7 @@ public class TestOrbitalDataRecordReader {
 
         final OrbitalDataRecordReader reader = new OrbitalDataRecordReader();
 
-        if (reader.OpenOrbitFile(Paths.get(envisatOrbitFilePath))) {
+        if (reader.OpenOrbitFile(basePath.resolve(envisatOrbitFilePath))) {
 
             reader.parseHeader1();
             reader.parseHeader2();
@@ -57,17 +58,17 @@ public class TestOrbitalDataRecordReader {
 
     @Test
     public void testReadERS1OrbitFiles() throws Exception {
-        readOrbitFile("ERS1 ORD", Paths.get(ers1OrbitFilePath));
+        readOrbitFile("ERS1 ORD", basePath.resolve(ers1OrbitFilePath));
     }
 
     @Test
     public void testReadERS2OrbitFile() throws Exception {
-        readOrbitFile("ERS2 ORD", Paths.get(ers2OrbitFilePath));
+        readOrbitFile("ERS2 ORD", basePath.resolve(ers2OrbitFilePath));
     }
 
     @Test
     public void testReadEnvisatOrbitFile() throws Exception {
-        readOrbitFile("Envisat ORD", Paths.get(envisatOrbitFilePath));
+        readOrbitFile("Envisat ORD", basePath.resolve(envisatOrbitFilePath));
     }
 
     private static void readOrbitFile(final String name, final Path path) throws Exception {
