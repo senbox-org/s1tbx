@@ -94,10 +94,10 @@ public class PrincipalComponentAnalysisOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        collectSourceBands();
-        if (!ProductUtils.areRastersEqualInSize(sourceBands)) {
-            throw new OperatorException("Source bands must all be the same size");
+        if (sourceProduct.isMultiSizeProduct()) {
+            throw createMultiSizeException(sourceProduct);
         }
+        collectSourceBands();
         if (componentCount <= 0 || componentCount > sourceBands.length) {
             componentCount = sourceBands.length;
         }

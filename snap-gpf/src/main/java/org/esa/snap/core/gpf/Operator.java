@@ -524,7 +524,7 @@ public abstract class Operator {
 
     // NOT API - don't use it in your implementation. Soon it will be removed.
     protected OperatorException createMultiSizeException(Product product) {
-        return new OperatorException(format("Product ''{0}'' has rasters of different sizes and can not be processed.", product.getName()));
+        return new OperatorException(format("Product ''{0}'' has raster of different sizes and can not be processed.", product.getName()));
     }
 
 
