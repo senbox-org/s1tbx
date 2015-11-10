@@ -134,6 +134,7 @@ public final class AbstractMetadata {
     public static final String inc_angle_comp_flag = "inc_angle_comp_flag";
     public static final String abs_calibration_flag = "abs_calibration_flag";
     public static final String calibration_factor = "calibration_factor";
+    public static final String chirp_power = "chirp_power";
     public static final String replica_power_corr_flag = "replica_power_corr_flag";
     public static final String range_sampling_rate = "range_sampling_rate";
     public static final String avg_scene_height = "avg_scene_height";
@@ -290,7 +291,8 @@ public final class AbstractMetadata {
         addAbstractedAttribute(absRoot, range_spread_comp_flag, ProductData.TYPE_UINT8, "flag", "range spread compensation applied");
         addAbstractedAttribute(absRoot, replica_power_corr_flag, ProductData.TYPE_UINT8, "flag", "Replica pulse power correction applied");
         addAbstractedAttribute(absRoot, abs_calibration_flag, ProductData.TYPE_UINT8, "flag", "Product calibrated");
-        addAbstractedAttribute(absRoot, calibration_factor, ProductData.TYPE_FLOAT64, "", "Calibration constant");
+        addAbstractedAttribute(absRoot, calibration_factor, ProductData.TYPE_FLOAT64, "dB", "Calibration constant");
+        addAbstractedAttribute(absRoot, chirp_power, ProductData.TYPE_FLOAT64, "", "Chirp power");
         addAbstractedAttribute(absRoot, inc_angle_comp_flag, ProductData.TYPE_UINT8, "flag", "incidence angle compensation applied");
         addAbstractedAttribute(absRoot, ref_inc_angle, ProductData.TYPE_FLOAT64, "", "Reference incidence angle");
         addAbstractedAttribute(absRoot, ref_slant_range, ProductData.TYPE_FLOAT64, "", "Reference slant range");
