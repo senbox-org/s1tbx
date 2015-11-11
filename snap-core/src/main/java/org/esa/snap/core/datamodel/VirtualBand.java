@@ -261,22 +261,14 @@ public class VirtualBand extends Band {
         Dimension tileSize = raster.getProduct().getPreferredTileSize();
         int dataType = raster.getDataType();
         Number fillValue = raster.isNoDataValueUsed() ? raster.getGeophysicalNoDataValue() : null;
-        //todo [multisize_products] change when ref rasters might have different imagetomodeltransforms
-        final RasterDataNode[] refRasters = BandArithmetic.getRefRasters(term);
-        AffineTransform imageToModelTransform = new AffineTransform();
+        //todo [multisize_products] change when ref rasters might have different imageToModelTransforms (tf 20151111)
+        RasterDataNode[] refRasters = BandArithmetic.getRefRasters(term);
+        MultiLevelModel multiLevelModel;
         if (refRasters.length > 0) {
-            imageToModelTransform = refRasters[0].getImageToModelTransform();
+            multiLevelModel = refRasters[0].getMultiLevelModel();
         } else {
-            final GeoCoding geoCoding = raster.getGeoCoding();
-            if (geoCoding != null) {
-                final MathTransform imageToMapTransform = geoCoding.getImageToMapTransform();
-                if (imageToMapTransform instanceof AffineTransform) {
-                    imageToModelTransform = (AffineTransform) imageToMapTransform;
-                }
-            }
+            multiLevelModel = raster.createMultiLevelModel();
         }
-        MultiLevelModel multiLevelModel =
-                new DefaultMultiLevelModel(imageToModelTransform, sourceSize.width, sourceSize.height);
         MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
             @Override
             public RenderedImage createImage(int level) {
