@@ -21,15 +21,18 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
+import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import org.esa.snap.core.dataio.ProductSubsetDef;
-import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.dataop.barithm.BandArithmetic;
 import org.esa.snap.core.image.ResolutionLevel;
 import org.esa.snap.core.image.VirtualBandOpImage;
 import org.esa.snap.core.jexp.Term;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.StringUtils;
+import org.opengis.referencing.operation.MathTransform;
 
 import java.awt.Dimension;
+import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 
@@ -201,7 +204,6 @@ public class VirtualBand extends Band {
      * Gets an estimated raw storage size in bytes of this product node.
      *
      * @param subsetDef if not <code>null</code> the subset may limit the size returned
-     *
      * @return the size in bytes.
      */
     @Override
@@ -215,10 +217,10 @@ public class VirtualBand extends Band {
     @Override
     public String toString() {
         return getClass().getName() + "["
-               + getName() + ","
-               + ProductData.getTypeString(getDataType()) + ","
-               + getRasterWidth() + ","
-               + getRasterHeight() + "]";
+                + getName() + ","
+                + ProductData.getTypeString(getDataType()) + ","
+                + getRasterWidth() + ","
+                + getRasterHeight() + "]";
     }
 
     /**
@@ -241,12 +243,11 @@ public class VirtualBand extends Band {
     /**
      * Create a {@link MultiLevelImage} that computes its pixel values from the given band math expression.
      * The returned image is intended to be used as source image for the given target raster.
-     * <p/>
+     * <p>
      * Non-API.
      *
      * @param raster     The raster data node.
      * @param expression The band-arithmetic expression.
-     *
      * @return A multi-level image.
      */
     public static MultiLevelImage createSourceImage(RasterDataNode raster, String expression) {
@@ -258,7 +259,22 @@ public class VirtualBand extends Band {
         Dimension tileSize = raster.getProduct().getPreferredTileSize();
         int dataType = raster.getDataType();
         Number fillValue = raster.isNoDataValueUsed() ? raster.getGeophysicalNoDataValue() : null;
-        MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(raster);
+        //todo [multisize_products] change when ref rasters might have different imagetomodeltransforms
+        final RasterDataNode[] refRasters = BandArithmetic.getRefRasters(term);
+        AffineTransform imageToModelTransform = new AffineTransform();
+        if (refRasters.length > 0) {
+            imageToModelTransform = refRasters[0].getImageToModelTransform();
+        } else {
+            final GeoCoding geoCoding = raster.getGeoCoding();
+            if (geoCoding != null) {
+                final MathTransform imageToMapTransform = geoCoding.getImageToMapTransform();
+                if (imageToMapTransform instanceof AffineTransform) {
+                    imageToModelTransform = (AffineTransform) imageToMapTransform;
+                }
+            }
+        }
+        MultiLevelModel multiLevelModel =
+                new DefaultMultiLevelModel(imageToModelTransform, sourceSize.width, sourceSize.height);
         MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
             @Override
             public RenderedImage createImage(int level) {
