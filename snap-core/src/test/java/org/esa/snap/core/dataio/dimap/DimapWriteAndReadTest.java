@@ -28,8 +28,10 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.util.ObjectUtils;
 import org.esa.snap.core.util.SnapConstants;
 
+import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -318,6 +320,11 @@ public class DimapWriteAndReadTest extends TestCase {
                                 validMaskExpression + ">\r\n");
                 }
             }
+            final AffineTransform expTransform = expBand.getImageToModelTransform();
+            final AffineTransform curTransform = currentBand.getImageToModelTransform();
+            if(!ObjectUtils.equalObjects(expTransform, curTransform)) {
+                diff.append("The image to model transform of band " + i + " is not equal to the expected transform.");
+            }
         }
         for (int i = 0; i < expBands.length; i++) {
             final Band expBand = expBands[i];
@@ -371,6 +378,7 @@ public class DimapWriteAndReadTest extends TestCase {
 
         final Band band2 = product.addBand(band2Name, ProductData.TYPE_INT8);
         band2.setDescription(band2Name + descriptionExpansion);
+        band2.setImageToModelTransform(new AffineTransform(new double[]{1.2, 2.3, 3.4, 4.5, 5.6, 6.7}));
         fillBandWithData(band2);
 
         final Band uncBand = product.addBand(uncBandName, ProductData.TYPE_FLOAT32);

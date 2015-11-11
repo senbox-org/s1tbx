@@ -1560,6 +1560,7 @@ public class DimapProductHelpers {
                 setNoDataValueUsed(element, band);
                 setNoDataValue(element, band);
                 setAncillaryRelations(element, band);
+                setImageToModelTransform(element, band);
             }
         }
 
@@ -1747,6 +1748,15 @@ public class DimapProductHelpers {
             String[] relations = relationsSet.toArray(new String[relationsSet.size()]);
             band.setAncillaryRelations(relations);
         }
+
+        private static void setImageToModelTransform(Element element, Band band) {
+            final String transform = element.getChildTextTrim(DimapProductConstants.TAG_IMAGE_TO_MODEL_TRANSFORM);
+            if (transform != null) {
+                double[] matrix = StringUtils.toDoubleArray(transform, null);
+                band.setImageToModelTransform(new AffineTransform(matrix));
+            }
+        }
+
 
         private static void setNoDataValue(final Element element, final Band band) {
             final String noDataValue = element.getChildTextTrim(DimapProductConstants.TAG_NO_DATA_VALUE);

@@ -246,6 +246,12 @@ public final class DimapHeaderWriter extends XmlWriter {
                     for (RasterDataNode ancillaryVariable : ancillaryVariables) {
                         printLine(indent + 2, DimapProductConstants.TAG_ANCILLARY_VARIABLE, ancillaryVariable.getName());
                     }
+                    final AffineTransform imageToModelTransform = band.getImageToModelTransform();
+                    if (imageToModelTransform != null && !imageToModelTransform.isIdentity()) {
+                        final double[] matrix = new double[6];
+                        imageToModelTransform.getMatrix(matrix);
+                        printLine(indent + 2, DimapProductConstants.TAG_IMAGE_TO_MODEL_TRANSFORM, StringUtils.arrayToCsv(matrix));
+                    }
                     println(sbiTags[1]);
                 }
             }

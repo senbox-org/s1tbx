@@ -96,6 +96,7 @@ public final class DimapProductConstants {
     public static final String TAG_SEARCH_RADIUS = "SEARCH_RADIUS";
     public static final String TAG_PIXEL_POSITION_ESTIMATOR = "Pixel_Position_Estimator";
     public static final String TAG_WKT = "WKT";
+    //This Tag is used for geocoding support and multi size support
     public static final String TAG_IMAGE_TO_MODEL_TRANSFORM = "IMAGE_TO_MODEL_TRANSFORM";
 
     //  -since version 2.0.0
