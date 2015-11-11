@@ -86,9 +86,17 @@ public final class StackUtils {
                 AbstractMetadata.SLAVE_METADATA_ROOT);
         if (slaveMetadataRoot != null) {
             final String mstBandNames = slaveMetadataRoot.getAttributeString(AbstractMetadata.MASTER_BANDS, "");
-            return StringUtils.stringToArray(mstBandNames, " ");
+            if(!mstBandNames.isEmpty()) {
+                return StringUtils.stringToArray(mstBandNames, " ");
+            }
         }
-        return new String[]{};
+        final List<String> bandNames = new ArrayList<>();
+        for(String bandName : sourceProduct.getBandNames()) {
+            if(bandName.toLowerCase().contains("mst")) {
+                bandNames.add(bandName);
+            }
+        }
+        return bandNames.toArray(new String[bandNames.size()]);
     }
 
     /**
@@ -123,9 +131,19 @@ public final class StackUtils {
         if (slaveMetadataRoot != null) {
             final MetadataElement elem = slaveMetadataRoot.getElement(slvProductName);
             final String slvBandNames = elem.getAttributeString(AbstractMetadata.SLAVE_BANDS, "");
-            return StringUtils.stringToArray(slvBandNames, " ");
+            if(!slvBandNames.isEmpty()) {
+                return StringUtils.stringToArray(slvBandNames, " ");
+            }
         }
-        return new String[]{};
+        String dateSuffix = slvProductName.substring(slvProductName.lastIndexOf('_'), slvProductName.length()).toLowerCase();
+        final List<String> bandNames = new ArrayList<>();
+        for(String bandName : sourceProduct.getBandNames()) {
+            final String name = bandName.toLowerCase();
+            if(name.contains("slv") && name.endsWith(dateSuffix)) {
+                bandNames.add(bandName);
+            }
+        }
+        return bandNames.toArray(new String[bandNames.size()]);
     }
 
     public static String[] getSlaveProductNames(final Product sourceProduct) {

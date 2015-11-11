@@ -68,7 +68,7 @@ public class SceneRasterTransformUtilsTest {
         for (double y = 0.5; y < 8; y++) {
             for (double x = 0.5; x < 4; x++) {
                 final PixelPos pixelPos = new PixelPos(x, y);
-                final PixelPos productPos = SceneRasterTransformUtils.transformToProductRaster(band1, pixelPos);
+                final PixelPos productPos = SceneRasterTransformUtils.transformToSceneCoords(band1, pixelPos);
                 Assert.assertEquals(pixelPos.getX(), productPos.getX(), 1e-8);
                 Assert.assertEquals(pixelPos.getY(), productPos.getY(), 1e-8);
             }
@@ -76,7 +76,7 @@ public class SceneRasterTransformUtilsTest {
         for (double y = 0; y < 4; y += 0.5) {
             for (double x = 0; x < 2; x += 0.5) {
                 final PixelPos pixelPos = new PixelPos(x, y);
-                final PixelPos productPos = SceneRasterTransformUtils.transformToProductRaster(band3, pixelPos);
+                final PixelPos productPos = SceneRasterTransformUtils.transformToSceneCoords(band3, pixelPos);
                 Assert.assertEquals(pixelPos.getX() * 2, productPos.getX(), 1e-8);
                 Assert.assertEquals(pixelPos.getY() * 2, productPos.getY(), 1e-8);
             }
@@ -88,7 +88,7 @@ public class SceneRasterTransformUtilsTest {
         for (double y = 0; y < 8; y++) {
             for (double x = 0; x < 4; x++) {
                 final PixelPos pixelPos = new PixelPos(x, y);
-                final PixelPos productPos = SceneRasterTransformUtils.transformToRasterDataNodeRaster(band3, pixelPos);
+                final PixelPos productPos = SceneRasterTransformUtils.transformToImageCoords(band3, pixelPos);
                 Assert.assertEquals(pixelPos.getX() / 2, productPos.getX(), 1e-8);
                 Assert.assertEquals(pixelPos.getY() / 2, productPos.getY(), 1e-8);
             }
@@ -113,7 +113,7 @@ public class SceneRasterTransformUtilsTest {
         for (double y = 0; y < 9; y++) {
             for (double x = 0; x < 3; x++) {
                 final PixelPos band1Pos = new PixelPos(x, y);
-                final PixelPos transformedBand1Pos = SceneRasterTransformUtils.transformFromToRasterDataNodeRaster(band4, band3, band1Pos);
+                final PixelPos transformedBand1Pos = SceneRasterTransformUtils.transformFromImageCoordsToImageCoords(band4, band3, band1Pos);
                 Assert.assertEquals(band1Pos.getX() * twoThirds, transformedBand1Pos.getX(), 1e-8);
                 Assert.assertEquals(band1Pos.getY() * 0.4, transformedBand1Pos.getY(), 1e-8);
             }
@@ -121,7 +121,7 @@ public class SceneRasterTransformUtilsTest {
         for (double y = 0; y < 4; y++) {
             for (double x = 0; x < 2; x++) {
                 final PixelPos band2Pos = new PixelPos(x, y);
-                final PixelPos transformedBand2Pos = SceneRasterTransformUtils.transformFromToRasterDataNodeRaster(band3, band4, band2Pos);
+                final PixelPos transformedBand2Pos = SceneRasterTransformUtils.transformFromImageCoordsToImageCoords(band3, band4, band2Pos);
                 Assert.assertEquals(band2Pos.getX() * 1.5, transformedBand2Pos.getX(), 1e-8);
                 Assert.assertEquals(band2Pos.getY() * 2.5, transformedBand2Pos.getY(), 1e-8);
             }
@@ -148,7 +148,7 @@ public class SceneRasterTransformUtilsTest {
         int[] xpoints = {2, 6, 6, 4};
         int[] ypoints = {2, 4, 12, 14};
         Polygon polygon = new Polygon(xpoints, ypoints, 4);
-        Shape transformedShape = SceneRasterTransformUtils.transformToProductRaster(band2, polygon);
+        Shape transformedShape = SceneRasterTransformUtils.transformToSceneCoords(band2, polygon);
         Assert.assertEquals(true, transformedShape instanceof GeneralPath);
         PathIterator transformedShapePathIterator = transformedShape.getPathIterator(null);
         double[] currentSegment = new double[2];
@@ -189,7 +189,7 @@ public class SceneRasterTransformUtilsTest {
         int[] xpoints = {1, 3, 3, 2};
         int[] ypoints = {1, 2, 6, 7};
         Polygon polygon = new Polygon(xpoints, ypoints, 4);
-        Shape transformedShape = SceneRasterTransformUtils.transformToRasterDataNodeRaster(band2, polygon);
+        Shape transformedShape = SceneRasterTransformUtils.transformToImageCoords(band2, polygon);
         Assert.assertEquals(true, transformedShape instanceof GeneralPath);
         PathIterator transformedShapePathIterator = transformedShape.getPathIterator(null);
         double[] currentSegment = new double[2];
@@ -237,7 +237,7 @@ public class SceneRasterTransformUtilsTest {
         int[] xpoints = {3, 5, 4, 2};
         int[] ypoints = {1, 9, 11, 3};
         Polygon polygon = new Polygon(xpoints, ypoints, 4);
-        Shape transformedShape = SceneRasterTransformUtils.transformFromToRasterDataNodeRaster(band1, band2, polygon);
+        Shape transformedShape = SceneRasterTransformUtils.transformFromImageCoordsToImageCoords(band1, band2, polygon);
         Assert.assertEquals(true, transformedShape instanceof GeneralPath);
         PathIterator transformedShapePathIterator = transformedShape.getPathIterator(null);
         double oneThird = ((double) 1 / 3);
@@ -262,7 +262,7 @@ public class SceneRasterTransformUtilsTest {
         xpoints = new int[]{1, 3, 3, 2};
         ypoints = new int[]{2, 7, 6, 1};
         polygon = new Polygon(xpoints, ypoints, 4);
-        transformedShape = SceneRasterTransformUtils.transformFromToRasterDataNodeRaster(band2, band1, polygon);
+        transformedShape = SceneRasterTransformUtils.transformFromImageCoordsToImageCoords(band2, band1, polygon);
         Assert.assertEquals(true, transformedShape instanceof GeneralPath);
         transformedShapePathIterator = transformedShape.getPathIterator(null);
         transformedShapePathIterator.currentSegment(currentSegment);
@@ -288,7 +288,7 @@ public class SceneRasterTransformUtilsTest {
         final Shape path = getPathInProductCoordinates();
         double[][] expectedCoords = {{1.0, 1.0}, {1.0, 7.0}, {3.0, 7.0}, {3.0, 1.0}};
 
-        final Shape shapeInRasterCoordinates = SceneRasterTransformUtils.transformShapeToRasterCoordinates(
+        final Shape shapeInRasterCoordinates = SceneRasterTransformUtils.transformShapeToImageCoords(
                 path, band1.getSceneRasterTransform());
 
         assert(shapeInRasterCoordinates instanceof Path2D.Double);
@@ -300,7 +300,7 @@ public class SceneRasterTransformUtilsTest {
         final Shape path = getPathInProductCoordinates();
         double[][] expectedCoords = {{1.0, 1.0}, {1.0, 7.0}, {3.0, 7.0}, {3.0, 1.0}};
 
-        final Shape shapeInRasterCoordinates = SceneRasterTransformUtils.transformShapeToProductCoordinates(
+        final Shape shapeInRasterCoordinates = SceneRasterTransformUtils.transformShapeToSceneCoords(
                 path, band1.getSceneRasterTransform());
 
         assert(shapeInRasterCoordinates instanceof Path2D.Double);
@@ -312,7 +312,7 @@ public class SceneRasterTransformUtilsTest {
         final Shape path = getPathInProductCoordinates();
         double[][] expectedCoords = {{2.0, 2.0}, {2.0, 14.0}, {6.0, 14.0}, {6.0, 2.0}};
 
-        final Shape shapeInRasterCoordinates = SceneRasterTransformUtils.transformShapeToRasterCoordinates(
+        final Shape shapeInRasterCoordinates = SceneRasterTransformUtils.transformShapeToImageCoords(
                 path, band2.getSceneRasterTransform());
 
         assert(shapeInRasterCoordinates instanceof Path2D.Double);
@@ -324,7 +324,7 @@ public class SceneRasterTransformUtilsTest {
         final Shape path = getPathInRasterCoordinates();
         double[][] expectedCoords = {{1.0, 1.0}, {1.0, 7.0}, {3.0, 7.0}, {3.0, 1.0}};
 
-        final Shape shapeInRasterCoordinates = SceneRasterTransformUtils.transformShapeToProductCoordinates(
+        final Shape shapeInRasterCoordinates = SceneRasterTransformUtils.transformShapeToSceneCoords(
                 path, band2.getSceneRasterTransform());
 
         assert(shapeInRasterCoordinates instanceof Path2D.Double);
@@ -336,7 +336,7 @@ public class SceneRasterTransformUtilsTest {
         final Shape path = getPathInRasterCoordinates();
         double[][] expectedCoords = {{1.0, 1.0}, {3.0, 1.0}, {3.0, 7.0}, {1.0, 7.0}};
 
-        final Shape shapeInRasterCoordinates = SceneRasterTransformUtils.transformShapeToProductCoordinates(
+        final Shape shapeInRasterCoordinates = SceneRasterTransformUtils.transformShapeToSceneCoords(
                 path.getBounds2D(), band2.getSceneRasterTransform());
 
         assert(shapeInRasterCoordinates instanceof GeneralPath);

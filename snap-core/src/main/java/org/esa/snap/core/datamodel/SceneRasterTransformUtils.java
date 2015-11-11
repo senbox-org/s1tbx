@@ -1,6 +1,5 @@
 package org.esa.snap.core.datamodel;
 
-import org.esa.snap.core.dataop.resamp.Resampling;
 import org.opengis.referencing.operation.MathTransform2D;
 import org.opengis.referencing.operation.TransformException;
 
@@ -22,7 +21,7 @@ public class SceneRasterTransformUtils {
      * @return A {@link PixelPos} in raster coordinates of the {@link Product}
      * @throws SceneRasterTransformException When the transformation could not be applied
      */
-    public static PixelPos transformToProductRaster(RasterDataNode rasterDataNode, PixelPos orig) throws SceneRasterTransformException {
+    public static PixelPos transformToSceneCoords(RasterDataNode rasterDataNode, PixelPos orig) throws SceneRasterTransformException {
         final SceneRasterTransform sceneRasterTransform = rasterDataNode.getSceneRasterTransform();
         if(sceneRasterTransform == SceneRasterTransform.IDENTITY) {
             return orig;
@@ -49,8 +48,20 @@ public class SceneRasterTransformUtils {
      * @return A {@link PixelPos} in raster coordinates of the {@link RasterDataNode}
      * @throws SceneRasterTransformException When the transformation could not be applied
      */
-    public static PixelPos transformToRasterDataNodeRaster(RasterDataNode rasterDataNode, PixelPos orig) throws SceneRasterTransformException {
-        final SceneRasterTransform sceneRasterTransform = rasterDataNode.getSceneRasterTransform();
+    public static PixelPos transformToImageCoords(RasterDataNode rasterDataNode, PixelPos orig) throws SceneRasterTransformException {
+        return transformToImageCoords(rasterDataNode.getSceneRasterTransform(), orig);
+    }
+
+    /**
+     * Converts a {@link PixelPos} from raster coordinates of the {@link Product}
+     * to raster coordinates of a {@link RasterDataNode}
+     *
+     * @param sceneRasterTransform The {@link SceneRasterTransform} to use to transform
+     * @param orig The {@link PixelPos} in raster coordinates of the {@link Product}
+     * @return A {@link PixelPos} in raster coordinates of the {@link RasterDataNode}
+     * @throws SceneRasterTransformException When the transformation could not be applied
+     */
+    public static PixelPos transformToImageCoords(SceneRasterTransform sceneRasterTransform, PixelPos orig) throws SceneRasterTransformException {
         if(sceneRasterTransform == SceneRasterTransform.IDENTITY) {
             return orig;
         }
@@ -77,8 +88,8 @@ public class SceneRasterTransformUtils {
      * @return A {@link PixelPos} in raster coords of the to {@link RasterDataNode}
      * @throws SceneRasterTransformException When the transformation could not be applied
      */
-    public static PixelPos transformFromToRasterDataNodeRaster(RasterDataNode from, RasterDataNode to, PixelPos orig) throws SceneRasterTransformException {
-        return transformToRasterDataNodeRaster(to, transformToProductRaster(from, orig));
+    public static PixelPos transformFromImageCoordsToImageCoords(RasterDataNode from, RasterDataNode to, PixelPos orig) throws SceneRasterTransformException {
+        return transformToImageCoords(to, transformToSceneCoords(from, orig));
     }
 
     /**
@@ -89,8 +100,8 @@ public class SceneRasterTransformUtils {
      * @return A {@link Shape} in {@link Product} raster coordinates
      * @throws SceneRasterTransformException When the transformation could not be applied
      */
-    public static Shape transformToProductRaster(RasterDataNode rasterDataNode, Shape orig) throws SceneRasterTransformException {
-        return transformShapeToProductCoordinates(orig, rasterDataNode.getSceneRasterTransform());
+    public static Shape transformToSceneCoords(RasterDataNode rasterDataNode, Shape orig) throws SceneRasterTransformException {
+        return transformShapeToSceneCoords(orig, rasterDataNode.getSceneRasterTransform());
     }
 
     /**
@@ -101,8 +112,8 @@ public class SceneRasterTransformUtils {
      * @return A {@link Shape} in {@link RasterDataNode} raster coordinates
      * @throws SceneRasterTransformException When the transformation could not be applied
      */
-    public static Shape transformToRasterDataNodeRaster(RasterDataNode rasterDataNode, Shape orig) throws SceneRasterTransformException {
-        return transformShapeToRasterCoordinates(orig, rasterDataNode.getSceneRasterTransform());
+    public static Shape transformToImageCoords(RasterDataNode rasterDataNode, Shape orig) throws SceneRasterTransformException {
+        return transformShapeToImageCoords(orig, rasterDataNode.getSceneRasterTransform());
     }
 
     /**
@@ -114,8 +125,8 @@ public class SceneRasterTransformUtils {
      * @return A {@link Shape} in raster coordinates of the to {@link RasterDataNode}
      * @throws SceneRasterTransformException When the transformation could not be applied
      */
-    public static Shape transformFromToRasterDataNodeRaster(RasterDataNode from, RasterDataNode to, Shape orig) throws SceneRasterTransformException {
-        return transformToRasterDataNodeRaster(to, transformToProductRaster(from, orig));
+    public static Shape transformFromImageCoordsToImageCoords(RasterDataNode from, RasterDataNode to, Shape orig) throws SceneRasterTransformException {
+        return transformToImageCoords(to, transformToSceneCoords(from, orig));
     }
 
     /**
@@ -126,7 +137,7 @@ public class SceneRasterTransformUtils {
      * @return A {@link Shape} in {@link Product} raster coordinates
      * @throws SceneRasterTransformException when the transformation could not be applied
      */
-    public static Shape transformShapeToProductCoordinates(Shape shape, SceneRasterTransform sceneRasterTransform) throws SceneRasterTransformException {
+    public static Shape transformShapeToSceneCoords(Shape shape, SceneRasterTransform sceneRasterTransform) throws SceneRasterTransformException {
         if (sceneRasterTransform == SceneRasterTransform.IDENTITY) {
             return shape;
         }
@@ -145,7 +156,7 @@ public class SceneRasterTransformUtils {
      * @return A {@link Shape} in {@link RasterDataNode} raster coordinates
      * @throws SceneRasterTransformException when the transformation could not be applied
      */
-    public static Shape transformShapeToRasterCoordinates(Shape shape, SceneRasterTransform sceneRasterTransform) throws SceneRasterTransformException {
+    public static Shape transformShapeToImageCoords(Shape shape, SceneRasterTransform sceneRasterTransform) throws SceneRasterTransformException {
         if (sceneRasterTransform == SceneRasterTransform.IDENTITY) {
             return shape;
         }
