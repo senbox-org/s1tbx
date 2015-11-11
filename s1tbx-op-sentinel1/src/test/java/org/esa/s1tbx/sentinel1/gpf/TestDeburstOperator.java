@@ -67,8 +67,8 @@ public class TestDeburstOperator {
         final Band targetBand = targetProduct.getBandAt(0);
         assertNotNull(targetBand);
 
-        final int bandWidth = 5000;//targetBand.getSceneRasterWidth();
-        final int bandHeight = 5000;//targetBand.getSceneRasterHeight();
+        final int bandWidth = 5000;//targetBand.getRasterWidth();
+        final int bandHeight = 5000;//targetBand.getRasterHeight();
 
         // readPixels: execute computeTiles()
         final float[] floatValues = new float[bandWidth*bandHeight];
