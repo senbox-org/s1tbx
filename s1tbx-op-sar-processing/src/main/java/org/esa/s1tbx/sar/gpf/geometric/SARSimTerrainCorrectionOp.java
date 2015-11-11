@@ -1240,7 +1240,8 @@ public class SARSimTerrainCorrectionOp extends Operator {
                 sourceTileQ = getSourceTile(sourceProduct.getBand(srcBandNames[1]), srcRect);
             }
 
-            tileData.imgResamplingRaster.set(rangeIndex, azimuthIndex, sourceTileI, sourceTileQ);
+            tileData.imgResamplingRaster.setRangeAzimuthIndices(rangeIndex, azimuthIndex);
+            tileData.imgResamplingRaster.setSourceTiles(sourceTileI, sourceTileQ);
 
             imgResampling.computeCornerBasedIndex(rangeIndex, azimuthIndex,
                                                   sourceImageWidth, sourceImageHeight, tileData.imgResamplingIndex);
