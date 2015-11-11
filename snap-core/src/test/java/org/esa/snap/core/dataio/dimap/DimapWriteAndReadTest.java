@@ -76,7 +76,7 @@ public class DimapWriteAndReadTest extends TestCase {
         GlobalTestTools.deleteTestDataOutputDirectory();
     }
 
-    public void testWriteAndReadProductNodes_withoutSubsetInfo() throws IOException, NoSuchFieldException, IllegalAccessException {
+    public void testWriteAndReadProductNodes_withoutSubsetInfo() throws IOException {
         final File file = new File(_ioDir, "testproduct" + DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION);
         _writer.writeProductNodes(_product, file);
         writeAllBandRasterDataFully();
@@ -85,7 +85,7 @@ public class DimapWriteAndReadTest extends TestCase {
         assertEquals("", compareProducts(_product, currentProduct));
     }
 
-    public void testWriteAndReadProductNodes_GivenFilenameWithoutExtension() throws NoSuchFieldException, IllegalAccessException, IOException {
+    public void testWriteAndReadProductNodes_GivenFilenameWithoutExtension() throws IOException {
         Product currentProduct = null;
 
         File file = new File(_ioDir, "testproduct");
@@ -110,7 +110,7 @@ public class DimapWriteAndReadTest extends TestCase {
         }
     }
 
-    private static String compareProducts(Product expProduct, Product currentProduct) throws NoSuchFieldException, IllegalAccessException, IOException {
+    private static String compareProducts(Product expProduct, Product currentProduct) throws IOException {
         final StringBuffer diff = new StringBuffer();
         if (currentProduct == null) {
             diff.append("the current product is null \r\n");
@@ -250,7 +250,7 @@ public class DimapWriteAndReadTest extends TestCase {
         return tpg;
     }
 
-    private static void compareBands(Product expProduct, Product currentProduct, StringBuffer diff) throws NoSuchFieldException, IllegalAccessException, IOException {
+    private static void compareBands(Product expProduct, Product currentProduct, StringBuffer diff) throws IOException {
         final Band[] expBands = expProduct.getBands();
         final Band[] currentBands = currentProduct.getBands();
         for (int i = 0; i < expBands.length; i++) {
