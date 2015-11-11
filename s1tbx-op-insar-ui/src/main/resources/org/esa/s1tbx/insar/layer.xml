@@ -111,10 +111,10 @@
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-coregistration-CoregistrationGraph-Action.instance"/>
                     <attr name="position" intvalue="100"/>
                 </file>
-                <file name="org-esa-s1tbx-insar-gpf-coregistration-DEMAssistedCoregistrationOp-Action.shadow">
+                <!--file name="org-esa-s1tbx-insar-gpf-coregistration-DEMAssistedCoregistrationOp-Action.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-coregistration-DEMAssistedCoregistrationOp-Action.instance"/>
                     <attr name="position" intvalue="260"/>
-                </file>
+                </file-->
                 <folder name="Stack Tools">
                     <attr name="position" intvalue="300"/>
                     <file name="org-esa-s1tbx-insar-gpf-coregistration-CreateStack-Action.shadow">

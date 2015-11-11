@@ -1,17 +1,14 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head><title>Help - Range Doppler Terrain Correction</title>
+<html><head><title>Help - Range Doppler Terrain Correction</title>
 
 
-    <link rel="stylesheet" href="../style.css">
-</head>
+    <link rel="stylesheet" href="../style.css"></head>
 <body>
 <table class="header">
     <tbody>
     <tr class="header">
         <td class="header">&nbsp; Orthorectification</td>
-        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg"
-                                                                                 border="0"></a></td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg" border="0"></a></td>
     </tr>
     </tbody>
 </table>
@@ -23,23 +20,11 @@
     are intended to compensate for these distortions so that the geometric
     representation of the image will be as close as possible to the real world.</p>
 
-<p class="Paranum"><span style="" lang="EN-CA"><span style=""><span
-        style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-size-adjust: none; font-stretch: normal;"></span></span></span>The
+<p class="Paranum"><span style="" lang="EN-CA"><span style=""><span style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-size-adjust: none; font-stretch: normal;"></span></span></span>The
     geometry of topographical
-    distortions in SAR imagery is shown below<span lang="EN-CA"><span style=""></span></span><span lang="EN-CA">.<span
-            style="">&nbsp; </span>Here we can see that point <b>B</b> with elevation <b>h</b> above the ellipsoid is imaged at position </span><b><span
-            style="font-family: Symbol;" lang="EN-CA">B</span><span lang="EN-CA">&#8217;</span></b><span lang="EN-CA"> in SAR image, though its real position is <b>B"</b>.<span
-            style="">&nbsp; </span>The offset&nbsp;</span><b><span style="font-family: Symbol;" lang="EN-CA"><span
-            style="">&#916;</span></span><sub><span lang="EN-CA">r</span></sub></b><b><span style="font-family: Symbol;"
-                                                                                            lang="EN-CA"> </span></b><span
-            lang="EN-CA">between </span><b><span style="font-family: Symbol;" lang="EN-CA">B</span><span
-            lang="EN-CA">'</span></b><span lang="EN-CA"> and <b>B"</b> </span><span style="font-family: Symbol;"
-                                                                                    lang="EN-CA"><span
-            style="">&nbsp;</span></span><span lang="EN-CA">exhibits the effect of topographic distortions.</span></p>
+    distortions in SAR imagery is shown below<span lang="EN-CA"><span style=""></span></span><span lang="EN-CA">.<span style="">&nbsp; </span>Here we can see that point <b>B</b> with elevation <b>h</b> above the ellipsoid is imaged at position </span><b><span style="font-family: Symbol;" lang="EN-CA">B</span><span lang="EN-CA">&#8217;</span></b><span lang="EN-CA"> in SAR image, though its real position is <b>B"</b>.<span style="">&nbsp; </span>The offset&nbsp;</span><b><span style="font-family: Symbol;" lang="EN-CA"><span style="">&#916;</span></span><sub><span lang="EN-CA">r</span></sub></b><b><span style="font-family: Symbol;" lang="EN-CA"> </span></b><span lang="EN-CA">between </span><b><span style="font-family: Symbol;" lang="EN-CA">B</span><span lang="EN-CA">'</span></b><span lang="EN-CA"> and <b>B"</b> </span><span style="font-family: Symbol;" lang="EN-CA"><span style="">&nbsp;</span></span><span lang="EN-CA">exhibits the effect of topographic distortions.</span></p>
 
-<div style="text-align: center;"><b><span style="font-size: 10pt; font-family: &quot;Times New Roman&quot;;"
-                                          lang="EN-CA"></span></b><span style="font-weight: bold;"><img
-        style="width: 377px; height: 263px;" alt="" src="images/sar_geometry.png"></span></div>
+<div style="text-align: center;"><b><span style="font-size: 10pt; font-family: &quot;Times New Roman&quot;;" lang="EN-CA"></span></b><span style="font-weight: bold;"><img style="width: 377px; height: 263px;" alt="" src="images/sar_geometry.png"></span></div>
 <p class="Paranum"><span lang="EN-CA"> <o:p></o:p></span></p>
 
 
@@ -54,43 +39,20 @@
     vector information in the metadata or <a href="ApplyOrbitFileOp.html">external
         precise orbit</a> (only for ERS and ASAR), the radar timing annotations, the slant to ground range
     conversion parameters together with the reference DEM data to derive the precise
-    geolocation information.&nbsp;</p><h4>Products Supported</h4>
-<ul>
-    <li>ASAR (IMS, IMP, IMM, APP, APM, WSM),&nbsp;ERS products (SLC, IMP),&nbsp;RADARSAT-2, TerraSAR-X are fully
-        supported.
-    </li>
-    <li>Some third party missions are not fully supported. Please refer to the <a
-            href="http://corp.array.ca/nest-web/docs/Supported_Mission-Product_vs_Operators_table.xls">Supported_Mission-Product_vs_Operators_table.xls</a>
-    </li>
-</ul>
-<h4>DEM Supported</h4>
+    geolocation information.&nbsp;</p><h4>DEM Supported</h4>
 
 <p>Currently, only the DEMs with geographic coordinates (P<sub>lat</sub>, P<sub>lon</sub>, P<sub>h</sub>) referred to
     global geodetic ellipsoid reference WGS84 (and height in meters) are properly supported.</p>
 
 <p>Various different types of Digital Elevation
-    models can be used (ACE, GETASSE30,&nbsp;ASTER, SRTM 3Sec&nbsp;GeoTiff).</p>
+    models can be used (ACE, GETASSE30,&nbsp;ASTER, SRTM 3Sec&nbsp;GeoTiff).</p><p>The
+STRM v.4 (3&#8221; tiles) from the Joint Research Center FTP (xftp.jrc.it)
+will automatically be downloaded in tiles for&nbsp; the area covered by
+the image to be orthorectified. The tiles will be downloaded to the
+folder .snap\AuxData\DEMs\SRTM_DEM\tiff. The .snap folder is located in
+your user folder.</p>
 
-<p>By
-    default directory C:\AuxData and two sub-directories DEMs
-    and&nbsp;Orbits are used to store the DEMs. However, the AuxData
-    directory and&nbsp;DEMs sub-directories are customizable from the
-    Settings dialog (which
-    can be found under Edit tab in the main menu bar).</p>
 
-<p>The location
-    of the default DEMs must be specified in dataPath field in the Setting
-    Dialog in order to be properly used by Terrain Correction
-    Operator.&nbsp;</p>
-
-<p>The STRM v.4 (3&#8221; tiles) from the Joint Research Center
-    FTP (xftp.jrc.it) will automatically be downloaded in tiles for&nbsp; the area covered by the image to be
-    orthorectified. The tiles will be downloaded to the folder
-    C:\AuxData\DEMs\SRTM_DEM\tiff.</p>
-
-<p>The
-    Test Connectivity functionality under the Help tab in the main menu bar
-    allows user to verify if the SRTM downloading is working properly. </p>
 
 <p>Please
     note that for ACE and SRTM, the height information (being referred to
@@ -118,43 +80,13 @@
     automatically.</p>
 
 <p> The calculations of the pixel spacing in meters and in
-    degrees&nbsp;are given by the following equations:&nbsp;<span
-            style="font-size: 11pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span><i><span
-            style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span></i><span
-            style="font-size: 7pt; font-family: Symbol;" lang="EN-GB"></span><i><span
-            style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span></i><span
-            style="font-size: 7pt; font-family: Symbol;" lang="EN-GB"></span><i><span
-            style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span><span
-            style="font-size: 8pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span></i><span
-            style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span></p>
+    degrees&nbsp;are given by the following equations:&nbsp;<span style="font-size: 11pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span><i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span></i><span style="font-size: 7pt; font-family: Symbol;" lang="EN-GB"></span><i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span></i><span style="font-size: 7pt; font-family: Symbol;" lang="EN-GB"></span><i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span><span style="font-size: 8pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span></i><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span></p>
 
 <p style="margin-left: 40px;">pixelSpacingInDegree = pixelSpacingInMeter / EquatorialEarthRadius * 180 / PI;</p>
 
 <p style="margin-left: 40px;">pixelSpacingInMeter = pixelSpacingInDegree * PolarEarthRadius&nbsp; * PI / 180;</p>
 
-<p>where&nbsp;EquatorialEarthRadius = 6378137.0 m and PolarEarthRadius = 6356752.314245 m as given in WGS84.&nbsp;</p>
-<h4>Projection Supported</h4>
-
-<p>Right now&nbsp;the following projections&nbsp;<span
-        style="font-size: 11pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span><i><span
-        style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span></i><span
-        style="font-size: 7pt; font-family: Symbol;" lang="EN-GB"></span><i><span
-        style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span></i><span
-        style="font-size: 7pt; font-family: Symbol;" lang="EN-GB"></span><i><span
-        style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span><span
-        style="font-size: 8pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span></i><span
-        style="font-size: 12pt; font-family: &quot;Times New Roman&quot;;" lang="EN-GB"></span>are&nbsp;supported:&nbsp;
-</p>
-<ul>
-    <li> Geographic Lat/Lon</li>
-    <li>Lambert Conformal Conic</li>
-    <li>Stereographic</li>
-    <li>Transverse Mercator</li>
-    <li>UTM</li>
-    <li>Universal Polar Stereographic North</li>
-    <li>Universal Polar Stereographic South</li>
-</ul>
-<h4>Radiometric Normalization</h4>
+<p>where&nbsp;EquatorialEarthRadius = 6378137.0 m and PolarEarthRadius = 6356752.314245 m as given in WGS84.&nbsp;</p><h4>Radiometric Normalization</h4>
 
 <p>This option implements a radiometric normalization based on the approach proposed by Kellndorfer et al., TGRS, Sept.
     1998 where <br><img style="width: 233px; height: 67px;" alt="" src="images/range_doppler_eq5.jpg"></p>
@@ -166,22 +98,12 @@
     formed by the satellite position, backscattering element position and
     the earth centre.&nbsp;</p>
 
-<p>Note that among&nbsp;<span style="font-style: italic;">&#963;</span><sup
-        style="font-style: italic;"><sub>0</sub></sup>, <span style="font-style: italic;">&#947;</span><sup
-        style="font-style: italic;"><sub>0</sub></sup> and <span style="font-style: italic;">&#946;</span><sup
-        style="font-style: italic;"><sub>0</sub></sup> bands output in the target product, only&nbsp;<span
-        style="font-style: italic;">&#963;</span><sup style="font-style: italic;"><sub>0</sub></sup> is real band while
-    <span style="font-style: italic;">&#947;</span><sup style="font-style: italic;"><sub>0</sub></sup> and <span
-            style="font-style: italic;">&#946;</span><sup style="font-style: italic;"><sub>0</sub></sup> are virtual
-    bands expressed in terms of <span style="font-style: italic;">&#963;</span><sup
-            style="font-style: italic;"><sub>0</sub></sup>&nbsp;and incidence angle. Therefore, <span
-            style="font-style: italic;">&#963;</span><sup style="font-style: italic;"><sub>0</sub></sup>&nbsp;and
-    incidence angle are automatically saved and output if <span style="font-style: italic;">&#947;</span><sup
-            style="font-style: italic;"><sub>0</sub></sup> or <span style="font-style: italic;">&#946;</span><sup
-            style="font-style: italic;"><sub>0</sub></sup> is selected.</p>
+<p>Note that among&nbsp;<span style="font-style: italic;">&#963;</span><sup style="font-style: italic;"><sub>0</sub></sup>, <span style="font-style: italic;">&#947;</span><sup style="font-style: italic;"><sub>0</sub></sup> and <span style="font-style: italic;">&#946;</span><sup style="font-style: italic;"><sub>0</sub></sup> bands output in the target product, only&nbsp;<span style="font-style: italic;">&#963;</span><sup style="font-style: italic;"><sub>0</sub></sup> is real band while
+    <span style="font-style: italic;">&#947;</span><sup style="font-style: italic;"><sub>0</sub></sup> and <span style="font-style: italic;">&#946;</span><sup style="font-style: italic;"><sub>0</sub></sup> are virtual
+    bands expressed in terms of <span style="font-style: italic;">&#963;</span><sup style="font-style: italic;"><sub>0</sub></sup>&nbsp;and incidence angle. Therefore, <span style="font-style: italic;">&#963;</span><sup style="font-style: italic;"><sub>0</sub></sup>&nbsp;and
+    incidence angle are automatically saved and output if <span style="font-style: italic;">&#947;</span><sup style="font-style: italic;"><sub>0</sub></sup> or <span style="font-style: italic;">&#946;</span><sup style="font-style: italic;"><sub>0</sub></sup> is selected.</p>
 
-<p>For <span style="font-style: italic;">&#963;</span><sup style="font-style: italic;"><sub>0</sub></sup> and <span
-        style="font-style: italic;">&#947;</span><sup style="font-style: italic;"><sub>0</sub></sup>&nbsp;calculation,
+<p>For <span style="font-style: italic;">&#963;</span><sup style="font-style: italic;"><sub>0</sub></sup> and <span style="font-style: italic;">&#947;</span><sup style="font-style: italic;"><sub>0</sub></sup>&nbsp;calculation,
     by default the projected local incidence angle from DEM [2] (local
     incidence angle projected into range plane) option is selected, but the
     option of incidence angle from ellipsoid correction (incidence angle
@@ -379,18 +301,12 @@ Please note that the simplified approach&nbsp; where Noise Equivalent Beta Naugh
 <h4>Cosmo-SkyMed</h4>
 <ul>
     <li>In case of "USE projected angle from the DEM" selection, the radiometric normalisation is performed deriving
-        <span style="font-style: italic;">&#963;</span><sup style="font-style: italic;"><sub>0</sub></sup><sub
-                style="font-style: italic;">Ellipsoid</sub> [7] and then multiplying by (sin<span
-                style="font-style: italic;">&#952;</span><sub style="font-style: italic;">DEM</sub> /&nbsp;sin<span
-                style="font-style: italic;">&#952;</span><sub style="font-style: italic;">el</sub>), where <span
-                style="font-style: italic;">&#952;</span><sub style="font-style: italic;">DEM</sub>&nbsp;is the
-        projected local incidence angle into the range plane and <span style="font-style: italic;">&#952;</span><sub
-                style="font-style: italic;">el</sub>&nbsp;is the incidence angle computed from the tie point grid
+        <span style="font-style: italic;">&#963;</span><sup style="font-style: italic;"><sub>0</sub></sup><sub style="font-style: italic;">Ellipsoid</sub> [7] and then multiplying by (sin<span style="font-style: italic;">&#952;</span><sub style="font-style: italic;">DEM</sub> /&nbsp;sin<span style="font-style: italic;">&#952;</span><sub style="font-style: italic;">el</sub>), where <span style="font-style: italic;">&#952;</span><sub style="font-style: italic;">DEM</sub>&nbsp;is the
+        projected local incidence angle into the range plane and <span style="font-style: italic;">&#952;</span><sub style="font-style: italic;">el</sub>&nbsp;is the incidence angle computed from the tie point grid
         respect to ellipsoid.
     </li>
     <li>In case of selection of "USE incidence angle from Ellipsoid", the radiometric normalisation is performed
-        deriving <span style="font-style: italic;">&#963;</span><sup style="font-style: italic;"><sub>0</sub></sup><sub
-                style="font-style: italic;">Ellipsoid</sub> [7] <br></li>
+        deriving <span style="font-style: italic;">&#963;</span><sup style="font-style: italic;"><sub>0</sub></sup><sub style="font-style: italic;">Ellipsoid</sub> [7] <br></li>
 </ul>
 <span style="text-decoration: underline; font-weight: bold;">Definitions:</span><br>
 <ol>
@@ -434,8 +350,7 @@ Please note that the simplified approach&nbsp; where Noise Equivalent Beta Naugh
     </li>
     <li>Pixel Spacing (m): User can specify pixel spacing&nbsp;in meters for orthorectified
         image. If no pixel spacing is specified, then default&nbsp;pixel spacing
-        computed from the source SAR image is used. For details, the reader is referred to <span
-                style="font-weight: bold;">Pixel Spacing</span> section above.
+        computed from the source SAR image is used. For details, the reader is referred to <span style="font-weight: bold;">Pixel Spacing</span> section above.
     </li>
     <li>Pixel Spacing (deg): User
         can also specify the pixel spacing&nbsp;in degrees. &nbsp;If the value
@@ -476,13 +391,11 @@ Please note that the simplified approach&nbsp; where Noise Equivalent Beta Naugh
     <li>Save Beta0 as a band: Checkbox indicating that Beta0 will be saved as a band in the target product.</li>
     <li>Auxiliary
         File: available only for ASAR. User selected ASAR XCA file for radiometric normalization. The
-        following options are available: <span style="font-weight: bold;">Latest Auxiliary File</span>, <span
-                style="font-weight: bold;">Product
+        following options are available: <span style="font-weight: bold;">Latest Auxiliary File</span>, <span style="font-weight: bold;">Product
 Auxiliary
 File</span> (for detected product only) and <span style="font-weight: bold;">External Auxiliary File</span>. By
         default,&nbsp;the Latest Auxiliary
-        File&nbsp;is used. Details about the corrections applied according to the XCA selection are provided in <span
-                style="font-weight: bold;">Radiometric Normalisation</span> &#8211; Envisat ASAR section above.
+        File&nbsp;is used. Details about the corrections applied according to the XCA selection are provided in <span style="font-weight: bold;">Radiometric Normalisation</span> &#8211; Envisat ASAR section above.
     </li>
 </ol>
 <i ,j="">
@@ -511,9 +424,6 @@ File</span> (for detected product only) and <span style="font-weight: bold;">Ext
 
 <p>[6] Radiometric Calibration of TerraSAR-X data - TSXX-ITD-TN-0049-radiometric_calculations_I1.00.doc, 2008</p>
 
-<p>[7] For further details about Cosmo-SkyMed calibration please contact Cosmo-SkyMed Help Desk at&nbsp;<font
-        color="black" face="Arial" size="2"><span style="font-size: 10pt; font-family: Arial;" lang="EN-GB"><a
-        href="mailto:info.cosmo@e-geos.it" moz-do-not-send="true">info.cosmo@e-geos.it</a></span></font></p>
+<p>[7] For further details about Cosmo-SkyMed calibration please contact Cosmo-SkyMed Help Desk at&nbsp;<small><small><font color="black" face="Arial" size="2"><small><small><span style="font-size: 10pt; font-family: Arial;" lang="EN-GB"><a href="mailto:info.cosmo@e-geos.it" moz-do-not-send="true">info.cosmo@e-geos.it</a></span></small></small></font></small></small></p>
 <hr>
-</body>
-</html>
+</body></html>

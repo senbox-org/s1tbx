@@ -76,7 +76,7 @@ import java.util.Set;
         category = "Radar/Coregistration",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
-        description = "Orbit based co-registration")
+        description = "Orbit based co-registration", internal=true)
 public final class DEMAssistedCoregistrationOp extends Operator {
 
     @SourceProducts

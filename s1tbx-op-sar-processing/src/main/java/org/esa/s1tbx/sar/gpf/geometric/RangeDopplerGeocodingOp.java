@@ -205,6 +205,7 @@ public class RangeDopplerGeocodingOp extends Operator {
     private int sourceImageHeight = 0;
     private int targetImageWidth = 0;
     private int targetImageHeight = 0;
+    private int margin = 0;
 
     private double avgSceneHeight = 0.0; // in m
     private double wavelength = 0.0; // in m
@@ -316,6 +317,9 @@ public class RangeDopplerGeocodingOp extends Operator {
             if (!useAvgSceneHeight) {
                 DEMFactory.validateDEM(demName, sourceProduct);
             }
+
+            margin = getMargin();
+
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
@@ -837,8 +841,7 @@ public class RangeDopplerGeocodingOp extends Operator {
             }
 
             final GeoPos geoPos = new GeoPos();
-            final PosVector earthPoint = new PosVector();
-            final PosVector sensorPos = new PosVector();
+            final PositionData posData = new PositionData();
             final int srcMaxRange = sourceImageWidth - 1;
             final int srcMaxAzimuth = sourceImageHeight - 1;
             ProductData demBuffer = null;
@@ -848,7 +851,7 @@ public class RangeDopplerGeocodingOp extends Operator {
             ProductData projectedLocalIncidenceAngleBuffer = null;
             ProductData incidenceAngleFromEllipsoidBuffer = null;
 
-            final List<TileData> trgTileList = new ArrayList<>();
+            final List<TileData> tgtTileList = new ArrayList<>();
             final Set<Band> keySet = targetTiles.keySet();
             for (Band targetBand : keySet) {
 
@@ -889,12 +892,23 @@ public class RangeDopplerGeocodingOp extends Operator {
 
                 td.applyRadiometricNormalization = targetBandApplyRadiometricNormalizationFlag.get(targetBand.getName());
                 td.applyRetroCalibration = targetBandApplyRetroCalibrationFlag.get(targetBand.getName());
-                trgTileList.add(td);
+                tgtTileList.add(td);
+            }
+
+            final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h, tileGeoRef, localDEM);
+            final TileData[] tgtTiles = tgtTileList.toArray(new TileData[tgtTileList.size()]);
+            for (TileData tileData : tgtTiles) {
+                if (sourceRectangle != null) {
+                    final Band[] srcBands = targetBandNameToSourceBand.get(tileData.bandName);
+                    tileData.imgResamplingRaster.setSourceTiles(getSourceTile(srcBands[0], sourceRectangle),
+                            srcBands.length > 1 ? getSourceTile(srcBands[1], sourceRectangle) : null);
+                } else {
+                    tileData.imgResamplingRaster.setSourceTiles(null, null);
+                }
             }
 
             final int maxY = y0 + h;
             final int maxX = x0 + w;
-            final TileData[] trgTiles = trgTileList.toArray(new TileData[trgTileList.size()]);
 
             final EarthGravitationalModel96 egm = EarthGravitationalModel96.instance();
 
@@ -902,13 +916,10 @@ public class RangeDopplerGeocodingOp extends Operator {
 
             for (int y = y0; y < maxY; y++) {
                 final int yy = y - y0 + 1;
-
                 for (int x = x0; x < maxX; x++) {
-
-                    final int index = trgTiles[0].targetTile.getDataBufferIndex(x, y);
+                    final int index = tgtTiles[0].targetTile.getDataBufferIndex(x, y);
 
                     double alt = localDEM[yy][x - x0 + 1];
-
                     if (alt == demNoDataValue && !useAvgSceneHeight) {
                         if (nodataValueAtSea) {
                             //saveNoDataValueToTarget(index, trgTiles);
@@ -923,66 +934,32 @@ public class RangeDopplerGeocodingOp extends Operator {
                         lon -= 360.0;
                     }
 
-                    if (alt == demNoDataValue && !nodataValueAtSea) {
-                        // get corrected elevation for 0
+                    if (alt == demNoDataValue && !nodataValueAtSea) { // get corrected elevation for 0
                         alt = egm.getEGM(lat, lon);
                     }
 
-                    GeoUtils.geo2xyzWGS84(lat, lon, alt, earthPoint);
-
-                    double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(firstLineUTC,
-                            lineTimeInterval, wavelength, earthPoint, orbit.sensorPosition, orbit.sensorVelocity);
-
-                    if (Double.compare(zeroDopplerTime, SARGeocoding.NonValidZeroDopplerTime) == 0) {
+                    if (!getPosition(lat, lon, alt, posData)) {
                         if (saveDEM) {
                             demBuffer.setElemDoubleAt(index, demNoDataValue);
                         }
                         continue;
                     }
 
-                    double slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, earthPoint, sensorPos);
-
-                    if (!skipBistaticCorrection) {
-                        // skip bistatic correction for COSMO, TerraSAR-X and RadarSAT-2
-                        zeroDopplerTime += slantRange / Constants.lightSpeedInMetersPerDay;
-                        slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, earthPoint, sensorPos);
-                    }
-
-                    double rangeIndex = SARGeocoding.computeRangeIndex(srgrFlag, sourceImageWidth, firstLineUTC, lastLineUTC,
-                            rangeSpacing, zeroDopplerTime, slantRange, nearEdgeSlantRange, srgrConvParams);
-
-                    if (rangeIndex == -1.0) {
+                    if (!SARGeocoding.isValidCell(posData.rangeIndex, posData.azimuthIndex, lat, lon, diffLat,
+                            latitude, longitude, srcMaxRange, srcMaxAzimuth, posData.sensorPos)) {
                         if (saveDEM) {
                             demBuffer.setElemDoubleAt(index, demNoDataValue);
                         }
-                        continue;
-                    }
 
-                    // the following check will be removed if no product of any mission is read with near range on right
-                    if (!nearRangeOnLeft) {
-                        rangeIndex = srcMaxRange - rangeIndex;
-                    }
-
-                    final double azimuthIndex = (zeroDopplerTime - firstLineUTC) / lineTimeInterval;
-
-                    //if(x == 300 && y == 300) {
-                    //    debugPrintPixel(x, y, alt, lat, lon,
-                    //            earthPoint,
-                    //            slantRange, zeroDopplerTime,
-                    //            orbit,
-                    //            rangeIndex, azimuthIndex);
-                    //}
-
-                    if (!SARGeocoding.isValidCell(rangeIndex, azimuthIndex, lat, lon, diffLat, latitude, longitude,
-                            srcMaxRange, srcMaxAzimuth, sensorPos)) {
-                        if (saveDEM) {
-                            demBuffer.setElemDoubleAt(index, demNoDataValue);
-                        }
                     } else {
-                        final double[] localIncidenceAngles = {SARGeocoding.NonValidIncidenceAngle, SARGeocoding.NonValidIncidenceAngle};
+
+                        final double[] localIncidenceAngles = {SARGeocoding.NonValidIncidenceAngle,
+                                SARGeocoding.NonValidIncidenceAngle};
+
                         if (saveLocalIncidenceAngle || saveProjectedLocalIncidenceAngle || saveSigmaNought) {
 
-                            final LocalGeometry localGeometry = new LocalGeometry(x, y, tileGeoRef, earthPoint, sensorPos);
+                            final LocalGeometry localGeometry = new LocalGeometry(
+                                    x, y, tileGeoRef, posData.earthPoint, posData.sensorPos);
 
                             SARGeocoding.computeLocalIncidenceAngle(
                                     localGeometry, demNoDataValue, saveLocalIncidenceAngle, saveProjectedLocalIncidenceAngle,
@@ -992,7 +969,8 @@ public class RangeDopplerGeocodingOp extends Operator {
                                 localIncidenceAngleBuffer.setElemDoubleAt(index, localIncidenceAngles[0]);
                             }
 
-                            if (saveProjectedLocalIncidenceAngle && localIncidenceAngles[1] != SARGeocoding.NonValidIncidenceAngle) {
+                            if (saveProjectedLocalIncidenceAngle &&
+                                    localIncidenceAngles[1] != SARGeocoding.NonValidIncidenceAngle) {
                                 projectedLocalIncidenceAngleBuffer.setElemDoubleAt(index, localIncidenceAngles[1]);
                             }
                         }
@@ -1007,28 +985,30 @@ public class RangeDopplerGeocodingOp extends Operator {
 
                         if (saveIncidenceAngleFromEllipsoid && incidenceAngle != null) {
                             incidenceAngleFromEllipsoidBuffer.setElemDoubleAt(
-                                    index, incidenceAngle.getPixelDouble(rangeIndex, azimuthIndex));
+                                    index, incidenceAngle.getPixelDouble(posData.rangeIndex, posData.azimuthIndex));
                         }
 
                         double satelliteHeight = 0;
                         double sceneToEarthCentre = 0;
                         if (saveSigmaNought) {
-                            satelliteHeight = Math.sqrt(
-                                    sensorPos.x * sensorPos.x + sensorPos.y * sensorPos.y + sensorPos.z * sensorPos.z);
+                            satelliteHeight = Math.sqrt(posData.sensorPos.x*posData.sensorPos.x +
+                                    posData.sensorPos.y*posData.sensorPos.y + posData.sensorPos.z*posData.sensorPos.z);
 
-                            sceneToEarthCentre = Math.sqrt(
-                                    earthPoint.x * earthPoint.x + earthPoint.y * earthPoint.y + earthPoint.z * earthPoint.z);
+                            sceneToEarthCentre = Math.sqrt(posData.earthPoint.x*posData.earthPoint.x +
+                                    posData.earthPoint.y*posData.earthPoint.y + posData.earthPoint.z*posData.earthPoint.z);
                         }
 
-                        for (TileData tileData : trgTiles) {
+                        for (TileData tileData : tgtTiles) {
                             int[] subSwathIndex = {INVALID_SUB_SWATH_INDEX};
-                            double v = getPixelValue(azimuthIndex, rangeIndex, tileData, subSwathIndex);
+                            double v = getPixelValue(posData.azimuthIndex, posData.rangeIndex, tileData, subSwathIndex);
 
                             if (v != tileData.noDataValue && tileData.applyRadiometricNormalization) {
                                 if (localIncidenceAngles[1] != SARGeocoding.NonValidIncidenceAngle) {
                                     v = calibrator.applyCalibration(
-                                            v, rangeIndex, azimuthIndex, slantRange, satelliteHeight, sceneToEarthCentre,
-                                            localIncidenceAngles[1], tileData.bandName, tileData.bandPolar, tileData.bandUnit, subSwathIndex); // use projected incidence angle
+                                            v, posData.rangeIndex, posData.azimuthIndex, posData.slantRange,
+                                            satelliteHeight, sceneToEarthCentre, localIncidenceAngles[1],
+                                            tileData.bandName, tileData.bandPolar, tileData.bandUnit, subSwathIndex);
+                                             // use projected incidence angle
                                 } else {
                                     v = tileData.noDataValue;
                                 }
@@ -1046,6 +1026,111 @@ public class RangeDopplerGeocodingOp extends Operator {
             orthoDataProduced = true; //to prevent multiple error messages
             OperatorUtils.catchOperatorException(getId(), e);
         }
+    }
+
+    private Rectangle getSourceRectangle(final int x0, final int y0, final int w, final int h,
+                                         final TileGeoreferencing tileGeoRef, final double[][] localDEM) {
+
+        final PixelPos[] tgtCorners = {new PixelPos(x0, y0), new PixelPos(x0 + w - 1, y0),
+                new PixelPos(x0, y0 + h - 1), new PixelPos(x0 + w - 1, y0 + h - 1)};
+
+        final double[] tgtCornerElevations = {localDEM[1][1], localDEM[1][w], localDEM[h][1], localDEM[h][w]};
+
+        int xMax = -Integer.MAX_VALUE;
+        int xMin = Integer.MAX_VALUE;
+        int yMax = -Integer.MAX_VALUE;
+        int yMin = Integer.MAX_VALUE;
+
+        PositionData posData = new PositionData();
+        GeoPos geoPos = new GeoPos();
+        for (int i = 0; i < 4; i++) {
+
+            tileGeoRef.getGeoPos(tgtCorners[i], geoPos);
+            final double alt = tgtCornerElevations[i];
+            if (alt == demNoDataValue) {
+                return null;
+            }
+
+            if (!getPosition(geoPos.lat, geoPos.lon, alt, posData)) {
+                return null;
+            }
+
+            if (xMax < posData.rangeIndex) {
+                xMax = (int)Math.ceil(posData.rangeIndex);
+            }
+
+            if (xMin > posData.rangeIndex) {
+                xMin = (int)Math.floor(posData.rangeIndex);
+            }
+
+            if (yMax < posData.azimuthIndex) {
+                yMax = (int)Math.ceil(posData.azimuthIndex);
+            }
+
+            if (yMin > posData.azimuthIndex) {
+                yMin = (int)Math.floor(posData.azimuthIndex);
+            }
+        }
+
+        xMin = Math.max(xMin - margin, 0);
+        xMax = Math.min(xMax + margin, sourceImageWidth - 1);
+        yMin = Math.max(yMin - margin, 0);
+        yMax = Math.min(yMax + margin, sourceImageHeight - 1);
+        return new Rectangle(xMin, yMin, xMax - xMin + 1, yMax - yMin + 1);
+    }
+
+    private int getMargin() {
+
+        if (imgResampling == Resampling.BILINEAR_INTERPOLATION) {
+            return 1;
+        } else if (imgResampling == Resampling.NEAREST_NEIGHBOUR) {
+            return 0;
+        } else if (imgResampling == Resampling.CUBIC_CONVOLUTION) {
+            return 2;
+        } else if (imgResampling == Resampling.BISINC_5_POINT_INTERPOLATION) {
+            return 3;
+        } else if (imgResampling == Resampling.BISINC_11_POINT_INTERPOLATION) {
+            return 6;
+        } else if (imgResampling == Resampling.BISINC_21_POINT_INTERPOLATION) {
+            return 11;
+        } else if (imgResampling == Resampling.BICUBIC_INTERPOLATION) {
+            return 2;
+        } else {
+            throw new OperatorException("Unhandled interpolation method");
+        }
+    }
+
+    private boolean getPosition(final double lat, final double lon, final double alt, final PositionData data) {
+
+        GeoUtils.geo2xyzWGS84(lat, lon, alt, data.earthPoint);
+
+        double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(firstLineUTC,
+                lineTimeInterval, wavelength, data.earthPoint, orbit.sensorPosition, orbit.sensorVelocity);
+
+        if (Double.compare(zeroDopplerTime, SARGeocoding.NonValidZeroDopplerTime) == 0) {
+            return false;
+        }
+
+        data.slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, data.earthPoint, data.sensorPos);
+
+        if (!skipBistaticCorrection) { // skip bistatic correction for COSMO, TerraSAR-X and RadarSAT-2
+            zeroDopplerTime += data.slantRange / Constants.lightSpeedInMetersPerDay;
+            data.slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, data.earthPoint, data.sensorPos);
+        }
+
+        data.rangeIndex = SARGeocoding.computeRangeIndex(srgrFlag, sourceImageWidth, firstLineUTC, lastLineUTC,
+                rangeSpacing, zeroDopplerTime, data.slantRange, nearEdgeSlantRange, srgrConvParams);
+
+        if (data.rangeIndex == -1.0) {
+            return false;
+        }
+
+        if (!nearRangeOnLeft) {
+            data.rangeIndex = sourceImageWidth - 1 - data.rangeIndex;
+        }
+
+        data.azimuthIndex = (zeroDopplerTime - firstLineUTC) / lineTimeInterval;
+        return true;
     }
 
     /**
@@ -1072,45 +1157,33 @@ public class RangeDopplerGeocodingOp extends Operator {
                                  final TileData tileData, final int[] subSwathIndex) {
 
         try {
-            final int x0 = (int) (rangeIndex + 0.5);
-            final int y0 = (int) (azimuthIndex + 0.5);
-            Rectangle srcRect;
 
-            if (imgResampling == Resampling.BILINEAR_INTERPOLATION) {
-
-                srcRect = new Rectangle(Math.max(0, x0 - 1), Math.max(0, y0 - 1), 3, 3);
-
-            } else if (imgResampling == Resampling.NEAREST_NEIGHBOUR) {
-
-                srcRect = new Rectangle(x0, y0, 1, 1);
-
-            } else if (imgResampling == Resampling.CUBIC_CONVOLUTION) {
-
-                srcRect = new Rectangle(Math.max(0, x0 - 2), Math.max(0, y0 - 2), 5, 5);
-
-            } else if (imgResampling == Resampling.BISINC_5_POINT_INTERPOLATION) {
-
-                srcRect = new Rectangle(Math.max(0, x0 - 3), Math.max(0, y0 - 3), 6, 6);
-
-            } else if (imgResampling == Resampling.BISINC_11_POINT_INTERPOLATION) {
-
-                srcRect = new Rectangle(Math.max(0, x0 - 6), Math.max(0, y0 - 6), 12, 12);
-
-            } else if (imgResampling == Resampling.BISINC_21_POINT_INTERPOLATION) {
-
-                srcRect = new Rectangle(Math.max(0, x0 - 11), Math.max(0, y0 - 11), 22, 22);
-
-            } else if (imgResampling == Resampling.BICUBIC_INTERPOLATION) {
-
-                srcRect = new Rectangle(Math.max(0, x0 - 2), Math.max(0, y0 - 2), 5, 5);
-
+            boolean computeNewSourceRectangle = false;
+            if (tileData.imgResamplingRaster.sourceRectangle == null) {
+                computeNewSourceRectangle = true;
             } else {
-                throw new OperatorException("Unhandled interpolation method");
+                final int xMin = tileData.imgResamplingRaster.sourceRectangle.x + margin;
+                final int yMin = tileData.imgResamplingRaster.sourceRectangle.y + margin;
+                final int xMax = xMin + tileData.imgResamplingRaster.sourceRectangle.width - 1 - 2*margin;
+                final int yMax = yMin + tileData.imgResamplingRaster.sourceRectangle.height - 1 - 2*margin;
+                if (rangeIndex < xMin || rangeIndex > xMax || azimuthIndex < yMin || azimuthIndex > yMax) {
+                    computeNewSourceRectangle = true;
+                }
             }
 
-            final Band[] srcBands = targetBandNameToSourceBand.get(tileData.bandName);
-            tileData.imgResamplingRaster.set(rangeIndex, azimuthIndex, getSourceTile(srcBands[0], srcRect),
-                    srcBands.length > 1 ? getSourceTile(srcBands[1], srcRect) : null);
+            if (computeNewSourceRectangle) {
+                final int x0 = (int) (rangeIndex + 0.5);
+                final int y0 = (int) (azimuthIndex + 0.5);
+
+                Rectangle srcRect = new Rectangle(
+                        Math.max(0, x0 - margin), Math.max(0, y0 - margin), 2*margin + 1, 2*margin + 1);
+
+                final Band[] srcBands = targetBandNameToSourceBand.get(tileData.bandName);
+                tileData.imgResamplingRaster.setSourceTiles(getSourceTile(srcBands[0], srcRect),
+                        srcBands.length > 1 ? getSourceTile(srcBands[1], srcRect) : null);
+            }
+
+            tileData.imgResamplingRaster.setRangeAzimuthIndices(rangeIndex, azimuthIndex);
 
             imgResampling.computeCornerBasedIndex(rangeIndex, azimuthIndex,
                     sourceImageWidth, sourceImageHeight, tileData.imgResamplingIndex);
@@ -1182,29 +1255,36 @@ public class RangeDopplerGeocodingOp extends Operator {
 
     public static class ResamplingRaster implements Resampling.Raster {
 
-        private double rangeIndex, azimuthIndex;
-        private final TileData tileData;
-        private Tile sourceTileI;
-        private ProductData dataBufferI, dataBufferQ;
-        private int subSwathIndex;
+        private double rangeIndex = 0.0;
+        private double azimuthIndex = 0.0;
+        private TileData tileData = null;
+        private Rectangle sourceRectangle = null;
+        private Tile sourceTileI = null;
+        private Tile sourceTileQ = null;
+        private ProductData dataBufferI = null;
+        private ProductData dataBufferQ = null;
+        private int subSwathIndex = -1;
 
         public ResamplingRaster(final TileData tileData) {
-
             this.tileData = tileData;
         }
 
-        public void set(final double rangeIndex, final double azimuthIndex,
-                        final Tile sourceTileI, final Tile sourceTileQ) {
+        public void setRangeAzimuthIndices(final double rangeIndex, final double azimuthIndex) {
             this.rangeIndex = rangeIndex;
             this.azimuthIndex = azimuthIndex;
+        }
 
-            this.sourceTileI = sourceTileI;
+        public void setSourceTiles(final Tile sourceTileI, final Tile sourceTileQ) {
 
-            this.dataBufferI = sourceTileI.getDataBuffer();
+            if (sourceTileI != null) {
+                this.sourceTileI = sourceTileI;
+                this.dataBufferI = sourceTileI.getDataBuffer();
+                this.sourceRectangle = sourceTileI.getRectangle();
+            }
+
             if (sourceTileQ != null) {
+                this.sourceTileQ = sourceTileQ;
                 this.dataBufferQ = sourceTileQ.getDataBuffer();
-            } else {
-                this.dataBufferQ = null;
             }
         }
 
@@ -1346,6 +1426,14 @@ public class RangeDopplerGeocodingOp extends Operator {
                     " vel: " + orb.x_vel + ", " + orb.y_vel + ", " + orb.z_vel);
         }
         log.info("---------------------------------");
+    }
+
+    private static class PositionData {
+        final PosVector earthPoint = new PosVector();
+        final PosVector sensorPos = new PosVector();
+        double azimuthIndex;
+        double rangeIndex;
+        double slantRange;
     }
 
     /**
