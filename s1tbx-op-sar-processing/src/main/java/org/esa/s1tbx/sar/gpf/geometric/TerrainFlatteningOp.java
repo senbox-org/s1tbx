@@ -214,7 +214,7 @@ public final class TerrainFlatteningOp extends Operator {
         rangeSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
         azimuthSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.azimuth_spacing);
 
-        if (reGridMethod) {
+        if (reGridMethod != null && reGridMethod) {
             if (demName.contains("SRTM 3Sec") && (rangeSpacing < 90.0 || azimuthSpacing < 90.0) ||
                     demName.contains("SRTM 1Sec") && (rangeSpacing < 30.0 || azimuthSpacing < 30.0) ||
                     demName.contains("SRTM 1Sec Grid") && (rangeSpacing < 30.0 || azimuthSpacing < 30.0) ||

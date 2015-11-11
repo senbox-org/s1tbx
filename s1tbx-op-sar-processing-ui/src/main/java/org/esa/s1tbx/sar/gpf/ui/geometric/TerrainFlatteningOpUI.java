@@ -131,7 +131,9 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
         //outputSimulatedImageCheckBox.setSelected(outputSimulatedImage);
 
         reGridMethod = (Boolean) paramMap.get("reGridMethod");
-        reGridMethodCheckBox.setSelected(reGridMethod);
+        if(reGridMethod != null) {
+            reGridMethodCheckBox.setSelected(reGridMethod);
+        }
     }
 
     @Override
