@@ -103,11 +103,11 @@ public class MultiSizeSupportTest {
         final ProductNodeGroup<Band> bandGroup = product.getBandGroup();
         for (int i = 0; i < bandGroup.getNodeCount() - 1; i++) {
             final Band band1 = bandGroup.get(i);
-            final MultiLevelModel multiLevelModel1 = ImageManager.getMultiLevelModel(band1);
+            final MultiLevelModel multiLevelModel1 = band1.getMultiLevelModel();
             for (int j = i + 1; j < bandGroup.getNodeCount(); j++) {
                 final Band band2 = bandGroup.get(j);
                 if (band1.getRasterSize().equals(band2.getRasterSize())) {
-                    assertSame(multiLevelModel1, ImageManager.getMultiLevelModel(band2));
+                    assertSame(multiLevelModel1, band2.getMultiLevelModel());
                 }
             }
         }
@@ -123,7 +123,7 @@ public class MultiSizeSupportTest {
             final Band band = bandGroup.get(i);
             final MultiLevelImage validMaskImage = band.getValidMaskImage();
             if (validMaskImage != null) {
-                assertSame(validMaskImage.getModel(), ImageManager.getMultiLevelModel(band));
+                assertSame(validMaskImage.getModel(), band.getMultiLevelModel());
             }
         }
     }
@@ -132,7 +132,7 @@ public class MultiSizeSupportTest {
 
     //method copied from SpectrumTopComponent
     private double readEnergyAsInSpectrumTopComponent(PixelPos pixelPos, Band spectralBand, int level) {
-        final MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(spectralBand);
+        final MultiLevelModel multiLevelModel = spectralBand.getMultiLevelModel();
         final AffineTransform i2mTransform = multiLevelModel.getImageToModelTransform(0);
         final AffineTransform m2iTransform = multiLevelModel.getModelToImageTransform(level);
         final Point2D modelPixel = i2mTransform.transform(pixelPos, null);

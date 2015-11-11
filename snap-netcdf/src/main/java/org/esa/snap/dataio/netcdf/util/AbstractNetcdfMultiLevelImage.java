@@ -19,11 +19,13 @@ package org.esa.snap.dataio.netcdf.util;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.image.ImageManager;
 
 import javax.media.jai.PlanarImage;
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
 
 /**
@@ -47,8 +49,8 @@ public abstract class AbstractNetcdfMultiLevelImage extends MultiLevelImage {
     protected AbstractNetcdfMultiLevelImage(RasterDataNode rasterDataNode) {
         super(ImageManager.createSingleBandedImageLayout(rasterDataNode), null, null);
         this.rasterDataNode = rasterDataNode;
-        int width = rasterDataNode.getSceneRasterWidth();
-        int height = rasterDataNode.getSceneRasterHeight();
+        int width = rasterDataNode.getRasterWidth();
+        int height = rasterDataNode.getRasterHeight();
         levelCount = DefaultMultiLevelModel.getLevelCount(width, height);
         this.levelImages = new RenderedImage[levelCount];
     }
@@ -60,7 +62,7 @@ public abstract class AbstractNetcdfMultiLevelImage extends MultiLevelImage {
     @Override
     public synchronized MultiLevelModel getModel() {
         if (multiLevelModel == null) {
-            multiLevelModel = ImageManager.createMultiLevelModel(rasterDataNode);
+            multiLevelModel = createMultiLevelModel(rasterDataNode, levelCount);
         }
         return multiLevelModel;
     }
@@ -105,5 +107,12 @@ public abstract class AbstractNetcdfMultiLevelImage extends MultiLevelImage {
         if (level < 0 || level >= levelCount) {
             throw new IllegalArgumentException("level=" + level);
         }
+    }
+
+    private static MultiLevelModel createMultiLevelModel(RasterDataNode rasterDataNode, int levelCount) {
+        final int w = rasterDataNode.getRasterWidth();
+        final int h = rasterDataNode.getRasterHeight();
+        final AffineTransform i2mTransform = Product.getAppropriateImageToSceneTransform(rasterDataNode.getGeoCoding());
+        return new DefaultMultiLevelModel(levelCount, i2mTransform, w, h);
     }
 }

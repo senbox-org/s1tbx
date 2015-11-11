@@ -782,7 +782,7 @@ public class TiePointGrid extends RasterDataNode {
 
     @Override
     protected RenderedImage createSourceImage() {
-        final MultiLevelModel model = ImageManager.getMultiLevelModel(this);
+        final MultiLevelModel model = createMultiLevelModel();
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(model) {
 
             @Override

@@ -204,6 +204,7 @@ public class VirtualBand extends Band {
      * Gets an estimated raw storage size in bytes of this product node.
      *
      * @param subsetDef if not <code>null</code> the subset may limit the size returned
+     *
      * @return the size in bytes.
      */
     @Override
@@ -217,10 +218,10 @@ public class VirtualBand extends Band {
     @Override
     public String toString() {
         return getClass().getName() + "["
-                + getName() + ","
-                + ProductData.getTypeString(getDataType()) + ","
-                + getRasterWidth() + ","
-                + getRasterHeight() + "]";
+               + getName() + ","
+               + ProductData.getTypeString(getDataType()) + ","
+               + getRasterWidth() + ","
+               + getRasterHeight() + "]";
     }
 
     /**
@@ -248,6 +249,7 @@ public class VirtualBand extends Band {
      *
      * @param raster     The raster data node.
      * @param expression The band-arithmetic expression.
+     *
      * @return A multi-level image.
      */
     public static MultiLevelImage createSourceImage(RasterDataNode raster, String expression) {

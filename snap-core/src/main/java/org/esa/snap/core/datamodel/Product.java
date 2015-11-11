@@ -21,6 +21,7 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
+import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import org.esa.snap.core.dataio.ProductFlipper;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductSubsetBuilder;
@@ -342,7 +343,7 @@ public class Product extends ProductNode {
      * <ul>
      * <li>for the geometries used by all vector data;</li>
      * <li>to which all raster data can be transformed using a raster data node's
-     *     {@link RasterDataNode#getImageToSceneImageTransform() imageToSceneImageTransform}.</li>
+     *     {@link RasterDataNode#getSceneRasterTransform() sceneRasterTransform}.</li>
      * </ul>
      * <p>
      * If no scene CRS has been set so far, the method will use the product's
@@ -2716,7 +2717,7 @@ public class Product extends ProductNode {
      * <p>
      * If the associated raster is {@code null}, the mask's tile size is
      * this product's {@link #getPreferredTileSize() preferred tile size} (if any) while other image layout settings
-     * are derived from {@link ImageManager#createMultiLevelModel(ProductNode)}.
+     * are derived from {@link #createMultiLevelModel()}.
      *
      * @param expression       The expression
      * @param associatedRaster The associated raster or {@code null}.
@@ -2751,13 +2752,14 @@ public class Product extends ProductNode {
             // so that this method can be generalised to also create source (mask)
             // images for associatedRaster (nf 2015-07-27).
             MultiLevelImage sourceImage = associatedRaster.getSourceImage();
+            // todo - [multisize_products] fix: getSceneRasterSize() is wrong here! (nf)
             sourceSize = associatedRaster.getSceneRasterSize();
             tileSize = new Dimension(sourceImage.getTileWidth(), sourceImage.getTileHeight());
             multiLevelModel = sourceImage.getModel();
         } else {
             sourceSize = getSceneRasterSize();
             tileSize = getPreferredTileSize();
-            multiLevelModel = ImageManager.createMultiLevelModel(this);
+            multiLevelModel = createMultiLevelModel();
         }
         MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
 
@@ -2772,6 +2774,17 @@ public class Product extends ProductNode {
             }
         };
         return new VirtualBandMultiLevelImage(multiLevelSource, term);
+    }
+
+    public MultiLevelModel createMultiLevelModel() {
+        int w = getSceneRasterWidth();
+        int h = getSceneRasterHeight();
+        AffineTransform i2mTransform = getAppropriateImageToSceneTransform(getSceneGeoCoding());
+        if (getNumResolutionsMax() > 0) {
+            return new DefaultMultiLevelModel(getNumResolutionsMax(), i2mTransform, w, h);
+        } else {
+            return new DefaultMultiLevelModel(i2mTransform, w, h);
+        }
     }
 
     private synchronized boolean initSceneProperties() {

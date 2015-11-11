@@ -16,9 +16,14 @@
 
 package org.esa.snap.core.datamodel;
 
+import com.bc.ceres.glevel.MultiLevelModel;
+import com.bc.ceres.glevel.MultiLevelSource;
+import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
+import org.esa.snap.core.image.ResolutionLevel;
+import org.esa.snap.core.image.VectorDataMaskOpImage;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +31,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.awt.geom.Rectangle2D;
+import java.awt.image.RenderedImage;
 import java.util.Arrays;
 
 import static org.junit.Assert.*;
@@ -42,7 +48,14 @@ public class VectorDataMultiLevelImageTest {
         pyramids = new VectorDataNode("pyramids", Placemark.createGeometryFeatureType());
         product.getVectorDataGroup().add(pyramids);
 
-        image = new VectorDataMultiLevelImage(VectorDataMultiLevelImage.createMaskMultiLevelSource(pyramids), pyramids);
+        MultiLevelModel multiLevelModel = product.createMultiLevelModel();
+        MultiLevelSource maskMultiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
+            @Override
+            public RenderedImage createImage(int level) {
+                return new VectorDataMaskOpImage(pyramids, ResolutionLevel.create(getModel(), level));
+            }
+        };
+        image = new VectorDataMultiLevelImage(maskMultiLevelSource, pyramids);
     }
 
     @Test

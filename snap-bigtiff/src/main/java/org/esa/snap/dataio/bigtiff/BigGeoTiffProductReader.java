@@ -743,7 +743,7 @@ class BigGeoTiffProductReader extends AbstractProductReader {
     }
 
     private MultiLevelImage getMultiLevelImageSourceImage(final Band band, final int bandIndex) throws IOException {
-        MultiLevelModel model = ImageManager.getMultiLevelModel(band);
+        MultiLevelModel model = band.getMultiLevelModel();
         Assert.state(model.getLevelCount() == 1 || model.getScale(1) == 2.0);
 
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(model) {

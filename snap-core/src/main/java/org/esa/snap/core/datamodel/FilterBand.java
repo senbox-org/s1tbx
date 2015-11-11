@@ -66,7 +66,7 @@ public abstract class FilterBand extends Band {
 
     @Override
     protected RenderedImage createSourceImage() {
-        final MultiLevelModel model = ImageManager.getMultiLevelModel(this);
+        final MultiLevelModel model = createMultiLevelModel();
         final AbstractMultiLevelSource multiLevelSource = new AbstractMultiLevelSource(model) {
             @Override
             protected RenderedImage createImage(int level) {
