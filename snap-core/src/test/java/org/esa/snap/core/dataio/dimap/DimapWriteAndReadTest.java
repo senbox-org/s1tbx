@@ -76,30 +76,23 @@ public class DimapWriteAndReadTest extends TestCase {
         GlobalTestTools.deleteTestDataOutputDirectory();
     }
 
-    public void testWriteAndReadProductNodes_withoutSubsetInfo() throws IOException {
+    public void testWriteAndReadProductNodes_withoutSubsetInfo() throws IOException, NoSuchFieldException, IllegalAccessException {
         final File file = new File(_ioDir, "testproduct" + DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION);
         _writer.writeProductNodes(_product, file);
         writeAllBandRasterDataFully();
         Product currentProduct = _reader.readProductNodes(file, null);
-        loadAllBandRasterData(currentProduct);
 
         assertEquals("", compareProducts(_product, currentProduct));
     }
 
-    public void testWriteAndReadProductNodes_GivenFilenameWithoutExtension() {
+    public void testWriteAndReadProductNodes_GivenFilenameWithoutExtension() throws NoSuchFieldException, IllegalAccessException, IOException {
         Product currentProduct = null;
 
-        try {
-            File file = new File(_ioDir, "testproduct");
-            _writer.writeProductNodes(_product, file);
-            writeAllBandRasterDataFully();
-            file = new File(_ioDir, "testproduct" + DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION);
-            currentProduct = _reader.readProductNodes(file, null);
-            loadAllBandRasterData(currentProduct);
-        } catch (IOException e) {
-            e.printStackTrace();
-            fail(e.getMessage());
-        }
+        File file = new File(_ioDir, "testproduct");
+        _writer.writeProductNodes(_product, file);
+        writeAllBandRasterDataFully();
+        file = new File(_ioDir, "testproduct" + DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION);
+        currentProduct = _reader.readProductNodes(file, null);
 
         assertEquals("", compareProducts(_product, currentProduct));
     }
@@ -107,13 +100,6 @@ public class DimapWriteAndReadTest extends TestCase {
 ///////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////           E N D     O F     P U B L I C              //////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////
-
-    private static void loadAllBandRasterData(Product product) throws IOException {
-        final Band[] bands = product.getBands();
-        for (final Band band : bands) {
-            band.loadRasterData(ProgressMonitor.NULL);
-        }
-    }
 
     private void writeAllBandRasterDataFully() throws IOException {
         final Band[] bands = _product.getBands();
@@ -124,7 +110,7 @@ public class DimapWriteAndReadTest extends TestCase {
         }
     }
 
-    private static String compareProducts(Product expProduct, Product currentProduct) {
+    private static String compareProducts(Product expProduct, Product currentProduct) throws NoSuchFieldException, IllegalAccessException, IOException {
         final StringBuffer diff = new StringBuffer();
         if (currentProduct == null) {
             diff.append("the current product is null \r\n");
@@ -264,7 +250,7 @@ public class DimapWriteAndReadTest extends TestCase {
         return tpg;
     }
 
-    private static void compareBands(Product expProduct, Product currentProduct, StringBuffer diff) {
+    private static void compareBands(Product expProduct, Product currentProduct, StringBuffer diff) throws NoSuchFieldException, IllegalAccessException, IOException {
         final Band[] expBands = expProduct.getBands();
         final Band[] currentBands = currentProduct.getBands();
         for (int i = 0; i < expBands.length; i++) {
@@ -306,12 +292,6 @@ public class DimapWriteAndReadTest extends TestCase {
                 diff.append(
                             "IndexCoding of Band " + i + " not equal\r\n");
             }
-            if (currentBand.getData() == null) {
-                diff.append("current Band " + i + " has no data>\r\n");
-            }
-            if (!expBand.getData().equalElems(currentBand.getData())) {
-                diff.append("Data of Band " + i + " are not equal to expected data>\r\n");
-            }
             final String validMaskExpression = expBand.getValidPixelExpression();
             if (validMaskExpression != null) {
                 if (!validMaskExpression.equals(currentBand.getValidPixelExpression())) {
@@ -322,9 +302,10 @@ public class DimapWriteAndReadTest extends TestCase {
             }
             final AffineTransform expTransform = expBand.getImageToModelTransform();
             final AffineTransform curTransform = currentBand.getImageToModelTransform();
-            if(!ObjectUtils.equalObjects(expTransform, curTransform)) {
+            if (!ObjectUtils.equalObjects(expTransform, curTransform)) {
                 diff.append("The image to model transform of band " + i + " is not equal to the expected transform.");
             }
+            compareBandData(expBand, currentBand, i, diff);
         }
         for (int i = 0; i < expBands.length; i++) {
             final Band expBand = expBands[i];
@@ -348,6 +329,17 @@ public class DimapWriteAndReadTest extends TestCase {
                     diff.append("Ancillary variable named '" + expVarName + "' expected atband " + i + ".\r\n");
                 }
             }
+        }
+    }
+
+    private static void compareBandData(Band expBand, Band currentBand, int i, StringBuffer diff) throws IOException {
+        expBand.loadRasterData(ProgressMonitor.NULL);
+        currentBand.loadRasterData(ProgressMonitor.NULL);
+        if (currentBand.getData() == null) {
+            diff.append("current Band " + i + " has no data>\r\n");
+        }
+        if (!expBand.getData().equalElems(currentBand.getData())) {
+            diff.append("Data of Band " + i + " are not equal to expected data>\r\n");
         }
     }
 
