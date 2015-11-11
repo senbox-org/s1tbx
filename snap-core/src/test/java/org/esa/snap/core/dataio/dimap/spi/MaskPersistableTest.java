@@ -89,8 +89,8 @@ public class MaskPersistableTest {
 
         assertNotNull(maskFromXml);
         assertEquals(TestImageType.class, maskFromXml.getImageType().getClass());
-        assertEquals(10, maskFromXml.getSceneRasterWidth());
-        assertEquals(10, maskFromXml.getSceneRasterHeight());
+        assertEquals(10, maskFromXml.getRasterWidth());
+        assertEquals(10, maskFromXml.getRasterHeight());
         assertEquals("Bibo", maskFromXml.getName());
         assertEquals("A big yellow bird is in the pixel.", maskFromXml.getDescription());
         assertEquals(0.7, maskFromXml.getImageTransparency(), 0.0);
@@ -107,8 +107,8 @@ public class MaskPersistableTest {
 
         assertNotNull(maskFromXml);
         assertEquals(TestImageType.class, maskFromXml.getImageType().getClass());
-        assertEquals(30, maskFromXml.getSceneRasterWidth());
-        assertEquals(25, maskFromXml.getSceneRasterHeight());
+        assertEquals(30, maskFromXml.getRasterWidth());
+        assertEquals(25, maskFromXml.getRasterHeight());
         assertEquals("Bibo", maskFromXml.getName());
         assertEquals("A big yellow bird is in the pixel.", maskFromXml.getDescription());
         assertEquals(0.7, maskFromXml.getImageTransparency(), 0.0);

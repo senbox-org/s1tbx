@@ -96,8 +96,8 @@ public class TransectProfileData {
             geoPositions = new GeoPos[0];
         }
 
-        final Rectangle sceneRect = new Rectangle(config.raster.getSceneRasterWidth(),
-                                                  config.raster.getSceneRasterHeight());
+        final Rectangle sceneRect = new Rectangle(config.raster.getRasterWidth(),
+                                                  config.raster.getRasterHeight());
         PixelPos pixelPos = new PixelPos();
         int k = 0;
         for (int i = 0; i < pixelPositions.length; i++) {

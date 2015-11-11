@@ -84,8 +84,8 @@ public class TiePointGridTest extends AbstractRasterDataNodeTest {
         assertEquals("x", grid.getName());
         assertEquals(3, grid.getGridWidth());
         assertEquals(5, grid.getGridHeight());
-        assertEquals(9, grid.getSceneRasterWidth());
-        assertEquals(9, grid.getSceneRasterHeight());
+        assertEquals(9, grid.getRasterWidth());
+        assertEquals(9, grid.getRasterHeight());
         assertEquals(0, grid.getOffsetX(), 1e-6F);
         assertEquals(0, grid.getOffsetY(), 1e-6F);
         assertEquals(4, grid.getSubSamplingX(), 1e-6F);
@@ -114,8 +114,8 @@ public class TiePointGridTest extends AbstractRasterDataNodeTest {
         assertEquals("x", grid.getName());
         assertEquals(3, grid.getGridWidth());
         assertEquals(5, grid.getGridHeight());
-        assertEquals(3, grid.getSceneRasterWidth());
-        assertEquals(5, grid.getSceneRasterHeight());
+        assertEquals(3, grid.getRasterWidth());
+        assertEquals(5, grid.getRasterHeight());
         assertEquals(0, grid.getOffsetX(), 1e-6F);
         assertEquals(0, grid.getOffsetY(), 1e-6F);
         assertEquals(1, grid.getSubSamplingX(), 1e-6F);
@@ -153,7 +153,7 @@ public class TiePointGridTest extends AbstractRasterDataNodeTest {
             }
         }
 
-        int rasterWidth = grid.getSceneRasterWidth();
+        int rasterWidth = grid.getRasterWidth();
         ProductData rasterData = grid.getRasterData();
         for (int j = 0; j < 8; j++) {
             for (int i = 0; i < 4; i++) {

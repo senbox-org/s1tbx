@@ -91,8 +91,8 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
         this.lonBand = lonBand;
         formerGeocoding = product.getSceneGeoCoding();
 
-        this.rasterW = latBand.getSceneRasterWidth();
-        this.rasterH = latBand.getSceneRasterHeight();
+        this.rasterW = latBand.getRasterWidth();
+        this.rasterH = latBand.getRasterHeight();
 
         PlanarImage lonImage;
         try {
@@ -520,8 +520,8 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
         private final int width;
 
         ArrayDataProvider(RasterDataNode lonBand, RasterDataNode latBand, PlanarImage maskImage) {
-            width = lonBand.getSceneRasterWidth();
-            int height = lonBand.getSceneRasterHeight();
+            width = lonBand.getRasterWidth();
+            int height = lonBand.getRasterHeight();
             MultiLevelImage lonImage = ImageManager.createMaskedGeophysicalImage(lonBand, Double.NaN);
             lonData = lonImage.getData().getSamples(0, 0, width, height, 0, (double[]) null);
             MultiLevelImage latImage = ImageManager.createMaskedGeophysicalImage(latBand, Double.NaN);

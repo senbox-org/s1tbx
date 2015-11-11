@@ -34,7 +34,6 @@ import org.esa.snap.core.dataop.barithm.SingleFlagSymbol;
 import org.esa.snap.core.dataop.maptransf.MapInfo;
 import org.esa.snap.core.dataop.maptransf.MapProjection;
 import org.esa.snap.core.dataop.maptransf.MapTransform;
-import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.image.ResolutionLevel;
 import org.esa.snap.core.image.VirtualBandOpImage;
 import org.esa.snap.core.jexp.Namespace;
@@ -2217,8 +2216,8 @@ public class Product extends ProductNode {
         } else {
             final RasterDataNode refRaster = refRasters[0];
             mask = Mask.BandMathsType.create(maskName, description,
-                                             refRaster.getSceneRasterWidth(),
-                                             refRaster.getSceneRasterHeight(),
+                                             refRaster.getRasterWidth(),
+                                             refRaster.getRasterHeight(),
                                              expression, color, transparency);
             mask.setGeoCoding(refRaster.getGeoCoding());
         }
@@ -2752,8 +2751,7 @@ public class Product extends ProductNode {
             // so that this method can be generalised to also create source (mask)
             // images for associatedRaster (nf 2015-07-27).
             MultiLevelImage sourceImage = associatedRaster.getSourceImage();
-            // todo - [multisize_products] fix: getSceneRasterSize() is wrong here! (nf)
-            sourceSize = associatedRaster.getSceneRasterSize();
+            sourceSize = associatedRaster.getRasterSize();
             tileSize = new Dimension(sourceImage.getTileWidth(), sourceImage.getTileHeight());
             multiLevelModel = sourceImage.getModel();
         } else {

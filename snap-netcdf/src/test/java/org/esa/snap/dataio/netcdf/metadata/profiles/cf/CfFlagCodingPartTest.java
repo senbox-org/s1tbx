@@ -50,8 +50,8 @@ public class CfFlagCodingPartTest extends TestCase {
         }
 
         NetcdfFileWriteable writeable = NetcdfFileWriteable.createNew("not stored");
-        writeable.addDimension("y", flagBand.getSceneRasterHeight());
-        writeable.addDimension("x", flagBand.getSceneRasterWidth());
+        writeable.addDimension("y", flagBand.getRasterHeight());
+        writeable.addDimension("x", flagBand.getRasterWidth());
         final DataType ncDataType = DataTypeUtils.getNetcdfDataType(flagBand.getDataType());
         Variable variable = writeable.addVariable(flagBand.getName(), ncDataType, writeable.getRootGroup().getDimensions());
         CfBandPart.writeCfBandAttributes(flagBand, new N3Variable(variable, writeable));

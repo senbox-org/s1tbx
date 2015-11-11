@@ -97,8 +97,8 @@ public class JaiOpTest extends TestCase {
 
         assertNotNull(targetBand);
         assertEquals(targetBand.getDataType(), sourceBand.getDataType());
-        assertEquals(8, targetBand.getSceneRasterWidth());
-        assertEquals(8, targetBand.getSceneRasterHeight());
+        assertEquals(8, targetBand.getRasterWidth());
+        assertEquals(8, targetBand.getRasterHeight());
 
         final RenderedImage targetImage = targetBand.getSourceImage();
         assertNotNull(targetImage);
@@ -142,8 +142,8 @@ public class JaiOpTest extends TestCase {
 
         assertNotNull(targetBand);
         assertEquals(targetBand.getDataType(), sourceBand.getDataType());
-        assertEquals(4, targetBand.getSceneRasterWidth());
-        assertEquals(4, targetBand.getSceneRasterHeight());
+        assertEquals(4, targetBand.getRasterWidth());
+        assertEquals(4, targetBand.getRasterHeight());
 
         final RenderedImage targetImage = targetBand.getSourceImage();
         assertNotNull(targetImage);
@@ -159,10 +159,10 @@ public class JaiOpTest extends TestCase {
 
     private void setSourceImage(Band sourceBand) {
         final TiledImage sourceImage = new TiledImage(0, 0,
-                                                      sourceBand.getSceneRasterWidth(),
-                                                      sourceBand.getSceneRasterHeight(),
+                                                      sourceBand.getRasterWidth(),
+                                                      sourceBand.getRasterHeight(),
                                                       0, 0,
-                                                      new SingleBandedSampleModel(DataBuffer.TYPE_INT, sourceBand.getSceneRasterWidth(), sourceBand.getSceneRasterHeight()), null);
+                                                      new SingleBandedSampleModel(DataBuffer.TYPE_INT, sourceBand.getRasterWidth(), sourceBand.getRasterHeight()), null);
         sourceImage.setSample(0, 0, 0, 123);
         sourceImage.setSample(1, 1, 0, 234);
         sourceImage.setSample(2, 2, 0, 345);

@@ -19,7 +19,6 @@ package org.esa.snap.core.datamodel;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
 import org.esa.snap.core.dataio.ProductIO;
-import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -284,9 +283,9 @@ public class ProductSceneRasterSizeTest {
                                                         Band b2,
                                                         Band b3) {
 
-        Mask m1 = Mask.BandMathsType.create("M1", null, b1.getSceneRasterWidth(), b1.getSceneRasterHeight(), "B1 > 0", Color.GREEN, 0.5);
-        Mask m2 = Mask.BandMathsType.create("M2", null, b2.getSceneRasterWidth(), b2.getSceneRasterHeight(), "B2 > 0", Color.GREEN, 0.5);
-        Mask m3 = Mask.BandMathsType.create("M3", null, b3.getSceneRasterWidth(), b3.getSceneRasterHeight(), "B3 > 0", Color.GREEN, 0.5);
+        Mask m1 = Mask.BandMathsType.create("M1", null, b1.getRasterWidth(), b1.getRasterHeight(), "B1 > 0", Color.GREEN, 0.5);
+        Mask m2 = Mask.BandMathsType.create("M2", null, b2.getRasterWidth(), b2.getRasterHeight(), "B2 > 0", Color.GREEN, 0.5);
+        Mask m3 = Mask.BandMathsType.create("M3", null, b3.getRasterWidth(), b3.getRasterHeight(), "B3 > 0", Color.GREEN, 0.5);
 
         b1.setNoDataValueUsed(true);
         b2.setNoDataValueUsed(true);
@@ -304,9 +303,9 @@ public class ProductSceneRasterSizeTest {
         product.addMask(m2);
         product.addMask(m3);
 
-        testImageLayout(b1.getSceneRasterWidth(), tileSize1, b1, m1);
-        testImageLayout(b2.getSceneRasterWidth(), tileSize2, b2, m2);
-        testImageLayout(b3.getSceneRasterWidth(), tileSize3, b3, m3);
+        testImageLayout(b1.getRasterWidth(), tileSize1, b1, m1);
+        testImageLayout(b2.getRasterWidth(), tileSize2, b2, m2);
+        testImageLayout(b3.getRasterWidth(), tileSize3, b3, m3);
 
         assertEquals(2.4, b1.getStx(true, ProgressMonitor.NULL).getMean(), 1e-10);
         assertEquals(2.5, b2.getStx(true, ProgressMonitor.NULL).getMean(), 1e-10);

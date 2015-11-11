@@ -195,8 +195,8 @@ public class BeamBandPart extends ProfilePartIO {
                 variableName = ncFile.makeNameValid(variableName);
             }
             NVariable variable;
-            final int bandSceneRasterWidth = band.getSceneRasterWidth();
-            final int bandSceneRasterHeight = band.getSceneRasterHeight();
+            final int bandSceneRasterWidth = band.getRasterWidth();
+            final int bandSceneRasterHeight = band.getRasterHeight();
             if (bandSceneRasterWidth != p.getSceneRasterWidth() || bandSceneRasterHeight != p.getSceneRasterHeight()) {
                 final String key = "" + bandSceneRasterWidth + " " + bandSceneRasterHeight;
                 String dimString = dimMap.get(key);

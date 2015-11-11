@@ -843,7 +843,7 @@ public class DimapHeaderWriterTest {
 //    private String setPixelGeoCodingWithoutEstimatorAndGetExpected() throws IOException {
 //        final Band b1 = product.addBand("b1", ProductData.TYPE_INT8);
 //        final Band b2 = product.addBand("b2", ProductData.TYPE_INT8);
-//        final byte[] bandData = new byte[product.getSceneRasterWidth() * product.getSceneRasterHeight()];
+//        final byte[] bandData = new byte[product.getRasterWidth() * product.getRasterHeight()];
 //        b1.setDataElems(bandData);
 //        b2.setDataElems(bandData);
 //
@@ -944,16 +944,16 @@ public class DimapHeaderWriterTest {
         final int productHeight = product.getSceneRasterHeight();
 
         final Band band1 = new Band("band_1", ProductData.TYPE_INT8, productWidth / 2, productHeight / 2);
-        final Rectangle imageBounds1 = new Rectangle(band1.getSceneRasterWidth(),
-                                                     band1.getSceneRasterHeight());
+        final Rectangle imageBounds1 = new Rectangle(band1.getRasterWidth(),
+                                                     band1.getRasterHeight());
         final AffineTransform i2m1 = new AffineTransform(0.23, 1.45, 2.67, 3.89, 4.01, 5.23);
         final CoordinateReferenceSystem crs1 = CRS.decode("EPSG:4326");
         band1.setGeoCoding(new CrsGeoCoding(crs1, imageBounds1, i2m1));
         product.addBand(band1);
 
         final Band band2 = new Band("band_2", ProductData.TYPE_INT8, productWidth / 4, productHeight / 3);
-        final Rectangle imageBounds2 = new Rectangle(band2.getSceneRasterWidth(),
-                                                     band2.getSceneRasterHeight());
+        final Rectangle imageBounds2 = new Rectangle(band2.getRasterWidth(),
+                                                     band2.getRasterHeight());
         final AffineTransform i2m2 = new AffineTransform(0.12, 1.23, 2.34, 3.45, 4.56, 5.67);
         final CoordinateReferenceSystem crs2 = CRS.decode("EPSG:4326");
         band2.setGeoCoding(new CrsGeoCoding(crs2, imageBounds2, i2m2));

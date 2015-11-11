@@ -116,26 +116,26 @@ public class BandTest extends AbstractRasterDataNodeTest {
      * GuiTest_DialogAndModalDialog correct functionality for getBandOutputRasterWidth()
      */
     public void testGetWidth() {
-        assertEquals(50, _rsBandBlaByte5050.getSceneRasterWidth());
-        assertEquals(10, _rsBandBlubbUShort1010.getSceneRasterWidth());
-        assertEquals(20, _rsBandTestShort2020.getSceneRasterWidth());
-        assertEquals(15, _rsBandGnmpfInt1515.getSceneRasterWidth());
-        assertEquals(23, _rsBandBlimFloat2323.getSceneRasterWidth());
-        assertEquals(10, _rsBandZippFloat1005.getSceneRasterWidth());
-        assertEquals(100, _rsBandBlepDouble100100.getSceneRasterWidth());
+        assertEquals(50, _rsBandBlaByte5050.getRasterWidth());
+        assertEquals(10, _rsBandBlubbUShort1010.getRasterWidth());
+        assertEquals(20, _rsBandTestShort2020.getRasterWidth());
+        assertEquals(15, _rsBandGnmpfInt1515.getRasterWidth());
+        assertEquals(23, _rsBandBlimFloat2323.getRasterWidth());
+        assertEquals(10, _rsBandZippFloat1005.getRasterWidth());
+        assertEquals(100, _rsBandBlepDouble100100.getRasterWidth());
     }
 
     /**
      * Tests the functionality for getBandOutputRasterHeight()
      */
     public void testGetHeight() {
-        assertEquals(50, _rsBandBlaByte5050.getSceneRasterHeight());
-        assertEquals(10, _rsBandBlubbUShort1010.getSceneRasterHeight());
-        assertEquals(20, _rsBandTestShort2020.getSceneRasterHeight());
-        assertEquals(15, _rsBandGnmpfInt1515.getSceneRasterHeight());
-        assertEquals(23, _rsBandBlimFloat2323.getSceneRasterHeight());
-        assertEquals(5, _rsBandZippFloat1005.getSceneRasterHeight());
-        assertEquals(100, _rsBandBlepDouble100100.getSceneRasterHeight());
+        assertEquals(50, _rsBandBlaByte5050.getRasterHeight());
+        assertEquals(10, _rsBandBlubbUShort1010.getRasterHeight());
+        assertEquals(20, _rsBandTestShort2020.getRasterHeight());
+        assertEquals(15, _rsBandGnmpfInt1515.getRasterHeight());
+        assertEquals(23, _rsBandBlimFloat2323.getRasterHeight());
+        assertEquals(5, _rsBandZippFloat1005.getRasterHeight());
+        assertEquals(100, _rsBandBlepDouble100100.getRasterHeight());
     }
 
     /**

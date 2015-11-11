@@ -63,12 +63,12 @@ public class Graticule {
                                    float lonMajorStep) {
         Guardian.assertNotNull("product", raster);
         final GeoCoding geoCoding = raster.getGeoCoding();
-        if (geoCoding == null || raster.getSceneRasterWidth() < 16 || raster.getSceneRasterHeight() < 16) {
+        if (geoCoding == null || raster.getRasterWidth() < 16 || raster.getRasterHeight() < 16) {
             return null;
         }
 
         if (autoDeterminingSteps) {
-            final PixelPos pixelPos1 = new PixelPos(0.5f * raster.getSceneRasterWidth(), 0.5f * raster.getSceneRasterHeight());
+            final PixelPos pixelPos1 = new PixelPos(0.5f * raster.getRasterWidth(), 0.5f * raster.getRasterHeight());
             final PixelPos pixelPos2 = new PixelPos(pixelPos1.x + 1f, pixelPos1.y + 1f);
             final GeoPos geoPos1 = geoCoding.getGeoPos(pixelPos1, null);
             final GeoPos geoPos2 = geoCoding.getGeoPos(pixelPos2, null);

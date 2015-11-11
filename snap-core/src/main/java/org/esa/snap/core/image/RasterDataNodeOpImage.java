@@ -59,8 +59,8 @@ public abstract class RasterDataNodeOpImage extends SingleBandedOpImage {
      */
     protected RasterDataNodeOpImage(RasterDataNode rasterDataNode, ResolutionLevel level) {
         super(ImageManager.getDataBufferType(rasterDataNode.getDataType()),
-              rasterDataNode.getSceneRasterWidth(),
-              rasterDataNode.getSceneRasterHeight(),
+              rasterDataNode.getRasterWidth(),
+              rasterDataNode.getRasterHeight(),
               getPreferredTileSize(rasterDataNode),
               null, level);
         this.rasterDataNode = rasterDataNode;
