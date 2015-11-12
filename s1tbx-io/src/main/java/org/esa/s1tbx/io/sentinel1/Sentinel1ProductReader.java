@@ -203,28 +203,35 @@ public class Sentinel1ProductReader extends SARReader {
     private synchronized DataCache.Data readRect(final DataCache.DataKey datakey, final ImageIOFile.BandInfo bandInfo,
                                          int sourceOffsetX, int sourceOffsetY, int sourceStepX, int sourceStepY,
                                          final Rectangle destRect) throws IOException {
+        try {
+            final ImageReader imageReader = bandInfo.img.getReader();
+            final ImageReadParam readParam = imageReader.getDefaultReadParam();
+            if (sourceStepX == 1 && sourceStepY == 1) {
+                readParam.setSourceRegion(destRect);
+            }
+            readParam.setSourceSubsampling(sourceStepX, sourceStepY, sourceOffsetX % sourceStepX, sourceOffsetY % sourceStepY);
+            final RenderedImage subsampledImage = imageReader.readAsRenderedImage(0, readParam);
 
-        final ImageReader imageReader = bandInfo.img.getReader();
-        final ImageReadParam readParam = imageReader.getDefaultReadParam();
-        if(sourceStepX == 1 && sourceStepY == 1) {
-            readParam.setSourceRegion(destRect);
+            final Raster data = subsampledImage.getData(destRect);
+
+            final SampleModel sampleModel = data.getSampleModel();
+            final int destWidth = Math.min((int) destRect.getWidth(), sampleModel.getWidth());
+            final int destHeight = Math.min((int) destRect.getHeight(), sampleModel.getHeight());
+
+            final int length = destWidth * destHeight;
+            final int[] srcArray = new int[length];
+            sampleModel.getSamples(0, 0, destWidth, destHeight, bandInfo.bandSampleOffset, srcArray, data.getDataBuffer());
+
+            DataCache.Data cachedData = new DataCache.Data(srcArray);
+            cache.put(datakey, cachedData);
+
+            return cachedData;
+        } catch (Exception e) {
+            final int[] srcArray = new int[(int)destRect.getWidth()*(int)destRect.getHeight()];
+            DataCache.Data cachedData = new DataCache.Data(srcArray);
+            cache.put(datakey, cachedData);
+
+            return cachedData;
         }
-        readParam.setSourceSubsampling(sourceStepX, sourceStepY, sourceOffsetX % sourceStepX, sourceOffsetY % sourceStepY);
-        final RenderedImage subsampledImage = imageReader.readAsRenderedImage(0, readParam);
-
-        final Raster data = subsampledImage.getData(destRect);
-
-        final SampleModel sampleModel = data.getSampleModel();
-        final int destWidth = Math.min((int) destRect.getWidth(), sampleModel.getWidth());
-        final int destHeight = Math.min((int)destRect.getHeight(), sampleModel.getHeight());
-
-        final int length = destWidth * destHeight;
-        final int[] srcArray = new int[length];
-        sampleModel.getSamples(0, 0, destWidth, destHeight, bandInfo.bandSampleOffset, srcArray, data.getDataBuffer());
-
-        DataCache.Data cachedData = new DataCache.Data(srcArray);
-        cache.put(datakey, cachedData);
-
-        return cachedData;
     }
 }

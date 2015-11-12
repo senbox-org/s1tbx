@@ -94,12 +94,8 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
     @Override
     protected void addBands(final Product product) {
 
-        String bandName;
-        boolean real = true;
-        Band lastRealBand = null;
-        String unit;
-
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        int cnt = 1;
         for (Map.Entry<String, ImageIOFile> stringImageIOFileEntry : bandImageFileMap.entrySet()) {
             final ImageIOFile img = stringImageIOFileEntry.getValue();
             final String imgName = img.getName().toLowerCase();
@@ -108,21 +104,29 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
             final String pol = bandMetadata.getAttributeString(AbstractMetadata.polarization);
             final int width = bandMetadata.getAttributeInt(AbstractMetadata.num_samples_per_line);
             final int height = bandMetadata.getAttributeInt(AbstractMetadata.num_output_lines);
+            int numImages = img.getNumImages();
 
             String tpgPrefix = "";
             String suffix = pol;
-            if (isSLC() && isTOPSAR()) {
-                suffix = swath + '_' + pol;
-                tpgPrefix = swath;
-            }
-
-            int numImages = img.getNumImages();
             if (isSLC()) {
                 numImages *= 2; // real + imaginary
+                if(isTOPSAR()) {
+                    suffix = swath + '_' + pol;
+                    tpgPrefix = swath;
+                } else if(acqMode.equals("WV")) {
+                    suffix = suffix + '_' + cnt;
+                    ++cnt;
+                }
             }
+
+            String bandName;
+            boolean real = true;
+            Band lastRealBand = null;
             for (int i = 0; i < numImages; ++i) {
 
                 if (isSLC()) {
+                    String unit;
+
                     for (int b = 0; b < img.getNumBands(); ++b) {
                         if (real) {
                             bandName = "i" + '_' + suffix;
