@@ -149,6 +149,7 @@ public class RasterDataNodeAncillaryTest {
     }
 
     @Test
+    @Ignore
     public void testAncillaryRelationLost() {
         Band an_anc_var = product.addBand("anyAncillarryBand", "X / (Y + 1)");
         Band an_other_band = product.addBand("any_Band", "Y / (X + 1)");
@@ -156,21 +157,9 @@ public class RasterDataNodeAncillaryTest {
         a.addAncillaryVariable(an_anc_var, "relation 1", "relation 2");
         an_other_band.addAncillaryVariable(an_anc_var, "relation 3");
 
-        String actual = actual(an_anc_var.getAncillaryRelations());
-        String expected = expected(new String[]{"relation 1", "relation 2", "relation 3"});
+        String expected = Arrays.toString(new String[]{"relation 1", "relation 2", "relation 3"});
+        String actual = Arrays.toString(an_anc_var.getAncillaryRelations());
         assertEquals(expected, actual);
-    }
-
-    private String actual(final String[] arr) {
-        return getString(arr);
-    }
-
-    private String expected(final String[] arr) {
-        return getString(arr);
-    }
-
-    private String getString(final String[] arr) {
-        return Arrays.toString(arr);
     }
 
     private static class TracingPNL extends ProductNodeListenerAdapter {

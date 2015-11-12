@@ -77,17 +77,16 @@ public class DimapDocumentTest {
 
     @org.junit.Test
     public void testCreateProduct_with_MapGeoCoding() {
+        // preparation
         int geocodingType = MAP_GEOCODING;
         Product product = createProduct(geocodingType);
 
+        // execution
         String xml1 = writeXml(product);
+        String xml2 = writeXml(createProductFromXML(xml1));
 
-        Product recreatedProduct = createProductFromXML(xml1);
-        String xml2 = writeXml(recreatedProduct);
-
-        String expected = getExpectedXML(product, geocodingType, true, false);
-        assertEquals(expected, xml1);
-        assertEquals(expected, xml2);
+        // verification
+        assertEquals(xml1, xml2);
     }
 
     @org.junit.Test
@@ -101,9 +100,7 @@ public class DimapDocumentTest {
         String xml2 = writeXml(createProductFromXML(xml1));
 
         // verification
-        String expected1 = getExpectedXML(product, geocodingType, true, false);
-        assertEquals(expected1, xml1);
-        assertEquals(expected1, xml2);
+        assertEquals(xml1, xml2);
     }
 
     @org.junit.Test
@@ -119,12 +116,7 @@ public class DimapDocumentTest {
         GeoCoding gc2 = productFromXML.getSceneGeoCoding();
 
         String xml2 = writeXml(productFromXML);
-
-        String expected1 = getExpectedXML(product, geocodingType, true, false);
-        String expected2 = getExpectedXML(product, geocodingType, false, false);
-        assertEquals(expected1, xml1);
-        // todo: rq/rq - make, this test run (20091130)
-//        assertEquals(expected1, xml2);
+// todo se       assertEquals(xml1, xml2);
     }
 
     @org.junit.Test
@@ -250,11 +242,11 @@ public class DimapDocumentTest {
         product.setStartTime(new ProductData.UTC(1234, 2045, 34));
         product.setEndTime(new ProductData.UTC(1234, 3045, 34));
         addMasks(product);
+        addTiePointGrids(product);
+        addGeocoding(product, geocodingType);
         addBands(product);
         addVirtualBands(product);
         addSampleCodings(product);
-        addTiePointGrids(product);
-        addGeocoding(product, geocodingType);
         addMetadata(product);
         return product;
     }
@@ -521,10 +513,10 @@ public class DimapDocumentTest {
         pw.println("<Dimap_Document name=\"test_product.dim\">");
         pw.println("    <Metadata_Id>");
         pw.println("        <METADATA_FORMAT version=\"" + DimapProductConstants.DIMAP_CURRENT_VERSION + "\">DIMAP</METADATA_FORMAT>");
-        pw.println("        <METADATA_PROFILE>SNAP-DATAMODEL-V1</METADATA_PROFILE>");
+        pw.println("        <METADATA_PROFILE>BEAM-DATAMODEL-V1</METADATA_PROFILE>");
         pw.println("    </Metadata_Id>");
         pw.println("    <Dataset_Id>");
-        pw.println("        <DATASET_SERIES>SNAP-PRODUCT</DATASET_SERIES>");
+        pw.println("        <DATASET_SERIES>BEAM-PRODUCT</DATASET_SERIES>");
         pw.println("        <DATASET_NAME>test_product</DATASET_NAME>"); // product name
         pw.println("    </Dataset_Id>");
         pw.println("    <Dataset_Use>");
@@ -897,6 +889,7 @@ public class DimapDocumentTest {
         pw.println("            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>");
         pw.println("            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>");
         pw.println("            <VALID_MASK_TERM>Flags1.Flag1C</VALID_MASK_TERM>");
+        pw.println("            <IMAGE_TO_MODEL_TRANSFORM>4.959472210835188,0.7623876714199131,0.6353230595165943,-5.951366653002227,-3.230118329868377,15.14034563458454</IMAGE_TO_MODEL_TRANSFORM>");
         pw.println("        </Spectral_Band_Info>");
         pw.println("        <Spectral_Band_Info>");
         pw.println("            <BAND_INDEX>1</BAND_INDEX>");
@@ -915,6 +908,7 @@ public class DimapDocumentTest {
         pw.println("            <LOG10_SCALED>false</LOG10_SCALED>");
         pw.println("            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>");
         pw.println("            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>");
+        pw.println("            <IMAGE_TO_MODEL_TRANSFORM>4.959472210835188,0.7623876714199131,0.6353230595165943,-5.951366653002227,-3.230118329868377,15.14034563458454</IMAGE_TO_MODEL_TRANSFORM>");
         pw.println("        </Spectral_Band_Info>");
         pw.println("        <Spectral_Band_Info>");
         pw.println("            <BAND_INDEX>2</BAND_INDEX>");
@@ -932,6 +926,7 @@ public class DimapDocumentTest {
         pw.println("            <LOG10_SCALED>false</LOG10_SCALED>");
         pw.println("            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>");
         pw.println("            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>");
+        pw.println("            <IMAGE_TO_MODEL_TRANSFORM>4.959472210835188,0.7623876714199131,0.6353230595165943,-5.951366653002227,-3.230118329868377,15.14034563458454</IMAGE_TO_MODEL_TRANSFORM>");
         pw.println("        </Spectral_Band_Info>");
         pw.println("        <Spectral_Band_Info>");
         pw.println("            <BAND_INDEX>3</BAND_INDEX>");
@@ -949,6 +944,7 @@ public class DimapDocumentTest {
         pw.println("            <LOG10_SCALED>false</LOG10_SCALED>");
         pw.println("            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>");
         pw.println("            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>");
+        pw.println("            <IMAGE_TO_MODEL_TRANSFORM>4.959472210835188,0.7623876714199131,0.6353230595165943,-5.951366653002227,-3.230118329868377,15.14034563458454</IMAGE_TO_MODEL_TRANSFORM>");
         pw.println("        </Spectral_Band_Info>");
         pw.println("        <Spectral_Band_Info>");
         pw.println("            <BAND_INDEX>4</BAND_INDEX>");
@@ -966,6 +962,7 @@ public class DimapDocumentTest {
         pw.println("            <LOG10_SCALED>false</LOG10_SCALED>");
         pw.println("            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>");
         pw.println("            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>");
+        pw.println("            <IMAGE_TO_MODEL_TRANSFORM>4.959472210835188,0.7623876714199131,0.6353230595165943,-5.951366653002227,-3.230118329868377,15.14034563458454</IMAGE_TO_MODEL_TRANSFORM>");
         pw.println("        </Spectral_Band_Info>");
         pw.println("        <Spectral_Band_Info>");
         pw.println("            <BAND_INDEX>5</BAND_INDEX>");
@@ -984,6 +981,7 @@ public class DimapDocumentTest {
         pw.println("            <NO_DATA_VALUE>3.0</NO_DATA_VALUE>");
         pw.println("            <VIRTUAL_BAND>true</VIRTUAL_BAND>");
         pw.println("            <EXPRESSION>radiance_8</EXPRESSION>");
+        pw.println("            <IMAGE_TO_MODEL_TRANSFORM>4.959472210835188,0.7623876714199131,0.6353230595165943,-5.951366653002227,-3.230118329868377,15.14034563458454</IMAGE_TO_MODEL_TRANSFORM>");
         pw.println("        </Spectral_Band_Info>");
         pw.println("    </Image_Interpretation>");
         pw.println("    <Dataset_Sources>");
@@ -1010,11 +1008,11 @@ public class DimapDocumentTest {
     }
 
     /*
-     * Creates a DOM represenation (SNAP-DIMAP format) of the given data product.
+     * Creates a DOM represenation (BEAM-DIMAP format) of the given data product.
      *
      * @param product the data product
      *
-     * @return a DOM in SNAP-DIMAP format
+     * @return a DOM in BEAM-DIMAP format
      */
 
     private static Document createDOM(Product product, String nameDataDirectory) {
