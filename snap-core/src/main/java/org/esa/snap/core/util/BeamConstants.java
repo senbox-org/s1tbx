@@ -26,7 +26,7 @@ import java.util.Locale;
  * @deprecated Since most (but not all) of the fields are Envisat-specific, this class lives in a wrong package.
  */
 @Deprecated
-public interface SnapConstants {
+public interface BeamConstants {
 
 
     String ENVISAT_FORMAT_NAME = "ENVISAT";

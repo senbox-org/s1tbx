@@ -29,7 +29,7 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.util.ObjectUtils;
-import org.esa.snap.core.util.SnapConstants;
+import org.esa.snap.core.util.BeamConstants;
 
 import java.awt.geom.AffineTransform;
 import java.io.File;
@@ -148,7 +148,7 @@ public class DimapWriteAndReadTest extends TestCase {
     private static Product createProduct() {
         final int sceneRasterWidth = 129;
         final int sceneRasterHeight = 161;
-        final Product product = new Product("name", SnapConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME, sceneRasterWidth,
+        final Product product = new Product("name", BeamConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME, sceneRasterWidth,
                                             sceneRasterHeight);
         addFlagCoding(product);
         addIndexCoding(product);

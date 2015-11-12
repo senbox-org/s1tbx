@@ -20,7 +20,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.esa.snap.core.datamodel.GeoPos;
-import org.esa.snap.core.util.SnapConstants;
+import org.esa.snap.core.util.BeamConstants;
 
 
 public class RsMathUtilTest extends TestCase {
@@ -43,13 +43,13 @@ public class RsMathUtilTest extends TestCase {
         float sza = 30.f;
 
         // check for correct values
-        assertEquals(0.1692265f, RsMathUtils.radianceToReflectance(rad, sza, SnapConstants.MERIS_SOLAR_FLUXES[0]),
+        assertEquals(0.1692265f, RsMathUtils.radianceToReflectance(rad, sza, BeamConstants.MERIS_SOLAR_FLUXES[0]),
                      EPS);
-        assertEquals(0.1757149f, RsMathUtils.radianceToReflectance(rad, sza, SnapConstants.MERIS_SOLAR_FLUXES[5]),
+        assertEquals(0.1757149f, RsMathUtils.radianceToReflectance(rad, sza, BeamConstants.MERIS_SOLAR_FLUXES[5]),
                      EPS);
-        assertEquals(0.23116349f, RsMathUtils.radianceToReflectance(rad, sza, SnapConstants.MERIS_SOLAR_FLUXES[10]),
+        assertEquals(0.23116349f, RsMathUtils.radianceToReflectance(rad, sza, BeamConstants.MERIS_SOLAR_FLUXES[10]),
                      EPS);
-        assertEquals(0.3287255f, RsMathUtils.radianceToReflectance(rad, sza, SnapConstants.MERIS_SOLAR_FLUXES[14]),
+        assertEquals(0.3287255f, RsMathUtils.radianceToReflectance(rad, sza, BeamConstants.MERIS_SOLAR_FLUXES[14]),
                      EPS);
         testVectorVersion();
     }
@@ -64,23 +64,23 @@ public class RsMathUtilTest extends TestCase {
 
         // check for correct results
         assertEquals(0.1692265f,
-                     RsMathUtils.radianceToReflectance(rad, sza, SnapConstants.MERIS_SOLAR_FLUXES[0], null)[0],
+                     RsMathUtils.radianceToReflectance(rad, sza, BeamConstants.MERIS_SOLAR_FLUXES[0], null)[0],
                      EPS);
         assertEquals(0.1757149f,
-                     RsMathUtils.radianceToReflectance(rad, sza, SnapConstants.MERIS_SOLAR_FLUXES[5], null)[0],
+                     RsMathUtils.radianceToReflectance(rad, sza, BeamConstants.MERIS_SOLAR_FLUXES[5], null)[0],
                      EPS);
         assertEquals(0.23116349f,
-                     RsMathUtils.radianceToReflectance(rad, sza, SnapConstants.MERIS_SOLAR_FLUXES[10], null)[0],
+                     RsMathUtils.radianceToReflectance(rad, sza, BeamConstants.MERIS_SOLAR_FLUXES[10], null)[0],
                      EPS);
         assertEquals(0.3287255f,
-                     RsMathUtils.radianceToReflectance(rad, sza, SnapConstants.MERIS_SOLAR_FLUXES[14], null)[0],
+                     RsMathUtils.radianceToReflectance(rad, sza, BeamConstants.MERIS_SOLAR_FLUXES[14], null)[0],
                      EPS);
 
         // check that if we set a recycle array that it is actually used
         float[] recycle = new float[4];
 
         assertEquals(recycle,
-                     RsMathUtils.radianceToReflectance(rad, sza, SnapConstants.MERIS_SOLAR_FLUXES[0], recycle));
+                     RsMathUtils.radianceToReflectance(rad, sza, BeamConstants.MERIS_SOLAR_FLUXES[0], recycle));
     }
 
     /**

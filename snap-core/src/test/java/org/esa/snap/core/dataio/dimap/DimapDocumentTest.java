@@ -21,18 +21,13 @@ import org.esa.snap.GlobalTestTools;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ColorPaletteDef;
 import org.esa.snap.core.datamodel.FlagCoding;
-import org.esa.snap.core.datamodel.GcpDescriptor;
 import org.esa.snap.core.datamodel.GcpGeoCoding;
 import org.esa.snap.core.datamodel.GeoCoding;
-import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.ImageInfo;
 import org.esa.snap.core.datamodel.IndexCoding;
 import org.esa.snap.core.datamodel.MapGeoCoding;
 import org.esa.snap.core.datamodel.MetadataAttribute;
 import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.PixelPos;
-import org.esa.snap.core.datamodel.Placemark;
-import org.esa.snap.core.datamodel.PlacemarkGroup;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.Stx;
@@ -47,7 +42,7 @@ import org.esa.snap.core.dataop.maptransf.MapProjection;
 import org.esa.snap.core.dataop.maptransf.MapTransform;
 import org.esa.snap.core.jexp.ParseException;
 import org.esa.snap.core.util.Debug;
-import org.esa.snap.core.util.SnapConstants;
+import org.esa.snap.core.util.BeamConstants;
 import org.esa.snap.core.util.StringUtils;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -250,7 +245,7 @@ public class DimapDocumentTest {
     }
 
     private Product createProduct(int geocodingType) {
-        Product product = new Product("test_product", SnapConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME, 1121, 2241);
+        Product product = new Product("test_product", BeamConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME, 1121, 2241);
         product.setDescription("description");
         product.setStartTime(new ProductData.UTC(1234, 2045, 34));
         product.setEndTime(new ProductData.UTC(1234, 3045, 34));

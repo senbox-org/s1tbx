@@ -16,9 +16,9 @@
 package org.esa.snap.core.dataio.dimap;
 
 /**
- * This class defines some frequently used constants for SNAP DIMAP products.
+ * This class defines some frequently used constants for BEAM DIMAP products.
  * <p>
- * The SNAP-DIMAP version history is provided in the API doc of the {@link DimapProductWriterPlugIn}.
+ * The BEAM-DIMAP version history is provided in the API doc of the {@link DimapProductWriterPlugIn}.
  *
  * @author Sabine Embacher
  * @author Marco Peters
@@ -26,43 +26,43 @@ package org.esa.snap.core.dataio.dimap;
  */
 public final class DimapProductConstants {
 
-    public static final String DIMAP_FORMAT_NAME = "SNAP-DIMAP";
+    public static final String DIMAP_FORMAT_NAME = "BEAM-DIMAP";
     /**
-     * SNAP-Dimap XML-File extension
+     * BEAM-Dimap XML-File extension
      */
     public static final String DIMAP_HEADER_FILE_EXTENSION = ".dim";
     /**
-     * SNAP-Dimap data directory extension
+     * BEAM-Dimap data directory extension
      */
     public static final String DIMAP_DATA_DIRECTORY_EXTENSION = ".data";
     public static final String IMAGE_FILE_EXTENSION = ".img";  /* ENVI specific */
     public static final String TIE_POINT_GRID_DIR_NAME = "tie_point_grids";
 
     /**
-     * SNAP-DIMAP version number.
+     * BEAM-DIMAP version number.
      * <p>
-     * Important note: If you change this number, update the SNAP-DIMAP version history given at {@link DimapProductWriterPlugIn}.
+     * Important note: If you change this number, update the BEAM-DIMAP version history given at {@link DimapProductWriterPlugIn}.
      */
     public static final String DIMAP_CURRENT_VERSION = "2.12.1";
 
-    // SNAP-Dimap default text
-    public static final String DIMAP_METADATA_PROFILE = "SNAP-DATAMODEL-V1";
-    public static final String DIMAP_DATASET_SERIES = "SNAP-PRODUCT";
+    // BEAM-Dimap default text
+    public static final String DIMAP_METADATA_PROFILE = "BEAM-DATAMODEL-V1";
+    public static final String DIMAP_DATASET_SERIES = "BEAM-PRODUCT";
     public static final String DATASET_PRODUCER_NAME = " ";
     //    public final static String DATASET_PRODUCER_NAME = "Brockmann-Consult | Phone +49 (04152) 889 300";
     public static final String DATA_FILE_FORMAT = "ENVI";
     public static final String DATA_FILE_FORMAT_DESCRIPTION = "ENVI File Format";
     public static final String DATA_FILE_ORGANISATION = "BAND_SEPARATE";
 
-    // SNAP-Dimap document root tag
+    // BEAM-Dimap document root tag
     public static final String TAG_ROOT = "Dimap_Document";
 
-    // SNAP-Dimap metadata ID tags
+    // BEAM-Dimap metadata ID tags
     public static final String TAG_METADATA_ID = "Metadata_Id";
     public static final String TAG_METADATA_FORMAT = "METADATA_FORMAT";
     public static final String TAG_METADATA_PROFILE = "METADATA_PROFILE";
 
-    // SNAP-Dimap production tags
+    // BEAM-Dimap production tags
     public static final String TAG_PRODUCTION = "Production";
     public static final String TAG_DATASET_PRODUCER_NAME = "DATASET_PRODUCER_NAME";
     public static final String TAG_DATASET_PRODUCER_URL = "DATASET_PRODUCER_URL";
@@ -80,7 +80,7 @@ public final class DimapProductConstants {
     public static final String TAG_OLD_SCENE_RASTER_START_TIME = "SENSING_START";
     public static final String TAG_OLD_SCENE_RASTER_STOP_TIME = "SENSING_STOP";
 
-    // SNAP-Dimap geocoding tags
+    // BEAM-Dimap geocoding tags
     public static final String TAG_COORDINATE_REFERENCE_SYSTEM = "Coordinate_Reference_System";
     public static final String TAG_GEOCODING_TIE_POINT_GRIDS = "Geocoding_Tie_Point_Grids";
     public static final String TAG_GEOPOSITION_POINTS = "Geoposition_Points";
@@ -96,7 +96,7 @@ public final class DimapProductConstants {
     public static final String TAG_SEARCH_RADIUS = "SEARCH_RADIUS";
     public static final String TAG_PIXEL_POSITION_ESTIMATOR = "Pixel_Position_Estimator";
     public static final String TAG_WKT = "WKT";
-    //This Tag is used for geocoding support and multi size support
+    //This Tag is used for geo-coding support and multi size support
     public static final String TAG_IMAGE_TO_MODEL_TRANSFORM = "IMAGE_TO_MODEL_TRANSFORM";
 
     //  -since version 2.0.0
@@ -159,7 +159,7 @@ public final class DimapProductConstants {
     public static final String TAG_PROJECTION_PARAMETER_NAME = "PROJECTION_PARAMETER_NAME";
     public static final String TAG_PROJECTION_PARAMETER_VALUE = "PROJECTION_PARAMETER_VALUE";
 
-    // SNAP-Dimap dataset id tags
+    // BEAM-Dimap dataset id tags
     public static final String TAG_DATASET_ID = "Dataset_Id";
     public static final String TAG_DATASET_INDEX = "DATASET_INDEX";
     public static final String TAG_DATASET_SERIES = "DATASET_SERIES";
@@ -175,31 +175,31 @@ public final class DimapProductConstants {
     public static final String TAG_DATASET_QL_PATH = "DATASET_QL_PATH";
     public static final String TAG_DATASET_QL_FORMAT = "DATASET_QL_FORMAT";
 
-    // SNAP_Dimap dataset use tags
+    // BEAM_Dimap dataset use tags
     public static final String TAG_DATASET_USE = "Dataset_Use";
     public static final String TAG_DATASET_COMMENTS = "DATASET_COMMENTS";
 
-    // SNAP-Dimap flag coding tags
+    // BEAM-Dimap flag coding tags
     public static final String TAG_FLAG_CODING = "Flag_Coding";
     public static final String TAG_FLAG = "Flag";
     public static final String TAG_FLAG_NAME = "Flag_Name";
     public static final String TAG_FLAG_INDEX = "Flag_Index";
     public static final String TAG_FLAG_DESCRIPTION = "Flag_description";
 
-    // SNAP-Dimap index coding tags
+    // BEAM-Dimap index coding tags
     public static final String TAG_INDEX_CODING = "Index_Coding";
     public static final String TAG_INDEX = "Index";
     public static final String TAG_INDEX_NAME = "INDEX_NAME";
     public static final String TAG_INDEX_VALUE = "INDEX_VALUE";
     public static final String TAG_INDEX_DESCRIPTION = "INDEX_DESCRIPTION";
 
-    // SNAP-Dimap raster dimension tags
+    // BEAM-Dimap raster dimension tags
     public static final String TAG_RASTER_DIMENSIONS = "Raster_Dimensions";
     public static final String TAG_NCOLS = "NCOLS";
     public static final String TAG_NROWS = "NROWS";
     public static final String TAG_NBANDS = "NBANDS";
 
-    // SNAP-Dimap tie point grid tags
+    // BEAM-Dimap tie point grid tags
     public static final String TAG_TIE_POINT_GRIDS = "Tie_Point_Grids";
     public static final String TAG_TIE_POINT_NUM_TIE_POINT_GRIDS = "NUM_TIE_POINT_GRIDS";
     public static final String TAG_TIE_POINT_GRID_INFO = "Tie_Point_Grid_Info";
@@ -216,7 +216,7 @@ public final class DimapProductConstants {
     public static final String TAG_TIE_POINT_STEP_Y = "STEP_Y";
     public static final String TAG_TIE_POINT_CYCLIC = "CYCLIC";
 
-    // SNAP-Dimap data access tags
+    // BEAM-Dimap data access tags
     public static final String TAG_DATA_ACCESS = "Data_Access";
     public static final String TAG_DATA_FILE_FORMAT = "DATA_FILE_FORMAT";
     public static final String TAG_DATA_FILE_FORMAT_DESC = "DATA_FILE_FORMAT_DESC";
@@ -227,7 +227,7 @@ public final class DimapProductConstants {
     public static final String TAG_TIE_POINT_GRID_FILE = "Tie_Point_Grid_File";
     public static final String TAG_TIE_POINT_GRID_FILE_PATH = "TIE_POINT_GRID_FILE_PATH";
 
-    // SNAP-Dimap image display tags
+    // BEAM-Dimap image display tags
     public static final String TAG_IMAGE_DISPLAY = "Image_Display";
     public static final String TAG_BAND_STATISTICS = "Band_Statistics";
     public static final String TAG_STX_MIN = "STX_MIN";
@@ -264,7 +264,7 @@ public final class DimapProductConstants {
     public static final String TAG_ROI = "ROI";
     public static final String TAG_OVERLAY = "OVERLAY";
 
-    // SNAP-Dimap image interpretation tags
+    // BEAM-Dimap image interpretation tags
     public static final String TAG_IMAGE_INTERPRETATION = "Image_Interpretation";
     public static final String TAG_SPECTRAL_BAND_INFO = "Spectral_Band_Info";
     public static final String TAG_VIRTUAL_BAND_INFO = "Virtual_Band_Info";
@@ -325,7 +325,7 @@ public final class DimapProductConstants {
     public static final String TAG_KERNEL_FACTOR = "KERNEL_FACTOR";
     public static final String TAG_KERNEL_DATA = "KERNEL_DATA";
 
-    // SNAP-Dimap dataset sources tags
+    // BEAM-Dimap dataset sources tags
     public static final String TAG_DATASET_SOURCES = "Dataset_Sources";
     public static final String TAG_SOURCE_INFORMATION = "Source_Information";
     public static final String TAG_SOURCE_ID = "SOURCE_ID";
@@ -353,7 +353,7 @@ public final class DimapProductConstants {
     public static final String TAG_METADATA_VALUE = "VALUE";
     public static final String TAG_METADATA_ATTRIBUTE = "MDATTR";
 
-    // SNAP-Dimap mask definition tags
+    // BEAM-Dimap mask definition tags
     public static final String TAG_MASKS = "Masks";
     public static final String TAG_MASK = "Mask";
     public static final String TAG_NAME = "NAME";
@@ -369,7 +369,7 @@ public final class DimapProductConstants {
     public static final String TAG_MAXIMUM = "MAXIMUM";
     public static final String TAG_RASTER = "RASTER";
 
-    // SNAP-Dimap bitmask definition tags
+    // BEAM-Dimap bitmask definition tags
     public static final String TAG_BITMASK_DEFINITIONS = "Bitmask_Definitions";
     public static final String TAG_BITMASK_DEFINITION = "Bitmask_Definition";
     public static final String TAG_BITMASK_DESCRIPTION = TAG_DESCRIPTION;
@@ -378,7 +378,7 @@ public final class DimapProductConstants {
     public static final String TAG_BITMASK_TRANSPARENCY = TAG_TRANSPARENCY;
 
 
-    // SNAP-Dimap placemark tags
+    // BEAM-Dimap placemark tags
     public static final String TAG_PLACEMARK = "Placemark";
     public static final String TAG_PLACEMARK_LABEL = "LABEL";
     public static final String TAG_PLACEMARK_DESCRIPTION = "DESCRIPTION";
@@ -392,11 +392,11 @@ public final class DimapProductConstants {
     @Deprecated
     public static final String TAG_PLACEMARK_OUTLINE_COLOR = "OutlineColor";
 
-    // SNAP-Dimap pin tags
+    // BEAM-Dimap pin tags
     public static final String TAG_PIN_GROUP = "Pin_Group";
     public static final String TAG_PIN = "Pin";
 
-    // SNAP-Dimap gcp tags
+    // BEAM-Dimap gcp tags
     public static final String TAG_GCP_GROUP = "Gcp_Group";
 
     // attribute

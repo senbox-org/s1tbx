@@ -23,7 +23,7 @@ import org.esa.snap.GlobalTestTools;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGrid;
-import org.esa.snap.core.util.SnapConstants;
+import org.esa.snap.core.util.BeamConstants;
 import org.esa.snap.core.util.io.FileUtils;
 
 import javax.imageio.stream.FileImageInputStream;
@@ -66,7 +66,7 @@ public class DimapProductWriterTest_WriteTiePointGrids extends TestCase {
     }
 
     public void testWriteProductNodes_TiePointGrid() {
-        Product product = new Product("name", SnapConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME,
+        Product product = new Product("name", BeamConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME,
                                       50, 25);
         float[] expectedArray = getTiePointData(10, 5);
         TiePointGrid tiePointGrid = new TiePointGrid("name", 10, 5, 0, 0, 5, 5, expectedArray);
