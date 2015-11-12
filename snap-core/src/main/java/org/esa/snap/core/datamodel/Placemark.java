@@ -67,9 +67,45 @@ public class Placemark extends ProductNode {
      * @param name       The placemark's name.
      * @param label      The placemark's label. May be {@code null}.
      * @param text       The placemark's (XHTML) text. May be {@code null}.
-     * @param pixelPos   The placemark's pixel position. May be {@code null}, if {@code geoPos} is given.
+     *                   //     * @param pixelPos   The placemark's pixel position. May be {@code null}, if {@code geoPos} is given.
+     * @param pixelPos   The placemark's pixel position in image coordinates. Must not be {@code null}.
+     * @param scenePos   The placemark's position in scene coordinates. Can be {@code null}.
+     *                   //     * @param geoPos     The placemark's pixel position. May be {@code null}, if {@code pixelPos} is given.
+     * @param geoPos     The placemark's pixel position. Can be {@code null}.
+     *                   //     * @param geoCoding  The product's geo-coding.
+     *                   //     *                   Used to compute {@code pixelPos} from {@code geoPos}, if {@code pixelPos} is {@code null}.
+     *                   //     * @param i2m        The transformation from the image crs to the model crs}.
+     * @return A new point placemark.
+     */
+//    public static Placemark createPointPlacemark(PlacemarkDescriptor descriptor,
+//                                                 String name,
+//                                                 String label,
+//                                                 String text,
+//                                                 PixelPos pixelPos,
+//                                                 Point2D scenePos,
+//                                                 GeoPos geoPos
+//            ,
+//                                                 GeoCoding geoCoding
+//    ) {
+//        SimpleFeature pointFeature = createPointFeature(descriptor,
+//                                                        name, label, text,
+//                                                        pixelPos, scenePos, geoPos
+//                , geoCoding
+//        );
+//        return new Placemark(descriptor, pointFeature);
+//    }
+
+    /**
+     * Creates a point placemark.
+     *
+     * @param descriptor The placemark descriptor that created this placemark.
+     * @param name       The placemark's name.
+     * @param label      The placemark's label. May be {@code null}.
+     * @param text       The placemark's (XHTML) text. May be {@code null}.
+     * @param pixelPos   The placemark's pixel position in scene image coordinates. May be {@code null}, if {@code geoPos} is given.
      * @param geoPos     The placemark's pixel position. May be {@code null}, if {@code pixelPos} is given.
-     * @param geoCoding  The placemark's geo-coding. Used to compute {@code pixelPos} from {@code geoPos}, if {@code pixelPos} is {@code null}.
+     * @param geoCoding  The product's scene geo-coding. Used to compute {@code pixelPos} from {@code geoPos},
+     *                   if {@code pixelPos} is {@code null}.
      * @return A new point placemark.
      */
     public static Placemark createPointPlacemark(PlacemarkDescriptor descriptor,
@@ -78,7 +114,18 @@ public class Placemark extends ProductNode {
                                                  String text,
                                                  PixelPos pixelPos,
                                                  GeoPos geoPos,
-                                                 GeoCoding geoCoding) {
+                                                 GeoCoding geoCoding
+    ) {
+//        Point2D scenePos = new Point2D.Double();
+//        if (
+//        try {
+//            Product.getAppropriateImageToSceneTransform(geoCoding).createInverse().transform(pixelPos, scenePos);
+//        } catch (NoninvertibleTransformException e) {
+//            scenePos = pixelPos;
+//        }
+//        if (geoPos == null && geoCoding != null && geoCoding.canGetGeoPos()) {
+//            geoPos = geoCoding.getGeoPos(pixelPos, geoPos);
+//        }
         SimpleFeature pointFeature = createPointFeature(descriptor,
                                                         name, label, text,
                                                         pixelPos, geoPos, geoCoding);
@@ -338,7 +385,6 @@ public class Placemark extends ProductNode {
             throw new IllegalArgumentException("pixelPos == null && geoPos == null");
         }
         final GeometryFactory geometryFactory = new GeometryFactory();
-        final AffineTransform i2m = Product.getAppropriateImageToSceneTransform(geoCoding);
         PixelPos imagePos = pixelPos;
 
         // todo - remove instanceof - bad code smell  (nf while revising Placemark API)
@@ -354,7 +400,8 @@ public class Placemark extends ProductNode {
             imagePos.setInvalid();
         }
 
-        final Point geometry = geometryFactory.createPoint(toCoordinate(i2m.transform(imagePos, null)));
+        Point2D scenePos = Product.getAppropriateImageToSceneTransform(geoCoding).transform(imagePos, new Point2D.Double());
+        final Point geometry = geometryFactory.createPoint(toCoordinate(scenePos));
         final SimpleFeature feature = PlainFeatureFactory.createPlainFeature(descriptor.getBaseFeatureType(),
                                                                              name,
                                                                              geometry,
