@@ -16,7 +16,6 @@
 package org.esa.snap.core.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.util.ShapeRasterizer;
 import org.esa.snap.core.util.math.MathUtils;
 
@@ -70,7 +69,7 @@ public class TransectProfileData {
         this.config = config;
         final ShapeRasterizer rasterizer = new ShapeRasterizer();
         final GeoCoding geoCoding = config.raster.getGeoCoding();
-        final AffineTransform i2m = ImageManager.getImageToModelTransform(geoCoding);
+        final AffineTransform i2m = Product.findImageToModelTransform(geoCoding);
         if (!i2m.isIdentity()) {
             try {
                 rasterizer.setTransform(i2m.createInverse());

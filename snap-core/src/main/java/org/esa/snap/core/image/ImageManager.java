@@ -99,14 +99,6 @@ public class ImageManager {
     public ImageManager() {
     }
 
-    /**
-     * @deprecated since SNAP 2, use {@link Product#getAppropriateImageToSceneTransform(GeoCoding)}
-     */
-    @Deprecated
-    public static AffineTransform getImageToModelTransform(GeoCoding geoCoding) {
-        return Product.getAppropriateImageToSceneTransform(geoCoding);
-    }
-
     public PlanarImage getSourceImage(RasterDataNode rasterDataNode, int level) {
         return getLevelImage(rasterDataNode.getSourceImage(), level);
     }
@@ -941,6 +933,15 @@ public class ImageManager {
                                        dataType,
                                        createDefaultRenderingHints(image, null));
     }
+
+    /**
+     * @deprecated since SNAP 2, use {@link Product#findImageToModelTransform(GeoCoding)}
+     */
+    @Deprecated
+    public static AffineTransform getImageToModelTransform(GeoCoding geoCoding) {
+        return Product.findImageToModelTransform(geoCoding);
+    }
+
 
     private static PlanarImage createRescaleOp(RenderedImage src, double factor, double offset) {
         if (factor == 1.0 && offset == 0.0) {

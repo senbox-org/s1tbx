@@ -253,10 +253,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             CoordinateReferenceSystem sceneCRS = product.getSceneCRS();
             GeoCoding sceneGeoCoding = product.getSceneGeoCoding();
             GeoCoding rasterGeoCoding = getGeoCoding();
-            CoordinateReferenceSystem appropriateSceneCRS = Product.getAppropriateSceneCRS(rasterGeoCoding);
+            CoordinateReferenceSystem appropriateSceneCRS = Product.findModelCRS(rasterGeoCoding);
             if (sceneCRS.equals(appropriateSceneCRS)) {
                 // If both model CRS are equal
-                return Product.getAppropriateImageToSceneTransform(rasterGeoCoding);
+                return Product.findImageToModelTransform(rasterGeoCoding);
             }
             if (sceneGeoCoding == null && rasterGeoCoding == null) {
                 // Fallback: identity transform, works fine for (single-size) products without geo-coding

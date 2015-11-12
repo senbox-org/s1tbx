@@ -15,7 +15,6 @@
  */
 package org.esa.snap.core.datamodel;
 
-import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.util.math.MathUtils;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.resources.geometry.XRectangle2D;
@@ -198,7 +197,7 @@ public class ImageGeometry {
 
     public static ImageGeometry createCollocationTargetGeometry(Product targetProduct, Product collocationProduct) {
         GeoCoding geoCoding = collocationProduct.getSceneGeoCoding();
-        final AffineTransform modelTransform = ImageManager.getImageToModelTransform(geoCoding);
+        final AffineTransform modelTransform = Product.findImageToModelTransform(geoCoding);
         final double pixelSizeX = modelTransform.getScaleX();
         final double pixelSizeY = modelTransform.getScaleY();
         final int width = collocationProduct.getSceneRasterWidth();

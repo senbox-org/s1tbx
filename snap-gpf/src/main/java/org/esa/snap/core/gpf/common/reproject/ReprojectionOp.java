@@ -468,10 +468,10 @@ public class ReprojectionOp extends Operator {
     private MultiLevelImage createProjectedImage(final GeoCoding sourceGeoCoding, final MultiLevelImage sourceImage,
                                                  MultiLevelModel sourceModel, final Band targetBand, final Interpolation resampling,
                                                  MultiLevelModel targetModel, Reproject reprojection) {
-        final CoordinateReferenceSystem sourceModelCrs = Product.getAppropriateSceneCRS(sourceGeoCoding);
-        final CoordinateReferenceSystem targetModelCrs = Product.getAppropriateSceneCRS(targetBand.getGeoCoding());
-        final AffineTransform sourceImageToMapTransform = ImageManager.getImageToModelTransform(sourceGeoCoding);
-        final AffineTransform targetImageToMapTransform = ImageManager.getImageToModelTransform(targetBand.getGeoCoding());
+        final CoordinateReferenceSystem sourceModelCrs = Product.findModelCRS(sourceGeoCoding);
+        final CoordinateReferenceSystem targetModelCrs = Product.findModelCRS(targetBand.getGeoCoding());
+        final AffineTransform sourceImageToMapTransform = Product.findImageToModelTransform(sourceGeoCoding);
+        final AffineTransform targetImageToMapTransform = Product.findImageToModelTransform(targetBand.getGeoCoding());
 
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(targetModel) {
 

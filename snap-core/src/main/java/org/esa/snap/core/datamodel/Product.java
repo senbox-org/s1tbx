@@ -342,7 +342,7 @@ public class Product extends ProductNode {
      * <ul>
      * <li>for the geometries used by all vector data;</li>
      * <li>to which all raster data can be transformed using a raster data node's
-     *     {@link RasterDataNode#getSceneRasterTransform() sceneRasterTransform}.</li>
+     * {@link RasterDataNode#getSceneRasterTransform() sceneRasterTransform}.</li>
      * </ul>
      * <p>
      * If no scene CRS has been set so far, the method will use the product's
@@ -359,7 +359,7 @@ public class Product extends ProductNode {
         if (sceneCrs != null) {
             return sceneCrs;
         }
-        return getAppropriateSceneCRS(getSceneGeoCoding());
+        return findModelCRS(getSceneGeoCoding());
     }
 
     /**
@@ -380,11 +380,30 @@ public class Product extends ProductNode {
     }
 
     /**
+     * Finds an appropriate transformation from image coordinates used by the given
+     * geo-coding (if any) into "model" coordinates used to render
+     * (e.g. display, print or otherwise visualise) the image together with other features such
+     * as geometric shapes or other images. Model coordinates are different from image coordinates for
+     * rectified images where model coordinate units are defined by a geodetic/geographic coordinate
+     * reference system (map CRS, map-projected images). In this case the model CRS equals the map CRS in use.
+     * Model coordinates are also different from image coordinates for images in satellite view
+     * that use a linearily downsampled or upsampled version of a common reference grid.
+     * <p>
+     * <b>WARNING:</b> Note that this method is only useful, if it can be ensured that the given geo-coding's
+     * {@link GeoCoding#getImageToMapTransform() image-to-map transform} is an affine transformation.
+     * In all other cases, the method returns the identity transformation which might not
+     * be what you expect and what might not be even correct.
+     *
      * @param geoCoding The geo-coding or {@code null}.
-     * @return An appropriate image-to-scene transformation.
-     * @see #getAppropriateSceneCRS
+     * @return An affine image-to-map transformation derived from the given geo-coding. If {@code geoCoding}
+     * is {@code null} or an affine image-to-map transformation cannot be derived the identity transform
+     * is returned.
+     * @see #findModelCRS
+     * @see GeoCoding#getImageToMapTransform()
+     * @see RasterDataNode#getImageToModelTransform()
+     * @see MultiLevelModel#getImageToModelTransform(int)
      */
-    public static AffineTransform getAppropriateImageToSceneTransform(GeoCoding geoCoding) {
+    public static AffineTransform findImageToModelTransform(GeoCoding geoCoding) {
         if (geoCoding != null) {
             MathTransform image2Map = geoCoding.getImageToMapTransform();
             if (image2Map instanceof AffineTransform) {
@@ -394,20 +413,30 @@ public class Product extends ProductNode {
         return new AffineTransform();
     }
 
-
     /**
-     * Gets a coordinate reference system (CRS) that is appropriate as a scene CRS.
+     * Finds a coordinate reference system (CRS) that is appropriate as a scene CRS.
+     *
+     * Finds a "model" coordinate reference system for the given
+     * geo-coding (if any) that provides the units for ccordinates to be rendered
+     * (e.g. display, print or otherwise visualise) a geo-coded image together with other features such
+     * as geometric shapes or other images. Model coordinates are different from image coordinates for
+     * rectified images where model coordinate units are defined by a geodetic/geographic coordinate
+     * reference system (map CRS, map-projected images). In this case the model CRS equals the map CRS in use.
+     * Model coordinates are also different from image coordinates for images in satellite view
+     * that use a linearily downsampled or upsampled version of a common reference grid.
      * <p>
      * If the geo-coding's {@link GeoCoding#getImageToMapTransform() image-to-map transform} is an affine transform,
-     * then the CRS returned is the geo-coding's {@link GeoCoding#getMapCRS() map CRS}, otherwise it is its
+     * then the returned CRS is the geo-coding's {@link GeoCoding#getMapCRS() map CRS}, otherwise it is its
      * {@link GeoCoding#getImageCRS() image CRS}. If the geo-coding is {@code null}, a default image CRS is returned
      * ({@link Product#DEFAULT_IMAGE_CRS}).
      *
      * @param geoCoding The geo-coding or {@code null}.
-     * @return An appropriate scene coordinate reference system.
-     * @see #getAppropriateImageToSceneTransform
+     * @return An appropriate "model" coordinate reference system.
+     * @see #findImageToModelTransform
+     * @see RasterDataNode#getImageToModelTransform()
+     * @see MultiLevelModel#getImageToModelTransform(int)
      */
-    public static CoordinateReferenceSystem getAppropriateSceneCRS(GeoCoding geoCoding) {
+    public static CoordinateReferenceSystem findModelCRS(GeoCoding geoCoding) {
         if (geoCoding != null) {
             MathTransform image2Map = geoCoding.getImageToMapTransform();
             if (image2Map instanceof AffineTransform) {
@@ -2777,7 +2806,7 @@ public class Product extends ProductNode {
     public MultiLevelModel createMultiLevelModel() {
         int w = getSceneRasterWidth();
         int h = getSceneRasterHeight();
-        AffineTransform i2mTransform = getAppropriateImageToSceneTransform(getSceneGeoCoding());
+        AffineTransform i2mTransform = findImageToModelTransform(getSceneGeoCoding());
         if (getNumResolutionsMax() > 0) {
             return new DefaultMultiLevelModel(getNumResolutionsMax(), i2mTransform, w, h);
         } else {

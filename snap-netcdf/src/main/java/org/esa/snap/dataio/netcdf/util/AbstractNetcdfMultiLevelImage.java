@@ -112,7 +112,7 @@ public abstract class AbstractNetcdfMultiLevelImage extends MultiLevelImage {
     private static MultiLevelModel createMultiLevelModel(RasterDataNode rasterDataNode, int levelCount) {
         final int w = rasterDataNode.getRasterWidth();
         final int h = rasterDataNode.getRasterHeight();
-        final AffineTransform i2mTransform = Product.getAppropriateImageToSceneTransform(rasterDataNode.getGeoCoding());
+        final AffineTransform i2mTransform = Product.findImageToModelTransform(rasterDataNode.getGeoCoding());
         return new DefaultMultiLevelModel(levelCount, i2mTransform, w, h);
     }
 }

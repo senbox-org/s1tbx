@@ -19,7 +19,6 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 import org.esa.snap.core.dataio.ProductSubsetDef;
-import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.ObjectUtils;
 import org.esa.snap.runtime.Config;
@@ -232,12 +231,12 @@ public class Placemark extends ProductNode {
      * Updates pixel and geo position according to the current geometry (model coordinates).
      */
     public void updatePositions() {
-        final Object defaultGeometry = feature.getDefaultGeometry();
+        Object defaultGeometry = feature.getDefaultGeometry();
         if (defaultGeometry instanceof Point) {
             final Point point = (Point) defaultGeometry;
             if (getProduct() != null) {
-                final GeoCoding geoCoding = getProduct().getSceneGeoCoding();
-                final AffineTransform i2m = ImageManager.getImageToModelTransform(geoCoding);
+                GeoCoding geoCoding = getProduct().getSceneGeoCoding();
+                AffineTransform i2m = Product.findImageToModelTransform(geoCoding);
                 PixelPos pixelPos = new PixelPos(point.getX(), point.getY());
                 try {
                     i2m.inverseTransform(pixelPos, pixelPos);
@@ -320,7 +319,7 @@ public class Placemark extends ProductNode {
         final Product product = getProduct();
         final Point2D.Double geometryPoint = new Point2D.Double(pixelPos.x, pixelPos.y);
         if (product != null) {
-            final AffineTransform i2m = ImageManager.getImageToModelTransform(product.getSceneGeoCoding());
+            final AffineTransform i2m = Product.findImageToModelTransform(product.getSceneGeoCoding());
             i2m.transform(pixelPos, geometryPoint);
         }
         final Point point = (Point) feature.getDefaultGeometry();
@@ -354,7 +353,7 @@ public class Placemark extends ProductNode {
             imagePos.setInvalid();
         }
 
-        Point2D scenePos = Product.getAppropriateImageToSceneTransform(geoCoding).transform(imagePos, new Point2D.Double());
+        Point2D scenePos = Product.findImageToModelTransform(geoCoding).transform(imagePos, new Point2D.Double());
         final Point geometry = geometryFactory.createPoint(toCoordinate(scenePos));
         final SimpleFeature feature = PlainFeatureFactory.createPlainFeature(descriptor.getBaseFeatureType(),
                                                                              name,
