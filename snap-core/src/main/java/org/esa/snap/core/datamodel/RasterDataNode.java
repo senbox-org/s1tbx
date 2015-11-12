@@ -210,32 +210,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         return new Dimension(getRasterWidth(), getRasterHeight());
     }
 
-    /**
-     * @return The width of the product's scene raster in pixels. By default, the method simply
-     * returns <code>getRasterWidth()</code>.
-     */
-    @Deprecated
-    public int getSceneRasterWidth() {
-        return getRasterWidth();
-    }
-
-    /**
-     * @return The height of the product's scene raster in pixels. By default, the method simply
-     * returns <code>getRasterHeight()</code>.
-     */
-    @Deprecated
-    public int getSceneRasterHeight() {
-        return getRasterHeight();
-    }
-
-    /**
-     * @return The size of the product's scene raster in pixels.
-     */
-    @Deprecated
-    public Dimension getSceneRasterSize() {
-        return new Dimension(getSceneRasterWidth(), getSceneRasterHeight());
-    }
-
 
     @Override
     public void setModified(boolean modified) {
@@ -279,10 +253,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             CoordinateReferenceSystem sceneCRS = product.getSceneCRS();
             GeoCoding sceneGeoCoding = product.getSceneGeoCoding();
             GeoCoding rasterGeoCoding = getGeoCoding();
-            CoordinateReferenceSystem appropriateSceneCRS = Product.getAppropriateSceneCRS(rasterGeoCoding);
+            CoordinateReferenceSystem appropriateSceneCRS = Product.findModelCRS(rasterGeoCoding);
             if (sceneCRS.equals(appropriateSceneCRS)) {
                 // If both model CRS are equal
-                return Product.getAppropriateImageToSceneTransform(rasterGeoCoding);
+                return Product.findImageToModelTransform(rasterGeoCoding);
             }
             if (sceneGeoCoding == null && rasterGeoCoding == null) {
                 // Fallback: identity transform, works fine for (single-size) products without geo-coding
@@ -884,7 +858,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                 if (rasterData.getType() != getDataType()) {
                     throw new IllegalArgumentException("rasterData.getType() != getDataType()");
                 }
-                if (rasterData.getNumElems() != getSceneRasterWidth() * getSceneRasterHeight()) {
+                if (rasterData.getNumElems() != getRasterWidth() * getRasterHeight()) {
                     throw new IllegalArgumentException("rasterData.getNumElems() != getRasterWidth() * getRasterHeight()");
                 }
             }
@@ -1050,8 +1024,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (!isValidMaskUsed()) {
             return true;
         }
-        final int y = pixelIndex / getSceneRasterWidth();
-        final int x = pixelIndex - (y * getSceneRasterWidth());
+        final int y = pixelIndex / getRasterWidth();
+        final int x = pixelIndex - (y * getRasterWidth());
         return isPixelValid(x, y);
     }
 
@@ -1585,7 +1559,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     @SuppressWarnings("unused") // may be useful API for scripting languages
     public ProductData createCompatibleSceneRasterData() {
-        return createCompatibleRasterData(getSceneRasterWidth(), getSceneRasterHeight());
+        return createCompatibleRasterData(getRasterWidth(), getRasterHeight());
     }
 
     /**
@@ -1882,7 +1856,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     public byte[] quantizeRasterData(final double newMin, final double newMax, final double gamma,
                                      ProgressMonitor pm) throws IOException {
-        final byte[] colorIndexes = new byte[getSceneRasterWidth() * getSceneRasterHeight()];
+        final byte[] colorIndexes = new byte[getRasterWidth() * getRasterHeight()];
         quantizeRasterData(newMin, newMax, gamma, colorIndexes, 0, 1, pm);
         return colorIndexes;
     }
@@ -2017,7 +1991,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     private boolean isPixelWithinImageBounds(int x, int y) {
-        return x >= 0 && y >= 0 && x < getSceneRasterWidth() && y < getSceneRasterHeight();
+        return x >= 0 && y >= 0 && x < getRasterWidth() && y < getRasterHeight();
     }
 
     private boolean isValidPixelExpressionSet() {

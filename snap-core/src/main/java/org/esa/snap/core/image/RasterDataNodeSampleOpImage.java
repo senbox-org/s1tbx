@@ -19,8 +19,8 @@ public abstract class RasterDataNodeSampleOpImage extends RasterDataNodeOpImage 
 
     @Override
     protected void computeProductData(ProductData productData, Rectangle destRect) throws IOException {
-        final int sourceWidth = getRasterDataNode().getSceneRasterWidth();
-        final int sourceHeight = getRasterDataNode().getSceneRasterHeight();
+        final int sourceWidth = getRasterDataNode().getRasterWidth();
+        final int sourceHeight = getRasterDataNode().getRasterHeight();
         final int targetWidth = destRect.width;
         final int targetHeight = destRect.height;
         final int sourceX0 = getSourceX(destRect.x);

@@ -322,8 +322,8 @@ public class ReprojectionOp extends Operator {
     }
 
     private Orthorectifier createOrthorectifier(final RasterDataNode sourceBand) {
-        return new Orthorectifier2(sourceBand.getSceneRasterWidth(),
-                                   sourceBand.getSceneRasterHeight(),
+        return new Orthorectifier2(sourceBand.getRasterWidth(),
+                                   sourceBand.getRasterHeight(),
                                    sourceBand.getPointing(),
                                    elevationModel, 25);
     }
@@ -353,8 +353,8 @@ public class ReprojectionOp extends Operator {
         targetProduct.addBand(targetBand);
         targetBand.setLog10Scaled(sourceRaster.isLog10Scaled());
         targetBand.setNoDataValue(targetNoDataValue.doubleValue());
-        targetBand.setNoDataValueUsed(targetBand.getSceneRasterWidth() == targetProduct.getSceneRasterWidth() &&
-                                              targetBand.getSceneRasterHeight() == targetProduct.getSceneRasterHeight());
+        targetBand.setNoDataValueUsed(targetBand.getRasterWidth() == targetProduct.getSceneRasterWidth() &&
+                                              targetBand.getRasterHeight() == targetProduct.getSceneRasterHeight());
         targetBand.setDescription(sourceRaster.getDescription());
         targetBand.setUnit(sourceRaster.getUnit());
         GeoCoding bandGeoCoding = reprojectionSettings.getGeoCoding();
@@ -468,10 +468,10 @@ public class ReprojectionOp extends Operator {
     private MultiLevelImage createProjectedImage(final GeoCoding sourceGeoCoding, final MultiLevelImage sourceImage,
                                                  MultiLevelModel sourceModel, final Band targetBand, final Interpolation resampling,
                                                  MultiLevelModel targetModel, Reproject reprojection) {
-        final CoordinateReferenceSystem sourceModelCrs = Product.getAppropriateSceneCRS(sourceGeoCoding);
-        final CoordinateReferenceSystem targetModelCrs = Product.getAppropriateSceneCRS(targetBand.getGeoCoding());
-        final AffineTransform sourceImageToMapTransform = ImageManager.getImageToModelTransform(sourceGeoCoding);
-        final AffineTransform targetImageToMapTransform = ImageManager.getImageToModelTransform(targetBand.getGeoCoding());
+        final CoordinateReferenceSystem sourceModelCrs = Product.findModelCRS(sourceGeoCoding);
+        final CoordinateReferenceSystem targetModelCrs = Product.findModelCRS(targetBand.getGeoCoding());
+        final AffineTransform sourceImageToMapTransform = Product.findImageToModelTransform(sourceGeoCoding);
+        final AffineTransform targetImageToMapTransform = Product.findImageToModelTransform(targetBand.getGeoCoding());
 
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(targetModel) {
 
@@ -498,8 +498,8 @@ public class ReprojectionOp extends Operator {
 
                 ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(
                         ImageManager.getDataBufferType(targetBand.getDataType()),
-                        targetBand.getSceneRasterWidth(),
-                        targetBand.getSceneRasterHeight(),
+                        targetBand.getRasterWidth(),
+                        targetBand.getRasterHeight(),
                         targetProduct.getPreferredTileSize(),
                         ResolutionLevel.create(getModel(), targetLevel));
                 Rectangle targetBounds = new Rectangle(imageLayout.getMinX(null), imageLayout.getMinY(null),
@@ -801,8 +801,8 @@ public class ReprojectionOp extends Operator {
             if (!reprojectionSettingsMap.containsKey(key)) {
                 GeoPos centerGeoPos =
                         getCenterGeoPos(rasterDataNode.getGeoCoding(),
-                                        rasterDataNode.getSceneRasterWidth(),
-                                        rasterDataNode.getSceneRasterHeight());
+                                        rasterDataNode.getRasterWidth(),
+                                        rasterDataNode.getRasterHeight());
                 CoordinateReferenceSystem targetCrs = createTargetCRS(centerGeoPos);
                 ImageGeometry targetImageGeometry = ImageGeometry.createTargetGeometry(rasterDataNode, targetCrs,
                                                                                        pixelSizeX, pixelSizeY,
@@ -828,8 +828,8 @@ public class ReprojectionOp extends Operator {
         }
 
         private String getKey(RasterDataNode rasterDataNode) {
-            return rasterDataNode.getGeoCoding().toString() + " " + rasterDataNode.getSceneRasterWidth() + " "
-                    + rasterDataNode.getSceneRasterHeight();
+            return rasterDataNode.getGeoCoding().toString() + " " + rasterDataNode.getRasterWidth() + " "
+                    + rasterDataNode.getRasterHeight();
         }
 
     }

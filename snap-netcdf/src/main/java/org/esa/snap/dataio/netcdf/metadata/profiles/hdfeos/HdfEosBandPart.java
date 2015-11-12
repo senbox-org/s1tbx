@@ -92,8 +92,8 @@ public class HdfEosBandPart extends ProfilePartIO {
             final Object object = ctx.getProperty(Constants.Y_FLIPPED_PROPERTY_NAME);
             boolean isYFlipped = object instanceof Boolean && (Boolean) object;
             int dataBufferType = ImageManager.getDataBufferType(rdn.getDataType());
-            int sourceWidth = (int) (rdn.getSceneRasterWidth() / scaleFactor);
-            int sourceHeight = (int) (rdn.getSceneRasterHeight() / scaleFactor);
+            int sourceWidth = (int) (rdn.getRasterWidth() / scaleFactor);
+            int sourceHeight = (int) (rdn.getRasterHeight() / scaleFactor);
             ResolutionLevel resolutionLevel = ResolutionLevel.create(getModel(), level);
             Dimension imageTileSize = new Dimension(getTileWidth(), getTileHeight());
 

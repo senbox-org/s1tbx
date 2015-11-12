@@ -23,7 +23,7 @@ import java.util.Locale;
  * This interface is a container for constants specific for ENVISAT-products.
  *
  * @author Norman Fomferra
- * @deprecated Since it is Envisat-specific, this class lives in a wrong package.
+ * @deprecated Since most (but not all) of the fields are Envisat-specific, this class lives in a wrong package.
  */
 @Deprecated
 public interface BeamConstants {

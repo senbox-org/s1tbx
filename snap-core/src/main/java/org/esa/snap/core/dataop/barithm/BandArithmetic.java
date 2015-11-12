@@ -322,11 +322,11 @@ public class BandArithmetic {
     public static boolean areRastersEqualInSize(Term term) {
         final RasterDataSymbol[] rasterDataSymbols = getRefRasterDataSymbols(term);
         if (rasterDataSymbols.length > 1) {
-            int referenceWidth = rasterDataSymbols[0].getRaster().getSceneRasterWidth();
-            int referenceHeight = rasterDataSymbols[0].getRaster().getSceneRasterHeight();
+            int referenceWidth = rasterDataSymbols[0].getRaster().getRasterWidth();
+            int referenceHeight = rasterDataSymbols[0].getRaster().getRasterHeight();
             for (int i = 1; i < rasterDataSymbols.length; i++) {
-                if (rasterDataSymbols[i].getRaster().getSceneRasterWidth() != referenceWidth ||
-                        rasterDataSymbols[i].getRaster().getSceneRasterHeight() != referenceHeight) {
+                if (rasterDataSymbols[i].getRaster().getRasterWidth() != referenceWidth ||
+                        rasterDataSymbols[i].getRaster().getRasterHeight() != referenceHeight) {
                     return false;
                 }
             }
@@ -367,10 +367,10 @@ public class BandArithmetic {
                         return false;
                     }
                     if (referenceWidth == -1) {
-                        referenceWidth = refRasters[0].getSceneRasterWidth();
-                        referenceHeight = refRasters[0].getSceneRasterHeight();
-                    } else if (refRasters[0].getSceneRasterWidth() != referenceWidth ||
-                            refRasters[0].getSceneRasterHeight() != referenceHeight) {
+                        referenceWidth = refRasters[0].getRasterWidth();
+                        referenceHeight = refRasters[0].getRasterHeight();
+                    } else if (refRasters[0].getRasterWidth() != referenceWidth ||
+                            refRasters[0].getRasterHeight() != referenceHeight) {
                         return false;
                     }
                 }

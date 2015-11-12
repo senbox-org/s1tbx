@@ -259,8 +259,8 @@ public class OperatorExecutorTest {
 
 
     private static ProductData createDataFor(Band dataBand) {
-        final int width = dataBand.getSceneRasterWidth();
-        final int height = dataBand.getSceneRasterHeight();
+        final int width = dataBand.getRasterWidth();
+        final int height = dataBand.getRasterHeight();
         final ProductData data = ProductData.createInstance(dataBand.getDataType(), width * height);
         for (int y = 0; y < height; y++) {
             final int line = y * width;

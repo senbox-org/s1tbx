@@ -33,11 +33,8 @@ import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.ImageInfo;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.ProductNode;
 import org.esa.snap.core.datamodel.RGBChannelDef;
 import org.esa.snap.core.datamodel.RasterDataNode;
-import org.esa.snap.core.datamodel.Scene;
-import org.esa.snap.core.datamodel.SceneFactory;
 import org.esa.snap.core.datamodel.Stx;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.ImageUtils;
@@ -45,7 +42,6 @@ import org.esa.snap.core.util.IntMap;
 import org.esa.snap.core.util.jai.JAIUtils;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.runtime.Config;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.media.jai.Histogram;
 import javax.media.jai.ImageLayout;
@@ -103,14 +99,6 @@ public class ImageManager {
     public ImageManager() {
     }
 
-    /**
-     * @deprecated since SNAP 2, use {@link Product#getAppropriateImageToSceneTransform(GeoCoding)}
-     */
-    @Deprecated
-    public static AffineTransform getImageToModelTransform(GeoCoding geoCoding) {
-        return Product.getAppropriateImageToSceneTransform(geoCoding);
-    }
-
     public PlanarImage getSourceImage(RasterDataNode rasterDataNode, int level) {
         return getLevelImage(rasterDataNode.getSourceImage(), level);
     }
@@ -133,9 +121,8 @@ public class ImageManager {
     }
 
     public static ImageLayout createSingleBandedImageLayout(RasterDataNode rasterDataNode, int dataBufferType) {
-        // todo - [multisize_products] fix: getSceneRasterWidth/Height() is wrong here! (nf)
-        int width = rasterDataNode.getSceneRasterWidth();
-        int height = rasterDataNode.getSceneRasterHeight();
+        int width = rasterDataNode.getRasterWidth();
+        int height = rasterDataNode.getRasterHeight();
         Dimension tileSize = getPreferredTileSize(rasterDataNode.getProduct());
         return createSingleBandedImageLayout(dataBufferType, width, height, tileSize.width, tileSize.height);
     }
@@ -857,7 +844,7 @@ public class ImageManager {
      * Non-API.
      */
     public int getStatisticsLevel(RasterDataNode raster, int levelCount) {
-        final long imageSize = (long) raster.getSceneRasterWidth() * raster.getSceneRasterHeight();
+        final long imageSize = (long) raster.getRasterWidth() * raster.getRasterHeight();
         final int statisticsLevel;
         if (imageSize <= DefaultMultiLevelModel.DEFAULT_MAX_LEVEL_PIXEL_COUNT) {
             statisticsLevel = 0;
@@ -946,6 +933,15 @@ public class ImageManager {
                                        dataType,
                                        createDefaultRenderingHints(image, null));
     }
+
+    /**
+     * @deprecated since SNAP 2, use {@link Product#findImageToModelTransform(GeoCoding)}
+     */
+    @Deprecated
+    public static AffineTransform getImageToModelTransform(GeoCoding geoCoding) {
+        return Product.findImageToModelTransform(geoCoding);
+    }
+
 
     private static PlanarImage createRescaleOp(RenderedImage src, double factor, double offset) {
         if (factor == 1.0 && offset == 0.0) {

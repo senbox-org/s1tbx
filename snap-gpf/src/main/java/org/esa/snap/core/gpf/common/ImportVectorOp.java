@@ -35,7 +35,6 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.gpf.common.support.SLDUtils;
-import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.FeatureUtils;
 import org.esa.snap.core.util.ProductUtils;
@@ -320,7 +319,7 @@ public class ImportVectorOp extends Operator {
                 return null;
             }
             CoordinateReferenceSystem modelCrs = product.getSceneCRS();
-            AffineTransform imageToModelTransform = ImageManager.getImageToModelTransform(geoCoding);
+            AffineTransform imageToModelTransform = Product.findImageToModelTransform(geoCoding);
             GeometryCoordinateSequenceTransformer transformer = new GeometryCoordinateSequenceTransformer();
             transformer.setMathTransform(new AffineTransform2D(imageToModelTransform));
             transformer.setCoordinateReferenceSystem(modelCrs);

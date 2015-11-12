@@ -23,7 +23,6 @@ import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductSubsetDef;
-import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.image.ResolutionLevel;
 import org.esa.snap.core.image.TiePointGridOpImage;
 import org.esa.snap.core.util.Guardian;
@@ -261,30 +260,6 @@ public class TiePointGrid extends RasterDataNode {
     }
 
     /**
-     * Returns the width in pixels of the scene represented by this tie-point grid. The value returned is
-     * <code>(getGridWidth() - 1) * getSubSamplingX() + 1</code>
-     *
-     * @return the scene width in pixels
-     */
-    @Deprecated
-    @Override
-    public int getSceneRasterWidth() {
-        return getRasterWidth();
-    }
-
-    /**
-     * Returns the height in pixels of the scene represented by this tie-point grid. The value returned is
-     * <code>(getGridHeight() - 1) * getSubSamplingY() + 1</code>
-     *
-     * @return the scene height in pixels
-     */
-    @Deprecated
-    @Override
-    public int getSceneRasterHeight() {
-        return getRasterHeight();
-    }
-
-    /**
      * Determines the angular discontinuity of the given tie point values.
      *
      * @return the angular discontinuity, will always be either {@link #DISCONT_AT_180} or
@@ -359,8 +334,8 @@ public class TiePointGrid extends RasterDataNode {
      */
     @Override
     public ProductData getRasterData() {
-        int width = getSceneRasterWidth();
-        int height = getSceneRasterHeight();
+        int width = getRasterWidth();
+        int height = getRasterHeight();
         ProductData gridData = getGridData();
         // A tie-point grid's data may have the same dimensions as the requested raster data:
         // In this case we can simply return it instead of holding another one in this.rasterData.
@@ -941,8 +916,8 @@ public class TiePointGrid extends RasterDataNode {
         int subsetOffsetY = 0;
         int subsetStepX = 1;
         int subsetStepY = 1;
-        final int srcRasterWidth = sourceTiePointGrid.getSceneRasterWidth();
-        final int srcRasterHeight = sourceTiePointGrid.getSceneRasterHeight();
+        final int srcRasterWidth = sourceTiePointGrid.getRasterWidth();
+        final int srcRasterHeight = sourceTiePointGrid.getRasterHeight();
         int subsetWidth = srcRasterWidth;
         int subsetHeight = srcRasterHeight;
         if (subsetDef != null) {

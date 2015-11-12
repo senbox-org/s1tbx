@@ -58,8 +58,8 @@ public abstract class AbstractRasterDataNodeTest extends AbstractDataNodeTest {
         final String renamedExpression = "ident_1 + newIdent - ident_3";
         final RasterDataNode node = createRasterDataNode();
         node.setValidPixelExpression(initialExpression);
-        final int width = node.getSceneRasterWidth();
-        final int height = node.getSceneRasterHeight();
+        final int width = node.getRasterWidth();
+        final int height = node.getRasterHeight();
         final boolean[] isActive = {false};
         final Product product = new Product("n", "t", width, height) {
             @Override
