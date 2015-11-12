@@ -35,7 +35,7 @@ import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.esa.snap.rcp.SnapApp.ProductSelectionHint.*;
+import static org.esa.snap.rcp.SnapApp.SelectionSourceHint.*;
 
 /**
  * Displays InSAR Statistics

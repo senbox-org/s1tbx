@@ -41,7 +41,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 
-import static org.esa.snap.rcp.SnapApp.ProductSelectionHint.*;
+import static org.esa.snap.rcp.SnapApp.SelectionSourceHint.*;
 
 /**
  * Created by IntelliJ IDEA.

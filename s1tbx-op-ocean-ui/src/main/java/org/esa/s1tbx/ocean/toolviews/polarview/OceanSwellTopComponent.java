@@ -35,7 +35,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 
-import static org.esa.snap.rcp.SnapApp.ProductSelectionHint.*;
+import static org.esa.snap.rcp.SnapApp.SelectionSourceHint.*;
 
 
 @TopComponent.Description(
