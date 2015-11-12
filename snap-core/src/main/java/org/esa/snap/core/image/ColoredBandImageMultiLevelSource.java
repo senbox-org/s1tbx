@@ -32,27 +32,27 @@ import java.awt.image.RenderedImage;
  * @author Norman Fomferra
  * @since Since BEAM 4.0
  */
-public class BandImageMultiLevelSource extends AbstractMultiLevelSource {
+public class ColoredBandImageMultiLevelSource extends AbstractMultiLevelSource {
 
     private final RasterDataNode[] rasterDataNodes;
     private ImageInfo imageInfo;
 
-    public static BandImageMultiLevelSource create(RasterDataNode rasterDataNode, ProgressMonitor pm) {
+    public static ColoredBandImageMultiLevelSource create(RasterDataNode rasterDataNode, ProgressMonitor pm) {
         return create(new RasterDataNode[]{rasterDataNode}, pm);
     }
 
-    public static BandImageMultiLevelSource create(RasterDataNode[] rasterDataNodes, ProgressMonitor pm) {
+    public static ColoredBandImageMultiLevelSource create(RasterDataNode[] rasterDataNodes, ProgressMonitor pm) {
         RasterDataNode rdn = rasterDataNodes[0];
-        MultiLevelModel model = ImageManager.getMultiLevelModel(rdn);
+        MultiLevelModel model = rdn.getMultiLevelModel();
         return create(rasterDataNodes, model, pm);
     }
 
-    public static BandImageMultiLevelSource create(RasterDataNode[] rasterDataNodes, MultiLevelModel model, ProgressMonitor pm) {
+    public static ColoredBandImageMultiLevelSource create(RasterDataNode[] rasterDataNodes, MultiLevelModel model, ProgressMonitor pm) {
         ImageManager.getInstance().prepareImageInfos(rasterDataNodes, pm);
-        return new BandImageMultiLevelSource(model, rasterDataNodes);
+        return new ColoredBandImageMultiLevelSource(model, rasterDataNodes);
     }
 
-    private BandImageMultiLevelSource(MultiLevelModel model, RasterDataNode[] rasterDataNodes) {
+    private ColoredBandImageMultiLevelSource(MultiLevelModel model, RasterDataNode[] rasterDataNodes) {
         super(model);
         this.rasterDataNodes = rasterDataNodes.clone();
         imageInfo = ImageManager.getInstance().getImageInfo(rasterDataNodes);

@@ -27,7 +27,7 @@ import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
 
-public class MaskImageMultiLevelSource extends AbstractMultiLevelSource {
+public class ColoredMaskImageMultiLevelSource extends AbstractMultiLevelSource {
 
     private final Product product;
     private final Color color;
@@ -42,11 +42,11 @@ public class MaskImageMultiLevelSource extends AbstractMultiLevelSource {
         final int width = product.getSceneRasterWidth();
         final int height = product.getSceneRasterHeight();
         MultiLevelModel model = new DefaultMultiLevelModel(i2mTransform, width, height);
-        return new MaskImageMultiLevelSource(model, product, color, expression, inverseMask);
+        return new ColoredMaskImageMultiLevelSource(model, product, color, expression, inverseMask);
     }
 
-    public MaskImageMultiLevelSource(MultiLevelModel model, Product product, Color color,
-                                     String expression, boolean inverseMask) {
+    public ColoredMaskImageMultiLevelSource(MultiLevelModel model, Product product, Color color,
+                                            String expression, boolean inverseMask) {
         super(model);
         this.product = product;
         this.color = color;

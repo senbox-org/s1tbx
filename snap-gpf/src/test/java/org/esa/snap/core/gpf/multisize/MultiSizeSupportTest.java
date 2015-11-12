@@ -98,7 +98,7 @@ public class MultiSizeSupportTest {
         final Rectangle2D[] expectedImageSizes = new Rectangle2D[productBandGroup.getNodeCount()];
         for (int i = 0; i < productBandGroup.getNodeCount(); i++) {
             final Band band = productBandGroup.get(i);
-            final MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(band);
+            final MultiLevelModel multiLevelModel = band.getMultiLevelModel();
             final Rectangle2D modelBounds = multiLevelModel.getModelBounds();
             final Rectangle2D intersection = modelBounds.createIntersection(subsetModelBounds);
             expectedImageSizes[i] = multiLevelModel.getModelToImageTransform(0).createTransformedShape(intersection).getBounds2D();

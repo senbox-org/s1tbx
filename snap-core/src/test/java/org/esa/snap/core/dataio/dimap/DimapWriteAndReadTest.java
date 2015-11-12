@@ -268,13 +268,13 @@ public class DimapWriteAndReadTest extends TestCase {
                 diff.append(
                             "DataType of Band " + i + " expected <" + expBand.getDataType() + "> but was <" + currentBand.getDataType() + ">\r\n");
             }
-            if (expBand.getSceneRasterWidth() != currentBand.getSceneRasterWidth()) {
+            if (expBand.getRasterWidth() != currentBand.getRasterWidth()) {
                 diff.append(
-                            "SceneRasterWidth of Band " + i + " expected <" + expBand.getSceneRasterWidth() + "> but was <" + currentBand.getSceneRasterWidth() + ">\r\n");
+                        "RasterWidth of Band " + i + " expected <" + expBand.getRasterWidth() + "> but was <" + currentBand.getRasterWidth() + ">\r\n");
             }
-            if (expBand.getSceneRasterHeight() != currentBand.getSceneRasterHeight()) {
+            if (expBand.getRasterHeight() != currentBand.getRasterHeight()) {
                 diff.append(
-                            "SceneRasterHeight of Band " + i + " expected <" + expBand.getSceneRasterHeight() + "> but was <" + currentBand.getSceneRasterHeight() + ">\r\n");
+                        "RasterHeight of Band " + i + " expected <" + expBand.getRasterHeight() + "> but was <" + currentBand.getRasterHeight() + ">\r\n");
             }
             if (expBand.getFlagCoding() != null && !(currentBand.getFlagCoding() != null)) {
                 diff.append(

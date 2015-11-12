@@ -271,7 +271,7 @@ public class BandMathsOp extends Operator {
                 throw new OperatorException("Referenced rasters must all be the same size: " + bandDescriptor.expression);
             }
             final RasterDataSymbol[] rasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(targetTerm);
-            Dimension targetBandDimension = findTargetBandDimension(rasterDataSymbols);
+            Dimension targetBandDimension = findTargetBandSize(rasterDataSymbols);
 
             final Band targetBand = createBand(bandDescriptor, targetBandDimension);
 
@@ -432,15 +432,13 @@ public class BandMathsOp extends Operator {
         return targetBand;
     }
 
-    private Dimension findTargetBandDimension(RasterDataSymbol[] rasterDataSymbols) {
-        Dimension targetbandDimension;
+    private Dimension findTargetBandSize(RasterDataSymbol[] rasterDataSymbols) {
         if (rasterDataSymbols.length > 0) {
-            final RasterDataSymbol referenceSourceRaster = rasterDataSymbols[0];
-            targetbandDimension = referenceSourceRaster.getRaster().getSceneRasterSize();
+            RasterDataSymbol referenceSourceRaster = rasterDataSymbols[0];
+            return referenceSourceRaster.getRaster().getRasterSize();
         } else {
-            targetbandDimension = targetProduct.getSceneRasterSize();
+            return targetProduct.getSceneRasterSize();
         }
-        return targetbandDimension;
     }
 
     private void transferGeoCoding(RasterDataNode sourceRaster, Band targetBand) {

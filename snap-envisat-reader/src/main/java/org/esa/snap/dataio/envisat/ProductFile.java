@@ -414,7 +414,7 @@ public abstract class ProductFile {
      * <p> Since the retrieval of the number of columns associated with one tie point is product type dependend this
      * method is abstract in order to let a sub-class implement the retrieval.
      * <p> Valid ENVISAT data products must at least provide a number of
-     * <pre> 1 + getSceneRasterWidth() / getTiePointSubSamplingX() </pre>
+     * <pre> 1 + getRasterWidth() / getTiePointSubSamplingX() </pre>
      * tie points per annotation dataset record (ADSR).
      *
      * @param gridWidth the tie-point grid width, ignored by other than AATSR products
@@ -430,7 +430,7 @@ public abstract class ProductFile {
      * <p> Since the retrieval of the number of lines contained in a data product is differs from pruct type to type
      * this method is abstract in order to let a sub-class implement the retrieval.
      * <p> Valid ENVISAT data products must at least provide a number of
-     * <pre> 1 + getSceneRasterHeight() / getTiePointSubSamplingY() </pre>
+     * <pre> 1 + getRasterHeight() / getTiePointSubSamplingY() </pre>
      * tie points per annotation dataset record (ADSR).
      *
      * @param gridWidth the tie-point grid width, ignored by other than AATSR products

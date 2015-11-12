@@ -117,7 +117,7 @@ public class MaskTest {
 
         @Override
         public MultiLevelImage createImage(Mask mask) {
-            BufferedImage image = new BufferedImage(mask.getSceneRasterWidth(), mask.getSceneRasterHeight(), BufferedImage.TYPE_BYTE_GRAY);
+            BufferedImage image = new BufferedImage(mask.getRasterWidth(), mask.getRasterHeight(), BufferedImage.TYPE_BYTE_GRAY);
             return new DefaultMultiLevelImage(new DefaultMultiLevelSource(image, 3));
         }
     }

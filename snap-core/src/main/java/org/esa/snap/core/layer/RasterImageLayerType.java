@@ -25,7 +25,7 @@ import com.bc.ceres.glayer.annotations.LayerTypeMetadata;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.snap.core.datamodel.RasterDataNode;
-import org.esa.snap.core.image.BandImageMultiLevelSource;
+import org.esa.snap.core.image.ColoredBandImageMultiLevelSource;
 
 @LayerTypeMetadata(name = "RasterImageLayerType", aliasNames = {"org.esa.snap.core.layer.RasterImageLayerType"})
 public class RasterImageLayerType extends ImageLayer.Type {
@@ -38,7 +38,7 @@ public class RasterImageLayerType extends ImageLayer.Type {
                 ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE);
         if (multiLevelSource == null) {
             final RasterDataNode raster = (RasterDataNode) configuration.getValue(PROPERTY_NAME_RASTER);
-            multiLevelSource = BandImageMultiLevelSource.create(raster, ProgressMonitor.NULL);
+            multiLevelSource = ColoredBandImageMultiLevelSource.create(raster, ProgressMonitor.NULL);
             configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         }
         return new ImageLayer(this, multiLevelSource, configuration);
@@ -59,7 +59,7 @@ public class RasterImageLayerType extends ImageLayer.Type {
         final PropertySet configuration = createLayerConfig(null);
         configuration.setValue(PROPERTY_NAME_RASTER, raster);
         if (multiLevelSource == null) {
-            multiLevelSource = BandImageMultiLevelSource.create(raster, ProgressMonitor.NULL);
+            multiLevelSource = ColoredBandImageMultiLevelSource.create(raster, ProgressMonitor.NULL);
         }
         configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         return createLayer(null, configuration);

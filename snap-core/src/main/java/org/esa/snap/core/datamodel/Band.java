@@ -24,7 +24,6 @@ import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.dataio.ProductWriter;
 import org.esa.snap.core.image.BandOpImage;
-import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.image.ResolutionLevel;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.ImageUtils;
@@ -257,7 +256,7 @@ public class Band extends AbstractBand {
 
     @Override
     protected RenderedImage createSourceImage() {
-        final MultiLevelModel model = ImageManager.getMultiLevelModel(this);
+        final MultiLevelModel model = createMultiLevelModel();
 
         if (hasRasterData()) {
             // This code is for backward compatibility only
@@ -344,7 +343,7 @@ public class Band extends AbstractBand {
             rasterData = createCompatibleRasterData(getRasterWidth(), getRasterHeight());
         }
 
-        readRasterData(0, 0, getSceneRasterWidth(), getSceneRasterHeight(), rasterData, pm);
+        readRasterData(0, 0, getRasterWidth(), getRasterHeight(), rasterData, pm);
         setRasterData(rasterData);
     }
 
@@ -408,8 +407,8 @@ public class Band extends AbstractBand {
             size += 256; // add estimated overhead of 256 bytes
             long numDataElems = getNumDataElems();
             if (subsetDef != null) {
-                long width = getSceneRasterWidth();
-                long height = getSceneRasterHeight();
+                long width = getRasterWidth();
+                long height = getRasterHeight();
                 Rectangle region = subsetDef.getRegion();
                 if (region != null) {
                     width = region.width;

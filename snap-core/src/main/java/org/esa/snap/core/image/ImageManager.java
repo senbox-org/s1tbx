@@ -33,11 +33,8 @@ import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.ImageInfo;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.ProductNode;
 import org.esa.snap.core.datamodel.RGBChannelDef;
 import org.esa.snap.core.datamodel.RasterDataNode;
-import org.esa.snap.core.datamodel.Scene;
-import org.esa.snap.core.datamodel.SceneFactory;
 import org.esa.snap.core.datamodel.Stx;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.ImageUtils;
@@ -45,7 +42,6 @@ import org.esa.snap.core.util.IntMap;
 import org.esa.snap.core.util.jai.JAIUtils;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.runtime.Config;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.media.jai.Histogram;
 import javax.media.jai.ImageLayout;
@@ -103,75 +99,12 @@ public class ImageManager {
     public ImageManager() {
     }
 
-    // todo - [multisize_products] create a replacement for getMultiLevelModel() which must be based on the new
-    //        RasterDataNode.getImageToModelTransform() and should eventually also include tile size and #resolution levels
-    //        (nf 20151015)
-    /**
-     * Gets the model that describes an image pyramid.
-     * If the given raster data node gas a source image set, its model will be returned.
-     * Otherwise a new model will be created using {@link #createMultiLevelModel}.
-     *
-     * @param rasterDataNode The raster data node, for which an image pyramid model is requested.
-     * @return The image pyramid model.
-     */
-    @Deprecated
-    public static MultiLevelModel getMultiLevelModel(RasterDataNode rasterDataNode) {
-        if (rasterDataNode.isSourceImageSet()) {
-            return rasterDataNode.getSourceImage().getModel();
-        }
-        return createMultiLevelModel(rasterDataNode);
-    }
-
-    // todo - [multisize_products] create a replacement for createMultiLevelModel() which must be based on the new
-    //        RasterDataNode.getImageToModelTransform() and should eventually also include tile size and #resolution levels
-    //        (nf 20151015)
-    /**
-     * Creates a model for an image pyramid. The method makes us of the
-     * {@link Product#getNumResolutionsMax()} method in order to determine the
-     * number of resolution levels for the pyramid.
-     *
-     * @param productNode The product node requesting the model.
-     * @return A new image pyramid model.
-     * @deprecated no replacement yet, but will provide one for final 2.0 API
-     */
-    @Deprecated
-    public static MultiLevelModel createMultiLevelModel(ProductNode productNode) {
-        final Scene scene = SceneFactory.createScene(productNode);
-        if (scene == null) {
-            return null;
-        }
-        final int w = scene.getRasterWidth();
-        final int h = scene.getRasterHeight();
-
-        final AffineTransform i2mTransform = getImageToModelTransform(scene.getGeoCoding());
-        final Product product = scene.getProduct();
-        if (product != null && product.getNumResolutionsMax() > 0) {
-            return new DefaultMultiLevelModel(product.getNumResolutionsMax(), i2mTransform, w, h);
-        } else {
-            return new DefaultMultiLevelModel(i2mTransform, w, h);
-        }
-    }
-
     /**
      * @deprecated since SNAP 2, use {@link Product#getAppropriateImageToSceneTransform(GeoCoding)}
      */
     @Deprecated
     public static AffineTransform getImageToModelTransform(GeoCoding geoCoding) {
         return Product.getAppropriateImageToSceneTransform(geoCoding);
-    }
-
-    /**
-     * Gets the coordinate reference system used for the model space. The model space is coordinate system
-     * that is used to render images for display.
-     *
-     * @param geoCoding A geo-coding, may be {@code null}.
-     * @return The coordinate reference system used for the model space. If {@code geoCoding} is {@code null},
-     * it will be a default image coordinate reference system (an instance of {@code org.opengis.referencing.crs.ImageCRS}).
-     * @deprecated since SNAP 2, use {@link Product#getAppropriateSceneCRS(GeoCoding)}
-     */
-    @Deprecated
-    public static CoordinateReferenceSystem getModelCrs(GeoCoding geoCoding) {
-        return Product.getAppropriateSceneCRS(geoCoding);
     }
 
     public PlanarImage getSourceImage(RasterDataNode rasterDataNode, int level) {
@@ -196,8 +129,8 @@ public class ImageManager {
     }
 
     public static ImageLayout createSingleBandedImageLayout(RasterDataNode rasterDataNode, int dataBufferType) {
-        int width = rasterDataNode.getSceneRasterWidth();
-        int height = rasterDataNode.getSceneRasterHeight();
+        int width = rasterDataNode.getRasterWidth();
+        int height = rasterDataNode.getRasterHeight();
         Dimension tileSize = getPreferredTileSize(rasterDataNode.getProduct());
         return createSingleBandedImageLayout(dataBufferType, width, height, tileSize.width, tileSize.height);
     }
@@ -919,7 +852,7 @@ public class ImageManager {
      * Non-API.
      */
     public int getStatisticsLevel(RasterDataNode raster, int levelCount) {
-        final long imageSize = (long) raster.getSceneRasterWidth() * raster.getSceneRasterHeight();
+        final long imageSize = (long) raster.getRasterWidth() * raster.getRasterHeight();
         final int statisticsLevel;
         if (imageSize <= DefaultMultiLevelModel.DEFAULT_MAX_LEVEL_PIXEL_COUNT) {
             statisticsLevel = 0;
@@ -976,7 +909,7 @@ public class ImageManager {
     private static MultiLevelImage replaceInvalidValuesByNaN(final RasterDataNode rasterDataNode, final MultiLevelImage srcImage,
                                                              final MultiLevelImage maskImage, final Number fillValue) {
 
-        final MultiLevelModel multiLevelModel = getMultiLevelModel(rasterDataNode);
+        final MultiLevelModel multiLevelModel = rasterDataNode.getMultiLevelModel();
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(multiLevelModel) {
 
             @Override
@@ -989,7 +922,7 @@ public class ImageManager {
     private static MultiLevelImage replaceNoDataValueByNaN(final RasterDataNode rasterDataNode, final MultiLevelImage srcImage,
                                                            final double noDataValue, final Number newValue) {
 
-        final MultiLevelModel multiLevelModel = getMultiLevelModel(rasterDataNode);
+        final MultiLevelModel multiLevelModel = rasterDataNode.getMultiLevelModel();
         final int targetDataType = ImageManager.getDataBufferType(rasterDataNode.getGeophysicalDataType());
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(multiLevelModel) {
 

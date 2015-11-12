@@ -109,7 +109,7 @@ class GeoTiffBandWriter {
         final long stripOffset = ((TiffLong) offsetValues[stripIndex]).getValue();
         final TiffValue[] bitsPerSampleValues = ifd.getEntry(TiffTag.BITS_PER_SAMPLE).getValues();
         final long elemSize = ((TiffShort) bitsPerSampleValues[stripIndex]).getValue() / 8;
-        final long sourceWidthBytes = sourceBand.getSceneRasterWidth() * elemSize;
+        final long sourceWidthBytes = sourceBand.getRasterWidth() * elemSize;
         final long regionOffsetXInBytes = regionX * elemSize;
         final long pixelOffset = sourceWidthBytes * regionY + regionOffsetXInBytes;
         final long startOffset = stripOffset + pixelOffset;

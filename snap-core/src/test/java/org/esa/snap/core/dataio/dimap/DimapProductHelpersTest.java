@@ -690,7 +690,7 @@ public class DimapProductHelpersTest {
 //    public void testCreateGeoCodingForPixelGeoCoding() throws IOException {
 //        final Band latBand = product.getBand("b1");
 //        final Band lonBand = product.getBand("b2");
-//        final byte[] bandData = new byte[product.getSceneRasterWidth() * product.getSceneRasterHeight()];
+//        final byte[] bandData = new byte[product.getRasterWidth() * product.getRasterHeight()];
 //        latBand.setDataElems(bandData);
 //        lonBand.setDataElems(bandData);
 //        final PixelGeoCoding sourcePixelGeoCoding = new PixelGeoCoding(latBand, lonBand,
