@@ -23,6 +23,8 @@ import org.esa.snap.rcp.actions.AbstractSnapAction;
 
 import java.awt.event.ActionEvent;
 
+import static org.esa.snap.rcp.SnapApp.SelectionSourceHint.*;
+
 /*
 @ActionID(category = "Raster", id = "org.esa.s1tbx.dat.ScaleDataAction" )
 @ActionRegistration(displayName = "#CTL_ScaleDataAction_Text")
@@ -38,7 +40,7 @@ public class ScaleDataAction extends AbstractSnapAction {
     @Override
     public void actionPerformed(ActionEvent event) {
 
-        final ProductNode node = SnapApp.getDefault().getSelectedProductNode();
+        final ProductNode node = SnapApp.getDefault().getSelectedProductNode(EXPLORER);
         if (node instanceof Band) {
             final Band band = (Band) node;
             final Product product = band.getProduct();
