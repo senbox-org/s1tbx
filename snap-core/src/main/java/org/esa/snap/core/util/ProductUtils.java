@@ -40,6 +40,8 @@ import org.esa.snap.core.datamodel.ProductNodeGroup;
 import org.esa.snap.core.datamodel.ProductVisitorAdapter;
 import org.esa.snap.core.datamodel.RGBChannelDef;
 import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.Scene;
+import org.esa.snap.core.datamodel.SceneFactory;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.datamodel.VectorDataNode;
 import org.esa.snap.core.datamodel.VirtualBand;
@@ -981,7 +983,7 @@ public class ProductUtils {
             targetBand.setSourceImage(sourceBand.getSourceImage());
         }
         if (sourceBand.getGeoCoding() != sourceProduct.getSceneGeoCoding()) {
-            targetBand.setGeoCoding(sourceBand.getGeoCoding());
+            copyGCandI2M(sourceBand, targetBand);
         }
         return targetBand;
     }
@@ -2087,4 +2089,15 @@ public class ProductUtils {
         return true;
     }
 
+    /**
+     * Not public API. This method will be removed soon.
+     */
+    public static void copyGCandI2M(RasterDataNode sourceRaster, RasterDataNode targetRaster) {
+        final Scene srcScene = SceneFactory.createScene(sourceRaster);
+        final Scene destScene = SceneFactory.createScene(targetRaster);
+        if (srcScene != null && destScene != null) {
+            srcScene.transferGeoCodingTo(destScene, null);
+        }
+        targetRaster.setImageToModelTransform(sourceRaster.getImageToModelTransform());
+    }
 }
