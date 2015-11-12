@@ -29,10 +29,13 @@ import org.openide.awt.ActionReferences;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.esa.snap.rcp.SnapApp.ProductSelectionHint.*;
 
 /**
  * Displays InSAR Statistics
@@ -85,7 +88,7 @@ public class InSARStatisticsTopComponent extends TopComponent {
         });
 
         for (InSARStatistic statistic : statisticList) {
-            statistic.update(snapApp.getSelectedProduct());
+            statistic.update(snapApp.getSelectedProduct(AUTO));
         }
     }
 

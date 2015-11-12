@@ -30,9 +30,12 @@ import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+
+import static org.esa.snap.rcp.SnapApp.ProductSelectionHint.*;
 
 
 @TopComponent.Description(
@@ -88,7 +91,7 @@ public class OceanSwellTopComponent extends ToolTopComponent {
                 }
             }
         });
-        polarView.setProduct(snapApp.getSelectedProduct());
+        polarView.setProduct(snapApp.getSelectedProduct(AUTO));
 
         return polarView;
     }

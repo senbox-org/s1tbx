@@ -24,14 +24,24 @@ import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.ui.ModalDialog;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.filechooser.FileSystemView;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.io.File;
+
+import static org.esa.snap.rcp.SnapApp.ProductSelectionHint.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -41,9 +51,9 @@ import java.io.File;
  */
 public class ProductGeometrySelectorDialog extends ModalDialog {
 
-    private final JComboBox productList;
-    private final JComboBox roiProductList;
-    private final JList geometries = new JList();
+    private final JComboBox<String> productList;
+    private final JComboBox<String> roiProductList;
+    private final JList<String> geometries = new JList<>();
     private final JTextField savePath = new JTextField();
     private final JButton browseButton = new JButton("...");
     private boolean ok = false;
@@ -53,21 +63,17 @@ public class ProductGeometrySelectorDialog extends ModalDialog {
 
         final String[] productNames = SnapApp.getDefault().getProductManager().getProductDisplayNames();
 
-        productList = new JComboBox(productNames);
+        productList = new JComboBox<>(productNames);
 
-        roiProductList = new JComboBox(productNames);
-        roiProductList.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent event) {
-                updateGeometryList();
-            }
-        });
+        roiProductList = new JComboBox<>(productNames);
+        roiProductList.addItemListener(event -> updateGeometryList());
 
         geometries.setFixedCellWidth(200);
         geometries.setMinimumSize(new Dimension(50, 4));
         geometries.setVisibleRowCount(6);
 
         // set default selection to selected product
-        final Product selectedProduct = SnapApp.getDefault().getSelectedProduct();
+        final Product selectedProduct = SnapApp.getDefault().getSelectedProduct(AUTO);
         if (selectedProduct != null) {
             productList.setSelectedItem(selectedProduct.getDisplayName());
             roiProductList.setSelectedItem(selectedProduct.getDisplayName());
