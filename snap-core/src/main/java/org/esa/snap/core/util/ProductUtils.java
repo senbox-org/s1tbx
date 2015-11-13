@@ -983,7 +983,7 @@ public class ProductUtils {
             targetBand.setSourceImage(sourceBand.getSourceImage());
         }
         if (sourceBand.getGeoCoding() != sourceProduct.getSceneGeoCoding()) {
-            copyGCandI2M(sourceBand, targetBand);
+            copyGeoCoding(sourceBand, targetBand);
         }
         return targetBand;
     }
@@ -1077,12 +1077,29 @@ public class ProductUtils {
      *
      * @param sourceProduct the source product
      * @param targetProduct the target product
-     * @throws IllegalArgumentException if one of the params is <code>null</code>.
+     * @throws IllegalArgumentException if one of the params is {@code null}.
      */
     public static void copyGeoCoding(final Product sourceProduct, final Product targetProduct) {
         Guardian.assertNotNull("sourceProduct", sourceProduct);
         Guardian.assertNotNull("targetProduct", targetProduct);
         sourceProduct.transferGeoCodingTo(targetProduct, null);
+    }
+
+    /**
+     * Copies the geocoding from the source raster to target raster.
+     *
+     * @param sourceRaster the source raster
+     * @param targetRaster the target raster
+     * @throws IllegalArgumentException if one of the params is {@code null}.
+     */
+    public static void copyGeoCoding(RasterDataNode sourceRaster, RasterDataNode targetRaster) {
+        Guardian.assertNotNull("sourceRaster", sourceRaster);
+        Guardian.assertNotNull("targetRaster", targetRaster);
+        final Scene srcScene = SceneFactory.createScene(sourceRaster);
+        final Scene destScene = SceneFactory.createScene(targetRaster);
+        if (srcScene != null && destScene != null) {
+            srcScene.transferGeoCodingTo(destScene, null);
+        }
     }
 
     /**
@@ -2089,15 +2106,4 @@ public class ProductUtils {
         return true;
     }
 
-    /**
-     * Not public API. This method will be removed soon.
-     */
-    public static void copyGCandI2M(RasterDataNode sourceRaster, RasterDataNode targetRaster) {
-        final Scene srcScene = SceneFactory.createScene(sourceRaster);
-        final Scene destScene = SceneFactory.createScene(targetRaster);
-        if (srcScene != null && destScene != null) {
-            srcScene.transferGeoCodingTo(destScene, null);
-        }
-        targetRaster.setImageToModelTransform(sourceRaster.getImageToModelTransform());
-    }
 }
