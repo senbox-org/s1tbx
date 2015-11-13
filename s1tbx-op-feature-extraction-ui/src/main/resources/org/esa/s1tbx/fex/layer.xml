@@ -11,7 +11,7 @@
                 <attr name="dialogTitle" stringvalue="Terrain Mask"/>
                 <attr name="targetProductNameSuffix" stringvalue="_terr-msk"/>
                 <attr name="ShortDescription" stringvalue="Terrain Mask Generation"/>
-                <attr name="helpId" stringvalue="TerrainMaskGeneration"/>
+                <attr name="helpId" stringvalue="TerrainMask"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
             <file name="org-esa-s1tbx-fex-gpf-createLandMaskOp-Action.instance">
@@ -22,7 +22,7 @@
                 <attr name="dialogTitle" stringvalue="Land/Sea Mask"/>
                 <attr name="targetProductNameSuffix" stringvalue="_msk"/>
                 <attr name="ShortDescription" stringvalue="Land/Sea Mask Generation"/>
-                <attr name="helpId" stringvalue="CreateLandMask"/>
+                <attr name="helpId" stringvalue="LandSeaMask"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
             <file name="org-esa-s1tbx-fex-gpf-ChangeDetection-Action.instance">

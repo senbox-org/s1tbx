@@ -40,11 +40,13 @@ public class TestCalibrationOp {
     private final static OperatorSpi spi = new CalibrationOp.Spi();
     private TestProcessor testProcessor;
 
-    private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "OCN", "DOR", "GeoTIFF", "SCS_U"};
+    private String[] productTypeExemptions = {"_BP", "XCA", "RAW", "WVW", "WVI", "WVS", "WSS", "OCN", "DOR", "GeoTIFF", "SCS_U"};
     private String[] exceptionExemptions = {"not supported",
             "calibration has already been applied",
             "The product has already been calibrated",
-            "Cannot apply calibration to coregistered product"};
+            "Cannot apply calibration to coregistered product",
+            "WV is not a valid acquisition mode from: IW,EW,SM"
+    };
 
     @Before
     public void setUp() {

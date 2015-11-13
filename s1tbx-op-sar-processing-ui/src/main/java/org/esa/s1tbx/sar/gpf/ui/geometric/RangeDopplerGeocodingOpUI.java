@@ -606,33 +606,38 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(contentPane, gbc, "Map Projection:", crsButton);
 
         if (!useAvgSceneHeight) {
-            gbc.gridx = 0;
             gbc.gridy++;
             contentPane.add(nodataValueAtSeaCheckBox, gbc);
-            gbc.gridy++;
+        }
 
-            final JPanel saveBandsPanel = new JPanel(new GridBagLayout());
-            final GridBagConstraints gbc2 = DialogUtils.createGridBagConstraints();
-            saveBandsPanel.setBorder(BorderFactory.createTitledBorder("Output bands for:"));
+        gbc.gridy++;
+        final JPanel saveBandsPanel = new JPanel(new GridBagLayout());
+        final GridBagConstraints gbc2 = DialogUtils.createGridBagConstraints();
+        saveBandsPanel.setBorder(BorderFactory.createTitledBorder("Output bands for:"));
 
-            gbc2.gridx = 0;
-            saveBandsPanel.add(saveSelectedSourceBandCheckBox, gbc2);
+        gbc2.gridx = 0;
+        saveBandsPanel.add(saveSelectedSourceBandCheckBox, gbc2);
+        if (!useAvgSceneHeight) {
             gbc2.gridx = 1;
             saveBandsPanel.add(saveDEMCheckBox, gbc2);
-            gbc2.gridx = 2;
-            saveBandsPanel.add(saveLatLonCheckBox, gbc2);
-            gbc2.gridy++;
-            gbc2.gridx = 0;
-            saveBandsPanel.add(saveIncidenceAngleFromEllipsoidCheckBox, gbc2);
+        }
+        gbc2.gridx = 2;
+        saveBandsPanel.add(saveLatLonCheckBox, gbc2);
+        gbc2.gridy++;
+        gbc2.gridx = 0;
+        saveBandsPanel.add(saveIncidenceAngleFromEllipsoidCheckBox, gbc2);
+        if (!useAvgSceneHeight) {
             gbc2.gridx = 1;
             saveBandsPanel.add(saveLocalIncidenceAngleCheckBox, gbc2);
             gbc2.gridx = 2;
             saveBandsPanel.add(saveProjectedLocalIncidenceAngleCheckBox, gbc2);
+        }
 
-            gbc.gridwidth = 2;
-            contentPane.add(saveBandsPanel, gbc);
+        gbc.gridwidth = 2;
+        contentPane.add(saveBandsPanel, gbc);
+
+        if (!useAvgSceneHeight) {
             gbc.gridy++;
-
             gbc.gridwidth = 1;
             gbc.gridx = 0;
             gbc.gridy++;
