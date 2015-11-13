@@ -3,6 +3,7 @@ package org.esa.snap.runtime;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -52,11 +53,18 @@ public class BundleCreator {
             System.exit(0);
         }
 
+        Path zipfile = Paths.get(targetFile);
+        URI fileUri = zipfile.toUri();
         Map<String, String> env = new HashMap<>();
         env.put("create", "true");
-        URI uri = URI.create("jar:file:" + targetFile);
+        URI zipUri;
+        try {
+            zipUri = new URI("jar:" + fileUri.getScheme(), fileUri.getPath(), null);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
 
-        try (FileSystem zipfs = FileSystems.newFileSystem(uri, env)) {
+        try (FileSystem zipfs = FileSystems.newFileSystem(zipUri, env)) {
             config.logger().fine("Adding classpath entries to zip...");
             for (Path classPathEntry : classPathEntries) {
                 String targetFilename;
