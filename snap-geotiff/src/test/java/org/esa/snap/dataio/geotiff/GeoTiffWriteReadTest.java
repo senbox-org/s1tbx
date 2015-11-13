@@ -159,7 +159,7 @@ public class GeoTiffWriteReadTest {
                 band.readRasterDataFully(ProgressMonitor.NULL);
                 writer.writeBandRasterData(band,
                                            0, 0,
-                                           band.getSceneRasterWidth(), band.getSceneRasterHeight(),
+                                           band.getRasterWidth(), band.getRasterHeight(),
                                            band.getData(), ProgressMonitor.NULL);
             }
         }
@@ -514,7 +514,7 @@ public class GeoTiffWriteReadTest {
                 band.readRasterDataFully(ProgressMonitor.NULL);
                 writer.writeBandRasterData(band,
                                            0, 0,
-                                           band.getSceneRasterWidth(), band.getSceneRasterHeight(),
+                                           band.getRasterWidth(), band.getRasterHeight(),
                                            band.getData(), ProgressMonitor.NULL);
             }
         }

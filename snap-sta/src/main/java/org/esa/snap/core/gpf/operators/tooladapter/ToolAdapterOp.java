@@ -30,11 +30,7 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.annotations.OperatorMetadata;
-import org.esa.snap.core.gpf.descriptor.ParameterDescriptor;
-import org.esa.snap.core.gpf.descriptor.SystemVariable;
-import org.esa.snap.core.gpf.descriptor.TemplateParameterDescriptor;
-import org.esa.snap.core.gpf.descriptor.ToolAdapterOperatorDescriptor;
-import org.esa.snap.core.gpf.descriptor.ToolParameterDescriptor;
+import org.esa.snap.core.gpf.descriptor.*;
 import org.esa.snap.core.gpf.internal.OperatorContext;
 import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.util.ProductUtils;
@@ -42,22 +38,11 @@ import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.utils.PrivilegedAccessor;
 
-import java.io.BufferedReader;
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -206,7 +191,7 @@ public class ToolAdapterOp extends Operator {
                 this.progressMonitor.beginTask("Executing " + this.descriptor.getName(), 100);
             }
             if (this.consumer == null) {
-                this.consumer = new DefaultOutputConsumer(descriptor.getProgressPattern(), descriptor.getErrorPattern(), this.progressMonitor);
+                this.consumer = new DefaultOutputConsumer(descriptor.getProgressPattern(), descriptor.getErrorPattern(), descriptor.getStepPattern(), this.progressMonitor);
                 this.consumer.setLogger(getLogger());
             }
             if (errorMessages != null) {

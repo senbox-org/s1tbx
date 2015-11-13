@@ -244,7 +244,7 @@ public class CsvProductReader extends AbstractProductReader {
 
         Object[] values;
         synchronized (parser) {
-            values = parser.parseRecords(destOffsetY * destWidth, destWidth * destHeight, destBand.getName());
+            values = parser.parseRecords(destOffsetY * destBand.getRasterWidth() + destOffsetX, destWidth * destHeight, destBand.getName());
         }
         getProductData(values, destBuffer);
         pm.done();

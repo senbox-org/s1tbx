@@ -534,6 +534,8 @@ public class BinningOp extends Operator {
                                                           Geometry region) {
         BinningProductFilter productFilter = new GeoCodingProductFilter();
 
+        productFilter = new MultiSizeProductFilter(productFilter);
+
         if (dataPeriod != null) {
             if (dataPeriod instanceof SpatialDataPeriod) {
                 productFilter = new SpatialDataDaySourceProductFilter(productFilter, dataPeriod);
@@ -904,6 +906,23 @@ public class BinningOp extends Operator {
             result = 31 * result + (minValue != null ? minValue.hashCode() : 0);
             result = 31 * result + (maxValue != null ? maxValue.hashCode() : 0);
             return result;
+        }
+    }
+
+    private static class MultiSizeProductFilter extends BinningProductFilter {
+
+        public MultiSizeProductFilter(BinningProductFilter parent) {
+            setParent(parent);
+        }
+
+        @Override
+        protected boolean acceptForBinning(Product product) {
+            if (!product.isMultiSizeProduct()) {
+                return true;
+            } else {
+                setReason("Product with rasters of different size are not supported yet.");
+                return false;
+            }
         }
     }
 }

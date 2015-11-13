@@ -16,6 +16,9 @@
 
 package org.esa.snap.csv.dataio.reader;
 
+import static org.junit.Assert.*;
+
+import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataAttribute;
@@ -25,14 +28,10 @@ import org.esa.snap.core.datamodel.PixelTimeCoding;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.csv.dataio.Constants;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 
 import java.awt.image.Raster;
 import java.io.IOException;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Olaf Danne
@@ -308,6 +307,41 @@ public class CsvProductReaderTest {
         assertEquals("01-JUN-2013 12:45:00.000000", getTimeString(timeCoding, 0.5, 1.5));
         assertEquals("NaN", Double.toString(timeCoding.getMJD(new PixelPos(1.5, 1.5))));
     }
+
+    @Test
+    public void test2x2csvProduct() throws Exception {
+        final String dimap = getClass().getResource("MER_FR__1PNUPA20030808_073810_000000982018_00450_07518_6007.dim").getPath();
+        final String csv = getClass().getResource("MER_FR__1PNUPA20030808_073810_000000982018_00450_07518_6007.csv").getPath();
+        Product dimPro = ProductIO.readProduct(dimap);
+        Product csvPro = ProductIO.readProduct(csv);
+
+        assertEquals("org.esa.snap.core.dataio.dimap.DimapProductReader", dimPro.getProductReader().getClass().getName());
+        assertEquals(true, dimPro.containsBand("new_band_2"));
+        assertEquals(true, dimPro.containsBand("new_band_3"));
+
+        assertEquals("org.esa.snap.csv.dataio.reader.CsvProductReader", csvPro.getProductReader().getClass().getName());
+        assertEquals(true, csvPro.containsBand("new_band_2"));
+        assertEquals(true, csvPro.containsBand("new_band_3"));
+
+        Band dimBand2 = dimPro.getBand("new_band_2");
+        Band dimBand3 = dimPro.getBand("new_band_3");
+        Band csvBand2 = csvPro.getBand("new_band_2");
+        Band csvBand3 = csvPro.getBand("new_band_3");
+
+
+        for (int y = 0; y < dimBand2.getRasterHeight(); y++) {
+            for (int x = 0; x < dimBand2.getRasterWidth(); x++) {
+                float[] expecteds = dimBand2.readPixels(x, y, 1, 1, new float[1]);
+                float[] actuals = csvBand2.readPixels(x, y, 1, 1, new float[1]);
+                assertEquals("new_band_2 value at x="+x+", y="+y, expecteds[0], actuals[0], 0.0001f);
+
+                expecteds = dimBand3.readPixels(x, y, 1, 1, new float[1]);
+                actuals = csvBand3.readPixels(x, y, 1, 1, new float[1]);
+                assertEquals("new_band_3 value at x=" + x + ", y=" + y, expecteds[0], actuals[0], 0.0001f);
+            }
+        }
+    }
+
 
     private String getTimeString(PixelTimeCoding timeCoding, double x, double y) {
         return new ProductData.UTC(timeCoding.getMJD(new PixelPos(x, y))).format();

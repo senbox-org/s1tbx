@@ -24,11 +24,7 @@ import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterConstants;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.utils.PrivilegedAccessor;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,6 +66,7 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
     private String templateFileLocation;
     private String progressPattern;
     private String errorPattern;
+    private String stepPattern;
     @XStreamAlias("variables")
     private List<SystemVariable> variables;
     @XStreamAlias("parameters")
@@ -132,6 +129,7 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
 
         this.progressPattern = obj.progressPattern;
         this.errorPattern = obj.errorPattern;
+        this.stepPattern = obj.stepPattern;
 
         List<SystemVariable> variableList = obj.getVariables();
         if (variableList != null) {
@@ -171,12 +169,6 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
         this(obj);
         this.name = newName;
         this.alias = newAlias;
-        List<SystemVariable> variableList = obj.getVariables();
-        if (variableList != null) {
-            this.variables.addAll(variableList.stream()
-                    .filter(systemVariable -> systemVariable != null)
-                    .map(SystemVariable::createCopy).collect(Collectors.toList()));
-        }
     }
 
     /**
@@ -435,6 +427,14 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
      * Getter for the Error Pattern field
      */
     public String getErrorPattern() { return errorPattern; }
+    /**
+     * Setter for the Step progress Pattern field. The pattern is a regular expression.
+     */
+    public void setStepPattern(String pattern) { this.stepPattern = pattern; }
+    /**
+     * Getter for the Step progress Pattern field
+     */
+    public String getStepPattern() { return this.stepPattern ; }
     /**
      * Getter for the Pre-processing Writer field
      */

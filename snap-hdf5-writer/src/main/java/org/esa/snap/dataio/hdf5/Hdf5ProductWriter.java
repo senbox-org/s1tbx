@@ -209,8 +209,8 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
                                     ProductData sourceBuffer,
                                     ProgressMonitor pm) throws IOException {
         checkBufferSize(sourceWidth, sourceHeight, sourceBuffer);
-        final int sourceBandWidth = sourceBand.getSceneRasterWidth();
-        final int sourceBandHeight = sourceBand.getSceneRasterHeight();
+        final int sourceBandWidth = sourceBand.getRasterWidth();
+        final int sourceBandHeight = sourceBand.getRasterHeight();
         checkSourceRegionInsideBandRegion(sourceWidth, sourceBandWidth, sourceHeight, sourceBandHeight, sourceOffsetX,
                                           sourceOffsetY);
 
@@ -486,8 +486,8 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
                                      HDF5Constants.H5P_DEFAULT);
 
             // Very important attributes
-            createScalarAttribute(datasetID, "scene_raster_width", grid.getSceneRasterWidth());
-            createScalarAttribute(datasetID, "scene_raster_height", grid.getSceneRasterHeight());
+            createScalarAttribute(datasetID, "scene_raster_width", grid.getRasterWidth());
+            createScalarAttribute(datasetID, "scene_raster_height", grid.getRasterHeight());
             createScalarAttribute(datasetID, "offset_x", grid.getOffsetX());
             createScalarAttribute(datasetID, "offset_y", grid.getOffsetY());
             createScalarAttribute(datasetID, "sub_sampling_x", grid.getSubSamplingX());

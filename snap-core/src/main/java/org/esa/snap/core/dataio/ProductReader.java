@@ -107,8 +107,8 @@ public interface ProductReader {
      * @throws IOException              if an I/O error occurs
      * @throws IllegalArgumentException if the number of elements destination buffer not equals <code>destWidth *
      *                                  destHeight</code> or the destination region is out of the band's scene raster
-     * @see Band#getSceneRasterWidth()
-     * @see Band#getSceneRasterHeight()
+     * @see Band#getRasterWidth()
+     * @see Band#getRasterHeight()
      */
     void readBandRasterData(Band destBand,
                             int destOffsetX, int destOffsetY,

@@ -21,9 +21,6 @@ import org.esa.snap.core.datamodel.FlagCoding;
 import org.esa.snap.core.datamodel.IndexCoding;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.RasterDataNode;
-import org.esa.snap.core.datamodel.Scene;
-import org.esa.snap.core.datamodel.SceneFactory;
 import org.esa.snap.core.dataop.barithm.BandArithmetic;
 import org.esa.snap.core.dataop.barithm.ProductNamespacePrefixProvider;
 import org.esa.snap.core.dataop.barithm.RasterDataEvalEnv;
@@ -271,13 +268,13 @@ public class BandMathsOp extends Operator {
                 throw new OperatorException("Referenced rasters must all be the same size: " + bandDescriptor.expression);
             }
             final RasterDataSymbol[] rasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(targetTerm);
-            Dimension targetBandDimension = findTargetBandDimension(rasterDataSymbols);
+            Dimension targetBandDimension = findTargetBandSize(rasterDataSymbols);
 
             final Band targetBand = createBand(bandDescriptor, targetBandDimension);
 
             if (!targetBandDimension.equals(targetProduct.getSceneRasterSize())) {
                 if (rasterDataSymbols.length > 0) {
-                    transferGeoCoding(rasterDataSymbols[0].getRaster(), targetBand);
+                    ProductUtils.copyGCandI2M(rasterDataSymbols[0].getRaster(), targetBand);
                 }
             }
 
@@ -432,22 +429,12 @@ public class BandMathsOp extends Operator {
         return targetBand;
     }
 
-    private Dimension findTargetBandDimension(RasterDataSymbol[] rasterDataSymbols) {
-        Dimension targetbandDimension;
+    private Dimension findTargetBandSize(RasterDataSymbol[] rasterDataSymbols) {
         if (rasterDataSymbols.length > 0) {
-            final RasterDataSymbol referenceSourceRaster = rasterDataSymbols[0];
-            targetbandDimension = referenceSourceRaster.getRaster().getSceneRasterSize();
+            RasterDataSymbol referenceSourceRaster = rasterDataSymbols[0];
+            return referenceSourceRaster.getRaster().getRasterSize();
         } else {
-            targetbandDimension = targetProduct.getSceneRasterSize();
-        }
-        return targetbandDimension;
-    }
-
-    private void transferGeoCoding(RasterDataNode sourceRaster, Band targetBand) {
-        final Scene srcScene = SceneFactory.createScene(sourceRaster);
-        if (srcScene != null) {
-            final Scene destScene = SceneFactory.createScene(targetBand);
-            srcScene.transferGeoCodingTo(destScene, null);
+            return targetProduct.getSceneRasterSize();
         }
     }
 

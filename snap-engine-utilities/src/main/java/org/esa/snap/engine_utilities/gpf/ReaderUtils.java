@@ -43,8 +43,8 @@ public final class ReaderUtils {
 
         final VirtualBand virtBand = new VirtualBand("Phase" + countStr,
                                                      ProductData.TYPE_FLOAT32,
-                                                     bandI.getSceneRasterWidth(),
-                                                     bandI.getSceneRasterHeight(),
+                                                     bandI.getRasterWidth(),
+                                                     bandI.getRasterHeight(),
                                                      expression);
         virtBand.setUnit(Unit.PHASE);
         virtBand.setDescription("Phase from complex data");
@@ -76,8 +76,8 @@ public final class ReaderUtils {
         }
         final VirtualBand virtBand = new VirtualBand(name,
                                                      ProductData.TYPE_FLOAT32,
-                                                     bandI.getSceneRasterWidth(),
-                                                     bandI.getSceneRasterHeight(),
+                                                     bandI.getRasterWidth(),
+                                                     bandI.getRasterHeight(),
                                                      expression);
         virtBand.setUnit(Unit.INTENSITY);
         virtBand.setDescription("Intensity from complex data");

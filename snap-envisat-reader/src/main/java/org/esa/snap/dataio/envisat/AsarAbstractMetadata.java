@@ -282,6 +282,11 @@ public final class AsarAbstractMetadata {
             addAbstractedAttribute("coregistered_stack", ProductData.TYPE_UINT8, "flag", "Coregistration applied", absRoot);
         }
 
+        final MetadataElement chipADS = root.getElement("CHIRP_PARAMS_ADS");
+        if(chipADS != null) {
+            addAbstractedAttribute("chirp_power", chipADS.getAttributeDouble("chirp_power", 0), "dB", absRoot, "Chirp power");
+        }
+
         final MetadataElement dsd = root.getElement("DSD");
         if (dsd != null) {
             final MetadataElement dsd17 = dsd.getElement("DSD.17");

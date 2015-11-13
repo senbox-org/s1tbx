@@ -1,0 +1,6 @@
+#defaultCSS=symbol:pin; fill:#0000ff; fill-opacity:0.7; stroke:#ffffff; stroke-opacity:1.0; stroke-width:0.5
+org.esa.snap.Pin	geometry:Point	style_css:String	label:String	text:String	pixelPos:Point	geoPos:Point	dateTime:Date
+pin_1	POINT (0.5 0.5)	[null]	Pin 1		POINT (0.5 0.5)	POINT (33.581541256583016 -1.7417102282634005)	[null]
+pin_2	POINT (1.5 0.5)	[null]	Pin 2		POINT (1.5 0.5)	POINT (33.583822577418054 -1.7422191957011819)	[null]
+pin_3	POINT (0.5 1.5)	[null]	Pin 3		POINT (0.5 1.5)	POINT (33.58096503338094 -1.7443199821282178)	[null]
+pin_4	POINT (1.5 1.5)	[null]	Pin 4		POINT (1.5 1.5)	POINT (33.58324635567387 -1.7448289524763823)	[null]

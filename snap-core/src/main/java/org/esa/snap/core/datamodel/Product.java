@@ -21,6 +21,7 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
+import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import org.esa.snap.core.dataio.ProductFlipper;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductSubsetBuilder;
@@ -33,7 +34,6 @@ import org.esa.snap.core.dataop.barithm.SingleFlagSymbol;
 import org.esa.snap.core.dataop.maptransf.MapInfo;
 import org.esa.snap.core.dataop.maptransf.MapProjection;
 import org.esa.snap.core.dataop.maptransf.MapTransform;
-import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.image.ResolutionLevel;
 import org.esa.snap.core.image.VirtualBandOpImage;
 import org.esa.snap.core.jexp.Namespace;
@@ -46,6 +46,7 @@ import org.esa.snap.core.util.BitRaster;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.ObjectUtils;
+import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.StopWatch;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.io.WildcardMatcher;
@@ -95,10 +96,10 @@ public class Product extends ProductNode {
     public static final String METADATA_ROOT_NAME = "metadata";
     public static final String HISTORY_ROOT_NAME = "history";
 
+    public static final String PROPERTY_NAME_SCENE_CRS = "sceneCRS";
     public static final String PROPERTY_NAME_SCENE_GEO_CODING = "sceneGeoCoding";
     public static final String PROPERTY_NAME_SCENE_TIME_CODING = "sceneTimeCoding";
     public static final String PROPERTY_NAME_PRODUCT_TYPE = "productType";
-    public static final String PROPERTY_NAME_MODEL_CRS = "modelCRS";
     public static final String PROPERTY_NAME_FILE_LOCATION = "fileLocation";
 
     public static final String GEOMETRY_FEATURE_TYPE_NAME = PlainFeatureFactory.DEFAULT_TYPE_NAME;
@@ -119,7 +120,7 @@ public class Product extends ProductNode {
      *
      * @since SNAP 2
      */
-    private CoordinateReferenceSystem modelCrs;
+    private CoordinateReferenceSystem sceneCrs;
 
     /**
      * The location file of this product.
@@ -327,7 +328,7 @@ public class Product extends ProductNode {
                 if (PROPERTY_NAME_NAME.equals(event.getPropertyName())) {
                     handleNameChange(event);
                 } else if (PROPERTY_NAME_SCENE_GEO_CODING.equals(event.getPropertyName())) {
-                    handleGeoCodingChange();
+                    handleSceneGeoCodingChange();
                 } else if (VectorDataNode.PROPERTY_NAME_FEATURE_COLLECTION.equals(event.getPropertyName())) {
                     handleFeatureCollectionChange(event);
                 }
@@ -337,51 +338,72 @@ public class Product extends ProductNode {
 
 
     /**
-     * Gets the model coordinate reference system (model CRS). It provides a common coordinate system
+     * Gets the scene coordinate reference system (scene CRS). It provides a common coordinate system
      * <ul>
      * <li>for the geometries used by all vector data;</li>
-     * <li>to which all raster data can resampled using affine transformations.</li>
+     * <li>to which all raster data can be transformed using a raster data node's
+     * {@link RasterDataNode#getSceneRasterTransform() sceneRasterTransform}.</li>
      * </ul>
      * <p>
-     * If no model CRS has been set so far, the method will use an associated {@link #getSceneGeoCoding() geo-coding}.
-     * If the geo-coding's {@link GeoCoding#getImageToMapTransform() image-to-map transform} is a linear transform, then
-     * the model CRS returned is the {@link GeoCoding#getMapCRS() map CRS}, otherwise it is the
-     * {@link GeoCoding#getImageCRS() image CRS}. If the product doesn't have any geo-coding,
-     * a default image CRS is returned.
+     * If no scene CRS has been set so far, the method will use the product's
+     * {@link #getSceneGeoCoding() scene geo-coding}, if any.
+     * If the scene geo-coding's {@link GeoCoding#getImageToMapTransform() image-to-map transform} is an affine
+     * transform, then the scene CRS returned is the {@link GeoCoding#getMapCRS() map CRS}, otherwise it is the
+     * {@link GeoCoding#getImageCRS() image CRS}. If the product doesn't have any scene geo-coding, a default image
+     * CRS is returned.
      *
-     * @return The model coordinate reference system.
-     * @see #setModelCRS(CoordinateReferenceSystem)
+     * @return The scene coordinate reference system.
+     * @see #setSceneCRS(CoordinateReferenceSystem)
      */
-    public CoordinateReferenceSystem getModelCRS() {
-        if (modelCrs != null) {
-            return modelCrs;
+    public CoordinateReferenceSystem getSceneCRS() {
+        if (sceneCrs != null) {
+            return sceneCrs;
         }
-        return getAppropriateModelCRS(getSceneGeoCoding());
+        return findModelCRS(getSceneGeoCoding());
     }
 
     /**
-     * Sets the model coordinate reference system.
+     * Sets the scene coordinate reference system.
      *
-     * @param modelCrs The model coordinate reference system.
-     * @see #getModelCRS()
+     * @param sceneCRS The scene coordinate reference system.
+     * @see #getSceneCRS()
      */
-    public void setModelCRS(CoordinateReferenceSystem modelCrs) {
-        Assert.notNull(modelCrs);
-        CoordinateReferenceSystem modelCrsOld = this.modelCrs;
-        if (!ObjectUtils.equalObjects(this.modelCrs, modelCrs)) {
-            this.modelCrs = modelCrs;
+    public void setSceneCRS(CoordinateReferenceSystem sceneCRS) {
+        Assert.notNull(sceneCRS);
+        CoordinateReferenceSystem modelCrsOld = this.sceneCrs;
+        if (!ObjectUtils.equalObjects(this.sceneCrs, sceneCRS)) {
+            this.sceneCrs = sceneCRS;
             if (modelCrsOld != null) {
-                fireNodeChanged(this, PROPERTY_NAME_MODEL_CRS, modelCrsOld, this.modelCrs);
+                fireNodeChanged(this, PROPERTY_NAME_SCENE_CRS, modelCrsOld, this.sceneCrs);
             }
         }
     }
 
     /**
+     * Finds an appropriate transformation from image coordinates used by the given
+     * geo-coding (if any) into "model" coordinates used to render
+     * (e.g. display, print or otherwise visualise) the image together with other features such
+     * as geometric shapes or other images. Model coordinates are different from image coordinates for
+     * rectified images where model coordinate units are defined by a geodetic/geographic coordinate
+     * reference system (map CRS, map-projected images). In this case the model CRS equals the map CRS in use.
+     * Model coordinates are also different from image coordinates for images in satellite view
+     * that use a linearily downsampled or upsampled version of a common reference grid.
+     * <p>
+     * <b>WARNING:</b> Note that this method is only useful, if it can be ensured that the given geo-coding's
+     * {@link GeoCoding#getImageToMapTransform() image-to-map transform} is an affine transformation.
+     * In all other cases, the method returns the identity transformation which might not
+     * be what you expect and what might not be even correct.
+     *
      * @param geoCoding The geo-coding or {@code null}.
-     * @return An appropriate image-to-model transformation.
-     * @see #getAppropriateModelCRS
+     * @return An affine image-to-map transformation derived from the given geo-coding. If {@code geoCoding}
+     * is {@code null} or an affine image-to-map transformation cannot be derived the identity transform
+     * is returned.
+     * @see #findModelCRS
+     * @see GeoCoding#getImageToMapTransform()
+     * @see RasterDataNode#getImageToModelTransform()
+     * @see MultiLevelModel#getImageToModelTransform(int)
      */
-    public static AffineTransform getAppropriateImageToModelTransform(GeoCoding geoCoding) {
+    public static AffineTransform findImageToModelTransform(GeoCoding geoCoding) {
         if (geoCoding != null) {
             MathTransform image2Map = geoCoding.getImageToMapTransform();
             if (image2Map instanceof AffineTransform) {
@@ -391,20 +413,30 @@ public class Product extends ProductNode {
         return new AffineTransform();
     }
 
-
     /**
-     * Gets a coordinate reference system (CRS) that is appropriate as a model CRS.
+     * Finds a coordinate reference system (CRS) that is appropriate as a scene CRS.
+     *
+     * Finds a "model" coordinate reference system for the given
+     * geo-coding (if any) that provides the units for ccordinates to be rendered
+     * (e.g. display, print or otherwise visualise) a geo-coded image together with other features such
+     * as geometric shapes or other images. Model coordinates are different from image coordinates for
+     * rectified images where model coordinate units are defined by a geodetic/geographic coordinate
+     * reference system (map CRS, map-projected images). In this case the model CRS equals the map CRS in use.
+     * Model coordinates are also different from image coordinates for images in satellite view
+     * that use a linearily downsampled or upsampled version of a common reference grid.
      * <p>
-     * If the geo-coding's {@link GeoCoding#getImageToMapTransform() image-to-map transform} is a linear transform, then
-     * the model CRS returned is the {@link GeoCoding#getMapCRS() map CRS}, otherwise it is the
+     * If the geo-coding's {@link GeoCoding#getImageToMapTransform() image-to-map transform} is an affine transform,
+     * then the returned CRS is the geo-coding's {@link GeoCoding#getMapCRS() map CRS}, otherwise it is its
      * {@link GeoCoding#getImageCRS() image CRS}. If the geo-coding is {@code null}, a default image CRS is returned
      * ({@link Product#DEFAULT_IMAGE_CRS}).
      *
      * @param geoCoding The geo-coding or {@code null}.
-     * @return An appropriate model coordinate reference system.
-     * @see #getAppropriateImageToModelTransform
+     * @return An appropriate "model" coordinate reference system.
+     * @see #findImageToModelTransform
+     * @see RasterDataNode#getImageToModelTransform()
+     * @see MultiLevelModel#getImageToModelTransform(int)
      */
-    public static CoordinateReferenceSystem getAppropriateModelCRS(GeoCoding geoCoding) {
+    public static CoordinateReferenceSystem findModelCRS(GeoCoding geoCoding) {
         if (geoCoding != null) {
             MathTransform image2Map = geoCoding.getImageToMapTransform();
             if (image2Map instanceof AffineTransform) {
@@ -792,6 +824,16 @@ public class Product extends ProductNode {
      */
     public final int getSceneRasterHeight() {
         return getSceneRasterSize().height;
+    }
+
+    public boolean isMultiSizeProduct() {
+        final ProductNodeGroup<Mask> maskGroup = getMaskGroup();
+        final Stream<RasterDataNode> masks = Arrays.stream(maskGroup.toArray(new Mask[maskGroup.getNodeCount()]));
+        final Stream<RasterDataNode> bands = Arrays.stream(getBands());
+        final Stream<RasterDataNode> tpg = Arrays.stream(getTiePointGrids());
+        final RasterDataNode[] rdns = Stream.concat(Stream.concat(masks, bands), tpg).toArray(RasterDataNode[]::new);
+
+        return !ProductUtils.areRastersEqualInSize(rdns);
     }
 
     /**
@@ -2203,8 +2245,8 @@ public class Product extends ProductNode {
         } else {
             final RasterDataNode refRaster = refRasters[0];
             mask = Mask.BandMathsType.create(maskName, description,
-                                             refRaster.getSceneRasterWidth(),
-                                             refRaster.getSceneRasterHeight(),
+                                             refRaster.getRasterWidth(),
+                                             refRaster.getRasterHeight(),
                                              expression, color, transparency);
             mask.setGeoCoding(refRaster.getGeoCoding());
         }
@@ -2703,7 +2745,7 @@ public class Product extends ProductNode {
      * <p>
      * If the associated raster is {@code null}, the mask's tile size is
      * this product's {@link #getPreferredTileSize() preferred tile size} (if any) while other image layout settings
-     * are derived from {@link ImageManager#createMultiLevelModel(ProductNode)}.
+     * are derived from {@link #createMultiLevelModel()}.
      *
      * @param expression       The expression
      * @param associatedRaster The associated raster or {@code null}.
@@ -2738,13 +2780,13 @@ public class Product extends ProductNode {
             // so that this method can be generalised to also create source (mask)
             // images for associatedRaster (nf 2015-07-27).
             MultiLevelImage sourceImage = associatedRaster.getSourceImage();
-            sourceSize = associatedRaster.getSceneRasterSize();
+            sourceSize = associatedRaster.getRasterSize();
             tileSize = new Dimension(sourceImage.getTileWidth(), sourceImage.getTileHeight());
             multiLevelModel = sourceImage.getModel();
         } else {
             sourceSize = getSceneRasterSize();
             tileSize = getPreferredTileSize();
-            multiLevelModel = ImageManager.createMultiLevelModel(this);
+            multiLevelModel = createMultiLevelModel();
         }
         MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
 
@@ -2759,6 +2801,17 @@ public class Product extends ProductNode {
             }
         };
         return new VirtualBandMultiLevelImage(multiLevelSource, term);
+    }
+
+    public MultiLevelModel createMultiLevelModel() {
+        int w = getSceneRasterWidth();
+        int h = getSceneRasterHeight();
+        AffineTransform i2mTransform = findImageToModelTransform(getSceneGeoCoding());
+        if (getNumResolutionsMax() > 0) {
+            return new DefaultMultiLevelModel(getNumResolutionsMax(), i2mTransform, w, h);
+        } else {
+            return new DefaultMultiLevelModel(i2mTransform, w, h);
+        }
     }
 
     private synchronized boolean initSceneProperties() {
@@ -2854,7 +2907,7 @@ public class Product extends ProductNode {
         return null;
     }
 
-    private void handleGeoCodingChange() {
+    private void handleSceneGeoCodingChange() {
         boolean adjustPinGeoPos = Config.instance().preferences().getBoolean(Placemark.PREFERENCE_KEY_ADJUST_PIN_GEO_POS, true);
         if (adjustPinGeoPos) {
             for (int i = 0; i < pinGroup.getNodeCount(); i++) {

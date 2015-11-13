@@ -173,8 +173,8 @@ public class DimapProductWriter extends AbstractProductWriter {
         Guardian.assertNotNull("sourceBand", sourceBand);
         Guardian.assertNotNull("sourceBuffer", sourceBuffer);
         checkBufferSize(sourceWidth, sourceHeight, sourceBuffer);
-        final long sourceBandWidth = sourceBand.getSceneRasterWidth();
-        final long sourceBandHeight = sourceBand.getSceneRasterHeight();
+        final long sourceBandWidth = sourceBand.getRasterWidth();
+        final long sourceBandHeight = sourceBand.getRasterHeight();
         checkSourceRegionInsideBandRegion(sourceWidth, sourceBandWidth, sourceHeight, sourceBandHeight, sourceOffsetX,
                                           sourceOffsetY);
         final ImageOutputStream outputStream = getOrCreateImageOutputStream(sourceBand);

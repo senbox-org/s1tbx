@@ -276,8 +276,8 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
         // if the band already has an internal raster
         if (sourceBand.getRasterData() != null) {
             // if the destination region equals the entire raster
-            if (sourceBand.getSceneRasterWidth() == destWidth
-                    && sourceBand.getSceneRasterHeight() == destHeight) {
+            if (sourceBand.getRasterWidth() == destWidth
+                    && sourceBand.getRasterHeight() == destHeight) {
                 copyBandRasterDataFully(sourceBand,
                                         destBuffer,
                                         destWidth, destHeight);
@@ -373,13 +373,13 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
             // no subsampling in x-direction
             if (sourceStepX == 1) {
                 copyData(sourceBand.getRasterData(),
-                         sourceY * sourceBand.getSceneRasterWidth() + sourceOffsetX,
+                         sourceY * sourceBand.getRasterWidth() + sourceOffsetX,
                          destBuffer,
                          destPos,
                          destWidth);
             } else {
                 copyLine(sourceBand.getRasterData(),
-                         sourceY * sourceBand.getSceneRasterWidth() + sourceOffsetX,
+                         sourceY * sourceBand.getRasterWidth() + sourceOffsetX,
                          sourceWidth,
                          sourceStepX,
                          destBuffer,

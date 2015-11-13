@@ -65,6 +65,10 @@ public class ClucovClusterOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
+        if (sourceProduct.isMultiSizeProduct()) {
+            throw createMultiSizeException(sourceProduct);
+        }
+
         featureBands = new Band[sourceBandNames.length];
         for (int i = 0; i < sourceBandNames.length; i++) {
             String featureBandName = sourceBandNames[i];

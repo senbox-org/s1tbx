@@ -104,10 +104,10 @@ public class EMClusterOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        sourceBands = collectSourceBands();
-        if (!ProductUtils.areRastersEqualInSize(sourceBands)) {
-            throw new OperatorException("Source bands must all be the same size");
+        if (sourceProduct.isMultiSizeProduct()) {
+            throw createMultiSizeException(sourceProduct);
         }
+        sourceBands = collectSourceBands();
 
         int width = sourceProduct.getSceneRasterWidth();
         int height = sourceProduct.getSceneRasterHeight();

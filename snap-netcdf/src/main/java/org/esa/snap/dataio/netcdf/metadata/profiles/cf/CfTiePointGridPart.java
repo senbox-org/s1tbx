@@ -45,8 +45,8 @@ public class CfTiePointGridPart extends ProfilePartIO {
         boolean doFlip = getYFlippedProperty(ctx);
 
         for (TiePointGrid tiePointGrid : p.getTiePointGrids()) {
-            final int h = tiePointGrid.getSceneRasterHeight();
-            final int w = tiePointGrid.getSceneRasterWidth();
+            final int h = tiePointGrid.getRasterHeight();
+            final int w = tiePointGrid.getRasterWidth();
             final Object data = tiePointGrid.getSourceImage().getData().getDataElements(0, 0, w, h, null);
             ProductData productData = ProductData.createInstance(ProductData.TYPE_FLOAT32, data);
             String variableName = ReaderUtils.getVariableName(tiePointGrid);

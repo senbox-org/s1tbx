@@ -15,7 +15,6 @@
  */
 package org.esa.snap.core.datamodel;
 
-import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.util.math.MathUtils;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.resources.geometry.XRectangle2D;
@@ -127,8 +126,8 @@ public class ImageGeometry {
                                                      Integer height,
                                                      Double orientation, Double easting, Double northing,
                                                      Double referencePixelX, Double referencePixelY) {
-        return createTargetGeometry(createMapBoundary(rasterDataNode, targetCrs), rasterDataNode.getSceneRasterWidth(),
-                                    rasterDataNode.getSceneRasterHeight(), targetCrs, pixelSizeX, pixelSizeY, width,
+        return createTargetGeometry(createMapBoundary(rasterDataNode, targetCrs), rasterDataNode.getRasterWidth(),
+                                    rasterDataNode.getRasterHeight(), targetCrs, pixelSizeX, pixelSizeY, width,
                                     height, orientation, easting, northing, referencePixelX, referencePixelY);
     }
 
@@ -198,7 +197,7 @@ public class ImageGeometry {
 
     public static ImageGeometry createCollocationTargetGeometry(Product targetProduct, Product collocationProduct) {
         GeoCoding geoCoding = collocationProduct.getSceneGeoCoding();
-        final AffineTransform modelTransform = ImageManager.getImageToModelTransform(geoCoding);
+        final AffineTransform modelTransform = Product.findImageToModelTransform(geoCoding);
         final double pixelSizeX = modelTransform.getScaleX();
         final double pixelSizeY = modelTransform.getScaleY();
         final int width = collocationProduct.getSceneRasterWidth();
@@ -208,7 +207,7 @@ public class ImageGeometry {
         final double referencePixelY = 0.0;
         final double referencePixelX = 0.0;
         return ImageGeometry.createTargetGeometry(targetProduct,
-                                                  collocationProduct.getModelCRS(),
+                                                  collocationProduct.getSceneCRS(),
                                                   pixelSizeX, pixelSizeY,
                                                   width, height,
                                                   null,
@@ -220,8 +219,8 @@ public class ImageGeometry {
     private static Rectangle2D createMapBoundary(final RasterDataNode rdn, CoordinateReferenceSystem targetCrs) {
         try {
             final CoordinateReferenceSystem sourceCrs = rdn.getGeoCoding().getImageCRS();
-            final int sourceW = rdn.getSceneRasterWidth();
-            final int sourceH = rdn.getSceneRasterHeight();
+            final int sourceW = rdn.getRasterWidth();
+            final int sourceH = rdn.getRasterHeight();
             final Rectangle2D rect = XRectangle2D.createFromExtremums(0.5, 0.5, sourceW - 0.5, sourceH - 0.5);
             int pointsPerSide = Math.max(sourceH, sourceW) / 10;
             pointsPerSide = Math.max(9, pointsPerSide);

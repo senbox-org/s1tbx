@@ -26,7 +26,7 @@ import com.bc.ceres.glayer.support.AbstractLayerListener;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.snap.core.datamodel.RasterDataNode;
-import org.esa.snap.core.image.MaskImageMultiLevelSource;
+import org.esa.snap.core.image.ColoredMaskImageMultiLevelSource;
 
 import java.awt.Color;
 import java.awt.geom.AffineTransform;
@@ -100,11 +100,11 @@ public class NoDataLayerType extends ImageLayer.Type {
         MultiLevelSource source;
         if (raster.getValidMaskExpression() != null) {
             final AffineTransform transform = raster.getSourceImage().getModel().getImageToModelTransform(0);
-            source = MaskImageMultiLevelSource.create(raster.getProduct(),
-                                                      newColor,
-                                                      raster.getValidMaskExpression(),
-                                                      true,
-                                                      transform);
+            source = ColoredMaskImageMultiLevelSource.create(raster.getProduct(),
+                                                             newColor,
+                                                             raster.getValidMaskExpression(),
+                                                             true,
+                                                             transform);
         } else {
             source = MultiLevelSource.NULL;
         }

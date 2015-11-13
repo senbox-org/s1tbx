@@ -87,31 +87,37 @@ public class NetcdfFileOpener {
 
 
     public static NetcdfFile open(Object input) throws IOException {
-        byte[] buffer = new byte[MAGIC_BUFFER_LENGTH];
-        readMagicBytes(input, buffer);
-        IOServiceProvider spi = getIOSpi(buffer);
-        if (spi != null) {
-            RandomAccessFile raf = getRaf(input);
-            if (raf != null) {
-                return new DummyNetcdfFile(spi, raf, raf.getLocation());
-            }
-        } else {
-            // The HDF5 superblock, which begins with the 8-byte format signature,
-            // may begin at certain predefined offsets within the HDF5 file:
-            // 0, 512, 1024, 2048, and multiples of two thereafter.
-            // see: http://www.hdfgroup.org/HDF5/doc/H5.format.html
-            RandomAccessFile rafForTesting = getRafForTesting(input);
-            boolean isValidHdf5 = H5header.isValidFile(rafForTesting);
-            if (isValidHdf5) {
+        try {
+            byte[] buffer = new byte[MAGIC_BUFFER_LENGTH];
+            readMagicBytes(input, buffer);
+            IOServiceProvider spi = getIOSpi(buffer);
+            if (spi != null) {
                 RandomAccessFile raf = getRaf(input);
                 if (raf != null) {
-                    return new DummyNetcdfFile(new H5iosp(), raf, raf.getLocation());
+                    return new DummyNetcdfFile(spi, raf, raf.getLocation());
                 }
             } else {
-                if (!(input instanceof ImageInputStream)) {
-                    rafForTesting.close();
+                // The HDF5 superblock, which begins with the 8-byte format signature,
+                // may begin at certain predefined offsets within the HDF5 file:
+                // 0, 512, 1024, 2048, and multiples of two thereafter.
+                // see: http://www.hdfgroup.org/HDF5/doc/H5.format.html
+                RandomAccessFile rafForTesting = getRafForTesting(input);
+                boolean isValidHdf5 = H5header.isValidFile(rafForTesting);
+                if (isValidHdf5) {
+                    RandomAccessFile raf = getRaf(input);
+                    if (raf != null) {
+                        return new DummyNetcdfFile(new H5iosp(), raf, raf.getLocation());
+                    }
+                } else {
+                    if (!(input instanceof ImageInputStream)) {
+                        rafForTesting.close();
+                    }
                 }
             }
+        } catch (IOException ioe) {
+            throw ioe;
+        } catch (Throwable t) {
+            throw new IOException("Error while opening netcdf file", t);
         }
         return null;
     }

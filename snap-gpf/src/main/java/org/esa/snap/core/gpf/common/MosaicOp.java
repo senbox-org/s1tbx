@@ -188,7 +188,7 @@ public class MosaicOp extends Operator {
     }
 
     private List<RenderedImage> createVariableCountImages(List<List<PlanarImage>> alphaImageList) {
-        List<RenderedImage> variableCountImageList = new ArrayList<RenderedImage>(variables.length);
+        List<RenderedImage> variableCountImageList = new ArrayList<>(variables.length);
         for (List<PlanarImage> variableAlphaImageList : alphaImageList) {
             final RenderedImage countFloatImage = createImageSum(variableAlphaImageList);
             variableCountImageList.add(FormatDescriptor.create(countFloatImage, DataBuffer.TYPE_INT, null));
@@ -197,9 +197,9 @@ public class MosaicOp extends Operator {
     }
 
     private List<List<PlanarImage>> createAlphaImages() {
-        final List<List<PlanarImage>> alphaImageList = new ArrayList<List<PlanarImage>>(variables.length);
+        final List<List<PlanarImage>> alphaImageList = new ArrayList<>(variables.length);
         for (final Variable variable : variables) {
-            final ArrayList<PlanarImage> list = new ArrayList<PlanarImage>(reprojectedProducts.length);
+            final ArrayList<PlanarImage> list = new ArrayList<>(reprojectedProducts.length);
             alphaImageList.add(list);
             for (final Product product : reprojectedProducts) {
                 final String validMaskExpression;
@@ -243,7 +243,7 @@ public class MosaicOp extends Operator {
                 ImageManager.getPreferredTileSize(targetProduct),
                 ResolutionLevel.MAXRES);
         Hints hints = new Hints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
-        final List<RenderedImage> mosaicImages = new ArrayList<RenderedImage>(sourceImageList.size());
+        final List<RenderedImage> mosaicImages = new ArrayList<>(sourceImageList.size());
         for (int i = 0; i < sourceImageList.size(); i++) {
             final PlanarImage[] sourceAlphas = alphaImageList.get(i).toArray(
                     new PlanarImage[alphaImageList.size()]);
@@ -276,8 +276,8 @@ public class MosaicOp extends Operator {
                     final RenderedImage reformattedImage = FormatDescriptor.create(sumImage, DataBuffer.TYPE_INT, null);
                     RenderedImage condImage = reformattedImage;
                     if (isUpdateMode()) {
-                        final RenderedImage updateimage = updateProduct.getBand(condition.getName()).getSourceImage();
-                        condImage = AddDescriptor.create(reformattedImage, updateimage, null);
+                        final RenderedImage updateImage = updateProduct.getBand(condition.getName()).getSourceImage();
+                        condImage = AddDescriptor.create(reformattedImage, updateImage, null);
                     }
                     Band band = product.getBand(condition.getName());
                     band.setSourceImage(condImage);
@@ -291,7 +291,7 @@ public class MosaicOp extends Operator {
     }
 
     private RenderedImage createConditionSumImage(Condition condition) {
-        final List<RenderedImage> renderedImageList = new ArrayList<RenderedImage>(reprojectedProducts.length);
+        final List<RenderedImage> renderedImageList = new ArrayList<>(reprojectedProducts.length);
         for (Product reprojectedProduct : reprojectedProducts) {
             renderedImageList.add(createConditionImage(condition, reprojectedProduct));
         }
@@ -320,9 +320,9 @@ public class MosaicOp extends Operator {
     }
 
     private List<List<RenderedImage>> createSourceImages() {
-        final List<List<RenderedImage>> sourceImageList = new ArrayList<List<RenderedImage>>(variables.length);
+        final List<List<RenderedImage>> sourceImageList = new ArrayList<>(variables.length);
         for (final Variable variable : variables) {
-            final List<RenderedImage> renderedImageList = new ArrayList<RenderedImage>(reprojectedProducts.length);
+            final List<RenderedImage> renderedImageList = new ArrayList<>(reprojectedProducts.length);
             sourceImageList.add(renderedImageList);
             for (final Product product : reprojectedProducts) {
                 renderedImageList.add(createExpressionImage(variable.getExpression(), product));
@@ -353,7 +353,7 @@ public class MosaicOp extends Operator {
     }
 
     private Product[] createReprojectedProducts() {
-        List<Product> reprojProductList = new ArrayList<Product>(sourceProducts.length);
+        List<Product> reprojProductList = new ArrayList<>(sourceProducts.length);
         final HashMap<String, Object> projParameters = createProjectionParameters();
         for (Product sourceProduct : sourceProducts) {
             if (sourceProduct.getSceneGeoCoding() == null) {
@@ -361,7 +361,12 @@ public class MosaicOp extends Operator {
                 getLogger().warning(msg);
                 continue;
             }
-            HashMap<String, Product> projProducts = new HashMap<String, Product>();
+            if (sourceProduct.isMultiSizeProduct()) {
+                String msg = "Source product: '" + sourceProduct.getName() + "' contains rasters of different sizes. Skipped for further processing.";
+                getLogger().warning(msg);
+                continue;
+            }
+            HashMap<String, Product> projProducts = new HashMap<>();
             projProducts.put("source", sourceProduct);
             projProducts.put("collocateWith", targetProduct);
             reprojProductList.add(GPF.createProduct("Reproject", projParameters, projProducts));
@@ -370,11 +375,11 @@ public class MosaicOp extends Operator {
     }
 
     private HashMap<String, Object> createProjectionParameters() {
-        HashMap<String, Object> projParameters = new HashMap<String, Object>();
+        HashMap<String, Object> projParameters = new HashMap<>();
         projParameters.put("resamplingName", resamplingName);
         projParameters.put("includeTiePointGrids", true);  // ensure tie-points are reprojected
         if (orthorectify) {
-            projParameters.put("orthorectify", orthorectify);
+            projParameters.put("orthorectify", true);
             projParameters.put("elevationModelName", elevationModelName);
         }
         return projParameters;
@@ -516,7 +521,7 @@ public class MosaicOp extends Operator {
             throw new OperatorException("Product has no metadata element named 'Processing_Graph'");
         }
         final String operatorAlias = "Mosaic";
-        final Map<String, Object> parameters = new HashMap<String, Object>();
+        final Map<String, Object> parameters = new HashMap<>();
         boolean operatorFound = false;
         for (MetadataElement nodeElement : graphElement.getElements()) {
             if (operatorAlias.equals(nodeElement.getAttributeString("operator"))) {
@@ -563,7 +568,7 @@ public class MosaicOp extends Operator {
                 final MetadataElement element = parentElement.getElement(name);
                 if (element != null) {
                     final Object obj = field.getType().newInstance();
-                    final HashMap<String, Object> objParams = new HashMap<String, Object>();
+                    final HashMap<String, Object> objParams = new HashMap<>();
                     collectParameters(obj.getClass(), element, objParams);
                     initObject(objParams, obj);
                     parameters.put(name, obj);
@@ -589,7 +594,7 @@ public class MosaicOp extends Operator {
                 for (int i = 0; i < elements.length; i++) {
                     MetadataElement arrayElement = elements[i];
                     final Object componentInstance = componentType.newInstance();
-                    final HashMap<String, Object> objParams = new HashMap<String, Object>();
+                    final HashMap<String, Object> objParams = new HashMap<>();
                     collectParameters(componentInstance.getClass(), arrayElement, objParams);
                     initObject(objParams, componentInstance);
                     Array.set(array, i, componentInstance);

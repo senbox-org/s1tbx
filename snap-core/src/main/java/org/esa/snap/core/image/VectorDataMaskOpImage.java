@@ -23,6 +23,7 @@ import com.vividsolutions.jts.geom.Lineal;
 import com.vividsolutions.jts.geom.Polygonal;
 import com.vividsolutions.jts.geom.Puntal;
 import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.VectorDataNode;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
@@ -62,7 +63,7 @@ public class VectorDataMaskOpImage extends SingleBandedOpImage {
               level);
         this.vectorDataNode = vectorDataNode;
         GeoCoding geoCoding = vectorDataNode.getProduct().getSceneGeoCoding();
-        AffineTransform transform = ImageManager.getImageToModelTransform(geoCoding);
+        AffineTransform transform = Product.findImageToModelTransform(geoCoding);
         try {
             transform.invert();
             m2iTransform = transform;

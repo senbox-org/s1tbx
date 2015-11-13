@@ -49,7 +49,6 @@ import java.util.Set;
 import java.util.SortedMap;
 
 import static java.lang.Math.*;
-import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 /**
@@ -616,8 +615,7 @@ public class BinningOpTest {
         BinningOp binningOp = createBinningOp();
         binningOp.setTimeFilterMethod(BinningOp.TimeFilterMethod.NONE);
 
-        final ProductFilter allProductsFilter = BinningOp.createSourceProductFilter(null, null, null, null);
-        assertThat(allProductsFilter, is(instanceOf(GeoCodingProductFilter.class)));
+        assertNotNull(BinningOp.createSourceProductFilter(null, null, null, null));
     }
 
     @Test

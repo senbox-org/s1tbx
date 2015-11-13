@@ -162,8 +162,8 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
         validMaskExpression = validMask;
         this.searchRadius = searchRadius;
 
-        rasterWidth = latBand.getSceneRasterWidth();
-        rasterHeight = latBand.getSceneRasterHeight();
+        rasterWidth = latBand.getRasterWidth();
+        rasterHeight = latBand.getRasterHeight();
 
         useTiling = Config.instance().preferences().getBoolean(SYSPROP_PIXEL_GEO_CODING_USE_TILING, true);
 

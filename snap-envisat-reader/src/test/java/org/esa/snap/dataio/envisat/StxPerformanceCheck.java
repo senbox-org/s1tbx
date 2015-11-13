@@ -40,8 +40,8 @@ public class StxPerformanceCheck {
         double[] times = computeStx(band0);
 
         System.out.println(product.getProductType());
-        System.out.println("band width : " + band0.getSceneRasterWidth());
-        System.out.println("band height: " + band0.getSceneRasterHeight());
+        System.out.println("band width : " + band0.getRasterWidth());
+        System.out.println("band height: " + band0.getRasterHeight());
         System.out.println();
         for (int i = 0; i < times.length; i++) {
             System.out.println("stx" + i + " : " + times[i]);

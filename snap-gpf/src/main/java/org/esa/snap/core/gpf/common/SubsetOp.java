@@ -61,9 +61,9 @@ import static java.lang.Math.*;
 
 /**
  * This operator is used to create either spatial and/or spectral subsets of a data product.
- * Spatial subset may be given by pixel positions (parameter <code>region</code>)
- * or a geographical polygon (parameter <code>geoRegion</code>). Subsets of band and tie-point grid
- * are given by name lists (parameters <code>bandNames</code> and  <code>tiePointGridNames</code>).
+ * Spatial subset may be given by pixel positions (parameter {@code region})
+ * or a geographical polygon (parameter {@code geoRegion}). Subsets of band and tie-point grid
+ * are given by name lists (parameters {@code bandNames} and  {@code tiePointGridNames}).
  *
  * @author Marco Zuehlke
  * @author Norman Fomferra
@@ -171,6 +171,9 @@ public class SubsetOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
+        if(sourceProduct.isMultiSizeProduct()) {
+            throw createMultiSizeException(sourceProduct);
+        }
 
         subsetReader = new ProductSubsetBuilder();
         final ProductSubsetDef subsetDef = new ProductSubsetDef();
@@ -193,10 +196,7 @@ public class SubsetOp extends Operator {
             }
             subsetDef.addNodeNames(referencedNodeNames.toArray(new String[referencedNodeNames.size()]));
         }
-        nodeNames = subsetDef.getNodeNames();
-        if (!ProductUtils.areRastersEqualInSize(sourceProduct, nodeNames != null ? nodeNames : new String[0])) {
-            throw new OperatorException("Can only create subsets if all rasters are the same size");
-        }
+
         if (geoRegion != null) {
             region = computePixelRegion(sourceProduct, geoRegion, 0);
         }

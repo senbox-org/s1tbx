@@ -20,20 +20,20 @@ public class ProductMultiSizeApiTest {
     @Test(expected = NullPointerException.class)
     public void testModelCrsCannotBeNull() throws Exception {
         Product product = new Product("N", "T");
-        product.setModelCRS(null);
+        product.setSceneCRS(null);
     }
 
     @Test
     public void testModelCrsDefault() throws Exception {
         Product product = new Product("N", "T");
-        assertEquals(Product.DEFAULT_IMAGE_CRS, product.getModelCRS());
+        assertEquals(Product.DEFAULT_IMAGE_CRS, product.getSceneCRS());
     }
 
     @Test
     public void testModelCrsSetterGetter() throws Exception {
         Product product = new Product("N", "T");
-        product.setModelCRS(DefaultGeographicCRS.WGS84);
-        assertEquals(DefaultGeographicCRS.WGS84, product.getModelCRS());
+        product.setSceneCRS(DefaultGeographicCRS.WGS84);
+        assertEquals(DefaultGeographicCRS.WGS84, product.getSceneCRS());
     }
 
     @Test
@@ -41,7 +41,7 @@ public class ProductMultiSizeApiTest {
         Product product = new Product("N", "T");
         DefaultProjectedCRS biboCrs = new DefaultProjectedCRS("bibo", DefaultGeographicCRS.WGS84, IdentityTransform.create(2), DefaultCartesianCS.PROJECTED);
         product.setSceneGeoCoding(new CrsGeoCoding(biboCrs, 10, 10, 0, 0, 1, 1));
-        assertEquals(biboCrs, product.getModelCRS());
+        assertEquals(biboCrs, product.getSceneCRS());
     }
 
     @Test
@@ -52,6 +52,6 @@ public class ProductMultiSizeApiTest {
         product.addTiePointGrid(lat);
         product.addTiePointGrid(lon);
         product.setSceneGeoCoding(new TiePointGeoCoding(lat, lon));
-        assertEquals(product.getSceneGeoCoding().getImageCRS(), product.getModelCRS());
+        assertEquals(product.getSceneGeoCoding().getImageCRS(), product.getSceneCRS());
     }
 }

@@ -21,15 +21,18 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
+import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import org.esa.snap.core.dataio.ProductSubsetDef;
-import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.dataop.barithm.BandArithmetic;
 import org.esa.snap.core.image.ResolutionLevel;
 import org.esa.snap.core.image.VirtualBandOpImage;
 import org.esa.snap.core.jexp.Term;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.StringUtils;
+import org.opengis.referencing.operation.MathTransform;
 
 import java.awt.Dimension;
+import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 
@@ -241,7 +244,7 @@ public class VirtualBand extends Band {
     /**
      * Create a {@link MultiLevelImage} that computes its pixel values from the given band math expression.
      * The returned image is intended to be used as source image for the given target raster.
-     * <p/>
+     * <p>
      * Non-API.
      *
      * @param raster     The raster data node.
@@ -258,7 +261,14 @@ public class VirtualBand extends Band {
         Dimension tileSize = raster.getProduct().getPreferredTileSize();
         int dataType = raster.getDataType();
         Number fillValue = raster.isNoDataValueUsed() ? raster.getGeophysicalNoDataValue() : null;
-        MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(raster);
+        //todo [multisize_products] change when ref rasters might have different imageToModelTransforms (tf 20151111)
+        RasterDataNode[] refRasters = BandArithmetic.getRefRasters(term);
+        MultiLevelModel multiLevelModel;
+        if (refRasters.length > 0) {
+            multiLevelModel = refRasters[0].getMultiLevelModel();
+        } else {
+            multiLevelModel = raster.createMultiLevelModel();
+        }
         MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
             @Override
             public RenderedImage createImage(int level) {

@@ -37,7 +37,6 @@ import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
-import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.image.ResolutionLevel;
 import org.esa.snap.core.image.VirtualBandOpImage;
 import org.esa.snap.core.jexp.Term;
@@ -215,6 +214,10 @@ public abstract class PointOperator extends Operator {
         int h = 0;
         for (int i = 0; i < sourceProducts.length; i++) {
             Product sourceProduct = sourceProducts[i];
+            if (sourceProduct.isMultiSizeProduct()) {
+                throw createMultiSizeException(sourceProduct);
+            }
+
             if (i == 0) {
                 w = sourceProduct.getSceneRasterWidth();
                 h = sourceProduct.getSceneRasterHeight();
@@ -478,7 +481,7 @@ public abstract class PointOperator extends Operator {
             Product contextProduct = sourceProducts[0];
             Dimension sourceSize = contextProduct.getSceneRasterSize();
             Dimension tileSize = contextProduct.getPreferredTileSize();
-            MultiLevelModel multiLevelModel = ImageManager.createMultiLevelModel(contextProduct);
+            MultiLevelModel multiLevelModel = contextProduct.createMultiLevelModel();
             MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
                 @Override
                 public RenderedImage createImage(int level) {

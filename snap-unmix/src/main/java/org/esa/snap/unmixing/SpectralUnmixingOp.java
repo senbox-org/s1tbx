@@ -395,17 +395,14 @@ public class SpectralUnmixingOp extends Operator {
 
     private void loadEndmemberFile() throws OperatorException {
         try {
-            FileReader fileReader = new FileReader(endmemberFile);
-            try {
+            try (FileReader fileReader = new FileReader(endmemberFile)) {
                 List<Endmember> newEndmembers = readGraphs(fileReader);
-                ArrayList<Endmember> list = new ArrayList<Endmember>();
+                ArrayList<Endmember> list = new ArrayList<>();
                 if (endmembers != null) {
                     list.addAll(Arrays.asList(endmembers));
                 }
                 list.addAll(newEndmembers);
                 endmembers = list.toArray(new Endmember[list.size()]);
-            } finally {
-                fileReader.close();
             }
         } catch (IOException e) {
             throw new OperatorException(e);
@@ -414,8 +411,8 @@ public class SpectralUnmixingOp extends Operator {
     private static List<Endmember> readGraphs(Reader reader) throws IOException {
 
         CsvReader csvReader = new CsvReader(reader, new char[]{'\t'});
-        List<Endmember> endmemberList = new ArrayList<Endmember>(5);
-        List<double[]> dataRecords = new ArrayList<double[]>(20);
+        List<Endmember> endmemberList = new ArrayList<>(5);
+        List<double[]> dataRecords = new ArrayList<>(20);
 
         String[] headerRecord = csvReader.readRecord();
         while (true) {

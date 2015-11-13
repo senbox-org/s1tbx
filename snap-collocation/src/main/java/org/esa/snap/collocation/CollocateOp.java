@@ -43,14 +43,15 @@ import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.StringUtils;
 
 import java.awt.Rectangle;
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.text.MessageFormat.*;
+
 /**
  * This operator is used to spatially collocate two data products. It requires two source products,
- * a <code>master</code> product which provides the Coordinate reference system and grid into which
- * the raster data sets of the <code>slave</code> product are resampled to.
+ * a {@code master} product which provides the Coordinate reference system and grid into which
+ * the raster data sets of the {@code slave} product are resampled to.
  *
  * @author Ralf Quast
  * @author Norman Fomferra
@@ -181,23 +182,13 @@ public class CollocateOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        if (masterProduct.getSceneGeoCoding() == null) {
-            throw new OperatorException(
-                    MessageFormat.format("Product ''{0}'' has no geo-coding.", masterProduct.getName()));
-        }
-        if (slaveProduct.getSceneGeoCoding() == null) {
-            throw new OperatorException(
-                    MessageFormat.format("Product ''{0}'' has no geo-coding.", slaveProduct.getName()));
-        }
+        validateProduct(masterProduct);
+        validateProduct(slaveProduct);
         if (renameMasterComponents && StringUtils.isNullOrEmpty(masterComponentPattern)) {
-            throw new OperatorException(
-                    MessageFormat.format("Parameter ''{0}'' must be set to a non-empty string pattern.",
-                                         "masterComponentPattern"));
+            throw new OperatorException(format("Parameter ''{0}'' must be set to a non-empty string pattern.", "masterComponentPattern"));
         }
         if (renameSlaveComponents && StringUtils.isNullOrEmpty(slaveComponentPattern)) {
-            throw new OperatorException(
-                    MessageFormat.format("Parameter ''{0}'' must be set to a non-empty string pattern.",
-                                         "slaveComponentPattern"));
+            throw new OperatorException(format("Parameter ''{0}'' must be set to a non-empty string pattern.", "slaveComponentPattern"));
         }
 
         sourceRasterMap = new HashMap<>(31);
@@ -275,6 +266,15 @@ public class CollocateOp extends Operator {
         // todo - slave metadata!?
     }
 
+    private void validateProduct(Product product) {
+        if (product.getSceneGeoCoding() == null) {
+            throw new OperatorException(format("Product ''{0}'' has no geo-coding.", product.getName()));
+        }
+        if (product.isMultiSizeProduct()) {
+            throw createMultiSizeException(product);
+        }
+    }
+
     @Override
     public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm) throws
                                                                                                                OperatorException {
@@ -336,7 +336,7 @@ public class CollocateOp extends Operator {
     private void collocateSourceBand(RasterDataNode sourceBand, Rectangle sourceRectangle,
                                      PixelPos[] sourcePixelPositions,
                                      Tile targetTile, ProgressMonitor pm) throws OperatorException {
-        pm.beginTask(MessageFormat.format("collocating band {0}", sourceBand.getName()), targetTile.getHeight());
+        pm.beginTask(format("collocating band {0}", sourceBand.getName()), targetTile.getHeight());
         try {
             final RasterDataNode targetBand = targetTile.getRasterDataNode();
             final Rectangle targetRectangle = targetTile.getRectangle();

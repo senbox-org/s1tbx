@@ -56,8 +56,8 @@ public abstract class AbstractMeasurementFactory implements MeasurementFactory {
     }
 
     private static boolean pixelIsNotInBounds(RasterDataNode raster, int x, int y) {
-        int height = raster.getSceneRasterHeight();
-        int width = raster.getSceneRasterWidth();
+        int height = raster.getRasterHeight();
+        int width = raster.getRasterWidth();
         return x < 0 || x >= width || y < 0 || y >= height;
     }
 }

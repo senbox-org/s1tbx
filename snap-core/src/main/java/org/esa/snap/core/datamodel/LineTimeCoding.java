@@ -14,6 +14,10 @@ public class LineTimeCoding implements TimeCoding {
     private final double minY;
     private final double maxY;
 
+    public LineTimeCoding(int sceneRasterHeight, double mjdStart, double mjdEnd) throws IOException {
+        this(createMJDs(sceneRasterHeight, mjdStart, mjdEnd));
+    }
+
     public LineTimeCoding(double[] mjDs) throws IOException {
         assert mjDs != null;
         assert mjDs.length > 0;
@@ -21,7 +25,6 @@ public class LineTimeCoding implements TimeCoding {
         this.minY = 0.0;
         this.maxY = mjDs.length;
     }
-
 
     /**
      * Gets the time as MJD {@code double} for a raster line {@link PixelPos#getY()}.
@@ -39,5 +42,16 @@ public class LineTimeCoding implements TimeCoding {
             indexY -= 1;
         }
         return mjDs[indexY];
+    }
+
+    private static double[] createMJDs(int sceneRasterHeight, double mjdStart, double mjdEnd) {
+        final double part = (mjdEnd - mjdStart) / (sceneRasterHeight - 1);
+        final double[] MJDs = new double[sceneRasterHeight];
+        MJDs[0] = mjdStart;
+        MJDs[MJDs.length - 1] = mjdEnd;
+        for (int i = 1; i < MJDs.length - 1; i++) {
+            MJDs[i] = mjdStart + i * part;
+        }
+        return MJDs;
     }
 }

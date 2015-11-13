@@ -24,25 +24,14 @@ import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.runtime.Config;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
@@ -95,14 +84,14 @@ public class ToolAdapterIO {
     public static void saveVariable(String name, String value) {
         if (value != null && value.length() > 0) {
             Preferences preferences = getPreferences();
-            if (preferences.get(name, null) == null) {
+            //if (preferences.get(name, null) == null) {
                 preferences.put(name, value);
                 try {
                     preferences.sync();
                 } catch (BackingStoreException e) {
                     logger.severe(String.format("Cannot set %s value in preferences: %s", name, e.getMessage()));
                 }
-            }
+            //}
         }
     }
 

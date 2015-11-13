@@ -16,7 +16,6 @@
 
 package org.esa.snap.core.datamodel;
 
-import junit.framework.TestCase;
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.dataop.maptransf.Datum;
 import org.geotools.geometry.DirectPosition2D;
@@ -25,6 +24,7 @@ import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultDerivedCRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.cs.DefaultCartesianCS;
+import org.junit.Test;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.GeographicCRS;
@@ -37,30 +37,11 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 
-/**
- * todo - add API doc
- *
- * @author Marco Peters
- * @version $Revision: $ $Date: $
- * @since BEAM 4.6
- */
-public class GeoCodingMathTransformTest extends TestCase {
+import static org.junit.Assert.*;
 
-    public void testWGS84() throws FactoryException, TransformException {
-        String expected = "GEOGCS[\"WGS 84\",\n" +
-                "    DATUM[\"WGS_1984\",\n" +
-                "        SPHEROID[\"WGS 84\",6378137,298.257223563,\n" +
-                "            AUTHORITY[\"EPSG\",\"7030\"]],\n" +
-                "        AUTHORITY[\"EPSG\",\"6326\"]],\n" +
-                "    PRIMEM[\"Greenwich\",0,\n" +
-                "        AUTHORITY[\"EPSG\",\"8901\"]],\n" +
-                "    UNIT[\"degree\",0.01745329251994328,\n" +
-                "        AUTHORITY[\"EPSG\",\"9122\"]],\n" +
-                "    AUTHORITY[\"EPSG\",\"4326\"]]";
+public class GeoCodingMathTransformTest {
 
-        final String actual = DefaultGeographicCRS.WGS84.toWKT();
-        //assertEquals(expected, actual);
-    }
+    @Test
     public void testIt() throws FactoryException, TransformException {
 
         AffineTransform at = new AffineTransform();

@@ -173,8 +173,8 @@ public class RasterDataLoop {
             final RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
             for (RasterDataSymbol refRasterDataSymbol : refRasterDataSymbols) {
                 final RasterDataNode raster = refRasterDataSymbol.getRaster();
-                final int rasterWidth = raster.getSceneRasterWidth();
-                final int rasterHeight = raster.getSceneRasterHeight();
+                final int rasterWidth = raster.getRasterWidth();
+                final int rasterHeight = raster.getRasterHeight();
                 if (rasterWidth < (offsetX + width) || rasterHeight < (offsetY + height)) {
                     throw new IllegalArgumentException("out of bounds.");
                 }

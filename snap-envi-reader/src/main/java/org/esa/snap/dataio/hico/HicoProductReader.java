@@ -139,8 +139,8 @@ class HicoProductReader extends AbstractProductReader {
                 }
             }
             if (latitudeBand != null && longitudeBand != null) {
-                int rasterWidth = latitudeBand.getSceneRasterWidth();
-                int rasterHeight = latitudeBand.getSceneRasterHeight();
+                int rasterWidth = latitudeBand.getRasterWidth();
+                int rasterHeight = latitudeBand.getRasterHeight();
 
                 // convert bands into tie-points
                 // to create a tie-point geo-coding, because it is much faster than a pixel-geo-coding

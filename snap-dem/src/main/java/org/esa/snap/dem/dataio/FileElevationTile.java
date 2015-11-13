@@ -35,7 +35,7 @@ class FileElevationTile {
         this.product = product;
 
         linesCache = new CachingObjectArray(getLineFactory());
-        linesCache.setCachedRange(0, product.getBandAt(0).getSceneRasterHeight());
+        linesCache.setCachedRange(0, product.getBandAt(0).getRasterHeight());
     }
 
     public float getSample(int pixelX, int pixelY) throws IOException {

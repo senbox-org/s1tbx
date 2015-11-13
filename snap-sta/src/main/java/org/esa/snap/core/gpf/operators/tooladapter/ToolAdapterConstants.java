@@ -50,6 +50,7 @@ public interface ToolAdapterConstants {
     String WORKING_DIR = "workingDir";
     String PROGRESS_PATTERN = "progressPattern";
     String ERROR_PATTERN = "errorPattern";
+    String STEP_PATTERN = "stepPattern";
     String MENU_LOCATION = "menuLocation";
     String DESCRIPTION = "description";
     String AUTHORS = "authors";

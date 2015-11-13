@@ -20,7 +20,5 @@ package org.esa.snap.engine_utilities.datamodel;
  */
 public interface DownloadableFile {
 
-    public void dispose();
-
-    //public File getFile();
+    void dispose();
 }

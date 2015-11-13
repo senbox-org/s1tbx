@@ -1,7 +1,6 @@
 package org.esa.snap.core.datamodel;
 
 import com.bc.ceres.glevel.MultiLevelImage;
-import org.esa.snap.core.image.ImageManager;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.junit.Test;
 import org.opengis.referencing.operation.MathTransform;
@@ -56,7 +55,7 @@ public class ModelTransformationTest {
                 new SubTiePointGeoCoding(latGrid, lonGrid, new AffineTransform2D(affineTransform3));
         band3.setGeoCoding(geoCoding3);
 
-        final AffineTransform imageToModelTransform1 = ImageManager.getImageToModelTransform(band1.getGeoCoding());
+        final AffineTransform imageToModelTransform1 = Product.findImageToModelTransform(band1.getGeoCoding());
         assertEquals(new Point2D.Double(0, 0),
                      imageToModelTransform1.transform(new Point2D.Double(0, 0), null));
         assertEquals(new Point2D.Double(0, productHeight - 1),
@@ -66,7 +65,7 @@ public class ModelTransformationTest {
         assertEquals(new Point2D.Double(productWidth - 1, productHeight - 1),
                      imageToModelTransform1.transform(new Point2D.Double(productWidth - 1, productHeight - 1), null));
 
-        final AffineTransform imageToModelTransform2 = ImageManager.getImageToModelTransform(band2.getGeoCoding());
+        final AffineTransform imageToModelTransform2 = Product.findImageToModelTransform(band2.getGeoCoding());
         assertEquals(new Point2D.Double(1, 2),
                      imageToModelTransform2.transform(new Point2D.Double(0, 0), null));
         assertEquals(new Point2D.Double(1, 17),
@@ -76,7 +75,7 @@ public class ModelTransformationTest {
         assertEquals(new Point2D.Double(8, 17),
                      imageToModelTransform2.transform(new Point2D.Double(7, 15), null));
 
-        final AffineTransform imageToModelTransform3 = ImageManager.getImageToModelTransform(band3.getGeoCoding());
+        final AffineTransform imageToModelTransform3 = Product.findImageToModelTransform(band3.getGeoCoding());
         assertEquals(new Point2D.Double(2, 4),
                      imageToModelTransform3.transform(new Point2D.Double(0, 0), null));
         assertEquals(new Point2D.Double(2, 16),
