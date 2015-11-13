@@ -11,6 +11,7 @@
                 <attr name="dialogTitle" stringvalue="Polarimetric Classification"/>
                 <attr name="ShortDescription" stringvalue="Polarimetric Classification"/>
                 <attr name="targetProductNameSuffix" stringvalue="_Class"/>
+                <attr name="helpId" stringvalue="PolarimetricClassificationOp"/>
                 <attr name="icon" stringvalue="rstbIcon"/>
             </file>
             <file name="org-csa-rstb-classification-gpf-SupervisedWishartClassificationOp-Action.instance">
@@ -21,6 +22,7 @@
                 <attr name="dialogTitle" stringvalue="Supervised Wishart Classification"/>
                 <attr name="ShortDescription" stringvalue="Supervised Wishart Classification"/>
                 <attr name="targetProductNameSuffix" stringvalue="_Class"/>
+                <attr name="helpId" stringvalue="SupervisedWishartClassificationOp"/>
                 <attr name="icon" stringvalue="rstbIcon"/>
             </file>
         </folder>

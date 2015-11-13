@@ -11,6 +11,7 @@
                 <attr name="dialogTitle" stringvalue="Generate Covariance or Coherency Matrix"/>
                 <attr name="ShortDescription" stringvalue="Generate Covariance or Coherency Matrix"/>
                 <attr name="targetProductNameSuffix" stringvalue="_mat"/>
+                <attr name="helpId" stringvalue="PolarimetricMatricesOp"/>
                 <attr name="icon" stringvalue="rstbIcon"/>
             </file>
             <file name="org-csa-rstb-polarimetric-gpf-PolarimetricSpeckleFilterOp-Action.instance">
@@ -21,6 +22,7 @@
                 <attr name="dialogTitle" stringvalue="Polarimetric Speckle Filter"/>
                 <attr name="ShortDescription" stringvalue="Polarimetric Speckle Filter"/>
                 <attr name="targetProductNameSuffix" stringvalue="_Spk"/>
+                <attr name="helpId" stringvalue="PolarimetricSpeckleFilterOp"/>
                 <attr name="icon" stringvalue="rstbIcon"/>
             </file>
             <file name="org-csa-rstb-polarimetric-gpf-OrientationAngleCorrectionOp-Action.instance">
@@ -31,6 +33,7 @@
                 <attr name="dialogTitle" stringvalue="Orientation Angle Correction"/>
                 <attr name="ShortDescription" stringvalue="Polarimetric Orientation Angle Correction"/>
                 <attr name="targetProductNameSuffix" stringvalue="_Ori"/>
+                <attr name="helpId" stringvalue="OrientationAngleCorrectionOp"/>
                 <attr name="icon" stringvalue="rstbIcon"/>
             </file>
             <file name="org-csa-rstb-polarimetric-gpf-PolarimetricDecompositionOp-Action.instance">
@@ -41,6 +44,7 @@
                 <attr name="dialogTitle" stringvalue="Polarimetric Decomposition"/>
                 <attr name="ShortDescription" stringvalue="Polarimetric Decomposition"/>
                 <attr name="targetProductNameSuffix" stringvalue="_Decomp"/>
+                <attr name="helpId" stringvalue="PolarimetricDecompositionOp"/>
                 <attr name="icon" stringvalue="rstbIcon"/>
             </file>
         </folder>
