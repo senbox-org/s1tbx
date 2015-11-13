@@ -67,8 +67,8 @@ public class CreateCoherenceImageOp extends Operator {
             label = "Coherence Range Window Size")
     private int cohWinRg = 10;
 
-    @Parameter(defaultValue="true", label="Subtract flat-earth phase")
-    private boolean subtractFlatEarthPhase = true;
+    @Parameter(defaultValue="false", label="Subtract flat-earth phase in coherence phase")
+    private boolean subtractFlatEarthPhase = false;
 
     @Parameter(valueSet = {"1", "2", "3", "4", "5", "6", "7", "8"},
             description = "Order of 'Flat earth phase' polynomial",
@@ -294,9 +294,11 @@ public class CreateCoherenceImageOp extends Operator {
             final Band coherenceBand = targetProduct.addBand(coherenceBandName, ProductData.TYPE_FLOAT32);
             coherenceBand.setUnit(Unit.COHERENCE);
 
-            final String coherencePhaseBandName = targetMap.get(key).getBandName(COHERENCE_PHASE);
-            final Band coherencePhaseBand = targetProduct.addBand(coherencePhaseBandName, ProductData.TYPE_FLOAT32);
-            coherencePhaseBand.setUnit(Unit.PHASE);
+            if (subtractFlatEarthPhase) {
+                final String coherencePhaseBandName = targetMap.get(key).getBandName(COHERENCE_PHASE);
+                final Band coherencePhaseBand = targetProduct.addBand(coherencePhaseBandName, ProductData.TYPE_FLOAT32);
+                coherencePhaseBand.setUnit(Unit.PHASE);
+            }
         }
     }
 
@@ -620,9 +622,12 @@ public class CreateCoherenceImageOp extends Operator {
         final Tile coherenceTile = targetTileMap.get(coherenceBand);
         final ProductData coherenceData = coherenceTile.getDataBuffer();
 
-        final Band coherencePhaseBand = targetProduct.getBand(product.getBandName(COHERENCE_PHASE));
-        final Tile coherencePhaseTile = targetTileMap.get(coherencePhaseBand);
-        final ProductData coherencePhaseData = coherencePhaseTile.getDataBuffer();
+        ProductData coherencePhaseData = null;
+        if (subtractFlatEarthPhase) {
+            final Band coherencePhaseBand = targetProduct.getBand(product.getBandName(COHERENCE_PHASE));
+            final Tile coherencePhaseTile = targetTileMap.get(coherencePhaseBand);
+            coherencePhaseData = coherencePhaseTile.getDataBuffer();
+        }
 
         final DoubleMatrix dataReal = cohMatrix.real();
         final DoubleMatrix dataImag = cohMatrix.imag();
@@ -643,14 +648,18 @@ public class CreateCoherenceImageOp extends Operator {
 
                 if (srcSlvData.getElemDoubleAt(srcSlvIndex.getIndex(x)) == srcNoDataValue) {
                     coherenceData.setElemFloatAt(tgtIdx, (float)srcNoDataValue);
-                    coherencePhaseData.setElemFloatAt(tgtIdx, (float)srcNoDataValue);
+                    if (subtractFlatEarthPhase) {
+                        coherencePhaseData.setElemFloatAt(tgtIdx, (float)srcNoDataValue);
+                    }
                 } else {
                     final double cohI = dataReal.get(yy, xx);
                     final double cohQ = dataImag.get(yy, xx);
                     final double coh = Math.sqrt(cohI * cohI + cohQ * cohQ);
-                    final double cohPhase = Math.atan2(cohQ, cohI);
                     coherenceData.setElemFloatAt(tgtIdx, (float)coh);
-                    coherencePhaseData.setElemFloatAt(tgtIdx, (float)cohPhase);
+                    if (subtractFlatEarthPhase) {
+                        final double cohPhase = Math.atan2(cohQ, cohI);
+                        coherencePhaseData.setElemFloatAt(tgtIdx, (float)cohPhase);
+                    }
                 }
             }
         }
