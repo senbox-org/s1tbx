@@ -274,7 +274,7 @@ public class BandMathsOp extends Operator {
 
             if (!targetBandDimension.equals(targetProduct.getSceneRasterSize())) {
                 if (rasterDataSymbols.length > 0) {
-                    ProductUtils.copyGCandI2M(rasterDataSymbols[0].getRaster(), targetBand);
+                    ProductUtils.copyGeoCoding(rasterDataSymbols[0].getRaster(), targetBand);
                 }
             }
 
