@@ -4,5 +4,6 @@
         "http://java.sun.com/products/javahelp/map_2_0.dtd">
 
 <map version="2.0">
-    <mapID target="CoherenceOptimizationOp" url="operators/CoherenceOptimizationOp.html"/>
+    <mapID target="PolarimetricClassificationOp" url="operators/PolarimetricClassificationOp.html"/>
+    <mapID target="SupervisedWishartClassificationOp" url="operators/SupervisedWishartClassificationOp.html"/>
 </map>

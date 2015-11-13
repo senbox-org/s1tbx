@@ -10,18 +10,20 @@
                 <tocitem text="Principle Component Analysis" target="PCA"/>
             </tocitem>
             <tocitem text="Coregistration">
-                <tocitem text="Create Stack" target="CreateStackOp"/>
-                <tocitem text="GCP Selection" target="GCPSelectionOp"/>
-                <tocitem text="Warp" target="WarpOp"/>
+                <tocitem text="Automatic Coregistration">
+                    <tocitem text="Create Stack" target="CreateStackOp"/>
+                    <tocitem text="GCP Selection" target="GCPSelectionOp"/>
+                    <tocitem text="Warp" target="WarpOp"/>
+                </tocitem>
             </tocitem>
             <tocitem text="Interferometric">
-                <tocitem text="InSAR Stack Overview" target="InSARStackOverview"/>
-                <tocitem text="Filtering">
-                    <tocitem text="Goldstein Phase Filtering" target="GoldsteinFilterOp"/>
-                </tocitem>
                 <tocitem text="Products">
                     <tocitem text="DEM Generation" target="DEMGenerationOp"/>
                 </tocitem>
+                <tocitem text="Filtering">
+                    <tocitem text="Goldstein Phase Filtering" target="GoldsteinFilterOp"/>
+                </tocitem>
+                <tocitem text="InSAR Stack Overview" target="InSARStackOverview"/>
             </tocitem>
         </tocitem>
     </tocitem>
