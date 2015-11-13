@@ -5,6 +5,12 @@
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
     <tocitem text="Sentinel Toolbox Application">
+        <tocitem text="Raster">
+            <tocitem text="Masks">
+                <tocitem text="Land/Sea Mask" target="LandSeaMask"/>
+                <tocitem text="Terrain Mask" target="TerrainMask"/>
+            </tocitem>
+        </tocitem>
         <tocitem text="Radar">
             <tocitem text="Feature Extraction">
                 <tocitem text="Ocean Tools">
