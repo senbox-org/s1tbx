@@ -98,6 +98,9 @@ public class CreateInterferogramOp extends Operator {
     @Parameter(defaultValue="true", label="Include coherence estimation")
     private boolean includeCoherence = true;
 
+    @Parameter(defaultValue="false", label="Output coherence phase")
+    private boolean outputCoherencePhase = false;
+
     @Parameter(interval = "(1, 75]",
             description = "Size of coherence estimation window in Azimuth direction",
             defaultValue = "10",
@@ -378,7 +381,9 @@ public class CreateInterferogramOp extends Operator {
                         cohTag += "_" + topsarTag;
                     }
                     product.addBand(Unit.COHERENCE, cohTag + "_" + master.date + "_" + slave.date);
-                    product.addBand(COHERENCE_PHASE, "Phase_" + cohTag + "_" + master.date + "_" + slave.date);
+                    if (outputCoherencePhase) {
+                        product.addBand(COHERENCE_PHASE, "Phase_" + cohTag + "_" + master.date + "_" + slave.date);
+                    }
                 }
 
                 if(subtractFlatEarthPhase && outputFlatEarthPhase) {
@@ -496,9 +501,11 @@ public class CreateInterferogramOp extends Operator {
                 final Band cohBand = targetProduct.addBand(targetBandCoh, ProductData.TYPE_FLOAT32);
                 cohBand.setUnit(Unit.COHERENCE);
 
-                final String cohPhaseBandName = targetMap.get(key).getBandName(COHERENCE_PHASE);
-                final Band cohPhaseBand = targetProduct.addBand(cohPhaseBandName, ProductData.TYPE_FLOAT32);
-                cohPhaseBand.setUnit(Unit.PHASE);
+                if (outputCoherencePhase) {
+                    final String cohPhaseBandName = targetMap.get(key).getBandName(COHERENCE_PHASE);
+                    final Band cohPhaseBand = targetProduct.addBand(cohPhaseBandName, ProductData.TYPE_FLOAT32);
+                    cohPhaseBand.setUnit(Unit.PHASE);
+                }
             }
 
             if(subtractFlatEarthPhase && outputFlatEarthPhase) {
@@ -831,7 +838,7 @@ public class CreateInterferogramOp extends Operator {
                 DoubleMatrix cohDataReal = null, cohDataImag = null;
                 ProductData tgtCohData = null, tgtCohPhaseData = null;
                 if(includeCoherence) {
-                    if (subtractFlatEarthPhase) {
+                    if (outputCoherencePhase && subtractFlatEarthPhase) {
                         cohMatrix.muli(complexReferencePhase.conji());
                     }
                     cohDataReal = cohMatrix.real();
@@ -841,9 +848,11 @@ public class CreateInterferogramOp extends Operator {
                     final Tile tgtCohTile = targetTileMap.get(tgtCohBand);
                     tgtCohData = tgtCohTile.getDataBuffer();
 
-                    final Band tgtCohPhaseBand = targetProduct.getBand(product.getBandName(COHERENCE_PHASE));
-                    final Tile tgtCohPhaseTile = targetTileMap.get(tgtCohPhaseBand);
-                    tgtCohPhaseData = tgtCohPhaseTile.getDataBuffer();
+                    if (outputCoherencePhase) {
+                        final Band tgtCohPhaseBand = targetProduct.getBand(product.getBandName(COHERENCE_PHASE));
+                        final Tile tgtCohPhaseTile = targetTileMap.get(tgtCohPhaseBand);
+                        tgtCohPhaseData = tgtCohPhaseTile.getDataBuffer();
+                    }
                 }
 
                 /// commit to target ///
@@ -874,20 +883,24 @@ public class CreateInterferogramOp extends Operator {
                         if (srcSlvData.getElemDoubleAt(srcSlvIndex.getIndex(x)) == srcNoDataValue) {
                             samplesReal.setElemFloatAt(trgIndex, (float)srcNoDataValue);
                             samplesImag.setElemFloatAt(trgIndex, (float)srcNoDataValue);
-                            if(tgtCohData != null) {
+                            if(includeCoherence) {
                                 tgtCohData.setElemFloatAt(trgIndex, (float)srcNoDataValue);
-                                tgtCohPhaseData.setElemFloatAt(trgIndex, (float)srcNoDataValue);
+                                if (outputCoherencePhase) {
+                                    tgtCohPhaseData.setElemFloatAt(trgIndex, (float)srcNoDataValue);
+                                }
                             }
                         } else {
                             samplesReal.setElemFloatAt(trgIndex, (float)dataReal.get(yy, xx));
                             samplesImag.setElemFloatAt(trgIndex, (float)dataImag.get(yy, xx));
-                            if(tgtCohData != null) {
+                            if(includeCoherence) {
                                 final double cohI = cohDataReal.get(yy, xx);
                                 final double cohQ = cohDataImag.get(yy, xx);
                                 final double coh = Math.sqrt(cohI * cohI + cohQ * cohQ);
-                                final double cohPhase = Math.atan2(cohQ, cohI);
                                 tgtCohData.setElemFloatAt(trgIndex, (float)coh);
-                                tgtCohPhaseData.setElemFloatAt(trgIndex, (float)cohPhase);
+                                if (outputCoherencePhase) {
+                                    final double cohPhase = Math.atan2(cohQ, cohI);
+                                    tgtCohPhaseData.setElemFloatAt(trgIndex, (float)cohPhase);
+                                }
                             }
                         }
                     }
@@ -1047,7 +1060,7 @@ public class CreateInterferogramOp extends Operator {
                 DoubleMatrix cohDataReal = null, cohDataImag = null;
                 ProductData tgtCohData = null, tgtCohPhaseData = null;
                 if(includeCoherence) {
-                    if (subtractFlatEarthPhase) {
+                    if (outputCoherencePhase && subtractFlatEarthPhase) {
                         cohMatrix.muli(complexReferencePhase.conji());
                     }
 
@@ -1058,9 +1071,11 @@ public class CreateInterferogramOp extends Operator {
                     final Tile tgtCohTile = targetTileMap.get(tgtCohBand);
                     tgtCohData = tgtCohTile.getDataBuffer();
 
-                    final Band tgtCohPhaseBand = targetProduct.getBand(product.getBandName(COHERENCE_PHASE));
-                    final Tile tgtCohPhaseTile = targetTileMap.get(tgtCohPhaseBand);
-                    tgtCohPhaseData = tgtCohPhaseTile.getDataBuffer();
+                    if (outputCoherencePhase) {
+                        final Band tgtCohPhaseBand = targetProduct.getBand(product.getBandName(COHERENCE_PHASE));
+                        final Tile tgtCohPhaseTile = targetTileMap.get(tgtCohPhaseBand);
+                        tgtCohPhaseData = tgtCohPhaseTile.getDataBuffer();
+                    }
                 }
 
                 ProductData samplesFep = null;
@@ -1091,9 +1106,11 @@ public class CreateInterferogramOp extends Operator {
                         if (srcSlvData.getElemDoubleAt(srcSlvIndex.getIndex(x)) == srcNoDataValue) {
                             samplesReal.setElemFloatAt(tgtIdx, (float)srcNoDataValue);
                             samplesImag.setElemFloatAt(tgtIdx, (float)srcNoDataValue);
-                            if(tgtCohData != null) {
+                            if(includeCoherence) {
                                 tgtCohData.setElemFloatAt(tgtIdx, (float)srcNoDataValue);
-                                tgtCohPhaseData.setElemFloatAt(tgtIdx, (float)srcNoDataValue);
+                                if (outputCoherencePhase) {
+                                    tgtCohPhaseData.setElemFloatAt(tgtIdx, (float)srcNoDataValue);
+                                }
                             }
                             if (samplesFep != null) {
                                 samplesFep.setElemFloatAt(tgtIdx, (float)srcNoDataValue);
@@ -1101,13 +1118,15 @@ public class CreateInterferogramOp extends Operator {
                         } else {
                             samplesReal.setElemFloatAt(tgtIdx, (float)dataReal.get(yy, xx));
                             samplesImag.setElemFloatAt(tgtIdx, (float)dataImag.get(yy, xx));
-                            if(tgtCohData != null) {
+                            if(includeCoherence) {
                                 final double cohI = cohDataReal.get(yy, xx);
                                 final double cohQ = cohDataImag.get(yy, xx);
                                 final double coh = Math.sqrt(cohI * cohI + cohQ * cohQ);
-                                final double cohPhase = Math.atan2(cohQ, cohI);
                                 tgtCohData.setElemFloatAt(tgtIdx, (float)coh);
-                                tgtCohPhaseData.setElemFloatAt(tgtIdx, (float)cohPhase);
+                                if (outputCoherencePhase) {
+                                    final double cohPhase = Math.atan2(cohQ, cohI);
+                                    tgtCohPhaseData.setElemFloatAt(tgtIdx, (float)cohPhase);
+                                }
                             }
                             if (samplesFep != null && realReferencePhase != null) {
                                 samplesFep.setElemFloatAt(tgtIdx, (float)realReferencePhase.get(yy, xx));
