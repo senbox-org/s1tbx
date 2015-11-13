@@ -8,8 +8,9 @@
     <!--Ocean Tools-->
     <mapID target="ObjectDetection" url="operators/ObjectDetection.html"/>
     <mapID target="OilSpillDetection" url="operators/OilSpillDetectionOp.html"/>
-    <mapID target="LandSeaMask" url="operators/CreateLandMask.html"/>
-    <mapID target="TerrainMask" url="operators/TerrainMask.html"/>
     <mapID target="WindFieldEstimation" url="operators/WindFieldEstimationOp.html"/>
-
+	<mapID target="LandSeaMask" url="operators/CreateLandMask.html"/>
+    <mapID target="TerrainMask" url="operators/TerrainMask.html"/>  
+	<mapID target="SpeckleDivergence" url="operators/SpeckleDivergence.html"/>  
+	<mapID target="GLCM" url="operators/GLCM.html"/>  
 </map>

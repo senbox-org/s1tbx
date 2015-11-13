@@ -8,5 +8,6 @@
     <mapID target="CalibrationOp" url="operators/CalibrationOp.html"/>
     <mapID target="RemoveAntennaPatternOp" url="operators/RemoveAntennaPatternOp.html"/>
 	<mapID target="ThermalNoiseRemoval" url="operators/ThermalNoiseRemoval.html"/>
-
+	<mapID target="RemoveGRDBorderNoise" url="operators/RemoveGRDBorderNoise.html"/>
+	
 </map>

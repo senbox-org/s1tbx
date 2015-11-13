@@ -13,12 +13,18 @@
         </tocitem>
         <tocitem text="Radar">
             <tocitem text="Feature Extraction">
+				<tocitem text="Texture Analysis">
+					<tocitem text="GLCM" target="GLCM"/>
+				</tocitem>
                 <tocitem text="Ocean Tools">
                     <tocitem text="Object Detection" target="ObjectDetection"/>
                     <tocitem text="Oil Spill Detection" target="OilSpillDetection"/>
                     <tocitem text="Create Land Mask" target="CreateLandMask"/>
                     <tocitem text="Wind Field Estimation" target="WindFieldEstimation"/>
                 </tocitem>
+				<tocitem text="Urban Area">
+					<tocitem text="Speckle Divergence" target="SpeckleDivergence"/>
+				</tocitem>
             </tocitem>
         </tocitem>
     </tocitem>

@@ -55,7 +55,7 @@
                 <attr name="dialogTitle" stringvalue="GLCM"/>
                 <attr name="targetProductNameSuffix" stringvalue="_glcm"/>
                 <attr name="ShortDescription" stringvalue="Extract Texture Features"/>
-                <attr name="helpId" stringvalue="GLCMOp"/>
+                <attr name="helpId" stringvalue="GLCM"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
             <file name="org-esa-s1tbx-fex-gpf-GaborFilterOp-Action.instance">

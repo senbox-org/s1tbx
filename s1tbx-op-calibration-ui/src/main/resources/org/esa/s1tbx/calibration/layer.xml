@@ -53,7 +53,7 @@
                 <attr name="dialogTitle" stringvalue="S-1 Remove GRD Border Noise"/>
                 <attr name="targetProductNameSuffix"  stringvalue="_Bdr"/>
                 <attr name="ShortDescription" stringvalue="Remove border garbage from S-1 Level-1 GRD product"/>
-                <attr name="helpId" stringvalue="RemoveGRDBorderNoiseOp"/>
+                <attr name="helpId" stringvalue="RemoveGRDBorderNoise"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
         </folder>
