@@ -17,7 +17,6 @@ package org.esa.s1tbx.io.ceos.alos2;
 
 import org.esa.s1tbx.io.binary.IllegalBinaryFormatException;
 import org.esa.s1tbx.io.ceos.CEOSImageFile;
-import org.esa.s1tbx.io.ceos.CeosHelper;
 import org.esa.s1tbx.io.ceos.alos.AlosPalsarConstants;
 import org.esa.s1tbx.io.ceos.alos.AlosPalsarImageFile;
 import org.esa.s1tbx.io.ceos.alos.AlosPalsarProductDirectory;
@@ -50,8 +49,8 @@ public class Alos2ProductDirectory extends AlosPalsarProductDirectory {
         updateProductType();
 
         leaderFile = new Alos2LeaderFile(
-                createInputStream(CeosHelper.getCEOSFile(baseDir, constants.getLeaderFilePrefix())));
-        final File trlFile = CeosHelper.getCEOSFile(baseDir, constants.getTrailerFilePrefix());
+                createInputStream(getCEOSFile(baseDir, constants.getLeaderFilePrefix())));
+        final File trlFile = getCEOSFile(baseDir, constants.getTrailerFilePrefix());
         if (trlFile != null) {
             trailerFile = new AlosPalsarTrailerFile(createInputStream(trlFile));
         }

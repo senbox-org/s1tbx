@@ -20,7 +20,6 @@ import org.esa.s1tbx.io.binary.BinaryRecord;
 import org.esa.s1tbx.io.ceos.CEOSImageFile;
 import org.esa.s1tbx.io.ceos.CEOSLeaderFile;
 import org.esa.s1tbx.io.ceos.CEOSProductDirectory;
-import org.esa.s1tbx.io.ceos.CeosHelper;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
@@ -59,7 +58,7 @@ class ERSProductDirectory extends CEOSProductDirectory {
     protected void readProductDirectory() throws IOException {
         readVolumeDirectoryFile();
         leaderFile = new ERSLeaderFile(
-                createInputStream(CeosHelper.getCEOSFile(baseDir, constants.getLeaderFilePrefix())));
+                createInputStream(getCEOSFile(baseDir, constants.getLeaderFilePrefix())));
 
         final String[] imageFileNames = CEOSImageFile.getImageFileNames(baseDir, constants.getImageFilePrefix());
         final List<ERSImageFile> imgArray = new ArrayList<>(imageFileNames.length);

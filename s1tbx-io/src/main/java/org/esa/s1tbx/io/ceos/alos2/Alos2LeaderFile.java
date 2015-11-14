@@ -45,7 +45,7 @@ public class Alos2LeaderFile extends AlosPalsarLeaderFile {
     }
 
     protected void readFacilityRelatedRecords(final BinaryFileReader reader) {
-        for (int i = 0; i < _leaderFDR.getAttributeInt("Number of facility data records"); ++i) {
+        for (int i = 0; i < leaderFDR.getAttributeInt("Number of facility data records"); ++i) {
             try {
                 CeosRecordHeader header = new CeosRecordHeader(reader);
                 int level = getProductLevel();
@@ -57,10 +57,10 @@ public class Alos2LeaderFile extends AlosPalsarLeaderFile {
                         header = new CeosRecordHeader(reader);
                     }
 
-                    _facilityRecord = new BinaryRecord(reader, -1, facilityXML, facility_recordDefinitionFile);
+                    facilityRecord = new BinaryRecord(reader, -1, facilityXML, facility_recordDefinitionFile);
                     header.seekToEnd();
                 } else {
-                    _facilityRecord = new BinaryRecord(reader, -1, facility1_5XML, facility_record1_5DefinitionFile);
+                    facilityRecord = new BinaryRecord(reader, -1, facility1_5XML, facility_record1_5DefinitionFile);
                     header.seekToEnd();
                 }
             } catch (Exception e) {

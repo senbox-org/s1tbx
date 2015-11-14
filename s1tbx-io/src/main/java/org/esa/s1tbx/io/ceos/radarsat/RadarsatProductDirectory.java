@@ -22,7 +22,6 @@ import org.esa.s1tbx.io.binary.BinaryRecord;
 import org.esa.s1tbx.io.binary.IllegalBinaryFormatException;
 import org.esa.s1tbx.io.ceos.CEOSImageFile;
 import org.esa.s1tbx.io.ceos.CEOSProductDirectory;
-import org.esa.s1tbx.io.ceos.CeosHelper;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.GeoPos;
@@ -75,8 +74,8 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
         readVolumeDirectoryFile();
 
         leaderFile = new RadarsatLeaderFile(
-                createInputStream(CeosHelper.getCEOSFile(baseDir, constants.getLeaderFilePrefix())));
-        final File trlFile = CeosHelper.getCEOSFile(baseDir, constants.getTrailerFilePrefix());
+                createInputStream(getCEOSFile(baseDir, constants.getLeaderFilePrefix())));
+        final File trlFile = getCEOSFile(baseDir, constants.getTrailerFilePrefix());
         if (trlFile != null) {
             trailerFile = new RadarsatTrailerFile(createInputStream(trlFile));
         }

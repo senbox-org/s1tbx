@@ -73,7 +73,7 @@ public abstract class CEOSProductDirectory {
         Guardian.assertNotNull("baseDir", baseDir);
         Guardian.assertNotNull("constants", constants);
 
-        final File volumeFile = CeosHelper.getCEOSFile(baseDir, constants.getVolumeFilePrefix());
+        final File volumeFile = getCEOSFile(baseDir, constants.getVolumeFilePrefix());
         final BinaryFileReader binaryReader = new BinaryFileReader(new FileImageInputStream(volumeFile));
         final String mission = constants.getMission();
 
@@ -90,7 +90,7 @@ public abstract class CEOSProductDirectory {
     }
 
     private void readVolumeDiscriptor() throws IOException {
-        final File volumeFile = CeosHelper.getCEOSFile(baseDir, constants.getVolumeFilePrefix());
+        final File volumeFile = getCEOSFile(baseDir, constants.getVolumeFilePrefix());
         final BinaryFileReader binaryReader = new BinaryFileReader(new FileImageInputStream(volumeFile));
         final String mission = constants.getMission();
 
@@ -436,6 +436,31 @@ public abstract class CEOSProductDirectory {
 
         AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.dop_coef, ProductData.TYPE_FLOAT64, "", tag);
         AbstractMetadata.setAttribute(coefElem, AbstractMetadata.dop_coef, rec.getAttributeDouble(tag));
+    }
+
+    private static String[] ExcludedExt = new String[] {".TXT",".JPG",".TIF",".PNG","KML"};
+
+    public static File getCEOSFile(final File baseDir, final String[] prefixList) throws IOException {
+        final File[] fileList = baseDir.listFiles((file, fileName) -> {
+            final String name = fileName.toUpperCase();
+            for (String ext : ExcludedExt) {
+                if(name.endsWith(ext)) {
+                    return false;
+                }
+            }
+            for (String prefix : prefixList) {
+                if (name.startsWith(prefix) || name.endsWith('.' + prefix))
+                    return true;
+            }
+            return false;
+        });
+        if(fileList != null) {
+            if (fileList.length > 1) {
+                throw new IOException("Multiple descriptor files found in directory:\n" + baseDir.getPath());
+            }
+            return fileList[0];
+        }
+        return null;
     }
 
     protected static ImageInputStream createInputStream(final File file) throws IOException {

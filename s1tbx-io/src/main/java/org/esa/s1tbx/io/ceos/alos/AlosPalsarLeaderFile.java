@@ -56,54 +56,54 @@ public class AlosPalsarLeaderFile extends CEOSLeaderFile {
         final BinaryFileReader reader = new BinaryFileReader(stream);
 
         CeosRecordHeader header = new CeosRecordHeader(reader);
-        _leaderFDR = new BinaryRecord(reader, -1, fdrXML, leader_recordDefinitionFile);
+        leaderFDR = new BinaryRecord(reader, -1, fdrXML, leader_recordDefinitionFile);
         header.seekToEnd();
 
-        for (int i = 0; i < _leaderFDR.getAttributeInt("Number of data set summary records"); ++i) {
+        for (int i = 0; i < leaderFDR.getAttributeInt("Number of data set summary records"); ++i) {
             header = new CeosRecordHeader(reader);
-            _sceneHeaderRecord = new BinaryRecord(reader, -1, sceneXML, scene_recordDefinitionFile);
+            sceneHeaderRecord = new BinaryRecord(reader, -1, sceneXML, scene_recordDefinitionFile);
             header.seekToEnd();
         }
-        for (int i = 0; i < _leaderFDR.getAttributeInt("Number of map projection data records"); ++i) {
+        for (int i = 0; i < leaderFDR.getAttributeInt("Number of map projection data records"); ++i) {
             try {
                 header = new CeosRecordHeader(reader);
-                _mapProjRecord = new BinaryRecord(reader, -1, mapProjXML, mapproj_recordDefinitionFile);
+                mapProjRecord = new BinaryRecord(reader, -1, mapProjXML, mapproj_recordDefinitionFile);
                 header.seekToEnd();
             } catch (Exception e) {
                 System.out.println("unable to read projection");
             }
         }
-        for (int i = 0; i < _leaderFDR.getAttributeInt("Number of platform pos. data records"); ++i) {
+        for (int i = 0; i < leaderFDR.getAttributeInt("Number of platform pos. data records"); ++i) {
             try {
                 header = new CeosRecordHeader(reader);
-                _platformPositionRecord = new BinaryRecord(reader, -1, platformXML, platformPosition_recordDefinitionFile);
+                platformPositionRecord = new BinaryRecord(reader, -1, platformXML, platformPosition_recordDefinitionFile);
                 header.seekToEnd();
             } catch (Exception e) {
                 System.out.println("unable to read platform pos");
             }
         }
-        for (int i = 0; i < _leaderFDR.getAttributeInt("Number of attitude data records"); ++i) {
+        for (int i = 0; i < leaderFDR.getAttributeInt("Number of attitude data records"); ++i) {
             try {
                 header = new CeosRecordHeader(reader);
-                _attitudeRecord = new BinaryRecord(reader, -1, attitudeXML, attitude_recordDefinitionFile);
+                attitudeRecord = new BinaryRecord(reader, -1, attitudeXML, attitude_recordDefinitionFile);
                 header.seekToEnd();
             } catch (Exception e) {
                 System.out.println("unable to read attitude");
             }
         }
-        for (int i = 0; i < _leaderFDR.getAttributeInt("Number of radiometric data records"); ++i) {
+        for (int i = 0; i < leaderFDR.getAttributeInt("Number of radiometric data records"); ++i) {
             try {
                 header = new CeosRecordHeader(reader);
-                _radiometricRecord = new BinaryRecord(reader, -1, radiometricXML, radiometric_recordDefinitionFile);
+                radiometricRecord = new BinaryRecord(reader, -1, radiometricXML, radiometric_recordDefinitionFile);
                 header.seekToEnd();
             } catch (Exception e) {
                 System.out.println("unable to read radiometric");
             }
         }
-        for (int i = 0; i < _leaderFDR.getAttributeInt("Number of data quality summary records"); ++i) {
+        for (int i = 0; i < leaderFDR.getAttributeInt("Number of data quality summary records"); ++i) {
             try {
                 header = new CeosRecordHeader(reader);
-                _dataQualityRecord = new BinaryRecord(reader, -1, dataQualityXML, dataQuality_recordDefinitionFile);
+                dataQualityRecord = new BinaryRecord(reader, -1, dataQualityXML, dataQuality_recordDefinitionFile);
                 header.seekToEnd();
             } catch (Exception e) {
                 System.out.println("unable to read quality");
@@ -118,7 +118,7 @@ public class AlosPalsarLeaderFile extends CEOSLeaderFile {
     }
 
     protected void readFacilityRelatedRecords(final BinaryFileReader reader) {
-        for (int i = 0; i < _leaderFDR.getAttributeInt("Number of facility data records"); ++i) {
+        for (int i = 0; i < leaderFDR.getAttributeInt("Number of facility data records"); ++i) {
             try {
                 CeosRecordHeader header = new CeosRecordHeader(reader);
                 int level = getProductLevel();
@@ -130,10 +130,10 @@ public class AlosPalsarLeaderFile extends CEOSLeaderFile {
                         header = new CeosRecordHeader(reader);
                     }
 
-                    _facilityRecord = new BinaryRecord(reader, -1, facilityXML, facility_recordDefinitionFile);
+                    facilityRecord = new BinaryRecord(reader, -1, facilityXML, facility_recordDefinitionFile);
                     header.seekToEnd();
                 } else {
-                    _facilityRecord = new BinaryRecord(reader, -1, facility1_5XML, facility_record1_5DefinitionFile);
+                    facilityRecord = new BinaryRecord(reader, -1, facility1_5XML, facility_record1_5DefinitionFile);
                     header.seekToEnd();
                 }
             } catch (Exception e) {
@@ -145,8 +145,8 @@ public class AlosPalsarLeaderFile extends CEOSLeaderFile {
     public final int getProductLevel() {
         if (productLevel < 0) {
             String level = null;
-            if (_sceneHeaderRecord != null) {
-                level = _sceneHeaderRecord.getAttributeString("Product level code");
+            if (sceneHeaderRecord != null) {
+                level = sceneHeaderRecord.getAttributeString("Product level code");
             }
             if (level != null) {
                 if (level.contains("1.5"))
@@ -165,6 +165,6 @@ public class AlosPalsarLeaderFile extends CEOSLeaderFile {
     }
 
     public String getProductType() {
-        return _sceneHeaderRecord.getAttributeString("Product type specifier");
+        return sceneHeaderRecord.getAttributeString("Product type specifier");
     }
 }
