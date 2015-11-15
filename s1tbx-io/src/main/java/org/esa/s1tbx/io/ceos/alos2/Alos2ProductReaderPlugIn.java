@@ -18,6 +18,7 @@ package org.esa.s1tbx.io.ceos.alos2;
 import org.esa.s1tbx.io.ceos.CEOSProductReaderPlugIn;
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
+import org.esa.snap.engine_utilities.util.ZipUtils;
 
 import java.io.File;
 
@@ -51,9 +52,9 @@ public class Alos2ProductReaderPlugIn extends CEOSProductReaderPlugIn {
                 }
             }
         }
-        //if (name.endsWith(".ZIP") && (ZipUtils.findInZip(file, "vol-alos2", ""))) {
-        //    return DecodeQualification.INTENDED;
-        //}
+        if (name.endsWith(".ZIP") && (ZipUtils.findInZip(file, "vol-alos2", ""))) {
+            return DecodeQualification.INTENDED;
+        }
         return DecodeQualification.UNABLE;
     }
 

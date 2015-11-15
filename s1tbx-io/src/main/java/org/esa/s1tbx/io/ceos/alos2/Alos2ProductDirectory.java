@@ -15,14 +15,13 @@
  */
 package org.esa.s1tbx.io.ceos.alos2;
 
+import com.bc.ceres.core.VirtualDir;
 import org.esa.s1tbx.io.binary.IllegalBinaryFormatException;
-import org.esa.s1tbx.io.ceos.CEOSImageFile;
 import org.esa.s1tbx.io.ceos.alos.AlosPalsarConstants;
 import org.esa.s1tbx.io.ceos.alos.AlosPalsarImageFile;
 import org.esa.s1tbx.io.ceos.alos.AlosPalsarProductDirectory;
 import org.esa.s1tbx.io.ceos.alos.AlosPalsarTrailerFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,32 +34,31 @@ import java.util.List;
  */
 public class Alos2ProductDirectory extends AlosPalsarProductDirectory {
 
-    public Alos2ProductDirectory(final File dir) {
+    public Alos2ProductDirectory(final VirtualDir dir) {
         super(dir);
 
         constants = new Alos2Constants();
-        baseDir = dir;
+        productDir = dir;
     }
 
     @Override
     protected void readProductDirectory() throws IOException, IllegalBinaryFormatException {
-        readVolumeDirectoryFile();
+        readVolumeDirectoryFileStream();
 
         updateProductType();
 
-        leaderFile = new Alos2LeaderFile(
-                createInputStream(getCEOSFile(baseDir, constants.getLeaderFilePrefix())));
-        final File trlFile = getCEOSFile(baseDir, constants.getTrailerFilePrefix());
+        leaderFile = new Alos2LeaderFile(getCEOSFile(constants.getLeaderFilePrefix())[0].imgInputStream);
+        final CeosFile[] trlFile = getCEOSFile(constants.getTrailerFilePrefix());
         if (trlFile != null) {
-            trailerFile = new AlosPalsarTrailerFile(createInputStream(trlFile));
+            trailerFile = new AlosPalsarTrailerFile(trlFile[0].imgInputStream);
         }
 
-        final String[] imageFileNames = CEOSImageFile.getImageFileNames(baseDir, constants.getImageFilePrefix());
-        final List<AlosPalsarImageFile> imgArray = new ArrayList<>(imageFileNames.length);
-        for (String fileName : imageFileNames) {
+        final CeosFile[] ceosFiles = getCEOSFile(constants.getImageFilePrefix());
+        final List<AlosPalsarImageFile> imgArray = new ArrayList<>(ceosFiles.length);
+        for (CeosFile imageFile : ceosFiles) {
             try {
-                final AlosPalsarImageFile imgFile = new AlosPalsarImageFile(createInputStream(new File(baseDir, fileName)),
-                        getProductLevel(), fileName);
+                final AlosPalsarImageFile imgFile = new AlosPalsarImageFile(imageFile.imgInputStream,
+                        getProductLevel(), imageFile.fileName);
                 imgArray.add(imgFile);
             } catch (Exception e) {
                 e.printStackTrace();

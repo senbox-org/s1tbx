@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.io.ceos.radarsat;
 
+import com.bc.ceres.core.VirtualDir;
 import org.esa.s1tbx.io.ceos.CEOSProductDirectory;
 import org.esa.s1tbx.io.ceos.CEOSProductReader;
 import org.esa.snap.core.dataio.DecodeQualification;
@@ -38,16 +39,16 @@ public class RadarsatProductReader extends CEOSProductReader {
     }
 
     @Override
-    protected CEOSProductDirectory createProductDirectory(File inputFile) {
-        return new RadarsatProductDirectory(inputFile.getParentFile());
+    protected CEOSProductDirectory createProductDirectory(final VirtualDir productDir) {
+        return new RadarsatProductDirectory(productDir);
     }
 
     DecodeQualification checkProductQualification(File file) {
 
         try {
-            _dataDir = createProductDirectory(file);
+            dataDir = createProductDirectory(createProductDir(file));
 
-            final RadarsatProductDirectory dataDir = (RadarsatProductDirectory) _dataDir;
+            final RadarsatProductDirectory dataDir = (RadarsatProductDirectory) this.dataDir;
             if (dataDir.isRadarsat())
                 return DecodeQualification.INTENDED;
             return DecodeQualification.UNABLE;

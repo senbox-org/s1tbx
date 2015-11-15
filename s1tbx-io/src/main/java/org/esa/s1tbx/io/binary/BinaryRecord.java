@@ -28,22 +28,22 @@ public class BinaryRecord {
     private final BinaryDBReader db;
     private final Integer recordLength;
 
-    public BinaryRecord(final BinaryFileReader reader, final long startPos,
+    public BinaryRecord(final BinaryFileReader reader, final long sPos,
                         final Document recordDefinitionXML, final String recName) throws IOException {
         this.reader = reader;
         // reposition start if needed
-        if (startPos != -1) {
-            this.startPos = startPos;
+        if (sPos != -1) {
+            this.startPos = sPos;
             reader.seek(startPos);
         } else {
             this.startPos = reader.getCurrentPos();
         }
 
-        if (startPos >= reader.getLength()) {
-            recordLength = 0;
-            db = null;
-            return;
-        }
+        //if (this.startPos >= reader.getLength()) {
+       //     recordLength = 0;
+        //    db = null;
+        //    return;
+        //}
 
         db = new BinaryDBReader(recordDefinitionXML, recName, this.startPos);
         db.readRecord(reader);

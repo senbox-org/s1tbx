@@ -47,6 +47,12 @@ public class ERSProductReaderPlugIn extends CEOSProductReaderPlugIn {
             final ERSProductReader reader = new ERSProductReader(this);
             return reader.checkProductQualification(file);
         }
+        if(name.endsWith(".ZIP")) {
+            if(name.startsWith("ER01") || name.startsWith("ER02")) {
+                final ERSProductReader reader = new ERSProductReader(this);
+                return reader.checkProductQualification(file);
+            }
+        }
         return DecodeQualification.UNABLE;
     }
 

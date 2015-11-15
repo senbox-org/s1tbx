@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.io.ceos.ers;
 
+import com.bc.ceres.core.VirtualDir;
 import org.esa.s1tbx.io.SARReader;
 import org.esa.s1tbx.io.binary.BinaryRecord;
 import org.esa.s1tbx.io.ceos.CEOSImageFile;
@@ -30,7 +31,6 @@ import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,24 +47,24 @@ class ERSProductDirectory extends CEOSProductDirectory {
 
     private final transient Map<String, ERSImageFile> bandImageFileMap = new HashMap<>(1);
 
-    public ERSProductDirectory(final File dir) {
+    public ERSProductDirectory(final VirtualDir dir) {
         Guardian.assertNotNull("dir", dir);
 
         constants = new ERSConstants();
-        baseDir = dir;
+        productDir = dir;
     }
 
     @Override
     protected void readProductDirectory() throws IOException {
-        readVolumeDirectoryFile();
-        leaderFile = new ERSLeaderFile(
-                createInputStream(getCEOSFile(baseDir, constants.getLeaderFilePrefix())));
+        readVolumeDirectoryFileStream();
 
-        final String[] imageFileNames = CEOSImageFile.getImageFileNames(baseDir, constants.getImageFilePrefix());
-        final List<ERSImageFile> imgArray = new ArrayList<>(imageFileNames.length);
-        for (String fileName : imageFileNames) {
+        leaderFile = new ERSLeaderFile(getCEOSFile(constants.getLeaderFilePrefix())[0].imgInputStream);
+
+        final CeosFile[] ceosFiles = getCEOSFile(constants.getImageFilePrefix());
+        final List<ERSImageFile> imgArray = new ArrayList<>(ceosFiles.length);
+        for (CeosFile imageFile : ceosFiles) {
             try {
-                final ERSImageFile imgFile = new ERSImageFile(createInputStream(new File(baseDir, fileName)));
+                final ERSImageFile imgFile = new ERSImageFile(imageFile.imgInputStream);
                 imgArray.add(imgFile);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -86,7 +86,7 @@ class ERSProductDirectory extends CEOSProductDirectory {
         if (isERS) return true;
 
         if (productType == null) {
-            readVolumeDirectoryFile();
+            readVolumeDirectoryFileStream();
         }
         return productType.contains("ERS") && !productType.contains("JERS");
     }
@@ -191,7 +191,7 @@ class ERSProductDirectory extends CEOSProductDirectory {
             imageFile.assignMetadataTo(root, c++);
         }
 
-        addSummaryMetadata(new File(baseDir, ERSConstants.SUMMARY_FILE_NAME), "Summary Information", root);
+        addSummaryMetadata(findFile(ERSConstants.SUMMARY_FILE_NAME), "Summary Information", root);
         addAbstractedMetadataHeader(product, product.getMetadataRoot());
     }
 
