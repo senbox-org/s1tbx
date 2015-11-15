@@ -457,7 +457,7 @@ public class DimapProductHelpers {
                                                 product.getSceneRasterHeight(),
                                                 datum);
             } catch (Exception e) {
-//  todo se 2         e.printStackTrace();
+                // ignore
             }
         }
         // 4. try creating the original geo-coding
