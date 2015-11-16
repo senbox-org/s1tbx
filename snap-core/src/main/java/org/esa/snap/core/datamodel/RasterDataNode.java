@@ -225,9 +225,12 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Gets the transformation used to convert this raster's image (pixel) coordinates to model coordinates
      * used for rendering the image together with other images and vector data.
      * <p>
-     * If a multi-level source image is available its image-to-model transformation of the lowest level is returned.
-     * Otherwise an explicitly set transformation is returned.
-     * If the transformation was not set explicitly the method tries to determine it from geo-codings.
+     * If this raster data node's ({@link #isSourceImageSet() source image is set})
+     * the {@link MultiLevelModel#getImageToModelTransform(int) image-to-model transformation} of the image pyramid's
+     * lowest level image is returned.
+     * Otherwise the transformation which has been set using the {@link #setImageToModelTransform(AffineTransform)}
+     * is returned.
+     * If the transformation was not set explicitly, the method tries to determine it from geo-codings.
      * If this fails, the identity transform is returned.
      *
      * @return The image-to-model transformation.
@@ -268,22 +271,30 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Sets the image-to-model transformation used for this raster data.
-     * If a source image hasn't been created so far, newly created source images will use this property.
+     * Sets the transformation used to convert this raster's image (pixel) coordinates to model coordinates
+     * used for rendering the image together with other images and vector data.
+     * <p>
+     * The method call will fail if this raster data node has already a source image
+     * which uses a different image-to-model transformation.
+     * <p>
+     * <i>WARNING: This method belongs to a preliminary API and may change in an incompatible
+     * way or may even be removed in a next SNAP release.</i>
      *
      * @param imageToModelTransform The new image-to-model transformation
+     * @throws IllegalStateException If a source image is already set which uses a different image-to-model transformation.
      * @see #getImageToModelTransform()
      * @see #createSourceImage()
      * @since SNAP 2.0
      */
     public void setImageToModelTransform(AffineTransform imageToModelTransform) {
         Assert.notNull(imageToModelTransform, "imageToModelTransform");
-        AffineTransform imageToModelTransformOld = this.imageToModelTransform;
-        if (imageToModelTransformOld != imageToModelTransform) {
-            this.imageToModelTransform = imageToModelTransform;
-            if (imageToModelTransformOld != null) {
-                fireProductNodeChanged(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransformOld, imageToModelTransform);
+        AffineTransform imageToModelTransformOld = getImageToModelTransform();
+        if (!imageToModelTransformOld.equals(imageToModelTransform)) {
+            if (isSourceImageSet()) {
+                throw new IllegalStateException("sourceImage already set, imageToModelTransform is now read-only");
             }
+            this.imageToModelTransform = imageToModelTransform;
+            fireProductNodeChanged(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransformOld, imageToModelTransform);
         }
     }
 
@@ -299,6 +310,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * way or may even be removed in a next SNAP release.</i>
      *
      * @return The transformation.
+     * @see #getImageToModelTransform()
+     * @see #setSceneRasterTransform(SceneRasterTransform)
      * @since SNAP 2.0
      */
     public SceneRasterTransform getSceneRasterTransform() {
@@ -313,6 +326,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * way or may even be removed in a next SNAP release.</i>
      *
      * @param sceneRasterTransform The transformation.
+     * @see #getSceneRasterTransform()
+     * @see #setImageToModelTransform(AffineTransform)
      * @since SNAP 2.0
      */
     public void setSceneRasterTransform(SceneRasterTransform sceneRasterTransform) {

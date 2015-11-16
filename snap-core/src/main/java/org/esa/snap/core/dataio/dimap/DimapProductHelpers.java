@@ -1753,7 +1753,12 @@ public class DimapProductHelpers {
             final String transform = element.getChildTextTrim(DimapProductConstants.TAG_IMAGE_TO_MODEL_TRANSFORM);
             if (transform != null) {
                 double[] matrix = StringUtils.toDoubleArray(transform, null);
-                band.setImageToModelTransform(new AffineTransform(matrix));
+                if (!band.isSourceImageSet()) {
+                    band.setImageToModelTransform(new AffineTransform(matrix));
+                } else {
+                    SystemUtils.LOG.warning(String.format("Band '%s': can't set image-to-model transform, " +
+                                                                  "source image already set", band.getName()));
+                }
             }
         }
 

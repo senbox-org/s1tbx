@@ -82,7 +82,7 @@ public class RasterDataNodeTest {
         assertEquals(new AffineTransform(), band.getImageToModelTransform());
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void testImageToModelTransformIsRuledBySourceImage() throws Exception {
         Band band = new Band("B", ProductData.TYPE_FLOAT32, 4, 2);
         band.setSourceImage(ConstantDescriptor.create(4f, 2f, new Float[]{0f}, null));
