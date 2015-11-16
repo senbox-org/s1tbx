@@ -41,8 +41,8 @@ import org.esa.snap.core.dataop.maptransf.MapInfo;
 import org.esa.snap.core.dataop.maptransf.MapProjection;
 import org.esa.snap.core.dataop.maptransf.MapTransform;
 import org.esa.snap.core.jexp.ParseException;
-import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.BeamConstants;
+import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.StringUtils;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -75,7 +75,7 @@ public class DimapDocumentTest {
         GlobalTestTools.deleteTestDataOutputDirectory();
     }
 
-    @org.junit.Test
+    @Test
     public void testCreateProduct_with_MapGeoCoding() {
         // preparation
         int geocodingType = MAP_GEOCODING;
@@ -89,7 +89,7 @@ public class DimapDocumentTest {
         assertEquals(xml1, xml2);
     }
 
-    @org.junit.Test
+    @Test
     public void testCreateProduct_with_TiePointGeoCoding() throws ParseException {
         // preparation
         int geocodingType = TIE_POINT_GEOCODING;
@@ -103,7 +103,8 @@ public class DimapDocumentTest {
         assertEquals(xml1, xml2);
     }
 
-    @org.junit.Test
+    @Test
+    @Ignore //can not work becaus GCP Points are not writen to the XML header
     public void testCreateProduct_with_GcpGeoCoding() throws ParseException {
         // preparation
         int geocodingType = GCP_GEOCODING;
@@ -116,10 +117,10 @@ public class DimapDocumentTest {
         GeoCoding gc2 = productFromXML.getSceneGeoCoding();
 
         String xml2 = writeXml(productFromXML);
-// todo se       assertEquals(xml1, xml2);
+        assertEquals(xml1, xml2);
     }
 
-    @org.junit.Test
+    @Test
     public void testCanReadOldUtcFormat() {
         // preparation
         int geocodingType = TIE_POINT_GEOCODING;
@@ -141,7 +142,7 @@ public class DimapDocumentTest {
         return DimapProductHelpers.createDom(inputStream);
     }
 
-    @org.junit.Test
+    @Test
     public void testGetTiePointDataFile() throws ParseException {
         Product product = createProduct(TIE_POINT_GEOCODING);
         Document dom1 = createDOM(product, _nameDataDirectory);
@@ -150,7 +151,7 @@ public class DimapDocumentTest {
         assertEquals(expected + EnviHeader.FILE_EXTENSION, file);
     }
 
-    @org.junit.Test
+    @Test
     public void testGetBandDataFiles() throws ParseException {
         final Product product = createProduct(TIE_POINT_GEOCODING);
         final Document dom1 = createDOM(product, _nameDataDirectory);
@@ -314,31 +315,6 @@ public class DimapDocumentTest {
                 final double[] lons = new double[]{1.0, 2.0, 3.0};
                 final double[] lats = new double[]{4.0, 5.0, 6.0};
 
-//                final GcpDescriptor gcpDescriptor = GcpDescriptor.getInstance();
-//                final PlacemarkGroup gcpGroup = product.getGcpGroup();
-//                for (int i = 0; i < x.length; i++) {
-//                    final double xv = x[i];
-//                    final double yv = y[i];
-//                    final double lon = lons[i];
-//                    final double lat = lats[i];
-//                    if (Double.isNaN(xv) || Double.isNaN(yv) || Double.isNaN(lon) || Double.isNaN(lat)) {
-//                        continue;
-//                    }
-//                    final PixelPos pixelPos = new PixelPos(xv, yv);
-//                    final GeoPos geoPos = new GeoPos(lat, lon);
-//
-//                    final Placemark gcp = Placemark.createPointPlacemark(gcpDescriptor, "gcp_" + i, "GCP_" + i, "",
-//                                                                         pixelPos, geoPos, product.getSceneGeoCoding());
-//                    gcpGroup.add(gcp);
-//                }
-//
-//
-//                Placemark[] gcps = gcpGroup.toArray(new Placemark[gcpGroup.getNodeCount()]);
-//                final GcpGeoCoding gcpGeoCoding = new GcpGeoCoding(GcpGeoCoding.Method.POLYNOMIAL1,
-//                                                          gcps,
-//                                                          product.getSceneRasterWidth(),
-//                                                              product.getSceneRasterHeight(),
-//                                                              Datum.WGS_84);
                 final GcpGeoCoding gcpGeoCoding = new GcpGeoCoding(GcpGeoCoding.Method.POLYNOMIAL1, x, y, lons, lats,
                                                                    product.getSceneRasterWidth(),
                                                                    product.getSceneRasterHeight(),

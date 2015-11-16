@@ -536,7 +536,7 @@ public class ToolAdapterOp extends Operator {
                     paramValue = getNextFileName(descriptor.resolveVariables((File) paramValue));
                 }
                 if (param.getType().isArray()) {
-                    paramValue = StringUtils.arrayToString(paramValue, " ");
+                    paramValue = StringUtils.arrayToString(paramValue, "\n");
                 }
                 context.put(paramName, paramValue);
             }

@@ -45,11 +45,7 @@ import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.core.util.math.Quantizer;
 import org.esa.snap.core.util.math.Range;
 import org.esa.snap.runtime.Config;
-import org.geotools.referencing.CRS;
-import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.MathTransform2D;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
@@ -237,6 +233,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #setImageToModelTransform(AffineTransform)
      * @see #getSourceImage()
      * @see #getGeoCoding()
+     * @since SNAP 2.0
      */
     public AffineTransform getImageToModelTransform() {
         // If a source image is already set, we must return the actual image-to-model transformation in use
@@ -274,6 +271,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param imageToModelTransform The new image-to-model transformation
      * @see #getImageToModelTransform()
      * @see #createSourceImage()
+     * @since SNAP 2.0
      */
     public void setImageToModelTransform(AffineTransform imageToModelTransform) {
         Assert.notNull(imageToModelTransform, "imageToModelTransform");
@@ -286,23 +284,26 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         }
     }
 
-
-
     /**
-     * Gets a transformation allowing to transform from this raster CS to the product's scene raster CS.
+     * Gets a transformation allowing to non-linearily transform from this raster CS to the product's
+     * scene raster CS.
+     *
+     * <i>WARNING: This method belongs to a preliminary API and may change in an incompatible way or may even
+     * be removed in a next SNAP release.</i>
      *
      * @return The transformation or {@code null}, if no such exists.
      * @since SNAP 2.0
      */
     public SceneRasterTransform getSceneRasterTransform() {
-        if (sceneRasterTransform != null) {
-            return sceneRasterTransform;
-        }
-        return computeSceneRasterTransform();
+        return sceneRasterTransform;
     }
 
     /**
-     * Sets the transformation allowing to transform from this raster CS to the product's scene raster CS.
+     * Sets the transformation allowing to non-linearily transform from this raster CS to the product's
+     * scene raster CS.
+     *
+     * <i>WARNING: This method belongs to a preliminary API and may change in an incompatible way or may even
+     * be removed in a next SNAP release.</i>
      *
      * @param sceneRasterTransform The transformation or {@code null}.
      * @since SNAP 2.0
@@ -1837,6 +1838,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @throws IOException if the raster data is not loaded so far and reload causes an I/O error
      * @see #setImageInfo(ImageInfo)
      */
+    @SuppressWarnings("unused") // may be useful API for scripting languages
     public BufferedImage createRgbImage(ProgressMonitor pm) throws IOException {
         if (imageInfo != null) {
             return ProductUtils.createRgbImage(new RasterDataNode[]{this}, imageInfo, pm);
@@ -2410,10 +2412,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Adds an associated ancillary variable and sets its relation name.
+     * Adds an associated ancillary variable and sets its relation names.
      *
      * @param variable  The associated ancillary variable.
-     * @param relations The name of the relation, may be {@code "uncertainty"}, {@code "variance"}, or {@code null} (not set).
+     * @param relations The names of the relations, may be {@code "uncertainty"}, {@code "variance"}, or {@code null} (not set).
      * @since SNAP 2.0
      */
     public void addAncillaryVariable(RasterDataNode variable, String... relations) {
@@ -2545,46 +2547,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             pm.done();
         }
         Debug.trace("RasterDataNode.processRasterData: done");
-    }
-
-    /**
-     * Computes a transformation allowing to transform from this raster CS to the product's scene raster CS.
-     * This method is called if no transformation has been set using the
-     * {@link #setSceneRasterTransform(SceneRasterTransform)} method.
-     *
-     * @since SNAP 2.0
-     */
-    private SceneRasterTransform computeSceneRasterTransform() {
-        if (getProduct() == null) {
-            return null;
-        }
-        final GeoCoding geoCoding = getGeoCoding();
-        if (geoCoding != null && geoCoding instanceof CrsGeoCoding && geoCoding.getMapCRS().equals(getProduct().getSceneCRS())) {
-            MathTransform2D forward = null;
-            MathTransform2D inverse = null;
-            try {
-                final MathTransform transform = CRS.findMathTransform(geoCoding.getMapCRS(), getProduct().getSceneCRS());
-                if (transform instanceof MathTransform2D) {
-                    forward = (MathTransform2D) transform;
-                }
-            } catch (FactoryException e) {
-                forward = null;
-            }
-            try {
-                final MathTransform transform = CRS.findMathTransform(getProduct().getSceneCRS(), geoCoding.getMapCRS());
-                if (transform instanceof MathTransform2D) {
-                    inverse = (MathTransform2D) transform;
-                }
-            } catch (FactoryException e) {
-                inverse = null;
-            }
-            if (forward == null && inverse == null) {
-                return null;
-            }
-            return new DefaultSceneRasterTransform(forward, inverse);
-        } else {
-            return SceneRasterTransform.IDENTITY;
-        }
     }
 
     /**
