@@ -26,7 +26,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * Test ALOS PALSAR CEOS Product Reader.
@@ -45,38 +44,6 @@ public class TestAlosPalsarProductReader {
     public TestAlosPalsarProductReader() {
         readerPlugin = new AlosPalsarProductReaderPlugIn();
         reader = readerPlugin.createReaderInstance();
-    }
-
-    @Test
-    public void testReadingZip() throws IOException {
-        final File inputFile = new File("D:\\BFIT\\Keg River\\Kegriver_ALOS\\ALPSRP264051140-L1.1.zip");
-        if(inputFile.exists()) {
-            reader.readProductNodes(inputFile, null);
-        }
-    }
-
-    @Test
-    public void testReadingZip2() throws IOException {
-        final File inputFile = new File("D:\\BFIT\\Keg River\\Kegriver_ALOS\\ALOS-A4341_1_A3_17040.zip");
-        if(inputFile.exists()) {
-            reader.readProductNodes(inputFile, null);
-        }
-    }
-
-    @Test
-    public void testReadingRootZip() throws IOException {
-        final File inputFile = new File("D:\\BFIT\\Keg River\\Kegriver_ALOS\\ALPSRP264051140-L1.1.zip");
-        if(inputFile.exists()) {
-            reader.readProductNodes(inputFile, null);
-        }
-    }
-
-    @Test
-    public void testReadingUnZipped() throws IOException {
-        final File inputFile = new File("D:\\BFIT\\Keg River\\Kegriver_ALOS\\A4341_1_A3_17040\\PRODUCT\\VOL-ALPSRP170401150-P1.1__A");
-        if(inputFile.exists()) {
-            reader.readProductNodes(inputFile, null);
-        }
     }
 
     @Test
