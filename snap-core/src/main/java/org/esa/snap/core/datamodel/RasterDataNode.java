@@ -186,6 +186,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         geophysicalNoDataValue = 0.0;
         validPixelExpression = null;
 
+        imageToModelTransform = null;
+        sceneRasterTransform = SceneRasterTransform.IDENTITY;
+
         overlayMasks = new ProductNodeGroup<>(this, "overlayMasks", false);
     }
 
@@ -285,13 +288,17 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Gets a transformation allowing to non-linearily transform from this raster CS to the product's
+     * Gets a transformation allowing to non-linearily transform from this raster's CS to the product's
      * scene raster CS.
+     * <p>
+     * In SNAP, this method is used whenever geometry data from a {@link VectorDataNode vector data node}
+     * must be converted into the local model CS used by this raster data node and vice versa.
+     * For this purpose, this method complements the {@link #getImageToModelTransform() image-to-model transformation}
+     * <p>
+     * <i>WARNING: This method is not yet in use. It belongs to a preliminary API and may change in an incompatible
+     * way or may even be removed in a next SNAP release.</i>
      *
-     * <i>WARNING: This method belongs to a preliminary API and may change in an incompatible way or may even
-     * be removed in a next SNAP release.</i>
-     *
-     * @return The transformation or {@code null}, if no such exists.
+     * @return The transformation.
      * @since SNAP 2.0
      */
     public SceneRasterTransform getSceneRasterTransform() {
@@ -301,14 +308,15 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * Sets the transformation allowing to non-linearily transform from this raster CS to the product's
      * scene raster CS.
+     * <p>
+     * <i>WARNING: This method is not yet in use. It belongs to a preliminary API and may change in an incompatible
+     * way or may even be removed in a next SNAP release.</i>
      *
-     * <i>WARNING: This method belongs to a preliminary API and may change in an incompatible way or may even
-     * be removed in a next SNAP release.</i>
-     *
-     * @param sceneRasterTransform The transformation or {@code null}.
+     * @param sceneRasterTransform The transformation.
      * @since SNAP 2.0
      */
     public void setSceneRasterTransform(SceneRasterTransform sceneRasterTransform) {
+        Assert.notNull(sceneRasterTransform, "sceneRasterTransform");
         this.sceneRasterTransform = sceneRasterTransform;
     }
 
