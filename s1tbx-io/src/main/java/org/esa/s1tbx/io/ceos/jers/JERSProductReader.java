@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.io.ceos.jers;
 
+import com.bc.ceres.core.VirtualDir;
 import org.esa.s1tbx.io.ceos.CEOSProductDirectory;
 import org.esa.s1tbx.io.ceos.CEOSProductReader;
 import org.esa.snap.core.dataio.DecodeQualification;
@@ -37,16 +38,17 @@ public class JERSProductReader extends CEOSProductReader {
         super(readerPlugIn);
     }
 
-    protected CEOSProductDirectory createProductDirectory(File inputFile) {
-        return new JERSProductDirectory(inputFile.getParentFile());
+    @Override
+    protected CEOSProductDirectory createProductDirectory(final VirtualDir productDir) {
+        return new JERSProductDirectory(productDir);
     }
 
     DecodeQualification checkProductQualification(File file) {
 
         try {
-            _dataDir = createProductDirectory(file);
+            dataDir = createProductDirectory(createProductDir(file));
 
-            final JERSProductDirectory jersDataDir = (JERSProductDirectory) _dataDir;
+            final JERSProductDirectory jersDataDir = (JERSProductDirectory) dataDir;
             if (jersDataDir.isJERS())
                 return DecodeQualification.INTENDED;
             return DecodeQualification.UNABLE;
@@ -57,6 +59,4 @@ public class JERSProductReader extends CEOSProductReader {
             return DecodeQualification.UNABLE;
         }
     }
-
-
 }

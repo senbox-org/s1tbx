@@ -50,8 +50,10 @@ public class TestData {
 
     //ALOS
     public final static File inputALOS1_1 = new File(inputSAR + "ALOS"+sep+"subset_0_of_ALOS-H1_1__A-ORBIT__ALPSRP076360690.dim");
+    public final static File inputALOS_Zip = new File(inputSAR + "ALOS" +sep + "ALPSRS267172700-L1.5.zip");
 
     //S1
     public final static File inputS1_GRD = new File(inputSAR + "S1" + sep + "S1A_S1_GRDM_1SDV_20140607T172812_20140607T172836_000947_000EBD_7543.zip");
+    public final static File inputS1_GRDSubset = new File(inputSAR + "S1" + sep + "subset_0_of_subset_1_of_S1A_S1_GRDH_1SDH_20150828T165902_20150828T165921_007466_00A4B2_84A5.dim");
     public final static File inputS1_StripmapSLC = new File(inputSAR + "S1" + sep + "subset_2_S1A_S1_SLC__1SSV_20140807T142342_20140807T142411_001835_001BC1_05AA.dim");
 }

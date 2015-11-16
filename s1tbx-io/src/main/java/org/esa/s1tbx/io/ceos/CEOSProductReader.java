@@ -35,9 +35,7 @@ import java.io.IOException;
 public abstract class CEOSProductReader extends SARReader {
 
     private VirtualDir productDir = null;
-    private String baseName;
-    private File baseDir;
-    protected CEOSProductDirectory _dataDir = null;
+    protected CEOSProductDirectory dataDir = null;
 
     /**
      * Constructs a new abstract product reader.
@@ -49,7 +47,7 @@ public abstract class CEOSProductReader extends SARReader {
         super(readerPlugIn);
     }
 
-    protected abstract CEOSProductDirectory createProductDirectory(File inputFile);
+    protected abstract CEOSProductDirectory createProductDirectory(final VirtualDir productDir);
 
     /**
      * Closes the access to all currently opened resources such as file input streams and all resources of this children
@@ -64,11 +62,19 @@ public abstract class CEOSProductReader extends SARReader {
      */
     @Override
     public void close() throws IOException {
-        if (_dataDir != null) {
-            _dataDir.close();
-            _dataDir = null;
+        if (dataDir != null) {
+            dataDir.close();
+            dataDir = null;
         }
         super.close();
+    }
+
+    protected VirtualDir createProductDir(final File inputFile) {
+        if (ZipUtils.isZip(inputFile)) {
+            return VirtualDir.create(inputFile);
+        } else {
+            return VirtualDir.create(inputFile.getParentFile());
+        }
     }
 
     /**
@@ -83,21 +89,13 @@ public abstract class CEOSProductReader extends SARReader {
     protected Product readProductNodesImpl() throws IOException {
         final File inputFile = ReaderUtils.getFileFromInput(getInput());
 
-        if (ZipUtils.isZip(inputFile)) {
-            productDir = VirtualDir.create(inputFile);
-            baseDir = inputFile;
-            baseName = inputFile.getName();
-        } else {
-            productDir = VirtualDir.create(inputFile.getParentFile());
-            baseDir = inputFile.getParentFile();
-            baseName = inputFile.getParentFile().getName();
-        }
+        productDir = createProductDir(inputFile);
 
         Product product = null;
         try {
-            _dataDir = createProductDirectory(inputFile);
-            _dataDir.readProductDirectory();
-            product = _dataDir.createProduct();
+            dataDir = createProductDirectory(productDir);
+            dataDir.readProductDirectory();
+            product = dataDir.createProduct();
             product.setFileLocation(inputFile);
             setQuicklookBandName(product);
             product.getGcpGroup();
@@ -119,10 +117,10 @@ public abstract class CEOSProductReader extends SARReader {
                                           int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
                                           ProgressMonitor pm) throws IOException {
         try {
-            final CEOSImageFile imageFile = _dataDir.getImageFile(destBand);
+            final CEOSImageFile imageFile = dataDir.getImageFile(destBand);
             final int bitsPerSample = imageFile.getBitsPerSample();
             if (bitsPerSample == 8) {
-                if (_dataDir.isSLC()) {
+                if (dataDir.isSLC()) {
                     boolean oneOf2 = destBand.getUnit().equals(Unit.REAL) || !destBand.getName().startsWith("q");
 
                     imageFile.readBandRasterDataSLCByte(sourceOffsetX, sourceOffsetY,
@@ -139,7 +137,7 @@ public abstract class CEOSProductReader extends SARReader {
                             destBuffer, pm);
                 }
             } else {
-                if (_dataDir.isSLC()) {
+                if (dataDir.isSLC()) {
                     final boolean oneOf2 = destBand.getUnit().equals(Unit.REAL) || !destBand.getName().startsWith("q");
                     final int samplesPerGroup = imageFile.getSamplesPerDataGroup();
                     final int elemSize = (samplesPerGroup * ProductData.getElemSize(destBuffer.getType()));
@@ -164,6 +162,5 @@ public abstract class CEOSProductReader extends SARReader {
             //ioException.initCause(e);
             //throw ioException;
         }
-
     }
 }

@@ -16,6 +16,7 @@
 package org.esa.s1tbx.io.ceos.alos;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.VirtualDir;
 import org.esa.s1tbx.io.ceos.CEOSProductDirectory;
 import org.esa.s1tbx.io.ceos.CEOSProductReader;
 import org.esa.snap.core.dataio.DecodeQualification;
@@ -43,16 +44,16 @@ public class AlosPalsarProductReader extends CEOSProductReader {
     }
 
     @Override
-    protected CEOSProductDirectory createProductDirectory(File inputFile) {
-        return new AlosPalsarProductDirectory(inputFile.getParentFile());
+    protected CEOSProductDirectory createProductDirectory(final VirtualDir productDir) {
+        return new AlosPalsarProductDirectory(productDir);
     }
 
     DecodeQualification checkProductQualification(File file) {
 
         try {
-            _dataDir = createProductDirectory(file);
+            dataDir = createProductDirectory(createProductDir(file));
 
-            final AlosPalsarProductDirectory dataDir = (AlosPalsarProductDirectory) _dataDir;
+            final AlosPalsarProductDirectory dataDir = (AlosPalsarProductDirectory) this.dataDir;
             if (dataDir.isALOS())
                 return DecodeQualification.INTENDED;
             return DecodeQualification.UNABLE;
@@ -71,7 +72,7 @@ public class AlosPalsarProductReader extends CEOSProductReader {
                                           int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
                                           ProgressMonitor pm) throws IOException {
         try {
-            final AlosPalsarProductDirectory dataDir = (AlosPalsarProductDirectory) _dataDir;
+            final AlosPalsarProductDirectory dataDir = (AlosPalsarProductDirectory) this.dataDir;
             final AlosPalsarImageFile imageFile = (AlosPalsarImageFile) dataDir.getImageFile(destBand);
             if (dataDir.isSLC()) {
                 boolean oneOf2 = destBand.getUnit().equals(Unit.REAL) || !destBand.getName().startsWith("q");

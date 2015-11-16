@@ -37,22 +37,22 @@ class JERSImageFile extends CEOSImageFile {
 
     public JERSImageFile(final ImageInputStream imageStream) throws IOException, IllegalBinaryFormatException {
         binaryReader = new BinaryFileReader(imageStream);
-        _imageFDR = new BinaryRecord(binaryReader, -1, imgDefXML, image_DefinitionFile);
-        binaryReader.seek(_imageFDR.getAbsolutPosition(_imageFDR.getRecordLength()));
-        final int numLines = _imageFDR.getAttributeInt("Number of lines per data set");
+        imageFDR = new BinaryRecord(binaryReader, -1, imgDefXML, image_DefinitionFile);
+        binaryReader.seek(imageFDR.getAbsolutPosition(imageFDR.getRecordLength()));
+        final int numLines = imageFDR.getAttributeInt("Number of lines per data set");
         if (numLines == 0) {
             throw new IllegalBinaryFormatException("not an image file", 0);
         }
-        _imageRecords = new BinaryRecord[numLines];
-        _imageRecords[0] = createNewImageRecord(0);
+        imageRecords = new BinaryRecord[numLines];
+        imageRecords[0] = createNewImageRecord(0);
 
-        _imageRecordLength = _imageRecords[0].getRecordLength();
-        _startPosImageRecords = _imageRecords[0].getStartPos();
-        _imageHeaderLength = _imageFDR.getAttributeInt("Number of bytes of prefix data per record");
+        _imageRecordLength = imageRecords[0].getRecordLength();
+        startPosImageRecords = imageRecords[0].getStartPos();
+        imageHeaderLength = imageFDR.getAttributeInt("Number of bytes of prefix data per record");
     }
 
     protected BinaryRecord createNewImageRecord(final int line) throws IOException {
-        final long pos = _imageFDR.getAbsolutPosition(_imageFDR.getRecordLength()) + (line * _imageRecordLength);
+        final long pos = imageFDR.getAbsolutPosition(imageFDR.getRecordLength()) + (line * _imageRecordLength);
         return new BinaryRecord(binaryReader, pos, imgRecordXML, image_recordDefinition);
     }
 }

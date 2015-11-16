@@ -41,18 +41,18 @@ class ERSImageFile extends CEOSImageFile {
 
     public ERSImageFile(final ImageInputStream imageStream) throws IOException, IllegalBinaryFormatException {
         binaryReader = new BinaryFileReader(imageStream);
-        _imageFDR = new BinaryRecord(binaryReader, -1, imgDefXML, image_DefinitionFile);
-        binaryReader.seek(_imageFDR.getAbsolutPosition(_imageFDR.getRecordLength()));
-        _imageRecords = new BinaryRecord[_imageFDR.getAttributeInt("Number of lines per data set")];
-        _imageRecords[0] = createNewImageRecord(0);
+        imageFDR = new BinaryRecord(binaryReader, -1, imgDefXML, image_DefinitionFile);
+        binaryReader.seek(imageFDR.getAbsolutPosition(imageFDR.getRecordLength()));
+        imageRecords = new BinaryRecord[imageFDR.getAttributeInt("Number of lines per data set")];
+        imageRecords[0] = createNewImageRecord(0);
 
-        _imageRecordLength = _imageRecords[0].getRecordLength();
-        _startPosImageRecords = _imageRecords[0].getStartPos();
-        _imageHeaderLength = 12;
+        _imageRecordLength = imageRecords[0].getRecordLength();
+        startPosImageRecords = imageRecords[0].getStartPos();
+        imageHeaderLength = 12;
     }
 
     protected BinaryRecord createNewImageRecord(final int line) throws IOException {
-        final long pos = _imageFDR.getAbsolutPosition(_imageFDR.getRecordLength()) + (line * _imageRecordLength);
+        final long pos = imageFDR.getAbsolutPosition(imageFDR.getRecordLength()) + (line * _imageRecordLength);
         return new BinaryRecord(binaryReader, pos, imgRecordXML, image_recordDefinition);
     }
 }

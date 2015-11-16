@@ -116,8 +116,8 @@
                 <attr name="dialogTitle" stringvalue="S-1 EAP Phase Correction"/>
                 <attr name="ShortDescription" stringvalue="EAP Phase Correction"/>
                 <attr name="targetProductNameSuffix" stringvalue="_pc"/>
+				<attr name="helpId" stringvalue="EAPPhaseCorrection"/>
                 <attr name="icon" stringvalue="esaIcon"/>
-                <attr name="helpId" stringvalue="EAPPhaseCorrectionOp"/>
             </file>
         </folder>
     </folder>

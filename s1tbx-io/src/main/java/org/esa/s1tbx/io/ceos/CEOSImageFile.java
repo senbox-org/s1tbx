@@ -22,10 +22,7 @@ import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.engine_utilities.eo.Constants;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -35,46 +32,46 @@ import java.util.List;
  */
 public abstract class CEOSImageFile {
 
-    protected BinaryRecord _imageFDR = null;
+    protected BinaryRecord imageFDR = null;
     protected BinaryFileReader binaryReader = null;
-    protected BinaryRecord[] _imageRecords = null;
+    protected BinaryRecord[] imageRecords = null;
 
     protected long _imageRecordLength = 0;
-    protected long _startPosImageRecords = 0;
-    protected int _imageHeaderLength = 0;
+    protected long startPosImageRecords = 0;
+    protected int imageHeaderLength = 0;
 
     public BinaryRecord getImageFileDescriptor() {
-        return _imageFDR;
+        return imageFDR;
     }
 
     public int getRasterWidth() {
-        int width = _imageFDR.getAttributeInt("Number of pixels per line per SAR channel");
+        int width = imageFDR.getAttributeInt("Number of pixels per line per SAR channel");
         if (width == 0)
-            width = _imageFDR.getAttributeInt("SAR DATA record length");
+            width = imageFDR.getAttributeInt("SAR DATA record length");
         return width;
     }
 
     public int getRasterHeight() {
-        return _imageFDR.getAttributeInt("Number of lines per data set");
+        return imageFDR.getAttributeInt("Number of lines per data set");
     }
 
     public int getBitsPerSample() {
-        return _imageFDR.getAttributeInt("Number of bits per sample");
+        return imageFDR.getAttributeInt("Number of bits per sample");
     }
 
     public int getSamplesPerDataGroup() {
-        return _imageFDR.getAttributeInt("Number of samples per data group");
+        return imageFDR.getAttributeInt("Number of samples per data group");
     }
 
     protected abstract BinaryRecord createNewImageRecord(final int line) throws IOException;
 
     BinaryRecord getImageRecord(int line) throws IOException {
-        if (_imageRecords[line] == null) {
+        if (imageRecords[line] == null) {
 
-            binaryReader.seek(_imageFDR.getAbsolutPosition(_imageFDR.getRecordLength()));
-            _imageRecords[line] = createNewImageRecord(line);
+            binaryReader.seek(imageFDR.getAbsolutPosition(imageFDR.getRecordLength()));
+            imageRecords[line] = createNewImageRecord(line);
         }
-        return _imageRecords[line];
+        return imageRecords[line];
     }
 
     public double getSlantRangeToFirstPixel(int line) {
@@ -107,7 +104,7 @@ public abstract class CEOSImageFile {
     public float[] getLatCorners() {
         try {
             final BinaryRecord imgRec0 = getImageRecord(0);
-            final BinaryRecord imgRecN = getImageRecord(_imageRecords.length - 1);
+            final BinaryRecord imgRecN = getImageRecord(imageRecords.length - 1);
 
             final float latUL = imgRec0.getAttributeInt("First pixel latitude") / (float) Constants.oneMillion;
             final float latUR = imgRec0.getAttributeInt("Last pixel latitude") / (float) Constants.oneMillion;
@@ -122,7 +119,7 @@ public abstract class CEOSImageFile {
     public float[] getLonCorners() {
         try {
             final BinaryRecord imgRec0 = getImageRecord(0);
-            final BinaryRecord imgRecN = getImageRecord(_imageRecords.length - 1);
+            final BinaryRecord imgRecN = getImageRecord(imageRecords.length - 1);
 
             final float lonUL = imgRec0.getAttributeInt("First pixel longitude") / (float) Constants.oneMillion;
             final float lonUR = imgRec0.getAttributeInt("Last pixel longitude") / (float) Constants.oneMillion;
@@ -136,30 +133,14 @@ public abstract class CEOSImageFile {
 
     public void assignMetadataTo(MetadataElement rootElem, int count) {
         final MetadataElement imgDescElem = new MetadataElement("Image Descriptor " + count);
-        _imageFDR.assignMetadataTo(imgDescElem);
+        imageFDR.assignMetadataTo(imgDescElem);
         rootElem.addElement(imgDescElem);
 
-        if (_imageRecords[0] != null) {
+        if (imageRecords[0] != null) {
             final MetadataElement imgRecElem = new MetadataElement("Image Record ");
-            _imageRecords[0].assignMetadataTo(imgRecElem);
+            imageRecords[0].assignMetadataTo(imgRecElem);
             imgDescElem.addElement(imgRecElem);
         }
-    }
-
-    public static String[] getImageFileNames(File baseDir, String[] prefixList) {
-        final List<String> list = new ArrayList<>(4);
-        final File[] fileList = baseDir.listFiles();
-        if(fileList != null) {
-            for (File file : fileList) {
-                final String name = file.getName().toUpperCase();
-                for (String prefix : prefixList) {
-                    if (name.startsWith(prefix) || name.endsWith('.' + prefix)) {
-                        list.add(file.getName());
-                    }
-                }
-            }
-        }
-        return list.toArray(new String[list.size()]);
     }
 
     public void readBandRasterDataShort(final int sourceOffsetX, final int sourceOffsetY,
@@ -169,7 +150,7 @@ public abstract class CEOSImageFile {
             throws IOException {
         final int sourceMaxY = sourceOffsetY + sourceHeight - 1;
         final int x = sourceOffsetX * ProductData.getElemSize(destBuffer.getType());
-        final long xpos = _startPosImageRecords + _imageHeaderLength + x;
+        final long xpos = startPosImageRecords + imageHeaderLength + x;
 
         pm.beginTask("Reading band...", sourceMaxY - sourceOffsetY);
         try {
@@ -216,7 +197,7 @@ public abstract class CEOSImageFile {
             throws IOException {
         final int sourceMaxY = sourceOffsetY + sourceHeight - 1;
         final int x = sourceOffsetX * ProductData.getElemSize(destBuffer.getType());
-        final long xpos = _startPosImageRecords + _imageHeaderLength + x;
+        final long xpos = startPosImageRecords + imageHeaderLength + x;
 
         pm.beginTask("Reading band...", sourceMaxY - sourceOffsetY);
         try {
@@ -260,7 +241,7 @@ public abstract class CEOSImageFile {
             throws IOException {
         final int sourceMaxY = sourceOffsetY + sourceHeight - 1;
         final int x = sourceOffsetX * ProductData.getElemSize(destBuffer.getType());
-        final long xpos = _startPosImageRecords + _imageHeaderLength + x;
+        final long xpos = startPosImageRecords + imageHeaderLength + x;
 
         pm.beginTask("Reading band...", sourceMaxY - sourceOffsetY);
         try {
@@ -303,7 +284,7 @@ public abstract class CEOSImageFile {
             throws IOException {
         final int sourceMaxY = sourceOffsetY + sourceHeight - 1;
         final int x = sourceOffsetX * ProductData.getElemSize(destBuffer.getType());
-        final long xpos = _startPosImageRecords + _imageHeaderLength + x;
+        final long xpos = startPosImageRecords + imageHeaderLength + x;
 
         pm.beginTask("Reading band...", sourceMaxY - sourceOffsetY);
         try {
@@ -348,7 +329,7 @@ public abstract class CEOSImageFile {
                                       final int elemSize) throws IOException {
         final int sourceMaxY = sourceOffsetY + sourceHeight - 1;
         final int x = sourceOffsetX * elemSize;
-        final long xpos = _startPosImageRecords + _imageHeaderLength + x;
+        final long xpos = startPosImageRecords + imageHeaderLength + x;
 
         try {
             final short[] srcLine = new short[sourceWidth * 2];
@@ -404,7 +385,7 @@ public abstract class CEOSImageFile {
                                            ProgressMonitor pm) throws IOException {
         final int sourceMaxY = sourceOffsetY + sourceHeight - 1;
         final int x = sourceOffsetX * 8;
-        final long xpos = _startPosImageRecords + _imageHeaderLength + x;
+        final long xpos = startPosImageRecords + imageHeaderLength + x;
 
         pm.beginTask("Reading band...", sourceMaxY - sourceOffsetY);
         try {
@@ -441,7 +422,7 @@ public abstract class CEOSImageFile {
                                           ProgressMonitor pm) throws IOException {
         final int sourceMaxY = sourceOffsetY + sourceHeight - 1;
         final int x = sourceOffsetX * 2;
-        final long xpos = _startPosImageRecords + _imageHeaderLength + x;
+        final long xpos = startPosImageRecords + imageHeaderLength + x;
 
         pm.beginTask("Reading band...", sourceMaxY - sourceOffsetY);
         try {

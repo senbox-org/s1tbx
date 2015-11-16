@@ -16,13 +16,13 @@
 package org.esa.s1tbx.io.ceos.basic;
 
 import Jama.Matrix;
+import com.bc.ceres.core.VirtualDir;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.io.SARReader;
 import org.esa.s1tbx.io.binary.BinaryRecord;
 import org.esa.s1tbx.io.binary.IllegalBinaryFormatException;
 import org.esa.s1tbx.io.ceos.CEOSImageFile;
 import org.esa.s1tbx.io.ceos.CEOSProductDirectory;
-import org.esa.s1tbx.io.ceos.CeosHelper;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.GeoPos;
@@ -44,7 +44,6 @@ import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.util.Maths;
 
-import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -63,33 +62,32 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
 
     private final transient Map<String, BasicCeosImageFile> bandImageFileMap = new HashMap<>(1);
 
-    public BasicCeosProductDirectory(final File dir) {
+    public BasicCeosProductDirectory(final VirtualDir dir) {
         Guardian.assertNotNull("dir", dir);
 
         constants = new BasicCeosConstants();
-        baseDir = dir;
+        productDir = dir;
     }
 
     @Override
     protected void readProductDirectory() throws IOException, IllegalBinaryFormatException {
-        readVolumeDirectoryFile();
+        readVolumeDirectoryFileStream();
 
-        leaderFile = new BasicCeosLeaderFile(
-                createInputStream(CeosHelper.getCEOSFile(baseDir, constants.getLeaderFilePrefix())));
-        final File trlFile = CeosHelper.getCEOSFile(baseDir, constants.getTrailerFilePrefix());
-        if (trlFile != null) {
-            trailerFile = new BasicCeosTrailerFile(createInputStream(trlFile));
+        leaderFile = new BasicCeosLeaderFile(getCEOSFile(constants.getLeaderFilePrefix())[0].imgInputStream);
+        final CeosFile[] trlFile = getCEOSFile(constants.getTrailerFilePrefix());
+        if (trlFile.length > 0) {
+            trailerFile = new BasicCeosTrailerFile(trlFile[0].imgInputStream);
         }
 
         BinaryRecord histogramRec = leaderFile.getHistogramRecord();
         if (histogramRec == null)
             histogramRec = trailerFile.getHistogramRecord();
 
-        final String[] imageFileNames = CEOSImageFile.getImageFileNames(baseDir, constants.getImageFilePrefix());
-        final List<BasicCeosImageFile> imgArray = new ArrayList<>(imageFileNames.length);
-        for (String fileName : imageFileNames) {
+        final CeosFile[] ceosFiles = getCEOSFile(constants.getImageFilePrefix());
+        final List<BasicCeosImageFile> imgArray = new ArrayList<>(ceosFiles.length);
+        for (CeosFile imageFile : ceosFiles) {
             try {
-                final BasicCeosImageFile imgFile = new BasicCeosImageFile(createInputStream(new File(baseDir, fileName)), histogramRec);
+                final BasicCeosImageFile imgFile = new BasicCeosImageFile(imageFile.imgInputStream, histogramRec);
                 imgArray.add(imgFile);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -256,9 +254,9 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
             imageFile.assignMetadataTo(root, c++);
         }
 
-        addSummaryMetadata(new File(baseDir, BasicCeosConstants.SUMMARY_FILE_NAME), "Summary Information", root);
-        addSummaryMetadata(new File(baseDir, BasicCeosConstants.SCENE_LABEL_FILE_NAME), "Scene Label", root);
-        addSummaryMetadata(new File(baseDir.getParentFile(), BasicCeosConstants.SCENE_LABEL_FILE_NAME), "Scene Label", root);
+        addSummaryMetadata(findFile(BasicCeosConstants.SUMMARY_FILE_NAME), "Summary Information", root);
+        addSummaryMetadata(findFile(BasicCeosConstants.SCENE_LABEL_FILE_NAME), "Scene Label", root);
+        addSummaryMetadata(findFile(BasicCeosConstants.SCENE_LABEL_FILE_NAME), "Scene Label", root);
 
         // try txt summary file
         // removed because it is not in the property name value format

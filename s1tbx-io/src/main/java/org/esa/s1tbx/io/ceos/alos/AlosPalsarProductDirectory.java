@@ -16,13 +16,13 @@
 package org.esa.s1tbx.io.ceos.alos;
 
 import Jama.Matrix;
+import com.bc.ceres.core.VirtualDir;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.io.SARReader;
 import org.esa.s1tbx.io.binary.BinaryRecord;
 import org.esa.s1tbx.io.binary.IllegalBinaryFormatException;
 import org.esa.s1tbx.io.ceos.CEOSImageFile;
 import org.esa.s1tbx.io.ceos.CEOSProductDirectory;
-import org.esa.s1tbx.io.ceos.CeosHelper;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.GeoPos;
@@ -45,7 +45,6 @@ import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.util.Maths;
 
-import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -70,32 +69,30 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
     public static final DateFormat dateFormat2 = ProductData.UTC.createDateFormat("yyyyMMdd HH:mm:ss");
     public static final DateFormat dateFormat3 = ProductData.UTC.createDateFormat("yyyyDDDSSSSSSSS");
 
-    public AlosPalsarProductDirectory(final File dir) {
+    public AlosPalsarProductDirectory(final VirtualDir dir) {
         Guardian.assertNotNull("dir", dir);
-
         constants = new AlosPalsarConstants();
-        baseDir = dir;
+        productDir = dir;
     }
 
     @Override
     protected void readProductDirectory() throws IOException, IllegalBinaryFormatException {
-        readVolumeDirectoryFile();
+        readVolumeDirectoryFileStream();
 
         updateProductType();
 
-        leaderFile = new AlosPalsarLeaderFile(
-                createInputStream(CeosHelper.getCEOSFile(baseDir, constants.getLeaderFilePrefix())));
-        final File trlFile = CeosHelper.getCEOSFile(baseDir, constants.getTrailerFilePrefix());
-        if (trlFile != null) {
-            trailerFile = new AlosPalsarTrailerFile(createInputStream(trlFile));
+        leaderFile = new AlosPalsarLeaderFile(getCEOSFile(constants.getLeaderFilePrefix())[0].imgInputStream);
+        final CeosFile[] trlFile = getCEOSFile(constants.getTrailerFilePrefix());
+        if (trlFile.length > 0) {
+            trailerFile = new AlosPalsarTrailerFile(trlFile[0].imgInputStream);
         }
 
-        final String[] imageFileNames = CEOSImageFile.getImageFileNames(baseDir, constants.getImageFilePrefix());
-        final List<AlosPalsarImageFile> imgArray = new ArrayList<>(imageFileNames.length);
-        for (String fileName : imageFileNames) {
+        final CeosFile[] ceosFiles = getCEOSFile(constants.getImageFilePrefix());
+        final List<AlosPalsarImageFile> imgArray = new ArrayList<>(ceosFiles.length);
+        for (CeosFile imageFile : ceosFiles) {
             try {
-                final AlosPalsarImageFile imgFile = new AlosPalsarImageFile(createInputStream(new File(baseDir, fileName)),
-                        getProductLevel(), fileName);
+                final AlosPalsarImageFile imgFile = new AlosPalsarImageFile(imageFile.imgInputStream,
+                        getProductLevel(), imageFile.fileName);
                 imgArray.add(imgFile);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -518,8 +515,8 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
             imageFile.assignMetadataTo(root, c++);
         }
 
-        addSummaryMetadata(new File(baseDir, AlosPalsarConstants.SUMMARY_FILE_NAME), "Summary Information", root);
-        addSummaryMetadata(new File(baseDir, AlosPalsarConstants.WORKREPORT_FILE_NAME), "Work Report", root);
+        addSummaryMetadata(findFile(AlosPalsarConstants.SUMMARY_FILE_NAME), "Summary Information", root);
+        addSummaryMetadata(findFile(AlosPalsarConstants.WORKREPORT_FILE_NAME), "Work Report", root);
 
         addAbstractedMetadataHeader(product);
     }

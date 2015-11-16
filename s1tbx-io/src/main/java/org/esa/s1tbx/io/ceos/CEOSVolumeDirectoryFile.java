@@ -19,6 +19,7 @@ import org.esa.s1tbx.io.binary.BinaryDBReader;
 import org.esa.s1tbx.io.binary.BinaryFileReader;
 import org.esa.s1tbx.io.binary.BinaryRecord;
 import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.util.StringUtils;
 import org.jdom2.Document;
 
 import java.io.IOException;
@@ -51,7 +52,7 @@ public class CEOSVolumeDirectoryFile {
         try {
             if (filePointerXML == null)
                 filePointerXML = BinaryDBReader.loadDefinitionFile(mission, filePointerDefinitionFile);
-            filePointerRecords = CeosHelper.readFilePointers(volumeDescriptorRecord, filePointerXML, filePointerDefinitionFile);
+            filePointerRecords = readFilePointers(volumeDescriptorRecord, filePointerXML, filePointerDefinitionFile);
         } catch (Exception e) {
             System.out.println("Error reading file pointer record: " + e.getMessage());
         }
@@ -74,11 +75,11 @@ public class CEOSVolumeDirectoryFile {
     }
 
     public String getProductName() {
-        return CeosHelper.getProductName(textRecord);
+        return getProductName(textRecord);
     }
 
     public String getProductType() {
-        return CeosHelper.getProductType(textRecord);
+        return getProductType(textRecord);
     }
 
     public void assignMetadataTo(final MetadataElement rootElem) {
@@ -91,4 +92,35 @@ public class CEOSVolumeDirectoryFile {
         }
     }
 
+    public static FilePointerRecord[] readFilePointers(final BinaryRecord vdr, final Document filePointerXML,
+                                                       final String recName) throws IOException {
+        final int numFilePointers = vdr.getAttributeInt("Number of filepointer records");
+        final BinaryFileReader reader = vdr.getReader();
+        reader.seek(vdr.getRecordLength());
+        final FilePointerRecord[] filePointers = new FilePointerRecord[numFilePointers];
+        for (int i = 0; i < numFilePointers; i++) {
+            filePointers[i] = new FilePointerRecord(reader, filePointerXML, recName);
+        }
+        return filePointers;
+    }
+
+    public static String getProductName(final BinaryRecord textRecord) {
+        if (textRecord == null) return "unknown";
+        final String name = textRecord.getAttributeString("Product type specifier").trim().replace("PRODUCT:", "")
+                + '-' + textRecord.getAttributeString("Scene identification").trim();
+        return StringUtils.createValidName(name.trim(), new char[]{'_', '-'}, '_');
+    }
+
+    public static String getProductType(final BinaryRecord textRecord) {
+        if (textRecord == null) return "unknown";
+        String type = textRecord.getAttributeString("Product type specifier").trim();
+        type = type.replace("PRODUCT:", "");
+        type = type.replace("JERS-1", "JERS1");
+        type = type.replace("JERS_1", "JERS1");
+        type = type.replace("ERS-1", "ERS1");
+        type = type.replace("ERS_1", "ERS1");
+        type = type.replace("ERS-2", "ERS2");
+        type = type.replace("ERS_2", "ERS2");
+        return type.trim();
+    }
 }

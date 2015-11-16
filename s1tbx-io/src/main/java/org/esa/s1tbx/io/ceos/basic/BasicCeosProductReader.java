@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.io.ceos.basic;
 
+import com.bc.ceres.core.VirtualDir;
 import org.esa.s1tbx.io.ceos.CEOSProductDirectory;
 import org.esa.s1tbx.io.ceos.CEOSProductReader;
 import org.esa.snap.core.dataio.DecodeQualification;
@@ -38,16 +39,16 @@ public class BasicCeosProductReader extends CEOSProductReader {
     }
 
     @Override
-    protected CEOSProductDirectory createProductDirectory(File inputFile) {
-        return new BasicCeosProductDirectory(inputFile.getParentFile());
+    protected CEOSProductDirectory createProductDirectory(final VirtualDir productDir) {
+        return new BasicCeosProductDirectory(productDir);
     }
 
     DecodeQualification checkProductQualification(File file) {
 
         try {
-            _dataDir = createProductDirectory(file);
+            dataDir = createProductDirectory(createProductDir(file));
 
-            final BasicCeosProductDirectory dataDir = (BasicCeosProductDirectory) _dataDir;
+            final BasicCeosProductDirectory dataDir = (BasicCeosProductDirectory) this.dataDir;
             if (dataDir.isCeos())
                 return DecodeQualification.SUITABLE;
             return DecodeQualification.UNABLE;

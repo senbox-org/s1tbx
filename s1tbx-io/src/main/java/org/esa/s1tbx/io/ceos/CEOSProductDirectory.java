@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.io.ceos;
 
+import com.bc.ceres.core.VirtualDir;
 import org.esa.s1tbx.io.FileImageInputStreamExtImpl;
 import org.esa.s1tbx.io.binary.BinaryFileReader;
 import org.esa.s1tbx.io.binary.BinaryRecord;
@@ -32,14 +33,18 @@ import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
-import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.MemoryCacheImageInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -51,7 +56,7 @@ import java.util.TreeSet;
 public abstract class CEOSProductDirectory {
 
     protected CEOSConstants constants = null;
-    protected File baseDir = null;
+    protected VirtualDir productDir;
     protected CEOSVolumeDirectoryFile volumeDirectoryFile = null;
     protected boolean isProductSLC = false;
     protected String productType = null;
@@ -69,12 +74,12 @@ public abstract class CEOSProductDirectory {
 
     public abstract void close() throws IOException;
 
-    protected final void readVolumeDirectoryFile() throws IOException {
-        Guardian.assertNotNull("baseDir", baseDir);
+    protected final void readVolumeDirectoryFileStream() throws IOException {
+        Guardian.assertNotNull("productDir", productDir);
         Guardian.assertNotNull("constants", constants);
 
-        final File volumeFile = CeosHelper.getCEOSFile(baseDir, constants.getVolumeFilePrefix());
-        final BinaryFileReader binaryReader = new BinaryFileReader(new FileImageInputStream(volumeFile));
+        final CeosFile[] volumeFile = getCEOSFile(constants.getVolumeFilePrefix());
+        final BinaryFileReader binaryReader = new BinaryFileReader(volumeFile[0].imgInputStream);
         final String mission = constants.getMission();
 
         volumeDirectoryFile = new CEOSVolumeDirectoryFile(binaryReader, mission);
@@ -90,8 +95,8 @@ public abstract class CEOSProductDirectory {
     }
 
     private void readVolumeDiscriptor() throws IOException {
-        final File volumeFile = CeosHelper.getCEOSFile(baseDir, constants.getVolumeFilePrefix());
-        final BinaryFileReader binaryReader = new BinaryFileReader(new FileImageInputStream(volumeFile));
+        final CeosFile[] volumeFile = getCEOSFile(constants.getVolumeFilePrefix());
+        final BinaryFileReader binaryReader = new BinaryFileReader(volumeFile[0].imgInputStream);
         final String mission = constants.getMission();
 
         if (volumeDirectoryFile == null) {
@@ -172,7 +177,7 @@ public abstract class CEOSProductDirectory {
                 product.addTiePointGrid(slantRangeTimeGrid);
             }
         } catch (Exception e) {
-
+            //continue
         }
     }
 
@@ -259,15 +264,15 @@ public abstract class CEOSProductDirectory {
         return AbstractMetadata.NO_METADATA_UTC;
     }
 
-    protected static void addSummaryMetadata(final File summaryFile, final String name, final MetadataElement parent)
+    protected static void addSummaryMetadata(final InputStream summaryStream, final String name, final MetadataElement parent)
             throws IOException {
-        if (!summaryFile.exists())
+        if (summaryStream == null)
             return;
 
         final MetadataElement summaryMetadata = new MetadataElement(name);
         final Properties properties = new Properties();
 
-        properties.load(new FileInputStream(summaryFile));
+        properties.load(summaryStream);
         final Set unsortedEntries = properties.entrySet();
         final TreeSet sortedEntries = new TreeSet(new Comparator() {
             public int compare(final Object a, final Object b) {
@@ -438,8 +443,60 @@ public abstract class CEOSProductDirectory {
         AbstractMetadata.setAttribute(coefElem, AbstractMetadata.dop_coef, rec.getAttributeDouble(tag));
     }
 
-    protected static ImageInputStream createInputStream(final File file) throws IOException {
-        if (file == null) return null;
-        return FileImageInputStreamExtImpl.createInputStream(file);
+    protected InputStream findFile(final String fileName) throws IOException {
+        try {
+            if(productDir.isCompressed()) {
+                String folder = "";
+                String[] fileList = productDir.list("");
+                while(fileList.length > 0 && fileList.length <= 3) {
+                    folder += fileList[0] + "/";
+                    fileList = productDir.list(folder);
+                }
+                if (!folder.isEmpty() && !folder.endsWith("/")) {
+                    folder += "/";
+                }
+                return productDir.getInputStream(folder + fileName);
+            } else {
+                return new FileInputStream(new File(productDir.getBasePath(), fileName));
+            }
+        } catch (FileNotFoundException e) {
+            return null;
+        }
+    }
+
+    protected CeosFile[] getCEOSFile(final String[] prefixList) throws IOException {
+        final List<CeosFile> list = new ArrayList<>(4);
+        String folder = "";
+        String[] fileList = productDir.list("");
+        while(fileList.length > 0 && fileList.length <= 3) {
+            folder += fileList[0] + "/";
+            fileList = productDir.list(folder);
+        }
+        if (!folder.isEmpty() && !folder.endsWith("/")) {
+            folder += "/";
+        }
+        for(String name : fileList) {
+            for (String prefix : prefixList) {
+                if (name.startsWith(prefix) || name.endsWith('.' + prefix)) {
+                    ImageInputStream stream;
+                    if(productDir.isCompressed()) {
+                        stream = new MemoryCacheImageInputStream(productDir.getInputStream(folder + name));
+                    } else {
+                        stream = new FileImageInputStreamExtImpl(productDir.getFile(folder + name));
+                    }
+                    list.add(new CeosFile(stream, name));
+                }
+            }
+        }
+        return list.toArray(new CeosFile[list.size()]);
+    }
+
+    public static class CeosFile {
+        public ImageInputStream imgInputStream;
+        public String fileName;
+        public CeosFile(ImageInputStream imgInputStream, String fileName) {
+            this.imgInputStream = imgInputStream;
+            this.fileName = fileName;
+        }
     }
 }

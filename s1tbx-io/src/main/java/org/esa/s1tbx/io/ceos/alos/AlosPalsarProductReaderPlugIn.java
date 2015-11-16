@@ -43,6 +43,9 @@ public class AlosPalsarProductReaderPlugIn extends CEOSProductReaderPlugIn {
     @Override
     protected DecodeQualification checkProductQualification(File file) {
         final String name = file.getName().toUpperCase();
+        if(name.endsWith(".ZIP") && (name.startsWith("ALPSR") || name.startsWith("ALOS") && !name.startsWith("ALOS2"))) {
+            return DecodeQualification.INTENDED;
+        }
         for (String prefix : constants.getVolumeFilePrefix()) {
             if (name.startsWith(prefix) && !name.contains("ALOS2")) {
                 final AlosPalsarProductReader reader = new AlosPalsarProductReader(this);

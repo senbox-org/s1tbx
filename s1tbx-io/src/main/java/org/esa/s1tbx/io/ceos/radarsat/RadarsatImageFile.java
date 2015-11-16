@@ -41,22 +41,22 @@ class RadarsatImageFile extends CEOSImageFile {
     public RadarsatImageFile(final ImageInputStream imageStream, final BinaryRecord histogramRecord)
             throws IOException, IllegalBinaryFormatException {
         binaryReader = new BinaryFileReader(imageStream);
-        _imageFDR = new BinaryRecord(binaryReader, -1, imgDefXML, image_recordDefinitionFile);
-        binaryReader.seek(_imageFDR.getAbsolutPosition(_imageFDR.getRecordLength()));
+        imageFDR = new BinaryRecord(binaryReader, -1, imgDefXML, image_recordDefinitionFile);
+        binaryReader.seek(imageFDR.getAbsolutPosition(imageFDR.getRecordLength()));
         if (getRasterHeight() == 0) {
             final int height = histogramRecord.getAttributeInt("Data samples in line");
-            _imageFDR.getBinaryDatabase().set("Number of lines per data set", height);
+            imageFDR.getBinaryDatabase().set("Number of lines per data set", height);
         }
-        _imageRecords = new BinaryRecord[getRasterHeight()];
-        _imageRecords[0] = createNewImageRecord(0);
+        imageRecords = new BinaryRecord[getRasterHeight()];
+        imageRecords[0] = createNewImageRecord(0);
 
-        _imageRecordLength = _imageRecords[0].getRecordLength();
-        _startPosImageRecords = _imageRecords[0].getStartPos();
-        _imageHeaderLength = _imageFDR.getAttributeInt("Number of bytes of prefix data per record");
+        _imageRecordLength = imageRecords[0].getRecordLength();
+        startPosImageRecords = imageRecords[0].getStartPos();
+        imageHeaderLength = imageFDR.getAttributeInt("Number of bytes of prefix data per record");
     }
 
     protected BinaryRecord createNewImageRecord(final int line) throws IOException {
-        final long pos = _imageFDR.getAbsolutPosition(_imageFDR.getRecordLength()) + (line * _imageRecordLength);
+        final long pos = imageFDR.getAbsolutPosition(imageFDR.getRecordLength()) + (line * _imageRecordLength);
         return new BinaryRecord(binaryReader, pos, imgRecordXML, image_recordDefinition);
     }
 }

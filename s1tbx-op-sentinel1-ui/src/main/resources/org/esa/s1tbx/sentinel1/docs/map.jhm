@@ -14,4 +14,5 @@
     <mapID target="RangeShiftOp" url="operators/RangeShiftOp.html"/>
     <mapID target="AzimuthShiftOp" url="operators/AzimuthShiftOp.html"/>
     <mapID target="BackGeocodingOp" url="operators/BackGeocodingOp.html"/>
+	<mapID target="EAPPhaseCorrection" url="operators/EAPPhaseCorrection.html"/>
 </map>

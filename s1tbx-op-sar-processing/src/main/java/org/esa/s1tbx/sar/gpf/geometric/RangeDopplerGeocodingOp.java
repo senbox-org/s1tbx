@@ -899,9 +899,13 @@ public class RangeDopplerGeocodingOp extends Operator {
             final TileData[] tgtTiles = tgtTileList.toArray(new TileData[tgtTileList.size()]);
             for (TileData tileData : tgtTiles) {
                 if (sourceRectangle != null) {
-                    final Band[] srcBands = targetBandNameToSourceBand.get(tileData.bandName);
-                    tileData.imgResamplingRaster.setSourceTiles(getSourceTile(srcBands[0], sourceRectangle),
-                            srcBands.length > 1 ? getSourceTile(srcBands[1], sourceRectangle) : null);
+                    try {
+                        final Band[] srcBands = targetBandNameToSourceBand.get(tileData.bandName);
+                        tileData.imgResamplingRaster.setSourceTiles(getSourceTile(srcBands[0], sourceRectangle),
+                                                                    srcBands.length > 1 ? getSourceTile(srcBands[1], sourceRectangle) : null);
+                    } catch (Exception e) {
+                        tileData.imgResamplingRaster.setSourceTiles(null, null);
+                    }
                 } else {
                     tileData.imgResamplingRaster.setSourceTiles(null, null);
                 }

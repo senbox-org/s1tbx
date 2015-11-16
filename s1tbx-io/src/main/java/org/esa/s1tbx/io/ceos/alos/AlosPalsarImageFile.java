@@ -44,18 +44,18 @@ public class AlosPalsarImageFile extends CEOSImageFile {
         imageFileName = fileName.toUpperCase();
 
         binaryReader = new BinaryFileReader(imageStream);
-        _imageFDR = new BinaryRecord(binaryReader, -1, imgDefXML, image_DefinitionFile);
-        binaryReader.seek(_imageFDR.getAbsolutPosition(_imageFDR.getRecordLength()));
-        _imageRecords = new BinaryRecord[_imageFDR.getAttributeInt("Number of lines per data set")];
-        _imageRecords[0] = createNewImageRecord(0);
+        imageFDR = new BinaryRecord(binaryReader, -1, imgDefXML, image_DefinitionFile);
+        binaryReader.seek(imageFDR.getAbsolutPosition(imageFDR.getRecordLength()));
+        imageRecords = new BinaryRecord[imageFDR.getAttributeInt("Number of lines per data set")];
+        imageRecords[0] = createNewImageRecord(0);
 
-        _imageRecordLength = _imageRecords[0].getRecordLength();
-        _startPosImageRecords = _imageRecords[0].getStartPos();
-        _imageHeaderLength = _imageFDR.getAttributeInt("Number of bytes of prefix data per record");
+        _imageRecordLength = imageRecords[0].getRecordLength();
+        startPosImageRecords = imageRecords[0].getStartPos();
+        imageHeaderLength = imageFDR.getAttributeInt("Number of bytes of prefix data per record");
     }
 
     protected BinaryRecord createNewImageRecord(final int line) throws IOException {
-        final long pos = _imageFDR.getAbsolutPosition(_imageFDR.getRecordLength()) + (line * _imageRecordLength);
+        final long pos = imageFDR.getAbsolutPosition(imageFDR.getRecordLength()) + (line * _imageRecordLength);
         if (productLevel == AlosPalsarConstants.LEVEL1_5)
             return new BinaryRecord(binaryReader, pos, procDataXML, processedData_recordDefinition);
         else
@@ -67,10 +67,10 @@ public class AlosPalsarImageFile extends CEOSImageFile {
             String pol = imageFileName.substring(4, 6);
             if (pol.equals("HH") || pol.equals("VV") || pol.equals("HV") || pol.equals("VH")) {
                 return pol;
-            } else if (_imageRecords[0] != null) {
+            } else if (imageRecords[0] != null) {
                 try {
-                    final int tx = _imageRecords[0].getAttributeInt("Transmitted polarization");
-                    final int rx = _imageRecords[0].getAttributeInt("Received polarization");
+                    final int tx = imageRecords[0].getAttributeInt("Transmitted polarization");
+                    final int rx = imageRecords[0].getAttributeInt("Received polarization");
                     if (tx == 1) pol = "V";
                     else pol = "H";
 

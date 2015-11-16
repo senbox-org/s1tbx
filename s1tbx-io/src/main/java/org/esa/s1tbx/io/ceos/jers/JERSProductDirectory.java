@@ -15,12 +15,12 @@
  */
 package org.esa.s1tbx.io.ceos.jers;
 
+import com.bc.ceres.core.VirtualDir;
 import org.esa.s1tbx.io.SARReader;
 import org.esa.s1tbx.io.binary.BinaryRecord;
 import org.esa.s1tbx.io.binary.IllegalBinaryFormatException;
 import org.esa.s1tbx.io.ceos.CEOSImageFile;
 import org.esa.s1tbx.io.ceos.CEOSProductDirectory;
-import org.esa.s1tbx.io.ceos.CeosHelper;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
@@ -31,7 +31,6 @@ import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,24 +51,24 @@ class JERSProductDirectory extends CEOSProductDirectory {
 
     private final transient Map<String, JERSImageFile> bandImageFileMap = new HashMap<>(1);
 
-    public JERSProductDirectory(final File dir) {
+    public JERSProductDirectory(final VirtualDir dir) {
         Guardian.assertNotNull("dir", dir);
 
         constants = new JERSConstants();
-        baseDir = dir;
+        productDir = dir;
     }
 
     @Override
     protected void readProductDirectory() throws IOException, IllegalBinaryFormatException {
-        readVolumeDirectoryFile();
-        leaderFile = new JERSLeaderFile(
-                createInputStream(CeosHelper.getCEOSFile(baseDir, constants.getLeaderFilePrefix())));
+        readVolumeDirectoryFileStream();
 
-        final String[] imageFileNames = CEOSImageFile.getImageFileNames(baseDir, constants.getImageFilePrefix());
-        final List<JERSImageFile> imgArray = new ArrayList<>(imageFileNames.length);
-        for (String fileName : imageFileNames) {
+        leaderFile = new JERSLeaderFile(getCEOSFile(constants.getLeaderFilePrefix())[0].imgInputStream);
+
+        final CeosFile[] ceosFiles = getCEOSFile(constants.getImageFilePrefix());
+        final List<JERSImageFile> imgArray = new ArrayList<>(ceosFiles.length);
+        for (CeosFile imageFile : ceosFiles) {
             try {
-                final JERSImageFile imgFile = new JERSImageFile(createInputStream(new File(baseDir, fileName)));
+                final JERSImageFile imgFile = new JERSImageFile(imageFile.imgInputStream);
                 imgArray.add(imgFile);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
@@ -179,7 +178,7 @@ class JERSProductDirectory extends CEOSProductDirectory {
             imageFile.assignMetadataTo(root, c++);
         }
 
-        addSummaryMetadata(new File(baseDir, JERSConstants.SUMMARY_FILE_NAME), "Summary Information", root);
+        addSummaryMetadata(findFile(JERSConstants.SUMMARY_FILE_NAME), "Summary Information", root);
         addAbstractedMetadataHeader(product, product.getMetadataRoot());
     }
 
