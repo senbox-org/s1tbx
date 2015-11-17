@@ -109,6 +109,7 @@ public class WildcardMatcherTest {
 
         assertFalse(m.matches("MER_RR"));
         assertFalse(m.matches("MER_RR.txt"));
+        assertFalse(m.matches("data/MER_RR.N1"));
     }
 
     @Test
