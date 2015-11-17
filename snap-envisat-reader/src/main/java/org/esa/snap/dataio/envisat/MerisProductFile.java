@@ -709,7 +709,7 @@ public class MerisProductFile extends ProductFile {
             return new Mask[]{
                     mask(BITMASKDEF_NAME_COASTLINE, null, "l1_flags.COASTLINE", Color.green, 0.0F),
                     mask(BITMASKDEF_NAME_LAND, null, "l1_flags.LAND_OCEAN", new Color(51, 153, 0), 0.75F),
-                    mask(BITMASKDEF_NAME_WATER, null, "NOT l1_flags.LAND_OCEAN", new Color(153, 153, 255), 0.75F),
+                    mask(BITMASKDEF_NAME_WATER, null, "NOT l1_flags.LAND_OCEAN AND NOT l1_flags.INVALID", new Color(153, 153, 255), 0.75F),
                     mask(BITMASKDEF_NAME_COSMETIC, null, "l1_flags.COSMETIC", new Color(204, 153, 255), 0.5F),
                     mask(BITMASKDEF_NAME_DUPLICATED, null, "l1_flags.DUPLICATED", Color.orange, 0.5F),
                     mask(BITMASKDEF_NAME_GLINT_RISK, null, "l1_flags.GLINT_RISK", Color.magenta, 0.5F),
