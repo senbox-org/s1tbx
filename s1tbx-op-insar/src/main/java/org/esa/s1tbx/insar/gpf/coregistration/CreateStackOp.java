@@ -48,6 +48,7 @@ import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.ProductInformation;
 import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
@@ -136,6 +137,11 @@ public class CreateStackOp extends Operator {
             }
 
             for (final Product prod : sourceProduct) {
+                final InputProductValidator validator = new InputProductValidator(prod);
+                if(validator.isTOPSARProduct()) {
+                    throw new OperatorException("S1 TOPS SLC products should use TOPS Coregistration.");
+                }
+
                 if (prod.getSceneGeoCoding() == null) {
                     throw new OperatorException(
                             MessageFormat.format("Product ''{0}'' has no geo-coding.", prod.getName()));
