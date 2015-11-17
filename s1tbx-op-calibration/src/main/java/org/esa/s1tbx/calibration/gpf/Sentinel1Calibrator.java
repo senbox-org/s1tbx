@@ -39,6 +39,7 @@ import org.esa.snap.engine_utilities.gpf.TileIndex;
 import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -560,9 +561,9 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
             for (int x = x0; x < maxX; ++x) {
                 srcIdx = srcIndex.getIndex(x);
-                trgIdx = trgIndex.getIndex(x);
 
-                if (srcData1.getElemDoubleAt(srcIdx) == noDataValue) {
+                dn = srcData1.getElemDoubleAt(srcIdx);
+                if (dn == noDataValue) {
                     continue;
                 }
 
@@ -575,17 +576,16 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
                 calibrationFactor = 1.0 / (lutVal*lutVal);
 
                 if (srcBandUnit == Unit.UnitType.AMPLITUDE) {
-                    dn = srcData1.getElemDoubleAt(srcIdx);
                     dn2 = dn * dn;
                 } else if (srcBandUnit == Unit.UnitType.INTENSITY) {
                     if (dataType != null) {
                         retroLutVal = (1 - muY) * ((1 - muX) * retroVec0LUT[pixelIdx] + muX * retroVec0LUT[pixelIdx + 1]) +
                                 muY * ((1 - muX) * retroVec1LUT[pixelIdx] + muX * retroVec1LUT[pixelIdx + 1]);
                     }
-                    dn2 = srcData1.getElemDoubleAt(srcIdx);
+                    dn2 = dn;
                     calibrationFactor *= retroLutVal;
                 } else if (srcBandUnit == Unit.UnitType.REAL) {
-                    i = srcData1.getElemDoubleAt(srcIdx);
+                    i = dn;
                     q = srcData2.getElemDoubleAt(srcIdx);
                     dn2 = i * i + q * q;
                     if (tgtBandUnit == Unit.UnitType.REAL) {
@@ -594,7 +594,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
                         phaseTerm = q / Math.sqrt(dn2);
                     }
                 } else if (srcBandUnit == Unit.UnitType.INTENSITY_DB) {
-                    dn2 = FastMath.pow(10, srcData1.getElemDoubleAt(srcIdx) / 10.0); // convert dB to linear scale
+                    dn2 = FastMath.pow(10, dn / 10.0); // convert dB to linear scale
                 } else {
                     throw new OperatorException("Sentinel-1 Calibration: unhandled unit");
                 }
@@ -605,7 +605,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
                     calValue = Math.sqrt(calValue)*phaseTerm;
                 }
 
-                tgtData.setElemDoubleAt(trgIdx, calValue);
+                tgtData.setElemDoubleAt(trgIndex.getIndex(x), calValue);
             }
         }
     }
@@ -729,16 +729,18 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
             return calibrationVectorList[calVecIdx];
         }
 
-        public int getPixelIndex(final int x, final int calVecIdx) {
+        public final int getPixelIndex(final int x, final int calVecIdx) {
 
             final Sentinel1Utils.CalibrationVector calVec = calibrationVectorList[calVecIdx];
-            final int length = calVec.pixels.length;
-            for (int i = 0; i < length; i++) {
-                if (x < calVec.pixels[i]) {
-                    return i - 1;
+
+            int i=0;
+            for(int pixel : calVec.pixels) {
+                if(x < pixel) {
+                    return i-1;
                 }
+                ++i;
             }
-            return length - 2;
+            return calVec.pixels.length - 2;
         }
     }
 }
