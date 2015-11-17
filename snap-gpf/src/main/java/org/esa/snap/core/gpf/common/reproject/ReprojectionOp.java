@@ -28,6 +28,7 @@ import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.ImageGeometry;
 import org.esa.snap.core.datamodel.ImageInfo;
 import org.esa.snap.core.datamodel.IndexCoding;
+import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
@@ -223,6 +224,7 @@ public class ReprojectionOp extends Operator {
         validateResamplingParameter();
         validateReferencingParameters();
         validateTargetGridParameters();
+        validateSARProduct();
 
         /*
         * 1. Compute the target CRS
@@ -670,6 +672,22 @@ public class ReprojectionOp extends Operator {
         if ((pixelSizeX != null && pixelSizeY == null) ||
                 (pixelSizeX == null && pixelSizeY != null)) {
             throw new OperatorException("'pixelSizeX' and 'pixelSizeY' must be specified both or not at all.");
+        }
+    }
+
+    /**
+     * For SAR products check that geocoding has been performed
+     */
+    void validateSARProduct() {
+        final MetadataElement root = sourceProduct.getMetadataRoot();
+        if(root != null) {
+            final MetadataElement absRoot = root.getElement("Abstracted_Metadata");
+            if(absRoot != null) {
+                boolean isRadar = absRoot.getAttributeDouble("radar_frequency", 99999) != 99999;
+                if(isRadar && !(sourceProduct.getSceneGeoCoding() instanceof CrsGeoCoding)) {
+                    throw new OperatorException("SAR products should be terrain corrected or ellipsoid corrected");
+                }
+            }
         }
     }
 
