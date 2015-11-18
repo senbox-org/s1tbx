@@ -17,6 +17,7 @@
 package org.esa.snap.core.datamodel;
 
 import com.bc.ceres.glevel.MultiLevelModel;
+import org.junit.Assert;
 import org.junit.Test;
 
 import javax.media.jai.operator.ConstantDescriptor;
@@ -26,6 +27,8 @@ import java.util.Arrays;
 import java.util.Locale;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotSame;
 
 /**
  * @author Marco Peters
@@ -80,6 +83,20 @@ public class RasterDataNodeTest {
         Band band = new Band("B", ProductData.TYPE_FLOAT32, 4, 2);
         product.addBand(band);
         assertEquals(new AffineTransform(), band.getImageToModelTransform());
+    }
+
+    @Test
+    public void testImageToModelTransformIsNewInstance() throws Exception {
+        Product product = new Product("N", "T", 4, 2);
+        Band band = new Band("B", ProductData.TYPE_FLOAT32, 4, 2);
+        product.addBand(band);
+        AffineTransform scaleInstance = AffineTransform.getScaleInstance(2.0, 2.0);
+        band.setImageToModelTransform(scaleInstance);
+        assertEquals(scaleInstance, band.getImageToModelTransform());
+        assertNotSame(scaleInstance, band.getImageToModelTransform());
+        assertNotSame(band.getImageToModelTransform(), band.getImageToModelTransform());
+        scaleInstance.rotate(0.1, 0.2);
+        assertNotEquals(scaleInstance, band.getImageToModelTransform());
     }
 
     @Test(expected = IllegalStateException.class)

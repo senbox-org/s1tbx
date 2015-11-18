@@ -248,7 +248,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         }
         // If image-to-model transformation is explicitly set, return it
         if (imageToModelTransform != null) {
-            return imageToModelTransform;
+            return new AffineTransform(imageToModelTransform);
         }
         // Try to derive from source product
         Product product = getProduct();
@@ -293,7 +293,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             if (isSourceImageSet()) {
                 throw new IllegalStateException("sourceImage already set, imageToModelTransform is now read-only");
             }
-            this.imageToModelTransform = imageToModelTransform;
+            this.imageToModelTransform = new AffineTransform(imageToModelTransform);
             fireProductNodeChanged(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransformOld, imageToModelTransform);
         }
     }
