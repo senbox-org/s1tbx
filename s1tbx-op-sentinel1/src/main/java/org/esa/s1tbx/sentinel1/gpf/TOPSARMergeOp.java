@@ -38,6 +38,7 @@ import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
+import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
@@ -140,12 +141,12 @@ public final class TOPSARMergeOp extends Operator {
             throw new OperatorException("Please select split sub-swaths of the same Sentinel-1 products");
         }
 
+        final InputProductValidator validator = new InputProductValidator(sourceProduct[0]);
+        validator.checkIfSARProduct();
+        validator.checkIfSentinel1Product();
+
         // check if all sub-swaths are from the same s-1 product
         MetadataElement absRoot0 = AbstractMetadata.getAbstractedMetadata(sourceProduct[0]);
-        final String mission = absRoot0.getAttributeString(AbstractMetadata.MISSION);
-        if (!mission.startsWith("SENTINEL-1")) {
-            throw new OperatorException("Source product should be Sentinel-1 product");
-        }
 
         numOfSubSwath = sourceProduct.length;
         final int numOfBands0 = sourceProduct[0].getNumBands();

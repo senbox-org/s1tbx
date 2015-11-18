@@ -161,6 +161,7 @@ public final class TerrainFlatteningOp extends Operator {
 
         try {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfSARProduct();
             validator.checkIfMapProjected(false);
 
             if (!validator.isCalibrated(sourceProduct)) {

@@ -167,6 +167,7 @@ public final class PolarimetricDecompositionOp extends Operator {
 
         try {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfSARProduct();
             validator.checkIfSLC();
             validator.checkIfTOPSARBurstProduct(false);
 

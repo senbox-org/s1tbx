@@ -52,6 +52,7 @@ import org.esa.snap.engine_utilities.datamodel.ProductInformation;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.eo.GeoUtils;
+import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
@@ -260,20 +261,18 @@ public final class BackGeocodingOp extends Operator {
             throw new OperatorException("Please select two source products");
         }
 
+        final InputProductValidator validator1 = new InputProductValidator(sourceProduct[0]);
+        validator1.checkIfSARProduct();
+        validator1.checkIfSentinel1Product();
+        validator1.checkIfSLC();
+
+        final InputProductValidator validator2 = new InputProductValidator(sourceProduct[1]);
+        validator2.checkIfSARProduct();
+        validator2.checkIfSentinel1Product();
+        validator2.checkIfSLC();
+
         MetadataElement mAbsRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct[0]);
         MetadataElement sAbsRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct[1]);
-
-        final String mMission = mAbsRoot.getAttributeString(AbstractMetadata.MISSION);
-        final String sMission = sAbsRoot.getAttributeString(AbstractMetadata.MISSION);
-        if (!mMission.startsWith("SENTINEL-1") || !sMission.startsWith("SENTINEL-1")) {
-            throw new OperatorException("Source product has invalid mission for Sentinel1 product");
-        }
-
-        final String mProductType = mAbsRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
-        final String sProductType = sAbsRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
-        if (!mProductType.equals("SLC") || !sProductType.equals("SLC")) {
-            throw new OperatorException("Source product should be SLC product");
-        }
 
         final String mAcquisitionMode = mAbsRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
         final String sAcquisitionMode = sAbsRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);

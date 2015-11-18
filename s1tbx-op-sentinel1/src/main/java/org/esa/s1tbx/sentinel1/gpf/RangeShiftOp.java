@@ -37,6 +37,7 @@ import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.gpf.ThreadManager;
@@ -116,6 +117,10 @@ public class RangeShiftOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfSARProduct();
+            validator.checkIfSentinel1Product();
+
             cWindowSize = Integer.parseInt(registrationWindowSize);
             cHalfWindowSize = cWindowSize / 2;
             upSamplingFactor = Integer.parseInt(interpFactor);

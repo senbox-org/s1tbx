@@ -260,6 +260,7 @@ public class RangeDopplerGeocodingOp extends Operator {
 
         try {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfSARProduct();
             validator.checkIfMapProjected(false);
             validator.checkIfTOPSARBurstProduct(false);
 

@@ -131,6 +131,7 @@ public final class EAPPhaseCorrectionOp extends Operator {
     private void checkSourceProductValidity() throws OperatorException {
 
         final InputProductValidator validator = new InputProductValidator(sourceProduct);
+        validator.checkIfSARProduct();
         validator.checkIfSentinel1Product();
         validator.checkProductType(new String[]{"SLC"});
 

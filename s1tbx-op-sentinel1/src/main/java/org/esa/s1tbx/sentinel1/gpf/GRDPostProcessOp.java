@@ -63,6 +63,7 @@ public final class GRDPostProcessOp extends Operator {
 
         try {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfSARProduct();
             validator.checkIfSentinel1Product();
             validator.checkProductType(new String[]{"SLC"});
 

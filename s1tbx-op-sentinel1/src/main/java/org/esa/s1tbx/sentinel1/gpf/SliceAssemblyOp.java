@@ -131,6 +131,7 @@ public final class SliceAssemblyOp extends Operator {
         try {
             for (Product srcProduct : sourceProducts) {
                 final InputProductValidator validator = new InputProductValidator(srcProduct);
+                validator.checkIfSARProduct();
                 validator.checkIfSentinel1Product();
                 validator.checkProductType(new String[]{"SLC", "GRD"});
                 validator.checkAcquisitionMode(new String[]{"SM", "IW", "EW"});

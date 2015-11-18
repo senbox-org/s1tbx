@@ -88,6 +88,7 @@ public class GoldsteinFilterOp extends Operator {
     public void initialize() throws OperatorException {
         try {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfSARProduct();
             validator.checkIfCoregisteredStack();
             validator.checkIfSLC();
 

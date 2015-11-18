@@ -100,6 +100,7 @@ public final class PolarimetricMatricesOp extends Operator {
     public void initialize() throws OperatorException {
         try {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfSARProduct();
             validator.checkIfTOPSARBurstProduct(false);
             validator.checkIfSLC();
             checkSourceProductType();

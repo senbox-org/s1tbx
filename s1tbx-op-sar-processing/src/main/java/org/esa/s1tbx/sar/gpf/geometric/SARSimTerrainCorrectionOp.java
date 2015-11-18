@@ -276,6 +276,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
         try {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfSARProduct();
             validator.checkIfMapProjected(false);
 
             maskBand = sourceProduct.getBand(SARSimulationOp.layoverShadowMaskBandName);

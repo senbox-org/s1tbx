@@ -206,6 +206,7 @@ public class CreateInterferogramOp extends Operator {
 
         try {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfSARProduct();
             validator.checkIfCoregisteredStack();
             validator.checkIfSLC();
             isTOPSARBurstProduct = !validator.isDebursted();

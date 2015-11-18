@@ -32,7 +32,9 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
+import org.esa.snap.engine_utilities.gpf.StackUtils;
 
 import java.io.File;
 
@@ -120,8 +122,10 @@ public class CalibrationOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
         try {
-            MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-            if (AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.coregistered_stack)) {
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfSARProduct();
+
+            if (StackUtils.isCoregisteredStack(sourceProduct)) {
                 throw new OperatorException("Cannot apply calibration to coregistered product.");
             }
 

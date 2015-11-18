@@ -20,7 +20,6 @@ import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.insar.gpf.Sentinel1Utils;
 import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.Operator;
@@ -31,12 +30,12 @@ import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
-import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.Map;
 
 /**
@@ -100,7 +99,10 @@ public final class ComputeDerampedAzimuthSpectrumOp extends Operator {
                 return;
             }
 
-            checkSourceProductValidity();
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfSARProduct();
+            validator.checkIfSentinel1Product();
+            validator.checkIfSLC();
 
             su = new Sentinel1Utils(sourceProduct);
             su.computeDopplerRate();
@@ -126,24 +128,6 @@ public final class ComputeDerampedAzimuthSpectrumOp extends Operator {
 
         } catch (Throwable e) {
             throw new OperatorException(e.getMessage());
-        }
-    }
-
-    /**
-     * Check source product validity.
-     */
-    private void checkSourceProductValidity() {
-
-        MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-
-        final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        if (!mission.startsWith("SENTINEL-1")) {
-            throw new OperatorException("Source product has invalid mission for Sentinel1 product");
-        }
-
-        final String productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
-        if (!productType.equals("SLC")) {
-            throw new OperatorException("Source product should be SLC product");
         }
     }
 
