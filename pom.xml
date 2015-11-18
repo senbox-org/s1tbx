@@ -844,7 +844,7 @@
                     <version>2.10.3</version>
                     <configuration>
                         <aggregate>true</aggregate>
-                        <subpackages>com.bc.ceres:org.esa.snap.core</subpackages>
+                        <subpackages>org.esa.snap.core:com.bc.ceres</subpackages>
                         <!-- Not possible to exclude packages; it is not considered by the plugin (as of v2.10.3, 18.11.2015) -->
                         <!--<excludePackageNames>org.esa.snap.core.gpf.internal:*.internal:*.impl:*.experimental</excludePackageNames>-->
                         <additionalparam>-exclude com.bc.ceres.binio.internal:com.bc.ceres.compiler:com.bc.ceres.swing.binding.internal:com.bc.ceres.core.runtime.internal:com.bc.ceres.jai.js:com.bc.ceres.launcher:com.bc.ceres.launcher.internal:com.bc.ceres.metadata:com.bc.ceres.nbmgen:com.bc.ceres.resource:com.bc.ceres.standalone:org.esa.snap.core.dataop.downloadable:org.esa.snap.core.dataop.maptransf.geotools:org.esa.snap.core.dataop.maptransf:org.esa.snap.core.gpf.doclet:org.esa.snap.core.gpf.internal:org.esa.snap.core.gpf.experimental:org.esa.snap.core.gpf.operators.tooladapter:org.esa.snap.core.jexp.impl</additionalparam>
@@ -856,6 +856,20 @@
                         <author>false</author>
                         <detectJavaApiLink>true</detectJavaApiLink>
                         <detectLinks>true</detectLinks>
+                        <groups>
+                            <group>
+                                <title>Most important API</title>
+                                <packages>org.esa.snap.core.datamodel:org.esa.snap.core.dataio:org.esa.snap.core.gpf</packages>
+                            </group>
+                            <group>
+                                <title>Useful API</title>
+                                <packages>org.esa.snap.core.util</packages>
+                            </group>
+                            <group>
+                                <title>Low-Level API</title>
+                                <packages>com.bc.ceres*:com.bc.ceres.*</packages>
+                            </group>
+                        </groups>
                     </configuration>
                 </plugin>
 
