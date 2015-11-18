@@ -44,13 +44,13 @@ class VectorDataMultiLevelImage extends DefaultMultiLevelImage implements Produc
     private final WeakReference<VectorDataNode> vectorDataReference;
 
     /**
-     * Creates a new mask {@link MultiLevelImage} computed from vector data. The mask image
+     * Creates a new binary mask {@link MultiLevelImage} computed from vector data. The mask image
      * created is reset whenever the referred vector data have changed.
      * <p>
      * A 'node data changed' event is fired from the associated {@link RasterDataNode} whenever
      * the mask image is reset.
      *
-     * @param vectorDataNode the vector data referred.
+     * @param vectorDataNode the vector data referred to.
      * @param associatedNode the {@link RasterDataNode} associated with the image being created.
      * @return the {@code MultiLevelImage} created.
      */
@@ -59,7 +59,7 @@ class VectorDataMultiLevelImage extends DefaultMultiLevelImage implements Produc
         final MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
             @Override
             public RenderedImage createImage(int level) {
-                return new VectorDataMaskOpImage(vectorDataNode, ResolutionLevel.create(getModel(), level));
+                return new VectorDataMaskOpImage(vectorDataNode, associatedNode, ResolutionLevel.create(getModel(), level));
             }
         };
         return new VectorDataMultiLevelImage(multiLevelSource, vectorDataNode) {
@@ -134,9 +134,7 @@ class VectorDataMultiLevelImage extends DefaultMultiLevelImage implements Produc
     public void nodeRemoved(ProductNodeEvent event) {
     }
 
-    // use for testing only
-    VectorDataNode getVectorData() {
+    VectorDataNode getVectorDataNode() {
         return vectorDataReference.get();
     }
-
 }

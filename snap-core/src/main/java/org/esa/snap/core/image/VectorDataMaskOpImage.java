@@ -16,6 +16,7 @@
 
 package org.esa.snap.core.image;
 
+import com.bc.ceres.glevel.MultiLevelImage;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
@@ -24,7 +25,9 @@ import com.vividsolutions.jts.geom.Polygonal;
 import com.vividsolutions.jts.geom.Puntal;
 import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.datamodel.VectorDataNode;
+import org.esa.snap.core.util.jai.JAIUtils;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.geometry.jts.LiteShape2;
@@ -36,6 +39,7 @@ import org.opengis.referencing.operation.MathTransform2D;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RasterFactory;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -47,6 +51,10 @@ import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
 import java.awt.image.WritableRaster;
 
+/**
+ * A {@link SingleBandedOpImage} which computes its (binary) data from geometries provided
+ * by a {@link VectorDataNode} by rasterizing the geometries to a raster data grid.
+ */
 public class VectorDataMaskOpImage extends SingleBandedOpImage {
 
     private static final byte FALSE = (byte) 0;
@@ -54,16 +62,22 @@ public class VectorDataMaskOpImage extends SingleBandedOpImage {
     private final VectorDataNode vectorDataNode;
     private final AffineTransform m2iTransform;
 
-    public VectorDataMaskOpImage(VectorDataNode vectorDataNode, ResolutionLevel level) {
+    /**
+     * Constructs a new VectorDataMaskOpImage.
+     *
+     * @param vectorDataNode The vector-data node providing the geometries to be rasterized.
+     * @param rasterDataNode The raster-data node providing the context for the rasterization.
+     * @param level The multi-level resolution level.
+     */
+    public VectorDataMaskOpImage(VectorDataNode vectorDataNode, RasterDataNode rasterDataNode, ResolutionLevel level) {
         super(DataBuffer.TYPE_BYTE,
-              vectorDataNode.getProduct().getSceneRasterWidth(),
-              vectorDataNode.getProduct().getSceneRasterHeight(),
-              vectorDataNode.getProduct().getPreferredTileSize(),
+              rasterDataNode.getRasterWidth(),
+              rasterDataNode.getRasterHeight(),
+              getPreferredTileSize(rasterDataNode),
               null,
               level);
         this.vectorDataNode = vectorDataNode;
-        GeoCoding geoCoding = vectorDataNode.getProduct().getSceneGeoCoding();
-        AffineTransform transform = Product.findImageToModelTransform(geoCoding);
+        AffineTransform transform = rasterDataNode.getImageToModelTransform();
         try {
             transform.invert();
             m2iTransform = transform;
@@ -72,7 +86,10 @@ public class VectorDataMaskOpImage extends SingleBandedOpImage {
         }
     }
 
-    public VectorDataNode getVectorData() {
+    /**
+     * @return The vector-data node associated with this image.
+     */
+    public VectorDataNode getVectorDataNode() {
         return vectorDataNode;
     }
 
@@ -133,6 +150,20 @@ public class VectorDataMaskOpImage extends SingleBandedOpImage {
             for (int i = 0; i < collection.getNumGeometries(); i++) {
                 renderGeometry(collection.getGeometryN(i), graphics, transform);
             }
+        }
+    }
+
+    private static Dimension getPreferredTileSize(RasterDataNode rasterDataNode) {
+        if (rasterDataNode.isSourceImageSet()) {
+            MultiLevelImage sourceImage = rasterDataNode.getSourceImage();
+            return new Dimension(sourceImage.getTileWidth(),
+                                 sourceImage.getTileHeight());
+        }
+        if (rasterDataNode.getProduct() != null) {
+            return ImageManager.getPreferredTileSize(rasterDataNode.getProduct());
+        } else {
+            return JAIUtils.computePreferredTileSize(rasterDataNode.getRasterWidth(),
+                                                     rasterDataNode.getRasterHeight(), 1);
         }
     }
 }

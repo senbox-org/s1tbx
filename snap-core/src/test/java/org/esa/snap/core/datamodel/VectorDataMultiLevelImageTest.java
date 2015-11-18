@@ -16,8 +16,7 @@
 
 package org.esa.snap.core.datamodel;
 
-import com.bc.ceres.glevel.MultiLevelModel;
-import com.bc.ceres.glevel.MultiLevelSource;
+import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -30,64 +29,117 @@ import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 public class VectorDataMultiLevelImageTest {
 
     private Product product;
-    private VectorDataNode pyramids;
-    private VectorDataMultiLevelImage image;
+    private VectorDataNode vectorDataNode;
+    private MultiLevelImage image1;
+    private MultiLevelImage image2;
 
     @Before
     public void setup() {
-        product = new Product("P", "T", 11, 11);
-        pyramids = new VectorDataNode("pyramids", Placemark.createGeometryFeatureType());
-        product.getVectorDataGroup().add(pyramids);
 
-        MultiLevelModel multiLevelModel = product.createMultiLevelModel();
-        MultiLevelSource maskMultiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
-            @Override
-            public RenderedImage createImage(int level) {
-                return new VectorDataMaskOpImage(pyramids, ResolutionLevel.create(getModel(), level));
-            }
-        };
-        image = new VectorDataMultiLevelImage(maskMultiLevelSource, pyramids);
+        product = new Product("P", "T", 8, 8);
+
+        vectorDataNode = new VectorDataNode("vectorDataNode", Placemark.createGeometryFeatureType());
+
+        product.getVectorDataGroup().add(vectorDataNode);
+        Band b1 = new VirtualBand("B1", ProductData.TYPE_FLOAT64, 8, 8, "1*X + 1*Y");
+        b1.setImageToModelTransform(new AffineTransform());
+        product.addBand(b1);
+
+        Band b2 = new VirtualBand("B2", ProductData.TYPE_FLOAT64, 4, 4, "2*X + 2*Y");
+        b2.setImageToModelTransform(AffineTransform.getScaleInstance(2.0, 2.0));
+        product.addBand(b2);
+
+        image1 = VectorDataMultiLevelImage.createMask(vectorDataNode, product.getBand("B1"));
+        image2 = VectorDataMultiLevelImage.createMask(vectorDataNode, product.getBand("B2"));
     }
 
     @Test
     public void imageIsUpdated() {
-        assertTrue(0 == image.getImage(0).getData().getSample(0, 0, 0));
-        assertTrue(0 == image.getImage(0).getData().getSample(5, 5, 0));
-        pyramids.getFeatureCollection().add(
-                createFeature("Cheops", new Rectangle2D.Double(2.0, 2.0, 7.0, 7.0)));
-        assertTrue(0 == image.getImage(0).getData().getSample(0, 0, 0));
-        assertTrue(0 != image.getImage(0).getData().getSample(5, 5, 0));
+
+        int[] expectedMask1 = {
+                0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 1, 1, 1, 1, 0, 0,
+                0, 0, 1, 1, 1, 1, 0, 0,
+                0, 0, 1, 1, 1, 1, 0, 0,
+                0, 0, 1, 1, 1, 1, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0,
+        };
+
+        int[] expectedMask2 = {
+                0, 0, 0, 0,
+                0, 1, 1, 0,
+                0, 1, 1, 0,
+                0, 0, 0, 0,
+        };
+
+        assertSameMaskData(new int[8 * 8], this.image1);
+        assertSameMaskData(new int[4 * 4], this.image2);
+
+        vectorDataNode.getFeatureCollection().add(
+                createFeature("rectangle", new Rectangle2D.Double(2.5, 2.5, 4.0, 4.0)));
+
+        assertSameMaskData(expectedMask1, this.image1);
+        assertSameMaskData(expectedMask2, this.image2);
+    }
+
+    private void assertSameMaskData(int[] expectedMask, MultiLevelImage image) {
+        int w = image.getWidth();
+        int h = image.getHeight();
+        assertEquals(expectedMask.length, w * h);
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                int sample = 255 * expectedMask[y * w + x];
+                assertEquals(String.format("x=%d, y=%d", x, y), sample, image.getData().getSample(x, y, 0));
+            }
+        }
     }
 
     @Test
     public void listenerIsAdded() {
-        assertTrue(Arrays.asList(product.getProductNodeListeners()).contains(image));
+        assertTrue(Arrays.asList(product.getProductNodeListeners()).contains(image1));
+        assertTrue(Arrays.asList(product.getProductNodeListeners()).contains(image2));
     }
 
     @Test
     public void listenerIsRemoved() {
-        image.dispose();
-        assertFalse(Arrays.asList(product.getProductNodeListeners()).contains(image));
+        image1.dispose();
+        image2.dispose();
+        assertFalse(Arrays.asList(product.getProductNodeListeners()).contains(image1));
+        assertFalse(Arrays.asList(product.getProductNodeListeners()).contains(image2));
     }
 
     @Test
     public void vectorDataIsSet() {
-        assertSame(pyramids, image.getVectorData());
+        assertTrue(image1 instanceof VectorDataMultiLevelImage);
+        assertSame(vectorDataNode, ((VectorDataMultiLevelImage) image1).getVectorDataNode());
+        assertTrue(image2 instanceof VectorDataMultiLevelImage);
+        assertSame(vectorDataNode, ((VectorDataMultiLevelImage) image2).getVectorDataNode());
     }
 
     @Test
     public void vectorDataIsClearedWhenImagesIsDisposed() {
-        image.dispose();
-        assertNull(image.getVectorData());
+        image1.dispose();
+        image2.dispose();
+        assertTrue(image1 instanceof VectorDataMultiLevelImage);
+        assertNull(((VectorDataMultiLevelImage) image1).getVectorDataNode());
+        assertTrue(image2 instanceof VectorDataMultiLevelImage);
+        assertNull(((VectorDataMultiLevelImage) image2).getVectorDataNode());
     }
 
     private static SimpleFeature createFeature(String name, Rectangle2D rectangle) {
