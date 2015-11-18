@@ -99,15 +99,15 @@
     </modules>
 
     <organization>
-        <name>Brockmann Consult GmbH</name>
-        <url>http://www.brockmann-consult.de</url>
+        <name>European Space Agency (ESA)</name>
+        <url>http://step.esa.int/</url>
     </organization>
 
-    <inceptionYear>2002</inceptionYear>
+    <inceptionYear>2014</inceptionYear>
 
     <issueManagement>
         <system>JIRA</system>
-        <url>http://www.brockmann-consult.de/beam-issues</url>
+        <url>https://senbox.atlassian.net/projects/SNAP/</url>
     </issueManagement>
 
     <licenses>
@@ -845,8 +845,9 @@
                     <configuration>
                         <aggregate>true</aggregate>
                         <subpackages>com.bc.ceres:org.esa.snap.core</subpackages>
-                        <!-- Not possible to exclude packages; it is not considered by the plugin -->
-                        <!--<excludePackageNames>*.internal,*.impl,*.experimental,org.esa.snap.core.gpf.common.support</excludePackageNames>-->
+                        <!-- Not possible to exclude packages; it is not considered by the plugin (as of v2.10.3, 18.11.2015) -->
+                        <!--<excludePackageNames>org.esa.snap.core.gpf.internal:*.internal:*.impl:*.experimental</excludePackageNames>-->
+                        <additionalparam>-exclude com.bc.ceres.binio.internal:com.bc.ceres.compiler:com.bc.ceres.swing.binding.internal:com.bc.ceres.core.runtime.internal:com.bc.ceres.jai.js:com.bc.ceres.launcher:com.bc.ceres.launcher.internal:com.bc.ceres.metadata:com.bc.ceres.nbmgen:com.bc.ceres.resource:com.bc.ceres.standalone:org.esa.snap.core.dataop.downloadable:org.esa.snap.core.dataop.maptransf.geotools:org.esa.snap.core.dataop.maptransf:org.esa.snap.core.gpf.doclet:org.esa.snap.core.gpf.internal:org.esa.snap.core.gpf.experimental:org.esa.snap.core.gpf.operators.tooladapter:org.esa.snap.core.jexp.impl</additionalparam>
                         <maxmemory>512M</maxmemory>
                         <doctitle>SNAP Engine 2.0 API</doctitle>
                         <windowtitle>SNAP Engine 2.0 API</windowtitle>
