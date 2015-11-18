@@ -32,11 +32,8 @@ import org.opengis.geometry.BoundingBox;
 
 /**
  * A container which allows to store vector data in the BEAM product model.
- * <p>
- * This is a preliminary API under construction for BEAM 4.7. Not intended for public use.
  *
  * @author Norman Fomferra
- * @version $Revision$ $Date$
  * @see Product#getVectorDataGroup()
  * @since BEAM 4.7
  */
@@ -72,7 +69,7 @@ public class VectorDataNode extends ProductNode {
     private boolean permanent;
 
     /**
-     * Constructs a new vector data node for the given feature collection.
+     * Constructs a new vector data node for the given feature type.
      *
      * @param name        The node name.
      * @param featureType The feature type.
@@ -94,7 +91,7 @@ public class VectorDataNode extends ProductNode {
     }
 
     /**
-     * Constructs a new vector data node for the given feature collection.
+     * Constructs a new vector data node for the given feature collection and placemark descriptor.
      *
      * @param name                The node name.
      * @param featureCollection   A feature collection.
