@@ -28,20 +28,24 @@ import java.util.Random;
  * @author Norman Fomferra
  * @since SNAP 2.0
  */
-public class DummyProductFactory {
+public class DummyProductBuilder {
 
     /**
      * Occurrence of something.
      */
     public enum Occurrence {
         /**
+         * None
+         */
+        NONE,
+        /**
          * Single / Unique
          */
-        S,
+        SINGLE,
         /**
          * Multiple / various
          */
-        M,
+        MULTIPLE,
     }
 
     /**
@@ -51,15 +55,15 @@ public class DummyProductFactory {
         /**
          * Small
          */
-        S,
+        SMALL,
         /**
          * Medium
          */
-        M,
+        MEDIUM,
         /**
          * Large
          */
-        L,
+        LARGE,
     }
 
     /**
@@ -69,19 +73,19 @@ public class DummyProductFactory {
         /**
          * No geo-coding
          */
-        NON,
+        NONE,
         /**
          * Map/CRS geo-coding
          */
         MAP,
         /**
-         * Tie-point grid geo-coding
+         * Tie-points based geo-coding
          */
-        TPG,
+        TIE_POINTS,
         /**
          * Per-pixel geo-coding
          */
-        PIX,
+        PER_PIXEL,
     }
 
     /**
@@ -91,77 +95,120 @@ public class DummyProductFactory {
         /**
          * Null-meridian crossing
          */
-        NMER,
+        NULL_MERIDIAN,
         /**
          * Anti-meridian crossing (dateline)
          */
-        AMER,
+        ANTI_MERIDIAN,
         /**
          * North pole
          */
-        NPOL,
+        NORTH_POLE,
         /**
          * South pole
          */
-        SPOL,
+        SOUTH_POLE,
+    }
+
+    private Size size;
+    private Occurrence sizeOcc;
+    private GC gc;
+    private Occurrence gcOcc;
+    private GP gp;
+
+    public DummyProductBuilder() {
+        size = Size.SMALL;
+        sizeOcc = Occurrence.SINGLE;
+        gc = GC.NONE;
+        gcOcc = Occurrence.SINGLE;
+        gp = GP.NULL_MERIDIAN;
+    }
+
+    public DummyProductBuilder size(Size size) {
+        this.size = size;
+        return this;
+    }
+
+    public DummyProductBuilder sizeOcc(Occurrence sizeOcc) {
+        this.sizeOcc = sizeOcc;
+        return this;
+    }
+
+    public DummyProductBuilder gc(GC gc) {
+        this.gc = gc;
+        return this;
+    }
+
+    public DummyProductBuilder gcOcc(Occurrence gcOcc) {
+        this.gcOcc = gcOcc;
+        return this;
+    }
+
+    public DummyProductBuilder gp(GP gp) {
+        this.gp = gp;
+        return this;
+    }
+
+    public static Product[] createTestProducts() {
+        DummyProductBuilder builder = new DummyProductBuilder();
+        return new Product[] {
+                builder.size(Size.MEDIUM).sizeOcc(Occurrence.SINGLE).gc(GC.TIE_POINTS).gcOcc(Occurrence.SINGLE).gp(GP.NULL_MERIDIAN).create(),
+                builder.size(Size.MEDIUM).sizeOcc(Occurrence.SINGLE).gc(GC.TIE_POINTS).gcOcc(Occurrence.SINGLE).gp(GP.ANTI_MERIDIAN).create(),
+                builder.size(Size.MEDIUM).sizeOcc(Occurrence.MULTIPLE).gc(GC.TIE_POINTS).gcOcc(Occurrence.SINGLE).gp(GP.NULL_MERIDIAN).create(),
+                builder.size(Size.LARGE).sizeOcc(Occurrence.SINGLE).gc(GC.MAP).gcOcc(Occurrence.SINGLE).gp(GP.NULL_MERIDIAN).create(),
+                builder.size(Size.LARGE).sizeOcc(Occurrence.SINGLE).gc(GC.MAP).gcOcc(Occurrence.SINGLE).gp(GP.ANTI_MERIDIAN).create(),
+                builder.size(Size.LARGE).sizeOcc(Occurrence.MULTIPLE).gc(GC.MAP).gcOcc(Occurrence.SINGLE).gp(GP.NULL_MERIDIAN).create(),
+        };
     }
 
     /**
-     * Type of test product to be created.
+     * Creates a new test product.
      */
-    public static class Type {
-        public final Size size;
-        public final Occurrence sizeOcc;
-        public final GC gc;
-        public final Occurrence gcOcc;
-        public final GP gp;
+    public Product create() {
 
-        public Type(Size size, Occurrence sizeOcc, GC gc, Occurrence gcOcc, GP gp) {
-            this.size = size;
-            this.sizeOcc = sizeOcc;
-            this.gc = gc;
-            this.gcOcc = gcOcc;
-            this.gp = gp;
-        }
-    }
+        String name = String.format("test_sz_%s(%s)_gc_%s(%s)_gp_%s",
+                                    size == Size.SMALL ? "S"
+                                            : size == Size.MEDIUM ? "M"
+                                            : size == Size.LARGE ? "L"
+                                            : "x",
+                                    sizeOcc == Occurrence.MULTIPLE ? "N"
+                                            : sizeOcc == Occurrence.SINGLE ? "1"
+                                            : sizeOcc == Occurrence.NONE ? "0"
+                                            : "x",
+                                    gc == GC.NONE ? "0"
+                                            : gc == GC.MAP ? "M"
+                                            : gc == GC.TIE_POINTS ? "T"
+                                            : gc == GC.PER_PIXEL ? "P"
+                                            : "x",
+                                    gcOcc == Occurrence.MULTIPLE ? "N"
+                                            : gcOcc == Occurrence.SINGLE ? "1"
+                                            : gcOcc == Occurrence.NONE ? "0"
+                                            : "x",
+                                    gp == GP.NULL_MERIDIAN ? "M"
+                                            : gp == GP.ANTI_MERIDIAN ? "A"
+                                            : gp == GP.NORTH_POLE ? "N"
+                                            : gp == GP.SOUTH_POLE ? "S"
+                                            : "x");
 
-    /**
-     * Creates a test product of the given type.
-     *
-     * @param type The test product type.
-     */
-    public static Product createProduct(Type type) {
-
-        String name = String.format("Test-SZ_%s_%s-GC_%s_%s_%s", type.size, type.sizeOcc, type.gc, type.gcOcc, type.gp);
-        String description = String.format("%s %s-size test product at %s with %s %s geo-codings",
-                                           type.size == Size.S ? "Small"
-                                                   : type.size == Size.M ? "Medium"
-                                                   : "Large",
-                                           type.sizeOcc == Occurrence.M ? "multi"
-                                                   : "single",
-                                           type.gp == GP.NMER ? "null-meridian"
-                                                   : type.gp == GP.AMER ? "anti-meridian"
-                                                   : type.gp == GP.NPOL ? "north pole"
-                                                   : "south pole",
-                                           type.gcOcc == Occurrence.M ? "different"
-                                                   : "unique",
-                                           type.gc == GC.NON ? "no"
-                                                   : type.gc == GC.MAP ? "map"
-                                                   : type.gc == GC.TPG ? "tie-point"
-                                                   : "per-pixel");
+        String description = String.format("size:%s(%s), geo-coding:%s(%s), geo-pos:%s",
+                                           size,
+                                           sizeOcc,
+                                           gc,
+                                           gcOcc,
+                                           gp);
 
         int sceneRasterWidth = 1800;
         int sceneRasterHeight = 3600;
         int gridWidth = sceneRasterWidth / 10;
         int gridHeight = sceneRasterHeight / 10;
         int tileSize = 512;
-        if (type.size == Size.L) {
+        if (size == Size.LARGE) {
             sceneRasterWidth *= 15;
             sceneRasterHeight *= 15;
             gridWidth *= 15;
             gridHeight *= 15;
             tileSize = 2048;
-        } else if (type.size == Size.S) {
+        } else if (size == Size.SMALL) {
             sceneRasterWidth /= 15;
             sceneRasterHeight /= 15;
             gridWidth /= 15;
@@ -195,71 +242,78 @@ public class DummyProductFactory {
         String maskBExpr = "band_b%s < 0.0";
         String maskCExpr = "band_c%1$s > -0.1 && band_c%1$s < 0.1";
 
-        if (type.sizeOcc == Occurrence.M) {
+        if (sizeOcc == Occurrence.MULTIPLE) {
             addMultiSizeBands(product, sceneRasterWidth, sceneRasterHeight, "band_a", bandAExpr, 500, "mask_a", maskAExpr, Color.ORANGE);
             addMultiSizeBands(product, sceneRasterWidth, sceneRasterHeight, "band_b", bandBExpr, 600, "mask_b", maskBExpr, Color.GREEN);
             addMultiSizeBands(product, sceneRasterWidth, sceneRasterHeight, "band_c", bandCExpr, 700, "mask_c", maskCExpr, Color.BLUE);
-            setMultiSizeGeoCodings(product, sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, bandDExpr, type);
-        } else {
+            setMultiSizeGeoCodings(product, sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, bandDExpr);
+        } else if (sizeOcc == Occurrence.SINGLE) {
             addSingleSizeBand(product, sceneRasterWidth, sceneRasterHeight, "band_a", bandAExpr, 500, "mask_a", maskAExpr, Color.ORANGE);
             addSingleSizeBand(product, sceneRasterWidth, sceneRasterHeight, "band_b", bandBExpr, 600, "mask_b", maskBExpr, Color.GREEN);
             addSingleSizeBand(product, sceneRasterWidth, sceneRasterHeight, "band_c", bandCExpr, 700, "mask_c", maskCExpr, Color.BLUE);
-            setSingleSizeGeoCoding(product, sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, bandDExpr, type);
+            setSingleSizeGeoCoding(product, sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, bandDExpr);
+        } else {
+            setSceneGeoCoding(product, sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight);
         }
 
         product.setModified(false);
         return product;
     }
 
-    private static void setMultiSizeGeoCodings(Product product, int sceneRasterWidth, int sceneRasterHeight, int gridWidth, int gridHeight, String bandDExpr, Type type) {
-        if (type.gc == GC.NON) {
-            product.setSceneGeoCoding(null);
-        } else if (type.gc == GC.MAP) {
+    private void setMultiSizeGeoCodings(Product product, int sceneRasterWidth, int sceneRasterHeight, int gridWidth, int gridHeight, String bandDExpr) {
+        setSceneGeoCoding(product, sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight);
+        if (gc == GC.MAP) {
             Map<Dimension, GeoCoding[]> dimensionSet = new HashMap<>();
             for (RasterDataNode rasterDataNode : product.getRasterDataNodes()) {
                 dimensionSet.put(rasterDataNode.getRasterSize(), new GeoCoding[1]);
             }
             for (Dimension dimension : dimensionSet.keySet()) {
-                dimensionSet.get(dimension)[0] = createCrsGeoCoding(dimension.width, dimension.height, type.gp);
+                dimensionSet.get(dimension)[0] = createCrsGeoCoding(dimension.width, dimension.height, gp);
             }
             for (RasterDataNode rasterDataNode : product.getRasterDataNodes()) {
                 rasterDataNode.setGeoCoding(dimensionSet.get(rasterDataNode.getRasterSize())[0]);
             }
             product.setSceneGeoCoding(dimensionSet.get(product.getSceneRasterSize())[0]);
-            if (type.gcOcc == Occurrence.M) {
-                product.addBand("band_d", bandDExpr).setGeoCoding(createTiePointGeoCoding(product, sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, type.gp));
+            if (gcOcc == Occurrence.MULTIPLE) {
+                product.addBand("band_d", bandDExpr).setGeoCoding(createTiePointGeoCoding(product, sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, gp));
             }
-        } else if (type.gc == GC.TPG) {
-            product.setSceneGeoCoding(createTiePointGeoCoding(product, sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, type.gp));
-            if (type.gcOcc == Occurrence.M) {
-                product.addBand("band_d", bandDExpr).setGeoCoding(createCrsGeoCoding(sceneRasterWidth, sceneRasterHeight, type.gp));
+        } else if (gc == GC.TIE_POINTS) {
+            if (gcOcc == Occurrence.MULTIPLE) {
+                product.addBand("band_d", bandDExpr).setGeoCoding(createCrsGeoCoding(sceneRasterWidth, sceneRasterHeight, gp));
             }
-        } else if (type.gc == GC.PIX) {
-            product.setSceneGeoCoding(createPixelGeoCoding(product, sceneRasterWidth, sceneRasterHeight, type.gp));
-            if (type.gcOcc == Occurrence.M) {
-                product.addBand("band_d", bandDExpr).setGeoCoding(createCrsGeoCoding(sceneRasterWidth, sceneRasterHeight, type.gp));
+        } else if (gc == GC.PER_PIXEL) {
+            if (gcOcc == Occurrence.MULTIPLE) {
+                product.addBand("band_d", bandDExpr).setGeoCoding(createCrsGeoCoding(sceneRasterWidth, sceneRasterHeight, gp));
             }
         }
     }
 
-    private static void setSingleSizeGeoCoding(Product product, int sceneRasterWidth, int sceneRasterHeight, int gridWidth, int gridHeight, String bandDExpr, Type type) {
-        if (type.gc == GC.NON) {
+    private void setSingleSizeGeoCoding(Product product, int sceneRasterWidth, int sceneRasterHeight, int gridWidth, int gridHeight, String bandDExpr) {
+        setSceneGeoCoding(product, sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight);
+        if (gc == GC.MAP) {
+            if (gcOcc == Occurrence.MULTIPLE) {
+                product.addBand("band_d", bandDExpr).setGeoCoding(createTiePointGeoCoding(product, sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, gp));
+            }
+        } else if (gc == GC.TIE_POINTS) {
+            if (gcOcc == Occurrence.MULTIPLE) {
+                product.addBand("band_d", bandDExpr).setGeoCoding(createCrsGeoCoding(sceneRasterWidth, sceneRasterHeight, gp));
+            }
+        } else if (gc == GC.PER_PIXEL) {
+            if (gcOcc == Occurrence.MULTIPLE) {
+                product.addBand("band_d", bandDExpr).setGeoCoding(createCrsGeoCoding(sceneRasterWidth, sceneRasterHeight, gp));
+            }
+        }
+    }
+
+    private void setSceneGeoCoding(Product product, int sceneRasterWidth, int sceneRasterHeight, int gridWidth, int gridHeight) {
+        if (gc == GC.NONE) {
             product.setSceneGeoCoding(null);
-        } else if (type.gc == GC.MAP) {
-            product.setSceneGeoCoding(createCrsGeoCoding(sceneRasterWidth, sceneRasterHeight, type.gp));
-            if (type.gcOcc == Occurrence.M) {
-                product.addBand("band_d", bandDExpr).setGeoCoding(createTiePointGeoCoding(product, sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, type.gp));
-            }
-        } else if (type.gc == GC.TPG) {
-            product.setSceneGeoCoding(createTiePointGeoCoding(product, sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, type.gp));
-            if (type.gcOcc == Occurrence.M) {
-                product.addBand("band_d", bandDExpr).setGeoCoding(createCrsGeoCoding(sceneRasterWidth, sceneRasterHeight, type.gp));
-            }
-        } else if (type.gc == GC.PIX) {
-            product.setSceneGeoCoding(createPixelGeoCoding(product, sceneRasterWidth, sceneRasterHeight, type.gp));
-            if (type.gcOcc == Occurrence.M) {
-                product.addBand("band_d", bandDExpr).setGeoCoding(createCrsGeoCoding(sceneRasterWidth, sceneRasterHeight, type.gp));
-            }
+        } else if (gc == GC.MAP) {
+            product.setSceneGeoCoding(createCrsGeoCoding(sceneRasterWidth, sceneRasterHeight, gp));
+        } else if (gc == GC.TIE_POINTS) {
+            product.setSceneGeoCoding(createTiePointGeoCoding(product, sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, gp));
+        } else if (gc == GC.PER_PIXEL) {
+            product.setSceneGeoCoding(createPixelGeoCoding(product, sceneRasterWidth, sceneRasterHeight, gp));
         }
     }
 
@@ -426,11 +480,11 @@ public class DummyProductFactory {
                 double z = 0.5 * sizeY - sizeY * (j / (gridHeight - 1.0) - 0.5);
                 double[] p0 = new double[]{x, y, z};
                 double[] p;
-                if (gp == GP.AMER) {
+                if (gp == GP.ANTI_MERIDIAN) {
                     p = rotZ(Math.PI, p0);
-                } else if (gp == GP.NPOL) {
+                } else if (gp == GP.NORTH_POLE) {
                     p = rotY(+0.5 * Math.PI, p0);
-                } else if (gp == GP.SPOL) {
+                } else if (gp == GP.SOUTH_POLE) {
                     p = rotY(+0.5 * Math.PI, p0);
                 } else {
                     p = p0;
@@ -442,8 +496,8 @@ public class DummyProductFactory {
                 double r2 = Math.sqrt(x * x + y * y);
                 double lon = 180 * Math.atan2(y, x) / Math.PI;
                 double lat = 180 * Math.atan2(z, r2) / Math.PI;
-                lonData[i * gridWidth * j] = (float) lon;
-                latData[i * gridWidth * j] = (float) lat;
+                lonData[j * gridWidth + i] = (float) lon;
+                latData[j * gridWidth + i] = (float) lat;
             }
         }
     }

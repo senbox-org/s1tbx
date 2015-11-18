@@ -22,7 +22,6 @@ import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
-import org.esa.snap.core.dataio.ProductFlipper;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductSubsetBuilder;
 import org.esa.snap.core.dataio.ProductSubsetDef;
@@ -507,10 +506,10 @@ public class Product extends ProductNode {
      * @return {@code true}, if so.
      * @since SNAP 2.0
      */
-    public boolean usesSceneCrsWhichIsSharedModelCrs() {
-        return usesSceneCrsWhichIsModelCrsOf(getBandGroup())
-                && usesSceneCrsWhichIsModelCrsOf(getTiePointGridGroup())
-                && usesSceneCrsWhichIsModelCrsOf(getMaskGroup());
+    public boolean isSceneCrsASharedModelCrs() {
+        return isSceneCrsEqualToModelCrsOf(getBandGroup())
+                && isSceneCrsEqualToModelCrsOf(getTiePointGridGroup())
+                && isSceneCrsEqualToModelCrsOf(getMaskGroup());
     }
 
     /**
@@ -524,7 +523,7 @@ public class Product extends ProductNode {
      * @return {@code true}, if so.
      * @since SNAP 2.0
      */
-    public boolean usesSceneCrsWhichIsModelCrsOf(RasterDataNode rasterDataNode) {
+    public boolean isSceneCrsEqualToModelCrsOf(RasterDataNode rasterDataNode) {
         GeoCoding sceneGeoCoding = getSceneGeoCoding();
         GeoCoding imageGeoCoding = rasterDataNode.getGeoCoding();
         // Cheapest comparison first
@@ -532,28 +531,16 @@ public class Product extends ProductNode {
             return true;
         }
 
-        if (getSceneRasterSize().equals(rasterDataNode.getRasterSize())) {
-            SceneRasterTransform sceneRasterTransform = rasterDataNode.getSceneRasterTransform();
-            if (sceneRasterTransform == null || sceneRasterTransform == SceneRasterTransform.IDENTITY) {
-                AffineTransform sceneI2M = findImageToModelTransform(sceneGeoCoding);
-                AffineTransform imageI2M = rasterDataNode.getImageToModelTransform();
-                // Next-cheapest comparison secondly
-                if (sceneI2M.equals(imageI2M)) {
-                    return true;
-                }
-            }
-        }
-
         CoordinateReferenceSystem sceneCRS = getSceneCRS();
         CoordinateReferenceSystem modelCRS = findModelCRS(imageGeoCoding);
         // Expensive comparison last
-        return sceneCRS.equals(modelCRS);
+        return CRS.equalsIgnoreMetadata(sceneCRS, modelCRS);
     }
 
-    private synchronized boolean usesSceneCrsWhichIsModelCrsOf(ProductNodeGroup<? extends RasterDataNode> group) {
+    private synchronized boolean isSceneCrsEqualToModelCrsOf(ProductNodeGroup<? extends RasterDataNode> group) {
         int nodeCount = group.getNodeCount();
         for (int i = 0; i < nodeCount; i++) {
-            if (!usesSceneCrsWhichIsModelCrsOf(group.get(i))) {
+            if (!isSceneCrsEqualToModelCrsOf(group.get(i))) {
                 return false;
             }
         }

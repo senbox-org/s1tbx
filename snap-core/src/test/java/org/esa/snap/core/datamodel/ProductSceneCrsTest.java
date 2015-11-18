@@ -1,11 +1,12 @@
 package org.esa.snap.core.datamodel;
 
+import org.esa.snap.core.util.DummyProductBuilder;
+import org.esa.snap.core.util.DummyProductBuilder.GC;
+import org.esa.snap.core.util.DummyProductBuilder.Occurrence;
 import org.geotools.parameter.DefaultParameterDescriptor;
 import org.geotools.parameter.DefaultParameterDescriptorGroup;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultDerivedCRS;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.geotools.referencing.operation.matrix.GeneralMatrix;
 import org.geotools.referencing.operation.transform.AbstractMathTransform;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
@@ -29,11 +30,55 @@ import java.awt.geom.Point2D;
 import static org.geotools.referencing.crs.DefaultGeographicCRS.WGS84;
 import static org.geotools.referencing.cs.DefaultCartesianCS.DISPLAY;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 /**
- * Created by Norman on 16.10.2015.
+ * @author Norman
  */
 public class ProductSceneCrsTest {
+    @Test
+    public void testSceneCrsComparisons() throws Exception {
+        Product product;
+        DummyProductBuilder builder = new DummyProductBuilder();
+
+        product = builder
+                .gc(GC.TIE_POINTS)
+                .gcOcc(Occurrence.SINGLE).create();
+
+        assertTrue(product.isSceneCrsASharedModelCrs());
+        assertTrue(product.isSceneCrsEqualToModelCrsOf(product.getRasterDataNode("tpgrid_a")));
+        assertTrue(product.isSceneCrsEqualToModelCrsOf(product.getRasterDataNode("band_a")));
+        assertTrue(product.isSceneCrsEqualToModelCrsOf(product.getRasterDataNode("mask_c")));
+
+        product = builder
+                .gc(GC.MAP)
+                .gcOcc(Occurrence.SINGLE).create();
+
+        assertTrue(product.isSceneCrsASharedModelCrs());
+        assertTrue(product.isSceneCrsEqualToModelCrsOf(product.getRasterDataNode("tpgrid_a")));
+        assertTrue(product.isSceneCrsEqualToModelCrsOf(product.getRasterDataNode("band_a")));
+        assertTrue(product.isSceneCrsEqualToModelCrsOf(product.getRasterDataNode("mask_c")));
+
+        product = builder
+                .gc(GC.MAP)
+                .gcOcc(Occurrence.MULTIPLE).create();
+
+        assertFalse(product.isSceneCrsASharedModelCrs());
+        assertTrue(product.isSceneCrsEqualToModelCrsOf(product.getRasterDataNode("tpgrid_a")));
+        assertTrue(product.isSceneCrsEqualToModelCrsOf(product.getRasterDataNode("band_a")));
+        assertTrue(product.isSceneCrsEqualToModelCrsOf(product.getRasterDataNode("mask_c")));
+        assertFalse(product.isSceneCrsEqualToModelCrsOf(product.getRasterDataNode("band_d")));
+
+        product = builder
+                .gc(GC.NONE)
+                .gcOcc(Occurrence.NONE).create();
+
+        assertTrue(product.isSceneCrsASharedModelCrs());
+        assertTrue(product.isSceneCrsEqualToModelCrsOf(product.getRasterDataNode("tpgrid_a")));
+        assertTrue(product.isSceneCrsEqualToModelCrsOf(product.getRasterDataNode("band_a")));
+        assertTrue(product.isSceneCrsEqualToModelCrsOf(product.getRasterDataNode("mask_c")));
+    }
 
     @Test
     public void testObviousCase() throws Exception {
@@ -73,7 +118,7 @@ public class ProductSceneCrsTest {
 
         @Override
         public ParameterDescriptorGroup getParameterDescriptors() {
-            return new DefaultParameterDescriptorGroup(getClass().getSimpleName(), new GeneralParameterDescriptor[] {
+            return new DefaultParameterDescriptorGroup(getClass().getSimpleName(), new GeneralParameterDescriptor[]{
                     new DefaultParameterDescriptor<String>("info", String.class, null, "")
             });
         }
@@ -143,7 +188,7 @@ public class ProductSceneCrsTest {
         public String toWKT() throws UnsupportedOperationException {
             throw new UnsupportedOperationException();
         }
-        
+
         @Override
         public boolean equals(Object o) {
             return this == o || !(o == null || getClass() != o.getClass()) && super.equals(o) && getClass().equals(o.getClass());
@@ -155,9 +200,6 @@ public class ProductSceneCrsTest {
             return 31 * super.hashCode() + getClass().hashCode();
         }
     }
-
-
-
 
 
 }
