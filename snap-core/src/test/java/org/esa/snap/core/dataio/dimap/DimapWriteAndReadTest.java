@@ -300,11 +300,11 @@ public class DimapWriteAndReadTest extends TestCase {
                                 validMaskExpression + ">\r\n");
                 }
             }
-            final AffineTransform expTransform = expBand.getImageToModelTransform();
-            final AffineTransform curTransform = currentBand.getImageToModelTransform();
-            if (!ObjectUtils.equalObjects(expTransform, curTransform)) {
-                diff.append("The image to model transform of band " + i + " is not equal to the expected transform.");
-            }
+//            final AffineTransform expTransform = expBand.getImageToModelTransform();
+//            final AffineTransform curTransform = currentBand.getImageToModelTransform();
+//            if (!ObjectUtils.equalObjects(expTransform, curTransform)) {
+//                diff.append("The image to model transform of band " + i + " is not equal to the expected transform.");
+//            }
             compareBandData(expBand, currentBand, i, diff);
         }
         for (int i = 0; i < expBands.length; i++) {

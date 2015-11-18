@@ -168,14 +168,14 @@ public class PyBridge {
         // "java.home" is always present
         List<String> command = new ArrayList<>();
         command.add(pythonExecutable.toString());
-        command.add(SNAPPYUTIL_PY_FILENAME);
+        command.add(Paths.get(".", SNAPPYUTIL_PY_FILENAME).toString());
         command.add("--snap_home");
         command.add(SystemUtils.getApplicationHomeDir().getPath());
         command.add("--java_module");
         command.add(stripJarScheme(MODULE_CODE_BASE_PATH).toString());
         command.add("--force");
         command.add("--log_file");
-        command.add(SNAPPYUTIL_LOG_FILENAME);
+        command.add(Paths.get(".", SNAPPYUTIL_LOG_FILENAME).toString());
         if (Debug.isEnabled()) {
             command.add("--log_level");
             command.add("DEBUG");

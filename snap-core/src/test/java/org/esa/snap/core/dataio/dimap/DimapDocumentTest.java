@@ -865,7 +865,7 @@ public class DimapDocumentTest {
         pw.println("            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>");
         pw.println("            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>");
         pw.println("            <VALID_MASK_TERM>Flags1.Flag1C</VALID_MASK_TERM>");
-        pw.println("            <IMAGE_TO_MODEL_TRANSFORM>4.959472210835188,0.7623876714199131,0.6353230595165943,-5.951366653002227,-3.230118329868377,15.14034563458454</IMAGE_TO_MODEL_TRANSFORM>");
+//        pw.println("            <IMAGE_TO_MODEL_TRANSFORM>4.959472210835188,0.7623876714199131,0.6353230595165943,-5.951366653002227,-3.230118329868377,15.14034563458454</IMAGE_TO_MODEL_TRANSFORM>");
         pw.println("        </Spectral_Band_Info>");
         pw.println("        <Spectral_Band_Info>");
         pw.println("            <BAND_INDEX>1</BAND_INDEX>");
@@ -884,7 +884,7 @@ public class DimapDocumentTest {
         pw.println("            <LOG10_SCALED>false</LOG10_SCALED>");
         pw.println("            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>");
         pw.println("            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>");
-        pw.println("            <IMAGE_TO_MODEL_TRANSFORM>4.959472210835188,0.7623876714199131,0.6353230595165943,-5.951366653002227,-3.230118329868377,15.14034563458454</IMAGE_TO_MODEL_TRANSFORM>");
+//        pw.println("            <IMAGE_TO_MODEL_TRANSFORM>4.959472210835188,0.7623876714199131,0.6353230595165943,-5.951366653002227,-3.230118329868377,15.14034563458454</IMAGE_TO_MODEL_TRANSFORM>");
         pw.println("        </Spectral_Band_Info>");
         pw.println("        <Spectral_Band_Info>");
         pw.println("            <BAND_INDEX>2</BAND_INDEX>");
@@ -902,7 +902,7 @@ public class DimapDocumentTest {
         pw.println("            <LOG10_SCALED>false</LOG10_SCALED>");
         pw.println("            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>");
         pw.println("            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>");
-        pw.println("            <IMAGE_TO_MODEL_TRANSFORM>4.959472210835188,0.7623876714199131,0.6353230595165943,-5.951366653002227,-3.230118329868377,15.14034563458454</IMAGE_TO_MODEL_TRANSFORM>");
+//        pw.println("            <IMAGE_TO_MODEL_TRANSFORM>4.959472210835188,0.7623876714199131,0.6353230595165943,-5.951366653002227,-3.230118329868377,15.14034563458454</IMAGE_TO_MODEL_TRANSFORM>");
         pw.println("        </Spectral_Band_Info>");
         pw.println("        <Spectral_Band_Info>");
         pw.println("            <BAND_INDEX>3</BAND_INDEX>");
@@ -920,7 +920,7 @@ public class DimapDocumentTest {
         pw.println("            <LOG10_SCALED>false</LOG10_SCALED>");
         pw.println("            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>");
         pw.println("            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>");
-        pw.println("            <IMAGE_TO_MODEL_TRANSFORM>4.959472210835188,0.7623876714199131,0.6353230595165943,-5.951366653002227,-3.230118329868377,15.14034563458454</IMAGE_TO_MODEL_TRANSFORM>");
+//        pw.println("            <IMAGE_TO_MODEL_TRANSFORM>4.959472210835188,0.7623876714199131,0.6353230595165943,-5.951366653002227,-3.230118329868377,15.14034563458454</IMAGE_TO_MODEL_TRANSFORM>");
         pw.println("        </Spectral_Band_Info>");
         pw.println("        <Spectral_Band_Info>");
         pw.println("            <BAND_INDEX>4</BAND_INDEX>");
@@ -938,7 +938,7 @@ public class DimapDocumentTest {
         pw.println("            <LOG10_SCALED>false</LOG10_SCALED>");
         pw.println("            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>");
         pw.println("            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>");
-        pw.println("            <IMAGE_TO_MODEL_TRANSFORM>4.959472210835188,0.7623876714199131,0.6353230595165943,-5.951366653002227,-3.230118329868377,15.14034563458454</IMAGE_TO_MODEL_TRANSFORM>");
+//        pw.println("            <IMAGE_TO_MODEL_TRANSFORM>4.959472210835188,0.7623876714199131,0.6353230595165943,-5.951366653002227,-3.230118329868377,15.14034563458454</IMAGE_TO_MODEL_TRANSFORM>");
         pw.println("        </Spectral_Band_Info>");
         pw.println("        <Spectral_Band_Info>");
         pw.println("            <BAND_INDEX>5</BAND_INDEX>");
@@ -957,7 +957,7 @@ public class DimapDocumentTest {
         pw.println("            <NO_DATA_VALUE>3.0</NO_DATA_VALUE>");
         pw.println("            <VIRTUAL_BAND>true</VIRTUAL_BAND>");
         pw.println("            <EXPRESSION>radiance_8</EXPRESSION>");
-        pw.println("            <IMAGE_TO_MODEL_TRANSFORM>4.959472210835188,0.7623876714199131,0.6353230595165943,-5.951366653002227,-3.230118329868377,15.14034563458454</IMAGE_TO_MODEL_TRANSFORM>");
+//        pw.println("            <IMAGE_TO_MODEL_TRANSFORM>4.959472210835188,0.7623876714199131,0.6353230595165943,-5.951366653002227,-3.230118329868377,15.14034563458454</IMAGE_TO_MODEL_TRANSFORM>");
         pw.println("        </Spectral_Band_Info>");
         pw.println("    </Image_Interpretation>");
         pw.println("    <Dataset_Sources>");

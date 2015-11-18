@@ -603,12 +603,18 @@ public class BinningOp extends Operator {
             }
         }
         if (sourceProductPaths != null) {
+            getLogger().info("expanding sourceProductPaths wildcards.");
             SortedSet<File> fileSet = new TreeSet<>();
             for (String filePattern : sourceProductPaths) {
                 WildcardMatcher.glob(filePattern, fileSet);
             }
             if (fileSet.isEmpty()) {
                 getLogger().warning("The given source file patterns did not match any files");
+            } else {
+                getLogger().info("found " + fileSet.size() + " files.");
+                for (File file : fileSet) {
+                    getLogger().info(file.getCanonicalPath());
+                }
             }
             for (File file : fileSet) {
                 Product sourceProduct = null;

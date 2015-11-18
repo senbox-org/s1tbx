@@ -4,14 +4,23 @@ import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
 
 public class BandSceneRasterTransformTest {
+
+    @Test(expected = NullPointerException.class)
+    public void testNotNull() throws Exception {
+        Band band1 = new VirtualBand("B1", ProductData.TYPE_INT16, 10, 20, "X");
+        band1.setSceneRasterTransform(null);
+    }
+
     @Test
     public void testNoProduct() throws Exception {
         Band band1 = new VirtualBand("B1", ProductData.TYPE_INT16, 10, 20, "X");
 
-        assertNull(band1.getSceneRasterTransform());
+        assertSame(SceneRasterTransform.IDENTITY, band1.getSceneRasterTransform());
 
         DefaultSceneRasterTransform transform = new DefaultSceneRasterTransform(new AffineTransform2D(1, 2, 3, 4, 5, 6), new AffineTransform2D(1, 2, 3, 4, 5, 6));
         band1.setSceneRasterTransform(transform);
@@ -35,7 +44,8 @@ public class BandSceneRasterTransformTest {
     }
 
     @Test
-    @Ignore // test does not work anymore, as a change of geocodings would only work when the geocodings are crs geocodings
+    @Ignore
+    // test does not work anymore, as a change of geocodings would only work when the geocodings are crs geocodings
     public void testWithGeoCoding() throws Exception {
 
         Product product = new Product("A", "B", 10, 20);
@@ -67,6 +77,7 @@ public class BandSceneRasterTransformTest {
         Band band1 = new VirtualBand("B1", ProductData.TYPE_INT16, 10, 20, "X");
         product.addBand(band1);
 
+        assertSame(SceneRasterTransform.IDENTITY, band1.getSceneRasterTransform());
         assertSame(SceneRasterTransform.IDENTITY, band1.getSceneRasterTransform());
 
         DefaultSceneRasterTransform transform = new DefaultSceneRasterTransform(new AffineTransform2D(1, 2, 3, 4, 5, 6), new AffineTransform2D(1, 2, 3, 4, 5, 6));
