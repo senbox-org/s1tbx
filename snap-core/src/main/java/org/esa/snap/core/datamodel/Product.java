@@ -921,13 +921,8 @@ public class Product extends ProductNode {
     }
 
     public boolean isMultiSizeProduct() {
-        final ProductNodeGroup<Mask> maskGroup = getMaskGroup();
-        final Stream<RasterDataNode> masks = Arrays.stream(maskGroup.toArray(new Mask[maskGroup.getNodeCount()]));
-        final Stream<RasterDataNode> bands = Arrays.stream(getBands());
-        final Stream<RasterDataNode> tpg = Arrays.stream(getTiePointGrids());
-        final RasterDataNode[] rdns = Stream.concat(Stream.concat(masks, bands), tpg).toArray(RasterDataNode[]::new);
-
-        return !ProductUtils.areRastersEqualInSize(rdns);
+        final List<RasterDataNode> rasterDataNodes = getRasterDataNodes();
+        return !ProductUtils.areRastersEqualInSize(rasterDataNodes.toArray(new RasterDataNode[rasterDataNodes.size()]));
     }
 
     /**
