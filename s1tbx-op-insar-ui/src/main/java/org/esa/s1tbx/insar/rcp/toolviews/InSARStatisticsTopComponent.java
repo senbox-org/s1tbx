@@ -20,6 +20,8 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductManager;
 import org.esa.snap.core.datamodel.ProductNode;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.gpf.InputProductValidator;
+import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.util.SelectionSupport;
 import org.netbeans.api.annotations.common.NullAllowed;
@@ -130,12 +132,6 @@ public class InSARStatisticsTopComponent extends TopComponent {
     }
 
     public static boolean isValidProduct(final Product product) throws Exception {
-        if (product != null) {
-            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-            boolean isStack = AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.coregistered_stack);
-
-            return isStack;
-        }
-        return false;
+        return product != null && StackUtils.isCoregisteredStack(product);
     }
 }
