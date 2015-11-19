@@ -877,16 +877,12 @@ public class Product extends ProductNode {
             return false;
         }
 
-        for (int i = 0; i < getNumBands(); i++) {
-            if (!geoCoding.equals(getBandAt(i).getGeoCoding())) {
+        final List<RasterDataNode> rasterDataNodes = getRasterDataNodes();
+        for (RasterDataNode rasterDataNode : rasterDataNodes) {
+            if (geoCoding != rasterDataNode.getGeoCoding()) {
                 return false;
             }
-        }
 
-        for (int i = 0; i < getNumTiePointGrids(); i++) {
-            if (!geoCoding.equals(getTiePointGridAt(i).getGeoCoding())) {
-                return false;
-            }
         }
         return true;
     }
