@@ -40,8 +40,8 @@ public class VectorDataMultiLevelImageTest {
 
     private Product product;
     private VectorDataNode vectorDataNode;
-    private MultiLevelImage image1;
-    private MultiLevelImage image2;
+    private VectorDataMultiLevelImage image1;
+    private VectorDataMultiLevelImage image2;
 
     @Before
     public void setup() {
@@ -59,8 +59,8 @@ public class VectorDataMultiLevelImageTest {
         b2.setImageToModelTransform(AffineTransform.getScaleInstance(2.0, 2.0));
         product.addBand(b2);
 
-        image1 = VectorDataMultiLevelImage.createMask(vectorDataNode, product.getBand("B1"));
-        image2 = VectorDataMultiLevelImage.createMask(vectorDataNode, product.getBand("B2"));
+        image1 = VectorDataMultiLevelImage.createMaskImage(vectorDataNode, product.getBand("B1"));
+        image2 = VectorDataMultiLevelImage.createMaskImage(vectorDataNode, product.getBand("B2"));
     }
 
     @Test
@@ -122,20 +122,16 @@ public class VectorDataMultiLevelImageTest {
 
     @Test
     public void vectorDataIsSet() {
-        assertTrue(image1 instanceof VectorDataMultiLevelImage);
-        assertSame(vectorDataNode, ((VectorDataMultiLevelImage) image1).getVectorDataNode());
-        assertTrue(image2 instanceof VectorDataMultiLevelImage);
-        assertSame(vectorDataNode, ((VectorDataMultiLevelImage) image2).getVectorDataNode());
+        assertSame(vectorDataNode, image1.getVectorDataNode());
+        assertSame(vectorDataNode, image2.getVectorDataNode());
     }
 
     @Test
     public void vectorDataIsClearedWhenImagesIsDisposed() {
         image1.dispose();
         image2.dispose();
-        assertTrue(image1 instanceof VectorDataMultiLevelImage);
-        assertNull(((VectorDataMultiLevelImage) image1).getVectorDataNode());
-        assertTrue(image2 instanceof VectorDataMultiLevelImage);
-        assertNull(((VectorDataMultiLevelImage) image2).getVectorDataNode());
+        assertEquals(null, image1.getVectorDataNode());
+        assertEquals(null, image2.getVectorDataNode());
     }
 
     private static SimpleFeature createFeature(String name, Rectangle2D rectangle) {

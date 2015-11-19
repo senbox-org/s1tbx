@@ -2373,7 +2373,10 @@ public class Product extends ProductNode {
      * @return the new mask which has just been added
      * @since BEAM 4.10
      */
-    public Mask addMask(String maskName, VectorDataNode vectorDataNode, String description, Color color,
+    public Mask addMask(String maskName,
+                        VectorDataNode vectorDataNode,
+                        String description,
+                        Color color,
                         double transparency) {
         final Mask mask = new Mask(maskName,
                                    getSceneRasterWidth(),
@@ -2383,6 +2386,40 @@ public class Product extends ProductNode {
         mask.setDescription(description);
         mask.setImageColor(color);
         mask.setImageTransparency(transparency);
+        addMask(mask);
+        return mask;
+    }
+
+    /**
+     * Creates a new mask based on the geometries contained in a vector data node,
+     * adds it to this product and returns it.
+     *
+     * @param maskName                the new mask's name
+     * @param vectorDataNode          the vector data node
+     * @param description             the mask's description
+     * @param color                   the display color
+     * @param transparency            the display transparency
+     * @param prototypeRasterDataNode a raster data node used to serve as a prototypeRasterDataNode for image layout and geo-coding. May be {@code null}.
+     * @return the new mask which has just been added
+     * @since SNAP 2.0
+     */
+    public Mask addMask(String maskName,
+                        VectorDataNode vectorDataNode,
+                        String description,
+                        Color color,
+                        double transparency,
+                        RasterDataNode prototypeRasterDataNode) {
+        final Mask mask = new Mask(maskName,
+                                   prototypeRasterDataNode != null ? prototypeRasterDataNode.getRasterWidth() : getSceneRasterWidth(),
+                                   prototypeRasterDataNode != null ? prototypeRasterDataNode.getRasterHeight() : getSceneRasterHeight(),
+                                   Mask.VectorDataType.INSTANCE);
+        Mask.VectorDataType.setVectorData(mask, vectorDataNode);
+        mask.setDescription(description);
+        mask.setImageColor(color);
+        mask.setImageTransparency(transparency);
+        if (prototypeRasterDataNode != null) {
+            ProductUtils.copyImageGeometry(prototypeRasterDataNode, mask, false);
+        }
         addMask(mask);
         return mask;
     }

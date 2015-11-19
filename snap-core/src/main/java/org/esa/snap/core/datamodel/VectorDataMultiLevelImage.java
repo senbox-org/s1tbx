@@ -54,7 +54,7 @@ class VectorDataMultiLevelImage extends DefaultMultiLevelImage implements Produc
      * @param associatedNode the {@link RasterDataNode} associated with the image being created.
      * @return the {@code MultiLevelImage} created.
      */
-    static MultiLevelImage createMask(final VectorDataNode vectorDataNode, final RasterDataNode associatedNode) {
+    static VectorDataMultiLevelImage createMaskImage(final VectorDataNode vectorDataNode, final RasterDataNode associatedNode) {
         final MultiLevelModel multiLevelModel = associatedNode.getMultiLevelModel();
         final MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
             @Override

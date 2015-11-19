@@ -2,7 +2,7 @@ package org.esa.snap.core.datamodel;
 
 import org.esa.snap.core.util.DummyProductBuilder;
 import org.esa.snap.core.util.DummyProductBuilder.GC;
-import org.esa.snap.core.util.DummyProductBuilder.Occurrence;
+import org.esa.snap.core.util.DummyProductBuilder.GCOcc;
 import org.geotools.parameter.DefaultParameterDescriptor;
 import org.geotools.parameter.DefaultParameterDescriptorGroup;
 import org.geotools.referencing.CRS;
@@ -30,8 +30,8 @@ import java.awt.geom.Point2D;
 import static org.geotools.referencing.crs.DefaultGeographicCRS.WGS84;
 import static org.geotools.referencing.cs.DefaultCartesianCS.DISPLAY;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Norman
@@ -44,7 +44,7 @@ public class ProductSceneCrsTest {
 
         product = builder
                 .gc(GC.TIE_POINTS)
-                .gcOcc(Occurrence.SINGLE).create();
+                .gcOcc(GCOcc.UNIQUE).create();
 
         assertTrue(product.isSceneCrsASharedModelCrs());
         assertTrue(product.isSceneCrsEqualToModelCrsOf(product.getRasterDataNode("tpgrid_a")));
@@ -53,7 +53,7 @@ public class ProductSceneCrsTest {
 
         product = builder
                 .gc(GC.MAP)
-                .gcOcc(Occurrence.SINGLE).create();
+                .gcOcc(GCOcc.UNIQUE).create();
 
         assertTrue(product.isSceneCrsASharedModelCrs());
         assertTrue(product.isSceneCrsEqualToModelCrsOf(product.getRasterDataNode("tpgrid_a")));
@@ -62,7 +62,7 @@ public class ProductSceneCrsTest {
 
         product = builder
                 .gc(GC.MAP)
-                .gcOcc(Occurrence.MULTIPLE).create();
+                .gcOcc(GCOcc.VARIOUS).create();
 
         assertFalse(product.isSceneCrsASharedModelCrs());
         assertTrue(product.isSceneCrsEqualToModelCrsOf(product.getRasterDataNode("tpgrid_a")));
@@ -71,8 +71,7 @@ public class ProductSceneCrsTest {
         assertFalse(product.isSceneCrsEqualToModelCrsOf(product.getRasterDataNode("band_d")));
 
         product = builder
-                .gc(GC.NONE)
-                .gcOcc(Occurrence.NONE).create();
+                .gc(GC.NONE).create();
 
         assertTrue(product.isSceneCrsASharedModelCrs());
         assertTrue(product.isSceneCrsEqualToModelCrsOf(product.getRasterDataNode("tpgrid_a")));
@@ -119,7 +118,7 @@ public class ProductSceneCrsTest {
         @Override
         public ParameterDescriptorGroup getParameterDescriptors() {
             return new DefaultParameterDescriptorGroup(getClass().getSimpleName(), new GeneralParameterDescriptor[]{
-                    new DefaultParameterDescriptor<String>("info", String.class, null, "")
+                    new DefaultParameterDescriptor<>("info", String.class, null, "")
             });
         }
 

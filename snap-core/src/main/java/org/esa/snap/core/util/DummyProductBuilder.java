@@ -18,6 +18,7 @@ import org.opengis.referencing.operation.TransformException;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.geom.AffineTransform;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -31,21 +32,21 @@ import java.util.Random;
 public class DummyProductBuilder {
 
     /**
-     * Occurrence of something.
+     * Occurrence of sizes.
      */
-    public enum Occurrence {
+    public enum SizeOcc {
         /**
-         * None
+         * None = No raster data nodes except geo-coding-related.
          */
         NONE,
         /**
-         * Single / Unique
+         * Single size (default)
          */
         SINGLE,
         /**
-         * Multiple / various
+         * Multi-size
          */
-        MULTIPLE,
+        MULTI,
     }
 
     /**
@@ -53,7 +54,7 @@ public class DummyProductBuilder {
      */
     public enum Size {
         /**
-         * Small
+         * Small (default, for unit-testing)
          */
         SMALL,
         /**
@@ -71,7 +72,7 @@ public class DummyProductBuilder {
      */
     public enum GC {
         /**
-         * No geo-coding
+         * No geo-coding (default)
          */
         NONE,
         /**
@@ -89,15 +90,29 @@ public class DummyProductBuilder {
     }
 
     /**
+     * Occurrence of geo-codings.
+     */
+    public enum GCOcc {
+        /**
+         * Unique (default).
+         */
+        UNIQUE,
+        /**
+         * Various
+         */
+        VARIOUS,
+    }
+
+    /**
      * Geo Position
      */
     public enum GP {
         /**
-         * Null-meridian crossing
+         * Null-meridian crossing (default).
          */
         NULL_MERIDIAN,
         /**
-         * Anti-meridian crossing (dateline)
+         * Anti-meridian crossing / dateline.
          */
         ANTI_MERIDIAN,
         /**
@@ -110,17 +125,41 @@ public class DummyProductBuilder {
         SOUTH_POLE,
     }
 
+    /**
+     * Image-to-model transformation type.
+     */
+    public enum I2M {
+        /**
+         * Don't set image-to-model transformation at all (default).
+         */
+        NOT_SET,
+        /**
+         * Proportional to image sizes.
+         */
+        SET_PROPORTIONAL,
+        /**
+         * Resulting images are incongruent in model space.
+         */
+        SET_INCONGRUENT,
+        /**
+         * Resulting images are congruent in model space.
+         */
+        SET_CONGRUENT,
+    }
+
     private Size size;
-    private Occurrence sizeOcc;
+    private SizeOcc sizeOcc;
+    private I2M i2m;
     private GC gc;
-    private Occurrence gcOcc;
+    private GCOcc gcOcc;
     private GP gp;
 
     public DummyProductBuilder() {
         size = Size.SMALL;
-        sizeOcc = Occurrence.SINGLE;
+        sizeOcc = SizeOcc.SINGLE;
+        i2m = I2M.NOT_SET;
         gc = GC.NONE;
-        gcOcc = Occurrence.SINGLE;
+        gcOcc = GCOcc.UNIQUE;
         gp = GP.NULL_MERIDIAN;
     }
 
@@ -129,8 +168,13 @@ public class DummyProductBuilder {
         return this;
     }
 
-    public DummyProductBuilder sizeOcc(Occurrence sizeOcc) {
+    public DummyProductBuilder sizeOcc(SizeOcc sizeOcc) {
         this.sizeOcc = sizeOcc;
+        return this;
+    }
+
+    public DummyProductBuilder i2m(I2M i2m) {
+        this.i2m = i2m;
         return this;
     }
 
@@ -139,7 +183,7 @@ public class DummyProductBuilder {
         return this;
     }
 
-    public DummyProductBuilder gcOcc(Occurrence gcOcc) {
+    public DummyProductBuilder gcOcc(GCOcc gcOcc) {
         this.gcOcc = gcOcc;
         return this;
     }
@@ -151,13 +195,16 @@ public class DummyProductBuilder {
 
     public static Product[] createTestProducts() {
         DummyProductBuilder builder = new DummyProductBuilder();
-        return new Product[] {
-                builder.size(Size.MEDIUM).sizeOcc(Occurrence.SINGLE).gc(GC.TIE_POINTS).gcOcc(Occurrence.SINGLE).gp(GP.NULL_MERIDIAN).create(),
-                builder.size(Size.MEDIUM).sizeOcc(Occurrence.SINGLE).gc(GC.TIE_POINTS).gcOcc(Occurrence.SINGLE).gp(GP.ANTI_MERIDIAN).create(),
-                builder.size(Size.MEDIUM).sizeOcc(Occurrence.MULTIPLE).gc(GC.TIE_POINTS).gcOcc(Occurrence.SINGLE).gp(GP.NULL_MERIDIAN).create(),
-                builder.size(Size.LARGE).sizeOcc(Occurrence.SINGLE).gc(GC.MAP).gcOcc(Occurrence.SINGLE).gp(GP.NULL_MERIDIAN).create(),
-                builder.size(Size.LARGE).sizeOcc(Occurrence.SINGLE).gc(GC.MAP).gcOcc(Occurrence.SINGLE).gp(GP.ANTI_MERIDIAN).create(),
-                builder.size(Size.LARGE).sizeOcc(Occurrence.MULTIPLE).gc(GC.MAP).gcOcc(Occurrence.SINGLE).gp(GP.NULL_MERIDIAN).create(),
+        return new Product[]{
+                builder.size(Size.MEDIUM).sizeOcc(SizeOcc.SINGLE).gc(GC.TIE_POINTS).gcOcc(GCOcc.UNIQUE).gp(GP.NULL_MERIDIAN).create(),
+                builder.size(Size.MEDIUM).sizeOcc(SizeOcc.SINGLE).gc(GC.TIE_POINTS).gcOcc(GCOcc.UNIQUE).gp(GP.ANTI_MERIDIAN).create(),
+                builder.size(Size.MEDIUM).sizeOcc(SizeOcc.MULTI).gc(GC.TIE_POINTS).gcOcc(GCOcc.UNIQUE).gp(GP.NULL_MERIDIAN).i2m(I2M.NOT_SET).create(),
+                builder.size(Size.MEDIUM).sizeOcc(SizeOcc.MULTI).gc(GC.TIE_POINTS).gcOcc(GCOcc.UNIQUE).gp(GP.NULL_MERIDIAN).i2m(I2M.SET_CONGRUENT).create(),
+                builder.size(Size.MEDIUM).sizeOcc(SizeOcc.MULTI).gc(GC.TIE_POINTS).gcOcc(GCOcc.UNIQUE).gp(GP.NULL_MERIDIAN).i2m(I2M.SET_INCONGRUENT).create(),
+                builder.size(Size.MEDIUM).sizeOcc(SizeOcc.MULTI).gc(GC.TIE_POINTS).gcOcc(GCOcc.UNIQUE).gp(GP.NULL_MERIDIAN).i2m(I2M.SET_PROPORTIONAL).create(),
+                builder.size(Size.LARGE).sizeOcc(SizeOcc.SINGLE).gc(GC.MAP).gcOcc(GCOcc.UNIQUE).gp(GP.NULL_MERIDIAN).create(),
+                builder.size(Size.LARGE).sizeOcc(SizeOcc.SINGLE).gc(GC.MAP).gcOcc(GCOcc.UNIQUE).gp(GP.ANTI_MERIDIAN).create(),
+                builder.size(Size.LARGE).sizeOcc(SizeOcc.MULTI).gc(GC.MAP).gcOcc(GCOcc.UNIQUE).gp(GP.NULL_MERIDIAN).create(),
         };
     }
 
@@ -166,23 +213,27 @@ public class DummyProductBuilder {
      */
     public Product create() {
 
-        String name = String.format("test_sz_%s(%s)_gc_%s(%s)_gp_%s",
+        String name = String.format("test_sz_%s(%s)_i2m_%s_gc_%s(%s)_gp_%s",
                                     size == Size.SMALL ? "S"
                                             : size == Size.MEDIUM ? "M"
                                             : size == Size.LARGE ? "L"
                                             : "x",
-                                    sizeOcc == Occurrence.MULTIPLE ? "N"
-                                            : sizeOcc == Occurrence.SINGLE ? "1"
-                                            : sizeOcc == Occurrence.NONE ? "0"
+                                    sizeOcc == SizeOcc.MULTI ? "N"
+                                            : sizeOcc == SizeOcc.SINGLE ? "1"
+                                            : sizeOcc == SizeOcc.NONE ? "0"
+                                            : "x",
+                                    i2m == I2M.NOT_SET ? "N"
+                                            : i2m == I2M.SET_CONGRUENT ? "C"
+                                            : i2m == I2M.SET_INCONGRUENT ? "I"
+                                            : i2m == I2M.SET_PROPORTIONAL ? "P"
                                             : "x",
                                     gc == GC.NONE ? "0"
                                             : gc == GC.MAP ? "M"
                                             : gc == GC.TIE_POINTS ? "T"
                                             : gc == GC.PER_PIXEL ? "P"
                                             : "x",
-                                    gcOcc == Occurrence.MULTIPLE ? "N"
-                                            : gcOcc == Occurrence.SINGLE ? "1"
-                                            : gcOcc == Occurrence.NONE ? "0"
+                                    gcOcc == GCOcc.UNIQUE ? "U"
+                                            : gcOcc == GCOcc.VARIOUS ? "V"
                                             : "x",
                                     gp == GP.NULL_MERIDIAN ? "M"
                                             : gp == GP.ANTI_MERIDIAN ? "A"
@@ -190,9 +241,10 @@ public class DummyProductBuilder {
                                             : gp == GP.SOUTH_POLE ? "S"
                                             : "x");
 
-        String description = String.format("size:%s(%s), geo-coding:%s(%s), geo-pos:%s",
+        String description = String.format("size:%s(%s), i2m:%s, geo-coding:%s(%s), geo-pos:%s",
                                            size,
                                            sizeOcc,
+                                           i2m,
                                            gc,
                                            gcOcc,
                                            gp);
@@ -242,12 +294,12 @@ public class DummyProductBuilder {
         String maskBExpr = "band_b%s < 0.0";
         String maskCExpr = "band_c%1$s > -0.1 && band_c%1$s < 0.1";
 
-        if (sizeOcc == Occurrence.MULTIPLE) {
+        if (sizeOcc == SizeOcc.MULTI) {
             addMultiSizeBands(product, sceneRasterWidth, sceneRasterHeight, "band_a", bandAExpr, 500, "mask_a", maskAExpr, Color.ORANGE);
             addMultiSizeBands(product, sceneRasterWidth, sceneRasterHeight, "band_b", bandBExpr, 600, "mask_b", maskBExpr, Color.GREEN);
             addMultiSizeBands(product, sceneRasterWidth, sceneRasterHeight, "band_c", bandCExpr, 700, "mask_c", maskCExpr, Color.BLUE);
             setMultiSizeGeoCodings(product, sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, bandDExpr);
-        } else if (sizeOcc == Occurrence.SINGLE) {
+        } else if (sizeOcc == SizeOcc.SINGLE) {
             addSingleSizeBand(product, sceneRasterWidth, sceneRasterHeight, "band_a", bandAExpr, 500, "mask_a", maskAExpr, Color.ORANGE);
             addSingleSizeBand(product, sceneRasterWidth, sceneRasterHeight, "band_b", bandBExpr, 600, "mask_b", maskBExpr, Color.GREEN);
             addSingleSizeBand(product, sceneRasterWidth, sceneRasterHeight, "band_c", bandCExpr, 700, "mask_c", maskCExpr, Color.BLUE);
@@ -274,15 +326,15 @@ public class DummyProductBuilder {
                 rasterDataNode.setGeoCoding(dimensionSet.get(rasterDataNode.getRasterSize())[0]);
             }
             product.setSceneGeoCoding(dimensionSet.get(product.getSceneRasterSize())[0]);
-            if (gcOcc == Occurrence.MULTIPLE) {
+            if (gcOcc == GCOcc.VARIOUS) {
                 product.addBand("band_d", bandDExpr).setGeoCoding(createTiePointGeoCoding(product, sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, gp));
             }
         } else if (gc == GC.TIE_POINTS) {
-            if (gcOcc == Occurrence.MULTIPLE) {
+            if (gcOcc == GCOcc.VARIOUS) {
                 product.addBand("band_d", bandDExpr).setGeoCoding(createCrsGeoCoding(sceneRasterWidth, sceneRasterHeight, gp));
             }
         } else if (gc == GC.PER_PIXEL) {
-            if (gcOcc == Occurrence.MULTIPLE) {
+            if (gcOcc == GCOcc.VARIOUS) {
                 product.addBand("band_d", bandDExpr).setGeoCoding(createCrsGeoCoding(sceneRasterWidth, sceneRasterHeight, gp));
             }
         }
@@ -291,15 +343,15 @@ public class DummyProductBuilder {
     private void setSingleSizeGeoCoding(Product product, int sceneRasterWidth, int sceneRasterHeight, int gridWidth, int gridHeight, String bandDExpr) {
         setSceneGeoCoding(product, sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight);
         if (gc == GC.MAP) {
-            if (gcOcc == Occurrence.MULTIPLE) {
+            if (gcOcc == GCOcc.VARIOUS) {
                 product.addBand("band_d", bandDExpr).setGeoCoding(createTiePointGeoCoding(product, sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, gp));
             }
         } else if (gc == GC.TIE_POINTS) {
-            if (gcOcc == Occurrence.MULTIPLE) {
+            if (gcOcc == GCOcc.VARIOUS) {
                 product.addBand("band_d", bandDExpr).setGeoCoding(createCrsGeoCoding(sceneRasterWidth, sceneRasterHeight, gp));
             }
         } else if (gc == GC.PER_PIXEL) {
-            if (gcOcc == Occurrence.MULTIPLE) {
+            if (gcOcc == GCOcc.VARIOUS) {
                 product.addBand("band_d", bandDExpr).setGeoCoding(createCrsGeoCoding(sceneRasterWidth, sceneRasterHeight, gp));
             }
         }
@@ -346,41 +398,56 @@ public class DummyProductBuilder {
         }
     }
 
-    private static void addSingleSizeBand(Product product,
-                                          int sceneRasterWidth,
-                                          int sceneRasterHeight,
-                                          String bandName,
-                                          String bandExpr,
-                                          float bandWavelength,
-                                          String maskName,
-                                          String maskExpr,
-                                          Color maskColor) {
+    private void addSingleSizeBand(Product product,
+                                   int sceneRasterWidth,
+                                   int sceneRasterHeight,
+                                   String bandName,
+                                   String bandExpr,
+                                   float bandWavelength,
+                                   String maskName,
+                                   String maskExpr,
+                                   Color maskColor) {
         Band band = product.addBand(bandName, String.format(bandExpr, sceneRasterWidth, sceneRasterHeight));
         band.setSpectralWavelength(bandWavelength);
-        product.addMask(maskName, String.format(maskExpr, ""), String.format(maskExpr, ""), maskColor, 0.5);
+        Mask mask = product.addMask(maskName, String.format(maskExpr, ""), String.format(maskExpr, ""), maskColor, 0.5);
+
+        AffineTransform i2mTransform = getImageToModelTransform(sceneRasterWidth, 1);
+        if (i2mTransform != null) {
+            band.setImageToModelTransform(i2mTransform);
+            mask.setImageToModelTransform(i2mTransform);
+        }
     }
 
-    private static void addMultiSizeBands(Product product,
-                                          int width, int height,
-                                          String bandName,
-                                          String bandExpr,
-                                          float bandWavelength,
-                                          String maskName,
-                                          String maskExpr,
-                                          Color maskColor) {
+    private void addMultiSizeBands(Product product,
+                                   int width, int height,
+                                   String bandName,
+                                   String bandExpr,
+                                   float bandWavelength,
+                                   String maskName,
+                                   String maskExpr,
+                                   Color maskColor) {
         addMultiSizeBand(product, 1, width, height, bandName, bandExpr, bandWavelength, maskName, maskExpr, maskColor);
         addMultiSizeBand(product, 2, width, height, bandName, bandExpr, bandWavelength + 10, maskName, maskExpr, maskColor.brighter());
         addMultiSizeBand(product, 6, width, height, bandName, bandExpr, bandWavelength + 20, maskName, maskExpr, maskColor.darker());
     }
 
-    private static void addMultiSizeBand(Product product,
-                                         int divisor, int width, int height,
-                                         String bandName,
-                                         String bandExpr,
-                                         float bandWavelength,
-                                         String maskName,
-                                         String maskExpr,
-                                         Color maskColor) {
+    static int i2mCounter = 0;
+    static AffineTransform[] transforms = {
+            AffineTransform.getRotateInstance(Math.PI / 3),
+            AffineTransform.getRotateInstance(Math.PI / 5),
+            AffineTransform.getRotateInstance(Math.PI / 7),
+    };
+
+    private void addMultiSizeBand(Product product,
+                                  int divisor, int width, int height,
+                                  String bandName,
+                                  String bandExpr,
+                                  float bandWavelength,
+                                  String maskName,
+                                  String maskExpr,
+                                  Color maskColor) {
+
+
         VirtualBand band = new VirtualBand(bandName + "_" + divisor,
                                            ProductData.TYPE_FLOAT32,
                                            width / divisor,
@@ -388,18 +455,40 @@ public class DummyProductBuilder {
                                            String.format(bandExpr,
                                                          width / divisor,
                                                          height / divisor));
-        //band.setImageToModelTransform(AffineTransform.getScaleInstance(divisor, divisor));
+
         band.setSpectralWavelength(bandWavelength);
         product.addBand(band);
         maskName = maskName + "_" + divisor;
         maskExpr = String.format(maskExpr, "_" + divisor);
-        product.addMask(Mask.BandMathsType.create(maskName,
-                                                  maskExpr,
-                                                  width / divisor,
-                                                  height / divisor,
-                                                  maskExpr,
-                                                  maskColor,
-                                                  0.5));
+
+        Mask mask = Mask.BandMathsType.create(maskName,
+                                              maskExpr,
+                                              width / divisor,
+                                              height / divisor,
+                                              maskExpr,
+                                              maskColor,
+                                              0.5);
+
+        AffineTransform i2mTransform = getImageToModelTransform(width, divisor);
+        if (i2mTransform != null) {
+            band.setImageToModelTransform(i2mTransform);
+            mask.setImageToModelTransform(i2mTransform);
+        }
+
+        product.addMask(mask);
+    }
+
+    private AffineTransform getImageToModelTransform(int width, int divisor) {
+        AffineTransform i2mTransform = null;
+        if (i2m == I2M.SET_CONGRUENT) {
+            i2mTransform = AffineTransform.getScaleInstance(divisor, divisor);
+        } else if (i2m == I2M.SET_INCONGRUENT) {
+            i2mTransform = AffineTransform.getScaleInstance(divisor, divisor);
+            i2mTransform.concatenate(transforms[i2mCounter++ % transforms.length]);
+        } else if (i2m == I2M.SET_PROPORTIONAL) {
+            i2mTransform = AffineTransform.getScaleInstance(0.1 * width, 0.1 * width);
+        }
+        return i2mTransform;
     }
 
     private static float[] createRandomPoints(int n) {
