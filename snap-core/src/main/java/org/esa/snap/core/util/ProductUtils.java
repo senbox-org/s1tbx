@@ -982,6 +982,7 @@ public class ProductUtils {
         if (copySourceImage) {
             targetBand.setSourceImage(sourceBand.getSourceImage());
         }
+        copyImageGeometry(sourceBand, targetBand, true);
         return targetBand;
     }
 
