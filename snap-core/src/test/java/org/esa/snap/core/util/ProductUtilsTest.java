@@ -17,6 +17,7 @@
 package org.esa.snap.core.util;
 
 import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.CrsGeoCoding;
 import org.esa.snap.core.datamodel.FlagCoding;
 import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.GeoPos;
@@ -25,13 +26,16 @@ import org.esa.snap.core.datamodel.Mask;
 import org.esa.snap.core.datamodel.MetadataAttribute;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Placemark;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.ProductNodeGroup;
 import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.VectorDataNode;
 import org.esa.snap.core.dataop.maptransf.Datum;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.Test;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
@@ -39,10 +43,15 @@ import org.opengis.referencing.operation.MathTransform;
 import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.Color;
 import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.esa.snap.core.util.DummyProductBuilder.GC.*;
+import static org.esa.snap.core.util.DummyProductBuilder.GCOcc.*;
+import static org.esa.snap.core.util.DummyProductBuilder.I2M.*;
+import static org.esa.snap.core.util.DummyProductBuilder.SizeOcc.*;
 import static org.junit.Assert.*;
 
 public class ProductUtilsTest {
@@ -526,6 +535,76 @@ public class ProductUtilsTest {
         ProductUtils.copyIndexCoding(originalIndexCoding, product);
         assertEquals(1, indexCodingGroup.getNodeCount());
 
+    }
+
+    @Test
+    public void testCopyGeoCoding_forRaster() throws Exception {
+        final Product sourceProduct = new DummyProductBuilder().gc(TIE_POINTS).gcOcc(
+                UNIQUE).create();
+        final Product targetProduct = new Product("N", "T", sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
+
+        final Band sourceBand = sourceProduct.getBand("band_a");
+        final Band targetBand = targetProduct.addBand("targetBand", ProductData.TYPE_INT8);
+        ProductUtils.copyGeoCoding(sourceBand, targetBand);
+        assertNotNull(targetBand.getGeoCoding());
+    }
+
+    @Test
+    public void testCopyImageGeometry_TargetBandTooSmall() throws Exception {
+        final Product sourceProduct = new DummyProductBuilder().gc(TIE_POINTS).gcOcc(UNIQUE).create();
+        final Product targetProduct = new Product("N", "T");
+
+        final Band sourceBand = sourceProduct.getBand("band_a");
+        final Band tooSmallBand = new Band("tooSmallBand", ProductData.TYPE_INT8,
+                                           sourceBand.getRasterWidth() - 10, sourceBand.getRasterHeight() - 10);
+        targetProduct.addBand(tooSmallBand);
+        ProductUtils.copyImageGeometry(sourceBand, tooSmallBand, true);
+        assertNull(tooSmallBand.getGeoCoding()); // GC could not be transferred; raster must be equal in size
+    }
+
+    @Test
+    public void testCopyImageGeometry_TargetBandWithGC() throws Exception {
+        final Product sourceProduct = new DummyProductBuilder().gc(TIE_POINTS).gcOcc(UNIQUE).create();
+        final Product targetProduct = new Product("N", "T");
+        final Band sourceBand = sourceProduct.getBand("band_a");
+        final Band hasAlreadyGcBand = new Band("hasAlreadyGcBand", ProductData.TYPE_INT8,
+                                               sourceBand.getRasterWidth(), sourceBand.getRasterHeight());
+        final CrsGeoCoding geoCoding = new CrsGeoCoding(DefaultGeographicCRS.WGS84,
+                                                        hasAlreadyGcBand.getRasterWidth(), hasAlreadyGcBand.getRasterHeight(),
+                                                        10, 45, 0.3, 0.3, 0.0, 0.0);
+        hasAlreadyGcBand.setGeoCoding(geoCoding);
+        targetProduct.addBand(hasAlreadyGcBand);
+        ProductUtils.copyImageGeometry(sourceBand, hasAlreadyGcBand, true);
+        assertTrue(hasAlreadyGcBand.getGeoCoding() instanceof TiePointGeoCoding); // has replaced the GC
+    }
+
+    @Test
+    public void testCopyImageGeometry_CopyByReference() throws Exception {
+        final Product sourceProduct = new DummyProductBuilder().gc(TIE_POINTS).gcOcc(UNIQUE).create();
+        final Band sourceBand = sourceProduct.getBand("band_a");
+        final Product targetProduct = new Product("N", "T", sourceBand.getRasterWidth(), sourceBand.getRasterHeight());
+        final CrsGeoCoding geoCoding = new CrsGeoCoding(DefaultGeographicCRS.WGS84,
+                                                        targetProduct.getSceneRasterWidth(), targetProduct.getSceneRasterHeight(),
+                                                        10, 45, 0.3, 0.3, 0.0, 0.0);
+        targetProduct.setSceneGeoCoding(geoCoding);
+        final VectorDataNode newVectorNode = new VectorDataNode("newVectorNode", Placemark.createGeometryFeatureType());
+        final Mask mask = targetProduct.addMask("NewMask", newVectorNode, "LoremIpsum", Color.BLUE, 0.3);
+        ProductUtils.copyImageGeometry(sourceBand, mask, false);
+        assertSame(sourceBand.getGeoCoding(), mask.getGeoCoding()); // copied by reference
+        assertEquals(sourceBand.getImageToModelTransform(), mask.getImageToModelTransform());
+    }
+
+    @Test
+    public void testCopyImageGeometry_Copy() throws Exception {
+        final Product sourceProduct2 = new DummyProductBuilder().sizeOcc(MULTI).i2m(SET_PROPORTIONAL).gc(PER_PIXEL).gcOcc(VARIOUS).create();
+        final Product targetProduct = new Product("N", "T");
+        final Band sourceBand2 = sourceProduct2.getBand("band_a_2");
+        assertNotEquals(new AffineTransform(), sourceBand2.getImageToModelTransform());
+        final Band band = new Band("band", ProductData.TYPE_INT16, sourceBand2.getRasterWidth(), sourceBand2.getRasterHeight());
+        targetProduct.addBand(band);
+        ProductUtils.copyImageGeometry(sourceBand2, band, false);
+        assertSame(sourceBand2.getGeoCoding(), band.getGeoCoding()); // copied by reference
+        assertEquals(sourceBand2.getImageToModelTransform(), band.getImageToModelTransform());
     }
 
     @Test
