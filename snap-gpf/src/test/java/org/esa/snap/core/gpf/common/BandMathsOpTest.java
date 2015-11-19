@@ -136,7 +136,7 @@ public class BandMathsOpTest {
 
         assertNotNull(targetProduct);
         assertNotNull(targetProduct.getSceneGeoCoding());
-        assertTrue(targetProduct.isUsingSingleGeoCoding());
+        assertNotNull(targetProduct.getBand("aBandName").getGeoCoding());
     }
 
     @Test
