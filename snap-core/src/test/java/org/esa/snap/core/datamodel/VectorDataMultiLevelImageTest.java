@@ -17,12 +17,9 @@
 package org.esa.snap.core.datamodel;
 
 import com.bc.ceres.glevel.MultiLevelImage;
-import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
-import org.esa.snap.core.image.ResolutionLevel;
-import org.esa.snap.core.image.VectorDataMaskOpImage;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,7 +28,6 @@ import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.RenderedImage;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
