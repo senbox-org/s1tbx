@@ -21,6 +21,9 @@ import org.esa.snap.core.datamodel.FlagCoding;
 import org.esa.snap.core.datamodel.IndexCoding;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.Scene;
+import org.esa.snap.core.datamodel.SceneFactory;
 import org.esa.snap.core.dataop.barithm.BandArithmetic;
 import org.esa.snap.core.dataop.barithm.ProductNamespacePrefixProvider;
 import org.esa.snap.core.dataop.barithm.RasterDataEvalEnv;
@@ -272,9 +275,13 @@ public class BandMathsOp extends Operator {
 
             final Band targetBand = createBand(bandDescriptor, targetBandDimension);
 
-            if (!targetBandDimension.equals(targetProduct.getSceneRasterSize())) {
-                if (rasterDataSymbols.length > 0) {
-                    ProductUtils.copyGeoCoding(rasterDataSymbols[0].getRaster(), targetBand);
+            if (rasterDataSymbols.length > 0) {
+                final RasterDataNode refRaster = rasterDataSymbols[0].getRaster();
+                if (!refRaster.getGeoCoding().equals(targetProduct.getSceneGeoCoding())) {
+                    copyGeoCoding(refRaster, targetBand);
+                }
+                if (!targetProduct.isSceneCrsEqualToModelCrsOf(refRaster)) {
+                    targetBand.setImageToModelTransform(refRaster.getImageToModelTransform());
                 }
             }
 
@@ -298,6 +305,14 @@ public class BandMathsOp extends Operator {
                 targetProduct.setEndTime(sourceProduct.getEndTime());
                 break;
             }
+        }
+    }
+
+    private static void copyGeoCoding(RasterDataNode sourceRaster, RasterDataNode targetRaster) {
+        final Scene srcScene = SceneFactory.createScene(sourceRaster);
+        final Scene destScene = SceneFactory.createScene(targetRaster);
+        if (srcScene != null && destScene != null) {
+            srcScene.transferGeoCodingTo(destScene, null);
         }
     }
 
