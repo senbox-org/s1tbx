@@ -1,0 +1,340 @@
+<html>
+
+<h1>Release Notes - Sentinel Application Platform - Version 2.0</h1>
+
+<h2>        Sub-task
+</h2>
+<ul>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-86'>SNAP-86</a>] -         Get system caracteristics and disk speed
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-87'>SNAP-87</a>] -         Set up of java VM parameters
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-88'>SNAP-88</a>] -         Run benchmark on a selected processing chain
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-89'>SNAP-89</a>] -         Create HMI
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-90'>SNAP-90</a>] -         Integration of the Smart Configurator
+    </li>
+</ul>
+
+<h2>        Bug
+</h2>
+<ul>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-41'>SNAP-41</a>] -         Median filter gives wrong results
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-55'>SNAP-55</a>] -         Calculation of pixel size could be wrong in certain cases
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-57'>SNAP-57</a>] -         Subset on product prior to year 2000 gives incorrect time
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-70'>SNAP-70</a>] -         ProductData.UTC from MJD conversion  is wrong
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-72'>SNAP-72</a>] -         Pixel Geo Coding with fractional accuracy is wrong at the dateline
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-74'>SNAP-74</a>] -         Product with pole wrapping boundaries should not crash the binner
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-76'>SNAP-76</a>] -          Binned product reader should handle time dimension
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-78'>SNAP-78</a>] -          Complex geometry WKTs can slow down binner
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-83'>SNAP-83</a>] -         Ceres UI - Binding for &#39;File property&#39; does not consider the value of the property
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-92'>SNAP-92</a>] -         Binned Product reader makes errors in sampling to rectangular product image
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-93'>SNAP-93</a>] -         Add horizontal scrollbar to Analysis/Information window
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-95'>SNAP-95</a>] -         Allow &#39;%3a&#39; as splitter in NetCDF metadata attributes
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-99'>SNAP-99</a>] -         OperatorContext sourceProductMap not populated properly via GraphContext
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-100'>SNAP-100</a>] -         Preferences for last saved dir not working
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-102'>SNAP-102</a>] -         Annoying log output from SNAP console applications
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-106'>SNAP-106</a>] -         Rename band maths function &#39;sqr&#39; to &#39;sq&#39;
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-108'>SNAP-108</a>] -         Product with converted band can not be saved correctly
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-110'>SNAP-110</a>] -         gpt fails with NPE if target provided via -T&lt;target&gt;=&lt;file&gt;
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-113'>SNAP-113</a>] -         Operators registered twice when using gpt
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-114'>SNAP-114</a>] -         Maven puts all previously built JARs into every NBM file
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-115'>SNAP-115</a>] -         SNAP&#39;s main window title does not display selected objects
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-119'>SNAP-119</a>] -         CSV product writer does not write scene raster width
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-120'>SNAP-120</a>] -         Missing &#39;Subset&#39; feature in raster import/export actions
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-123'>SNAP-123</a>] -         Band maths with tie-point grids creates new bands with tie-point grid resolution
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-125'>SNAP-125</a>] -         Missing license file(s) in installation directory
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-126'>SNAP-126</a>] -         Multi-Resolution products cannot be read/written by default product readers/writers
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-127'>SNAP-127</a>] -         Can no longer create user-defined filters
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-128'>SNAP-128</a>] -         Installer should provide option to set PATH
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-129'>SNAP-129</a>] -         Operators shall check for different raster-sizes
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-130'>SNAP-130</a>] -         Enable Dimap reader and writer to deal with crs geocodings per band
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-136'>SNAP-136</a>] -         Missing user preferences for pixel-info view
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-137'>SNAP-137</a>] -         NPE by in pin/GCP managers displaying columns of rasters of different size
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-138'>SNAP-138</a>] -         Confusing and untidy user options dialog (Menu/Tools/Options)
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-139'>SNAP-139</a>] -         Scatter Plot: Auto min/max will not be updated after ValidationException
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-140'>SNAP-140</a>] -         If one pin has an invalid geolocation, all pins listed after it are not displayed in the image view
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-144'>SNAP-144</a>] -         World Map can&#39;t zoom to selected product
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-150'>SNAP-150</a>] -         No possibility to create product subsets at all
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-151'>SNAP-151</a>] -         Newly created masks will always have the product&#39;s scene raster size
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-152'>SNAP-152</a>] -         Product tree update needed if auto grouping property has changed
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-154'>SNAP-154</a>] -         Using pins in multi resolution products does not work
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-155'>SNAP-155</a>] -         Band Maths/RGB not working with bands from other products
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-157'>SNAP-157</a>] -         DimapProductReader throws error when reading the dimap products which were created with BEAM
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-158'>SNAP-158</a>] -         BandMaths. It is not possible to open target dimap product in SNAP if source product has a pixel geo-coding.
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-161'>SNAP-161</a>] -         Python snappy can&#39;t find native libraries of SNAP Java modules
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-170'>SNAP-170</a>] -         STA tool is still &quot;ready to be installed&quot; after nmb installation complete
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-172'>SNAP-172</a>] -         No error message when and STA tool fails without output
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-173'>SNAP-173</a>] -         SNAP can&#39;t read older data products having &#39;BEAM-DIMAP&#39; format
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-175'>SNAP-175</a>] -         IllegalArgumentException occured while open data in netCDF(4)-BEAM format. The Product already contains a tie-point grid with the name &#39;latitude&#39;.
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-181'>SNAP-181</a>] -         Changing SNAP performance options breaks startup config
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-184'>SNAP-184</a>] -         Geographic linking of windows behaves erratically
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-185'>SNAP-185</a>] -         Fill DEM Hole. Error while band opening in the target product.
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-187'>SNAP-187</a>] -         Uninstaller not shown in Windows start menu
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-189'>SNAP-189</a>] -         Disapearance of the post-template
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-190'>SNAP-190</a>] -         STA adapters don&#39;t uninstall
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-192'>SNAP-192</a>] -         linear to dB conversion error
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-201'>SNAP-201</a>] -         SNAP Desktop not properly started with Python configuration enabled
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-204'>SNAP-204</a>] -         Empty SNAP about box if no toolbox installed
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-208'>SNAP-208</a>] -         Collocation adds unnecessary flag-codings to the target product
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-209'>SNAP-209</a>] -         Import product without subset does not have any effect
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-211'>SNAP-211</a>] -         Cannot create mask with size different than the scene raster size
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-214'>SNAP-214</a>] -         Installer hard-codes user dir even on multi-user installs
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-222'>SNAP-222</a>] -         Subset dialog does not open in import dialog
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-225'>SNAP-225</a>] -         Spatial Subset from View not functioning in SNAP 2.0 Linux version
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-228'>SNAP-228</a>] -         The path to the directory is not remembered by the dialog when importing a subset
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-229'>SNAP-229</a>] -         Uninstaller does not delete folder which is created when updating SNAP modules
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-231'>SNAP-231</a>] -         ReadOp in graph builder does not allow to choose the format
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-238'>SNAP-238</a>] -         jdkhome slashes removed on Linux
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-250'>SNAP-250</a>] -         On Windows, when SNAP was installed as Admin, SC can&#39;t change VM params
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-256'>SNAP-256</a>] -         Don&#39;t use term &quot;WorldWind&quot; in UI
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-257'>SNAP-257</a>] -         Spectrum tool window cannot be made smaller
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-259'>SNAP-259</a>] -         Save Product on Subset saves original product
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-263'>SNAP-263</a>] -         Properties for &#39;Valid-Pixel Expression&#39; and &#39;No-Data Value&#39; are missing for tie-point grids
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-267'>SNAP-267</a>] -         SNAP Desktop wont restart after module update
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-268'>SNAP-268</a>] -         Graph builder reader UI broken when no products are open
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-285'>SNAP-285</a>] -         Impove information when VM parameters are disabled
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-286'>SNAP-286</a>] -         Smart-Configurator: Only some operators should be benchmarked
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-288'>SNAP-288</a>] -         Smart-Configurator: NetBeans progress API should be used
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-291'>SNAP-291</a>] -         Image layer in World Wind Analysis view not correctly drawn
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-292'>SNAP-292</a>] -         STA: Can&#39;t edit system variables once they were set
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-293'>SNAP-293</a>] -         STA: The atapters editor is not displayed correctly on MAC OSx
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-294'>SNAP-294</a>] -         STA: Operator Descriptor is trucated
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-304'>SNAP-304</a>] -         Preference keys inconsistant for writer options
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-305'>SNAP-305</a>] -         Strange behavior when saving subsets
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-311'>SNAP-311</a>] -         Envisat MERIS L1b &quot;water&quot; mask does not consider &quot;INVALID&quot; flag
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-313'>SNAP-313</a>] -         Snychronisation of image views does not work correctly for multi-size products
+    </li>
+</ul>
+
+<h2>        Story
+</h2>
+<ul>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-2'>SNAP-2</a>] -         Geo-coding interface shall support double precision
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-199'>SNAP-199</a>] -         Allow custom SNAP-Python configurations by manual jpy builds
+    </li>
+</ul>
+
+<h2>        New Feature
+</h2>
+<ul>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-13'>SNAP-13</a>] -         Bisince Interpolation
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-14'>SNAP-14</a>] -         Allow multiple selection when adding new layer
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-15'>SNAP-15</a>] -         Support BigTIFF data format
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-20'>SNAP-20</a>] -         DensityPlot - allow rasterNodes from different products
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-79'>SNAP-79</a>] -         Provide SNAP CPython API
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-81'>SNAP-81</a>] -         Add basic module lifecycle service
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-94'>SNAP-94</a>] -         Provide command-line option to configure SNAP-Python API
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-96'>SNAP-96</a>] -         Provide SNAP installer(s)
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-101'>SNAP-101</a>] -         Add uncertainty propagation to band arithmetic
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-165'>SNAP-165</a>] -         Allow module updates for beta releases
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-200'>SNAP-200</a>] -         Add capability to specify optional sources
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-235'>SNAP-235</a>] -         Support drag &amp; drop for product files
+    </li>
+</ul>
+
+<h2>        Task
+</h2>
+<ul>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-33'>SNAP-33</a>] -         Make 3D view and world-map part of the platform
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-35'>SNAP-35</a>] -         Move ElevationModel into SNAP Engine
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-36'>SNAP-36</a>] -         Solve compatibility issues between SNAP and S1TBX
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-45'>SNAP-45</a>] -         Migrate JIDE Tool Windows To NetBeans Window System
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-47'>SNAP-47</a>] -         Migrate preferences dialog from VISAT to SNAP
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-52'>SNAP-52</a>] -         Migrate JIDE Status Bar To NetBeans Status Bar
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-53'>SNAP-53</a>] -         Migrate BEAM commands to NetBeans action system
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-67'>SNAP-67</a>] -         Split off UI-part of engine modules
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-84'>SNAP-84</a>] -         Move PlacemarkNameFactory into snap-core
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-197'>SNAP-197</a>] -         Duplicate Menus in Graph Builder
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-216'>SNAP-216</a>] -         The Smart Configurator should configure cache dir instead of user dir
+    </li>
+</ul>
+
+<h2>        Improvement
+</h2>
+<ul>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-49'>SNAP-49</a>] -         Consistent context menus - delete missing from product view context menu
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-64'>SNAP-64</a>] -         Product writers should report encoding qualification
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-69'>SNAP-69</a>] -         Support MERIS RRG Level_2 products
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-73'>SNAP-73</a>] -          GPT should allow setting system properties
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-75'>SNAP-75</a>] -          Provide time usage per operator in GPT
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-77'>SNAP-77</a>] -          Add tracing to L3 binner
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-104'>SNAP-104</a>] -         Unify get/setPixel() and read/writePixel() methods in RasterDataNode API
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-105'>SNAP-105</a>] -         Installer shall take care of cleanup of SNAP user directory
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-109'>SNAP-109</a>] -         Extend PointOperator API to easily support masks and intermediate results
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-111'>SNAP-111</a>] -         Add snap/bin to the PATH environment variable
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-118'>SNAP-118</a>] -         CSV product reader ignores lat/lon information
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-121'>SNAP-121</a>] -         Missing actual version number in about box
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-122'>SNAP-122</a>] -         Missing about box SPI
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-134'>SNAP-134</a>] -         Imported pins shall keep their exact geo-location
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-142'>SNAP-142</a>] -         Let the SNAP Desktop executable accept file arguments
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-143'>SNAP-143</a>] -         Register file associations for .dim and .snap filename suffixes
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-146'>SNAP-146</a>] -         Improve format for floating point numbers in pixel-info view
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-163'>SNAP-163</a>] -         Extend &#39;Read&#39; operator to be more specific w.r.t. reader plugin selection
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-164'>SNAP-164</a>] -         Only most important toolbars should be initally visible
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-166'>SNAP-166</a>] -         Add time-coding to product data model
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-179'>SNAP-179</a>] -         Generate and publish Java API + GPT operator docs
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-202'>SNAP-202</a>] -         Group source products in operator UI
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-203'>SNAP-203</a>] -         Optional source products shall be marked as &quot;(optional)&quot;
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-207'>SNAP-207</a>] -         Allow productSets handle folders for use from GPT
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-247'>SNAP-247</a>] -         Reorganise/rename SNAP API packages
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-251'>SNAP-251</a>] -         Smart configurator&#39;s bechmark test values needs defaults
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-252'>SNAP-252</a>] -         InSAR Overview cannot be called from Product Library
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-255'>SNAP-255</a>] -         Make data model consistent with multi-size requirements
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-272'>SNAP-272</a>] -         Modify the message “Lengthy operation in progress…”
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-274'>SNAP-274</a>] -         Link WorldWind instances to share resources
+    </li>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-284'>SNAP-284</a>] -         Envisat reader much slower to open products
+    </li>
+</ul>
+
+<h2>        Wishlist
+</h2>
+<ul>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-124'>SNAP-124</a>] -         Export query list from Product Library
+    </li>
+</ul>
+
+<h2>        Requirement
+</h2>
+<ul>
+    <li>[<a href='https://senbox.atlassian.net/browse/SNAP-91'>SNAP-91</a>] -         Rename package org.esa.beam
+    </li>
+</ul>
+</html>
