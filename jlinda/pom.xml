@@ -3,6 +3,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.esa.s1tbx</groupId>
+        <artifactId>s1tbx</artifactId>
+        <version>2.1.0-SNAPSHOT</version>
+    </parent>
+    
     <name>jLinda</name>
     <groupId>org.jlinda</groupId>
     <artifactId>jlinda</artifactId>
@@ -14,17 +20,9 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <netbeans.version>RELEASE802</netbeans.version>
         <javahelp.version>2.0.05</javahelp.version>
         <brandingToken>s1tbx</brandingToken>
         <user.language>en</user.language>
-
-        <jlinda.version>2.0.0</jlinda.version>
-        <jlinda.nbmSpecVersion>2.0.1.0</jlinda.nbmSpecVersion>
-		<s1tbx.version>2.0.0</s1tbx.version>
-		<snap.version>2.0.0</snap.version>
-        <jblas.version>1.2.4</jblas.version>
-        <junit.version>4.12</junit.version>
     </properties>
 
     <organization>

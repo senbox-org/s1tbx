@@ -34,13 +34,16 @@
         -->
 		<s1tbx.version>2.1.0-SNAPSHOT</s1tbx.version>
         <s1tbx.nbmSpecVersion>2.0.1.0</s1tbx.nbmSpecVersion>
-        <rstb.version>7.0.0</rstb.version>
+        <rstb.version>7.1.0-SNAPSHOT</rstb.version>
         <rstb.nbmSpecVersion>7.0.1.0</rstb.nbmSpecVersion>
-        <jlinda.version>2.0.0</jlinda.version>
-
+        <jlinda.version>2.1.0-SNAPSHOT</jlinda.version>
+        <jlinda.nbmSpecVersion>2.0.1.0</jlinda.nbmSpecVersion>
+        
 		<geotools.version>2.7.4</geotools.version>
 		<hdf.version>2.7.1</hdf.version>
         <netcdf.version>4.3.22</netcdf.version>	
+        <jblas.version>1.2.4</jblas.version>
+        <junit.version>4.12</junit.version>
 	</properties>
   
 	<modules>
