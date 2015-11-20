@@ -15,8 +15,8 @@
  */
 package org.esa.s1tbx.insar.gpf.ui.coregistration;
 
-import org.esa.s1tbx.insar.gpf.coregistration.CreateStackOp;
 import org.esa.s1tbx.insar.gpf.InSARStackOverview;
+import org.esa.s1tbx.insar.gpf.coregistration.CreateStackOp;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.VirtualBand;
@@ -27,11 +27,18 @@ import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.OperatorUIUtils;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
-import org.esa.snap.rcp.SnapDialogs;
+import org.esa.snap.rcp.util.Dialogs;
 import org.esa.snap.ui.AppContext;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -53,7 +60,7 @@ public class CreateStackOpUI extends BaseOperatorUI {
     private final JLabel masterProductLabel = new JLabel();
     private final JComboBox resamplingType = new JComboBox(ResamplingFactory.resamplingNames);
 
-    private final JComboBox initialOffsetMethod = new JComboBox(new String[] {CreateStackOp.INITIAL_OFFSET_ORBIT,
+    private final JComboBox initialOffsetMethod = new JComboBox(new String[]{CreateStackOp.INITIAL_OFFSET_ORBIT,
             CreateStackOp.INITIAL_OFFSET_GEOLOCATION});
 
     private final JComboBox extent = new JComboBox(new String[]{CreateStackOp.MASTER_EXTENT,
@@ -84,7 +91,7 @@ public class CreateStackOpUI extends BaseOperatorUI {
         //enableOptimalMasterButton();
         //updateMasterSlaveSelections();
 
-        if(masterProduct != null) {
+        if (masterProduct != null) {
             masterProductLabel.setText(masterProduct.getName());
         }
         resamplingType.setSelectedItem(paramMap.get("resamplingType"));
@@ -182,7 +189,7 @@ public class CreateStackOpUI extends BaseOperatorUI {
                         masterProduct = InSARStackOverview.findOptimalMasterProduct(sourceProducts);
                         masterProductLabel.setText(masterProduct.getName());
                     } catch (Exception ex) {
-                        SnapDialogs.showError("Error finding optimal master: "+ex.getMessage());
+                        Dialogs.showError("Error finding optimal master: " + ex.getMessage());
                     }
                 }
                 updateMasterSlaveSelections();
@@ -215,11 +222,11 @@ public class CreateStackOpUI extends BaseOperatorUI {
         OperatorUIUtils.initParamList(slvBandList, bandNames);
 
         OperatorUIUtils.setSelectedListIndices(mstBandList, getSelectedIndices(bandNames,
-                new String[]{}, //String[])paramMap.get("masterBandNames"),
-                defaultMasterBandIndices));
+                                                                               new String[]{}, //String[])paramMap.get("masterBandNames"),
+                                                                               defaultMasterBandIndices));
         OperatorUIUtils.setSelectedListIndices(slvBandList, getSelectedIndices(bandNames,
-                new String[]{}, //(String[])paramMap.get("slaveBandNames"),
-                defaultSlaveBandIndices));
+                                                                               new String[]{}, //(String[])paramMap.get("slaveBandNames"),
+                                                                               defaultSlaveBandIndices));
     }
 
     @Override
