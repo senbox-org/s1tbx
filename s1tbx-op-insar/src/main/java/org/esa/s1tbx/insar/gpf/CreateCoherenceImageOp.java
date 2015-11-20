@@ -198,14 +198,13 @@ public class CreateCoherenceImageOp extends Operator {
         final String slaveTag = "slv";
 
         // get sourceMaster & sourceSlave MetadataElement
-        final String slaveMetadataRoot = AbstractMetadata.SLAVE_METADATA_ROOT;
 
         /* organize metadata */
         // put sourceMaster metadata into the masterMap
         metaMapPut(masterTag, mstRoot, sourceProduct, masterMap);
 
         // plug sourceSlave metadata into slaveMap
-        MetadataElement slaveElem = sourceProduct.getMetadataRoot().getElement(slaveMetadataRoot);
+        MetadataElement slaveElem = sourceProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT);
         if(slaveElem == null) {
             slaveElem = sourceProduct.getMetadataRoot().getElement("Slave Metadata");
         }

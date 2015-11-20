@@ -13,16 +13,13 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.insar.rcp.dialogs;
+package org.esa.s1tbx.insar.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
-import org.esa.snap.rcp.SnapApp;
-import org.esa.snap.rcp.SnapDialogs;
 import org.jlinda.core.Baseline;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;
@@ -37,7 +34,7 @@ import java.util.List;
  * Date: 1/20/12
  * Time: 3:39 PM
  */
-public class MasterSelection implements OptimalMaster {
+public class InSARStackOverview {
 
     private final static int BTEMP_CRITICAL = 3 * 365;
     private final static int BPERP_CRITICAL = 1200;
@@ -53,7 +50,7 @@ public class MasterSelection implements OptimalMaster {
     // TODO: function to sort input array according to modeled coherence
     // TODO: critical values for other sensors then C.band ESA
 
-    public MasterSelection() {
+    public InSARStackOverview() {
     }
 
     public void setInput(SLCImage[] slcImages, Orbit[] orbits) {
@@ -167,39 +164,22 @@ public class MasterSelection implements OptimalMaster {
      * @param srcProducts input products
      * @return the optimal master product
      */
-    public static Product findOptimalMasterProduct(final Product[] srcProducts) {
+    public static Product findOptimalMasterProduct(final Product[] srcProducts) throws Exception {
         final int size = srcProducts.length;
         final List<SLCImage> imgList = new ArrayList<SLCImage>(size);
         final List<Orbit> orbList = new ArrayList<Orbit>(size);
 
         for(Product product : srcProducts) {
-            try {
-                final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-                final SLCImage img = new SLCImage(absRoot);
-                final Orbit orb = new Orbit(absRoot, 3);
-
-                imgList.add(img);
-                orbList.add(orb);
-            } catch(Exception e) {
-                SnapDialogs.showError("Error: " + product.getName() + '\n' + e.getMessage());
-            }
+            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+            imgList.add(new SLCImage(absRoot));
+            orbList.add(new Orbit(absRoot, 3));
         }
 
         try {
-            if(SnapApp.getDefault() != null) {
-                final Worker worker = new Worker(SnapApp.getDefault().getMainFrame(), "Computing Optimal InSAR Master",
-                        imgList.toArray(new SLCImage[size]), orbList.toArray(new Orbit[size]));
-                worker.executeWithBlocking();
-
-                Integer index = (Integer)worker.get();
-                return srcProducts[index];
-            }  else {
-
-                final OptimalMaster dataStack = new MasterSelection();
-                dataStack.setInput(imgList.toArray(new SLCImage[size]), orbList.toArray(new Orbit[size]));
-                int index = dataStack.estimateOptimalMaster(ProgressMonitor.NULL);
-                return srcProducts[index];
-            }
+            final InSARStackOverview dataStack = new InSARStackOverview();
+            dataStack.setInput(imgList.toArray(new SLCImage[size]), orbList.toArray(new Orbit[size]));
+            int index = dataStack.estimateOptimalMaster(ProgressMonitor.NULL);
+            return srcProducts[index];
 
         } catch(Throwable t) {
             Debug.trace(t);
@@ -207,23 +187,33 @@ public class MasterSelection implements OptimalMaster {
         return srcProducts[0];
     }
 
+    public static InSARStackOverview.IfgStack[] calculateInSAROverview(final MetadataElement[] absRoots) throws Exception {
+        final List<SLCImage> imgList = new ArrayList<>(absRoots.length);
+        final List<Orbit> orbList = new ArrayList<>(absRoots.length);
 
-    private static class Worker extends ProgressMonitorSwingWorker {
-        SLCImage[] imgList;
-        Orbit[] orbList;
-        Worker(final Component component, final String title,
-               final SLCImage[] imgList, final Orbit[] orbList) {
-            super(component, title);
-            this.imgList = imgList;
-            this.orbList = orbList;
+        for (MetadataElement absRoot : absRoots) {
+            imgList.add(new SLCImage(absRoot));
+            orbList.add(new Orbit(absRoot, 3));
         }
 
-        @Override
-        protected Object doInBackground(ProgressMonitor pm) throws Exception {
-            final OptimalMaster dataStack = new MasterSelection();
-            dataStack.setInput(imgList, orbList);
-            return dataStack.estimateOptimalMaster(pm);
+        final InSARStackOverview dataStack = new InSARStackOverview();
+        dataStack.setInput(imgList.toArray(new SLCImage[imgList.size()]), orbList.toArray(new Orbit[orbList.size()]));
+        return dataStack.getCoherenceScores(ProgressMonitor.NULL);
+    }
+
+    public static InSARStackOverview.IfgStack[] calculateInSAROverview(final Product[] products) throws Exception {
+        final List<SLCImage> imgList = new ArrayList<>(products.length);
+        final List<Orbit> orbList = new ArrayList<>(products.length);
+
+        for (Product product : products) {
+            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+            imgList.add(new SLCImage(absRoot));
+            orbList.add(new Orbit(absRoot, 3));
         }
+
+        final InSARStackOverview dataStack = new InSARStackOverview();
+        dataStack.setInput(imgList.toArray(new SLCImage[imgList.size()]), orbList.toArray(new Orbit[orbList.size()]));
+        return dataStack.getCoherenceScores(ProgressMonitor.NULL);
     }
 
 

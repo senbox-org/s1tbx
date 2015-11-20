@@ -16,7 +16,7 @@
 package org.esa.s1tbx.insar.gpf.ui.coregistration;
 
 import org.esa.s1tbx.insar.gpf.coregistration.CreateStackOp;
-import org.esa.s1tbx.insar.rcp.dialogs.MasterSelection;
+import org.esa.s1tbx.insar.gpf.InSARStackOverview;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.VirtualBand;
@@ -27,6 +27,7 @@ import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.OperatorUIUtils;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
+import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.ui.AppContext;
 
 import javax.swing.*;
@@ -177,8 +178,12 @@ public class CreateStackOpUI extends BaseOperatorUI {
         optimalMasterButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (sourceProducts != null) {
-                    masterProduct = MasterSelection.findOptimalMasterProduct(sourceProducts);
-                    masterProductLabel.setText(masterProduct.getName());
+                    try {
+                        masterProduct = InSARStackOverview.findOptimalMasterProduct(sourceProducts);
+                        masterProductLabel.setText(masterProduct.getName());
+                    } catch (Exception ex) {
+                        SnapDialogs.showError("Error finding optimal master: "+ex.getMessage());
+                    }
                 }
                 updateMasterSlaveSelections();
             }

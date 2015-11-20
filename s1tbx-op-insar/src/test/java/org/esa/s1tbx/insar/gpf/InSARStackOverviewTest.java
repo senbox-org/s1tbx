@@ -13,10 +13,10 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.insar.dialogs;
+package org.esa.s1tbx.insar.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.s1tbx.insar.rcp.dialogs.MasterSelection;
+import org.esa.s1tbx.insar.gpf.InSARStackOverview;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.SLCImage;
 import org.junit.After;
@@ -32,7 +32,7 @@ import static junit.framework.Assert.assertEquals;
  * Date: 1/20/12
  * Time: 3:40 PM
  */
-public class MasterSelectionTest {
+public class InSARStackOverviewTest {
 
     final static int ORBIT_DEGREE = 2;
     private SLCImage[] slcImages;
@@ -76,7 +76,7 @@ public class MasterSelectionTest {
     @Test
     public void testFindOptimalMaster() throws Exception {
 
-        final MasterSelection dataStack = new MasterSelection();
+        final InSARStackOverview dataStack = new InSARStackOverview();
         dataStack.setInput(slcImages, orbits);
         dataStack.estimateOptimalMaster(ProgressMonitor.NULL);
 

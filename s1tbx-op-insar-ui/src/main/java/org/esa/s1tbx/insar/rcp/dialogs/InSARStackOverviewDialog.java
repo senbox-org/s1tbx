@@ -17,6 +17,7 @@ package org.esa.s1tbx.insar.rcp.dialogs;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+import org.esa.s1tbx.insar.gpf.InSARStackOverview;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
@@ -155,15 +156,15 @@ public class InSARStackOverviewDialog extends ModelessDialog {
 
             final File[] inputFiles = inputProductListPanel.getFileList();
 
-            final MasterSelection.IfgStack[] ifgStack = findInSARProducts(inputFiles);
+            final InSARStackOverview.IfgStack[] ifgStack = findInSARProducts(inputFiles);
 
             if (ifgStack == null) {
                 openBtn.setEnabled(false);
                 SnapDialogs.showWarning("Optimal master not found");
             } else {
-                final OptimalMaster dataStack = new MasterSelection();
+                final InSARStackOverview dataStack = new InSARStackOverview();
                 final int masterIndex = dataStack.findOptimalMaster(ifgStack);
-                final MasterSelection.IfgPair[] slaveList = ifgStack[masterIndex].getMasterSlave();
+                final InSARStackOverview.IfgPair[] slaveList = ifgStack[masterIndex].getMasterSlave();
 
                 updateData(slaveList, masterIndex);
 
@@ -183,7 +184,7 @@ public class InSARStackOverviewDialog extends ModelessDialog {
         return ok;
     }
 
-    private void updateData(final MasterSelection.IfgPair[] slaveList, final int masterIndex) {
+    private void updateData(final InSARStackOverview.IfgPair[] slaveList, final int masterIndex) {
         outputFileModel.clear();
         final File mstFile = slcFileMap.get(slaveList[masterIndex].getMasterMetadata());
 
@@ -207,7 +208,7 @@ public class InSARStackOverviewDialog extends ModelessDialog {
             SnapDialogs.showError("Unable to read " + mstFile.getName() + '\n' + e.getMessage());
         }
 
-        for (MasterSelection.IfgPair slave : slaveList) {
+        for (InSARStackOverview.IfgPair slave : slaveList) {
             final File slvFile = slcFileMap.get(slave.getSlaveMetadata());
             if (!slvFile.equals(mstFile)) {
                 try {
@@ -234,10 +235,10 @@ public class InSARStackOverviewDialog extends ModelessDialog {
         }
     }
 
-    private MasterSelection.IfgStack[] findInSARProducts(final File[] inputFiles) {
-        final int size = inputFiles.length;
-        final List<SLCImage> imgList = new ArrayList<>(size);
-        final List<Orbit> orbList = new ArrayList<>(size);
+    private InSARStackOverview.IfgStack[] findInSARProducts(final File[] inputFiles) {
+
+        final List<SLCImage> imgList = new ArrayList<>(inputFiles.length);
+        final List<Orbit> orbList = new ArrayList<>(inputFiles.length);
 
         for (File file : inputFiles) {
             try {
@@ -258,14 +259,14 @@ public class InSARStackOverviewDialog extends ModelessDialog {
         }
 
         try {
-            final OptimalMaster dataStack = new MasterSelection();
-            dataStack.setInput(imgList.toArray(new SLCImage[size]), orbList.toArray(new Orbit[size]));
+            final InSARStackOverview dataStack = new InSARStackOverview();
+            dataStack.setInput(imgList.toArray(new SLCImage[imgList.size()]), orbList.toArray(new Orbit[orbList.size()]));
 
             final Worker worker = new Worker(SnapApp.getDefault().getMainFrame(), "Computing Optimal InSAR Master",
                                              dataStack);
             worker.executeWithBlocking();
 
-            return (MasterSelection.IfgStack[]) worker.get();
+            return (InSARStackOverview.IfgStack[]) worker.get();
 
         } catch (Throwable t) {
             SnapDialogs.showError("Error:" + t.getMessage());
@@ -274,10 +275,10 @@ public class InSARStackOverviewDialog extends ModelessDialog {
     }
 
     private static class Worker extends ProgressMonitorSwingWorker {
-        private final OptimalMaster dataStack;
+        private final InSARStackOverview dataStack;
 
         Worker(final Component component, final String title,
-               final OptimalMaster optimalMaster) {
+               final InSARStackOverview optimalMaster) {
             super(component, title);
             this.dataStack = optimalMaster;
         }
