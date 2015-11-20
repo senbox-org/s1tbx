@@ -1,8 +1,15 @@
 New in S1TBX 2.0
 
-Common SNAP platform for all toolboxes
+S1 Level-2 visualization in WorldWind Analysis View
+S1 AEP phase correction
+S1 GRD border noise removal
+Dual Pol polarimetric tools
+Import/Export to Gamma/Stamps format
 ALOS-2 L1.1 CEOS reading
-
+ALOS/ALOS-2 reading from directly from zip files
+Several fixes to InSAR processing chain
+Geocoding position error fix
+Fix for very large tifs in S1 Stripmap, RS2, TSX
 
 New in S1TBX 1.1.1
 
