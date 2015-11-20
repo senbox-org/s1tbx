@@ -303,25 +303,57 @@ try:
     HashMap = jpy.get_type('java.util.HashMap')
     HashSet = jpy.get_type('java.util.HashSet')
 
+    #
     # Frequently used classes & interfaces from SNAP Engine
-    SystemUtils = jpy.get_type('org.esa.snap.core.util.SystemUtils')
-    ProductIO = jpy.get_type('org.esa.snap.core.dataio.ProductIO')
+    #
+
+    # Product tree & associates
     Product = jpy.get_type('org.esa.snap.core.datamodel.Product')
-    ProductData = jpy.get_type('org.esa.snap.core.datamodel.ProductData')
+    VectorDataNode = jpy.get_type('org.esa.snap.core.datamodel.VectorDataNode')
     RasterDataNode = jpy.get_type('org.esa.snap.core.datamodel.RasterDataNode')
+    TiePointGrid = jpy.get_type('org.esa.snap.core.datamodel.TiePointGrid')
     AbstractBand = jpy.get_type('org.esa.snap.core.datamodel.AbstractBand')
     Band = jpy.get_type('org.esa.snap.core.datamodel.Band')
     VirtualBand = jpy.get_type('org.esa.snap.core.datamodel.VirtualBand')
+    Mask = jpy.get_type('org.esa.snap.core.datamodel.Mask')
+    GeneralFilterBand = jpy.get_type('org.esa.snap.core.datamodel.GeneralFilterBand')
+    ConvolutionFilterBand = jpy.get_type('org.esa.snap.core.datamodel.ConvolutionFilterBand')
+
+    # Product tree associates
+    ProductData = jpy.get_type('org.esa.snap.core.datamodel.ProductData')
     GeoCoding = jpy.get_type('org.esa.snap.core.datamodel.GeoCoding')
+    TiePointGeoCoding = jpy.get_type('org.esa.snap.core.datamodel.TiePointGeoCoding')
+    PixelGeoCoding = jpy.get_type('org.esa.snap.core.datamodel.PixelGeoCoding')
+    PixelGeoCoding2 = jpy.get_type('org.esa.snap.core.datamodel.PixelGeoCoding2')
+    CrsGeoCoding = jpy.get_type('org.esa.snap.core.datamodel.CrsGeoCoding')
     GeoPos = jpy.get_type('org.esa.snap.core.datamodel.GeoPos')
     PixelPos = jpy.get_type('org.esa.snap.core.datamodel.PixelPos')
     FlagCoding = jpy.get_type('org.esa.snap.core.datamodel.FlagCoding')
     ProductNodeGroup = jpy.get_type('org.esa.snap.core.datamodel.ProductNodeGroup')
-    ProductUtils = jpy.get_type('org.esa.snap.core.util.ProductUtils')
+
+    # Graph Processing Framework
     GPF = jpy.get_type('org.esa.snap.core.gpf.GPF')
     Operator = jpy.get_type('org.esa.snap.core.gpf.Operator')
     Tile = jpy.get_type('org.esa.snap.core.gpf.Tile')
+
+    # Utilities
     EngineConfig = jpy.get_type('org.esa.snap.runtime.EngineConfig')
+    SystemUtils = jpy.get_type('org.esa.snap.core.util.SystemUtils')
+    ProductIO = jpy.get_type('org.esa.snap.core.dataio.ProductIO')
+    ProductUtils = jpy.get_type('org.esa.snap.core.util.ProductUtils')
+    ProgressMonitor = jpy.get_type('com.bc.ceres.core.ProgressMonitor')
+    PlainFeatureFactory = jpy.get_type('org.esa.snap.core.datamodel.PlainFeatureFactory')
+    FeatureUtils = jpy.get_type('org.esa.snap.core.util.FeatureUtils')
+
+    # GeoTools
+    DefaultGeographicCRS = jpy.get_type('org.geotools.referencing.crs.DefaultGeographicCRS')
+    ListFeatureCollection = jpy.get_type('org.geotools.data.collection.ListFeatureCollection')
+    SimpleFeatureBuilder = jpy.get_type('org.geotools.feature.simple.SimpleFeatureBuilder')
+
+    # JTS
+    Geometry = jpy.get_type('com.vividsolutions.jts.geom.Geometry')
+    WKTReader = jpy.get_type('com.vividsolutions.jts.io.WKTReader')
+
 
 except Exception:
     jpy.destroy_jvm()
