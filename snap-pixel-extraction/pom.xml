@@ -31,10 +31,6 @@
         implemented as a GPF operator.
     </description>
 
-    <properties>
-        <snap.nbmSpecVersion>2.0.0.8</snap.nbmSpecVersion>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
