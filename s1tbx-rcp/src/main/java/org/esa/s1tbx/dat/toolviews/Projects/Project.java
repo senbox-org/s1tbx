@@ -31,8 +31,8 @@ import org.esa.snap.graphbuilder.rcp.dialogs.GraphBuilderDialog;
 import org.esa.snap.graphbuilder.rcp.dialogs.PromptDialog;
 import org.esa.snap.graphbuilder.rcp.utils.FileFolderUtils;
 import org.esa.snap.rcp.SnapApp;
-import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.rcp.actions.file.SaveProductAsAction;
+import org.esa.snap.rcp.util.Dialogs;
 import org.esa.snap.ui.ModelessDialog;
 import org.esa.snap.ui.NewProductDialog;
 import org.esa.snap.ui.product.ProductSubsetDialog;
@@ -40,8 +40,8 @@ import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.SwingWorker;
+import java.awt.Frame;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -383,7 +383,7 @@ public class Project extends Observable {
                     SnapApp.getDefault().getProductManager().addProduct(subsetProduct);
             }
         } catch (Exception e) {
-            SnapDialogs.showError(e.getMessage());
+            Dialogs.showError(e.getMessage());
         }
     }
 
@@ -400,7 +400,7 @@ public class Project extends Observable {
                     writeProduct(subsetProduct, destFile);
                 }
             } catch (Exception e) {
-                SnapDialogs.showError("Unable to import product:" + e.getMessage());
+                Dialogs.showError("Unable to import product:" + e.getMessage());
             }
         }
     }
@@ -417,8 +417,8 @@ public class Project extends Observable {
                 if (newProductDialog.show() == NewProductDialog.ID_OK) {
                     final Product subsetProduct = newProductDialog.getResultProduct();
                     if (subsetProduct == null || newProductDialog.getException() != null) {
-                        SnapDialogs.showError("The product subset could not be created:\n" +
-                                                      newProductDialog.getException().getMessage());
+                        Dialogs.showError("The product subset could not be created:\n" +
+                                          newProductDialog.getException().getMessage());
                     } else {
                         return subsetProduct;
                     }
@@ -457,7 +457,7 @@ public class Project extends Observable {
                                 //todo VisatApp.getApp().writeProductImpl(product, destFile, "BEAM-DIMAP", false);
                             }
                         } catch (Exception e) {
-                            SnapDialogs.showError(e.getMessage());
+                            Dialogs.showError(e.getMessage());
                         }
                     }
                     pm.worked(1);
@@ -595,7 +595,7 @@ public class Project extends Observable {
         try {
             doc = XMLSupport.LoadXML(file.getAbsolutePath());
         } catch (IOException e) {
-            SnapDialogs.showError("Unable to load "+file.toString()+": "+e.getMessage());
+            Dialogs.showError("Unable to load " + file.toString() + ": " + e.getMessage());
             return;
         }
 

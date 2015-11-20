@@ -21,12 +21,16 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.rcp.SnapApp;
-import org.esa.snap.rcp.SnapDialogs;
+import org.esa.snap.rcp.util.Dialogs;
 import org.esa.snap.ui.ModalDialog;
 import org.esa.snap.ui.ModelessDialog;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 
 /**
  * Scale data action dialog
@@ -85,7 +89,7 @@ class ScaleDataDialog extends ModelessDialog {
             applyScaling(_product, _band, gain, bias, exp, isLog);
             hide();
         } catch (Exception e) {
-            SnapDialogs.showError(e.getMessage());
+            Dialogs.showError(e.getMessage());
         }
     }
 

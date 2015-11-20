@@ -24,8 +24,8 @@ import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.metadata.AbstractMetadataIO;
 import org.esa.snap.rcp.SnapApp;
-import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.rcp.actions.AbstractSnapAction;
+import org.esa.snap.rcp.util.Dialogs;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
@@ -37,7 +37,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.WeakListeners;
 
-import javax.swing.*;
+import javax.swing.Action;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.ArrayList;
@@ -94,7 +94,7 @@ public class ReplaceMetadataAction extends AbstractSnapAction implements Context
 
         final String[] compatibleProductNames = getCompatibleProducts(product);
         if (compatibleProductNames.length == 0) {
-            SnapDialogs.showError("There are not any compatible products currently opened\nDimensions must be the same");
+            Dialogs.showError("There are not any compatible products currently opened\nDimensions must be the same");
             return;
         }
 
@@ -134,7 +134,7 @@ public class ReplaceMetadataAction extends AbstractSnapAction implements Context
 
                 tmpMetadataFile.delete();
             } catch (Exception e) {
-                SnapDialogs.showError("Unable to save or load metadata\n" + e.getMessage());
+                Dialogs.showError("Unable to save or load metadata\n" + e.getMessage());
             }
         }
     }

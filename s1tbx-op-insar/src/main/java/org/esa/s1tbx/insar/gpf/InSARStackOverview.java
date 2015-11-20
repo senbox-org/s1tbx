@@ -25,7 +25,7 @@ import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;
 import org.jlinda.core.SLCImage;
 
-import java.awt.*;
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
 

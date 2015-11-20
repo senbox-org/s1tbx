@@ -15,19 +15,26 @@
  */
 package org.esa.s1tbx.dat.toolviews.Projects;
 
-import org.esa.snap.rcp.SnapDialogs;
+import org.esa.snap.rcp.util.Dialogs;
 import org.esa.snap.ui.PopupMenuFactory;
 import org.esa.snap.ui.PopupMenuHandler;
 import org.esa.snap.ui.UIUtils;
 
-import javax.swing.*;
+import javax.swing.DropMode;
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.JTree;
+import javax.swing.ToolTipManager;
+import javax.swing.TransferHandler;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import java.awt.*;
+import java.awt.Component;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
@@ -218,9 +225,9 @@ class ProjectTree extends JTree implements PopupMenuFactory, ActionListener {
                     final ProjectSubFolder parentFolder = (ProjectSubFolder) parentNode.getUserObject();
                     if (parentFolder != null) {
                         final ProjectFile file = (ProjectFile) menuContext;
-                        final SnapDialogs.Answer status = SnapDialogs.requestDecision("Delete", "Are you sure you want to delete "
-                                + file.getFile().toString(), true, null);
-                        if (status == SnapDialogs.Answer.YES) {
+                        final Dialogs.Answer status = Dialogs.requestDecision("Delete", "Are you sure you want to delete "
+                                                                                        + file.getFile().toString(), true, null);
+                        if (status == Dialogs.Answer.YES) {
                             project.removeFile(parentFolder, file.getFile());
                         }
                     }

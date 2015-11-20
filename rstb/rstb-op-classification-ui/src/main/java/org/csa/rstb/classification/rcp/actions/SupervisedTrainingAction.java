@@ -28,7 +28,7 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.VectorDataNode;
 import org.esa.snap.engine_utilities.gpf.ProcessTimeMonitor;
 import org.esa.snap.rcp.SnapApp;
-import org.esa.snap.rcp.SnapDialogs;
+import org.esa.snap.rcp.util.Dialogs;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
@@ -37,8 +37,8 @@ import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.NbBundle;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.AbstractAction;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -92,7 +92,7 @@ public class SupervisedTrainingAction extends AbstractAction {
                             sourceProductType != PolBandUtils.MATRIX.DUAL_HH_VV &&
                             sourceProductType != PolBandUtils.MATRIX.C2) {
 
-                        SnapDialogs.showError("Quad-pol or dual-pol product is expected");
+                        Dialogs.showError("Quad-pol or dual-pol product is expected");
                         return;
 
                     } else {
@@ -112,7 +112,7 @@ public class SupervisedTrainingAction extends AbstractAction {
                 worker.executeWithBlocking();
             }
         } catch (Exception e) {
-            SnapDialogs.showError(e.getMessage());
+            Dialogs.showError(e.getMessage());
         }
     }
 
@@ -354,13 +354,13 @@ public class SupervisedTrainingAction extends AbstractAction {
                 final Boolean isOk = (Boolean) this.get();
                 if (isOk) {
                     final String durationStr = "Processing completed in " + ProcessTimeMonitor.formatDuration(duration);
-                    SnapDialogs.showInformation("Done",
+                    Dialogs.showInformation("Done",
                                                 "Supervised Training Dataset Completed\n" + file.getAbsolutePath() + "\n\n" + durationStr, null);
                 } else {
-                    SnapDialogs.showError("An error occurred\n" + error.getMessage());
+                    Dialogs.showError("An error occurred\n" + error.getMessage());
                 }
             } catch (Exception e) {
-                SnapDialogs.showError("An error occurred\n" + e.getMessage());
+                Dialogs.showError("An error occurred\n" + e.getMessage());
             }
         }
     }

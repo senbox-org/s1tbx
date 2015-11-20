@@ -21,8 +21,8 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.ProductNode;
 import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.engine_utilities.datamodel.Unit;
-import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.rcp.actions.AbstractSnapAction;
+import org.esa.snap.rcp.util.Dialogs;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -35,7 +35,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.WeakListeners;
 
-import javax.swing.*;
+import javax.swing.Action;
 import java.awt.event.ActionEvent;
 
 @ActionID(category = "Raster", id = "org.esa.s1tbx.utilities.rcp.actions.LinearTodBAction")
@@ -97,14 +97,14 @@ public class LinearTodBAction extends AbstractSnapAction implements ContextAware
 
             if (!unit.contains(Unit.DB)) {
 
-                if (SnapDialogs.requestDecision("Convert to dB", "Would you like to convert band "
-                        + band.getName() + " into dB in a new virtual band?", true, null) == SnapDialogs.Answer.YES) {
+                if (Dialogs.requestDecision("Convert to dB", "Would you like to convert band "
+                                                             + band.getName() + " into dB in a new virtual band?", true, null) == Dialogs.Answer.YES) {
                     convert(product, band, true);
                 }
             } else {
 
-                if (SnapDialogs.requestDecision("Convert to linear", "Would you like to convert band "
-                        + band.getName() + " into linear in a new virtual band?", true, null) == SnapDialogs.Answer.YES) {
+                if (Dialogs.requestDecision("Convert to linear", "Would you like to convert band "
+                                                                 + band.getName() + " into linear in a new virtual band?", true, null) == Dialogs.Answer.YES) {
                     convert(product, band, false);
                 }
             }

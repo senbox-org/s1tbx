@@ -23,11 +23,20 @@ import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.OperatorUIUtils;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
-import org.esa.snap.rcp.SnapDialogs;
+import org.esa.snap.rcp.util.Dialogs;
 import org.esa.snap.ui.AppContext;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -98,7 +107,7 @@ public class CalibrationOpUI extends BaseOperatorUI {
 
         externalAuxFileBrowseButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                final File file = SnapDialogs.requestFileForOpen("External Auxiliary File", false, null, "s1tbx.calibration.aux.file");
+                final File file = Dialogs.requestFileForOpen("External Auxiliary File", false, null, "s1tbx.calibration.aux.file");
                 externalAuxFile.setText(file.getAbsolutePath());
             }
         });

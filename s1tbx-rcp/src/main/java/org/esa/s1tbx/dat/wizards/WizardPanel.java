@@ -44,10 +44,13 @@ package org.esa.s1tbx.dat.wizards;
 
 import org.esa.snap.graphbuilder.rcp.dialogs.BatchGraphDialog;
 import org.esa.snap.graphbuilder.rcp.dialogs.GraphBuilderDialog;
-import org.esa.snap.rcp.SnapDialogs;
+import org.esa.snap.rcp.util.Dialogs;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.io.File;
 
 /**
@@ -107,7 +110,7 @@ public abstract class WizardPanel extends JPanel {
     }
 
     protected static void showErrorMsg(String msg) {
-        SnapDialogs.showError("Oops!", msg);
+        Dialogs.showError("Oops!", msg);
     }
 
     protected static JPanel createTextPanel(final String title, final String text) {

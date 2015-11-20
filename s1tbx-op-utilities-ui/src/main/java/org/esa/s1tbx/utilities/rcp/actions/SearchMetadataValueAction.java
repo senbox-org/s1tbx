@@ -20,7 +20,7 @@ import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductNode;
 import org.esa.snap.graphbuilder.rcp.dialogs.PromptDialog;
-import org.esa.snap.rcp.SnapDialogs;
+import org.esa.snap.rcp.util.Dialogs;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -33,7 +33,8 @@ import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.WeakListeners;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import java.awt.event.ActionEvent;
 
 @ActionID(category = "Metadata", id = "SearchMetadataValueAction" )
@@ -111,7 +112,7 @@ public class SearchMetadataValueAction extends AbstractAction implements Context
                 SearchMetadataAction.openMetadataWindow(resultElem);
             } else {
                 // no attributes found
-                SnapDialogs.showError("Search Metadata", dlg.getValue() + " not found in the Metadata");
+                Dialogs.showError("Search Metadata", dlg.getValue() + " not found in the Metadata");
             }
         }
     }

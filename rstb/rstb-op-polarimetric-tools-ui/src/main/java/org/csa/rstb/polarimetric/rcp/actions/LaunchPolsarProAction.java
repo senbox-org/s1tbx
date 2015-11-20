@@ -17,13 +17,13 @@ package org.csa.rstb.polarimetric.rcp.actions;
 
 import org.esa.snap.graphbuilder.rcp.utils.FileFolderUtils;
 import org.esa.snap.rcp.SnapApp;
-import org.esa.snap.rcp.SnapDialogs;
+import org.esa.snap.rcp.util.Dialogs;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.NbBundle;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
 import java.io.File;
@@ -106,14 +106,14 @@ public class LaunchPolsarProAction extends AbstractAction {
                             outputTextBuffers(new BufferedReader(new InputStreamReader(proc.getErrorStream())));
                         }
                         else {
-                            SnapDialogs.showError("The file: " + prog.getAbsolutePath() + " does not exist.");
+                            Dialogs.showError("The file: " + prog.getAbsolutePath() + " does not exist.");
                         }
                     }
                     else {
-                        SnapDialogs.showError("Cannot find TCL wish.exe to launch PolSARPro");
+                        Dialogs.showError("Cannot find TCL wish.exe to launch PolSARPro");
                     }
                 } catch (Exception e) {
-                    SnapDialogs.showError("Unable to launch PolSARPro:"+e.getMessage());
+                    Dialogs.showError("Unable to launch PolSARPro:" + e.getMessage());
                 }
             }
         };

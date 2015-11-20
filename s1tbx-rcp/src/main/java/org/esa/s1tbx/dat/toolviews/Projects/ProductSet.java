@@ -18,7 +18,7 @@ package org.esa.s1tbx.dat.toolviews.Projects;
 import org.esa.s1tbx.dat.dialogs.ProductSetDialog;
 import org.esa.snap.core.dataop.downloadable.XMLSupport;
 import org.esa.snap.engine_utilities.util.ProductFunctions;
-import org.esa.snap.rcp.SnapDialogs;
+import org.esa.snap.rcp.util.Dialogs;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -106,7 +106,7 @@ public final class ProductSet {
         try {
             doc = XMLSupport.LoadXML(file.getAbsolutePath());
         } catch (IOException e) {
-            SnapDialogs.showError("Unable to load " + file.toString() + ": " + e.getMessage());
+            Dialogs.showError("Unable to load " + file.toString() + ": " + e.getMessage());
             return false;
         }
 
