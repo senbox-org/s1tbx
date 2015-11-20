@@ -18,11 +18,16 @@ package org.csa.rstb.classification.gpf.ui;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
-import org.esa.snap.rcp.SnapDialogs;
+import org.esa.snap.rcp.util.Dialogs;
 import org.esa.snap.ui.AppContext;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -46,7 +51,7 @@ public class SupervisedWishartClassificationOpUI extends BaseOperatorUI {
         trainingDataSet.setColumns(30);
         trainingDataSetBrowseButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                final File file = SnapDialogs.requestFileForOpen("Training Data Set", false, null, "rstb.trainingDir");
+                final File file = Dialogs.requestFileForOpen("Training Data Set", false, null, "rstb.trainingDir");
                 trainingDataSet.setText(file.getAbsolutePath());
             }
         });

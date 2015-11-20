@@ -22,13 +22,13 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.rcp.SnapApp;
-import org.esa.snap.rcp.SnapDialogs;
+import org.esa.snap.rcp.util.Dialogs;
 import org.jlinda.core.Baseline;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;
 import org.jlinda.core.SLCImage;
 
-import java.awt.*;
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -181,7 +181,7 @@ public class MasterSelection implements OptimalMaster {
                 imgList.add(img);
                 orbList.add(orb);
             } catch(Exception e) {
-                SnapDialogs.showError("Error: " + product.getName() + '\n' + e.getMessage());
+                Dialogs.showError("Error: " + product.getName() + '\n' + e.getMessage());
             }
         }
 

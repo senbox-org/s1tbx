@@ -27,15 +27,22 @@ import org.esa.snap.graphbuilder.rcp.dialogs.ProductSetPanel;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.productlibrary.rcp.utils.ProductOpener;
 import org.esa.snap.rcp.SnapApp;
-import org.esa.snap.rcp.SnapDialogs;
+import org.esa.snap.rcp.util.Dialogs;
 import org.esa.snap.ui.AppContext;
 import org.esa.snap.ui.ModalDialog;
 import org.esa.snap.ui.ModelessDialog;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.SLCImage;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -159,7 +166,7 @@ public class InSARStackOverviewDialog extends ModelessDialog {
 
             if (ifgStack == null) {
                 openBtn.setEnabled(false);
-                SnapDialogs.showWarning("Optimal master not found");
+                Dialogs.showWarning("Optimal master not found");
             } else {
                 final OptimalMaster dataStack = new MasterSelection();
                 final int masterIndex = dataStack.findOptimalMaster(ifgStack);
@@ -171,7 +178,7 @@ public class InSARStackOverviewDialog extends ModelessDialog {
                 ok = true;
             }
         } catch (Exception e) {
-            SnapDialogs.showError("Error: " + e.getMessage());
+            Dialogs.showError("Error: " + e.getMessage());
         }
     }
 
@@ -204,7 +211,7 @@ public class InSARStackOverviewDialog extends ModelessDialog {
             };
             outputFileModel.addFile(mstFile, mstValues);
         } catch (Exception e) {
-            SnapDialogs.showError("Unable to read " + mstFile.getName() + '\n' + e.getMessage());
+            Dialogs.showError("Unable to read " + mstFile.getName() + '\n' + e.getMessage());
         }
 
         for (MasterSelection.IfgPair slave : slaveList) {
@@ -228,7 +235,7 @@ public class InSARStackOverviewDialog extends ModelessDialog {
                     };
                     outputFileModel.addFile(slvFile, slvValues);
                 } catch (Exception e) {
-                    SnapDialogs.showError("Unable to read " + slvFile.getName() + '\n' + e.getMessage());
+                    Dialogs.showError("Unable to read " + slvFile.getName() + '\n' + e.getMessage());
                 }
             }
         }
@@ -251,9 +258,9 @@ public class InSARStackOverviewDialog extends ModelessDialog {
                 imgList.add(img);
                 orbList.add(orb);
             } catch (IOException e) {
-                SnapDialogs.showError("Error: unable to read " + file.getPath() + '\n' + e.getMessage());
+                Dialogs.showError("Error: unable to read " + file.getPath() + '\n' + e.getMessage());
             } catch (Exception e) {
-                SnapDialogs.showError("Error: " + file.getPath() + '\n' + e.getMessage());
+                Dialogs.showError("Error: " + file.getPath() + '\n' + e.getMessage());
             }
         }
 
@@ -268,7 +275,7 @@ public class InSARStackOverviewDialog extends ModelessDialog {
             return (MasterSelection.IfgStack[]) worker.get();
 
         } catch (Throwable t) {
-            SnapDialogs.showError("Error:" + t.getMessage());
+            Dialogs.showError("Error:" + t.getMessage());
             return null;
         }
     }

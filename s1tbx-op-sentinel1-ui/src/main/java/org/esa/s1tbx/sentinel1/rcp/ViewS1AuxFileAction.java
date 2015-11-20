@@ -18,8 +18,8 @@ package org.esa.s1tbx.sentinel1.rcp;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.rcp.SnapApp;
-import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.rcp.actions.AbstractSnapAction;
+import org.esa.snap.rcp.util.Dialogs;
 import org.esa.snap.ui.ModalDialog;
 import org.esa.snap.ui.SnapFileChooser;
 import org.openide.awt.ActionID;
@@ -28,8 +28,14 @@ import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.NbBundle;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.Action;
+import javax.swing.JFileChooser;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextPane;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileInputStream;
@@ -91,7 +97,7 @@ public class ViewS1AuxFileAction extends AbstractSnapAction {
             }
 
         } catch (Exception e) {
-            SnapDialogs.showError("Unable to import aux data file:"+e.getMessage());
+            Dialogs.showError("Unable to import aux data file:" + e.getMessage());
         }
     }
 

@@ -21,7 +21,7 @@ import org.esa.snap.engine_utilities.util.Settings;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.graphbuilder.rcp.utils.FileFolderUtils;
 import org.esa.snap.rcp.SnapApp;
-import org.esa.snap.rcp.SnapDialogs;
+import org.esa.snap.rcp.util.Dialogs;
 import org.esa.snap.ui.ModalDialog;
 
 import javax.swing.BorderFactory;
@@ -169,14 +169,14 @@ public class ProductGeometrySelectorDialog extends ModalDialog {
     private boolean validate() {
         final String[] geometries = getSelectedGeometries();
         if (geometries == null || geometries.length < 1) {
-            SnapDialogs.showError("Please select the product geometries to use");
+            Dialogs.showError("Please select the product geometries to use");
             return false;
         }
 
         final File file = getSaveFile();
         if (file.exists()) {
-            return SnapDialogs.requestDecision("File exists", "File " + file.getAbsolutePath() +
-                    "\nalready exists. Would you like to overwrite it?", false, null) == SnapDialogs.Answer.YES;
+            return Dialogs.requestDecision("File exists", "File " + file.getAbsolutePath() +
+                                                          "\nalready exists. Would you like to overwrite it?", false, null) == Dialogs.Answer.YES;
         }
         if (!file.getParentFile().exists())
             file.getParentFile().mkdirs();
