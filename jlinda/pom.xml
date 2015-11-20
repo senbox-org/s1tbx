@@ -6,7 +6,7 @@
     <name>jLinda</name>
     <groupId>org.jlinda</groupId>
     <artifactId>jlinda</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>2.0.0</version>
 
     <packaging>pom</packaging>
 
@@ -19,14 +19,12 @@
         <brandingToken>s1tbx</brandingToken>
         <user.language>en</user.language>
 
-        <jlinda.version>2.0.0-SNAPSHOT</jlinda.version>
+        <jlinda.version>2.0.0</jlinda.version>
         <jlinda.nbmSpecVersion>2.0.1.0</jlinda.nbmSpecVersion>
-		<s1tbx.version>2.0.0-SNAPSHOT</s1tbx.version>
+		<s1tbx.version>2.0.0</s1tbx.version>
 		<snap.version>2.0.0-SNAPSHOT</snap.version>
         <jblas.version>1.2.4</jblas.version>
         <junit.version>4.12</junit.version>
-
-        <outputdir>../../../output</outputdir>
     </properties>
 
     <organization>

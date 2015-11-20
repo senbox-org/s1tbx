@@ -5,7 +5,7 @@
 	
     <groupId>org.esa.s1tbx</groupId>
     <artifactId>s1tbx</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>2.0.0</version>
     <name>Sentinel-1 Toolbox</name>
     <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
     <description>Tools for SAR Earth Observation</description>
@@ -32,11 +32,11 @@
             It is used to filter manifest.mf and set the manifest's "OpenIDE-Module-Specification-Version" header.
             This is necessary to make NetBeans modules updatable and independent from the Maven version (= s1tbx.version).
         -->
-		<s1tbx.version>2.0.0-SNAPSHOT</s1tbx.version>
+		<s1tbx.version>2.0.0</s1tbx.version>
         <s1tbx.nbmSpecVersion>2.0.1.0</s1tbx.nbmSpecVersion>
-        <rstb.version>7.0.0-SNAPSHOT</rstb.version>
+        <rstb.version>7.0.0</rstb.version>
         <rstb.nbmSpecVersion>7.0.1.0</rstb.nbmSpecVersion>
-        <jlinda.version>2.0.0-SNAPSHOT</jlinda.version>
+        <jlinda.version>2.0.0</jlinda.version>
 
 		<geotools.version>2.7.4</geotools.version>
 		<hdf.version>2.7.1</hdf.version>
