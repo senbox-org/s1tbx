@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2015 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -22,6 +22,8 @@ import java.awt.Graphics2D;
 /**
  * A rendering is used to render graphical data representations to a GUI widget, image or another
  * output device such as a printer.
+ *
+ * @author Norman Fomferra
  */
 public interface Rendering {
     /**

@@ -13,15 +13,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package com.bc.ceres.grender;
 
 /**
- * Something which knows about a viewport, most likely a view GUI component.
- * @author Norman Fomferra
+ * Provides the ability to read <a href="http://www.edikt.org/binx/">BinX</a> schema files.
  */
-public interface ViewportAware {
-    /**
-     * @return The viewport.
-     */
-    Viewport getViewport();
-}
+package com.bc.ceres.binio.binx;
