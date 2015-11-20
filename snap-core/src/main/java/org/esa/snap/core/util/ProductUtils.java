@@ -822,6 +822,9 @@ public class ProductUtils {
     /**
      * Copies the {@link Mask}s from the source product to the target product.
      * <p>
+     * The method does not copy any image geo-coding/geometry information.
+     * Use the {@link #copyImageGeometry(RasterDataNode, RasterDataNode, boolean)} to do so.
+     * <p>
      * IMPORTANT NOTE: This method should only be used, if it is known that all masks
      * in the source product will also be valid in the target product. This method does
      * <em>not</em> copy overlay masks from the source bands to the target bands. Also
@@ -915,6 +918,9 @@ public class ProductUtils {
 
     /**
      * Copies the named tie-point grid from the source product to the target product.
+     * <p>
+     * The method does not copy any image geo-coding/geometry information.
+     * Use the {@link #copyImageGeometry(RasterDataNode, RasterDataNode, boolean)} to do so.
      *
      * @param gridName      the name of the tie-point grid to be copied.
      * @param sourceProduct the source product
@@ -939,6 +945,9 @@ public class ProductUtils {
 
     /**
      * Copies the named band from the source product to the target product.
+     * <p>
+     * The method does not copy any image geo-coding/geometry information.
+     * Use the {@link #copyImageGeometry(RasterDataNode, RasterDataNode, boolean)} to do so.
      *
      * @param sourceBandName  the name of the band to be copied.
      * @param sourceProduct   the source product.
@@ -954,6 +963,9 @@ public class ProductUtils {
 
     /**
      * Copies the named band from the source product to the target product.
+     * <p>
+     * The method does not copy any image geo-coding/geometry information.
+     * Use the {@link #copyImageGeometry(RasterDataNode, RasterDataNode, boolean)} to do so.
      *
      * @param sourceBandName  the name of the band to be copied.
      * @param sourceProduct   the source product.
