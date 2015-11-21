@@ -976,6 +976,11 @@ public class WarpOp extends Operator {
         pb1.add(DataBuffer.TYPE_FLOAT);
         final RenderedImage srcImageFloat = JAI.create("format", pb1);
 
+        if (warp == null) {
+            // no need to warp, images are already perfectly aligned
+            return (RenderedOp) srcImageFloat;
+        }
+
         // get warped image
         final ParameterBlock pb2 = new ParameterBlock();
         pb2.addSource(srcImageFloat);
