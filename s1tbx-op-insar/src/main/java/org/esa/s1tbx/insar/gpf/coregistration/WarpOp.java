@@ -1037,63 +1037,22 @@ public class WarpOp extends Operator {
                 sum += Math.abs(slaveGCPCoords[i] - masterGCPCoords[i]);
             }
             if (sum < 0.01) {
-                switch (warpPolynomialOrder) {
-                    case 1: {
-                        xCoef = new double[3];
-                        yCoef = new double[3];
-                        xCoef[0] = 0;
-                        xCoef[1] = 1;
-                        xCoef[2] = 0;
-                        yCoef[0] = 0;
-                        yCoef[1] = 0;
-                        yCoef[2] = 1;
-                        break;
-                    }
-                    case 2: {
-                        xCoef = new double[6];
-                        yCoef = new double[6];
-                        xCoef[0] = 0;
-                        xCoef[1] = 1;
-                        xCoef[2] = 0;
-                        xCoef[3] = 0;
-                        xCoef[4] = 0;
-                        xCoef[5] = 0;
-                        yCoef[0] = 0;
-                        yCoef[1] = 0;
-                        yCoef[2] = 1;
-                        yCoef[3] = 0;
-                        yCoef[4] = 0;
-                        yCoef[5] = 0;
-                        break;
-                    }
-                    case 3: {
-                        xCoef = new double[10];
-                        yCoef = new double[10];
-                        xCoef[0] = 0;
-                        xCoef[1] = 1;
-                        xCoef[2] = 0;
-                        xCoef[3] = 0;
-                        xCoef[4] = 0;
-                        xCoef[5] = 0;
-                        xCoef[6] = 0;
-                        xCoef[7] = 0;
-                        xCoef[8] = 0;
-                        xCoef[9] = 0;
-                        yCoef[0] = 0;
-                        yCoef[1] = 0;
-                        yCoef[2] = 1;
-                        yCoef[3] = 0;
-                        yCoef[4] = 0;
-                        yCoef[5] = 0;
-                        yCoef[6] = 0;
-                        yCoef[7] = 0;
-                        yCoef[8] = 0;
-                        yCoef[9] = 0;
-                        break;
-                    }
-                    default:
-                        throw new OperatorException("Incorrect WARP degree");
+                if (warpPolynomialOrder < 1) {
+                    throw new OperatorException("Incorrect WARP degree");
                 }
+                // coefLen = 3, 6, 10, 15, ...
+                final int coefLen = (warpPolynomialOrder + 1) * (warpPolynomialOrder + 2) / 2;
+                xCoef = new double[coefLen];
+                yCoef = new double[coefLen];
+                for (int i = 0; i < coefLen; i++) {
+                    xCoef[i] = 0;
+                    yCoef[i] = 0;
+                }
+                xCoef[1] = 1;
+                yCoef[2] = 1;
+
+                jaiWarp = null;
+                
                 return;
             }
 
