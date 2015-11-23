@@ -43,6 +43,9 @@ public class JERSProductReaderPlugIn extends CEOSProductReaderPlugIn {
     @Override
     protected DecodeQualification checkProductQualification(File file) {
         final String name = file.getName().toUpperCase();
+        if(name.endsWith(".ZIP") && (name.startsWith("J1_"))) {
+            return DecodeQualification.INTENDED;
+        }
         for (String prefix : constants.getVolumeFilePrefix()) {
             if (name.startsWith(prefix)) {
                 final JERSProductReader reader = new JERSProductReader(this);

@@ -48,7 +48,7 @@ public class ERSProductReaderPlugIn extends CEOSProductReaderPlugIn {
             return reader.checkProductQualification(file);
         }
         if(name.endsWith(".ZIP")) {
-            if(name.startsWith("ER01") || name.startsWith("ER02")) {
+            if(name.startsWith("ER01") || name.startsWith("ER02") || name.startsWith("E1_") || name.startsWith("E2_")) {
                 final ERSProductReader reader = new ERSProductReader(this);
                 return reader.checkProductQualification(file);
             }
