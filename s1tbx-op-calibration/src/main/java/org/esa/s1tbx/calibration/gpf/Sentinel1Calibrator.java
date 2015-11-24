@@ -449,7 +449,9 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
                             srcBand.getRasterHeight());
 
                     targetBand.setUnit(Unit.INTENSITY);
-                    targetBand.setNoDataValueUsed(true);
+                    targetBand.setDescription(srcBand.getDescription());
+                    targetBand.setNoDataValue(srcBand.getNoDataValue());
+                    targetBand.setNoDataValueUsed(srcBand.isNoDataValueUsed());
                     targetProduct.addBand(targetBand);
                 }
             }
