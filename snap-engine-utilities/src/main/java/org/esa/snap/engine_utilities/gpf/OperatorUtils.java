@@ -135,6 +135,36 @@ public final class OperatorUtils {
         return null;
     }
 
+    public static String getPolarizationType(final MetadataElement absRoot) {
+        String pol1 = absRoot.getAttributeString(AbstractMetadata.mds1_tx_rx_polar, AbstractMetadata.NO_METADATA_STRING);
+        String pol2 = absRoot.getAttributeString(AbstractMetadata.mds2_tx_rx_polar, AbstractMetadata.NO_METADATA_STRING);
+        String pol3 = absRoot.getAttributeString(AbstractMetadata.mds3_tx_rx_polar, AbstractMetadata.NO_METADATA_STRING);
+        String pol4 = absRoot.getAttributeString(AbstractMetadata.mds4_tx_rx_polar, AbstractMetadata.NO_METADATA_STRING);
+
+        if(hasPol(pol1)) {
+            if(hasPol(pol2)) {
+                if(hasPol(pol3) && hasPol(pol4)) {
+                    return DBQuery.ANY;
+                }
+                if(pol1.equals("VV")) {
+                    return DBQuery.VVVH;
+                }
+                if(pol2.equals("VV")) {
+                    return DBQuery.HHVV;
+                }
+                if(pol2.equals("HV")) {
+                    return DBQuery.HHHV;
+                }
+            }
+            return pol1;
+        }
+        return null;
+    }
+
+    private static boolean hasPol(String pol) {
+        return pol != null && !pol.trim().isEmpty() && !pol.equals(AbstractMetadata.NO_METADATA_STRING);
+    }
+
     /**
      * Get product polarizations for each band in the product.
      *
