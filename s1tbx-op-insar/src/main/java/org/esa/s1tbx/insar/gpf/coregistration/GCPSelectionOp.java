@@ -356,6 +356,22 @@ public class GCPSelectionOp extends Operator {
             }
         }
 
+        if(slvBand1 == null) {
+            //get any polarization
+            for(Band slvBand : sourceProduct.getBands()) {
+                if (!StringUtils.contains(masterBandNames, slvBand.getName()) && slvBand != masterBand1) {
+                    final String unit = slvBand.getUnit();
+                    if (unit != null && !unit.contains(Unit.IMAGINARY)) {
+                        slvBand1 = slvBand;
+                        break;
+                    } else if (unit == null) {
+                        // Assume that the image is real-valued if no unit is set
+                        slvBand1 = slvBand;
+                    }
+                }
+            }
+        }
+
         boolean oneSlaveProcessed = false;          // all other use setSourceImage
         for (int i = 0; i < numSrcBands; ++i) {
             final Band srcBand = sourceProduct.getBandAt(i);
@@ -364,7 +380,8 @@ public class GCPSelectionOp extends Operator {
             sourceRasterMap.put(targetBand, srcBand);
             gcpsComputedMap.put(srcBand, false);
 
-            if (srcBand == masterBand1 || srcBand == masterBand2 || oneSlaveProcessed || srcBand != slvBand1 ||
+            if (srcBand == masterBand1 || srcBand == masterBand2 || oneSlaveProcessed ||
+                    (srcBand != slvBand1 && slvBand1 != null) ||
                     StringUtils.contains(masterBandNames, srcBand.getName())) {
                 targetBand.setSourceImage(srcBand.getSourceImage());
             } else {
