@@ -66,7 +66,7 @@ public class SpeckleDivergenceOp extends Operator {
     private Product targetProduct = null;
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands",
-            rasterDataNodeType = Band.class, label = "Source Bands")
+            label = "Source Bands")
     private String[] sourceBandNames = null;
 
     @Parameter(valueSet = {WINDOW_SIZE_5x5, WINDOW_SIZE_7x7, WINDOW_SIZE_9x9, WINDOW_SIZE_11x11, WINDOW_SIZE_13x13,
@@ -183,14 +183,25 @@ public class SpeckleDivergenceOp extends Operator {
      */
     private void addSelectedBands() throws OperatorException {
 
-        if (sourceBandNames == null || sourceBandNames.length == 0) { // if user did not select any band
-            final Band[] bands = sourceProduct.getBands();
-            final List<String> bandNameList = new ArrayList<>(sourceProduct.getNumBands());
-            for (Band band : bands) {
-                if (band.getUnit() != null && band.getUnit().equals(Unit.INTENSITY))
-                    bandNameList.add(band.getName());
+        if(sourceBandNames != null) {
+            // remove band names specific to another run
+            for(String srcBandName : sourceBandNames) {
+                if (sourceProduct.getBand(srcBandName) == null) {
+                    sourceBandNames = null;
+                    break;
+                }
             }
-            sourceBandNames = bandNameList.toArray(new String[bandNameList.size()]);
+        }
+
+        if (sourceBandNames == null || sourceBandNames.length == 0) { // if user did not select any band
+            final List<String> srcBandNameList = new ArrayList<>();
+            final Band[] bands = sourceProduct.getBands();
+            for (Band band : bands) {
+                if (band.getUnit() != null && band.getUnit().contains(Unit.INTENSITY)) {
+                    srcBandNameList.add(band.getName());
+                }
+            }
+            sourceBandNames = srcBandNameList.toArray(new String[srcBandNameList.size()]);
         }
 
         final Band[] sourceBands = new Band[sourceBandNames.length];
