@@ -1831,7 +1831,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         final ColorPaletteDef colorPaletteDef = ColorPaletteDef.loadColorPaletteDef(filePath.toFile());
         final ImageInfo info = new ImageInfo(colorPaletteDef);
         final Range autoStretchRange = histogram.findRangeFor95Percent();
-        info.setColorPaletteDef(colorPaletteDef, autoStretchRange.getMin(), autoStretchRange.getMax(), true);
+        info.setColorPaletteDef(colorPaletteDef, autoStretchRange.getMin(), autoStretchRange.getMax(), colorPaletteDef.isAutoDistribute());
         return info;
     }
 
