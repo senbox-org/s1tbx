@@ -471,6 +471,8 @@ public final class TOPSARMergeOp extends Operator {
         absTgt.setAttributeUTC(
                 AbstractMetadata.last_line_time, new ProductData.UTC(targetLastLineTime / Constants.secondsInDay));
         absTgt.setAttributeDouble(AbstractMetadata.line_time_interval, targetLineTimeInterval);
+        absTgt.setAttributeDouble(AbstractMetadata.slant_range_to_first_pixel,
+                targetSlantRangeTimeToFirstPixel * Constants.lightSpeed);
 
         TiePointGrid latGrid = targetProduct.getTiePointGrid(OperatorUtils.TPG_LATITUDE);
         TiePointGrid lonGrid = targetProduct.getTiePointGrid(OperatorUtils.TPG_LONGITUDE);
