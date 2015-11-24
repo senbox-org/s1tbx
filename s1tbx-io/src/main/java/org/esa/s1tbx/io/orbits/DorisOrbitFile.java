@@ -72,7 +72,7 @@ public class DorisOrbitFile extends BaseOrbitFile {
             folder += '0';
         }
         folder += month;
-        orbitPath += File.separator + folder;
+        orbitPath += folder;
         final File localPath = new File(orbitPath);
 
         // find orbit file in the folder
