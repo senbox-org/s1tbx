@@ -95,6 +95,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public static final String PROPERTY_NAME_ANCILLARY_VARIABLES = "ancillaryVariables";
     public static final String PROPERTY_NAME_ANCILLARY_RELATIONS = "ancillaryRelations";
     public static final String PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM = "imageToModelTransform";
+    public static final String PROPERTY_NAME_SCENE_RASTER_TRANSFORM = "sceneRasterTransform";
 
 
     /**
@@ -332,7 +333,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     public void setSceneRasterTransform(SceneRasterTransform sceneRasterTransform) {
         Assert.notNull(sceneRasterTransform, "sceneRasterTransform");
+        SceneRasterTransform oldTransform = this.sceneRasterTransform;
         this.sceneRasterTransform = sceneRasterTransform;
+        fireProductNodeChanged(PROPERTY_NAME_SCENE_RASTER_TRANSFORM, oldTransform, sceneRasterTransform);
     }
 
     /**
