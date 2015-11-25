@@ -638,43 +638,10 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      */
     private void getCalibrationFactorFromMetadata() {
 
-        final MetadataElement origRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
-        MetadataElement ads;
-        if (numMPPRecords == 1) {
-            ads = origRoot.getElement("MAIN_PROCESSING_PARAMS_ADS");
-        } else {
-            ads = origRoot.getElement("MAIN_PROCESSING_PARAMS_ADS").
-                    getElement("MAIN_PROCESSING_PARAMS_ADS.1");
-            if (ads == null)
-                ads = origRoot.getElement("MAIN_PROCESSING_PARAMS_ADS");
+        newCalibrationConstant[0] = absRoot.getAttributeDouble(AbstractMetadata.calibration_factor);
+        if(productType.startsWith("ASA_AP")) {
+            newCalibrationConstant[1] = absRoot.getAttributeDouble(AbstractMetadata.calibration_factor+".2");
         }
-
-        if (ads == null) {
-            throw new OperatorException("MAIN_PROCESSING_PARAMS_ADS not found");
-        }
-
-        MetadataAttribute calibrationFactorsAttr =
-                ads.getAttribute("ASAR_Main_ADSR.sd/calibration_factors.1.ext_cal_fact");
-
-        if (calibrationFactorsAttr == null) {
-            throw new OperatorException("calibration_factors.1.ext_cal_fact not found");
-        }
-
-        newCalibrationConstant[0] = (double) calibrationFactorsAttr.getData().getElemFloat();
-
-        calibrationFactorsAttr = ads.getAttribute("ASAR_Main_ADSR.sd/calibration_factors.2.ext_cal_fact");
-
-        if (calibrationFactorsAttr == null) {
-            throw new OperatorException("calibration_factors.2.ext_cal_fact not found");
-        }
-
-        newCalibrationConstant[1] = (double) calibrationFactorsAttr.getData().getElemFloat();
-
-        if (Double.compare(newCalibrationConstant[0], 0.0) == 0 && Double.compare(newCalibrationConstant[1], 0.0) == 0) {
-            throw new OperatorException("Calibration factors in metadata are zero");
-        }
-        //System.out.println("calibration factor for band 1 is " + calibrationFactor[0]);
-        //System.out.println("calibration factor for band 2 is " + calibrationFactor[1]);
     }
 
     /**
