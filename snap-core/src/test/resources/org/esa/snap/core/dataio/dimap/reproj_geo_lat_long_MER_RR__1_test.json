@@ -1128,12 +1128,6 @@
                 "description": "Pixel is invalid"
             },
             {
-                "name": "geometry",
-                "type": "org.esa.snap.core.datamodel.Mask$VectorDataType",
-                "color": "255,0,0",
-                "description": "Mask derived from geometries in 'geometry'"
-            },
-            {
                 "name": "pins",
                 "type": "org.esa.snap.core.datamodel.Mask$VectorDataType",
                 "color": "255,0,0",
