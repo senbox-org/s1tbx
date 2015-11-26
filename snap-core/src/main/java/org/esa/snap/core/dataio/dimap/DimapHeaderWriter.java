@@ -246,16 +246,20 @@ public final class DimapHeaderWriter extends XmlWriter {
                     for (RasterDataNode ancillaryVariable : ancillaryVariables) {
                         printLine(indent + 2, DimapProductConstants.TAG_ANCILLARY_VARIABLE, ancillaryVariable.getName());
                     }
-//                    final AffineTransform imageToModelTransform = band.getImageToModelTransform();
-//                    if (!imageToModelTransform.isIdentity()) {
-//                        final double[] matrix = new double[6];
-//                        imageToModelTransform.getMatrix(matrix);
-//                        printLine(indent + 2, DimapProductConstants.TAG_IMAGE_TO_MODEL_TRANSFORM, StringUtils.arrayToCsv(matrix));
-//                    }
+                    printImageToModelTransform(band, indent);
                     println(sbiTags[1]);
                 }
             }
             println(iiTags[1]);
+        }
+    }
+
+    private void printImageToModelTransform(RasterDataNode rasterDataNode, int indent) {
+        final AffineTransform imageToModelTransform = rasterDataNode.getImageToModelTransform();
+        if (!imageToModelTransform.isIdentity()) {
+            final double[] matrix = new double[6];
+            imageToModelTransform.getMatrix(matrix);
+            printLine(indent + 2, DimapProductConstants.TAG_IMAGE_TO_MODEL_TRANSFORM, StringUtils.arrayToCsv(matrix));
         }
     }
 
@@ -403,6 +407,7 @@ public final class DimapHeaderWriter extends XmlWriter {
                 printLine(indent + 2, DimapProductConstants.TAG_TIE_POINT_STEP_Y, tiePointGrid.getSubSamplingY());
                 final boolean cyclic = tiePointGrid.getDiscontinuity() != TiePointGrid.DISCONT_NONE;
                 printLine(indent + 2, DimapProductConstants.TAG_TIE_POINT_CYCLIC, cyclic);
+                printImageToModelTransform(tiePointGrid, indent);
                 println(tpgiTags[1]);
             }
             println(tpgTags[1]);

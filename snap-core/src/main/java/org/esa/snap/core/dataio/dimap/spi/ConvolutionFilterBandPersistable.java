@@ -119,7 +119,6 @@ class ConvolutionFilterBandPersistable implements DimapPersistable {
         return new Kernel(width, height, xOrigin, yOrigin, factor, data);
     }
 
-
     static Element convertKernelToElement(Kernel kernel) {
         final List<Element> filterKernelList = new ArrayList<>();
         filterKernelList.add(createElement(DimapProductConstants.TAG_KERNEL_WIDTH, String.valueOf(kernel.getWidth())));
@@ -154,5 +153,4 @@ class ConvolutionFilterBandPersistable implements DimapPersistable {
         elem.setText(text);
         return elem;
     }
-
 }

@@ -23,7 +23,7 @@ import org.jdom.Element;
  * and write object to BEAM-DIMAP XML.
  *
  * <p><i>Note that this class is not yet public API. Interface may change in future releases.</i>
- * 
+ *
  * @author Marco Peters
  * @version $Revision$ $Date$
  */

@@ -41,6 +41,7 @@ import org.esa.snap.core.datamodel.PointingFactoryRegistry;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.ProductNodeGroup;
+import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.datamodel.SampleCoding;
 import org.esa.snap.core.datamodel.Stx;
 import org.esa.snap.core.datamodel.StxFactory;
@@ -1385,6 +1386,8 @@ public class DimapProductHelpers {
                     tiePointGrid.setDescription(
                             gridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_DESCRIPTION));
                     tiePointGrid.setUnit(gridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_PHYSICAL_UNIT));
+
+                    setImageToModelTransform(gridInfo, tiePointGrid);
                     product.addTiePointGrid(tiePointGrid);
                 }
             }
@@ -1749,15 +1752,15 @@ public class DimapProductHelpers {
             band.setAncillaryRelations(relations);
         }
 
-        private static void setImageToModelTransform(Element element, Band band) {
+        private static void setImageToModelTransform(Element element, RasterDataNode rasterDataNode) {
             final String transform = element.getChildTextTrim(DimapProductConstants.TAG_IMAGE_TO_MODEL_TRANSFORM);
-            if (transform != null) {
+            if (transform != null&& transform.length() > 0) {
                 double[] matrix = StringUtils.toDoubleArray(transform, null);
-                if (!band.isSourceImageSet()) {
-                    band.setImageToModelTransform(new AffineTransform(matrix));
+                if (!rasterDataNode.isSourceImageSet()) {
+                    rasterDataNode.setImageToModelTransform(new AffineTransform(matrix));
                 } else {
-                    SystemUtils.LOG.warning(String.format("Band '%s': can't set image-to-model transform, " +
-                                                                  "source image already set", band.getName()));
+                    SystemUtils.LOG.warning(String.format("RasterDataNode '%s': can't set image-to-model transform, " +
+                                                          "source image already set", rasterDataNode.getName()));
                 }
             }
         }

@@ -16,14 +16,29 @@
 
 package org.esa.snap.core.dataio.dimap.spi;
 
+import static org.esa.snap.core.dataio.dimap.DimapProductConstants.ATTRIB_ALPHA;
+import static org.esa.snap.core.dataio.dimap.DimapProductConstants.ATTRIB_BLUE;
+import static org.esa.snap.core.dataio.dimap.DimapProductConstants.ATTRIB_GREEN;
+import static org.esa.snap.core.dataio.dimap.DimapProductConstants.ATTRIB_RED;
+import static org.esa.snap.core.dataio.dimap.DimapProductConstants.ATTRIB_TYPE;
+import static org.esa.snap.core.dataio.dimap.DimapProductConstants.ATTRIB_VALUE;
+import static org.esa.snap.core.dataio.dimap.DimapProductConstants.TAG_COLOR;
+import static org.esa.snap.core.dataio.dimap.DimapProductConstants.TAG_DESCRIPTION;
+import static org.esa.snap.core.dataio.dimap.DimapProductConstants.TAG_IMAGE_TO_MODEL_TRANSFORM;
+import static org.esa.snap.core.dataio.dimap.DimapProductConstants.TAG_MASK;
+import static org.esa.snap.core.dataio.dimap.DimapProductConstants.TAG_MASK_RASTER_HEIGHT;
+import static org.esa.snap.core.dataio.dimap.DimapProductConstants.TAG_MASK_RASTER_WIDTH;
+import static org.esa.snap.core.dataio.dimap.DimapProductConstants.TAG_NAME;
+import static org.esa.snap.core.dataio.dimap.DimapProductConstants.TAG_TRANSPARENCY;
+
 import com.bc.ceres.binding.PropertyContainer;
 import org.esa.snap.core.datamodel.Mask;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.util.StringUtils;
 import org.jdom.Element;
 
 import java.awt.Color;
-
-import static org.esa.snap.core.dataio.dimap.DimapProductConstants.*;
+import java.awt.geom.AffineTransform;
 
 /**
  * @author Marco Peters
@@ -36,7 +51,7 @@ public abstract class MaskPersistable implements DimapPersistable {
         final String name = getChildAttributeValue(element, TAG_NAME, ATTRIB_VALUE);
         final int width;
         final int height;
-        if(element.getChild(TAG_MASK_RASTER_WIDTH) != null && element.getChild(TAG_MASK_RASTER_HEIGHT) != null) {
+        if (element.getChild(TAG_MASK_RASTER_WIDTH) != null && element.getChild(TAG_MASK_RASTER_HEIGHT) != null) {
             width = Integer.parseInt(getChildAttributeValue(element, TAG_MASK_RASTER_WIDTH, ATTRIB_VALUE));
             height = Integer.parseInt(getChildAttributeValue(element, TAG_MASK_RASTER_HEIGHT, ATTRIB_VALUE));
         } else {
@@ -53,6 +68,12 @@ public abstract class MaskPersistable implements DimapPersistable {
         final int a = Integer.parseInt(getChildAttributeValue(element, TAG_COLOR, ATTRIB_ALPHA));
         mask.setImageColor(new Color(r, g, b, a));
 
+        final String matrix = element.getChildTextTrim(TAG_IMAGE_TO_MODEL_TRANSFORM);
+        if (matrix != null && matrix.length() > 0) {
+            final AffineTransform transform = new AffineTransform(StringUtils.toDoubleArray(matrix, null));
+            mask.setImageToModelTransform(transform);
+        }
+
         configureMask(mask, element);
         return mask;
     }
@@ -62,11 +83,17 @@ public abstract class MaskPersistable implements DimapPersistable {
         final Mask mask = (Mask) object;
         final Element root = new Element(TAG_MASK);
         root.setAttribute(ATTRIB_TYPE, mask.getImageType().getName());
-
         root.addContent(createElement(TAG_NAME, mask.getName()));
         root.addContent(createElement(TAG_MASK_RASTER_WIDTH, String.valueOf(mask.getRasterWidth())));
         root.addContent(createElement(TAG_MASK_RASTER_HEIGHT, String.valueOf(mask.getRasterHeight())));
         root.addContent(createElement(TAG_DESCRIPTION, mask.getDescription()));
+        addImageConfigElements(root, mask);
+        addImageToModelTransform(root, mask);
+        configureElement(root, mask);
+        return root;
+    }
+
+    private void addImageConfigElements(Element root, Mask mask) {
         final Element colorElement = new Element(TAG_COLOR);
         final PropertyContainer config = mask.getImageConfig();
         final Color color = config.getValue(Mask.ImageType.PROPERTY_NAME_COLOR);
@@ -78,9 +105,16 @@ public abstract class MaskPersistable implements DimapPersistable {
         Object transparencyValue = config.getValue(Mask.ImageType.PROPERTY_NAME_TRANSPARENCY);
         final String transparency = String.valueOf(transparencyValue);
         root.addContent(createElement(TAG_TRANSPARENCY, transparency));
-        configureElement(root, mask);
-        
-        return root;
+    }
+
+    private void addImageToModelTransform(Element root, Mask mask) {
+        final AffineTransform imageToModelTransform = mask.getImageToModelTransform();
+        if (!imageToModelTransform.isIdentity()) {
+            final double[] matrix = new double[6];
+            imageToModelTransform.getMatrix(matrix);
+            final String csvValue = StringUtils.arrayToCsv(matrix);
+            root.addContent(createElement(TAG_IMAGE_TO_MODEL_TRANSFORM, csvValue));
+        }
     }
 
     protected abstract Mask.ImageType createImageType();
