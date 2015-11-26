@@ -51,7 +51,7 @@ import java.util.Map;
  * 8. GLCM Mean
  * 9. GLCM Variance
  * 10. GLCM Correlation
- * <p/>
+ * <p>
  * [1] Robert M. Haralick, K. Shanmugam, and Its'hak Dinstein. "Textural Features for Image Classification"
  * IEEE Trans. on Systems, Man and Cybernetics, Vol 3 , No. 6, pp. 610-621, Nov. 1973.
  */
@@ -121,14 +121,12 @@ public final class GLCMOp extends Operator {
     @Parameter(description = "Output GLCM Correlation", defaultValue = "true", label = "GLCM Correlation")
     private Boolean outputCorrelation = true;
 
-    private int windowSize = 0;
     private int halfWindowSize = 0;
     private int numQuantLevels = 0;
     private int displacementX = 0;
     private int displacementY = 0;
     private int sourceImageWidth = 0;
     private int sourceImageHeight = 0;
-    private double bandMax = 0.0;
     private double bandMin = 0.0;
     private double delta = 0.0;
     private boolean useProbabilisticQuantizer = false;
@@ -156,7 +154,7 @@ public final class GLCMOp extends Operator {
     private static final String WINDOW_SIZE_9x9 = "9x9";
     private static final String WINDOW_SIZE_11x11 = "11x11";
 
-    private static double epsilon = 1.0e-10;
+    private static final double epsilon = 1.0e-10;
 
     enum GLCM_TYPES {
         Contrast,
@@ -214,6 +212,7 @@ public final class GLCMOp extends Operator {
      */
     private void setWindowSize() {
 
+        int windowSize = 0;
         switch (windowSizeStr) {
             case WINDOW_SIZE_5x5:
                 windowSize = 5;
@@ -304,9 +303,9 @@ public final class GLCMOp extends Operator {
         sourceImageHeight = sourceProduct.getSceneRasterHeight();
 
         targetProduct = new Product(sourceProduct.getName(),
-                sourceProduct.getProductType(),
-                sourceImageWidth,
-                sourceImageHeight);
+                                    sourceProduct.getProductType(),
+                                    sourceImageWidth,
+                                    sourceImageHeight);
 
         addSelectedBands();
 
@@ -315,9 +314,9 @@ public final class GLCMOp extends Operator {
 
     private void getSourceBands() {
         final List<String> srcBandNameList = new ArrayList<>();
-        if(sourceBandNames != null) {
+        if (sourceBandNames != null) {
             // remove band names specific to another run
-            for(String srcBandName : sourceBandNames) {
+            for (String srcBandName : sourceBandNames) {
                 final Band srcBand = sourceProduct.getBand(srcBandName);
                 if (srcBand != null) {
                     srcBandNameList.add(srcBand.getName());
@@ -354,7 +353,7 @@ public final class GLCMOp extends Operator {
 
         targetBandNames = getTargetBandNames();
         final Band[] bands = OperatorUtils.addBands(targetProduct, targetBandNames, "");
-        for(Band band : bands) {
+        for (Band band : bands) {
             band.setNoDataValueUsed(true);
         }
     }
@@ -362,36 +361,36 @@ public final class GLCMOp extends Operator {
     private String[] getTargetBandNames() {
 
         final List<String> trgBandNames = new ArrayList<>();
-        for(String srcBandName : sourceBandNames) {
+        for (String srcBandName : sourceBandNames) {
             if (outputContrast) {
-                trgBandNames.add(srcBandName+'_'+GLCM_TYPES.Contrast.toString());
+                trgBandNames.add(srcBandName + '_' + GLCM_TYPES.Contrast.toString());
             }
             if (outputDissimilarity) {
-                trgBandNames.add(srcBandName+'_'+GLCM_TYPES.Dissimilarity.toString());
+                trgBandNames.add(srcBandName + '_' + GLCM_TYPES.Dissimilarity.toString());
             }
             if (outputHomogeneity) {
-                trgBandNames.add(srcBandName+'_'+GLCM_TYPES.Homogeneity.toString());
+                trgBandNames.add(srcBandName + '_' + GLCM_TYPES.Homogeneity.toString());
             }
             if (outputASM) {
-                trgBandNames.add(srcBandName+'_'+GLCM_TYPES.ASM.toString());
+                trgBandNames.add(srcBandName + '_' + GLCM_TYPES.ASM.toString());
             }
             if (outputEnergy) {
-                trgBandNames.add(srcBandName+'_'+GLCM_TYPES.Energy.toString());
+                trgBandNames.add(srcBandName + '_' + GLCM_TYPES.Energy.toString());
             }
             if (outputMAX) {
-                trgBandNames.add(srcBandName+'_'+GLCM_TYPES.MAX.toString());
+                trgBandNames.add(srcBandName + '_' + GLCM_TYPES.MAX.toString());
             }
             if (outputEntropy) {
-                trgBandNames.add(srcBandName+'_'+GLCM_TYPES.Entropy.toString());
+                trgBandNames.add(srcBandName + '_' + GLCM_TYPES.Entropy.toString());
             }
             if (outputMean) {
-                trgBandNames.add(srcBandName+'_'+GLCM_TYPES.GLCMMean.toString());
+                trgBandNames.add(srcBandName + '_' + GLCM_TYPES.GLCMMean.toString());
             }
             if (outputVariance) {
-                trgBandNames.add(srcBandName+'_'+GLCM_TYPES.GLCMVariance.toString());
+                trgBandNames.add(srcBandName + '_' + GLCM_TYPES.GLCMVariance.toString());
             }
             if (outputCorrelation) {
-                trgBandNames.add(srcBandName+'_'+GLCM_TYPES.GLCMCorrelation.toString());
+                trgBandNames.add(srcBandName + '_' + GLCM_TYPES.GLCMCorrelation.toString());
             }
         }
 
@@ -436,7 +435,7 @@ public final class GLCMOp extends Operator {
         } else {
 
             bandMin = srcBand.getStx(true, ProgressMonitor.NULL).getMinimum();
-            bandMax = srcBand.getStx(true, ProgressMonitor.NULL).getMaximum();
+            double bandMax = srcBand.getStx(true, ProgressMonitor.NULL).getMaximum();
             delta = (bandMax - bandMin) / numQuantLevels;
         }
 
@@ -453,7 +452,7 @@ public final class GLCMOp extends Operator {
      * @throws OperatorException if an error occurs during computation of the target rasters.
      */
     @Override
-    public synchronized void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
+    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
 
         if (!quantizerAvailable) {
             computeQuantizationBins();
@@ -473,10 +472,11 @@ public final class GLCMOp extends Operator {
             final SrcInfo[] srcInfoList = new SrcInfo[sourceBandNames.length];
 
             int cnt = 0;
-            for(String srcBandName : sourceBandNames) {
+            for (String srcBandName : sourceBandNames) {
                 final Band sourceBand = sourceProduct.getBand(srcBandName);
                 srcInfoList[cnt] = new SrcInfo();
                 srcInfoList[cnt].sourceTile = getSourceTile(sourceBand, sourceTileRectangle);
+                srcInfoList[cnt].srcIndex = new TileIndex(srcInfoList[cnt].sourceTile);
                 srcInfoList[cnt].srcData = srcInfoList[cnt].sourceTile.getDataBuffer();
                 srcInfoList[cnt].noDataValue = (float) sourceBand.getNoDataValue();
                 srcInfoList[cnt].tfNoData = new TextureFeatures(
@@ -487,7 +487,7 @@ public final class GLCMOp extends Operator {
 
                 final List<TileData> tileDataList = new ArrayList<>();
                 for (String targetBandName : targetBandNames) {
-                    if(targetBandName.startsWith(srcBandName)) {
+                    if (targetBandName.startsWith(srcBandName)) {
                         final Band targetBand = targetProduct.getBand(targetBandName);
                         final Tile targetTile = targetTiles.get(targetBand);
                         tileDataList.add(new TileData(targetTile, targetBand.getName()));
@@ -505,15 +505,23 @@ public final class GLCMOp extends Operator {
                 for (int tx = tx0; tx < maxX; tx++) {
                     final int idx = trgIndex.getIndex(tx);
 
-                    for(SrcInfo srcInfo : srcInfoList) {
-                        float val = srcInfo.srcData.getElemFloatAt(srcInfo.sourceTile.getDataBufferIndex(tx, ty));
-                        if (Math.abs(val - srcInfo.noDataValue) < epsilon) {
+                    final int x0 = Math.max(tx - halfWindowSize, 0);
+                    final int y0 = Math.max(ty - halfWindowSize, 0);
+                    final int w = Math.min(tx + halfWindowSize, sourceImageWidth - 1) - x0 + 1;
+                    final int h = Math.min(ty + halfWindowSize, sourceImageHeight - 1) - y0 + 1;
+                    final int xMax = x0 + w;
+                    final int yMax = y0 + h;
+
+                    for (SrcInfo srcInfo : srcInfoList) {
+
+                        final int[][] quantizedImage = computeQuantizedImage(x0, y0, w, h, srcInfo);
+
+                        final GLCMElem[] GLCM = new GLCMElem[numQuantLevels*numQuantLevels];
+                        final Totals totals = computeGLCM(x0, y0, xMax, yMax, quantizedImage, GLCM);
+                        if (totals.totalCount == 0) {
                             tf = srcInfo.tfNoData;
                         } else {
-
-                            final GLCMElem[] GLCMElemList = computeGLCM(tx, ty, srcInfo.sourceTile, srcInfo.srcData,
-                                                                        srcInfo.noDataValue);
-                            tf = computeTextureFeatures(GLCMElemList);
+                            tf = computeTextureFeatures(GLCM, totals);
                         }
 
                         for (final TileData tileData : srcInfo.tileDataList) {
@@ -586,20 +594,16 @@ public final class GLCMOp extends Operator {
         return new Rectangle(sx0, sy0, sw, sh);
     }
 
-    private GLCMElem[] computeGLCM(final int tx, final int ty, final Tile sourceTile,
-                                            final ProductData srcData, final double noDataValue) {
+    private static class Totals {
+        public int numElems = 0;
+        public int totalCount = 0;
+    }
 
-        final int x0 = Math.max(tx - halfWindowSize, 0);
-        final int y0 = Math.max(ty - halfWindowSize, 0);
-        final int w = Math.min(tx + halfWindowSize, sourceImageWidth - 1) - x0 + 1;
-        final int h = Math.min(ty + halfWindowSize, sourceImageHeight - 1) - y0 + 1;
-        final int xMax = x0 + w;
-        final int yMax = y0 + h;
+    private Totals computeGLCM(final int x0, final int y0, final int xMax, final int yMax,
+                            final int[][] quantizedImage, final GLCMElem[] GLCM) {
 
-        final int[][] quantizedImage = computeQuantizedImage(x0, y0, w, h, sourceTile, srcData, noDataValue);
-        final double[][] GLCM = new double[numQuantLevels][numQuantLevels];
-
-        int xx, yy, dX, dY, counter = 0;
+        final Totals totals = new Totals();
+        int xx, yy, dX, dY;
         if (computeGLCPWithAllAngles) {
 
             for (int y = y0; y < yMax; y++) {
@@ -643,9 +647,9 @@ public final class GLCMOp extends Operator {
                             continue;
                         }
 
-                        GLCM[i][j]++;
-                        GLCM[j][i]++;
-                        counter++;
+                        addElement(GLCM, i, j, totals);
+                        addElement(GLCM, j, i, totals);
+                        totals.totalCount++;
                     }
                 }
             }
@@ -672,71 +676,52 @@ public final class GLCMOp extends Operator {
                         continue;
                     }
 
-                    GLCM[i][j]++;
-                    GLCM[j][i]++;
-                    counter++;
+                    addElement(GLCM, i, j, totals);
+                    addElement(GLCM, j, i, totals);
+                    totals.totalCount++;
                 }
             }
         }
 
-        final ArrayList<GLCMElem> GLCMElemList = new ArrayList<>();
-
-        if (counter > 0) {
-            for (int i = 0; i < numQuantLevels; i++) {
-                for (int j = 0; j < numQuantLevels; j++) {
-                    if (GLCM[i][j] > 0.0) {
-                        GLCMElemList.add(new GLCMElem(i, j, GLCM[i][j] / counter));
-                    }
-                }
-            }
-        }
-
-        return GLCMElemList.toArray(new GLCMElem[GLCMElemList.size()]);
+        return totals;
     }
 
-    private int[][] computeQuantizedImage(final int x0, final int y0, final int w, final int h, final Tile sourceTile,
-                                          final ProductData srcData, final double noDataValue) {
+    private void addElement(final GLCMElem[] GLCM, final int i, final int j, final Totals totals) {
+        int index = i * numQuantLevels + j;
+        GLCMElem e = GLCM[index];
+        if (e == null) {
+            e = new GLCMElem(i, j);
+            GLCM[index] = e;
+            totals.numElems++;
+        }
+        e.value++;
+    }
+
+    private int[][] computeQuantizedImage(final int x0, final int y0, final int w, final int h, SrcInfo srcInfo) {
 
         final int[][] data = new int[h][w];
         final int maxX = x0 + w;
         final int maxY = y0 + h;
 
-        if (useProbabilisticQuantizer) {
-
-            int xx, yy;
-            for (int y = y0; y < maxY; y++) {
-                yy = y - y0;
-                for (int x = x0; x < maxX; x++) {
-                    xx = x - x0;
-                    final double v = srcData.getElemDoubleAt(sourceTile.getDataBufferIndex(x, y));
-                    if (Double.isNaN(v) || v == noDataValue) {
-                        data[yy][xx] = -1;
-                    } else {
-                        data[yy][xx] = probQuantizer(v);
-                    }
-                }
-            }
-
-        } else {
-
-            int xx, yy;
-            for (int y = y0; y < maxY; y++) {
-                yy = y - y0;
-                for (int x = x0; x < maxX; x++) {
-                    xx = x - x0;
-                    final double v = srcData.getElemDoubleAt(sourceTile.getDataBufferIndex(x, y));
-                    if (Double.isNaN(v) || v == noDataValue) {
-                        data[yy][xx] = -1;
-                    } else {
-                        data[yy][xx] = equalDisQuantizer(v);
-                    }
+        int xx, yy;
+        for (int y = y0; y < maxY; y++) {
+            yy = y - y0;
+            for (int x = x0; x < maxX; x++) {
+                xx = x - x0;
+                final double v = srcInfo.srcData.getElemDoubleAt(srcInfo.sourceTile.getDataBufferIndex(x, y));
+                if (v == srcInfo.noDataValue) {
+                    data[yy][xx] = -1;
+                } else if (useProbabilisticQuantizer) {
+                    data[yy][xx] = probQuantizer(v);
+                } else {
+                    data[yy][xx] = equalDisQuantizer(v);
                 }
             }
         }
         return data;
     }
 
-    private TextureFeatures computeTextureFeatures(final GLCMElem[] GLCMElemList) {
+    private TextureFeatures computeTextureFeatures(final GLCMElem[] GLCM, final Totals totals) {
 
         double Contrast = 0.0, Dissimilarity = 0.0, Homogeneity = 0.0, ASM = 0.0, Energy = 0.0,
                 MAX = 0.0, Entropy = 0.0, GLCMMeanX = 0.0, GLCMMeanY = 0.0,
@@ -747,55 +732,71 @@ public final class GLCMOp extends Operator {
         final boolean doHomogeneity = outputHomogeneity;
         final boolean doASM = outputASM || outputEnergy;
         final boolean doEntropy = outputEntropy;
-
-        for (GLCMElem e : GLCMElemList) {
-            final int ij = e.row - e.col;
-            final double GLCMval = e.prob;
-
-            if(doContrast)
-                Contrast += GLCMval * ij * ij;
-
-            if (doDissimilarity)
-                Dissimilarity += GLCMval * Math.abs(ij);
-
-            if(doHomogeneity)
-                Homogeneity += GLCMval / (1 + ij * ij);
-
-            if(doASM)
-                ASM += GLCMval * GLCMval;
-
-            if (MAX < GLCMval)
-                MAX = GLCMval;
-
-            if (doEntropy)
-                Entropy += -GLCMval * Math.log(GLCMval + Constants.EPS);
-
-            GLCMMeanY += GLCMval * e.row;
-            GLCMMeanX += GLCMval * e.col;
+        final boolean doVariance = outputVariance;
+        final boolean doCorrelation = outputCorrelation;
+        GLCMElem[] glcmList2 = null;
+        if(doVariance || doCorrelation) {
+            glcmList2 = new GLCMElem[totals.numElems];
         }
 
-        if(doASM) {
+        int cnt = 0;
+        for (GLCMElem e : GLCM) {
+            if (e != null && e.value > 0.0) {
+                final int ij = e.row - e.col;
+                e.prob = e.value / (double)totals.totalCount;
+                final double GLCMval = e.prob;
+
+                if (doContrast)
+                    Contrast += GLCMval * ij * ij;
+
+                if (doDissimilarity)
+                    Dissimilarity += GLCMval * Math.abs(ij);
+
+                if (doHomogeneity)
+                    Homogeneity += GLCMval / (1 + ij * ij);
+
+                if (doASM)
+                    ASM += GLCMval * GLCMval;
+
+                if (MAX < GLCMval)
+                    MAX = GLCMval;
+
+                if (doEntropy)
+                    Entropy += -GLCMval * Math.log(GLCMval + Constants.EPS);
+
+                GLCMMeanY += GLCMval * e.row;
+                GLCMMeanX += GLCMval * e.col;
+
+                if(doVariance || doCorrelation) {
+                    glcmList2[cnt++] = e;
+                }
+            }
+        }
+
+        if (doASM) {
             Energy = Math.sqrt(ASM);
         }
 
-        if(outputMean) {
+        if (outputMean) {
             GLCMMean = (GLCMMeanX + GLCMMeanY) / 2.0;
         }
 
         double GLCMVarianceX = 0.0, GLCMVarianceY = 0.0;
         double GLCMCorrelation = 0.0;
-        if (outputVariance || outputCorrelation) {
-            for (GLCMElem e : GLCMElemList) {
-                GLCMVarianceX += e.prob * (e.col - GLCMMeanX) * (e.col - GLCMMeanX);
-                GLCMVarianceY += e.prob * (e.row - GLCMMeanY) * (e.row - GLCMMeanY);
+        if (doVariance || doCorrelation) {
+            for (GLCMElem e : glcmList2) {
+                e.diff_col_GLCMMeanX = e.col - GLCMMeanX;
+                e.diff_row_GLCMMeanY = e.row - GLCMMeanY;
+                GLCMVarianceX += e.prob * e.diff_col_GLCMMeanX * e.diff_col_GLCMMeanX;
+                GLCMVarianceY += e.prob * e.diff_row_GLCMMeanY * e.diff_row_GLCMMeanY;
             }
-            if(outputVariance) {
+            if (doVariance) {
                 GLCMVariance = (GLCMVarianceX + GLCMVarianceY) / 2.0;
             }
-            if (outputCorrelation) {
+            if (doCorrelation) {
                 double sqrtOfGLCMVariance = Math.sqrt(GLCMVarianceX * GLCMVarianceY);
-                for (GLCMElem e : GLCMElemList) {
-                    GLCMCorrelation += e.prob * (e.row - GLCMMeanY) * (e.col - GLCMMeanX) / sqrtOfGLCMVariance;
+                for (GLCMElem e : glcmList2) {
+                    GLCMCorrelation += e.prob * e.diff_row_GLCMMeanY * e.diff_col_GLCMMeanX / sqrtOfGLCMVariance;
                 }
             }
         }
@@ -845,6 +846,7 @@ public final class GLCMOp extends Operator {
 
     private static class SrcInfo {
         public Tile sourceTile;
+        public TileIndex srcIndex;
         public ProductData srcData;
         public float noDataValue;
         public TextureFeatures tfNoData;
@@ -852,15 +854,11 @@ public final class GLCMOp extends Operator {
     }
 
     private static class TileData {
-        final Tile tile;
         final ProductData dataBuffer;
-        final String bandName;
         final GLCM_TYPES type;
 
         public TileData(final Tile tile, final String bandName) {
-            this.tile = tile;
             this.dataBuffer = tile.getDataBuffer();
-            this.bandName = bandName;
 
             if (bandName.endsWith(GLCM_TYPES.Contrast.toString()))
                 type = GLCM_TYPES.Contrast;
@@ -889,16 +887,16 @@ public final class GLCMOp extends Operator {
 
     private static class TextureFeatures {
 
-        public double Contrast;
-        public double Dissimilarity;
-        public double Homogeneity;
-        public double ASM;
-        public double Energy;
-        public double MAX;
-        public double Entropy;
-        public double GLCMMean;
-        public double GLCMVariance;
-        public double GLCMCorrelation;
+        public final double Contrast;
+        public final double Dissimilarity;
+        public final double Homogeneity;
+        public final double ASM;
+        public final double Energy;
+        public final double MAX;
+        public final double Entropy;
+        public final double GLCMMean;
+        public final double GLCMVariance;
+        public final double GLCMCorrelation;
 
         TextureFeatures(
                 final double Contrast,
@@ -928,12 +926,14 @@ public final class GLCMOp extends Operator {
 
         public final int row;
         public final int col;
-        public final double prob;
+        public int value = 0;
+        public double prob;
+        public double diff_col_GLCMMeanX;
+        public double diff_row_GLCMMeanY;
 
-        GLCMElem(final int row, final int col, final double prob) {
+        GLCMElem(final int row, final int col) {
             this.row = row;
             this.col = col;
-            this.prob = prob;
         }
     }
 
