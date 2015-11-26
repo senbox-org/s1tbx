@@ -512,10 +512,7 @@ public final class OperatorUtils {
 
             String targetUnit = "";
 
-            if (unit.contains(Unit.PHASE) && outputIntensity) {
-                continue;
-
-            } else if (unit.contains(Unit.IMAGINARY) && outputIntensity && !isPolsar) {
+            if (unit.contains(Unit.IMAGINARY) && outputIntensity && !isPolsar) {
 
                 throw new OperatorException("Real and imaginary bands should be selected in pairs");
 
