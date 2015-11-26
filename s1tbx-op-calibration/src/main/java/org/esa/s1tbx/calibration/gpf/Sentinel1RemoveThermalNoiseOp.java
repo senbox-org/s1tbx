@@ -239,6 +239,10 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                     inputDNBand = true;
                 }
             }
+
+            if (!inputSigmaBand && !inputGammaBand && !inputBetaBand && !inputDNBand) {
+                throw new OperatorException("For calibrated product, Sigma0 or Gamma0 or Beta0 or DN band is expected");
+            }
         }
     }
 
