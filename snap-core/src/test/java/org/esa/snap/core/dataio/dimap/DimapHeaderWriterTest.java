@@ -17,6 +17,7 @@ package org.esa.snap.core.dataio.dimap;
 
 import static junit.framework.TestCase.assertEquals;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ConvolutionFilterBand;
 import org.esa.snap.core.datamodel.CrsGeoCoding;
@@ -248,7 +249,6 @@ public class DimapHeaderWriterTest {
     }
 
     @Test
-    @Ignore
     public void testWritePixelGeoCoding() throws IOException {
         final String expected = setPixelGeoCodingAndGetExpected();
 
@@ -257,14 +257,15 @@ public class DimapHeaderWriterTest {
         assertEquals(expected, stringWriter.toString());
     }
 
-//    @Test
-//    public void testWritePixelGeoCodingWithoutEstimator() throws IOException {
-//        final String expectedForPixelGeoCoding = setPixelGeoCodingWithoutEstimatorAndGetExpected();
-//
-//        dimapHeaderWriter.writeHeader();
-//
-//        assertEquals(expectedForPixelGeoCoding, stringWriter.toString());
-//    }
+    @Test
+    @Ignore
+    public void testWritePixelGeoCodingWithoutEstimator() throws IOException {
+        final String expectedForPixelGeoCoding = setPixelGeoCodingWithoutEstimatorAndGetExpected();
+
+        dimapHeaderWriter.writeHeader();
+
+        assertEquals(expectedForPixelGeoCoding, stringWriter.toString());
+    }
 
     @Test
     public void testWriteCrsGeoCoding() throws Exception {
@@ -294,49 +295,49 @@ public class DimapHeaderWriterTest {
     }
 
 
-//    @Test
-//    public void testWriteImageToModelTransform() throws Exception {
-//        final String expected = addBandWithTransformAndGetExpected();
-//
-//        dimapHeaderWriter.writeHeader();
-//
-//        assertEquals(expected, stringWriter.toString());
-//    }
+    @Test
+    public void testWriteImageToModelTransform() throws Exception {
+        final String expected = addBandWithTransformAndGetExpected();
+
+        dimapHeaderWriter.writeHeader();
+
+        assertEquals(expected, stringWriter.toString());
+    }
 
 
-//    private String addBandWithTransformAndGetExpected() {
-//        final Band band = product.addBand("b1", "X + Y");
-//        band.setImageToModelTransform(new AffineTransform(new double[]{2,3,4,5,6,7}));
-//        return header +
-//               getRasterDimensions() +
-//               "    <Data_Access>" + LS +
-//               "        <DATA_FILE_FORMAT>ENVI</DATA_FILE_FORMAT>" + LS +
-//               "        <DATA_FILE_FORMAT_DESC>ENVI File Format</DATA_FILE_FORMAT_DESC>" + LS +
-//               "        <DATA_FILE_ORGANISATION>BAND_SEPARATE</DATA_FILE_ORGANISATION>" + LS +
-//               "    </Data_Access>" + LS +
-//               "    <Image_Interpretation>" + LS +
-//               "        <Spectral_Band_Info>" + LS +
-//               "            <BAND_INDEX>0</BAND_INDEX>" + LS +
-//               "            <BAND_DESCRIPTION />" + LS +
-//               "            <BAND_NAME>b1</BAND_NAME>" + LS +
-//               "            <BAND_RASTER_WIDTH>200</BAND_RASTER_WIDTH>" + LS +
-//               "            <BAND_RASTER_HEIGHT>300</BAND_RASTER_HEIGHT>" + LS +
-//               "            <DATA_TYPE>float32</DATA_TYPE>" + LS +
-//               "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
-//               "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
-//               "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
-//               "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
-//               "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
-//               "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
-//               "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
-//               "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
-//               "            <VIRTUAL_BAND>true</VIRTUAL_BAND>" + LS +
-//               "            <EXPRESSION>X + Y</EXPRESSION>" + LS +
-//               "            <IMAGE_TO_MODEL_TRANSFORM>2.0,3.0,4.0,5.0,6.0,7.0</IMAGE_TO_MODEL_TRANSFORM>" + LS +
-//               "        </Spectral_Band_Info>" + LS +
-//               "    </Image_Interpretation>" + LS +
-//               footer;
-//    }
+    private String addBandWithTransformAndGetExpected() {
+        final Band band = product.addBand("b1", "X + Y");
+        band.setImageToModelTransform(new AffineTransform(new double[]{2,3,4,5,6,7}));
+        return header +
+               getRasterDimensions() +
+               "    <Data_Access>" + LS +
+               "        <DATA_FILE_FORMAT>ENVI</DATA_FILE_FORMAT>" + LS +
+               "        <DATA_FILE_FORMAT_DESC>ENVI File Format</DATA_FILE_FORMAT_DESC>" + LS +
+               "        <DATA_FILE_ORGANISATION>BAND_SEPARATE</DATA_FILE_ORGANISATION>" + LS +
+               "    </Data_Access>" + LS +
+               "    <Image_Interpretation>" + LS +
+               "        <Spectral_Band_Info>" + LS +
+               "            <BAND_INDEX>0</BAND_INDEX>" + LS +
+               "            <BAND_DESCRIPTION />" + LS +
+               "            <BAND_NAME>b1</BAND_NAME>" + LS +
+               "            <BAND_RASTER_WIDTH>200</BAND_RASTER_WIDTH>" + LS +
+               "            <BAND_RASTER_HEIGHT>300</BAND_RASTER_HEIGHT>" + LS +
+               "            <DATA_TYPE>float32</DATA_TYPE>" + LS +
+               "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
+               "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
+               "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
+               "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
+               "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
+               "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
+               "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
+               "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
+               "            <VIRTUAL_BAND>true</VIRTUAL_BAND>" + LS +
+               "            <EXPRESSION>X + Y</EXPRESSION>" + LS +
+               "            <IMAGE_TO_MODEL_TRANSFORM>2.0,3.0,4.0,5.0,6.0,7.0</IMAGE_TO_MODEL_TRANSFORM>" + LS +
+               "        </Spectral_Band_Info>" + LS +
+               "    </Image_Interpretation>" + LS +
+               footer;
+    }
 
     private String addAncillaryBandsAndGetExpected() {
         final Band anyBand = product.addBand("anyBand", "X + Y");
@@ -946,71 +947,71 @@ public class DimapHeaderWriterTest {
                footer;
     }
 
-//    private String setPixelGeoCodingWithoutEstimatorAndGetExpected() throws IOException {
-//        final Band b1 = product.addBand("b1", ProductData.TYPE_INT8);
-//        final Band b2 = product.addBand("b2", ProductData.TYPE_INT8);
-//        final byte[] bandData = new byte[product.getRasterWidth() * product.getRasterHeight()];
-//        b1.setDataElems(bandData);
-//        b2.setDataElems(bandData);
-//
-//        final PixelGeoCoding pixelGeoCoding = new PixelGeoCoding(b1, b2, null, 4, ProgressMonitor.NULL);
-//        product.setGeoCoding(pixelGeoCoding);
-//        return header +
-//                "    <Geoposition>" + LS +
-//                "        <LATITUDE_BAND>" + pixelGeoCoding.getLatBand().getName() + "</LATITUDE_BAND>" + LS +
-//                "        <LONGITUDE_BAND>" + pixelGeoCoding.getLonBand().getName() + "</LONGITUDE_BAND>" + LS +
-//                "        <SEARCH_RADIUS>" + pixelGeoCoding.getSearchRadius() + "</SEARCH_RADIUS>" + LS +
-//               "    </Geoposition>" + LS +
-//               "    <Raster_Dimensions>" + LS +
-//               "        <NCOLS>200</NCOLS>" + LS +
-//               "        <NROWS>300</NROWS>" + LS +
-//               "        <NBANDS>2</NBANDS>" + LS +
-//               "    </Raster_Dimensions>" + LS +
-//               "    <Data_Access>" + LS +
-//               "        <DATA_FILE_FORMAT>ENVI</DATA_FILE_FORMAT>" + LS +
-//               "        <DATA_FILE_FORMAT_DESC>ENVI File Format</DATA_FILE_FORMAT_DESC>" + LS +
-//               "        <DATA_FILE_ORGANISATION>BAND_SEPARATE</DATA_FILE_ORGANISATION>" + LS +
-//               "        <Data_File>" + LS +
-//               "            <DATA_FILE_PATH href=\"test.data/b1.hdr\" />" + LS +
-//               "            <BAND_INDEX>0</BAND_INDEX>" + LS +
-//               "        </Data_File>" + LS +
-//               "        <Data_File>" + LS +
-//               "            <DATA_FILE_PATH href=\"test.data/b2.hdr\" />" + LS +
-//               "            <BAND_INDEX>1</BAND_INDEX>" + LS +
-//               "        </Data_File>" + LS +
-//               "    </Data_Access>" + LS +
-//               "    <Image_Interpretation>" + LS +
-//               "        <Spectral_Band_Info>" + LS +
-//               "            <BAND_INDEX>0</BAND_INDEX>" + LS +
-//               "            <BAND_DESCRIPTION />" + LS +
-//               "            <BAND_NAME>b1</BAND_NAME>" + LS +
-//               "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
-//               "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
-//               "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
-//               "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
-//               "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
-//               "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
-//               "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
-//               "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
-//               "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
-//               "        </Spectral_Band_Info>" + LS +
-//               "        <Spectral_Band_Info>" + LS +
-//               "            <BAND_INDEX>1</BAND_INDEX>" + LS +
-//               "            <BAND_DESCRIPTION />" + LS +
-//               "            <BAND_NAME>b2</BAND_NAME>" + LS +
-//               "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
-//               "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
-//               "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
-//               "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
-//               "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
-//               "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
-//               "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
-//               "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
-//               "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
-//               "        </Spectral_Band_Info>" + LS +
-//               "    </Image_Interpretation>" + LS +
-//               footer;
-//    }
+    private String setPixelGeoCodingWithoutEstimatorAndGetExpected() throws IOException {
+        final Band b1 = product.addBand("b1", ProductData.TYPE_INT8);
+        final Band b2 = product.addBand("b2", ProductData.TYPE_INT8);
+        final byte[] bandData = new byte[product.getSceneRasterWidth() * product.getSceneRasterHeight()];
+        b1.setDataElems(bandData);
+        b2.setDataElems(bandData);
+
+        final PixelGeoCoding pixelGeoCoding = new PixelGeoCoding(b1, b2, null, 4, ProgressMonitor.NULL);
+        product.setSceneGeoCoding(pixelGeoCoding);
+        return header +
+                "    <Geoposition>" + LS +
+                "        <LATITUDE_BAND>" + pixelGeoCoding.getLatBand().getName() + "</LATITUDE_BAND>" + LS +
+                "        <LONGITUDE_BAND>" + pixelGeoCoding.getLonBand().getName() + "</LONGITUDE_BAND>" + LS +
+                "        <SEARCH_RADIUS>" + pixelGeoCoding.getSearchRadius() + "</SEARCH_RADIUS>" + LS +
+               "    </Geoposition>" + LS +
+               "    <Raster_Dimensions>" + LS +
+               "        <NCOLS>200</NCOLS>" + LS +
+               "        <NROWS>300</NROWS>" + LS +
+               "        <NBANDS>2</NBANDS>" + LS +
+               "    </Raster_Dimensions>" + LS +
+               "    <Data_Access>" + LS +
+               "        <DATA_FILE_FORMAT>ENVI</DATA_FILE_FORMAT>" + LS +
+               "        <DATA_FILE_FORMAT_DESC>ENVI File Format</DATA_FILE_FORMAT_DESC>" + LS +
+               "        <DATA_FILE_ORGANISATION>BAND_SEPARATE</DATA_FILE_ORGANISATION>" + LS +
+               "        <Data_File>" + LS +
+               "            <DATA_FILE_PATH href=\"test.data/b1.hdr\" />" + LS +
+               "            <BAND_INDEX>0</BAND_INDEX>" + LS +
+               "        </Data_File>" + LS +
+               "        <Data_File>" + LS +
+               "            <DATA_FILE_PATH href=\"test.data/b2.hdr\" />" + LS +
+               "            <BAND_INDEX>1</BAND_INDEX>" + LS +
+               "        </Data_File>" + LS +
+               "    </Data_Access>" + LS +
+               "    <Image_Interpretation>" + LS +
+               "        <Spectral_Band_Info>" + LS +
+               "            <BAND_INDEX>0</BAND_INDEX>" + LS +
+               "            <BAND_DESCRIPTION />" + LS +
+               "            <BAND_NAME>b1</BAND_NAME>" + LS +
+               "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
+               "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
+               "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
+               "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
+               "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
+               "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
+               "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
+               "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
+               "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
+               "        </Spectral_Band_Info>" + LS +
+               "        <Spectral_Band_Info>" + LS +
+               "            <BAND_INDEX>1</BAND_INDEX>" + LS +
+               "            <BAND_DESCRIPTION />" + LS +
+               "            <BAND_NAME>b2</BAND_NAME>" + LS +
+               "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
+               "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
+               "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
+               "            <BANDWIDTH>0.0</BANDWIDTH>" + LS +
+               "            <SCALING_FACTOR>1.0</SCALING_FACTOR>" + LS +
+               "            <SCALING_OFFSET>0.0</SCALING_OFFSET>" + LS +
+               "            <LOG10_SCALED>false</LOG10_SCALED>" + LS +
+               "            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>" + LS +
+               "            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>" + LS +
+               "        </Spectral_Band_Info>" + LS +
+               "    </Image_Interpretation>" + LS +
+               footer;
+    }
 
     private String setCrsGeoCodingAndGetExpected() throws Exception {
 
