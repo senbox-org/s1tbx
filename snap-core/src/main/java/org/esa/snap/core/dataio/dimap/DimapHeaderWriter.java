@@ -392,7 +392,7 @@ public final class DimapHeaderWriter extends XmlWriter {
             println(tpgTags[0]);
             printLine(indent + 1, DimapProductConstants.TAG_TIE_POINT_NUM_TIE_POINT_GRIDS, tiePointGrids.length);
             for (int i = 0; i < tiePointGrids.length; i++) {
-                TiePointGrid tiePointGrid = tiePointGrids[i];
+                final TiePointGrid tiePointGrid = tiePointGrids[i];
                 final String[] tpgInfoTags = createTags(indent + 1, DimapProductConstants.TAG_TIE_POINT_GRID_INFO);
                 println(tpgInfoTags[0]);
                 printLine(indent + 2, DimapProductConstants.TAG_TIE_POINT_GRID_INDEX, i);
