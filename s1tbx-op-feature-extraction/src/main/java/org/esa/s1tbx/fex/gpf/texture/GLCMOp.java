@@ -276,7 +276,7 @@ public final class GLCMOp extends Operator {
                 displacementY = 0;
                 break;
             case ANGLE_45:
-                displacementX = displacement;
+                displacementX = -displacement;
                 displacementY = displacement;
                 break;
             case ANGLE_90:
@@ -284,7 +284,7 @@ public final class GLCMOp extends Operator {
                 displacementY = displacement;
                 break;
             case ANGLE_135:
-                displacementX = -displacement;
+                displacementX = displacement;
                 displacementY = displacement;
                 break;
             case ANGLE_ALL:
@@ -618,7 +618,7 @@ public final class GLCMOp extends Operator {
                                 dY = 0;
                                 break;
                             case 45:
-                                dX = displacement;
+                                dX = -displacement;
                                 dY = displacement;
                                 break;
                             case 90:
@@ -626,7 +626,7 @@ public final class GLCMOp extends Operator {
                                 dY = displacement;
                                 break;
                             case 135:
-                                dX = -displacement;
+                                dX = displacement;
                                 dY = displacement;
                                 break;
                             default:
