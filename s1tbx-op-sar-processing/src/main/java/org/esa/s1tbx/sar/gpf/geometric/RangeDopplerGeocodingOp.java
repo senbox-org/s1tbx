@@ -516,9 +516,15 @@ public class RangeDopplerGeocodingOp extends Operator {
 
     private void createTargetProduct() {
         try {
-            if (pixelSpacingInMeter <= 0.0) {
+            if (pixelSpacingInMeter <= 0.0 && pixelSpacingInDegree <= 0) {
                 pixelSpacingInMeter = Math.max(SARGeocoding.getAzimuthPixelSpacing(sourceProduct),
                         SARGeocoding.getRangePixelSpacing(sourceProduct));
+                pixelSpacingInDegree = SARGeocoding.getPixelSpacingInDegree(pixelSpacingInMeter);
+            }
+            if (pixelSpacingInMeter <= 0.0) {
+                pixelSpacingInMeter = SARGeocoding.getPixelSpacingInMeter(pixelSpacingInDegree);
+            }
+            if (pixelSpacingInDegree <= 0) {
                 pixelSpacingInDegree = SARGeocoding.getPixelSpacingInDegree(pixelSpacingInMeter);
             }
             delLat = pixelSpacingInDegree;
