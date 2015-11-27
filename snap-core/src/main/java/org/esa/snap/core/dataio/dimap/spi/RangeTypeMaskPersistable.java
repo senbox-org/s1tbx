@@ -47,8 +47,8 @@ public class RangeTypeMaskPersistable extends MaskPersistable {
         Object minValue = config.getValue(PROPERTY_NAME_MINIMUM);
         Object maxValue = config.getValue(PROPERTY_NAME_MAXIMUM);
         Object rasterValue = config.getValue(PROPERTY_NAME_RASTER);
-        root.addContent(createElement(DimapProductConstants.TAG_MINIMUM, String.valueOf(minValue)));
-        root.addContent(createElement(DimapProductConstants.TAG_MAXIMUM, String.valueOf(maxValue)));
-        root.addContent(createElement(DimapProductConstants.TAG_RASTER, String.valueOf(rasterValue)));
+        root.addContent(createValueAttributeElement(DimapProductConstants.TAG_MINIMUM, String.valueOf(minValue)));
+        root.addContent(createValueAttributeElement(DimapProductConstants.TAG_MAXIMUM, String.valueOf(maxValue)));
+        root.addContent(createValueAttributeElement(DimapProductConstants.TAG_RASTER, String.valueOf(rasterValue)));
     }
 }

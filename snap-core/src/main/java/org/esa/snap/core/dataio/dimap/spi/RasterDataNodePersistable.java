@@ -6,7 +6,6 @@ import static org.esa.snap.core.dataio.dimap.DimapProductConstants.TAG_ANCILLARY
 import static org.esa.snap.core.dataio.dimap.DimapProductConstants.TAG_IMAGE_TO_MODEL_TRANSFORM;
 
 import org.esa.snap.core.dataio.dimap.DimapProductConstants;
-import org.esa.snap.core.datamodel.Mask;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductNode;
 import org.esa.snap.core.datamodel.ProductNodeEvent;
@@ -62,11 +61,11 @@ public abstract class RasterDataNodePersistable implements DimapPersistable {
     protected void addAncillaryElements(Element root, RasterDataNode rasterDataNode) {
         String[] ancillaryRelations = rasterDataNode.getAncillaryRelations();
         for (String ancillaryRelation : ancillaryRelations) {
-            root.addContent(createElement(TAG_ANCILLARY_RELATION, ancillaryRelation));
+            root.addContent(createValueAttributeElement(TAG_ANCILLARY_RELATION, ancillaryRelation));
         }
         RasterDataNode[] ancillaryVariables = rasterDataNode.getAncillaryVariables();
         for (RasterDataNode ancillaryVariable : ancillaryVariables) {
-            root.addContent(createElement(DimapProductConstants.TAG_ANCILLARY_VARIABLE, ancillaryVariable.getName()));
+            root.addContent(createValueAttributeElement(DimapProductConstants.TAG_ANCILLARY_VARIABLE, ancillaryVariable.getName()));
         }
     }
 
@@ -84,17 +83,23 @@ public abstract class RasterDataNodePersistable implements DimapPersistable {
             final double[] matrix = new double[6];
             imageToModelTransform.getMatrix(matrix);
             final String csvValue = StringUtils.arrayToCsv(matrix);
-            root.addContent(createElement(TAG_IMAGE_TO_MODEL_TRANSFORM, csvValue));
+            root.addContent(createValueAttributeElement(TAG_IMAGE_TO_MODEL_TRANSFORM, csvValue));
         }
     }
 
-    protected static Element createElement(String elementName, String value) {
+    protected static Element createValueAttributeElement(String elementName, String value) {
         final Element elem = new Element(elementName);
         if (value != null) {
             elem.setAttribute(ATTRIB_VALUE, value);
         } else {
             elem.setAttribute(ATTRIB_VALUE, "");
         }
+        return elem;
+    }
+
+    protected static Element createElement(String elementName, String value) {
+        final Element elem = new Element(elementName);
+        elem.setText(value);
         return elem;
     }
 }
