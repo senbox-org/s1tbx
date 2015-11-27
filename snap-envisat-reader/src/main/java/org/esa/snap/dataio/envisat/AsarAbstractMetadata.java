@@ -220,6 +220,11 @@ public final class AsarAbstractMetadata {
             addAbstractedAttribute("calibration_factor",
                     mppAds.getAttributeDouble("ASAR_Main_ADSR.sd/calibration_factors.1.ext_cal_fact", 0), "", absRoot,
                     "Calibration constant");
+            if(productType.startsWith("ASA_AP")) {
+                addAbstractedAttribute("calibration_factor.2",
+                                       mppAds.getAttributeDouble("ASAR_Main_ADSR.sd/calibration_factors.2.ext_cal_fact", 0), "", absRoot,
+                                       "Calibration constant");
+            }
             addAbstractedAttribute("inc_angle_comp_flag", 0, "flag", absRoot, "incidence angle compensation applied");
             addAbstractedAttribute("ref_inc_angle", 99999.0, "", absRoot, "Reference incidence angle");
             addAbstractedAttribute("ref_slant_range", 99999.0, "", absRoot, "Reference slant range");
