@@ -15,11 +15,14 @@
  */
 package org.esa.snap.core.dataio.dimap;
 
+import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.BasicPixelGeoCoding;
 import org.esa.snap.core.datamodel.CrsGeoCoding;
 import org.esa.snap.core.datamodel.FXYGeoCoding;
 import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.MapGeoCoding;
+import org.esa.snap.core.datamodel.PixelGeoCoding;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.dataop.maptransf.Datum;
@@ -36,14 +39,14 @@ import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.math.FXYSum;
 import org.geotools.referencing.CRS;
 import org.jdom.Document;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Vector;
 
@@ -686,31 +689,32 @@ public class DimapProductHelpersTest {
 
     }
 
-//    @Test
-//    public void testCreateGeoCodingForPixelGeoCoding() throws IOException {
-//        final Band latBand = product.getBand("b1");
-//        final Band lonBand = product.getBand("b2");
-//        final byte[] bandData = new byte[product.getRasterWidth() * product.getRasterHeight()];
-//        latBand.setDataElems(bandData);
-//        lonBand.setDataElems(bandData);
-//        final PixelGeoCoding sourcePixelGeoCoding = new PixelGeoCoding(latBand, lonBand,
-//                                                                       "Not NaN", 4, ProgressMonitor.NULL);
-//        final byte[] bytes = createPixelGeoCodingString(sourcePixelGeoCoding).getBytes();
-//        final Document dom = DimapProductHelpers.createDom(new ByteArrayInputStream(bytes));
-//        final GeoCoding geoCoding = DimapProductHelpers.createGeoCoding(dom, product)[0];
-//
-//        assertNotNull(geoCoding);
-//        assertEquals(PixelGeoCoding.class, geoCoding.getClass());
-//        final PixelGeoCoding pixelGeoCoding = (PixelGeoCoding) geoCoding;
-//
-//        assertEquals("b1", pixelGeoCoding.getLatBand().getName());
-//        assertEquals("b2", pixelGeoCoding.getLonBand().getName());
-//        assertEquals("Not NaN", pixelGeoCoding.getValidMask());
-//        assertEquals(4, pixelGeoCoding.getSearchRadius());
-//        assertNotNull(pixelGeoCoding.getPixelPosEstimator());
-//        assertEqual(fxyGeoCoding, (FXYGeoCoding) pixelGeoCoding.getPixelPosEstimator());
-//
-//    }
+    @Test
+    @Ignore
+    public void testCreateGeoCodingForPixelGeoCoding() throws IOException {
+        final Band latBand = product.getBand("b1");
+        final Band lonBand = product.getBand("b2");
+        final byte[] bandData = new byte[product.getSceneRasterWidth() * product.getSceneRasterHeight()];
+        latBand.setDataElems(bandData);
+        lonBand.setDataElems(bandData);
+        final PixelGeoCoding sourcePixelGeoCoding = new PixelGeoCoding(latBand, lonBand,
+                                                                       "Not NaN", 4, ProgressMonitor.NULL);
+        final byte[] bytes = createPixelGeoCodingString(sourcePixelGeoCoding).getBytes();
+        final Document dom = DimapProductHelpers.createDom(new ByteArrayInputStream(bytes));
+        final GeoCoding geoCoding = DimapProductHelpers.createGeoCoding(dom, product)[0];
+
+        assertNotNull(geoCoding);
+        assertEquals(PixelGeoCoding.class, geoCoding.getClass());
+        final PixelGeoCoding pixelGeoCoding = (PixelGeoCoding) geoCoding;
+
+        assertEquals("b1", pixelGeoCoding.getLatBand().getName());
+        assertEquals("b2", pixelGeoCoding.getLonBand().getName());
+        assertEquals("Not NaN", pixelGeoCoding.getValidMask());
+        assertEquals(4, pixelGeoCoding.getSearchRadius());
+        assertNotNull(pixelGeoCoding.getPixelPosEstimator());
+        assertEqual(fxyGeoCoding, (FXYGeoCoding) pixelGeoCoding.getPixelPosEstimator());
+
+    }
 
     @Test
     public void testCreateGeoCodingForCrsGeoCoding() throws Exception {

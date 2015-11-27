@@ -2406,7 +2406,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             return new RasterDataNode[0];
         }
         if (relations.length == 0) {
-            return ancillaryVariables.toArray(new RasterDataNode[0]);
+            return ancillaryVariables.toArray(new RasterDataNode[ancillaryVariables.getNodeCount()]);
         }
         assertRelationsAreAllNoneNull(relations);
         ArrayList<RasterDataNode> rasterDataNodes = new ArrayList<>();

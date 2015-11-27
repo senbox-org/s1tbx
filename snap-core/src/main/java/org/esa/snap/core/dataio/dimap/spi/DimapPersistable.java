@@ -15,8 +15,22 @@
  */
 package org.esa.snap.core.dataio.dimap.spi;
 
+import static org.esa.snap.core.dataio.dimap.DimapProductConstants.TAG_ANCILLARY_RELATION;
+import static org.esa.snap.core.dataio.dimap.DimapProductConstants.TAG_ANCILLARY_VARIABLE;
+import static org.esa.snap.core.dataio.dimap.DimapProductConstants.TAG_IMAGE_TO_MODEL_TRANSFORM;
+
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductNode;
+import org.esa.snap.core.datamodel.ProductNodeEvent;
+import org.esa.snap.core.datamodel.ProductNodeListenerAdapter;
+import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.util.StringUtils;
 import org.jdom.Element;
+
+import java.awt.geom.AffineTransform;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeSet;
 
 /**
  * Interface to implemented by clients who know how to read objects from

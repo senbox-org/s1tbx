@@ -1040,6 +1040,8 @@ public class DimapProductHelpers {
     private static class ProductBuilder {
 
         private final Document _dom;
+        private HashMap<RasterDataNode, List<String>> ancillaryVariables;
+        private Product product;
 
         private ProductBuilder(Document dom) {
             _dom = dom;
@@ -1050,30 +1052,35 @@ public class DimapProductHelpers {
         }
 
         private Product createProduct() {
-            final Product product = new Product(getProductName(), getProductType(), getSceneRasterWidth(),
+            ancillaryVariables = new HashMap<>();
+
+            product = new Product(getProductName(), getProductType(), getSceneRasterWidth(),
                                                 getSceneRasterHeight());
-            setSceneRasterStartAndStopTime(product);
-            setDescription(product);
-            addMasks(product);
-            addOldBitmaskDefinitions(product);
-            addFlagsCoding(product);
-            addIndexCoding(product);
-            addBands(product);
-            addTiePointGrids(product);
-            addDisplayInfosToBandsAndTiePointGrids(product);
-            addAnnotationDataset(product);
-            addPointingFactory(product);
+            setSceneRasterStartAndStopTime();
+            setDescription();
+            addMasks();
+            addOldBitmaskDefinitions();
+            addFlagsCoding();
+            addIndexCoding();
+            addBands();
+            addTiePointGrids();
+            addDisplayInfosToBandsAndTiePointGrids();
+            addAnnotationDataset();
+            addPointingFactory();
+
+            addCollectedAncillaryVariables();
+
             return product;
         }
 
-        private static void addPointingFactory(final Product product) {
+        private void addPointingFactory() {
             PointingFactoryRegistry registry = PointingFactoryRegistry.getInstance();
             PointingFactory pointingFactory = registry.getPointingFactory(product.getProductType());
             product.setPointingFactory(pointingFactory);
 
         }
 
-        private void addAnnotationDataset(Product product) {
+        private void addAnnotationDataset() {
             final MetadataElement mdElem = product.getMetadataRoot();
             if (mdElem == null) {
                 return;
@@ -1199,15 +1206,15 @@ public class DimapProductHelpers {
             }
         }
 
-        private void addDisplayInfosToBandsAndTiePointGrids(Product product) {
+        private void addDisplayInfosToBandsAndTiePointGrids() {
             final List imageDisplayElems = getRootElement().getChildren(DimapProductConstants.TAG_IMAGE_DISPLAY);
             for (Object child : imageDisplayElems) {
                 final Element imageDisplayElem = (Element) child;
-                addBandStatistics(imageDisplayElem, product);
+                addBandStatistics(imageDisplayElem);
             }
         }
 
-        private void addBandStatistics(Element imageDisplayElem, Product product) {
+        private void addBandStatistics(Element imageDisplayElem) {
             final List bandStatisticsElems = imageDisplayElem.getChildren(DimapProductConstants.TAG_BAND_STATISTICS);
             for (Object bandStatistics : bandStatisticsElems) {
                 final Element bandStatisticsElem = (Element) bandStatistics;
@@ -1351,7 +1358,7 @@ public class DimapProductHelpers {
             return "";
         }
 
-        private void addTiePointGrids(Product product) {
+        private void addTiePointGrids() {
             final Element parent = getRootElement().getChild(DimapProductConstants.TAG_TIE_POINT_GRIDS);
             if (parent != null) {
                 final List children = parent.getChildren(DimapProductConstants.TAG_TIE_POINT_GRID_INFO);
@@ -1388,31 +1395,30 @@ public class DimapProductHelpers {
                     tiePointGrid.setUnit(gridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_PHYSICAL_UNIT));
 
                     setImageToModelTransform(gridInfo, tiePointGrid);
+                    setAncillaryRelations(gridInfo, tiePointGrid);
+                    collectAncillaryVariables(gridInfo, tiePointGrid);
                     product.addTiePointGrid(tiePointGrid);
                 }
             }
         }
 
-        private void addFlagsCoding(Product product) {
-            addSampleCoding(product,
-                            DimapProductConstants.TAG_FLAG_CODING,
+        private void addFlagsCoding() {
+            addSampleCoding(DimapProductConstants.TAG_FLAG_CODING,
                             DimapProductConstants.TAG_FLAG,
                             DimapProductConstants.TAG_FLAG_NAME,
                             DimapProductConstants.TAG_FLAG_INDEX,
                             DimapProductConstants.TAG_FLAG_DESCRIPTION);
         }
 
-        private void addIndexCoding(Product product) {
-            addSampleCoding(product,
-                            DimapProductConstants.TAG_INDEX_CODING,
+        private void addIndexCoding() {
+            addSampleCoding(DimapProductConstants.TAG_INDEX_CODING,
                             DimapProductConstants.TAG_INDEX,
                             DimapProductConstants.TAG_INDEX_NAME,
                             DimapProductConstants.TAG_INDEX_VALUE,
                             DimapProductConstants.TAG_INDEX_DESCRIPTION);
         }
 
-        private void addSampleCoding(Product product,
-                                     String tagNameSampleCoding,
+        private void addSampleCoding(String tagNameSampleCoding,
                                      String tagNameSampleElements,
                                      String tagNameSampleName,
                                      String tagNameSampleValue,
@@ -1449,7 +1455,7 @@ public class DimapProductHelpers {
             }
         }
 
-        private void addMasks(Product product) {
+        private void addMasks() {
             final Element parent = getRootElement().getChild(DimapProductConstants.TAG_MASKS);
             if (parent != null) {
                 @SuppressWarnings({"unchecked"})
@@ -1467,7 +1473,7 @@ public class DimapProductHelpers {
         }
 
         // needed for backward compatibility
-        private void addOldBitmaskDefinitions(Product product) {
+        private void addOldBitmaskDefinitions() {
             final Element bitmaskDefs = getRootElement().getChild(DimapProductConstants.TAG_BITMASK_DEFINITIONS);
             List bitmaskDefList;
             if (bitmaskDefs != null) {
@@ -1499,10 +1505,10 @@ public class DimapProductHelpers {
             }
         }
 
-        private void addBands(Product product) {
+        private void addBands() {
             final Element child = getRootElement().getChild(DimapProductConstants.TAG_IMAGE_INTERPRETATION);
             if (child != null) {
-                addSpectralBands(child, product);
+                addSpectralBands(child);
             }
         }
 
@@ -1515,8 +1521,7 @@ public class DimapProductHelpers {
             }
         }
 
-        private static void addSpectralBands(final Element parent, Product product) {
-            HashMap<Band, List<String>> ancillaryVariables = new HashMap<Band, List<String>>();
+        private void addSpectralBands(final Element parent) {
             final List children = parent.getChildren(DimapProductConstants.TAG_SPECTRAL_BAND_INFO);
             final List<Element> filterBandElementList = new ArrayList<Element>();
             for (Object child : children) {
@@ -1528,21 +1533,14 @@ public class DimapProductHelpers {
                 } else {
                     final Band band = addBand(element, product);
                     setGeneralBandProperties(band, element, product);
-                    collectAncillaryVariables(band, element, ancillaryVariables);
+                    collectAncillaryVariables(element, band);
                 }
             }
             for (Object child : filterBandElementList) {
                 final Element element = (Element) child;
                 final Band band = addBand(element, product);
                 setGeneralBandProperties(band, element, product);
-                collectAncillaryVariables(band, element, ancillaryVariables);
-            }
-            Set<Map.Entry<Band, List<String>>> entries = ancillaryVariables.entrySet();
-            for (Map.Entry<Band, List<String>> entry : entries) {
-                List<String> variableNames = entry.getValue();
-                for (String variableName : variableNames) {
-                    entry.getKey().addAncillaryVariable(product.getBand(variableName));
-                }
+                collectAncillaryVariables(element, band);
             }
         }
 
@@ -1730,38 +1728,49 @@ public class DimapProductHelpers {
             }
         }
 
-        private static void collectAncillaryVariables(Band band, Element element, HashMap<Band, List<String>> ancillaryVariables) {
+        private void addCollectedAncillaryVariables() {
+            Set<Map.Entry<RasterDataNode, List<String>>> entries = ancillaryVariables.entrySet();
+            for (Map.Entry<RasterDataNode, List<String>> entry : entries) {
+                List<String> variableNames = entry.getValue();
+                final RasterDataNode dataNode = entry.getKey();
+                for (String variableName : variableNames) {
+                    dataNode.addAncillaryVariable(product.getRasterDataNode(variableName));
+                }
+            }
+        }
+
+        private void collectAncillaryVariables(Element element, RasterDataNode rasterDataNode) {
             final List<Element> children = element.getChildren(DimapProductConstants.TAG_ANCILLARY_VARIABLE);
             if (children.size() == 0) return;
-            if (!ancillaryVariables.containsKey(band)) {
-                ancillaryVariables.put(band, new ArrayList<>());
+            if (!ancillaryVariables.containsKey(rasterDataNode)) {
+                ancillaryVariables.put(rasterDataNode, new ArrayList<>());
             }
+            final List<String> variableNames = ancillaryVariables.get(rasterDataNode);
             for (Element child : children) {
-                List<String> variableNames = ancillaryVariables.get(band);
                 variableNames.add(child.getTextTrim());
             }
         }
 
-        private static void setAncillaryRelations(Element element, Band band) {
+        private static void setAncillaryRelations(Element element, RasterDataNode rasterDataNode) {
             final List<Element> children = element.getChildren(DimapProductConstants.TAG_ANCILLARY_RELATION);
-            TreeSet<String> relationsSet = new TreeSet<>();
+            final TreeSet<String> relationsSet = new TreeSet<>();
             for (Element child : children) {
                 relationsSet.add(child.getTextTrim());
             }
-            String[] relations = relationsSet.toArray(new String[relationsSet.size()]);
-            band.setAncillaryRelations(relations);
+            final String[] relations = relationsSet.toArray(new String[relationsSet.size()]);
+            rasterDataNode.setAncillaryRelations(relations);
         }
 
         private static void setImageToModelTransform(Element element, RasterDataNode rasterDataNode) {
-            final String transform = element.getChildTextTrim(DimapProductConstants.TAG_IMAGE_TO_MODEL_TRANSFORM);
-            if (transform != null&& transform.length() > 0) {
-                double[] matrix = StringUtils.toDoubleArray(transform, null);
-                if (!rasterDataNode.isSourceImageSet()) {
+            if (!rasterDataNode.isSourceImageSet()) {
+                final String transform = element.getChildTextTrim(DimapProductConstants.TAG_IMAGE_TO_MODEL_TRANSFORM);
+                if (transform != null && transform.length() > 0) {
+                    double[] matrix = StringUtils.toDoubleArray(transform, null);
                     rasterDataNode.setImageToModelTransform(new AffineTransform(matrix));
-                } else {
-                    SystemUtils.LOG.warning(String.format("RasterDataNode '%s': can't set image-to-model transform, " +
-                                                          "source image already set", rasterDataNode.getName()));
                 }
+            } else {
+                SystemUtils.LOG.warning(String.format("RasterDataNode '%s': can't set image-to-model transform, " +
+                                                      "source image already set", rasterDataNode.getName()));
             }
         }
 
@@ -1796,7 +1805,7 @@ public class DimapProductHelpers {
             }
         }
 
-        private void setDescription(Product product) {
+        private void setDescription() {
             if (product == null) {
                 return;
             }
@@ -1817,7 +1826,7 @@ public class DimapProductHelpers {
             }
         }
 
-        private void setSceneRasterStartAndStopTime(final Product product) {
+        private void setSceneRasterStartAndStopTime() {
             final ProductData.UTC sceneRasterStartTime = getSceneRasterStartTime();
             if (sceneRasterStartTime != null) {
                 product.setStartTime(sceneRasterStartTime);
