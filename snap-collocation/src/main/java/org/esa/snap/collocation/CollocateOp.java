@@ -118,6 +118,7 @@ public class CollocateOp extends Operator {
 
     // maps target bands to source bands or tie-point grids
     private transient Map<Band, RasterDataNode> sourceRasterMap;
+    private Band collocationFlagBand;
 
     public Product getMasterProduct() {
         return masterProduct;
@@ -246,6 +247,14 @@ public class CollocateOp extends Operator {
             sourceRasterMap.put(targetBand, sourceBand);
             originalSlaveNames.put(targetBand.getName(), sourceBand.getName());
             slaveRasters.add(targetBand);
+            // add present flag
+            String validPixelExpression = targetBand.getValidPixelExpression();
+            if (validPixelExpression == null || validPixelExpression.isEmpty()) {
+                validPixelExpression = "collocation_flags.SLAVE_PRESENT";
+            } else {
+                validPixelExpression = String.format("(%s) && collocation_flags.SLAVE_PRESENT", validPixelExpression);
+            }
+            targetBand.setValidPixelExpression(validPixelExpression);
         }
 
         // Add slave tie-point grids as bands
@@ -260,7 +269,21 @@ public class CollocateOp extends Operator {
             sourceRasterMap.put(targetBand, sourceGrid);
             originalSlaveNames.put(targetBand.getName(), sourceGrid.getName());
             slaveRasters.add(targetBand);
+            // add present flag
+            String validPixelExpression = targetBand.getValidPixelExpression();
+            if (validPixelExpression == null || validPixelExpression.isEmpty()) {
+                validPixelExpression = "collocation_flags.SLAVE_PRESENT";
+            } else {
+                validPixelExpression = String.format("(%s) && collocation_flags.SLAVE_PRESENT", validPixelExpression);
+            }
+            targetBand.setValidPixelExpression(validPixelExpression);
         }
+
+        collocationFlagBand = targetProduct.addBand("collocation_flags", ProductData.TYPE_INT8);
+        FlagCoding collocationFlagCoding = new FlagCoding("collocation_flags");
+        collocationFlagCoding.addFlag("SLAVE_PRESENT", 1, "Data for the slave is present.");
+        collocationFlagBand.setSampleCoding(collocationFlagCoding);
+        targetProduct.getFlagCodingGroup().add(collocationFlagCoding);
 
         // Copy master geo-coding
         ProductUtils.copyGeoCoding(masterProduct, targetProduct);
@@ -321,11 +344,14 @@ public class CollocateOp extends Operator {
 
             for (final Band targetBand : targetProduct.getBands()) {
                 checkForCancellation();
-                final RasterDataNode sourceRaster = sourceRasterMap.get(targetBand);
                 final Tile targetTile = targetTileMap.get(targetBand);
-
-                collocateSourceBand(sourceRaster, sourceRectangle, sourcePixelPositions, targetTile,
-                                    SubProgressMonitor.create(pm, 1));
+                ProgressMonitor subPM = SubProgressMonitor.create(pm, 1);
+                if (targetBand == collocationFlagBand) {
+                    computePresenceFlag(sourceRectangle, sourcePixelPositions, targetTile, subPM);
+                } else {
+                    final RasterDataNode sourceRaster = sourceRasterMap.get(targetBand);
+                    collocateSourceBand(sourceRaster, sourceRectangle, sourcePixelPositions, targetTile, subPM);
+                }
             }
         } finally {
             pm.done();
@@ -336,7 +362,7 @@ public class CollocateOp extends Operator {
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         final RasterDataNode sourceRaster = sourceRasterMap.get(targetBand);
 
-        if (sourceRaster.getProduct() == slaveProduct) {
+        if (targetBand == collocationFlagBand || sourceRaster.getProduct() == slaveProduct) {
             final PixelPos[] sourcePixelPositions = ProductUtils.computeSourcePixelCoordinates(
                     slaveProduct.getSceneGeoCoding(),
                     slaveProduct.getSceneRasterWidth(),
@@ -348,7 +374,11 @@ public class CollocateOp extends Operator {
                     slaveProduct.getSceneRasterWidth(),
                     slaveProduct.getSceneRasterHeight());
 
-            collocateSourceBand(sourceRaster, sourceRectangle, sourcePixelPositions, targetTile, pm);
+            if (targetBand == collocationFlagBand) {
+                computePresenceFlag(sourceRectangle, sourcePixelPositions, targetTile, pm);
+            } else {
+                collocateSourceBand(sourceRaster, sourceRectangle, sourcePixelPositions, targetTile, pm);
+            }
         } else {
             targetTile.setRawSamples(getSourceTile(sourceRaster, targetTile.getRectangle()).getRawSamples());
         }
@@ -416,6 +446,26 @@ public class CollocateOp extends Operator {
                 for (int y = targetRectangle.y, index = 0; y < targetRectangle.y + targetRectangle.height; ++y) {
                     for (int x = targetRectangle.x; x < targetRectangle.x + targetRectangle.width; ++x, ++index) {
                         targetTile.setSample(x, y, noDataValue);
+                    }
+                    checkForCancellation();
+                    pm.worked(1);
+                }
+            }
+        } finally {
+            pm.done();
+        }
+    }
+
+    private void computePresenceFlag(Rectangle sourceRectangle, PixelPos[] sourcePixelPositions, Tile targetTile, ProgressMonitor pm) {
+        pm.beginTask("collocating presence flag band ", targetTile.getHeight());
+        try {
+            final Rectangle targetRectangle = targetTile.getRectangle();
+            if (sourceRectangle != null) {
+                for (int y = targetRectangle.y, index = 0; y < targetRectangle.y + targetRectangle.height; ++y) {
+                    for (int x = targetRectangle.x; x < targetRectangle.x + targetRectangle.width; ++x, ++index) {
+                        if (sourcePixelPositions[index] != null) {
+                            targetTile.setSample(x, y, 1);
+                        }
                     }
                     checkForCancellation();
                     pm.worked(1);

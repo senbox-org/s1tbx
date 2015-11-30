@@ -60,7 +60,7 @@ public class CollocateOpTest {
         int numSlaveBands = slaveProduct.getNumBands();
         int numMasterTPGs = masterProduct.getNumTiePointGrids();
         int numSlaveTPGs = slaveProduct.getNumTiePointGrids();
-        assertEquals(numMasterBands + numSlaveBands + numSlaveTPGs, targetProduct.getNumBands());
+        assertEquals(numMasterBands + numSlaveBands + numSlaveTPGs + 1, targetProduct.getNumBands());
         assertEquals(numMasterTPGs, targetProduct.getNumTiePointGrids());
 
         assertEquals("radiance_1_M", targetProduct.getBandAt(0).getName());
@@ -80,8 +80,8 @@ public class CollocateOpTest {
         assertEquals("!l1_flags_M.INVALID && radiance_1_M > 10", targetProduct.getBandAt(0).getValidMaskExpression());
         assertEquals("!l1_flags_M.INVALID && radiance_1_M > 10", targetProduct.getBandAt(1).getValidMaskExpression());
 
-        assertEquals("!l1_flags_S.INVALID && radiance_1_S > 10", targetProduct.getBandAt(16 + 1).getValidMaskExpression());
-        assertEquals("!l1_flags_S.INVALID && radiance_1_S > 10", targetProduct.getBandAt(16 + 2).getValidMaskExpression());
+        assertEquals("(!l1_flags_S.INVALID && radiance_1_S > 10) && collocation_flags.SLAVE_PRESENT", targetProduct.getBandAt(16 + 1).getValidMaskExpression());
+        assertEquals("(!l1_flags_S.INVALID && radiance_1_S > 10) && collocation_flags.SLAVE_PRESENT", targetProduct.getBandAt(16 + 2).getValidMaskExpression());
 
         assertEquals(4, targetProduct.getMaskGroup().getNodeCount());
         Mask mask1 = targetProduct.getMaskGroup().get(0);
@@ -109,7 +109,7 @@ public class CollocateOpTest {
         assertEquals(0.5, mask3.getImageTransparency(), 0.00001);
         assertEquals(0.5, mask4.getImageTransparency(), 0.00001);
 
-        assertEquals(2, targetProduct.getFlagCodingGroup().getNodeCount());
+        assertEquals(2 + 1, targetProduct.getFlagCodingGroup().getNodeCount());
         assertNotNull(targetProduct.getFlagCodingGroup().get("l1_flags_M"));
         assertNotNull(targetProduct.getFlagCodingGroup().get("l1_flags_S"));
 
@@ -149,7 +149,7 @@ public class CollocateOpTest {
         int numSlaveBands = slaveProduct.getNumBands();
         int numMasterTPGs = masterProduct.getNumTiePointGrids();
         int numSlaveTPGs = slaveProduct.getNumTiePointGrids();
-        assertEquals(numMasterBands + numSlaveBands + numSlaveTPGs, targetProduct.getNumBands());
+        assertEquals(numMasterBands + numSlaveBands + numSlaveTPGs + 1, targetProduct.getNumBands());
         assertEquals(numMasterTPGs, targetProduct.getNumTiePointGrids());
 
         assertEquals("radiance_1_M", targetProduct.getBandAt(0).getName());
@@ -169,8 +169,8 @@ public class CollocateOpTest {
         assertEquals("!l1_flags_M.INVALID && radiance_1_M > 10", targetProduct.getBandAt(0).getValidMaskExpression());
         assertEquals("!l1_flags_M.INVALID && radiance_1_M > 10", targetProduct.getBandAt(1).getValidMaskExpression());
 
-        assertEquals("!l2_flags_S.INVALID && reflec_1_S > 0.1", targetProduct.getBandAt(16 + 1).getValidMaskExpression());
-        assertEquals("!l2_flags_S.INVALID && reflec_1_S > 0.1", targetProduct.getBandAt(16 + 2).getValidMaskExpression());
+        assertEquals("(!l2_flags_S.INVALID && reflec_1_S > 0.1) && collocation_flags.SLAVE_PRESENT", targetProduct.getBandAt(16 + 1).getValidMaskExpression());
+        assertEquals("(!l2_flags_S.INVALID && reflec_1_S > 0.1) && collocation_flags.SLAVE_PRESENT", targetProduct.getBandAt(16 + 2).getValidMaskExpression());
 
         assertEquals(3, targetProduct.getMaskGroup().getNodeCount());
         Mask mask1 = targetProduct.getMaskGroup().get(0);
@@ -192,7 +192,7 @@ public class CollocateOpTest {
         assertEquals(0.5, mask2.getImageTransparency(), 0.00001);
         assertEquals(0.5, mask3.getImageTransparency(), 0.00001);
 
-        assertEquals(2, targetProduct.getFlagCodingGroup().getNodeCount());
+        assertEquals(2 + 1, targetProduct.getFlagCodingGroup().getNodeCount());
         assertNotNull(targetProduct.getFlagCodingGroup().get("l1_flags_M"));
         assertNotNull(targetProduct.getFlagCodingGroup().get("l2_flags_S"));
 
