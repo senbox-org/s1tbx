@@ -16,6 +16,7 @@
 package org.esa.s1tbx.io.ceos.alos;
 
 import Jama.Matrix;
+import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.VirtualDir;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.io.SARReader;
@@ -298,10 +299,36 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
 
         final int gridWidth = 11;
         final int gridHeight = 11;
-        final int sceneWidth = product.getSceneRasterWidth();
-        final int sceneHeight = product.getSceneRasterHeight();
-        final int subSamplingX = sceneWidth / (gridWidth - 1);
-        final int subSamplingY = sceneHeight / (gridHeight - 1);
+        final int subSamplingX = product.getSceneRasterWidth() / (gridWidth - 1);
+        final int subSamplingY = product.getSceneRasterHeight() / (gridHeight - 1);
+        final float[] rangeTime = new float[gridWidth * gridHeight];
+
+        final BinaryRecord sceneRec = leaderFile.getSceneRecord();
+
+        final TiePointGrid slantRangeGrid = new TiePointGridLazy(OperatorUtils.TPG_SLANT_RANGE_TIME,
+                gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY, rangeTime);
+        slantRangeGrid.setUnit(Unit.NANOSECONDS);
+        product.addTiePointGrid(slantRangeGrid);
+
+        // incidence angle
+        if (sceneRec != null) {
+
+            final float[] angles = new float[gridWidth * gridHeight];
+            final TiePointGrid incidentAngleGrid = new TiePointGridLazy(OperatorUtils.TPG_INCIDENT_ANGLE,
+                    gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY, angles);
+
+            incidentAngleGrid.setUnit(Unit.DEGREES);
+            product.addTiePointGrid(incidentAngleGrid);
+        }
+    }
+
+    public void readTiePointGridRasterData(final TiePointGrid tpg, ProductData destBuffer, ProgressMonitor pm)
+            throws IOException {
+
+        final int gridWidth = 11;
+        final int gridHeight = 11;
+        final int subSamplingX = (int)tpg.getSubSamplingX();
+        final int subSamplingY = (int)tpg.getSubSamplingY();
         final float[] rangeDist = new float[gridWidth * gridHeight];
         final float[] rangeTime = new float[gridWidth * gridHeight];
 
@@ -341,43 +368,38 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
             }
         }
 
-        // get slant range time in nanoseconds from range distance in meters
-        for (int k = 0; k < rangeDist.length; k++) {
-            rangeTime[k] = (float)(rangeDist[k] / Constants.halfLightSpeed * Constants.oneBillion); // in ns
-        }
-
-        final TiePointGrid slantRangeGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME,
-                gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY, rangeTime);
-        slantRangeGrid.setUnit(Unit.NANOSECONDS);
-        product.addTiePointGrid(slantRangeGrid);
-
-        // incidence angle
-        if (sceneRec != null) {
-            final double a0 = sceneRec.getAttributeDouble("Incidence angle constant term");
-            final double a1 = sceneRec.getAttributeDouble("Incidence angle linear term");
-            final double a2 = sceneRec.getAttributeDouble("Incidence angle quadratic term");
-            final double a3 = sceneRec.getAttributeDouble("Incidence angle cubic term");
-            final double a4 = sceneRec.getAttributeDouble("Incidence angle fourth term");
-            final double a5 = sceneRec.getAttributeDouble("Incidence angle fifth term");
-
-            final float[] angles = new float[gridWidth * gridHeight];
-            int k = 0;
-            for (int j = 0; j < gridHeight; j++) {
-                for (int i = 0; i < gridWidth; i++) {
-                    angles[k] = (float)((a0 + a1 * rangeDist[k] / 1000.0 +
-                            a2 * FastMath.pow(rangeDist[k] / 1000.0, 2.0) +
-                            a3 * FastMath.pow(rangeDist[k] / 1000.0, 3.0) +
-                            a4 * FastMath.pow(rangeDist[k] / 1000.0, 4.0) +
-                            a5 * FastMath.pow(rangeDist[k] / 1000.0, 5.0)) * Constants.RTOD);
-                    k++;
-                }
+        if(tpg.getName().equals(OperatorUtils.TPG_SLANT_RANGE_TIME)) {
+            // get slant range time in nanoseconds from range distance in meters
+            for (int k = 0; k < rangeDist.length; k++) {
+                rangeTime[k] = (float) (rangeDist[k] / Constants.halfLightSpeed * Constants.oneBillion); // in ns
             }
 
-            final TiePointGrid incidentAngleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE,
-                    gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY, angles);
+            tpg.getGridData().setElems(rangeTime);
+        } else if(tpg.getName().equals(OperatorUtils.TPG_INCIDENT_ANGLE)) {
 
-            incidentAngleGrid.setUnit(Unit.DEGREES);
-            product.addTiePointGrid(incidentAngleGrid);
+            if (sceneRec != null) {
+                final double a0 = sceneRec.getAttributeDouble("Incidence angle constant term");
+                final double a1 = sceneRec.getAttributeDouble("Incidence angle linear term");
+                final double a2 = sceneRec.getAttributeDouble("Incidence angle quadratic term");
+                final double a3 = sceneRec.getAttributeDouble("Incidence angle cubic term");
+                final double a4 = sceneRec.getAttributeDouble("Incidence angle fourth term");
+                final double a5 = sceneRec.getAttributeDouble("Incidence angle fifth term");
+
+                final float[] angles = new float[gridWidth * gridHeight];
+                int k = 0;
+                for (int j = 0; j < gridHeight; j++) {
+                    for (int i = 0; i < gridWidth; i++) {
+                        angles[k] = (float) ((a0 + a1 * rangeDist[k] / 1000.0 +
+                                a2 * FastMath.pow(rangeDist[k] / 1000.0, 2.0) +
+                                a3 * FastMath.pow(rangeDist[k] / 1000.0, 3.0) +
+                                a4 * FastMath.pow(rangeDist[k] / 1000.0, 4.0) +
+                                a5 * FastMath.pow(rangeDist[k] / 1000.0, 5.0)) * Constants.RTOD);
+                        k++;
+                    }
+                }
+
+                tpg.getGridData().setElems(angles);
+            }
         }
     }
 
