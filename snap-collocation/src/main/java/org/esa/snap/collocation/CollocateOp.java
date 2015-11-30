@@ -43,10 +43,12 @@ import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.StringUtils;
 
 import java.awt.Rectangle;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import static java.text.MessageFormat.*;
+import static java.text.MessageFormat.format;
 
 /**
  * This operator is used to spatially collocate two data products. It requires two source products,
@@ -114,6 +116,7 @@ public class CollocateOp extends Operator {
             description = "The method to be used when resampling the slave grid onto the master grid.")
     private ResamplingType resamplingType;
 
+    // maps target bands to source bands or tie-point grids
     private transient Map<Band, RasterDataNode> sourceRasterMap;
 
     public Product getMasterProduct() {
@@ -182,6 +185,7 @@ public class CollocateOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
+
         validateProduct(masterProduct);
         validateProduct(slaveProduct);
         if (renameMasterComponents && StringUtils.isNullOrEmpty(masterComponentPattern)) {
@@ -191,6 +195,10 @@ public class CollocateOp extends Operator {
             throw new OperatorException(format("Parameter ''{0}'' must be set to a non-empty string pattern.", "slaveComponentPattern"));
         }
 
+        Map<String, String> originalMasterNames = new HashMap<>(31);
+        Map<String, String> originalSlaveNames = new HashMap<>(31);
+        List<RasterDataNode> masterRasters = new ArrayList<>(32);
+        List<RasterDataNode> slaveRasters = new ArrayList<>(32);
         sourceRasterMap = new HashMap<>(31);
 
         targetProduct = new Product(
@@ -211,59 +219,78 @@ public class CollocateOp extends Operator {
         ProductUtils.copyMetadata(masterProduct, targetProduct);
         ProductUtils.copyTiePointGrids(masterProduct, targetProduct);
 
-        for (final Band sourceBand : masterProduct.getBands()) {
-            final Band targetBand = ProductUtils.copyBand(sourceBand.getName(), masterProduct, targetProduct, true);
+        // Add master bands
+        for (Band sourceBand : masterProduct.getBands()) {
+            Band targetBand = ProductUtils.copyBand(sourceBand.getName(), masterProduct, targetProduct, true);
             handleSampleCodings(sourceBand, targetBand, renameMasterComponents, masterComponentPattern);
             sourceRasterMap.put(targetBand, sourceBand);
-        }
-
-        if (renameMasterComponents) {
-            for (final Band band : targetProduct.getBands()) {
-                band.setName(masterComponentPattern.replace(SOURCE_NAME_REFERENCE, band.getName()));
+            if (renameMasterComponents) {
+                targetBand.setName(masterComponentPattern.replace(SOURCE_NAME_REFERENCE, sourceBand.getName()));
             }
+            originalMasterNames.put(targetBand.getName(), sourceBand.getName());
+            masterRasters.add(targetBand);
         }
 
+        // Add master masks
+        copyMasks(masterProduct, renameMasterComponents, masterComponentPattern, originalMasterNames, masterRasters);
 
-        copyMasks(masterProduct, renameMasterComponents, masterComponentPattern);
-
-        for (final Band sourceBand : slaveProduct.getBands()) {
+        // Add slave bands
+        for (Band sourceBand : slaveProduct.getBands()) {
             String targetBandName = sourceBand.getName();
             if (renameSlaveComponents) {
                 targetBandName = slaveComponentPattern.replace(SOURCE_NAME_REFERENCE, targetBandName);
             }
-            final Band targetBand = targetProduct.addBand(targetBandName, sourceBand.getDataType());
+            Band targetBand = targetProduct.addBand(targetBandName, sourceBand.getDataType());
             ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
             handleSampleCodings(sourceBand, targetBand, renameSlaveComponents, slaveComponentPattern);
             sourceRasterMap.put(targetBand, sourceBand);
+            originalSlaveNames.put(targetBand.getName(), sourceBand.getName());
+            slaveRasters.add(targetBand);
         }
 
-        for (final TiePointGrid sourceGrid : slaveProduct.getTiePointGrids()) {
+        // Add slave tie-point grids as bands
+        for (TiePointGrid sourceGrid : slaveProduct.getTiePointGrids()) {
             String targetBandName = sourceGrid.getName();
             if (renameSlaveComponents) {
                 targetBandName = slaveComponentPattern.replace(SOURCE_NAME_REFERENCE, targetBandName);
             }
-            final Band targetBand = targetProduct.addBand(targetBandName, sourceGrid.getDataType());
+            originalSlaveNames.put(sourceGrid.getName(), targetBandName);
+            Band targetBand = targetProduct.addBand(targetBandName, sourceGrid.getDataType());
             ProductUtils.copyRasterDataNodeProperties(sourceGrid, targetBand);
             sourceRasterMap.put(targetBand, sourceGrid);
+            originalSlaveNames.put(targetBand.getName(), sourceGrid.getName());
+            slaveRasters.add(targetBand);
         }
 
-        for (final Band targetBandOuter : targetProduct.getBands()) {
-            for (final Band targetBandInner : targetProduct.getBands()) {
-                final RasterDataNode sourceRaster = sourceRasterMap.get(targetBandInner);
-                if (sourceRaster != null) {
-                    if (sourceRaster.getProduct() == slaveProduct) {
-                        targetBandOuter.updateExpression(
-                                BandArithmetic.createExternalName(sourceRaster.getName()),
-                                BandArithmetic.createExternalName(targetBandInner.getName()));
-                    }
-                }
+        // Copy master geo-coding
+        ProductUtils.copyGeoCoding(masterProduct, targetProduct);
+
+        // Add slave masks
+        copyMasks(slaveProduct, renameSlaveComponents, slaveComponentPattern, originalSlaveNames, slaveRasters);
+
+        // Check: one day we may want to copy slave metadata as well
+
+        if (renameMasterComponents) {
+            updateExpressions(originalMasterNames, masterRasters);
+        }
+        if (renameSlaveComponents) {
+            updateExpressions(originalSlaveNames, slaveRasters);
+        }
+
+        setAutoGrouping();
+    }
+
+
+    private void updateExpressions(Map<String, String> originalNames, List<RasterDataNode> rasters) {
+        for (String newName : originalNames.keySet()) {
+            String newExternalName = BandArithmetic.createExternalName(newName);
+            String oldExternalName = BandArithmetic.createExternalName(originalNames.get(newName));
+            //System.out.printf("[%s] --> [%s]%n", oldExternalName, newExternalName);
+            for (RasterDataNode raster : rasters) {
+                //System.out.printf("  [%s]:%s%n", raster.getName(), raster.getClass().getSimpleName());
+                raster.updateExpression(oldExternalName, newExternalName);
             }
         }
-
-        ProductUtils.copyGeoCoding(masterProduct, targetProduct);
-        copyMasks(slaveProduct, renameSlaveComponents, slaveComponentPattern);
-
-        // todo - slave metadata!?
     }
 
     private void validateProduct(Product product) {
@@ -277,7 +304,7 @@ public class CollocateOp extends Operator {
 
     @Override
     public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm) throws
-                                                                                                               OperatorException {
+            OperatorException {
         pm.beginTask("Collocating bands...", targetProduct.getNumBands() + 1);
         try {
             final PixelPos[] sourcePixelPositions = ProductUtils.computeSourcePixelCoordinates(
@@ -399,32 +426,25 @@ public class CollocateOp extends Operator {
         }
     }
 
-    private void copyMasks(Product sourceProduct, boolean rename, String pattern) {
+    private void copyMasks(Product sourceProduct, boolean rename, String pattern, Map<String, String> originalNames, List<RasterDataNode> rasters) {
         ProductNodeGroup<Mask> maskGroup = sourceProduct.getMaskGroup();
-        final Mask[] masks = maskGroup.toArray(new Mask[maskGroup.getNodeCount()]);
-        for (Mask mask : masks) {
-            Mask.ImageType imageType = mask.getImageType();
-            final Mask newmask = new Mask(mask.getName(),
-                                          targetProduct.getSceneRasterWidth(),
-                                          targetProduct.getSceneRasterHeight(),
-                                          imageType);
-            newmask.setDescription(mask.getDescription());
-            for (Property property : mask.getImageConfig().getProperties()) {
-                newmask.getImageConfig().setValue(property.getDescriptor().getName(), property.getValue());
+        Mask[] sourceMasks = maskGroup.toArray(new Mask[maskGroup.getNodeCount()]);
+        for (Mask sourceMask : sourceMasks) {
+            Mask.ImageType imageType = sourceMask.getImageType();
+            Mask targetMask = new Mask(sourceMask.getName(),
+                                       targetProduct.getSceneRasterWidth(),
+                                       targetProduct.getSceneRasterHeight(),
+                                       imageType);
+            targetMask.setDescription(sourceMask.getDescription());
+            for (Property property : sourceMask.getImageConfig().getProperties()) {
+                targetMask.getImageConfig().setValue(property.getDescriptor().getName(), property.getValue());
             }
             if (rename) {
-                newmask.setName(pattern.replace(SOURCE_NAME_REFERENCE, mask.getName()));
-                for (final Band targetBand : targetProduct.getBands()) {
-                    RasterDataNode srcRDN = sourceRasterMap.get(targetBand);
-                    if (srcRDN != null) {
-                        newmask.updateExpression(
-                                BandArithmetic.createExternalName(srcRDN.getName()),
-                                BandArithmetic.createExternalName(targetBand.getName()));
-                    }
-                }
+                targetMask.setName(pattern.replace(SOURCE_NAME_REFERENCE, sourceMask.getName()));
             }
-            targetProduct.getMaskGroup().add(newmask);
-
+            targetProduct.getMaskGroup().add(targetMask);
+            originalNames.put(targetMask.getName(), sourceMask.getName());
+            rasters.add(targetMask);
         }
     }
 
@@ -537,6 +557,31 @@ public class CollocateOp extends Operator {
     private static boolean isValidPixelExpressionUsed(RasterDataNode sourceRaster) {
         final String validPixelExpression = sourceRaster.getValidPixelExpression();
         return validPixelExpression != null && !validPixelExpression.trim().isEmpty();
+    }
+
+    private void setAutoGrouping() {
+        List<String> paths = new ArrayList<>();
+        collectAutoGrouping(paths, this.masterProduct.getAutoGrouping(), renameMasterComponents ? masterComponentPattern : null);
+        collectAutoGrouping(paths, this.slaveProduct.getAutoGrouping(), renameSlaveComponents ? slaveComponentPattern : null);
+        targetProduct.setAutoGrouping(String.join(":", paths));
+    }
+
+    private void collectAutoGrouping(List<String> paths, Product.AutoGrouping autoGrouping, String componentPattern) {
+        if (autoGrouping == null) {
+            return;
+        }
+        for (String[] pattern : autoGrouping) {
+            String[] clone = pattern.clone();
+            if (componentPattern != null) {
+                String last = clone[clone.length - 1];
+                if (!last.endsWith("*")) {
+                    last += "*";
+                }
+                last = componentPattern.replace(SOURCE_NAME_REFERENCE, last);
+                clone[clone.length - 1] = last;
+            }
+            paths.add(String.join("/", clone));
+        }
     }
 
     private static class ResamplingRaster implements Resampling.Raster {
