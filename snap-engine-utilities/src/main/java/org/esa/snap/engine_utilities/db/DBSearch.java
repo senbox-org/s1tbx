@@ -35,20 +35,30 @@ import java.util.Map;
  */
 public class DBSearch {
 
+    private final static double DEFAULT_MIN_TIME_DIFF = 1;
+    private final static double DEFAULT_MAX_TIME_DIFF = Integer.MAX_VALUE;
+    private final static int DEFAULT_MAX_SLAVES = 1;
+
     public static ProductEntry[] search(final File srcFile) throws Exception {
 
         return search(CommonReaders.readProduct(srcFile));
     }
 
     public static ProductEntry[] search(final Product srcProduct) throws Exception {
+        return search(srcProduct, DEFAULT_MAX_SLAVES, DEFAULT_MIN_TIME_DIFF, DEFAULT_MAX_TIME_DIFF);
+    }
+
+    public static ProductEntry[] search(final Product srcProduct, final int maxSlaves,
+                                        double minMJD, double maxMJD) throws Exception {
 
         final GeoPos centerGeoPos = srcProduct.getSceneGeoCoding().getGeoPos(
                 new PixelPos(srcProduct.getSceneRasterWidth() / 2, srcProduct.getSceneRasterHeight() / 2), null);
-        return findCCDPairs(ProductDB.instance(), srcProduct, centerGeoPos, 1, false);
+        return findCCDPairs(ProductDB.instance(), srcProduct, centerGeoPos, maxSlaves, minMJD, maxMJD, false);
     }
 
     private static ProductEntry[] findCCDPairs(final ProductDB db, final Product srcProduct, final GeoPos centerGeoPos,
-                                               final int maxSlaves, final boolean anyDate) throws SQLException {
+                                               final int maxSlaves, final double minMJD, final double maxMJD,
+                                               final boolean anyDate) throws SQLException {
 
         final ProductEntry masterEntry = new ProductEntry(srcProduct);
 
@@ -64,11 +74,12 @@ public class DBSearch {
         final ProductEntry[] entries = dbQuery.queryDatabase(db);
         if (entries.length == 0)
             return entries;
-        return getClosestDatePairs(entries, masterEntry, dbQuery, maxSlaves, anyDate);
+        return getClosestDatePairs(entries, masterEntry, dbQuery, minMJD, maxMJD, maxSlaves, anyDate);
     }
 
     private static ProductEntry[] getClosestDatePairs(final ProductEntry[] entries,
                                                       final ProductEntry master, DBQuery dbQuery,
+                                                      final double minMJD, final double maxMJD,
                                                       final int maxSlaves, final boolean anyDate) {
         final double masterTime = master.getFirstLineTime().getMJD();
         double cutoffTime = masterTime;
@@ -86,7 +97,7 @@ public class DBSearch {
             final double entryTime = entry.getFirstLineTime().getMJD();
             if (anyDate || entryTime < cutoffTime) {
                 final double diff = masterTime - entryTime;
-                if (diff > 0 && diff > 1) {
+                if (diff > 0 && (minMJD == 0 || diff >= minMJD) && (maxMJD == 0 || diff <= maxMJD)) {
                     timesMap.put(diff, entry);
                     diffList.add(diff);
                 }
