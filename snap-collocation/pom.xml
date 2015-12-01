@@ -28,6 +28,10 @@
     <name>SNAP Collocation Operator</name>
     <description>Performs a geographic collocation of two data products.</description>
 
+    <properties>
+        <snap.nbmSpecVersion>2.0.1.1</snap.nbmSpecVersion>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
