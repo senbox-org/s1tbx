@@ -627,36 +627,42 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     private static void computeTileNoiseLUT(final int y, final int x0, final int y0, final int w,
                                      final ThermalNoiseInfo noiseInfo, final double[] lut) {
         try {
-            double muX, muY;
             final int noiseVecIdx = getNoiseVectorIndex(y0, noiseInfo);
-            int pixelIdx = getPixelIndex(x0, noiseVecIdx, noiseInfo);
-
-            final Sentinel1Utils.NoiseVector noiseVector = noiseInfo.noiseVectorList[noiseVecIdx];
+            final Sentinel1Utils.NoiseVector noiseVector0 = noiseInfo.noiseVectorList[noiseVecIdx];
             final Sentinel1Utils.NoiseVector noiseVector1 = noiseInfo.noiseVectorList[noiseVecIdx + 1];
 
             final double azTime = noiseInfo.firstLineTime + y * noiseInfo.lineTimeInterval;
-            final double azT0 = noiseVector.timeMJD;
+            final double azT0 = noiseVector0.timeMJD;
             final double azT1 = noiseVector1.timeMJD;
-            muY = (azTime - azT0) / (azT1 - azT0);
+            final double muY = (azTime - azT0) / (azT1 - azT0);
 
-            final int maxLength = noiseVector.pixels.length - 2;
+            int pixelIdx0 = getPixelIndex(x0, noiseVector0);
+            int pixelIdx1 = getPixelIndex(x0, noiseVector1);
+
+            final int maxLength0 = noiseVector0.pixels.length - 2;
+            final int maxLength1 = noiseVector1.pixels.length - 2;
             final int maxX = x0 + w;
             for (int x = x0; x < maxX; x++) {
 
-                if (x > noiseVector.pixels[pixelIdx + 1] && pixelIdx < maxLength) {
-                    pixelIdx++;
+                if (x > noiseVector0.pixels[pixelIdx0 + 1] && pixelIdx0 < maxLength0) {
+                    pixelIdx0++;
                 }
+                final int x00 = noiseVector0.pixels[pixelIdx0];
+                final int x01 = noiseVector0.pixels[pixelIdx0 + 1];
+                final double muX0 = (double) (x - x00) / (double) (x01 - x00);
+                final double noise0 = Maths.interpolationLinear(
+                        noiseVector0.noiseLUT[pixelIdx0], noiseVector0.noiseLUT[pixelIdx0 + 1], muX0);
 
-                final int xx0 = noiseVector.pixels[pixelIdx];
-                final int xx1 = noiseVector.pixels[pixelIdx + 1];
-                muX = (double) (x - xx0) / (double) (xx1 - xx0);
+                if (x > noiseVector1.pixels[pixelIdx1 + 1] && pixelIdx1 < maxLength1) {
+                    pixelIdx1++;
+                }
+                final int x10 = noiseVector1.pixels[pixelIdx1];
+                final int x11 = noiseVector1.pixels[pixelIdx1 + 1];
+                final double muX1 = (double) (x - x10) / (double) (x11 - x10);
+                final double noise1 = Maths.interpolationLinear(
+                        noiseVector1.noiseLUT[pixelIdx1], noiseVector1.noiseLUT[pixelIdx1 + 1], muX1);
 
-                lut[x - x0] = Maths.interpolationBiLinear(
-                        noiseVector.noiseLUT[pixelIdx],
-                        noiseVector.noiseLUT[pixelIdx + 1],
-                        noiseVector1.noiseLUT[pixelIdx],
-                        noiseVector1.noiseLUT[pixelIdx + 1],
-                        muX, muY);
+                lut[x - x0] = Maths.interpolationLinear(noise0, noise1, muY);
             }
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("computeTileNoiseLUT", e);
@@ -683,18 +689,17 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
      * Get pixel index in a given noise vector for a given pixel.
      *
      * @param x           Pixel coordinate.
-     * @param noiseVecIdx Noise vector index.
-     * @param noiseInfo   Object of ThermalNoiseInfo class.
+     * @param noiseVector Noise vector.
      * @return The pixel index.
      */
-    private static int getPixelIndex(final int x, final int noiseVecIdx, final ThermalNoiseInfo noiseInfo) {
+    private static int getPixelIndex(final int x, final Sentinel1Utils.NoiseVector noiseVector) {
 
-        for (int i = 0; i < noiseInfo.noiseVectorList[noiseVecIdx].pixels.length; i++) {
-            if (x < noiseInfo.noiseVectorList[noiseVecIdx].pixels[i]) {
+        for (int i = 0; i < noiseVector.pixels.length; i++) {
+            if (x < noiseVector.pixels[i]) {
                 return i - 1;
             }
         }
-        return noiseInfo.noiseVectorList[noiseVecIdx].pixels.length - 2;
+        return noiseVector.pixels.length - 2;
     }
 
 
