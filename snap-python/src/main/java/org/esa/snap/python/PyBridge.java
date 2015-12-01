@@ -149,7 +149,7 @@ public class PyBridge {
         if (!Files.exists(jpyConfigFile)) {
             throw new IOException(String.format("SNAP-Python configuration incomplete.\n" +
                                                         "Missing file '%s'.\n" +
-                                                        "Please check log file '%s'.",
+                                                        "Please check the log file '%s'.",
                                                 jpyConfigFile,
                                                 snappyPath.resolve(SNAPPYUTIL_LOG_FILENAME)));
         }
@@ -219,10 +219,18 @@ public class PyBridge {
                     .directory(snappyDir.toFile()).start();
             int exitCode = process.waitFor();
             if (exitCode != 0) {
-                throw new IOException(String.format("Python configuration failed.\nCommand [%s]\nfailed with return code %s.", commandLine, exitCode));
+                throw new IOException(
+                        String.format("Python configuration failed.\n" +
+                                              "Command [%s]\nfailed with return code %s.\n" +
+                                              "Please check the log file '%s'.",
+                                      commandLine, exitCode, snappyDir.resolve(SNAPPYUTIL_LOG_FILENAME)));
             }
         } catch (InterruptedException e) {
-            throw new IOException(String.format("Python configuration failed.\nCommand [%s]\nfailed with exception %s.", commandLine, e.getMessage()), e);
+            throw new IOException(
+                    String.format("Python configuration failed.\n" +
+                                          "Command [%s]\nfailed with exception %s.\n" +
+                                          "Please check the log file '%s'.",
+                                  commandLine, e.getMessage(), snappyDir.resolve(SNAPPYUTIL_LOG_FILENAME)), e);
         }
     }
 
