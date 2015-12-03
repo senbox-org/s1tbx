@@ -5,3 +5,6 @@ org.esa.snap.raster.gpf.ReplaceMetadataOp$Spi
 org.esa.snap.raster.gpf.LinearTodBOp$Spi
 org.esa.snap.raster.gpf.ConvertDataTypeOp$Spi
 org.esa.snap.raster.gpf.FlipOp$Spi
+org.esa.snap.raster.gpf.texture.GLCMOp$Spi
+org.esa.snap.raster.gpf.masks.CreateLandMaskOp$Spi
+org.esa.snap.raster.gpf.masks.TerrainMaskOp$Spi
