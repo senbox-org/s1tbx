@@ -126,10 +126,10 @@ public class FloodDetectionOp extends Operator {
 
         final Band mstBand = targetProduct.getBandAt(0);
         final Band slvBand = targetProduct.getNumBands() > 1 ? targetProduct.getBandAt(1) : null;
-        final Band terrainMask = targetProduct.getBand("Terrain_Mask");
-        final Band globCover = targetProduct.getBand("GlobCover");
-        final Band homogeneity = targetProduct.getBand("Homogeneity");
-        final Band energy = targetProduct.getBand("Energy");
+        final Band terrainMask = getFeatureBand(targetProduct, "Terrain_Mask");
+        final Band globCover = getFeatureBand(targetProduct, "GlobCover");
+        final Band homogeneity = getFeatureBand(targetProduct, "Homogeneity");
+        final Band energy = getFeatureBand(targetProduct, "Energy");
 
         final boolean isdB = mstBand.getUnit().contains(Unit.DB);
 
@@ -174,6 +174,15 @@ public class FloodDetectionOp extends Operator {
         mask.setNoDataValue(0);
         mask.setNoDataValueUsed(true);
         targetProduct.getMaskGroup().add(mask);
+    }
+
+    private static Band getFeatureBand(final Product product, final String idStr) throws OperatorException {
+        for(String name : product.getBandNames()) {
+            if(name.contains(idStr)) {
+                return product.getBand(name);
+            }
+        }
+        return null;
     }
 
     /**
