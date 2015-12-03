@@ -89,11 +89,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-land-cover</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ncsa.hdf</groupId>
             <artifactId>lib-hdf</artifactId>
             <version>${hdf.version}</version>
@@ -172,6 +167,11 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
+            <artifactId>snap-land-cover</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
             <artifactId>snap-ndvi</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -198,6 +198,11 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-python</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-raster</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
