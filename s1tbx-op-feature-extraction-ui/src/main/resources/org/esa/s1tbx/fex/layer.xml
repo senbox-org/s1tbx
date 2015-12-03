@@ -3,28 +3,6 @@
 
     <folder name="Actions">
         <folder name="Operators">
-            <file name="org-esa-s1tbx-fex-gpf-TerrainMaskGeneration-Action.instance">
-                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
-                <attr name="displayName" stringvalue="Terrain Mask"/>
-                <attr name="operatorName" stringvalue="Terrain-Mask"/>
-                <attr name="dialogTitle" stringvalue="Terrain Mask"/>
-                <attr name="targetProductNameSuffix" stringvalue="_terr-msk"/>
-                <attr name="ShortDescription" stringvalue="Terrain Mask Generation"/>
-                <attr name="helpId" stringvalue="TerrainMask"/>
-                <attr name="icon" stringvalue="esaIcon"/>
-            </file>
-            <file name="org-esa-s1tbx-fex-gpf-createLandMaskOp-Action.instance">
-                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
-                <attr name="displayName" stringvalue="Land/Sea Mask"/>
-                <attr name="operatorName" stringvalue="Land-Sea-Mask"/>
-                <attr name="dialogTitle" stringvalue="Land/Sea Mask"/>
-                <attr name="targetProductNameSuffix" stringvalue="_msk"/>
-                <attr name="ShortDescription" stringvalue="Land/Sea Mask Generation"/>
-                <attr name="helpId" stringvalue="LandSeaMask"/>
-                <attr name="icon" stringvalue="esaIcon"/>
-            </file>
             <file name="org-esa-s1tbx-fex-gpf-ChangeDetection-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
@@ -45,17 +23,6 @@
                 <attr name="targetProductNameSuffix" stringvalue="_spk-div"/>
                 <attr name="ShortDescription" stringvalue="Speckle Divergence for Urban Area Detection"/>
                 <attr name="helpId" stringvalue="SpeckleDivergence"/>
-                <attr name="icon" stringvalue="esaIcon"/>
-            </file>
-            <file name="org-esa-s1tbx-fex-gpf-GLCMOp-Action.instance">
-                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
-                <attr name="displayName" stringvalue="Grey Level Co-occurrence Matrix"/>
-                <attr name="operatorName" stringvalue="GLCM"/>
-                <attr name="dialogTitle" stringvalue="GLCM"/>
-                <attr name="targetProductNameSuffix" stringvalue="_glcm"/>
-                <attr name="ShortDescription" stringvalue="Extract Texture Features"/>
-                <attr name="helpId" stringvalue="GLCM"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
             <file name="org-esa-s1tbx-fex-gpf-GaborFilterOp-Action.instance">
@@ -107,16 +74,7 @@
 
     <folder name="Menu">
         <folder name="Raster">
-            <folder name="Masks">
-                <file name="org-esa-s1tbx-fex-gpf-createLandMaskOp-Action.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-fex-gpf-createLandMaskOp-Action.instance"/>
-                    <attr name="position" intvalue="100"/>
-                </file>
-                <file name="org-esa-s1tbx-fex-gpf-TerrainMaskGeneration-Action.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-fex-gpf-TerrainMaskGeneration-Action.instance"/>
-                    <attr name="position" intvalue="200"/>
-                </file>
-            </folder>
+
         </folder>
         <folder name="Radar">
             <attr name="position" intvalue="510"/>
@@ -161,10 +119,7 @@
     </folder>
 
     <folder name="OperatorUIs">
-        <file name="org.esa.s1tbx.fex.gpf.ui.masks.CreateLandMaskOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.fex.gpf.ui.masks.CreateLandMaskOpUI"/>
-            <attr name="operatorName" stringvalue="Land-Sea-Mask"/>
-        </file>
+
     </folder>
 
     <folder name="LayerSources">

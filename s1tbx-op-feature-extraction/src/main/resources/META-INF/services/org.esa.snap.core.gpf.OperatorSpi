@@ -1,11 +1,8 @@
 org.esa.s1tbx.fex.gpf.urban.SpeckleDivergenceOp$Spi
 org.esa.s1tbx.fex.gpf.forest.ForestAreaDetectionOp$Spi
 org.esa.s1tbx.fex.gpf.flood.FloodDetectionOp$Spi
-org.esa.s1tbx.fex.gpf.texture.GLCMOp$Spi
 org.esa.s1tbx.fex.gpf.texture.GaborFilterOp$Spi
 org.esa.s1tbx.fex.gpf.forest.ForestAreaClassificationOp$Spi
-org.esa.s1tbx.fex.gpf.masks.CreateLandMaskOp$Spi
-org.esa.s1tbx.fex.gpf.masks.TerrainMaskOp$Spi
 org.esa.s1tbx.fex.gpf.oceantools.AdaptiveThresholdingOp$Spi
 org.esa.s1tbx.fex.gpf.oceantools.ObjectDiscriminationOp$Spi
 org.esa.s1tbx.fex.gpf.oceantools.OilSpillDetectionOp$Spi

@@ -16,7 +16,7 @@
 package org.esa.s1tbx.fex.gpf.urban;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.s1tbx.fex.gpf.masks.TerrainMaskOp;
+import org.esa.snap.raster.gpf.masks.TerrainMaskOp;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Mask;
 import org.esa.snap.core.datamodel.MetadataElement;
