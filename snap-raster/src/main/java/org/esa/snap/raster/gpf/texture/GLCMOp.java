@@ -57,7 +57,7 @@ import java.util.Map;
  */
 
 @OperatorMetadata(alias = "GLCM",
-        category = "Radar/Feature Extraction/Texture Analysis",
+        category = "Raster/Image Analysis/Texture Analysis",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Extract Texture Features")
@@ -303,9 +303,9 @@ public final class GLCMOp extends Operator {
         sourceImageHeight = sourceProduct.getSceneRasterHeight();
 
         targetProduct = new Product(sourceProduct.getName(),
-                                    sourceProduct.getProductType(),
-                                    sourceImageWidth,
-                                    sourceImageHeight);
+                sourceProduct.getProductType(),
+                sourceImageWidth,
+                sourceImageHeight);
 
         addSelectedBands();
 
@@ -515,7 +515,7 @@ public final class GLCMOp extends Operator {
 
                         final int[][] quantizedImage = computeQuantizedImage(x0, y0, w, h, srcInfo);
 
-                        final GLCMElem[] GLCM = new GLCMElem[numQuantLevels*numQuantLevels];
+                        final GLCMElem[] GLCM = new GLCMElem[numQuantLevels * numQuantLevels];
                         final Totals totals = computeGLCM(x0, y0, xMax, yMax, quantizedImage, GLCM);
                         if (totals.totalCount == 0) {
                             tf = srcInfo.tfNoData;
@@ -599,7 +599,7 @@ public final class GLCMOp extends Operator {
     }
 
     private Totals computeGLCM(final int x0, final int y0, final int xMax, final int yMax,
-                            final int[][] quantizedImage, final GLCMElem[] GLCM) {
+                               final int[][] quantizedImage, final GLCMElem[] GLCM) {
 
         final Totals totals = new Totals();
         int xx, yy, dX, dY;
@@ -734,7 +734,7 @@ public final class GLCMOp extends Operator {
         final boolean doVariance = outputVariance;
         final boolean doCorrelation = outputCorrelation;
         GLCMElem[] glcmList2 = null;
-        if(doVariance || doCorrelation) {
+        if (doVariance || doCorrelation) {
             glcmList2 = new GLCMElem[totals.numElems];
         }
 
@@ -742,7 +742,7 @@ public final class GLCMOp extends Operator {
         for (GLCMElem e : GLCM) {
             if (e != null && e.value > 0.0) {
                 final int ij = e.row - e.col;
-                e.prob = e.value / (double)totals.totalCount;
+                e.prob = e.value / (double) totals.totalCount;
                 final double GLCMval = e.prob;
 
                 if (doContrast)
@@ -766,7 +766,7 @@ public final class GLCMOp extends Operator {
                 GLCMMeanY += GLCMval * e.row;
                 GLCMMeanX += GLCMval * e.col;
 
-                if(doVariance || doCorrelation) {
+                if (doVariance || doCorrelation) {
                     glcmList2[cnt++] = e;
                 }
             }

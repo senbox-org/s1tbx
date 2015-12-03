@@ -35,7 +35,7 @@ import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -107,23 +107,23 @@ public class FilterOperator extends Operator {
 
         try {
             targetProduct = new Product(sourceProduct.getName(),
-                                        sourceProduct.getProductType(),
-                                        sourceProduct.getSceneRasterWidth(),
-                                        sourceProduct.getSceneRasterHeight());
+                    sourceProduct.getProductType(),
+                    sourceProduct.getSceneRasterWidth(),
+                    sourceProduct.getSceneRasterHeight());
 
             Filter selectedFilter = null;
             if (userDefinedKernelFile != null) {
                 selectedFilter = getUserDefinedFilter(userDefinedKernelFile);
-            } else if(selectedFilterName != null) {
+            } else if (selectedFilterName != null) {
                 selectedFilter = filterMap.get(selectedFilterName);
             }
 
-            if(selectedFilter == null)
+            if (selectedFilter == null)
                 return;
 
             final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, true);
 
-            for(Band srcBand : sourceBands) {
+            for (Band srcBand : sourceBands) {
                 final Band targetBand = new Band(srcBand.getName(), ProductData.TYPE_FLOAT32,
                         sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
                 targetBand.setUnit(srcBand.getUnit());
@@ -134,7 +134,7 @@ public class FilterOperator extends Operator {
                 bandMap.put(targetBand, filterBand);
 
                 final Band existingBand = sourceProduct.getBand(filterBandName);
-                if(existingBand != null)
+                if (existingBand != null)
                     sourceProduct.removeBand(existingBand);
                 sourceProduct.addBand(filterBand);
             }
@@ -142,7 +142,7 @@ public class FilterOperator extends Operator {
             ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
             targetProduct.setPreferredTileSize(sourceProduct.getSceneRasterWidth(), 512);
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }

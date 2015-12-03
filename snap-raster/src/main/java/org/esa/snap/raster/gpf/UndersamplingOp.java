@@ -56,30 +56,30 @@ import java.util.StringTokenizer;
 
 /**
  * This operator down samples a real or complex image using sub-sampling method or kernel filtering method.
- * <p/>
+ * <p>
  * With sub-sampling method, the image is down sampled with user specified sub-sampling rates in both range
  * and azimuth directions. For complex image, the i and q bands in the image are down sampled separately,
  * and the down sampled image is still a complex image.
- * <p/>
+ * <p>
  * With kernel filtering method, the image is down sampled with a kernel moving across the image with a
  * step-size determined by the size of the required output image. The kernel can be selected from pre-
  * defined shapes or defined by the user. For complex image, intensity image is computed from the i and
  * q bands before kernel filtering is applied. The down sampled image is always real image. The user can
  * determine the output image size by specifying the output image size, or the pixel spacings, or the
  * down sampling ratios.
- * <p/>
+ * <p>
  * The parameters used by the operator are as the follows:
- * <p/>
+ * <p>
  * Source Band: All bands (real or virtual) of the source product.
  * Under-Sampling Method: Sub-Sampling method or Kernel Filtering method
- * <p/>
+ * <p>
  * For Sub-Sampling method, the following parameters are used:
- * <p/>
+ * <p>
  * Sub-Sampling in X: User provided sub-sampling rate in range.
  * Sub-Sampling in Y: User provided sub-sampling rate in azimuth.
- * <p/>
+ * <p>
  * For Kernel Filtering method, the following parameters are used:
- * <p/>
+ * <p>
  * Filter Type: The kernel filter type.
  * Filter Size: The kernel filter size.
  * Kernel File: The user defined kernel.
@@ -92,7 +92,7 @@ import java.util.StringTokenizer;
  */
 
 @OperatorMetadata(alias = "Undersample",
-        category = "Radar/SAR Utilities/Resampling",
+        category = "Raster/Data Conversion/Resampling",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Undersample the datset")
@@ -321,7 +321,6 @@ public class UndersamplingOp extends Operator {
 
     /**
      * Get the range and azimuth spacings (in meter).
-     *
      */
     void getSrcImagePixelSpacings() {
 
@@ -438,7 +437,7 @@ public class UndersamplingOp extends Operator {
 
     private InputStream getResFile(String fileName) throws IOException {
         final Path moduleBasePath = ResourceInstaller.findModuleCodeBasePath(this.getClass());
-        final Path kernelPath = moduleBasePath.resolve("org/esa/snap/raster/kernels/"+ fileName);
+        final Path kernelPath = moduleBasePath.resolve("org/esa/snap/raster/kernels/" + fileName);
         return ResourceUtils.getResourceAsStream(kernelPath.toString(), this.getClass());
     }
 

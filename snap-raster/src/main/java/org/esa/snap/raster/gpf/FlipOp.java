@@ -71,7 +71,7 @@ public final class FlipOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
 
-        if(sourceProduct.isMultiSizeProduct()) {
+        if (sourceProduct.isMultiSizeProduct()) {
             throw createMultiSizeException(sourceProduct);
         }
 
@@ -83,7 +83,7 @@ public final class FlipOp extends Operator {
                 flippingType = ProductFlipper.FLIP_VERTICAL;
 
             sourceProduct = ProductFlipperExt.createFlippedProduct(sourceProduct, flippingType,
-                                                                   sourceProduct.getName(), sourceProduct.getDescription());
+                    sourceProduct.getName(), sourceProduct.getDescription());
 
             targetProduct = new Product(sourceProduct.getName(),
                     sourceProduct.getProductType(),
@@ -111,8 +111,8 @@ public final class FlipOp extends Operator {
     /**
      * get the selected bands
      *
-     * @param sourceProduct   the input product
-     * @param sourceBandNames the select band names
+     * @param sourceProduct       the input product
+     * @param sourceBandNames     the select band names
      * @param includeVirtualBands include virtual bands by default
      * @return band list
      * @throws OperatorException if source band not found

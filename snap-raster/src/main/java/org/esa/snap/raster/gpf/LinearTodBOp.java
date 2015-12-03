@@ -34,7 +34,7 @@ import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.HashMap;
 
 /**
@@ -151,18 +151,18 @@ public final class LinearTodBOp extends Operator {
                     } else {
                         value = srcData1.getElemDoubleAt(index);
                     }
-                    if(value == nodatavalue) {
+                    if (value == nodatavalue) {
                         trgData.setElemDoubleAt(index, value);
                         continue;
                     }
-                    if(linearTodB) {
+                    if (linearTodB) {
                         if (value < underFlowFloat) {
                             value = -underFlowFloat;
                         } else {
                             value = 10.0 * Math.log10(value);
                         }
                     } else {
-                        value = Math.pow(10,value/10.0);
+                        value = Math.pow(10, value / 10.0);
                     }
                     trgData.setElemDoubleAt(index, value);
                 }
@@ -219,7 +219,7 @@ public final class LinearTodBOp extends Operator {
                         (unit.equals(Unit.IMAGINARY) && nextUnit.equals(Unit.REAL)))) {
                     throw new OperatorException("Real and imaginary bands should be selected in pairs");
                 }
-                srcBandNames = new String[] {srcBand.getName(), sourceBands[i + 1].getName()};
+                srcBandNames = new String[]{srcBand.getName(), sourceBands[i + 1].getName()};
                 targetBandName = "Intensity";
                 final String suff = OperatorUtils.getSuffixFromBandName(srcBandNames[0]);
                 if (suff != null) {
@@ -240,9 +240,9 @@ public final class LinearTodBOp extends Operator {
             } else {
 
                 final String srcBandName = srcBand.getName();
-                srcBandNames = new String[] {srcBandName};
-                if(unit.endsWith(Unit.DB)) {
-                    if(srcBandName.endsWith(dBStr)) {
+                srcBandNames = new String[]{srcBandName};
+                if (unit.endsWith(Unit.DB)) {
+                    if (srcBandName.endsWith(dBStr)) {
                         targetBandName = srcBandName.substring(0, srcBandName.lastIndexOf(dBStr));
                     } else {
                         targetBandName = srcBandName;

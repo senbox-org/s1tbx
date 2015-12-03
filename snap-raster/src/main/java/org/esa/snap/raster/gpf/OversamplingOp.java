@@ -43,7 +43,7 @@ import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -52,7 +52,7 @@ import java.util.Map;
  */
 
 @OperatorMetadata(alias = "Oversample",
-        category = "Radar/SAR Utilities/Resampling",
+        category = "Raster/Data Conversion/Resampling",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Oversample the datset")

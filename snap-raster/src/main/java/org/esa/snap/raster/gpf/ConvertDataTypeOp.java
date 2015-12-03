@@ -141,8 +141,8 @@ public class ConvertDataTypeOp extends Operator {
     /**
      * get the selected bands
      *
-     * @param sourceProduct   the input product
-     * @param sourceBandNames the select band names
+     * @param sourceProduct       the input product
+     * @param sourceBandNames     the select band names
      * @param includeVirtualBands include virtual bands by default
      * @return band list
      * @throws OperatorException if source band not found

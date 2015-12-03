@@ -126,7 +126,7 @@ public class TestUndersamplingOperator {
      * Tests high pass kernel filtering in undersampling operator with a 6x12 "DETECTED" test product.
      * @throws Exception general exception
      */
-   // @Test
+    // @Test
   /*  public void testUndersamplingWithHighPassKernel() throws Exception {
 
         Product sourceProduct = createTestProduct(12, 6);
