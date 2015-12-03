@@ -214,8 +214,7 @@ public final class TOPSARDeburstOp extends Operator {
             subSwathEffectStartEndPixels[i] = new SubSwathEffectStartEndPixels();
 
             if (i == 0) {
-                subSwathEffectStartEndPixels[i].xMin = (int)Math.round((subSwath[i].slrTimeToFirstValidPixel -
-                        subSwath[i].slrTimeToFirstPixel) / targetDeltaSlantRangeTime);
+                subSwathEffectStartEndPixels[i].xMin = 0;
             } else {
                 final double midTime = (subSwath[i - 1].slrTimeToLastValidPixel +
                         subSwath[i].slrTimeToFirstValidPixel) / 2.0;
@@ -231,7 +230,7 @@ public final class TOPSARDeburstOp extends Operator {
                 subSwathEffectStartEndPixels[i].xMax = (int)Math.round((midTime -
                         subSwath[i].slrTimeToFirstPixel) / targetDeltaSlantRangeTime);
             } else {
-                subSwathEffectStartEndPixels[i].xMax = (int)Math.round((subSwath[i].slrTimeToLastValidPixel -
+                subSwathEffectStartEndPixels[i].xMax = (int)Math.round((subSwath[i].slrTimeToLastPixel -
                         subSwath[i].slrTimeToFirstPixel) / targetDeltaSlantRangeTime);
             }
         }
