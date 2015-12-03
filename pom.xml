@@ -80,6 +80,7 @@
         <module>snap-geotiff</module>
         <module>snap-hdf5-writer</module>
         <module>snap-jython</module>
+		<module>snap-land-cover</module>
         <module>snap-ndvi</module>
         <module>snap-netcdf</module>
         <module>snap-pconvert</module>
@@ -180,6 +181,11 @@
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-gpf</artifactId>
+                <version>${snap.version}</version>
+            </dependency>
+			<dependency>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-engine-utilities</artifactId>
                 <version>${snap.version}</version>
             </dependency>
 

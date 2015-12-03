@@ -1,0 +1,13 @@
+org.esa.snap.landcover.dataio.AAFC.AAFCSandHRModelDescriptor
+org.esa.snap.landcover.dataio.AAFC.AAFCClayHRModelDescriptor
+org.esa.snap.landcover.dataio.AAFC.AESBEOS2000CropModelDescriptor
+org.esa.snap.landcover.dataio.AAFC.AESBEOS2009CropModelDescriptor
+org.esa.snap.landcover.dataio.AAFC.AESBEOS2010CropModelDescriptor
+org.esa.snap.landcover.dataio.AAFC.AESBEOS2011CropModelDescriptor
+org.esa.snap.landcover.dataio.AAFC.AESBEOS2012CropModelDescriptor
+org.esa.snap.landcover.dataio.AAFC.AESBEOS2013CropModelDescriptor
+org.esa.snap.landcover.dataio.glc2000.GLC2000ModelDescriptor
+org.esa.snap.landcover.dataio.globcover.GlobCoverModelDescriptor
+org.esa.snap.landcover.dataio.MODIS_VCF.MODISVCFV5TRE2007ModelDescriptor
+org.esa.snap.landcover.dataio.MODIS_VCF.MODISVCFV5TRE2010ModelDescriptor
+
