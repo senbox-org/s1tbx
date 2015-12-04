@@ -140,21 +140,18 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         gbc.gridy++;
-        final int savedY = gbc.gridy;
         DialogUtils.addComponent(contentPane, gbc, filterSizeXLabel, filterSizeX);
+        DialogUtils.addComponent(contentPane, gbc, edgeThresholdLabel, edgeThreshold);
+
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, filterSizeYLabel, filterSizeY);
 
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, dampingFactorLabel, dampingFactor);
-
         DialogUtils.addComponent(contentPane, gbc, estimateENLCheckBoxLabel, estimateENLCheckBox);
 
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, enlLabel, enl);
-
-        gbc.gridy = savedY;
-        DialogUtils.addComponent(contentPane, gbc, edgeThresholdLabel, edgeThreshold);
 
         gbc.weightx = 1.0;
 
