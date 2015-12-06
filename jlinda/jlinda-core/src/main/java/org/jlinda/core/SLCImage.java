@@ -7,6 +7,7 @@ import org.jlinda.core.io.ResFile;
 import org.jlinda.core.utils.DateUtils;
 
 import java.io.File;
+import java.io.IOException;
 
 import static org.jlinda.core.Constants.EPS;
 import static org.jlinda.core.Constants.LIGHT_SPEED;
@@ -150,7 +151,7 @@ public final class SLCImage {
 
     }
 
-    public SLCImage(MetadataElement element) {
+    public SLCImage(MetadataElement element) throws IOException {
 
         this();
 
@@ -212,6 +213,9 @@ public final class SLCImage {
 
         // first set dopplers and get "original" 1st pixel time
         final AbstractMetadata.DopplerCentroidCoefficientList[] dopplersArray = AbstractMetadata.getDopplerCentroidCoefficients(element);
+        if(dopplersArray.length == 0) {
+            throw new IOException("Doppler Centroid Coefficients not found");
+        }
 
         // original zero doppler time to 1st pix of (original) SLC
         final String t_azi_original = dopplersArray[0].time.toString();
