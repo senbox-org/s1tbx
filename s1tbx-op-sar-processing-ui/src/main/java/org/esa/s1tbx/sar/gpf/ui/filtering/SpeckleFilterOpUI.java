@@ -39,46 +39,18 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
 
     private final JList bandList = new JList();
 
-    private final JComboBox filter = new JComboBox(new String[]{
-            SpeckleFilterOp.NONE,
+    private final JComboBox filter = new JComboBox(new String[]{SpeckleFilterOp.NONE,
             SpeckleFilterOp.MEAN_SPECKLE_FILTER,
             SpeckleFilterOp.MEDIAN_SPECKLE_FILTER,
             SpeckleFilterOp.FROST_SPECKLE_FILTER,
             SpeckleFilterOp.GAMMA_MAP_SPECKLE_FILTER,
             SpeckleFilterOp.LEE_SPECKLE_FILTER,
-            SpeckleFilterOp.LEE_REFINED_FILTER,
-            SpeckleFilterOp.LEE_SIGMA_FILTER});
+            SpeckleFilterOp.LEE_REFINED_FILTER});
 
-    private final JComboBox numLooks = new JComboBox(new String[]{SpeckleFilterOp.NUM_LOOKS_1,
-            SpeckleFilterOp.NUM_LOOKS_2,
-            SpeckleFilterOp.NUM_LOOKS_3,
-            SpeckleFilterOp.NUM_LOOKS_4});
-
-    private final JComboBox windowSize = new JComboBox(new String[]{SpeckleFilterOp.WINDOW_SIZE_5x5,
-            SpeckleFilterOp.WINDOW_SIZE_7x7,
-            SpeckleFilterOp.WINDOW_SIZE_9x9,
-            SpeckleFilterOp.WINDOW_SIZE_11x11});
-
-    private final JComboBox targetWindowSize = new JComboBox(new String[]{
-            SpeckleFilterOp.WINDOW_SIZE_3x3,
-            SpeckleFilterOp.WINDOW_SIZE_5x5});
-
-    private final JComboBox sigmaStr = new JComboBox(new String[]{
-            SpeckleFilterOp.SIGMA_50_PERCENT,
-            SpeckleFilterOp.SIGMA_60_PERCENT,
-            SpeckleFilterOp.SIGMA_70_PERCENT,
-            SpeckleFilterOp.SIGMA_80_PERCENT,
-            SpeckleFilterOp.SIGMA_90_PERCENT});
-
-    private static final JLabel dampingFactorLabel = new JLabel("Damping Factor:");
-    private static final JLabel edgeThresholdLabel = new JLabel("Edge Threshold:");
-    private static final JLabel filterSizeXLabel = new JLabel("Filter Size X (odd number):   ");
-    private static final JLabel filterSizeYLabel = new JLabel("Filter Size Y (odd number):   ");
-
-    private static final JLabel numLooksLabel = new JLabel("Number of Looks:");
-    private static final JLabel windowSizeLabel = new JLabel("Window Size:");
-    private static final JLabel sigmaStrLabel = new JLabel("Sigma:");
-    private static final JLabel targetWindowSizeLabel = new JLabel("Target Window Size:");
+    private final JLabel dampingFactorLabel = new JLabel("Damping Factor:");
+    private final JLabel edgeThresholdLabel = new JLabel("Edge Threshold:");
+    private final JLabel filterSizeXLabel = new JLabel("Filter Size X:   ");
+    private final JLabel filterSizeYLabel = new JLabel("Filter Size Y:   ");
 
     private final JTextField filterSizeX = new JTextField("");
     private final JTextField filterSizeY = new JTextField("");
@@ -127,11 +99,6 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
         estimateENL = true;
         enl.setEnabled(false);
         enl.setText(String.valueOf(paramMap.get("enl")));
-
-        numLooks.setSelectedItem(paramMap.get("numLooksStr"));
-        windowSize.setSelectedItem(paramMap.get("windowSize"));
-        targetWindowSize.setSelectedItem(paramMap.get("targetWindowSizeStr"));
-        sigmaStr.setSelectedItem(paramMap.get("sigmaStr"));
     }
 
     @Override
@@ -152,11 +119,6 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
         paramMap.put("edgeThreshold", Double.parseDouble(edgeThreshold.getText()));
         paramMap.put("estimateENL", estimateENL);
         paramMap.put("enl", Double.parseDouble(enl.getText()));
-
-        paramMap.put("numLooksStr", numLooks.getSelectedItem());
-        paramMap.put("windowSize", windowSize.getSelectedItem());
-        paramMap.put("targetWindowSizeStr", targetWindowSize.getSelectedItem());
-        paramMap.put("sigmaStr", sigmaStr.getSelectedItem());
     }
 
     private JComponent createPanel() {
@@ -180,32 +142,25 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, filterSizeXLabel, filterSizeX);
         DialogUtils.addComponent(contentPane, gbc, edgeThresholdLabel, edgeThreshold);
-        DialogUtils.addComponent(contentPane, gbc, numLooksLabel, numLooks);
-        DialogUtils.enableComponents(filterSizeXLabel, filterSizeX, true);
-        DialogUtils.enableComponents(edgeThresholdLabel, edgeThreshold, false);
-        DialogUtils.enableComponents(numLooksLabel, numLooks, false);
 
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, filterSizeYLabel, filterSizeY);
-        DialogUtils.addComponent(contentPane, gbc, windowSizeLabel, windowSize);
-        DialogUtils.enableComponents(filterSizeYLabel, filterSizeY, true);
-        DialogUtils.enableComponents(windowSizeLabel, windowSize, false);
 
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, dampingFactorLabel, dampingFactor);
         DialogUtils.addComponent(contentPane, gbc, estimateENLCheckBoxLabel, estimateENLCheckBox);
-        DialogUtils.addComponent(contentPane, gbc, sigmaStrLabel, sigmaStr);
-        DialogUtils.enableComponents(dampingFactorLabel, dampingFactor, false);
-        DialogUtils.enableComponents(estimateENLCheckBoxLabel, estimateENLCheckBox, false);
-        DialogUtils.enableComponents(sigmaStrLabel, sigmaStr, false);
 
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, enlLabel, enl);
-        DialogUtils.addComponent(contentPane, gbc, targetWindowSizeLabel, targetWindowSize);
-        DialogUtils.enableComponents(enlLabel, enl, false);
-        DialogUtils.enableComponents(targetWindowSizeLabel, targetWindowSize, false);
 
         gbc.weightx = 1.0;
+
+        DialogUtils.enableComponents(filterSizeXLabel, filterSizeX, true);
+        DialogUtils.enableComponents(filterSizeYLabel, filterSizeY, true);
+        DialogUtils.enableComponents(dampingFactorLabel, dampingFactor, false);
+        DialogUtils.enableComponents(estimateENLCheckBoxLabel, estimateENLCheckBox, false);
+        DialogUtils.enableComponents(enlLabel, enl, false);
+        DialogUtils.enableComponents(edgeThresholdLabel, edgeThreshold, false);
 
         DialogUtils.fillPanel(contentPane, gbc);
 
@@ -215,47 +170,36 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
     private void updateFilterSelection() {
         final String item = (String) filter.getSelectedItem();
 
-        DialogUtils.enableComponents(filterSizeXLabel, filterSizeX, false);
-        DialogUtils.enableComponents(filterSizeYLabel, filterSizeY, false);
-        DialogUtils.enableComponents(dampingFactorLabel, dampingFactor, false);
-        DialogUtils.enableComponents(edgeThresholdLabel, edgeThreshold, false);
-        DialogUtils.enableComponents(estimateENLCheckBoxLabel, estimateENLCheckBox, false);
-        DialogUtils.enableComponents(enlLabel, enl, false);
-        DialogUtils.enableComponents(numLooksLabel, numLooks, false);
-        DialogUtils.enableComponents(windowSizeLabel, windowSize, false);
-        DialogUtils.enableComponents(targetWindowSizeLabel, targetWindowSize, false);
-        DialogUtils.enableComponents(sigmaStrLabel, sigmaStr, false);
-
-        if (item.equals(SpeckleFilterOp.MEAN_SPECKLE_FILTER) || item.equals(SpeckleFilterOp.MEDIAN_SPECKLE_FILTER)) {
-            DialogUtils.enableComponents(filterSizeXLabel, filterSizeX, true);
-            DialogUtils.enableComponents(filterSizeYLabel, filterSizeY, true);
-        }
-
         if (item.equals(SpeckleFilterOp.FROST_SPECKLE_FILTER)) {
-            DialogUtils.enableComponents(filterSizeXLabel, filterSizeX, true);
-            DialogUtils.enableComponents(filterSizeYLabel, filterSizeY, true);
             DialogUtils.enableComponents(dampingFactorLabel, dampingFactor, true);
-        }
-
-        if (item.equals(SpeckleFilterOp.GAMMA_MAP_SPECKLE_FILTER) ||
-                item.equals(SpeckleFilterOp.LEE_SPECKLE_FILTER)) {
-            DialogUtils.enableComponents(filterSizeXLabel, filterSizeX, true);
-            DialogUtils.enableComponents(filterSizeYLabel, filterSizeY, true);
-            DialogUtils.enableComponents(estimateENLCheckBoxLabel, estimateENLCheckBox, true);
-            DialogUtils.enableComponents(enlLabel, enl, true);
-            estimateENLCheckBox.setSelected(true);
-            enl.setEnabled(false);
+        } else {
+            DialogUtils.enableComponents(dampingFactorLabel, dampingFactor, false);
         }
 
         if (item.equals(SpeckleFilterOp.LEE_REFINED_FILTER)) {
             DialogUtils.enableComponents(edgeThresholdLabel, edgeThreshold, true);
+            DialogUtils.enableComponents(filterSizeXLabel, filterSizeX, false);
+            DialogUtils.enableComponents(filterSizeYLabel, filterSizeY, false);
+        } else {
+            DialogUtils.enableComponents(edgeThresholdLabel, edgeThreshold, false);
+            DialogUtils.enableComponents(filterSizeXLabel, filterSizeX, true);
+            DialogUtils.enableComponents(filterSizeYLabel, filterSizeY, true);
         }
 
-        if (item.equals(SpeckleFilterOp.LEE_SIGMA_FILTER)) {
-            DialogUtils.enableComponents(numLooksLabel, numLooks, true);
-            DialogUtils.enableComponents(windowSizeLabel, windowSize, true);
-            DialogUtils.enableComponents(targetWindowSizeLabel, targetWindowSize, true);
-            DialogUtils.enableComponents(sigmaStrLabel, sigmaStr, true);
+        if (item.equals(SpeckleFilterOp.GAMMA_MAP_SPECKLE_FILTER) ||
+                item.equals(SpeckleFilterOp.LEE_SPECKLE_FILTER)) {
+            DialogUtils.enableComponents(estimateENLCheckBoxLabel, estimateENLCheckBox, true);
+            DialogUtils.enableComponents(enlLabel, enl, true);
+            estimateENLCheckBox.setSelected(true);
+            enl.setEnabled(false);
+        } else {
+            DialogUtils.enableComponents(estimateENLCheckBoxLabel, estimateENLCheckBox, false);
+            DialogUtils.enableComponents(enlLabel, enl, false);
+        }
+
+        if(item.equals(SpeckleFilterOp.NONE)) {
+            DialogUtils.enableComponents(filterSizeXLabel, filterSizeX, false);
+            DialogUtils.enableComponents(filterSizeYLabel, filterSizeY, false);
         }
     }
 }
