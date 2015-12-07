@@ -33,6 +33,7 @@ public class FileLandCoverModel implements LandCoverModel {
     protected final Resampling resampling;
     protected final Resampling.Index resamplingIndex;
     protected final File[] fileList;
+    private final String archiveExt;
 
     protected final LandCoverModelDescriptor descriptor;
     protected FileLandCoverTile[] tileList = null;
@@ -41,11 +42,16 @@ public class FileLandCoverModel implements LandCoverModel {
 
     public FileLandCoverModel(final LandCoverModelDescriptor descriptor, final File[] files,
                               final Resampling resamplingMethod) throws IOException {
+        this(descriptor, files, resamplingMethod, ".zip");
+    }
+    public FileLandCoverModel(final LandCoverModelDescriptor descriptor, final File[] files,
+                              final Resampling resamplingMethod, final String archiveExt) throws IOException {
 
         this.descriptor = descriptor;
-        resampling = resamplingMethod;
-        resamplingIndex = resampling.createIndex();
+        this.resampling = resamplingMethod;
+        this.resamplingIndex = resampling.createIndex();
         this.fileList = files;
+        this.archiveExt = archiveExt;
     }
 
     public void dispose() {
@@ -96,10 +102,11 @@ public class FileLandCoverModel implements LandCoverModel {
             try {
                 String ext = FileUtils.getExtension(fileList[i]).toLowerCase();
                 if (ext != null && ext.contains("tif") || ext.contains("zip")) {
-                    tileList[i] = new FileLandCoverTile(this, fileList[i], productReaderPlugIn.createReaderInstance());
+                    tileList[i] = new FileLandCoverTile(this, fileList[i],
+                                                        productReaderPlugIn.createReaderInstance(), archiveExt);
                 } else {
                     final ProductReader reader = ProductIO.getProductReaderForInput(fileList[i]);
-                    tileList[i] = new FileLandCoverTile(this, fileList[i], reader);
+                    tileList[i] = new FileLandCoverTile(this, fileList[i], reader, archiveExt);
                 }
             } catch (IOException e) {
                 tileList[i] = null;

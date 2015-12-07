@@ -47,7 +47,13 @@ class FileLandCoverTile extends DownloadableContentImpl implements Resampling.Ra
 
     public FileLandCoverTile(final LandCoverModel model, final File localFile, final ProductReader reader)
             throws IOException {
-        super(localFile, model.getDescriptor().getArchiveUrl(), ".zip");
+        this(model, localFile, reader, ".zip");
+    }
+
+    public FileLandCoverTile(final LandCoverModel model, final File localFile, final ProductReader reader,
+                             final String archiveExt)
+            throws IOException {
+        super(localFile, model.getDescriptor().getArchiveUrl(), archiveExt);
         this.model = model;
         this.reader = reader;
         noDataValue = model.getDescriptor().getNoDataValue();
