@@ -57,6 +57,7 @@ import org.jlinda.core.Point;
 import org.jlinda.core.SLCImage;
 
 import java.awt.*;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -769,47 +770,56 @@ public class CreateStackOp extends Operator {
     }
 
     private void computeTargetSlaveCoordinateOffsets_Orbits() throws Exception {
+        try {
+            // Note: This procedure will always compute some overlap
 
-        // Note: This procedure will always compute some overlap
-
-        // Similar as for GCPs but for every GCP use orbit information
-        MetadataElement root = AbstractMetadata.getAbstractedMetadata(targetProduct);
-
-        final int orbitDegree = 3;
-
-        SLCImage metaMaster = new SLCImage(root);
-        Orbit orbitMaster = new Orbit(root, orbitDegree);
-        SLCImage metaSlave;
-        Orbit orbitSlave;
-
-        // Reference point in Master radar geometry
-        Point tgtLP = metaMaster.getApproxRadarCentreOriginal();
-
-        for (final Product slvProd : sourceProduct) {
-
-            if (slvProd == masterProduct) {
-                // if master is ref product put 0-es for offset
-                slaveOffsettMap.put(slvProd, new int[]{0, 0});
-                continue;
+            // Similar as for GCPs but for every GCP use orbit information
+            if (!AbstractMetadata.hasAbstractedMetadata(targetProduct)) {
+                throw new Exception("Orbit offset method is not support for product " + targetProduct.getName());
             }
+            MetadataElement root = AbstractMetadata.getAbstractedMetadata(targetProduct);
 
-            // Slave metadata
-            root = AbstractMetadata.getAbstractedMetadata(slvProd);
-            metaSlave = new SLCImage(root);
-            orbitSlave = new Orbit(root, orbitDegree);
+            final int orbitDegree = 3;
 
-            // (lp_master) & (master_orbit)-> (xyz_master) & (slave_orbit)-> (lp_slave)
-            Point tgtXYZ = orbitMaster.lp2xyz(tgtLP, metaMaster);
-            Point slvLP = orbitSlave.xyz2lp(tgtXYZ, metaSlave);
+            SLCImage metaMaster = new SLCImage(root);
+            Orbit orbitMaster = new Orbit(root, orbitDegree);
+            SLCImage metaSlave;
+            Orbit orbitSlave;
 
-            // Offset: slave minus master
-            Point offsetLP = slvLP.min(tgtLP);
+            // Reference point in Master radar geometry
+            Point tgtLP = metaMaster.getApproxRadarCentreOriginal();
 
-            int offsetX = (int) Math.floor(offsetLP.x + .5);
-            int offsetY = (int) Math.floor(offsetLP.y + .5);
+            for (final Product slvProd : sourceProduct) {
 
-            addOffset(slvProd, offsetX, offsetY);
+                if (slvProd == masterProduct) {
+                    // if master is ref product put 0-es for offset
+                    slaveOffsettMap.put(slvProd, new int[]{0, 0});
+                    continue;
+                }
 
+                // Slave metadata
+                if (!AbstractMetadata.hasAbstractedMetadata(slvProd)) {
+                    throw new Exception("Orbit offset method is not support for product " + slvProd.getName());
+                }
+                root = AbstractMetadata.getAbstractedMetadata(slvProd);
+                metaSlave = new SLCImage(root);
+                orbitSlave = new Orbit(root, orbitDegree);
+
+                // (lp_master) & (master_orbit)-> (xyz_master) & (slave_orbit)-> (lp_slave)
+                Point tgtXYZ = orbitMaster.lp2xyz(tgtLP, metaMaster);
+                Point slvLP = orbitSlave.xyz2lp(tgtXYZ, metaSlave);
+
+                // Offset: slave minus master
+                Point offsetLP = slvLP.min(tgtLP);
+
+                int offsetX = (int) Math.floor(offsetLP.x + .5);
+                int offsetY = (int) Math.floor(offsetLP.y + .5);
+
+                addOffset(slvProd, offsetX, offsetY);
+
+            }
+        } catch (Exception e) {
+            throw new IOException("Orbit offset method is not support for this product: "+e.getMessage());
         }
     }
 
