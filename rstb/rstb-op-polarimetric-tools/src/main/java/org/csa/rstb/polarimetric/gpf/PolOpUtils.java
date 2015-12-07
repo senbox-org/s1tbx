@@ -955,9 +955,9 @@ public final class PolOpUtils {
         final double[][] tempCi = new double[3][3];
 
         final int xSt = Math.max(x - halfWindowSizeX, sourceTiles[0].getMinX());
-        final int xEd = Math.min(x + halfWindowSizeX, sourceTiles[0].getMaxX() - 1);
+        final int xEd = Math.min(x + halfWindowSizeX, sourceTiles[0].getMaxX());
         final int ySt = Math.max(y - halfWindowSizeY, sourceTiles[0].getMinY());
-        final int yEd = Math.min(y + halfWindowSizeY, sourceTiles[0].getMaxY() - 1);
+        final int yEd = Math.min(y + halfWindowSizeY, sourceTiles[0].getMaxY());
         final int num = (yEd - ySt + 1) * (xEd - xSt + 1);
 
         final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
