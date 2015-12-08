@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2015 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -22,6 +22,8 @@ import java.awt.*;
 /**
  * An interactive rendering is used to render graphical data representations on a GUI widget, allowing for
  * rendering of invalidated regions.
+ *
+ * @author Norman Fomferra
  */
 public interface InteractiveRendering extends Rendering {
 

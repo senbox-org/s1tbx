@@ -6,7 +6,6 @@ import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductNodeGroup;
-import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.util.ProductUtils;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -17,7 +16,9 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertSame;
 
 public class MultiSizeSupportTest {
 
@@ -45,13 +46,12 @@ public class MultiSizeSupportTest {
     @Test
     @Ignore
     public void testThatImagePixelPositionsAreCorrectlyTransformedIntoModelCoordinates() {
-        final ProductNodeGroup<Band> bandGroup = product.getBandGroup();
+        ProductNodeGroup<Band> bandGroup = product.getBandGroup();
         //todo get model coordinates for corner pixel positions
         PixelPos[][] expectedModelCoordinates = new PixelPos[bandGroup.getNodeCount()][];
         for (int i = 0; i < bandGroup.getNodeCount(); i++) {
-            final Band band = bandGroup.get(i);
-            final AffineTransform imageToModelTransform = ImageManager.getImageToModelTransform(
-                    band.getGeoCoding());
+            Band band = bandGroup.get(i);
+            AffineTransform imageToModelTransform = Product.findImageToModelTransform(band.getGeoCoding());
             double cornerWidth = band.getRasterWidth() - 1.5;
             double cornerHeight = band.getRasterHeight() - 1.5;
             assertEquals(expectedModelCoordinates[i][0], imageToModelTransform.transform(new PixelPos(0.5, 0.5), null));
@@ -64,13 +64,12 @@ public class MultiSizeSupportTest {
     @Test
     @Ignore
     public void testThatModelCoordinatesAreCorrectlyTransformedIntoImagePixelPositions() throws NoninvertibleTransformException {
-        final ProductNodeGroup<Band> bandGroup = product.getBandGroup();
+        ProductNodeGroup<Band> bandGroup = product.getBandGroup();
         //todo get model coordinates for corner pixel positions
         PixelPos[][] modelCoordinates = new PixelPos[bandGroup.getNodeCount()][];
         for (int i = 0; i < bandGroup.getNodeCount(); i++) {
-            final Band band = bandGroup.get(i);
-            final AffineTransform modelToImageTransform = ImageManager.getImageToModelTransform(
-                    band.getGeoCoding()).createInverse();
+            Band band = bandGroup.get(i);
+            AffineTransform modelToImageTransform = Product.findImageToModelTransform(band.getGeoCoding()).createInverse();
             double cornerWidth = band.getRasterWidth() - 1.5;
             double cornerHeight = band.getRasterHeight() - 1.5;
             assertEquals(new PixelPos(0.5, 0.5), modelToImageTransform.transform(modelCoordinates[i][0], null));
@@ -103,11 +102,11 @@ public class MultiSizeSupportTest {
         final ProductNodeGroup<Band> bandGroup = product.getBandGroup();
         for (int i = 0; i < bandGroup.getNodeCount() - 1; i++) {
             final Band band1 = bandGroup.get(i);
-            final MultiLevelModel multiLevelModel1 = ImageManager.getMultiLevelModel(band1);
+            final MultiLevelModel multiLevelModel1 = band1.getMultiLevelModel();
             for (int j = i + 1; j < bandGroup.getNodeCount(); j++) {
                 final Band band2 = bandGroup.get(j);
                 if (band1.getRasterSize().equals(band2.getRasterSize())) {
-                    assertSame(multiLevelModel1, ImageManager.getMultiLevelModel(band2));
+                    assertSame(multiLevelModel1, band2.getMultiLevelModel());
                 }
             }
         }
@@ -123,7 +122,7 @@ public class MultiSizeSupportTest {
             final Band band = bandGroup.get(i);
             final MultiLevelImage validMaskImage = band.getValidMaskImage();
             if (validMaskImage != null) {
-                assertSame(validMaskImage.getModel(), ImageManager.getMultiLevelModel(band));
+                assertSame(validMaskImage.getModel(), band.getMultiLevelModel());
             }
         }
     }
@@ -132,7 +131,7 @@ public class MultiSizeSupportTest {
 
     //method copied from SpectrumTopComponent
     private double readEnergyAsInSpectrumTopComponent(PixelPos pixelPos, Band spectralBand, int level) {
-        final MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(spectralBand);
+        final MultiLevelModel multiLevelModel = spectralBand.getMultiLevelModel();
         final AffineTransform i2mTransform = multiLevelModel.getImageToModelTransform(0);
         final AffineTransform m2iTransform = multiLevelModel.getModelToImageTransform(level);
         final Point2D modelPixel = i2mTransform.transform(pixelPos, null);

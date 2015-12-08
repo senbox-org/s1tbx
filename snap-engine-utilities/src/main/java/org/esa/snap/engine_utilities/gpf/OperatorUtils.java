@@ -35,6 +35,7 @@ import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.db.DBQuery;
 import org.esa.snap.engine_utilities.util.ExceptionLog;
 
 import java.awt.Dimension;
@@ -132,6 +133,36 @@ public final class OperatorUtils {
             throw new OperatorException("Band name contains multiple polarziations: " + pol);
 
         return null;
+    }
+
+    public static String getPolarizationType(final MetadataElement absRoot) {
+        String pol1 = absRoot.getAttributeString(AbstractMetadata.mds1_tx_rx_polar, AbstractMetadata.NO_METADATA_STRING);
+        String pol2 = absRoot.getAttributeString(AbstractMetadata.mds2_tx_rx_polar, AbstractMetadata.NO_METADATA_STRING);
+        String pol3 = absRoot.getAttributeString(AbstractMetadata.mds3_tx_rx_polar, AbstractMetadata.NO_METADATA_STRING);
+        String pol4 = absRoot.getAttributeString(AbstractMetadata.mds4_tx_rx_polar, AbstractMetadata.NO_METADATA_STRING);
+
+        if(hasPol(pol1)) {
+            if(hasPol(pol2)) {
+                if(hasPol(pol3) && hasPol(pol4)) {
+                    return DBQuery.ANY;
+                }
+                if(pol1.equals("VV")) {
+                    return DBQuery.VVVH;
+                }
+                if(pol2.equals("VV")) {
+                    return DBQuery.HHVV;
+                }
+                if(pol2.equals("HV")) {
+                    return DBQuery.HHHV;
+                }
+            }
+            return pol1;
+        }
+        return null;
+    }
+
+    private static boolean hasPol(String pol) {
+        return pol != null && !pol.trim().isEmpty() && !pol.equals(AbstractMetadata.NO_METADATA_STRING);
     }
 
     /**
@@ -481,10 +512,7 @@ public final class OperatorUtils {
 
             String targetUnit = "";
 
-            if (unit.contains(Unit.PHASE) && outputIntensity) {
-                continue;
-
-            } else if (unit.contains(Unit.IMAGINARY) && outputIntensity && !isPolsar) {
+            if (unit.contains(Unit.IMAGINARY) && outputIntensity && !isPolsar) {
 
                 throw new OperatorException("Real and imaginary bands should be selected in pairs");
 

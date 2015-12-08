@@ -20,7 +20,7 @@
     <parent>
         <artifactId>snap-engine</artifactId>
         <groupId>org.esa.snap</groupId>
-        <version>2.0.0-SNAPSHOT</version>
+        <version>3.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>snap-pixel-extraction</artifactId>
@@ -30,10 +30,6 @@
     <description>The SNAP Pixel Extraction Tool can be used to generate a CSV file from a given pixel location of specified products. It is
         implemented as a GPF operator.
     </description>
-
-    <properties>
-        <snap.nbmSpecVersion>2.0.0.8</snap.nbmSpecVersion>
-    </properties>
 
     <dependencies>
         <dependency>

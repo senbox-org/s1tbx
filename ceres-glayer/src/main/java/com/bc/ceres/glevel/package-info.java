@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2015 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -14,21 +14,23 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package com.bc.ceres.glevel;
-
 /**
- * This package allows to add multi-resolution capability to JAI.
+ * Adds multi-resolution / image pyramid capabilities to JAI.
  *
  * The framework has been designed taking into account the following requirements:
  * <ul>
- *   <li>A multi-resolution image ({@link IMultiLevelImage}) shall manage its lower-resolution instances such that
+ *   <li>A multi-resolution image ({@link com.bc.ceres.glevel.MultiLevelImage}) shall manage its lower-resolution instances such that
  *       the same lower-resolution image instance is returned for the same level.
  *   </li>
- *   <li>It should be possible to add the multi-resolution capability to any existing {@code RenderedImage} (see {@link MultiLevelImageImpl}).
+ *   <li>It should be possible to add the multi-resolution capability to any existing {@code RenderedImage} (see {@link com.bc.ceres.glevel.support.DefaultMultiLevelSource}).
  *   </li>
  *   <li>Classes implementing the multi-resolution capability may use any JAI {@code OpImage} DAG to produce its tiles.
- *        It should be easy to implement the multi-resolution capability (see {@link MultiLevelImageSupport}). Tile computation
+ *        It should be easy to implement the multi-resolution capability (see {@link com.bc.ceres.glevel.support.DefaultMultiLevelImage}). Tile computation
  *        shall then directly take into account the resolution level.
  *   </li>
  * </ul>
+ *
+ * @author Norman Fomferra
  */
+package com.bc.ceres.glevel;
+

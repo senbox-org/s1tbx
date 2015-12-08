@@ -37,8 +37,8 @@ public class ConvolutionFilterBand extends FilterBand {
     public ConvolutionFilterBand(String name, RasterDataNode source, Kernel kernel, int iterationCount) {
         super(name,
               source.getGeophysicalDataType() == ProductData.TYPE_FLOAT64 ? ProductData.TYPE_FLOAT64 : ProductData.TYPE_FLOAT32,
-              source.getSceneRasterWidth(),
-              source.getSceneRasterHeight(),
+              source.getRasterWidth(),
+              source.getRasterHeight(),
               source);
         this.kernel = kernel;
         this.iterationCount = iterationCount;

@@ -22,7 +22,7 @@
 
     <groupId>org.esa.snap</groupId>
     <artifactId>snap-engine</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>SNAP Engine Project</name>
@@ -38,7 +38,7 @@
             This is necessary to make NetBeans modules updatable and independent from the Maven version (= snap.version).
         -->
         <snap.version>${project.version}</snap.version>
-        <snap.nbmSpecVersion>2.0.0.7</snap.nbmSpecVersion>
+        <snap.nbmSpecVersion>3.0.0.0</snap.nbmSpecVersion>
         <javahelp.version>2.0.05</javahelp.version>
         <hdf.version>2.7.1</hdf.version>
         <netcdf.version>4.3.22</netcdf.version>
@@ -80,12 +80,14 @@
         <module>snap-geotiff</module>
         <module>snap-hdf5-writer</module>
         <module>snap-jython</module>
+		<module>snap-land-cover</module>
         <module>snap-ndvi</module>
         <module>snap-netcdf</module>
         <module>snap-pconvert</module>
         <module>snap-pgx-reader</module>
         <module>snap-pixel-extraction</module>
         <module>snap-python</module>
+		<module>snap-raster</module>
         <module>snap-rtp-codec</module>
         <module>snap-smart-configurator</module>
         <module>snap-statistics</module>
@@ -99,15 +101,15 @@
     </modules>
 
     <organization>
-        <name>Brockmann Consult GmbH</name>
-        <url>http://www.brockmann-consult.de</url>
+        <name>European Space Agency (ESA)</name>
+        <url>http://step.esa.int/</url>
     </organization>
 
-    <inceptionYear>2002</inceptionYear>
+    <inceptionYear>2014</inceptionYear>
 
     <issueManagement>
         <system>JIRA</system>
-        <url>http://www.brockmann-consult.de/beam-issues</url>
+        <url>https://senbox.atlassian.net/projects/SNAP/</url>
     </issueManagement>
 
     <licenses>
@@ -180,6 +182,11 @@
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-gpf</artifactId>
+                <version>${snap.version}</version>
+            </dependency>
+			<dependency>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-engine-utilities</artifactId>
                 <version>${snap.version}</version>
             </dependency>
 
@@ -675,7 +682,7 @@
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
-                <artifactId>smart-configurator</artifactId>
+                <artifactId>snap-smart-configurator</artifactId>
                 <version>${snap.version}</version>
             </dependency>
 
@@ -844,9 +851,10 @@
                     <version>2.10.3</version>
                     <configuration>
                         <aggregate>true</aggregate>
-                        <subpackages>com.bc.ceres:org.esa.snap.core</subpackages>
-                        <!-- Not possible to exclude packages; it is not considered by the plugin -->
-                        <!--<excludePackageNames>*.internal,*.impl,*.experimental,org.esa.snap.core.gpf.common.support</excludePackageNames>-->
+                        <subpackages>org.esa.snap.core:com.bc.ceres</subpackages>
+                        <!-- Not possible to exclude packages; it is not considered by the plugin (as of v2.10.3, 18.11.2015) -->
+                        <!--<excludePackageNames>org.esa.snap.core.gpf.internal:*.internal:*.impl:*.experimental</excludePackageNames>-->
+                        <additionalparam>-exclude com.bc.ceres.core.runtime:com.bc.ceres.swing:org.esa.snap.core.param.validators:org.esa.snap.core.param.editors:org.esa.snap.core.param:org.esa.snap.core.draw:org.esa.snap.core.dataop.projection:com.bc.ceres.binio.internal:com.bc.ceres.compiler:com.bc.ceres.swing.binding.internal:com.bc.ceres.core.runtime.internal:com.bc.ceres.jai.js:com.bc.ceres.launcher:com.bc.ceres.launcher.internal:com.bc.ceres.metadata:com.bc.ceres.nbmgen:com.bc.ceres.resource:com.bc.ceres.standalone:org.esa.snap.core.dataop.downloadable:org.esa.snap.core.dataop.maptransf.geotools:org.esa.snap.core.dataop.maptransf:org.esa.snap.core.gpf.doclet:org.esa.snap.core.gpf.internal:org.esa.snap.core.gpf.experimental:org.esa.snap.core.gpf.operators.tooladapter:org.esa.snap.core.jexp.impl</additionalparam>
                         <maxmemory>512M</maxmemory>
                         <doctitle>SNAP Engine 2.0 API</doctitle>
                         <windowtitle>SNAP Engine 2.0 API</windowtitle>
@@ -855,6 +863,20 @@
                         <author>false</author>
                         <detectJavaApiLink>true</detectJavaApiLink>
                         <detectLinks>true</detectLinks>
+                        <groups>
+                            <group>
+                                <title>Most important API</title>
+                                <packages>org.esa.snap.core.datamodel:org.esa.snap.core.dataio:org.esa.snap.core.gpf:org.esa.snap.core.gpf.pointop:org.esa.snap.core.gpf.annotations</packages>
+                            </group>
+                            <group>
+                                <title>Frequently used API</title>
+                                <packages>org.esa.snap.core.util:org.esa.snap.core.image:org.esa.snap.core.layer:org.esa.snap.core.jexp:org.esa.snap.python:org.esa.snap.python.gpf</packages>
+                            </group>
+                            <group>
+                                <title>Low-Level API</title>
+                                <packages>com.bc.ceres*:com.bc.ceres.*</packages>
+                            </group>
+                        </groups>
                     </configuration>
                 </plugin>
 

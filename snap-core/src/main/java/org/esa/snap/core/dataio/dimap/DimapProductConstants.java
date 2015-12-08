@@ -43,7 +43,7 @@ public final class DimapProductConstants {
      * <p>
      * Important note: If you change this number, update the BEAM-DIMAP version history given at {@link DimapProductWriterPlugIn}.
      */
-    public static final String DIMAP_CURRENT_VERSION = "2.12.0";
+    public static final String DIMAP_CURRENT_VERSION = "2.12.1";
 
     // BEAM-Dimap default text
     public static final String DIMAP_METADATA_PROFILE = "BEAM-DATAMODEL-V1";
@@ -96,6 +96,7 @@ public final class DimapProductConstants {
     public static final String TAG_SEARCH_RADIUS = "SEARCH_RADIUS";
     public static final String TAG_PIXEL_POSITION_ESTIMATOR = "Pixel_Position_Estimator";
     public static final String TAG_WKT = "WKT";
+    //This Tag is used for geo-coding support and multi size support
     public static final String TAG_IMAGE_TO_MODEL_TRANSFORM = "IMAGE_TO_MODEL_TRANSFORM";
 
     //  -since version 2.0.0
@@ -289,6 +290,10 @@ public final class DimapProductConstants {
     public static final String TAG_VALID_MASK_TERM = "VALID_MASK_TERM";
     public static final String TAG_NO_DATA_VALUE_USED = "NO_DATA_VALUE_USED";
     public static final String TAG_NO_DATA_VALUE = "NO_DATA_VALUE";
+
+    //Ancillary support
+    public static final String TAG_ANCILLARY_RELATION = "ANCILLARY_RELATION";
+    public static final String TAG_ANCILLARY_VARIABLE = "ANCILLARY_VARIABLE";
 
     //Virtual bands support
     public static final String TAG_VIRTUAL_BAND = "VIRTUAL_BAND";

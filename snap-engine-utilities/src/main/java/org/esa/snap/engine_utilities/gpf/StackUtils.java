@@ -33,6 +33,9 @@ import java.util.Set;
 public final class StackUtils {
 
     public static boolean isCoregisteredStack(final Product product) {
+        if(!AbstractMetadata.hasAbstractedMetadata(product))
+            return false;
+
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         return absRoot != null && absRoot.getAttributeInt(AbstractMetadata.coregistered_stack, 0) == 1;
     }

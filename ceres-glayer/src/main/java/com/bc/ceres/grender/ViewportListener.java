@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2015 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -18,10 +18,9 @@ package com.bc.ceres.grender;
 
 /**
  * A change listener which can be added to viewports.
+ * @author Norman Fomferra
  */
 public interface ViewportListener {
-    // todo - declare flags: int ORIENTATION=0x01,OFFSET=0x02,SCALE=0x04;  (nf - 25.03.2009)
-    // todo - replace orientationChanged by changeMask and use flags (nf - 25.03.2009)
     /**
      * Called if the given viewport has changed.
      *

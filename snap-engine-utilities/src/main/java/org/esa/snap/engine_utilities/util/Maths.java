@@ -29,7 +29,7 @@ public final class Maths {
      *
      * @param y0 First sample value.
      * @param y1 Second sample value.
-     * @param mu A perameter in range [0,1] that defines the interpolated sample position between y0 and y1.
+     * @param mu A parameter in range [0,1] that defines the interpolated sample position between y0 and y1.
      *           A 0 value of mu corresponds to sample y0.
      * @return The interpolated sample value.
      */
@@ -44,7 +44,7 @@ public final class Maths {
      * @param y1 Second sample value.
      * @param y2 Third sample value.
      * @param y3 Forth sample value.
-     * @param mu A perameter in range [0,1] that defines the interpolated sample position between y1 and y2.
+     * @param mu A parameter in range [0,1] that defines the interpolated sample position between y1 and y2.
      *           A 0 value of mu corresponds to sample y1.
      * @return The interpolated sample value.
      */
@@ -67,7 +67,7 @@ public final class Maths {
      * @param y1 Second sample value.
      * @param y2 Third sample value.
      * @param y3 Forth sample value.
-     * @param mu A perameter in range [0,1] that defines the interpolated sample position between y1 and y2.
+     * @param mu A parameter in range [0,1] that defines the interpolated sample position between y1 and y2.
      *           A 0 value of mu corresponds to sample y1.
      * @return The interpolated sample value.
      */
@@ -90,7 +90,7 @@ public final class Maths {
      * @param y2 Third sample value.
      * @param y3 Forth sample value.
      * @param y4 Fifth sample value.
-     * @param mu A perameter in range [-0.5, 0.5] that defines the interpolated sample position wrt y2.
+     * @param mu A parameter in range [-0.5, 0.5] that defines the interpolated sample position wrt y2.
      *           A 0 value of mu corresponds to sample y2.
      * @return The interpolated sample value.
      */
@@ -114,9 +114,9 @@ public final class Maths {
      * @param v01 Sample value for pixel at (x1, y0).
      * @param v10 Sample value for pixel at (x0, y1).
      * @param v11 Sample value for pixel at (x1, y1).
-     * @param muX A perameter in range [0,1] that defines the interpolated sample position between x0 and x1.
+     * @param muX A parameter in range [0,1] that defines the interpolated sample position between x0 and x1.
      *            A 0 value of muX corresponds to sample x0.
-     * @param muY A perameter in range [0,1] that defines the interpolated sample position between y0 and y1.
+     * @param muY A parameter in range [0,1] that defines the interpolated sample position between y0 and y1.
      *            A 0 value of muY corresponds to sample y0.
      * @return The interpolated sample value.
      */
@@ -131,9 +131,9 @@ public final class Maths {
      * Perform Bi-cubic interpolation.
      *
      * @param v   Array of 4x4 sample values with vij is the value for pixel at (xj, yi) where i,j = 0,1,2,3.
-     * @param muX A perameter in range [0,1] that defines the interpolated sample position between x1 and x2.
+     * @param muX A parameter in range [0,1] that defines the interpolated sample position between x1 and x2.
      *            A 0 value of muX corresponds to sample x1.
-     * @param muY A perameter in range [0,1] that defines the interpolated sample position between y1 and y2.
+     * @param muY A parameter in range [0,1] that defines the interpolated sample position between y1 and y2.
      *            A 0 value of muY corresponds to sample y1.
      * @return The interpolated sample value.
      */
@@ -154,9 +154,9 @@ public final class Maths {
      * Perform Bi-cubic2 interpolation.
      *
      * @param v   Array of 4x4 sample values with vij is the value for pixel at (xj, yi) where i,j = 0,1,2,3.
-     * @param muX A perameter in range [0,1] that defines the interpolated sample position between x1 and x2.
+     * @param muX A parameter in range [0,1] that defines the interpolated sample position between x1 and x2.
      *            A 0 value of muX corresponds to sample x1.
-     * @param muY A perameter in range [0,1] that defines the interpolated sample position between y1 and y2.
+     * @param muY A parameter in range [0,1] that defines the interpolated sample position between y1 and y2.
      *            A 0 value of muY corresponds to sample y1.
      * @return The interpolated sample value.
      */
@@ -174,9 +174,9 @@ public final class Maths {
      * Perform Bi-sinc interpolation.
      *
      * @param v   Array of 5x5 sample values with vij is the value for pixel at (xj, yi) where i,j = 0,1,2,3,4.
-     * @param muX A perameter in range [-0.5, 0.5] that defines the interpolated sample position wrt x2.
+     * @param muX A parameter in range [-0.5, 0.5] that defines the interpolated sample position wrt x2.
      *            A 0 value of mu corresponds to sample x2.
-     * @param muY A perameter in range [-0.5, 0.5] that defines the interpolated sample position wrt y2.
+     * @param muY A parameter in range [-0.5, 0.5] that defines the interpolated sample position wrt y2.
      *            A 0 value of mu corresponds to sample y2.
      * @return The interpolated sample value.
      */

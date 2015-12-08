@@ -1,0 +1,444 @@
+<?xml version="1.0"?>
+<!--<!DOCTYPE metadata SYSTEM "http://www.esri.com/metadata/esriprof80.dtd">-->
+<metadata xml:lang="en">
+    <Esri>
+        <CreaDate>20111216</CreaDate>
+        <CreaTime>12282300</CreaTime>
+        <SyncOnce>FALSE</SyncOnce>
+        <SyncDate>20111216</SyncDate>
+        <SyncTime>11570900</SyncTime>
+        <ModDate>20120523</ModDate>
+        <ModTime>11170500</ModTime>
+        <MetaID>{CDC0EDF1-5E07-421A-B90A-B5F3F5805BF4}</MetaID>
+    </Esri>
+    <idinfo>
+        <descript>
+            <langdata Sync="TRUE">en</langdata>
+            <abstract>Starting in 2009, the Earth Observation Service of the Agri-Environmental Services Branch (AESB)
+                at Agriculture and Agri-Food Canada (AAFC) began the process of generating annual crop type digital
+                maps. Focusing on the Prairie Provinces in 2009 and 2010, a Decision Tree (DT) based methodology was
+                applied using optical (Landsat-5, AWiFS, DMC) and radar (Radarsat-2) based satellite images. For the
+                2011 growing season and further years, this activity is extended to other provinces in support of a
+                national crop inventory. In conjunction with satellite acquisitions, ground-truth information was
+                provided by provincial crop insurance companies and point observations from our regional AESB
+                colleagues.
+
+                The initial methodology was developed in partnership with Research Branch, and supported in part by the
+                Canadian Space Agency.
+            </abstract>
+            <purpose>Annual crop type mapping in Canada.</purpose>
+            <supplinf>The classification values:
+
+                Class(Value) Description
+                10 Cloud
+                20 Water
+                30 Exposed Land
+                34 Developed
+                50 Shrubland
+                80 Wetland
+                110 Grassland
+                120 Agriculture (undifferentiated)
+                122 Hay / Pasture
+                130 Too Wet to be Seeded
+                131 Fallow
+                132 Cereals
+                133 Barley
+                135 Millet
+                136 Oats
+                137 Rye
+                138 Spelt
+                139 Triticale
+                140 Wheat
+                147 Corn
+                150 Oilseeds
+                151 Borage
+                152 Camelina
+                153 Canola/Rapeseed
+                154 Flaxseed
+                155 Mustard
+                156 Safflower
+                157 Sunflowers
+                158 Soybeans
+                162 Peas
+                167 Beans
+                174 Lentils
+                175 Vegetables
+                180 Fruits
+                193 Herbs
+                194 Nursery
+                195 Buckwheat
+                196 Canary Seeds
+                197 Hemp
+                198 Vetch
+                199 Other Crops
+                200 Forest (undifferentiated)
+                210 Coniferous Trees
+                220 Deciduous Trees
+                230 Mixed Trees
+            </supplinf>
+        </descript>
+        <citation>
+            <citeinfo>
+                <origin>AESB-EOS</origin>
+                <pubdate>2012/05/31</pubdate>
+                <title>2011 AAFC Crop Type Map of Canada</title>
+                <ftname Sync="TRUE">AESB-EOS_2011_CI_UTMXX_30m_v1.[pix]|[tif]</ftname>
+                <onlink>ftp://ftp.agr.gc.ca/pub/outgoing/aesb-eos-gg/Crop_Type_Mapping/2011/</onlink>
+                <geoform Sync="TRUE">remote-sensing image</geoform>
+                <edition>v1</edition>
+            </citeinfo>
+        </citation>
+        <timeperd>
+            <current>publication date</current>
+            <timeinfo>
+                <rngdates>
+                    <begdate>2011/04/01</begdate>
+                    <enddate>2011/11/30</enddate>
+                </rngdates>
+            </timeinfo>
+        </timeperd>
+        <status>
+            <progress>Complete</progress>
+            <update>None planned</update>
+        </status>
+        <spdom>
+            <bounding>
+                <westbc>-126.0</westbc>
+                <eastbc>-59.3</eastbc>
+                <northbc>58.5</northbc>
+                <southbc>41.6</southbc>
+            </bounding>
+            <lboundng>
+                <leftbc Sync="TRUE">-802438.088000</leftbc>
+                <rightbc Sync="TRUE">1019465.912000</rightbc>
+                <bottombc Sync="TRUE">6228424.927000</bottombc>
+                <topbc Sync="TRUE">7379952.927000</topbc>
+            </lboundng>
+        </spdom>
+        <keywords>
+            <theme>
+                <themekey>Earth Science</themekey>
+                <themekey>Agriculture</themekey>
+                <themekey>Plant Commodities</themekey>
+                <themekey>Field Crop Products</themekey>
+            </theme>
+            <place>
+                <placekey>Canada</placekey>
+                <placekey>Nova Scotia</placekey>
+                <placekey>Prince Edward Island</placekey>
+                <placekey>New Brunswick</placekey>
+                <placekey>Quebec</placekey>
+                <placekey>Ontario</placekey>
+                <placekey>Manitoba</placekey>
+                <placekey>Saskatchewan</placekey>
+                <placekey>Alberta</placekey>
+                <placekey>British Columbia</placekey>
+            </place>
+            <temporal>
+                <tempkey>Growing Season</tempkey>
+            </temporal>
+        </keywords>
+        <natvform Sync="TRUE">Raster Dataset</natvform>
+        <ptcontac>
+            <cntinfo>
+                <cntemail>Thierry.Fisette@agr.gc.ca</cntemail>
+                <cntorgp>
+                    <cntorg>Agri-Environmental Service Branch (AESB) Earth Observation Service (EOS), Agriculture and
+                        Agri-Food Canada (AAFC)
+                    </cntorg>
+                    <cntper>Thierry Fisette</cntper>
+                </cntorgp>
+                <cntpos>AESB-EOS Technical Lead</cntpos>
+                <cntaddr>
+                    <addrtype>mailing and physical address</addrtype>
+                    <address>960 Carling Ave.</address>
+                    <city>Ottawa</city>
+                    <state>Ontario</state>
+                    <postal>K1A 0C6</postal>
+                    <country>Canada</country>
+                </cntaddr>
+                <hours>8 am - 5 pm</hours>
+            </cntinfo>
+        </ptcontac>
+    </idinfo>
+    <dataIdInfo>
+        <envirDesc Sync="TRUE">Microsoft Windows Vista Version 6.1 (Build 7600) ; ESRI ArcCatalog 9.3.0.1770</envirDesc>
+        <dataLang>
+            <languageCode Sync="TRUE" value="en"></languageCode>
+        </dataLang>
+        <idCitation>
+            <resTitle Sync="TRUE">AAFC_Prairie_Crop_Mapping_2010_v2.tif</resTitle>
+            <presForm>
+                <PresFormCd Sync="TRUE" value="005"></PresFormCd>
+            </presForm>
+        </idCitation>
+        <spatRpType>
+            <SpatRepTypCd Sync="TRUE" value="002"></SpatRepTypCd>
+        </spatRpType>
+        <dataExt>
+            <geoEle>
+                <GeoBndBox esriExtentType="native">
+                    <westBL Sync="TRUE">-802438.088</westBL>
+                    <eastBL Sync="TRUE">1019465.912</eastBL>
+                    <northBL Sync="TRUE">7379952.927</northBL>
+                    <southBL Sync="TRUE">6228424.927</southBL>
+                    <exTypeCode Sync="TRUE">1</exTypeCode>
+                </GeoBndBox>
+            </geoEle>
+        </dataExt>
+        <geoBox esriExtentType="decdegrees">
+            <westBL Sync="TRUE">-122.854628</westBL>
+            <eastBL Sync="TRUE">-91.529945</eastBL>
+            <northBL Sync="TRUE">59.338772</northBL>
+            <southBL Sync="TRUE">48.115635</southBL>
+            <exTypeCode Sync="TRUE">1</exTypeCode>
+        </geoBox>
+    </dataIdInfo>
+    <metainfo>
+        <langmeta Sync="TRUE">en</langmeta>
+        <metstdn Sync="TRUE">FGDC Content Standards for Digital Geospatial Metadata</metstdn>
+        <metstdv Sync="TRUE">FGDC-STD-001-1998</metstdv>
+        <mettc Sync="TRUE">local time</mettc>
+        <metc>
+            <cntinfo>
+                <cntorgp>
+                    <cntper>REQUIRED: The person responsible for the metadata information.</cntper>
+                    <cntorg>REQUIRED: The organization responsible for the metadata information.</cntorg>
+                </cntorgp>
+                <cntaddr>
+                    <addrtype>REQUIRED: The mailing and/or physical address for the organization or individual.
+                    </addrtype>
+                    <city>REQUIRED: The city of the address.</city>
+                    <state>REQUIRED: The state or province of the address.</state>
+                    <postal>REQUIRED: The ZIP or other postal code of the address.</postal>
+                </cntaddr>
+                <cntvoice>REQUIRED: The telephone number by which individuals can speak to the organization or
+                    individual.
+                </cntvoice>
+            </cntinfo>
+        </metc>
+        <metd Sync="TRUE">20120523</metd>
+        <metextns>
+            <onlink Sync="TRUE">http://www.esri.com/metadata/esriprof80.html</onlink>
+            <metprof Sync="TRUE">ESRI Metadata Profile</metprof>
+        </metextns>
+    </metainfo>
+    <mdLang>
+        <languageCode Sync="TRUE" value="en"></languageCode>
+    </mdLang>
+    <mdStanName Sync="TRUE">ISO 19115 Geographic Information - Metadata</mdStanName>
+    <mdStanVer Sync="TRUE">DIS_ESRI1.0</mdStanVer>
+    <mdChar>
+        <CharSetCd Sync="TRUE" value="004"></CharSetCd>
+    </mdChar>
+    <mdHrLv>
+        <ScopeCd Sync="TRUE" value="005"></ScopeCd>
+    </mdHrLv>
+    <mdHrLvName Sync="TRUE">dataset</mdHrLvName>
+    <distInfo>
+        <distributor>
+            <distorTran>
+                <onLineSrc>
+                    <linkage Sync="TRUE">
+                        file://\\ONOTTAR674004\E$\Workspace\FTP_Clean_Up\Crop_Type_Mapping\2010\AAFC_Prairie_Crop_Mapping_2010_v2_Metadata_EN
+                    </linkage>
+                    <protocol Sync="TRUE">Local Area Network</protocol>
+                    <orDesc Sync="TRUE">002</orDesc>
+                </onLineSrc>
+                <transSize Sync="TRUE">0.000</transSize>
+            </distorTran>
+            <distorFormat>
+                <formatName Sync="TRUE">Raster Dataset</formatName>
+            </distorFormat>
+        </distributor>
+    </distInfo>
+    <distinfo>
+        <resdesc Sync="TRUE">Downloadable Data</resdesc>
+        <stdorder>
+            <digform>
+                <digtinfo>
+                    <transize Sync="TRUE">0.000</transize>
+                    <dssize Sync="TRUE">0.000</dssize>
+                </digtinfo>
+            </digform>
+        </stdorder>
+        <distrib>
+            <cntinfo>
+                <cntorgp>
+                    <cntorg>Agriculture and Agri-Food Canada (AAFC)</cntorg>
+                </cntorgp>
+            </cntinfo>
+        </distrib>
+    </distinfo>
+    <spdoinfo>
+        <direct Sync="TRUE">Raster</direct>
+        <rastinfo>
+            <rasttype Sync="TRUE">Pixel</rasttype>
+            <rastxsz>30</rastxsz>
+            <rastysz>30</rastysz>
+            <rastbpp Sync="TRUE">8</rastbpp>
+            <rastorig Sync="TRUE">Upper Left</rastorig>
+            <rastcmap Sync="TRUE">TRUE</rastcmap>
+            <rastcomp Sync="TRUE">None</rastcomp>
+            <rastband Sync="TRUE">1</rastband>
+            <rastdtyp Sync="TRUE">pixel codes</rastdtyp>
+            <rastplyr Sync="TRUE">FALSE</rastplyr>
+            <rastifor Sync="TRUE">TIFF</rastifor>
+            <rastxu>meters</rastxu>
+            <rastyu>meters</rastyu>
+        </rastinfo>
+    </spdoinfo>
+    <spref>
+        <horizsys>
+            <cordsysn>
+                <geogcsn Sync="TRUE">GCS_WGS_1984</geogcsn>
+                <projcsn>UTM</projcsn>
+            </cordsysn>
+            <planar>
+                <planci>
+                    <plance Sync="TRUE">row and column</plance>
+                    <plandu Sync="TRUE">meters</plandu>
+                    <coordrep>
+                        <absres>30</absres>
+                        <ordres>30</ordres>
+                    </coordrep>
+                </planci>
+                <gridsys>
+                    <gridsysn>Universal Transverse Mercator</gridsysn>
+                </gridsys>
+            </planar>
+            <geodetic>
+                <horizdn Sync="TRUE">D_WGS_1984</horizdn>
+                <ellips Sync="TRUE">WGS_1984</ellips>
+            </geodetic>
+        </horizsys>
+    </spref>
+    <refSysInfo>
+        <RefSystem>
+            <refSysID>
+                <identCode Sync="TRUE">Lambert Conformal Conic</identCode>
+            </refSysID>
+        </RefSystem>
+    </refSysInfo>
+    <spatRepInfo>
+        <GridSpatRep>
+            <numDims Sync="TRUE">2</numDims>
+            <cellGeo>
+                <CellGeoCd Sync="TRUE" value="002"></CellGeoCd>
+            </cellGeo>
+            <tranParaAv Sync="TRUE">1</tranParaAv>
+            <axDimProps>
+                <Dimen>
+                    <dimName>
+                        <DimNameTypCd Sync="TRUE" value="002"></DimNameTypCd>
+                    </dimName>
+                    <dimSize Sync="TRUE">32534</dimSize>
+                    <dimResol>
+                        <value Sync="TRUE">56</value>
+                        <uom>
+                            <UomLength>
+                                <uomName Sync="TRUE">Meter</uomName>
+                                <conversionToISOstandardUnit Sync="TRUE">1 Meter = 1 Meter(s)
+                                </conversionToISOstandardUnit>
+                            </UomLength>
+                        </uom>
+                    </dimResol>
+                </Dimen>
+                <Dimen>
+                    <dimName>
+                        <DimNameTypCd Sync="TRUE" value="001"></DimNameTypCd>
+                    </dimName>
+                    <dimSize Sync="TRUE">20563</dimSize>
+                    <dimResol>
+                        <value Sync="TRUE">56</value>
+                        <uom>
+                            <UomLength>
+                                <uomName Sync="TRUE">Meter</uomName>
+                                <conversionToISOstandardUnit Sync="TRUE">1 Meter = 1 Meter(s)
+                                </conversionToISOstandardUnit>
+                            </UomLength>
+                        </uom>
+                    </dimResol>
+                </Dimen>
+            </axDimProps>
+        </GridSpatRep>
+    </spatRepInfo>
+    <eainfo>
+        <detailed Name="AAFC_Prairie_Crop_Mapping_2010_v2.tif.vat">
+            <enttyp>
+                <enttypl>AAFC_Crop_Mapping_2011_v1</enttypl>
+                <enttypt Sync="TRUE">Table</enttypt>
+                <enttypc Sync="TRUE">256</enttypc>
+            </enttyp>
+            <attr>
+                <attrlabl Sync="TRUE">ObjectID</attrlabl>
+                <attalias Sync="TRUE">ObjectID</attalias>
+                <attrtype Sync="TRUE">OID</attrtype>
+                <attwidth Sync="TRUE">4</attwidth>
+                <atprecis Sync="TRUE">0</atprecis>
+                <attscale Sync="TRUE">0</attscale>
+                <attrdef Sync="TRUE">Internal feature number.</attrdef>
+                <attrdefs Sync="TRUE">ESRI</attrdefs>
+                <attrdomv>
+                    <udom Sync="TRUE">Sequential unique whole numbers that are automatically generated.</udom>
+                </attrdomv>
+            </attr>
+            <attr>
+                <attrlabl Sync="TRUE">Value</attrlabl>
+                <attalias Sync="TRUE">Value</attalias>
+                <attrtype Sync="TRUE">Integer</attrtype>
+                <attwidth Sync="TRUE">0</attwidth>
+                <atprecis Sync="TRUE">0</atprecis>
+                <attscale Sync="TRUE">0</attscale>
+            </attr>
+            <attr>
+                <attrlabl Sync="TRUE">Red</attrlabl>
+                <attalias Sync="TRUE">Red</attalias>
+                <attrtype Sync="TRUE">Double</attrtype>
+                <attwidth Sync="TRUE">0</attwidth>
+                <atprecis Sync="TRUE">0</atprecis>
+                <attscale Sync="TRUE">0</attscale>
+            </attr>
+            <attr>
+                <attrlabl Sync="TRUE">Green</attrlabl>
+                <attalias Sync="TRUE">Green</attalias>
+                <attrtype Sync="TRUE">Double</attrtype>
+                <attwidth Sync="TRUE">0</attwidth>
+                <atprecis Sync="TRUE">0</atprecis>
+                <attscale Sync="TRUE">0</attscale>
+            </attr>
+            <attr>
+                <attrlabl Sync="TRUE">Blue</attrlabl>
+                <attalias Sync="TRUE">Blue</attalias>
+                <attrtype Sync="TRUE">Double</attrtype>
+                <attwidth Sync="TRUE">0</attwidth>
+                <atprecis Sync="TRUE">0</atprecis>
+                <attscale Sync="TRUE">0</attscale>
+            </attr>
+        </detailed>
+    </eainfo>
+    <mdDateSt Sync="TRUE">20120523</mdDateSt>
+    <dataqual>
+        <cloud>N/A</cloud>
+        <attracc>
+            <attraccr>Overall accuracies for crop classes are:
+
+                Prince Edward Island: 68%
+                Nova Scotia: 71%
+                New Brunswick: 88%
+                Quebec: 81%
+                Ontario: 82%
+                Manitoba: 79%
+                Saskatchewan: 87%
+                Alberta: 88%
+                British Columbia: Not evaluated
+            </attraccr>
+        </attracc>
+        <lineage>
+            <procstep>
+                <procdate>20120523</procdate>
+                <proctime Sync="TRUE">12282300</proctime>
+            </procstep>
+        </lineage>
+    </dataqual>
+</metadata>

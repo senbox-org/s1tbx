@@ -32,7 +32,7 @@ import java.util.List;
  *
  * @author Marco Peters
  */
-class ConvolutionFilterBandPersistable implements DimapPersistable {
+class ConvolutionFilterBandPersistable extends RasterDataNodePersistable {
 
     @Override
     public Object createObjectFromXml(Element element, Product product) {
@@ -54,7 +54,9 @@ class ConvolutionFilterBandPersistable implements DimapPersistable {
         cfb.setLog10Scaled(Boolean.parseBoolean(element.getChildTextTrim(DimapProductConstants.TAG_SCALING_LOG_10)));
         cfb.setNoDataValueUsed(Boolean.parseBoolean(element.getChildTextTrim(DimapProductConstants.TAG_NO_DATA_VALUE_USED)));
         cfb.setNoDataValue(Double.parseDouble(element.getChildTextTrim(DimapProductConstants.TAG_NO_DATA_VALUE)));
-
+        setAncillaryRelations(element, cfb);
+        setAncillaryVariables(element, cfb, product);
+        setImageToModelTransform(element, cfb);
         return cfb;
     }
 
@@ -87,6 +89,8 @@ class ConvolutionFilterBandPersistable implements DimapPersistable {
 
         final Element root = new Element(DimapProductConstants.TAG_SPECTRAL_BAND_INFO);
         root.setContent(contentList);
+        addAncillaryElements(root, cfb);
+        addImageToModelTransformElement(root, cfb);
         return root;
 
     }
@@ -119,7 +123,6 @@ class ConvolutionFilterBandPersistable implements DimapPersistable {
         return new Kernel(width, height, xOrigin, yOrigin, factor, data);
     }
 
-
     static Element convertKernelToElement(Kernel kernel) {
         final List<Element> filterKernelList = new ArrayList<>();
         filterKernelList.add(createElement(DimapProductConstants.TAG_KERNEL_WIDTH, String.valueOf(kernel.getWidth())));
@@ -148,11 +151,4 @@ class ConvolutionFilterBandPersistable implements DimapPersistable {
         }
         return sb.toString();
     }
-
-    private static Element createElement(String tagName, String text) {
-        final Element elem = new Element(tagName);
-        elem.setText(text);
-        return elem;
-    }
-
 }

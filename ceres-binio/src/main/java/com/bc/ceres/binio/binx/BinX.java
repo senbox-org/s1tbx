@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2015 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -43,7 +43,7 @@ import java.util.Set;
 import static com.bc.ceres.binio.TypeBuilder.*;
 
 /**
- * Utlity class used to read BinX schema files.
+ * Utility class used to read BinX schema files.
  * See the <a href="http://www.edikt.org/binx/">BinX Project</a>.
  * <p>
  * This class is not thread-safe.

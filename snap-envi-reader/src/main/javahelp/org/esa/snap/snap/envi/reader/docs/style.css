@@ -111,7 +111,7 @@ table {
     margin: 0;
 }
 
-.invisibletable {
+invisibletable {
     border-width: 0;
     border-style: solid;
     border-color: #FFFFFF;
@@ -155,7 +155,7 @@ table.header {
     font-size: 17;
     color: #ffffff;
     vertical-align: middle;
-    background-color: #993333;
+    background-color: #1d3752;
     border-width: 0;
     padding: 0;
     margin: 0;
@@ -166,7 +166,7 @@ table.header {
     height: 29;
     color: #ffffff;
     vertical-align: middle;
-    background-color: #993333;
+    background-color: #1d3752;
     border-width: 0;
     padding: 0;
     white-space: nowrap;

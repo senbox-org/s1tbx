@@ -40,6 +40,8 @@ import org.esa.snap.core.datamodel.ProductNodeGroup;
 import org.esa.snap.core.datamodel.ProductVisitorAdapter;
 import org.esa.snap.core.datamodel.RGBChannelDef;
 import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.Scene;
+import org.esa.snap.core.datamodel.SceneFactory;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.datamodel.VectorDataNode;
 import org.esa.snap.core.datamodel.VirtualBand;
@@ -182,8 +184,8 @@ public class ProductUtils {
         Assert.notNull(pm, "pm");
 
         final IndexCoding indexCoding = (raster instanceof Band) ? ((Band) raster).getIndexCoding() : null;
-        final int width = raster.getSceneRasterWidth();
-        final int height = raster.getSceneRasterHeight();
+        final int width = raster.getRasterWidth();
+        final int height = raster.getRasterHeight();
         final int numPixels = width * height;
         final int numColorComponents = imageInfo.getColorComponentCount();
         final byte[] rgbSamples = new byte[numColorComponents * numPixels];
@@ -306,8 +308,8 @@ public class ProductUtils {
 
         Color noDataColor = imageInfo.getNoDataColor();
 
-        final int width = rasters[0].getSceneRasterWidth();
-        final int height = rasters[0].getSceneRasterHeight();
+        final int width = rasters[0].getRasterWidth();
+        final int height = rasters[0].getRasterHeight();
         final int numColorComponents = imageInfo.getColorComponentCount();
         final int numPixels = width * height;
         final byte[] rgbSamples = new byte[numColorComponents * numPixels];
@@ -408,8 +410,8 @@ public class ProductUtils {
     public static BufferedImage createColorIndexedImage(final RasterDataNode rasterDataNode,
                                                         ProgressMonitor pm) throws IOException {
         Guardian.assertNotNull("rasterDataNode", rasterDataNode);
-        final int width = rasterDataNode.getSceneRasterWidth();
-        final int height = rasterDataNode.getSceneRasterHeight();
+        final int width = rasterDataNode.getRasterWidth();
+        final int height = rasterDataNode.getRasterHeight();
         final ImageInfo imageInfo = rasterDataNode.getImageInfo(ProgressMonitor.NULL);
         final double newMin = imageInfo.getColorPaletteDef().getMinDisplaySample();
         final double newMax = imageInfo.getColorPaletteDef().getMaxDisplaySample();
@@ -665,8 +667,8 @@ public class ProductUtils {
         if (rect == null) {
             rect = new Rectangle(0,
                                  0,
-                                 raster.getSceneRasterWidth(),
-                                 raster.getSceneRasterHeight());
+                                 raster.getRasterWidth(),
+                                 raster.getRasterHeight());
         }
         return createRectBoundary(rect, step);
     }
@@ -820,6 +822,9 @@ public class ProductUtils {
     /**
      * Copies the {@link Mask}s from the source product to the target product.
      * <p>
+     * The method does not copy any image geo-coding/geometry information.
+     * Use the {@link #copyImageGeometry(RasterDataNode, RasterDataNode, boolean)} to do so.
+     * <p>
      * IMPORTANT NOTE: This method should only be used, if it is known that all masks
      * in the source product will also be valid in the target product. This method does
      * <em>not</em> copy overlay masks from the source bands to the target bands. Also
@@ -913,6 +918,9 @@ public class ProductUtils {
 
     /**
      * Copies the named tie-point grid from the source product to the target product.
+     * <p>
+     * The method does not copy any image geo-coding/geometry information.
+     * Use the {@link #copyImageGeometry(RasterDataNode, RasterDataNode, boolean)} to do so.
      *
      * @param gridName      the name of the tie-point grid to be copied.
      * @param sourceProduct the source product
@@ -937,6 +945,9 @@ public class ProductUtils {
 
     /**
      * Copies the named band from the source product to the target product.
+     * <p>
+     * The method does not copy any image geo-coding/geometry information.
+     * Use the {@link #copyImageGeometry(RasterDataNode, RasterDataNode, boolean)} to do so.
      *
      * @param sourceBandName  the name of the band to be copied.
      * @param sourceProduct   the source product.
@@ -952,6 +963,9 @@ public class ProductUtils {
 
     /**
      * Copies the named band from the source product to the target product.
+     * <p>
+     * The method does not copy any image geo-coding/geometry information.
+     * Use the {@link #copyImageGeometry(RasterDataNode, RasterDataNode, boolean)} to do so.
      *
      * @param sourceBandName  the name of the band to be copied.
      * @param sourceProduct   the source product.
@@ -974,14 +988,11 @@ public class ProductUtils {
             return null;
         }
         Band targetBand = new Band(targetBandName, sourceBand.getDataType(),
-                                   sourceBand.getSceneRasterWidth(), sourceBand.getSceneRasterHeight());
+                                   sourceBand.getRasterWidth(), sourceBand.getRasterHeight());
         targetProduct.addBand(targetBand);
         copyRasterDataNodeProperties(sourceBand, targetBand);
         if (copySourceImage) {
             targetBand.setSourceImage(sourceBand.getSourceImage());
-        }
-        if (sourceBand.getGeoCoding() != sourceProduct.getSceneGeoCoding()) {
-            targetBand.setGeoCoding(sourceBand.getGeoCoding());
         }
         return targetBand;
     }
@@ -1071,16 +1082,58 @@ public class ProductUtils {
     }
 
     /**
-     * Copies the geocoding from the source product to target product.
+     * Copies the geo-coding from the source product to target product.
      *
      * @param sourceProduct the source product
      * @param targetProduct the target product
-     * @throws IllegalArgumentException if one of the params is <code>null</code>.
+     * @throws IllegalArgumentException if one of the params is {@code null}.
      */
     public static void copyGeoCoding(final Product sourceProduct, final Product targetProduct) {
         Guardian.assertNotNull("sourceProduct", sourceProduct);
         Guardian.assertNotNull("targetProduct", targetProduct);
         sourceProduct.transferGeoCodingTo(targetProduct, null);
+    }
+
+    /**
+     * Deeply copies the geo-coding from the source raster data node to the target raster data node.
+     *
+     * @param sourceRaster the source raster data node
+     * @param targetRaster the target raster data node
+     * @throws IllegalArgumentException if one of the params is {@code null}.
+     * @since SNAP 2.0
+     */
+    public static void copyGeoCoding(RasterDataNode sourceRaster, RasterDataNode targetRaster) {
+        final Scene srcScene = SceneFactory.createScene(sourceRaster);
+        final Scene destScene = SceneFactory.createScene(targetRaster);
+        if (srcScene != null && destScene != null) {
+            srcScene.transferGeoCodingTo(destScene, null);
+        }
+    }
+
+    /**
+     * Copies the geo-coding and image-to-model transformation from the source raster data node to
+     * the  target raster data node.
+     *
+     * @param sourceRaster the source raster data node
+     * @param targetRaster the target raster data node
+     * @param deepCopy if {@code true} {@link #copyGeoCoding(RasterDataNode, RasterDataNode)} is called, otherwise
+     *                      the target reference is set.
+     * @since SNAP 2.0
+     */
+    public static void copyImageGeometry(RasterDataNode sourceRaster, RasterDataNode targetRaster, boolean deepCopy) {
+        if (sourceRaster.getRasterSize().equals(targetRaster.getRasterSize())) {
+            if (sourceRaster.getGeoCoding() != targetRaster.getGeoCoding()) {
+                if (deepCopy) {
+                    copyGeoCoding(sourceRaster, targetRaster);
+                } else {
+                    targetRaster.setGeoCoding(sourceRaster.getGeoCoding());
+                }
+            }
+            if (!targetRaster.isSourceImageSet()
+                    && !sourceRaster.getImageToModelTransform().equals(targetRaster.getImageToModelTransform())) {
+                targetRaster.setImageToModelTransform(sourceRaster.getImageToModelTransform());
+            }
+        }
     }
 
     /**
@@ -1228,8 +1281,8 @@ public class ProductUtils {
         Guardian.assertNotNull("raster1", raster1);
         Guardian.assertNotNull("raster2", raster2);
         Guardian.assertNotNull("background", background);
-        if (raster1.getSceneRasterWidth() != raster2.getSceneRasterWidth()
-                || raster1.getSceneRasterHeight() != raster2.getSceneRasterHeight()) {
+        if (raster1.getRasterWidth() != raster2.getRasterWidth()
+                || raster1.getRasterHeight() != raster2.getRasterHeight()) {
             throw new IllegalArgumentException("'raster1' has not the same size as 'raster2'");
         }
 
@@ -2037,8 +2090,8 @@ public class ProductUtils {
      */
     public static boolean areRastersEqualInSize(RasterDataNode... rasters) {
         return rasters.length < 2 ||
-                areRastersEqualInSize(rasters[0].getSceneRasterWidth(),
-                                      rasters[0].getSceneRasterHeight(), rasters);
+                areRastersEqualInSize(rasters[0].getRasterWidth(),
+                                      rasters[0].getRasterHeight(), rasters);
     }
 
     /**
@@ -2051,7 +2104,7 @@ public class ProductUtils {
      */
     public static boolean areRastersEqualInSize(int width, int height, RasterDataNode... rasters) {
         for (RasterDataNode raster : rasters) {
-            if (raster.getSceneRasterWidth() != width || raster.getSceneRasterHeight() != height) {
+            if (raster.getRasterWidth() != width || raster.getRasterHeight() != height) {
                 return false;
             }
         }
@@ -2073,14 +2126,14 @@ public class ProductUtils {
         if (referenceNode == null) {
             throw new IllegalArgumentException(rasterNames[0] + " is not part of " + product.getName());
         }
-        int referenceWidth = referenceNode.getSceneRasterWidth();
-        int referenceHeight = referenceNode.getSceneRasterHeight();
+        int referenceWidth = referenceNode.getRasterWidth();
+        int referenceHeight = referenceNode.getRasterHeight();
         for (int i = 1; i < rasterNames.length; i++) {
             final RasterDataNode node = product.getRasterDataNode(rasterNames[i]);
             if (node == null) {
                 throw new IllegalArgumentException(rasterNames[i] + " is not part of " + product.getName());
             }
-            if (node.getSceneRasterWidth() != referenceWidth || node.getSceneRasterHeight() != referenceHeight) {
+            if (node.getRasterWidth() != referenceWidth || node.getRasterHeight() != referenceHeight) {
                 return false;
             }
         }

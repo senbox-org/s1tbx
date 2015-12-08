@@ -1,0 +1,598 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE metadata SYSTEM "http://www.fgdc.gov/metadata/fgdc-std-001-1998.dtd"[]>
+<metadata>
+    <idinfo>
+        <citation>
+            <citeinfo>
+                <origin>Government of Canada / Agriculture and Agri-Food Canada (GC/AAFC)</origin>
+                <pubdate>200904</pubdate>
+                <title>Land Cover for agricultural regions of Canada, circa 2000</title>
+                <edition>1.4</edition>
+                <geoform>remote-sensing image</geoform>
+                <pubinfo>
+                    <pubplace>Canada</pubplace>
+                    <publish>Government of Canada / Agriculture and Agri-Food Canada (GC/AAFC)</publish>
+                </pubinfo>
+                <othercit>When used for reports or other derived information, the product should be sourced as per
+                    citation information.
+                </othercit>
+            </citeinfo>
+        </citation>
+        <descript>
+            <abstract>A thematic land cover classification representative of Circa 2000 conditions for agricultural
+                regions of Canada. Land cover is derived from Landsat5-TM and/or 7-ETM+ multi-spectral imagery by
+                inputting imagery and ground reference training data into a Decision-Tree or Supervised image
+                classification process. Object segmentation, pixel filtering, and/or post editing is applied as part of
+                the image classification. Mapping is corrected to the GeoBase Data Alignment Layer. National Road
+                Network (1:50,000) features and other select existing land cover products are integrated into the
+                product. UTM Zone mosaics and National Topographic Series map sheet (1:250,000) tiles are generated from
+                individual 30 meter resolution classified scenes. A spatial index is available indicating the Landsat
+                imagery scenes and dates input in the classification.
+
+                This product is published and compiled by Agriculture and Agri-Food Canada (AAFC), but also integrates
+                products mapped by other provincial and federal agencies; with appropriate legend adaptations. This
+                release includes UTM Zones 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, and 22 for corresponding
+                agricultural regions in Newfoundland, Prince Edward Island, Nova Scotia, New Brunswick, Quebec, Ontario,
+                Manitoba, Saskatchewan, Alberta and British Columbia covering approximately 370,000,000 hectares of
+                mapped area.
+
+                Mapped classes include: Water, Exposed, Built-up, Shrubland, Wetland, Grassland, Annual Crops, Perennial
+                Crops and Pasture, Coniferous, Deciduous and Mixed forests. However, emphasis is placed on accurately
+                delineating agricultural classes, including: annual crops (cropland and specialty crops like vineyards
+                and orchards), perennial crops (including pastures and forages), and grasslands. Detailed class
+                descriptions and associated digital values are included in the metadata.
+            </abstract>
+            <purpose>Agriculture and Agri-Food Canada (AAFC) through the National Land and Water Information Service
+                (NLWIS) has compiled land cover mapping for agricultural regions across Canada, with the goal of
+                accurately classifying lands at a moderate scale that are annually cultivated (cropland), permanently
+                cultivated (pasture/forages), and grasslands; as well as mapping other contextual classes (such as
+                built-up or forested lands). The purpose is to provide information that can be used to support land use
+                decision making and a range of other agri-environmental federal, provincial, municipal and private
+                projects, applications, programs and activities. Some examples of potential applications are: land use
+                decision making and monitoring, impact assessment on ecosystem services, biodiversity conservation,
+                water quality assessment, evaluation of temporal trends in surface properties, estimates of rates of
+                change, and causes and consequences of change. The product is to be included in a land cover coverage
+                for all of Canada that is planned to be made available through GeoBase (www.geobase.ca).
+            </purpose>
+        </descript>
+        <timeperd>
+            <timeinfo>
+                <rngdates>
+                    <begdate>199805</begdate>
+                    <enddate>200210</enddate>
+                </rngdates>
+            </timeinfo>
+            <current>Circa 2000</current>
+        </timeperd>
+        <status>
+            <progress>Complete</progress>
+        </status>
+        <spdom>
+            <bounding>
+                <westbc>
+                    -133
+                </westbc>
+                <eastbc>
+                    -52
+                </eastbc>
+                <northbc>61</northbc>
+                <southbc>
+                    42
+                </southbc>
+            </bounding>
+        </spdom>
+        <keywords>
+            <theme>
+                <themekt>GCMD</themekt>
+                <themekey>Earth Science</themekey>
+                <themekey>Earth Science &gt; Land Surface</themekey>
+                <themekey>Earth Science &gt; Land Surface &gt; Land Use/Land Cover</themekey>
+                <themekey>Earth Science &gt; Land Surface &gt; Landscape</themekey>
+                <themekey>Earth Science &gt; Land Surface &gt; Land Use/Land Cover &gt; Land Use Classes</themekey>
+            </theme>
+            <theme>
+                <themekt>none</themekt>
+                <themekey>GCMD</themekey>
+            </theme>
+            <place>
+                <placekt>CEONET</placekt>
+                <placekey>Canada &gt; Alberta</placekey>
+                <placekey>Canada &gt; British Columbia</placekey>
+                <placekey>Canada &gt; Manitoba</placekey>
+                <placekey>Canada &gt; New Brunswick</placekey>
+                <placekey>Canada &gt; Newfoundland And Labrador</placekey>
+                <placekey>Canada &gt; Nova Scotia</placekey>
+                <placekey>Canada &gt; Ontario</placekey>
+                <placekey>Canada &gt; Prince Edward Island</placekey>
+                <placekey>Canada &gt; Quebec</placekey>
+                <placekey>Canada &gt; Saskatchewan</placekey>
+                <placekey>Canada</placekey>
+            </place>
+            <place>
+                <placekt>none</placekt>
+                <placekey>GCMD</placekey>
+                <placekey>CEONET</placekey>
+                <placekey>UTM Zone 9</placekey>
+                <placekey>UTM Zone 10</placekey>
+                <placekey>UTM Zone 11</placekey>
+                <placekey>UTM Zone 12</placekey>
+                <placekey>UTM Zone 13</placekey>
+                <placekey>UTM Zone 14</placekey>
+                <placekey>UTM Zone 15</placekey>
+                <placekey>UTM Zone 16</placekey>
+                <placekey>UTM Zone 17</placekey>
+                <placekey>UTM Zone 18</placekey>
+                <placekey>UTM Zone 19</placekey>
+                <placekey>UTM Zone 20</placekey>
+                <placekey>UTM Zone 21</placekey>
+                <placekey>UTM Zone 22</placekey>
+            </place>
+        </keywords>
+        <accconst>Use of data is subject to the AAFC UNRESTRICTED USE LICENSE AGREEMENT:
+            http://www.agr.gc.ca/nlwis/index_e.cfm?s1=data_donnees&amp;page=licen
+        </accconst>
+        <useconst>Use of data is subject to the AAFC UNRESTRICTED USE LICENSE AGREEMENT:
+            http://www.agr.gc.ca/nlwis/index_e.cfm?s1=data_donnees&amp;page=licen
+        </useconst>
+        <ptcontac>
+            <cntinfo>
+                <cntorgp>
+                    <cntorg>Agri-Environment Services Branch (AESB)</cntorg>
+                    <cntper>Service Desk</cntper>
+                </cntorgp>
+                <cntaddr>
+                    <address>Agriculture and Agri-Food Canada</address>
+                    <city>Ottawa</city>
+                    <state>Ontario</state>
+                    <country>Canada</country>
+                </cntaddr>
+                <cntvoice>+01-613-759-1000</cntvoice>
+                <cntfax>+01-613-759-7977</cntfax>
+                <cntemail>nlwis-snite_AT_agr.gc.ca</cntemail>
+            </cntinfo>
+        </ptcontac>
+        <native>Microsoft Windows XP Version 5.1 (Build 2600) Service Pack 2; ESRI ArcCatalog 9.2.6.1500</native>
+    </idinfo>
+    <dataqual>
+        <attracc>
+            <attraccr>The classification is not without error. There are many aspects of satellite image classification
+                that introduce uncertainty in the final product, for example spatial resolution and spectral mixing. The
+                following indicators of product quality and thematic accuracy are calculated by Agriculture and
+                Agri-Food Canada. Please also refer to the Logical Consistency Report section for additional comments on
+                product quality. 1) A cross-validation measure based on training data input into each scene by scene
+                classification was performed. As a result, based on 97 scenes evaluated, the overall accuracies
+                estimates recorded for each scene are summarized as follows: Minimum: 72.8%, Maximum: 96.3%, Mean 86.8%.
+                2) A thematic (pixel) consistency measurement of overlapping areas between classified scenes was
+                performed. As a result, based on 151 overlapping cases, the percentage consistency measured between
+                scenes is summarized as follows: Minimum: 72.9%, Maximum: 98.9%, Mean 92.1%. 3) An overall accuracy
+                measure using independent ground reference information collected based on a stratified systematic
+                sampling grid across Canada was performed. A total of 3164 sample points were collected and evaluated
+                against approximately 370,000,000 hectares of mapped area. As a result, an overall thematic class
+                accuracy of approximately 82% was calculated. Considering the proportion of class areas represented and
+                the density of sampling, this is estimated to be within +/- 1.5% at the 95% confidence level. 4) Areas
+                reported by the 2001 Census of Agriculture (Statistics Canada, 2002) are compared with common Annual
+                Cropland, grassland and Perennial Crops and Pasture. Approximately 239,434,510 hectares across Canada
+                are analyzed. Results for four relative comparisons between the mapped land cover areas versus the area
+                reported by the Census (mapped/census*100) are as follows: a) Annual Cropland = 103.0%; b) Perennial
+                Crops and Improved Pasture = 139.6%; c) Unimproved Pasture (Grassland) = 76.8% (Note: unimproved pasture
+                is not always associated with grassland, and grasslands may not be used as unimproved pasture); d)
+                Perennial Crops, Improved Pasture and Unimproved Pasture (Grassland) combined = 105.0%.
+            </attraccr>
+        </attracc>
+        <logic>Please note the following: 1) It is not feasible to obtain cloud free imagery within a single growing
+            season over a large area. As such, the classification product is based on a set of images that range within
+            the 1998-2003 time period. This may produce some temporal inconsistencies across the product. The presence
+            of cloud in Landsat images may limit the completeness of classes within specific regions of the product. 2)
+            Comparison with National Topographic Database 1:50,000 features indicate some miss-representation of wetland
+            and water features. This may be due to the use of early spring imagery (high water level) in the
+            classification or error introduced by the classification process. Confusion between or poor separation of
+            forested and wetland and/or shrubland covers was observed in the classification results in landscapes where
+            such covers typically intermix. 3) Small (less than 0.4 ha) features may be omitted from the classification,
+            due to segmentation and filtering. 4) Some confusion between Cropland and Grassland features has been
+            observed (specifically, along rivers and along roadways). 5) The classification process is designed to
+            classify barren fields as annual cropland when tilled soils in the spring image become green with vegetation
+            in the summer image. Tilled fields are occasionally miss-classified as exposed. 6) When possible, areas
+            under cloud, cloud shadows and mountain shadows were interpreted manually. 7) Agricultural classes were
+            often confused under cloud and cloud shadow cover.
+        </logic>
+        <complete>UTM Zones include 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, and 22 for corresponding
+            agricultural regions in Newfoundland, Prince Edward Island, Nova Scotia, New Brunswick, Quebec, Ontario,
+            Manitoba, Saskatchewan, Alberta and British Columbia. Mapped areas are based on Landsat scene coverage of
+            corresponding agricultural regions in Canada.
+        </complete>
+        <posacc>
+            <horizpa>
+                <horizpar>This digital geo-spatial product is corrected to within 1 pixel of the Geobase Data Alignment
+                    Layer (GDAL) standard (www.geobase.ca). The GDAL provides reference ground control points and
+                    features for ortho-correction of Landsat imagery.
+                </horizpar>
+            </horizpa>
+        </posacc>
+        <lineage>
+            <srcinfo>
+                <srccite>
+                    <citeinfo>
+                        <origin>Canada Centre for Remote Sensing</origin>
+                        <title>Landsat Imagery</title>
+                        <othercit>LANDSAT Data received by Canada Centre for Remote Sensing (CCRS) under agreement with
+                            U.S. Geological Survey. Processed &amp; distributed by MDA Geospatial Services Inc.
+                            (http://gs.mdacorporation.com/) under agreement with CCRS.
+                        </othercit>
+                    </citeinfo>
+                </srccite>
+            </srcinfo>
+            <srcinfo>
+                <srccite>
+                    <citeinfo>
+                        <origin>GeoBase®</origin>
+                        <pubdate>2003</pubdate>
+                        <title>Landsat 7 Orthorectified Imagery over Canada</title>
+                        <othercit>GeoBase® Unrestricted Licence Agreement http://www.geobase.ca</othercit>
+                    </citeinfo>
+                </srccite>
+            </srcinfo>
+            <srcinfo>
+                <srccite>
+                    <citeinfo>
+                        <origin>GeoBase®</origin>
+                        <title>Canadian Digital Elevation Data</title>
+                        <othercit>GeoBase® Unrestricted Licence Agreement http://www.geobase.ca</othercit>
+                    </citeinfo>
+                </srccite>
+            </srcinfo>
+            <srcinfo>
+                <srccite>
+                    <citeinfo>
+                        <origin>GeoBase®</origin>
+                        <pubdate>2003</pubdate>
+                        <title>National Road Network 2.0</title>
+                        <othercit>GeoBase® Unrestricted Licence Agreement http://www.geobase.ca</othercit>
+                    </citeinfo>
+                </srccite>
+            </srcinfo>
+            <srcinfo>
+                <srccite>
+                    <citeinfo>
+                        <origin>GeoBase®</origin>
+                        <pubdate>2004</pubdate>
+                        <title>Control Points for Landsat 7 Imagery 1.0</title>
+                        <othercit>GeoBase® Unrestricted Licence Agreement http://www.geobase.ca</othercit>
+                    </citeinfo>
+                </srccite>
+            </srcinfo>
+            <srcinfo>
+                <srccite>
+                    <citeinfo>
+                        <origin>GeoBase®</origin>
+                        <pubdate>2008</pubdate>
+                        <title>GeoBase Orthoimage 2005-2010</title>
+                        <othercit>GeoBase® Unrestricted Licence Agreement http://www.geobase.ca</othercit>
+                    </citeinfo>
+                </srccite>
+            </srcinfo>
+            <srcinfo>
+                <srccite>
+                    <citeinfo>
+                        <origin>Agriculture and Agri-Food Canada and Statistics Canada</origin>
+                        <pubdate>2007</pubdate>
+                        <title>2001 Interpolated Census of Agriculture</title>
+                        <othercit>Interpolated Census of Agriculture: Adapted from Agriculture and Agri-Food Canada and
+                            Statistics Canada, customized tabulations, Census of Agriculture CGC Base 1996, 2001, Census
+                            of Agriculture Regular Base 1971, 1976, 1981, 1986, 1991. Licensed to AAFC on February 8,
+                            2007.
+                        </othercit>
+                    </citeinfo>
+                </srccite>
+            </srcinfo>
+            <srcinfo>
+                <srccite>
+                    <citeinfo>
+                        <origin>Agricultural Financial Services Corporation</origin>
+                        <pubdate>unpublished material</pubdate>
+                        <title>Ground Truth/Reference Data, 2007</title>
+                        <othercit>http://www.afsc.ca</othercit>
+                    </citeinfo>
+                </srccite>
+            </srcinfo>
+            <srcinfo>
+                <srccite>
+                    <citeinfo>
+                        <origin>Agricultural Financial Services Corporation</origin>
+                        <pubdate>unpublished material</pubdate>
+                        <title>Crop Insurance Information, 1997-2003</title>
+                        <othercit>http://www.afsc.ca</othercit>
+                    </citeinfo>
+                </srccite>
+            </srcinfo>
+            <srcinfo>
+                <srccite>
+                    <citeinfo>
+                        <origin>Iunctus Geomatics Corp, Lethbridge, Alberta, Canada</origin>
+                        <pubdate>unpublished material</pubdate>
+                        <title>SPOT Imagery 2.5 meters of 2005-06</title>
+                        <othercit>Licensed by Iunctus Geomatics Corp, Lethbridge, Alberta, Canada. Copyright 2006 CNES.
+                            http://www.terraengine.com
+                        </othercit>
+                    </citeinfo>
+                </srccite>
+            </srcinfo>
+            <srcinfo>
+                <srccite>
+                    <citeinfo>
+                        <origin>Natural Resources Canada, Canadian Forest Service, Northern Forestry Centre</origin>
+                        <pubdate>2006</pubdate>
+                        <title>Earth Observation for Sustainable Development of Forests (EOSD), Land Cover, Circa 2000
+                        </title>
+                        <othercit>EOSD data and products are freely available to the public.
+                            http://www.pfc.forestry.ca/eosd
+                        </othercit>
+                    </citeinfo>
+                </srccite>
+            </srcinfo>
+            <srcinfo>
+                <srccite>
+                    <citeinfo>
+                        <origin>Government of Canada, Natural Resources Canada, Earth Sciences Sector, Geomatics Canada,
+                            Centre for Topographic Information
+                        </origin>
+                        <title>National Topographic Data Base (NTDB)</title>
+                        <othercit>© Her Majesty the Queen in Right of Canada, Department of Natural Resources. All
+                            rights reserved. http://www.cits.rncan.gc.ca
+                        </othercit>
+                    </citeinfo>
+                </srccite>
+            </srcinfo>
+            <srcinfo>
+                <srccite>
+                    <citeinfo>
+                        <origin>Government of Canada, Natural Resources Canada, Earth Sciences Sector, Geomatics Canada,
+                            Centre for Topographic Information
+                        </origin>
+                        <title>CanMatrix</title>
+                        <othercit>© Her Majesty the Queen in Right of Canada, Department of Natural Resources. All
+                            rights reserved. http://www.cits.rncan.gc.ca
+                        </othercit>
+                    </citeinfo>
+                </srccite>
+            </srcinfo>
+            <srcinfo>
+                <srccite>
+                    <citeinfo>
+                        <origin>Government of Canada, Natural Resources Canada, Earth Sciences Sector, Geomatics Canada,
+                            Centre for Topographic Information
+                        </origin>
+                        <title>CanImage</title>
+                        <othercit>© Her Majesty the Queen in Right of Canada, Department of Natural Resources. All
+                            rights reserved. http://www.cits.rncan.gc.ca
+                        </othercit>
+                    </citeinfo>
+                </srccite>
+            </srcinfo>
+            <srcinfo>
+                <srccite>
+                    <citeinfo>
+                        <origin>Manitoba Conservation, Manitoba Remote Sensing Centre</origin>
+                        <pubdate>unpublished material</pubdate>
+                        <title>LANDSAT-based Land Use/Land Cover (2000) for the Agro-region of Manitoba</title>
+                        <othercit>http://www.gov.mb.ca/conservation/geomatics</othercit>
+                    </citeinfo>
+                </srccite>
+            </srcinfo>
+            <srcinfo>
+                <srccite>
+                    <citeinfo>
+                        <origin>Consortium of federal and provincial agencies, including: EC, Faune Québec, DUC, MRNFP,
+                            MAPAQ, AAFC, FAQ
+                        </origin>
+                        <pubdate>unpublished material</pubdate>
+                        <title>Occupation du sol à partir des images classifiées Landsat-7, Sud du Québec, 1999-2003
+                        </title>
+                    </citeinfo>
+                </srccite>
+            </srcinfo>
+            <srcinfo>
+                <srccite>
+                    <citeinfo>
+                        <origin>Ontario Ministry of Natural Resources</origin>
+                        <title>Ontario Land Cover Data Base 2000</title>
+                        <othercit>www.mnr.gov.on.ca</othercit>
+                    </citeinfo>
+                </srccite>
+            </srcinfo>
+            <procstep>
+                <procdesc>This product is compiled and published by Agriculture and Agri-Food Canada (AAFC). The product
+                    integrates select products mapped by other provincial and federal agencies; with appropriate legend
+                    adaptations. The following summaries the general classification processes and aspects of the map
+                    compilation; including: 1) data inputs, 2) image pre-processing, 3) classification, 4) product
+                    integration, 5) post-processing, 6) mosaic, 7) quality assurance measures and 8) accuracy
+                    components. For further information, please contact Agriculture and Agri-Food Canada. 1) Data inputs
+                    include: 1A) Landsat5 TM or Landsat7 ETM+ satellite imagery. One to three image dates within the
+                    growing season were used including imagery ranging from 1998-2003. Priority was given to using
+                    imagery closest to year 2000. Landsat images from different years may be used within a scene. More
+                    than one image is preferred in order to accurately separate annual crops from perennial crops and
+                    pasture, as the classes have varying spectral characteristics over the growing season. 1B) Reference
+                    data used to train the classifier was collected or interpreted with reference to a variety of
+                    sources such as crop insurance databases, air photos, and/or satellite imagery (SPOT, IKONOS,
+                    Quickbird), visual interpretation of Landsat images, other topographic map references, or through
+                    field collection where possible. 1C) Ancillary data such as DEM, DEM-derived products (slope,
+                    aspect) and soils information may be used as appropriate. 2) Pre-Processing includes: 2A)
+                    Ortho-rectification of images using a standard 3D multi-sensor physical model that positionally
+                    corrected images to the GeoBase Data Alignment Layer (www.geobase.ca). 2B) Atmospheric correction
+                    using the ATCOR algorithm; however, in most cases, Landsat images were not atmospherically corrected
+                    except where obvious heterogeneous conditions occur. 2C) A Tasseled Cap (TC) transformation (for
+                    scenes classified using a decision tree classifier) that converts bands 1 to 5 and 7 of image pairs
+                    into three channels (brightness, greenness, wetness). 2D) Creation of masks to identify areas
+                    contaminated with cloud and shadow, or to mask other land cover types are created where required.
+                    2E) Computation of an intra-pixel texture band based on the local variance in an adaptively placed 3
+                    by 3 window of the green band on the mid-season image. 3) AAFC Classification: A Decision Tree (DT)
+                    classifier was principally implemented by AAFC using software that generates a set of decision rules
+                    defined by combinations of features and a set of linear discriminate functions that are applied to
+                    each training node. The training sites, tassel cap and texture channels and other ancillary data for
+                    each Landsat scene were input into See5 software to produce 12 classes. A two-level hierarchical
+                    classification scheme is implemented in the DT process that allows the landscape to be divided into
+                    general classes within which more detailed classes can be discriminated. The two-level
+                    classification assists the delineation of sub-classes within agricultural and forest areas. AAFC
+                    developed custom processes, scripts and software to perform the classification. 4) Product
+                    Integration: Select existing products were integrated by adapting legends using defined cross-walk
+                    tables and using defined mosaic seam lines or integration procedures. This included the following
+                    four products: 4A) The Earth Observation for Sustainable Development of Forests (EOSD) Land Cover,
+                    circa 2000 published by Natural Resources Canada, Canadian Forest Service was produced using a
+                    supervised classification approach. 4B) The Manitoba Remote Sensing Centre (MRSC) used image
+                    processing software to map 17 classes for agricultural regions of Manitoba. Classification was based
+                    on landsat imagery using a supervised classification approach. The original 17 classes are converted
+                    by AAFC to 10 comparable classes. 4C) The Saint-Lawrence Valley in Quebec was classified using
+                    Landsat ETM and TM imagery and a supervised classification methodology. The original 25 classes were
+                    converted by AAFC to 10 comparable classes. 4D) The Ontario Land Cover Data Base 2000 was performed
+                    using a supervised classification method on Landsat data. 5) Filtering and post editing: In order to
+                    remove mis-classified or noisy pixels from the classification two approaches were used: 5A) An
+                    object-oriented filter approach that best accommodates landscape physical properties. For this,
+                    segment objects used for filtering are generated using multi-temporal Tasseled Cap bands using
+                    Definiens software. A majority filter is applied to the DT generated per-pixel classification using
+                    the resulting segmented objects. This technique was primarily used in prairie regions of Canada were
+                    it fit the more homogeneous landscape 5B) In other more heterogeneous landscapes, a SIEVE filter was
+                    applied to the classification. Finally, manual editing of pixel values was applied as needed to
+                    correct obvious identified classification errors. 6) Mosaic: Two approaches were used to mosaic
+                    individual classified scenes together. 6A) An approach based on the object-based filtered segments
+                    are input to an ArcGIS model that prioritises scenes based on consistency results and case files.
+                    Selected segments are then converted to raster format and a mosaic is generated. This process
+                    optimizes final product accuracy and minimizes visual inconsistencies by generating cut features
+                    along segmented object edges. 6B) Cut lines are manually created through areas with high levels of
+                    consistency between scenes. This minimizes visual inconsistencies in the mosaic. In all regions,
+                    raster sub-set of National Road Network (1:50,000) features were burned or integrated into the
+                    classification to preserve features lost through segmentation or filtering. 7)Quality
+                    assurance/controls include: 7A) An initial cross-validation accuracy calculation of scenes
+                    classified by AAFC based on the centroids of the training site polygons. The goal of this step is
+                    not to evaluate absolute accuracy, but to ensure for each scene that sufficient training data were
+                    collected, as well as, ensure reasonable class representation and consistency of interpretation of
+                    classes. 7B) Qualitative visual evaluation of the thematic classification by an independent
+                    interpreter for each completed scene. Although this can be subjective, reference to ancillary data
+                    and source imagery are used. If significant errors are found, images are reclassified or post
+                    editing is performed. 7C) A consistency analysis of overlapping classified scenes to identify
+                    thematic differences between scenes was performed. This helped determine which scene should be given
+                    priority in the mosaic process, and potentially identify if re-classification or post-editing is
+                    required. High consistency between scenes provides a level of confidence in the classification. 7D)
+                    Areas reported by the 2001 Census of Agriculture (Statistics Canada, 2002) are compared with common
+                    classified agricultural land areas as validation that resulting classification areas are reasonable.
+                    8) Absolute accuracy assessment includes: Collection of independent reference data base on a
+                    stratified systematic sampling grid. The density of points is defined by determining the precision
+                    desired and by considering spatial variability of land cover classes. A confidence level of 95% or
+                    greater is targeted in the selection of the sampling density. High resolution imagery are primarily
+                    used by interpreters to populate the ground reference databases. Error matrix analysis is used to
+                    calculate overall accuracy statistics. Preliminary results are reported in the Attribute Accuracy
+                    Report of the metadata.
+                </procdesc>
+                <proccont>
+                    <cntinfo>
+                        <cntorgp>
+                            <cntorg>Agri-Environment Services Branch (AESB)</cntorg>
+                            <cntper>Service Desk</cntper>
+                        </cntorgp>
+                        <cntaddr>
+                            <address>Agriculture and Agri-Food Canada</address>
+                            <city>Ottawa</city>
+                            <state>Ontario</state>
+                            <country>Canada</country>
+                        </cntaddr>
+                        <cntvoice>+01-613-759-1000</cntvoice>
+                        <cntfax>+01-613-759-7977</cntfax>
+                        <cntemail>nlwis-snite_AT_agr.gc.ca</cntemail>
+                    </cntinfo>
+                </proccont>
+            </procstep>
+        </lineage>
+    </dataqual>
+    <spref>
+        <horizsys>
+            <planar>
+                <gridsys>
+                    <gridsysn>Universal Transverse Mercator (UTM)</gridsysn>
+                    <utm></utm>
+                </gridsys>
+                <planci>
+                    <plance>row and column</plance>
+                    <coordrep>
+                        <absres>30.000000</absres>
+                        <ordres>30.000000</ordres>
+                    </coordrep>
+                    <plandu>meters</plandu>
+                </planci>
+            </planar>
+            <geodetic>
+                <horizdn>D_WGS_1984</horizdn>
+                <ellips>WGS_1984</ellips>
+                <semiaxis>6378137.000000</semiaxis>
+                <denflat>298.257224</denflat>
+            </geodetic>
+        </horizsys>
+    </spref>
+    <eainfo>
+        <detailed>
+            <enttyp></enttyp>
+            <attr>
+                <attrlabl>OID</attrlabl>
+                <attrdef>Internal feature number.</attrdef>
+                <attrdefs>ESRI</attrdefs>
+                <attrdomv>
+                    <udom>Sequential unique whole numbers that are automatically generated.</udom>
+                </attrdomv>
+            </attr>
+            <attr>
+                <attrlabl>Value</attrlabl>
+                <attrdef>Digital values (codes) associated with the land cover classification product.</attrdef>
+            </attr>
+        </detailed>
+        <overview>
+            <eaover>Entity and Attribute Overview: The following is a list of classes and digital values associated with
+                the classification product: Code: 0 Title: No Data Description: No Data Comments: RGB: 0 0 0 Code: 10
+                Title: Unclassified Description: Areas unclassified due to cloud, shadow or other image quality factors.
+                Comments: RGB: 51 51 51 Code: 20 Title: Water Description: Water bodies (lakes, reservoirs, rivers,
+                streams, salt water, etc.) Comments: RGB: 51 51 255 Code: 30 Title: Exposed Land Description:
+                Predominately non-vegetated and non-developed. Includes: exposed lands, bare soil, snow, glacier, rock,
+                sediments, burned areas, rubble, mines, other naturally occurring non-vegetated surfaces. Comments:
+                Mines or similar human activity may be mapped by this class, or may be mapped by the developed class.
+                Excludes fallow agriculture. RGB: 153 102 102 Code: 34 Title: Built-up Description: Land predominantly
+                built-up or developed; including vegetation associated with these cover conditions. This may include
+                road surfaces, railway surfaces, buildings and paved surfaces, urban areas, parks, industrial sites,
+                mine structures and farmsteads. May also include golf courses and ski hills. Comments: RGB: 204 102 153
+                Code: 50 Title: Shrubland Description: Predominantly woody vegetation of relatively low height
+                (generally +/-2 meters). Comments: May include grass or grassland wetlands with woody vegetation,
+                regenerating forest. RGB: 255 255 0 Code: 80 Title: Wetland Description: Land with a water table
+                near/at/above soil surface for enough time to promote wetland or aquatic processes (semi-permanent or
+                permanent wetland vegetation, including fens, bogs, swamps, sloughs, marshes etc). Comments: This class
+                is mapped based on cover properties corresponding with image date(s) conditions. RGB: 153 51 153 Code:
+                110 Title: Grassland, Native Grass Description: Predominantly native grasses and other herbaceous
+                vegetation, may include some shrubland cover. Land used for range or native unimproved pasture may
+                appear in this class. Comments: Alpine meadows fall into this class. RGB: 204 204 0 Code: 120 Title:
+                Cultivated Agricultural Land Description: Agricultural land, including annual and perennial crops; and
+                would exclude grassland. Comments: This class is mapped when the distinction of sub-agricultural covers
+                (classes 121-122) is not possible. RGB: 204 102 0 Code: 121 Title: Annual Cropland Description: Annually
+                cultivated cropland and woody perennial crops. Includes annual field crops, vegetables, summer fallow,
+                orchards and vineyards. Comments: Classification process primarily detects and delineates lands that
+                change from bare cover to green/vegetated cover during the growing season. RGB: 255 153 51 Code: 122
+                Title: Perennial Cropland and Pasture Description: Periodically cultivated cropland. Includes tame
+                grasses and other perennial crops such as alfalfa and clover grown alone or as mixtures for hay, pasture
+                or seed. Comments: Fall seeded crops such as winter wheat may be erroneously identified in this class.
+                Grassland and shrubland may be delineated within in this class. RGB: 255 204 51 Code: 200 Title: Forest/
+                Trees Description: Predominantly forested or treed areas. Comments: This class is mapped only if the
+                distinction of sub-forest covers (classes 210, 220, 230) is not possible. RGB: 0 153 0 Code: 210 Title:
+                Coniferous Forest Description: Predominantly coniferous forests or treed areas. May include mixed
+                forests and shrubland areas. Comments: RGB: 0 102 0 Code: 220 Title: Deciduous Forest Description:
+                Predominantly broadleaf/deciduous forests or treed areas. May include mixed forests and shrubland areas.
+                Comments: RGB: 0 204 0 Code: 230 Title: Mixed Forest Description: Mixed coniferous and
+                broadleaf/deciduous forests or treed areas. Comments: RGB: 204 153 0
+            </eaover>
+        </overview>
+    </eainfo>
+    <distinfo>
+        <resdesc>Downloadable Data</resdesc>
+        <stdorder>
+            <digform>
+                <digtinfo></digtinfo>
+            </digform>
+        </stdorder>
+    </distinfo>
+    <metainfo>
+        <metstdn>FGDC Content Standards for Digital Geospatial Metadata</metstdn>
+        <metstdv>FGDC-STD-001-1998</metstdv>
+    </metainfo>
+</metadata>

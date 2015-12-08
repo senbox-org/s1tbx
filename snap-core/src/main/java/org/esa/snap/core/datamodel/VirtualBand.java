@@ -204,6 +204,7 @@ public class VirtualBand extends Band {
      * Gets an estimated raw storage size in bytes of this product node.
      *
      * @param subsetDef if not <code>null</code> the subset may limit the size returned
+     *
      * @return the size in bytes.
      */
     @Override
@@ -217,10 +218,10 @@ public class VirtualBand extends Band {
     @Override
     public String toString() {
         return getClass().getName() + "["
-                + getName() + ","
-                + ProductData.getTypeString(getDataType()) + ","
-                + getRasterWidth() + ","
-                + getRasterHeight() + "]";
+               + getName() + ","
+               + ProductData.getTypeString(getDataType()) + ","
+               + getRasterWidth() + ","
+               + getRasterHeight() + "]";
     }
 
     /**
@@ -248,6 +249,7 @@ public class VirtualBand extends Band {
      *
      * @param raster     The raster data node.
      * @param expression The band-arithmetic expression.
+     *
      * @return A multi-level image.
      */
     public static MultiLevelImage createSourceImage(RasterDataNode raster, String expression) {
@@ -259,22 +261,14 @@ public class VirtualBand extends Band {
         Dimension tileSize = raster.getProduct().getPreferredTileSize();
         int dataType = raster.getDataType();
         Number fillValue = raster.isNoDataValueUsed() ? raster.getGeophysicalNoDataValue() : null;
-        //todo [multisize_products] change when ref rasters might have different imagetomodeltransforms
-        final RasterDataNode[] refRasters = BandArithmetic.getRefRasters(term);
-        AffineTransform imageToModelTransform = new AffineTransform();
+        //todo [multisize_products] change when ref rasters might have different imageToModelTransforms (tf 20151111)
+        RasterDataNode[] refRasters = BandArithmetic.getRefRasters(term);
+        MultiLevelModel multiLevelModel;
         if (refRasters.length > 0) {
-            imageToModelTransform = refRasters[0].getImageToModelTransform();
+            multiLevelModel = refRasters[0].getMultiLevelModel();
         } else {
-            final GeoCoding geoCoding = raster.getGeoCoding();
-            if (geoCoding != null) {
-                final MathTransform imageToMapTransform = geoCoding.getImageToMapTransform();
-                if (imageToMapTransform instanceof AffineTransform) {
-                    imageToModelTransform = (AffineTransform) imageToMapTransform;
-                }
-            }
+            multiLevelModel = raster.createMultiLevelModel();
         }
-        MultiLevelModel multiLevelModel =
-                new DefaultMultiLevelModel(imageToModelTransform, sourceSize.width, sourceSize.height);
         MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
             @Override
             public RenderedImage createImage(int level) {

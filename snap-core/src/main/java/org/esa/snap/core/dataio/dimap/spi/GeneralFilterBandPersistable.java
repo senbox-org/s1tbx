@@ -34,7 +34,7 @@ import java.util.List;
  *
  * @author Marco Peters
  */
-class GeneralFilterBandPersistable implements DimapPersistable {
+class GeneralFilterBandPersistable extends RasterDataNodePersistable {
     static final String VERSION_1_0 = "1.0";
     static final String VERSION_1_1 = "1.1";
     static final String VERSION_1_2 = "1.2";
@@ -84,10 +84,12 @@ class GeneralFilterBandPersistable implements DimapPersistable {
         gfb.setScalingFactor(Double.parseDouble(element.getChildTextTrim(DimapProductConstants.TAG_SCALING_FACTOR)));
         gfb.setScalingOffset(Double.parseDouble(element.getChildTextTrim(DimapProductConstants.TAG_SCALING_OFFSET)));
         gfb.setLog10Scaled(Boolean.parseBoolean(element.getChildTextTrim(DimapProductConstants.TAG_SCALING_LOG_10)));
-        gfb.setNoDataValueUsed(
-                Boolean.parseBoolean(element.getChildTextTrim(DimapProductConstants.TAG_NO_DATA_VALUE_USED)));
+        gfb.setNoDataValueUsed(Boolean.parseBoolean(element.getChildTextTrim(DimapProductConstants.TAG_NO_DATA_VALUE_USED)));
         gfb.setNoDataValue(Double.parseDouble(element.getChildTextTrim(DimapProductConstants.TAG_NO_DATA_VALUE)));
 
+        setAncillaryRelations(element, gfb);
+        setAncillaryVariables(element, gfb, product);
+        setImageToModelTransform(element, gfb);
         return gfb;
     }
 
@@ -179,12 +181,8 @@ class GeneralFilterBandPersistable implements DimapPersistable {
 
         final Element root = new Element(DimapProductConstants.TAG_SPECTRAL_BAND_INFO);
         root.setContent(contentList);
+        addImageToModelTransformElement(root, gfb);
+        addAncillaryElements(root, gfb);
         return root;
-    }
-
-    private static Element createElement(String tagName, String text) {
-        final Element elem = new Element(tagName);
-        elem.setText(text);
-        return elem;
     }
 }

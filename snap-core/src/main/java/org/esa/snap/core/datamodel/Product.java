@@ -21,7 +21,7 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
-import org.esa.snap.core.dataio.ProductFlipper;
+import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductSubsetBuilder;
 import org.esa.snap.core.dataio.ProductSubsetDef;
@@ -33,7 +33,6 @@ import org.esa.snap.core.dataop.barithm.SingleFlagSymbol;
 import org.esa.snap.core.dataop.maptransf.MapInfo;
 import org.esa.snap.core.dataop.maptransf.MapProjection;
 import org.esa.snap.core.dataop.maptransf.MapTransform;
-import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.image.ResolutionLevel;
 import org.esa.snap.core.image.VirtualBandOpImage;
 import org.esa.snap.core.jexp.Namespace;
@@ -52,13 +51,16 @@ import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.io.WildcardMatcher;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.runtime.Config;
+import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultImageCRS;
 import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.geotools.referencing.datum.DefaultImageDatum;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.ImageCRS;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.MathTransform2D;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -336,13 +338,12 @@ public class Product extends ProductNode {
         });
     }
 
-
     /**
      * Gets the scene coordinate reference system (scene CRS). It provides a common coordinate system
      * <ul>
      * <li>for the geometries used by all vector data;</li>
      * <li>to which all raster data can be transformed using a raster data node's
-     *     {@link RasterDataNode#getImageToSceneImageTransform() imageToSceneImageTransform}.</li>
+     * {@link RasterDataNode#getSceneRasterTransform() sceneRasterTransform}.</li>
      * </ul>
      * <p>
      * If no scene CRS has been set so far, the method will use the product's
@@ -354,12 +355,13 @@ public class Product extends ProductNode {
      *
      * @return The scene coordinate reference system.
      * @see #setSceneCRS(CoordinateReferenceSystem)
+     * @since SNAP 2.0
      */
     public CoordinateReferenceSystem getSceneCRS() {
         if (sceneCrs != null) {
             return sceneCrs;
         }
-        return getAppropriateSceneCRS(getSceneGeoCoding());
+        return findModelCRS(getSceneGeoCoding());
     }
 
     /**
@@ -367,6 +369,7 @@ public class Product extends ProductNode {
      *
      * @param sceneCRS The scene coordinate reference system.
      * @see #getSceneCRS()
+     * @since SNAP 2.0
      */
     public void setSceneCRS(CoordinateReferenceSystem sceneCRS) {
         Assert.notNull(sceneCRS);
@@ -380,11 +383,31 @@ public class Product extends ProductNode {
     }
 
     /**
+     * Finds an appropriate transformation from image coordinates used by the given
+     * geo-coding (if any) into "model" coordinates used to render
+     * (e.g. display, print or otherwise visualise) the image together with other features such
+     * as geometric shapes or other images. Model coordinates are different from image coordinates for
+     * rectified images where model coordinate units are defined by a geodetic/geographic coordinate
+     * reference system (map CRS, map-projected images). In this case the model CRS equals the map CRS in use.
+     * Model coordinates are also different from image coordinates for images in satellite view
+     * that use a linearily downsampled or upsampled version of a common reference grid.
+     * <p>
+     * <b>WARNING:</b> Note that this method is only useful, if it can be ensured that the given geo-coding's
+     * {@link GeoCoding#getImageToMapTransform() image-to-map transform} is an affine transformation.
+     * In all other cases, the method returns the identity transformation which might not
+     * be what you expect and what might not be even correct.
+     *
      * @param geoCoding The geo-coding or {@code null}.
-     * @return An appropriate image-to-scene transformation.
-     * @see #getAppropriateSceneCRS
+     * @return An affine image-to-map transformation derived from the given geo-coding. If {@code geoCoding}
+     * is {@code null} or an affine image-to-map transformation cannot be derived the identity transform
+     * is returned.
+     * @see #findModelCRS
+     * @see GeoCoding#getImageToMapTransform()
+     * @see RasterDataNode#getImageToModelTransform()
+     * @see MultiLevelModel#getImageToModelTransform(int)
+     * @since SNAP 2.0
      */
-    public static AffineTransform getAppropriateImageToSceneTransform(GeoCoding geoCoding) {
+    public static AffineTransform findImageToModelTransform(GeoCoding geoCoding) {
         if (geoCoding != null) {
             MathTransform image2Map = geoCoding.getImageToMapTransform();
             if (image2Map instanceof AffineTransform) {
@@ -394,20 +417,31 @@ public class Product extends ProductNode {
         return new AffineTransform();
     }
 
-
     /**
-     * Gets a coordinate reference system (CRS) that is appropriate as a scene CRS.
+     * Finds a coordinate reference system (CRS) that is appropriate as a scene CRS.
+     *
+     * Finds a "model" coordinate reference system for the given
+     * geo-coding (if any) that provides the units for ccordinates to be rendered
+     * (e.g. display, print or otherwise visualise) a geo-coded image together with other features such
+     * as geometric shapes or other images. Model coordinates are different from image coordinates for
+     * rectified images where model coordinate units are defined by a geodetic/geographic coordinate
+     * reference system (map CRS, map-projected images). In this case the model CRS equals the map CRS in use.
+     * Model coordinates are also different from image coordinates for images in satellite view
+     * that use a linearily downsampled or upsampled version of a common reference grid.
      * <p>
      * If the geo-coding's {@link GeoCoding#getImageToMapTransform() image-to-map transform} is an affine transform,
-     * then the CRS returned is the geo-coding's {@link GeoCoding#getMapCRS() map CRS}, otherwise it is its
+     * then the returned CRS is the geo-coding's {@link GeoCoding#getMapCRS() map CRS}, otherwise it is its
      * {@link GeoCoding#getImageCRS() image CRS}. If the geo-coding is {@code null}, a default image CRS is returned
      * ({@link Product#DEFAULT_IMAGE_CRS}).
      *
      * @param geoCoding The geo-coding or {@code null}.
-     * @return An appropriate scene coordinate reference system.
-     * @see #getAppropriateImageToSceneTransform
+     * @return An appropriate "model" coordinate reference system.
+     * @see #findImageToModelTransform
+     * @see RasterDataNode#getImageToModelTransform()
+     * @see MultiLevelModel#getImageToModelTransform(int)
+     * @since SNAP 2.0
      */
-    public static CoordinateReferenceSystem getAppropriateSceneCRS(GeoCoding geoCoding) {
+    public static CoordinateReferenceSystem findModelCRS(GeoCoding geoCoding) {
         if (geoCoding != null) {
             MathTransform image2Map = geoCoding.getImageToMapTransform();
             if (image2Map instanceof AffineTransform) {
@@ -417,6 +451,100 @@ public class Product extends ProductNode {
         } else {
             return Product.DEFAULT_IMAGE_CRS;
         }
+    }
+
+    /**
+     * Computes a transformation allowing to transform from this raster CS to the product's scene raster CS.
+     * This method is called if no transformation has been set using the
+     * {@link RasterDataNode#setSceneRasterTransform(SceneRasterTransform)} method.
+     *
+     * <i>WARNING: This method belongs to a preliminary API and may change in an incompatible way or may even
+     * be removed in a next SNAP release.</i>
+     *
+     * @since SNAP 2.0
+     */
+    @SuppressWarnings("unused")
+    public SceneRasterTransform findSceneRasterTransform(GeoCoding geoCoding) {
+        if (geoCoding != null
+                && geoCoding instanceof CrsGeoCoding
+                && geoCoding.getMapCRS().equals(getSceneCRS())) {
+            MathTransform2D forward = null;
+            MathTransform2D inverse = null;
+            try {
+                final MathTransform transform = CRS.findMathTransform(geoCoding.getMapCRS(), getSceneCRS());
+                if (transform instanceof MathTransform2D) {
+                    forward = (MathTransform2D) transform;
+                }
+            } catch (FactoryException e) {
+                forward = null;
+            }
+            try {
+                final MathTransform transform = CRS.findMathTransform(getSceneCRS(), geoCoding.getMapCRS());
+                if (transform instanceof MathTransform2D) {
+                    inverse = (MathTransform2D) transform;
+                }
+            } catch (FactoryException e) {
+                inverse = null;
+            }
+            if (forward == null && inverse == null) {
+                return null;
+            }
+            return new DefaultSceneRasterTransform(forward, inverse);
+        } else {
+            return SceneRasterTransform.IDENTITY;
+        }
+    }
+
+    /**
+     * Tests if all the raster data nodes contained in this product share the same model
+     * coordinate reference system which is equal to the scene coordinate reference system
+     * used by this product.
+     *
+     * <i>WARNING: This method belongs to a preliminary API and may change in an incompatible way or may even
+     * be removed in a next SNAP release.</i>
+     *
+     * @return {@code true}, if so.
+     * @since SNAP 2.0
+     */
+    public boolean isSceneCrsASharedModelCrs() {
+        return isSceneCrsEqualToModelCrsOf(getBandGroup())
+                && isSceneCrsEqualToModelCrsOf(getTiePointGridGroup())
+                && isSceneCrsEqualToModelCrsOf(getMaskGroup());
+    }
+
+    /**
+     * Tests if the given raster data node uses this product's scene coordinate reference system
+     * as model coordinate reference system.
+     *
+     * <i>WARNING: This method belongs to a preliminary API and may change in an incompatible way or may even
+     * be removed in a next SNAP release.</i>
+     *
+     * @param rasterDataNode A raster data node.
+     * @return {@code true}, if so.
+     * @since SNAP 2.0
+     */
+    public boolean isSceneCrsEqualToModelCrsOf(RasterDataNode rasterDataNode) {
+        GeoCoding sceneGeoCoding = getSceneGeoCoding();
+        GeoCoding imageGeoCoding = rasterDataNode.getGeoCoding();
+        // Cheapest comparison first
+        if (sceneGeoCoding == imageGeoCoding) {
+            return true;
+        }
+
+        CoordinateReferenceSystem sceneCRS = getSceneCRS();
+        CoordinateReferenceSystem modelCRS = findModelCRS(imageGeoCoding);
+        // Expensive comparison last
+        return CRS.equalsIgnoreMetadata(sceneCRS, modelCRS);
+    }
+
+    private synchronized boolean isSceneCrsEqualToModelCrsOf(ProductNodeGroup<? extends RasterDataNode> group) {
+        int nodeCount = group.getNodeCount();
+        for (int i = 0; i < nodeCount; i++) {
+            if (!isSceneCrsEqualToModelCrsOf(group.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -441,7 +569,6 @@ public class Product extends ProductNode {
             fireNodeChanged(this, PROPERTY_NAME_FILE_LOCATION, oldValue, fileLocation);
         }
     }
-
 
     /**
      * Overwrites the{@link ProductNode#setOwner(ProductNode)} method in order to
@@ -750,16 +877,12 @@ public class Product extends ProductNode {
             return false;
         }
 
-        for (int i = 0; i < getNumBands(); i++) {
-            if (!geoCoding.equals(getBandAt(i).getGeoCoding())) {
+        final List<RasterDataNode> rasterDataNodes = getRasterDataNodes();
+        for (RasterDataNode rasterDataNode : rasterDataNodes) {
+            if (geoCoding != rasterDataNode.getGeoCoding()) {
                 return false;
             }
-        }
 
-        for (int i = 0; i < getNumTiePointGrids(); i++) {
-            if (!geoCoding.equals(getTiePointGridAt(i).getGeoCoding())) {
-                return false;
-            }
         }
         return true;
     }
@@ -798,13 +921,8 @@ public class Product extends ProductNode {
     }
 
     public boolean isMultiSizeProduct() {
-        final ProductNodeGroup<Mask> maskGroup = getMaskGroup();
-        final Stream<RasterDataNode> masks = Arrays.stream(maskGroup.toArray(new Mask[maskGroup.getNodeCount()]));
-        final Stream<RasterDataNode> bands = Arrays.stream(getBands());
-        final Stream<RasterDataNode> tpg = Arrays.stream(getTiePointGrids());
-        final RasterDataNode[] rdns = Stream.concat(Stream.concat(masks, bands), tpg).toArray(RasterDataNode[]::new);
-
-        return !ProductUtils.areRastersEqualInSize(rdns);
+        final List<RasterDataNode> rasterDataNodes = getRasterDataNodes();
+        return !ProductUtils.areRastersEqualInSize(rasterDataNodes.toArray(new RasterDataNode[rasterDataNodes.size()]));
     }
 
     /**
@@ -1210,6 +1328,29 @@ public class Product extends ProductNode {
             return rasterDataNode;
         }
         return getMaskGroup().get(name);
+    }
+
+    /**
+     * Gets all raster data nodes contained in this product including bands, masks and tie-point grids.
+     *
+     * @return List of all raster data nodes which may be empty.
+     * @since SNAP 2.0
+     */
+    public synchronized List<RasterDataNode> getRasterDataNodes() {
+        ArrayList<RasterDataNode> rasterDataNodes = new ArrayList<>(32);
+        ProductNodeGroup<Band> bandGroup = getBandGroup();
+        for (int i = 0; i < bandGroup.getNodeCount(); i++) {
+            rasterDataNodes.add(bandGroup.get(i));
+        }
+        ProductNodeGroup<Mask> maskGroup = getMaskGroup();
+        for (int i = 0; i < maskGroup.getNodeCount(); i++) {
+            rasterDataNodes.add(maskGroup.get(i));
+        }
+        ProductNodeGroup<TiePointGrid> tpgGroup = getTiePointGridGroup();
+        for (int i = 0; i < tpgGroup.getNodeCount(); i++) {
+            rasterDataNodes.add(tpgGroup.get(i));
+        }
+        return rasterDataNodes;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -1710,20 +1851,6 @@ public class Product extends ProductNode {
         return ProductSubsetBuilder.createProductSubset(this, subsetDef, name, desc);
     }
 
-
-    /**
-     * Creates flipped raster-data version of this product.
-     *
-     * @param flipType the flip type, see <code>{@link ProductFlipper}</code>
-     * @param name     the name for the new product
-     * @param desc     the description for the new product
-     * @return the product subset, or <code>null</code> if the product/subset combination is not valid
-     * @throws IOException if an I/O error occurs
-     */
-    public Product createFlippedProduct(final int flipType, final String name, final String desc) throws IOException {
-        return ProductFlipper.createFlippedProduct(this, flipType, name, desc);
-    }
-
     @Override
     public void setModified(final boolean modified) {
         final boolean oldState = isModified();
@@ -2216,8 +2343,8 @@ public class Product extends ProductNode {
         } else {
             final RasterDataNode refRaster = refRasters[0];
             mask = Mask.BandMathsType.create(maskName, description,
-                                             refRaster.getSceneRasterWidth(),
-                                             refRaster.getSceneRasterHeight(),
+                                             refRaster.getRasterWidth(),
+                                             refRaster.getRasterHeight(),
                                              expression, color, transparency);
             mask.setGeoCoding(refRaster.getGeoCoding());
         }
@@ -2237,7 +2364,10 @@ public class Product extends ProductNode {
      * @return the new mask which has just been added
      * @since BEAM 4.10
      */
-    public Mask addMask(String maskName, VectorDataNode vectorDataNode, String description, Color color,
+    public Mask addMask(String maskName,
+                        VectorDataNode vectorDataNode,
+                        String description,
+                        Color color,
                         double transparency) {
         final Mask mask = new Mask(maskName,
                                    getSceneRasterWidth(),
@@ -2247,6 +2377,40 @@ public class Product extends ProductNode {
         mask.setDescription(description);
         mask.setImageColor(color);
         mask.setImageTransparency(transparency);
+        addMask(mask);
+        return mask;
+    }
+
+    /**
+     * Creates a new mask based on the geometries contained in a vector data node,
+     * adds it to this product and returns it.
+     *
+     * @param maskName                the new mask's name
+     * @param vectorDataNode          the vector data node
+     * @param description             the mask's description
+     * @param color                   the display color
+     * @param transparency            the display transparency
+     * @param prototypeRasterDataNode a raster data node used to serve as a prototypeRasterDataNode for image layout and geo-coding. May be {@code null}.
+     * @return the new mask which has just been added
+     * @since SNAP 2.0
+     */
+    public Mask addMask(String maskName,
+                        VectorDataNode vectorDataNode,
+                        String description,
+                        Color color,
+                        double transparency,
+                        RasterDataNode prototypeRasterDataNode) {
+        final Mask mask = new Mask(maskName,
+                                   prototypeRasterDataNode != null ? prototypeRasterDataNode.getRasterWidth() : getSceneRasterWidth(),
+                                   prototypeRasterDataNode != null ? prototypeRasterDataNode.getRasterHeight() : getSceneRasterHeight(),
+                                   Mask.VectorDataType.INSTANCE);
+        Mask.VectorDataType.setVectorData(mask, vectorDataNode);
+        mask.setDescription(description);
+        mask.setImageColor(color);
+        mask.setImageTransparency(transparency);
+        if (prototypeRasterDataNode != null) {
+            ProductUtils.copyImageGeometry(prototypeRasterDataNode, mask, false);
+        }
         addMask(mask);
         return mask;
     }
@@ -2716,7 +2880,7 @@ public class Product extends ProductNode {
      * <p>
      * If the associated raster is {@code null}, the mask's tile size is
      * this product's {@link #getPreferredTileSize() preferred tile size} (if any) while other image layout settings
-     * are derived from {@link ImageManager#createMultiLevelModel(ProductNode)}.
+     * are derived from {@link #createMultiLevelModel()}.
      *
      * @param expression       The expression
      * @param associatedRaster The associated raster or {@code null}.
@@ -2751,13 +2915,13 @@ public class Product extends ProductNode {
             // so that this method can be generalised to also create source (mask)
             // images for associatedRaster (nf 2015-07-27).
             MultiLevelImage sourceImage = associatedRaster.getSourceImage();
-            sourceSize = associatedRaster.getSceneRasterSize();
+            sourceSize = associatedRaster.getRasterSize();
             tileSize = new Dimension(sourceImage.getTileWidth(), sourceImage.getTileHeight());
             multiLevelModel = sourceImage.getModel();
         } else {
             sourceSize = getSceneRasterSize();
             tileSize = getPreferredTileSize();
-            multiLevelModel = ImageManager.createMultiLevelModel(this);
+            multiLevelModel = createMultiLevelModel();
         }
         MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
 
@@ -2772,6 +2936,17 @@ public class Product extends ProductNode {
             }
         };
         return new VirtualBandMultiLevelImage(multiLevelSource, term);
+    }
+
+    public MultiLevelModel createMultiLevelModel() {
+        int w = getSceneRasterWidth();
+        int h = getSceneRasterHeight();
+        AffineTransform i2mTransform = findImageToModelTransform(getSceneGeoCoding());
+        if (getNumResolutionsMax() > 0) {
+            return new DefaultMultiLevelModel(getNumResolutionsMax(), i2mTransform, w, h);
+        } else {
+            return new DefaultMultiLevelModel(i2mTransform, w, h);
+        }
     }
 
     private synchronized boolean initSceneProperties() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2015 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,6 +17,7 @@ package com.bc.ceres.grender;
 
 /**
  * Something which knows about a viewport, most likely a view GUI component.
+ * @author Norman Fomferra
  */
 public interface ViewportAware {
     /**

@@ -57,7 +57,7 @@ public class VirtualBandMultiLevelImageTest {
 
         Term term = VirtualBandOpImage.parseExpression(expression, p);
 
-        MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(v);
+        MultiLevelModel multiLevelModel = v.getMultiLevelModel();
         image = new VirtualBandMultiLevelImage(new AbstractMultiLevelSource(multiLevelModel) {
             @Override
             public RenderedImage createImage(int level) {

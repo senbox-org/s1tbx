@@ -148,11 +148,11 @@ public final class SceneFactory {
         }
 
         public int getRasterWidth() {
-            return raster.getSceneRasterWidth();
+            return raster.getRasterWidth();
         }
 
         public int getRasterHeight() {
-            return raster.getSceneRasterHeight();
+            return raster.getRasterHeight();
         }
 
         public Product getProduct() {

@@ -67,8 +67,8 @@ public class NetcdfMultiLevelImage extends AbstractNetcdfMultiLevelImage {
         final Object object = ctx.getProperty(Constants.Y_FLIPPED_PROPERTY_NAME);
         boolean isYFlipped = object instanceof Boolean && (Boolean) object;
         int dataBufferType = ImageManager.getDataBufferType(rdn.getDataType());
-        int sceneRasterWidth = rdn.getSceneRasterWidth();
-        int sceneRasterHeight = rdn.getSceneRasterHeight();
+        int sceneRasterWidth = rdn.getRasterWidth();
+        int sceneRasterHeight = rdn.getRasterHeight();
         ResolutionLevel resolutionLevel = ResolutionLevel.create(getModel(), level);
         Dimension imageTileSize = new Dimension(getTileWidth(), getTileHeight());
 

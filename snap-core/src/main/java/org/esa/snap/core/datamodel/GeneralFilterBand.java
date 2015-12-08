@@ -66,8 +66,8 @@ public class GeneralFilterBand extends FilterBand {
     public GeneralFilterBand(String name, RasterDataNode source, OpType opType, Kernel structuringElement, int iterationCount) {
         super(name,
               source.getGeophysicalDataType() == ProductData.TYPE_FLOAT64 ? ProductData.TYPE_FLOAT64 : ProductData.TYPE_FLOAT32,
-              source.getSceneRasterWidth(),
-              source.getSceneRasterHeight(),
+              source.getRasterWidth(),
+              source.getRasterHeight(),
               source);
         Assert.notNull(opType, "opType");
         Assert.notNull(structuringElement, "structuringElement");

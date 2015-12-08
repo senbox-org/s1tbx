@@ -21,6 +21,7 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
+import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.glevel.support.GenericMultiLevelSource;
 import com.bc.ceres.jai.operator.InterpretationType;
@@ -44,11 +45,7 @@ import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.core.util.math.Quantizer;
 import org.esa.snap.core.util.math.Range;
 import org.esa.snap.runtime.Config;
-import org.geotools.referencing.CRS;
-import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.MathTransform2D;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
@@ -98,6 +95,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public static final String PROPERTY_NAME_ANCILLARY_VARIABLES = "ancillaryVariables";
     public static final String PROPERTY_NAME_ANCILLARY_RELATIONS = "ancillaryRelations";
     public static final String PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM = "imageToModelTransform";
+    public static final String PROPERTY_NAME_SCENE_RASTER_TRANSFORM = "sceneRasterTransform";
 
 
     /**
@@ -189,6 +187,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         geophysicalNoDataValue = 0.0;
         validPixelExpression = null;
 
+        imageToModelTransform = null;
+        sceneRasterTransform = SceneRasterTransform.IDENTITY;
+
         overlayMasks = new ProductNodeGroup<>(this, "overlayMasks", false);
     }
 
@@ -209,32 +210,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         return new Dimension(getRasterWidth(), getRasterHeight());
     }
 
-    /**
-     * @return The width of the product's scene raster in pixels. By default, the method simply
-     * returns <code>getRasterWidth()</code>.
-     */
-    @Deprecated
-    public int getSceneRasterWidth() {
-        return getRasterWidth();
-    }
-
-    /**
-     * @return The height of the product's scene raster in pixels. By default, the method simply
-     * returns <code>getRasterHeight()</code>.
-     */
-    @Deprecated
-    public int getSceneRasterHeight() {
-        return getRasterHeight();
-    }
-
-    /**
-     * @return The size of the product's scene raster in pixels.
-     */
-    @Deprecated
-    public Dimension getSceneRasterSize() {
-        return new Dimension(getSceneRasterWidth(), getSceneRasterHeight());
-    }
-
 
     @Override
     public void setModified(boolean modified) {
@@ -245,6 +220,122 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             }
             super.setModified(modified);
         }
+    }
+
+    /**
+     * Gets the transformation used to convert this raster's image (pixel) coordinates to model coordinates
+     * used for rendering the image together with other images and vector data.
+     * <p>
+     * If this raster data node's ({@link #isSourceImageSet() source image is set})
+     * the {@link MultiLevelModel#getImageToModelTransform(int) image-to-model transformation} of the image pyramid's
+     * lowest level image is returned.
+     * Otherwise the transformation which has been set using the {@link #setImageToModelTransform(AffineTransform)}
+     * is returned.
+     * If the transformation was not set explicitly, the method tries to determine it from geo-codings.
+     * If this fails, the identity transform is returned.
+     *
+     * @return The image-to-model transformation.
+     * @see #getProduct()
+     * @see Product#getSceneCRS()
+     * @see #setImageToModelTransform(AffineTransform)
+     * @see #getSourceImage()
+     * @see #getGeoCoding()
+     * @since SNAP 2.0
+     */
+    public AffineTransform getImageToModelTransform() {
+        // If a source image is already set, we must return the actual image-to-model transformation in use
+        if (isSourceImageSet()) {
+            return getSourceImage().getModel().getImageToModelTransform(0);
+        }
+        // If image-to-model transformation is explicitly set, return it
+        if (imageToModelTransform != null) {
+            return new AffineTransform(imageToModelTransform);
+        }
+        // Try to derive from source product
+        Product product = getProduct();
+        if (product != null) {
+            CoordinateReferenceSystem sceneCRS = product.getSceneCRS();
+            GeoCoding sceneGeoCoding = product.getSceneGeoCoding();
+            GeoCoding rasterGeoCoding = getGeoCoding();
+            CoordinateReferenceSystem appropriateSceneCRS = Product.findModelCRS(rasterGeoCoding);
+            if (sceneCRS.equals(appropriateSceneCRS)) {
+                // If both model CRS are equal
+                return Product.findImageToModelTransform(rasterGeoCoding);
+            }
+            if (sceneGeoCoding == null && rasterGeoCoding == null) {
+                // Fallback: identity transform, works fine for (single-size) products without geo-coding
+                return new AffineTransform();
+            }
+        }
+        // Fallback: avoid returning null
+        return new AffineTransform();
+    }
+
+    /**
+     * Sets the transformation used to convert this raster's image (pixel) coordinates to model coordinates
+     * used for rendering the image together with other images and vector data.
+     * <p>
+     * The method call will fail if this raster data node has already a source image
+     * which uses a different image-to-model transformation.
+     * <p>
+     * <i>WARNING: This method belongs to a preliminary API and may change in an incompatible
+     * way or may even be removed in a next SNAP release.</i>
+     *
+     * @param imageToModelTransform The new image-to-model transformation
+     * @throws IllegalStateException If a source image is already set which uses a different image-to-model transformation.
+     * @see #getImageToModelTransform()
+     * @see #createSourceImage()
+     * @since SNAP 2.0
+     */
+    public void setImageToModelTransform(AffineTransform imageToModelTransform) {
+        Assert.notNull(imageToModelTransform, "imageToModelTransform");
+        AffineTransform imageToModelTransformOld = getImageToModelTransform();
+        if (!imageToModelTransformOld.equals(imageToModelTransform)) {
+            if (isSourceImageSet()) {
+                throw new IllegalStateException("sourceImage already set, imageToModelTransform is now read-only");
+            }
+            this.imageToModelTransform = new AffineTransform(imageToModelTransform);
+            fireProductNodeChanged(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransformOld, imageToModelTransform);
+        }
+    }
+
+    /**
+     * Gets a transformation allowing to non-linearily transform from this raster's CS to the product's
+     * scene raster CS.
+     * <p>
+     * In SNAP, this method is used whenever geometry data from a {@link VectorDataNode vector data node}
+     * must be converted into the local model CS used by this raster data node and vice versa.
+     * For this purpose, this method complements the {@link #getImageToModelTransform() image-to-model transformation}
+     * <p>
+     * <i>WARNING: This method is not yet in use. It belongs to a preliminary API and may change in an incompatible
+     * way or may even be removed in a next SNAP release.</i>
+     *
+     * @return The transformation.
+     * @see #getImageToModelTransform()
+     * @see #setSceneRasterTransform(SceneRasterTransform)
+     * @since SNAP 2.0
+     */
+    public SceneRasterTransform getSceneRasterTransform() {
+        return sceneRasterTransform;
+    }
+
+    /**
+     * Sets the transformation allowing to non-linearily transform from this raster CS to the product's
+     * scene raster CS.
+     * <p>
+     * <i>WARNING: This method is not yet in use. It belongs to a preliminary API and may change in an incompatible
+     * way or may even be removed in a next SNAP release.</i>
+     *
+     * @param sceneRasterTransform The transformation.
+     * @see #getSceneRasterTransform()
+     * @see #setImageToModelTransform(AffineTransform)
+     * @since SNAP 2.0
+     */
+    public void setSceneRasterTransform(SceneRasterTransform sceneRasterTransform) {
+        Assert.notNull(sceneRasterTransform, "sceneRasterTransform");
+        SceneRasterTransform oldTransform = this.sceneRasterTransform;
+        this.sceneRasterTransform = sceneRasterTransform;
+        fireProductNodeChanged(PROPERTY_NAME_SCENE_RASTER_TRANSFORM, oldTransform, sceneRasterTransform);
     }
 
     /**
@@ -794,7 +885,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                 if (rasterData.getType() != getDataType()) {
                     throw new IllegalArgumentException("rasterData.getType() != getDataType()");
                 }
-                if (rasterData.getNumElems() != getSceneRasterWidth() * getSceneRasterHeight()) {
+                if (rasterData.getNumElems() != getRasterWidth() * getRasterHeight()) {
                     throw new IllegalArgumentException("rasterData.getNumElems() != getRasterWidth() * getRasterHeight()");
                 }
             }
@@ -960,8 +1051,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (!isValidMaskUsed()) {
             return true;
         }
-        final int y = pixelIndex / getSceneRasterWidth();
-        final int x = pixelIndex - (y * getSceneRasterWidth());
+        final int y = pixelIndex / getRasterWidth();
+        final int x = pixelIndex - (y * getRasterWidth());
         return isPixelValid(x, y);
     }
 
@@ -1495,7 +1586,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     @SuppressWarnings("unused") // may be useful API for scripting languages
     public ProductData createCompatibleSceneRasterData() {
-        return createCompatibleRasterData(getSceneRasterWidth(), getSceneRasterHeight());
+        return createCompatibleRasterData(getRasterWidth(), getRasterHeight());
     }
 
     /**
@@ -1740,7 +1831,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         final ColorPaletteDef colorPaletteDef = ColorPaletteDef.loadColorPaletteDef(filePath.toFile());
         final ImageInfo info = new ImageInfo(colorPaletteDef);
         final Range autoStretchRange = histogram.findRangeFor95Percent();
-        info.setColorPaletteDef(colorPaletteDef, autoStretchRange.getMin(), autoStretchRange.getMax(), true);
+        info.setColorPaletteDef(colorPaletteDef, autoStretchRange.getMin(), autoStretchRange.getMax(), colorPaletteDef.isAutoDistribute());
         return info;
     }
 
@@ -1773,6 +1864,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @throws IOException if the raster data is not loaded so far and reload causes an I/O error
      * @see #setImageInfo(ImageInfo)
      */
+    @SuppressWarnings("unused") // may be useful API for scripting languages
     public BufferedImage createRgbImage(ProgressMonitor pm) throws IOException {
         if (imageInfo != null) {
             return ProductUtils.createRgbImage(new RasterDataNode[]{this}, imageInfo, pm);
@@ -1792,7 +1884,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     public byte[] quantizeRasterData(final double newMin, final double newMax, final double gamma,
                                      ProgressMonitor pm) throws IOException {
-        final byte[] colorIndexes = new byte[getSceneRasterWidth() * getSceneRasterHeight()];
+        final byte[] colorIndexes = new byte[getRasterWidth() * getRasterHeight()];
         quantizeRasterData(newMin, newMax, gamma, colorIndexes, 0, 1, pm);
         return colorIndexes;
     }
@@ -1927,7 +2019,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     private boolean isPixelWithinImageBounds(int x, int y) {
-        return x >= 0 && y >= 0 && x < getSceneRasterWidth() && y < getSceneRasterHeight();
+        return x >= 0 && y >= 0 && x < getRasterWidth() && y < getRasterHeight();
     }
 
     private boolean isValidPixelExpressionSet() {
@@ -1995,7 +2087,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Creates the source image associated with this {@code RasterDataNode}.
-     * This shall preferably be a {@link MultiLevelImage} instance.
+     * This shall preferably be a {@link MultiLevelImage} instance which recognises this raster data node's
+     * {@link ##getImageToModelTransform() imageToModelTransform} property, if set.
      *
      * @return A new source image instance.
      * @since BEAM 4.5
@@ -2066,6 +2159,44 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             }
         }
         return geophysicalImage;
+    }
+
+    /**
+     * Gets the multi-level image (image pyramid) model that describes an image pyramid layout.
+     * If this raster data node has a source image, its multi-level model will be returned.
+     * Otherwise a new model will be created using {@link #createMultiLevelModel}.
+     *
+     * @return The multi-level image (image pyramid) model
+     * @see #createMultiLevelModel
+     */
+    public MultiLevelModel getMultiLevelModel() {
+        if (isSourceImageSet()) {
+            return getSourceImage().getModel();
+        }
+        return createMultiLevelModel();
+    }
+
+    /**
+     * Create a multi-level image model suited for source and geo-physical images returned by this
+     * {@code RasterDataNode}
+     *
+     * @return A new suitable multi-level image (image pyramid) model
+     * @see #getMultiLevelModel
+     * @see Product#createMultiLevelModel()
+     */
+    public MultiLevelModel createMultiLevelModel() {
+        int w = getRasterWidth();
+        int h = getRasterHeight();
+        AffineTransform i2mTransform = getImageToModelTransform();
+        if (i2mTransform == null) {
+            i2mTransform = new AffineTransform();
+        }
+        Product product = getProduct();
+        if (product != null && product.getNumResolutionsMax() > 0) {
+            return new DefaultMultiLevelModel(product.getNumResolutionsMax(), i2mTransform, w, h);
+        } else {
+            return new DefaultMultiLevelModel(i2mTransform, w, h);
+        }
     }
 
     private MultiLevelImage createGeophysicalImage() {
@@ -2162,7 +2293,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Gets the statistics. If statistcs are not yet available,
+     * Gets the statistics. If statistics are not yet available,
      * the method will compute (possibly inaccurate) statistics and return those.
      * <p>
      * If accurate statistics are required, the {@link #getStx(boolean, com.bc.ceres.core.ProgressMonitor)}
@@ -2275,7 +2406,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             return new RasterDataNode[0];
         }
         if (relations.length == 0) {
-            return ancillaryVariables.toArray(new RasterDataNode[0]);
+            return ancillaryVariables.toArray(new RasterDataNode[ancillaryVariables.getNodeCount()]);
         }
         assertRelationsAreAllNoneNull(relations);
         ArrayList<RasterDataNode> rasterDataNodes = new ArrayList<>();
@@ -2307,10 +2438,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Adds an associated ancillary variable and sets its relation name.
+     * Adds an associated ancillary variable and sets its relation names.
      *
      * @param variable  The associated ancillary variable.
-     * @param relations The name of the relation, may be {@code "uncertainty"}, {@code "variance"}, or {@code null} (not set).
+     * @param relations The names of the relations, may be {@code "uncertainty"}, {@code "variance"}, or {@code null} (not set).
      * @since SNAP 2.0
      */
     public void addAncillaryVariable(RasterDataNode variable, String... relations) {
@@ -2396,27 +2527,12 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (sourceImage instanceof MultiLevelImage) {
             mli = (MultiLevelImage) sourceImage;
         } else {
-            MultiLevelModel model = ImageManager.getMultiLevelModel(this);
+            MultiLevelModel model = createMultiLevelModel();
             mli = new DefaultMultiLevelImage(new DefaultMultiLevelSource(sourceImage, model));
         }
         return mli;
     }
 
-    static final class ValidMaskValidator implements IndexValidator {
-
-        private final int pixelOffset;
-        private final BitRaster validMask;
-
-        ValidMaskValidator(int rasterWidth, int lineOffset, BitRaster validMask) {
-            this.pixelOffset = rasterWidth * lineOffset;
-            this.validMask = validMask;
-        }
-
-        @Override
-        public boolean validateIndex(final int pixelIndex) {
-            return validMask.isSet(pixelOffset + pixelIndex);
-        }
-    }
 
     /**
      * Processes the raster's data.
@@ -2460,124 +2576,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Gets the transformation used to convert this raster's image (pixel) coordinates to model coordinates
-     * defined by the product's model coordinate reference system.
-     *
-     * @return The image-to-model transformation, or {@code null} if it can't be determined.
-     * @see #getProduct()
-     * @see Product#getSceneCRS()
-     * @see #setImageToModelTransform(AffineTransform)
-     */
-    public AffineTransform getImageToModelTransform() {
-        // If a source image is already set, we must return the actual image-to-model transformation in use
-        if (isSourceImageSet()) {
-            return getSourceImage().getModel().getImageToModelTransform(0);
-        }
-        // If image-to-model transformation is explicitly set, return it
-        if (imageToModelTransform != null) {
-            return imageToModelTransform;
-        }
-        // Try to derive from source product
-        Product product = getProduct();
-        if (product != null) {
-            CoordinateReferenceSystem modelCRS = product.getSceneCRS();
-            GeoCoding sceneGeoCoding = product.getSceneGeoCoding();
-            GeoCoding rasterGeoCoding = getGeoCoding();
-            CoordinateReferenceSystem appropriateModelCRS = Product.getAppropriateSceneCRS(rasterGeoCoding);
-            if (modelCRS.equals(appropriateModelCRS)) {
-                // If both model CRS are equal
-                return Product.getAppropriateImageToSceneTransform(rasterGeoCoding);
-            }
-            if (sceneGeoCoding == null && rasterGeoCoding == null) {
-                // Fallback: identity transform, works fine for (single-size) products without geo-coding
-                return new AffineTransform();
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Sets the image-to-model transformation used for this raster data.
-     *
-     * @param imageToModelTransform The new image-to-model transformation
-     * @see #getImageToModelTransform()
-     */
-    public void setImageToModelTransform(AffineTransform imageToModelTransform) {
-        Assert.notNull(imageToModelTransform, "imageToModelTransform");
-        AffineTransform imageToModelTransformOld = this.imageToModelTransform;
-        if (imageToModelTransformOld != imageToModelTransform) {
-            this.imageToModelTransform = imageToModelTransform;
-            if (imageToModelTransformOld != null) {
-                fireProductNodeChanged(PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM, imageToModelTransformOld, imageToModelTransform);
-            }
-        }
-    }
-
-
-    /**
-     * Gets a transformation allowing to transform from this raster CS to the product's scene raster CS.
-     *
-     * @return The transformation or {@code null}, if no such exists.
-     * @since SNAP 2.0
-     */
-    public SceneRasterTransform getSceneRasterTransform() {
-        if (sceneRasterTransform != null) {
-            return sceneRasterTransform;
-        }
-        return computeSceneRasterTransform();
-    }
-
-    /**
-     * Sets the transformation allowing to transform from this raster CS to the product's scene raster CS.
-     *
-     * @param sceneRasterTransform The transformation or {@code null}.
-     * @since SNAP 2.0
-     */
-    public void setSceneRasterTransform(SceneRasterTransform sceneRasterTransform) {
-        this.sceneRasterTransform = sceneRasterTransform;
-    }
-
-    /**
-     * Computes a transformation allowing to transform from this raster CS to the product's scene raster CS.
-     * This method is called if no transformation has been set using the
-     * {@link #setSceneRasterTransform(SceneRasterTransform)} method.
-     *
-     * @since SNAP 2.0
-     */
-    private SceneRasterTransform computeSceneRasterTransform() {
-        if (getProduct() == null) {
-            return null;
-        }
-        final GeoCoding geoCoding = getGeoCoding();
-        if (geoCoding != null && geoCoding instanceof CrsGeoCoding && geoCoding.getMapCRS().equals(getProduct().getSceneCRS())) {
-            MathTransform2D forward = null;
-            MathTransform2D inverse = null;
-            try {
-                final MathTransform transform = CRS.findMathTransform(geoCoding.getMapCRS(), getProduct().getSceneCRS());
-                if (transform instanceof MathTransform2D) {
-                    forward = (MathTransform2D) transform;
-                }
-            } catch (FactoryException e) {
-                forward = null;
-            }
-            try {
-                final MathTransform transform = CRS.findMathTransform(getProduct().getSceneCRS(), geoCoding.getMapCRS());
-                if (transform instanceof MathTransform2D) {
-                    inverse = (MathTransform2D) transform;
-                }
-            } catch (FactoryException e) {
-                inverse = null;
-            }
-            if (forward == null && inverse == null) {
-                return null;
-            }
-            return new DefaultSceneRasterTransform(forward, inverse);
-        } else {
-            return SceneRasterTransform.IDENTITY;
-        }
-    }
-
-    /**
      * A raster data processor which is called for a set of raster lines to be processed.
      * <p>
      * For maximum performance, implementors may also consider implementing a GPF {@code org.esa.snap.core.gpf.Operator} or a
@@ -2596,6 +2594,21 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         void processRasterDataBuffer(ProductData buffer, int y0, int numLines, ProgressMonitor pm) throws IOException;
     }
 
+    static final class ValidMaskValidator implements IndexValidator {
+
+        private final int pixelOffset;
+        private final BitRaster validMask;
+
+        ValidMaskValidator(int rasterWidth, int lineOffset, BitRaster validMask) {
+            this.pixelOffset = rasterWidth * lineOffset;
+            this.validMask = validMask;
+        }
+
+        @Override
+        public boolean validateIndex(final int pixelIndex) {
+            return validMask.isSet(pixelOffset + pixelIndex);
+        }
+    }
 
     private class AncillaryBandRemover extends ProductNodeListenerAdapter {
 

@@ -127,7 +127,7 @@
         ],
         "bands": [
             {
-                "name": "i",
+                "name": "i_VV",
                 "description": "Image Mode SLC Image (i)",
                 "geophysicalUnit": "real",
                 "noDataValue": "0.0",
@@ -148,7 +148,7 @@
                 ]
             },
             {
-                "name": "q",
+                "name": "q_VV",
                 "description": "Image Mode SLC Image (q)",
                 "geophysicalUnit": "imaginary",
                 "noDataValue": "0.0",
@@ -169,7 +169,7 @@
                 ]
             },
             {
-                "name": "Intensity",
+                "name": "Intensity_VV",
                 "description": "Intensity",
                 "geophysicalUnit": "intensity",
                 "noDataValue": "0.0",

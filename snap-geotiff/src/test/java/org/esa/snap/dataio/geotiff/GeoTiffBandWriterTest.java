@@ -483,7 +483,7 @@ public class GeoTiffBandWriterTest extends TestCase {
 
     private static ProductData createProductDataForBand(final Band band, final int start) {
         final ProductData data = band.createCompatibleRasterData();
-        for (int i = 0; i < band.getSceneRasterWidth() * band.getSceneRasterHeight(); i++) {
+        for (int i = 0; i < band.getRasterWidth() * band.getRasterHeight(); i++) {
             data.setElemIntAt(i, start + i);
         }
         band.setData(data);
@@ -492,7 +492,7 @@ public class GeoTiffBandWriterTest extends TestCase {
 
     private static ProductData createProductDataForBand(final Band band, final float start) {
         final ProductData data = band.createCompatibleRasterData();
-        for (int i = 0; i < band.getSceneRasterWidth() * band.getSceneRasterHeight(); i++) {
+        for (int i = 0; i < band.getRasterWidth() * band.getRasterHeight(); i++) {
             data.setElemFloatAt(i, start + i);
         }
         band.setData(data);
@@ -501,7 +501,7 @@ public class GeoTiffBandWriterTest extends TestCase {
 
     private static ProductData createProductDataForBand(final Band band, final double start) {
         final ProductData data = band.createCompatibleRasterData();
-        for (int i = 0; i < band.getSceneRasterWidth() * band.getSceneRasterHeight(); i++) {
+        for (int i = 0; i < band.getRasterWidth() * band.getRasterHeight(); i++) {
             data.setElemDoubleAt(i, start + i);
         }
         band.setData(data);

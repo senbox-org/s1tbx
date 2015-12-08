@@ -19,6 +19,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.TiePointGrid;
 
 import java.io.IOException;
 
@@ -72,12 +73,13 @@ public interface ProductReader {
                              ProductSubsetDef subsetDef) throws IOException,
             IllegalFileFormatException;
 
-// todo, see BEAM-680
-//    void readTiePointGridRasterData(TiePointGrid tpg,
-//                            int destOffsetX, int destOffsetY,
-//                            int destWidth, int destHeight,
-//                            ProductData destBuffer, ProgressMonitor pm) throws IOException;
-
+    // todo, see BEAM-680
+    default void readTiePointGridRasterData(TiePointGrid tpg,
+                                             int destOffsetX, int destOffsetY,
+                                             int destWidth, int destHeight,
+                                             ProductData destBuffer, ProgressMonitor pm) throws IOException {
+        throw new IOException("readTiePointGridRasterData not implemented");
+    }
 
     /**
      * Reads raster data from the data source specified by the given destination band into the given in-memory buffer
@@ -107,8 +109,8 @@ public interface ProductReader {
      * @throws IOException              if an I/O error occurs
      * @throws IllegalArgumentException if the number of elements destination buffer not equals <code>destWidth *
      *                                  destHeight</code> or the destination region is out of the band's scene raster
-     * @see Band#getSceneRasterWidth()
-     * @see Band#getSceneRasterHeight()
+     * @see Band#getRasterWidth()
+     * @see Band#getRasterHeight()
      */
     void readBandRasterData(Band destBand,
                             int destOffsetX, int destOffsetY,

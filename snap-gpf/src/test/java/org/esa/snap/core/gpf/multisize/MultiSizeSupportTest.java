@@ -15,7 +15,6 @@ import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.common.BandMathsOp;
 import org.esa.snap.core.gpf.common.SubsetOp;
 import org.esa.snap.core.gpf.common.reproject.ReprojectionOp;
-import org.esa.snap.core.image.ImageManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -64,7 +63,7 @@ public class MultiSizeSupportTest {
     @Test
     @Ignore
     public void testSubset() {
-        final AffineTransform imageToModelTransform = ImageManager.getImageToModelTransform(product.getSceneGeoCoding());
+        final AffineTransform imageToModelTransform = Product.findImageToModelTransform(product.getSceneGeoCoding());
         final int height = product.getSceneRasterHeight();
         final int width = product.getSceneRasterWidth();
         double xCoord1 = (double) width * 0.25;
@@ -98,7 +97,7 @@ public class MultiSizeSupportTest {
         final Rectangle2D[] expectedImageSizes = new Rectangle2D[productBandGroup.getNodeCount()];
         for (int i = 0; i < productBandGroup.getNodeCount(); i++) {
             final Band band = productBandGroup.get(i);
-            final MultiLevelModel multiLevelModel = ImageManager.getMultiLevelModel(band);
+            final MultiLevelModel multiLevelModel = band.getMultiLevelModel();
             final Rectangle2D modelBounds = multiLevelModel.getModelBounds();
             final Rectangle2D intersection = modelBounds.createIntersection(subsetModelBounds);
             expectedImageSizes[i] = multiLevelModel.getModelToImageTransform(0).createTransformedShape(intersection).getBounds2D();
@@ -123,14 +122,14 @@ public class MultiSizeSupportTest {
         final ProductNodeGroup<Band> reprojectedProductBandGroup = reprojectedProduct.getBandGroup();
         for (int i = 0; i < productBandGroup.getNodeCount() - 1; i++) {
             final Band band1 = productBandGroup.get(i);
-            final CoordinateReferenceSystem modelCrs1 = Product.getAppropriateSceneCRS(band1.getGeoCoding());
+            final CoordinateReferenceSystem modelCrs1 = Product.findModelCRS(band1.getGeoCoding());
             final Band reprojectedBand1 = reprojectedProductBandGroup.get(band1.getName());
-            final CoordinateReferenceSystem reprojectedModelCrs1 = Product.getAppropriateSceneCRS(reprojectedBand1.getGeoCoding());
+            final CoordinateReferenceSystem reprojectedModelCrs1 = Product.findModelCRS(reprojectedBand1.getGeoCoding());
             for (int j = i + 1; j < productBandGroup.getNodeCount(); j++) {
                 final Band band2 = productBandGroup.get(j);
-                final CoordinateReferenceSystem modelCrs2 = Product.getAppropriateSceneCRS(band2.getGeoCoding());
+                final CoordinateReferenceSystem modelCrs2 = Product.findModelCRS(band2.getGeoCoding());
                 final Band reprojectedBand2 = reprojectedProductBandGroup.get(band2.getName());
-                final CoordinateReferenceSystem reprojectedModelCrs2 = Product.getAppropriateSceneCRS(reprojectedBand2.getGeoCoding());
+                final CoordinateReferenceSystem reprojectedModelCrs2 = Product.findModelCRS(reprojectedBand2.getGeoCoding());
                 assertEquals(band1.getRasterSize().equals(band2.getRasterSize()),
                              reprojectedBand1.getRasterSize().equals(reprojectedBand2.getRasterSize()));
                 assertEquals(modelCrs1 == modelCrs2, reprojectedModelCrs1 == reprojectedModelCrs2);

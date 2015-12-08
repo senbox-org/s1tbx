@@ -376,20 +376,20 @@ public class ProductFlipper extends AbstractProductBuilder {
                 final int height = sourceTiePointGrid.getGridHeight();
 
                 if (flipType == FLIP_HORIZONTAL) {
-                    sourceOffsetX = (sourceTiePointGrid.getSceneRasterWidth() - (width - 1) * sourceStepX) - sourceOffsetX;
+                    sourceOffsetX = (sourceTiePointGrid.getRasterWidth() - (width - 1) * sourceStepX) - sourceOffsetX;
                     for (int y = 0; y < height; y++) {
                         for (int x = 0; x < width; x++) {
                             targetPoints[x + y * width] = sourcePoints[width - x - 1 + y * width];
                         }
                     }
                 } else if (flipType == FLIP_VERTICAL) {
-                    sourceOffsetY = (sourceTiePointGrid.getSceneRasterHeight() - (height - 1) * sourceStepY) - sourceOffsetY;
+                    sourceOffsetY = (sourceTiePointGrid.getRasterHeight() - (height - 1) * sourceStepY) - sourceOffsetY;
                     for (int y = 0; y < height; y++) {
                         System.arraycopy(sourcePoints, (height - y - 1) * width, targetPoints, y * width, width);
                     }
                 } else {
-                    sourceOffsetX = (sourceTiePointGrid.getSceneRasterWidth() - (width - 1) * sourceStepX) - sourceOffsetX;
-                    sourceOffsetY = (sourceTiePointGrid.getSceneRasterHeight() - (height - 1) * sourceStepY) - sourceOffsetY;
+                    sourceOffsetX = (sourceTiePointGrid.getRasterWidth() - (width - 1) * sourceStepX) - sourceOffsetX;
+                    sourceOffsetY = (sourceTiePointGrid.getRasterHeight() - (height - 1) * sourceStepY) - sourceOffsetY;
                     for (int y = 0; y < height; y++) {
                         final int lineIndex = height - y - 1;
                         for (int x = 0; x < width; x++) {

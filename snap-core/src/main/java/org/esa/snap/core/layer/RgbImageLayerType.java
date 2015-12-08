@@ -31,7 +31,7 @@ import org.esa.snap.core.datamodel.RGBImageProfile;
 import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.dataop.barithm.BandArithmetic;
-import org.esa.snap.core.image.BandImageMultiLevelSource;
+import org.esa.snap.core.image.ColoredBandImageMultiLevelSource;
 
 @LayerTypeMetadata(name = "RgbImageLayerType", aliasNames = {"org.esa.snap.core.layer.RgbImageLayerType"})
 public class RgbImageLayerType extends ImageLayer.Type {
@@ -54,8 +54,8 @@ public class RgbImageLayerType extends ImageLayer.Type {
             rgbExpressions[2] = (String) configuration.getValue(PROPERTY_NAME_EXPRESSION_B);
             final RasterDataNode[] rasters = getRgbBands(product, rgbExpressions);
 
-            multiLevelSource = BandImageMultiLevelSource.create(rasters, rasters[0].getSourceImage().getModel(),
-                                                                ProgressMonitor.NULL);
+            multiLevelSource = ColoredBandImageMultiLevelSource.create(rasters, rasters[0].getSourceImage().getModel(),
+                                                                       ProgressMonitor.NULL);
         }
 
         configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
@@ -90,7 +90,7 @@ public class RgbImageLayerType extends ImageLayer.Type {
         return prototype;
     }
 
-    public Layer createLayer(RasterDataNode[] rasters, BandImageMultiLevelSource multiLevelSource) {
+    public Layer createLayer(RasterDataNode[] rasters, ColoredBandImageMultiLevelSource multiLevelSource) {
         if (rasters.length != 3) {
             throw new IllegalArgumentException("rasters.length != 3");
         }
@@ -116,7 +116,7 @@ public class RgbImageLayerType extends ImageLayer.Type {
         configuration.setValue(PROPERTY_NAME_EXPRESSION_B, expressionB);
 
         if (multiLevelSource == null) {
-            multiLevelSource = BandImageMultiLevelSource.create(rasters, ProgressMonitor.NULL);
+            multiLevelSource = ColoredBandImageMultiLevelSource.create(rasters, ProgressMonitor.NULL);
         }
         configuration.setValue(ImageLayer.PROPERTY_NAME_MULTI_LEVEL_SOURCE, multiLevelSource);
         configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, true);

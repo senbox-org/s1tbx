@@ -131,6 +131,11 @@
       "description": "HDF4_Version: 4.2.1 (NCSA HDF Version 4.2 Release 1-post3, January 27, 2006)"
     },
     {
+      "id": "SM_OPER_MIR_BWSF1C_20150522T124300",
+      "relativePath": "sensors_platforms/SMOS/MIR_BWSF1C/SM_OPER_MIR_BWSF1C_20150522T124300_20150522T133621_620_001_1.nc",
+      "description": "SMOS BWSF1C as Netcdf file, schema version 400"
+    },
+    {
       "id": "MOD02QKM_A2012151_0255_005_2012151095153_cf",
       "relativePath": "sensors_platforms/MODIS/old/MOD02QKM/HDF4/MOD02QKM.A2012151.0255.005.2012151095153.hdf",
       "description": "HDF4_Version: 4.2.5 (HDF Version 4.2 Release 5, February 17, 2010)"
@@ -149,11 +154,6 @@
       "id": "MOD_SS_MOD09GA_A2009242_cs_armcart_005_2009244131940_cf",
       "relativePath": "sensors_platforms/MODIS/old/MOD09/HDF4/MOD09GA.A2009242.cs_armcart.005.2009244131940.hdf",
       "description": "HDF4_Version: 4.1.5 (NCSA HDF Version 4.1 Release 5, November 5, 2001)"
-    },
-    {
-      "id": "SM_OPER_MIR_BWSF1C_20150522T124300",
-      "relativePath": "sensors_platforms/SMOS/MIR_BWSF1C/SM_OPER_MIR_BWSF1C_20150522T124300_20150522T133621_620_001_1.nc",
-      "description": "SMOS BWSF1C as Netcdf file, schema version 400"
     }
   ]
 }

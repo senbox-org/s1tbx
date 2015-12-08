@@ -131,6 +131,11 @@
             "description": "HDF4_Version: 4.2.1 (NCSA HDF Version 4.2 Release 1-post3, January 27, 2006)"
         },
         {
+            "id": "MOD02HKM_A2012136_2330_005_2012137073318_gencf",
+            "relativePath": "sensors_platforms/MODIS/L1B/MOD02HKM/MOD02HKM.A2012136.2330.005.2012137073318.hdf",
+            "description": "HDF4_Version: 4.2.5 (HDF Version 4.2 Release 5, February 17, 2010)"
+        },
+        {
             "id": "MOD02QKM_A2012151_0255_005_2012151095153_gencf",
             "relativePath": "sensors_platforms/MODIS/L1B/MOD02QKM/MOD02QKM.A2012151.0255.005.2012151095153.hdf",
             "description": "HDF4_Version: 4.2.5 (HDF Version 4.2 Release 5, February 17, 2010)"

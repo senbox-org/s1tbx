@@ -21,7 +21,6 @@ import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
-import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.image.ResolutionLevel;
 import org.esa.snap.core.image.VectorDataMaskOpImage;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -34,7 +33,7 @@ import java.lang.ref.WeakReference;
 
 /**
  * A {@link MultiLevelImage} computed from vector data. The {@link VectorDataMultiLevelImage}
- * resets itsself whenever the referred vector data have changed.
+ * resets itself whenever the referred vector data have changed.
  *
  * @author Ralf Quast
  * @version $Revision: $ $Date: $
@@ -45,19 +44,24 @@ class VectorDataMultiLevelImage extends DefaultMultiLevelImage implements Produc
     private final WeakReference<VectorDataNode> vectorDataReference;
 
     /**
-     * Creates a new mask {@link MultiLevelImage} computed from vector data. The mask image
+     * Creates a new binary mask {@link MultiLevelImage} computed from vector data. The mask image
      * created is reset whenever the referred vector data have changed.
      * <p>
      * A 'node data changed' event is fired from the associated {@link RasterDataNode} whenever
      * the mask image is reset.
      *
-     * @param vectorDataNode     the vector data referred.
+     * @param vectorDataNode the vector data referred to.
      * @param associatedNode the {@link RasterDataNode} associated with the image being created.
-     *
      * @return the {@code MultiLevelImage} created.
      */
-    static MultiLevelImage createMask(final VectorDataNode vectorDataNode, final RasterDataNode associatedNode) {
-        final MultiLevelSource multiLevelSource = createMaskMultiLevelSource(vectorDataNode);
+    static VectorDataMultiLevelImage createMaskImage(final VectorDataNode vectorDataNode, final RasterDataNode associatedNode) {
+        final MultiLevelModel multiLevelModel = associatedNode.getMultiLevelModel();
+        final MultiLevelSource multiLevelSource = new AbstractMultiLevelSource(multiLevelModel) {
+            @Override
+            public RenderedImage createImage(int level) {
+                return new VectorDataMaskOpImage(vectorDataNode, associatedNode, ResolutionLevel.create(getModel(), level));
+            }
+        };
         return new VectorDataMultiLevelImage(multiLevelSource, vectorDataNode) {
             @Override
             public void reset() {
@@ -72,12 +76,12 @@ class VectorDataMultiLevelImage extends DefaultMultiLevelImage implements Produc
      * image resets itsself whenever the referred vector data have changed.
      *
      * @param multiLevelSource the multi-level image source
-     * @param vectorDataNode       the vector data referred.
+     * @param vectorDataNode   the vector data referred.
      */
     VectorDataMultiLevelImage(MultiLevelSource multiLevelSource, final VectorDataNode vectorDataNode) {
         super(multiLevelSource);
 
-        this.vectorDataReference = new WeakReference<VectorDataNode>(vectorDataNode);
+        this.vectorDataReference = new WeakReference<>(vectorDataNode);
         vectorDataNode.getProduct().addProductNodeListener(this);
     }
 
@@ -130,19 +134,7 @@ class VectorDataMultiLevelImage extends DefaultMultiLevelImage implements Produc
     public void nodeRemoved(ProductNodeEvent event) {
     }
 
-    // use for testing only
-    VectorDataNode getVectorData() {
+    VectorDataNode getVectorDataNode() {
         return vectorDataReference.get();
-    }
-
-    // use for testing only
-    static MultiLevelSource createMaskMultiLevelSource(final VectorDataNode vectorDataNode) {
-        final MultiLevelModel multiLevelModel = ImageManager.createMultiLevelModel(vectorDataNode.getProduct());
-        return new AbstractMultiLevelSource(multiLevelModel) {
-            @Override
-            public RenderedImage createImage(int level) {
-                return new VectorDataMaskOpImage(vectorDataNode, ResolutionLevel.create(getModel(), level));
-            }
-        };
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2015 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -21,6 +21,8 @@ import java.awt.geom.Rectangle2D;
 /**
  * {@link javax.swing.JComponent JComponent}s implementing this interface are views which can
  * be adjusted using the {@link com.bc.ceres.glayer.swing.AdjustableViewScrollPane}.
+ *
+ * @author Norman Fomferra
  */
 public interface AdjustableView extends ViewportAware {
 

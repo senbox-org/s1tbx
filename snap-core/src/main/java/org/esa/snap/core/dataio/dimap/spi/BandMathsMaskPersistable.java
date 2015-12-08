@@ -42,8 +42,8 @@ class BandMathsMaskPersistable extends MaskPersistable {
 
     @Override
     protected void configureElement(Element root, Mask mask) {
-        root.addContent(createElement(TAG_EXPRESSION, mask.getImageConfig().getValue(
-                Mask.BandMathsType.PROPERTY_NAME_EXPRESSION).toString()));
+        root.addContent(createValueAttributeElement(TAG_EXPRESSION, mask.getImageConfig().getValue(
+                    Mask.BandMathsType.PROPERTY_NAME_EXPRESSION).toString()));
     }
 
 }

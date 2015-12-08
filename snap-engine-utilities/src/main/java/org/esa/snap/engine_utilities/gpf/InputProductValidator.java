@@ -33,6 +33,8 @@ public class InputProductValidator {
     private final Product product;
     private final MetadataElement absRoot;
 
+    private final static String SHOULD_BE_SAR_PRODUCT = "Input should be a SAR product";
+    private final static String SHOULD_NOT_BE_LEVEL0 = "Level-0 RAW products are not supported";
     private final static String SHOULD_BE_COREGISTERED = "Input should be a coregistered stack.";
     private final static String SHOULD_BE_SLC = "Input should be a single look complex SLC product.";
     private final static String SHOULD_BE_GRD = "Input should be a detected product.";
@@ -48,6 +50,20 @@ public class InputProductValidator {
     public InputProductValidator(final Product product) throws OperatorException {
         this.product = product;
         absRoot = AbstractMetadata.getAbstractedMetadata(product);
+    }
+
+    public void checkIfSARProduct() {
+        if("RAW".equals(product.getProductType()) || "Level-0".equals(product.getProductType())) {
+            throw new OperatorException(SHOULD_NOT_BE_LEVEL0);
+        }
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        if (absRoot != null) {
+            if(absRoot.getAttributeDouble("radar_frequency", 99999) == 99999) {
+                throw new OperatorException(SHOULD_BE_SAR_PRODUCT);
+            }
+        } else {
+            throw new OperatorException(SHOULD_BE_SAR_PRODUCT);
+        }
     }
 
     public void checkIfCoregisteredStack() throws OperatorException {

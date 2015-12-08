@@ -16,6 +16,8 @@
 
 package org.esa.snap.core.datamodel;
 
+import com.bc.ceres.glevel.MultiLevelModel;
+import org.junit.Assert;
 import org.junit.Test;
 
 import javax.media.jai.operator.ConstantDescriptor;
@@ -24,7 +26,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Locale;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotSame;
 
 /**
  * @author Marco Peters
@@ -32,10 +36,38 @@ import static org.junit.Assert.*;
  */
 public class RasterDataNodeTest {
 
+    /**
+     * Tests use of Product.getNumResolutionsMax in RasterDataNode.getMultiLevelMode
+     */
+    @Test
+    public void testGetMultiLevelModel() throws Exception {
+        MultiLevelModel mlm1, mlm2;
+        final Product p = new Product("P", "T", 10960, 10960);
+
+        final Band b1 = p.addBand("B1", "0"); // Virtual band image --> source image set
+        final Band b2 = p.addBand("B2", ProductData.TYPE_FLOAT32); // Normal band image --> source image NOT set
+
+        mlm1 = b1.getMultiLevelModel();
+        mlm2 = b2.getMultiLevelModel();
+        assertEquals(0, p.getNumResolutionsMax());
+        assertEquals(7, mlm1.getLevelCount());
+        assertEquals(7, mlm2.getLevelCount());
+
+        p.setNumResolutionsMax(3);
+
+        b1.getSourceImage();
+
+        mlm1 = b1.getMultiLevelModel();
+        mlm2 = b2.getMultiLevelModel();
+        assertEquals(3, p.getNumResolutionsMax());
+        assertEquals(3, mlm1.getLevelCount());
+        assertEquals(3, mlm2.getLevelCount());
+    }
+
     @Test
     public void testImageToModelTransformCannotDetermine() throws Exception {
         Band band = new Band("B", ProductData.TYPE_FLOAT32, 4, 2);
-        assertNull(band.getImageToModelTransform());
+        assertEquals(new AffineTransform(), band.getImageToModelTransform());
     }
 
     @Test
@@ -54,6 +86,20 @@ public class RasterDataNodeTest {
     }
 
     @Test
+    public void testImageToModelTransformIsNewInstance() throws Exception {
+        Product product = new Product("N", "T", 4, 2);
+        Band band = new Band("B", ProductData.TYPE_FLOAT32, 4, 2);
+        product.addBand(band);
+        AffineTransform scaleInstance = AffineTransform.getScaleInstance(2.0, 2.0);
+        band.setImageToModelTransform(scaleInstance);
+        assertEquals(scaleInstance, band.getImageToModelTransform());
+        assertNotSame(scaleInstance, band.getImageToModelTransform());
+        assertNotSame(band.getImageToModelTransform(), band.getImageToModelTransform());
+        scaleInstance.rotate(0.1, 0.2);
+        assertNotEquals(scaleInstance, band.getImageToModelTransform());
+    }
+
+    @Test(expected = IllegalStateException.class)
     public void testImageToModelTransformIsRuledBySourceImage() throws Exception {
         Band band = new Band("B", ProductData.TYPE_FLOAT32, 4, 2);
         band.setSourceImage(ConstantDescriptor.create(4f, 2f, new Float[]{0f}, null));

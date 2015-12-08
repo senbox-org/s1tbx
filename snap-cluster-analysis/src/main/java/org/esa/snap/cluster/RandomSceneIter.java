@@ -35,8 +35,8 @@ class RandomSceneIter {
         this.operator = operator;
         this.rdn = rdn;
         random = new Random(seed);
-        final int rasterWidth = rdn[0].getSceneRasterWidth();
-        final int rasterHeight = rdn[0].getSceneRasterHeight();
+        final int rasterWidth = rdn[0].getRasterWidth();
+        final int rasterHeight = rdn[0].getRasterHeight();
         final int size = rasterWidth * rasterHeight;
         if (roi == null) {
             xValue = null;
@@ -69,8 +69,8 @@ class RandomSceneIter {
         final int x;
         final int y;
         if (xValue == null) {
-            x = random.nextInt(rdn[0].getSceneRasterWidth());
-            y = random.nextInt(rdn[0].getSceneRasterHeight());
+            x = random.nextInt(rdn[0].getRasterWidth());
+            y = random.nextInt(rdn[0].getRasterHeight());
         } else {
             final int randomIndex = random.nextInt(roiMemberCount);
             x = xValue[randomIndex];

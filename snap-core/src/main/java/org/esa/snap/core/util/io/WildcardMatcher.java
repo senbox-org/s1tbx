@@ -18,6 +18,7 @@ package org.esa.snap.core.util.io;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
@@ -78,11 +79,17 @@ public class WildcardMatcher {
 
         String newpattern = canonicalBaseFile.getPath() + "/" + patternPath;
         WildcardMatcher matcher = new WildcardMatcher(newpattern);
-        collectFiles(matcher, canonicalBaseFile, fileSet);
+        HashSet<File> visitedDirs = new HashSet<>();
+        collectFiles(matcher, canonicalBaseFile, fileSet, visitedDirs);
 
     }
 
-    private static void collectFiles(WildcardMatcher matcher,  File dir, Set<File> fileSet) throws IOException {
+    private static void collectFiles(WildcardMatcher matcher,  File dir, Set<File> fileSet, Set<File> visitedDirs) throws IOException {
+        if (visitedDirs.contains(dir.getCanonicalFile())) {
+            return;
+        } else {
+            visitedDirs.add(dir.getCanonicalFile());
+        }
         File[] files = dir.listFiles();
         if (files == null) {
             throw new IOException(String.format("Failed to access directory '%s'", dir));
@@ -90,10 +97,10 @@ public class WildcardMatcher {
         for (File file : files) {
             // check for both to catch symlinks as well
             if (matcher.matches(file.getCanonicalPath()) || matcher.matches(file.getPath())) {
-                fileSet.add(file);
+                fileSet.add(file.getCanonicalFile());
             }
             if (file.isDirectory()) {
-                collectFiles(matcher, file, fileSet);
+                collectFiles(matcher, file, fileSet, visitedDirs);
             }
         }
     }

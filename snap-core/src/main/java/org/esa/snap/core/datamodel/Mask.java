@@ -134,8 +134,8 @@ public class Mask extends Band {
     private boolean isMaskImageInvalid(MultiLevelImage image) {
         return image.getSampleModel().getDataType() != DataBuffer.TYPE_BYTE
                || image.getNumBands() != 1
-               || image.getWidth() != getSceneRasterWidth()
-               || image.getHeight() != getSceneRasterHeight();
+               || image.getWidth() != getRasterWidth()
+               || image.getHeight() != getRasterHeight();
     }
 
     @Override
@@ -422,7 +422,7 @@ public class Mask extends Band {
          */
         @Override
         public MultiLevelImage createImage(final Mask mask) {
-            return VectorDataMultiLevelImage.createMask(getVectorData(mask), mask);
+            return VectorDataMultiLevelImage.createMaskImage(getVectorData(mask), mask);
         }
 
         /**
