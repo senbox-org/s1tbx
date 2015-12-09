@@ -192,6 +192,10 @@
             <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.coregistration.DEMAssistedCoregistrationOpUI"/>
             <attr name="operatorName" stringvalue="DEM-Assisted-Coregistration"/>
         </file>
+        <file name="org.esa.s1tbx.gpf.CreateCoherenceImageOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.CreateCoherenceImageOpUI"/>
+            <attr name="operatorName" stringvalue="Coherence"/>
+        </file>
     </folder>
 
     <folder name="LayerSources">
