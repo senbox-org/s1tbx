@@ -1,6 +1,8 @@
 The SENTINEL-1 Toolbox
 ======================
 
+[![Build Status](https://travis-ci.org/senbox-org/s1tbx.svg?branch=master)](https://travis-ci.org/senbox-org/s1tbx) 
+
 Building S1TBX from the source
 
 1. Download and install the required build tools
