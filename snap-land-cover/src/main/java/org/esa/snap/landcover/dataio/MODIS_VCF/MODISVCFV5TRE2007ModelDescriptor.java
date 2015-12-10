@@ -15,6 +15,7 @@
  */
 package org.esa.snap.landcover.dataio.MODIS_VCF;
 
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.dataop.resamp.Resampling;
 import org.esa.snap.engine_utilities.util.Settings;
 import org.esa.snap.landcover.dataio.AbstractLandCoverModelDescriptor;
@@ -243,6 +244,11 @@ public class MODISVCFV5TRE2007ModelDescriptor extends AbstractLandCoverModelDesc
 
     public String createTileFilename(final int minLat, final int minLon) {
         return fileList[0].getName();
+    }
+
+    @Override
+    public int getDataType() {
+        return ProductData.TYPE_FLOAT32;
     }
 
     @Override
