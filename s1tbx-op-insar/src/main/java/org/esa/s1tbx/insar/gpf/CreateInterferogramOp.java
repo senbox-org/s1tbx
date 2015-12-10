@@ -98,7 +98,7 @@ public class CreateInterferogramOp extends Operator {
     @Parameter(defaultValue="true", label="Include coherence estimation")
     private boolean includeCoherence = true;
 
-    @Parameter(defaultValue="false", label="Output coherence phase")
+//    @Parameter(defaultValue="false", label="Output coherence phase")
     private boolean outputCoherencePhase = false;
 
     @Parameter(interval = "(1, 75]",
@@ -112,6 +112,9 @@ public class CreateInterferogramOp extends Operator {
             defaultValue = "10",
             label = "Coherence Range Window Size")
     private int cohWinRg = 10;
+
+    @Parameter(description = "Use ground square pixel", defaultValue = "true", label = "Square Pixel")
+    private Boolean squarePixel = true;
 
     // flat_earth_polynomial container
     private HashMap<String, DoubleMatrix> flatEarthPolyMap = new HashMap<>();
