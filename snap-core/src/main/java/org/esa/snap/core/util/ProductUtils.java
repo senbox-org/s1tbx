@@ -1145,7 +1145,9 @@ public class ProductUtils {
     public static void copyTiePointGrids(Product sourceProduct, Product targetProduct) {
         for (int i = 0; i < sourceProduct.getNumTiePointGrids(); i++) {
             TiePointGrid srcTPG = sourceProduct.getTiePointGridAt(i);
-            targetProduct.addTiePointGrid(srcTPG.cloneTiePointGrid());
+            if (!targetProduct.containsRasterDataNode(srcTPG.getName())) {
+                targetProduct.addTiePointGrid(srcTPG.cloneTiePointGrid());
+            }
         }
     }
 
