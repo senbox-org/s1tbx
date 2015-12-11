@@ -25,6 +25,12 @@
 
     <artifactId>snap-core</artifactId>
     <packaging>nbm</packaging>
+    <version>2.0.1</version>
+
+    <properties>
+        <snap.nbmSpecVersion>2.0.1.1</snap.nbmSpecVersion>
+        <snap.version>2.0.1-SNAPSHOT</snap.version>
+    </properties>
 
     <name>SNAP Core Library</name>
     <description>This is the base module of SNAP containing its core functionality.</description>
