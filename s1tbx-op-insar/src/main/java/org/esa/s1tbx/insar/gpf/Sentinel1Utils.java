@@ -1110,7 +1110,7 @@ public final class Sentinel1Utils {
                 endTime = 0.5 * (subSwath[i].slrTimeToLastPixel + subSwath[i + 1].slrTimeToFirstPixel);
             }
 
-            if (slrTime >= startTime && slrTime < endTime) {
+            if (slrTime >= startTime && slrTime <= endTime) {
                 return i + 1; // sub-swath index start from 1
             }
         }
