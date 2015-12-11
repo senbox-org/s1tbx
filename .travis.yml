@@ -15,4 +15,5 @@ install:
   - true
 
 script:
-  - mvn clean install -B -V
+  - mvn clean 
+  - mvn install -B -V
