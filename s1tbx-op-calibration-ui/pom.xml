@@ -24,7 +24,7 @@
     </parent>
 
     <artifactId>s1tbx-op-calibration-ui</artifactId>
-    <name>S1TBX Calibration Operator UI</name>
+    <name>S1TBX Calibration UI</name>
     <description>Calibrates Sentinel-1, Radarsat-2, ENVISAT ASAR, ERS 1/2, ALOS Palsar, TerraSAR-X products</description>
 
     <packaging>nbm</packaging>
