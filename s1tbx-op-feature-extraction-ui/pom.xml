@@ -25,7 +25,7 @@
     </parent>
 
     <artifactId>s1tbx-op-feature-extraction-ui</artifactId>
-    <name>S1TBX Feature Extraction Tools</name>
+    <name>S1TBX Feature Extraction Tools UI</name>
 
     <packaging>nbm</packaging>
 

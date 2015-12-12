@@ -26,7 +26,7 @@
         <version>3.0.0-SNAPSHOT</version>
     </parent>
 
-    <name>S1TBX Waves Winds and Currents</name>
+    <name>S1TBX Ocean UI</name>
     <artifactId>s1tbx-op-ocean-ui</artifactId>
 
     <packaging>nbm</packaging>
