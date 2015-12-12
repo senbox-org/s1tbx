@@ -468,11 +468,11 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                     final float[] vec1LUT = Sentinel1Calibrator.getVector(calType, vec1);
                     final int pixelIdx0 = calInfo.getPixelIndex(x0, calVecIdx);
 
-                    computeTileScaledNoiseLUT(y, x0, y0, w, noiseInfo, calInfo, vec0.timeMJD, vec1.timeMJD,
+                    computeTileScaledNoiseLUT(y, x0, w, noiseInfo, calInfo, vec0.timeMJD, vec1.timeMJD,
                             vec0LUT, vec1LUT, vec0.pixels, pixelIdx0, lut);
 
                 } else {
-                    computeTileNoiseLUT(y, x0, y0, w, noiseInfo, lut);
+                    computeTileNoiseLUT(y, x0, w, noiseInfo, lut);
                 }
 
                 for (int x = x0; x < maxX; ++x) {
@@ -551,13 +551,12 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
      *
      * @param y         Index of the given range line.
      * @param x0        X coordinate of the upper left corner pixel of the given tile.
-     * @param y0        Y coordinate of the upper left corner pixel of the given tile.
      * @param w         Tile width.
      * @param noiseInfo Object of ThermalNoiseInfo class.
      * @param calInfo   Object of CalibrationInfo class.
      * @param lut       The scaled noise LUT.
      */
-    private void computeTileScaledNoiseLUT(final int y, final int x0, final int y0, final int w,
+    private void computeTileScaledNoiseLUT(final int y, final int x0, final int w,
                                            final ThermalNoiseInfo noiseInfo,
                                            final Sentinel1Calibrator.CalibrationInfo calInfo,
                                            final double azT0, final double azT1,
@@ -566,7 +565,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                                            final double[] lut) {
 
         final double[] noiseLut = new double[w];
-        computeTileNoiseLUT(y, x0, y0, w, noiseInfo, noiseLut);
+        computeTileNoiseLUT(y, x0, w, noiseInfo, noiseLut);
 
         final double[] calLut = new double[w];
         computeTileCalibrationLUTs(y, x0, w, calInfo, azT0, azT1,
@@ -619,15 +618,14 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
      *
      * @param y         Index of the given range line.
      * @param x0        X coordinate of the upper left corner pixel of the given tile.
-     * @param y0        Y coordinate of the upper left corner pixel of the given tile.
      * @param w         Tile width.
      * @param noiseInfo Object of ThermalNoiseInfo class.
      * @param lut       The noise LUT.
      */
-    private static void computeTileNoiseLUT(final int y, final int x0, final int y0, final int w,
+    private static void computeTileNoiseLUT(final int y, final int x0, final int w,
                                      final ThermalNoiseInfo noiseInfo, final double[] lut) {
         try {
-            final int noiseVecIdx = getNoiseVectorIndex(y0, noiseInfo);
+            final int noiseVecIdx = getNoiseVectorIndex(y, noiseInfo);
             final Sentinel1Utils.NoiseVector noiseVector0 = noiseInfo.noiseVectorList[noiseVecIdx];
             final Sentinel1Utils.NoiseVector noiseVector1 = noiseInfo.noiseVectorList[noiseVecIdx + 1];
 

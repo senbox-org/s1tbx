@@ -19,6 +19,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.commons.S1TBXTests;
 import org.esa.s1tbx.commons.TestData;
 import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataAttribute;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
@@ -49,7 +50,7 @@ public class TestMultilookOperator {
     private final static TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
 
     private String[] productTypeExemptions = {"-","_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
-    private String[] exceptionExemptions = {"not supported", "not intended", "not be map projected"};
+    private String[] exceptionExemptions = {"not supported", "not intended", "not be map projected", "first be deburst"};
 
     /**
      * Tests multi-look operator with a 4x16 "DETECTED" test product.
@@ -152,6 +153,7 @@ public class TestMultilookOperator {
         AbstractMetadata.setAttribute(abs, AbstractMetadata.SAMPLE_TYPE, "DETECTED");
         AbstractMetadata.setAttribute(abs, AbstractMetadata.MISSION, "ENVISAT");
         AbstractMetadata.setAttribute(abs, AbstractMetadata.srgr_flag, 0);
+        AbstractMetadata.setAttribute(abs, AbstractMetadata.radar_frequency, 4.5f);
         AbstractMetadata.setAttribute(abs, AbstractMetadata.range_spacing, 0.5F);
         AbstractMetadata.setAttribute(abs, AbstractMetadata.azimuth_spacing, 2.0F);
         AbstractMetadata.setAttribute(abs, AbstractMetadata.azimuth_looks, 1);

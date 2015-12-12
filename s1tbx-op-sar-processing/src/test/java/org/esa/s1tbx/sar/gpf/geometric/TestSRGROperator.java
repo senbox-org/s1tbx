@@ -115,25 +115,21 @@ public class TestSRGROperator {
         band1.setData(ProductData.createInstance(intValues));
 
         // create abstracted metadata
-        final MetadataElement abs = new MetadataElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
+        final MetadataElement abs = AbstractMetadata.getAbstractedMetadata(testProduct);
 
-        abs.addAttribute(new MetadataAttribute(AbstractMetadata.MISSION,
-                ProductData.createInstance("ENVISAT"), false));
-
-        abs.addAttribute(new MetadataAttribute(AbstractMetadata.PASS,
-                ProductData.createInstance("DESCENDING"), false));
-
-        abs.addAttribute(new MetadataAttribute(AbstractMetadata.srgr_flag,
-                ProductData.createInstance(new byte[]{0}), false));
-
-        abs.addAttribute(new MetadataAttribute(AbstractMetadata.range_spacing,
-                ProductData.createInstance(new float[]{7.0F}), false));
-
-        abs.addAttribute(new MetadataAttribute(AbstractMetadata.azimuth_spacing,
-                ProductData.createInstance(new float[]{4.0F}), false));
-
-        abs.addAttribute(new MetadataAttribute(AbstractMetadata.slant_range_to_first_pixel,
-                ProductData.createInstance(new float[]{800000.0F}), false));
+        AbstractMetadata.setAttribute(abs, AbstractMetadata.SAMPLE_TYPE, "DETECTED");
+        AbstractMetadata.setAttribute(abs, AbstractMetadata.MISSION, "ENVISAT");
+        AbstractMetadata.setAttribute(abs, AbstractMetadata.PASS, "DESCENDING");
+        AbstractMetadata.setAttribute(abs, AbstractMetadata.srgr_flag, 0);
+        AbstractMetadata.setAttribute(abs, AbstractMetadata.radar_frequency, 4.5f);
+        AbstractMetadata.setAttribute(abs, AbstractMetadata.range_spacing, 7.0F);
+        AbstractMetadata.setAttribute(abs, AbstractMetadata.azimuth_spacing, 4.0F);
+        AbstractMetadata.setAttribute(abs, AbstractMetadata.azimuth_looks, 1);
+        AbstractMetadata.setAttribute(abs, AbstractMetadata.range_looks, 1);
+        AbstractMetadata.setAttribute(abs, AbstractMetadata.line_time_interval, 0.01F);
+        AbstractMetadata.setAttribute(abs, AbstractMetadata.slant_range_to_first_pixel, 800000.0F);
+        AbstractMetadata.setAttribute(abs, AbstractMetadata.first_line_time,
+                AbstractMetadata.parseUTC("10-MAY-2008 20:32:46.885684"));
 
         // create incidence angle tie point grid
         float[] incidence_angle = new float[w * h];
