@@ -31,7 +31,7 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
                     <appendAssemblyId>false</appendAssemblyId>
-                    <finalName>snap-engine-${snap.version}</finalName>
+                    <finalName>snap-engine-${project.version}</finalName>
                     <descriptors>
                         <descriptor>src/main/assembly/bin.xml</descriptor>
                     </descriptors>
@@ -45,48 +45,48 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>ceres-binding</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>ceres-binio</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>ceres-core</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>ceres-glayer</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>ceres-jai</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>ceres-metadata</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <!-- todo - move to snap-desktop -->
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>ceres-ui</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-core</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-engine-utilities</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>ncsa.hdf</groupId>
@@ -98,57 +98,57 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-arcbingrid-reader</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-bigtiff</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-binning</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-cluster-analysis</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-collocation</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-csv-dataio</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-dem</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-envi-reader</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-envisat-reader</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-geotiff</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-getasse30-dem</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -163,22 +163,22 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-jython</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-ndvi</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-netcdf</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-pconvert</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -193,17 +193,17 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-python</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-statistics</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-temporal-percentile</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -223,12 +223,12 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-smart-configurator</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-sta</artifactId>
-            <version>${project.version}</version>
+            <version>${snap.version}</version>
         </dependency>
     </dependencies>
 
