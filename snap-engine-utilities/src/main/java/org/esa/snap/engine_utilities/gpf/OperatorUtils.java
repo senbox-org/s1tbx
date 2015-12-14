@@ -35,6 +35,7 @@ import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.db.DBQuery;
 import org.esa.snap.engine_utilities.util.ExceptionLog;
 
 import java.awt.Dimension;
@@ -481,10 +482,7 @@ public final class OperatorUtils {
 
             String targetUnit = "";
 
-            if (unit.contains(Unit.PHASE) && outputIntensity) {
-                continue;
-
-            } else if (unit.contains(Unit.IMAGINARY) && outputIntensity && !isPolsar) {
+            if (unit.contains(Unit.IMAGINARY) && outputIntensity && !isPolsar) {
 
                 throw new OperatorException("Real and imaginary bands should be selected in pairs");
 
