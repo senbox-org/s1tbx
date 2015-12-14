@@ -83,7 +83,6 @@
 		<module>snap-land-cover</module>
         <module>snap-ndvi</module>
         <module>snap-netcdf</module>
-        <module>snap-olci-radiometry</module>
         <module>snap-pconvert</module>
         <module>snap-pgx-reader</module>
         <module>snap-pixel-extraction</module>
