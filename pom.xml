@@ -37,7 +37,7 @@
             It is used to filter manifest.mf and set the manifest's "OpenIDE-Module-Specification-Version" header.
             This is necessary to make NetBeans modules updatable and independent from the Maven version (= snap.version).
         -->
-        <snap.version>[2.0.0, 3.0.0-SNAPSHOT)</snap.version>
+        <snap.version>${project.version}</snap.version>
         <snap.nbmSpecVersion>2.0.1.0</snap.nbmSpecVersion>
         <javahelp.version>2.0.05</javahelp.version>
         <hdf.version>2.7.1</hdf.version>
