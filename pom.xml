@@ -739,7 +739,7 @@
 
     <build>
 
-        <!-- Maven plugin configurations common to all BEAM modules -->
+        <!-- Maven plugin configurations common to all SNAP modules -->
         <pluginManagement>
             <plugins>
 
