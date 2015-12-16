@@ -54,7 +54,7 @@ import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;
 import org.jlinda.core.SLCImage;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -311,8 +311,9 @@ public final class UpdateGeoRefOp extends Operator {
         }
 
         for (Band srcBand : sourceBands) {
-            final Band targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, false);
-            targetBand.setSourceImage(srcBand.getSourceImage());
+            final Band targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, true);
+
+            //targetBand.setGeoCoding(new PixelGeoCoding(latBand, lonBand, null, 6));
         }
 
         // add latitude and longitude bands
