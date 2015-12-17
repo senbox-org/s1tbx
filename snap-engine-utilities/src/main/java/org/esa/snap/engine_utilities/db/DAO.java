@@ -133,8 +133,7 @@ public abstract class DAO {
     protected void disconnect() {
         if (isConnected) {
             dbProperties.put("shutdown", "true");
-            try {
-                DriverManager.getConnection(getDatabaseUrl(), dbProperties);
+            try (Connection connection = DriverManager.getConnection(getDatabaseUrl(), dbProperties)){
 
             } catch (SQLException ex) {
                 lastSQLException = ex;

@@ -135,8 +135,9 @@ public class TestProductDao {
     public void testSelect() throws SQLException {
         final String strGetProductsWhere = "SELECT * FROM " + ProductTable.TABLE + " WHERE MISSION='ENVISAT'";
 
-        final Statement queryStatement = db.getConnection().createStatement();
-        final ResultSet results = queryStatement.executeQuery(strGetProductsWhere);
+        try (final Statement queryStatement = db.getConnection().createStatement()) {
+            final ResultSet results = queryStatement.executeQuery(strGetProductsWhere);
+        }
     }
 
     @Ignore("fails")

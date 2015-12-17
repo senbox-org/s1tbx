@@ -144,27 +144,29 @@ public class ProductTable implements TableInterface {
     }
 
     public void createTable() throws SQLException {
-        final Statement statement = dbConnection.createStatement();
-        statement.execute(strCreateProductTable);
+        try (final Statement statement = dbConnection.createStatement()) {
+            statement.execute(strCreateProductTable);
+        }
     }
 
     public void validateTable() throws SQLException {
         // alter table if columns are missing
-        final Statement alterStatement = dbConnection.createStatement();
+        try (final Statement alterStatement = dbConnection.createStatement()) {
 
-        // add missing columns to the table
-        int i = 0;
-        for (String n : colNames) {
-            final String testStr = "SELECT '" + n + "' FROM " + TABLE;
-            try {
-                alterStatement.executeQuery(testStr);
-            } catch (SQLException e) {
-                if (e.getSQLState().equals("42X04")) {
-                    final String alterStr = "ALTER TABLE " + TABLE + " ADD '" + n + "' " + colTypes[i];
-                    alterStatement.execute(alterStr);
+            // add missing columns to the table
+            int i = 0;
+            for (String n : colNames) {
+                final String testStr = "SELECT '" + n + "' FROM " + TABLE;
+                try {
+                    alterStatement.executeQuery(testStr);
+                } catch (SQLException e) {
+                    if (e.getSQLState().equals("42X04")) {
+                        final String alterStr = "ALTER TABLE " + TABLE + " ADD '" + n + "' " + colTypes[i];
+                        alterStatement.execute(alterStr);
+                    }
                 }
+                ++i;
             }
-            ++i;
         }
     }
 
@@ -252,12 +254,13 @@ public class ProductTable implements TableInterface {
     public ProductEntry[] getProductEntryList() throws SQLException {
         final List<ProductEntry> listEntries = new ArrayList<>();
 
-        final Statement queryStatement = dbConnection.createStatement();
-        final ResultSet results = queryStatement.executeQuery(strGetListEntries);
-        while (results.next()) {
-            listEntries.add(new ProductEntry(results));
+        try (final Statement queryStatement = dbConnection.createStatement()) {
+            final ResultSet results = queryStatement.executeQuery(strGetListEntries);
+            while (results.next()) {
+                listEntries.add(new ProductEntry(results));
+            }
+            return listEntries.toArray(new ProductEntry[listEntries.size()]);
         }
-        return listEntries.toArray(new ProductEntry[listEntries.size()]);
     }
 
     public String[] getAllMissions() throws SQLException {
@@ -300,12 +303,13 @@ public class ProductTable implements TableInterface {
         strMissionProductTypes += SQLUtils.getOrList(AbstractMetadata.MISSION, missions);
 
         final List<String> listEntries = new ArrayList<>();
-        final Statement queryStatement = dbConnection.createStatement();
-        final ResultSet results = queryStatement.executeQuery(strMissionProductTypes);
-        while (results.next()) {
-            listEntries.add(results.getString(1));
+        try (final Statement queryStatement = dbConnection.createStatement()) {
+            final ResultSet results = queryStatement.executeQuery(strMissionProductTypes);
+            while (results.next()) {
+                listEntries.add(results.getString(1));
+            }
+            return listEntries.toArray(new String[listEntries.size()]);
         }
-        return listEntries.toArray(new String[listEntries.size()]);
     }
 
     /**
@@ -337,11 +341,12 @@ public class ProductTable implements TableInterface {
         strMissionAcquisitionModes += SQLUtils.getOrList(AbstractMetadata.MISSION, missions);
 
         final List<String> listEntries = new ArrayList<>();
-        final Statement queryStatement = dbConnection.createStatement();
-        final ResultSet results = queryStatement.executeQuery(strMissionAcquisitionModes);
-        while (results.next()) {
-            listEntries.add(results.getString(1));
+        try (final Statement queryStatement = dbConnection.createStatement()) {
+            final ResultSet results = queryStatement.executeQuery(strMissionAcquisitionModes);
+            while (results.next()) {
+                listEntries.add(results.getString(1));
+            }
+            return listEntries.toArray(new String[listEntries.size()]);
         }
-        return listEntries.toArray(new String[listEntries.size()]);
     }
 }

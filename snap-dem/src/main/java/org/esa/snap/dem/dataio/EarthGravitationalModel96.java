@@ -80,8 +80,11 @@ public final class EarthGravitationalModel96 {
     private EarthGravitationalModel96() throws IOException {
 
         final URL egmDataPath = getClass().getClassLoader().getResource("org/esa/snap/auxdata/egm96/" + NAME);
+        if(egmDataPath == null) {
+            throw new IOException("Unable to load EGM96 " + NAME);
+        }
 
-        InputStream inputStream;
+        InputStream inputStream = null;
         try {
             if(NAME.endsWith(".zip")) {
                 final ZipFile zipFile = new ZipFile(egmDataPath.getFile());
@@ -91,51 +94,55 @@ public final class EarthGravitationalModel96 {
                 inputStream = egmDataPath.openStream();
             }
         } catch (Exception e) {
+            if(inputStream != null) {
+                inputStream.close();
+            }
             throw new IOException("EarthGravitationalModel96 file not found: " + egmDataPath, e);
         }
 
-        final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
 
-        // read data from file and save them in 2-D array
-        String line = "";
-        StringTokenizer st;
-        int rowIdx = 0;
-        int colIdx = 0;
 
-        final int numLatLinesToSkip = 0;
-        final int numCharInHeader = NUM_CHAR_PER_NORMAL_LINE + NUM_CHAR_PER_EMPTY_LINE;
-        final int numCharInEachLatLine = NUM_OF_BLOCKS_PER_LAT * BLOCK_HEIGHT * NUM_CHAR_PER_NORMAL_LINE +
-                (NUM_OF_BLOCKS_PER_LAT + 1) * NUM_CHAR_PER_EMPTY_LINE +
-                NUM_CHAR_PER_SHORT_LINE;
+            // read data from file and save them in 2-D array
+            String line = "";
+            StringTokenizer st;
+            int rowIdx = 0;
+            int colIdx = 0;
 
-        final int totalCharToSkip = numCharInHeader + numCharInEachLatLine * numLatLinesToSkip;
-        reader.skip(totalCharToSkip);
+            final int numLatLinesToSkip = 0;
+            final int numCharInHeader = NUM_CHAR_PER_NORMAL_LINE + NUM_CHAR_PER_EMPTY_LINE;
+            final int numCharInEachLatLine = NUM_OF_BLOCKS_PER_LAT * BLOCK_HEIGHT * NUM_CHAR_PER_NORMAL_LINE +
+                    (NUM_OF_BLOCKS_PER_LAT + 1) * NUM_CHAR_PER_EMPTY_LINE +
+                    NUM_CHAR_PER_SHORT_LINE;
 
-        // get the lat lines from 90 deg to -90 deg 45 min
-        final int numLinesInEachLatLine = NUM_OF_BLOCKS_PER_LAT * (BLOCK_HEIGHT + 1) + 2;
-        final int numLinesToRead = NUM_LATS * numLinesInEachLatLine;
-        int linesRead = 0;
-        for (int i = 0; i < numLinesToRead - 1; i++) { // -1 because the last line read from file is null
+            final int totalCharToSkip = numCharInHeader + numCharInEachLatLine * numLatLinesToSkip;
+            reader.skip(totalCharToSkip);
 
-            line = reader.readLine();
-            linesRead++;
-            if (!line.equals("")) {
-                st = new StringTokenizer(line);
-                final int numCols = st.countTokens();
-                for (int j = 0; j < numCols; j++) {
-                    egm[rowIdx][colIdx] = Float.parseFloat(st.nextToken());
-                    colIdx++;
+            // get the lat lines from 90 deg to -90 deg 45 min
+            final int numLinesInEachLatLine = NUM_OF_BLOCKS_PER_LAT * (BLOCK_HEIGHT + 1) + 2;
+            final int numLinesToRead = NUM_LATS * numLinesInEachLatLine;
+            int linesRead = 0;
+            for (int i = 0; i < numLinesToRead - 1; i++) { // -1 because the last line read from file is null
+
+                line = reader.readLine();
+                linesRead++;
+                if (!line.equals("")) {
+                    st = new StringTokenizer(line);
+                    final int numCols = st.countTokens();
+                    for (int j = 0; j < numCols; j++) {
+                        egm[rowIdx][colIdx] = Float.parseFloat(st.nextToken());
+                        colIdx++;
+                    }
+                }
+
+                if (linesRead % numLinesInEachLatLine == 0) {
+                    rowIdx++;
+                    colIdx = 0;
                 }
             }
-
-            if (linesRead % numLinesInEachLatLine == 0) {
-                rowIdx++;
-                colIdx = 0;
-            }
+        } finally {
+            inputStream.close();
         }
-
-        reader.close();
-        inputStream.close();
     }
 
     public float getEGM(final double lat, final double lon) {

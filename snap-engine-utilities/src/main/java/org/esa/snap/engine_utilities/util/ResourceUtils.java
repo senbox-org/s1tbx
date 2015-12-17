@@ -48,8 +48,9 @@ public final class ResourceUtils {
     }
 
     public static Properties loadProperties(final String filename) throws IOException {
-        final InputStream dbPropInputStream = getResourceAsStream(filename, ResourceUtils.class);
-        return loadProperties(dbPropInputStream);
+        try (final InputStream dbPropInputStream = getResourceAsStream(filename, ResourceUtils.class)) {
+            return loadProperties(dbPropInputStream);
+        }
     }
 
     public static Properties loadProperties(final InputStream dbPropInputStream) throws IOException {
@@ -69,8 +70,11 @@ public final class ResourceUtils {
 
     public static File getReportFolder() {
         final File reportFolder = new File(SystemUtils.getApplicationDataDir(true) + File.separator + "var" + File.separator + "log");
-        if (!reportFolder.exists())
-            reportFolder.mkdirs();
+        if (!reportFolder.exists()) {
+            if(!reportFolder.mkdirs()) {
+                SystemUtils.LOG.severe("Unable to create folders in "+reportFolder);
+            }
+        }
         return reportFolder;
     }
 

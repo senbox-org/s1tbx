@@ -70,40 +70,42 @@ public class MetadataTable implements TableInterface {
     }
 
     public void createTable() throws SQLException {
-        final Statement statement = dbConnection.createStatement();
-        statement.execute(createTableStr);
+        try (final Statement statement = dbConnection.createStatement()) {
+            statement.execute(createTableStr);
+        }
     }
 
     public void validateTable() throws SQLException {
 
-        final Statement alterStatement = dbConnection.createStatement();
-        alterStatement.setMaxRows(2);
+        try (final Statement alterStatement = dbConnection.createStatement()) {
+            alterStatement.setMaxRows(2);
 
-        final String selectStr = "SELECT * FROM " + TABLE;
-        final ResultSet results = alterStatement.executeQuery(selectStr);
+            final String selectStr = "SELECT * FROM " + TABLE;
+            final ResultSet results = alterStatement.executeQuery(selectStr);
 
-        final ResultSetMetaData meta = results.getMetaData();
-        final int colCnt = meta.getColumnCount();
+            final ResultSetMetaData meta = results.getMetaData();
+            final int colCnt = meta.getColumnCount();
 
-        final String[] colNames = new String[colCnt + 1];
-        for (int i = 1; i <= colCnt; ++i) {
-            colNames[i] = meta.getColumnName(i);
-        }
-        final MetadataAttribute[] attribList = emptyMetadata.getAttributes();
-        for (MetadataAttribute attrib : attribList) {
-            final String name = attrib.getName();
-            boolean found = false;
-            for (String col : colNames) {
-                if (name.equalsIgnoreCase(col)) {
-                    found = true;
-                    break;
-                }
+            final String[] colNames = new String[colCnt + 1];
+            for (int i = 1; i <= colCnt; ++i) {
+                colNames[i] = meta.getColumnName(i);
             }
-            if (!found) {
-                final int dataType = attrib.getDataType();
-                final String alterStr = "ALTER TABLE " + TABLE + " ADD COLUMN " + name + " " + getDataType(dataType) +
-                        " DEFAULT " + getDefault(dataType) + " NOT NULL";
-                alterStatement.execute(alterStr);
+            final MetadataAttribute[] attribList = emptyMetadata.getAttributes();
+            for (MetadataAttribute attrib : attribList) {
+                final String name = attrib.getName();
+                boolean found = false;
+                for (String col : colNames) {
+                    if (name.equalsIgnoreCase(col)) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    final int dataType = attrib.getDataType();
+                    final String alterStr = "ALTER TABLE " + TABLE + " ADD COLUMN " + name + " " + getDataType(dataType) +
+                            " DEFAULT " + getDefault(dataType) + " NOT NULL";
+                    alterStatement.execute(alterStr);
+                }
             }
         }
     }
