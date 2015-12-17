@@ -99,6 +99,9 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
     }
 
     private boolean getRemoteFile() throws IOException {
+        if(remoteURL == null) {
+            throw new IOException("DownloadableContent: Remote archive url not set");
+        }
         if (remoteURL.getProtocol().contains("http")) {
             try {
                 boolean newVersionAvailable = checkForNewRemoteHttpFile(remoteURL, localZipFile);
@@ -245,7 +248,9 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
         final OutputStream os;
         try {
             if (!outputFile.getParentFile().exists()) {
-                outputFile.getParentFile().mkdirs();
+                if(!outputFile.getParentFile().mkdirs()) {
+                    SystemUtils.LOG.severe("Unable to create folders in "+outputFile.getParentFile());
+                }
             }
             os = new BufferedOutputStream(new FileOutputStream(outputFile));
         } catch (IOException e) {
@@ -331,11 +336,8 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
             if (newFile.exists())
                 return newFile;
 
-            ZipFile zipFile = null;
-            BufferedOutputStream fileoutputstream = null;
-            try {
-                zipFile = new ZipFile(dataFile);
-                fileoutputstream = new BufferedOutputStream(new FileOutputStream(newFile));
+            try (ZipFile zipFile = new ZipFile(dataFile);
+                 BufferedOutputStream fileoutputstream = new BufferedOutputStream(new FileOutputStream(newFile))){
 
                 ZipEntry zipEntry = zipFile.getEntry(baseName);
                 if (zipEntry == null) {
@@ -363,11 +365,6 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
                 SystemUtils.LOG.warning(e.getMessage());
                 dataFile.delete();
                 return null;
-            } finally {
-                if (zipFile != null)
-                    zipFile.close();
-                if (fileoutputstream != null)
-                    fileoutputstream.close();
             }
         }
         return dataFile;

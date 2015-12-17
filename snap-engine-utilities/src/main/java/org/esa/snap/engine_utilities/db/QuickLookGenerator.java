@@ -385,8 +385,11 @@ public class QuickLookGenerator {
     private static BufferedImage createQuickLook(final int id, final Product product, final boolean isBrowseFile) {
         final File quickLookFile = getQuickLookFile(dbStorageDir, id);
         try {
-            if (!dbStorageDir.exists())
-                dbStorageDir.mkdirs();
+            if (!dbStorageDir.exists()) {
+                if(!dbStorageDir.mkdirs()) {
+                    SystemUtils.LOG.severe("Unable to create folders in "+dbStorageDir);
+                }
+            }
             quickLookFile.createNewFile();
             final BufferedImage bufferedImage = createQuickLookImage(product, true, isBrowseFile);
 

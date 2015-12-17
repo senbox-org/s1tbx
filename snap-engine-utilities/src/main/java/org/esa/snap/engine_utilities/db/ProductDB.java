@@ -233,16 +233,17 @@ public class ProductDB extends DAO {
     public ProductEntry[] queryProduct(final String queryStr) throws SQLException {
         final List<ProductEntry> listEntries = new ArrayList<>();
 
-        final Statement queryStatement = dbConnection.createStatement();
-        String whereStr = strGetProductsWhere;
-        if (queryStr.isEmpty()) {
-            whereStr = strGetProductsWhere.substring(0, strGetProductsWhere.lastIndexOf(" AND "));
+        try (final Statement queryStatement = dbConnection.createStatement()) {
+            String whereStr = strGetProductsWhere;
+            if (queryStr.isEmpty()) {
+                whereStr = strGetProductsWhere.substring(0, strGetProductsWhere.lastIndexOf(" AND "));
+            }
+            final ResultSet results = queryStatement.executeQuery(whereStr + queryStr);
+            while (results.next()) {
+                listEntries.add(new ProductEntry(results));
+            }
+            return listEntries.toArray(new ProductEntry[listEntries.size()]);
         }
-        final ResultSet results = queryStatement.executeQuery(whereStr + queryStr);
-        while (results.next()) {
-            listEntries.add(new ProductEntry(results));
-        }
-        return listEntries.toArray(new ProductEntry[listEntries.size()]);
     }
 
     public String[] getAllMissions() throws SQLException {

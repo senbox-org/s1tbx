@@ -26,6 +26,7 @@ import net.sf.sevenzipjbinding.SevenZipException;
 import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
 import net.sf.sevenzipjbinding.simple.ISimpleInArchiveItem;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;
 
 import java.io.BufferedOutputStream;
@@ -215,7 +216,9 @@ public class ZipUtils {
                             }
                             final File target = new File(outFolder, String.valueOf(path));
                             targetFiles[index] = target;
-                            target.getParentFile().mkdirs();
+                            if(!target.getParentFile().mkdirs()) {
+                                SystemUtils.LOG.severe("Unable to create folders in "+target.getParentFile());
+                            }
                             out = new BufferedOutputStream(new FileOutputStream(target));
                         }
                         try {
