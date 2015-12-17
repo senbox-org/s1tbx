@@ -30,6 +30,7 @@ import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.core.gpf.internal.TileImpl;
 import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 
 import javax.imageio.stream.ImageOutputStream;
@@ -303,7 +304,9 @@ public class GammaProductWriter extends AbstractProductWriter {
     private static void createPhysicalFile(final File file, final long fileSize) throws IOException {
         final File parentDir = file.getParentFile();
         if (parentDir != null) {
-            parentDir.mkdirs();
+            if(!parentDir.mkdirs()) {
+                throw new IOException("Unable to create folders in "+parentDir);
+            }
         }
         final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
         randomAccessFile.setLength(fileSize);

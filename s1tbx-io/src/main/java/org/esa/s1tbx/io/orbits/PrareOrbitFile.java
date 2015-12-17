@@ -156,8 +156,11 @@ public class PrareOrbitFile extends BaseOrbitFile {
                 }
             }
 
-            if (!localPath.exists())
-                localPath.mkdirs();
+            if (!localPath.exists()) {
+                if(!localPath.mkdirs()) {
+                    throw new IOException("Failed to create directory '" + localPath + "'.");
+                }
+            }
 
             getRemoteFiles(ftp, fileSizeMap, remotePath, localPath, new NullProgressMonitor());
 

@@ -105,8 +105,11 @@ public class DelftOrbitFile extends BaseOrbitFile {
         final File orbitPath = new File(orbitPathStr);
         final String delftFTP = Settings.instance().get("OrbitFiles.delftFTP");
 
-        if (!orbitPath.exists())
-            orbitPath.mkdirs();
+        if (!orbitPath.exists()) {
+            if(!orbitPath.mkdirs()) {
+                throw new IOException("Failed to create directory '" + orbitPath + "'.");
+            }
+        }
 
         // find arclist file, then get the arc# of the orbit file
         final File arclistFile = new File(orbitPath, "arclist");

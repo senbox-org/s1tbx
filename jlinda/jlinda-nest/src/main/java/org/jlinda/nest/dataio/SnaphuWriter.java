@@ -18,6 +18,7 @@ import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
@@ -141,7 +142,9 @@ public class SnaphuWriter extends AbstractProductWriter {
             _outputDir = new File(".");
         }
         _outputDir = new File(_outputDir, name);
-        _outputDir.mkdirs();
+        if(!_outputDir.mkdirs()) {
+            SystemUtils.LOG.severe("Unable to create folders in "+_outputDir);
+        }
         _outputFile = new File(_outputDir, outputFile.getName());
     }
 
@@ -327,7 +330,9 @@ public class SnaphuWriter extends AbstractProductWriter {
     private static void createPhysicalFile(File file, long fileSize) throws IOException {
         final File parentDir = file.getParentFile();
         if (parentDir != null) {
-            parentDir.mkdirs();
+            if(!parentDir.mkdirs()) {
+                SystemUtils.LOG.severe("Unable to create folders in "+parentDir);
+            }
         }
         final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
         randomAccessFile.setLength(fileSize);

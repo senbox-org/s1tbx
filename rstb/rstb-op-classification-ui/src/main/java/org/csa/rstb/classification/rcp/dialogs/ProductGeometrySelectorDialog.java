@@ -17,6 +17,7 @@ package org.csa.rstb.classification.rcp.dialogs;
 
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.util.Settings;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.graphbuilder.rcp.utils.FileFolderUtils;
@@ -178,8 +179,11 @@ public class ProductGeometrySelectorDialog extends ModalDialog {
             return Dialogs.requestDecision("File exists", "File " + file.getAbsolutePath() +
                                                           "\nalready exists. Would you like to overwrite it?", false, null) == Dialogs.Answer.YES;
         }
-        if (!file.getParentFile().exists())
-            file.getParentFile().mkdirs();
+        if (!file.getParentFile().exists()) {
+            if(!file.getParentFile().mkdirs()) {
+                SystemUtils.LOG.severe("Unable to create folders in "+file.getParentFile());
+            }
+        }
         return true;
     }
 

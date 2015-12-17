@@ -185,8 +185,11 @@ public class DorisOrbitFile extends BaseOrbitFile {
                 fileSizeMap = ftpUtils.readRemoteFileList(ftp, dorisFTP, remotePath);
             }
 
-            if (!localPath.exists())
-                localPath.mkdirs();
+            if (!localPath.exists()) {
+                if(!localPath.mkdirs()) {
+                    throw new IOException("Failed to create directory '" + localPath + "'.");
+                }
+            }
 
             getRemoteFiles(ftp, fileSizeMap, remotePath, localPath, new NullProgressMonitor());
 

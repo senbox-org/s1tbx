@@ -22,6 +22,7 @@ import org.esa.snap.core.dataio.dimap.EnviHeader;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.dataio.envi.EnviProductWriter;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.metadata.AbstractMetadataIO;
@@ -103,7 +104,9 @@ public class PolsarProProductWriter extends EnviProductWriter {
         }
         if (!folder.isEmpty()) {
             _outputDir = new File(_outputDir, folder);
-            _outputDir.mkdirs();
+            if(!_outputDir.mkdirs()) {
+                SystemUtils.LOG.severe("Unable to create folders in "+_outputDir);
+            }
             _outputFile = new File(_outputDir, outputFile.getName());
         }
     }
