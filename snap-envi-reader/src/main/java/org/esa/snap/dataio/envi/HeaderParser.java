@@ -148,7 +148,10 @@ class HeaderParser {
     }
 
     public static void main(String[] args) throws IOException {
-        HeaderParser enviHeader = HeaderParser.parse(new FileReader(args[0]));
+        HeaderParser enviHeader;
+        try (FileReader fileReader = new FileReader(args[0])) {
+            enviHeader = HeaderParser.parse(fileReader);
+        }
         System.out.println(enviHeader);
     }
 }
