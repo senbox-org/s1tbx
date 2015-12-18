@@ -140,7 +140,9 @@ public class RawTiledPyramidsProductWriter extends AbstractProductWriter {
                                                     + "," + flatmatrix[3]
                                                     + "," + flatmatrix[4]
                                                     + "," + flatmatrix[5]);
-        imageProperties.store(new FileWriter(new File(bandDir, "image.properties")), "File created by " + getClass());
+        try (FileWriter writer = new FileWriter(new File(bandDir, "image.properties"))) {
+            imageProperties.store(writer, "File created by " + getClass());
+        }
 
 
         pm.beginTask("Writing tile data", levelCount);
