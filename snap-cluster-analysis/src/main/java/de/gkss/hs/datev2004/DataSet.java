@@ -80,15 +80,20 @@ public class DataSet {
     public DataSet(String filename) throws IOException {
         //-- -- -- -- -- -- -- -- -- -- -- -- -- -- -
         try {
-            String eing;
-            BufferedReader in = new BufferedReader(new FileReader(filename));
-            eing = "";
-            while (!eing.equals("$")) eing = in.readLine();
-            eing = in.readLine();
-            StringTokenizer stok = new StringTokenizer(eing);
-            int weighted = Integer.valueOf(stok.nextToken());
-            int dimension = Integer.valueOf(stok.nextToken());
-            double[][] df = Matrix.read(in).getArray();
+            int weighted;
+            int dimension;
+            double[][] df;
+            try (BufferedReader in = new BufferedReader(new FileReader(filename))) {
+                String eing = "";
+                while (!eing.equals("$")) {
+                    eing = in.readLine();
+                }
+                eing = in.readLine();
+                StringTokenizer stok = new StringTokenizer(eing);
+                weighted = Integer.valueOf(stok.nextToken());
+                dimension = Integer.valueOf(stok.nextToken());
+                df = Matrix.read(in).getArray();
+            }
             this.npoints = df.length;
             this.np = this.npoints;
             this.dim = df[0].length - 1 - weighted;
