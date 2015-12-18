@@ -180,7 +180,11 @@ public class BinnedProductReader extends AbstractProductReader {
         final File productFile = new File(getInput().toString());
         final String productName = FileUtils.getFilenameWithoutExtension(productFile);
 
-        final String productType = netcdfFile.findGlobalAttribute("title").getStringValue();
+        String productType = "BINNED";
+        Attribute titleAttribute = netcdfFile.findGlobalAttribute("title");
+        if (titleAttribute != null) {
+            productType = titleAttribute.getStringValue();
+        }
         product = new Product(productName, productType, sceneRasterWidth, sceneRasterHeight, this);
         product.setFileLocation(productFile);
         product.setAutoGrouping("adg:aph:atot:bbp:bl_Rrs:chlor_a:Rrs:water");
