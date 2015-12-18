@@ -19,7 +19,6 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -73,12 +72,7 @@ public class SummaryCSVTool {
 
         final Logger logger = SystemUtils.LOG;
 
-        final ShapeFileReader shapeFileReader = new ShapeFileReader() {
-            @Override
-            public FeatureCollection<SimpleFeatureType, SimpleFeature> read(File shapeFile) throws IOException {
-                return FeatureUtils.loadFeatureCollectionFromShapefile(shapeFile);
-            }
-        };
+        final ShapeFileReader shapeFileReader = FeatureUtils::loadFeatureCollectionFromShapefile;
 
         String waterbodyColumnName = "NAME";
         if (commandLine.hasOption("waterbodyNameColumn")) {
@@ -164,7 +158,7 @@ public class SummaryCSVTool {
         pw.print(TAB);
         pw.print("Bod.Name");
 
-        final TreeMap<Date, TreeSet<String>> dateColNamesMap = new TreeMap<Date, TreeSet<String>>();
+        final TreeMap<Date, TreeSet<String>> dateColNamesMap = new TreeMap<>();
         for (DatabaseRecord record : records) {
             final Set<Date> dataDates = record.getDataDates();
             for (Date date : dataDates) {
@@ -172,7 +166,7 @@ public class SummaryCSVTool {
                 if (dateColNamesMap.containsKey(date)) {
                     colNames = dateColNamesMap.get(date);
                 } else {
-                    colNames = new TreeSet<String>();
+                    colNames = new TreeSet<>();
                     dateColNamesMap.put(date, colNames);
                 }
                 final Set<String> statDataColumns = record.getStatDataColumns(date);
@@ -200,7 +194,7 @@ public class SummaryCSVTool {
     }
 
     private void printData(DatabaseRecord[] databaseRecords, PrintWriter writer) {
-        final Map<Date, Integer> columnsPerDay = new TreeMap<Date, Integer>();
+        final Map<Date, Integer> columnsPerDay = new TreeMap<>();
         for (DatabaseRecord record : databaseRecords) {
             final Set<Date> dataDates = record.getDataDates();
             for (Date dataDate : dataDates) {
@@ -240,13 +234,9 @@ public class SummaryCSVTool {
         pw.println();
     }
 
-    public void summarize(File inputDir) {
-        final File[] shapeFiles = inputDir.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith(".shp");
-            }
-        });
+    void summarize(File inputDir) {
+        final File[] shapeFiles = inputDir.listFiles((dir, name) -> {return name.toLowerCase().endsWith(".shp");});
+
         for (File shapeFile : shapeFiles) {
             if (!isValidDateExtractableFileName(shapeFile)) {
                 continue;
@@ -256,11 +246,11 @@ public class SummaryCSVTool {
                 continue;
             }
 
-            try {
+            try (FileReader fileReader = new FileReader(mappingFile)) {
                 final ProductData.UTC date = filenameDateExtractor.getDate(shapeFile);
                 final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = shapeFileReader.read(shapeFile);
                 final Properties properties = new Properties();
-                properties.load(new FileReader(mappingFile));
+                properties.load(fileReader);
                 statisticsDatabase.append(date, featureCollection, properties);
             } catch (IOException e) {
                 logger.log(Level.WARNING, e.getMessage());
@@ -290,7 +280,7 @@ public class SummaryCSVTool {
         return stringWriter.toString();
     }
 
-    public static interface ShapeFileReader {
+    public interface ShapeFileReader {
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> read(File shapeFile) throws IOException;
     }
