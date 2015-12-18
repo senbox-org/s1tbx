@@ -5,7 +5,6 @@ import org.esa.snap.core.dataio.ProductWriter;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.csv.dataio.Constants;
 
-import java.io.FileWriter;
 import java.io.IOException;
 
 /**
@@ -110,7 +109,7 @@ public class CsvWriterBuilder {
 
         @Override
         public void writeCsv(String fullOutput) throws IOException {
-            new FileWriter(targetFile);
+//            new FileWriter(targetFile);
             // todo
         }
     }
