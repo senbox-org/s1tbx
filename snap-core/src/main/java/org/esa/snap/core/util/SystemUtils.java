@@ -30,6 +30,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.URL;
@@ -448,8 +449,10 @@ public class SystemUtils {
             URL moduleLocation = aClass.getProtectionDomain().getCodeSource().getLocation();
             final Path pathFromURI = FileUtils.getPathFromURI(FileUtils.ensureJarURI(moduleLocation.toURI()));
             final Path manifestPath = pathFromURI.resolve("META-INF/MANIFEST.MF");
-            final Manifest manifest = new Manifest(Files.newInputStream(manifestPath));
-            return new ManifestModuleMetadata(manifest);
+            try (InputStream inputStream = Files.newInputStream(manifestPath)) {
+                Manifest manifest = new Manifest(inputStream);
+                return new ManifestModuleMetadata(manifest);
+            }
         } catch (Exception e) {
             return null;
         }
