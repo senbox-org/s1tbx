@@ -329,7 +329,6 @@ public class NetcdfFileOpener {
             return null; // bail out  */
         }
 
-        InputStream in = null;
         FileOutputStream fout = new FileOutputStream(uncompressedFile);
 
         // obtain the lock
@@ -342,7 +341,7 @@ public class NetcdfFileOpener {
             } catch (OverlappingFileLockException oe) { // not sure why lock() doesnt block
                 try {
                     Thread.sleep(100); // msecs
-                } catch (InterruptedException e1) {
+                } catch (InterruptedException ignored) {
                 }
             }
         }
@@ -350,32 +349,32 @@ public class NetcdfFileOpener {
         try {
             InputStream inputStream = new BufferedInputStream(new FileInputStream(filename), COPY_BUFFER_LENGTH);
             if (suffix.equalsIgnoreCase("Z")) {
-                in = new UncompressInputStream(inputStream);
-                copy(in, fout, COPY_BUFFER_LENGTH);
+                try (InputStream in = new UncompressInputStream(inputStream)) {
+                    copy(in, fout, COPY_BUFFER_LENGTH);
+                }
                 LOG.fine("uncompressed " + filename + " to " + uncompressedFile);
             } else if (suffix.equalsIgnoreCase("zip")) {
                 ZipInputStream zin = new ZipInputStream(inputStream);
                 ZipEntry ze = zin.getNextEntry();
                 if (ze != null) {
-                    in = zin;
-                    copy(in, fout, COPY_BUFFER_LENGTH);
+                    copy(zin, fout, COPY_BUFFER_LENGTH);
                     LOG.fine("unzipped " + filename + " entry " + ze.getName() + " to " + uncompressedFile);
                 }
             } else if (suffix.equalsIgnoreCase("bz2")) {
-                in = new CBZip2InputStream(inputStream, true);
-                copy(in, fout, COPY_BUFFER_LENGTH);
+                try (InputStream in = new CBZip2InputStream(inputStream, true)) {
+                    copy(in, fout, COPY_BUFFER_LENGTH);
+                }
                 LOG.fine("unbzipped " + filename + " to " + uncompressedFile);
             } else if (suffix.equalsIgnoreCase("gzip") || suffix.equalsIgnoreCase("gz")) {
-                in = new GZIPInputStream(inputStream);
-                copy(in, fout, COPY_BUFFER_LENGTH);
+                try (InputStream in = new GZIPInputStream(inputStream)) {
+                    copy(in, fout, COPY_BUFFER_LENGTH);
+                }
                 LOG.fine("ungzipped " + filename + " to " + uncompressedFile);
             }
         } catch (Exception e) {
 
             // appears we have to close before we can delete
-            if (fout != null) {
-                fout.close();
-            }
+            fout.close();
             fout = null;
 
             // dont leave bad files around
@@ -389,9 +388,6 @@ public class NetcdfFileOpener {
         } finally {
             if (lock != null) {
                 lock.release();
-            }
-            if (in != null) {
-                in.close();
             }
             if (fout != null) {
                 fout.close();
