@@ -74,8 +74,6 @@ import java.awt.RenderingHints;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -90,8 +88,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -107,8 +103,6 @@ public class OperatorContext {
 
     private static final String DATETIME_OUTPUT_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     private static final SimpleDateFormat DATETIME_OUTPUT_FORMAT = new SimpleDateFormat(DATETIME_OUTPUT_PATTERN);
-    private static final String MANIFEST_ATTR_MODULE_NAME = "OpenIDE-Module-Name";
-    private static final String MANIFEST_ATTR_MODULE_VERSION = "OpenIDE-Module-Specification-Version";
 
     static {
         DATETIME_OUTPUT_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -653,17 +647,6 @@ public class OperatorContext {
         targetNodeME.addElement(targetParametersME);
     }
 
-    private ProductData getAttributeValue(Attributes mainAttributes, String attrName) {
-        final String attrValue = mainAttributes.getValue(attrName);
-        final ProductData attrData;
-        if (attrValue != null) {
-            attrData = ProductData.createInstance(attrValue);
-        }else {
-            attrData = ProductData.createInstance("unknown");
-        }
-        return attrData;
-    }
-
     private static void addDomToMetadata(DomElement parentDE, MetadataElement parentME) {
         final HashMap<String, List<DomElement>> map = new HashMap<>(
                 parentDE.getChildCount() + 5);
@@ -689,11 +672,6 @@ public class OperatorContext {
         }
     }
 
-
-    private Manifest loadManifest(OperatorSpi spi) throws IOException {
-        final InputStream resourceAsStream = spi.getOperatorClass().getResourceAsStream("/META-INF/MANIFEST.MF");
-        return new Manifest(resourceAsStream);
-    }
 
     private static void addDomToMetadata(DomElement childDE, String name, MetadataElement parentME) {
         if (childDE.getChildCount() > 0 || childDE.getAttributeNames().length > 0) {
