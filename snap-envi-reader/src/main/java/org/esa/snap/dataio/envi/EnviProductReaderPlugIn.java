@@ -125,14 +125,16 @@ public class EnviProductReaderPlugIn implements ProductReaderPlugIn {
                 final InputStream headerStream = getHeaderStreamFromZip(productZip);
                 if (headerStream != null) {
                     final DecodeQualification result = checkDecodeQualificationOnStream(headerStream);
+                    headerStream.close();
                     productZip.close();
                     return result;
                 }
                 productZip.close();
             } else if (EnviConstants.HDR_EXTENSION.equalsIgnoreCase(FileUtils.getExtension(inputFile))) {
-                ImageInputStream headerStream = new FileImageInputStream(inputFile);
-                final DecodeQualification result = checkDecodeQualificationOnStream(headerStream);
-                headerStream.close();
+                DecodeQualification result;
+                try (ImageInputStream headerStream = new FileImageInputStream(inputFile)) {
+                    result = checkDecodeQualificationOnStream(headerStream);
+                }
                 return result;
             }
         }
