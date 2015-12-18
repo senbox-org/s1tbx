@@ -162,7 +162,9 @@ public class RawTiledPyramidsProductWriter extends AbstractProductWriter {
         try {
             pm.beginTask("Writing image", levelImage.getNumXTiles() * levelImage.getNumYTiles());
             final ImageHeader imageHeader = new ImageHeader(levelImage, "raw");
-            imageHeader.store(new FileWriter(new File(levelDir, "image.properties")), null);
+            try (FileWriter fileWriter = new FileWriter(new File(levelDir, "image.properties"))) {
+                imageHeader.store(fileWriter, null);
+            }
             for (int y = 0; y < levelImage.getNumYTiles(); y++) {
                 for (int x = 0; x < levelImage.getNumXTiles(); x++) {
                     writeTile(levelImage, x, y, levelDir);
