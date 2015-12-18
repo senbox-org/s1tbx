@@ -22,7 +22,6 @@ import org.esa.snap.core.datamodel.Product;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
@@ -56,16 +55,15 @@ class Sen3ExpAtmosphericConverter {
     private static void convert(File sourceDir, File targetDir, File propertyFile, ErrorHandler errorHandler) {
         final Properties properties = new Properties();
         try {
-            properties.load(new FileInputStream(propertyFile));
+            try (FileInputStream inStream = new FileInputStream(propertyFile)) {
+                properties.load(inStream);
+            }
         } catch (IOException e) {
             errorHandler.error(e);
         }
 
-        final File[] sourceFiles = sourceDir.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.endsWith(".nc");
-            }
+        final File[] sourceFiles = sourceDir.listFiles((dir, name) -> {
+            return name.endsWith(".nc");
         });
 
         for (final File sourceFile : sourceFiles) {
