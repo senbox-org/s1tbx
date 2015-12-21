@@ -144,6 +144,9 @@ public final class TOPSARMergeOp extends Operator {
         final InputProductValidator validator = new InputProductValidator(sourceProduct[0]);
         validator.checkIfSARProduct();
         validator.checkIfSentinel1Product();
+        validator.isTOPSARProduct();
+        validator.checkIfTOPSARBurstProduct(false);
+        validator.checkIfMapProjected(false);
 
         // check if all sub-swaths are from the same s-1 product
         MetadataElement absRoot0 = AbstractMetadata.getAbstractedMetadata(sourceProduct[0]);
