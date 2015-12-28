@@ -85,7 +85,7 @@ public class ProductEntry {
         file = product.getFileLocation();
         if (file != null)
             lastModified = file.lastModified();
-        fileSize = ProductFunctions.getRawStorageSize(product);
+        fileSize = calculateFileSize(product);
         fileFormat = product.getProductReader().getReaderPlugIn().getFormatNames()[0];
 
         absRoot = AbstractMetadata.getAbstractedMetadata(product).createDeepClone();
@@ -155,6 +155,14 @@ public class ProductEntry {
         for (ProductEntry e : productEntryList) {
             e.dispose();
         }
+    }
+
+    private long calculateFileSize(final Product product) {
+        File file = product.getFileLocation();
+        if(file != null && file.getName().toLowerCase().endsWith(".zip")) {
+            return file.length();
+        }
+        return ProductFunctions.getRawStorageSize(product);
     }
 
     private void getCornerPoints(final Product product) {
