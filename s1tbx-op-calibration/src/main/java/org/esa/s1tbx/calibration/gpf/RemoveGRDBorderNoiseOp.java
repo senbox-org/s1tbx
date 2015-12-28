@@ -481,7 +481,7 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
                         deNoisedDataValue =
                                 Math.sqrt(Math.max(coPolDataValue * coPolDataValue - noiseLUT[x], 0.0));
 
-                        if (deNoisedDataValue < trimThreshold) {
+                        if (deNoisedDataValue < trimThreshold || coPolDataValue < 30) {
                             final int tgtIdx = tgtIndex.getIndex(x);
                             for (int i = 0; i < numBands; i++) {
                                 targetData[i].setElemDoubleAt(tgtIdx, bandNoDataValues[i]);
@@ -811,7 +811,7 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
         if (peakPos == -1) {
             rightBorder = sourceImageWidth - 1;
         } else {
-            rightBorder = sourceImageWidth - borderLimit + peakPos;
+            rightBorder = sourceImageWidth - borderLimit + (int)(peakPos*0.8);
         }
     }
 
