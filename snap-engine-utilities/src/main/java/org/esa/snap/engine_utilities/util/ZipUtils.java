@@ -40,7 +40,9 @@ import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 /**
  * For zipping and unzipping compressed files
@@ -95,15 +97,57 @@ public class ZipUtils {
         }
     }
 
+    public static boolean isValid(final File file) {
+        ZipFile zipfile = null;
+        ZipInputStream zis = null;
+        try {
+            zipfile = new ZipFile(file);
+            zis = new ZipInputStream(new FileInputStream(file));
+            ZipEntry ze = zis.getNextEntry();
+            if(ze == null) {
+                return false;
+            }
+            while(ze != null) {
+                // if it throws an exception fetching any of the following then we know the file is corrupted.
+                zipfile.getInputStream(ze);
+                ze.getCrc();
+                ze.getCompressedSize();
+                ze.getName();
+                ze = zis.getNextEntry();
+            }
+            return true;
+        } catch (ZipException e) {
+            return false;
+        } catch (IOException e) {
+            return false;
+        } finally {
+            try {
+                if (zipfile != null) {
+                    zipfile.close();
+                    zipfile = null;
+                }
+            } catch (IOException e) {
+                return false;
+            } try {
+                if (zis != null) {
+                    zis.close();
+                    zis = null;
+                }
+            } catch (IOException e) {
+                return false;
+            }
+
+        }
+    }
+
     // 7zip
 
     public static File[] unzipToFolder(final File inFile, final File outFolder) throws Exception {
 
-        final RandomAccessFile randomAccessFile = new RandomAccessFile(inFile, "r");
         ISevenZipInArchive inArchive = null;
-        try {
+        try (RandomAccessFile randomAccessFile = new RandomAccessFile(inFile, "r")) {
             inArchive = SevenZip.openInArchive(null, // autodetect archive type
-                    new RandomAccessFileInStream(randomAccessFile));
+                                               new RandomAccessFileInStream(randomAccessFile));
 
             final int[] in = new int[inArchive.getNumberOfItems()];
             for (int i = 0; i < in.length; i++) {
@@ -117,7 +161,7 @@ public class ZipUtils {
             if (inArchive != null) {
                 inArchive.close();
             }
-            randomAccessFile.close();
+
         }
     }
 
@@ -127,11 +171,10 @@ public class ZipUtils {
 
     public static InputStream unzipToStream(final File file) throws Exception {
 
-        final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "r");
         ISevenZipInArchive inArchive = null;
-        try {
+        try (RandomAccessFile randomAccessFile = new RandomAccessFile(file, "r")) {
             inArchive = SevenZip.openInArchive(null, // autodetect archive type
-                    new RandomAccessFileInStream(randomAccessFile));
+                                               new RandomAccessFileInStream(randomAccessFile));
 
             final int numItems = inArchive.getNumberOfItems();
 
@@ -144,7 +187,7 @@ public class ZipUtils {
             if (inArchive != null) {
                 inArchive.close();
             }
-            randomAccessFile.close();
+
         }
         return null;
     }
