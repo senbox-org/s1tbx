@@ -13,23 +13,21 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.snap.engine_utilities.util;
+package org.esa.snap.core.dataop.downloadable;
 
-import org.esa.snap.core.dataop.downloadable.FtpUtils;
-import org.junit.Ignore;
+import org.esa.snap.core.util.SystemUtils;
 import org.junit.Test;
 
 import java.io.File;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 /**
  * FTPUtils Tester.
  *
  * @author lveci
  */
-@Ignore("Currently fails")
 public class TestFTPUtils {
 
     @Test
@@ -40,7 +38,7 @@ public class TestFTPUtils {
         final FtpUtils ftp = new FtpUtils(server);
         final Map<String, Long> fileSizeMap = FtpUtils.readRemoteFileList(ftp, server, remotePath);
 
-        final String localPath = Settings.instance().get("DEM.srtm3GeoTiffDEMDataPath");
+        final String localPath = SystemUtils.getAuxDataPath().resolve("dem/SRTM_DEM/tiff").toString();
         final File localFile = new File(localPath, "srtm_35_03.zip");
         final String remoteFileName = localFile.getName();
         final Long fileSize = fileSizeMap.get(remoteFileName);
