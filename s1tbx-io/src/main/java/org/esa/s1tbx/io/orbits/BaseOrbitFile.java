@@ -17,7 +17,7 @@ package org.esa.s1tbx.io.orbits;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.dataop.downloadable.ftpUtils;
+import org.esa.snap.core.dataop.downloadable.FtpUtils;
 import org.esa.snap.engine_utilities.datamodel.Orbits;
 
 import java.io.File;
@@ -32,7 +32,7 @@ public abstract class BaseOrbitFile implements OrbitFile {
     protected final MetadataElement absRoot;
     protected File orbitFile = null;
 
-    protected ftpUtils ftp = null;
+    protected FtpUtils ftp = null;
     protected Map<String, Long> fileSizeMap = null;
 
     protected BaseOrbitFile(final String orbitType, final MetadataElement absRoot) {
@@ -48,7 +48,7 @@ public abstract class BaseOrbitFile implements OrbitFile {
         return orbitFile;
     }
 
-    protected static void getRemoteFiles(final ftpUtils ftp, final Map<String, Long> fileSizeMap,
+    protected static void getRemoteFiles(final FtpUtils ftp, final Map<String, Long> fileSizeMap,
                                          final String remotePath, final File localPath, final ProgressMonitor pm) {
         final Set<String> remoteFileNames = fileSizeMap.keySet();
         pm.beginTask("Downloading Orbit files from " + remotePath, remoteFileNames.size());
@@ -62,8 +62,8 @@ public abstract class BaseOrbitFile implements OrbitFile {
             try {
                 int attempts = 0;
                 while (attempts < 3) {
-                    final ftpUtils.FTPError result = ftp.retrieveFile(remotePath + '/' + fileName, localFile, fileSize);
-                    if (result == ftpUtils.FTPError.OK) {
+                    final FtpUtils.FTPError result = ftp.retrieveFile(remotePath + '/' + fileName, localFile, fileSize);
+                    if (result == FtpUtils.FTPError.OK) {
                         break;
                     } else {
                         attempts++;
@@ -83,15 +83,15 @@ public abstract class BaseOrbitFile implements OrbitFile {
     protected boolean getRemoteFile(String remoteFTP, String remotePath, File localFile) {
         try {
             if (ftp == null) {
-                ftp = new ftpUtils(remoteFTP);
-                fileSizeMap = ftpUtils.readRemoteFileList(ftp, remoteFTP, remotePath);
+                ftp = new FtpUtils(remoteFTP);
+                fileSizeMap = FtpUtils.readRemoteFileList(ftp, remoteFTP, remotePath);
             }
 
             final String remoteFileName = localFile.getName();
             final Long fileSize = fileSizeMap.get(remoteFileName);
 
-            final ftpUtils.FTPError result = ftp.retrieveFile(remotePath + remoteFileName, localFile, fileSize);
-            if (result == ftpUtils.FTPError.OK) {
+            final FtpUtils.FTPError result = ftp.retrieveFile(remotePath + remoteFileName, localFile, fileSize);
+            if (result == FtpUtils.FTPError.OK) {
                 return true;
             } else {
                 localFile.delete();

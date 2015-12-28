@@ -18,7 +18,7 @@ package org.esa.s1tbx.io.orbits;
 import com.bc.ceres.core.NullProgressMonitor;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.dataop.downloadable.ftpUtils;
+import org.esa.snap.core.dataop.downloadable.FtpUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.DownloadableArchive;
 import org.esa.snap.engine_utilities.datamodel.Orbits;
@@ -143,8 +143,8 @@ public class PrareOrbitFile extends BaseOrbitFile {
             if (ftp == null) {
                 final String user = Settings.instance().get("OrbitFiles.prareFTP_user");
                 final String pass = Settings.instance().get("OrbitFiles.prareFTP_pass");
-                ftp = new ftpUtils(prareFTP, user, pass);
-                final Map<String, Long> allfileSizeMap = ftpUtils.readRemoteFileList(ftp, prareFTP, remotePath);
+                ftp = new FtpUtils(prareFTP, user, pass);
+                final Map<String, Long> allfileSizeMap = FtpUtils.readRemoteFileList(ftp, prareFTP, remotePath);
                 fileSizeMap = new HashMap<>(10);
 
                 // keep only those starting with prefix

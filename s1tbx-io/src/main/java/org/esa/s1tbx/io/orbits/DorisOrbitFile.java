@@ -18,7 +18,7 @@ package org.esa.s1tbx.io.orbits;
 import com.bc.ceres.core.NullProgressMonitor;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.dataop.downloadable.ftpUtils;
+import org.esa.snap.core.dataop.downloadable.FtpUtils;
 import org.esa.snap.dataio.envisat.EnvisatOrbitReader;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.DownloadableArchive;
@@ -181,8 +181,8 @@ public class DorisOrbitFile extends BaseOrbitFile {
             if (ftp == null) {
                 final String user = Settings.instance().get("OrbitFiles.dorisFTP_user");
                 final String pass = Settings.instance().get("OrbitFiles.dorisFTP_pass");
-                ftp = new ftpUtils(dorisFTP, user, pass);
-                fileSizeMap = ftpUtils.readRemoteFileList(ftp, dorisFTP, remotePath);
+                ftp = new FtpUtils(dorisFTP, user, pass);
+                fileSizeMap = FtpUtils.readRemoteFileList(ftp, dorisFTP, remotePath);
             }
 
             if (!localPath.exists()) {
