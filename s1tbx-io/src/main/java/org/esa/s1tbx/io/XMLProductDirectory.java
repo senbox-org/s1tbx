@@ -53,6 +53,7 @@ public abstract class XMLProductDirectory {
     private File baseDir;
     private String rootFolder = null;
     protected Document xmlDoc = null;
+    protected final File productInputFile;
 
     private boolean isSLC = false;
 
@@ -61,6 +62,7 @@ public abstract class XMLProductDirectory {
 
     protected XMLProductDirectory(final File inputFile) {
         Guardian.assertNotNull("inputFile", inputFile);
+        this.productInputFile = inputFile;
 
         if (ZipUtils.isZip(inputFile)) {
             productDir = VirtualDir.create(inputFile);

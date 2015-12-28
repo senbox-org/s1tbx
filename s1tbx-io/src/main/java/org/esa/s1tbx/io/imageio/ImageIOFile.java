@@ -23,6 +23,7 @@ import org.esa.snap.core.datamodel.IndexCoding;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.util.ZipUtils;
 import org.esa.snap.runtime.Config;
 
 import javax.imageio.ImageIO;
@@ -59,34 +60,33 @@ public class ImageIOFile {
     private ImageInfo imageInfo = null;
     private IndexCoding indexCoding = null;
     private boolean isIndexed = false;
+    private final File productInputFile;
 
     private ImageInputStream stream = null;
     private ImageReader reader;
 
     private static final boolean useFileCache = Config.instance().preferences().getBoolean("s1tbx.readers.useFileCache", false);
 
-    public ImageIOFile(final File inputFile, final ImageReader iioReader) throws IOException {
-
-        name = inputFile.getName();
-        stream = ImageIO.createImageInputStream(inputFile);
-        if (stream == null)
-            throw new IOException("Unable to open " + name);
-
-        createReader(iioReader);
+    public ImageIOFile(final File inputFile, final ImageReader iioReader,
+                       final File productInputFile) throws IOException {
+        this(inputFile.getName(), ImageIO.createImageInputStream(inputFile), iioReader, productInputFile);
     }
 
-    public ImageIOFile(final String name, final ImageInputStream inputStream, final ImageReader iioReader) throws IOException {
+    public ImageIOFile(final String name, final ImageInputStream inputStream, final ImageReader iioReader,
+                       final File productInputFile) throws IOException {
 
         this.name = name;
         this.stream = inputStream;
         if (stream == null)
             throw new IOException("Unable to open ");
+        this.productInputFile = productInputFile;
 
         createReader(iioReader);
     }
 
     public ImageIOFile(final String name, final ImageInputStream inputStream, final ImageReader iioReader,
-                       final int numImages, final int numBands, final int dataType) throws IOException {
+                       final int numImages, final int numBands, final int dataType,
+                       final File productInputFile) throws IOException {
 
         this.name = name;
         this.stream = inputStream;
@@ -99,6 +99,7 @@ public class ImageIOFile {
         this.numImages = numImages;
         this.numBands = numBands;
         this.dataType = dataType;
+        this.productInputFile = productInputFile;
     }
 
     public void initReader() {
@@ -310,8 +311,15 @@ public class ImageIOFile {
     private synchronized Raster getData(final ImageReadParam param,
                                         final int destOffsetX, final int destOffsetY,
                                         final int destWidth, final int destHeight) throws IOException {
-        final RenderedImage image = reader.readAsRenderedImage(0, param);
-        return image.getData(new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight));
+        try {
+            final RenderedImage image = reader.readAsRenderedImage(0, param);
+            return image.getData(new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight));
+        } catch (Exception e) {
+            if(ZipUtils.isZip(productInputFile) && !ZipUtils.isValid(productInputFile)) {
+                throw new IOException("Zip file is corrupt "+productInputFile.getName());
+            }
+            throw e;
+        }
     }
 
     public static class BandInfo {

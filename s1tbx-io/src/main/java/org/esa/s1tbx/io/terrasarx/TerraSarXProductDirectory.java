@@ -607,7 +607,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                     throw new IOException("Unable to open " + imgPath);
 
                 final ImageIOFile img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream),
-                                                        1, 1, ProductData.TYPE_UINT16);
+                                                        1, 1, ProductData.TYPE_UINT16, productInputFile);
                 bandImageFileMap.put(img.getName(), img);
             }
         }
