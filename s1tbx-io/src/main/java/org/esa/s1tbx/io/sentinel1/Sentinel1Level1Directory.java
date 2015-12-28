@@ -82,10 +82,10 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
             final ImageIOFile img;
             if (isSLC()) {
                 img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream),
-                                      1, 1, ProductData.TYPE_INT32);
+                                      1, 1, ProductData.TYPE_INT32, productInputFile);
             } else {
                 img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream),
-                                      1, 1, ProductData.TYPE_INT32);
+                                      1, 1, ProductData.TYPE_INT32, productInputFile);
             }
             bandImageFileMap.put(img.getName(), img);
         }

@@ -94,9 +94,9 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
                 final ImageIOFile img;
                 if (isSLC()) {
                     img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream),
-                                          1, 2, dataType);
+                                          1, 2, dataType, productInputFile);
                 } else {
-                    img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream));
+                    img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream), productInputFile);
                 }
                 bandImageFileMap.put(img.getName(), img);
             }
