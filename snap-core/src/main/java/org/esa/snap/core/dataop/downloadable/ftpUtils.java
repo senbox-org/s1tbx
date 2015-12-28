@@ -25,18 +25,14 @@ import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.SocketException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 
-public final class ftpUtils {
+public final class FtpUtils {
 
     private final FTPClient ftpClient = new FTPClient();
     private final String server;
@@ -47,11 +43,11 @@ public final class ftpUtils {
 
     public enum FTPError {FILE_NOT_FOUND, OK, READ_ERROR}
 
-    public ftpUtils(final String server) throws IOException {
+    public FtpUtils(final String server) throws IOException {
         this(server, "anonymous", "anonymous");
     }
 
-    public ftpUtils(final String server, final String user, final String password) throws IOException {
+    public FtpUtils(final String server, final String user, final String password) throws IOException {
         this.server = server;
         this.user = user;
         this.password = password;
@@ -152,11 +148,27 @@ public final class ftpUtils {
         return 0;
     }
 
+    public Map<String, Long> readRemoteFileListNoCache(final String remotePath) {
+        final Map<String, Long> fileSizeMap = new HashMap<>(100);
+        try {
+            final FTPFile[] remoteFileList = getRemoteFileList(remotePath);
+            if (remoteFileList != null) {
+                for (FTPFile ftpFile : remoteFileList) {
+                    fileSizeMap.put(ftpFile.getName(), ftpFile.getSize());
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Unable to get remote file list " + e.getMessage());
+        }
+
+        return fileSizeMap;
+    }
+
     private FTPFile[] getRemoteFileList(final String path) throws IOException {
         return ftpClient.listFiles(path);
     }
 
-    public static Map<String, Long> readRemoteFileList(final ftpUtils ftp, final String server, final String remotePath) {
+    public static Map<String, Long> readRemoteFileList(final FtpUtils ftp, final String server, final String remotePath) {
 
         boolean useCachedListing = true;
         final String tmpDirUrl = SystemUtils.getApplicationDataDir().getAbsolutePath();
@@ -207,7 +219,7 @@ public final class ftpUtils {
         if (!useCachedListing) {
             try {
                 final FTPFile[] remoteFileList = ftp.getRemoteFileList(remotePath);
-                if(remoteFileList != null) {
+                if (remoteFileList != null) {
                     writeRemoteFileList(remoteFileList, server, remotePath, listingFile);
 
                     for (FTPFile ftpFile : remoteFileList) {
@@ -242,7 +254,7 @@ public final class ftpUtils {
     }
 
     public static boolean testFTP(final String remoteFTP, final String remotePath) throws IOException {
-        final ftpUtils ftp = new ftpUtils(remoteFTP);
+        final FtpUtils ftp = new FtpUtils(remoteFTP);
 
         final FTPFile[] remoteFileList = ftp.getRemoteFileList(remotePath);
         ftp.disconnect();

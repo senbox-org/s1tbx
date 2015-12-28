@@ -16,7 +16,7 @@
 package org.esa.snap.engine_utilities.datamodel;
 
 import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;
-import org.esa.snap.core.dataop.downloadable.ftpUtils;
+import org.esa.snap.core.dataop.downloadable.FtpUtils;
 import org.esa.snap.core.util.DefaultPropertyMap;
 import org.esa.snap.core.util.PropertyMap;
 import org.esa.snap.core.util.SystemUtils;
@@ -49,7 +49,7 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
     private boolean remoteFileExists = true;
     private boolean errorInLocalFile = false;
     private DownloadableFile contentFile = null;
-    private ftpUtils ftp = null;
+    private FtpUtils ftp = null;
     private Map<String, Long> fileSizeMap = null;
     private boolean unrecoverableError = false;
 
@@ -294,18 +294,18 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
     private boolean getRemoteFTPFile(final URL remoteURL) throws IOException {
         try {
             if (ftp == null) {
-                ftp = new ftpUtils(remoteURL.getHost());
-                fileSizeMap = ftpUtils.readRemoteFileList(ftp, remoteURL.getHost(), remoteURL.getPath());
+                ftp = new FtpUtils(remoteURL.getHost());
+                fileSizeMap = FtpUtils.readRemoteFileList(ftp, remoteURL.getHost(), remoteURL.getPath());
             }
 
             final String remoteFileName = localZipFile.getName();
             final Long fileSize = fileSizeMap.get(remoteFileName);
 
-            final ftpUtils.FTPError result = ftp.retrieveFile(remoteURL.getPath() + remoteFileName, localZipFile, fileSize);
-            if (result == ftpUtils.FTPError.OK) {
+            final FtpUtils.FTPError result = ftp.retrieveFile(remoteURL.getPath() + remoteFileName, localZipFile, fileSize);
+            if (result == FtpUtils.FTPError.OK) {
                 return true;
             } else {
-                if (result == ftpUtils.FTPError.FILE_NOT_FOUND) {
+                if (result == FtpUtils.FTPError.FILE_NOT_FOUND) {
                     remoteFileExists = false;
                 } else {
                     dispose();

@@ -15,8 +15,7 @@
  */
 package org.esa.snap.engine_utilities.util;
 
-import org.esa.snap.core.dataop.downloadable.ftpUtils;
-import org.esa.snap.engine_utilities.util.Settings;
+import org.esa.snap.core.dataop.downloadable.FtpUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -38,16 +37,16 @@ public class TestFTPUtils {
         final String server = "xftp.jrc.it";
         final String remotePath = "/pub/srtmV4/tiff/";
 
-        final ftpUtils ftp = new ftpUtils(server);
-        final Map<String, Long> fileSizeMap = ftpUtils.readRemoteFileList(ftp, server, remotePath);
+        final FtpUtils ftp = new FtpUtils(server);
+        final Map<String, Long> fileSizeMap = FtpUtils.readRemoteFileList(ftp, server, remotePath);
 
         final String localPath = Settings.instance().get("DEM.srtm3GeoTiffDEMDataPath");
         final File localFile = new File(localPath, "srtm_35_03.zip");
         final String remoteFileName = localFile.getName();
         final Long fileSize = fileSizeMap.get(remoteFileName);
 
-        final ftpUtils.FTPError result = ftp.retrieveFile(remotePath + remoteFileName, localFile, fileSize);
-        assertTrue(result == ftpUtils.FTPError.OK);
+        final FtpUtils.FTPError result = ftp.retrieveFile(remotePath + remoteFileName, localFile, fileSize);
+        assertTrue(result == FtpUtils.FTPError.OK);
     }
 
 }
