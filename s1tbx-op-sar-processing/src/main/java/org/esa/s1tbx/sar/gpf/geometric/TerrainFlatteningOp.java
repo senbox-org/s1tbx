@@ -262,8 +262,8 @@ public final class TerrainFlatteningOp extends Operator {
             skipBistaticCorrection = true;
         }
 
-        final String prodType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
-        if (!prodType.contains("SLC")) {
+        final String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE);
+        if (!sampleType.contains("COMPLEX")) {
             isGRD = true;
         }
     }
