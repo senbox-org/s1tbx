@@ -19,10 +19,8 @@ import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.dimap.DimapProductConstants;
 import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.VirtualBand;
-import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.eo.Constants;
 
 import java.io.File;
@@ -72,27 +70,6 @@ public class ProductFunctions {
         // test with readers
         final ProductReader reader = ProductIO.getProductReaderForInput(file);
         return reader != null;
-    }
-
-    // common SAR missions -- non exhaustive
-    private static String[] SARMISSIONS = {"SENTINEL1", "ERS", "CSK", "RS", "ALOS", "TSX", "JERS", "UAVSAR"};
-
-    public static boolean isSARProduct(final Product product) {
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        if (absRoot != null) {
-            final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-            if (mission.equals("ENVISAT")) {
-                if (product.getProductType().startsWith("ASA")) {
-                    return true;
-                }
-            }
-            for (String sar : SARMISSIONS) {
-                if (mission.startsWith(sar)) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     /**

@@ -52,16 +52,16 @@ public class InputProductValidator {
         absRoot = AbstractMetadata.getAbstractedMetadata(product);
     }
 
+    public boolean isSARProduct() {
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        return absRoot != null && absRoot.getAttributeDouble("radar_frequency", 99999) != 99999;
+    }
+
     public void checkIfSARProduct() {
         if("RAW".equals(product.getProductType()) || "Level-0".equals(product.getProductType())) {
             throw new OperatorException(SHOULD_NOT_BE_LEVEL0);
         }
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        if (absRoot != null) {
-            if(absRoot.getAttributeDouble("radar_frequency", 99999) == 99999) {
-                throw new OperatorException(SHOULD_BE_SAR_PRODUCT);
-            }
-        } else {
+        if(!isSARProduct()) {
             throw new OperatorException(SHOULD_BE_SAR_PRODUCT);
         }
     }
