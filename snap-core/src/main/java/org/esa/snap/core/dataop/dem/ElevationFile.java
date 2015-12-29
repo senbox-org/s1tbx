@@ -18,7 +18,7 @@ package org.esa.snap.core.dataop.dem;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;
-import org.esa.snap.core.dataop.downloadable.FtpUtils;
+import org.esa.snap.core.dataop.downloadable.FtpDownloader;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;
 
@@ -48,7 +48,7 @@ public abstract class ElevationFile {
     protected boolean remoteFileExists = true;
     private boolean errorInLocalFile = false;
     private ElevationTile tile = null;
-    private FtpUtils ftp = null;
+    private FtpDownloader ftp = null;
     private Map<String, Long> fileSizeMap = null;
     private boolean unrecoverableError = false;
 
@@ -218,18 +218,18 @@ public abstract class ElevationFile {
     protected Boolean getRemoteFTPFile(final String remoteFTP, final String remotePath) throws IOException {
         try {
             if (ftp == null) {
-                ftp = new FtpUtils(remoteFTP);
-                fileSizeMap = FtpUtils.readRemoteFileList(ftp, remoteFTP, remotePath);
+                ftp = new FtpDownloader(remoteFTP);
+                fileSizeMap = FtpDownloader.readRemoteFileList(ftp, remoteFTP, remotePath);
             }
 
             final String remoteFileName = localZipFile.getName();
             final Long fileSize = fileSizeMap.get(remoteFileName);
 
-            final FtpUtils.FTPError result = ftp.retrieveFile(remotePath + remoteFileName, localZipFile, fileSize);
-            if (result == FtpUtils.FTPError.OK) {
+            final FtpDownloader.FTPError result = ftp.retrieveFile(remotePath + remoteFileName, localZipFile, fileSize);
+            if (result == FtpDownloader.FTPError.OK) {
                 return true;
             } else {
-                if (result == FtpUtils.FTPError.FILE_NOT_FOUND) {
+                if (result == FtpDownloader.FTPError.FILE_NOT_FOUND) {
                     remoteFileExists = false;
                 } else {
                     dispose();

@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public final class FtpUtils {
+public final class FtpDownloader {
 
     private final FTPClient ftpClient = new FTPClient();
     private final String server;
@@ -43,11 +43,11 @@ public final class FtpUtils {
 
     public enum FTPError {FILE_NOT_FOUND, OK, READ_ERROR}
 
-    public FtpUtils(final String server) throws IOException {
+    public FtpDownloader(final String server) throws IOException {
         this(server, "anonymous", "anonymous");
     }
 
-    public FtpUtils(final String server, final String user, final String password) throws IOException {
+    public FtpDownloader(final String server, final String user, final String password) throws IOException {
         this.server = server;
         this.user = user;
         this.password = password;
@@ -168,7 +168,7 @@ public final class FtpUtils {
         return ftpClient.listFiles(path);
     }
 
-    public static Map<String, Long> readRemoteFileList(final FtpUtils ftp, final String server, final String remotePath) {
+    public static Map<String, Long> readRemoteFileList(final FtpDownloader ftp, final String server, final String remotePath) {
 
         boolean useCachedListing = true;
         final String tmpDirUrl = SystemUtils.getApplicationDataDir().getAbsolutePath();
@@ -254,7 +254,7 @@ public final class FtpUtils {
     }
 
     public static boolean testFTP(final String remoteFTP, final String remotePath) throws IOException {
-        final FtpUtils ftp = new FtpUtils(remoteFTP);
+        final FtpDownloader ftp = new FtpDownloader(remoteFTP);
 
         final FTPFile[] remoteFileList = ftp.getRemoteFileList(remotePath);
         ftp.disconnect();

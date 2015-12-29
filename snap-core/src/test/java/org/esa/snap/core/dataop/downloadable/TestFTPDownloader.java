@@ -24,27 +24,27 @@ import java.util.Map;
 import static org.junit.Assert.assertTrue;
 
 /**
- * FTPUtils Tester.
+ * FTPDownloaderTester.
  *
  * @author lveci
  */
-public class TestFTPUtils {
+public class TestFTPDownloader {
 
     @Test
     public void testConnect() throws Exception {
         final String server = "xftp.jrc.it";
         final String remotePath = "/pub/srtmV4/tiff/";
 
-        final FtpUtils ftp = new FtpUtils(server);
-        final Map<String, Long> fileSizeMap = FtpUtils.readRemoteFileList(ftp, server, remotePath);
+        final FtpDownloader ftp = new FtpDownloader(server);
+        final Map<String, Long> fileSizeMap = FtpDownloader.readRemoteFileList(ftp, server, remotePath);
 
         final String localPath = SystemUtils.getAuxDataPath().resolve("dem/SRTM_DEM/tiff").toString();
         final File localFile = new File(localPath, "srtm_35_03.zip");
         final String remoteFileName = localFile.getName();
         final Long fileSize = fileSizeMap.get(remoteFileName);
 
-        final FtpUtils.FTPError result = ftp.retrieveFile(remotePath + remoteFileName, localFile, fileSize);
-        assertTrue(result == FtpUtils.FTPError.OK);
+        final FtpDownloader.FTPError result = ftp.retrieveFile(remotePath + remoteFileName, localFile, fileSize);
+        assertTrue(result == FtpDownloader.FTPError.OK);
     }
 
 }
