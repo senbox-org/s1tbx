@@ -32,6 +32,7 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
@@ -517,10 +518,10 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
 
         detectRightBorder();
 
-        System.out.println("topBorder = " + topBorder);
-        System.out.println("bottomBorder = " + bottomBorder);
-        System.out.println("leftBorder = " + leftBorder);
-        System.out.println("rightBorder = " + rightBorder);
+        SystemUtils.LOG.fine("topBorder = " + topBorder);
+        SystemUtils.LOG.fine("bottomBorder = " + bottomBorder);
+        SystemUtils.LOG.fine("leftBorder = " + leftBorder);
+        SystemUtils.LOG.fine("rightBorder = " + rightBorder);
 
         borderDetected = true;
     }
