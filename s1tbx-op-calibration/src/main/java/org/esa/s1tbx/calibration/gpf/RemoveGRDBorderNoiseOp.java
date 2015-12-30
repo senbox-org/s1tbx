@@ -43,7 +43,9 @@ import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.esa.snap.engine_utilities.util.Maths;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -510,13 +512,7 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
 
         if (borderDetected) return;
 
-        detectTopBorder();
-
-        detectBottomBorder();
-
-        detectLeftBorder();
-
-        detectRightBorder();
+        detectBorder();
 
         SystemUtils.LOG.fine("topBorder = " + topBorder);
         SystemUtils.LOG.fine("bottomBorder = " + bottomBorder);
@@ -526,293 +522,154 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
         borderDetected = true;
     }
 
-    private void detectTopBorder() {
+    private enum SIDE {TOP, BOTTOM, LEFT, RIGHT}
 
-        final double[] colAvg = new double[borderLimit];
-        final Dimension tileSize = new Dimension(256, borderLimit);
-        final Rectangle[] tileRectangles = getAllTileRectangles(0, 0, sourceImageWidth, borderLimit, tileSize);
-        final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
-        status.beginTask("Detecting top border... ", tileRectangles.length);
+    private void detectBorder() {
 
-        try {
-            final ThreadManager threadManager = new ThreadManager();
-            for (final Rectangle rectangle : tileRectangles) {
-
-                final Thread worker = new Thread() {
-
-                    final int xMax = rectangle.x + rectangle.width;
-                    final int yMax = rectangle.y + rectangle.height;
-
-                    @Override
-                    public void run() {
-
-                        final Tile coPolTile = getSourceTile(coPolBand, rectangle);
-                        final ProductData coPolData = coPolTile.getDataBuffer();
-                        final TileIndex srcIndex = new TileIndex(coPolTile);
-
-                        final double[] colSum = new double[borderLimit];
-                        for (int y = rectangle.y; y < yMax; ++y) {
-                            srcIndex.calculateStride(y);
-                            final int yy = y - rectangle.y;
-                            double sum = 0.0;
-                            for (int x = rectangle.x; x < xMax; ++x) {
-                                final double v = coPolData.getElemDoubleAt(srcIndex.getIndex(x));
-                                if (v != noDataValue) {
-                                    sum += v;
-                                }
-                            }
-                            colSum[yy] += sum;
-                        }
-
-                        for (int r = 0; r < borderLimit; r++) {
-                            colSum[r] /= rectangle.width;
-                        }
-
-                        synchronized (colAvg) {
-                            for (int r = 0; r < borderLimit; r++) {
-                                colAvg[r] += colSum[r];
-                            }
-                        }
-                    }
-                };
-
-                threadManager.add(worker);
-
-                status.worked(1);
-            }
-
-        } catch (Throwable e) {
-            OperatorUtils.catchOperatorException(getId() + " detectTopBorder ", e);
-        } finally {
-            status.done();
-        }
-
-        for (int r = 0; r < borderLimit; r++) {
-            colAvg[r] /= tileRectangles.length;
-        }
-
-        final int peakPos = getPeakPosition(colAvg);
-        if (peakPos == -1) {
-            topBorder = 0;
-        } else {
-            topBorder = peakPos;
-        }
-    }
-
-    private void detectBottomBorder() {
-
-        final double[] colAvg = new double[borderLimit];
-        final Dimension tileSize = new Dimension(256, borderLimit);
-        final Rectangle[] tileRectangles = getAllTileRectangles(
+        final Dimension tileSize = new Dimension(borderLimit, borderLimit);
+        final Rectangle[] topRectangles = getAllTileRectangles(0, 0, sourceImageWidth, borderLimit, tileSize);
+        final Rectangle[] bottomRectangles = getAllTileRectangles(
                 0, sourceImageHeight - borderLimit, sourceImageWidth, borderLimit, tileSize);
-        final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
-        status.beginTask("Detecting bottom border... ", tileRectangles.length);
-
-        try {
-            final ThreadManager threadManager = new ThreadManager();
-            for (final Rectangle rectangle : tileRectangles) {
-
-                final Thread worker = new Thread() {
-
-                    final int xMax = rectangle.x + rectangle.width;
-                    final int yMax = rectangle.y + rectangle.height;
-
-                    @Override
-                    public void run() {
-
-                        final Tile coPolTile = getSourceTile(coPolBand, rectangle);
-                        final ProductData coPolData = coPolTile.getDataBuffer();
-                        final TileIndex srcIndex = new TileIndex(coPolTile);
-
-                        final double[] colSum = new double[borderLimit];
-                        for (int y = rectangle.y; y < yMax; ++y) {
-                            srcIndex.calculateStride(y);
-                            final int yy = y - rectangle.y;
-                            double sum = 0.0;
-                            for (int x = rectangle.x; x < xMax; ++x) {
-                                final double v = coPolData.getElemDoubleAt(srcIndex.getIndex(x));
-                                if (v != noDataValue) {
-                                    sum += v;
-                                }
-                            }
-                            colSum[yy] += sum;
-                        }
-
-                        for (int r = 0; r < borderLimit; r++) {
-                            colSum[r] /= rectangle.width;
-                        }
-
-                        synchronized (colAvg) {
-                            for (int r = 0; r < borderLimit; r++) {
-                                colAvg[r] += colSum[r];
-                            }
-                        }
-                    }
-                };
-
-                threadManager.add(worker);
-
-                status.worked(1);
-            }
-
-        } catch (Throwable e) {
-            OperatorUtils.catchOperatorException(getId() + " detectBottomBorder ", e);
-        } finally {
-            status.done();
-        }
-
-        for (int r = 0; r < borderLimit; r++) {
-            colAvg[r] /= tileRectangles.length;
-        }
-
-        final int peakPos = getPeakPosition(colAvg);
-        if (peakPos == -1) {
-            bottomBorder = sourceImageHeight - 1;
-        } else {
-            bottomBorder = sourceImageHeight - borderLimit + peakPos;
-        }
-    }
-
-    private void detectLeftBorder() {
-
-        final double[] rowAvg = new double[borderLimit];
-        final Dimension tileSize = new Dimension(borderLimit, 256);
-        final Rectangle[] tileRectangles = getAllTileRectangles(0, 0, borderLimit, sourceImageHeight, tileSize);
-        final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
-        status.beginTask("Detecting left border... ", tileRectangles.length);
-
-        try {
-            final ThreadManager threadManager = new ThreadManager();
-            for (final Rectangle rectangle : tileRectangles) {
-
-                final Thread worker = new Thread() {
-
-                    final int xMax = rectangle.x + rectangle.width;
-                    final int yMax = rectangle.y + rectangle.height;
-
-                    @Override
-                    public void run() {
-
-                        final Tile coPolTile = getSourceTile(coPolBand, rectangle);
-                        final ProductData coPolData = coPolTile.getDataBuffer();
-
-                        final double[] rowSum = new double[borderLimit];
-                        for (int x = rectangle.x; x < xMax; ++x) {
-                            final int xx = x - rectangle.x;
-                            double sum = 0.0;
-                            for (int y = rectangle.y; y < yMax; ++y) {
-                                final double v = coPolData.getElemDoubleAt(coPolTile.getDataBufferIndex(x, y));
-                                if (v != noDataValue) {
-                                    sum += v;
-                                }
-                            }
-                            rowSum[xx] += sum;
-                        }
-
-                        for (int c = 0; c < borderLimit; c++) {
-                            rowSum[c] /= rectangle.height;
-                        }
-
-                        synchronized (rowAvg) {
-                            for (int c = 0; c < borderLimit; c++) {
-                                rowAvg[c] += rowSum[c];
-                            }
-                        }
-                    }
-                };
-
-                threadManager.add(worker);
-
-                status.worked(1);
-            }
-
-        } catch (Throwable e) {
-            OperatorUtils.catchOperatorException(getId() + " detectLeftBorder ", e);
-        } finally {
-            status.done();
-        }
-
-        for (int c = 0; c < borderLimit; c++) {
-            rowAvg[c] /= tileRectangles.length;
-        }
-
-        final int peakPos = getPeakPosition(rowAvg);
-        if (peakPos == -1) {
-            leftBorder = 0;
-        } else {
-            leftBorder = peakPos;
-        }
-    }
-
-    private void detectRightBorder() {
-
-        final double[] rowAvg = new double[borderLimit];
-        final Dimension tileSize = new Dimension(borderLimit, 256);
-        final Rectangle[] tileRectangles = getAllTileRectangles(
+        final Rectangle[] leftRectangles = getAllTileRectangles(0, 0, borderLimit, sourceImageHeight, tileSize);
+        final Rectangle[] rightRectangles = getAllTileRectangles(
                 sourceImageWidth - borderLimit, 0, borderLimit, sourceImageHeight, tileSize);
+
+        final List<Border> borderList = new ArrayList<>(4);
+        borderList.add(new Border(SIDE.TOP, borderLimit, topRectangles));
+        borderList.add(new Border(SIDE.BOTTOM, borderLimit, bottomRectangles));
+        borderList.add(new Border(SIDE.LEFT, borderLimit, leftRectangles));
+        borderList.add(new Border(SIDE.RIGHT, borderLimit, rightRectangles));
+
+        final int totalRects = topRectangles.length+bottomRectangles.length+leftRectangles.length+rightRectangles.length;
+        final ThreadManager threadManager = new ThreadManager();
         final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
-        status.beginTask("Detecting right border... ", tileRectangles.length);
+        status.beginTask("Detecting border... ", totalRects);
 
         try {
-            final ThreadManager threadManager = new ThreadManager();
-            for (final Rectangle rectangle : tileRectangles) {
+            for(Border border : borderList) {
 
-                final Thread worker = new Thread() {
+                for (final Rectangle rectangle : border.tileRectangles) {
 
-                    final int xMax = rectangle.x + rectangle.width;
-                    final int yMax = rectangle.y + rectangle.height;
+                    final Thread worker = new Thread() {
 
-                    @Override
-                    public void run() {
+                        final int xMax = rectangle.x + rectangle.width;
+                        final int yMax = rectangle.y + rectangle.height;
 
-                        final Tile coPolTile = getSourceTile(coPolBand, rectangle);
-                        final ProductData coPolData = coPolTile.getDataBuffer();
+                        @Override
+                        public void run() {
 
-                        final double[] rowSum = new double[borderLimit];
-                        for (int x = rectangle.x; x < xMax; ++x) {
-                            final int xx = x - rectangle.x;
-                            double sum = 0.0;
-                            for (int y = rectangle.y; y < yMax; ++y) {
-                                final double v = coPolData.getElemDoubleAt(coPolTile.getDataBufferIndex(x, y));
-                                if (v != noDataValue) {
-                                    sum += v;
+                            final Tile coPolTile = getSourceTile(coPolBand, rectangle);
+                            final ProductData coPolData = coPolTile.getDataBuffer();
+                            final TileIndex srcIndex = new TileIndex(coPolTile);
+
+                            if(border.side.equals(SIDE.TOP)||border.side.equals(SIDE.BOTTOM)) {
+                                final double[] colSum = new double[borderLimit];
+                                for (int y = rectangle.y; y < yMax; ++y) {
+                                    srcIndex.calculateStride(y);
+                                    final int yy = y - rectangle.y;
+                                    double sum = 0.0;
+                                    for (int x = rectangle.x; x < xMax; ++x) {
+                                        final double v = coPolData.getElemDoubleAt(srcIndex.getIndex(x));
+                                        if (v != noDataValue) {
+                                            sum += v;
+                                        }
+                                    }
+                                    colSum[yy] += sum;
+                                }
+
+                                synchronized (border.avg) {
+                                    for (int r = 0; r < borderLimit; r++) {
+                                        border.avg[r] += (colSum[r]/rectangle.width);
+                                    }
+                                }
+                            } else {
+                                final double[] rowSum = new double[borderLimit];
+                                for (int x = rectangle.x; x < xMax; ++x) {
+                                    final int xx = x - rectangle.x;
+                                    double sum = 0.0;
+                                    for (int y = rectangle.y; y < yMax; ++y) {
+                                        final double v = coPolData.getElemDoubleAt(coPolTile.getDataBufferIndex(x, y));
+                                        if (v != noDataValue) {
+                                            sum += v;
+                                        }
+                                    }
+                                    rowSum[xx] += sum;
+                                }
+
+                                synchronized (border.avg) {
+                                    for (int c = 0; c < borderLimit; c++) {
+                                        border.avg[c] += (rowSum[c]/rectangle.height);
+                                    }
                                 }
                             }
-                            rowSum[xx] += sum;
                         }
+                    };
 
-                        for (int c = 0; c < borderLimit; c++) {
-                            rowSum[c] /= rectangle.height;
-                        }
+                    threadManager.add(worker);
 
-                        synchronized (rowAvg) {
-                            for (int c = 0; c < borderLimit; c++) {
-                                rowAvg[c] += rowSum[c];
-                            }
-                        }
-                    }
-                };
-
-                threadManager.add(worker);
-
-                status.worked(1);
+                    status.worked(1);
+                }
             }
+            threadManager.finish();
 
         } catch (Throwable e) {
-            OperatorUtils.catchOperatorException(getId() + " detectRightBorder ", e);
+            OperatorUtils.catchOperatorException(getId() + " detectBorder ", e);
         } finally {
             status.done();
         }
 
-        for (int c = 0; c < borderLimit; c++) {
-            rowAvg[c] /= tileRectangles.length;
-        }
+        for(Border border : borderList) {
+            for (int r = 0; r < borderLimit; r++) {
+                border.avg[r] /= border.tileRectangles.length;
+            }
 
-        final int peakPos = getPeakPosition(rowAvg);
-        if (peakPos == -1) {
-            rightBorder = sourceImageWidth - 1;
-        } else {
-            rightBorder = sourceImageWidth - borderLimit + (int)(peakPos*0.8);
+            final int peakPos = getPeakPosition(border.avg);
+            switch (border.side) {
+                case TOP: {
+                    if (peakPos == -1) {
+                        topBorder = 0;
+                    } else {
+                        topBorder = peakPos;
+                    }
+                    break;
+                }
+                case BOTTOM: {
+                    if (peakPos == -1) {
+                        bottomBorder = sourceImageHeight - 1;
+                    } else {
+                        bottomBorder = sourceImageHeight - borderLimit + peakPos;
+                    }
+                    break;
+                }
+                case LEFT: {
+                    if (peakPos == -1) {
+                        leftBorder = 0;
+                    } else {
+                        leftBorder = peakPos;
+                    }
+                    break;
+                }
+                case RIGHT: {
+                    if (peakPos == -1) {
+                        rightBorder = sourceImageWidth - 1;
+                    } else {
+                        rightBorder = sourceImageWidth - borderLimit + (int)(peakPos*0.8);
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    private static class Border {
+        public final SIDE side;
+        public final double[] avg;
+        public final Rectangle[] tileRectangles;
+
+        public Border(final SIDE side, final int borderLimit, final Rectangle[] rectangles) {
+            this.side = side;
+            this.avg = new double[borderLimit];
+            this.tileRectangles = rectangles;
         }
     }
 
@@ -836,7 +693,7 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
         return rectangles;
     }
 
-    private int getPeakPosition(final double[] array) {
+    private static int getPeakPosition(final double[] array) {
 
         final double[] derivative = new double[array.length - 1];
         for (int i = 0; i < derivative.length; i++) {
