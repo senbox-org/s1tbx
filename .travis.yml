@@ -11,15 +11,15 @@ env:
    #   via the "travis encrypt" command using the project repo's public key
    - secure: "xi036bV33rqcUZI28oOdlkafNaeIcyyNE4bxStbJBuI5Uxtz0Ks0oOJj8uU2WgjRN3IyxUJW+Jgev2CXfk0SlL5NJGKi0QLpVeIEEKgQDJXvyNwRFORclRKNQHRaRuOYeklsZD0pODBwYvIvF80xiQKMoeZ2r15GhNwKdtngi5o="
 
-#addons:
-#  coverity_scan:
-#    project:
-#      name: "senbox-org/snap-engine"
-#      description: "Build submitted via Travis CI"
-#    notification_email: stb-coverity@thor.si.c-s.fr
-#    build_command_prepend: "mvn clean"
-#    build_command:   "mvn -DskipTests=true compile"
-#    branch_pattern: coverity_scan
+addons:
+  coverity_scan:
+    project:
+      name: "senbox-org/snap-engine"
+      description: "Build submitted via Travis CI"
+    notification_email: stb-coverity@thor.si.c-s.fr
+    build_command_prepend: "mvn clean"
+    build_command:   "mvn -DskipTests=true compile"
+    branch_pattern: coverity_scan
 
 before_install:
   # Work around discontinued nexus.codehaus.org (see https://github.com/travis-ci/travis-ci/issues/4629)
