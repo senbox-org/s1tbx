@@ -1,11 +1,11 @@
+import numpy
 import sys
 
-import numpy
-from snappy import String
 from snappy import Product
 from snappy import ProductData
 from snappy import ProductIO
 from snappy import ProductUtils
+from snappy import String
 
 
 if len(sys.argv) != 2:
@@ -42,10 +42,6 @@ for y in range(height):
     b1.readPixels(0, y, width, 1, r1)
     b2.readPixels(0, y, width, 1, r2)
     b2.readPixels(0, y, width, 1, r3)
-    print("processing line ", y, " of ", height)
-    FLH = r2 - k * (r1 + a * (r3 - r1))
-    targetBand.writePixels(0, y, width, 1, FLH)
-
     print("processing line ", y, " of ", height)
     FLH = r2 - k * (r1 + a * (r3 - r1))
     targetBand.writePixels(0, y, width, 1, FLH)
