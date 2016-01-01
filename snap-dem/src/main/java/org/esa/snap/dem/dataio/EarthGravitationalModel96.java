@@ -87,21 +87,18 @@ public final class EarthGravitationalModel96 {
         InputStream inputStream = null;
         try {
             if(NAME.endsWith(".zip")) {
-                final ZipFile zipFile = new ZipFile(egmDataPath.getFile());
-                final ZipEntry entry = zipFile.getEntry(NAME);
-                inputStream = zipFile.getInputStream(entry);
+                try (final ZipFile zipFile = new ZipFile(egmDataPath.getFile())) {
+                    final ZipEntry entry = zipFile.getEntry(NAME);
+                    inputStream = zipFile.getInputStream(entry);
+                }
             } else {
                 inputStream = egmDataPath.openStream();
             }
         } catch (Exception e) {
-            if(inputStream != null) {
-                inputStream.close();
-            }
             throw new IOException("EarthGravitationalModel96 file not found: " + egmDataPath, e);
         }
 
         try (final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-
 
             // read data from file and save them in 2-D array
             String line = "";

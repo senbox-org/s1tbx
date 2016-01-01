@@ -337,7 +337,7 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
                 return newFile;
 
             try (ZipFile zipFile = new ZipFile(dataFile);
-                 BufferedOutputStream fileoutputstream = new BufferedOutputStream(new FileOutputStream(newFile))){
+                BufferedOutputStream fileOutputStream = new BufferedOutputStream(new FileOutputStream(newFile))){
 
                 ZipEntry zipEntry = zipFile.getEntry(baseName);
                 if (zipEntry == null) {
@@ -354,12 +354,12 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
 
                 final int size = 8192;
                 final byte[] buf = new byte[size];
-                InputStream zipinputstream = zipFile.getInputStream(zipEntry);
+                try (InputStream zipInputStream = zipFile.getInputStream(zipEntry)) {
 
-                int n;
-                while ((n = zipinputstream.read(buf, 0, size)) > -1)
-                    fileoutputstream.write(buf, 0, n);
-
+                    int n;
+                    while ((n = zipInputStream.read(buf, 0, size)) > -1)
+                        fileOutputStream.write(buf, 0, n);
+                }
                 return newFile;
             } catch (Exception e) {
                 SystemUtils.LOG.warning(e.getMessage());
