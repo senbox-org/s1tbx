@@ -319,11 +319,11 @@ public class DBQuery {
 
         if (baseDir != null) {
             SQLUtils.addAND(queryStr);
-            queryStr.append(ProductTable.TABLE + '.' + AbstractMetadata.PATH + " LIKE '" + baseDir.getAbsolutePath() + "%'");
+            queryStr.append(ProductTable.TABLE + '.' + AbstractMetadata.PATH + " LIKE '" + baseDir.getAbsolutePath() + File.separator+"%'");
         }
         if (excludeDir != null) {
             SQLUtils.addAND(queryStr);
-            queryStr.append(ProductTable.TABLE + '.' + AbstractMetadata.PATH + " NOT LIKE '" + excludeDir.getAbsolutePath() + "%'");
+            queryStr.append(ProductTable.TABLE + '.' + AbstractMetadata.PATH + " NOT LIKE '" + excludeDir.getAbsolutePath() + File.separator+"%'");
         }
 
         if (queryStr.length() > 0) {
