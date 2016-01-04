@@ -85,7 +85,9 @@ public class StackSplitWriter extends Operator {
                 throw new OperatorException("Please add a target folder");
             }
             if (!targetFolder.exists()) {
-                targetFolder.mkdirs();
+                if(!targetFolder.mkdirs()) {
+                    throw new IOException("Failed to create directory '" + targetFolder + "'.");
+                }
             }
 
             final int width = sourceProduct.getSceneRasterWidth();

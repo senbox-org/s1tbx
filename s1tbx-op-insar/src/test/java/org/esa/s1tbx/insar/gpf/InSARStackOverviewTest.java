@@ -21,6 +21,7 @@ import org.jlinda.core.Orbit;
 import org.jlinda.core.SLCImage;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -32,6 +33,7 @@ import static junit.framework.Assert.assertEquals;
  * Date: 1/20/12
  * Time: 3:40 PM
  */
+@Ignore
 public class InSARStackOverviewTest {
 
     final static int ORBIT_DEGREE = 2;

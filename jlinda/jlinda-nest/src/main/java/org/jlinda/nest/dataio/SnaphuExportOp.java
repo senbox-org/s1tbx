@@ -31,6 +31,7 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
@@ -89,7 +90,9 @@ public class SnaphuExportOp extends Operator {
                 throw new OperatorException("Please add a target folder");
             }
             if (!targetFolder.exists()) {
-                targetFolder.mkdirs();
+                if(!targetFolder.mkdirs()) {
+                    SystemUtils.LOG.severe("Unable to create folders in "+targetFolder);
+                }
             }
 
             targetProduct = new Product(sourceProduct.getName(),
