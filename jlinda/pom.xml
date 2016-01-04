@@ -6,7 +6,7 @@
     <name>jLinda</name>
     <groupId>org.jlinda</groupId>
     <artifactId>jlinda</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.2</version>
 
     <packaging>pom</packaging>
 
@@ -19,9 +19,9 @@
         <brandingToken>s1tbx</brandingToken>
         <user.language>en</user.language>
 
-        <jlinda.version>2.0.0</jlinda.version>
-        <jlinda.nbmSpecVersion>2.0.1.0</jlinda.nbmSpecVersion>
-		<s1tbx.version>2.0.0</s1tbx.version>
+        <jlinda.version>2.0.2</jlinda.version>
+        <jlinda.nbmSpecVersion>2.0.2</jlinda.nbmSpecVersion>
+		<s1tbx.version>2.0.2</s1tbx.version>
 		<snap.version>2.0.0</snap.version>
         <jblas.version>1.2.4</jblas.version>
         <junit.version>4.12</junit.version>
@@ -52,6 +52,19 @@
     </prerequisites>
 
     <repositories>
+        <repository>
+            <id>snap-repo-public</id>
+            <name>Public Maven Repository for SNAP</name>
+            <url>http://nexus.senbox.net/nexus/content/repositories/public/</url>
+            <releases>
+                <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
+            </snapshots>
+        </repository>
         <repository>
             <id>array-mvn-repo</id>
             <name>Public Maven Repository at Array Systems Computing Inc</name>
