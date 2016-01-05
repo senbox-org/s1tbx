@@ -30,6 +30,7 @@ EXCLUDED_JAR_NAMES = {'org-esa-snap-netbeans-docwin.jar', 'org-esa-snap-netbeans
                       'org-esa-snap-snap-ui.jar', 'org-esa-snap-snap-graph-builder.jar',
                       'org-esa-snap-snap-branding.jar'}
 
+import glob
 import os
 import sys
 
@@ -151,6 +152,8 @@ def _get_snap_jvm_env():
     elif 'lib' in dir_names and 'modules' in dir_names:
         # SNAP Engine Distribution Directory
         java_module_dirs = [os.path.join(snap_home, 'modules'), os.path.join(snap_home, 'lib')]
+    elif glob.glob(snap_home + '/*snap-python*.jar'):
+        java_module_dirs = [snap_home]
     else:
         raise RuntimeError('does not seem to be a valid SNAP distribution directory: ' + snap_home)
 
