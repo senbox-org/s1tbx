@@ -36,7 +36,7 @@ public class AAFCSandHRModelDescriptor extends AbstractLandCoverModelDescriptor 
     private static final File file = new File(INSTALL_DIR, "AAFC_Canada_SAND_HR_pct.zip");
 
     public AAFCSandHRModelDescriptor() {
-        remotePath = "http://nest.s3.amazonaws.com/data/LandCover/AAFC/";
+        remotePath = "http://step.esa.int/auxdata/landcover/AAFC/";
         name = NAME;
         installDir = INSTALL_DIR;
         metadataFileName = "soil_landscapes_canada_readme.txt";

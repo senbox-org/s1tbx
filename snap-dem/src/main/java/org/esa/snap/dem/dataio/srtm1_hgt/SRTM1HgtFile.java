@@ -32,7 +32,7 @@ public final class SRTM1HgtFile extends ElevationFile {
     private final SRTM1HgtElevationModel demModel;
 
     private static final String remoteHTTP = Settings.instance().get("DEM.srtm1HgtDEM_HTTP",
-                                                                     "http://sentinel1.s3.amazonaws.com/data/DEM/SRTMGL1/");
+                                                                     "http://step.esa.int/auxdata/dem/SRTMGL1/");
 
     public SRTM1HgtFile(final SRTM1HgtElevationModel model, final File localFile, final ProductReader reader) {
         super(localFile, reader);

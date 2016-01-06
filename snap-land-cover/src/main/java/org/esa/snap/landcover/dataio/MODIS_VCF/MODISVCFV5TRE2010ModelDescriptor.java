@@ -230,7 +230,7 @@ public class MODISVCFV5TRE2010ModelDescriptor extends AbstractLandCoverModelDesc
     };
 
     public MODISVCFV5TRE2010ModelDescriptor() {
-        remotePath = "http://nest.s3.amazonaws.com/data/LandCover/Global_VCF_ZIP/Collection_5/2010/";
+        remotePath = "http://step.esa.int/auxdata/landcover/Global_VCF_ZIP/Collection_5/2010/";
         name = NAME;
         NO_DATA_VALUE = 253d;
         unit = "tree_cover_percent";
