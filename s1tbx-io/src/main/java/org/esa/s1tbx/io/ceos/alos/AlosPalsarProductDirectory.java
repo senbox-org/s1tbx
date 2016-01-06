@@ -685,9 +685,8 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
 
     private String getMapProjection() {
         if (leaderFile.getMapProjRecord() == null) return " ";
-        //final String projDesc = leaderFile.getMapProjRecord().getAttributeString("Map projection descriptor").toLowerCase();
-        //if(projDesc.contains("geo"))
-        if (getProductType().contains("1.5G"))
+        final String projDesc = leaderFile.getMapProjRecord().getAttributeString("Map projection descriptor").toLowerCase();
+        if(projDesc.contains("geo") || getProductType().contains("1.5G"))
             return "Geocoded";
         return " ";
     }
