@@ -22,7 +22,19 @@ public class SceneRasterTransformUtils {
      * @throws SceneRasterTransformException When the transformation could not be applied
      */
     public static PixelPos transformToSceneCoords(RasterDataNode rasterDataNode, PixelPos orig) throws SceneRasterTransformException {
-        final SceneRasterTransform sceneRasterTransform = rasterDataNode.getSceneRasterTransform();
+        return transformToSceneCoords(rasterDataNode.getSceneRasterTransform(), orig);
+    }
+
+    /**
+     * Converts a {@link PixelPos} from raster coordinates of a {@link RasterDataNode}
+     * to raster coordinates of the {@link Product}
+     *
+     * @param sceneRasterTransform The {@link SceneRasterTransform} to use to transform
+     * @param orig The {@link PixelPos} in raster coordinates of a {@link RasterDataNode}
+     * @return A {@link PixelPos} in raster coordinates of the {@link Product}
+     * @throws SceneRasterTransformException When the transformation could not be applied
+     */
+    public static PixelPos transformToSceneCoords(SceneRasterTransform sceneRasterTransform, PixelPos orig) throws SceneRasterTransformException {
         if(sceneRasterTransform == SceneRasterTransform.IDENTITY) {
             return orig;
         }
@@ -72,10 +84,11 @@ public class SceneRasterTransformUtils {
         }
         try {
             inverse.transform(orig, target);
+            orig.setLocation(target);
         } catch (TransformException e) {
             throw new SceneRasterTransformException(e.getMessage(), e);
         }
-        return target;
+        return orig;
     }
 
     /**
