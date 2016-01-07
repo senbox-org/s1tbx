@@ -72,7 +72,7 @@ public class GlobCoverModelDescriptor extends AbstractLandCoverModelDescriptor {
     };
 
     public GlobCoverModelDescriptor() {
-        remotePath = "http://nest.s3.amazonaws.com/data/LandCover/globcover/";
+        remotePath = "http://step.esa.int/auxdata/landcover/globcover/";
         name = NAME;
         NO_DATA_VALUE = 230;
         installDir = INSTALL_DIR;

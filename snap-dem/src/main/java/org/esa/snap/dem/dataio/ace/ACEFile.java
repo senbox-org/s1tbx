@@ -32,7 +32,7 @@ public final class ACEFile extends ElevationFile {
     private final ACEElevationModel demModel;
 
     private static final String remoteHTTP = Settings.instance().get("DEM.aceDEM_HTTP",
-                                                                     "http://nest.s3.amazonaws.com/data/ACE30/");
+                                                                     "http://step.esa.int/auxdata/dem/ACE30/");
 
     public ACEFile(final ACEElevationModel model, final File localFile, final ProductReader reader) {
         super(localFile, reader);

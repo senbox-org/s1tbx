@@ -37,7 +37,7 @@ public class AESBEOS2010CropModelDescriptor extends AbstractLandCoverModelDescri
     };
 
     public AESBEOS2010CropModelDescriptor() {
-        remotePath = "http://nest.s3.amazonaws.com/data/LandCover/AAFC/AESB_EOS_Crop_2010/";
+        remotePath = "http://step.esa.int/auxdata/landcover/AAFC/AESB_EOS_Crop_2010/";
         name = NAME;
         installDir = INSTALL_DIR;
         NO_DATA_VALUE = -9999d;

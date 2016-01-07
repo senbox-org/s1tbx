@@ -33,7 +33,7 @@ public final class ACE2_5MinFile extends ElevationFile {
     private final ACE2_5MinElevationModel demModel;
 
     private static final String remoteHTTP = Settings.instance().get("DEM.ace2_5MinDEM_HTTP",
-                                                                     "http://nest.s3.amazonaws.com/data/ACE2/5M/");
+                                                                     "http://step.esa.int/auxdata/dem/ACE2/5M/");
 
     public ACE2_5MinFile(final ACE2_5MinElevationModel model, final File localFile, final ProductReader reader) {
         super(localFile, reader);

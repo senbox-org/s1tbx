@@ -35,7 +35,7 @@ public class GLC2000ModelDescriptor extends AbstractLandCoverModelDescriptor {
     private static final File file = new File(INSTALL_DIR, "glc2000_v1_1.zip");
 
     public GLC2000ModelDescriptor() {
-        remotePath = "http://nest.s3.amazonaws.com/data/LandCover/glc2000/";
+        remotePath = "http://step.esa.int/auxdata/landcover/glc2000/";
         name = NAME;
         installDir = INSTALL_DIR;
         NO_DATA_VALUE = 23;
