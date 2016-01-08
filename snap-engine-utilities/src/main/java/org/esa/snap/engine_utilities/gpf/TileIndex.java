@@ -31,8 +31,7 @@ public final class TileIndex {
 
     public TileIndex(final Tile tile) {
         tileOffset = tile.getScanlineOffset();
-//        tileStride = tile.getScanlineStride();
-        tileStride = tile.getWidth();
+        tileStride = tile.getScanlineStride();
         tileMinX = tile.getMinX();
         tileMinY = tile.getMinY();
     }
