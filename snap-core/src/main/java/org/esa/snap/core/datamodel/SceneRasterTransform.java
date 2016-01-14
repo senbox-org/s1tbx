@@ -6,10 +6,10 @@ import org.opengis.referencing.operation.MathTransform2D;
 import java.awt.geom.AffineTransform;
 
 /**
- * Allows a {@link RasterDataNode}’s native raster data to be spatially transformed into the product’s scene raster
- * geometry and vice versa. It comprises a forward and inverse 2D pixel coordinate transformation. It is legal to have
- * {@code SceneImageTransform} instances whose either forward or inverse pixel coordinate transformations
- * are not available.
+ * Allows a {@link RasterDataNode}’s native raster data to be spatially transformed from its
+ * model CRS into the product’s scene CRS and vice versa. It comprises a forward and inverse 2D coordinate
+ * Transformation. It is legal to have {@code SceneRasterTransform} instances whose either forward or inverse
+ * pixel coordinate Transformations are not available.
  *
  * @author Norman Fomferra
  * @see RasterDataNode#getSceneRasterTransform()
