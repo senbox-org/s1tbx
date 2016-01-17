@@ -206,12 +206,10 @@ public final class GeoApproximation {
         for (final Rectangle rectangle : rectangles) {
             final GeoApproximation approximation = create(lonSamples, latSamples, maskSamples, accuracy,
                                                           rectangle, steppingFactory);
-            if (approximation == null) {
-                return null;
+            if (approximation != null) {
+                approximations.add(approximation);
             }
-            approximations.add(approximation);
         }
-
         return approximations.toArray(new GeoApproximation[approximations.size()]);
     }
 

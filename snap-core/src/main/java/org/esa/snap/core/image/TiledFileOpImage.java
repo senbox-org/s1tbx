@@ -83,7 +83,7 @@ public class TiledFileOpImage extends SourcelessOpImage {
         this.imageDir = imageDir;
         this.imageHeader = imageHeader;
         if (this.imageHeader.getTileFormat().equalsIgnoreCase("raw.zip")) {
-            inputStreamFactory = new RawZipImageInputStreamFactory();
+            inputStreamFactory = new RawZipImageInputStreamFactory(imageDir);
         } else if (this.imageHeader.getTileFormat().equalsIgnoreCase("raw")) {
             inputStreamFactory = new RawImageInputStreamFactory();
         } else if (this.imageHeader.getTileFormat().equalsIgnoreCase("zip")) {
@@ -98,7 +98,7 @@ public class TiledFileOpImage extends SourcelessOpImage {
      * Computes a tile.  Since the operation has no sources,
      * there is no need to worry about cobbling.
      * <p> Subclasses should implement the
-     * <code>computeRect(PlanarImage[], WritableRaster, Rectangle)</code>
+     * {@code computeRect(PlanarImage[], WritableRaster, Rectangle)}
      * method to perform the actual computation.
      *
      * @param tileX The X index of the tile.
@@ -278,21 +278,28 @@ public class TiledFileOpImage extends SourcelessOpImage {
         }
     }
 
-    private class RawZipImageInputStreamFactory implements ImageInputStreamFactory {
+    static class RawZipImageInputStreamFactory implements ImageInputStreamFactory {
 
+        private final Path imageDir;
         private File tmpDir;
 
-        private RawZipImageInputStreamFactory() throws IOException {
+        RawZipImageInputStreamFactory(Path imageDir) throws IOException {
+            this.imageDir = imageDir;
             tmpDir = VirtualDir.createUniqueTempDir();
             // System.out.println("TiledFileOpImage: Using temporary directory '" + tmpDir + "'");
         }
 
         public ImageInputStream createImageInputStream(int tileX, int tileY) throws IOException {
             final String entryName = getTileBasename(tileX, tileY) + ".raw";
-            final URI uri = URI.create("jar:file:" + imageDir.resolve(entryName + ".zip").toUri().getPath() + "!/");
+            final String entryPathString = createEntryPathString(entryName);
+            final URI uri = URI.create(entryPathString);
             Path entryZip = FileUtils.getPathFromURI(uri);
             InputStream stream = Files.newInputStream(entryZip.resolve(entryName));
             return new FileCacheImageInputStream(stream, tmpDir);
+        }
+
+        String createEntryPathString(String entryName) {
+            return "jar:file:" + imageDir.resolve(entryName + ".zip").toUri().getRawPath() + "!/";
         }
     }
 
