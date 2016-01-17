@@ -83,6 +83,10 @@ public class ProductVisitorAdapter implements ProductVisitor {
     }
 
     @Override
+    public void visit(Quicklook ql) {
+    }
+
+    @Override
     public void visit(VectorDataNode dataNode) {
     }
 }

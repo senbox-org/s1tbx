@@ -104,4 +104,11 @@ public interface ProductVisitor {
      * @param vectorDataNode the group to be visited
      */
     void visit(VectorDataNode vectorDataNode);
+
+    /**
+     * Visits a node group.
+     *
+     * @param ql the Quicklook to be visited
+     */
+    void visit(Quicklook ql);
 }

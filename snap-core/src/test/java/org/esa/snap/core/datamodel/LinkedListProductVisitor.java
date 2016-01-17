@@ -77,6 +77,11 @@ public class LinkedListProductVisitor extends ProductVisitorAdapter {
     }
 
     @Override
+    public void visit(Quicklook ql) {
+        visitedList.add(ql.getName());
+    }
+
+    @Override
     public void visit(VectorDataNode dataNode) {
         visitedList.add(dataNode.getName());
     }

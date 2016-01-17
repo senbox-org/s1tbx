@@ -181,6 +181,7 @@ public class Product extends ProductNode {
     private final ProductNodeGroup<FlagCoding> flagCodingGroup;
     private final ProductNodeGroup<IndexCoding> indexCodingGroup;
     private final ProductNodeGroup<Mask> maskGroup;
+    private final ProductNodeGroup<Quicklook> quicklookGroup;
 
     /**
      * The internal reference number of this product
@@ -290,12 +291,14 @@ public class Product extends ProductNode {
         this.indexCodingGroup = new ProductNodeGroup<>(this, "index_codings", true);
         this.flagCodingGroup = new ProductNodeGroup<>(this, "flag_codings", true);
         this.maskGroup = new ProductNodeGroup<>(this, "masks", true);
+        this.quicklookGroup = new ProductNodeGroup<>(this, "quicklooks", true);
 
         pinGroup = createPinGroup();
         gcpGroup = createGcpGroup();
 
         groups = new ProductNodeGroup<>(this, "groups", false);
         groups.add(bandGroup);
+        groups.add(quicklookGroup);
         groups.add(tiePointGridGroup);
         groups.add(vectorDataGroup);
         groups.add(indexCodingGroup);
@@ -752,6 +755,7 @@ public class Product extends ProductNode {
         flagCodingGroup.dispose();
         indexCodingGroup.dispose();
         maskGroup.dispose();
+        quicklookGroup.dispose();
         vectorDataGroup.dispose();
 
         pointingFactory = null;
@@ -1354,6 +1358,32 @@ public class Product extends ProductNode {
     }
 
     //////////////////////////////////////////////////////////////////////////
+    // Quicklook support
+
+    public ProductNodeGroup<Quicklook> getQuicklookGroup() {
+        return quicklookGroup;
+    }
+
+    /**
+     * Gets the name of the band suitable for quicklook generation.
+     *
+     * @return the name of the quicklook band, or null if none has been defined
+     */
+    public String getQuicklookBandName() {
+        return quicklookBandName;
+    }
+
+    /**
+     * Sets the name of the band suitable for quicklook generation.
+     *
+     * @param quicklookBandName the name of the quicklook band, or null
+     */
+    public void setQuicklookBandName(String quicklookBandName) {
+        this.quicklookBandName = quicklookBandName;
+    }
+
+
+    //////////////////////////////////////////////////////////////////////////
     // Mask support
 
     public ProductNodeGroup<Mask> getMaskGroup() {
@@ -1591,6 +1621,7 @@ public class Product extends ProductNode {
         indexCodingGroup.acceptVisitor(visitor);
         vectorDataGroup.acceptVisitor(visitor);
         maskGroup.acceptVisitor(visitor);
+        quicklookGroup.acceptVisitor(visitor);
         metadataRoot.acceptVisitor(visitor);
         visitor.visit(this);
     }
@@ -1860,6 +1891,7 @@ public class Product extends ProductNode {
                 bandGroup.setModified(false);
                 tiePointGridGroup.setModified(false);
                 maskGroup.setModified(false);
+                quicklookGroup.setModified(false);
                 vectorDataGroup.setModified(false);
                 flagCodingGroup.setModified(false);
                 indexCodingGroup.setModified(false);
@@ -1889,26 +1921,11 @@ public class Product extends ProductNode {
         for (int i = 0; i < getMaskGroup().getNodeCount(); i++) {
             size += getMaskGroup().get(i).getRawStorageSize(subsetDef);
         }
+        for (int i = 0; i < getQuicklookGroup().getNodeCount(); i++) {
+            size += getQuicklookGroup().get(i).getRawStorageSize(subsetDef);
+        }
         size += getMetadataRoot().getRawStorageSize(subsetDef);
         return size;
-    }
-
-    /**
-     * Gets the name of the band suitable for quicklook generation.
-     *
-     * @return the name of the quicklook band, or null if none has been defined
-     */
-    public String getQuicklookBandName() {
-        return quicklookBandName;
-    }
-
-    /**
-     * Sets the name of the band suitable for quicklook generation.
-     *
-     * @param quicklookBandName the name of the quicklook band, or null
-     */
-    public void setQuicklookBandName(String quicklookBandName) {
-        this.quicklookBandName = quicklookBandName;
     }
 
 //    private static String extractProductName(File file) {
@@ -2091,6 +2108,7 @@ public class Product extends ProductNode {
         removedNodes.addAll(indexCodingGroup.getRemovedNodes());
         removedNodes.addAll(tiePointGridGroup.getRemovedNodes());
         removedNodes.addAll(maskGroup.getRemovedNodes());
+        removedNodes.addAll(quicklookGroup.getRemovedNodes());
         removedNodes.addAll(vectorDataGroup.getRemovedNodes());
         return removedNodes.toArray(new ProductNode[removedNodes.size()]);
     }
