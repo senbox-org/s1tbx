@@ -1,10 +1,7 @@
 package org.esa.s1tbx.insar.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -86,6 +83,9 @@ public class CreateCoherenceImageOp extends Operator {
             defaultValue = "3",
             label = "Orbit interpolation degree")
     private int orbitDegree = 3;
+
+    @Parameter(description = "Use ground square pixel", defaultValue = "true", label = "Square Pixel")
+    private Boolean squarePixel = true;
 
     // source
     private HashMap<Integer, CplxContainer> masterMap = new HashMap<>();
@@ -745,6 +745,44 @@ public class CreateCoherenceImageOp extends Operator {
 //        return (product > 0.0) ? Math.sqrt(Math.pow(sum.abs(),2) / product) : 0.0;
         return (product > 0.0) ? sum.abs() / Math.sqrt(product) : 0.0;
     }
+
+    public static void getDerivedParameters(Product srcProduct, DerivedParams param) throws Exception {
+
+        final MetadataElement abs = AbstractMetadata.getAbstractedMetadata(srcProduct);
+        double rangeSpacing = abs.getAttributeDouble(AbstractMetadata.range_spacing, 1);
+        double azimuthSpacing = abs.getAttributeDouble(AbstractMetadata.azimuth_spacing, 1);
+        final boolean srgrFlag = AbstractMetadata.getAttributeBoolean(abs, AbstractMetadata.srgr_flag);
+
+        double groundRangeSpacing = rangeSpacing;
+        if (rangeSpacing == AbstractMetadata.NO_METADATA) {
+            azimuthSpacing = 1;
+            groundRangeSpacing = 1;
+        } else if (!srgrFlag) {
+            final TiePointGrid incidenceAngle = OperatorUtils.getIncidenceAngle(srcProduct);
+            if (incidenceAngle != null) {
+                final int sourceImageWidth = srcProduct.getSceneRasterWidth();
+                final int sourceImageHeight = srcProduct.getSceneRasterHeight();
+                final int x = sourceImageWidth / 2;
+                final int y = sourceImageHeight / 2;
+                final double incidenceAngleAtCentreRangePixel = incidenceAngle.getPixelDouble(x, y);
+                groundRangeSpacing /= Math.sin(incidenceAngleAtCentreRangePixel * Constants.DTOR);
+            }
+        }
+
+        final double cohWinAz = param.cohWinRg * groundRangeSpacing / azimuthSpacing;
+        if (cohWinAz < 1.0) {
+            param.cohWinAz = 1;
+            param.cohWinRg = (int) Math.round(azimuthSpacing / groundRangeSpacing);
+        } else {
+            param.cohWinAz = (int) Math.round(cohWinAz);
+        }
+    }
+
+    public static class DerivedParams {
+        public int cohWinAz = 0;
+        public int cohWinRg = 0;
+    }
+
 
     /**
      * The SPI is used to register this operator in the graph processing framework
