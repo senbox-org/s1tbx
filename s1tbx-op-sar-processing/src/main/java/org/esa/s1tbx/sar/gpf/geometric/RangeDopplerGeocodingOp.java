@@ -548,7 +548,11 @@ public class RangeDopplerGeocodingOp extends Operator {
 
             ProductUtils.copyMetadata(sourceProduct, targetProduct);
             ProductUtils.copyMasks(sourceProduct, targetProduct);
-            ProductUtils.copyVectorData(sourceProduct, targetProduct);
+            try {
+                ProductUtils.copyVectorData(sourceProduct, targetProduct);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             targetProduct.setStartTime(sourceProduct.getStartTime());
             targetProduct.setEndTime(sourceProduct.getEndTime());
             targetProduct.setDescription(sourceProduct.getDescription());
@@ -933,7 +937,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                     double alt = localDEM[yy][x - x0 + 1];
                     if (alt == demNoDataValue && !useAvgSceneHeight) {
                         if (nodataValueAtSea) {
-                            //saveNoDataValueToTarget(index, trgTiles);
+                            saveNoDataValueToTarget(index, tgtTiles);
                             continue;
                         }
                     }
@@ -953,6 +957,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                         if (saveDEM) {
                             demBuffer.setElemDoubleAt(index, demNoDataValue);
                         }
+                        saveNoDataValueToTarget(index, tgtTiles);
                         continue;
                     }
 
@@ -961,7 +966,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                         if (saveDEM) {
                             demBuffer.setElemDoubleAt(index, demNoDataValue);
                         }
-
+                        saveNoDataValueToTarget(index, tgtTiles);
                     } else {
 
                         final double[] localIncidenceAngles = {SARGeocoding.NonValidIncidenceAngle,
@@ -1036,6 +1041,12 @@ public class RangeDopplerGeocodingOp extends Operator {
         } catch (Throwable e) {
             orthoDataProduced = true; //to prevent multiple error messages
             OperatorUtils.catchOperatorException(getId(), e);
+        }
+    }
+
+    private static void saveNoDataValueToTarget(final int index, final TileData[] tgtTiles) {
+        for (TileData tileData : tgtTiles) {
+            tileData.tileDataBuffer.setElemDoubleAt(index, tileData.noDataValue);
         }
     }
 

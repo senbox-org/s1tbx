@@ -440,7 +440,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
                 if (noiseCorrectedFlag) {
                     sigma = Ks * dn2 * FastMath.sin(inciAng);
                 } else {
-                    sigma = Ks * Math.abs(dn2 - tileNoise[y - y0][x - x0]) * FastMath.sin(inciAng);
+                    sigma = Ks * (dn2 - tileNoise[y - y0][x - x0]) * FastMath.sin(inciAng);
                 }
 
                 if (isComplex && outputImageInComplex) {
