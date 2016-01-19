@@ -93,7 +93,9 @@ public class ImageIOWriter extends AbstractProductWriter {
         final Iterator<ImageWriter> writerList = ImageIO.getImageWritersBySuffix(format);
         writer = writerList.next();
 
-        file.getParentFile().mkdirs();
+        if(!file.getParentFile().mkdirs()) {
+            throw new IOException("Failed to create directory '" + file.getParentFile() + "'.");
+        }
         _outputStream = ImageIO.createImageOutputStream(file);
         writer.setOutput(_outputStream);
 
