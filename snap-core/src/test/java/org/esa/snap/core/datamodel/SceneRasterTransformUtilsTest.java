@@ -88,9 +88,9 @@ public class SceneRasterTransformUtilsTest {
         for (double y = 0; y < 8; y++) {
             for (double x = 0; x < 4; x++) {
                 final PixelPos pixelPos = new PixelPos(x, y);
-                final PixelPos productPos = SceneRasterTransformUtils.transformToImageCoords(band3, pixelPos);
-                Assert.assertEquals(pixelPos.getX() / 2, productPos.getX(), 1e-8);
-                Assert.assertEquals(pixelPos.getY() / 2, productPos.getY(), 1e-8);
+                SceneRasterTransformUtils.transformToImageCoords(band3, pixelPos);
+                Assert.assertEquals(x / 2, pixelPos.getX(), 1e-8);
+                Assert.assertEquals(y / 2, pixelPos.getY(), 1e-8);
             }
         }
     }
