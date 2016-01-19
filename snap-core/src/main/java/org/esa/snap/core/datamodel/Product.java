@@ -464,6 +464,7 @@ public class Product extends ProductNode {
      * @since SNAP 2.0
      */
     @SuppressWarnings("unused")
+    @Deprecated
     public SceneRasterTransform findSceneRasterTransform(GeoCoding geoCoding) {
         if (geoCoding != null
                 && geoCoding instanceof CrsGeoCoding
