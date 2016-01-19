@@ -25,10 +25,10 @@
 
     <artifactId>snap-core</artifactId>
     <packaging>nbm</packaging>
-    <version>2.0.1</version>
+    <version>2.0.2-SNAPSHOT</version>
 
     <properties>
-        <snap.nbmSpecVersion>2.0.1.1</snap.nbmSpecVersion>
+        <snap.nbmSpecVersion>2.0.2</snap.nbmSpecVersion>
     </properties>
 
     <name>SNAP Core Library</name>
