@@ -67,9 +67,7 @@ public final class AddLandCoverOp extends Operator {
     @Parameter(description = "The external file.", defaultValue = "", label = "External File")
     private File externalFile = null;
 
-    @Parameter(valueSet = {ResamplingFactory.NEAREST_NEIGHBOUR_NAME, ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
-            ResamplingFactory.CUBIC_CONVOLUTION_NAME, ResamplingFactory.BISINC_5_POINT_INTERPOLATION_NAME,
-            ResamplingFactory.BICUBIC_INTERPOLATION_NAME}, defaultValue = ResamplingFactory.NEAREST_NEIGHBOUR_NAME,
+    @Parameter(defaultValue = ResamplingFactory.NEAREST_NEIGHBOUR_NAME,
             label = "Resampling Method")
     private String resamplingMethod = ResamplingFactory.NEAREST_NEIGHBOUR_NAME;
 
