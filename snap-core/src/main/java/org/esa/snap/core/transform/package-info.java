@@ -15,6 +15,6 @@
  */
 
 /**
- * Contains ...
+ * Contains extensions of geotools transform classes.
  */
 package org.esa.snap.core.transform;
