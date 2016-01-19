@@ -12,7 +12,12 @@
 
     <name>SNAP Envisat Product Reader</name>
     <description>Enables SNAP to read ENVISAT data products.</description>
+    <version>2.0.2-SNAPSHOT</version>
 
+    <properties>
+        <snap.nbmSpecVersion>2.0.2</snap.nbmSpecVersion>
+    </properties>
+    
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>

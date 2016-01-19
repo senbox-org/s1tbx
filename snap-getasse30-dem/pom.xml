@@ -13,6 +13,11 @@
 
     <name>GETASSE30 DEM</name>
     <description>Provides the GETASSE30 digital elevation model.</description>
+    <version>2.0.2-SNAPSHOT</version>
+
+    <properties>
+        <snap.nbmSpecVersion>2.0.2</snap.nbmSpecVersion>
+    </properties>
 
     <dependencies>
         <dependency>

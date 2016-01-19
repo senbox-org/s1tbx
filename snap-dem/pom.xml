@@ -26,8 +26,12 @@
 
     <artifactId>snap-dem</artifactId>
     <name>SNAP Digital Elevation Models</name>
-
     <packaging>nbm</packaging>
+    <version>2.0.2-SNAPSHOT</version>
+
+    <properties>
+        <snap.nbmSpecVersion>2.0.2</snap.nbmSpecVersion>
+    </properties>
 
     <dependencies>
         <dependency>
