@@ -374,12 +374,21 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
     }
 
     /**
-     * ...
-     * @param modelToSceneTransform
-     * @see Product#findModelToSceneTransform(GeoCoding)
+     * Sets a {@code MathTransform2D} from the local model CRS of this {@code RasterDataNode} to
+     * a {@code Product}'s scene coordinate reference system. If the sceneToModelTransform is not the inverse
+     * of this transform or cannot be derived from it, it must be set using {@code setSceneToModelTransform()}.
+     *
+     * Only use this method when you know that the model CRS of this {@code RasterDataNode} is different
+     * than the {Product}'s scene CRS or when you want to model a special relationship between
+     * different {RasterDataNode}'s.
+     *
+     * @param modelToSceneTransform The {@code MathTransform2D} to convert local model coordinates to
+     *                              product scene coordinates
+     * @see RasterDataNode#setSceneToModelTransform(MathTransform2D)
+     * @since SNAP 2.0.3
      */
     public void setModelToSceneTransform(MathTransform2D modelToSceneTransform) {
-        Assert.notNull(modelToSceneTransform, "imageToSceneTransform");
+        Assert.notNull(modelToSceneTransform, PROPERTY_NAME_MODEL_TO_SCENE_TRANSFORM);
         MathTransform2D oldTransform = this.modelToSceneTransform;
         this.modelToSceneTransform = modelToSceneTransform;
         fireProductNodeChanged(PROPERTY_NAME_MODEL_TO_SCENE_TRANSFORM, oldTransform, this.modelToSceneTransform);
@@ -409,12 +418,21 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
     }
 
     /**
-     * ...
-     * @param sceneToModelTransform
-     * @see Product#findSceneToModelTransform(GeoCoding)
+     * Sets a {@code MathTransform2D} from a {@code Product}'s scene coordinate reference system to
+     * the local model CRS of this {@code RasterDataNode}. If the modelToSceneTransform is not the inverse
+     * of this transformor cannot be derived from it, it must be set using {@code setModelToSceneTransform()}.
+     *
+     * Only use this method when you know that the model CRS of this {@code RasterDataNode} is different
+     * than the {Product}'s scene CRS or when you want to model a special relationship between
+     * different {RasterDataNode}'s.
+     *
+     * @param sceneToModelTransform The {@code MathTransform2D} to convert product scene coordinates
+     *                              to local model coordinates
+     * @see RasterDataNode#setModelToSceneTransform(MathTransform2D)
+     * @since SNAP 2.0.3
      */
     public void setSceneToModelTransform(MathTransform2D sceneToModelTransform) {
-        Assert.notNull(sceneToModelTransform, "sceneToImageTransform");
+        Assert.notNull(sceneToModelTransform, PROPERTY_NAME_SCENE_TO_MODEL_TRANSFORM);
         MathTransform2D oldTransform = this.sceneToModelTransform;
         this.sceneToModelTransform = sceneToModelTransform;
         fireProductNodeChanged(PROPERTY_NAME_SCENE_TO_MODEL_TRANSFORM, oldTransform, this.sceneToModelTransform);
