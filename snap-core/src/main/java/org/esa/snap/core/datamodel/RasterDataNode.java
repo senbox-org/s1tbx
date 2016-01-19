@@ -32,6 +32,7 @@ import org.esa.snap.core.dataio.ProductWriter;
 import org.esa.snap.core.dataop.barithm.BandArithmetic;
 import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.image.SingleBandedOpImage;
+import org.esa.snap.core.transform.MathTransform2D;
 import org.esa.snap.core.util.BitRaster;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.ObjectUtils;
@@ -46,6 +47,7 @@ import org.esa.snap.core.util.math.Quantizer;
 import org.esa.snap.core.util.math.Range;
 import org.esa.snap.runtime.Config;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.NoninvertibleTransformException;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
@@ -80,7 +82,7 @@ import java.util.prefs.BackingStoreException;
  * @see #getScalingFactor()
  * @see #getScalingOffset()
  */
-public abstract class RasterDataNode extends DataNode implements Scaling {
+public abstract class RasterDataNode extends DataNode implements Scaling, SceneTransformProvider {
 
     public static final String PROPERTY_NAME_IMAGE_INFO = "imageInfo";
     public static final String PROPERTY_NAME_LOG_10_SCALED = "log10Scaled";
@@ -95,7 +97,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public static final String PROPERTY_NAME_ANCILLARY_VARIABLES = "ancillaryVariables";
     public static final String PROPERTY_NAME_ANCILLARY_RELATIONS = "ancillaryRelations";
     public static final String PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM = "imageToModelTransform";
+    @Deprecated
     public static final String PROPERTY_NAME_SCENE_RASTER_TRANSFORM = "sceneRasterTransform";
+    public static final String PROPERTY_NAME_MODEL_TO_SCENE_TRANSFORM = "modelToSceneTransform";
+    public static final String PROPERTY_NAME_SCENE_TO_MODEL_TRANSFORM = "sceneToModelTransform";
 
 
     /**
@@ -134,7 +139,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     private TimeCoding timeCoding;
 
     private AffineTransform imageToModelTransform;
+    @Deprecated
     private SceneRasterTransform sceneRasterTransform;
+    private MathTransform2D modelToSceneTransform;
+    private MathTransform2D sceneToModelTransform;
 
     private Stx stx;
 
@@ -314,7 +322,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #getImageToModelTransform()
      * @see #setSceneRasterTransform(SceneRasterTransform)
      * @since SNAP 2.0
+     * @deprecated
      */
+    @Deprecated
     public SceneRasterTransform getSceneRasterTransform() {
         return sceneRasterTransform;
     }
@@ -330,12 +340,84 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #getSceneRasterTransform()
      * @see #setImageToModelTransform(AffineTransform)
      * @since SNAP 2.0
+     * @deprecated
      */
+    @Deprecated
     public void setSceneRasterTransform(SceneRasterTransform sceneRasterTransform) {
         Assert.notNull(sceneRasterTransform, "sceneRasterTransform");
         SceneRasterTransform oldTransform = this.sceneRasterTransform;
         this.sceneRasterTransform = sceneRasterTransform;
         fireProductNodeChanged(PROPERTY_NAME_SCENE_RASTER_TRANSFORM, oldTransform, sceneRasterTransform);
+    }
+
+    /**
+     * Gets the transformation that transforms from local {@link RasterDataNode} model coordinates
+     * to the {@link Product}'s scene coordinates.
+     * <p>
+     * If no model-to-scene transformation has been explicitly set but a scene-to-model transformation
+     * exists, then the latter's {@code inverse()} is returned.
+     *
+     * @return The model-to-scene transformation, or {@code null} if no such exists.
+     * @see Product#getSceneCRS()
+     * @see #getImageToModelTransform()
+     * @since SNAP 2.0.3
+     */
+    public MathTransform2D getModelToSceneTransform() {
+        if (modelToSceneTransform == null && sceneToModelTransform != null) {
+            try {
+                return sceneToModelTransform.inverse();
+            } catch (NoninvertibleTransformException e) {
+                // ok, return null.
+            }
+        }
+        return modelToSceneTransform;
+    }
+
+    /**
+     * ...
+     * @param modelToSceneTransform
+     * @see Product#findModelToSceneTransform(GeoCoding)
+     */
+    public void setModelToSceneTransform(MathTransform2D modelToSceneTransform) {
+        Assert.notNull(modelToSceneTransform, "imageToSceneTransform");
+        MathTransform2D oldTransform = this.modelToSceneTransform;
+        this.modelToSceneTransform = modelToSceneTransform;
+        fireProductNodeChanged(PROPERTY_NAME_MODEL_TO_SCENE_TRANSFORM, oldTransform, this.modelToSceneTransform);
+    }
+
+    /**
+     * Gets the transformation that transforms from the {@link Product}'s scene coordinates
+     * to the local {@link RasterDataNode} model coordinates.
+     * <p>
+     * If no scene-to-model transformation has been explicitly set but a model-to-scene transformation
+     * exists, then the latter's {@code inverse()} is returned.
+     *
+     * @return The model-to-scene transformation, or {@code null} if no such exists.
+     * @see Product#getSceneCRS()
+     * @see #getImageToModelTransform()
+     * @since SNAP 2.0.3
+     */
+    public MathTransform2D getSceneToModelTransform() {
+        if (sceneToModelTransform == null && modelToSceneTransform != null) {
+            try {
+                return modelToSceneTransform.inverse();
+            } catch (NoninvertibleTransformException e) {
+                // ok, return null.
+            }
+        }
+        return sceneToModelTransform;
+    }
+
+    /**
+     * ...
+     * @param sceneToModelTransform
+     * @see Product#findSceneToModelTransform(GeoCoding)
+     */
+    public void setSceneToModelTransform(MathTransform2D sceneToModelTransform) {
+        Assert.notNull(sceneToModelTransform, "sceneToImageTransform");
+        MathTransform2D oldTransform = this.sceneToModelTransform;
+        this.sceneToModelTransform = sceneToModelTransform;
+        fireProductNodeChanged(PROPERTY_NAME_SCENE_TO_MODEL_TRANSFORM, oldTransform, this.sceneToModelTransform);
     }
 
     /**

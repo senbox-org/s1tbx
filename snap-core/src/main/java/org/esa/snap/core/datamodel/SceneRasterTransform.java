@@ -1,9 +1,6 @@
 package org.esa.snap.core.datamodel;
 
-import org.geotools.referencing.operation.transform.AffineTransform2D;
-import org.opengis.referencing.operation.MathTransform2D;
-
-import java.awt.geom.AffineTransform;
+import org.esa.snap.core.transform.MathTransform2D;
 
 /**
  * Allows a {@link RasterDataNode}’s native raster data to be spatially transformed from its
@@ -21,16 +18,15 @@ public interface SceneRasterTransform {
      * The identity transform.
      */
     SceneRasterTransform IDENTITY = new SceneRasterTransform() {
-        final AffineTransform2D IDENTITY = new AffineTransform2D(new AffineTransform());
 
         @Override
         public MathTransform2D getForward() {
-            return IDENTITY;
+            return MathTransform2D.IDENTITY;
         }
 
         @Override
         public MathTransform2D getInverse() {
-            return IDENTITY;
+            return MathTransform2D.IDENTITY;
         }
     };
 

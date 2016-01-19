@@ -41,6 +41,7 @@ import org.esa.snap.core.jexp.Parser;
 import org.esa.snap.core.jexp.Term;
 import org.esa.snap.core.jexp.WritableNamespace;
 import org.esa.snap.core.jexp.impl.ParserImpl;
+import org.esa.snap.core.transform.MathTransform2D;
 import org.esa.snap.core.util.BitRaster;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.Guardian;
@@ -60,7 +61,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.ImageCRS;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.MathTransform2D;
 
 import java.awt.Color;
 import java.awt.Dimension;

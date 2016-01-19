@@ -18,6 +18,7 @@ package org.esa.snap.core.datamodel;
 
 import com.bc.ceres.core.Assert;
 import org.esa.snap.core.dataio.ProductSubsetDef;
+import org.esa.snap.core.transform.GeoCodingMathTransform;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultDerivedCRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;

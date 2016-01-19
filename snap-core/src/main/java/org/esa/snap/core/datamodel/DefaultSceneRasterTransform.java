@@ -1,6 +1,6 @@
 package org.esa.snap.core.datamodel;
 
-import org.opengis.referencing.operation.MathTransform2D;
+import org.esa.snap.core.transform.MathTransform2D;
 
 /**
  * Default implementation of the {@link SceneRasterTransform} interface.
