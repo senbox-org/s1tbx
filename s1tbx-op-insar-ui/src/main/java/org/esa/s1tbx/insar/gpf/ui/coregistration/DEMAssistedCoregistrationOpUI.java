@@ -123,7 +123,11 @@ public class DEMAssistedCoregistrationOpUI extends BaseOperatorUI {
         final String demNameParam = (String) paramMap.get("demName");
         if (demNameParam != null) {
             ElevationModelDescriptor descriptor = ElevationModelRegistry.getInstance().getDescriptor(demNameParam);
-            demName.setSelectedItem(DEMFactory.getDEMDisplayName(descriptor));
+            if(descriptor != null) {
+                demName.setSelectedItem(DEMFactory.getDEMDisplayName(descriptor));
+            } else {
+                demName.setSelectedItem(demNameParam);
+            }
         }
         demResamplingMethod.setSelectedItem(paramMap.get("demResamplingMethod"));
 
