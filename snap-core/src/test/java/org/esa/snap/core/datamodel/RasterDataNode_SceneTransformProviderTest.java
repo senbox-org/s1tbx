@@ -26,17 +26,17 @@ public class RasterDataNode_SceneTransformProviderTest {
     }
 
     @Test
-    public void testSetSceneToModelTransform_isInitiallyNull() {
-        assertNull(anyRDN.getSceneToModelTransform());
+    public void testSetSceneToModelTransform_isInitiallyIdentity() {
+        assertSame(MathTransform2D.IDENTITY, anyRDN.getSceneToModelTransform());
     }
 
     @Test
-    public void testSetModelToSceneTransform_isInitiallyNull() {
-        assertNull(anyRDN.getModelToSceneTransform());
+    public void testSetModelToSceneTransform_isInitiallyIdentity() {
+        assertSame(MathTransform2D.IDENTITY, anyRDN.getModelToSceneTransform());
     }
 
     @Test
-    public void testSetSceneToModelTransform_noInverse() {
+    public void testSetSceneToModelTransform_nullInverse() {
         final AbstractTransform2D sceneToModelTransform = new TestTransformWithoutInverse();
         anyRDN.setSceneToModelTransform(sceneToModelTransform);
 
@@ -53,7 +53,7 @@ public class RasterDataNode_SceneTransformProviderTest {
     }
 
     @Test
-    public void testSetModelToSceneTransform_noInverse() {
+    public void testSetModelToSceneTransform_nullInverse() {
         final AbstractTransform2D modelToSceneTransform = new TestTransformWithoutInverse();
         anyRDN.setModelToSceneTransform(modelToSceneTransform);
 
@@ -67,6 +67,17 @@ public class RasterDataNode_SceneTransformProviderTest {
 
         assertSame(forward, anyRDN.getModelToSceneTransform());
         assertSame(inverse, anyRDN.getSceneToModelTransform());
+    }
+
+    @Test
+    public void testSettingOfTransformsDoesNotOverwriteSettings() {
+        final TestTransformWithoutInverse modelToSceneTransform = new TestTransformWithoutInverse();
+        anyRDN.setModelToSceneTransform(modelToSceneTransform);
+        final TestTransformWithoutInverse sceneToModelTransform = new TestTransformWithoutInverse();
+        anyRDN.setSceneToModelTransform(sceneToModelTransform);
+
+        assertSame(modelToSceneTransform, anyRDN.getModelToSceneTransform());
+        assertSame(sceneToModelTransform, anyRDN.getSceneToModelTransform());
     }
 
     private class TestTransformWithoutInverse extends AbstractTransform2D {

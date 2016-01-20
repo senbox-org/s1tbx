@@ -197,6 +197,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
 
         imageToModelTransform = null;
         sceneRasterTransform = SceneRasterTransform.IDENTITY;
+        modelToSceneTransform = MathTransform2D.IDENTITY;
+        sceneToModelTransform = MathTransform2D.IDENTITY;
 
         overlayMasks = new ProductNodeGroup<>(this, "overlayMasks", false);
     }
@@ -363,11 +365,11 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
      * @since SNAP 2.0.3
      */
     public MathTransform2D getModelToSceneTransform() {
-        if (modelToSceneTransform == null && sceneToModelTransform != null) {
+        if (modelToSceneTransform == MathTransform2D.IDENTITY && sceneToModelTransform != MathTransform2D.IDENTITY) {
             try {
                 return sceneToModelTransform.inverse();
             } catch (NoninvertibleTransformException e) {
-                // ok, return null.
+                return null;
             }
         }
         return modelToSceneTransform;
@@ -407,11 +409,11 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
      * @since SNAP 2.0.3
      */
     public MathTransform2D getSceneToModelTransform() {
-        if (sceneToModelTransform == null && modelToSceneTransform != null) {
+        if (sceneToModelTransform == MathTransform2D.IDENTITY && modelToSceneTransform != MathTransform2D.IDENTITY) {
             try {
                 return modelToSceneTransform.inverse();
             } catch (NoninvertibleTransformException e) {
-                // ok, return null.
+                return null;
             }
         }
         return sceneToModelTransform;
