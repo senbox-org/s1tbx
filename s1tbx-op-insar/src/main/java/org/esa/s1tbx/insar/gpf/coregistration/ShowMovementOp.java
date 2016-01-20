@@ -50,6 +50,7 @@ import org.jlinda.core.delaunay.TriangulationException;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -69,6 +70,10 @@ public class ShowMovementOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
+    @Parameter(description = "The threshold for eliminating invalid GCPs", interval = "(0, *)", defaultValue = "5.0",
+            label = "Max Velocity (m/day)")
+    private float maxVelocity = 5.0f;
+
     private Band masterBand = null;
     private boolean GCPVelocityAvailable = false;
     private MetadataElement mstAbsRoot = null;
@@ -83,7 +88,7 @@ public class ShowMovementOp extends Operator {
     private String processedSlaveBand;
     private String[] masterBandNames = null;
     private final Map<Band, Band> sourceRasterMap = new HashMap<>(10);
-    private final Map<Band, Band> complexSrcMap = new HashMap<>(10);
+    private final List<VelocityData> velocityList = new ArrayList<>();
     private final Map<Band, FastDelaunayTriangulator> triangulatorMap = new HashMap<>(10);
     private final double invalidIndex = -9999.0;
 
@@ -286,15 +291,11 @@ public class ShowMovementOp extends Operator {
 
             ProductNodeGroup<Placemark> slaveGCPGroup = GCPManager.instance().getGcpGroup(srcBand);
 
-            final int numGCPs = slaveGCPGroup.getNodeCount();
-            final double[] mGCPX = new double[numGCPs];
-            final double[] mGCPY = new double[numGCPs];
-            final double[] GCPVelocities = new double[numGCPs];
+            computeGCPVelocity(masterGCPGroup, slaveGCPGroup);
 
-            computeGCPVelocity(masterGCPGroup, slaveGCPGroup, mGCPX, mGCPY, GCPVelocities);
+            eliminateOutliers();
 
-            FastDelaunayTriangulator FDT = TriangleUtils.triangulate(
-                    mGCPX, mGCPY, GCPVelocities, rgAzRatio, invalidIndex);
+            FastDelaunayTriangulator FDT = TriangleUtils.triangulate(velocityList, rgAzRatio, invalidIndex);
 
             triangulatorMap.put(srcBand, FDT);
         }
@@ -305,42 +306,52 @@ public class ShowMovementOp extends Operator {
     }
 
     private void computeGCPVelocity(final ProductNodeGroup<Placemark> masterGCPGroup,
-                                    final ProductNodeGroup<Placemark> slaveGCPGroup,
-                                    final double[] mGCPX, final double[] mGCPY, final double[] GCPVelocities) {
+                                    final ProductNodeGroup<Placemark> slaveGCPGroup) {
 
-        for (int i = 0; i < GCPVelocities.length; i++) {
+        final int numGCPs = slaveGCPGroup.getNodeCount();
+        for (int i = 0; i < numGCPs; i++) {
             final Placemark sPin = slaveGCPGroup.get(i);
             final PixelPos sGCPPos = sPin.getPixelPos();
 
             final Placemark mPin = masterGCPGroup.get(sPin.getName());
             final PixelPos mGCPPos = mPin.getPixelPos();
 
-            mGCPX[i] = mGCPPos.x;
-            mGCPY[i] = mGCPPos.y;
-
             final double rangeShift = (mGCPPos.x - sGCPPos.x) * rangeSpacing;
             final double azimuthShift = (mGCPPos.y - sGCPPos.y) * azimuthSpacing;
+            final double v = Math.sqrt(rangeShift*rangeShift + azimuthShift*azimuthShift) / acquisitionTimeInterval;
 
-            GCPVelocities[i] = Math.sqrt(rangeShift*rangeShift + azimuthShift*azimuthShift) / acquisitionTimeInterval;
+            velocityList.add(new VelocityData(mGCPPos.x, mGCPPos.y, sGCPPos.x, sGCPPos.y, v));
+        }
+    }
+
+    private void eliminateOutliers() {
+
+        final List<VelocityData> outlierList = new ArrayList<>();
+        for (VelocityData data : velocityList) {
+            if (data.velocity >= maxVelocity) {
+                outlierList.add(data);
+            }
+        }
+
+        for (VelocityData outlier : outlierList) {
+            velocityList.remove(outlier);
         }
     }
 
     private static class TriangleUtils {
 
-        public static FastDelaunayTriangulator triangulate(final double[] mGCPX, final double[] mGCPY,
-                                                           final double[] velocityArray, final double xyRatio,
-                                                           final double invalidIndex)
+        public static FastDelaunayTriangulator triangulate(
+                final List<VelocityData> velocityList, final double xyRatio, final double invalidIndex)
                 throws Exception {
 
             java.util.List<Geometry> list = new ArrayList<>();
             GeometryFactory gf = new GeometryFactory();
 
-            final int numGCPs = velocityArray.length;
-            for (int i = 0; i < numGCPs; i++) {
-                if (mGCPY[i] == invalidIndex || mGCPX[i] == invalidIndex) {
+            for (VelocityData data : velocityList) {
+                if (data.mstGCPy == invalidIndex || data.mstGCPx == invalidIndex) {
                     continue;
                 }
-                list.add(gf.createPoint(new Coordinate(mGCPY[i], mGCPX[i] * xyRatio, velocityArray[i])));
+                list.add(gf.createPoint(new Coordinate(data.mstGCPy, data.mstGCPx * xyRatio, data.velocity)));
             }
 
             if (list.size() < 3) {
@@ -497,6 +508,26 @@ public class ShowMovementOp extends Operator {
             return Math.floor(coord + 0.5);
         }
     }
+
+    public static class VelocityData {
+
+        public double mstGCPx;
+        public double mstGCPy;
+        public double slvGCPx;
+        public double slvGCPy;
+        public double velocity;
+
+        public VelocityData(final double mstGCPx, final double mstGCPy, final double slvGCPx, final double slvGCPy,
+                            final double velocity) {
+
+            this.mstGCPx = mstGCPx;
+            this.mstGCPy = mstGCPy;
+            this.slvGCPx = slvGCPx;
+            this.slvGCPy = slvGCPy;
+            this.velocity = velocity;
+        }
+    }
+
 
     /**
      * The SPI is used to register this operator in the graph processing framework
