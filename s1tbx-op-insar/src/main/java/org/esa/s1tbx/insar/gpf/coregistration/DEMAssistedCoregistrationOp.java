@@ -225,7 +225,6 @@ public final class DEMAssistedCoregistrationOp extends Operator {
 
         final TiePointGrid incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
         metadata.nearRangeOnLeft = SARGeocoding.isNearRangeOnLeft(incidenceAngle, metadata.sourceImageWidth);
-
     }
 
     /**
@@ -247,13 +246,18 @@ public final class DEMAssistedCoregistrationOp extends Operator {
             if (masterProduct.getBand(bandName) instanceof VirtualBand) {
                 continue;
             }
+
+            if(targetProduct.getBand(bandName + mstSuffix) != null) {
+                continue;
+            }
+
             final Band targetBand = ProductUtils.copyBand(
                     bandName, masterProduct, bandName + mstSuffix, targetProduct, true);
 
             if(targetBand.getUnit().equals(Unit.IMAGINARY)) {
                 int idx = targetProduct.getBandIndex(targetBand.getName());
                 ReaderUtils.createVirtualIntensityBand(
-                        targetProduct, targetProduct.getBandAt(idx-1), targetBand, mstSuffix);
+                        targetProduct, targetProduct.getBandAt(idx - 1), targetBand, mstSuffix);
             }
         }
 
@@ -268,6 +272,11 @@ public final class DEMAssistedCoregistrationOp extends Operator {
             if (srcBand instanceof VirtualBand) {
                 continue;
             }
+
+            if (targetProduct.getBand(bandName + slvSuffix) != null) {
+                continue;
+            }
+
             final Band targetBand = new Band(
                     bandName + slvSuffix,
                     ProductData.TYPE_FLOAT32,
@@ -626,6 +635,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
         if (!metadata.nearRangeOnLeft) {
             data.rangeIndex = metadata.sourceImageWidth - 1 - data.rangeIndex;
         }
+
         return true;
     }
 
