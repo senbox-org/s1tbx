@@ -196,15 +196,16 @@ public class GoldsteinFilterOp extends Operator {
             // get the first pair of I/Q bands
             Band iBand = null;
             Band qBand = null;
+            Band cohBand = null;
             for (Band band : sourceProduct.getBands()) {
-                if (band.getUnit() != null && band.getUnit().equals(Unit.REAL)) {
-                    qBand = band;
-                } else if (band.getUnit() != null && band.getUnit().equals(Unit.IMAGINARY)) {
-                    iBand = band;
-                }
-
-                if (iBand != null && qBand != null) {
-                    break;
+                if(band.getUnit() != null) {
+                    if (band.getUnit().equals(Unit.REAL) && qBand == null) {
+                        qBand = band;
+                    } else if (band.getUnit().equals(Unit.IMAGINARY) && iBand == null) {
+                        iBand = band;
+                    } else if (band.getUnit().equals(Unit.COHERENCE) && cohBand == null) {
+                        cohBand = band;
+                    }
                 }
             }
 
@@ -215,6 +216,10 @@ public class GoldsteinFilterOp extends Operator {
             final int sh = sourceTileRectangle.height;
             final Tile iBandRaster = getSourceTile(iBand, sourceTileRectangle);
             final Tile qBandRaster = getSourceTile(qBand, sourceTileRectangle);
+            Tile cohBandRaster = null;
+            if(cohBand != null) {
+                cohBandRaster = getSourceTile(cohBand, sourceTileRectangle);
+            }
 
             // arrays saving filtered I/Q data for the tile, note tile size could be different from 512x512 on boundary
             final float[] iBandFiltered = new float[w * h];
