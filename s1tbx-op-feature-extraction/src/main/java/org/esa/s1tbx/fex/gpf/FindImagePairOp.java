@@ -27,7 +27,6 @@ import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.core.gpf.annotations.OperatorMetadata;
-import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.engine_utilities.db.CommonReaders;
 import org.esa.snap.engine_utilities.db.DBSearch;
@@ -53,16 +52,10 @@ public class FindImagePairOp extends Operator {
 
     private transient ProductReader productReader;
 
-    @Parameter(description = "Minimum days apart from master", defaultValue = "1", label = "Minimum days apart")
-    private double minMJD = 1;
-
-    @Parameter(description = "Maximum days apart from master", defaultValue = "99999", label = "Maximum days apart")
-    private double maxMJD = 99999;
-
     @Override
     public void initialize() throws OperatorException {
         try {
-            final ProductEntry[] entryList = DBSearch.search(sourceProduct, 1, minMJD, maxMJD);
+            final ProductEntry[] entryList = DBSearch.search(sourceProduct);
             if (entryList.length > 0) {
 
                 final File file = entryList[0].getFile();
