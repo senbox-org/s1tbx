@@ -149,7 +149,7 @@ public final class AddLandCoverOp extends Operator {
 
         // integer data should only use nearest neighbour
         if (descriptor.getDataType() < ProductData.TYPE_FLOAT32) {
-            //param.resamplingMethod = ResamplingFactory.NEAREST_NEIGHBOUR_NAME;
+            param.resamplingMethod = ResamplingFactory.NEAREST_NEIGHBOUR_NAME;
         }
 
         Resampling resampling = Resampling.NEAREST_NEIGHBOUR;
