@@ -17,6 +17,9 @@ package org.esa.s1tbx.sentinel1.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.insar.gpf.Sentinel1Utils;
+import org.esa.snap.core.dataio.ProductReader;
+import org.esa.snap.core.dataio.ProductSubsetBuilder;
+import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
@@ -38,17 +41,19 @@ import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 
+import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Creates a new product with only selected bands
+ * Creates a new product with only selected sub-swath and bursts
  */
 
 @OperatorMetadata(alias = "TOPSAR-Split",
         category = "Radar/Sentinel-1 TOPS",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
         description = "Creates a new product with only the selected subswath")
 public final class TOPSARSplitOp extends Operator {
 
@@ -63,9 +68,16 @@ public final class TOPSARSplitOp extends Operator {
     @Parameter(description = "The list of polarisations", label = "Polarisations")
     private String[] selectedPolarisations;
 
+    @Parameter(description = "The first burst index", interval = "[1, *)", defaultValue = "1", label = "First Burst Index")
+    private Integer firstBurstIndex = 1;
+
+    @Parameter(description = "The last burst index", interval = "[1, *)", defaultValue = "1", label = "Last Burst Index")
+    private Integer lastBurstIndex = 1;
+
     private Sentinel1Utils su = null;
     private Sentinel1Utils.SubSwathInfo[] subSwathInfo = null;
     private int subSwathIndex = 0;
+    private ProductSubsetBuilder subsetBuilder = null;
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -135,6 +147,35 @@ public final class TOPSARSplitOp extends Operator {
                 }
             }
 
+            subsetBuilder = new ProductSubsetBuilder();
+            final ProductSubsetDef subsetDef = new ProductSubsetDef();
+
+            final List<String> selectedTPGList = new ArrayList<>();
+            for (TiePointGrid srcTPG : sourceProduct.getTiePointGrids()) {
+                if (srcTPG.getName().contains(subswath)) {
+                    selectedTPGList.add(srcTPG.getName());
+                }
+            }
+            subsetDef.addNodeNames(selectedTPGList.toArray(new String[selectedTPGList.size()]));
+
+            final int x = 0;
+            final int y = (firstBurstIndex - 1) * subSwathInfo[subSwathIndex - 1].linesPerBurst;
+            final int w = selectedBands.get(0).getRasterWidth();
+            final int h = (lastBurstIndex - firstBurstIndex + 1) * subSwathInfo[subSwathIndex - 1].linesPerBurst;
+            subsetDef.setRegion(x, y, w, h);
+
+            subsetDef.setSubSampling(1, 1);
+            subsetDef.setIgnoreMetadata(false);
+
+            final String[] selectedBandNames = new String[selectedBands.size()];
+            for (int i = 0; i < selectedBandNames.length; i++) {
+                selectedBandNames[i] = selectedBands.get(i).getName();
+            }
+            subsetDef.addNodeNames(selectedBandNames);
+
+            targetProduct = subsetBuilder.readProductNodes(sourceProduct, subsetDef);
+
+/*
             targetProduct = new Product(sourceProduct.getName() + '_' + subswath,
                     sourceProduct.getProductType(),
                     selectedBands.get(0).getRasterWidth(),
@@ -175,7 +216,7 @@ public final class TOPSARSplitOp extends Operator {
             targetProduct.setStartTime(sourceProduct.getStartTime());
             targetProduct.setEndTime(sourceProduct.getEndTime());
             targetProduct.setDescription(sourceProduct.getDescription());
-
+*/
             updateTargetProductMetadata();
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -193,11 +234,19 @@ public final class TOPSARSplitOp extends Operator {
      */
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+
+        ProductData destBuffer = targetTile.getRawSamples();
+        Rectangle rectangle = targetTile.getRectangle();
         try {
-            final Tile srcRaster = getSourceTile(sourceProduct.getBand(targetBand.getName()), targetTile.getRectangle());
-            targetTile.setRawSamples(srcRaster.getRawSamples());
-        } catch (Exception e) {
-            OperatorUtils.catchOperatorException(this.getId(), e);
+            subsetBuilder.readBandRasterData(targetBand,
+                    rectangle.x,
+                    rectangle.y,
+                    rectangle.width,
+                    rectangle.height,
+                    destBuffer, pm);
+            targetTile.setRawSamples(destBuffer);
+        } catch (IOException e) {
+            throw new OperatorException(e);
         }
     }
 
@@ -208,9 +257,18 @@ public final class TOPSARSplitOp extends Operator {
     }
 
     /**
-     * Update the metadata in the target product.
+     * Update target product metadata.
      */
     private void updateTargetProductMetadata() {
+
+        updateAbstractedMetadata();
+        updateOriginalMetadata();
+    }
+
+    /**
+     * Update the abstracted metadata in the target product.
+     */
+    private void updateAbstractedMetadata() {
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
 
@@ -231,6 +289,12 @@ public final class TOPSARSplitOp extends Operator {
 
         absRoot.setAttributeDouble(AbstractMetadata.azimuth_spacing,
                 subSwathInfo[subSwathIndex - 1].azimuthPixelSpacing);
+
+        absRoot.setAttributeInt(AbstractMetadata.num_output_lines,
+                subSwathInfo[subSwathIndex - 1].numOfLines);
+
+        absRoot.setAttributeInt(AbstractMetadata.num_samples_per_line,
+                subSwathInfo[subSwathIndex - 1].numOfSamples);
 
         final int rows = subSwathInfo[subSwathIndex - 1].latitude.length;
         final int cols = subSwathInfo[subSwathIndex - 1].latitude[0].length;
@@ -283,11 +347,15 @@ public final class TOPSARSplitOp extends Operator {
                 absRoot.removeElement(bandMeta);
             }
         }
+    }
+
+    private void updateOriginalMetadata() {
 
         final MetadataElement origMeta = AbstractMetadata.getOriginalProductMetadata(targetProduct);
         removeElements(origMeta, "annotation");
         removeElements(origMeta, "calibration");
         removeElements(origMeta, "noise");
+        removeBursts(origMeta);
     }
 
     private void removeElements(final MetadataElement origMeta, final String parent) {
@@ -308,6 +376,28 @@ public final class TOPSARSplitOp extends Operator {
                     if (!isSelected) {
                         parentElem.removeElement(elem);
                     }
+                }
+            }
+        }
+    }
+
+    private void removeBursts(final MetadataElement origMeta) {
+
+        MetadataElement annotation = origMeta.getElement("annotation");
+        if (annotation == null) {
+            throw new OperatorException("Annotation Metadata not found");
+        }
+
+        final MetadataElement[] elems = annotation.getElements();
+        for (MetadataElement elem : elems) {
+            final MetadataElement product = elem.getElement("product");
+            final MetadataElement swathTiming = product.getElement("swathTiming");
+            final MetadataElement burstList = swathTiming.getElement("burstList");
+            burstList.setAttributeString("count", Integer.toString(lastBurstIndex - firstBurstIndex + 1));
+            final MetadataElement[] burstListElem = burstList.getElements();
+            for (int i = 0; i < burstListElem.length; i++) {
+                if (i < firstBurstIndex - 1 || i > lastBurstIndex - 1) {
+                    burstList.removeElement(burstListElem[i]);
                 }
             }
         }
