@@ -22,6 +22,8 @@
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <subswath>IW1</subswath>
       <selectedPolarisations>VV</selectedPolarisations>
+      <firstBurstIndex>1</firstBurstIndex>
+      <lastBurstIndex>1</lastBurstIndex>
     </parameters>
   </node>
   <node id="TOPSAR-Split(2)">
@@ -32,6 +34,8 @@
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <subswath>IW1</subswath>
       <selectedPolarisations>VV</selectedPolarisations>
+      <firstBurstIndex>1</firstBurstIndex>
+      <lastBurstIndex>1</lastBurstIndex>
     </parameters>
   </node>
   <node id="Apply-Orbit-File">
@@ -96,6 +100,8 @@
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <subswath>IW2</subswath>
       <selectedPolarisations>VV</selectedPolarisations>
+      <firstBurstIndex>1</firstBurstIndex>
+      <lastBurstIndex>1</lastBurstIndex>
     </parameters>
   </node>
   <node id="TOPSAR-Split(4)">
@@ -106,6 +112,8 @@
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <subswath>IW2</subswath>
       <selectedPolarisations>VV</selectedPolarisations>
+      <firstBurstIndex>1</firstBurstIndex>
+      <lastBurstIndex>1</lastBurstIndex>
     </parameters>
   </node>
   <node id="Back-Geocoding(2)">
@@ -148,6 +156,8 @@
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <subswath>IW3</subswath>
       <selectedPolarisations>VV</selectedPolarisations>
+      <firstBurstIndex>1</firstBurstIndex>
+      <lastBurstIndex>1</lastBurstIndex>
     </parameters>
   </node>
   <node id="TOPSAR-Split(6)">
@@ -158,6 +168,8 @@
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <subswath>IW3</subswath>
       <selectedPolarisations>VV</selectedPolarisations>
+      <firstBurstIndex>1</firstBurstIndex>
+      <lastBurstIndex>1</lastBurstIndex>
     </parameters>
   </node>
   <node id="Back-Geocoding(3)">
