@@ -189,7 +189,7 @@ public class ProductDB extends DAO {
     public void removeProducts(final File baseDir, final ProgressMonitor pm) throws SQLException {
         final String queryStr = AbstractMetadata.PATH + " LIKE '" + baseDir.getAbsolutePath() + "%'";
         final ProductEntry[] list = queryProduct(queryStr);
-        pm.beginTask("Removing products...", list.length);
+        pm.beginTask("Removing products from database...", list.length);
         for (ProductEntry entry : list) {
             if(pm.isCanceled())
                 break;
@@ -203,7 +203,7 @@ public class ProductDB extends DAO {
     public void removeAllProducts(final ProgressMonitor pm) throws SQLException {
         final String queryStr = "";
         final ProductEntry[] list = queryProduct(queryStr);
-        pm.beginTask("Removing products...", list.length);
+        pm.beginTask("Removing products from database...", list.length);
         for (ProductEntry entry : list) {
             if(pm.isCanceled())
                 break;
