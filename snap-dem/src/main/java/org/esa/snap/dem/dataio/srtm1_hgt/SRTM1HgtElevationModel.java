@@ -75,7 +75,7 @@ public class SRTM1HgtElevationModel extends BaseElevationModel {
             lonString = '0' + lonString;
         }
         name.append(lonString);
-        name.append(".hgt.zip");
+        name.append(".SRTMGL1.hgt.zip");
 
         return name.toString();
     }
