@@ -20,6 +20,11 @@ public interface MathTransform2D extends org.opengis.referencing.operation.MathT
     MathTransform2D IDENTITY = new IdentityTransform2D();
 
     /**
+     * A transform encapsulating that there is no transform.
+     */
+    MathTransform2D NULL = new NullTransform2D();
+
+    /**
      * Gets the dimension of input points.
      *
      * @return The dimension of input points.

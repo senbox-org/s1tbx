@@ -11,7 +11,7 @@ import java.awt.geom.Point2D;
  *
  * @author Tonio Fincke
  */
-public class NullTransform2D extends AbstractTransform2D {
+class NullTransform2D extends AbstractTransform2D {
 
     @Override
     public Point2D transform(Point2D ptSrc, Point2D ptDst) throws TransformException {
