@@ -98,17 +98,27 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         final Calendar calendar = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).getAsCalendar();
         final int year = calendar.get(Calendar.YEAR);
         final int month = calendar.get(Calendar.MONTH) + 1; // zero based
+        final int day = calendar.get(Calendar.DAY_OF_MONTH);
 
         this.orbitFile = findOrbitFile(stateVectorTime, year);
 
         if(orbitFile == null) {
             getRemoteFiles(year, month);
             this.orbitFile = findOrbitFile(stateVectorTime, year);
-            if(orbitFile == null) {
-                String timeStr = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).format();
-                final File destFolder = getDestFolder(year);
-                throw new OperatorException("No valid orbit file found for " + timeStr + "\nOrbit files may be downloaded from https://qc.sentinel1.eo.esa.int/"
-                                            +"\nand placed in "+destFolder.getAbsolutePath());
+            if (orbitFile == null) {
+                if(day < 15) {
+                    getRemoteFiles(year, month-1);
+                } else {
+                    getRemoteFiles(year, month+1);
+                }
+                this.orbitFile = findOrbitFile(stateVectorTime, year);
+
+                if (orbitFile == null) {
+                    String timeStr = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).format();
+                    final File destFolder = getDestFolder(year);
+                    throw new OperatorException("No valid orbit file found for " + timeStr + "\nOrbit files may be downloaded from https://qc.sentinel1.eo.esa.int/"
+                            + "\nand placed in " + destFolder.getAbsolutePath());
+                }
             }
         }
 
