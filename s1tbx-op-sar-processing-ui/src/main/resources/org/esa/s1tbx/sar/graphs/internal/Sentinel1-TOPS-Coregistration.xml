@@ -18,6 +18,8 @@
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <subswath/>
       <selectedPolarisations/>
+      <firstBurstIndex>1</firstBurstIndex>
+      <lastBurstIndex>1</lastBurstIndex>
     </parameters>
   </node>
   <node id="TOPSAR-Split(2)">
@@ -28,6 +30,8 @@
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <subswath/>
       <selectedPolarisations/>
+      <firstBurstIndex>1</firstBurstIndex>
+      <lastBurstIndex>1</lastBurstIndex>
     </parameters>
   </node>
   <node id="Apply-Orbit-File">
