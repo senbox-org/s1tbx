@@ -292,7 +292,8 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, geo11.getLat());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, geo11.getLon());
 
-        ReaderUtils.addMetadataIncidenceAngles(product);
+        //todo causes lazy tpg to load
+        // ReaderUtils.addMetadataIncidenceAngles(product);
     }
 
     private void addTiePointGrids(final Product product) {
