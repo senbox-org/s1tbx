@@ -123,7 +123,7 @@ public class RangeDopplerGeocodingOp extends Operator {
     @Parameter(label = "External DEM")
     private File externalDEMFile = null;
 
-    @Parameter(label = "DEM No Data Value", defaultValue = "0")
+    @Parameter(label = "External DEM No Data Value", defaultValue = "0")
     private double externalDEMNoDataValue = 0;
 
     @Parameter(defaultValue = ResamplingFactory.BILINEAR_INTERPOLATION_NAME, label = "DEM Resampling Method")
@@ -489,6 +489,7 @@ public class RangeDopplerGeocodingOp extends Operator {
         if (externalDEMFile != null) { // if external DEM file is specified by user
 
             dem = new FileElevationModel(externalDEMFile, demResamplingMethod, externalDEMNoDataValue);
+            ((FileElevationModel)dem).applyEarthGravitionalModel(true);
             demNoDataValue = externalDEMNoDataValue;
             demName = externalDEMFile.getName();
 

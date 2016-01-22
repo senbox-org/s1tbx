@@ -363,8 +363,7 @@ public final class DEMGenerationOp extends Operator {
 
         if (externalDEMFile != null && fileElevationModel == null) { // if external DEM file is specified by user
 
-            fileElevationModel = new FileElevationModel(externalDEMFile,
-                    ResamplingFactory.createResampling(demResamplingMethod), externalDEMNoDataValue);
+            fileElevationModel = new FileElevationModel(externalDEMFile, demResamplingMethod, externalDEMNoDataValue);
             demNoDataValue = externalDEMNoDataValue;
             demName = externalDEMFile.getPath();
 
