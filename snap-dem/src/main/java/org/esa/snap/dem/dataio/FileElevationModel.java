@@ -32,7 +32,6 @@ import java.io.IOException;
 public class FileElevationModel implements ElevationModel, Resampling.Raster {
 
     private Resampling resampling;
-    private Resampling.Index resamplingIndex;
     private Resampling.Raster resamplingRaster;
     private GeoCoding tileGeocoding;
 
@@ -42,22 +41,12 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
     private int RASTER_HEIGHT;
     private double noDataValue = 0;
 
-    public FileElevationModel(final File file, final String resamplingMethodName) throws IOException {
-
-        this(file, resamplingMethodName, null);
-    }
-
     public FileElevationModel(final File file, final String resamplingMethodName, final Double demNoDataValue) throws IOException {
 
         if (resamplingMethodName.equals(DEMFactory.DELAUNAY_INTERPOLATION))
             throw new IOException("Delaunay interpolation for an external DEM file is currently not supported");
 
         init(file, ResamplingFactory.createResampling(resamplingMethodName), demNoDataValue);
-    }
-
-    public FileElevationModel(final File file, final Resampling resamplingMethod, final Double demNoDataValue) throws IOException {
-
-        init(file, resamplingMethod, demNoDataValue);
     }
 
     private void init(final File file, final Resampling resamplingMethod, Double demNoDataValue) throws IOException {
@@ -68,18 +57,18 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
         final Product product = productReader.readProductNodes(file, null);
         RASTER_WIDTH = product.getBandAt(0).getRasterWidth();
         RASTER_HEIGHT = product.getBandAt(0).getRasterHeight();
-        fileElevationTile = new FileElevationTile(product);
-        tileGeocoding = product.getSceneGeoCoding();
-        if(tileGeocoding == null) {
-            throw new IOException(file.toString()+" has an invalid or unsupported geocoding");
-        }
         if (demNoDataValue == null)
             noDataValue = product.getBandAt(0).getNoDataValue();
         else
             noDataValue = demNoDataValue;
 
+        fileElevationTile = new FileElevationTile(product, noDataValue);
+        tileGeocoding = product.getSceneGeoCoding();
+        if(tileGeocoding == null) {
+            throw new IOException(file.toString()+" has an invalid or unsupported geocoding");
+        }
+
         resampling = resamplingMethod;
-        resamplingIndex = resampling.createIndex();
         resamplingRaster = this;
     }
 
@@ -105,9 +94,10 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
             if (!pix.isValid() || pix.x < 0 || pix.y < 0 || pix.x >= RASTER_WIDTH || pix.y >= RASTER_HEIGHT)
                 return noDataValue;
 
-            resampling.computeIndex(pix.x, pix.y, RASTER_WIDTH, RASTER_HEIGHT, resamplingIndex);
+            Resampling.Index newIndex = resampling.createIndex();
+            resampling.computeCornerBasedIndex(pix.x, pix.y, RASTER_WIDTH, RASTER_HEIGHT, newIndex);
 
-            final double elevation = resampling.resample(resamplingRaster, resamplingIndex);
+            final double elevation = resampling.resample(resamplingRaster, newIndex);
             if (Double.isNaN(elevation)) {
                 return noDataValue;
             }
@@ -154,5 +144,9 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
             }
         }
         return allValid;
+    }
+
+    public void applyEarthGravitionalModel(boolean flag) {
+        fileElevationTile.applyEarthGravitionalModel(flag);
     }
 }
