@@ -98,7 +98,7 @@ public final class AddElevationOp extends Operator {
 
             if (externalDEM != null && !externalDEM.trim().isEmpty()) {
 
-                fileElevationModel = new FileElevationModel(new File(externalDEM), resamplingMethod);
+                fileElevationModel = new FileElevationModel(new File(externalDEM), resamplingMethod, null);
                 noDataValue = fileElevationModel.getNoDataValue();
             } else {
 
