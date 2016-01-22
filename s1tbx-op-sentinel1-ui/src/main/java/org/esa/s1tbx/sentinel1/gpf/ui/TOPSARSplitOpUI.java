@@ -192,6 +192,8 @@ public class TOPSARSplitOpUI extends BaseOperatorUI {
     private GeoPos[][] getSelectedBoundaries() {
         final Sentinel1Utils.SubSwathInfo[] subswaths = su.getSubSwath();
         final String subswath = (String) subswathCombo.getSelectedItem();
+        if (subswath == null)
+            return null;
 
         for (Sentinel1Utils.SubSwathInfo swath : subswaths) {
             if (swath.subSwathName.contains(subswath)) {
