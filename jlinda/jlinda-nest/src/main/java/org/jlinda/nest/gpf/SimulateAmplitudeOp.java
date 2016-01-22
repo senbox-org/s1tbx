@@ -143,7 +143,7 @@ public final class SimulateAmplitudeOp extends Operator {
         Resampling resampling = Resampling.BILINEAR_INTERPOLATION;
 
         if (externalDEMFile != null) { // if external DEM file is specified by user
-            dem = new FileElevationModel(externalDEMFile, resampling, externalDEMNoDataValue);
+            dem = new FileElevationModel(externalDEMFile, resampling.getName(), externalDEMNoDataValue);
             demNoDataValue = externalDEMNoDataValue;
             demName = externalDEMFile.getPath();
 

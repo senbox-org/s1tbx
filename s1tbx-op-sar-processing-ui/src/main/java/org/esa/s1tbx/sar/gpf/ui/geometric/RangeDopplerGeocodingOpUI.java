@@ -88,7 +88,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
     private final JTextField externalDEMNoDataValue = new JTextField("");
     private final JButton externalDEMBrowseButton = new JButton("...");
     private final JLabel externalDEMFileLabel = new JLabel("External DEM:");
-    private final JLabel externalDEMNoDataValueLabel = new JLabel("DEM No Data Value:");
+    private final JLabel externalDEMNoDataValueLabel = new JLabel("External DEM No Data Value:");
     final JLabel sourcePixelSpacingsLabelPart1 = new JLabel("Source GR Pixel Spacings (az x rg):");
     final JLabel sourcePixelSpacingsLabelPart2 = new JLabel("0.0(m) x 0.0(m)");
 
