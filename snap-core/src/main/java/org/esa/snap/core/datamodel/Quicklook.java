@@ -18,6 +18,7 @@ package org.esa.snap.core.datamodel;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.SystemUtils;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -64,12 +65,16 @@ public class Quicklook extends ProductNode {
         visitor.visit(this);
     }
 
-    public BufferedImage getImage() throws IOException {
+    public BufferedImage getImage() {
         if (image == null) {
             final QuicklookGenerator qlGen = new QuicklookGenerator();
             if (browseFile != null) {
-                final Product browseProduct = ProductIO.readProduct(browseFile);
-                image = qlGen.createQuickLookFromBrowseProduct(browseProduct, true);
+                try {
+                    final Product browseProduct = ProductIO.readProduct(browseFile);
+                    image = qlGen.createQuickLookFromBrowseProduct(browseProduct, true);
+                } catch (IOException e) {
+                    SystemUtils.LOG.severe("Unable to load quicklook: "+e.getMessage());
+                }
             } else {
 
             }

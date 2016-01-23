@@ -1364,6 +1364,14 @@ public class Product extends ProductNode {
         return quicklookGroup;
     }
 
+    public Quicklook getDefaultQuicklook() {
+        if(quicklookGroup.getNodeCount() == 0) {
+            // generate a new QL based on quicklookBandName
+            System.out.println("do this");
+        }
+        return quicklookGroup.get(0);
+    }
+
     /**
      * Gets the name of the band suitable for quicklook generation.
      *

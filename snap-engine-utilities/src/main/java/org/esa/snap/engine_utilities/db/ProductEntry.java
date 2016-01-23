@@ -23,6 +23,7 @@ import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.Quicklook;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.util.ProductFunctions;
@@ -73,8 +74,10 @@ public class ProductEntry {
     private final GeoPos lastNear = new GeoPos();
     private final GeoPos lastFar = new GeoPos();
     private GeoPos[] geoboundary;
+    private boolean useGeoboundaryForBox = false;
 
     private BufferedImage quickLookImage = null;
+    private Quicklook quicklook = null;
 
     public ProductEntry(final int id, final File file) {
         this.id = id;
@@ -112,9 +115,12 @@ public class ProductEntry {
 
         if (mission.equals("SMOS")) {
             geoboundary = getSMOSGeoBoundary(product);
+            useGeoboundaryForBox = true;
         } else {
             geoboundary = getGeoBoundary(product);
         }
+
+        quicklook = product.getDefaultQuicklook();
 
         this.id = -1;
     }
@@ -144,6 +150,10 @@ public class ProductEntry {
         this.lastFar.setLocation(results.getDouble(AbstractMetadata.last_far_lat),
                 results.getDouble(AbstractMetadata.last_far_long));
         this.geoboundary = parseGeoBoundaryStr(results.getString(GEO_BOUNDARY));
+
+        if (mission.equals("SMOS")) {
+            useGeoboundaryForBox = true;
+        }
     }
 
     public void dispose() {
@@ -366,16 +376,17 @@ public class ProductEntry {
     }
 
     public BufferedImage getQuickLook() {
-        if (quickLookImage == null) {
-            if(QuickLookGenerator.quickLookExists(this)) {
-                quickLookImage = QuickLookGenerator.loadQuickLook(this);
-            }
+        if(quicklook == null) {
+            return null;
         }
-        return quickLookImage;
-    }
+        return quicklook.getImage();
 
-    public void setQuickLook(final BufferedImage img) {
-        quickLookImage = img;
+//        if (quickLookImage == null) {
+//            if(QuickLookGenerator.quickLookExists(this)) {
+//                quickLookImage = QuickLookGenerator.loadQuickLook(this);
+//            }
+//        }
+//        return quickLookImage;
     }
 
     public boolean equals(Object other) {
@@ -402,7 +413,7 @@ public class ProductEntry {
     }
 
     public GeoPos[] getBox() {
-        if (mission.equals("SMOS") && geoboundary != null && geoboundary.length != 0) {
+        if (useGeoboundaryForBox && geoboundary != null && geoboundary.length != 0) {
             return geoboundary;
         }
         final GeoPos[] geoBound = new GeoPos[4];
