@@ -17,16 +17,15 @@ package org.esa.s1tbx.sentinel1.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.insar.gpf.Sentinel1Utils;
-import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductSubsetBuilder;
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
-import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -35,7 +34,6 @@ import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
-import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
@@ -71,8 +69,8 @@ public final class TOPSARSplitOp extends Operator {
     @Parameter(description = "The first burst index", interval = "[1, *)", defaultValue = "1", label = "First Burst Index")
     private Integer firstBurstIndex = 1;
 
-    @Parameter(description = "The last burst index", interval = "[1, *)", defaultValue = "1", label = "Last Burst Index")
-    private Integer lastBurstIndex = 1;
+    @Parameter(description = "The last burst index", interval = "[1, *)", defaultValue = "9999", label = "Last Burst Index")
+    private Integer lastBurstIndex = 9999;
 
     private Sentinel1Utils su = null;
     private Sentinel1Utils.SubSwathInfo[] subSwathInfo = null;
@@ -100,7 +98,7 @@ public final class TOPSARSplitOp extends Operator {
             validator.checkIfSentinel1Product();
             validator.checkIfMultiSwathTOPSARProduct();
             validator.checkProductType(new String[]{"SLC"});
-            validator.checkAcquisitionMode(new String[]{"IW","EW"});
+            validator.checkAcquisitionMode(new String[]{"IW", "EW"});
 
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
             if (subswath == null) {
@@ -132,7 +130,7 @@ public final class TOPSARSplitOp extends Operator {
                 }
             }
 
-            if(selectedBands.size() < 1) {
+            if (selectedBands.size() < 1) {
                 // try again
                 selectedPolarisations = Sentinel1Utils.getProductPolarizations(absRoot);
 
@@ -145,6 +143,11 @@ public final class TOPSARSplitOp extends Operator {
                         }
                     }
                 }
+            }
+
+            int maxBursts = su.getNumOfBursts(subswath);
+            if (lastBurstIndex > maxBursts) {
+                lastBurstIndex = maxBursts;
             }
 
             subsetBuilder = new ProductSubsetBuilder();
@@ -175,48 +178,17 @@ public final class TOPSARSplitOp extends Operator {
 
             targetProduct = subsetBuilder.readProductNodes(sourceProduct, subsetDef);
 
-/*
-            targetProduct = new Product(sourceProduct.getName() + '_' + subswath,
-                    sourceProduct.getProductType(),
-                    selectedBands.get(0).getRasterWidth(),
-                    selectedBands.get(0).getRasterHeight());
+            targetProduct.removeTiePointGrid(targetProduct.getTiePointGrid("latitude"));
+            targetProduct.removeTiePointGrid(targetProduct.getTiePointGrid("longitude"));
 
-            for (TiePointGrid srcTPG : sourceProduct.getTiePointGrids()) {
-                if (srcTPG.getName().contains(subswath)) {
-                    final TiePointGrid dstTPG = srcTPG.cloneTiePointGrid();
-                    dstTPG.setName(srcTPG.getName().replace(subswath+'_', ""));
-                    targetProduct.addTiePointGrid(dstTPG);
-                }
-            }
-            addGeocoding();
-
-            boolean oneBandToProcess = false;
-            for (Band srcBand : selectedBands) {
-                if (srcBand instanceof VirtualBand) {
-                    final VirtualBand sourceBand = (VirtualBand) srcBand;
-                    final VirtualBand targetBand = new VirtualBand(sourceBand.getName(),
-                            sourceBand.getDataType(),
-                            sourceBand.getRasterWidth(),
-                            sourceBand.getRasterHeight(),
-                            sourceBand.getExpression());
-                    ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
-                    targetProduct.addBand(targetBand);
-                } else {
-                    ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, false);
-                    oneBandToProcess = false;
-                }
+            for (TiePointGrid tpg : targetProduct.getTiePointGrids()) {
+                tpg.setName(tpg.getName().replace(subswath + "_", ""));
             }
 
+            GeoCoding geoCoding = new TiePointGeoCoding(targetProduct.getTiePointGrid("latitude"),
+                    targetProduct.getTiePointGrid("longitude"));
+            targetProduct.setSceneGeoCoding(geoCoding);
 
-            ProductUtils.copyMetadata(sourceProduct, targetProduct);
-            ProductUtils.copyFlagCodings(sourceProduct, targetProduct);
-            ProductUtils.copyMasks(sourceProduct, targetProduct);
-            ProductUtils.copyVectorData(sourceProduct, targetProduct);
-            ProductUtils.copyIndexCodings(sourceProduct, targetProduct);
-            targetProduct.setStartTime(sourceProduct.getStartTime());
-            targetProduct.setEndTime(sourceProduct.getEndTime());
-            targetProduct.setDescription(sourceProduct.getDescription());
-*/
             updateTargetProductMetadata();
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -248,12 +220,6 @@ public final class TOPSARSplitOp extends Operator {
         } catch (IOException e) {
             throw new OperatorException(e);
         }
-    }
-
-    private void addGeocoding() {
-        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(targetProduct.getTiePointGrid(OperatorUtils.TPG_LATITUDE),
-                                                                    targetProduct.getTiePointGrid(OperatorUtils.TPG_LONGITUDE));
-        targetProduct.setSceneGeoCoding(tpGeoCoding);
     }
 
     /**
@@ -360,7 +326,7 @@ public final class TOPSARSplitOp extends Operator {
 
     private void removeElements(final MetadataElement origMeta, final String parent) {
         final MetadataElement parentElem = origMeta.getElement(parent);
-        if(parentElem != null) {
+        if (parentElem != null) {
             final MetadataElement[] elemList = parentElem.getElements();
             for (MetadataElement elem : elemList) {
                 if (!elem.getName().toUpperCase().contains(subswath)) {

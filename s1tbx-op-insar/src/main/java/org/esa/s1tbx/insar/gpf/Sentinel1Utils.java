@@ -1049,10 +1049,13 @@ public final class Sentinel1Utils {
         return numOfSubSwath;
     }
 
-    public static boolean checkIfWideSwathProduct(final Product product) {
-        final String[] bandNames = product.getBandNames();
-        return (contains(bandNames, "IW1") && contains(bandNames, "IW2") ||
-                contains(bandNames, "EW1") && contains(bandNames, "EW2"));
+    public int getNumOfBursts(final String subswath) {
+        for (SubSwathInfo aSubSwathInfo : subSwath) {
+            if (aSubSwathInfo.subSwathName.contains(subswath)) {
+                return aSubSwathInfo.numOfBursts;
+            }
+        }
+        return 0;
     }
 
     private static boolean contains(final String[] list, final String tag) {

@@ -23,7 +23,7 @@
       <subswath>IW1</subswath>
       <selectedPolarisations>VV</selectedPolarisations>
       <firstBurstIndex>1</firstBurstIndex>
-      <lastBurstIndex>1</lastBurstIndex>
+      <lastBurstIndex>9999</lastBurstIndex>
     </parameters>
   </node>
   <node id="TOPSAR-Split(2)">
@@ -35,7 +35,7 @@
       <subswath>IW1</subswath>
       <selectedPolarisations>VV</selectedPolarisations>
       <firstBurstIndex>1</firstBurstIndex>
-      <lastBurstIndex>1</lastBurstIndex>
+      <lastBurstIndex>9999</lastBurstIndex>
     </parameters>
   </node>
   <node id="Apply-Orbit-File">
@@ -101,7 +101,7 @@
       <subswath>IW2</subswath>
       <selectedPolarisations>VV</selectedPolarisations>
       <firstBurstIndex>1</firstBurstIndex>
-      <lastBurstIndex>1</lastBurstIndex>
+      <lastBurstIndex>9999</lastBurstIndex>
     </parameters>
   </node>
   <node id="TOPSAR-Split(4)">
@@ -113,7 +113,7 @@
       <subswath>IW2</subswath>
       <selectedPolarisations>VV</selectedPolarisations>
       <firstBurstIndex>1</firstBurstIndex>
-      <lastBurstIndex>1</lastBurstIndex>
+      <lastBurstIndex>9999</lastBurstIndex>
     </parameters>
   </node>
   <node id="Back-Geocoding(2)">
@@ -157,7 +157,7 @@
       <subswath>IW3</subswath>
       <selectedPolarisations>VV</selectedPolarisations>
       <firstBurstIndex>1</firstBurstIndex>
-      <lastBurstIndex>1</lastBurstIndex>
+      <lastBurstIndex>9999</lastBurstIndex>
     </parameters>
   </node>
   <node id="TOPSAR-Split(6)">
@@ -169,7 +169,7 @@
       <subswath>IW3</subswath>
       <selectedPolarisations>VV</selectedPolarisations>
       <firstBurstIndex>1</firstBurstIndex>
-      <lastBurstIndex>1</lastBurstIndex>
+      <lastBurstIndex>9999</lastBurstIndex>
     </parameters>
   </node>
   <node id="Back-Geocoding(3)">

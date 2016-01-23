@@ -199,7 +199,7 @@ public final class SubtRefDemOp extends Operator {
         }
 
         if (externalDEMFile != null) { // if external DEM file is specified by user
-            dem = new FileElevationModel(externalDEMFile, resampling, externalDEMNoDataValue);
+            dem = new FileElevationModel(externalDEMFile, resampling.getName(), externalDEMNoDataValue);
             demName = externalDEMFile.getPath();
             demNoDataValue = externalDEMNoDataValue;
 
