@@ -193,10 +193,18 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
             localFolder = new File(Settings.getPath("OrbitFiles.sentinel1POEOrbitPath"), String.valueOf(year));
             remotePath = new URL(Settings.instance().getPath("OrbitFiles.sentinel1POEOrbit_remotePath"));
         }
-
         final File localFile = new File(localFolder, year + "-" + month + ".zip");
-        final DownloadableArchive archive = new DownloadableArchive(localFile, remotePath);
-        archive.getContentFiles();
+
+        try {
+            final DownloadableArchive archive = new DownloadableArchive(localFile, remotePath);
+            archive.getContentFiles();
+        } catch (Exception e) {
+            if(localFile.exists()) {
+                localFile.delete();
+                final DownloadableArchive archive = new DownloadableArchive(localFile, remotePath);
+                archive.getContentFiles();
+            }
+        }
     }
 
     /**
