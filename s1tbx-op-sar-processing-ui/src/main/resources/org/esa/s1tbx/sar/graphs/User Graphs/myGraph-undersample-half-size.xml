@@ -1,0 +1,50 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement"/>
+  </node>
+  <node id="Undersample">
+    <operator>Undersample</operator>
+    <sources>
+      <sourceProduct refid="Read"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+      <method>LowPass Filtering</method>
+      <filterSize>3x3</filterSize>
+      <subSamplingX>2</subSamplingX>
+      <subSamplingY>2</subSamplingY>
+      <outputImageBy>Ratio</outputImageBy>
+      <targetImageHeight>1000</targetImageHeight>
+      <targetImageWidth>1000</targetImageWidth>
+      <widthRatio>0.5</widthRatio>
+      <heightRatio>0.5</heightRatio>
+      <rangeSpacing>12.5</rangeSpacing>
+      <azimuthSpacing>12.5</azimuthSpacing>
+    </parameters>
+  </node>
+  <node id="Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="Undersample"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <file>target.dim</file>
+      <formatName>BEAM-DIMAP</formatName>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="Write">
+            <displayPosition x="455.0" y="135.0"/>
+    </node>
+    <node id="Undersample">
+      <displayPosition x="177.0" y="142.0"/>
+    </node>
+    <node id="Read">
+            <displayPosition x="37.0" y="134.0"/>
+    </node>
+  </applicationData>
+</graph>
