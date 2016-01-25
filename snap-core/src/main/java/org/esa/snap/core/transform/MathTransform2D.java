@@ -60,4 +60,11 @@ public interface MathTransform2D extends org.opengis.referencing.operation.MathT
      * @throws NoninvertibleTransformException if the transform can't be inversed.
      */
     MathTransform2D inverse() throws NoninvertibleTransformException;
+
+    /**
+     * Indicates whether some other {@code MathTransform2D} is "equal to" this one.
+     *
+     * @return true if this object is equal to the obj argument; false otherwise.
+     */
+    boolean equals(Object object);
 }

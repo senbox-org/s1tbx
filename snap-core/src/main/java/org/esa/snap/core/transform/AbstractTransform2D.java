@@ -65,4 +65,7 @@ public abstract class AbstractTransform2D extends AbstractMathTransform implemen
     @Override
     public abstract MathTransform2D inverse() throws NoninvertibleTransformException;
 
+    @Override
+    public abstract boolean equals(Object object);
+
 }

@@ -27,4 +27,9 @@ class NullTransform2D extends AbstractTransform2D {
     public MathTransform2D inverse() throws NoninvertibleTransformException {
         throw new NoninvertibleTransformException("Cannot invert transformation");
     }
+
+    @Override
+    public boolean equals(Object object) {
+        return this == object;
+    }
 }

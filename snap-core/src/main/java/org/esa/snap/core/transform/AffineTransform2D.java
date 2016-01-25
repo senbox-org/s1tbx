@@ -50,4 +50,14 @@ public class AffineTransform2D extends org.geotools.referencing.operation.transf
         return inverse;
     }
 
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof AffineTransform2D)) {
+            return false;
+        }
+        return ((AffineTransform2D) object).transform.equals(transform);
+    }
 }
