@@ -59,7 +59,7 @@ public class BundleCreator {
         env.put("create", "true");
         URI zipUri;
         try {
-            zipUri = new URI("jar:" + fileUri.getScheme(), fileUri.getPath(), null);
+            zipUri = new URI("jar:" + fileUri.getScheme(), fileUri.getRawPath(), null);
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
