@@ -41,7 +41,7 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
 
     private final JComboBox filter = new JComboBox(new String[]{
             SpeckleFilterOp.NONE,
-            SpeckleFilterOp.MEAN_SPECKLE_FILTER,
+            SpeckleFilterOp.BOXCAR_SPECKLE_FILTER,
             SpeckleFilterOp.MEDIAN_SPECKLE_FILTER,
             SpeckleFilterOp.FROST_SPECKLE_FILTER,
             SpeckleFilterOp.GAMMA_MAP_SPECKLE_FILTER,
@@ -226,7 +226,7 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
         DialogUtils.enableComponents(targetWindowSizeLabel, targetWindowSize, false);
         DialogUtils.enableComponents(sigmaStrLabel, sigmaStr, false);
 
-        if (item.equals(SpeckleFilterOp.MEAN_SPECKLE_FILTER) || item.equals(SpeckleFilterOp.MEDIAN_SPECKLE_FILTER)) {
+        if (item.equals(SpeckleFilterOp.BOXCAR_SPECKLE_FILTER) || item.equals(SpeckleFilterOp.MEDIAN_SPECKLE_FILTER)) {
             DialogUtils.enableComponents(filterSizeXLabel, filterSizeX, true);
             DialogUtils.enableComponents(filterSizeYLabel, filterSizeY, true);
         }

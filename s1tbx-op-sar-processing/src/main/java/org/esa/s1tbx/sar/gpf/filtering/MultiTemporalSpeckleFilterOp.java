@@ -16,10 +16,8 @@
 package org.esa.s1tbx.sar.gpf.filtering;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
+import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.*;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -36,6 +34,7 @@ import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -76,7 +75,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "Multi-Temporal-Speckle-Filter",
         category = "Radar/Speckle Filtering",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
         description = "Speckle Reduction using Multitemporal Filtering")
 public class MultiTemporalSpeckleFilterOp extends Operator {
 
@@ -89,26 +88,56 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
             rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames;
 
-    @Parameter(description = "The gradient threshold for Refined Lee filter", interval = "(0, *)",
+    @Parameter(valueSet = {SpeckleFilterOp.NONE, SpeckleFilterOp.BOXCAR_SPECKLE_FILTER,
+            SpeckleFilterOp.MEDIAN_SPECKLE_FILTER, SpeckleFilterOp.FROST_SPECKLE_FILTER,
+            SpeckleFilterOp.GAMMA_MAP_SPECKLE_FILTER, SpeckleFilterOp.LEE_SPECKLE_FILTER,
+            SpeckleFilterOp.LEE_REFINED_FILTER, SpeckleFilterOp.LEE_SIGMA_FILTER},
+            defaultValue = SpeckleFilterOp.LEE_REFINED_FILTER, label = "Filter")
+    private String filter;
+
+    @Parameter(description = "The kernel x dimension", interval = "(1, 100]", defaultValue = "3", label = "Size X")
+    private int filterSizeX = 3;
+
+    @Parameter(description = "The kernel y dimension", interval = "(1, 100]", defaultValue = "3", label = "Size Y")
+    private int filterSizeY = 3;
+
+    @Parameter(description = "The damping factor (Frost filter only)", interval = "(0, 100]", defaultValue = "2",
+            label = "Frost Damping Factor")
+    private int dampingFactor = 2;
+
+    @Parameter(description = "The edge threshold (Refined Lee filter only)", interval = "(0, *)",
             defaultValue = "5000", label = "Edge detection threshold")
-    private double gradThreshold = 5000.0;
+    private double edgeThreshold = 5000.0;
 
-//    @Parameter(valueSet = {WINDOW_SIZE_3x3, WINDOW_SIZE_5x5, WINDOW_SIZE_7x7, WINDOW_SIZE_9x9, WINDOW_SIZE_11x11},
-//            defaultValue = WINDOW_SIZE_3x3, label = "Window Size")
-    private String windowSize = WINDOW_SIZE_7x7;
+    @Parameter(defaultValue = "false", label = "Estimate Eqivalent Number of Looks")
+    private boolean estimateENL = true;
 
-    private int windowWidth = 0;
-    private int windowHeight = 0;
-    private int halfWindowWidth = 0;
-    private int halfWindowHeight = 0;
-    private int sourceImageWidth = 0;
-    private int sourceImageHeight = 0;
+    @Parameter(description = "The number of looks", interval = "(0, *)", defaultValue = "1.0",
+            label = "Number of looks")
+    private double enl = 1.0;
 
-    private static final String WINDOW_SIZE_3x3 = "3x3";
-    private static final String WINDOW_SIZE_5x5 = "5x5";
-    private static final String WINDOW_SIZE_7x7 = "7x7";
-    private static final String WINDOW_SIZE_9x9 = "9x9";
-    private static final String WINDOW_SIZE_11x11 = "11x11";
+    @Parameter(valueSet = {SpeckleFilterOp.NUM_LOOKS_1, SpeckleFilterOp.NUM_LOOKS_2, SpeckleFilterOp.NUM_LOOKS_3,
+            SpeckleFilterOp.NUM_LOOKS_4}, defaultValue = SpeckleFilterOp.NUM_LOOKS_1, label = "Number of Looks")
+    private String numLooksStr = SpeckleFilterOp.NUM_LOOKS_1;
+
+    @Parameter(valueSet = {SpeckleFilterOp.WINDOW_SIZE_5x5, SpeckleFilterOp.WINDOW_SIZE_7x7,
+            SpeckleFilterOp.WINDOW_SIZE_9x9, SpeckleFilterOp.WINDOW_SIZE_11x11},
+            defaultValue = SpeckleFilterOp.WINDOW_SIZE_7x7, label = "Window Size")
+    private String windowSize = SpeckleFilterOp.WINDOW_SIZE_7x7; // window size for all filters
+
+    @Parameter(valueSet = {SpeckleFilterOp.WINDOW_SIZE_3x3, SpeckleFilterOp.WINDOW_SIZE_5x5},
+            defaultValue = SpeckleFilterOp.WINDOW_SIZE_3x3, label = "Point target window Size")
+    private String targetWindowSizeStr = SpeckleFilterOp.WINDOW_SIZE_3x3; // window size for point target determination in Lee sigma
+
+    @Parameter(valueSet = {SpeckleFilterOp.SIGMA_50_PERCENT, SpeckleFilterOp.SIGMA_60_PERCENT,
+            SpeckleFilterOp.SIGMA_70_PERCENT, SpeckleFilterOp.SIGMA_80_PERCENT, SpeckleFilterOp.SIGMA_90_PERCENT},
+            defaultValue = SpeckleFilterOp.SIGMA_90_PERCENT, label = "Point target window Size")
+    private String sigmaStr = SpeckleFilterOp.SIGMA_90_PERCENT; // sigma value in Lee sigma
+
+    private final Map<String, String[]> targetBandNameToSourceBandName = new HashMap<>();
+
+    private SpeckleFilter speckleFilter;
+
 
     /**
      * Default constructor. The graph processing framework
@@ -136,47 +165,10 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
             validator.checkIfTOPSARBurstProduct(false);
 
-            sourceImageWidth = sourceProduct.getSceneRasterWidth();
-            sourceImageHeight = sourceProduct.getSceneRasterHeight();
+            createTargetProduct();
 
-            targetProduct = new Product(sourceProduct.getName(),
-                    sourceProduct.getProductType(),
-                    sourceProduct.getSceneRasterWidth(),
-                    sourceProduct.getSceneRasterHeight());
+            speckleFilter = createFilter();
 
-            ProductUtils.copyProductNodes(sourceProduct, targetProduct);
-
-            addSelectedBands();
-
-            updateTargetProductMetadata();
-
-            switch (windowSize) {
-                case WINDOW_SIZE_3x3:
-                    windowWidth = 3;
-                    windowHeight = 3;
-                    break;
-                case WINDOW_SIZE_5x5:
-                    windowWidth = 5;
-                    windowHeight = 5;
-                    break;
-                case WINDOW_SIZE_7x7:
-                    windowWidth = 7;
-                    windowHeight = 7;
-                    break;
-                case WINDOW_SIZE_9x9:
-                    windowWidth = 9;
-                    windowHeight = 9;
-                    break;
-                case WINDOW_SIZE_11x11:
-                    windowWidth = 11;
-                    windowHeight = 11;
-                    break;
-                default:
-                    throw new OperatorException("Unknown filter size: " + windowSize);
-            }
-
-            halfWindowWidth = windowWidth / 2;
-            halfWindowHeight = windowHeight / 2;
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
@@ -191,6 +183,41 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
         if(absTgt != null) {
             absTgt.setAttributeString(AbstractMetadata.SAMPLE_TYPE, "DETECTED");
         }
+    }
+
+    /**
+     * Create target product.
+     */
+    private void createTargetProduct() {
+
+        targetProduct = new Product(sourceProduct.getName(),
+                sourceProduct.getProductType(),
+                sourceProduct.getSceneRasterWidth(),
+                sourceProduct.getSceneRasterHeight());
+
+        ProductUtils.copyProductNodes(sourceProduct, targetProduct);
+
+        if(filter.equals(SpeckleFilterOp.NONE)) {
+            final Band[] selectedBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
+            for (Band srcBand : selectedBands) {
+                if (srcBand instanceof VirtualBand) {
+                    final VirtualBand sourceBand = (VirtualBand) srcBand;
+                    final VirtualBand targetBand = new VirtualBand(sourceBand.getName(),
+                            sourceBand.getDataType(),
+                            sourceBand.getRasterWidth(),
+                            sourceBand.getRasterHeight(),
+                            sourceBand.getExpression());
+                    ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
+                    targetProduct.addBand(targetBand);
+                } else {
+                    ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, true);
+                }
+            }
+        } else {
+            addSelectedBands();
+        }
+
+        updateTargetProductMetadata();
     }
 
     /**
@@ -230,7 +257,45 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
 
                 targetBand.setUnit(unit);
                 targetProduct.addBand(targetBand);
+                final String[] srcBandNames = {srcBand.getName()};
+                targetBandNameToSourceBandName.put(targetBand.getName(), srcBandNames);
             }
+        }
+    }
+
+    private SpeckleFilter createFilter() {
+
+        switch (filter) {
+            case SpeckleFilterOp.BOXCAR_SPECKLE_FILTER:
+                return new Boxcar(this, sourceProduct, targetProduct, filterSizeX, filterSizeY,
+                        targetBandNameToSourceBandName);
+
+            case SpeckleFilterOp.MEDIAN_SPECKLE_FILTER:
+                return new Median(this, sourceProduct, targetProduct, filterSizeX, filterSizeY,
+                        targetBandNameToSourceBandName);
+
+            case SpeckleFilterOp.FROST_SPECKLE_FILTER:
+                return new Frost(this, sourceProduct, targetProduct, filterSizeX, filterSizeY,
+                        targetBandNameToSourceBandName, dampingFactor);
+
+            case SpeckleFilterOp.GAMMA_MAP_SPECKLE_FILTER:
+                return new GammaMap(this, sourceProduct, targetProduct, filterSizeX, filterSizeY,
+                        targetBandNameToSourceBandName, estimateENL, enl);
+
+            case SpeckleFilterOp.LEE_SPECKLE_FILTER:
+                return new Lee(this, sourceProduct, targetProduct, filterSizeX, filterSizeY,
+                        targetBandNameToSourceBandName, estimateENL, enl);
+
+            case SpeckleFilterOp.LEE_REFINED_FILTER:
+                return new RefinedLee(this, sourceProduct, targetProduct, targetBandNameToSourceBandName,
+                        edgeThreshold);
+
+            case SpeckleFilterOp.LEE_SIGMA_FILTER:
+                return new LeeSigma(this, sourceProduct, targetProduct, targetBandNameToSourceBandName,
+                        numLooksStr, windowSize, targetWindowSizeStr, sigmaStr);
+
+            default:
+                return null;
         }
     }
 
@@ -250,133 +315,71 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
         final int y0 = targetRectangle.y;
         final int w = targetRectangle.width;
         final int h = targetRectangle.height;
+        final int yMax = y0 + h;
+        final int xMax = x0 + w;
         //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
-        final Band[] targetBands = targetProduct.getBands();
-        final int numBands = targetBands.length;
-        final ProductData[] targetData = new ProductData[numBands];
-        for (int i = 0; i < numBands; i++) {
-            Tile targetTile = targetTiles.get(targetBands[i]);
-            targetData[i] = targetTile.getDataBuffer();
-        }
+        try {
+            final Band[] targetBands = targetProduct.getBands();
+            final int numBands = targetBands.length;
 
-        final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h);
+            final List<double[][]> filteredTileList = new ArrayList<>();;
+            double[][] sum = new double[h][w];
+            int[][] count = new int[h][w];
+            for (Band tgtBand : targetBands) {
+                final Band srcBand = sourceProduct.getBand(tgtBand.getName());
+                final Tile srcTile = getSourceTile(srcBand, targetRectangle);
+                final ProductData srcData = srcTile.getDataBuffer();
+                final double bandNoDataValues = srcBand.getNoDataValue();
+                final String[] srcBandNames = {srcBand.getName()};
 
-        final Tile[] sourceTile = new Tile[numBands];
-        final ProductData[] sourceData = new ProductData[numBands];
-        final double[] bandNoDataValues = new double[numBands];
-        for (int i = 0; i < numBands; i++) {
-            final Band srcBand = sourceProduct.getBand(targetBands[i].getName());
-            sourceTile[i] = getSourceTile(srcBand, sourceRectangle);
-            sourceData[i] = sourceTile[i].getDataBuffer();
-            bandNoDataValues[i] = srcBand.getNoDataValue();
-        }
+                final double[][] filteredTile = speckleFilter.performFiltering(x0, y0, w, h, srcBandNames);
 
-        final double[] localMeans = new double[numBands];
-        double srcDataValue = 0.0;
-        final int yMax = y0 + h;
-        for (int y = y0; y < yMax; y++) {
-            final int xMax = x0 + w;
-            for (int x = x0; x < xMax; x++) {
+                filteredTileList.add(filteredTile);
 
-                final int sourceIndex = sourceTile[0].getDataBufferIndex(x, y);
-
-                double sum = 0.0;
-                int n = 0;
-                for (int i = 0; i < numBands; i++) {
-                    srcDataValue = sourceData[i].getElemDoubleAt(sourceIndex);
-                    if (srcDataValue == bandNoDataValues[i]) {
-                        localMeans[i] = bandNoDataValues[i];
-                        continue;
-                    }
-
-                    localMeans[i] = computeLocalMean(x, y, sourceTile[i], sourceData[i], bandNoDataValues[i]);
-
-                    if (localMeans[i] != 0.0) {
-                        sum += sourceData[i].getElemDoubleAt(sourceIndex) / localMeans[i];
-                    }
-                    n++;
-                }
-                if (n > 0) {
-                    sum /= n;
-                }
-
-                final int targetIndex = targetTiles.get(targetBands[0]).getDataBufferIndex(x, y);
-                for (int i = 0; i < numBands; i++) {
-                    if (localMeans[i] != bandNoDataValues[i]) {
-                        targetData[i].setElemDoubleAt(targetIndex, sum * localMeans[i]);
-                    } else {
-                        targetData[i].setElemDoubleAt(targetIndex, bandNoDataValues[i]);
+                for (int y = y0; y < yMax; ++y) {
+                    final int yy = y - y0;
+                    for (int x = x0; x < xMax; ++x) {
+                        final int xx = x - x0;
+                        if (filteredTile[yy][xx] != 0.0) {
+                            final int sourceIndex = srcTile.getDataBufferIndex(x, y);
+                            final double srcDataValue = srcData.getElemDoubleAt(sourceIndex);
+                            if (srcDataValue != bandNoDataValues) {
+                                sum[yy][xx] += srcDataValue / filteredTile[yy][xx];
+                                count[yy][xx]++;
+                            }
+                        }
                     }
                 }
             }
-        }
-    }
 
-    /**
-     * Get source tile rectangle.
-     *
-     * @param tx0 X coordinate for the upper left corner pixel in the target tile.
-     * @param ty0 Y coordinate for the upper left corner pixel in the target tile.
-     * @param tw  The target tile width.
-     * @param th  The target tile height.
-     * @return The source tile rectangle.
-     */
-    private Rectangle getSourceRectangle(final int tx0, final int ty0, final int tw, final int th) {
-        final int x0 = Math.max(0, tx0 - halfWindowWidth);
-        final int y0 = Math.max(0, ty0 - halfWindowHeight);
-        final int xMax = Math.min(tx0 + tw - 1 + halfWindowWidth, sourceImageWidth);
-        final int yMax = Math.min(ty0 + th - 1 + halfWindowHeight, sourceImageHeight);
-        final int w = xMax - x0 + 1;
-        final int h = yMax - y0 + 1;
-        return new Rectangle(x0, y0, w, h);
-    }
-
-    /**
-     * Compute mean value for pixels in a window with given center.
-     *
-     * @param xc          X coordinate of the center pixel.
-     * @param yc          Y coordinate of the center pixel.
-     * @param srcTile     Source tile.
-     * @param srcData     Source data.
-     * @param noDataValue The noDataValue for source band.
-     * @return The mean value.
-     */
-    private double computeLocalMean(int xc, int yc, Tile srcTile, ProductData srcData, double noDataValue) {
-
-        final double[][] neighborPixelValues = new double[windowHeight][windowWidth];
-
-        final int x0 = Math.max(0, xc - halfWindowWidth);
-        final int y0 = Math.max(0, yc - halfWindowHeight);
-        final int xMax = Math.min(xc + halfWindowWidth, sourceImageWidth - 1);
-        final int yMax = Math.min(yc + halfWindowHeight, sourceImageHeight - 1);
-
-        int numSamples = 0;
-        for (int r = 0; r < windowHeight; r++) {
-            final int y = yc - halfWindowHeight + r;
-            if (y < y0 || y > yMax) {
-                for (int i = 0; i < windowWidth; i++) {
-                    neighborPixelValues[r][i] = noDataValue;
-                }
-                continue;
-            }
-
-            for (int c = 0; c < windowWidth; c++) {
-                final int x = xc - halfWindowWidth + c;
-                if (x < x0 || x > xMax) {
-                    neighborPixelValues[r][c] = noDataValue;
-                } else {
-                    neighborPixelValues[r][c] = srcData.getElemDoubleAt(srcTile.getDataBufferIndex(x, y));
-                    numSamples++;
+            for (int yy = 0; yy < h; ++yy) {
+                for (int xx = 0; xx < w; ++xx) {
+                    if (count[yy][xx] > 0) {
+                        sum[yy][xx] /= count[yy][xx];
+                    }
                 }
             }
+
+            for (int i = 0; i < numBands; i++) {
+                Tile targetTile = targetTiles.get(targetBands[i]);
+                final ProductData targetData = targetTile.getDataBuffer();
+                final double[][] filteredTile = filteredTileList.get(i);
+                for (int y = y0; y < yMax; y++) {
+                    final int yy = y - y0;
+                    for (int x = x0; x < xMax; x++) {
+                        final int xx = x - x0;
+                        final int targetIndex = targetTile.getDataBufferIndex(x, y);
+                        targetData.setElemDoubleAt(targetIndex, filteredTile[yy][xx] * sum[yy][xx]);
+                    }
+                }
+            }
+
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException(getId(), e);
+        } finally {
+            pm.done();
         }
-
-        return SpeckleFilterOp.getRefinedLeeValueUsingGradientThreshold(
-                windowWidth, windowHeight, gradThreshold, numSamples, noDataValue, neighborPixelValues);
-
-//        return SpeckleFilterOp.getRefinedLeeValueUsingEdgeThreshold(
-//                windowWidth, windowHeight, gradThreshold, numSamples, noDataValue, neighborPixelValues);
     }
 
 
