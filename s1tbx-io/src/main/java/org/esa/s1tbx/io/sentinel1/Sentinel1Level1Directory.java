@@ -764,7 +764,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
 
     private void addQuicklooks(final Product product) {
         try {
-            product.getQuicklookGroup().add(new Quicklook("Quicklook", getQuicklookFile()));
+            product.getQuicklookGroup().add(new Quicklook(product, Quicklook.DEFAULT_QUICKLOOK_NAME, getQuicklookFile()));
         } catch (IOException e) {
             SystemUtils.LOG.severe("Unable to get quicklook file");
         }
