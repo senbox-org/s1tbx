@@ -35,6 +35,8 @@ public class QuicklookGenerator {
     private static final int MULTILOOK_FACTOR = 2;
     private static final double DTOR = Math.PI / 180.0;
 
+    private static final String[] defaultQuickLookBands = new String[] { "intensity", "band", "t11", "t22", "t33", "c11", "c22", "c33"};
+
     public QuicklookGenerator() {
 
     }
@@ -81,13 +83,12 @@ public class QuicklookGenerator {
         return image;
     }
 
-    /*
-    private static BufferedImage createQuickLookImage(final Product product, final boolean subsample, final boolean isBrowseFile) throws IOException {
+    public BufferedImage createQuickLookImage(final Product product, final boolean subsample) throws IOException {
 
         Product productSubset = product;
 
         if (subsample) {
-            final int maxWidth = isBrowseFile ? MAX_WIDTH : MAX_WIDTH * (MULTILOOK_FACTOR * 2);
+            final int maxWidth = MAX_WIDTH * (MULTILOOK_FACTOR * 2);
             final ProductSubsetDef productSubsetDef = new ProductSubsetDef("subset");
             int scaleFactor = Math.round(Math.max(product.getSceneRasterWidth(), product.getSceneRasterHeight()) / (float) maxWidth);
             if (scaleFactor < 1) {
@@ -101,22 +102,16 @@ public class QuicklookGenerator {
 
         final BufferedImage image;
         if (quicklookBands.length < 3) {
-            if (isBrowseFile) {
-                image = ProductUtils.createColorIndexedImage(quicklookBands[0], ProgressMonitor.NULL);
-            } else {
-                image = ProductUtils.createColorIndexedImage(average(productSubset, quicklookBands[0]), ProgressMonitor.NULL);
-            }
-            productSubset.dispose();
+            image = ProductUtils.createColorIndexedImage(average(productSubset, quicklookBands[0]), ProgressMonitor.NULL);
         } else {
             final List<Band> bandList = new ArrayList<>(3);
-            if (!isBrowseFile) {
-                for (int i = 0; i < Math.min(3, quicklookBands.length); ++i) {
-                    final Band band = average(productSubset, quicklookBands[i]);
-                    if (band.getStx().getMean() != 0) {
-                        bandList.add(band);
-                    }
+            for (int i = 0; i < Math.min(3, quicklookBands.length); ++i) {
+                final Band band = average(productSubset, quicklookBands[i]);
+                if (band.getStx().getMean() != 0) {
+                    bandList.add(band);
                 }
             }
+
             final Band[] bands = bandList.toArray(new Band[bandList.size()]);
 
             if (bands.length < 3) {
@@ -131,12 +126,34 @@ public class QuicklookGenerator {
         return image;
     }
 
+    private static Band[] getQuicklookBand(final Product product) {
+
+        final String[] bandNames = product.getBandNames();
+        final List<Band> bandList = new ArrayList<>(3);
+        for(String name : bandNames) {
+            for(String qlBand : defaultQuickLookBands) {
+                if (name.toLowerCase().startsWith(qlBand)) {
+                    bandList.add(product.getBand(name));
+                    break;
+                }
+            }
+            if (bandList.size() > 2) {
+                break;
+            }
+        }
+        if(!bandList.isEmpty()) {
+            return bandList.toArray(new Band[bandList.size()]);
+        }
+        String quicklookBandName = ProductUtils.findSuitableQuicklookBandName(product);
+        return new Band[] { product.getBand(quicklookBandName)};
+    }
+
     private static Band average(final Product product, final Band srcBand) {
 
         int rangeFactor = MULTILOOK_FACTOR;
         int azimuthFactor = MULTILOOK_FACTOR;
 
-        if (AbstractMetadata.hasAbstractedMetadata(product)) {
+  /*      if (AbstractMetadata.hasAbstractedMetadata(product)) {
             final MetadataElement abs = AbstractMetadata.getAbstractedMetadata(product);
             final boolean srgrFlag = abs.getAttributeInt(AbstractMetadata.srgr_flag, 0) == 1;
             double rangeSpacing = abs.getAttributeDouble(AbstractMetadata.range_spacing, 1);
@@ -147,7 +164,7 @@ public class QuicklookGenerator {
                 azimuthSpacing = 1;
                 groundRangeSpacing = 1;
             } else if (!srgrFlag) {
-                final TiePointGrid incidenceAngle = OperatorUtils.getIncidenceAngle(product);
+                final TiePointGrid incidenceAngle = product.getTiePointGrid("incident_angle");
                 if (incidenceAngle != null) {
                     final float x = product.getSceneRasterWidth() / 2f;
                     final float y = product.getSceneRasterHeight() / 2f;
@@ -164,7 +181,7 @@ public class QuicklookGenerator {
             } else {
                 azimuthFactor = (int) Math.min(MULTILOOK_FACTOR * 2, Math.round(nAzLooks));
             }
-        }
+        }*/
 
         final int rangeAzimuth = rangeFactor * azimuthFactor;
 
@@ -216,5 +233,5 @@ public class QuicklookGenerator {
         Band b = new Band("averaged", ProductData.TYPE_FLOAT32, w, h);
         b.setData(ProductData.createInstance(data));
         return b;
-    } */
+    }
 }

@@ -29,15 +29,19 @@ import java.io.IOException;
  */
 public class Quicklook extends ProductNode {
 
+    public final static String DEFAULT_QUICKLOOK_NAME = "Quicklook";
+
     private BufferedImage image = null;
+    private final Product product;
     private final File browseFile;
 
-    public Quicklook(final String name) {
-        this(name, null);
+    public Quicklook(final Product product, final String name) {
+        this(product, name, null);
     }
 
-    public Quicklook(final String name, final File browseFile) {
+    public Quicklook(final Product product, final String name, final File browseFile) {
         super(name);
+        this.product = product;
         this.browseFile = browseFile;
     }
 
@@ -65,18 +69,19 @@ public class Quicklook extends ProductNode {
         visitor.visit(this);
     }
 
-    public BufferedImage getImage() {
+    public synchronized BufferedImage getImage() {
         if (image == null) {
             final QuicklookGenerator qlGen = new QuicklookGenerator();
-            if (browseFile != null) {
-                try {
+            try {
+                if (browseFile != null) {
                     final Product browseProduct = ProductIO.readProduct(browseFile);
                     image = qlGen.createQuickLookFromBrowseProduct(browseProduct, true);
-                } catch (IOException e) {
-                    SystemUtils.LOG.severe("Unable to load quicklook: "+e.getMessage());
-                }
-            } else {
 
+                } else {
+                    image = qlGen.createQuickLookImage(product, true);
+                }
+            } catch (IOException e) {
+                SystemUtils.LOG.severe("Unable to load quicklook: " + e.getMessage());
             }
         }
         return image;
