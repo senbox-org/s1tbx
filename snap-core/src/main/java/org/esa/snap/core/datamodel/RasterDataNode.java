@@ -369,7 +369,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
             try {
                 return sceneToModelTransform.inverse();
             } catch (NoninvertibleTransformException e) {
-                return null;
+                return MathTransform2D.NULL;
             }
         }
         return modelToSceneTransform;
@@ -413,7 +413,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
             try {
                 return modelToSceneTransform.inverse();
             } catch (NoninvertibleTransformException e) {
-                return null;
+                return MathTransform2D.NULL;
             }
         }
         return sceneToModelTransform;
