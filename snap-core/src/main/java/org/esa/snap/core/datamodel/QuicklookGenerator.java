@@ -16,7 +16,9 @@
 package org.esa.snap.core.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.snap.core.dataio.ProductSubsetDef;
+import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.core.util.ProductUtils;
 
 import java.awt.image.BufferedImage;
@@ -85,6 +87,9 @@ public class QuicklookGenerator {
 
     public BufferedImage createQuickLookImage(final Product product, final boolean subsample) throws IOException {
 
+        final StatusProgressMonitor pm = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
+        pm.beginTask("Creating quicklook " + product.getName() + "... ", 100);
+
         Product productSubset = product;
 
         if (subsample) {
@@ -102,11 +107,13 @@ public class QuicklookGenerator {
 
         final BufferedImage image;
         if (quicklookBands.length < 3) {
-            image = ProductUtils.createColorIndexedImage(average(productSubset, quicklookBands[0]), ProgressMonitor.NULL);
+            image = ProductUtils.createColorIndexedImage(average(productSubset, quicklookBands[0],
+                                                                 SubProgressMonitor.create(pm, 50)),
+                                                         SubProgressMonitor.create(pm, 50));
         } else {
             final List<Band> bandList = new ArrayList<>(3);
             for (int i = 0; i < Math.min(3, quicklookBands.length); ++i) {
-                final Band band = average(productSubset, quicklookBands[i]);
+                final Band band = average(productSubset, quicklookBands[i], SubProgressMonitor.create(pm, 50));
                 if (band.getStx().getMean() != 0) {
                     bandList.add(band);
                 }
@@ -115,14 +122,19 @@ public class QuicklookGenerator {
             final Band[] bands = bandList.toArray(new Band[bandList.size()]);
 
             if (bands.length < 3) {
-                image = ProductUtils.createColorIndexedImage(bands[0], ProgressMonitor.NULL);
+                image = ProductUtils.createColorIndexedImage(bands[0], SubProgressMonitor.create(pm, 50));
             } else {
-                ImageInfo imageInfo = ProductUtils.createImageInfo(bands, true, ProgressMonitor.NULL);
-                image = ProductUtils.createRgbImage(bands, imageInfo, ProgressMonitor.NULL);
+                ImageInfo imageInfo = ProductUtils.createImageInfo(bands, true, SubProgressMonitor.create(pm, 25));
+                image = ProductUtils.createRgbImage(bands, imageInfo, SubProgressMonitor.create(pm, 25));
             }
         }
 
-        productSubset.dispose();
+        if (subsample) {
+            productSubset.dispose();
+        }
+
+        pm.done();
+
         return image;
     }
 
@@ -148,7 +160,7 @@ public class QuicklookGenerator {
         return new Band[] { product.getBand(quicklookBandName)};
     }
 
-    private static Band average(final Product product, final Band srcBand) {
+    private static Band average(final Product product, final Band srcBand, final ProgressMonitor pm) {
 
         int rangeFactor = MULTILOOK_FACTOR;
         int azimuthFactor = MULTILOOK_FACTOR;
@@ -200,8 +212,9 @@ public class QuicklookGenerator {
             }
 
             final float[] floatValues = new float[srcW * srcH];
-            srcBand.readPixels(0, 0, srcW, srcH, floatValues, ProgressMonitor.NULL);
+            srcBand.readPixels(0, 0, srcW, srcH, floatValues, pm);
 
+            //pm.beginTask("QL Averaging...", h);
             for (int ty = 0; ty < h; ++ty) {
                 final int yStart = ty * azimuthFactor;
                 final int yEnd = yStart + azimuthFactor;
@@ -221,7 +234,9 @@ public class QuicklookGenerator {
 
                     data[index++] = (float) meanValue;
                 }
+                //pm.worked(1);
             }
+            //pm.done();
 
             if (bandAddedToProduct) {
                 product.removeBand(srcBand);
