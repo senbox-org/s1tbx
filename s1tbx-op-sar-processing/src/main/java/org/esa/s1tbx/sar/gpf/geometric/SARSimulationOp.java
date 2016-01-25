@@ -863,24 +863,24 @@ public final class SARSimulationOp extends Operator {
 
         data.slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, data.earthPoint, data.sensorPos);
 
-        final double zeroDopplerTimeWithoutBias =
-                zeroDopplerTime + data.slantRange / Constants.lightSpeedInMetersPerDay;
+//        final double zeroDopplerTimeWithoutBias =
+//                zeroDopplerTime + data.slantRange / Constants.lightSpeedInMetersPerDay;
 
-        data.azimuthIndex = (zeroDopplerTimeWithoutBias - firstLineUTC) / lineTimeInterval;
+        data.azimuthIndex = (zeroDopplerTime - firstLineUTC) / lineTimeInterval;
 
         if (!(data.azimuthIndex >= y0 - 1 && data.azimuthIndex <= y0 + h)) {
             return false;
         }
 
-        data.slantRange = SARGeocoding.computeSlantRange(
-                zeroDopplerTimeWithoutBias, orbit, data.earthPoint, data.sensorPos);
+//        data.slantRange = SARGeocoding.computeSlantRange(
+//                zeroDopplerTimeWithoutBias, orbit, data.earthPoint, data.sensorPos);
 
         if (!srgrFlag) {
             data.rangeIndex = (data.slantRange - nearEdgeSlantRange) / rangeSpacing;
         } else {
             data.rangeIndex = SARGeocoding.computeRangeIndex(
                     srgrFlag, sourceImageWidth, firstLineUTC, lastLineUTC, rangeSpacing,
-                    zeroDopplerTimeWithoutBias, data.slantRange, nearEdgeSlantRange, srgrConvParams);
+                    zeroDopplerTime, data.slantRange, nearEdgeSlantRange, srgrConvParams);
         }
 
         if (!nearRangeOnLeft) {

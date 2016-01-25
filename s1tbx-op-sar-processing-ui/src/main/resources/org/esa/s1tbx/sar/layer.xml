@@ -312,6 +312,10 @@
             <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.sar.gpf.ui.filtering.SpeckleFilterOpUI"/>
             <attr name="operatorName" stringvalue="Speckle-Filter"/>
         </file>
+        <file name="org.esa.s1tbx.sar.gpf.ui.filtering.MultiTemporalSpeckleFilterOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.sar.gpf.ui.filtering.MultiTemporalSpeckleFilterOpUI"/>
+            <attr name="operatorName" stringvalue="Multi-Temporal-Speckle-Filter"/>
+        </file>
         <file name="org.esa.s1tbx.sar.gpf.ui.geometric.ALOSDeskewingUI">
             <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.sar.gpf.ui.geometric.ALOSDeskewingUI"/>
             <attr name="operatorName" stringvalue="ALOS-Deskewing"/>
