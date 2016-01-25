@@ -31,7 +31,7 @@ public final class GETASSE30File extends ElevationFile {
 
     private final GETASSE30ElevationModel demModel;
 
-    private static final String remoteHTTP = "http://nest.s3.amazonaws.com/data/GETASSE30/";
+    private static final String remoteHTTP = "http://step.esa.int/auxdata/dem/GETASSE30/";
 
     public GETASSE30File(final GETASSE30ElevationModel model, final File localFile, final ProductReader reader) {
         super(localFile, reader);
