@@ -16,6 +16,8 @@
 package org.esa.snap.core.datamodel;
 
 
+import org.esa.snap.core.datamodel.quicklooks.Quicklook;
+
 /**
  * A visitor for a product and all other product nodes. This interface is part of the <i>visitor pattern</i> used to
  * visit all nodes of a data product. Implementations of this interface can be passed to the <code>acceptVisitor</code>

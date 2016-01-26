@@ -13,34 +13,55 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.snap.core.datamodel;
+package org.esa.snap.core.datamodel.quicklooks;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.snap.core.dataio.ProductSubsetDef;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.ImageInfo;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.runtime.Config;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.prefs.Preferences;
 
 /**
  * Created by luis on 16/01/2016.
  */
 public class QuicklookGenerator {
 
+    /**
+     * Preferences key for saving quicklook with product or not
+     */
+    public static final String PREFERENCE_KEY_QUICKLOOKS_SAVE_WITH_PRODUCT = "quicklooks.save.with.product";
+    /**
+     * Preferences key for maximum quicklook width
+     */
+    public static final String PREFERENCE_KEY_QUICKLOOKS_MAX_WIDTH = "quicklooks.max.width";
+
+    public static final boolean DEFAULT_VALUE_QUICKLOOKS_SAVE_WITH_PRODUCT = true;
+
+    public static final int DEFAULT_VALUE_QUICKLOOKS_MAX_WIDTH = 300;
+
     private static final String QUICKLOOK_PREFIX = "QL_";
     private static final String QUICKLOOK_EXT = ".jpg";
-    private static final int MAX_WIDTH = 300;
     private static final int MULTILOOK_FACTOR = 2;
     private static final double DTOR = Math.PI / 180.0;
 
     private static final String[] defaultQuickLookBands = new String[] { "intensity", "band", "t11", "t22", "t33", "c11", "c22", "c33"};
 
-    public QuicklookGenerator() {
+    private final int maxWidth;
 
+    public QuicklookGenerator() {
+        final Preferences preferences = Config.instance().preferences();
+        maxWidth = preferences.getInt(PREFERENCE_KEY_QUICKLOOKS_MAX_WIDTH, DEFAULT_VALUE_QUICKLOOKS_MAX_WIDTH);
     }
 
     public BufferedImage createQuickLookFromBrowseProduct(final Product browseProduct,
@@ -48,7 +69,6 @@ public class QuicklookGenerator {
         Product productSubset = browseProduct;
 
         if (subsample) {
-            final int maxWidth = MAX_WIDTH;
             final ProductSubsetDef productSubsetDef = new ProductSubsetDef("subset");
             int scaleFactor = Math.round(Math.max(browseProduct.getSceneRasterWidth(),
                                                   browseProduct.getSceneRasterHeight()) / (float) maxWidth);
@@ -85,17 +105,18 @@ public class QuicklookGenerator {
         return image;
     }
 
-    public BufferedImage createQuickLookImage(final Product product, final boolean subsample) throws IOException {
+    public BufferedImage createQuickLookImage(final Product product) throws IOException {
 
         final StatusProgressMonitor pm = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
         pm.beginTask("Creating quicklook " + product.getName() + "... ", 100);
 
         Product productSubset = product;
 
+        final boolean subsample = true;
         if (subsample) {
-            final int maxWidth = MAX_WIDTH * (MULTILOOK_FACTOR * 2);
+            final int width = maxWidth * (MULTILOOK_FACTOR * 2);
             final ProductSubsetDef productSubsetDef = new ProductSubsetDef("subset");
-            int scaleFactor = Math.round(Math.max(product.getSceneRasterWidth(), product.getSceneRasterHeight()) / (float) maxWidth);
+            int scaleFactor = Math.round(Math.max(product.getSceneRasterWidth(), product.getSceneRasterHeight()) / (float) width);
             if (scaleFactor < 1) {
                 scaleFactor = 1;
             }

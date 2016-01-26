@@ -16,6 +16,8 @@
 package org.esa.snap.core.datamodel;
 
 
+import org.esa.snap.core.datamodel.quicklooks.Quicklook;
+
 import java.util.Stack;
 
 /**

@@ -26,6 +26,7 @@ import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductSubsetBuilder;
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.dataio.ProductWriter;
+import org.esa.snap.core.datamodel.quicklooks.Quicklook;
 import org.esa.snap.core.dataop.barithm.BandArithmetic;
 import org.esa.snap.core.dataop.barithm.RasterDataLoop;
 import org.esa.snap.core.dataop.barithm.RasterDataSymbol;
@@ -1366,7 +1367,11 @@ public class Product extends ProductNode {
 
     public Quicklook getDefaultQuicklook() {
         if(quicklookGroup.getNodeCount() == 0) {
+            boolean wasModified = isModified();
             quicklookGroup.add(new Quicklook(this, Quicklook.DEFAULT_QUICKLOOK_NAME));
+            if(!wasModified) {
+                setModified(false);
+            }
         }
         return quicklookGroup.get(0);
     }
