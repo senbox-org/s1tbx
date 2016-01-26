@@ -14,14 +14,15 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.snap.core.datamodel;
+package org.esa.snap.core.transform;
 
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.PixelPos;
 import org.geotools.parameter.DefaultParameterDescriptorGroup;
 import org.geotools.referencing.operation.transform.AbstractMathTransform;
 import org.opengis.parameter.GeneralParameterDescriptor;
 import org.opengis.parameter.ParameterDescriptorGroup;
-import org.opengis.referencing.operation.MathTransform2D;
-import org.opengis.referencing.operation.NoninvertibleTransformException;
 import org.opengis.referencing.operation.TransformException;
 
 /**
@@ -66,7 +67,7 @@ public class GeoCodingMathTransform extends AbstractMathTransform implements Mat
     }
 
     @Override
-    public MathTransform2D inverse() throws NoninvertibleTransformException {
+    public MathTransform2D inverse() {
         return new GeoCodingMathTransform(geoCoding, t == G2P ? P2G : G2P);
     }
 

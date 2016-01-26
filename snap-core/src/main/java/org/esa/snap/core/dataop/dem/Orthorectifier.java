@@ -17,7 +17,7 @@ package org.esa.snap.core.dataop.dem;
 
 import org.esa.snap.core.datamodel.AngularDirection;
 import org.esa.snap.core.datamodel.GeoCoding;
-import org.esa.snap.core.datamodel.GeoCodingMathTransform;
+import org.esa.snap.core.transform.GeoCodingMathTransform;
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Pointing;
