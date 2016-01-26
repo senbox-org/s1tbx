@@ -333,9 +333,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
      * of this transform or cannot be derived from it, it must be set using {@code setSceneToModelTransform()}.
      *
      * Only use this method when you know that the model CRS of this {@code RasterDataNode} is different
-     * than the {Product}'s scene CRS or when you want to model a special relationship between
-     * different {RasterDataNode}'s.
-     * //todo explain NullTransform
+     * than the {@code Product}'s scene CRS or when you want to model a special relationship between
+     * different {@code RasterDataNode}'s. When no transformation from local model to scene is possible, use
+     * {@link MathTransform2D#NULL}.
      *
      * @param modelToSceneTransform The {@code MathTransform2D} to convert local model coordinates to
      *                              product scene coordinates
@@ -378,9 +378,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
      * of this transformor cannot be derived from it, it must be set using {@code setModelToSceneTransform()}.
      *
      * Only use this method when you know that the model CRS of this {@code RasterDataNode} is different
-     * than the {Product}'s scene CRS or when you want to model a special relationship between
-     * different {RasterDataNode}'s.
-     * //todo explain NullTransform
+     * than the {@code Product}'s scene CRS or when you want to model a special relationship between
+     * different {@code RasterDataNode}'s. When no transformation from scene to local model is possible, use
+     * {@link MathTransform2D#NULL}.
      *
      * @param sceneToModelTransform The {@code MathTransform2D} to convert product scene coordinates
      *                              to local model coordinates
