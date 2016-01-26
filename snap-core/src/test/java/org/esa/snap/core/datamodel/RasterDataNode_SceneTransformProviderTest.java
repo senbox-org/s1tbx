@@ -99,6 +99,11 @@ public class RasterDataNode_SceneTransformProviderTest {
         public boolean equals(Object object) {
             return (this == object);
         }
+
+        @Override
+        public int hashCode() {
+            return 0;
+        }
     }
 
     private class Forward extends AbstractTransform2D {
@@ -121,6 +126,11 @@ public class RasterDataNode_SceneTransformProviderTest {
             return (this == object);
         }
 
+        @Override
+        public int hashCode() {
+            return 1;
+        }
+
     }
 
     private class Inverse extends AbstractTransform2D {
@@ -141,6 +151,11 @@ public class RasterDataNode_SceneTransformProviderTest {
         @Override
         public boolean equals(Object object) {
             return (this == object);
+        }
+
+        @Override
+        public int hashCode() {
+            return 2;
         }
 
     }

@@ -32,4 +32,9 @@ class NullTransform2D extends AbstractTransform2D {
     public boolean equals(Object object) {
         return this == object;
     }
+
+    @Override
+    public int hashCode() {
+        return 0;
+    }
 }

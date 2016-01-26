@@ -68,4 +68,6 @@ public abstract class AbstractTransform2D extends AbstractMathTransform implemen
     @Override
     public abstract boolean equals(Object object);
 
+    @Override
+    public abstract int hashCode();
 }
