@@ -151,12 +151,14 @@ public abstract class AbstractPointFigure extends AbstractFigure implements Poin
         final Viewport vp = rendering.getViewport();
         final AffineTransform m2v = vp.getModelToViewTransform();
         final Point2D locationInView = m2v.transform(getLocation(), null);
-        final Graphics2D g = rendering.getGraphics();
-        try {
-            g.translate(locationInView.getX(), locationInView.getY());
-            drawPoint(rendering);
-        } finally {
-            g.translate(-locationInView.getX(), -locationInView.getY());
+        if (!Double.isNaN(locationInView.getX()) && !Double.isNaN(locationInView.getY())) {
+            final Graphics2D g = rendering.getGraphics();
+            try {
+                g.translate(locationInView.getX(), locationInView.getY());
+                drawPoint(rendering);
+            } finally {
+                g.translate(-locationInView.getX(), -locationInView.getY());
+            }
         }
     }
 
