@@ -41,7 +41,6 @@ import org.esa.snap.core.jexp.Parser;
 import org.esa.snap.core.jexp.Term;
 import org.esa.snap.core.jexp.WritableNamespace;
 import org.esa.snap.core.jexp.impl.ParserImpl;
-import org.esa.snap.core.transform.MathTransform2D;
 import org.esa.snap.core.util.BitRaster;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.Guardian;
@@ -56,7 +55,6 @@ import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultImageCRS;
 import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.geotools.referencing.datum.DefaultImageDatum;
-import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.ImageCRS;
 import org.opengis.referencing.datum.PixelInCell;
@@ -343,7 +341,7 @@ public class Product extends ProductNode {
      * <ul>
      * <li>for the geometries used by all vector data;</li>
      * <li>to which all raster data can be transformed using a raster data node's
-     * {@link RasterDataNode#getSceneRasterTransform() sceneRasterTransform}.</li>
+     * {@link RasterDataNode#getSceneToModelTransform()} sceneToModelTransform}.</li>
      * </ul>
      * <p>
      * If no scene CRS has been set so far, the method will use the product's
@@ -450,49 +448,6 @@ public class Product extends ProductNode {
             return geoCoding.getImageCRS();
         } else {
             return Product.DEFAULT_IMAGE_CRS;
-        }
-    }
-
-    /**
-     * Computes a transformation allowing to transform from this raster CS to the product's scene raster CS.
-     * This method is called if no transformation has been set using the
-     * {@link RasterDataNode#setSceneRasterTransform(SceneRasterTransform)} method.
-     *
-     * <i>WARNING: This method belongs to a preliminary API and may change in an incompatible way or may even
-     * be removed in a next SNAP release.</i>
-     *
-     * @since SNAP 2.0
-     */
-    @SuppressWarnings("unused")
-    @Deprecated
-    public SceneRasterTransform findSceneRasterTransform(GeoCoding geoCoding) {
-        if (geoCoding != null
-                && geoCoding instanceof CrsGeoCoding
-                && geoCoding.getMapCRS().equals(getSceneCRS())) {
-            MathTransform2D forward = null;
-            MathTransform2D inverse = null;
-            try {
-                final MathTransform transform = CRS.findMathTransform(geoCoding.getMapCRS(), getSceneCRS());
-                if (transform instanceof MathTransform2D) {
-                    forward = (MathTransform2D) transform;
-                }
-            } catch (FactoryException e) {
-                forward = null;
-            }
-            try {
-                final MathTransform transform = CRS.findMathTransform(getSceneCRS(), geoCoding.getMapCRS());
-                if (transform instanceof MathTransform2D) {
-                    inverse = (MathTransform2D) transform;
-                }
-            } catch (FactoryException e) {
-                inverse = null;
-            }
-            if (forward == null && inverse == null) {
-                return null;
-            }
-            return new DefaultSceneRasterTransform(forward, inverse);
-        } else {
-            return SceneRasterTransform.IDENTITY;
         }
     }
 

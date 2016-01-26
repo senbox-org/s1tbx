@@ -97,8 +97,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
     public static final String PROPERTY_NAME_ANCILLARY_VARIABLES = "ancillaryVariables";
     public static final String PROPERTY_NAME_ANCILLARY_RELATIONS = "ancillaryRelations";
     public static final String PROPERTY_NAME_IMAGE_TO_MODEL_TRANSFORM = "imageToModelTransform";
-    @Deprecated
-    public static final String PROPERTY_NAME_SCENE_RASTER_TRANSFORM = "sceneRasterTransform";
     public static final String PROPERTY_NAME_MODEL_TO_SCENE_TRANSFORM = "modelToSceneTransform";
     public static final String PROPERTY_NAME_SCENE_TO_MODEL_TRANSFORM = "sceneToModelTransform";
 
@@ -139,8 +137,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
     private TimeCoding timeCoding;
 
     private AffineTransform imageToModelTransform;
-    @Deprecated
-    private SceneRasterTransform sceneRasterTransform;
     private MathTransform2D modelToSceneTransform;
     private MathTransform2D sceneToModelTransform;
 
@@ -196,7 +192,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
         validPixelExpression = null;
 
         imageToModelTransform = null;
-        sceneRasterTransform = SceneRasterTransform.IDENTITY;
         modelToSceneTransform = MathTransform2D.IDENTITY;
         sceneToModelTransform = MathTransform2D.IDENTITY;
 
@@ -310,49 +305,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
     }
 
     /**
-     * Gets a transformation allowing to non-linearily transform from this raster's CS to the product's
-     * scene raster CS.
-     * <p>
-     * In SNAP, this method is used whenever geometry data from a {@link VectorDataNode vector data node}
-     * must be converted into the local model CS used by this raster data node and vice versa.
-     * For this purpose, this method complements the {@link #getImageToModelTransform() image-to-model transformation}
-     * <p>
-     * <i>WARNING: This method is not yet in use. It belongs to a preliminary API and may change in an incompatible
-     * way or may even be removed in a next SNAP release.</i>
-     *
-     * @return The transformation.
-     * @see #getImageToModelTransform()
-     * @see #setSceneRasterTransform(SceneRasterTransform)
-     * @since SNAP 2.0
-     * @deprecated
-     */
-    @Deprecated
-    public SceneRasterTransform getSceneRasterTransform() {
-        return sceneRasterTransform;
-    }
-
-    /**
-     * Sets the transformation allowing to non-linearily transform from this raster CS to the product's
-     * scene raster CS.
-     * <p>
-     * <i>WARNING: This method is not yet in use. It belongs to a preliminary API and may change in an incompatible
-     * way or may even be removed in a next SNAP release.</i>
-     *
-     * @param sceneRasterTransform The transformation.
-     * @see #getSceneRasterTransform()
-     * @see #setImageToModelTransform(AffineTransform)
-     * @since SNAP 2.0
-     * @deprecated
-     */
-    @Deprecated
-    public void setSceneRasterTransform(SceneRasterTransform sceneRasterTransform) {
-        Assert.notNull(sceneRasterTransform, "sceneRasterTransform");
-        SceneRasterTransform oldTransform = this.sceneRasterTransform;
-        this.sceneRasterTransform = sceneRasterTransform;
-        fireProductNodeChanged(PROPERTY_NAME_SCENE_RASTER_TRANSFORM, oldTransform, sceneRasterTransform);
-    }
-
-    /**
      * Gets the transformation that transforms from local {@link RasterDataNode} model coordinates
      * to the {@link Product}'s scene coordinates.
      * <p>
@@ -383,6 +335,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
      * Only use this method when you know that the model CRS of this {@code RasterDataNode} is different
      * than the {Product}'s scene CRS or when you want to model a special relationship between
      * different {RasterDataNode}'s.
+     * //todo explain NullTransform
      *
      * @param modelToSceneTransform The {@code MathTransform2D} to convert local model coordinates to
      *                              product scene coordinates
@@ -403,7 +356,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
      * If no scene-to-model transformation has been explicitly set but a model-to-scene transformation
      * exists, then the latter's {@code inverse()} is returned.
      *
-     * @return The model-to-scene transformation, or {@code null} if no such exists.
+     * @return The model-to-scene transformation
      * @see Product#getSceneCRS()
      * @see #getImageToModelTransform()
      * @since SNAP 2.0.3
@@ -427,6 +380,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
      * Only use this method when you know that the model CRS of this {@code RasterDataNode} is different
      * than the {Product}'s scene CRS or when you want to model a special relationship between
      * different {RasterDataNode}'s.
+     * //todo explain NullTransform
      *
      * @param sceneToModelTransform The {@code MathTransform2D} to convert product scene coordinates
      *                              to local model coordinates
