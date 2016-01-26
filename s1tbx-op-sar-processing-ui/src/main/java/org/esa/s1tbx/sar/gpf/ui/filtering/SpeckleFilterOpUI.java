@@ -47,7 +47,8 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
             SpeckleFilterOp.GAMMA_MAP_SPECKLE_FILTER,
             SpeckleFilterOp.LEE_SPECKLE_FILTER,
             SpeckleFilterOp.LEE_REFINED_FILTER,
-            SpeckleFilterOp.LEE_SIGMA_FILTER});
+            SpeckleFilterOp.LEE_SIGMA_FILTER,
+            SpeckleFilterOp.IDAN_FILTER});
 
     private final JComboBox numLooks = new JComboBox(new String[]{SpeckleFilterOp.NUM_LOOKS_1,
             SpeckleFilterOp.NUM_LOOKS_2,
@@ -91,6 +92,9 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
     private final JTextField enl = new JTextField("");
     private Boolean estimateENL = true;
 
+    private final JLabel anSizeLabel = new JLabel("Adaptive Neighbour Size");
+    private final JTextField anSize = new JTextField("");
+
     @Override
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {
 
@@ -132,6 +136,7 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
         windowSize.setSelectedItem(paramMap.get("windowSize"));
         targetWindowSize.setSelectedItem(paramMap.get("targetWindowSizeStr"));
         sigmaStr.setSelectedItem(paramMap.get("sigmaStr"));
+        anSize.setText(String.valueOf(paramMap.get("anSize")));
     }
 
     @Override
@@ -157,6 +162,7 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
         paramMap.put("windowSize", windowSize.getSelectedItem());
         paramMap.put("targetWindowSizeStr", targetWindowSize.getSelectedItem());
         paramMap.put("sigmaStr", sigmaStr.getSelectedItem());
+        paramMap.put("anSize", Integer.parseInt(anSize.getText()));
     }
 
     private JComponent createPanel() {
@@ -190,6 +196,7 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(contentPane, gbc, windowSizeLabel, windowSize);
         DialogUtils.enableComponents(filterSizeYLabel, filterSizeY, true);
         DialogUtils.enableComponents(windowSizeLabel, windowSize, false);
+        DialogUtils.addComponent(contentPane, gbc, anSizeLabel, anSize);
 
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, dampingFactorLabel, dampingFactor);
@@ -225,6 +232,7 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
         DialogUtils.enableComponents(windowSizeLabel, windowSize, false);
         DialogUtils.enableComponents(targetWindowSizeLabel, targetWindowSize, false);
         DialogUtils.enableComponents(sigmaStrLabel, sigmaStr, false);
+        DialogUtils.enableComponents(anSizeLabel, anSize, false);
 
         if (item.equals(SpeckleFilterOp.BOXCAR_SPECKLE_FILTER) || item.equals(SpeckleFilterOp.MEDIAN_SPECKLE_FILTER)) {
             DialogUtils.enableComponents(filterSizeXLabel, filterSizeX, true);
@@ -256,6 +264,11 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
             DialogUtils.enableComponents(windowSizeLabel, windowSize, true);
             DialogUtils.enableComponents(targetWindowSizeLabel, targetWindowSize, true);
             DialogUtils.enableComponents(sigmaStrLabel, sigmaStr, true);
+        }
+
+        if (item.equals(SpeckleFilterOp.IDAN_FILTER)) {
+            DialogUtils.enableComponents(numLooksLabel, numLooks, true);
+            DialogUtils.enableComponents(anSizeLabel, anSize, true);
         }
     }
 }
