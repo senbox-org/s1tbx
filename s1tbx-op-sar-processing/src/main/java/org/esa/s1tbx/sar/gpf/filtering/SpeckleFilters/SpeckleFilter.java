@@ -412,4 +412,45 @@ public interface SpeckleFilter {
         return numSamples;
     }
 
+    default double computeMMSEWeight(final double[] dataArray, final double sigmaVSqr) {
+
+        final double meanY = getMeanValue(dataArray);
+        final double varY = getVarianceValue(dataArray, meanY);
+        if (varY == 0.0) {
+            return 0.0;
+        }
+
+        double varX = (varY - meanY * meanY * sigmaVSqr) / (1 + sigmaVSqr);
+        if (varX < 0.0) {
+            varX = 0.0;
+        }
+        return varX / varY;
+    }
+
+    default double getMeanValue(final double[] neighborValues) {
+
+        double mean = 0.0;
+        for (double neighborValue : neighborValues) {
+            mean += neighborValue;
+        }
+        mean /= neighborValues.length;
+
+        return mean;
+    }
+
+    default  double getVarianceValue(final double[] neighborValues, final double mean) {
+
+        double var = 0.0;
+        if (neighborValues.length > 1) {
+
+            for (double neighborValue : neighborValues) {
+                final double diff = neighborValue - mean;
+                var += diff * diff;
+            }
+            var /= (neighborValues.length - 1);
+        }
+
+        return var;
+    }
+
 }

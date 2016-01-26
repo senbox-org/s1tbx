@@ -91,7 +91,7 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
     @Parameter(valueSet = {SpeckleFilterOp.NONE, SpeckleFilterOp.BOXCAR_SPECKLE_FILTER,
             SpeckleFilterOp.MEDIAN_SPECKLE_FILTER, SpeckleFilterOp.FROST_SPECKLE_FILTER,
             SpeckleFilterOp.GAMMA_MAP_SPECKLE_FILTER, SpeckleFilterOp.LEE_SPECKLE_FILTER,
-            SpeckleFilterOp.LEE_REFINED_FILTER, SpeckleFilterOp.LEE_SIGMA_FILTER},
+            SpeckleFilterOp.LEE_REFINED_FILTER, SpeckleFilterOp.LEE_SIGMA_FILTER, SpeckleFilterOp.IDAN_FILTER},
             defaultValue = SpeckleFilterOp.LEE_REFINED_FILTER, label = "Filter")
     private String filter;
 
@@ -133,6 +133,10 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
             SpeckleFilterOp.SIGMA_70_PERCENT, SpeckleFilterOp.SIGMA_80_PERCENT, SpeckleFilterOp.SIGMA_90_PERCENT},
             defaultValue = SpeckleFilterOp.SIGMA_90_PERCENT, label = "Point target window Size")
     private String sigmaStr = SpeckleFilterOp.SIGMA_90_PERCENT; // sigma value in Lee sigma
+
+    @Parameter(description = "The Adaptive Neighbourhood size", interval = "(1, 200]", defaultValue = "50",
+            label = "Adaptive Neighbourhood Size")
+    private int anSize = 50;
 
     private final Map<String, String[]> targetBandNameToSourceBandName = new HashMap<>();
 
@@ -294,6 +298,10 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
                 return new LeeSigma(this, sourceProduct, targetProduct, targetBandNameToSourceBandName,
                         numLooksStr, windowSize, targetWindowSizeStr, sigmaStr);
 
+            case SpeckleFilterOp.IDAN_FILTER:
+                return new IDAN(this, sourceProduct, targetProduct, targetBandNameToSourceBandName,
+                        numLooksStr, anSize);
+
             default:
                 return null;
         }
@@ -309,7 +317,8 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
      * @throws OperatorException if an error occurs during computation of the target rasters.
      */
     @Override
-    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
+    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm)
+            throws OperatorException {
 
         final int x0 = targetRectangle.x;
         final int y0 = targetRectangle.y;

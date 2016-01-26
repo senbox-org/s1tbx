@@ -36,6 +36,7 @@ import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.GammaMap;
 import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.Lee;
 import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.RefinedLee;
 import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.LeeSigma;
+import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.IDAN;
 import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.SpeckleFilter;
 
 import java.util.*;
@@ -60,7 +61,7 @@ public class SpeckleFilterOp extends Operator {
     private String[] sourceBandNames;
 
     @Parameter(valueSet = {NONE, BOXCAR_SPECKLE_FILTER, MEDIAN_SPECKLE_FILTER, FROST_SPECKLE_FILTER,
-            GAMMA_MAP_SPECKLE_FILTER, LEE_SPECKLE_FILTER, LEE_REFINED_FILTER, LEE_SIGMA_FILTER},
+            GAMMA_MAP_SPECKLE_FILTER, LEE_SPECKLE_FILTER, LEE_REFINED_FILTER, LEE_SIGMA_FILTER, IDAN_FILTER},
             defaultValue = LEE_REFINED_FILTER,
             label = "Filter")
     private String filter;
@@ -102,6 +103,10 @@ public class SpeckleFilterOp extends Operator {
             defaultValue = SIGMA_90_PERCENT, label = "Point target window Size")
     private String sigmaStr = SIGMA_90_PERCENT; // sigma value in Lee sigma
 
+    @Parameter(description = "The Adaptive Neighbourhood size", interval = "(1, 200]", defaultValue = "50",
+            label = "Adaptive Neighbourhood Size")
+    private int anSize = 50;
+
     private final Map<String, String[]> targetBandNameToSourceBandName = new HashMap<>();
 
     public static final String NONE = "None";
@@ -111,7 +116,8 @@ public class SpeckleFilterOp extends Operator {
     public static final String GAMMA_MAP_SPECKLE_FILTER = "Gamma Map";
     public static final String LEE_SPECKLE_FILTER = "Lee";
     public static final String LEE_REFINED_FILTER = "Refined Lee";
-    public static final String LEE_SIGMA_FILTER = "Lee Sigma Filter";
+    public static final String LEE_SIGMA_FILTER = "Lee Sigma";
+    public static final String IDAN_FILTER = "IDAN";
 
     public static final String WINDOW_SIZE_3x3 = "3x3";
     public static final String WINDOW_SIZE_5x5 = "5x5";
@@ -152,7 +158,8 @@ public class SpeckleFilterOp extends Operator {
                 s.equals(GAMMA_MAP_SPECKLE_FILTER) ||
                 s.equals(LEE_SPECKLE_FILTER) ||
                 s.equals(LEE_REFINED_FILTER) ||
-                s.equals(LEE_SIGMA_FILTER)) {
+                s.equals(LEE_SIGMA_FILTER) ||
+                s.equals(IDAN_FILTER)) {
             filter = s;
         } else {
             throw new OperatorException(s + " is an invalid filter name.");
@@ -266,6 +273,10 @@ public class SpeckleFilterOp extends Operator {
             case LEE_SIGMA_FILTER:
                 return new LeeSigma(this, sourceProduct, targetProduct, targetBandNameToSourceBandName,
                         numLooksStr, windowSize, targetWindowSizeStr, sigmaStr);
+
+            case IDAN_FILTER:
+                return new IDAN(this, sourceProduct, targetProduct, targetBandNameToSourceBandName,
+                        numLooksStr, anSize);
 
             default:
                 return null;
