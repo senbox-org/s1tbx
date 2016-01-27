@@ -41,7 +41,9 @@
 
 		<geotools.version>2.7.4</geotools.version>
 		<hdf.version>2.7.1</hdf.version>
-        <netcdf.version>4.3.22</netcdf.version>	
+        <netcdf.version>4.3.22</netcdf.version>
+        <jblas.version>1.2.4</jblas.version>
+        <junit.version>4.12</junit.version>		
 	</properties>
   
 	<modules>
