@@ -23,6 +23,7 @@ import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 
 import java.io.File;
@@ -53,14 +54,23 @@ public class AlosPalsarProductReader extends CEOSProductReader {
         try {
             dataDir = createProductDirectory(createProductDir(file));
 
-            final AlosPalsarProductDirectory dataDir = (AlosPalsarProductDirectory) this.dataDir;
-            if (dataDir.isALOS())
+            final AlosPalsarProductDirectory alosDataDir = (AlosPalsarProductDirectory) this.dataDir;
+            if (alosDataDir.isALOS())
                 return DecodeQualification.INTENDED;
             return DecodeQualification.UNABLE;
 
         } catch (Exception e) {
             return DecodeQualification.UNABLE;
         }
+    }
+
+    public void readTiePointGridRasterData(final TiePointGrid tpg,
+                                           final int destOffsetX, final int destOffsetY,
+                                           final int destWidth, final int destHeight,
+                                           final ProductData destBuffer, final ProgressMonitor pm)
+            throws IOException {
+        final AlosPalsarProductDirectory alosDataDir = (AlosPalsarProductDirectory) this.dataDir;
+        alosDataDir.readTiePointGridRasterData(tpg, destBuffer, pm);
     }
 
     /**
