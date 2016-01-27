@@ -318,7 +318,7 @@ public final class SLCImage {
 
     // Convert line number to azimuth time (1 is first line)
     public double line2ta(double line) {
-        return tAzi1 + (line * lineTimeInterval);
+        return tAzi1 + (line - 1) * lineTimeInterval;
 //        return tAzi1 + ((line - 1.0) / PRF);
     }
 
