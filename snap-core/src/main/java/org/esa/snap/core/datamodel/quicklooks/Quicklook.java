@@ -116,6 +116,10 @@ public class Quicklook extends ProductNode {
         visitor.visit(this);
     }
 
+    public boolean hasImage() {
+        return image != null;
+    }
+
     public synchronized BufferedImage getImage() {
         if (image == null) {
             loadQuicklook();

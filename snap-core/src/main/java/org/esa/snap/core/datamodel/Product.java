@@ -1377,6 +1377,19 @@ public class Product extends ProductNode {
     }
 
     /**
+     * Returns the Quicklook with the given name.
+     *
+     * @param name the quicklook name
+     * @return the quicklook with the given name or <code>null</code> if a quicklook with the given name is not contained in this
+     * product.
+     * @throws IllegalArgumentException if the given name is <code>null</code> or empty.
+     */
+    public Quicklook getQuicklook(final String name) {
+        Guardian.assertNotNullOrEmpty("name", name);
+        return quicklookGroup.get(name);
+    }
+
+    /**
      * Gets the name of the band suitable for quicklook generation.
      *
      * @return the name of the quicklook band, or null if none has been defined
