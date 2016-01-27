@@ -183,7 +183,7 @@ public class ProductDB extends DAO {
     private void deleteRecord(final int id) throws SQLException {
         productTable.deleteRecord(id);
         metadataTable.deleteRecord(id);
-        QuickLookGenerator.deleteQuickLook(id);
+        //QuickLookGenerator.deleteQuickLook(id);
     }
 
     public void removeProducts(final File baseDir, final ProgressMonitor pm) throws SQLException {
