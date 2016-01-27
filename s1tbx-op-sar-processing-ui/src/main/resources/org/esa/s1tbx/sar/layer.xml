@@ -285,6 +285,10 @@
     </folder>
 
     <folder name="OperatorUIs">
+		<file name="org.esa.s1tbx.sar.gpf.ui.orbits.ApplyOrbitFileOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.sar.gpf.ui.orbits.ApplyOrbitFileOpUI"/>
+            <attr name="operatorName" stringvalue="Apply-Orbit-File"/>
+        </file>
         <file name="org.esa.s1tbx.sar.gpf.ui.MultilookOpUI">
             <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.sar.gpf.ui.MultilookOpUI"/>
             <attr name="operatorName" stringvalue="Multilook"/>
