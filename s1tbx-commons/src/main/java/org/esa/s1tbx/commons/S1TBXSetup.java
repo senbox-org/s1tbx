@@ -56,19 +56,20 @@ public class S1TBXSetup {
     }
 
     public static void installGraphs(final Class callingClass, final String path) {
+        installFiles(callingClass, path, getGraphsDir());
+    }
+
+    public static void installFiles(final Class callingClass, final String srcResPath, final Path dstPath) {
         final Path moduleBasePath = ResourceInstaller.findModuleCodeBasePath(callingClass);
-        final Path srcGraphPath = moduleBasePath.resolve(path);
-        final Path dstGraphPath = getGraphsDir();
-        //final ResourceInstaller resourceInstaller = new ResourceInstaller(moduleBasePath, "org/esa/s1tbx/graphs/",
-        //                                                                  dstGraphPath);
+        final Path srcGraphPath = moduleBasePath.resolve(srcResPath);
 
         try {
-            if (!Files.exists(dstGraphPath)) {
-                Files.createDirectories(dstGraphPath);
+            if (!Files.exists(dstPath)) {
+                Files.createDirectories(dstPath);
             }
-            TreeCopier.copy(srcGraphPath, dstGraphPath);
+            TreeCopier.copy(srcGraphPath, dstPath);
         } catch (IOException e) {
-            SystemUtils.LOG.severe("Unable to install graphs "+srcGraphPath+" to "+dstGraphPath+" "+e.getMessage());
+            SystemUtils.LOG.severe("Unable to install files "+srcGraphPath+" to "+dstPath+" "+e.getMessage());
         }
     }
 }
