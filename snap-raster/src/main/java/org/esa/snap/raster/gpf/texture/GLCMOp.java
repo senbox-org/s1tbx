@@ -36,6 +36,7 @@ import org.esa.snap.engine_utilities.gpf.TileIndex;
 import javax.media.jai.Histogram;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -153,8 +154,6 @@ public final class GLCMOp extends Operator {
     private static final String WINDOW_SIZE_7x7 = "7x7";
     private static final String WINDOW_SIZE_9x9 = "9x9";
     private static final String WINDOW_SIZE_11x11 = "11x11";
-
-    private static final double epsilon = 1.0e-10;
 
     enum GLCM_TYPES {
         Contrast,
@@ -498,24 +497,27 @@ public final class GLCMOp extends Operator {
             }
 
             TextureFeatures tf;
+            final GLCMElem[] GLCM = new GLCMElem[numQuantLevels * numQuantLevels];
 
             for (int ty = ty0; ty < maxY; ty++) {
                 trgIndex.calculateStride(ty);
+                final int y0 = Math.max(ty - halfWindowSize, 0);
+                final int h = Math.min(ty + halfWindowSize, sourceImageHeight - 1) - y0 + 1;
+                final int yMax = y0 + h;
+
                 for (int tx = tx0; tx < maxX; tx++) {
                     final int idx = trgIndex.getIndex(tx);
 
                     final int x0 = Math.max(tx - halfWindowSize, 0);
-                    final int y0 = Math.max(ty - halfWindowSize, 0);
                     final int w = Math.min(tx + halfWindowSize, sourceImageWidth - 1) - x0 + 1;
-                    final int h = Math.min(ty + halfWindowSize, sourceImageHeight - 1) - y0 + 1;
                     final int xMax = x0 + w;
-                    final int yMax = y0 + h;
 
+                    final int[][] quantizedImage = new int[h][w];
                     for (SrcInfo srcInfo : srcInfoList) {
 
-                        final int[][] quantizedImage = computeQuantizedImage(x0, y0, w, h, srcInfo);
+                        computeQuantizedImage(x0, y0, xMax, yMax, srcInfo, quantizedImage);
 
-                        final GLCMElem[] GLCM = new GLCMElem[numQuantLevels * numQuantLevels];
+                        Arrays.fill(GLCM, null);
                         final Totals totals = computeGLCM(x0, y0, xMax, yMax, quantizedImage, GLCM);
                         if (totals.totalCount == 0) {
                             tf = srcInfo.tfNoData;
@@ -525,25 +527,25 @@ public final class GLCMOp extends Operator {
 
                         for (final TileData tileData : srcInfo.tileDataList) {
 
-                            if (outputContrast && tileData.type.equals(GLCM_TYPES.Contrast)) {
+                            if (tileData.doContrast) {
                                 tileData.dataBuffer.setElemFloatAt(idx, (float) tf.Contrast);
-                            } else if (outputDissimilarity && tileData.type.equals(GLCM_TYPES.Dissimilarity)) {
+                            } else if (tileData.doDissimilarity) {
                                 tileData.dataBuffer.setElemFloatAt(idx, (float) tf.Dissimilarity);
-                            } else if (outputHomogeneity && tileData.type.equals(GLCM_TYPES.Homogeneity)) {
+                            } else if (tileData.doHomogeneity) {
                                 tileData.dataBuffer.setElemFloatAt(idx, (float) tf.Homogeneity);
-                            } else if (outputASM && tileData.type.equals(GLCM_TYPES.ASM)) {
+                            } else if (tileData.doASM) {
                                 tileData.dataBuffer.setElemFloatAt(idx, (float) tf.ASM);
-                            } else if (outputEnergy && tileData.type.equals(GLCM_TYPES.Energy)) {
+                            } else if (tileData.doEnergy) {
                                 tileData.dataBuffer.setElemFloatAt(idx, (float) tf.Energy);
-                            } else if (outputMAX && tileData.type.equals(GLCM_TYPES.MAX)) {
+                            } else if (tileData.doMax) {
                                 tileData.dataBuffer.setElemFloatAt(idx, (float) tf.MAX);
-                            } else if (outputEntropy && tileData.type.equals(GLCM_TYPES.Entropy)) {
+                            } else if (tileData.doEntropy) {
                                 tileData.dataBuffer.setElemFloatAt(idx, (float) tf.Entropy);
-                            } else if (outputMean && tileData.type.equals(GLCM_TYPES.GLCMMean)) {
+                            } else if (tileData.doMean) {
                                 tileData.dataBuffer.setElemFloatAt(idx, (float) tf.GLCMMean);
-                            } else if (outputVariance && tileData.type.equals(GLCM_TYPES.GLCMVariance)) {
+                            } else if (tileData.doVariance) {
                                 tileData.dataBuffer.setElemFloatAt(idx, (float) tf.GLCMVariance);
-                            } else if (outputCorrelation && tileData.type.equals(GLCM_TYPES.GLCMCorrelation)) {
+                            } else if (tileData.doCorrelation) {
                                 tileData.dataBuffer.setElemFloatAt(idx, (float) tf.GLCMCorrelation);
                             }
                         }
@@ -602,7 +604,8 @@ public final class GLCMOp extends Operator {
                                final int[][] quantizedImage, final GLCMElem[] GLCM) {
 
         final Totals totals = new Totals();
-        int xx, yy, dX, dY;
+        int xx, yy;
+        boolean withinImage;
         if (computeGLCPWithAllAngles) {
 
             for (int y = y0; y < yMax; y++) {
@@ -610,46 +613,24 @@ public final class GLCMOp extends Operator {
                 for (int x = x0; x < xMax; x++) {
                     xx = x - x0;
                     final int i = quantizedImage[yy][xx];
-                    if (i < 0) {
+                    if (i < 0)
                         continue;
-                    }
 
-                    for (int angle = 0; angle <= 135; angle += 45) {
-                        switch (angle) {
-                            case 0:
-                                dX = displacement;
-                                dY = 0;
-                                break;
-                            case 45:
-                                dX = -displacement;
-                                dY = displacement;
-                                break;
-                            case 90:
-                                dX = 0;
-                                dY = displacement;
-                                break;
-                            case 135:
-                                dX = displacement;
-                                dY = displacement;
-                                break;
-                            default:
-                                throw new OperatorException("Unknown angle: " + angle);
-                        }
+                    // 0
+                    withinImage = y + 0 >= y0 && y + 0 < yMax && x + displacement >= x0 && x + displacement < xMax;
+                    addElements(xx, yy, displacement, 0, withinImage, quantizedImage, GLCM, i, totals);
 
-                        int j;
-                        if (y + dY >= y0 && y + dY < yMax && x + dX >= x0 && x + dX < xMax) {
-                            j = quantizedImage[yy + dY][xx + dX];
-                            if (j < 0) {
-                                continue;
-                            }
-                        } else {
-                            continue;
-                        }
+                    // 45
+                    withinImage = y + displacement >= y0 && y + displacement < yMax && x + -displacement >= x0 && x + -displacement < xMax;
+                    addElements(xx, yy, -displacement, displacement, withinImage, quantizedImage, GLCM, i, totals);
 
-                        addElement(GLCM, i, j, totals);
-                        addElement(GLCM, j, i, totals);
-                        totals.totalCount++;
-                    }
+                    // 90
+                    withinImage = y + displacement >= y0 && y + displacement < yMax && x + 0 >= x0 && x + 0 < xMax;
+                    addElements(xx, yy, 0, displacement, withinImage, quantizedImage, GLCM, i, totals);
+
+                    // 135
+                    withinImage = y + displacement >= y0 && y + displacement < yMax && x + displacement >= x0 && x + displacement < xMax;
+                    addElements(xx, yy, displacement, displacement, withinImage, quantizedImage, GLCM, i, totals);
                 }
             }
 
@@ -657,6 +638,7 @@ public final class GLCMOp extends Operator {
 
             for (int y = y0; y < yMax; y++) {
                 yy = y - y0;
+                boolean withinY = y + displacementY >= y0 && y + displacementY < yMax;
                 for (int x = x0; x < xMax; x++) {
                     xx = x - x0;
                     final int i = quantizedImage[yy][xx];
@@ -664,20 +646,9 @@ public final class GLCMOp extends Operator {
                         continue;
                     }
 
-                    int j;
-                    if (y + displacementY >= y0 && y + displacementY < yMax &&
-                            x + displacementX >= x0 && x + displacementX < xMax) {
-                        j = quantizedImage[yy + displacementY][xx + displacementX];
-                        if (j < 0) {
-                            continue;
-                        }
-                    } else {
-                        continue;
-                    }
-
-                    addElement(GLCM, i, j, totals);
-                    addElement(GLCM, j, i, totals);
-                    totals.totalCount++;
+                    withinImage = withinY && x + displacementX >= x0 && x + displacementX < xMax;
+                    addElements(xx, yy, displacementX, displacementY, withinImage,
+                        quantizedImage,  GLCM,  i,  totals);
                 }
             }
         }
@@ -685,39 +656,56 @@ public final class GLCMOp extends Operator {
         return totals;
     }
 
-    private void addElement(final GLCMElem[] GLCM, final int i, final int j, final Totals totals) {
+    private void addElements(int xx, int yy, int dX, int dY, boolean withinImage,
+                        final int[][] quantizedImage, final GLCMElem[] GLCM, int i, Totals totals) {
+        int j;
+        if (withinImage) {
+            j = quantizedImage[yy + dY][xx + dX];
+            if (j < 0)
+                return;
+        } else {
+            return;
+        }
+
         int index = i * numQuantLevels + j;
-        GLCMElem e = GLCM[index];
-        if (e == null) {
-            e = new GLCMElem(i, j);
-            GLCM[index] = e;
+        if (GLCM[index] == null) {
+            GLCM[index] = new GLCMElem(i, j);
             totals.numElems++;
         }
-        e.value++;
+        GLCM[index].value++;
+
+        index = j * numQuantLevels + i;
+        if (GLCM[index] == null) {
+            GLCM[index] = new GLCMElem(j, i);
+            totals.numElems++;
+        }
+        GLCM[index].value++;
+
+        totals.totalCount++;
     }
 
-    private int[][] computeQuantizedImage(final int x0, final int y0, final int w, final int h, SrcInfo srcInfo) {
+    private void computeQuantizedImage(final int x0, final int y0, final int xMax, final int yMax,
+                                          final SrcInfo srcInfo, final int[][] data) {
 
-        final int[][] data = new int[h][w];
-        final int maxX = x0 + w;
-        final int maxY = y0 + h;
+        final ProductData srcData = srcInfo.srcData;
+        final double noDataValue = srcInfo.noDataValue;
+        final TileIndex srcIndex = new TileIndex(srcInfo.sourceTile);
+        double v;
 
-        int xx, yy;
-        for (int y = y0; y < maxY; y++) {
-            yy = y - y0;
-            for (int x = x0; x < maxX; x++) {
-                xx = x - x0;
-                final double v = srcInfo.srcData.getElemDoubleAt(srcInfo.sourceTile.getDataBufferIndex(x, y));
-                if (v == srcInfo.noDataValue) {
-                    data[yy][xx] = -1;
+        for (int y = y0; y < yMax; y++) {
+            int yy = y - y0;
+            srcIndex.calculateStride(y);
+            for (int x = x0; x < xMax; x++) {
+                v = srcData.getElemDoubleAt(srcIndex.getIndex(x));
+                if (v == noDataValue) {
+                    data[yy][x - x0] = -1;
                 } else if (useProbabilisticQuantizer) {
-                    data[yy][xx] = probQuantizer(v);
+                    data[yy][x - x0] = probQuantizer(v);
                 } else {
-                    data[yy][xx] = equalDisQuantizer(v);
+                    data[yy][x - x0] = equalDisQuantizer(v);
                 }
             }
         }
-        return data;
     }
 
     private TextureFeatures computeTextureFeatures(final GLCMElem[] GLCM, final Totals totals) {
@@ -852,35 +840,32 @@ public final class GLCMOp extends Operator {
         public TileData[] tileDataList;
     }
 
-    private static class TileData {
+    private class TileData {
         final ProductData dataBuffer;
-        final GLCM_TYPES type;
+        final boolean doContrast;
+        final boolean doDissimilarity;
+        final boolean doHomogeneity;
+        final boolean doASM;
+        final boolean doEnergy;
+        final boolean doMax;
+        final boolean doEntropy;
+        final boolean doMean;
+        final boolean doVariance;
+        final boolean doCorrelation;
 
         public TileData(final Tile tile, final String bandName) {
             this.dataBuffer = tile.getDataBuffer();
 
-            if (bandName.endsWith(GLCM_TYPES.Contrast.toString()))
-                type = GLCM_TYPES.Contrast;
-            else if (bandName.endsWith(GLCM_TYPES.Dissimilarity.toString()))
-                type = GLCM_TYPES.Dissimilarity;
-            else if (bandName.endsWith(GLCM_TYPES.Homogeneity.toString()))
-                type = GLCM_TYPES.Homogeneity;
-            else if (bandName.endsWith(GLCM_TYPES.ASM.toString()))
-                type = GLCM_TYPES.ASM;
-            else if (bandName.endsWith(GLCM_TYPES.Energy.toString()))
-                type = GLCM_TYPES.Energy;
-            else if (bandName.endsWith(GLCM_TYPES.MAX.toString()))
-                type = GLCM_TYPES.MAX;
-            else if (bandName.endsWith(GLCM_TYPES.Entropy.toString()))
-                type = GLCM_TYPES.Entropy;
-            else if (bandName.endsWith(GLCM_TYPES.GLCMMean.toString()))
-                type = GLCM_TYPES.GLCMMean;
-            else if (bandName.endsWith(GLCM_TYPES.GLCMVariance.toString()))
-                type = GLCM_TYPES.GLCMVariance;
-            else if (bandName.endsWith(GLCM_TYPES.GLCMCorrelation.toString()))
-                type = GLCM_TYPES.GLCMCorrelation;
-            else
-                type = GLCM_TYPES.Unknown;
+            doContrast = outputContrast && bandName.endsWith(GLCM_TYPES.Contrast.toString());
+            doDissimilarity = outputDissimilarity && bandName.endsWith(GLCM_TYPES.Dissimilarity.toString());
+            doHomogeneity = outputHomogeneity && bandName.endsWith(GLCM_TYPES.Homogeneity.toString());
+            doASM = outputASM && bandName.endsWith(GLCM_TYPES.ASM.toString());
+            doEnergy = outputEnergy && bandName.endsWith(GLCM_TYPES.Energy.toString());
+            doMax = outputMAX && bandName.endsWith(GLCM_TYPES.MAX.toString());
+            doEntropy = outputEntropy &&bandName.endsWith(GLCM_TYPES.Entropy.toString());
+            doMean = outputMean && bandName.endsWith(GLCM_TYPES.GLCMMean.toString());
+            doVariance = outputVariance && bandName.endsWith(GLCM_TYPES.GLCMVariance.toString());
+            doCorrelation = outputCorrelation && bandName.endsWith(GLCM_TYPES.GLCMCorrelation.toString());
         }
     }
 
@@ -925,7 +910,7 @@ public final class GLCMOp extends Operator {
 
         public final int row;
         public final int col;
-        public int value = 0;
+        public int value;
         public double prob;
         public double diff_col_GLCMMeanX;
         public double diff_row_GLCMMeanY;
