@@ -116,6 +116,33 @@ public class Quicklook extends ProductNode {
         visitor.visit(this);
     }
 
+    /*
+     * Checks if a quicklook file is cached either with the product or in the database
+     * @return true if a cached quicklook file is found
+     */
+    public boolean hasCachedQuicklook() {
+        if (productQuicklookFolder != null) {
+            // load from product
+            final File quickLookFile = productQuicklookFolder.
+                    resolve(SNAP_QUICKLOOK_FILE_PREFIX + getName() + QUICKLOOK_EXT).toFile();
+            if (quickLookFile.exists()) {
+                return true;
+            }
+        }
+        // load from database
+        final File productFile = product.getFileLocation();
+        if (productFile != null) {
+
+            int id = QuicklookDB.instance().getQuicklookId(productFile);
+            if (id != QuicklookDB.QL_NOT_FOUND) {
+                final File quickLookFile = QuicklookDB.getQuicklookCacheDir().
+                        resolve(SNAP_QUICKLOOK_FILE_PREFIX + id + QUICKLOOK_EXT).toFile();
+                return quickLookFile.exists();
+            }
+        }
+        return false;
+    }
+
     public boolean hasImage() {
         return image != null;
     }
