@@ -22,7 +22,7 @@
 
     <groupId>org.esa.snap</groupId>
     <artifactId>snap-engine</artifactId>
-    <version>2.0.1-SNAPSHOT</version>
+    <version>2.0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>SNAP Engine Project</name>
@@ -38,7 +38,7 @@
             This is necessary to make NetBeans modules updatable and independent from the Maven version (= snap.version).
         -->
         <snap.version>[2.0.0, 3.0.0-SNAPSHOT)</snap.version>
-        <snap.nbmSpecVersion>2.0.1.0</snap.nbmSpecVersion>
+        <snap.nbmSpecVersion>2.0.2</snap.nbmSpecVersion>
         <javahelp.version>2.0.05</javahelp.version>
         <hdf.version>2.7.1</hdf.version>
         <netcdf.version>4.3.22</netcdf.version>

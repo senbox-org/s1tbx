@@ -4,7 +4,7 @@
     <parent>
         <artifactId>snap-engine</artifactId>
         <groupId>org.esa.snap</groupId>
-        <version>2.0.1-SNAPSHOT</version>
+        <version>2.0.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>snap-envisat-reader</artifactId>
@@ -12,12 +12,7 @@
 
     <name>SNAP Envisat Product Reader</name>
     <description>Enables SNAP to read ENVISAT data products.</description>
-    <version>2.0.2-SNAPSHOT</version>
 
-    <properties>
-        <snap.nbmSpecVersion>2.0.2</snap.nbmSpecVersion>
-    </properties>
-    
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
