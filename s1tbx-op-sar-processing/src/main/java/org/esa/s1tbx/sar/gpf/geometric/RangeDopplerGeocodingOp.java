@@ -162,6 +162,9 @@ public class RangeDopplerGeocodingOp extends Operator {
     @Parameter(defaultValue = "true", label = "Save selected source band")
     private boolean saveSelectedSourceBand = true;
 
+    @Parameter(defaultValue = "false", label = "Output complex data")
+    private boolean outputComplex = false;
+
     @Parameter(defaultValue = "false", label = "Apply radiometric normalization")
     private boolean applyRadiometricNormalization = false;
 
@@ -594,7 +597,7 @@ public class RangeDopplerGeocodingOp extends Operator {
             final Band srcBand = sourceBands[i];
             final String unit = srcBand.getUnit();
 
-            if (unit != null && !isPolsar &&
+            if (unit != null && !isPolsar && !outputComplex &&
                     (unit.equals(Unit.REAL) || unit.equals(Unit.IMAGINARY))) {
 
                 if (i == sourceBands.length - 1) {
@@ -689,6 +692,13 @@ public class RangeDopplerGeocodingOp extends Operator {
                         targetBandNameToSourceBand.put(targetBandName, srcBands);
                         targetBandApplyRadiometricNormalizationFlag.put(targetBandName, false);
                         targetBandApplyRetroCalibrationFlag.put(targetBandName, false);
+                    }
+
+                    // add virtual intensity
+                    if(outputComplex && unit != null && unit.contains(Unit.IMAGINARY)) {
+                        Band iBand = targetProduct.getBand(targetBandName.replaceFirst("q_", "i_"));
+                        Band qBand = targetProduct.getBand(targetBandName);
+                        ReaderUtils.createVirtualIntensityBand(targetProduct, iBand, qBand, "");
                     }
                 }
             }
@@ -899,7 +909,7 @@ public class RangeDopplerGeocodingOp extends Operator {
 
                 final Band[] srcBands = targetBandNameToSourceBand.get(targetBand.getName());
 
-                final TileData td = new TileData(targetTiles.get(targetBand), srcBands, isPolsar,
+                final TileData td = new TileData(targetTiles.get(targetBand), srcBands, isPolsar, outputComplex,
                         targetBand.getName(), getBandUnit(targetBand.getName()), absRoot, calibrator, imgResampling);
 
                 td.applyRadiometricNormalization = targetBandApplyRadiometricNormalizationFlag.get(targetBand.getName());
@@ -1256,7 +1266,8 @@ public class RangeDopplerGeocodingOp extends Operator {
         final ResamplingRaster imgResamplingRaster;
         final Resampling.Index imgResamplingIndex;
 
-        public TileData(final Tile tile, final Band[] srcBands, final boolean isPolsar, final String name,
+        public TileData(final Tile tile, final Band[] srcBands, final boolean isPolsar, final boolean outputComplex,
+                        final String name,
                         final Unit.UnitType unit, final MetadataElement absRoot, final Calibrator calibrator,
                         final Resampling imgResampling) {
             this.targetTile = tile;
@@ -1268,7 +1279,7 @@ public class RangeDopplerGeocodingOp extends Operator {
             this.bandPolar = OperatorUtils.getBandPolarization(srcBands[0].getName(), absRoot);
             this.bandUnit = unit;
             this.calibrator = calibrator;
-            this.computeIntensity = !isPolsar &&
+            this.computeIntensity = !isPolsar && !outputComplex &&
                     (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY);
 
             this.imgResamplingRaster = new ResamplingRaster(this);

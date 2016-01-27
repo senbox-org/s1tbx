@@ -58,7 +58,7 @@ public class SpeckleFilterOperatorTest {
         final SpeckleFilterOp op = (SpeckleFilterOp) spi.createOperator();
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
-        op.SetFilter("Mean");
+        op.SetFilter("Boxcar");
 
         // get targetProduct gets initialize to be executed
         final Product targetProduct = op.getTargetProduct();

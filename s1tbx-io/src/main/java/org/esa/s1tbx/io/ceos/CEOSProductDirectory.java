@@ -476,6 +476,7 @@ public abstract class CEOSProductDirectory {
             folder += "/";
         }
         for(String name : fileList) {
+            name = name.toUpperCase();
             for (String prefix : prefixList) {
                 if (name.startsWith(prefix) || name.endsWith('.' + prefix)) {
                     ImageInputStream stream;
