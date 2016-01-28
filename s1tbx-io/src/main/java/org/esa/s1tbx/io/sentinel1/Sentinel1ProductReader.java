@@ -96,7 +96,6 @@ public class Sentinel1ProductReader extends SARReader {
             }
             dataDir.readProductDirectory();
             final Product product = dataDir.createProduct();
-            product.getGcpGroup();
             product.setFileLocation(fileFromInput);
             product.setProductReader(this);
             if (dataDir instanceof Sentinel1Level2Directory) {
