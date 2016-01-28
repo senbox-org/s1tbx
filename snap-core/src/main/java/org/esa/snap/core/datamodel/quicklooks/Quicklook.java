@@ -17,7 +17,9 @@ package org.esa.snap.core.datamodel.quicklooks;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.dataio.ProductIO;
+import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductSubsetDef;
+import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductNode;
 import org.esa.snap.core.datamodel.ProductVisitor;
@@ -25,15 +27,8 @@ import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.runtime.Config;
 
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.prefs.Preferences;
@@ -51,6 +46,7 @@ public class Quicklook extends ProductNode {
     private Product product;
     private File productFile;
     private final File browseFile;
+    private Band[] quicklookBands;
     private final Path productQuicklookFolder;
     private final boolean productCanAppendFiles;
     private final boolean saveWithProduct;
@@ -67,7 +63,7 @@ public class Quicklook extends ProductNode {
      * @param name    the name of the quicklook
      */
     public Quicklook(final Product product, final String name) {
-        this(product, name, null, false, null);
+        this(product, name, null, false, null, null);
     }
 
     /**
@@ -78,7 +74,18 @@ public class Quicklook extends ProductNode {
      * @param browseFile the preview or browse image from a product
      */
     public Quicklook(final Product product, final String name, final File browseFile) {
-        this(product, name, browseFile, false, null);
+        this(product, name, browseFile, false, null, null);
+    }
+
+    /**
+     * Constructor when a browseFile is given. The quicklooks is generated from the browse file
+     *
+     * @param product    the source product
+     * @param name       the name of the quicklook
+     * @param quicklookBands   the bands to create an RGB quicklook from
+     */
+    public Quicklook(final Product product, final String name, final Band[] quicklookBands) {
+        this(product, name, null, false, null, quicklookBands);
     }
 
     /**
@@ -91,7 +98,8 @@ public class Quicklook extends ProductNode {
      * @param productQuicklookFolder where to write the quicklook files
      */
     public Quicklook(final Product product, final String name, final File browseFile,
-                     final boolean productCanAppendFiles, final Path productQuicklookFolder) {
+                     final boolean productCanAppendFiles, final Path productQuicklookFolder,
+                     final Band[] quicklookBands) {
         super(name);
         if(product != null) {
             this.product = product;
@@ -100,6 +108,7 @@ public class Quicklook extends ProductNode {
         this.browseFile = browseFile;
         this.productCanAppendFiles = productCanAppendFiles;
         this.productQuicklookFolder = productQuicklookFolder;
+        this.quicklookBands = quicklookBands;
 
         final Preferences preferences = Config.instance().preferences();
         saveWithProduct = preferences.getBoolean(QuicklookGenerator.PREFERENCE_KEY_QUICKLOOKS_SAVE_WITH_PRODUCT,
@@ -168,15 +177,18 @@ public class Quicklook extends ProductNode {
                 final QuicklookGenerator qlGen = new QuicklookGenerator();
                 try {
                     if (browseFile != null) {
-                        final Product browseProduct = ProductIO.readProduct(browseFile);
-                        image = qlGen.createQuickLookFromBrowseProduct(browseProduct, true);
+                        final Product browseProduct = readProduct(browseFile);
+                        image = qlGen.createQuickLookFromBrowseProduct(browseProduct);
 
                     } else {
                         if(product == null) {
                             this.product = ProductIO.readProduct(productFile);
                         }
                         if(product != null) {
-                            image = qlGen.createQuickLookImage(product, pm);
+                            if(quicklookBands == null) {
+                                quicklookBands = QuicklookGenerator.findQuicklookBands(product);
+                            }
+                            image = qlGen.createQuickLookImage(product, quicklookBands, pm);
                         } else {
                             throw new IOException("product not set");
                         }
@@ -190,13 +202,27 @@ public class Quicklook extends ProductNode {
         return image;
     }
 
+    private static Product readProduct(final File file) throws IOException {
+        final String filename = file.getName().toLowerCase();
+        ProductReader productReader = null;
+        if (filename.endsWith("tif")) {
+            productReader = ProductIO.getProductReader("GeoTIFF");
+        } else if (filename.endsWith("png") || filename.endsWith("jpg")) {
+            productReader = ProductIO.getProductReader("PNG");
+        }
+        if (productReader != null) {
+            return productReader.readProductNodes(file, null);
+        }
+        return ProductIO.readProduct(file);
+    }
+
     private void loadQuicklook() {
         if (productQuicklookFolder != null) {
             // load from product
 
             final File quickLookFile = productQuicklookFolder.
                     resolve(SNAP_QUICKLOOK_FILE_PREFIX + getName() + QUICKLOOK_EXT).toFile();
-            image = loadImage(quickLookFile);
+            image = QuicklookGenerator.loadImage(quickLookFile);
         }
         if (image == null) {
             // load from database
@@ -209,23 +235,10 @@ public class Quicklook extends ProductNode {
                 if (id != QuicklookDB.QL_NOT_FOUND) {
                     final File quickLookFile = QuicklookDB.getQuicklookCacheDir().
                             resolve(SNAP_QUICKLOOK_FILE_PREFIX + id + QUICKLOOK_EXT).toFile();
-                    image = loadImage(quickLookFile);
+                    image = QuicklookGenerator.loadImage(quickLookFile);
                 }
             }
         }
-    }
-
-    private BufferedImage loadImage(final File quickLookFile) {
-        if (quickLookFile.exists()) {
-            try {
-                try (BufferedInputStream fis = new BufferedInputStream(new FileInputStream(quickLookFile))) {
-                    return ImageIO.read(fis);
-                }
-            } catch (Exception e) {
-                SystemUtils.LOG.severe("Unable to load quicklook: " + quickLookFile);
-            }
-        }
-        return null;
     }
 
     private void saveQuicklook(final BufferedImage bufferedImage) {
@@ -239,7 +252,7 @@ public class Quicklook extends ProductNode {
                 final File quickLookFile = productQuicklookFolder.
                         resolve(SNAP_QUICKLOOK_FILE_PREFIX + getName() + QUICKLOOK_EXT).toFile();
 
-                if (writeImage(bufferedImage, quickLookFile))
+                if (QuicklookGenerator.writeImage(bufferedImage, quickLookFile))
                     return;
             }
         }
@@ -250,33 +263,7 @@ public class Quicklook extends ProductNode {
             int id = QuicklookDB.instance().addQuickLookId(productFile);
             final File quickLookFile = QuicklookDB.getQuicklookCacheDir().
                     resolve(SNAP_QUICKLOOK_FILE_PREFIX + id + QUICKLOOK_EXT).toFile();
-            writeImage(bufferedImage, quickLookFile);
+            QuicklookGenerator.writeImage(bufferedImage, quickLookFile);
         }
-    }
-
-    private boolean writeImage(final BufferedImage bufferedImage, final File quickLookFile) {
-        try {
-            if (quickLookFile.createNewFile()) {
-                //ImageIO.write(bufferedImage, "JPG", quickLookFile);
-
-                ImageWriter jpgWriter = ImageIO.getImageWritersByFormatName("jpg").next();
-                ImageWriteParam jpgWriteParam = jpgWriter.getDefaultWriteParam();
-                jpgWriteParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-                jpgWriteParam.setCompressionQuality(0.1f);
-
-                ImageOutputStream outputStream = ImageIO.createImageOutputStream(quickLookFile);
-                jpgWriter.setOutput(outputStream);
-                IIOImage outputImage = new IIOImage(image, null, null);
-                jpgWriter.write(null, outputImage, jpgWriteParam);
-                jpgWriter.dispose();
-
-                return true;
-            } else {
-                SystemUtils.LOG.severe("Unable to save quicklook: " + quickLookFile);
-            }
-        } catch (IOException e) {
-            SystemUtils.LOG.severe("Unable to save quicklook: " + quickLookFile);
-        }
-        return false;
     }
 }

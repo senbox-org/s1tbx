@@ -17,21 +17,25 @@ package org.esa.snap.core.datamodel.quicklooks;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import com.bc.ceres.glayer.support.ImageLayer;
-import com.bc.ceres.glevel.MultiLevelSource;
-import com.bc.ceres.grender.Viewport;
-import com.bc.ceres.grender.support.BufferedImageRendering;
-import com.bc.ceres.grender.support.DefaultViewport;
+import net.coobird.thumbnailator.makers.FixedSizeThumbnailMaker;
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ImageInfo;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.image.ColoredBandImageMultiLevelSource;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.runtime.Config;
 
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,29 +73,15 @@ public class QuicklookGenerator {
         maxWidth = preferences.getInt(PREFERENCE_KEY_QUICKLOOKS_MAX_WIDTH, DEFAULT_VALUE_QUICKLOOKS_MAX_WIDTH);
     }
 
-    public BufferedImage createQuickLookFromBrowseProduct(final Product browseProduct,
-                                                          final boolean subsample) throws IOException {
-        Product productSubset = browseProduct;
-
-        if (subsample) {
-            final ProductSubsetDef productSubsetDef = new ProductSubsetDef("subset");
-            int scaleFactor = Math.round(Math.max(browseProduct.getSceneRasterWidth(),
-                                                  browseProduct.getSceneRasterHeight()) / (float) maxWidth);
-            if (scaleFactor < 1) {
-                scaleFactor = 1;
-            }
-            productSubsetDef.setSubSampling(scaleFactor, scaleFactor);
-
-            productSubset = browseProduct.createSubset(productSubsetDef, null, null);
-        }
+    public BufferedImage createQuickLookFromBrowseProduct(final Product browseProduct) throws IOException {
 
         final BufferedImage image;
-        if (productSubset.getNumBands() < 3) {
-            image = ProductUtils.createColorIndexedImage(productSubset.getBandAt(0), ProgressMonitor.NULL);
+        if (browseProduct.getNumBands() < 3) {
+            image = ProductUtils.createColorIndexedImage(browseProduct.getBandAt(0), ProgressMonitor.NULL);
         } else {
             final List<Band> bandList = new ArrayList<>(3);
-            for (int i = 0; i < Math.min(3, productSubset.getNumBands()); ++i) {
-                final Band band = productSubset.getBandAt(i);
+            for (int i = 0; i < Math.min(3, browseProduct.getNumBands()); ++i) {
+                final Band band = browseProduct.getBandAt(i);
                 if (band.getStx().getMean() != 0) {
                     bandList.add(band);
                 }
@@ -106,18 +96,20 @@ public class QuicklookGenerator {
             }
         }
 
-        productSubset.dispose();
-        return image;
+        return new FixedSizeThumbnailMaker()
+                .size(maxWidth, maxWidth)
+                .keepAspectRatio(true)
+                .fitWithinDimensions(true)
+                .make(image);
     }
 
-    public BufferedImage createQuickLookImage(final Product product, final ProgressMonitor pm) throws IOException {
-
+    public BufferedImage createQuickLookImage(final Product product, Band[] quicklookBands,
+                                              final ProgressMonitor pm) throws IOException {
         Product productSubset = product;
-        final Band[] quicklookBands = getQuicklookBand(productSubset);
 
         final boolean subsample = true;
         if (subsample) {
-            final int width = maxWidth * (MULTILOOK_FACTOR * 2);
+            final int width = maxWidth*2;// * (MULTILOOK_FACTOR * 2);
             final ProductSubsetDef productSubsetDef = new ProductSubsetDef("subset");
             int scaleFactor = Math.round(Math.max(product.getSceneRasterWidth(), product.getSceneRasterHeight()) / (float) width);
             if (scaleFactor < 1) {
@@ -126,53 +118,46 @@ public class QuicklookGenerator {
             productSubsetDef.setSubSampling(scaleFactor, scaleFactor);
 
             productSubset = product.createSubset(productSubsetDef, null, null);
-        }
 
+            final List<Band> bandList = new ArrayList<>();
+            for(Band band : quicklookBands) {
+                bandList.add(productSubset.getBand(band.getName()));
+            }
+            quicklookBands = bandList.toArray(new Band[bandList.size()]);
+        }
 
         final BufferedImage image;
         if (quicklookBands.length < 3) {
-            MultiLevelSource multiLevelSource = ColoredBandImageMultiLevelSource.create(quicklookBands[0],
-                                                                                        SubProgressMonitor.create(pm, 1));
-            final ImageLayer imageLayer = new ImageLayer(multiLevelSource);
-            final int imageType = BufferedImage.TYPE_3BYTE_BGR;
-            image = new BufferedImage(productSubset.getSceneRasterWidth(), productSubset.getSceneRasterHeight(), imageType);
-            Viewport snapshotVp = new DefaultViewport(imageLayer.getImageToModelTransform().getDeterminant() > 0.0);
-            final BufferedImageRendering imageRendering = new BufferedImageRendering(image, snapshotVp);
+//            MultiLevelSource multiLevelSource = ColoredBandImageMultiLevelSource.create(quicklookBands[0], pm);
+//            final ImageLayer imageLayer = new ImageLayer(multiLevelSource);
+//            final int imageType = BufferedImage.TYPE_3BYTE_BGR;
+//            image = new BufferedImage(productSubset.getSceneRasterWidth(), productSubset.getSceneRasterHeight(), imageType);
+//            Viewport snapshotVp = new DefaultViewport(imageLayer.getImageToModelTransform().getDeterminant() > 0.0);
+//            final BufferedImageRendering imageRendering = new BufferedImageRendering(image, snapshotVp);
+//
+//            snapshotVp.zoom(imageLayer.getModelBounds());
+//            snapshotVp.moveViewDelta(snapshotVp.getViewBounds().x, snapshotVp.getViewBounds().y);
+//            imageLayer.render(imageRendering);
 
-            snapshotVp.zoom(imageLayer.getModelBounds());
-            snapshotVp.moveViewDelta(snapshotVp.getViewBounds().x, snapshotVp.getViewBounds().y);
-            imageLayer.render(imageRendering);
-
-            //image = ProductUtils.createColorIndexedImage(average(productSubset, quicklookBands[0],
-            //                                                     SubProgressMonitor.create(pm, 50)),
-            //                                             SubProgressMonitor.create(pm, 50));
+            image = ProductUtils.createColorIndexedImage(quicklookBands[0], pm);
         } else {
-            final List<Band> bandList = new ArrayList<>(3);
-            for (int i = 0; i < Math.min(3, quicklookBands.length); ++i) {
-                final Band band = average(productSubset, quicklookBands[i], SubProgressMonitor.create(pm, 50));
-                if (band.getStx().getMean() != 0) {
-                    bandList.add(band);
-                }
-            }
 
-            final Band[] bands = bandList.toArray(new Band[bandList.size()]);
-
-            if (bands.length < 3) {
-                image = ProductUtils.createColorIndexedImage(bands[0], SubProgressMonitor.create(pm, 50));
-            } else {
-                ImageInfo imageInfo = ProductUtils.createImageInfo(bands, true, SubProgressMonitor.create(pm, 25));
-                image = ProductUtils.createRgbImage(bands, imageInfo, SubProgressMonitor.create(pm, 25));
-            }
+            ImageInfo imageInfo = ProductUtils.createImageInfo(quicklookBands, true, SubProgressMonitor.create(pm, 50));
+            image = ProductUtils.createRgbImage(quicklookBands, imageInfo, SubProgressMonitor.create(pm, 50));
         }
 
         if (subsample) {
             productSubset.dispose();
         }
 
-        return image;
+        return new FixedSizeThumbnailMaker()
+                .size(maxWidth, maxWidth)
+                .keepAspectRatio(true)
+                .fitWithinDimensions(true)
+                .make(image);
     }
 
-    private static Band[] getQuicklookBand(final Product product) {
+    public static Band[] findQuicklookBands(final Product product) {
 
         final String[] bandNames = product.getBandNames();
         final List<Band> bandList = new ArrayList<>(3);
@@ -282,5 +267,44 @@ public class QuicklookGenerator {
         Band b = new Band("averaged", ProductData.TYPE_FLOAT32, w, h);
         b.setData(ProductData.createInstance(data));
         return b;
+    }
+
+    public static BufferedImage loadImage(final File quickLookFile) {
+        if (quickLookFile.exists()) {
+            try {
+                try (BufferedInputStream fis = new BufferedInputStream(new FileInputStream(quickLookFile))) {
+                    return ImageIO.read(fis);
+                }
+            } catch (Exception e) {
+                SystemUtils.LOG.severe("Unable to load quicklook: " + quickLookFile);
+            }
+        }
+        return null;
+    }
+
+    public static boolean writeImage(final BufferedImage bufferedImage, final File quickLookFile) {
+        try {
+            if (quickLookFile.createNewFile()) {
+                //ImageIO.write(bufferedImage, "JPG", quickLookFile);
+
+                ImageWriter jpgWriter = ImageIO.getImageWritersByFormatName("jpg").next();
+                ImageWriteParam jpgWriteParam = jpgWriter.getDefaultWriteParam();
+                jpgWriteParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+                jpgWriteParam.setCompressionQuality(0.8f);
+
+                ImageOutputStream outputStream = ImageIO.createImageOutputStream(quickLookFile);
+                jpgWriter.setOutput(outputStream);
+                IIOImage outputImage = new IIOImage(bufferedImage, null, null);
+                jpgWriter.write(null, outputImage, jpgWriteParam);
+                jpgWriter.dispose();
+
+                return true;
+            } else {
+                SystemUtils.LOG.severe("Unable to save quicklook: " + quickLookFile);
+            }
+        } catch (IOException e) {
+            SystemUtils.LOG.severe("Unable to save quicklook: " + quickLookFile);
+        }
+        return false;
     }
 }
