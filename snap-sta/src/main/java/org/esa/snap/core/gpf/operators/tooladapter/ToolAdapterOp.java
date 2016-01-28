@@ -32,7 +32,6 @@ import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.descriptor.*;
 import org.esa.snap.core.gpf.internal.OperatorContext;
-import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.io.FileUtils;
@@ -73,6 +72,8 @@ public class ToolAdapterOp extends Operator {
      * Stop the tool's execution.
      */
     private volatile boolean isStopped;
+
+    private volatile boolean wasCancelled;
 
     private ToolAdapterOperatorDescriptor descriptor;
 
@@ -210,7 +211,9 @@ public class ToolAdapterOp extends Operator {
             }
         } finally {
             try {
-                postExecute();
+                if (!wasCancelled) {
+                    postExecute();
+                }
             } finally {
                 if (this.progressMonitor != null) {
                     this.progressMonitor.done();
@@ -385,7 +388,8 @@ public class ToolAdapterOp extends Operator {
                 throw new IOException(String.format("Process exited with value %d", process.exitValue()));
             }
         } catch (IOException e) {
-            throw new OperatorException(String.format("% execution was interrupted [%s]",descriptor.getName(), e));
+            wasCancelled = true;
+            throw new OperatorException(String.format("%s execution was interrupted [%s]",descriptor.getName(), e));
         } finally {
             if (process != null) {
                 // if the process is still running, force it to isStopped
@@ -442,10 +446,11 @@ public class ToolAdapterOp extends Operator {
                 if (input.isDirectory()) {
                     input = selectCandidateRasterFile(input);
                 }
+                getLogger().info(String.format("Trying to open %s", input.getAbsolutePath()));
                 Product target = ProductIO.readProduct(input);
-                for (Band band : target.getBands()) {
+                /*for (Band band : target.getBands()) {
                     ImageManager.getInstance().getSourceImage(band, 0);
-                }
+                }*/
                 setTargetProduct(target);
             } catch (IOException e) {
                 throw new OperatorException("Error reading product '" + input.getPath() + "'");
@@ -584,8 +589,8 @@ public class ToolAdapterOp extends Operator {
                 DateFormat.DEFAULT,
                 Locale.ENGLISH).format(new Date()).replace(":", separatorChar);
         dateFormatted = dateFormatted.replace("/", separatorChar).replace(" ", separatorChar);
-        String newFileName = descriptor.resolveVariables(descriptor.getWorkingDir()) + templateFile.getName() + "_result_" + dateFormatted;
-        ToolAdapterIO.saveFileContent(new File(newFileName), result);
+        String newFileName = templateFile.getName() + "_result_" + dateFormatted;
+        ToolAdapterIO.saveFileContent(new File(descriptor.resolveVariables(descriptor.getWorkingDir()), newFileName), result);
         this.lastPostContext = veloContext;
         return newFileName;
     }
