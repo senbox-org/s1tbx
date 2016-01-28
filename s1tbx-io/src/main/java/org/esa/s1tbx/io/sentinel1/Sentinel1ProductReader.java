@@ -22,6 +22,7 @@ import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import javax.imageio.ImageReadParam;
@@ -101,7 +102,10 @@ public class Sentinel1ProductReader extends SARReader {
             if (dataDir instanceof Sentinel1Level2Directory) {
                 ((Sentinel1Level2Directory) dataDir).addGeoCodingToBands(product);
             }
+
             setQuicklookBandName(product);
+            addQuicklook(product, getQuicklookFile());
+
             product.setModified(false);
 
             return product;
@@ -109,6 +113,18 @@ public class Sentinel1ProductReader extends SARReader {
             handleReaderException(e);
         }
 
+        return null;
+    }
+
+    private File getQuicklookFile() {
+        if (dataDir instanceof Sentinel1Level1Directory) {
+            Sentinel1Level1Directory level1Directory = (Sentinel1Level1Directory) dataDir;
+            try {
+                return level1Directory.getFile(level1Directory.getRootFolder() + "preview/quick-look.png");
+            } catch (IOException e) {
+                SystemUtils.LOG.severe("Unable to load quicklook " + level1Directory.getProductName());
+            }
+        }
         return null;
     }
 

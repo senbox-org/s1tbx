@@ -24,6 +24,7 @@ import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
@@ -98,7 +99,10 @@ public class TerraSarXProductReader extends SARReader {
             product = dataDir.createProduct();
             product.setFileLocation(fileFromInput);
             product.setProductReader(this);
+
             setQuicklookBandName(product);
+            addQuicklook(product, getQuicklookFile());
+
             /*if(dataDir.isComplex()) {
                 product = product.createFlippedProduct(ProductFlipper.FLIP_HORIZONTAL, product.getName(), product.getDescription());
                 product.setFileLocation(fileFromInput);
@@ -111,6 +115,15 @@ public class TerraSarXProductReader extends SARReader {
         }
 
         return product;
+    }
+
+    private File getQuicklookFile() {
+        try {
+            return dataDir.getFile(dataDir.getRootFolder() + "PREVIEW/BROWSE.tif");
+        } catch (IOException e) {
+            SystemUtils.LOG.severe("Unable to load quicklook " + dataDir.getProductName());
+        }
+        return null;
     }
 
     /**

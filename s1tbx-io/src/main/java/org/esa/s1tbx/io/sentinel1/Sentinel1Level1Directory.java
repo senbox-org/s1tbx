@@ -25,11 +25,9 @@ import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.quicklooks.Quicklook;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.dataop.downloadable.XMLSupport;
-import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
@@ -762,18 +760,6 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         }
     }
 
-    private void addQuicklooks(final Product product) {
-        try {
-            product.getQuicklookGroup().add(new Quicklook(product, Quicklook.DEFAULT_QUICKLOOK_NAME, getQuicklookFile()));
-        } catch (IOException e) {
-            SystemUtils.LOG.severe("Unable to get quicklook file");
-        }
-    }
-
-    private File getQuicklookFile() throws IOException {
-        return getFile(getRootFolder()+"preview/quick-look.png");
-    }
-
     @Override
     protected void addTiePointGrids(final Product product) {
         // replaced by call to addTiePointGrids(band)
@@ -1034,7 +1020,6 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
 
         addBands(product);
         addGeoCoding(product);
-        addQuicklooks(product);
 
         product.setName(getProductName());
         //product.setProductType(getProductType());
