@@ -5,7 +5,7 @@
     <parent>
         <artifactId>jlinda</artifactId>
         <groupId>org.jlinda</groupId>
-        <version>2.0.3-SNAPSHOT</version>
+        <version>2.0.3</version>
     </parent>
 
     <name>jLinda NEST Support UI</name>
