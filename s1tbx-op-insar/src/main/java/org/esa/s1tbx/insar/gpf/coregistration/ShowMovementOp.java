@@ -324,8 +324,7 @@ public class ShowMovementOp extends Operator {
             final double v = Math.sqrt(rangeShift*rangeShift + azimuthShift*azimuthShift) / acquisitionTimeInterval;
 
             final VelocityData data = new VelocityData(mGCPPos.x, mGCPPos.y, sGCPPos.x, sGCPPos.y, v);
-            // eliminate outliers
-            if (data.velocity >= maxVelocity) {
+            if (data.velocity < maxVelocity) {
                 velocityList.add(data);
             }
         }
