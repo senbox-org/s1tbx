@@ -17,12 +17,17 @@ package org.esa.snap.core.datamodel.quicklooks;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
+import com.bc.ceres.glayer.support.ImageLayer;
+import com.bc.ceres.glevel.MultiLevelSource;
+import com.bc.ceres.grender.Viewport;
+import com.bc.ceres.grender.support.BufferedImageRendering;
+import com.bc.ceres.grender.support.DefaultViewport;
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ImageInfo;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;
+import org.esa.snap.core.image.ColoredBandImageMultiLevelSource;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.runtime.Config;
 
@@ -105,12 +110,10 @@ public class QuicklookGenerator {
         return image;
     }
 
-    public BufferedImage createQuickLookImage(final Product product) throws IOException {
-
-        final StatusProgressMonitor pm = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
-        pm.beginTask("Creating quicklook " + product.getName() + "... ", 100);
+    public BufferedImage createQuickLookImage(final Product product, final ProgressMonitor pm) throws IOException {
 
         Product productSubset = product;
+        final Band[] quicklookBands = getQuicklookBand(productSubset);
 
         final boolean subsample = true;
         if (subsample) {
@@ -124,13 +127,25 @@ public class QuicklookGenerator {
 
             productSubset = product.createSubset(productSubsetDef, null, null);
         }
-        final Band[] quicklookBands = getQuicklookBand(productSubset);
+
 
         final BufferedImage image;
         if (quicklookBands.length < 3) {
-            image = ProductUtils.createColorIndexedImage(average(productSubset, quicklookBands[0],
-                                                                 SubProgressMonitor.create(pm, 50)),
-                                                         SubProgressMonitor.create(pm, 50));
+            MultiLevelSource multiLevelSource = ColoredBandImageMultiLevelSource.create(quicklookBands[0],
+                                                                                        SubProgressMonitor.create(pm, 1));
+            final ImageLayer imageLayer = new ImageLayer(multiLevelSource);
+            final int imageType = BufferedImage.TYPE_3BYTE_BGR;
+            image = new BufferedImage(productSubset.getSceneRasterWidth(), productSubset.getSceneRasterHeight(), imageType);
+            Viewport snapshotVp = new DefaultViewport(imageLayer.getImageToModelTransform().getDeterminant() > 0.0);
+            final BufferedImageRendering imageRendering = new BufferedImageRendering(image, snapshotVp);
+
+            snapshotVp.zoom(imageLayer.getModelBounds());
+            snapshotVp.moveViewDelta(snapshotVp.getViewBounds().x, snapshotVp.getViewBounds().y);
+            imageLayer.render(imageRendering);
+
+            //image = ProductUtils.createColorIndexedImage(average(productSubset, quicklookBands[0],
+            //                                                     SubProgressMonitor.create(pm, 50)),
+            //                                             SubProgressMonitor.create(pm, 50));
         } else {
             final List<Band> bandList = new ArrayList<>(3);
             for (int i = 0; i < Math.min(3, quicklookBands.length); ++i) {
@@ -153,8 +168,6 @@ public class QuicklookGenerator {
         if (subsample) {
             productSubset.dispose();
         }
-
-        pm.done();
 
         return image;
     }

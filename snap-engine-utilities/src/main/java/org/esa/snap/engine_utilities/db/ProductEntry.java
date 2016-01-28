@@ -76,7 +76,6 @@ public class ProductEntry {
     private GeoPos[] geoboundary;
     private boolean useGeoboundaryForBox = false;
 
-    private BufferedImage quickLookImage = null;
     private Quicklook quicklook = null;
 
     public ProductEntry(final int id, final File file) {
@@ -150,6 +149,8 @@ public class ProductEntry {
         this.lastFar.setLocation(results.getDouble(AbstractMetadata.last_far_lat),
                 results.getDouble(AbstractMetadata.last_far_long));
         this.geoboundary = parseGeoBoundaryStr(results.getString(GEO_BOUNDARY));
+
+        this.quicklook = new Quicklook(this.file);
 
         if (mission.equals("SMOS")) {
             useGeoboundaryForBox = true;
@@ -372,21 +373,14 @@ public class ProductEntry {
     }
 
     public boolean quickLookExists() {
-        return QuickLookGenerator.quickLookExists(this);
+        return quicklook != null && quicklook.hasCachedQuicklook();
     }
 
     public BufferedImage getQuickLook() {
         if(quicklook == null) {
             return null;
         }
-        return quicklook.getImage();
-
-//        if (quickLookImage == null) {
-//            if(QuickLookGenerator.quickLookExists(this)) {
-//                quickLookImage = QuickLookGenerator.loadQuickLook(this);
-//            }
-//        }
-//        return quickLookImage;
+        return quicklook.hasCachedQuicklook() ? quicklook.getImage(ProgressMonitor.NULL) : null;
     }
 
     public boolean equals(Object other) {
