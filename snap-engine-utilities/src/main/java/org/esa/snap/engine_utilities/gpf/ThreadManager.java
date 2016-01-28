@@ -23,8 +23,8 @@ import java.util.List;
  */
 public class ThreadManager {
 
-    private static int numCPU = Runtime.getRuntime().availableProcessors();
-    private final List<Thread> threadList = new ArrayList<>(numCPU);
+    private int numConsecutiveThreads = Runtime.getRuntime().availableProcessors();
+    private final List<Thread> threadList = new ArrayList<>(numConsecutiveThreads);
 
     public ThreadManager() {
     }
@@ -33,7 +33,7 @@ public class ThreadManager {
         threadList.add(worker);
         worker.start();
 
-        if (threadList.size() >= numCPU) {
+        if (threadList.size() >= numConsecutiveThreads) {
             for (Thread t : threadList) {
                 t.join();
             }
@@ -49,7 +49,11 @@ public class ThreadManager {
         }
     }
 
-    public static void setNumCPU(int numCPU) {
-        ThreadManager.numCPU = numCPU;
+    public int getNumConsecutiveThreads() {
+        return numConsecutiveThreads;
+    }
+
+    public void setNumConsecutiveThreads(int numThreads) {
+        numConsecutiveThreads = numThreads;
     }
 }
