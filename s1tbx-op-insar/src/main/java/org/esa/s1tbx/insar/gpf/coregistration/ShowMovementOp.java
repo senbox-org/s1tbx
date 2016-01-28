@@ -323,9 +323,9 @@ public class ShowMovementOp extends Operator {
             final double azimuthShift = (mGCPPos.y - sGCPPos.y) * azimuthSpacing;
             final double v = Math.sqrt(rangeShift*rangeShift + azimuthShift*azimuthShift) / acquisitionTimeInterval;
 
-            final VelocityData data = new VelocityData(mGCPPos.x, mGCPPos.y, sGCPPos.x, sGCPPos.y, v);
-            if (data.velocity < maxVelocity) {
-                velocityList.add(data);
+            // eliminate outliers
+            if (v < maxVelocity) {
+                velocityList.add(new VelocityData(mGCPPos.x, mGCPPos.y, sGCPPos.x, sGCPPos.y, v));
             }
         }
 
