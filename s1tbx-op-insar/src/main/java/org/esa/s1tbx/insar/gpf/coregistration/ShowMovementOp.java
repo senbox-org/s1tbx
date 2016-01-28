@@ -39,6 +39,7 @@ import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
+import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
@@ -88,7 +89,6 @@ public class ShowMovementOp extends Operator {
     private String processedSlaveBand;
     private String[] masterBandNames = null;
     private final Map<Band, Band> sourceRasterMap = new HashMap<>(10);
-    private final List<VelocityData> velocityList = new ArrayList<>();
     private final Map<Band, FastDelaunayTriangulator> triangulatorMap = new HashMap<>(10);
     private final double invalidIndex = -9999.0;
 
@@ -115,6 +115,9 @@ public class ShowMovementOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfCoregisteredStack();
+
             getMasterMetadata();
 
             getSlaveMetadata();
@@ -259,8 +262,7 @@ public class ShowMovementOp extends Operator {
                 tgtIndex.calculateStride(y);
                 final int yy = y - y0;
                 for (int x = x0; x < xMax; x++) {
-                    final int tgtIdx = tgtIndex.getIndex(x);
-                    targetBuffer.setElemFloatAt(tgtIdx, (float)velocityArray[yy][x - x0]);
+                    targetBuffer.setElemFloatAt(tgtIndex.getIndex(x), (float)velocityArray[yy][x - x0]);
                 }
             }
 
@@ -278,6 +280,9 @@ public class ShowMovementOp extends Operator {
         }
 
         final Band targetBand = targetProduct.getBand(processedSlaveBand);
+        if(targetBand == null) {
+            throw new OperatorException(processedSlaveBand + " band not found");
+        }
         // force getSourceTile to computeTiles on GCPSelection
         final Tile sourceRaster = getSourceTile(sourceRasterMap.get(targetBand), targetRectangle);
 
@@ -291,9 +296,7 @@ public class ShowMovementOp extends Operator {
 
             ProductNodeGroup<Placemark> slaveGCPGroup = GCPManager.instance().getGcpGroup(srcBand);
 
-            computeGCPVelocity(masterGCPGroup, slaveGCPGroup);
-
-            eliminateOutliers();
+            VelocityData[] velocityList = computeGCPVelocity(masterGCPGroup, slaveGCPGroup);
 
             FastDelaunayTriangulator FDT = TriangleUtils.triangulate(velocityList, rgAzRatio, invalidIndex);
 
@@ -305,43 +308,34 @@ public class ShowMovementOp extends Operator {
         GCPVelocityAvailable = true;
     }
 
-    private void computeGCPVelocity(final ProductNodeGroup<Placemark> masterGCPGroup,
+    private VelocityData[] computeGCPVelocity(final ProductNodeGroup<Placemark> masterGCPGroup,
                                     final ProductNodeGroup<Placemark> slaveGCPGroup) {
-
         final int numGCPs = slaveGCPGroup.getNodeCount();
+        final List<VelocityData> velocityList = new ArrayList<>(numGCPs);
         for (int i = 0; i < numGCPs; i++) {
             final Placemark sPin = slaveGCPGroup.get(i);
             final PixelPos sGCPPos = sPin.getPixelPos();
 
-            final Placemark mPin = masterGCPGroup.get(sPin.getName());
+            final Placemark mPin = masterGCPGroup.get(masterGCPGroup.indexOf(sPin.getName()));
             final PixelPos mGCPPos = mPin.getPixelPos();
 
             final double rangeShift = (mGCPPos.x - sGCPPos.x) * rangeSpacing;
             final double azimuthShift = (mGCPPos.y - sGCPPos.y) * azimuthSpacing;
             final double v = Math.sqrt(rangeShift*rangeShift + azimuthShift*azimuthShift) / acquisitionTimeInterval;
 
-            velocityList.add(new VelocityData(mGCPPos.x, mGCPPos.y, sGCPPos.x, sGCPPos.y, v));
-        }
-    }
-
-    private void eliminateOutliers() {
-
-        final List<VelocityData> outlierList = new ArrayList<>();
-        for (VelocityData data : velocityList) {
-            if (data.velocity >= maxVelocity) {
-                outlierList.add(data);
+            // eliminate outliers
+            if (v < maxVelocity) {
+                velocityList.add(new VelocityData(mGCPPos.x, mGCPPos.y, sGCPPos.x, sGCPPos.y, v));
             }
         }
 
-        for (VelocityData outlier : outlierList) {
-            velocityList.remove(outlier);
-        }
+        return velocityList.toArray(new VelocityData[velocityList.size()]);
     }
 
     private static class TriangleUtils {
 
         public static FastDelaunayTriangulator triangulate(
-                final List<VelocityData> velocityList, final double xyRatio, final double invalidIndex)
+                final VelocityData[] velocityList, final double xyRatio, final double invalidIndex)
                 throws Exception {
 
             java.util.List<Geometry> list = new ArrayList<>();
@@ -493,19 +487,11 @@ public class ShowMovementOp extends Operator {
         }
 
         private static long coordToIndex(final double coord, final double coord0, final double deltaCoord, final double offset) {
-            return irint((((coord - coord0) / (deltaCoord)) - offset));
+            return (long)Math.floor((((coord - coord0) / (deltaCoord)) - offset) + 0.5);
         }
 
         private static double indexToCoord(final long idx, final double coord0, final double deltaCoord, final double offset) {
             return (coord0 + idx * deltaCoord + offset);
-        }
-
-        private static long irint(final double coord) {
-            return ((long) rint(coord));
-        }
-
-        private static double rint(final double coord) {
-            return Math.floor(coord + 0.5);
         }
     }
 

@@ -213,7 +213,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
         //this.size = theInfoAnnotation.getPreferredSize(dc);
         //this.annotation.getAttributes().setDrawOffset(new Point(this.size.width / 2, 0));
 
-        SystemUtils.LOG.info("product " + product.getName());
+        //SystemUtils.LOG.info("product " + product.getName());
 
         String prefix = "vv";
 
@@ -454,8 +454,8 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
 
 
     public void setComponentVisible(String comp, WorldWindowGLCanvas wwd) {
-        SystemUtils.LOG.info("setComponentVisible " + comp);
-        SystemUtils.LOG.info("theColorBarLegendHash " + theColorBarLegendHash);
+        //SystemUtils.LOG.info("setComponentVisible " + comp);
+        //SystemUtils.LOG.info("theColorBarLegendHash " + theColorBarLegendHash);
         for (String currComp : theColorBarLegendHash.keySet()) {
             if (theColorBarLegendHash.get(currComp) != null) {
                 removeRenderable(theColorBarLegendHash.get(currComp));
@@ -518,7 +518,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
 
         int numCellRows = height / theOWIArrowCellSize;
         int numCellCols = width / theOWIArrowCellSize;
-        SystemUtils.LOG.info(":: numCells: " + numCellRows + " " + numCellCols);
+        //SystemUtils.LOG.info(":: numCells: " + numCellRows + " " + numCellCols);
 
         // we need to add 1 because if height is not divisible by cellSize then (height / cellSize) is equal
         // to (height-1) / cellSize so the last element is [numCellRows]
@@ -772,7 +772,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
                                     double[] waveLengthValues,
                                     double[] waveDirValues,
                                     ArrayList<Renderable> renderableList) {
-        SystemUtils.LOG.info(":: addWaveLengthArrows ");
+        //SystemUtils.LOG.info(":: addWaveLengthArrows ");
 
         final ShapeAttributes dpAttrs = new BasicShapeAttributes();
         dpAttrs.setOutlineMaterial(Material.WHITE);
@@ -818,7 +818,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
                                                   double[] values,
                                                   ArrayList<Renderable> renderableList,
                                                   String comp) {
-        SystemUtils.LOG.info(":: createWVColorSurfaceWithGradient ");
+        //SystemUtils.LOG.info(":: createWVColorSurfaceWithGradient ");
 
         final ShapeAttributes dpAttrs = new BasicShapeAttributes();
         dpAttrs.setOutlineMaterial(Material.WHITE);
@@ -932,7 +932,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
     {
         //double minValue = -200e3;
         //double maxValue = 200e3;
-        SystemUtils.LOG.info("createColorSurface " + latValues.length + " " + lonValues.length + " " + vals.length + " " + width + " " + height);
+        //SystemUtils.LOG.info("createColorSurface " + latValues.length + " " + lonValues.length + " " + vals.length + " " + width + " " + height);
 
         // analytic surface has to be overidden in order to allow for non-rectangular surfaces
         // the approach is render the surface point by point and not use the sector as the boundary
@@ -1029,7 +1029,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
 
     public void createColorGradient(double minValue, double maxValue, boolean whiteZero,
                                     ProductRenderablesInfo prodRenderInfo, String comp) {
-        SystemUtils.LOG.info("createColorGradient " + minValue + " " + maxValue + " " + comp);
+        //SystemUtils.LOG.info("createColorGradient " + minValue + " " + maxValue + " " + comp);
         ArrayList<AnalyticSurface> analyticSurfaces = null;
         ArrayList<BufferWrapper> analyticSurfaceValueBuffers = null;
 
@@ -1087,17 +1087,17 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
     }
 
     public void removeProduct(final Product product) {
-        SystemUtils.LOG.info(":: removeProduct " + product);
-        SystemUtils.LOG.info(":: theProductRenderablesInfoHash " + theProductRenderablesInfoHash);
+        //SystemUtils.LOG.info(":: removeProduct " + product);
+        //SystemUtils.LOG.info(":: theProductRenderablesInfoHash " + theProductRenderablesInfoHash);
         final ProductRenderablesInfo productRenderablesInfo = theProductRenderablesInfoHash.get(product);
         //SystemUtils.LOG.info(":: chosen ProductRenderablesInfo " + productRenderablesInfo);
 
         if (productRenderablesInfo != null) {
         //for (ProductRenderablesInfo currProductRenderablesInfo : theProductRenderablesInfoHash.values()) {
-            SystemUtils.LOG.info(":: currProductRenderablesInfo " + productRenderablesInfo);
+            //SystemUtils.LOG.info(":: currProductRenderablesInfo " + productRenderablesInfo);
 
             for (ArrayList<Renderable> renderableList : productRenderablesInfo.theRenderableListHash.values()) {
-                SystemUtils.LOG.info(":: renderableList " + renderableList);
+                //SystemUtils.LOG.info(":: renderableList " + renderableList);
                 for (Renderable renderable : renderableList) {
                     //SystemUtils.LOG.info(":: renderable " + renderable);
                     removeRenderable(renderable);
@@ -1130,17 +1130,11 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
             theWWD.redrawNow();
         //}
 
-
-        //removeAllRenderables();
-        Iterable<Renderable> allRenderables = getRenderables();
-        for (Renderable renderable : allRenderables) {
-            SystemUtils.LOG.info(":: allRenderables " + renderable);
-        }
         theWWD.redrawNow();
     }
 
     public void recreateColorBarAndGradient(double minValue, double maxValue, String comp, WorldWindowGLCanvas wwd, boolean redraw) {
-        SystemUtils.LOG.info("recreateColorBarAndGradient " + minValue + " " + maxValue + " " + comp + " " + theColorBarLegendHash.get(comp));
+        //SystemUtils.LOG.info("recreateColorBarAndGradient " + minValue + " " + maxValue + " " + comp + " " + theColorBarLegendHash.get(comp));
 
         String title = "";
         if (comp.equalsIgnoreCase("owi")) {
@@ -1279,8 +1273,6 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
         minSP.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                SystemUtils.LOG.info("new value " + ((JSpinner) e.getSource()).getValue());
-
                 theOWILimitChanged = true;
             }
         });
@@ -1315,7 +1307,7 @@ public class Level2ProductLayer extends BaseLayer implements WWLayer {
                 }
 
                 if (theRVLLimitChanged) {
-                    SystemUtils.LOG.info("theRVLLimitChanged");
+                    //SystemUtils.LOG.info("theRVLLimitChanged");
 
                     //double minValue = ((Integer) minSP.getValue()) * 1.0e4;
                     //double maxValue = ((Integer) maxSP.getValue()) * 1.0e4;
