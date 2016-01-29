@@ -18,6 +18,7 @@ package org.esa.snap.core.datamodel;
 
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.dataop.maptransf.Datum;
+import org.esa.snap.core.transform.GeoCodingMathTransform;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.GeneralDirectPosition;
 import org.geotools.referencing.CRS;

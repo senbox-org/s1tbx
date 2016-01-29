@@ -38,7 +38,7 @@ import java.util.Arrays;
  */
 public final class ReaderUtils {
 
-    public static void createVirtualPhaseBand(final Product product, final Band bandI, final Band bandQ, final String countStr) {
+    public static Band createVirtualPhaseBand(final Product product, final Band bandI, final Band bandQ, final String countStr) {
         final String expression = "atan2(" + bandQ.getName() + ',' + bandI.getName() + ')';
 
         final VirtualBand virtBand = new VirtualBand("Phase" + countStr,
@@ -51,6 +51,8 @@ public final class ReaderUtils {
         virtBand.setNoDataValueUsed(true);
         virtBand.setOwner(product);
         product.addBand(virtBand);
+
+        return virtBand;
     }
 
     private static String createName(String origName, String newPrefix) {
@@ -61,11 +63,11 @@ public final class ReaderUtils {
         return newPrefix + origName.substring(sepPos, origName.length());
     }
 
-    public static void createVirtualIntensityBand(final Product product, final Band bandI, final Band bandQ, final String suffix) {
-        createVirtualIntensityBand(product, bandI, bandQ, createName(bandI.getName(), "Intensity"), suffix);
+    public static Band createVirtualIntensityBand(final Product product, final Band bandI, final Band bandQ, final String suffix) {
+        return createVirtualIntensityBand(product, bandI, bandQ, createName(bandI.getName(), "Intensity"), suffix);
     }
 
-    public static void createVirtualIntensityBand(final Product product, final Band bandI, final Band bandQ,
+    public static Band createVirtualIntensityBand(final Product product, final Band bandI, final Band bandQ,
                                                   final String bandName, final String suffix) {
         final String expression = bandI.getName() + " * " + bandI.getName() + " + " +
                 bandQ.getName() + " * " + bandQ.getName();
@@ -90,6 +92,8 @@ public final class ReaderUtils {
         }
         // set as band to use for quicklook
         product.setQuicklookBandName(virtBand.getName());
+
+        return virtBand;
     }
 
     /**
