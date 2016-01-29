@@ -497,7 +497,9 @@ public class CreateInterferogramOp extends Operator {
             if (CREATE_VIRTUAL_BAND) {
                 final String countStr = "_" + productTag + "_" + tag0 + "_" + tag1;
                 ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBand(targetBandName_I), targetProduct.getBand(targetBandName_Q), countStr);
-                ReaderUtils.createVirtualPhaseBand(targetProduct, targetProduct.getBand(targetBandName_I), targetProduct.getBand(targetBandName_Q), countStr);
+                Band phaseBand = ReaderUtils.createVirtualPhaseBand(targetProduct, targetProduct.getBand(targetBandName_I), targetProduct.getBand(targetBandName_Q), countStr);
+                
+                targetProduct.setQuicklookBandName(phaseBand.getName());
             }
 
             if(includeCoherence) {
