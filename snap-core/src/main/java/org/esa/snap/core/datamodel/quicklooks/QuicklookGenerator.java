@@ -127,21 +127,9 @@ public class QuicklookGenerator {
         }
 
         final BufferedImage image;
-        if (quicklookBands.length < 3) {
-//            MultiLevelSource multiLevelSource = ColoredBandImageMultiLevelSource.create(quicklookBands[0], pm);
-//            final ImageLayer imageLayer = new ImageLayer(multiLevelSource);
-//            final int imageType = BufferedImage.TYPE_3BYTE_BGR;
-//            image = new BufferedImage(productSubset.getSceneRasterWidth(), productSubset.getSceneRasterHeight(), imageType);
-//            Viewport snapshotVp = new DefaultViewport(imageLayer.getImageToModelTransform().getDeterminant() > 0.0);
-//            final BufferedImageRendering imageRendering = new BufferedImageRendering(image, snapshotVp);
-//
-//            snapshotVp.zoom(imageLayer.getModelBounds());
-//            snapshotVp.moveViewDelta(snapshotVp.getViewBounds().x, snapshotVp.getViewBounds().y);
-//            imageLayer.render(imageRendering);
-
+        if (quicklookBands.length == 1) {
             image = ProductUtils.createColorIndexedImage(quicklookBands[0], pm);
         } else {
-
             ImageInfo imageInfo = ProductUtils.createImageInfo(quicklookBands, true, SubProgressMonitor.create(pm, 50));
             image = ProductUtils.createRgbImage(quicklookBands, imageInfo, SubProgressMonitor.create(pm, 50));
         }
@@ -159,23 +147,30 @@ public class QuicklookGenerator {
 
     public static Band[] findQuicklookBands(final Product product) {
 
+        String bandName = product.getQuicklookBandName();
+        if (bandName != null && product.containsBand(bandName)) {
+            return new Band[] { product.getBand(bandName) };
+        }
+
         final String[] bandNames = product.getBandNames();
         final List<Band> bandList = new ArrayList<>(3);
         for(String name : bandNames) {
+            name = name.toLowerCase();
             for(String qlBand : defaultQuickLookBands) {
-                if (name.toLowerCase().startsWith(qlBand)) {
+                if (name.startsWith(qlBand)) {
                     bandList.add(product.getBand(name));
                     break;
                 }
             }
             if (bandList.size() > 2) {
-                break;
+                return bandList.toArray(new Band[bandList.size()]);
             }
         }
-        if(!bandList.isEmpty()) {
+
+        String quicklookBandName = ProductUtils.findSuitableQuicklookBandName(product);
+        if(bandList.size() > 1 && !bandList.get(0).equals(quicklookBandName)) {
             return bandList.toArray(new Band[bandList.size()]);
         }
-        String quicklookBandName = ProductUtils.findSuitableQuicklookBandName(product);
         return new Band[] { product.getBand(quicklookBandName)};
     }
 
