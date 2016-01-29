@@ -115,7 +115,7 @@ public class ProductUtils {
     public static ImageInfo createImageInfo(RasterDataNode[] rasters, boolean assignMissingImageInfos,
                                             ProgressMonitor pm) throws IOException {
         Assert.notNull(rasters, "rasters");
-        Assert.argument(rasters.length == 1 || rasters.length == 3, "rasters.length == 1 || rasters.length == 3");
+        //Assert.argument(rasters.length == 1 || rasters.length == 3, "rasters.length == 1 || rasters.length == 3");
         if (rasters.length == 1) {
             return assignMissingImageInfos ? rasters[0].getImageInfo(pm) : rasters[0].createDefaultImageInfo(null, pm);
         } else {
@@ -154,7 +154,8 @@ public class ProductUtils {
                                                final ImageInfo imageInfo,
                                                final ProgressMonitor pm) throws IOException {
         Assert.notNull(rasters, "rasters");
-        Assert.argument(rasters.length == 1 || rasters.length == 3, "rasters.length == 1 || rasters.length == 3");
+        Assert.argument(rasters.length == 1 || rasters.length == 2 || rasters.length == 3,
+                        "rasters.length == 1 || rasters.length == 2 || rasters.length == 3");
 
         final RasterDataNode raster0 = rasters[0];
         ProductNodeGroup<Mask> maskGroup = raster0.getOverlayMaskGroup();
@@ -301,7 +302,7 @@ public class ProductUtils {
                                                      final ImageInfo imageInfo,
                                                      final ProgressMonitor pm) throws IOException {
         Assert.notNull(rasters, "rasters");
-        Assert.argument(rasters.length == 3, "rasters.length == 3");
+        Assert.argument(rasters.length > 1 && rasters.length <= 3, "rasters.length == 2 or 3");
         Assert.notNull(imageInfo, "imageInfo");
         Assert.argument(imageInfo.getRgbChannelDef() != null, "imageInfo.getRgbChannelDef() != null");
         Assert.notNull(pm, "pm");
@@ -339,14 +340,14 @@ public class ProductUtils {
 
             final boolean validMaskUsed = rasters[0].isValidMaskUsed()
                     || rasters[1].isValidMaskUsed()
-                    || rasters[2].isValidMaskUsed();
+                    || (rasters.length > 2 && rasters[2].isValidMaskUsed());
             boolean pixelValid;
             int pixelIndex = 0;
             for (int i = 0; i < rgbSamples.length; i += numColorComponents) {
                 pixelValid = !validMaskUsed
                         || rasters[0].isPixelValid(pixelIndex)
                         && rasters[1].isPixelValid(pixelIndex)
-                        && rasters[2].isPixelValid(pixelIndex);
+                        && (rasters.length < 3 || rasters[2].isPixelValid(pixelIndex));
                 if (pixelValid) {
                     if (numColorComponents == 4) {
                         rgbSamples[i] = (byte) 255;
