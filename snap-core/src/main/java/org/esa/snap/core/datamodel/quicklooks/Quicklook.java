@@ -146,8 +146,7 @@ public class Quicklook extends ProductNode {
     public boolean hasCachedQuicklook() {
         if (productQuicklookFolder != null) {
             // load from product
-            final File quickLookFile = productQuicklookFolder.
-                    resolve(SNAP_QUICKLOOK_FILE_PREFIX + getName() + QUICKLOOK_EXT).toFile();
+            final File quickLookFile = productQuicklookFolder.resolve(getQLFileName(0)).toFile();
             if (quickLookFile.exists()) {
                 return true;
             }
@@ -157,8 +156,7 @@ public class Quicklook extends ProductNode {
 
             int id = QuicklookDB.instance().getQuicklookId(productFile);
             if (id != QuicklookDB.QL_NOT_FOUND) {
-                final File quickLookFile = QuicklookDB.getQuicklookCacheDir().
-                        resolve(SNAP_QUICKLOOK_FILE_PREFIX + id + QUICKLOOK_EXT).toFile();
+                final File quickLookFile = QuicklookDB.getQuicklookCacheDir().resolve(getQLFileName(id)).toFile();
                 return quickLookFile.exists();
             }
         }
@@ -220,8 +218,7 @@ public class Quicklook extends ProductNode {
         if (productQuicklookFolder != null) {
             // load from product
 
-            final File quickLookFile = productQuicklookFolder.
-                    resolve(SNAP_QUICKLOOK_FILE_PREFIX + getName() + QUICKLOOK_EXT).toFile();
+            final File quickLookFile = productQuicklookFolder.resolve(getQLFileName(0)).toFile();
             image = QuicklookGenerator.loadImage(quickLookFile);
         }
         if (image == null) {
@@ -233,9 +230,10 @@ public class Quicklook extends ProductNode {
 
                 int id = QuicklookDB.instance().getQuicklookId(productFile);
                 if (id != QuicklookDB.QL_NOT_FOUND) {
-                    final File quickLookFile = QuicklookDB.getQuicklookCacheDir().
-                            resolve(SNAP_QUICKLOOK_FILE_PREFIX + id + QUICKLOOK_EXT).toFile();
-                    image = QuicklookGenerator.loadImage(quickLookFile);
+                    final File quickLookFile = QuicklookDB.getQuicklookCacheDir().resolve(getQLFileName(id)).toFile();
+                    if(quickLookFile.exists()) {
+                        image = QuicklookGenerator.loadImage(quickLookFile);
+                    }
                 }
             }
         }
@@ -249,8 +247,7 @@ public class Quicklook extends ProductNode {
             // save with product
 
             if (productQuicklookFolder != null) {
-                final File quickLookFile = productQuicklookFolder.
-                        resolve(SNAP_QUICKLOOK_FILE_PREFIX + getName() + QUICKLOOK_EXT).toFile();
+                final File quickLookFile = productQuicklookFolder.resolve(getQLFileName(0)).toFile();
 
                 if (QuicklookGenerator.writeImage(bufferedImage, quickLookFile))
                     return;
@@ -261,9 +258,12 @@ public class Quicklook extends ProductNode {
             // save to database
 
             int id = QuicklookDB.instance().addQuickLookId(productFile);
-            final File quickLookFile = QuicklookDB.getQuicklookCacheDir().
-                    resolve(SNAP_QUICKLOOK_FILE_PREFIX + id + QUICKLOOK_EXT).toFile();
+            final File quickLookFile = QuicklookDB.getQuicklookCacheDir().resolve(getQLFileName(id)).toFile();
             QuicklookGenerator.writeImage(bufferedImage, quickLookFile);
         }
+    }
+
+    private String getQLFileName(final int id) {
+        return SNAP_QUICKLOOK_FILE_PREFIX + id + '_' + getName() + QUICKLOOK_EXT;
     }
 }

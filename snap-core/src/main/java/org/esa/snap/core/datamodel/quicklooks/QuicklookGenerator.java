@@ -23,6 +23,7 @@ import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ImageInfo;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.runtime.Config;
@@ -121,7 +122,12 @@ public class QuicklookGenerator {
 
             final List<Band> bandList = new ArrayList<>();
             for(Band band : quicklookBands) {
-                bandList.add(productSubset.getBand(band.getName()));
+                if(productSubset.getBand(band.getName()) != null) {
+                    bandList.add(productSubset.getBand(band.getName()));
+                } else if(band instanceof VirtualBand) {
+                    copyVirtualBand(productSubset, (VirtualBand)band);
+                    bandList.add(productSubset.getBand(band.getName()));
+                }
             }
             quicklookBands = bandList.toArray(new Band[bandList.size()]);
         }
@@ -130,8 +136,8 @@ public class QuicklookGenerator {
         if (quicklookBands.length == 1) {
             image = ProductUtils.createColorIndexedImage(quicklookBands[0], pm);
         } else {
-            ImageInfo imageInfo = ProductUtils.createImageInfo(quicklookBands, true, SubProgressMonitor.create(pm, 50));
-            image = ProductUtils.createRgbImage(quicklookBands, imageInfo, SubProgressMonitor.create(pm, 50));
+            ImageInfo imageInfo = ProductUtils.createImageInfo(quicklookBands, true, SubProgressMonitor.create(pm, 20));
+            image = ProductUtils.createRgbImage(quicklookBands, imageInfo, SubProgressMonitor.create(pm, 80));
         }
 
         if (subsample) {
@@ -143,6 +149,22 @@ public class QuicklookGenerator {
                 .keepAspectRatio(true)
                 .fitWithinDimensions(true)
                 .make(image);
+    }
+
+    private static Band copyVirtualBand(final Product product, final VirtualBand origBand) {
+        final VirtualBand virtBand = new VirtualBand(origBand.getName(),
+                                                     ProductData.TYPE_FLOAT32,
+                                                     product.getSceneRasterWidth(),
+                                                     product.getSceneRasterHeight(),
+                                                     origBand.getExpression());
+        virtBand.setUnit(origBand.getUnit());
+        virtBand.setDescription(origBand.getDescription());
+        virtBand.setNoDataValueUsed(origBand.isNoDataValueUsed());
+        virtBand.setNoDataValue(origBand.getNoDataValue());
+        virtBand.setOwner(product);
+        product.addBand(virtBand);
+
+        return virtBand;
     }
 
     public static Band[] findQuicklookBands(final Product product) {
