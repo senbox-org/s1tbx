@@ -67,6 +67,7 @@ public final class DimapProductConstants {
     public static final String TAG_DATASET_PRODUCER_NAME = "DATASET_PRODUCER_NAME";
     public static final String TAG_DATASET_PRODUCER_URL = "DATASET_PRODUCER_URL";
     public static final String TAG_DATASET_PRODUCTION_DATE = "DATASET_PRODUCTION_DATE";
+    public static final String TAG_QUICKLOOK_BAND_NAME = "QUICKLOOK_BAND_NAME";
     public static final String TAG_JOB_ID = "JOB_ID";
     public static final String TAG_PRODUCT_TYPE = "PRODUCT_TYPE";
     public static final String TAG_PRODUCT_INFO = "PRODUCT_INFO";

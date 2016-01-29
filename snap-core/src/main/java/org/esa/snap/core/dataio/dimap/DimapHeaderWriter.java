@@ -981,6 +981,10 @@ public final class DimapHeaderWriter extends XmlWriter {
             printLine(indent + 1, DimapProductConstants.TAG_PRODUCT_SCENE_RASTER_STOP_TIME,
                       sceneRasterStopTime.format());
         }
+        if(product.getQuicklookBandName() != null) {
+            printLine(indent + 1, DimapProductConstants.TAG_QUICKLOOK_BAND_NAME,
+                      product.getQuicklookBandName());
+        }
         println(productionTags[1]);
     }
 

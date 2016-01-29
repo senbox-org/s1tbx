@@ -1058,6 +1058,7 @@ public class DimapProductHelpers {
                                                 getSceneRasterHeight());
             setSceneRasterStartAndStopTime();
             setDescription();
+            addQuicklook();
             addMasks();
             addOldBitmaskDefinitions();
             addFlagsCoding();
@@ -1805,6 +1806,13 @@ public class DimapProductHelpers {
             }
         }
 
+        private void addQuicklook() {
+            String quicklookString = getQuicklookBandName();
+            if(quicklookString != null) {
+                product.setQuicklookBandName(quicklookString);
+            }
+        }
+
         private void setDescription() {
             if (product == null) {
                 return;
@@ -1840,6 +1848,11 @@ public class DimapProductHelpers {
         private String getProductType() {
             final Element child = getRootElement().getChild(DimapProductConstants.TAG_PRODUCTION);
             return child.getChildTextTrim(DimapProductConstants.TAG_PRODUCT_TYPE);
+        }
+
+        private String getQuicklookBandName() {
+            final Element child = getRootElement().getChild(DimapProductConstants.TAG_PRODUCTION);
+            return child.getChildTextTrim(DimapProductConstants.TAG_QUICKLOOK_BAND_NAME);
         }
 
         private ProductData.UTC getSceneRasterStartTime() {
