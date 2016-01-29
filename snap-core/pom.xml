@@ -154,6 +154,7 @@
                         <publicPackage>com.vividsolutions.jts.*</publicPackage>
                         <publicPackage>Jama</publicPackage>
 						<publicPackage>org.apache.commons.net.ftp.*</publicPackage>
+                        <publicPacakage>net.coobird.thumbnailator.*</publicPacakage>
                         <publicPackage>com.bc.io</publicPackage>
                         <publicPackage>org.esa.snap.core.jexp</publicPackage>
                         <publicPackage>org.esa.snap.core.jexp.impl</publicPackage>
