@@ -35,9 +35,97 @@ import java.awt.Color;
 import static org.junit.Assert.*;
 
 public class CollocateOpTest {
+    @Test
+    public void testCollocate1Type() {
+        final Product masterProduct = createTestProduct1();
+        final Product slaveProduct = createTestProduct1();
+
+        CollocateOp op = new CollocateOp();
+        op.setParameterDefaultValues();
+
+        // test default settings
+        assertEquals("COLLOCATED", op.getTargetProductType());
+        assertEquals(true, op.getRenameMasterComponents());
+        assertEquals(true, op.getRenameSlaveComponents());
+        assertEquals("${ORIGINAL_NAME}_M", op.getMasterComponentPattern());
+        assertEquals("${ORIGINAL_NAME}_S", op.getSlaveComponentPattern());
+        assertEquals(ResamplingType.NEAREST_NEIGHBOUR, op.getResamplingType());
+
+        op.setMasterProduct(masterProduct);
+        op.setSlaveProduct(slaveProduct);
+
+        Product targetProduct = op.getTargetProduct();
+
+        int numMasterBands = masterProduct.getNumBands();
+        int numSlaveBands = slaveProduct.getNumBands();
+        int numMasterTPGs = masterProduct.getNumTiePointGrids();
+        int numSlaveTPGs = slaveProduct.getNumTiePointGrids();
+        assertEquals(numMasterBands + numSlaveBands + numSlaveTPGs + 1, targetProduct.getNumBands());
+        assertEquals(numMasterTPGs, targetProduct.getNumTiePointGrids());
+
+        assertEquals("radiance_1_M", targetProduct.getBandAt(0).getName());
+        assertEquals("radiance_2_M", targetProduct.getBandAt(1).getName());
+        assertEquals("l1_flags_M", targetProduct.getBandAt(15).getName());
+        assertEquals("l1_class_M", targetProduct.getBandAt(16).getName());
+
+        assertEquals("radiance_1_S", targetProduct.getBandAt(16+1).getName());
+        assertEquals("radiance_2_S", targetProduct.getBandAt(16+2).getName());
+        assertEquals("l1_flags_S", targetProduct.getBandAt(16+16).getName());
+        assertEquals("l1_class_S", targetProduct.getBandAt(16+17).getName());
+
+        assertEquals("latitude_S", targetProduct.getBandAt(16+17+1).getName());
+        assertEquals("longitude_S", targetProduct.getBandAt(16+17+2).getName());
+        assertEquals("dem_altitude_S", targetProduct.getBandAt(16+17+3).getName());
+
+        assertEquals("!l1_flags_M.INVALID && radiance_1_M > 10", targetProduct.getBandAt(0).getValidMaskExpression());
+        assertEquals("!l1_flags_M.INVALID && radiance_1_M > 10", targetProduct.getBandAt(1).getValidMaskExpression());
+
+        assertEquals("(!l1_flags_S.INVALID && radiance_1_S > 10) && collocation_flags.SLAVE_PRESENT", targetProduct.getBandAt(16 + 1).getValidMaskExpression());
+        assertEquals("(!l1_flags_S.INVALID && radiance_1_S > 10) && collocation_flags.SLAVE_PRESENT", targetProduct.getBandAt(16 + 2).getValidMaskExpression());
+
+        assertEquals(4, targetProduct.getMaskGroup().getNodeCount());
+        Mask mask1 = targetProduct.getMaskGroup().get(0);
+        Mask mask2 = targetProduct.getMaskGroup().get(1);
+        Mask mask3 = targetProduct.getMaskGroup().get(2);
+        Mask mask4 = targetProduct.getMaskGroup().get(3);
+        assertNotNull(mask1);
+        assertNotNull(mask2);
+        assertNotNull(mask3);
+        assertNotNull(mask4);
+        assertEquals("bitmask_M", mask1.getName());
+        assertEquals("invalid_M", mask2.getName());
+        assertEquals("bitmask_S", mask3.getName());
+        assertEquals("invalid_S", mask4.getName());
+        assertEquals("radiance_1_M > 10", Mask.BandMathsType.getExpression(mask1));
+        assertEquals("l1_flags_M.INVALID", Mask.BandMathsType.getExpression(mask2));
+        assertEquals("radiance_1_S > 10", Mask.BandMathsType.getExpression(mask3));
+        assertEquals("l1_flags_S.INVALID", Mask.BandMathsType.getExpression(mask4));
+        assertEquals(Color.RED, mask1.getImageColor());
+        assertEquals(Color.GREEN, mask2.getImageColor());
+        assertEquals(Color.RED, mask3.getImageColor());
+        assertEquals(Color.GREEN, mask4.getImageColor());
+        assertEquals(0.5, mask1.getImageTransparency(), 0.00001);
+        assertEquals(0.5, mask2.getImageTransparency(), 0.00001);
+        assertEquals(0.5, mask3.getImageTransparency(), 0.00001);
+        assertEquals(0.5, mask4.getImageTransparency(), 0.00001);
+
+        assertEquals(2 + 1, targetProduct.getFlagCodingGroup().getNodeCount());
+        assertNotNull(targetProduct.getFlagCodingGroup().get("l1_flags_M"));
+        assertNotNull(targetProduct.getFlagCodingGroup().get("l1_flags_S"));
+
+        assertEquals(2, targetProduct.getIndexCodingGroup().getNodeCount());
+        assertNotNull(targetProduct.getIndexCodingGroup().get("l1_class_M"));
+        assertNotNull(targetProduct.getIndexCodingGroup().get("l1_class_S"));
+
+        Product.AutoGrouping autoGrouping = targetProduct.getAutoGrouping();
+        assertNotNull(autoGrouping);
+        assertEquals(2, autoGrouping.size());
+        assertArrayEquals(new String[]{"radiance*_M"}, autoGrouping.get(0));
+        assertArrayEquals(new String[]{"radiance*_S"}, autoGrouping.get(1));
+    }
 
     @Test
-    public void testCollocateOutput() {
+    public void testCollocate2Types() {
         final Product masterProduct = createTestProduct1();
         final Product slaveProduct = createTestProduct2();
 
@@ -61,7 +149,7 @@ public class CollocateOpTest {
         int numSlaveBands = slaveProduct.getNumBands();
         int numMasterTPGs = masterProduct.getNumTiePointGrids();
         int numSlaveTPGs = slaveProduct.getNumTiePointGrids();
-        assertEquals(numMasterBands + numSlaveBands + numSlaveTPGs, targetProduct.getNumBands());
+        assertEquals(numMasterBands + numSlaveBands + numSlaveTPGs + 1, targetProduct.getNumBands());
         assertEquals(numMasterTPGs, targetProduct.getNumTiePointGrids());
 
         assertEquals("radiance_1_M", targetProduct.getBandAt(0).getName());
@@ -81,18 +169,30 @@ public class CollocateOpTest {
         assertEquals("!l1_flags_M.INVALID && radiance_1_M > 10", targetProduct.getBandAt(0).getValidMaskExpression());
         assertEquals("!l1_flags_M.INVALID && radiance_1_M > 10", targetProduct.getBandAt(1).getValidMaskExpression());
 
-        assertEquals("!l2_flags_S.INVALID && reflec_1_S > 0.1", targetProduct.getBandAt(16 + 1).getValidMaskExpression());
-        assertEquals("!l2_flags_S.INVALID && reflec_1_S > 0.1", targetProduct.getBandAt(16 + 2).getValidMaskExpression());
+        assertEquals("(!l2_flags_S.INVALID && reflec_1_S > 0.1) && collocation_flags.SLAVE_PRESENT", targetProduct.getBandAt(16 + 1).getValidMaskExpression());
+        assertEquals("(!l2_flags_S.INVALID && reflec_1_S > 0.1) && collocation_flags.SLAVE_PRESENT", targetProduct.getBandAt(16 + 2).getValidMaskExpression());
 
-        assertEquals(1, targetProduct.getMaskGroup().getNodeCount());
-        Mask mask = targetProduct.getMaskGroup().get(0);
-        assertNotNull(mask);
-        assertEquals("bitmask_M", mask.getName());
-        assertEquals("radiance_1_M > 10", Mask.BandMathsType.getExpression(mask));
-        assertEquals(Color.RED, mask.getImageColor());
-        assertEquals(0.5, mask.getImageTransparency(), 0.00001);
+        assertEquals(3, targetProduct.getMaskGroup().getNodeCount());
+        Mask mask1 = targetProduct.getMaskGroup().get(0);
+        Mask mask2 = targetProduct.getMaskGroup().get(1);
+        Mask mask3 = targetProduct.getMaskGroup().get(2);
+        assertNotNull(mask1);
+        assertNotNull(mask2);
+        assertNotNull(mask3);
+        assertEquals("bitmask_M", mask1.getName());
+        assertEquals("invalid_M", mask2.getName());
+        assertEquals("invalid_S", mask3.getName());
+        assertEquals("radiance_1_M > 10", Mask.BandMathsType.getExpression(mask1));
+        assertEquals("l1_flags_M.INVALID", Mask.BandMathsType.getExpression(mask2));
+        assertEquals("l2_flags_S.INVALID", Mask.BandMathsType.getExpression(mask3));
+        assertEquals(Color.RED, mask1.getImageColor());
+        assertEquals(Color.GREEN, mask2.getImageColor());
+        assertEquals(Color.BLUE, mask3.getImageColor());
+        assertEquals(0.5, mask1.getImageTransparency(), 0.00001);
+        assertEquals(0.5, mask2.getImageTransparency(), 0.00001);
+        assertEquals(0.5, mask3.getImageTransparency(), 0.00001);
 
-        assertEquals(2, targetProduct.getFlagCodingGroup().getNodeCount());
+        assertEquals(2 + 1, targetProduct.getFlagCodingGroup().getNodeCount());
         assertNotNull(targetProduct.getFlagCodingGroup().get("l1_flags_M"));
         assertNotNull(targetProduct.getFlagCodingGroup().get("l2_flags_S"));
 
@@ -100,6 +200,11 @@ public class CollocateOpTest {
         assertNotNull(targetProduct.getIndexCodingGroup().get("l1_class_M"));
         assertNotNull(targetProduct.getIndexCodingGroup().get("l2_class_S"));
 
+        Product.AutoGrouping autoGrouping = targetProduct.getAutoGrouping();
+        assertNotNull(autoGrouping);
+        assertEquals(2, autoGrouping.size());
+        assertArrayEquals(new String[]{"radiance*_M"}, autoGrouping.get(0));
+        assertArrayEquals(new String[]{"reflec*_S"}, autoGrouping.get(1));
     }
 
     static float[] wl = new float[]{
@@ -140,6 +245,8 @@ public class CollocateOpTest {
         mapInfo1.setSceneHeight(16);
         product.setSceneGeoCoding(new MapGeoCoding(mapInfo1));
         product.addMask("bitmask", "radiance_1 > 10", null, Color.RED, 0.5f);
+        product.addMask("invalid", "l1_flags.INVALID", null, Color.GREEN, 0.5f);
+        product.setAutoGrouping("radiance");
         return product;
     }
 
@@ -162,6 +269,8 @@ public class CollocateOpTest {
         mapInfo2.setSceneWidth(16);
         mapInfo2.setSceneHeight(16);
         product.setSceneGeoCoding(new MapGeoCoding(mapInfo2));
+        product.addMask("invalid", "l2_flags.INVALID", null, Color.BLUE, 0.5f);
+        product.setAutoGrouping("reflec");
         return product;
     }
 
