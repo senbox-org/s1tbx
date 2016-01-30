@@ -1369,26 +1369,31 @@ public class GCPSelectionOp extends Operator {
             final ComplexCoregData complexData = new ComplexCoregData(coherenceWindowSize,
                     coherenceFuncToler, coherenceValueToler,
                     fWindowWidth, fWindowHeight, useSlidingWindow);
+
             getComplexMasterImagette(complexData, mGCPPixelPos);
             /*
             System.out.println("Real part of master imagette:");
-            outputRealImage(compleData.mII);
+            outputRealImage(complexData.mII);
             System.out.println("Imaginary part of master imagette:");
-            outputRealImage(compleData.mIQ);
+            outputRealImage(complexData.mIQ);
             */
+
+//            getInitialComplexSlaveImagette(complexData, mGCPPixelPos); // for testing only
+//            final double[] p = {mGCPPixelPos.x, mGCPPixelPos.y}; // for testing only
 
             getInitialComplexSlaveImagette(complexData, slaveBand1, slaveBand2, sGCPPixelPos);
             /*
             System.out.println("Real part of initial slave imagette:");
-            outputRealImage(compleData.sII0);
+            outputRealImage(complexData.sII0);
             System.out.println("Imaginary part of initial slave imagette:");
-            outputRealImage(compleData.sIQ0);
+            outputRealImage(complexData.sIQ0);
             */
 
             final double[] p = {sGCPPixelPos.x, sGCPPixelPos.y};
 
             final double coherence = powell(complexData, p);
             //System.out.println("Final sGCP = (" + p[0] + ", " + p[1] + "), coherence = " + (1-coherence));
+            //System.out.println("xShift = " + (p[0] - complexData.point0[0]) + ", yShift = " + (p[1] - complexData.point0[1]));
 
             complexData.dispose();
 
@@ -1407,15 +1412,15 @@ public class GCPSelectionOp extends Operator {
         return false;
     }
 
-    private void getComplexMasterImagette(final ComplexCoregData compleData, final PixelPos gcpPixelPos) {
+    private void getComplexMasterImagette(final ComplexCoregData complexData, final PixelPos gcpPixelPos) {
 
-        compleData.mII = new double[compleData.fWindowHeight][compleData.fWindowWidth];
-        compleData.mIQ = new double[compleData.fWindowHeight][compleData.fWindowWidth];
+        complexData.mII = new double[complexData.fWindowHeight][complexData.fWindowWidth];
+        complexData.mIQ = new double[complexData.fWindowHeight][complexData.fWindowWidth];
         final int x0 = (int) gcpPixelPos.x;
         final int y0 = (int) gcpPixelPos.y;
-        final int xul = x0 - compleData.fHalfWindowWidth + 1;
-        final int yul = y0 - compleData.fHalfWindowHeight + 1;
-        final Rectangle masterImagetteRectangle = new Rectangle(xul, yul, compleData.fWindowWidth, compleData.fWindowHeight);
+        final int xul = x0 - complexData.fHalfWindowWidth + 1;
+        final int yul = y0 - complexData.fHalfWindowHeight + 1;
+        final Rectangle masterImagetteRectangle = new Rectangle(xul, yul, complexData.fWindowWidth, complexData.fWindowHeight);
 
         final Tile masterImagetteRaster1 = getSourceTile(masterBand1, masterImagetteRectangle);
         final Tile masterImagetteRaster2 = getSourceTile(masterBand2, masterImagetteRectangle);
@@ -1425,11 +1430,11 @@ public class GCPSelectionOp extends Operator {
 
         final TileIndex index = new TileIndex(masterImagetteRaster1);
 
-        final double[][] mIIdata = compleData.mII;
-        final double[][] mIQdata = compleData.mIQ;
-        for (int j = 0; j < compleData.fWindowHeight; j++) {
+        final double[][] mIIdata = complexData.mII;
+        final double[][] mIQdata = complexData.mIQ;
+        for (int j = 0; j < complexData.fWindowHeight; j++) {
             index.calculateStride(yul + j);
-            for (int i = 0; i < compleData.fWindowWidth; i++) {
+            for (int i = 0; i < complexData.fWindowWidth; i++) {
                 final int idx = index.getIndex(xul + i);
                 mIIdata[j][i] = masterData1.getElemDoubleAt(idx);
                 mIQdata[j][i] = masterData2.getElemDoubleAt(idx);
@@ -1439,22 +1444,102 @@ public class GCPSelectionOp extends Operator {
         masterData2.dispose();
     }
 
-    private void getInitialComplexSlaveImagette(final ComplexCoregData compleData,
+    // This function is for testing only
+    private void getInitialComplexSlaveImagette(final ComplexCoregData complexData, final PixelPos mGCPPixelPos) {
+
+        complexData.sII0 = new double[complexData.fWindowHeight][complexData.fWindowWidth];
+        complexData.sIQ0 = new double[complexData.fWindowHeight][complexData.fWindowWidth];
+
+        complexData.point0[0] = mGCPPixelPos.x;
+        complexData.point0[1] = mGCPPixelPos.y;
+
+        final double[][] mIIdata = complexData.mII;
+        final double[][] mIQdata = complexData.mIQ;
+
+        final double[][] sII0data = complexData.sII0;
+        final double[][] sIQ0data = complexData.sIQ0;
+
+        final double xShift = 0.3;
+        final double yShift = -0.2;
+        //System.out.println("xShift = " + xShift);
+        //System.out.println("yShift = " + yShift);
+
+        getShiftedData(complexData, mIIdata, mIQdata, xShift, yShift, sII0data, sIQ0data);
+    }
+
+    private static void getShiftedData(final ComplexCoregData complexData, final double[][] srcI, final double[][] srcQ,
+                                final double xShift, final double yShift,
+                                final double[][] tgtI, final double[][] tgtQ) {
+
+        final double[] rowArray = new double[complexData.fTwoWindowWidth];
+        final double[] rowPhaseArray = new double[complexData.fTwoWindowWidth];
+        final DoubleFFT_1D row_fft = new DoubleFFT_1D(complexData.fWindowWidth);
+
+        int signalLength = rowArray.length / 2;
+        computeShiftPhaseArray(xShift, signalLength, rowPhaseArray);
+        for (int r = 0; r < complexData.fWindowHeight; r++) {
+            int k = 0;
+            final double[] sII = srcI[r];
+            final double[] sIQ = srcQ[r];
+            for (int c = 0; c < complexData.fWindowWidth; c++) {
+                rowArray[k++] = sII[c];
+                rowArray[k++] = sIQ[c];
+            }
+
+            row_fft.complexForward(rowArray);
+            multiplySpectrumByShiftFactor(rowArray, rowPhaseArray);
+            row_fft.complexInverse(rowArray, true);
+            for (int c = 0; c < complexData.fWindowWidth; c++) {
+                tgtI[r][c] = rowArray[2 * c];
+                tgtQ[r][c] = rowArray[2 * c + 1];
+            }
+        }
+
+        final double[] colArray = new double[complexData.fTwoWindowHeight];
+        final double[] colPhaseArray = new double[complexData.fTwoWindowHeight];
+        final DoubleFFT_1D col_fft = new DoubleFFT_1D(complexData.fWindowHeight);
+
+        signalLength = colArray.length / 2;
+        computeShiftPhaseArray(yShift, signalLength, colPhaseArray);
+        for (int c = 0; c < complexData.fWindowWidth; c++) {
+            int k = 0;
+            for (int r = 0; r < complexData.fWindowHeight; r++) {
+                colArray[k++] = tgtI[r][c];
+                colArray[k++] = tgtQ[r][c];
+            }
+
+            col_fft.complexForward(colArray);
+            multiplySpectrumByShiftFactor(colArray, colPhaseArray);
+            col_fft.complexInverse(colArray, true);
+            for (int r = 0; r < complexData.fWindowHeight; r++) {
+                tgtI[r][c] = colArray[2 * r];
+                tgtQ[r][c] = colArray[2 * r + 1];
+            }
+        }
+    }
+
+    private void getInitialComplexSlaveImagette(final ComplexCoregData complexData,
                                                 final Band slaveBand1, final Band slaveBand2,
                                                 final PixelPos sGCPPixelPos) {
 
-        compleData.sII0 = new double[compleData.fWindowHeight][compleData.fWindowWidth];
-        compleData.sIQ0 = new double[compleData.fWindowHeight][compleData.fWindowWidth];
+        complexData.sII0 = new double[complexData.fWindowHeight][complexData.fWindowWidth];
+        complexData.sIQ0 = new double[complexData.fWindowHeight][complexData.fWindowWidth];
+
+        complexData.point0[0] = sGCPPixelPos.x;
+        complexData.point0[1] = sGCPPixelPos.y;
+
+        final double[][] sII0data = complexData.sII0;
+        final double[][] sIQ0data = complexData.sIQ0;
+
+        final double[][] tmpI = new double[complexData.fWindowHeight][complexData.fWindowWidth];
+        final double[][] tmpQ = new double[complexData.fWindowHeight][complexData.fWindowWidth];
 
         final int x0 = (int) (sGCPPixelPos.x + 0.5);
         final int y0 = (int) (sGCPPixelPos.y + 0.5);
 
-        compleData.point0[0] = sGCPPixelPos.x;
-        compleData.point0[1] = sGCPPixelPos.y;
-
-        final int xul = x0 - compleData.fHalfWindowWidth + 1;
-        final int yul = y0 - compleData.fHalfWindowHeight + 1;
-        final Rectangle slaveImagetteRectangle = new Rectangle(xul, yul, compleData.fWindowWidth, compleData.fWindowHeight);
+        final int xul = x0 - complexData.fHalfWindowWidth + 1;
+        final int yul = y0 - complexData.fHalfWindowHeight + 1;
+        final Rectangle slaveImagetteRectangle = new Rectangle(xul, yul, complexData.fWindowWidth, complexData.fWindowHeight);
 
         final Tile slaveImagetteRaster1 = getSourceTile(slaveBand1, slaveImagetteRectangle);
         final Tile slaveImagetteRaster2 = getSourceTile(slaveBand2, slaveImagetteRectangle);
@@ -1462,19 +1547,20 @@ public class GCPSelectionOp extends Operator {
         final ProductData slaveData1 = slaveImagetteRaster1.getDataBuffer();
         final ProductData slaveData2 = slaveImagetteRaster2.getDataBuffer();
         final TileIndex index = new TileIndex(slaveImagetteRaster1);
-
-        final double[][] sII0data = compleData.sII0;
-        final double[][] sIQ0data = compleData.sIQ0;
-        for (int j = 0; j < compleData.fWindowHeight; j++) {
+        for (int j = 0; j < complexData.fWindowHeight; j++) {
             index.calculateStride(yul + j);
-            for (int i = 0; i < compleData.fWindowWidth; i++) {
+            for (int i = 0; i < complexData.fWindowWidth; i++) {
                 final int idx = index.getIndex(xul + i);
-                sII0data[j][i] = slaveData1.getElemDoubleAt(idx);
-                sIQ0data[j][i] = slaveData2.getElemDoubleAt(idx);
+                tmpI[j][i] = slaveData1.getElemDoubleAt(idx);
+                tmpQ[j][i] = slaveData2.getElemDoubleAt(idx);
             }
         }
         slaveData1.dispose();
         slaveData2.dispose();
+
+        final double xShift = sGCPPixelPos.x - x0;
+        final double yShift = sGCPPixelPos.y - y0;
+        getShiftedData(complexData, tmpI, tmpQ, xShift, yShift, sII0data, sIQ0data);
     }
 
     private static double computeCoherence(final ComplexCoregData complexData, final double[] point) {
@@ -1489,13 +1575,13 @@ public class GCPSelectionOp extends Operator {
         getComplexSlaveImagette(complexData, point);
         /*
         System.out.println("Real part of master imagette:");
-        outputRealImage(compleData.mII);
+        outputRealImage(complexData.mII);
         System.out.println("Imaginary part of master imagette:");
-        outputRealImage(compleData.mIQ);
+        outputRealImage(complexData.mIQ);
         System.out.println("Real part of slave imagette:");
-        outputRealImage(compleData.sII);
+        outputRealImage(complexData.sII);
         System.out.println("Imaginary part of slave imagette:");
-        outputRealImage(compleData.sIQ);
+        outputRealImage(complexData.sIQ);
         */
 
         double coherence = 0.0;
@@ -1519,11 +1605,11 @@ public class GCPSelectionOp extends Operator {
         return 1 - coherence;
     }
 
-    private static double computeCoherence(final ComplexCoregData compleData,
+    private static double computeCoherence(final ComplexCoregData complexData,
                                            final double a, final double[] p, final double[] d) {
 
         final double[] point = {p[0] + a * d[0], p[1] + a * d[1]};
-        return computeCoherence(compleData, point);
+        return computeCoherence(complexData, point);
     }
 
     private static void getComplexSlaveImagette(final ComplexCoregData compleData, final double[] point) {
@@ -1627,7 +1713,7 @@ public class GCPSelectionOp extends Operator {
         }
     }
 
-    private static double getCoherence(final ComplexCoregData compleData, final int row, final int col,
+    private static double getCoherence(final ComplexCoregData complexData, final int row, final int col,
                                        final int coherenceWindowWidth, final int coherenceWindowHeight) {
 
         // Compute coherence of master and slave imagettes by creating a coherence image
@@ -1636,10 +1722,10 @@ public class GCPSelectionOp extends Operator {
         double sum3 = 0.0;
         double sum4 = 0.0;
         double mr, mi, sr, si;
-        final double[][] mIIdata = compleData.mII;
-        final double[][] mIQdata = compleData.mIQ;
-        final double[][] sIIdata = compleData.sII;
-        final double[][] sIQdata = compleData.sIQ;
+        final double[][] mIIdata = complexData.mII;
+        final double[][] mIQdata = complexData.mIQ;
+        final double[][] sIIdata = complexData.sII;
+        final double[][] sIQdata = complexData.sIQ;
         double[] mII, mIQ, sII, sIQ;
         int rIdx, cIdx;
         for (int r = 0; r < coherenceWindowHeight; r++) {
