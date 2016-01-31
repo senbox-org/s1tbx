@@ -36,7 +36,7 @@ import java.util.prefs.Preferences;
 /**
  * Created by luis on 10/01/2016.
  */
-public class Quicklook extends ProductNode {
+public class Quicklook extends ProductNode implements Thumbnail {
 
     public final static String DEFAULT_QUICKLOOK_NAME = "Quicklook";
     public final static String SNAP_QUICKLOOK_FILE_PREFIX = "snapQL_";

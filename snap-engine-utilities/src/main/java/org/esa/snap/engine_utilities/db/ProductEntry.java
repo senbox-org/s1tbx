@@ -28,7 +28,6 @@ import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.util.ProductFunctions;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Date;
@@ -376,11 +375,8 @@ public class ProductEntry {
         return quicklook != null && quicklook.hasCachedQuicklook();
     }
 
-    public BufferedImage getQuickLook() {
-        if(quicklook == null) {
-            return null;
-        }
-        return quicklook.hasCachedQuicklook() ? quicklook.getImage(ProgressMonitor.NULL) : null;
+    public Quicklook getQuickLook() {
+        return quicklook;
     }
 
     public boolean equals(Object other) {
