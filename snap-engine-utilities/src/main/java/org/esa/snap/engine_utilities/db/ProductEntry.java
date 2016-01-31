@@ -372,7 +372,7 @@ public class ProductEntry {
     }
 
     public boolean quickLookExists() {
-        return quicklook != null && quicklook.hasCachedQuicklook();
+        return quicklook != null && (quicklook.hasImage() || quicklook.hasCachedImage());
     }
 
     public Quicklook getQuickLook() {

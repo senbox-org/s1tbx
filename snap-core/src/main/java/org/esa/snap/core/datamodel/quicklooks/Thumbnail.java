@@ -26,5 +26,7 @@ public interface Thumbnail {
 
     boolean hasImage();
 
+    boolean hasCachedImage();
+
     BufferedImage getImage(final ProgressMonitor pm);
 }

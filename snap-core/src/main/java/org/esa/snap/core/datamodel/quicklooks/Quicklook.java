@@ -143,7 +143,7 @@ public class Quicklook extends ProductNode implements Thumbnail {
      * Checks if a quicklook file is cached either with the product or in the database
      * @return true if a cached quicklook file is found
      */
-    public boolean hasCachedQuicklook() {
+    public boolean hasCachedImage() {
         if (productQuicklookFolder != null) {
             // load from product
             final File quickLookFile = productQuicklookFolder.resolve(getQLFileName(0)).toFile();
