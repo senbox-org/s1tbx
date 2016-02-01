@@ -60,8 +60,6 @@ public class QuicklookGenerator {
 
     public static final int DEFAULT_VALUE_QUICKLOOKS_MAX_WIDTH = 300;
 
-    private static final String QUICKLOOK_PREFIX = "QL_";
-    private static final String QUICKLOOK_EXT = ".jpg";
     private static final int MULTILOOK_FACTOR = 2;
     private static final double DTOR = Math.PI / 180.0;
 
