@@ -188,22 +188,4 @@
         </developer>
     </developers>
 
-    <distributionManagement>
-        <repository>
-            <uniqueVersion>true</uniqueVersion>
-            <id>nexus-releases</id>
-            <url>http://maven.ppolabs.net/content/repositories/releases/</url>
-        </repository>
-        <snapshotRepository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>nexus-snapshots</id>
-            <url>http://maven.ppolabs.net/content/repositories/snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
-
-    <scm>
-        <connection>scm:git:git@github.com:ppolabs/jlinda.git</connection>
-        <developerConnection>scm:git:ppolabs/jlinda.git</developerConnection>
-        <url>https://github.com/ppolabs/jlinda</url>
-    </scm>
 </project>
