@@ -115,7 +115,7 @@ public class ProductUtils {
     public static ImageInfo createImageInfo(RasterDataNode[] rasters, boolean assignMissingImageInfos,
                                             ProgressMonitor pm) throws IOException {
         Assert.notNull(rasters, "rasters");
-        //Assert.argument(rasters.length == 1 || rasters.length == 3, "rasters.length == 1 || rasters.length == 3");
+        Assert.argument(rasters.length > 0 && rasters.length <= 3, "rasters.length > 0 && rasters.length <= 3");
         if (rasters.length == 1) {
             return assignMissingImageInfos ? rasters[0].getImageInfo(pm) : rasters[0].createDefaultImageInfo(null, pm);
         } else {
