@@ -63,7 +63,10 @@ public class QuicklookGenerator {
     private static final int MULTILOOK_FACTOR = 2;
     private static final double DTOR = Math.PI / 180.0;
 
-    private static final String[] defaultQuickLookBands = new String[] { "intensity", "band", "t11", "t22", "t33", "c11", "c22", "c33"};
+    private static final String[] defaultQuickLookBands = new String[] {
+            "intensity", "band", "sigma0",
+            "t11", "t22", "t33", "c11", "c22", "c33"
+    };
 
     private final int maxWidth;
 
