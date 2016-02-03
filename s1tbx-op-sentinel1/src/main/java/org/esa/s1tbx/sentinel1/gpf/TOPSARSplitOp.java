@@ -41,7 +41,10 @@ import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 
 import java.awt.*;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -238,11 +241,11 @@ public final class TOPSARSplitOp extends Operator {
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
 
-        absRoot.setAttributeUTC(AbstractMetadata.first_line_time,
-                new ProductData.UTC(subSwathInfo[subSwathIndex - 1].firstLineTime / Constants.secondsInDay));
+        absRoot.setAttributeUTC(AbstractMetadata.first_line_time, new ProductData.UTC(
+                subSwathInfo[subSwathIndex - 1].burstFirstLineTime[firstBurstIndex - 1] / Constants.secondsInDay));
 
-        absRoot.setAttributeUTC(AbstractMetadata.last_line_time,
-                new ProductData.UTC(subSwathInfo[subSwathIndex - 1].lastLineTime / Constants.secondsInDay));
+        absRoot.setAttributeUTC(AbstractMetadata.last_line_time, new ProductData.UTC(
+                subSwathInfo[subSwathIndex - 1].burstLastLineTime[lastBurstIndex - 1] / Constants.secondsInDay));
 
         absRoot.setAttributeDouble(AbstractMetadata.line_time_interval,
                 subSwathInfo[subSwathIndex - 1].azimuthTimeInterval);
@@ -257,29 +260,35 @@ public final class TOPSARSplitOp extends Operator {
                 subSwathInfo[subSwathIndex - 1].azimuthPixelSpacing);
 
         absRoot.setAttributeInt(AbstractMetadata.num_output_lines,
-                subSwathInfo[subSwathIndex - 1].numOfLines);
+                subSwathInfo[subSwathIndex - 1].linesPerBurst * (lastBurstIndex - firstBurstIndex + 1));
 
         absRoot.setAttributeInt(AbstractMetadata.num_samples_per_line,
                 subSwathInfo[subSwathIndex - 1].numOfSamples);
 
-        final int rows = subSwathInfo[subSwathIndex - 1].latitude.length;
         final int cols = subSwathInfo[subSwathIndex - 1].latitude[0].length;
+
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat,
-                subSwathInfo[subSwathIndex - 1].latitude[0][0]);
+                subSwathInfo[subSwathIndex - 1].latitude[firstBurstIndex - 1][0]);
+
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long,
-                subSwathInfo[subSwathIndex - 1].longitude[0][0]);
+                subSwathInfo[subSwathIndex - 1].longitude[firstBurstIndex - 1][0]);
+
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat,
-                subSwathInfo[subSwathIndex - 1].latitude[0][cols - 1]);
+                subSwathInfo[subSwathIndex - 1].latitude[firstBurstIndex - 1][cols - 1]);
+
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_long,
-                subSwathInfo[subSwathIndex - 1].longitude[0][cols - 1]);
+                subSwathInfo[subSwathIndex - 1].longitude[firstBurstIndex - 1][cols - 1]);
+
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat,
-                subSwathInfo[subSwathIndex - 1].latitude[rows - 1][0]);
+                subSwathInfo[subSwathIndex - 1].latitude[lastBurstIndex - 1][0]);
+
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long,
-                subSwathInfo[subSwathIndex - 1].longitude[rows - 1][0]);
+                subSwathInfo[subSwathIndex - 1].longitude[lastBurstIndex - 1][0]);
+
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat,
-                subSwathInfo[subSwathIndex - 1].latitude[rows - 1][cols - 1]);
+                subSwathInfo[subSwathIndex - 1].latitude[lastBurstIndex - 1][cols - 1]);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long,
-                subSwathInfo[subSwathIndex - 1].longitude[rows - 1][cols - 1]);
+                subSwathInfo[subSwathIndex - 1].longitude[lastBurstIndex - 1][cols - 1]);
 
         absRoot.setAttributeString(AbstractMetadata.swath, subswath);
 
@@ -322,6 +331,7 @@ public final class TOPSARSplitOp extends Operator {
         removeElements(origMeta, "calibration");
         removeElements(origMeta, "noise");
         removeBursts(origMeta);
+        updateImageInformation(origMeta);
     }
 
     private void removeElements(final MetadataElement origMeta, final String parent) {
@@ -367,6 +377,51 @@ public final class TOPSARSplitOp extends Operator {
                 }
             }
         }
+    }
+
+    private void updateImageInformation(final MetadataElement origMeta) {
+
+        MetadataElement annotation = origMeta.getElement("annotation");
+        if (annotation == null) {
+            throw new OperatorException("Annotation Metadata not found");
+        }
+
+        final MetadataElement[] elems = annotation.getElements();
+        for (MetadataElement elem : elems) {
+            final MetadataElement product = elem.getElement("product");
+            final MetadataElement imageAnnotation = product.getElement("imageAnnotation");
+            final MetadataElement imageInformation = imageAnnotation.getElement("imageInformation");
+
+            imageInformation.setAttributeString("numberOfLines", Integer.toString(
+                    subSwathInfo[subSwathIndex - 1].linesPerBurst * (lastBurstIndex - firstBurstIndex + 1)));
+
+            final ProductData.UTC firstLineTimeUTC = new ProductData.UTC(
+                    subSwathInfo[subSwathIndex - 1].burstFirstLineTime[firstBurstIndex - 1] / Constants.secondsInDay);
+
+            imageInformation.setAttributeString("productFirstLineUtcTime", format(firstLineTimeUTC));
+
+            final ProductData.UTC lastLineTimeUTC = new ProductData.UTC(
+                    subSwathInfo[subSwathIndex - 1].burstLastLineTime[lastBurstIndex - 1] / Constants.secondsInDay);
+
+            imageInformation.setAttributeString("productLastLineUtcTime", format(lastLineTimeUTC));
+        }
+    }
+
+    public String format(final ProductData.UTC utc) {
+        final Calendar calendar = utc.createCalendar();
+        calendar.add(Calendar.DATE, utc.getDaysFraction());
+        calendar.add(Calendar.SECOND, (int) utc.getSecondsFraction());
+        final DateFormat dateFormat = utc.createDateFormat("yyyy-MM-dd_HH:mm:ss");  // 2015-02-05T20:25:19.830824
+        final Date time = calendar.getTime();
+        final String dateString = dateFormat.format(time);
+        final String microsString = String.valueOf(utc.getMicroSecondsFraction());
+        StringBuilder sb = new StringBuilder(dateString.toUpperCase());
+        sb.append('.');
+        for (int i = microsString.length(); i < 6; i++) {
+            sb.append('0');
+        }
+        sb.append(microsString);
+        return sb.toString().replace("_", "T");
     }
 
     /**
