@@ -20,6 +20,7 @@ import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.csv.dataio.Constants;
@@ -28,6 +29,7 @@ import org.esa.snap.csv.dataio.CsvSourceParser;
 
 import java.io.File;
 import java.util.Locale;
+import java.util.logging.Level;
 
 /**
  * The reader plugin for the {@link CsvProductReader} class.
@@ -50,6 +52,7 @@ public class CsvProductReaderPlugIn implements ProductReaderPlugIn {
             csvFile.parseMetadata();
             csvFile.checkReadingFirstRecord();
         } catch (Exception e) {
+            SystemUtils.LOG.log(Level.WARNING, "Not able to decode CSV file", e);
             return DecodeQualification.UNABLE;
         } finally {
             if (csvFile != null) {

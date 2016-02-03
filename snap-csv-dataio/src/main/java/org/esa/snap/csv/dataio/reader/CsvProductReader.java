@@ -59,7 +59,7 @@ public class CsvProductReader extends AbstractProductReader {
     /**
      * Constructs a new abstract product reader.
      *
-     * @param readerPlugIn the reader plug-in which created this reader, can be <code>null</code> for internal reader
+     * @param readerPlugIn the reader plug-in which created this reader, can be {@code null} for internal reader
      *                     implementations
      */
     protected CsvProductReader(ProductReaderPlugIn readerPlugIn) {
@@ -120,13 +120,13 @@ public class CsvProductReader extends AbstractProductReader {
         final Band latBand = fetchBand(LAT_NAMES);
         if (latBand == null) {
             SystemUtils.LOG.info("Latitude information not available.");
-            SystemUtils.LOG.warning("Unable to initialize PixelGeocoding.");
+            SystemUtils.LOG.warning("Unable to initialize PixelGeoCoding.");
             return;
         }
         final Band lonBand = fetchBand(LON_NAMES);
         if (lonBand == null) {
             SystemUtils.LOG.info("Longitude information not available.");
-            SystemUtils.LOG.warning("Unable to initialize PixelGeocoding.");
+            SystemUtils.LOG.warning("Unable to initialize PixelGeoCoding.");
             return;
         }
         final String validMask = latBand.getValidMaskExpression();

@@ -1,6 +1,6 @@
 #timeColumn=any_name
-#timePattern=yyyy-MM-dd HH:mm:ss
+#timePattern=yyyy-MM-dd '-TickTock-' HH:mm:ss
 featureId	station:string	lat:float	lon:float	date_time:time	radiance_1:float	radiance_2:float	any_name:time
-0	AMRU1	30.0	50.0	2010-06-01T12:45:00	NaN	13.4	2013-06-01 10:45:00
-1	AMRU1	30.0	50.0	2010-06-01T12:48:00	18.3	2.4	2013-06-01 11:45:00
-2	AMRU2	40.0	120.0	2010-06-01T12:47:00	10.5	10.6	2013-06-01 12:45:00
+0	AMRU1	30.0	50.0	2010-06-01T12:45:00	NaN	13.4	2013-06-01 -TickTock- 10:45:00
+1	AMRU1	30.0	50.0	2010-06-01T12:48:00	18.3	2.4	2013-06-01 -TickTock- 11:45:00
+2	AMRU2	40.0	120.0	2010-06-01T12:47:00	10.5	10.6	2013-06-01 -TickTock- 12:45:00

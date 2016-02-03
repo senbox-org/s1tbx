@@ -36,6 +36,7 @@ public class Constants {
 
     public static final String NAME_METADATA_ELEMENT_CSV_HEADER_PROPERTIES = "CSV Header Properties";
 
+    public static final String PROPERTY_NAME_SEPARATOR = "separator";
     public static final String PROPERTY_NAME_TIME_COLUMN = "timeColumn";
     public static final String PROPERTY_NAME_TIME_PATTERN = "timePattern";
     public static final String PROPERTY_NAME_SCENE_RASTER_WIDTH = "sceneRasterWidth";
