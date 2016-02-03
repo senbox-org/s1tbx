@@ -41,7 +41,10 @@ import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 
 import java.awt.*;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -395,13 +398,30 @@ public final class TOPSARSplitOp extends Operator {
             final ProductData.UTC firstLineTimeUTC = new ProductData.UTC(
                     subSwathInfo[subSwathIndex - 1].burstFirstLineTime[firstBurstIndex - 1] / Constants.secondsInDay);
 
-            imageInformation.setAttributeString("productFirstLineUtcTime", firstLineTimeUTC.format2());
+            imageInformation.setAttributeString("productFirstLineUtcTime", format(firstLineTimeUTC));
 
             final ProductData.UTC lastLineTimeUTC = new ProductData.UTC(
                     subSwathInfo[subSwathIndex - 1].burstLastLineTime[lastBurstIndex - 1] / Constants.secondsInDay);
 
-            imageInformation.setAttributeString("productLastLineUtcTime", lastLineTimeUTC.format2());
+            imageInformation.setAttributeString("productLastLineUtcTime", format(lastLineTimeUTC));
         }
+    }
+
+    public String format(final ProductData.UTC utc) {
+        final Calendar calendar = utc.createCalendar();
+        calendar.add(Calendar.DATE, utc.getDaysFraction());
+        calendar.add(Calendar.SECOND, (int) utc.getSecondsFraction());
+        final DateFormat dateFormat = utc.createDateFormat("yyyy-MM-dd_HH:mm:ss");  // 2015-02-05T20:25:19.830824
+        final Date time = calendar.getTime();
+        final String dateString = dateFormat.format(time);
+        final String microsString = String.valueOf(utc.getMicroSecondsFraction());
+        StringBuilder sb = new StringBuilder(dateString.toUpperCase());
+        sb.append('.');
+        for (int i = microsString.length(); i < 6; i++) {
+            sb.append('0');
+        }
+        sb.append(microsString);
+        return sb.toString().replace("_", "T");
     }
 
     /**
