@@ -42,7 +42,7 @@ import java.util.zip.ZipFile;
 public abstract class ElevationFile {
 
     protected File localFile;
-    private final File localZipFile;
+    protected File localZipFile;
     private final ProductReader productReader;
     protected boolean localFileExists = false;
     protected boolean remoteFileExists = true;

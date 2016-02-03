@@ -62,9 +62,9 @@ public class CsvFile implements CsvSourceParser, CsvSource {
 
     public static final String DEFAULT_HEADER_NAME = "csv";
 
-    private final Map<String, String> properties = new HashMap<String, String>();
+    private final Map<String, String> properties = new HashMap<>();
     private final File csv;
-    private final SortedMap<Long, Long> bytePositionForOffset = new TreeMap<Long, Long>();
+    private final SortedMap<Long, Long> bytePositionForOffset = new TreeMap<>();
 
     private SimpleFeatureType simpleFeatureType;
     private FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
@@ -126,9 +126,6 @@ public class CsvFile implements CsvSourceParser, CsvSource {
         long featureCount = offset;
         while ((numRecords == -1 || featureCount < offset + numRecords) && (line = stream.readLine()) != null) {
             String[] tokens = getTokens(line);
-            if (tokens == null) {
-                break;
-            }
 
             if (tokens.length != expectedTokenCount) {
                 continue;
@@ -161,9 +158,6 @@ public class CsvFile implements CsvSourceParser, CsvSource {
         long featureCount = offset;
         while ((numRecords == -1 || featureCount < offset + numRecords) && (line = stream.readLine()) != null) {
             String[] tokens = getTokens(line);
-            if (tokens == null) {
-                break;
-            }
             int expectedTokenCount = simpleFeatureType.getAttributeCount();
             expectedTokenCount += hasFeatureId ? 1 : 0;
             if (tokens.length != expectedTokenCount) {
@@ -322,7 +316,7 @@ public class CsvFile implements CsvSourceParser, CsvSource {
     }
 
     private Map.Entry<Long, Long> getBestOffset(long lineOffset) {
-        Map.Entry<Long, Long> result = new AbstractMap.SimpleEntry<java.lang.Long, java.lang.Long>(0L, (long) propertiesByteSize + headerByteSize);
+        Map.Entry<Long, Long> result = new AbstractMap.SimpleEntry<>(0L, (long) propertiesByteSize + headerByteSize);
         for (Map.Entry<Long, Long> entry : bytePositionForOffset.entrySet()) {
             if (entry.getKey() > lineOffset) {
                 return result;
@@ -387,8 +381,7 @@ public class CsvFile implements CsvSourceParser, CsvSource {
                 continue;
             }
             headerByteSize += (stream.getStreamPosition() - posInStream);
-            final String separator =
-                    properties.get("separator") != null ? properties.get("separator") : Constants.DEFAULT_SEPARATOR;
+            final String separator = getProperty(Constants.PROPERTY_NAME_SEPARATOR, Constants.DEFAULT_SEPARATOR);
             createFeatureType(line.split(separator));
             break;
         }
@@ -397,9 +390,8 @@ public class CsvFile implements CsvSourceParser, CsvSource {
     private String[] getTokens(String line) {
         int pos2;
         int pos1 = 0;
-        final ArrayList<String> strings = new ArrayList<String>();
-        final String separator =
-                properties.get("separator") != null ? properties.get("separator") : Constants.DEFAULT_SEPARATOR;
+        final ArrayList<String> strings = new ArrayList<>();
+        final String separator = getProperty(Constants.PROPERTY_NAME_SEPARATOR, Constants.DEFAULT_SEPARATOR);
         while ((pos2 = line.indexOf(separator, pos1)) >= 0) {
             strings.add(line.substring(pos1, pos2).trim());
             pos1 = pos2 + 1;
@@ -415,6 +407,10 @@ public class CsvFile implements CsvSourceParser, CsvSource {
             }
         }
         return false;
+    }
+
+    private String getProperty(String propertyName, String defaultValue) {
+        return properties.get(propertyName) != null ? properties.get(propertyName) : defaultValue;
     }
 
     private static class UTCConverter implements Converter<ProductData.UTC> {

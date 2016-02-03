@@ -16,8 +16,6 @@
 
 package org.esa.snap.csv.dataio.reader;
 
-import static org.junit.Assert.*;
-
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.datamodel.Band;
@@ -28,10 +26,14 @@ import org.esa.snap.core.datamodel.PixelTimeCoding;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.csv.dataio.Constants;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.awt.image.Raster;
 import java.io.IOException;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Olaf Danne
@@ -286,19 +288,21 @@ public class CsvProductReaderTest {
     }
 
     @Test
-    public void testCreateTimeCoding_timeColumnAndTimePatternProperty() throws IOException {
+    public void testCreateTimeCoding_timeColumnAndTimePatternProperty() throws Exception {
         final Product product = readTestProduct("simple_format_with_time_column_and_time_pattern_property.txt");
         final MetadataElement metadataRoot = product.getMetadataRoot();
         final MetadataElement element = metadataRoot.getElement(Constants.NAME_METADATA_ELEMENT_CSV_HEADER_PROPERTIES);
 
         assertNotNull(element);
         assertEquals("any_name", element.getAttributeString(Constants.PROPERTY_NAME_TIME_COLUMN));
-        assertEquals("yyyy-MM-dd HH:mm:ss", element.getAttributeString(Constants.PROPERTY_NAME_TIME_PATTERN));
+        assertEquals("yyyy-MM-dd '-TickTock-' HH:mm:ss", element.getAttributeString(Constants.PROPERTY_NAME_TIME_PATTERN));
 
         CsvProductReader.CSVTimeCoding timeCoding = (CsvProductReader.CSVTimeCoding) product.getSceneTimeCoding();
         assertNotNull(timeCoding);
         assertEquals("any_name", timeCoding.getDataSourceName());
 
+        assertEquals(product.getStartTime().getElemString(), ProductData.UTC.parse("01-JUN-2013 10:45:00").getElemString());
+        assertEquals(product.getEndTime().getElemString(), ProductData.UTC.parse("01-JUN-2013 12:45:00").getElemString());
         assertEquals(2, product.getSceneRasterWidth());
         assertEquals(2, product.getSceneRasterHeight());
 
