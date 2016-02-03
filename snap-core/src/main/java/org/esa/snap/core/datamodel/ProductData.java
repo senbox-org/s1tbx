@@ -2764,7 +2764,7 @@ public abstract class ProductData implements Cloneable {
          * @see #createCalendar
          * @see #createDateFormat
          */
-        public String format() { // 05-Feb-2015 20:25:31
+        public String format() {
             final Calendar calendar = createCalendar();
             calendar.add(Calendar.DATE, getDaysFraction());
             calendar.add(Calendar.SECOND, (int) getSecondsFraction());
@@ -2779,23 +2779,6 @@ public abstract class ProductData implements Cloneable {
             }
             sb.append(microsString);
             return sb.toString();
-        }
-
-        public String format2() { // 2015-02-05T20:25:19.830824
-            final Calendar calendar = createCalendar();
-            calendar.add(Calendar.DATE, getDaysFraction());
-            calendar.add(Calendar.SECOND, (int) getSecondsFraction());
-            final DateFormat dateFormat = createDateFormat("yyyy-MM-dd_HH:mm:ss");
-            final Date time = calendar.getTime();
-            final String dateString = dateFormat.format(time);
-            final String microsString = String.valueOf(getMicroSecondsFraction());
-            StringBuffer sb = new StringBuffer(dateString.toUpperCase());
-            sb.append('.');
-            for (int i = microsString.length(); i < 6; i++) {
-                sb.append('0');
-            }
-            sb.append(microsString);
-            return sb.toString().replace("_", "T");
         }
 
         /**
