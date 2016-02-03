@@ -58,6 +58,7 @@ public final class AsterFile extends ElevationFile {
             final File v2File = new File(localFile.getParentFile(), v2Name + ".zip");
             if (v2File.exists()) {
                 localFile = new File(localFile.getParentFile(), v2Name + "_dem.tif");
+                localZipFile = v2File;
                 return true;
             } else {
                 // check if unzipped
