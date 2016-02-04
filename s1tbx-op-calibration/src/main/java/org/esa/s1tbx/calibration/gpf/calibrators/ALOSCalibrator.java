@@ -13,14 +13,13 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.calibration.gpf;
+package org.esa.s1tbx.calibration.gpf.calibrators;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.calibration.gpf.support.BaseCalibrator;
 import org.esa.s1tbx.calibration.gpf.support.Calibrator;
 import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.MetadataAttribute;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
@@ -38,28 +37,21 @@ import java.awt.*;
 import java.io.File;
 
 /**
- * Calibration for Radarsat2 data products.
+ * Calibration for ALOS PALSAR data products.
  */
 
-public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
+public class ALOSCalibrator extends BaseCalibrator implements Calibrator {
 
-    private static final String lutsigma = "lutSigma";
-    private static final String lutgamma = "lutGamma";
-    private static final String lutbeta = "lutBeta";
-    private static final String USE_INCIDENCE_ANGLE_FROM_DEM = "Use projected local incidence angle from DEM";
-
+    private double calibrationFactor = 0;
     private TiePointGrid incidenceAngle = null;
-    private double offset = 0.0;
-    private double[] gains = null;
 
-    private int subsetOffsetX = 0;
-    private int subsetOffsetY = 0;
+    private static final String USE_INCIDENCE_ANGLE_FROM_DEM = "Use projected local incidence angle from DEM";
 
     /**
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
      */
-    public Radarsat2Calibrator() {
+    public ALOSCalibrator() {
     }
 
     /**
@@ -67,7 +59,7 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
      */
     public void setExternalAuxFile(File file) throws OperatorException {
         if (file != null) {
-            throw new OperatorException("No external auxiliary file should be selected for Radarsat2 product");
+            throw new OperatorException("No external auxiliary file should be selected for ALOS PALSAR product");
         }
     }
 
@@ -91,15 +83,17 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
 
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
-            getMission();
+            final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
+            if (!mission.equals("ALOS") && !mission.equals("ALOS2"))
+                throw new OperatorException(mission + " is not a valid mission for ALOS Calibration");
 
-            getCalibrationFlag();
+            if (absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().getElemBoolean()) {
+                throw new OperatorException("Absolute radiometric calibration has already been applied to the product");
+            }
 
             getSampleType();
 
-            getSubsetOffset();
-
-            getLUT();
+            getCalibrationFactor();
 
             getTiePointGridData(sourceProduct);
 
@@ -113,44 +107,18 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
     }
 
     /**
-     * Get product mission from abstract metadata.
+     * Get calibration factor.
      */
-    private void getMission() {
-        final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        if (!mission.equals("RS2")) {
-            throw new OperatorException(mission + " is not a valid mission for Radarsat2 Calibration");
-        }
-    }
+    private void getCalibrationFactor() {
 
-    /**
-     * Get subset x and y offsets from abstract metadata.
-     */
-    private void getSubsetOffset() {
-        subsetOffsetX = absRoot.getAttributeInt(AbstractMetadata.subset_offset_x);
-        subsetOffsetY = absRoot.getAttributeInt(AbstractMetadata.subset_offset_y);
-    }
+        calibrationFactor = absRoot.getAttributeDouble(AbstractMetadata.calibration_factor);
 
-    /**
-     * Get antenna pattern gain array from metadata.
-     */
-    private void getLUT() {
-        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
-        final MetadataElement lutSigmaElem = origProdRoot.getElement(lutsigma);
-
-        if (lutSigmaElem != null) {
-            offset = lutSigmaElem.getAttributeDouble("offset", 0);
-
-            final MetadataAttribute gainsAttrib = lutSigmaElem.getAttribute("gains");
-            if (gainsAttrib != null) {
-                gains = (double[]) gainsAttrib.getData().getElems();
-            }
-        } else {
-            throw new OperatorException(lutsigma + " not found. Please ensure the look up table " + lutsigma + ".xml is in the same folder as the original product");
+        if (isComplex) {
+            calibrationFactor -= 32.0; // calibration factor offset is 32 dB
         }
 
-        if (gains.length < sourceProduct.getSceneRasterWidth()) {
-            throw new OperatorException("Calibration LUT is smaller than source product width");
-        }
+        calibrationFactor = FastMath.pow(10.0, calibrationFactor / 10.0); // dB to linear scale
+        //System.out.println("Calibration factor is " + calibrationFactor);
     }
 
     /**
@@ -170,11 +138,6 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
         final MetadataElement abs = AbstractMetadata.getAbstractedMetadata(targetProduct);
 
         abs.getAttribute(AbstractMetadata.abs_calibration_flag).getData().setElemBoolean(true);
-
-        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(targetProduct);
-        origProdRoot.removeElement(origProdRoot.getElement(lutsigma));
-        origProdRoot.removeElement(origProdRoot.getElement(lutgamma));
-        origProdRoot.removeElement(origProdRoot.getElement(lutbeta));
     }
 
     /**
@@ -186,7 +149,8 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
      * @throws OperatorException If an error occurs during computation of the target raster.
      */
-    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+    public void computeTile(Band targetBand, Tile targetTile,
+                            ProgressMonitor pm) throws OperatorException {
 
         final Rectangle targetTileRectangle = targetTile.getRectangle();
         final int x0 = targetTileRectangle.x;
@@ -216,6 +180,12 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
         final Unit.UnitType tgtBandUnit = Unit.getUnitType(targetBand);
         final Unit.UnitType srcBandUnit = Unit.getUnitType(sourceBand1);
 
+        // copy band if unit is phase
+        if (tgtBandUnit == Unit.UnitType.PHASE) {
+            targetTile.setRawSamples(sourceRaster1.getRawSamples());
+            return;
+        }
+
         final ProductData trgData = targetTile.getDataBuffer();
         final TileIndex srcIndex = new TileIndex(sourceRaster1);
         final TileIndex tgtIndex = new TileIndex(targetTile);
@@ -223,7 +193,7 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
         final int maxY = y0 + h;
         final int maxX = x0 + w;
 
-        double sigma = 0.0, dn, dn2, i, q, phaseTerm = 0.0;
+        double sigma, dn, dn2, i, q, phaseTerm = 0.0;
         int srcIdx, tgtIdx;
 
         for (int y = y0; y < maxY; ++y) {
@@ -251,21 +221,13 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
                 } else if (srcBandUnit == Unit.UnitType.INTENSITY_DB) {
                     dn2 = FastMath.pow(10, srcData1.getElemDoubleAt(srcIdx) / 10.0); // convert dB to linear scale
                 } else {
-                    throw new OperatorException("RadarSat2 Calibration: unhandled unit");
+                    throw new OperatorException("ALOS Calibration: unhandled unit");
                 }
 
-                if (isComplex) {
-                    if (gains != null) {
-                        sigma = dn2 / (gains[x + subsetOffsetX] * gains[x + subsetOffsetX]);
-                        if (outputImageInComplex) {
-                            sigma = Math.sqrt(sigma)*phaseTerm;
-                        }
-                    }
-                } else {
-                    sigma = dn2 + offset;
-                    if (gains != null) {
-                        sigma /= gains[x + subsetOffsetX];
-                    }
+                sigma = dn2 * calibrationFactor;
+
+                if (isComplex && outputImageInComplex) {
+                    sigma = Math.sqrt(sigma)*phaseTerm;
                 }
 
                 if (outputImageScaleInDb) { // convert calibration result to dB
@@ -297,21 +259,10 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
             throw new OperatorException("Unknown band unit");
         }
 
-        if (isComplex) {
-            if (gains != null) {
-                sigma /= (gains[(int) rangeIndex] * gains[(int) rangeIndex]);
-            }
-        } else {
-            sigma += offset;
-            if (gains != null) {
-                sigma /= gains[(int) rangeIndex];
-            }
-        }
-
         if (incidenceAngleSelection.contains(USE_INCIDENCE_ANGLE_FROM_DEM)) {
-            return sigma * FastMath.sin(localIncidenceAngle * Constants.DTOR);
+            return sigma * calibrationFactor * FastMath.sin(localIncidenceAngle * Constants.DTOR);
         } else { // USE_INCIDENCE_ANGLE_FROM_ELLIPSOID
-            return sigma;
+            return sigma * calibrationFactor;
         }
     }
 
@@ -323,11 +274,10 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
         }
     }
 
-    public void removeFactorsForCurrentTile(final Band targetBand, final Tile targetTile,
-                                            final String srcBandName) throws OperatorException {
+    public void removeFactorsForCurrentTile(Band targetBand, Tile targetTile, String srcBandName) throws OperatorException {
 
-        final Band sourceBand = sourceProduct.getBand(targetBand.getName());
-        final Tile sourceTile = calibrationOp.getSourceTile(sourceBand, targetTile.getRectangle());
+        Band sourceBand = sourceProduct.getBand(targetBand.getName());
+        Tile sourceTile = calibrationOp.getSourceTile(sourceBand, targetTile.getRectangle());
         targetTile.setRawSamples(sourceTile.getRawSamples());
     }
 }

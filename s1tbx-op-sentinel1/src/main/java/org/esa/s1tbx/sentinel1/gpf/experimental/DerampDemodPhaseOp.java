@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.sentinel1.gpf;
+package org.esa.s1tbx.sentinel1.gpf.experimental;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
@@ -39,13 +39,13 @@ import java.util.Map;
 /**
  * Compute deramp and demodulation phases.
  */
-@OperatorMetadata(alias = "Compute-Deramp-Demod-Phase",
+@OperatorMetadata(alias = "Deramp-Demod-Phase",
         category = "Radar/Coregistration/S-1 TOPS Coregistration",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Compute Deramp and Demodulation Phases",
         internal = true)
-public final class ComputeDerampDemodPhaseOp extends Operator {
+public final class DerampDemodPhaseOp extends Operator {
 
     @SourceProduct(alias = "source")
     private Product sourceProduct;
@@ -64,7 +64,7 @@ public final class ComputeDerampDemodPhaseOp extends Operator {
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
      */
-    public ComputeDerampDemodPhaseOp() {
+    public DerampDemodPhaseOp() {
     }
 
     /**
@@ -291,7 +291,7 @@ public final class ComputeDerampDemodPhaseOp extends Operator {
      */
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(ComputeDerampDemodPhaseOp.class);
+            super(DerampDemodPhaseOp.class);
         }
     }
 }

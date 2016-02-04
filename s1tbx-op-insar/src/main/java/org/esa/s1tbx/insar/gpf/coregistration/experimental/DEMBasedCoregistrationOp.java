@@ -13,12 +13,13 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.insar.gpf.coregistration;
+package org.esa.s1tbx.insar.gpf.coregistration.experimental;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import org.esa.s1tbx.insar.gpf.coregistration.CoarseRegistration;
 import org.esa.s1tbx.insar.gpf.geometric.SARGeocoding;
 import org.esa.s1tbx.insar.gpf.geometric.SARUtils;
 import org.esa.snap.core.datamodel.Band;
@@ -538,8 +539,8 @@ public class DEMBasedCoregistrationOp extends Operator {
         final ProductData sData = sTile.getDataBuffer();
 
         CoarseRegistration coarseRegistration = new CoarseRegistration(cWindowWidth, cWindowHeight,
-                rowUpSamplingFactor, colUpSamplingFactor, maxIteration, gcpTolerance, mTile, mData, sTile, sData,
-                slaveProduct.getSceneRasterWidth(), slaveProduct.getSceneRasterHeight());
+                                                                       rowUpSamplingFactor, colUpSamplingFactor, maxIteration, gcpTolerance, mTile, mData, sTile, sData,
+                                                                       slaveProduct.getSceneRasterWidth(), slaveProduct.getSceneRasterHeight());
 
         if (coarseRegistration.getCoarseSlaveGCPPosition(mGCPPixelPos, sGCPPixelPos)) {
 

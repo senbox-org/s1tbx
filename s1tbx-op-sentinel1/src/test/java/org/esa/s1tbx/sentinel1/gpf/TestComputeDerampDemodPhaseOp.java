@@ -2,6 +2,7 @@ package org.esa.s1tbx.sentinel1.gpf;
 
 import org.esa.s1tbx.commons.TestData;
 import org.esa.s1tbx.io.TAXI.TAXIParameterFileReader;
+import org.esa.s1tbx.sentinel1.gpf.experimental.DerampDemodPhaseOp;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.util.ResourceUtils;
@@ -26,9 +27,9 @@ public class TestComputeDerampDemodPhaseOp {
 
     public final static File inputParameterFile = new File(TestData.inputSAR+"InSAR"+File.separator+"pp_m20140809_s20140821_s1a-slc-vv_SS1_with_comments.xml");
 
-    private final static OperatorSpi spi = new ComputeDerampDemodPhaseOp.Spi();
+    private final static OperatorSpi spi = new DerampDemodPhaseOp.Spi();
     private TAXIParameterFileReader reader = null;
-    private ComputeDerampDemodPhaseOp op = null;
+    private DerampDemodPhaseOp op = null;
     private Product targetProduct = null;
     private final int width = 20564;
     private final int actOffset = 71;
@@ -48,7 +49,7 @@ public class TestComputeDerampDemodPhaseOp {
         }
 
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
-        op = (ComputeDerampDemodPhaseOp) spi.createOperator();
+        op = (DerampDemodPhaseOp) spi.createOperator();
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
 

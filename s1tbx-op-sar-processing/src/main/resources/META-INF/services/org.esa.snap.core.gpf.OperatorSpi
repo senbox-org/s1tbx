@@ -10,7 +10,6 @@ org.esa.s1tbx.sar.gpf.geometric.ALOSDeskewingOp$Spi
 org.esa.s1tbx.sar.gpf.geometric.TerrainFlatteningOp$Spi
 org.esa.s1tbx.sar.gpf.geometric.SRGROp$Spi
 org.esa.s1tbx.sar.gpf.geometric.UpdateGeoRefOp$Spi
-org.esa.s1tbx.sar.gpf.geometric.AbsTimingErrCorrectionOp$Spi
 org.esa.s1tbx.sar.gpf.orbits.ApplyOrbitFileOp$Spi
 org.esa.s1tbx.sar.gpf.DeburstWSSOp$Spi
 org.esa.s1tbx.sar.gpf.MultilookOp$Spi
