@@ -75,8 +75,8 @@ import java.util.Set;
 @OperatorMetadata(alias = "DEM-Assisted-Coregistration",
         category = "Radar/Coregistration",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
-        description = "Orbit based co-registration", internal=true)
+        copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
+        description = "Orbit and DEM based co-registration")
 public final class DEMAssistedCoregistrationOp extends Operator {
 
     @SourceProducts
