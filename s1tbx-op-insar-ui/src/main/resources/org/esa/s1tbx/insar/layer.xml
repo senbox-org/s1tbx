@@ -99,16 +99,16 @@
                 <attr name="icon" stringvalue="esaIcon"/>
                 <attr name="helpId" stringvalue="DEMAssistedCoregistrationOp"/>
             </file>
-            <file name="org-esa-s1tbx-insar-gpf-coregistration-ShowMovementOp-Action.instance">
+            <file name="org-esa-s1tbx-insar-gpf-coregistration-OffsetTrackingOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
-                <attr name="displayName" stringvalue="Show Movement"/>
-                <attr name="operatorName" stringvalue="Show-Movement"/>
-                <attr name="dialogTitle" stringvalue="Show Movement"/>
+                <attr name="displayName" stringvalue="Offset Tracking"/>
+                <attr name="operatorName" stringvalue="Offset-Tracking"/>
+                <attr name="dialogTitle" stringvalue="Offset Tracking"/>
                 <attr name="ShortDescription" stringvalue="Show Movement"/>
                 <attr name="targetProductNameSuffix" stringvalue="_vel"/>
                 <attr name="icon" stringvalue="esaIcon"/>
-                <attr name="helpId" stringvalue="ShowMovementOp"/>
+                <attr name="helpId" stringvalue="OffsetTrackingOp"/>
             </file>
         </folder>
     </folder>
@@ -126,8 +126,8 @@
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-coregistration-DEMAssistedCoregistrationOp-Action.instance"/>
                     <attr name="position" intvalue="260"/>
                 </file>
-                <file name="org-esa-s1tbx-insar-gpf-coregistration-ShowMovementOp-Action.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-coregistration-ShowMovementOp-Action.instance"/>
+                <file name="org-esa-s1tbx-insar-gpf-coregistration-OffsetTrackingOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-coregistration-OffsetTrackingOp-Action.instance"/>
                     <attr name="position" intvalue="270"/>
                 </file>
                 <folder name="Stack Tools">

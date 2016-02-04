@@ -17,7 +17,7 @@ package org.esa.s1tbx.insar.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
-import org.esa.s1tbx.insar.gpf.geometric.SARUtils;
+import org.esa.s1tbx.insar.gpf.support.SARUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.MetadataElement;

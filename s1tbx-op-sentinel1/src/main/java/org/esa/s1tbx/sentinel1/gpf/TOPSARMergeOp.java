@@ -18,7 +18,7 @@ package org.esa.s1tbx.sentinel1.gpf;
 import com.bc.ceres.core.ProgressMonitor;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import org.esa.s1tbx.insar.gpf.Sentinel1Utils;
+import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;

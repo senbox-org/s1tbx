@@ -18,7 +18,7 @@ package org.esa.s1tbx.sentinel1.gpf;
 import com.bc.ceres.core.ProgressMonitor;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 import org.apache.commons.math3.util.FastMath;
-import org.esa.s1tbx.insar.gpf.Sentinel1Utils;
+import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataAttribute;
 import org.esa.snap.core.datamodel.MetadataElement;

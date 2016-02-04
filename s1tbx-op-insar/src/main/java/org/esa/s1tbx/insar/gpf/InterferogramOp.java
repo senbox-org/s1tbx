@@ -17,6 +17,7 @@ package org.esa.s1tbx.insar.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
+import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
@@ -67,7 +68,7 @@ import java.util.Map;
         category = "Radar/Interferometric/Products",
         authors = "Petar Marinkovic, Jun Lu",
         description = "Compute interferograms from stack of coregistered S-1 images", internal = false)
-public class CreateInterferogramOp extends Operator {
+public class InterferogramOp extends Operator {
     @SourceProduct
     private Product sourceProduct;
 
@@ -1165,7 +1166,7 @@ public class CreateInterferogramOp extends Operator {
     public static class Spi extends OperatorSpi {
 
         public Spi() {
-            super(CreateInterferogramOp.class);
+            super(InterferogramOp.class);
         }
     }
 

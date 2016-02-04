@@ -19,7 +19,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.calibration.gpf.support.BaseCalibrator;
 import org.esa.s1tbx.calibration.gpf.support.Calibrator;
-import org.esa.s1tbx.insar.gpf.Sentinel1Utils;
+import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
@@ -39,7 +39,6 @@ import org.esa.snap.engine_utilities.gpf.TileIndex;
 import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 

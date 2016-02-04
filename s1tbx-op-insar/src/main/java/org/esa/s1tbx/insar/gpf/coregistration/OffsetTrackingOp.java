@@ -37,18 +37,15 @@ import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
-import org.esa.snap.engine_utilities.datamodel.Unit;
-import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
-import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.jlinda.core.delaunay.FastDelaunayTriangulator;
 import org.jlinda.core.delaunay.Triangle;
 import org.jlinda.core.delaunay.TriangulationException;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,12 +56,12 @@ import java.util.Map;
  * through interpolation.
  */
 
-@OperatorMetadata(alias = "Show-Movement",
+@OperatorMetadata(alias = "Offset-Tracking",
         category = "Radar/Coregistration",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
         description = "Create Warp Function And Get Co-registrated Images")
-public class ShowMovementOp extends Operator {
+public class OffsetTrackingOp extends Operator {
 
     @SourceProduct
     private Product sourceProduct;
@@ -98,7 +95,7 @@ public class ShowMovementOp extends Operator {
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
      */
-    public ShowMovementOp() {
+    public OffsetTrackingOp() {
     }
 
     /**
@@ -167,9 +164,9 @@ public class ShowMovementOp extends Operator {
 
         // find co-pol bands
         final String[] masterBandNames = StackUtils.getMasterBandNames(sourceProduct);
-        for(String bandName : masterBandNames) {
+        for (String bandName : masterBandNames) {
             final String mstPol = OperatorUtils.getPolarizationFromBandName(bandName);
-            if(mstPol != null && (mstPol.equals("hh") || mstPol.equals("vv"))) {
+            if (mstPol != null && (mstPol.equals("hh") || mstPol.equals("vv"))) {
                 mstBandName = bandName;
                 break;
             }
@@ -183,9 +180,9 @@ public class ShowMovementOp extends Operator {
     private void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName(),
-                sourceProduct.getProductType(),
-                sourceProduct.getSceneRasterWidth(),
-                sourceProduct.getSceneRasterHeight());
+                                    sourceProduct.getProductType(),
+                                    sourceProduct.getSceneRasterWidth(),
+                                    sourceProduct.getSceneRasterHeight());
 
         masterBandNames = StackUtils.getMasterBandNames(sourceProduct);
 
@@ -245,7 +242,7 @@ public class ShowMovementOp extends Operator {
         final int h = targetRectangle.height;
         final int xMax = x0 + w;
         final int yMax = y0 + h;
-        //System.out.println("ShowMovementOp: x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
+        //System.out.println("OffsetTrackingOp: x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
         try {
             final Band srcBand = sourceRasterMap.get(targetBand);
@@ -277,18 +274,18 @@ public class ShowMovementOp extends Operator {
                     tgtIndex.calculateStride(y);
                     final int yy = y - y0;
                     for (int x = x0; x < xMax; x++) {
-                        targetBuffer.setElemFloatAt(tgtIndex.getIndex(x), (float)velocityArray[yy][x - x0]);
+                        targetBuffer.setElemFloatAt(tgtIndex.getIndex(x), (float) velocityArray[yy][x - x0]);
                     }
                 }
 
             } else if (targetBand.getName().contains("_pos")) {
 
                 final VelocityData[] velocityList = velocityMap.get(srcBand);
-                for (VelocityData data:velocityList) {
-                    final int x = (int)data.mstGCPx;
-                    final int y = (int)data.mstGCPy;
+                for (VelocityData data : velocityList) {
+                    final int x = (int) data.mstGCPx;
+                    final int y = (int) data.mstGCPy;
                     if (x >= x0 && x < xMax && y >= y0 && y < yMax) {
-                        targetBuffer.setElemFloatAt(targetTile.getDataBufferIndex(x, y), (float)data.velocity);
+                        targetBuffer.setElemFloatAt(targetTile.getDataBufferIndex(x, y), (float) data.velocity);
                     }
                 }
             }
@@ -312,7 +309,7 @@ public class ShowMovementOp extends Operator {
         final ProductNodeGroup<Placemark> masterGCPGroup = GCPManager.instance().getGcpGroup(masterBand);
 
         final Band[] targetBands = targetProduct.getBands();
-        for (Band tgtBand:targetBands) {
+        for (Band tgtBand : targetBands) {
             if (!tgtBand.getName().contains("_vel"))
                 continue;
 
@@ -335,7 +332,7 @@ public class ShowMovementOp extends Operator {
     }
 
     private VelocityData[] computeGCPVelocity(final ProductNodeGroup<Placemark> masterGCPGroup,
-                                    final ProductNodeGroup<Placemark> slaveGCPGroup) {
+                                              final ProductNodeGroup<Placemark> slaveGCPGroup) {
         final int numGCPs = slaveGCPGroup.getNodeCount();
         final List<VelocityData> velocityList = new ArrayList<>(numGCPs);
         for (int i = 0; i < numGCPs; i++) {
@@ -347,7 +344,7 @@ public class ShowMovementOp extends Operator {
 
             final double rangeShift = (mGCPPos.x - sGCPPos.x) * rangeSpacing;
             final double azimuthShift = (mGCPPos.y - sGCPPos.y) * azimuthSpacing;
-            final double v = Math.sqrt(rangeShift*rangeShift + azimuthShift*azimuthShift) / acquisitionTimeInterval;
+            final double v = Math.sqrt(rangeShift * rangeShift + azimuthShift * azimuthShift) / acquisitionTimeInterval;
 
             // eliminate outliers
             if (v < maxVelocity) {
@@ -513,7 +510,7 @@ public class ShowMovementOp extends Operator {
         }
 
         private static long coordToIndex(final double coord, final double coord0, final double deltaCoord, final double offset) {
-            return (long)Math.floor((((coord - coord0) / (deltaCoord)) - offset) + 0.5);
+            return (long) Math.floor((((coord - coord0) / (deltaCoord)) - offset) + 0.5);
         }
 
         private static double indexToCoord(final long idx, final double coord0, final double deltaCoord, final double offset) {
@@ -552,7 +549,7 @@ public class ShowMovementOp extends Operator {
      */
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(ShowMovementOp.class);
+            super(OffsetTrackingOp.class);
         }
     }
 
