@@ -90,7 +90,9 @@ public class ShowMovementOp extends Operator {
     private String[] masterBandNames = null;
     private final Map<Band, Band> sourceRasterMap = new HashMap<>(10);
     private final Map<Band, FastDelaunayTriangulator> triangulatorMap = new HashMap<>(10);
+    private final Map<Band, VelocityData[]> velocityMap = new HashMap<>(10);
     private final double invalidIndex = -9999.0;
+
 
     /**
      * Default constructor. The graph processing framework
@@ -195,10 +197,20 @@ public class ShowMovementOp extends Operator {
                 targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, false);
                 targetBand.setSourceImage(srcBand.getSourceImage());
             } else {
-                targetBand = targetProduct.addBand(srcBand.getName(), ProductData.TYPE_FLOAT32);
-                ProductUtils.copyRasterDataNodeProperties(srcBand, targetBand);
+                final String velocityBandName = srcBand.getProduct().getDisplayName() + "_vel";
+                if (targetProduct.getBand(velocityBandName) == null) {
+                    targetBand = targetProduct.addBand(velocityBandName, ProductData.TYPE_FLOAT32);
+                    ProductUtils.copyRasterDataNodeProperties(srcBand, targetBand);
+                    sourceRasterMap.put(targetBand, srcBand);
+                }
+
+                final String gcpPositionBandName = srcBand.getProduct().getDisplayName() + "_pos";
+                if (targetProduct.getBand(gcpPositionBandName) == null) {
+                    targetBand = targetProduct.addBand(gcpPositionBandName, ProductData.TYPE_FLOAT32);
+                    ProductUtils.copyRasterDataNodeProperties(srcBand, targetBand);
+                    sourceRasterMap.put(targetBand, srcBand);
+                }
             }
-            sourceRasterMap.put(targetBand, srcBand);
         }
 
         // co-registered image should have the same geo-coding as the master image
@@ -236,10 +248,6 @@ public class ShowMovementOp extends Operator {
         //System.out.println("ShowMovementOp: x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
         try {
-            if (!GCPVelocityAvailable) {
-                getGCPVelocity(targetRectangle);
-            }
-
             final Band srcBand = sourceRasterMap.get(targetBand);
             if (srcBand == null)
                 return;
@@ -247,22 +255,41 @@ public class ShowMovementOp extends Operator {
             if (pm.isCanceled())
                 return;
 
-            final FastDelaunayTriangulator FDT = triangulatorMap.get(srcBand);
-            if (FDT == null)
-                return;
-
-            final org.jlinda.core.Window tileWindow = new org.jlinda.core.Window(y0, yMax - 1, x0, xMax - 1);
-            final double[][] velocityArray = new double[h][w];
-
-            TriangleUtils.interpolate(rgAzRatio, tileWindow, 1, 1, 0, invalidIndex, FDT, velocityArray);
+            if (!GCPVelocityAvailable) {
+                getGCPVelocity(srcBand, targetRectangle);
+            }
 
             final ProductData targetBuffer = targetTile.getDataBuffer();
-            final TileIndex tgtIndex = new TileIndex(targetTile);
-            for (int y = y0; y < yMax; y++) {
-                tgtIndex.calculateStride(y);
-                final int yy = y - y0;
-                for (int x = x0; x < xMax; x++) {
-                    targetBuffer.setElemFloatAt(tgtIndex.getIndex(x), (float)velocityArray[yy][x - x0]);
+
+            if (targetBand.getName().contains("_vel")) {
+                final FastDelaunayTriangulator FDT = triangulatorMap.get(srcBand);
+                if (FDT == null)
+                    return;
+
+                final org.jlinda.core.Window tileWindow = new org.jlinda.core.Window(y0, yMax - 1, x0, xMax - 1);
+                final double[][] velocityArray = new double[h][w];
+
+                TriangleUtils.interpolate(rgAzRatio, tileWindow, 1, 1, 0, invalidIndex, FDT, velocityArray);
+
+                final TileIndex tgtIndex = new TileIndex(targetTile);
+
+                for (int y = y0; y < yMax; y++) {
+                    tgtIndex.calculateStride(y);
+                    final int yy = y - y0;
+                    for (int x = x0; x < xMax; x++) {
+                        targetBuffer.setElemFloatAt(tgtIndex.getIndex(x), (float)velocityArray[yy][x - x0]);
+                    }
+                }
+
+            } else if (targetBand.getName().contains("_pos")) {
+
+                final VelocityData[] velocityList = velocityMap.get(srcBand);
+                for (VelocityData data:velocityList) {
+                    final int x = (int)data.mstGCPx;
+                    final int y = (int)data.mstGCPy;
+                    if (x >= x0 && x < xMax && y >= y0 && y < yMax) {
+                        targetBuffer.setElemFloatAt(targetTile.getDataBufferIndex(x, y), (float)data.velocity);
+                    }
                 }
             }
 
@@ -273,34 +300,33 @@ public class ShowMovementOp extends Operator {
         }
     }
 
-    private synchronized void getGCPVelocity(final Rectangle targetRectangle) throws Exception {
+    private synchronized void getGCPVelocity(final Band sourceBand, final Rectangle targetRectangle) throws Exception {
 
         if (GCPVelocityAvailable) {
             return;
         }
 
-        final Band targetBand = targetProduct.getBand(processedSlaveBand);
-        if(targetBand == null) {
-            throw new OperatorException(processedSlaveBand + " band not found");
-        }
         // force getSourceTile to computeTiles on GCPSelection
-        final Tile sourceRaster = getSourceTile(sourceRasterMap.get(targetBand), targetRectangle);
+        final Tile sourceRaster = getSourceTile(sourceBand, targetRectangle);
 
         final ProductNodeGroup<Placemark> masterGCPGroup = GCPManager.instance().getGcpGroup(masterBand);
 
-        final int numSrcBands = sourceProduct.getNumBands();
-        for (int i = 0; i < numSrcBands; i++) {
-            final Band srcBand = sourceProduct.getBandAt(i);
-            if (srcBand == masterBand || StringUtils.contains(masterBandNames, srcBand.getName()))
+        final Band[] targetBands = targetProduct.getBands();
+        for (Band tgtBand:targetBands) {
+            if (!tgtBand.getName().contains("_vel"))
                 continue;
+
+            final Band srcBand = sourceRasterMap.get(tgtBand);
 
             ProductNodeGroup<Placemark> slaveGCPGroup = GCPManager.instance().getGcpGroup(srcBand);
 
-            VelocityData[] velocityList = computeGCPVelocity(masterGCPGroup, slaveGCPGroup);
+            if (slaveGCPGroup.getNodeCount() > 0) {
+                VelocityData[] velocityList = computeGCPVelocity(masterGCPGroup, slaveGCPGroup);
+                velocityMap.put(srcBand, velocityList);
 
-            FastDelaunayTriangulator FDT = TriangleUtils.triangulate(velocityList, rgAzRatio, invalidIndex);
-
-            triangulatorMap.put(srcBand, FDT);
+                FastDelaunayTriangulator FDT = TriangleUtils.triangulate(velocityList, rgAzRatio, invalidIndex);
+                triangulatorMap.put(srcBand, FDT);
+            }
         }
 
         GCPManager.instance().removeAllGcpGroups();
