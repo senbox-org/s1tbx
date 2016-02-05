@@ -44,6 +44,7 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProducts;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.dem.dataio.DEMFactory;
 import org.esa.snap.dem.dataio.FileElevationModel;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
@@ -748,9 +749,10 @@ public final class DEMAssistedCoregistrationOp extends Operator {
     private void saveToTargetBand(final Resampling.Index resamplingIndex, final ResamplingRaster[] slvResamplingRasters,
                                   final ProductData[] targetBuffers, final int tgtIdx) throws Exception {
 
-        for (int i = 0; i < targetBuffers.length; ++i) {
-            final double value = selectedResampling.resample(slvResamplingRasters[i], resamplingIndex);
-            targetBuffers[i].setElemDoubleAt(tgtIdx, value);
+        int i=0;
+        for (ProductData targetBuffer : targetBuffers) {
+            targetBuffer.setElemDoubleAt(tgtIdx, selectedResampling.resample(slvResamplingRasters[i], resamplingIndex));
+            ++i;
         }
     }
 
@@ -831,11 +833,13 @@ public final class DEMAssistedCoregistrationOp extends Operator {
             boolean allValid = true;
 
             try {
+                final TileIndex index = new TileIndex(tile);
+                final int maxX = x.length;
                 for (int i = 0; i < y.length; i++) {
-                    for (int j = 0; j < x.length; j++) {
-                        final int index = tile.getDataBufferIndex(x[j], y[i]);
-                        double v = dataBuffer.getElemDoubleAt(index);
-                        if (usesNoData && (scalingApplied && geophysicalNoDataValue == v || noDataValue == v)) {
+                    index.calculateStride(y[i]);
+                    for (int j = 0; j < maxX; j++) {
+                        double v = dataBuffer.getElemDoubleAt(index.getIndex(x[j]));
+                        if (usesNoData && noDataValue == v) {
                             samples[i][j] = Double.NaN;
                             allValid = false;
                             continue;
@@ -845,7 +849,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
                 }
 
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+                SystemUtils.LOG.severe(e.getMessage());
                 allValid = false;
             }
 
