@@ -325,7 +325,8 @@ public final class AsarAbstractMetadata {
 
     public static String getMission(final String productType, final File file) {
         if (productType.startsWith("SAR")) {
-            if (file.toString().endsWith("E2"))
+            final String filename = file.toString().toUpperCase();
+            if (filename.endsWith("E2") || filename.endsWith("E2.ZIP"))
                 return "ERS2";
             else
                 return "ERS1";
