@@ -23,16 +23,6 @@
                 <attr name="icon" stringvalue="esaIcon"/>
                 <attr name="helpId" stringvalue="Coregistration"/>
             </file>
-            <file name="org-esa-s1tbx-insar-gpf-coregistration-OffsetTrackingGraph-Action.instance">
-                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
-                <attr name="displayName" stringvalue="Offset/Speckle Tracking"/>
-                <attr name="graphFile" stringvalue="OffsetTrackingGraph.xml"/>
-                <attr name="dialogTitle" stringvalue="Offset/Speckle Tracking"/>
-                <attr name="ShortDescription" stringvalue="Perform Offset and Speckle Tracking"/>
-                <attr name="icon" stringvalue="esaIcon"/>
-                <attr name="helpId" stringvalue="OffsetTrackingOp"/>
-            </file>
             <file name="org-esa-s1tbx-insar-gpf-StackAveraging-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
@@ -117,6 +107,16 @@
                 <attr name="dialogTitle" stringvalue="Offset Tracking"/>
                 <attr name="ShortDescription" stringvalue="Show Movement"/>
                 <attr name="targetProductNameSuffix" stringvalue="_vel"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="OffsetTrackingOp"/>
+            </file>
+            <file name="org-esa-s1tbx-insar-gpf-coregistration-OffsetTrackingGraph-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="Offset/Speckle Tracking"/>
+                <attr name="graphFile" stringvalue="coregistration\OffsetTrackingGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="Offset/Speckle Tracking"/>
+                <attr name="ShortDescription" stringvalue="Perform Offset and Speckle Tracking"/>
                 <attr name="icon" stringvalue="esaIcon"/>
                 <attr name="helpId" stringvalue="OffsetTrackingOp"/>
             </file>
