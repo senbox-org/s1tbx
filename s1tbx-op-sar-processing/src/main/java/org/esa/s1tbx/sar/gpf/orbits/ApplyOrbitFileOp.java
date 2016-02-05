@@ -15,7 +15,6 @@
  */
 package org.esa.s1tbx.sar.gpf.orbits;
 
-import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.io.orbits.DelftOrbitFile;
 import org.esa.s1tbx.io.orbits.DorisOrbitFile;
 import org.esa.s1tbx.io.orbits.OrbitFile;
@@ -30,7 +29,6 @@ import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
-import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
@@ -246,37 +244,12 @@ public final class ApplyOrbitFileOp extends Operator {
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
-        boolean oneBandToProcess = false;
         for (Band srcBand : sourceProduct.getBands()) {
             if (srcBand instanceof VirtualBand) {
                 OperatorUtils.copyVirtualBand(targetProduct, (VirtualBand) srcBand, srcBand.getName());
             } else {
                 ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, true);
-                oneBandToProcess = true;
             }
-        }
-    }
-
-    /**
-     * Called by the framework in order to compute a tile for the given target band.
-     * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
-     *
-     * @param targetBand The target band.
-     * @param targetTile The current tile associated with the target band to be computed.
-     * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws OperatorException If an error occurs during computation of the target raster.
-     */
-    @Override
-    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
-        try {
-            if (!productUpdated) {
-                updateOrbits();
-            }
-
-            final Tile srcRaster = getSourceTile(sourceProduct.getBand(targetBand.getName()), targetTile.getRectangle());
-            targetTile.setRawSamples(srcRaster.getRawSamples());
-        } catch (Exception e) {
-            OperatorUtils.catchOperatorException(this.getId(), e);
         }
     }
 
