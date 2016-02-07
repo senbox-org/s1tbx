@@ -90,6 +90,7 @@ public class OffsetTrackingOp extends Operator {
     private final Map<Band, VelocityData[]> velocityMap = new HashMap<>(10);
     private final double invalidIndex = -9999.0;
 
+    private final static String PRODUCT_SUFFIX = "_Vel";
 
     /**
      * Default constructor. The graph processing framework
@@ -179,7 +180,7 @@ public class OffsetTrackingOp extends Operator {
      */
     private void createTargetProduct() {
 
-        targetProduct = new Product(sourceProduct.getName(),
+        targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                                     sourceProduct.getProductType(),
                                     sourceProduct.getSceneRasterWidth(),
                                     sourceProduct.getSceneRasterHeight());
@@ -326,6 +327,10 @@ public class OffsetTrackingOp extends Operator {
             }
         }
 
+        if(velocityMap.isEmpty()) {
+            throw new OperatorException("No velocity GCPs found");
+        }
+
         GCPManager.instance().removeAllGcpGroups();
 
         GCPVelocityAvailable = true;
@@ -421,6 +426,10 @@ public class OffsetTrackingOp extends Operator {
 
                 vx[2] = triangle.getC().x;
                 vy[2] = triangle.getC().y / xyRatio;
+
+                //double area = Math.abs((vx[0]*(vy[1]-vy[2])+vx[1]*(vy[2]-vy[0])+vx[2]*(vy[0]-vy[1]))/2);
+                //if(area > 5000)
+                //    continue;
 
                 // skip invalid indices
                 if (vx[0] == invalidIndex || vx[1] == invalidIndex || vx[2] == invalidIndex ||
