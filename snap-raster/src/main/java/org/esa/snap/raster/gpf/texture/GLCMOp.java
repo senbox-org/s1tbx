@@ -496,9 +496,6 @@ public final class GLCMOp extends Operator {
                 ++cnt;
             }
 
-            TextureFeatures tf;
-            final GLCMElem[] GLCM = new GLCMElem[numQuantLevels * numQuantLevels];
-
             for (int ty = ty0; ty < maxY; ty++) {
                 trgIndex.calculateStride(ty);
                 final int y0 = Math.max(ty - halfWindowSize, 0);
@@ -517,37 +514,13 @@ public final class GLCMOp extends Operator {
 
                         computeQuantizedImage(x0, y0, xMax, yMax, srcInfo, quantizedImage);
 
-                        Arrays.fill(GLCM, null);
+                        final GLCMElem[] GLCM = new GLCMElem[numQuantLevels * numQuantLevels];
+                        Arrays.fill(GLCM, new GLCMElem());
                         final Totals totals = computeGLCM(x0, y0, xMax, yMax, quantizedImage, GLCM);
                         if (totals.totalCount == 0) {
-                            tf = srcInfo.tfNoData;
+                            writeData(srcInfo, srcInfo.tfNoData, idx);
                         } else {
-                            tf = computeTextureFeatures(GLCM, totals);
-                        }
-
-                        for (final TileData tileData : srcInfo.tileDataList) {
-
-                            if (tileData.doContrast) {
-                                tileData.dataBuffer.setElemFloatAt(idx, (float) tf.Contrast);
-                            } else if (tileData.doDissimilarity) {
-                                tileData.dataBuffer.setElemFloatAt(idx, (float) tf.Dissimilarity);
-                            } else if (tileData.doHomogeneity) {
-                                tileData.dataBuffer.setElemFloatAt(idx, (float) tf.Homogeneity);
-                            } else if (tileData.doASM) {
-                                tileData.dataBuffer.setElemFloatAt(idx, (float) tf.ASM);
-                            } else if (tileData.doEnergy) {
-                                tileData.dataBuffer.setElemFloatAt(idx, (float) tf.Energy);
-                            } else if (tileData.doMax) {
-                                tileData.dataBuffer.setElemFloatAt(idx, (float) tf.MAX);
-                            } else if (tileData.doEntropy) {
-                                tileData.dataBuffer.setElemFloatAt(idx, (float) tf.Entropy);
-                            } else if (tileData.doMean) {
-                                tileData.dataBuffer.setElemFloatAt(idx, (float) tf.GLCMMean);
-                            } else if (tileData.doVariance) {
-                                tileData.dataBuffer.setElemFloatAt(idx, (float) tf.GLCMVariance);
-                            } else if (tileData.doCorrelation) {
-                                tileData.dataBuffer.setElemFloatAt(idx, (float) tf.GLCMCorrelation);
-                            }
+                            writeData(srcInfo, computeTextureFeatures(GLCM, totals), idx);
                         }
                     }
                 }
@@ -555,6 +528,33 @@ public final class GLCMOp extends Operator {
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
+        }
+    }
+
+    private void writeData(final SrcInfo srcInfo, final TextureFeatures tf, final int idx) {
+        for (final TileData tileData : srcInfo.tileDataList) {
+
+            if (tileData.doContrast) {
+                tileData.dataBuffer.setElemFloatAt(idx, (float) tf.Contrast);
+            } else if (tileData.doDissimilarity) {
+                tileData.dataBuffer.setElemFloatAt(idx, (float) tf.Dissimilarity);
+            } else if (tileData.doHomogeneity) {
+                tileData.dataBuffer.setElemFloatAt(idx, (float) tf.Homogeneity);
+            } else if (tileData.doASM) {
+                tileData.dataBuffer.setElemFloatAt(idx, (float) tf.ASM);
+            } else if (tileData.doEnergy) {
+                tileData.dataBuffer.setElemFloatAt(idx, (float) tf.Energy);
+            } else if (tileData.doMax) {
+                tileData.dataBuffer.setElemFloatAt(idx, (float) tf.MAX);
+            } else if (tileData.doEntropy) {
+                tileData.dataBuffer.setElemFloatAt(idx, (float) tf.Entropy);
+            } else if (tileData.doMean) {
+                tileData.dataBuffer.setElemFloatAt(idx, (float) tf.GLCMMean);
+            } else if (tileData.doVariance) {
+                tileData.dataBuffer.setElemFloatAt(idx, (float) tf.GLCMVariance);
+            } else if (tileData.doCorrelation) {
+                tileData.dataBuffer.setElemFloatAt(idx, (float) tf.GLCMCorrelation);
+            }
         }
     }
 
@@ -667,19 +667,19 @@ public final class GLCMOp extends Operator {
             return;
         }
 
-        int index = i * numQuantLevels + j;
-        if (GLCM[index] == null) {
-            GLCM[index] = new GLCMElem(i, j);
+        GLCMElem elem = GLCM[i * numQuantLevels + j];
+        if (!elem.init) {
+            elem.setPos(i, j);
             totals.numElems++;
         }
-        GLCM[index].value++;
+        elem.value++;
 
-        index = j * numQuantLevels + i;
-        if (GLCM[index] == null) {
-            GLCM[index] = new GLCMElem(j, i);
+        elem = GLCM[j * numQuantLevels + i];
+        if (!elem.init) {
+            elem.setPos(j, i);
             totals.numElems++;
         }
-        GLCM[index].value++;
+        elem.value++;
 
         totals.totalCount++;
     }
@@ -728,7 +728,7 @@ public final class GLCMOp extends Operator {
 
         int cnt = 0;
         for (GLCMElem e : GLCM) {
-            if (e != null && e.value > 0.0) {
+            if (e.init && e.value > 0.0) {
                 final int ij = e.row - e.col;
                 e.prob = e.value / (double) totals.totalCount;
                 final double GLCMval = e.prob;
@@ -908,16 +908,18 @@ public final class GLCMOp extends Operator {
 
     private static class GLCMElem {
 
-        public final int row;
-        public final int col;
+        public int row;
+        public int col;
+        public boolean init;
         public int value;
         public double prob;
         public double diff_col_GLCMMeanX;
         public double diff_row_GLCMMeanY;
 
-        GLCMElem(final int row, final int col) {
+        void setPos(final int row, final int col) {
             this.row = row;
             this.col = col;
+            init = true;
         }
     }
 
