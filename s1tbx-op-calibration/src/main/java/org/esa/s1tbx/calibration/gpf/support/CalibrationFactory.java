@@ -15,13 +15,13 @@
  */
 package org.esa.s1tbx.calibration.gpf.support;
 
-import org.esa.s1tbx.calibration.gpf.ALOSCalibrator;
-import org.esa.s1tbx.calibration.gpf.ASARCalibrator;
-import org.esa.s1tbx.calibration.gpf.CosmoSkymedCalibrator;
-import org.esa.s1tbx.calibration.gpf.ERSCalibrator;
-import org.esa.s1tbx.calibration.gpf.Radarsat2Calibrator;
-import org.esa.s1tbx.calibration.gpf.Sentinel1Calibrator;
-import org.esa.s1tbx.calibration.gpf.TerraSARXCalibrator;
+import org.esa.s1tbx.calibration.gpf.calibrators.ALOSCalibrator;
+import org.esa.s1tbx.calibration.gpf.calibrators.ASARCalibrator;
+import org.esa.s1tbx.calibration.gpf.calibrators.CosmoSkymedCalibrator;
+import org.esa.s1tbx.calibration.gpf.calibrators.ERSCalibrator;
+import org.esa.s1tbx.calibration.gpf.calibrators.Radarsat2Calibrator;
+import org.esa.s1tbx.calibration.gpf.calibrators.Sentinel1Calibrator;
+import org.esa.s1tbx.calibration.gpf.calibrators.TerraSARXCalibrator;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;

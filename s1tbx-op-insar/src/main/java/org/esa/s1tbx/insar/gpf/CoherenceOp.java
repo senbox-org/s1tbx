@@ -1,6 +1,22 @@
+/*
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
 package org.esa.s1tbx.insar.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
@@ -43,7 +59,7 @@ import java.util.Map;
         authors = "Petar Marinkovic, Jun Lu",
         copyright = "Copyright (C) 2013 by PPO.labs",
         description = "Estimate coherence from stack of coregistered images")
-public class CreateCoherenceImageOp extends Operator {
+public class CoherenceOp extends Operator {
 
     @SourceProduct
     private Product sourceProduct;
@@ -183,7 +199,7 @@ public class CreateCoherenceImageOp extends Operator {
                 numSubSwaths = su.getNumOfSubSwath();
                 subSwathIndex = 1; // subSwathIndex is always 1 because of split product
 
-                final String topsarTag = CreateInterferogramOp.getTOPSARTag(sourceProduct);
+                final String topsarTag = InterferogramOp.getTOPSARTag(sourceProduct);
                 productTag = productTag + "_" + topsarTag;
             }
         } catch (Exception e) {
@@ -367,7 +383,7 @@ public class CreateCoherenceImageOp extends Operator {
 
                         final String polynomialName = slave.name + "_" + s + "_" + b;
 
-                        flatEarthPolyMap.put(polynomialName, CreateInterferogramOp.estimateFlatEarthPolynomial(
+                        flatEarthPolyMap.put(polynomialName, InterferogramOp.estimateFlatEarthPolynomial(
                                 master, slave, s + 1, b, mstSceneCentreXYZ, orbitDegree, srpPolynomialDegree,
                                 srpNumberPoints, avgSceneHeight, slvSceneCentreAzimuthTime, subSwath, su));
                     }
@@ -386,7 +402,7 @@ public class CreateCoherenceImageOp extends Operator {
 
                 CplxContainer slave = slaveMap.get(keySlave);
 
-                flatEarthPolyMap.put(slave.name, CreateInterferogramOp.estimateFlatEarthPolynomial(
+                flatEarthPolyMap.put(slave.name, InterferogramOp.estimateFlatEarthPolynomial(
                         master.metaData, master.orbit, slave.metaData, slave.orbit, sourceImageWidth,
                         sourceImageHeight, srpPolynomialDegree, srpNumberPoints, avgSceneHeight, sourceProduct));
             }
@@ -457,11 +473,11 @@ public class CreateCoherenceImageOp extends Operator {
 
                 if (subtractFlatEarthPhase) {
                     DoubleMatrix rangeAxisNormalized = DoubleMatrix.linspace(x0, xN, targetRectangle.width);
-                    rangeAxisNormalized = CreateInterferogramOp.normalizeDoubleMatrix(
+                    rangeAxisNormalized = InterferogramOp.normalizeDoubleMatrix(
                             rangeAxisNormalized, 0, sourceImageWidth - 1);
 
                     DoubleMatrix azimuthAxisNormalized = DoubleMatrix.linspace(y0, yN, targetRectangle.height);
-                    azimuthAxisNormalized = CreateInterferogramOp.normalizeDoubleMatrix(
+                    azimuthAxisNormalized = InterferogramOp.normalizeDoubleMatrix(
                             azimuthAxisNormalized, 0, sourceImageHeight - 1);
 
                     // pull polynomial from the map
@@ -581,11 +597,11 @@ public class CreateCoherenceImageOp extends Operator {
 
                 if (subtractFlatEarthPhase) {
                     DoubleMatrix rangeAxisNormalized = DoubleMatrix.linspace(x0, xN, targetRectangle.width);
-                    rangeAxisNormalized = CreateInterferogramOp.normalizeDoubleMatrix(
+                    rangeAxisNormalized = InterferogramOp.normalizeDoubleMatrix(
                             rangeAxisNormalized, minPixel, maxPixel);
 
                     DoubleMatrix azimuthAxisNormalized = DoubleMatrix.linspace(y0, yN, targetRectangle.height);
-                    azimuthAxisNormalized = CreateInterferogramOp.normalizeDoubleMatrix(
+                    azimuthAxisNormalized = InterferogramOp.normalizeDoubleMatrix(
                             azimuthAxisNormalized, minLine, maxLine);
 
                     final String polynomialName = product.sourceSlave.name + "_" + (subSwathIndex - 1) + "_" + burstIndex;
@@ -795,7 +811,7 @@ public class CreateCoherenceImageOp extends Operator {
      */
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(CreateCoherenceImageOp.class);
+            super(CoherenceOp.class);
         }
     }
 }

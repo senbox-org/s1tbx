@@ -92,7 +92,7 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
             SpeckleFilterOp.MEDIAN_SPECKLE_FILTER, SpeckleFilterOp.FROST_SPECKLE_FILTER,
             SpeckleFilterOp.GAMMA_MAP_SPECKLE_FILTER, SpeckleFilterOp.LEE_SPECKLE_FILTER,
             SpeckleFilterOp.LEE_REFINED_FILTER, SpeckleFilterOp.LEE_SIGMA_FILTER, SpeckleFilterOp.IDAN_FILTER},
-            defaultValue = SpeckleFilterOp.LEE_REFINED_FILTER, label = "Filter")
+            defaultValue = SpeckleFilterOp.LEE_SIGMA_FILTER, label = "Filter")
     private String filter;
 
     @Parameter(description = "The kernel x dimension", interval = "(1, 100]", defaultValue = "3", label = "Size X")

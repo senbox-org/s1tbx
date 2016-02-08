@@ -62,7 +62,7 @@ public class SpeckleFilterOp extends Operator {
 
     @Parameter(valueSet = {NONE, BOXCAR_SPECKLE_FILTER, MEDIAN_SPECKLE_FILTER, FROST_SPECKLE_FILTER,
             GAMMA_MAP_SPECKLE_FILTER, LEE_SPECKLE_FILTER, LEE_REFINED_FILTER, LEE_SIGMA_FILTER, IDAN_FILTER},
-            defaultValue = LEE_REFINED_FILTER,
+            defaultValue = LEE_SIGMA_FILTER,
             label = "Filter")
     private String filter;
 

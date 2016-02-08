@@ -113,12 +113,17 @@ public class ApplyOrbitFileOpUI extends BaseOperatorUI {
         final String orbitTypeFromGraph = (String)paramMap.get("orbitType");
 
         for(int i=0; i < orbitTypeCombo.getItemCount(); ++i) {
-            if(orbitTypeCombo.getItemAt(i).equals(orbitTypeFromGraph)) {
-                orbitTypeCombo.setSelectedItem(orbitTypeFromGraph);
+            if(orbitTypeCombo.getItemAt(i).startsWith(orbitTypeFromGraph)) {
+                orbitTypeCombo.setSelectedItem(orbitTypeCombo.getItemAt(i));
                 return;
             }
         }
-        orbitTypeCombo.setSelectedItem(defaultStr);
+        for(int i=0; i < orbitTypeCombo.getItemCount(); ++i) {
+            if(orbitTypeCombo.getItemAt(i).startsWith(defaultStr)) {
+                orbitTypeCombo.setSelectedItem(orbitTypeCombo.getItemAt(i));
+                return;
+            }
+        }
     }
 
     @Override

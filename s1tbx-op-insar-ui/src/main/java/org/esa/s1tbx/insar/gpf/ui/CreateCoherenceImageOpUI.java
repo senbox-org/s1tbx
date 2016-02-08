@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.insar.gpf.ui;
 
-import org.esa.s1tbx.insar.gpf.CreateCoherenceImageOp;
+import org.esa.s1tbx.insar.gpf.CoherenceOp;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
@@ -56,7 +56,7 @@ public class CreateCoherenceImageOpUI extends BaseOperatorUI {
 
     private Boolean squarePixel = true;
     private Boolean subtractFlatEarthPhase = false;
-    private final CreateCoherenceImageOp.DerivedParams param = new CreateCoherenceImageOp.DerivedParams();
+    private final CoherenceOp.DerivedParams param = new CoherenceOp.DerivedParams();
 
 
     @Override
@@ -212,7 +212,7 @@ public class CreateCoherenceImageOpUI extends BaseOperatorUI {
             try {
                 if (squarePixelCheckBox.isSelected()) {
                     param.cohWinRg = Integer.parseInt(cohWinRg.getText());
-                    CreateCoherenceImageOp.getDerivedParameters(sourceProducts[0], param);
+                    CoherenceOp.getDerivedParameters(sourceProducts[0], param);
                     cohWinAz.setText(String.valueOf(param.cohWinAz));
                 }
             } catch (Exception e) {

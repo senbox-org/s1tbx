@@ -17,11 +17,11 @@ package org.esa.s1tbx.sar.gpf.geometric;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.calibration.gpf.CalibrationOp;
-import org.esa.s1tbx.calibration.gpf.Sentinel1Calibrator;
+import org.esa.s1tbx.calibration.gpf.calibrators.Sentinel1Calibrator;
 import org.esa.s1tbx.calibration.gpf.support.CalibrationFactory;
 import org.esa.s1tbx.calibration.gpf.support.Calibrator;
-import org.esa.s1tbx.insar.gpf.geometric.SARGeocoding;
-import org.esa.s1tbx.insar.gpf.geometric.SARUtils;
+import org.esa.s1tbx.insar.gpf.support.SARGeocoding;
+import org.esa.s1tbx.insar.gpf.support.SARUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.GeoPos;

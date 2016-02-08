@@ -468,7 +468,8 @@ public class GCPSelectionOp extends Operator {
                 }
 
                 final String unit = slaveBand.getUnit();
-                if (unit != null && (unit.contains(Unit.IMAGINARY) || unit.contains(Unit.BIT))) {
+                if (unit != null && (unit.contains(Unit.IMAGINARY) || unit.contains(Unit.BIT) ||
+                        (complexCoregistration && unit.contains(Unit.INTENSITY)))) {
                     continue;
                 }
                 bandList.put(targetBand, slaveBand);

@@ -18,7 +18,7 @@ package org.esa.s1tbx.sar.gpf.ui.geometric;
 import org.esa.s1tbx.calibration.gpf.CalibrationOp;
 import org.esa.s1tbx.calibration.gpf.support.CalibrationFactory;
 import org.esa.s1tbx.calibration.gpf.support.Calibrator;
-import org.esa.s1tbx.insar.gpf.geometric.SARGeocoding;
+import org.esa.s1tbx.insar.gpf.support.SARGeocoding;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.dataop.dem.ElevationModelDescriptor;
 import org.esa.snap.core.dataop.dem.ElevationModelRegistry;

@@ -16,6 +16,7 @@
 package org.esa.s1tbx.calibration.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.s1tbx.calibration.gpf.calibrators.Sentinel1Calibrator;
 import org.esa.s1tbx.calibration.gpf.support.CalibrationFactory;
 import org.esa.s1tbx.calibration.gpf.support.Calibrator;
 import org.esa.snap.core.datamodel.Band;

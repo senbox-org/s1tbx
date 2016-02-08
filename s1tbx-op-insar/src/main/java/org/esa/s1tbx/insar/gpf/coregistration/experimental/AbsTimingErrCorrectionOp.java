@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.sar.gpf.geometric;
+package org.esa.s1tbx.insar.gpf.coregistration.experimental;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.insar.gpf.coregistration.GCPManager;
@@ -43,10 +43,11 @@ import java.util.Set;
  */
 
 @OperatorMetadata(alias = "Abs-Timing-Err-Correction",
-        category = "Radar/Geometric/Terrain Correction",
+        category = "Radar/Coregistration",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
-        description = "Absolute timing error correction using SAR simulation")
+        copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
+        description = "Absolute timing error correction using SAR simulation",
+        internal = true)
 public class AbsTimingErrCorrectionOp extends Operator {
 
     @SourceProduct(alias = "source")

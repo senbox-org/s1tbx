@@ -28,7 +28,6 @@ import java.io.IOException;
 public class TiePointGridLazy extends TiePointGrid {
 
     private boolean hasData;
-    private Product product;
 
     /**
      * Constructs a new <code>TiePointGrid</code> with the given tie point grid properties.
@@ -54,7 +53,6 @@ public class TiePointGridLazy extends TiePointGrid {
                             float[] tiePoints) {
         super(name, gridWidth, gridHeight, offsetX, offsetY, subSamplingX, subSamplingY, tiePoints, DISCONT_NONE);
         this.hasData = false;
-        this.product = product;
     }
 
     private void initData() {

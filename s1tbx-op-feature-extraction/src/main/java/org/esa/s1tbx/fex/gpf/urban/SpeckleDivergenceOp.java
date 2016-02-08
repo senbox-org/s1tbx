@@ -214,6 +214,10 @@ public class SpeckleDivergenceOp extends Operator {
             sourceBands[i] = sourceBand;
         }
 
+        if(sourceBands.length == 0) {
+            throw new OperatorException("No intensity bands found");
+        }
+
         for (Band srcBand : sourceBands) {
             final String srcBandNames = srcBand.getName();
             final String unit = srcBand.getUnit();

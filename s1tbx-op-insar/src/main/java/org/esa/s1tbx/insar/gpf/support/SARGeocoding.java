@@ -1,4 +1,4 @@
-package org.esa.s1tbx.insar.gpf.geometric;
+package org.esa.s1tbx.insar.gpf.support;
 
 import org.apache.commons.math3.util.FastMath;
 import org.esa.snap.core.datamodel.GeoPos;

@@ -80,7 +80,7 @@ public class IDAN implements SpeckleFilter {
             final int h = targetTileRectangle.height;
             final int xMax = x0 + w;
             final int yMax = y0 + h;
-            System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
+            //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
             final String[] srcBandNames = targetBandNameToSourceBandName.get(targetBand.getName());
             final double[][] filteredTile = performFiltering(x0, y0, w, h, srcBandNames);
@@ -268,7 +268,7 @@ public class IDAN implements SpeckleFilter {
 
         // 1st run of region growing with IDAN50 threshold and initial seed, qualified pixel goes to anPixelList,
         // non-qualified pixel goes to "background pixels" list
-        final double threshold50 = (2 / 3) * sigmaV;
+        final double threshold50 = (2.0 / 3.0) * sigmaV;
         final java.util.List<Pix> anPixelList = new ArrayList<>(anSize);
         final Pix[] bgPixelList = regionGrowing(
                 xc, yc, sx0, sy0, sw, sh, srcTileIntensity, noDataValue, seed, threshold50, anPixelList);
@@ -286,7 +286,7 @@ public class IDAN implements SpeckleFilter {
 
         // 2nd run of region growing with IDAN95 threshold, the new seed and "background pixels" i.e. pixels rejected
         // in the 1st run of region growing are checked and added to AN
-        final double threshold95 = 2 * sigmaV;
+        final double threshold95 = 2.0 * sigmaV;
         reExamBackgroundPixels(
                 sx0, sy0, srcTileIntensity, noDataValue, newSeed, threshold95, anPixelList, bgPixelList);
 

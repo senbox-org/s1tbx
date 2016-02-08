@@ -794,9 +794,9 @@ public class WarpOp extends Operator {
                 if (numOfCoeffs != 3) {
                     throw new OperatorException("Number of WARP coefficients do not match WARP degree");
                 }
-                slavePos.x = (float) (xCoeffs[0] + xCoeffs[1] * mX + xCoeffs[2] * mY);
+                slavePos.x = xCoeffs[0] + xCoeffs[1] * mX + xCoeffs[2] * mY;
 
-                slavePos.y = (float) (yCoeffs[0] + yCoeffs[1] * mX + yCoeffs[2] * mY);
+                slavePos.y = yCoeffs[0] + yCoeffs[1] * mX + yCoeffs[2] * mY;
                 break;
             }
             case 2: {
@@ -807,11 +807,11 @@ public class WarpOp extends Operator {
                 final double mXmY = mX * mY;
                 final double mYmY = mY * mY;
 
-                slavePos.x = (float) (xCoeffs[0] + xCoeffs[1] * mX + xCoeffs[2] * mY +
-                        xCoeffs[3] * mXmX + xCoeffs[4] * mXmY + xCoeffs[5] * mYmY);
+                slavePos.x = xCoeffs[0] + xCoeffs[1] * mX + xCoeffs[2] * mY +
+                        xCoeffs[3] * mXmX + xCoeffs[4] * mXmY + xCoeffs[5] * mYmY;
 
-                slavePos.y = (float) (yCoeffs[0] + yCoeffs[1] * mX + yCoeffs[2] * mY +
-                        yCoeffs[3] * mXmX + yCoeffs[4] * mXmY + yCoeffs[5] * mYmY);
+                slavePos.y = yCoeffs[0] + yCoeffs[1] * mX + yCoeffs[2] * mY +
+                        yCoeffs[3] * mXmX + yCoeffs[4] * mXmY + yCoeffs[5] * mYmY;
                 break;
             }
             case 3: {
@@ -822,13 +822,13 @@ public class WarpOp extends Operator {
                 final double mXmY = mX * mY;
                 final double mYmY = mY * mY;
 
-                slavePos.x = (float) (xCoeffs[0] + xCoeffs[1] * mX + xCoeffs[2] * mY +
+                slavePos.x = xCoeffs[0] + xCoeffs[1] * mX + xCoeffs[2] * mY +
                         xCoeffs[3] * mXmX + xCoeffs[4] * mXmY + xCoeffs[5] * mYmY +
-                        xCoeffs[6] * mXmX * mX + xCoeffs[7] * mX * mXmY + xCoeffs[8] * mXmY * mY + xCoeffs[9] * mYmY * mY);
+                        xCoeffs[6] * mXmX * mX + xCoeffs[7] * mX * mXmY + xCoeffs[8] * mXmY * mY + xCoeffs[9] * mYmY * mY;
 
-                slavePos.y = (float) (yCoeffs[0] + yCoeffs[1] * mX + yCoeffs[2] * mY +
+                slavePos.y = yCoeffs[0] + yCoeffs[1] * mX + yCoeffs[2] * mY +
                         yCoeffs[3] * mXmX + yCoeffs[4] * mXmY + yCoeffs[5] * mYmY +
-                        yCoeffs[6] * mXmX * mX + yCoeffs[7] * mX * mXmY + yCoeffs[8] * mXmY * mY + yCoeffs[9] * mYmY * mY);
+                        yCoeffs[6] * mXmX * mX + yCoeffs[7] * mX * mXmY + yCoeffs[8] * mXmY * mY + yCoeffs[9] * mYmY * mY;
                 break;
             }
             default:

@@ -13,12 +13,12 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.sentinel1.gpf;
+package org.esa.s1tbx.sentinel1.gpf.experimental;
 
 import com.bc.ceres.core.ProgressMonitor;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 import org.apache.commons.math3.util.FastMath;
-import org.esa.s1tbx.insar.gpf.Sentinel1Utils;
+import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
@@ -48,7 +48,7 @@ import java.util.Map;
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Compute azimuth spectrum for each deramped burst",
         internal = true)
-public final class ComputeDerampedAzimuthSpectrumOp extends Operator {
+public final class DerampedAzimuthSpectrumOp extends Operator {
 
     @SourceProduct(alias = "source")
     private Product sourceProduct;
@@ -76,7 +76,7 @@ public final class ComputeDerampedAzimuthSpectrumOp extends Operator {
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
      */
-    public ComputeDerampedAzimuthSpectrumOp() {
+    public DerampedAzimuthSpectrumOp() {
     }
 
     /**
@@ -408,7 +408,7 @@ public final class ComputeDerampedAzimuthSpectrumOp extends Operator {
      */
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(ComputeDerampedAzimuthSpectrumOp.class);
+            super(DerampedAzimuthSpectrumOp.class);
         }
     }
 }
