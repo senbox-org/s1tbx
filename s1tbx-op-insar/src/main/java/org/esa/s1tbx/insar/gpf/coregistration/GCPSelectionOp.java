@@ -57,14 +57,9 @@ import org.esa.snap.engine_utilities.gpf.ThreadManager;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.esa.snap.engine_utilities.util.MemUtils;
 
-import javax.media.jai.BorderExtender;
-import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RasterFactory;
-import javax.media.jai.RenderedOp;
-import javax.media.jai.operator.DFTDescriptor;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
@@ -73,7 +68,6 @@ import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
-import java.awt.image.renderable.ParameterBlock;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -422,7 +416,7 @@ public class GCPSelectionOp extends Operator {
      *
      * @param targetTileMap   The target tiles associated with all target bands to be computed.
      * @param targetRectangle The rectangle of target tile.
-     * @param pm              A progress monitor which should be used to determine computation cancelation requests.
+     * @param pm              A progress monitor which should be used to determine computation cancellation requests.
      * @throws OperatorException If an error occurs during computation of the target raster.
      */
     @Override
@@ -721,15 +715,15 @@ public class GCPSelectionOp extends Operator {
 
             // correlate master and slave imagettes
             final RenderedImage masterImage = createRenderedImage(mI, windowWidth, windowHeight);
-            final PlanarImage masterSpectrum = dft(masterImage);
+            final PlanarImage masterSpectrum = JAIFunctions.dft(masterImage);
 
             final RenderedImage slaveImage = createRenderedImage(sI, windowWidth, windowHeight);
-            final PlanarImage slaveSpectrum = dft(slaveImage);
-            final PlanarImage conjugateSlaveSpectrum = conjugate(slaveSpectrum);
+            final PlanarImage slaveSpectrum = JAIFunctions.dft(slaveImage);
+            final PlanarImage conjugateSlaveSpectrum = JAIFunctions.conjugate(slaveSpectrum);
 
-            final PlanarImage crossSpectrum = multiplyComplex(masterSpectrum, conjugateSlaveSpectrum);
-            final PlanarImage correlatedImage = idft(crossSpectrum);
-            final PlanarImage crossCorrelatedImage = magnitude(correlatedImage);
+            final PlanarImage crossSpectrum = JAIFunctions.multiplyComplex(masterSpectrum, conjugateSlaveSpectrum);
+            final PlanarImage correlatedImage = JAIFunctions.idft(crossSpectrum);
+            final PlanarImage crossCorrelatedImage = JAIFunctions.magnitude(correlatedImage);
 
             // compute offset
             final int w = crossCorrelatedImage.getWidth();
@@ -955,10 +949,7 @@ public class GCPSelectionOp extends Operator {
             if (masterData2 != null)
                 masterData2.dispose();
 
-            if (numInvalidPixels > MaxInvalidPixelPercentage*cWindowHeight*cWindowWidth) {
-                return false;
-            }
-            return true;
+            return numInvalidPixels <= MaxInvalidPixelPercentage * cWindowHeight * cWindowWidth;
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("getMasterImagette", e);
@@ -1048,10 +1039,7 @@ public class GCPSelectionOp extends Operator {
             if (slaveData2 != null)
                 slaveData2.dispose();
 
-            if (numInvalidPixels > MaxInvalidPixelPercentage*cWindowHeight*cWindowWidth) {
-                return false;
-            }
-            return true;
+            return numInvalidPixels <= MaxInvalidPixelPercentage * cWindowHeight * cWindowWidth;
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("getSlaveImagette", e);
@@ -1125,171 +1113,48 @@ public class GCPSelectionOp extends Operator {
 
         // get master imagette spectrum
         final RenderedImage masterImage = createRenderedImage(mI, cWindowWidth, cWindowHeight);
-        final PlanarImage masterSpectrum = dft(masterImage);
+        final PlanarImage masterSpectrum = JAIFunctions.dft(masterImage);
         //System.out.println("Master spectrum:");
         //outputComplexImage(masterSpectrum);
 
         // get slave imagette spectrum
         final RenderedImage slaveImage = createRenderedImage(sI, cWindowWidth, cWindowHeight);
-        final PlanarImage slaveSpectrum = dft(slaveImage);
+        final PlanarImage slaveSpectrum = JAIFunctions.dft(slaveImage);
         //System.out.println("Slave spectrum:");
         //outputComplexImage(slaveSpectrum);
 
         // get conjugate slave spectrum
-        final PlanarImage conjugateSlaveSpectrum = conjugate(slaveSpectrum);
+        final PlanarImage conjugateSlaveSpectrum = JAIFunctions.conjugate(slaveSpectrum);
         //System.out.println("Conjugate slave spectrum:");
         //outputComplexImage(conjugateSlaveSpectrum);
 
         // multiply master spectrum and conjugate slave spectrum
-        final PlanarImage crossSpectrum = multiplyComplex(masterSpectrum, conjugateSlaveSpectrum);
+        final PlanarImage crossSpectrum = JAIFunctions.multiplyComplex(masterSpectrum, conjugateSlaveSpectrum);
         //System.out.println("Cross spectrum:");
         //outputComplexImage(crossSpectrum);
 
         // upsampling cross spectrum
-        final RenderedImage upsampledCrossSpectrum = upsampling(crossSpectrum);
+        final RenderedImage upsampledCrossSpectrum = JAIFunctions.upsampling(crossSpectrum,
+                                                                             rowUpSamplingFactor, colUpSamplingFactor);
 
         // perform IDF on the cross spectrum
-        final PlanarImage correlatedImage = idft(upsampledCrossSpectrum);
+        final PlanarImage correlatedImage = JAIFunctions.idft(upsampledCrossSpectrum);
         //System.out.println("Correlated image:");
         //outputComplexImage(correlatedImage);
 
-        // compute the magnitode of the cross correlated image
-        return magnitude(correlatedImage);
+        // compute the magnitude of the cross correlated image
+        return JAIFunctions.magnitude(correlatedImage);
     }
 
     private static RenderedImage createRenderedImage(final double[] array, final int w, final int h) {
 
-        // create rendered image with demension being width by height
+        // create rendered image with dimension being width by height
         final SampleModel sampleModel = RasterFactory.createBandedSampleModel(DataBuffer.TYPE_DOUBLE, w, h, 1);
         final ColorModel colourModel = PlanarImage.createColorModel(sampleModel);
         final DataBufferDouble dataBuffer = new DataBufferDouble(array, array.length);
         final WritableRaster raster = RasterFactory.createWritableRaster(sampleModel, dataBuffer, new Point(0, 0));
 
         return new BufferedImage(colourModel, raster, false, new Hashtable());
-    }
-
-    private static PlanarImage dft(final RenderedImage image) {
-
-        final ParameterBlock pb = new ParameterBlock();
-        pb.addSource(image);
-        pb.add(DFTDescriptor.SCALING_NONE);
-        pb.add(DFTDescriptor.REAL_TO_COMPLEX);
-        return JAI.create("dft", pb, null);
-    }
-
-    private static PlanarImage idft(final RenderedImage image) {
-
-        final ParameterBlock pb = new ParameterBlock();
-        pb.addSource(image);
-        pb.add(DFTDescriptor.SCALING_DIMENSIONS);
-        pb.add(DFTDescriptor.COMPLEX_TO_COMPLEX);
-        return JAI.create("idft", pb, null);
-    }
-
-    private static PlanarImage conjugate(final PlanarImage image) {
-
-        final ParameterBlock pb = new ParameterBlock();
-        pb.addSource(image);
-        return JAI.create("conjugate", pb, null);
-    }
-
-    private static PlanarImage multiplyComplex(final PlanarImage image1, final PlanarImage image2) {
-
-        final ParameterBlock pb = new ParameterBlock();
-        pb.addSource(image1);
-        pb.addSource(image2);
-        return JAI.create("MultiplyComplex", pb, null);
-    }
-
-    private RenderedImage upsampling(final PlanarImage image) {
-
-        // System.out.println("Source image:");
-        // outputComplexImage(image);
-
-        final int w = image.getWidth();  // w is power of 2
-        final int h = image.getHeight(); // h is power of 2
-        final int newWidth = rowUpSamplingFactor * w; // rowInterpFactor should be power of 2 to avoid zero padding in idft
-        final int newHeight = colUpSamplingFactor * h; // colInterpFactor should be power of 2 to avoid zero padding in idft
-
-        // create shifted image
-        final ParameterBlock pb1 = new ParameterBlock();
-        pb1.addSource(image);
-        pb1.add(w / 2);
-        pb1.add(h / 2);
-        PlanarImage shiftedImage = JAI.create("PeriodicShift", pb1, null);
-        //System.out.println("Shifted image:");
-        //outputComplexImage(shiftedImage);
-
-        // create zero padded image
-        final ParameterBlock pb2 = new ParameterBlock();
-        final int leftPad = (newWidth - w) / 2;
-        final int rightPad = leftPad;
-        final int topPad = (newHeight - h) / 2;
-        final int bottomPad = topPad;
-        pb2.addSource(shiftedImage);
-        pb2.add(leftPad);
-        pb2.add(rightPad);
-        pb2.add(topPad);
-        pb2.add(bottomPad);
-        pb2.add(BorderExtender.createInstance(BorderExtender.BORDER_ZERO));
-        final PlanarImage zeroPaddedImage = JAI.create("border", pb2);
-
-        // reposition zero padded image so the image origin is back at (0,0)
-        final ParameterBlock pb3 = new ParameterBlock();
-        pb3.addSource(zeroPaddedImage);
-        pb3.add(1.0f * leftPad);
-        pb3.add(1.0f * topPad);
-        final PlanarImage zeroBorderedImage = JAI.create("translate", pb3, null);
-        //System.out.println("Zero padded image:");
-        //outputComplexImage(zeroBorderedImage);
-
-        // shift the zero padded image
-        final ParameterBlock pb4 = new ParameterBlock();
-        pb4.addSource(zeroBorderedImage);
-        pb4.add(newWidth / 2);
-        pb4.add(newHeight / 2);
-        final PlanarImage shiftedZeroPaddedImage = JAI.create("PeriodicShift", pb4, null);
-        //System.out.println("Shifted zero padded image:");
-        //outputComplexImage(shiftedZeroPaddedImage);
-
-        return shiftedZeroPaddedImage;
-    }
-
-    private static PlanarImage magnitude(final PlanarImage image) {
-
-        final ParameterBlock pb = new ParameterBlock();
-        pb.addSource(image);
-        return JAI.create("magnitude", pb, null);
-    }
-
-    private static double getMean(final RenderedImage image) {
-
-        final ParameterBlock pb = new ParameterBlock();
-        pb.addSource(image);
-        pb.add(null); // null ROI means whole image
-        pb.add(1); // check every pixel horizontally
-        pb.add(1); // check every pixel vertically
-
-        // Perform the mean operation on the source image.
-        final RenderedImage meanImage = JAI.create("mean", pb, null);
-        // Retrieve and report the mean pixel value.
-        final double[] mean = (double[]) meanImage.getProperty("mean");
-        return mean[0];
-    }
-
-    private static double getMax(final RenderedImage image) {
-
-        final ParameterBlock pb = new ParameterBlock();
-        pb.addSource(image);
-        pb.add(null); // null ROI means whole image
-        pb.add(1); // check every pixel horizontally
-        pb.add(1); // check every pixel vertically
-
-        // Perform the extrema operation on the source image
-        final RenderedOp op = JAI.create("extrema", pb);
-        // Retrieve both the maximum and minimum pixel value
-        final double[][] extrema = (double[][]) op.getProperty("extrema");
-        return extrema[1][0];
     }
 
     // This function is for debugging only.
