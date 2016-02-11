@@ -281,19 +281,19 @@ public class GCPSelectionOp extends Operator {
                                    final ProductNodeGroup<Placemark> group,
                                    final GeoCoding targetGeoCoding) {
 
-        final float ratio = width / (float) height;
-        final float n = (float) Math.sqrt(numPins / ratio);
-        final float m = ratio * n;
-        final float spacingX = width / m;
-        final float spacingY = height / n;
+        final double ratio = width / (double) height;
+        final double n = Math.sqrt(numPins / ratio);
+        final double m = ratio * n;
+        final double spacingX = width / m;
+        final double spacingY = height / n;
         final GcpDescriptor gcpDescriptor = GcpDescriptor.getInstance();
 
         group.removeAll();
         int pinNumber = group.getNodeCount() + 1;
 
-        for (float y = spacingY / 2f; y < height; y += spacingY) {
+        for (double y = spacingY / 2f; y < height; y += spacingY) {
 
-            for (float x = spacingX / 2f; x < width; x += spacingX) {
+            for (double x = spacingX / 2f; x < width; x += spacingX) {
 
                 final String name = PlacemarkNameFactory.createName(gcpDescriptor, pinNumber);
                 final String label = PlacemarkNameFactory.createLabel(gcpDescriptor, pinNumber, true);
@@ -887,8 +887,8 @@ public class GCPSelectionOp extends Operator {
 
                 rowShift = shift[0];
                 colShift = shift[1];
-                sGCPPixelPos.x += (float) colShift;
-                sGCPPixelPos.y += (float) rowShift;
+                sGCPPixelPos.x += colShift;
+                sGCPPixelPos.y += rowShift;
                 numIter++;
             }
 
@@ -1267,8 +1267,8 @@ public class GCPSelectionOp extends Operator {
                 //System.out.println("Invalid GCP");
                 return false;
             } else {
-                sGCPPixelPos.x = (float) p[0];
-                sGCPPixelPos.y = (float) p[1];
+                sGCPPixelPos.x = p[0];
+                sGCPPixelPos.y = p[1];
                 //System.out.println("Valid GCP");
                 return true;
             }
