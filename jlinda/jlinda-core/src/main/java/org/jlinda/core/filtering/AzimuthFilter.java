@@ -5,7 +5,6 @@ import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
-import org.jlinda.core.todo_classes.todo_classes;
 import org.jlinda.core.utils.LinearAlgebraUtils;
 import org.jlinda.core.utils.SpectralUtils;
 import org.jlinda.core.utils.WeightWindows;
@@ -22,10 +21,6 @@ import static org.jblas.MatrixFunctions.pow;
 public class AzimuthFilter extends SlcDataFilter {
 
     static Logger logger = SystemUtils.LOG;
-
-    // TODO
-    todo_classes.inputgeneral generalInput;
-    todo_classes.input_filtazi filtAziInput;
 
     SLCImage metadata1;
 

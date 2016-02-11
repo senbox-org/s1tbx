@@ -7,7 +7,6 @@ import org.jblas.DoubleMatrix;
 import org.jlinda.core.Constants;
 import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
-import org.jlinda.core.todo_classes.todo_classes;
 import org.jlinda.core.utils.LinearAlgebraUtils;
 import org.jlinda.core.utils.MathUtils;
 import org.jlinda.core.utils.SarUtils;
@@ -23,10 +22,6 @@ import static org.jlinda.core.utils.LinearAlgebraUtils.setdata;
 public class RangeFilter extends ProductDataFilter {
 
     static Logger logger = SystemUtils.LOG;
-
-    //TODO: make template classes for generalInput, operatorInput, and ProductMetadata class
-    todo_classes.inputgeneral generalInput;
-    todo_classes.input_filtrange filtRangeInput;
 
     // data
     private DoubleMatrix power;

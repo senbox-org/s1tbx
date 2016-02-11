@@ -81,11 +81,6 @@
             <version>3.4</version>
         </dependency>
         <dependency>
-            <groupId>org.ujmp</groupId>
-            <artifactId>ujmp-complete</artifactId>
-            <version>0.2.5</version>
-        </dependency>
-        <dependency>
             <groupId>com.winvector</groupId>
             <artifactId>wvlpsolver</artifactId>
             <version>1.0</version>
