@@ -21,6 +21,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.MetadataAttribute;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Placemark;
 import org.esa.snap.core.datamodel.Product;
@@ -46,10 +47,8 @@ import org.jlinda.core.delaunay.Triangle;
 import org.jlinda.core.delaunay.TriangulationException;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This operator computes velocities for master-slave GCP pairs. Than velocities for all pixels are computed
@@ -71,6 +70,10 @@ public class OffsetTrackingOp extends Operator {
     @Parameter(description = "The threshold for eliminating invalid GCPs", interval = "(0, *)", defaultValue = "5.0",
             label = "Max Velocity (m/day)")
     private float maxVelocity = 5.0f;
+
+    @Parameter(description = "Output range and azimuth shifts", defaultValue = "false",
+            label = "Output range and azimuth shifts")
+    private Boolean outputShifts = false;
 
     private Band masterBand = null;
     private boolean GCPVelocityAvailable = false;
@@ -181,9 +184,9 @@ public class OffsetTrackingOp extends Operator {
     private void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
-                                    sourceProduct.getProductType(),
-                                    sourceProduct.getSceneRasterWidth(),
-                                    sourceProduct.getSceneRasterHeight());
+                sourceProduct.getProductType(),
+                sourceProduct.getSceneRasterWidth(),
+                sourceProduct.getSceneRasterHeight());
 
         masterBandNames = StackUtils.getMasterBandNames(sourceProduct);
 
@@ -195,18 +198,35 @@ public class OffsetTrackingOp extends Operator {
                 targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, false);
                 targetBand.setSourceImage(srcBand.getSourceImage());
             } else {
-                final String velocityBandName = srcBand.getProduct().getDisplayName() + "_vel";
+                final String productName = srcBand.getProduct().getDisplayName();
+                final String velocityBandName = productName + "_vel";
                 if (targetProduct.getBand(velocityBandName) == null) {
                     targetBand = targetProduct.addBand(velocityBandName, ProductData.TYPE_FLOAT32);
                     ProductUtils.copyRasterDataNodeProperties(srcBand, targetBand);
                     sourceRasterMap.put(targetBand, srcBand);
                 }
 
-                final String gcpPositionBandName = srcBand.getProduct().getDisplayName() + "_pos";
+                final String gcpPositionBandName = productName + "_pos";
                 if (targetProduct.getBand(gcpPositionBandName) == null) {
                     targetBand = targetProduct.addBand(gcpPositionBandName, ProductData.TYPE_FLOAT32);
                     ProductUtils.copyRasterDataNodeProperties(srcBand, targetBand);
                     sourceRasterMap.put(targetBand, srcBand);
+                }
+
+                if (outputShifts) {
+                    final String rangeShiftBandName = productName + "_range_shift";
+                    if (targetProduct.getBand(rangeShiftBandName) == null) {
+                        targetBand = targetProduct.addBand(rangeShiftBandName, ProductData.TYPE_FLOAT32);
+                        ProductUtils.copyRasterDataNodeProperties(srcBand, targetBand);
+                        sourceRasterMap.put(targetBand, srcBand);
+                    }
+
+                    final String azimuthShiftBandName = productName + "_azimuth_shift";
+                    if (targetProduct.getBand(azimuthShiftBandName) == null) {
+                        targetBand = targetProduct.addBand(azimuthShiftBandName, ProductData.TYPE_FLOAT32);
+                        ProductUtils.copyRasterDataNodeProperties(srcBand, targetBand);
+                        sourceRasterMap.put(targetBand, srcBand);
+                    }
                 }
             }
         }
@@ -228,15 +248,16 @@ public class OffsetTrackingOp extends Operator {
      * Called by the framework in order to compute a tile for the given target band.
      * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
      *
-     * @param targetBand The target band.
-     * @param targetTile The current tile associated with the target band to be computed.
-     * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws OperatorException If an error occurs during computation of the target raster.
+     * @param targetTileMap   The target tiles associated with all target bands to be computed.
+     * @param targetRectangle The rectangle of target tile.
+     * @param pm              A progress monitor which should be used to determine computation cancelation requests.
+     * @throws OperatorException
+     *          If an error occurs during computation of the target raster.
      */
     @Override
-    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+    public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
+            throws OperatorException {
 
-        final Rectangle targetRectangle = targetTile.getRectangle();
         final int x0 = targetRectangle.x;
         final int y0 = targetRectangle.y;
         final int w = targetRectangle.width;
@@ -246,47 +267,91 @@ public class OffsetTrackingOp extends Operator {
         //System.out.println("OffsetTrackingOp: x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
         try {
-            final Band srcBand = sourceRasterMap.get(targetBand);
-            if (srcBand == null)
-                return;
-
             if (pm.isCanceled())
                 return;
 
+            Band tgtRangeShiftBand = null;
+            Band tgtAzimuthShiftBand = null;
+            Band tgtVelocityBand = null;
+            Band tgtGCPPositionBand = null;
+            ProductData tgtRangeShiftBuffer = null;
+            ProductData tgtAzimuthShiftBuffer = null;
+            ProductData tgtVelocityBuffer = null;
+            ProductData tgtGCPPositionBuffer = null;
+            final Band[] targetBands = targetProduct.getBands();
+            for (Band tgtBand:targetBands) {
+                final String tgtBandName = tgtBand.getName();
+                if (tgtBandName.contains("_range_shift")) {
+                    tgtRangeShiftBand = tgtBand;
+                    tgtRangeShiftBuffer = targetTileMap.get(tgtRangeShiftBand).getDataBuffer();
+                } else if (tgtBandName.contains("_azimuth_shift")) {
+                    tgtAzimuthShiftBand = tgtBand;
+                    tgtAzimuthShiftBuffer = targetTileMap.get(tgtAzimuthShiftBand).getDataBuffer();
+                } else if (tgtBandName.contains("_vel")) {
+                    tgtVelocityBand = tgtBand;
+                    tgtVelocityBuffer = targetTileMap.get(tgtVelocityBand).getDataBuffer();
+                } else if (tgtBandName.contains("_pos")) {
+                    tgtGCPPositionBand = tgtBand;
+                    tgtGCPPositionBuffer = targetTileMap.get(tgtGCPPositionBand).getDataBuffer();
+                }
+            }
+
+            final Band srcBand = sourceRasterMap.get(tgtVelocityBand);
             if (!GCPVelocityAvailable) {
                 getGCPVelocity(srcBand, targetRectangle);
             }
 
-            final ProductData targetBuffer = targetTile.getDataBuffer();
+            final VelocityData[] velocityList = velocityMap.get(srcBand);
+            final FastDelaunayTriangulator FDT = triangulatorMap.get(srcBand);
+            if (FDT == null)
+                return;
 
-            if (targetBand.getName().contains("_vel")) {
-                final FastDelaunayTriangulator FDT = triangulatorMap.get(srcBand);
-                if (FDT == null)
-                    return;
+            // output velocity, range shift and azimuth shift
+            final org.jlinda.core.Window tileWindow = new org.jlinda.core.Window(y0, yMax - 1, x0, xMax - 1);
+            final double[][] rangeShiftArray = new double[h][w];
+            final double[][] azimuthShiftArray = new double[h][w];
+            final double[][] velocityArray = new double[h][w];
 
-                final org.jlinda.core.Window tileWindow = new org.jlinda.core.Window(y0, yMax - 1, x0, xMax - 1);
-                final double[][] velocityArray = new double[h][w];
+            TriangleUtils.interpolate(rgAzRatio, tileWindow, 1, 1, 0, invalidIndex, FDT,
+                    velocityList, rangeShiftArray, azimuthShiftArray, velocityArray);
 
-                TriangleUtils.interpolate(rgAzRatio, tileWindow, 1, 1, 0, invalidIndex, FDT, velocityArray);
+            final Tile tgtTile = targetTileMap.get(tgtVelocityBand);
+            final TileIndex tgtIndex = new TileIndex(tgtTile);
+            if (tgtVelocityBuffer != null) {
+                for (int y = y0; y < yMax; y++) {
+                    tgtIndex.calculateStride(y);
+                    final int yy = y - y0;
+                    for (int x = x0; x < xMax; x++) {
+                        tgtVelocityBuffer.setElemFloatAt(tgtIndex.getIndex(x), (float) velocityArray[yy][x - x0]);
+                    }
+                }
+            }
 
-                final TileIndex tgtIndex = new TileIndex(targetTile);
+            if (outputShifts && tgtRangeShiftBuffer!= null && tgtAzimuthShiftBuffer != null) {
+                for (int y = y0; y < yMax; y++) {
+                    tgtIndex.calculateStride(y);
+                    final int yy = y - y0;
+                    for (int x = x0; x < xMax; x++) {
+                        tgtRangeShiftBuffer.setElemFloatAt(tgtIndex.getIndex(x), (float) rangeShiftArray[yy][x - x0]);
+                    }
+                }
 
                 for (int y = y0; y < yMax; y++) {
                     tgtIndex.calculateStride(y);
                     final int yy = y - y0;
                     for (int x = x0; x < xMax; x++) {
-                        targetBuffer.setElemFloatAt(tgtIndex.getIndex(x), (float) velocityArray[yy][x - x0]);
+                        tgtAzimuthShiftBuffer.setElemFloatAt(tgtIndex.getIndex(x), (float) azimuthShiftArray[yy][x - x0]);
                     }
                 }
+            }
 
-            } else if (targetBand.getName().contains("_pos")) {
-
-                final VelocityData[] velocityList = velocityMap.get(srcBand);
+            // output GCP positions
+            if (tgtGCPPositionBuffer != null) {
                 for (VelocityData data : velocityList) {
                     final int x = (int) data.mstGCPx;
                     final int y = (int) data.mstGCPy;
                     if (x >= x0 && x < xMax && y >= y0 && y < yMax) {
-                        targetBuffer.setElemFloatAt(targetTile.getDataBufferIndex(x, y), (float) data.velocity);
+                        tgtGCPPositionBuffer.setElemFloatAt(tgtTile.getDataBufferIndex(x, y), (float) data.velocity);
                     }
                 }
             }
@@ -333,6 +398,8 @@ public class OffsetTrackingOp extends Operator {
 
         GCPManager.instance().removeAllGcpGroups();
 
+        writeGCPsToMetadata();
+
         GCPVelocityAvailable = true;
     }
 
@@ -353,11 +420,49 @@ public class OffsetTrackingOp extends Operator {
 
             // eliminate outliers
             if (v < maxVelocity) {
-                velocityList.add(new VelocityData(mGCPPos.x, mGCPPos.y, sGCPPos.x, sGCPPos.y, v));
+                velocityList.add(new VelocityData(mGCPPos.x, mGCPPos.y, sGCPPos.x, sGCPPos.y, rangeShift, azimuthShift, v));
             }
         }
 
         return velocityList.toArray(new VelocityData[velocityList.size()]);
+    }
+
+    private void writeGCPsToMetadata() {
+
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
+        final Set<Band> bandSet = velocityMap.keySet();
+
+        for (Band srcBand : bandSet) {
+            final String productName = srcBand.getProduct().getDisplayName();
+            final String velocityBandName = productName + "_vel";
+
+            final MetadataElement bandElem = AbstractMetadata.getBandAbsMetadata(absRoot, velocityBandName, true);
+
+            MetadataElement warpDataElem = bandElem.getElement("WarpData");
+            if (warpDataElem == null) {
+                warpDataElem = new MetadataElement("WarpData");
+                bandElem.addElement(warpDataElem);
+            } else {
+                // empty out element
+                final MetadataAttribute[] attribList = warpDataElem.getAttributes();
+                for (MetadataAttribute attrib : attribList) {
+                    warpDataElem.removeAttribute(attrib);
+                }
+            }
+
+            final VelocityData[] velocityList = velocityMap.get(srcBand);
+            if (velocityList.length > 0) {
+                for (int i = 0; i < velocityList.length; i++) {
+                    final MetadataElement gcpElem = new MetadataElement("GCP" + i);
+                    warpDataElem.addElement(gcpElem);
+
+                    gcpElem.setAttributeDouble("mst_x", velocityList[i].mstGCPx);
+                    gcpElem.setAttributeDouble("mst_y", velocityList[i].mstGCPy);
+                    gcpElem.setAttributeDouble("slv_x", velocityList[i].slvGCPx);
+                    gcpElem.setAttributeDouble("slv_y", velocityList[i].slvGCPy);
+                }
+            }
+        }
     }
 
     private static class TriangleUtils {
@@ -369,11 +474,12 @@ public class OffsetTrackingOp extends Operator {
             java.util.List<Geometry> list = new ArrayList<>();
             GeometryFactory gf = new GeometryFactory();
 
-            for (VelocityData data : velocityList) {
+            for (int i = 0; i < velocityList.length; i++) {
+                VelocityData data = velocityList[i];
                 if (data.mstGCPy == invalidIndex || data.mstGCPx == invalidIndex) {
                     continue;
                 }
-                list.add(gf.createPoint(new Coordinate(data.mstGCPy, data.mstGCPx * xyRatio, data.velocity)));
+                list.add(gf.createPoint(new Coordinate(data.mstGCPy, data.mstGCPx * xyRatio, i)));
             }
 
             if (list.size() < 3) {
@@ -393,7 +499,8 @@ public class OffsetTrackingOp extends Operator {
         public static void interpolate(final double xyRatio, final org.jlinda.core.Window tileWindow,
                                        final double xScale, final double yScale, final double offset,
                                        final double invalidIndex, FastDelaunayTriangulator FDT,
-                                       final double[][] z_out) {
+                                       final VelocityData[] velocityList,
+                                       final double[][] z1_out, final double[][] z2_out, final double[][] z3_out) {
 
             final double x_min = tileWindow.linelo;
             final double y_min = tileWindow.pixlo;
@@ -403,12 +510,12 @@ public class OffsetTrackingOp extends Operator {
             double xp, yp;
             double xkj, ykj, xlj, ylj;
             double f; // function
-            double zj, zk, zl, zkj, zlj;
-            double a, b, c;
 
             // containers for xy coordinates of Triangles: p1-p2-p3-p1
             double[] vx = new double[4];
             double[] vy = new double[4];
+            double[] vz = new double[3];
+            int[] idx = new int[3];
 
             // declare demRadarCode_phase
             final int nx = (int) tileWindow.lines();
@@ -426,10 +533,6 @@ public class OffsetTrackingOp extends Operator {
 
                 vx[2] = triangle.getC().x;
                 vy[2] = triangle.getC().y / xyRatio;
-
-                //double area = Math.abs((vx[0]*(vy[1]-vy[2])+vx[1]*(vy[2]-vy[0])+vx[2]*(vy[0]-vy[1]))/2);
-                //if(area > 5000)
-                //    continue;
 
                 // skip invalid indices
                 if (vx[0] == invalidIndex || vx[1] == invalidIndex || vx[2] == invalidIndex ||
@@ -486,14 +589,24 @@ public class OffsetTrackingOp extends Operator {
 
                 f = 1.0 / (xkj * ylj - ykj * xlj);
 
-                zj = triangle.getA().z;
-                zk = triangle.getB().z;
-                zl = triangle.getC().z;
-                zkj = zk - zj;
-                zlj = zl - zj;
-                a = -f * (ykj * zlj - zkj * ylj);
-                b = -f * (zkj * xlj - xkj * zlj);
-                c = -a * vx[1] - b * vy[1] + zk;
+                idx[0] = (int)triangle.getA().z;
+                idx[1] = (int)triangle.getB().z;
+                idx[2] = (int)triangle.getC().z;
+
+                vz[0] = velocityList[idx[0]].rangeShift;
+                vz[1] = velocityList[idx[1]].rangeShift;
+                vz[2] = velocityList[idx[2]].rangeShift;
+                double[] abc1 = getABC(vx, vy, vz, f, xkj, ykj, xlj, ylj);
+
+                vz[0] = velocityList[idx[0]].azimuthShift;
+                vz[1] = velocityList[idx[1]].azimuthShift;
+                vz[2] = velocityList[idx[2]].azimuthShift;
+                double[] abc2 = getABC(vx, vy, vz, f, xkj, ykj, xlj, ylj);
+
+                vz[0] = velocityList[idx[0]].velocity;
+                vz[1] = velocityList[idx[1]].velocity;
+                vz[2] = velocityList[idx[2]].velocity;
+                double[] abc3 = getABC(vx, vy, vz, f, xkj, ykj, xlj, ylj);
 
                 for (i = (int) i_min; i <= i_max; i++) {
                     xp = indexToCoord(i, x_min, xScale, offset);
@@ -504,10 +617,30 @@ public class OffsetTrackingOp extends Operator {
                             continue;
                         }
 
-                        z_out[i][j] = a * xp + b * yp + c;
+                        z1_out[i][j] = abc1[0] * xp + abc1[1] * yp + abc1[2];
+                        z2_out[i][j] = abc2[0] * xp + abc2[1] * yp + abc2[2];
+                        z3_out[i][j] = abc3[0] * xp + abc3[1] * yp + abc3[2];
                     }
                 }
             }
+        }
+
+        private static double[] getABC(
+                final double[] vx, final double[] vy, final double[] vz,
+                final double f, final double  xkj, final double ykj, final double xlj, final double ylj) {
+
+            final double zj = vz[0];
+            final double zk = vz[1];
+            final double zl = vz[2];
+            final double zkj = zk - zj;
+            final double zlj = zl - zj;
+
+            final double[] abc = new double[3];
+            abc[0] = -f * (ykj * zlj - zkj * ylj);
+            abc[1] = -f * (zkj * xlj - xkj * zlj);
+            abc[2] = -abc[0] * vx[1] - abc[1] * vy[1] + zk;
+
+            return abc;
         }
 
         private static boolean pointInTriangle(double[] xt, double[] yt, double x, double y) {
@@ -519,11 +652,19 @@ public class OffsetTrackingOp extends Operator {
         }
 
         private static long coordToIndex(final double coord, final double coord0, final double deltaCoord, final double offset) {
-            return (long) Math.floor((((coord - coord0) / (deltaCoord)) - offset) + 0.5);
+            return irint((((coord - coord0) / (deltaCoord)) - offset));
         }
 
         private static double indexToCoord(final long idx, final double coord0, final double deltaCoord, final double offset) {
             return (coord0 + idx * deltaCoord + offset);
+        }
+
+        private static long irint(final double coord) {
+            return ((long) rint(coord));
+        }
+
+        private static double rint(final double coord) {
+            return Math.floor(coord + 0.5);
         }
     }
 
@@ -534,14 +675,18 @@ public class OffsetTrackingOp extends Operator {
         public double slvGCPx;
         public double slvGCPy;
         public double velocity;
+        public double rangeShift;
+        public double azimuthShift;
 
         public VelocityData(final double mstGCPx, final double mstGCPy, final double slvGCPx, final double slvGCPy,
-                            final double velocity) {
+                            final double rangeShift, final double azimuthShift, final double velocity) {
 
             this.mstGCPx = mstGCPx;
             this.mstGCPy = mstGCPy;
             this.slvGCPx = slvGCPx;
             this.slvGCPy = slvGCPy;
+            this.rangeShift = rangeShift;
+            this.azimuthShift = azimuthShift;
             this.velocity = velocity;
         }
     }
