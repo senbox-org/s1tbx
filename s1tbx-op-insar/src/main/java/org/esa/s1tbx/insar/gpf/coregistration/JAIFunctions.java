@@ -16,10 +16,14 @@
 package org.esa.s1tbx.insar.gpf.coregistration;
 
 import javax.media.jai.BorderExtender;
+import javax.media.jai.Interpolation;
+import javax.media.jai.InterpolationTable;
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RenderedOp;
+import javax.media.jai.WarpPolynomial;
 import javax.media.jai.operator.DFTDescriptor;
+import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
 
@@ -142,5 +146,40 @@ public class JAIFunctions {
         // Retrieve both the maximum and minimum pixel value
         final double[][] extrema = (double[][]) op.getProperty("extrema");
         return extrema[1][0];
+    }
+
+    /**
+     * Create warped image.
+     *
+     * @param warp     The WARP polynomial.
+     * @param srcImage The source image.
+     * @return The warped image.
+     */
+    public static RenderedOp createWarpImage(final WarpPolynomial warp, final RenderedImage srcImage,
+                                              final Interpolation interp, final InterpolationTable interpTable) {
+
+        // reformat source image by casting pixel values from ushort to float
+        final ParameterBlock pb1 = new ParameterBlock();
+        pb1.addSource(srcImage);
+        pb1.add(DataBuffer.TYPE_FLOAT);
+        final RenderedImage srcImageFloat = JAI.create("format", pb1);
+
+        if (warp == null) {
+            // no need to warp, images are already perfectly aligned
+            return (RenderedOp) srcImageFloat;
+        }
+
+        // get warped image
+        final ParameterBlock pb2 = new ParameterBlock();
+        pb2.addSource(srcImageFloat);
+        pb2.add(warp);
+
+        if (interp != null) {
+            pb2.add(interp);
+        } else if (interpTable != null) {
+            pb2.add(interpTable);
+        }
+
+        return JAI.create("warp", pb2);
     }
 }

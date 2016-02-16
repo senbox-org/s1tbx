@@ -32,7 +32,7 @@ import static org.jlinda.core.coregistration.utils.CPMUtils.diagxmat;
 import static org.jlinda.core.coregistration.utils.CPMUtils.onesEJML;
 import static org.jlinda.core.coregistration.utils.CPMUtils.scaleInputDiag;
 
-public class CPM {
+public class CPM implements PolynomialModel {
 
     private static final Logger logger = SystemUtils.LOG;
 
@@ -87,7 +87,7 @@ public class CPM {
 
     // JAI polynomial -- for legacy
 
-    public WarpPolynomial jaiWarp = null;
+    private WarpPolynomial jaiWarp = null;
     public double[] xCoefJai = null;
     public double[] yCoefJai = null;
 
@@ -165,6 +165,42 @@ public class CPM {
             }
 
         }
+    }
+
+    public boolean isValid() {
+        return !noRedundancy;
+    }
+
+    public WarpPolynomial getJAIWarp() {
+        return jaiWarp;
+    }
+
+    public int getNumObservations() {
+        return numObservations;
+    }
+
+    public double getRMS(int index) {
+        return rms.get(index);
+    }
+
+    public double getXMasterCoord(int index) {
+        return xMaster.get(index);
+    }
+
+    public double getYMasterCoord(int index) {
+        return yMaster.get(index);
+    }
+
+    public double getXSlaveCoord(int index) {
+        return xSlave.get(index);
+    }
+
+    public double getYSlaveCoord(int index) {
+        return ySlave.get(index);
+    }
+
+    public List<Placemark> getSlaveGCPList() {
+        return slaveGCPList;
     }
 
     public void setSlaveMeta(SLCImage slaveMeta) {

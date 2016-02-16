@@ -56,6 +56,7 @@ import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.engine_utilities.gpf.ThreadManager;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.esa.snap.engine_utilities.util.MemUtils;
+import org.jlinda.nest.gpf.coregistration.GCPManager;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RasterFactory;

@@ -19,7 +19,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.calibration.gpf.CalibrationOp;
 import org.esa.s1tbx.calibration.gpf.support.CalibrationFactory;
 import org.esa.s1tbx.calibration.gpf.support.Calibrator;
-import org.esa.s1tbx.insar.gpf.coregistration.GCPManager;
+import org.esa.s1tbx.insar.gpf.coregistration.WarpData;
 import org.esa.s1tbx.insar.gpf.coregistration.WarpOp;
 import org.esa.s1tbx.insar.gpf.support.SARGeocoding;
 import org.esa.s1tbx.insar.gpf.support.SARUtils;
@@ -62,11 +62,10 @@ import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.gpf.TileGeoreferencing;
 import org.esa.snap.engine_utilities.util.ResourceUtils;
+import org.jlinda.nest.gpf.coregistration.GCPManager;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import java.awt.Color;
-import java.awt.Desktop;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -236,7 +235,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
     private final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<>();
     private final Map<String, Boolean> targetBandapplyRadiometricNormalizationFlag = new HashMap<>();
     private final Map<String, Boolean> targetBandApplyRetroCalibrationFlag = new HashMap<>();
-    private final Map<Band, WarpOp.WarpData> warpDataMap = new HashMap<>(10);
+    private final Map<Band, WarpData> warpDataMap = new HashMap<>(10);
     private String processedSlaveBand;
 
     private TiePointGrid incidenceAngle = null;
@@ -766,7 +765,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
                 }
             }
 
-            final WarpOp.WarpData warpData = new WarpOp.WarpData(slaveGCPGroup);
+            final WarpData warpData = new WarpData(slaveGCPGroup);
             warpDataMap.put(srcBand, warpData);
 
             WarpOp.computeWARPPolynomialFromGCPs(sourceProduct, srcBand, warpPolynomialOrder, masterGCPGroup,
@@ -785,7 +784,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
     private void announceGCPWarning() {
         String msg = "";
         for (Band srcBand : sourceProduct.getBands()) {
-            final WarpOp.WarpData warpData = warpDataMap.get(srcBand);
+            final WarpData warpData = warpDataMap.get(srcBand);
             if (warpData != null && warpData.notEnoughGCPs) {
                 msg += srcBand.getName() + " does not have enough valid GCPs for the warp\n";
                 openResidualsFile = true;
@@ -1051,7 +1050,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
                             final String[] srcBandName = targetBandNameToSourceBandName.get(tileData.bandName);
                             final Band srcBand = sourceProduct.getBand(srcBandName[0]);
                             final PixelPos pixelPos = new PixelPos();
-                            final WarpOp.WarpData warpData = warpDataMap.get(srcBand);
+                            final WarpData warpData = warpDataMap.get(srcBand);
                             if (warpData.notEnoughGCPs) {
                                 continue;
                             }
@@ -1264,7 +1263,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
     }
 
     private void outputGCPShifts(
-            final WarpOp.WarpData warpData, final String bandName, boolean appendFlag)
+            final WarpData warpData, final String bandName, boolean appendFlag)
             throws OperatorException {
 
         final File shiftsFile = getFile(sourceProduct, "_shift.txt");

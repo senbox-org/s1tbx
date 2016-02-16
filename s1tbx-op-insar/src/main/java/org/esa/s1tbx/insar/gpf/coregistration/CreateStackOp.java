@@ -55,6 +55,7 @@ import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;
 import org.jlinda.core.SLCImage;
+import org.jlinda.nest.gpf.coregistration.GCPManager;
 
 import java.awt.*;
 import java.io.IOException;
