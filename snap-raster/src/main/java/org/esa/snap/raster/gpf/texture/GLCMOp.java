@@ -470,6 +470,7 @@ public final class GLCMOp extends Operator {
                 ++cnt;
             }
 
+            final TileIndex srcIndex = new TileIndex(srcInfoList[0].sourceTile);
             for (int ty = ty0; ty < maxY; ty++) {
                 trgIndex.calculateStride(ty);
                 final int y0 = Math.max(ty - halfWindowSize, 0);
@@ -487,11 +488,10 @@ public final class GLCMOp extends Operator {
                         srcInfo.reset(w, h);
                     }
 
-                    computeQuantizedImages(quantizer, x0, y0, xMax, yMax, srcInfoList);
+                    computeQuantizedImages(quantizer, srcIndex, x0, y0, xMax, yMax, srcInfoList);
                     computeGLCM(x0, y0, xMax, yMax, srcInfoList);
 
                     for (SrcInfo srcInfo : srcInfoList) {
-
 
                         if (srcInfo.totals.totalCount == 0) {
                             writeData(srcInfo, srcInfo.tfNoData, idx);
@@ -578,28 +578,34 @@ public final class GLCMOp extends Operator {
         if (computeGLCPWithAllAngles) {
 
             for (int y = y0; y < yMax; y++) {
-                yy = y - y0;
-                final int yyDisp = yy + displacement;
+
                 final boolean withinY0 = y >= y0 && y < yMax;
                 final boolean withinY = y + displacement >= y0 && y + displacement < yMax;
+                if(!withinY && !withinY0)
+                    continue;
 
+                yy = y - y0;
+                final int yyDisp = yy + displacement;
                 for (int x = x0; x < xMax; x++) {
-                    xx = x - x0;
-                    final int xDisp = x + displacement;
-                    final boolean withinX = xDisp >= x0 && xDisp < xMax;
+
+                    final boolean withinX = x + displacement >= x0 && x + displacement < xMax;
                     final boolean within45 = withinY && x + -displacement >= x0 && x + -displacement < xMax;
                     final boolean within90 = withinY && x >= x0 && x < xMax;
+                    if(!withinX && !within45 && !within90)
+                        continue;
 
+                    xx = x - x0;
                     for(SrcInfo srcInfo : srcInfoList) {
                         i = srcInfo.quantizedImage[yy][xx];
                         if (i < 0)
                             continue;
+                        int indexI = i * numQuantLevels;
 
                         // 0
                         if (withinY0 && withinX) {
                             j = srcInfo.quantizedImage[yy][xx + displacement];
                             if (j >= 0) {
-                                addElements(srcInfo.GLCM, i, j, srcInfo.totals);
+                                addElements(srcInfo, i, j, indexI+j, j * numQuantLevels + i);
                             }
                         }
 
@@ -607,7 +613,7 @@ public final class GLCMOp extends Operator {
                         if (within45) {
                             j = srcInfo.quantizedImage[yyDisp][xx - displacement];
                             if (j >= 0) {
-                                addElements(srcInfo.GLCM, i, j, srcInfo.totals);
+                                addElements(srcInfo, i, j, indexI+j, j * numQuantLevels + i);
                             }
                         }
 
@@ -615,7 +621,7 @@ public final class GLCMOp extends Operator {
                         if (within90) {
                             j = srcInfo.quantizedImage[yyDisp][xx];
                             if (j >= 0) {
-                                addElements(srcInfo.GLCM, i, j, srcInfo.totals);
+                                addElements(srcInfo, i, j, indexI+j, j * numQuantLevels + i);
                             }
                         }
 
@@ -623,7 +629,7 @@ public final class GLCMOp extends Operator {
                         if (withinY && withinX) {
                             j = srcInfo.quantizedImage[yyDisp][xx + displacement];
                             if (j >= 0) {
-                                addElements(srcInfo.GLCM, i, j, srcInfo.totals);
+                                addElements(srcInfo, i, j, indexI+j, j * numQuantLevels + i);
                             }
                         }
                     }
@@ -648,7 +654,7 @@ public final class GLCMOp extends Operator {
                         if (withinImage) {
                             j = srcInfo.quantizedImage[yy + displacementY][xx + displacementX];
                             if (j >= 0) {
-                                addElements(srcInfo.GLCM, i, j, srcInfo.totals);
+                                addElements(srcInfo, i, j, i * numQuantLevels + j, j * numQuantLevels + i);
                             }
                         }
                     }
@@ -657,30 +663,28 @@ public final class GLCMOp extends Operator {
         }
     }
 
-    private void addElements(final GLCMElem[] GLCM, int i, int j, Totals totals) {
+    private static void addElements(final SrcInfo srcInfo, int i, int j, int indexI, int indexJ) {
 
-        GLCMElem elem = GLCM[i * numQuantLevels + j];
+        GLCMElem elem = srcInfo.GLCM[indexI];
         if (!elem.init) {
             elem.setPos(i, j);
-            totals.numElems++;
+            srcInfo.totals.numElems++;
         }
         elem.value++;
 
-        elem = GLCM[j * numQuantLevels + i];
+        elem = srcInfo.GLCM[indexJ];
         if (!elem.init) {
             elem.setPos(j, i);
-            totals.numElems++;
+            srcInfo.totals.numElems++;
         }
         elem.value++;
 
-        totals.totalCount++;
+        srcInfo.totals.totalCount++;
     }
 
-    private static void computeQuantizedImages(final Quantizer quantizer,
+    private static void computeQuantizedImages(final Quantizer quantizer, final TileIndex srcIndex,
                                                final int x0, final int y0, final int xMax, final int yMax,
                                                final SrcInfo[] srcInfoList) {
-
-        final TileIndex srcIndex = new TileIndex(srcInfoList[0].sourceTile);
         double v;
 
         for (int y = y0; y < yMax; y++) {
@@ -794,7 +798,7 @@ public final class GLCMOp extends Operator {
         int compute(final double v);
     }
 
-    private static class ProbabilityQuantizer implements Quantizer {
+    private final static class ProbabilityQuantizer implements Quantizer {
         private final double[] newBinLowValues;
         private final int numQuantLevels;
         private final double minBin, maxBin;
@@ -860,7 +864,7 @@ public final class GLCMOp extends Operator {
         }
     }
 
-    private static class EqualDistanceQuantizer implements Quantizer {
+    private final static class EqualDistanceQuantizer implements Quantizer {
         private final double bandMin;
         private final double delta;
         private final int max;
@@ -877,7 +881,7 @@ public final class GLCMOp extends Operator {
         }
     }
 
-    private static class SrcInfo {
+    private final static class SrcInfo {
         public final Tile sourceTile;
         public final TileIndex srcIndex;
         public final ProductData srcData;
@@ -900,19 +904,24 @@ public final class GLCMOp extends Operator {
                     noDataValue, noDataValue, noDataValue,
                     noDataValue, noDataValue, noDataValue,
                     noDataValue);
-        }
 
-        public void reset(int w, int h) {
-            totals = new Totals();
-            quantizedImage = new int[h][w];
             GLCM = new GLCMElem[numQuantLevels * numQuantLevels];
             for (int i = 0; i < GLCM.length; ++i) {
                 GLCM[i] = new GLCMElem();
             }
         }
+
+        public void reset(int w, int h) {
+            totals = new Totals();
+            quantizedImage = new int[h][w];
+            for(GLCMElem elem : GLCM) {
+                elem.init = false;
+                elem.value = 0;
+            }
+        }
     }
 
-    private class TileData {
+    private final class TileData {
         final ProductData dataBuffer;
         final boolean doContrast;
         final boolean doDissimilarity;
@@ -941,7 +950,7 @@ public final class GLCMOp extends Operator {
         }
     }
 
-    private static class TextureFeatures {
+    private final static class TextureFeatures {
 
         public final double Contrast;
         public final double Dissimilarity;
@@ -978,12 +987,12 @@ public final class GLCMOp extends Operator {
         }
     }
 
-    private static class Totals {
+    private final static class Totals {
         public int numElems = 0;
         public int totalCount = 0;
     }
 
-    private static class GLCMElem {
+    private final static class GLCMElem {
 
         public int row;
         public int col;
@@ -996,6 +1005,7 @@ public final class GLCMOp extends Operator {
         void setPos(final int row, final int col) {
             this.row = row;
             this.col = col;
+            this.value = 0;
             init = true;
         }
     }
