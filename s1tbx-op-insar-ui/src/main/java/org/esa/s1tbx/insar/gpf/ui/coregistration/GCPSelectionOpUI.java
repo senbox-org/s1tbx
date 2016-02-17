@@ -49,10 +49,13 @@ public class GCPSelectionOpUI extends BaseOperatorUI {
 
     // for complex products
     final JCheckBox applyFineRegistrationCheckBox = new JCheckBox("Apply Fine Registration");
+    final JCheckBox inSAROptimizedCheckBox = new JCheckBox("Optimize for InSAR");
     private final JComboBox fineRegistrationWindowWidth = new JComboBox(
             new String[]{"8", "16", "32", "64", "128", "256", "512"});
     private final JComboBox fineRegistrationWindowHeight = new JComboBox(
             new String[]{"8", "16", "32", "64", "128", "256", "512"});
+    private final JComboBox fineRegistrationOversampling = new JComboBox(
+            new String[]{"2", "4", "8", "16", "32", "64"});
 
     private final JTextField coherenceWindowSize = new JTextField("");
     private final JTextField coherenceThreshold = new JTextField("");
@@ -61,6 +64,7 @@ public class GCPSelectionOpUI extends BaseOperatorUI {
 
     private boolean isComplex = false;
     private boolean applyFineRegistration = true;
+    private boolean inSAROptimized = true;
 
     final JCheckBox computeOffsetCheckBox = new JCheckBox("Estimate Coarse Offset");
     private boolean computeOffset = false;
@@ -78,6 +82,11 @@ public class GCPSelectionOpUI extends BaseOperatorUI {
             public void itemStateChanged(ItemEvent e) {
                 applyFineRegistration = (e.getStateChange() == ItemEvent.SELECTED);
                 enableComplexFields();
+            }
+        });
+        inSAROptimizedCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                inSAROptimized = (e.getStateChange() == ItemEvent.SELECTED);
             }
         });
 
@@ -114,9 +123,11 @@ public class GCPSelectionOpUI extends BaseOperatorUI {
         if (isComplex) {
             applyFineRegistration = (Boolean) paramMap.get("applyFineRegistration");
             applyFineRegistrationCheckBox.setSelected(applyFineRegistration);
+            inSAROptimizedCheckBox.setSelected(inSAROptimized);
 
             fineRegistrationWindowWidth.setSelectedItem(paramMap.get("fineRegistrationWindowWidth"));
             fineRegistrationWindowHeight.setSelectedItem(paramMap.get("fineRegistrationWindowHeight"));
+            fineRegistrationOversampling.setSelectedItem(paramMap.get("fineRegistrationOversampling"));
             coherenceWindowSize.setText(String.valueOf(paramMap.get("coherenceWindowSize")));
             coherenceThreshold.setText(String.valueOf(paramMap.get("coherenceThreshold")));
         }
@@ -156,8 +167,10 @@ public class GCPSelectionOpUI extends BaseOperatorUI {
             paramMap.put("applyFineRegistration", applyFineRegistration);
 
             if (applyFineRegistration) {
+                paramMap.put("inSAROptimized", inSAROptimized);
                 paramMap.put("fineRegistrationWindowWidth", fineRegistrationWindowWidth.getSelectedItem());
                 paramMap.put("fineRegistrationWindowHeight", fineRegistrationWindowHeight.getSelectedItem());
+                paramMap.put("fineRegistrationOversampling", fineRegistrationOversampling.getSelectedItem());
                 paramMap.put("coherenceThreshold", Double.parseDouble(coherenceThreshold.getText()));
                 if (useSlidingWindow.isSelected()) {
                     paramMap.put("useSlidingWindow", true);
@@ -197,6 +210,8 @@ public class GCPSelectionOpUI extends BaseOperatorUI {
         gbc.gridy++;
         contentPane.add(applyFineRegistrationCheckBox, gbc);
         gbc.gridy++;
+        contentPane.add(inSAROptimizedCheckBox, gbc);
+        gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, "Coherence Window Size:", coherenceWindowSize);
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, "Coherence Threshold:", coherenceThreshold);
@@ -204,6 +219,8 @@ public class GCPSelectionOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(contentPane, gbc, "Fine Registration Window Width:", fineRegistrationWindowWidth);
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, "Fine Registration Window Height:", fineRegistrationWindowHeight);
+        gbc.gridy++;
+        DialogUtils.addComponent(contentPane, gbc, "Fine Window oversampling factor:", fineRegistrationOversampling);
         gbc.gridy++;
 
         gbc.gridx = 0;
@@ -228,13 +245,14 @@ public class GCPSelectionOpUI extends BaseOperatorUI {
 
     private void enableComplexFields() {
         applyFineRegistrationCheckBox.setEnabled(isComplex);
+        inSAROptimizedCheckBox.setEnabled(isComplex && applyFineRegistration);
         fineRegistrationWindowWidth.setEnabled(isComplex && applyFineRegistration);
         fineRegistrationWindowHeight.setEnabled(isComplex && applyFineRegistration);
+        fineRegistrationOversampling.setEnabled(isComplex && applyFineRegistration);
         coherenceWindowSize.setEnabled(isComplex && applyFineRegistration);
         coherenceThreshold.setEnabled(isComplex && applyFineRegistration);
         useSlidingWindow.setEnabled(isComplex && applyFineRegistration);
     }
-
 
     private class RadioListener implements ActionListener {
 
@@ -248,5 +266,4 @@ public class GCPSelectionOpUI extends BaseOperatorUI {
             }
         }
     }
-
 }

@@ -46,6 +46,7 @@ import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
@@ -56,7 +57,10 @@ import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.engine_utilities.gpf.ThreadManager;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.esa.snap.engine_utilities.util.MemUtils;
+import org.jblas.ComplexDoubleMatrix;
+import org.jlinda.core.coregistration.utils.CoregistrationUtils;
 import org.jlinda.nest.gpf.coregistration.GCPManager;
+import org.jlinda.nest.utils.TileUtilsDoris;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RasterFactory;
@@ -125,17 +129,22 @@ public class GCPSelectionOp extends Operator {
     // ==================== input parameters used for complex co-registration ==================
     @Parameter(defaultValue = "true", label = "Apply Fine Registration")
     private boolean applyFineRegistration = true;
+    @Parameter(defaultValue = "true", label = "Optimize for InSAR")
+    private boolean inSAROptimized = true;
 
     @Parameter(valueSet = {"8", "16", "32", "64", "128", "256", "512"}, defaultValue = "32", label = "Fine Registration Window Width")
     private String fineRegistrationWindowWidth = "32";
     @Parameter(valueSet = {"8", "16", "32", "64", "128", "256", "512"}, defaultValue = "32", label = "Fine Registration Window Height")
     private String fineRegistrationWindowHeight = "32";
-    @Parameter(description = "The coherence window size", interval = "(1, 10]", defaultValue = "3",
+    @Parameter(description = "The coherence window size", interval = "(1, 16]", defaultValue = "3",
             label = "Coherence Window Size")
     private int coherenceWindowSize = 3;
     @Parameter(description = "The coherence threshold", interval = "(0, *)", defaultValue = "0.6",
             label = "Coherence Threshold")
     private double coherenceThreshold = 0.6;
+    @Parameter(valueSet = {"2", "4", "8", "16", "32", "64"}, defaultValue = "16", label = "Window oversampling factor")
+    private String fineRegistrationOversampling = "16";
+
     @Parameter(description = "Use sliding window for coherence calculation", defaultValue = "false",
             label = "Compute coherence with sliding window")
     private Boolean useSlidingWindow = false;
@@ -192,6 +201,9 @@ public class GCPSelectionOp extends Operator {
 
     private ElevationModel dem = null;
 
+    private CorrelationWindow coarseWin;
+    private CorrelationWindow fineWin;
+
     /**
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
@@ -224,6 +236,25 @@ public class GCPSelectionOp extends Operator {
 
             rowUpSamplingFactor = Integer.parseInt(rowInterpFactor);
             colUpSamplingFactor = Integer.parseInt(columnInterpFactor);
+
+            // parameters: Coarse
+            coarseWin = new CorrelationWindow(
+                    Integer.parseInt(coarseRegistrationWindowWidth),
+                    Integer.parseInt(coarseRegistrationWindowHeight),
+                    Integer.parseInt(rowInterpFactor),
+                    Integer.parseInt(columnInterpFactor),
+                    1);
+
+            if(fineRegistrationOversampling == null)
+                fineRegistrationOversampling = "2";
+
+            // parameters: Fine
+            fineWin = new CorrelationWindow(
+                    Integer.parseInt(fineRegistrationWindowWidth),
+                    Integer.parseInt(fineRegistrationWindowHeight),
+                    coherenceWindowSize,
+                    coherenceWindowSize,
+                    Integer.parseInt(fineRegistrationOversampling));
 
             final double achievableAccuracy = 1.0 / (double) Math.max(rowUpSamplingFactor, colUpSamplingFactor);
             if (gcpTolerance < achievableAccuracy) {
@@ -310,13 +341,14 @@ public class GCPSelectionOp extends Operator {
     }
 
     private void getCollocatedStackFlag() {
+        collocatedStack = false;
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-        MetadataAttribute attr = absRoot.getAttribute("collocated_stack");
-        if (attr == null) {
-            collocatedStack = false;
-        } else {
-            collocatedStack = true;
-            absRoot.removeAttribute(attr);
+        if(absRoot != null) {
+            MetadataAttribute attr = absRoot.getAttribute("collocated_stack");
+            if (attr != null) {
+                collocatedStack = true;
+                absRoot.removeAttribute(attr);
+            }
         }
     }
 
@@ -508,18 +540,18 @@ public class GCPSelectionOp extends Operator {
     /**
      * Compute slave GCPs for the given tile.
      *
-     * @param slaveBand  the input band
+     * @param slaveBand1  the input band
      * @param slaveBand2 for complex
      * @param targetBand the output band
      */
-    private synchronized void computeSlaveGCPs(final Band slaveBand, final Band slaveBand2, final Band targetBand,
+    private synchronized void computeSlaveGCPs(final Band slaveBand1, final Band slaveBand2, final Band targetBand,
                                                final String bandCountStr) throws OperatorException {
 
-        if (gcpsComputedMap.get(slaveBand)) {
+        if (gcpsComputedMap.get(slaveBand1)) {
             return;
         }
 
-        gcpsComputedMap.put(slaveBand, true);
+        gcpsComputedMap.put(slaveBand1, true);
         try {
 
             final ProductNodeGroup<Placemark> targetGCPGroup = GCPManager.instance().getGcpGroup(targetBand);
@@ -527,7 +559,7 @@ public class GCPSelectionOp extends Operator {
 
             final int[] offset = new int[2]; // 0-x, 1-y
             if (computeOffset) {
-                determiningImageOffset(slaveBand, slaveBand2, offset);
+                determiningImageOffset(slaveBand1, slaveBand2, offset);
             }
 
             final ThreadManager threadManager = new ThreadManager();
@@ -537,7 +569,7 @@ public class GCPSelectionOp extends Operator {
 
             final int numberOfMasterGCPs = masterGcpGroup.getNodeCount();
             final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
-            status.beginTask("Cross Correlating " + bandCountStr + ' ' + slaveBand.getName() + "... ", numberOfMasterGCPs);
+            status.beginTask("Cross Correlating " + bandCountStr + ' ' + slaveBand1.getName() + "... ", numberOfMasterGCPs);
 
             for (int i = 0; i < numberOfMasterGCPs; ++i) {
                 checkForCancellation();
@@ -560,11 +592,21 @@ public class GCPSelectionOp extends Operator {
                         @Override
                         public void run() {
                             //System.out.println("Running "+mPin.getName());
-                            boolean getSlaveGCP = getCoarseSlaveGCPPosition(slaveBand, slaveBand2, mGCPPixelPos, sGCPPixelPos);
+                            boolean getSlaveGCP;
+                            if(complexCoregistration && inSAROptimized) {
+                                getSlaveGCP = getCoarseOffsets(slaveBand1, slaveBand2, mGCPPixelPos, sGCPPixelPos);
 
-                            if (getSlaveGCP && complexCoregistration && applyFineRegistration) {
-                                getSlaveGCP = getFineSlaveGCPPosition(slaveBand, slaveBand2, mGCPPixelPos, sGCPPixelPos);
+                                if (getSlaveGCP) {
+                                    getSlaveGCP = getFineOffsets(slaveBand1, slaveBand2, mGCPPixelPos, sGCPPixelPos);
+                                }
+                            } else {
+                                getSlaveGCP = getCoarseSlaveGCPPosition(slaveBand1, slaveBand2, mGCPPixelPos, sGCPPixelPos);
+
+                                if (getSlaveGCP && complexCoregistration && applyFineRegistration) {
+                                    getSlaveGCP = getFineSlaveGCPPosition(slaveBand1, slaveBand2, mGCPPixelPos, sGCPPixelPos);
+                                }
                             }
+
 
                             if (getSlaveGCP) {
 
@@ -844,6 +886,73 @@ public class GCPSelectionOp extends Operator {
 
         return (pixelPos.x - cHalfWindowWidth + 1 >= 0 && pixelPos.x + cHalfWindowWidth <= sourceImageWidth - 1) &&
                 (pixelPos.y - cHalfWindowHeight + 1 >= 0 && pixelPos.y + cHalfWindowHeight <= sourceImageHeight - 1);
+    }
+
+    private boolean getCoarseOffsets(final Band slaveBand1, final Band slaveBand2,
+                                     final PixelPos mGCPPixelPos,
+                                     final PixelPos sGCPPixelPos) {
+
+        try {
+            // get data
+            final ComplexDoubleMatrix mI = getComplexDoubleMatrix(masterBand1, masterBand2, mGCPPixelPos, coarseWin);
+            final ComplexDoubleMatrix sI = getComplexDoubleMatrix(slaveBand1, slaveBand2, sGCPPixelPos, coarseWin);
+
+            final double[] coarseOffset = {0, 0};
+
+            double coherence = CoregistrationUtils.crossCorrelateFFT(coarseOffset, mI, sI, coarseWin.ovsFactor, coarseWin.accY, coarseWin.accX);
+
+            SystemUtils.LOG.info("Coarse sGCP = ({}, {})"+ coarseOffset[1]+ coarseOffset[0]);
+            SystemUtils.LOG.info("Coarse sGCP coherence = {}"+ coherence);
+
+            sGCPPixelPos.x += (float) coarseOffset[1];
+            sGCPPixelPos.y += (float) coarseOffset[0];
+
+            return true;
+
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException(getId() + " getCoarseSlaveGCPPosition ", e);
+        }
+        return false;
+    }
+
+    private boolean getFineOffsets(final Band slaveBand1, final Band slaveBand2,
+                                   final PixelPos mGCPPixelPos,
+                                   final PixelPos sGCPPixelPos) {
+        try {
+            SystemUtils.LOG.info("mGCP = ({}, {})"+ mGCPPixelPos.x+ mGCPPixelPos.y);
+            SystemUtils.LOG.info("Initial sGCP = ({}, {})"+ sGCPPixelPos.x+ sGCPPixelPos.y);
+
+            ComplexDoubleMatrix mI = getComplexDoubleMatrix(masterBand1, masterBand2, mGCPPixelPos, fineWin);
+            ComplexDoubleMatrix sI = getComplexDoubleMatrix(slaveBand1, slaveBand2, sGCPPixelPos, fineWin);
+
+            final double[] fineOffset = {sGCPPixelPos.x, sGCPPixelPos.y};
+
+            final double coherence = CoregistrationUtils.crossCorrelateFFT(fineOffset, mI, sI, fineWin.ovsFactor, fineWin.accY, fineWin.accX);
+
+            SystemUtils.LOG.info("Final sGCP = ({},{})"+ fineOffset[1]+ fineOffset[0]);
+            SystemUtils.LOG.info("Final sGCP coherence = {}"+ coherence);
+
+            if (coherence < coherenceThreshold) {
+                //System.out.println("Invalid GCP");
+                return false;
+            } else {
+                sGCPPixelPos.x += (float) fineOffset[1];
+                sGCPPixelPos.y += (float) fineOffset[0];
+                //System.out.println("Valid GCP");
+                return true;
+            }
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException(getId() + " getFineSlaveGCPPosition ", e);
+        }
+        return false;
+    }
+
+    private ComplexDoubleMatrix getComplexDoubleMatrix(Band band1, Band band2, PixelPos pixelPos, CorrelationWindow corrWindow) {
+
+        Rectangle rectangle = corrWindow.defineRectangleMask(pixelPos);
+        Tile tileReal = getSourceTile(band1, rectangle);
+        Tile tileImag = getSourceTile(band2, rectangle);
+        return TileUtilsDoris.pullComplexDoubleMatrix(tileReal, tileImag);
     }
 
     private boolean getCoarseSlaveGCPPosition(final Band slaveBand, final Band slaveBand2,
@@ -2028,6 +2137,58 @@ public class GCPSelectionOp extends Operator {
             sIQ = null;
             sII0 = null;
             sIQ0 = null;
+        }
+    }
+
+    private static class CorrelationWindow {
+
+        final int height;
+        final int width;
+        final int halfWidth;
+        final int halfHeight;
+        final int accY;
+        final int accX;
+
+        final int ovsFactor;
+
+        private CorrelationWindow(int winWidth, int winHeight, int accX, int accY, int ovsFactor) {
+            this.accX = accX;
+            this.accY = accY;
+            this.width = winWidth;
+            this.height = winHeight;
+
+            this.halfWidth = winWidth / 2;
+            this.halfHeight = winHeight / 2;
+
+            this.ovsFactor = ovsFactor;
+        }
+
+        public org.jlinda.core.Window defineWindowMask(int x, int y) {
+            int l0 = y - halfHeight;
+            int lN = y + halfHeight - 1;
+            int p0 = x - halfWidth;
+            int pN = x + halfWidth - 1;
+
+            return new org.jlinda.core.Window(l0, lN, p0, pN);
+        }
+
+        public org.jlinda.core.Window defineWindowMask(PixelPos pos) {
+            int l0 = (int) (pos.y - halfHeight);
+            int lN = (int) (pos.y + halfHeight - 1);
+            int p0 = (int) (pos.x - halfWidth);
+            int pN = (int) (pos.x + halfWidth - 1);
+
+            return new org.jlinda.core.Window(l0, lN, p0, pN);
+        }
+
+        public Rectangle defineRectangleMask(int x, int y) {
+            org.jlinda.core.Window temp = defineWindowMask(x, y);
+            return new Rectangle((int) temp.pixlo, (int) temp.linelo, (int) temp.pixels(), (int) temp.lines());
+        }
+
+        public Rectangle defineRectangleMask(PixelPos pos) {
+            org.jlinda.core.Window temp = defineWindowMask(pos);
+            return new Rectangle((int) temp.pixlo, (int) temp.linelo, (int) temp.pixels(), (int) temp.lines());
         }
     }
 
