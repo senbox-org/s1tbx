@@ -90,8 +90,8 @@ public final class GLCMOp extends Operator {
             defaultValue = QUANTIZATION_LEVELS_32, label = "Quantization Levels")
     private String quantizationLevelsStr = QUANTIZATION_LEVELS_64;
 
-    @Parameter(description = "Pixel displacement", interval = "[1, 10]", defaultValue = "1", label = "Displacement")
-    private int displacement = 1;
+    @Parameter(description = "Pixel displacement", interval = "[1, 8]", defaultValue = "4", label = "Displacement")
+    private int displacement = 4;
 
     @Parameter(description = "Output Contrast", defaultValue = "true", label = "Contrast")
     private Boolean outputContrast = true;
