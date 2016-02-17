@@ -41,14 +41,14 @@ public class WarpOpUI extends BaseOperatorUI {
             WarpOp.NEAREST_NEIGHBOR, WarpOp.BILINEAR, WarpOp.BICUBIC, WarpOp.BICUBIC2,
             WarpOp.TRI, WarpOp.CC4P, WarpOp.CC6P, WarpOp.TS6P, WarpOp.TS8P, WarpOp.TS16P});
 
-    private final JTextField rmsThreshold = new JTextField("");
+    private final JComboBox<String> rmsThreshold = new JComboBox(new String[]{"0.001", "0.05", "0.1", "0.5", "1.0"});
 
     private final JCheckBox inSAROptimizedCheckBox = new JCheckBox("InSAR Optimized");
     private Boolean inSAROptimized;
 
     private final JCheckBox demRefinementCheckBox = new JCheckBox("Offset Refinement Based on DEM");
     private Boolean demRefinement;
-    private final JComboBox demName = new JComboBox<>(DEMFactory.getDEMNameList());
+    private final JComboBox<String> demName = new JComboBox<>(DEMFactory.getDEMNameList());
 
     private final JCheckBox openResidualsFileCheckBox = new JCheckBox("Show Residuals");
     private boolean openResidualsFile;
@@ -86,7 +86,7 @@ public class WarpOpUI extends BaseOperatorUI {
     @Override
     public void initParameters() {
 
-        rmsThreshold.setText(String.valueOf(paramMap.get("rmsThreshold")));
+        rmsThreshold.setSelectedItem(String.valueOf(paramMap.get("rmsThreshold")));
         warpPolynomialOrder.setSelectedItem(paramMap.get("warpPolynomialOrder"));
 
         if (sourceProducts != null && sourceProducts.length > 0) {
@@ -136,7 +136,7 @@ public class WarpOpUI extends BaseOperatorUI {
     @Override
     public void updateParameters() {
 
-        paramMap.put("rmsThreshold", Float.parseFloat(rmsThreshold.getText()));
+        paramMap.put("rmsThreshold", Float.parseFloat((String)rmsThreshold.getSelectedItem()));
         paramMap.put("warpPolynomialOrder", Integer.parseInt((String) warpPolynomialOrder.getSelectedItem()));
         paramMap.put("interpolationMethod", interpolationMethod.getSelectedItem());
 

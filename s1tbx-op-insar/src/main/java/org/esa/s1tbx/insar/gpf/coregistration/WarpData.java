@@ -205,7 +205,7 @@ public class WarpData implements PolynomialModel {
      * @param warpPolynomialOrder The WARP polynimal order.
      * @param masterGCPGroup      The master GCPs.
      */
-    public void computeWARPPolynomial(final int warpPolynomialOrder, final ProductNodeGroup<Placemark> masterGCPGroup) {
+    private void computeWARPPolynomial(final int warpPolynomialOrder, final ProductNodeGroup<Placemark> masterGCPGroup) {
 
         getNumOfValidGCPs(warpPolynomialOrder);
 
@@ -421,7 +421,7 @@ public class WarpData implements PolynomialModel {
      * @param bandName            the band name
      * @throws OperatorException The exceptions.
      */
-    public static void outputCoRegistrationInfo(final Product sourceProduct, final int warpPolynomialOrder,
+    private static void outputCoRegistrationInfo(final Product sourceProduct, final int warpPolynomialOrder,
                                                 final WarpData warpData, final boolean appendFlag,
                                                 final float threshold, final int parseIndex, final String bandName)
             throws OperatorException {

@@ -106,7 +106,7 @@ public class WarpOp extends Operator {
     private Product targetProduct;
 
     @Parameter(description = "Confidence level for outlier detection procedure, lower value accepts more outliers",
-            valueSet = {"0.001", "0.005", "0.05", "0.1"},
+            valueSet = {"0.001", "0.05", "0.1", "0.5", "1.0"},
             defaultValue = "0.05",
             label = "Significance Level for Outlier Removal")
     private float rmsThreshold = 0.05f;
@@ -135,16 +135,16 @@ public class WarpOp extends Operator {
     @Parameter(defaultValue = "false")
     private boolean excludeMaster = false;
 
-    private Interpolation interp = null;
-    private InterpolationTable interpTable = null;
+    private Interpolation interp;
+    private InterpolationTable interpTable;
 
     @Parameter(description = "Show the Residuals file in a text viewer", defaultValue = "false", label = "Show Residuals")
-    private Boolean openResidualsFile = false;
+    private Boolean openResidualsFile;
 
-    private Band masterBand = null;
-    private Band masterBand2 = null;
-    private boolean complexCoregistration = false;
-    private boolean warpDataAvailable = false;
+    private Band masterBand;
+    private Band masterBand2;
+    private boolean complexCoregistration;
+    private boolean warpDataAvailable;
 
     public static final String NEAREST_NEIGHBOR = "Nearest-neighbor interpolation";
     public static final String BILINEAR = "Bilinear interpolation";
@@ -162,12 +162,12 @@ public class WarpOp extends Operator {
     private final Map<Band, PolynomialModel> warpDataMap = new HashMap<>(10);
 
     private String processedSlaveBand;
-    private String[] masterBandNames = null;
+    private String[] masterBandNames;
 
     // DEM refinement
     private static final int ORBIT_INTERP_DEGREE = 3;
     float demNoDataValue = 0;
-    private ElevationModel dem = null;
+    private ElevationModel dem;
 
     private int maxIterations = 20;
 
@@ -209,47 +209,40 @@ public class WarpOp extends Operator {
                 cpmWtestCriticalValue = 1.64485362695147f;
             } else {
                 cpmWtestCriticalValue = 1.95996398454005f;
+                inSAROptimized = false;
             }
 
-            // The following code is temporary
-            if (complexCoregistration) {
-
-                switch (interpolationMethod) {
-                    case CC4P:
-                        constructInterpolationTable(CC4P);
-                        break;
-                    case CC6P:
-                        constructInterpolationTable(CC6P);
-                        break;
-                    case TS6P:
-                        constructInterpolationTable(TS6P);
-                        break;
-                    case TS8P:
-                        constructInterpolationTable(TS8P);
-                        break;
-                    case TS16P:
-                        constructInterpolationTable(TS16P);
-                        break;
-                    default:
-                        interp = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
-                        break;
-                }
-            } else { // detected products
-
-                switch (interpolationMethod) {
-                    case NEAREST_NEIGHBOR:
-                        interp = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
-                        break;
-                    case BILINEAR:
-                        interp = Interpolation.getInstance(Interpolation.INTERP_BILINEAR);
-                        break;
-                    case BICUBIC:
-                        interp = Interpolation.getInstance(Interpolation.INTERP_BICUBIC);
-                        break;
-                    case BICUBIC2:
-                        interp = Interpolation.getInstance(Interpolation.INTERP_BICUBIC_2);
-                        break;
-                }
+            switch (interpolationMethod) {
+                case NEAREST_NEIGHBOR:
+                    interp = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
+                    break;
+                case BILINEAR:
+                    interp = Interpolation.getInstance(Interpolation.INTERP_BILINEAR);
+                    break;
+                case BICUBIC:
+                    interp = Interpolation.getInstance(Interpolation.INTERP_BICUBIC);
+                    break;
+                case BICUBIC2:
+                    interp = Interpolation.getInstance(Interpolation.INTERP_BICUBIC_2);
+                    break;
+                case CC4P:
+                    constructInterpolationTable(CC4P);
+                    break;
+                case CC6P:
+                    constructInterpolationTable(CC6P);
+                    break;
+                case TS6P:
+                    constructInterpolationTable(TS6P);
+                    break;
+                case TS8P:
+                    constructInterpolationTable(TS8P);
+                    break;
+                case TS16P:
+                    constructInterpolationTable(TS16P);
+                    break;
+                default:
+                    interp = Interpolation.getInstance(Interpolation.INTERP_BILINEAR);
+                    break;
             }
 
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
