@@ -23,8 +23,8 @@
 	  <includeMaster>true</includeMaster>
     </parameters>
   </node>
-  <node id="GCP-Selection">
-    <operator>GCP-Selection</operator>
+  <node id="Cross-Correlation">
+    <operator>Cross-Correlation</operator>
     <sources>
       <sourceProduct refid="CreateStack"/>
     </sources>
@@ -49,7 +49,7 @@
   <node id="Warp">
     <operator>Warp</operator>
     <sources>
-      <sourceProduct refid="GCP-Selection"/>
+      <sourceProduct refid="Cross-Correlation"/>
     </sources>
     <parameters>
       <rmsThreshold>0.05</rmsThreshold>
@@ -76,7 +76,7 @@
     <node id="CreateStack">
       <displayPosition y="101.0" x="154.0"/>
     </node>
-    <node id="GCP-Selection">
+    <node id="Cross-Correlation">
       <displayPosition y="100.0" x="248.0"/>
     </node>
     <node id="Warp">

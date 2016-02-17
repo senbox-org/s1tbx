@@ -95,12 +95,12 @@ import java.util.Map;
  * accurate enough.
  */
 
-@OperatorMetadata(alias = "GCP-Selection",
+@OperatorMetadata(alias = "Cross-Correlation",
         category = "Radar/Coregistration",
         authors = "Jun Lu, Luis Veci, Petar Marinkovic",
         copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
         description = "Automatic Selection of Ground Control Points")
-public class GCPSelectionOp extends Operator {
+public class CrossCorrelationOp extends Operator {
 
     @SourceProduct
     private Product sourceProduct;
@@ -208,7 +208,7 @@ public class GCPSelectionOp extends Operator {
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
      */
-    public GCPSelectionOp() {
+    public CrossCorrelationOp() {
     }
 
     /**
@@ -2203,7 +2203,7 @@ public class GCPSelectionOp extends Operator {
      */
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(GCPSelectionOp.class);
+            super(CrossCorrelationOp.class);
         }
     }
 }

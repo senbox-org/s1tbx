@@ -34,7 +34,7 @@ import java.util.Map;
 /**
  * User interface for CreateCoherenceImageOp
  */
-public class CreateCoherenceImageOpUI extends BaseOperatorUI {
+public class CoherenceOpUI extends BaseOperatorUI {
 
     private final JCheckBox squarePixelCheckBox = new JCheckBox("Square Pixel");
     private final JCheckBox independentWindowSizeCheckBox = new JCheckBox("Independent Window Sizes");

@@ -43,12 +43,12 @@ import static org.junit.Assert.assertTrue;
 /**
  * Unit test for GCPSelectionOp.
  */
-public class TestGCPSelectionOp {
+public class TestCrossCorrelationOp {
 
     static {
         TestUtils.initTestEnvironment();
     }
-    private final static OperatorSpi spi = new GCPSelectionOp.Spi();
+    private final static OperatorSpi spi = new CrossCorrelationOp.Spi();
 
     @Test
     public void testOperator() throws Exception {
@@ -58,7 +58,7 @@ public class TestGCPSelectionOp {
         final ProductNodeGroup<Placemark> masterGcpGroup = GCPManager.instance().getGcpGroup(product.getBandAt(0));
         assertTrue(masterGcpGroup.getNodeCount() == 1);
 
-        final GCPSelectionOp op = (GCPSelectionOp) spi.createOperator();
+        final CrossCorrelationOp op = (CrossCorrelationOp) spi.createOperator();
         assertNotNull(op);
 
         op.setSourceProduct(product);

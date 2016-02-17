@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * User interface for GCPSelectionOp
  */
-public class GCPSelectionOpUI extends BaseOperatorUI {
+public class CrossCorrelationOpUI extends BaseOperatorUI {
 
     private final JComboBox coarseRegistrationWindowWidth = new JComboBox(
             new String[]{"32", "64", "128", "256", "512", "1024", "2048"});

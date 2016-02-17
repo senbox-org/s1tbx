@@ -21,8 +21,8 @@
             <includeMaster>true</includeMaster>
         </parameters>
     </node>
-    <node id="GCP-Selection">
-        <operator>GCP-Selection</operator>
+    <node id="Cross-Correlation">
+        <operator>Cross-Correlation</operator>
         <sources>
             <sourceProduct refid="CreateStack"/>
         </sources>
@@ -69,7 +69,7 @@
     <node id="4-Resample">
         <operator>Resample</operator>
         <sources>
-            <sourceProduct refid="GCP-Selection"/>
+            <sourceProduct refid="Cross-Correlation"/>
         </sources>
         <parameters>
             <cpmDegree>2</cpmDegree>

@@ -189,40 +189,40 @@
     </folder>
 
     <folder name="OperatorUIs">
-        <file name="org.esa.s1tbx.gpf.CreateStackOpUI">
+        <file name="org.esa.s1tbx.insar.gpf.ui.coregistration.CreateStackOpUI">
             <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.coregistration.CreateStackOpUI"/>
             <attr name="operatorName" stringvalue="CreateStack"/>
         </file>
-        <file name="org.esa.s1tbx.gpf.GCPSelectionOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.coregistration.GCPSelectionOpUI"/>
-            <attr name="operatorName" stringvalue="GCP-Selection"/>
+        <file name="org.esa.s1tbx.insar.gpf.ui.coregistration.CrossCorrelationOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.coregistration.CrossCorrelationOpUI"/>
+            <attr name="operatorName" stringvalue="Cross-Correlation"/>
+        </file>
+        <file name="org.esa.s1tbx.insar.gpf.ui.coregistration.WarpOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.coregistration.WarpOpUI"/>
+            <attr name="operatorName" stringvalue="Warp"/>
+        </file>
+        <file name="org.esa.s1tbx.insar.gpf.ui.coregistration.DEMBasedCoregistrationOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.coregistration.DEMBasedCoregistrationOpUI"/>
+            <attr name="operatorName" stringvalue="DEM-Based-Coregistration"/>
+        </file>
+        <file name="org.esa.s1tbx.insar.gpf.ui.coregistration.DEMAssistedCoregistrationOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.coregistration.DEMAssistedCoregistrationOpUI"/>
+            <attr name="operatorName" stringvalue="DEM-Assisted-Coregistration"/>
         </file>
         <file name="org.esa.s1tbx.insar.gpf.ui.PCAOpUI">
             <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.PCAOpUI"/>
             <attr name="operatorName" stringvalue="Principle-Components"/>
         </file>
-        <file name="org.esa.s1tbx.gpf.WarpOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.coregistration.WarpOpUI"/>
-            <attr name="operatorName" stringvalue="Warp"/>
-        </file>
-        <file name="org.esa.s1tbx.gpf.DEMBasedCoregistrationOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.coregistration.DEMBasedCoregistrationOpUI"/>
-            <attr name="operatorName" stringvalue="DEM-Based-Coregistration"/>
-        </file>
-        <file name="org.esa.s1tbx.gpf.DEMGenerationOpUI">
+        <file name="org.esa.s1tbx.insar.gpf.ui.DEMGenerationOpUI">
             <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.DEMGenerationOpUI"/>
             <attr name="operatorName" stringvalue="DEMGeneration"/>
         </file>
-        <file name="org.esa.s1tbx.gpf.DEMAssistedCoregistrationOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.coregistration.DEMAssistedCoregistrationOpUI"/>
-            <attr name="operatorName" stringvalue="DEM-Assisted-Coregistration"/>
-        </file>
-        <file name="org.esa.s1tbx.gpf.CreateCoherenceImageOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.CreateCoherenceImageOpUI"/>
+        <file name="org.esa.s1tbx.insar.gpf.ui.CoherenceOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.CoherenceOpUI"/>
             <attr name="operatorName" stringvalue="Coherence"/>
         </file>
-        <file name="org.esa.s1tbx.gpf.CreateInterferogramOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.CreateInterferogramOpUI"/>
+        <file name="org.esa.s1tbx.insar.gpf.ui.InterferogramOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.InterferogramOpUI"/>
             <attr name="operatorName" stringvalue="Interferogram"/>
         </file>
     </folder>

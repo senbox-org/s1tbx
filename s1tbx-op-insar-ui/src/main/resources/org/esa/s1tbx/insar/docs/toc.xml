@@ -12,7 +12,7 @@
             <tocitem text="Coregistration">
                 <tocitem text="Automatic Coregistration">
                     <tocitem text="Create Stack" target="CreateStackOp"/>
-                    <tocitem text="GCP Selection" target="GCPSelectionOp"/>
+                    <tocitem text="Cross Correlation" target="CrossCorrelationOp"/>
                     <tocitem text="Warp" target="WarpOp"/>
                 </tocitem>
             </tocitem>

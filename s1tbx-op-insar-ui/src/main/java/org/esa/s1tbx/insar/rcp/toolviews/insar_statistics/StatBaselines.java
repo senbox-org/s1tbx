@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.insar.rcp.toolviews;
+package org.esa.s1tbx.insar.rcp.toolviews.insar_statistics;
 
 import org.esa.snap.core.datamodel.Product;
 

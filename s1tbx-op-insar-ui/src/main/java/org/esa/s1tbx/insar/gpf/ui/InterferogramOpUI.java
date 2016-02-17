@@ -34,7 +34,7 @@ import java.util.Map;
 /**
  * User interface for CreateInterferogramOp
  */
-public class CreateInterferogramOpUI extends BaseOperatorUI {
+public class InterferogramOpUI extends BaseOperatorUI {
 
     private final JCheckBox subtractFlatEarthPhaseCheckBox = new JCheckBox("Subtract flat-earth phase");
     private final JCheckBox includeCoherenceCheckBox = new JCheckBox("Include coherence estimation");
