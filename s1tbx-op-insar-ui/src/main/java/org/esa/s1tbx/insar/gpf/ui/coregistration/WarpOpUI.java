@@ -102,14 +102,14 @@ public class WarpOpUI extends BaseOperatorUI {
 
         interpolationMethod.setSelectedItem(paramMap.get("interpolationMethod"));
 
-        inSAROptimized = (Boolean)paramMap.get("inSAROptimized");
-        if(inSAROptimized == null) {
+        inSAROptimized = (Boolean) paramMap.get("inSAROptimized");
+        if (inSAROptimized == null) {
             inSAROptimized = false;
         }
         inSAROptimizedCheckBox.setSelected(inSAROptimized);
 
-        demRefinement = (Boolean)paramMap.get("demRefinement");
-        if(demRefinement == null) {
+        demRefinement = (Boolean) paramMap.get("demRefinement");
+        if (demRefinement == null) {
             demRefinement = false;
         }
         demRefinementCheckBox.setSelected(demRefinement);
@@ -117,7 +117,7 @@ public class WarpOpUI extends BaseOperatorUI {
         final String demNameParam = (String) paramMap.get("demName");
         if (demNameParam != null) {
             ElevationModelDescriptor descriptor = ElevationModelRegistry.getInstance().getDescriptor(demNameParam);
-            if(descriptor != null) {
+            if (descriptor != null) {
                 demName.setSelectedItem(DEMFactory.getDEMDisplayName(descriptor));
             } else {
                 demName.setSelectedItem(demNameParam);

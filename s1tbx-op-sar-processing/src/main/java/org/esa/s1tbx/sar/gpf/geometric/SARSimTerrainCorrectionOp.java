@@ -20,7 +20,6 @@ import org.esa.s1tbx.calibration.gpf.CalibrationOp;
 import org.esa.s1tbx.calibration.gpf.support.CalibrationFactory;
 import org.esa.s1tbx.calibration.gpf.support.Calibrator;
 import org.esa.s1tbx.insar.gpf.coregistration.WarpData;
-import org.esa.s1tbx.insar.gpf.coregistration.WarpOp;
 import org.esa.s1tbx.insar.gpf.support.SARGeocoding;
 import org.esa.s1tbx.insar.gpf.support.SARUtils;
 import org.esa.snap.core.datamodel.Band;
@@ -356,18 +355,18 @@ public class SARSimTerrainCorrectionOp extends Operator {
         }
 
         if (saveBetaNought || saveGammaNought ||
-            (saveSigmaNought && incidenceAngleForSigma0.contains(Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID))) {
+                (saveSigmaNought && incidenceAngleForSigma0.contains(Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID))) {
             saveSigmaNought = true;
             saveProjectedLocalIncidenceAngle = true;
         }
 
         if ((saveGammaNought && incidenceAngleForGamma0.contains(Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID)) ||
-            (saveSigmaNought && incidenceAngleForSigma0.contains(Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID))) {
+                (saveSigmaNought && incidenceAngleForSigma0.contains(Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID))) {
             saveIncidenceAngleFromEllipsoid = true;
         }
 
         if ((saveGammaNought && incidenceAngleForGamma0.contains(Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM)) ||
-            (saveSigmaNought && incidenceAngleForSigma0.contains(Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM))) {
+                (saveSigmaNought && incidenceAngleForSigma0.contains(Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM))) {
             saveLocalIncidenceAngle = true;
         }
 
@@ -422,8 +421,8 @@ public class SARSimTerrainCorrectionOp extends Operator {
         } else {
             if (applyRadiometricNormalization && mission.equals("ERS")) {
                 throw new OperatorException("For radiometric normalization of ERS product, please use one of the following\n" +
-                                            " user graphs: 'RemoveAntPat_SARSim_GCPSelection' or 'RemoveAntPat_Multilook_SARSim_GCPSelection',\n" +
-                                            " then apply 'SARSim Terrain Correction' operator to the output in the Graph Builder.");
+                                                    " user graphs: 'RemoveAntPat_SARSim_GCPSelection' or 'RemoveAntPat_Multilook_SARSim_GCPSelection',\n" +
+                                                    " then apply 'SARSim Terrain Correction' operator to the output in the Graph Builder.");
             }
         }
 
@@ -561,7 +560,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
         final Band[] sourceBands = sourceProduct.getBands();
         if (sourceBands.length == 1) {
             throw new OperatorException("Source product should include a simulated intensity band. Only " +
-                                        sourceBands[0].getName() + " found");
+                                                sourceBands[0].getName() + " found");
         }
 
         String targetBandName;
@@ -768,8 +767,8 @@ public class SARSimTerrainCorrectionOp extends Operator {
             final WarpData warpData = new WarpData(slaveGCPGroup);
             warpDataMap.put(srcBand, warpData);
 
-            WarpOp.computeWARPPolynomialFromGCPs(sourceProduct, srcBand, warpPolynomialOrder, masterGCPGroup,
-                                                 maxIterations, rmsThreshold, appendFlag, warpData);
+            warpData.computeWARPPolynomialFromGCPs(sourceProduct, srcBand, warpPolynomialOrder, masterGCPGroup,
+                                                 maxIterations, rmsThreshold, appendFlag);
 
             if (!appendFlag) {
                 appendFlag = true;
@@ -785,7 +784,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
         String msg = "";
         for (Band srcBand : sourceProduct.getBands()) {
             final WarpData warpData = warpDataMap.get(srcBand);
-            if (warpData != null && warpData.notEnoughGCPs) {
+            if (warpData != null && !warpData.isValid()) {
                 msg += srcBand.getName() + " does not have enough valid GCPs for the warp\n";
                 openResidualsFile = true;
             }
@@ -1051,10 +1050,10 @@ public class SARSimTerrainCorrectionOp extends Operator {
                             final Band srcBand = sourceProduct.getBand(srcBandName[0]);
                             final PixelPos pixelPos = new PixelPos();
                             final WarpData warpData = warpDataMap.get(srcBand);
-                            if (warpData.notEnoughGCPs) {
+                            if (!warpData.isValid()) {
                                 continue;
                             }
-                            WarpOp.getWarpedCoords(warpData, warpPolynomialOrder,
+                            warpData.getWarpedCoords(warpPolynomialOrder,
                                                    rangeIndex, azimuthIndex, pixelPos);
                             if (pixelPos.x < 0.0 || pixelPos.x >= srcMaxRange || pixelPos.y < 0.0 || pixelPos.y >= srcMaxAzimuth) {
                                 tileData.tileDataBuffer.setElemDoubleAt(index, tileData.noDataValue);
@@ -1111,7 +1110,6 @@ public class SARSimTerrainCorrectionOp extends Operator {
      *
      * @param earthPoint The earth point in xyz cooordinate.
      * @return The zero Doppler time in days if it is found, -1 otherwise.
-     *
      * @throws OperatorException The operator exception.
      */
     private double getEarthPointZeroDopplerTime(final PosVector earthPoint) throws OperatorException {
@@ -1287,7 +1285,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
             double meanRangeShift = 0.0;
             double meanAzimuthShift = 0.0;
-            for (int i = 0; i < warpData.numValidGCPs; i++) {
+            for (int i = 0; i < warpData.getNumValidGCPs(); i++) {
 
                 // get final slave GCP position
                 final Placemark sPin = warpData.slaveGCPList.get(i);
@@ -1310,9 +1308,9 @@ public class SARSimTerrainCorrectionOp extends Operator {
                 p.println();
             }
 
-            if (warpData.numValidGCPs > 0) {
-                meanRangeShift /= warpData.numValidGCPs;
-                meanAzimuthShift /= warpData.numValidGCPs;
+            if (warpData.getNumValidGCPs() > 0) {
+                meanRangeShift /= warpData.getNumValidGCPs();
+                meanAzimuthShift /= warpData.getNumValidGCPs();
             } else {
                 p.println("No valid GCP is available.");
             }

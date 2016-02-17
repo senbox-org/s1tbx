@@ -82,12 +82,12 @@ import java.util.Map;
  * DEM map generation and analysis. To obtain a high quality InSAR image, the individual complex images need
  * to be co-registered to sub-pixel accuracy. The co-registration is accomplished through an alignment of a
  * master image with a slave image.
- * <p/>
+ * <p>
  * To achieve the alignment of master and slave images, the first step is to generate a set of uniformly
  * spaced ground control points (GCPs) in the master image, along with the corresponding GCPs in the slave
  * image. These GCP pairs are used in constructing a warp distortion function, which establishes a map
  * between pixels in the slave and master images.
- * <p/>
+ * <p>
  * This operator computes the slave GCPS for given master GCPs. First the geometric information of the
  * master GCPs is used in determining the initial positions of the slave GCPs. Then a cross-correlation
  * is performed between imagettes surrounding each master GCP and its corresponding slave GCP to obtain
@@ -245,7 +245,7 @@ public class GCPSelectionOp extends Operator {
                     Integer.parseInt(columnInterpFactor),
                     1);
 
-            if(fineRegistrationOversampling == null)
+            if (fineRegistrationOversampling == null)
                 fineRegistrationOversampling = "2";
 
             // parameters: Fine
@@ -259,7 +259,7 @@ public class GCPSelectionOp extends Operator {
             final double achievableAccuracy = 1.0 / (double) Math.max(rowUpSamplingFactor, colUpSamplingFactor);
             if (gcpTolerance < achievableAccuracy) {
                 throw new OperatorException("The achievable accuracy with current interpolation factors is " +
-                        achievableAccuracy + ", GCP Tolerance is below it.");
+                                                    achievableAccuracy + ", GCP Tolerance is below it.");
             }
 
             getMasterBands();
@@ -275,7 +275,7 @@ public class GCPSelectionOp extends Operator {
             masterGcpGroup = GCPManager.instance().getGcpGroup(masterBand1);
             if (masterGcpGroup.getNodeCount() <= 0) {
                 addGCPGrid(sourceImageWidth, sourceImageHeight, numGCPtoGenerate, masterGcpGroup,
-                        targetProduct.getSceneGeoCoding());
+                           targetProduct.getSceneGeoCoding());
             }
 
             if (complexCoregistration && applyFineRegistration) {
@@ -292,9 +292,9 @@ public class GCPSelectionOp extends Operator {
 
         // find co-pol bands
         final String[] masterBandNames = StackUtils.getMasterBandNames(sourceProduct);
-        for(String bandName : masterBandNames) {
+        for (String bandName : masterBandNames) {
             final String mstPol = OperatorUtils.getPolarizationFromBandName(bandName);
-            if(mstPol != null && (mstPol.equals("hh") || mstPol.equals("vv"))) {
+            if (mstPol != null && (mstPol.equals("hh") || mstPol.equals("vv"))) {
                 mstBandName = bandName;
                 break;
             }
@@ -302,7 +302,7 @@ public class GCPSelectionOp extends Operator {
         masterBand1 = sourceProduct.getBand(mstBandName);
         if (masterBand1.getUnit() != null && masterBand1.getUnit().equals(Unit.REAL)) {
             int mstIdx = sourceProduct.getBandIndex(mstBandName);
-            if(sourceProduct.getNumBands() > mstIdx + 1) {
+            if (sourceProduct.getNumBands() > mstIdx + 1) {
                 masterBand2 = sourceProduct.getBandAt(mstIdx + 1);
                 complexCoregistration = true;
             }
@@ -331,9 +331,9 @@ public class GCPSelectionOp extends Operator {
                 final String label = PlacemarkNameFactory.createLabel(gcpDescriptor, pinNumber, true);
 
                 final Placemark newPin = Placemark.createPointPlacemark(gcpDescriptor,
-                        name, label, "",
-                        new PixelPos((int) x, (int) y), null,
-                        targetGeoCoding);
+                                                                        name, label, "",
+                                                                        new PixelPos((int) x, (int) y), null,
+                                                                        targetGeoCoding);
                 group.add(newPin);
                 ++pinNumber;
             }
@@ -343,7 +343,7 @@ public class GCPSelectionOp extends Operator {
     private void getCollocatedStackFlag() {
         collocatedStack = false;
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-        if(absRoot != null) {
+        if (absRoot != null) {
             MetadataAttribute attr = absRoot.getAttribute("collocated_stack");
             if (attr != null) {
                 collocatedStack = true;
@@ -358,9 +358,9 @@ public class GCPSelectionOp extends Operator {
     private void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName(),
-                sourceProduct.getProductType(),
-                sourceImageWidth,
-                sourceImageHeight);
+                                    sourceProduct.getProductType(),
+                                    sourceImageWidth,
+                                    sourceImageHeight);
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
@@ -371,10 +371,10 @@ public class GCPSelectionOp extends Operator {
         //find slave band matching master pol
         Band slvBand1 = null, slvBand2 = null;
         final String mstPol = OperatorUtils.getPolarizationFromBandName(masterBand1.getName());
-        for(Band slvBand : sourceProduct.getBands()) {
+        for (Band slvBand : sourceProduct.getBands()) {
             if (!StringUtils.contains(masterBandNames, slvBand.getName()) && slvBand != masterBand1) {
                 final String slvPol = OperatorUtils.getPolarizationFromBandName(slvBand.getName());
-                if(mstPol == null || slvPol == null || mstPol.equals(slvPol)) {
+                if (mstPol == null || slvPol == null || mstPol.equals(slvPol)) {
                     final String unit = slvBand.getUnit();
                     if (unit != null && !unit.contains(Unit.IMAGINARY)) {
                         slvBand1 = slvBand;
@@ -387,9 +387,9 @@ public class GCPSelectionOp extends Operator {
             }
         }
 
-        if(slvBand1 == null) {
+        if (slvBand1 == null) {
             //get any polarization
-            for(Band slvBand : sourceProduct.getBands()) {
+            for (Band slvBand : sourceProduct.getBands()) {
                 if (!StringUtils.contains(masterBandNames, slvBand.getName()) && slvBand != masterBand1) {
                     final String unit = slvBand.getUnit();
                     if (unit != null && !unit.contains(Unit.IMAGINARY)) {
@@ -540,7 +540,7 @@ public class GCPSelectionOp extends Operator {
     /**
      * Compute slave GCPs for the given tile.
      *
-     * @param slaveBand1  the input band
+     * @param slaveBand1 the input band
      * @param slaveBand2 for complex
      * @param targetBand the output band
      */
@@ -581,7 +581,7 @@ public class GCPSelectionOp extends Operator {
                     final GeoPos mGCPGeoPos = mPin.getGeoPos();
                     final PixelPos mGCPPixelPos = mPin.getPixelPos();
                     final PixelPos sGCPPixelPos = new PixelPos(mPin.getPixelPos().x + offset[0],
-                            mPin.getPixelPos().y + offset[1]);
+                                                               mPin.getPixelPos().y + offset[1]);
                     if (!checkSlaveGCPValidity(sGCPPixelPos)) {
                         //System.out.println("GCP(" + i + ") is outside slave image.");
                         continue;
@@ -593,7 +593,7 @@ public class GCPSelectionOp extends Operator {
                         public void run() {
                             //System.out.println("Running "+mPin.getName());
                             boolean getSlaveGCP;
-                            if(complexCoregistration && inSAROptimized) {
+                            if (complexCoregistration && inSAROptimized) {
                                 getSlaveGCP = getCoarseOffsets(slaveBand1, slaveBand2, mGCPPixelPos, sGCPPixelPos);
 
                                 if (getSlaveGCP) {
@@ -684,7 +684,7 @@ public class GCPSelectionOp extends Operator {
                 final int ypos = tileY * tileHeight;
                 for (int tileX = 0; tileX < tileCountX; tileX++) {
                     final Rectangle tileRectangle = new Rectangle(tileX * tileWidth, ypos,
-                            tileWidth, tileHeight);
+                                                                  tileWidth, tileHeight);
                     tileRectangles[index++] = tileRectangle;
                 }
             }
@@ -901,8 +901,8 @@ public class GCPSelectionOp extends Operator {
 
             double coherence = CoregistrationUtils.crossCorrelateFFT(coarseOffset, mI, sI, coarseWin.ovsFactor, coarseWin.accY, coarseWin.accX);
 
-            SystemUtils.LOG.info("Coarse sGCP = ({}, {})"+ coarseOffset[1]+ coarseOffset[0]);
-            SystemUtils.LOG.info("Coarse sGCP coherence = {}"+ coherence);
+            SystemUtils.LOG.info("Coarse sGCP = ({}, {})" + coarseOffset[1] + coarseOffset[0]);
+            SystemUtils.LOG.info("Coarse sGCP coherence = {}" + coherence);
 
             sGCPPixelPos.x += (float) coarseOffset[1];
             sGCPPixelPos.y += (float) coarseOffset[0];
@@ -919,8 +919,8 @@ public class GCPSelectionOp extends Operator {
                                    final PixelPos mGCPPixelPos,
                                    final PixelPos sGCPPixelPos) {
         try {
-            SystemUtils.LOG.info("mGCP = ({}, {})"+ mGCPPixelPos.x+ mGCPPixelPos.y);
-            SystemUtils.LOG.info("Initial sGCP = ({}, {})"+ sGCPPixelPos.x+ sGCPPixelPos.y);
+            SystemUtils.LOG.info("mGCP = ({}, {})" + mGCPPixelPos.x + mGCPPixelPos.y);
+            SystemUtils.LOG.info("Initial sGCP = ({}, {})" + sGCPPixelPos.x + sGCPPixelPos.y);
 
             ComplexDoubleMatrix mI = getComplexDoubleMatrix(masterBand1, masterBand2, mGCPPixelPos, fineWin);
             ComplexDoubleMatrix sI = getComplexDoubleMatrix(slaveBand1, slaveBand2, sGCPPixelPos, fineWin);
@@ -929,8 +929,8 @@ public class GCPSelectionOp extends Operator {
 
             final double coherence = CoregistrationUtils.crossCorrelateFFT(fineOffset, mI, sI, fineWin.ovsFactor, fineWin.accY, fineWin.accX);
 
-            SystemUtils.LOG.info("Final sGCP = ({},{})"+ fineOffset[1]+ fineOffset[0]);
-            SystemUtils.LOG.info("Final sGCP coherence = {}"+ coherence);
+            SystemUtils.LOG.info("Final sGCP = ({},{})" + fineOffset[1] + fineOffset[0]);
+            SystemUtils.LOG.info("Final sGCP coherence = {}" + coherence);
 
             if (coherence < coherenceThreshold) {
                 //System.out.println("Invalid GCP");
@@ -1117,14 +1117,14 @@ public class GCPSelectionOp extends Operator {
                     if (complexCoregistration) {
 
                         final double v1 = MathUtils.interpolate2D(wy, wx, slaveData1.getElemDoubleAt(x00),
-                                slaveData1.getElemDoubleAt(x01),
-                                slaveData1.getElemDoubleAt(x10),
-                                slaveData1.getElemDoubleAt(x11));
+                                                                  slaveData1.getElemDoubleAt(x01),
+                                                                  slaveData1.getElemDoubleAt(x10),
+                                                                  slaveData1.getElemDoubleAt(x11));
 
                         final double v2 = MathUtils.interpolate2D(wy, wx, slaveData2.getElemDoubleAt(x00),
-                                slaveData2.getElemDoubleAt(x01),
-                                slaveData2.getElemDoubleAt(x10),
-                                slaveData2.getElemDoubleAt(x11));
+                                                                  slaveData2.getElemDoubleAt(x01),
+                                                                  slaveData2.getElemDoubleAt(x10),
+                                                                  slaveData2.getElemDoubleAt(x11));
 
                         if (v1 == noDataValue1 && v2 == noDataValue2) {
                             numInvalidPixels++;
@@ -1133,9 +1133,9 @@ public class GCPSelectionOp extends Operator {
                     } else {
 
                         final double v = MathUtils.interpolate2D(wy, wx, slaveData1.getElemDoubleAt(x00),
-                                slaveData1.getElemDoubleAt(x01),
-                                slaveData1.getElemDoubleAt(x10),
-                                slaveData1.getElemDoubleAt(x11));
+                                                                 slaveData1.getElemDoubleAt(x01),
+                                                                 slaveData1.getElemDoubleAt(x10),
+                                                                 slaveData1.getElemDoubleAt(x11));
 
                         if (v == noDataValue1) {
                             numInvalidPixels++;
@@ -1343,8 +1343,8 @@ public class GCPSelectionOp extends Operator {
             //System.out.println("Initial sGCP = (" + sGCPPixelPos.x + ", " + sGCPPixelPos.y + ")");
 
             final ComplexCoregData complexData = new ComplexCoregData(coherenceWindowSize,
-                    coherenceFuncToler, coherenceValueToler,
-                    fWindowWidth, fWindowHeight, useSlidingWindow);
+                                                                      coherenceFuncToler, coherenceValueToler,
+                                                                      fWindowWidth, fWindowHeight, useSlidingWindow);
 
             getComplexMasterImagette(complexData, mGCPPixelPos);
             /*
@@ -1444,8 +1444,8 @@ public class GCPSelectionOp extends Operator {
     }
 
     private static void getShiftedData(final ComplexCoregData complexData, final double[][] srcI, final double[][] srcQ,
-                                final double xShift, final double yShift,
-                                final double[][] tgtI, final double[][] tgtQ) {
+                                       final double xShift, final double yShift,
+                                       final double[][] tgtI, final double[][] tgtQ) {
 
         final double[] rowArray = new double[complexData.fTwoWindowWidth];
         final double[] rowPhaseArray = new double[complexData.fTwoWindowWidth];
@@ -1794,7 +1794,7 @@ public class GCPSelectionOp extends Operator {
             //final double[] pe = new double[2];
             final double[] averageDirection = {p[0] - p0[0], p[1] - p0[1]};
             final double norm = Math.sqrt(averageDirection[0] * averageDirection[0] +
-                    averageDirection[1] * averageDirection[1]);
+                                                  averageDirection[1] * averageDirection[1]);
             for (int j = 0; j < 2; j++) {
                 averageDirection[j] /= norm; // construct the average direction
                 //pe[j] = p[j] + averageDirection[j]; // construct the extrapolated point
