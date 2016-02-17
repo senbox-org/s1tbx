@@ -64,7 +64,8 @@ import java.util.logging.Logger;
         category = "Radar/Coregistration",
         authors = "Petar Marinkovic (with contributions of Jun Lu, Luis Veci)",
         copyright = "PPO.labs and European Space Agency",
-        description = "Performs coarse and found coregistration with correlation optimization method")
+        description = "Performs coarse and found coregistration with correlation optimization method",
+        internal = true)
 public class CoarseFineCoregOp extends Operator {
 
     @SourceProduct

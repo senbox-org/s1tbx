@@ -54,7 +54,7 @@
     <parameters>
       <rmsThreshold>0.05</rmsThreshold>
       <warpPolynomialOrder>2</warpPolynomialOrder>
-      <interpolationMethod>Bilinear interpolation</interpolationMethod>
+      <interpolationMethod>Cubic convolution (6 points)</interpolationMethod>
       <openResidualsFile>false</openResidualsFile>
     </parameters>
   </node>
