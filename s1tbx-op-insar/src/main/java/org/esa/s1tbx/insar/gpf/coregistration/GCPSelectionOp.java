@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2016 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -97,8 +97,8 @@ import java.util.Map;
 
 @OperatorMetadata(alias = "GCP-Selection",
         category = "Radar/Coregistration",
-        authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        authors = "Jun Lu, Luis Veci, Petar Marinkovic",
+        copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
         description = "Automatic Selection of Ground Control Points")
 public class GCPSelectionOp extends Operator {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2016 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -97,8 +97,8 @@ import java.util.Set;
 
 @OperatorMetadata(alias = "Warp",
         category = "Radar/Coregistration",
-        authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        authors = "Jun Lu, Luis Veci, Petar Marinkovic",
+        copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
         description = "Create Warp Function And Get Co-registrated Images")
 public class WarpOp extends Operator {
 
@@ -122,14 +122,16 @@ public class WarpOp extends Operator {
             TRI, CC4P, CC6P, TS6P, TS8P, TS16P}, defaultValue = CC6P, label = "Interpolation Method")
     private String interpolationMethod = CC6P;
 
+    @Parameter(description = "Optimize for Interferometry",
+            defaultValue = "false", label = "InSAR Optimized")
+    private boolean inSAROptimized = false;
+
     @Parameter(description = "Refine estimated offsets using a-priori DEM",
-            defaultValue = "false",
-            label = "Offset Refinement Based on DEM")
-    private Boolean cpmDemRefinement = false;
+            defaultValue = "false", label = "Offset Refinement Based on DEM")
+    private Boolean demRefinement = false;
 
     @Parameter(description = "The digital elevation model.",
-            defaultValue = "SRTM 3Sec",
-            label = "Digital Elevation Model")
+            defaultValue = "SRTM 3Sec", label = "Digital Elevation Model")
     private String demName = "SRTM 3Sec";
 
     @Parameter(defaultValue = "false")
@@ -170,8 +172,6 @@ public class WarpOp extends Operator {
     private ElevationModel dem = null;
 
     private int maxIterations = 20;
-
-    private boolean inSAROptimized = true;
 
     /**
      * Default constructor. The graph processing framework
@@ -261,8 +261,8 @@ public class WarpOp extends Operator {
 
             createTargetProduct();
 
-            if (cpmDemRefinement == null)
-                cpmDemRefinement = false;
+            if (demRefinement == null)
+                demRefinement = false;
 
         } catch (Throwable e) {
             openResidualsFile = true;
@@ -433,7 +433,7 @@ public class WarpOp extends Operator {
 
         try {
             if (!warpDataAvailable) {
-                if (cpmDemRefinement) {
+                if (demRefinement) {
                     createDEM();
                 }
 
@@ -518,7 +518,7 @@ public class WarpOp extends Operator {
         // setup master metadata
         SLCImage masterMeta = null;
         Orbit masterOrbit = null;
-        if (cpmDemRefinement) {
+        if (demRefinement) {
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
             masterMeta = new SLCImage(absRoot);
             masterOrbit = new Orbit(absRoot, ORBIT_INTERP_DEGREE);
@@ -561,7 +561,7 @@ public class WarpOp extends Operator {
                 }
 
                 // setup slave metadata
-                if (cpmDemRefinement && !cpm.noRedundancy) {
+                if (demRefinement && !cpm.noRedundancy) {
 
                     // get height for corresponding points
                     double[] heightArray = new double[nodeCount];
