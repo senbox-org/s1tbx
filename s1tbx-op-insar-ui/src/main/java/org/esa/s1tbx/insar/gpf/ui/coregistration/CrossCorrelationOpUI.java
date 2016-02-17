@@ -23,8 +23,6 @@ import org.esa.snap.ui.AppContext;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Map;
@@ -54,19 +52,21 @@ public class CrossCorrelationOpUI extends BaseOperatorUI {
             new String[]{"8", "16", "32", "64", "128", "256", "512"});
     private final JComboBox fineRegistrationWindowHeight = new JComboBox(
             new String[]{"8", "16", "32", "64", "128", "256", "512"});
-    private final JComboBox fineRegistrationOversampling = new JComboBox(
-            new String[]{"2", "4", "8", "16", "32", "64"});
+    private final JComboBox fineRegistrationWindowAccAzimuth = new JComboBox(new String[]{"2", "4", "8", "16", "64"});
+    private final JComboBox fineRegistrationWindowAccRange = new JComboBox(new String[]{"2", "4", "8", "16", "64"});
+    private final JComboBox fineRegistrationOversampling = new JComboBox(new String[]{"2", "4", "8", "16", "32", "64"});
 
     private final JTextField coherenceWindowSize = new JTextField("");
     private final JTextField coherenceThreshold = new JTextField("");
 
-    private final JRadioButton useSlidingWindow = new JRadioButton("Compute Coherence with Sliding Window");
+    private final JCheckBox useSlidingWindowCheckBox = new JCheckBox("Compute Coherence with Sliding Window");
+    private boolean useSlidingWindow = false;
 
     private boolean isComplex = false;
     private boolean applyFineRegistration = true;
     private boolean inSAROptimized = true;
 
-    final JCheckBox computeOffsetCheckBox = new JCheckBox("Estimate Coarse Offset");
+    final JCheckBox computeOffsetCheckBox = new JCheckBox("Estimate Initial Coarse Offset");
     private boolean computeOffset = false;
     final JCheckBox onlyGCPsOnLandCheckBox = new JCheckBox("Test GCPs are on land");
     private boolean onlyGCPsOnLand = false;
@@ -87,6 +87,16 @@ public class CrossCorrelationOpUI extends BaseOperatorUI {
         inSAROptimizedCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 inSAROptimized = (e.getStateChange() == ItemEvent.SELECTED);
+                enableComplexFields();
+            }
+        });
+
+        useSlidingWindowCheckBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                useSlidingWindow = (e.getStateChange() == ItemEvent.SELECTED);;
+                coherenceWindowSize.setEditable(useSlidingWindow);
+                enableComplexFields();
             }
         });
 
@@ -127,7 +137,15 @@ public class CrossCorrelationOpUI extends BaseOperatorUI {
 
             fineRegistrationWindowWidth.setSelectedItem(paramMap.get("fineRegistrationWindowWidth"));
             fineRegistrationWindowHeight.setSelectedItem(paramMap.get("fineRegistrationWindowHeight"));
+            fineRegistrationWindowAccAzimuth.setSelectedItem(paramMap.get("fineRegistrationWindowAccAzimuth"));
+            fineRegistrationWindowAccRange.setSelectedItem(paramMap.get("fineRegistrationWindowAccRange"));
             fineRegistrationOversampling.setSelectedItem(paramMap.get("fineRegistrationOversampling"));
+
+            Boolean useSlidingWindowVal = (Boolean) paramMap.get("useSlidingWindow");
+            if (useSlidingWindowVal != null) {
+                useSlidingWindow = useSlidingWindowVal;
+            }
+            useSlidingWindowCheckBox.setSelected(useSlidingWindow);
             coherenceWindowSize.setText(String.valueOf(paramMap.get("coherenceWindowSize")));
             coherenceThreshold.setText(String.valueOf(paramMap.get("coherenceThreshold")));
         }
@@ -170,14 +188,13 @@ public class CrossCorrelationOpUI extends BaseOperatorUI {
                 paramMap.put("inSAROptimized", inSAROptimized);
                 paramMap.put("fineRegistrationWindowWidth", fineRegistrationWindowWidth.getSelectedItem());
                 paramMap.put("fineRegistrationWindowHeight", fineRegistrationWindowHeight.getSelectedItem());
+                paramMap.put("fineRegistrationWindowAccAzimuth", fineRegistrationWindowAccAzimuth.getSelectedItem());
+                paramMap.put("fineRegistrationWindowAccRange", fineRegistrationWindowAccRange.getSelectedItem());
                 paramMap.put("fineRegistrationOversampling", fineRegistrationOversampling.getSelectedItem());
+
                 paramMap.put("coherenceThreshold", Double.parseDouble(coherenceThreshold.getText()));
-                if (useSlidingWindow.isSelected()) {
-                    paramMap.put("useSlidingWindow", true);
-                    paramMap.put("coherenceWindowSize", Integer.parseInt(coherenceWindowSize.getText()));
-                } else {
-                    paramMap.put("useSlidingWindow", false);
-                }
+                paramMap.put("useSlidingWindow", useSlidingWindow);
+                paramMap.put("coherenceWindowSize", Integer.parseInt(coherenceWindowSize.getText()));
             }
         }
 
@@ -191,52 +208,70 @@ public class CrossCorrelationOpUI extends BaseOperatorUI {
         contentPane.setLayout(new GridBagLayout());
         final GridBagConstraints gbc = DialogUtils.createGridBagConstraints();
 
-        gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, "Number of GCPs:", numGCPtoGenerate);
         gbc.gridy++;
-        DialogUtils.addComponent(contentPane, gbc, "Coarse Registration Window Width:", coarseRegistrationWindowWidth);
-        gbc.gridy++;
-        DialogUtils.addComponent(contentPane, gbc, "Coarse Registration Window Height:", coarseRegistrationWindowHeight);
-        gbc.gridy++;
-        DialogUtils.addComponent(contentPane, gbc, "Row Interpolation Factor:", rowInterpFactor);
-        gbc.gridy++;
-        DialogUtils.addComponent(contentPane, gbc, "Column Interpolation Factor:", columnInterpFactor);
-        gbc.gridy++;
-        DialogUtils.addComponent(contentPane, gbc, "Max Iterations:", maxIteration);
-        gbc.gridy++;
-        DialogUtils.addComponent(contentPane, gbc, "GCP Tolerance:", gcpTolerance);
 
-        gbc.gridx = 0;
-        gbc.gridy++;
+        contentPane.add(onlyGCPsOnLandCheckBox, gbc);
+
+        gbc.gridx = 1;
         contentPane.add(applyFineRegistrationCheckBox, gbc);
+        gbc.gridx = 0;
         gbc.gridy++;
-        contentPane.add(inSAROptimizedCheckBox, gbc);
-        gbc.gridy++;
-        DialogUtils.addComponent(contentPane, gbc, "Coherence Window Size:", coherenceWindowSize);
-        gbc.gridy++;
-        DialogUtils.addComponent(contentPane, gbc, "Coherence Threshold:", coherenceThreshold);
-        gbc.gridy++;
-        DialogUtils.addComponent(contentPane, gbc, "Fine Registration Window Width:", fineRegistrationWindowWidth);
-        gbc.gridy++;
-        DialogUtils.addComponent(contentPane, gbc, "Fine Registration Window Height:", fineRegistrationWindowHeight);
-        gbc.gridy++;
-        DialogUtils.addComponent(contentPane, gbc, "Fine Window oversampling factor:", fineRegistrationOversampling);
+        contentPane.add(new JLabel(" "), gbc);
         gbc.gridy++;
 
-        gbc.gridx = 0;
-        contentPane.add(useSlidingWindow, gbc);
+        final JPanel coarsePanel = new JPanel(new GridBagLayout());
+        final GridBagConstraints gbc2 = DialogUtils.createGridBagConstraints();
+        coarsePanel.setBorder(BorderFactory.createTitledBorder("Coarse Registration"));
+
+        coarsePanel.add(computeOffsetCheckBox, gbc2);
+        gbc2.gridy++;
+
+        DialogUtils.addComponent(coarsePanel, gbc2, "Coarse Window Width:", coarseRegistrationWindowWidth);
+        gbc2.gridy++;
+        DialogUtils.addComponent(coarsePanel, gbc2, "Coarse Window Height:", coarseRegistrationWindowHeight);
+        gbc2.gridy++;
+        DialogUtils.addComponent(coarsePanel, gbc2, "Row Interpolation Factor:", rowInterpFactor);
+        gbc2.gridy++;
+        DialogUtils.addComponent(coarsePanel, gbc2, "Column Interpolation Factor:", columnInterpFactor);
+        gbc2.gridy++;
+        DialogUtils.addComponent(coarsePanel, gbc2, "Max Iterations:", maxIteration);
+        gbc2.gridy++;
+        DialogUtils.addComponent(coarsePanel, gbc2, "GCP Tolerance:", gcpTolerance);
+
+        final JPanel finePanel = new JPanel(new GridBagLayout());
+        final GridBagConstraints gbc3 = DialogUtils.createGridBagConstraints();
+        finePanel.setBorder(BorderFactory.createTitledBorder("Fine Registration"));
+
+        DialogUtils.addComponent(finePanel, gbc3, "Fine Window Width:", fineRegistrationWindowWidth);
+        gbc3.gridy++;
+        DialogUtils.addComponent(finePanel, gbc3, "Fine Window Height:", fineRegistrationWindowHeight);
+        gbc3.gridy++;
+
+        finePanel.add(useSlidingWindowCheckBox, gbc3);
+        gbc3.gridy++;
+        DialogUtils.addComponent(finePanel, gbc3, "Coherence Window Size:", coherenceWindowSize);
+        gbc3.gridy++;
+        DialogUtils.addComponent(finePanel, gbc3, "Coherence Threshold:", coherenceThreshold);
+        gbc3.gridy++;
+
+        finePanel.add(inSAROptimizedCheckBox, gbc3);
+        gbc3.gridy++;
+
+        DialogUtils.addComponent(finePanel, gbc3, "Fine Accuracy in Azimuth:", fineRegistrationWindowAccAzimuth);
+        gbc3.gridy++;
+        DialogUtils.addComponent(finePanel, gbc3, "Fine Accuracy in Range:", fineRegistrationWindowAccRange);
+        gbc3.gridy++;
+        DialogUtils.addComponent(finePanel, gbc3, "Fine Window oversampling factor:", fineRegistrationOversampling);
+        gbc3.gridy++;
 
         enableComplexFields();
 
-        useSlidingWindow.setSelected(true);
-        useSlidingWindow.setActionCommand("Use Sliding Window:");
-        RadioListener myListener = new RadioListener();
-        useSlidingWindow.addActionListener(myListener);
-
+        contentPane.add(coarsePanel, gbc);
+        gbc.gridx = 1;
+        contentPane.add(finePanel, gbc);
+        gbc.gridx = 0;
         gbc.gridy++;
-        contentPane.add(computeOffsetCheckBox, gbc);
-        gbc.gridy++;
-        contentPane.add(onlyGCPsOnLandCheckBox, gbc);
 
         DialogUtils.fillPanel(contentPane, gbc);
 
@@ -246,24 +281,15 @@ public class CrossCorrelationOpUI extends BaseOperatorUI {
     private void enableComplexFields() {
         applyFineRegistrationCheckBox.setEnabled(isComplex);
         inSAROptimizedCheckBox.setEnabled(isComplex && applyFineRegistration);
+
         fineRegistrationWindowWidth.setEnabled(isComplex && applyFineRegistration);
         fineRegistrationWindowHeight.setEnabled(isComplex && applyFineRegistration);
-        fineRegistrationOversampling.setEnabled(isComplex && applyFineRegistration);
-        coherenceWindowSize.setEnabled(isComplex && applyFineRegistration);
+        fineRegistrationWindowAccAzimuth.setEnabled(isComplex && applyFineRegistration && inSAROptimized);
+        fineRegistrationWindowAccRange.setEnabled(isComplex && applyFineRegistration && inSAROptimized);
+        fineRegistrationOversampling.setEnabled(isComplex && applyFineRegistration && inSAROptimized);
+
+        coherenceWindowSize.setEnabled(isComplex && applyFineRegistration && useSlidingWindow && !inSAROptimized);
         coherenceThreshold.setEnabled(isComplex && applyFineRegistration);
-        useSlidingWindow.setEnabled(isComplex && applyFineRegistration);
-    }
-
-    private class RadioListener implements ActionListener {
-
-        public void actionPerformed(ActionEvent e) {
-
-            if (useSlidingWindow.isSelected()) {
-                coherenceWindowSize.setEditable(true);
-            } else {
-                //coherenceWindowSize.setText("");
-                coherenceWindowSize.setEditable(false);
-            }
-        }
+        useSlidingWindowCheckBox.setEnabled(isComplex && applyFineRegistration && !inSAROptimized);
     }
 }
