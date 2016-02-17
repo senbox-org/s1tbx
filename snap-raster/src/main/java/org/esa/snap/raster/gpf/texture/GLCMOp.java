@@ -314,9 +314,9 @@ public final class GLCMOp extends Operator {
         sourceImageHeight = sourceProduct.getSceneRasterHeight();
 
         targetProduct = new Product(sourceProduct.getName(),
-                sourceProduct.getProductType(),
-                sourceImageWidth,
-                sourceImageHeight);
+                                    sourceProduct.getProductType(),
+                                    sourceImageWidth,
+                                    sourceImageHeight);
 
         addSelectedBands();
 
@@ -488,19 +488,15 @@ public final class GLCMOp extends Operator {
                     }
 
                     computeQuantizedImages(quantizer, x0, y0, xMax, yMax, srcInfoList);
+                    computeGLCM(x0, y0, xMax, yMax, srcInfoList);
 
                     for (SrcInfo srcInfo : srcInfoList) {
 
-                        final GLCMElem[] GLCM = new GLCMElem[numQuantLevels * numQuantLevels];
-                        for(int i=0; i < GLCM.length; ++i) {
-                            GLCM[i] = new GLCMElem();
-                        }
 
-                        final Totals totals = computeGLCM(x0, y0, xMax, yMax, srcInfo.quantizedImage, GLCM);
-                        if (totals.totalCount == 0) {
+                        if (srcInfo.totals.totalCount == 0) {
                             writeData(srcInfo, srcInfo.tfNoData, idx);
                         } else {
-                            writeData(srcInfo, computeTextureFeatures(GLCM, totals), idx);
+                            writeData(srcInfo, computeTextureFeatures(srcInfo.GLCM, srcInfo.totals), idx);
                         }
                     }
                 }
@@ -575,42 +571,62 @@ public final class GLCMOp extends Operator {
         return new Rectangle(sx0, sy0, sw, sh);
     }
 
-    private static class Totals {
-        public int numElems = 0;
-        public int totalCount = 0;
-    }
+    private void computeGLCM(final int x0, final int y0, final int xMax, final int yMax,
+                             final SrcInfo[] srcInfoList) {
 
-    private Totals computeGLCM(final int x0, final int y0, final int xMax, final int yMax,
-                               final int[][] quantizedImage, final GLCMElem[] GLCM) {
-
-        final Totals totals = new Totals();
-        int xx, yy;
-        boolean withinImage;
+        int xx, yy, i, j;
         if (computeGLCPWithAllAngles) {
 
             for (int y = y0; y < yMax; y++) {
                 yy = y - y0;
+                final int yyDisp = yy + displacement;
+                final boolean withinY0 = y >= y0 && y < yMax;
+                final boolean withinY = y + displacement >= y0 && y + displacement < yMax;
+
                 for (int x = x0; x < xMax; x++) {
                     xx = x - x0;
-                    final int i = quantizedImage[yy][xx];
-                    if (i < 0)
-                        continue;
+                    final int xDisp = x + displacement;
+                    final boolean withinX = xDisp >= x0 && xDisp < xMax;
+                    final boolean within45 = withinY && x + -displacement >= x0 && x + -displacement < xMax;
+                    final boolean within90 = withinY && x >= x0 && x < xMax;
 
-                    // 0
-                    withinImage = y + 0 >= y0 && y + 0 < yMax && x + displacement >= x0 && x + displacement < xMax;
-                    addElements(xx, yy, displacement, 0, withinImage, quantizedImage, GLCM, i, totals);
+                    for(SrcInfo srcInfo : srcInfoList) {
+                        i = srcInfo.quantizedImage[yy][xx];
+                        if (i < 0)
+                            continue;
 
-                    // 45
-                    withinImage = y + displacement >= y0 && y + displacement < yMax && x + -displacement >= x0 && x + -displacement < xMax;
-                    addElements(xx, yy, -displacement, displacement, withinImage, quantizedImage, GLCM, i, totals);
+                        // 0
+                        if (withinY0 && withinX) {
+                            j = srcInfo.quantizedImage[yy][xx + displacement];
+                            if (j >= 0) {
+                                addElements(srcInfo.GLCM, i, j, srcInfo.totals);
+                            }
+                        }
 
-                    // 90
-                    withinImage = y + displacement >= y0 && y + displacement < yMax && x + 0 >= x0 && x + 0 < xMax;
-                    addElements(xx, yy, 0, displacement, withinImage, quantizedImage, GLCM, i, totals);
+                        // 45
+                        if (within45) {
+                            j = srcInfo.quantizedImage[yyDisp][xx - displacement];
+                            if (j >= 0) {
+                                addElements(srcInfo.GLCM, i, j, srcInfo.totals);
+                            }
+                        }
 
-                    // 135
-                    withinImage = y + displacement >= y0 && y + displacement < yMax && x + displacement >= x0 && x + displacement < xMax;
-                    addElements(xx, yy, displacement, displacement, withinImage, quantizedImage, GLCM, i, totals);
+                        // 90
+                        if (within90) {
+                            j = srcInfo.quantizedImage[yyDisp][xx];
+                            if (j >= 0) {
+                                addElements(srcInfo.GLCM, i, j, srcInfo.totals);
+                            }
+                        }
+
+                        // 135
+                        if (withinY && withinX) {
+                            j = srcInfo.quantizedImage[yyDisp][xx + displacement];
+                            if (j >= 0) {
+                                addElements(srcInfo.GLCM, i, j, srcInfo.totals);
+                            }
+                        }
+                    }
                 }
             }
 
@@ -621,31 +637,27 @@ public final class GLCMOp extends Operator {
                 boolean withinY = y + displacementY >= y0 && y + displacementY < yMax;
                 for (int x = x0; x < xMax; x++) {
                     xx = x - x0;
-                    final int i = quantizedImage[yy][xx];
-                    if (i < 0) {
-                        continue;
-                    }
+                    boolean withinImage = withinY && x + displacementX >= x0 && x + displacementX < xMax;
 
-                    withinImage = withinY && x + displacementX >= x0 && x + displacementX < xMax;
-                    addElements(xx, yy, displacementX, displacementY, withinImage,
-                        quantizedImage,  GLCM,  i,  totals);
+                    for(SrcInfo srcInfo : srcInfoList) {
+                        i = srcInfo.quantizedImage[yy][xx];
+                        if (i < 0) {
+                            continue;
+                        }
+
+                        if (withinImage) {
+                            j = srcInfo.quantizedImage[yy + displacementY][xx + displacementX];
+                            if (j >= 0) {
+                                addElements(srcInfo.GLCM, i, j, srcInfo.totals);
+                            }
+                        }
+                    }
                 }
             }
         }
-
-        return totals;
     }
 
-    private void addElements(int xx, int yy, int dX, int dY, boolean withinImage,
-                        final int[][] quantizedImage, final GLCMElem[] GLCM, int i, Totals totals) {
-        int j;
-        if (withinImage) {
-            j = quantizedImage[yy + dY][xx + dX];
-            if (j < 0)
-                return;
-        } else {
-            return;
-        }
+    private void addElements(final GLCMElem[] GLCM, int i, int j, Totals totals) {
 
         GLCMElem elem = GLCM[i * numQuantLevels + j];
         if (!elem.init) {
@@ -665,8 +677,8 @@ public final class GLCMOp extends Operator {
     }
 
     private static void computeQuantizedImages(final Quantizer quantizer,
-                                       final int x0, final int y0, final int xMax, final int yMax,
-                                       final SrcInfo[] srcInfoList) {
+                                               final int x0, final int y0, final int xMax, final int yMax,
+                                               final SrcInfo[] srcInfoList) {
 
         final TileIndex srcIndex = new TileIndex(srcInfoList[0].sourceTile);
         double v;
@@ -677,7 +689,7 @@ public final class GLCMOp extends Operator {
             for (int x = x0; x < xMax; x++) {
                 int xx = x - x0;
                 final int index = srcIndex.getIndex(x);
-                for(SrcInfo srcInfo : srcInfoList) {
+                for (SrcInfo srcInfo : srcInfoList) {
                     v = srcInfo.srcData.getElemDoubleAt(index);
                     srcInfo.quantizedImage[yy][xx] = v == srcInfo.noDataValue ? -1 : quantizer.compute(v);
                 }
@@ -875,13 +887,10 @@ public final class GLCMOp extends Operator {
         public int[][] quantizedImage;
         public Totals totals;
         public GLCMElem[] GLCM;
+        private final int numQuantLevels;
 
         public SrcInfo(final int numQuantLevels, final Band srcBand, final Tile srcTile) {
-            GLCM = new GLCMElem[numQuantLevels * numQuantLevels];
-            for(int i=0; i < GLCM.length; ++i) {
-                GLCM[i] = new GLCMElem();
-            }
-
+            this.numQuantLevels = numQuantLevels;
             this.sourceTile = srcTile;
             this.srcIndex = new TileIndex(sourceTile);
             this.srcData = sourceTile.getDataBuffer();
@@ -896,8 +905,9 @@ public final class GLCMOp extends Operator {
         public void reset(int w, int h) {
             totals = new Totals();
             quantizedImage = new int[h][w];
-            for(GLCMElem elem : GLCM) {
-                elem.init = false;
+            GLCM = new GLCMElem[numQuantLevels * numQuantLevels];
+            for (int i = 0; i < GLCM.length; ++i) {
+                GLCM[i] = new GLCMElem();
             }
         }
     }
@@ -924,7 +934,7 @@ public final class GLCMOp extends Operator {
             doASM = outputASM && bandName.endsWith(GLCM_TYPES.ASM.toString());
             doEnergy = outputEnergy && bandName.endsWith(GLCM_TYPES.Energy.toString());
             doMax = outputMAX && bandName.endsWith(GLCM_TYPES.MAX.toString());
-            doEntropy = outputEntropy &&bandName.endsWith(GLCM_TYPES.Entropy.toString());
+            doEntropy = outputEntropy && bandName.endsWith(GLCM_TYPES.Entropy.toString());
             doMean = outputMean && bandName.endsWith(GLCM_TYPES.GLCMMean.toString());
             doVariance = outputVariance && bandName.endsWith(GLCM_TYPES.GLCMVariance.toString());
             doCorrelation = outputCorrelation && bandName.endsWith(GLCM_TYPES.GLCMCorrelation.toString());
@@ -966,6 +976,11 @@ public final class GLCMOp extends Operator {
             this.GLCMVariance = GLCMVariance;
             this.GLCMCorrelation = GLCMCorrelation;
         }
+    }
+
+    private static class Totals {
+        public int numElems = 0;
+        public int totalCount = 0;
     }
 
     private static class GLCMElem {
