@@ -321,8 +321,9 @@ public class CreateStackOp extends Operator {
 
     private void updateMetadata() {
         final MetadataElement abstractedMetadata = AbstractMetadata.getAbstractedMetadata(targetProduct);
-        abstractedMetadata.setAttributeInt("collocated_stack", 1);
-        AbstractMetadata.setAttribute(abstractedMetadata, AbstractMetadata.coregistered_stack, 1);
+        if(abstractedMetadata != null) {
+            abstractedMetadata.setAttributeInt("collocated_stack", 1);
+        }
 
         final MetadataElement inputElem = ProductInformation.getInputProducts(targetProduct);
 
