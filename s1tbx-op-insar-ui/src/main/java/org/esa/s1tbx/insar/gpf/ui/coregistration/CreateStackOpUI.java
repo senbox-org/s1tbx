@@ -122,9 +122,11 @@ public class CreateStackOpUI extends BaseOperatorUI {
         if (resamplingType.getSelectedItem().equals("NONE") && sourceProducts != null) {
             try {
                 CreateStackOp.checkPixelSpacing(sourceProducts);
-            } catch (Exception e) {
+            } catch (OperatorException e) {
                 return new UIValidation(UIValidation.State.WARNING, "Resampling type cannot be NONE" +
-                            " pixel spacings are different for master and slave");
+                        " pixel spacings are different for master and slave");
+            } catch (Exception e) {
+                //ignore
             }
         }
         return new UIValidation(UIValidation.State.OK, "");
