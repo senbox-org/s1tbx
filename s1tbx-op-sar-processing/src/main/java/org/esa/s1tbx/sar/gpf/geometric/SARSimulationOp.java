@@ -331,7 +331,6 @@ public final class SARSimulationOp extends Operator {
                 AbstractMetadata.setAttribute(absTgt, AbstractMetadata.DEM, demName);
             }
 
-            absTgt.setAttributeInt("collocated_stack", 1);
             absTgt.setAttributeString("DEM resampling method", demResamplingMethod);
 
             if (externalDEMFile != null) {

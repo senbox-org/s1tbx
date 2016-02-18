@@ -228,6 +228,8 @@ public class CrossCorrelationOp extends Operator {
             rowUpSamplingFactor = Integer.parseInt(rowInterpFactor);
             colUpSamplingFactor = Integer.parseInt(columnInterpFactor);
 
+            getMasterBands();
+
             // parameters: Coarse
             coarseWin = new CorrelationWindow(
                     Integer.parseInt(coarseRegistrationWindowWidth),
@@ -236,24 +238,29 @@ public class CrossCorrelationOp extends Operator {
                     Integer.parseInt(columnInterpFactor),
                     1);
 
-            if (fineRegistrationOversampling == null)
-                fineRegistrationOversampling = "2";
-
             // parameters: Fine
-            fineWin = new CorrelationWindow(
-                    Integer.parseInt(fineRegistrationWindowWidth),
-                    Integer.parseInt(fineRegistrationWindowHeight),
-                    Integer.parseInt(fineRegistrationWindowAccAzimuth),
-                    Integer.parseInt(fineRegistrationWindowAccRange),
-                    Integer.parseInt(fineRegistrationOversampling));
+            if(applyFineRegistration) {
+                if (fineRegistrationOversampling == null)
+                    fineRegistrationOversampling = "2";
+
+                if (complexCoregistration) {
+                    fWindowWidth = Integer.parseInt(fineRegistrationWindowWidth);
+                    fWindowHeight = Integer.parseInt(fineRegistrationWindowHeight);
+                }
+
+                fineWin = new CorrelationWindow(
+                        Integer.parseInt(fineRegistrationWindowWidth),
+                        Integer.parseInt(fineRegistrationWindowHeight),
+                        Integer.parseInt(fineRegistrationWindowAccAzimuth),
+                        Integer.parseInt(fineRegistrationWindowAccRange),
+                        Integer.parseInt(fineRegistrationOversampling));
+            }
 
             final double achievableAccuracy = 1.0 / (double) Math.max(rowUpSamplingFactor, colUpSamplingFactor);
             if (gcpTolerance < achievableAccuracy) {
                 throw new OperatorException("GCP Tolerance is below the achievable accuracy with current interpolation factors of " +
                                                     achievableAccuracy + ".");
             }
-
-            getMasterBands();
 
             sourceImageWidth = sourceProduct.getSceneRasterWidth();
             sourceImageHeight = sourceProduct.getSceneRasterHeight();
@@ -267,10 +274,6 @@ public class CrossCorrelationOp extends Operator {
                            targetProduct.getSceneGeoCoding());
             }
 
-            if (complexCoregistration && applyFineRegistration) {
-                fWindowWidth = Integer.parseInt(fineRegistrationWindowWidth);
-                fWindowHeight = Integer.parseInt(fineRegistrationWindowHeight);
-            }
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
