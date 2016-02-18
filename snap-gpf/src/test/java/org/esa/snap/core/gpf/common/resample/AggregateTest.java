@@ -190,8 +190,8 @@ public class AggregateTest {
         int referenceHeight = 2;
         int referenceScaleX = 4;
         int referenceScaleY = 4;
-        int referenceTranslateX = 5;
-        int referenceTranslateY = 5;
+        int referenceTranslateX = 4;
+        int referenceTranslateY = 4;
         int referenceLevelCount = 2;
         final AffineTransform imageToModelTransform = new AffineTransform(referenceScaleX, 0, 0, referenceScaleY,
                                                                           referenceTranslateX, referenceTranslateY);

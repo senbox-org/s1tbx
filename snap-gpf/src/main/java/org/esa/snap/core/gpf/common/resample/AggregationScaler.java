@@ -72,24 +72,6 @@ public class AggregationScaler {
             RenderedImage renderedImage = image;
             final float xScale = scalings[0] * scaleRatio;
             final float yScale = scalings[1] * scaleRatio;
-            if (masterWidth != renderedImage.getWidth() || masterHeight != renderedImage.getHeight() ||
-                    Precision.compareTo((double) offsets[0], 0.0, EPSILON) != 0 ||
-                    Precision.compareTo((double) offsets[1], 0.0, EPSILON) != 0) {
-                final int padX = Math.round(offsets[0]);
-                final int padY = Math.round(offsets[1]);
-                int borderCorrectorX = (offsets[0] - padX < 0) ? 1 : 0;
-                int borderCorrectorY = (offsets[1] - padY < 0) ? 1 : 0;
-                final BorderExtender borderExtender = new BorderExtenderConstant(new double[]{noDataValue});
-                //todo maybe remove Math.max when useful test data for SLSTR L1B products has arrived
-                final int rightPadX = Math.max(0, masterWidth - padX - renderedImage.getWidth() + borderCorrectorX);
-                final int lowerPadY = Math.max(0, masterHeight - padY - renderedImage.getHeight() + borderCorrectorY);
-                renderedImage = BorderDescriptor.create(renderedImage,
-                                                        padX,
-                                                        rightPadX,
-                                                        padY,
-                                                        lowerPadY,
-                                                        borderExtender, renderingHints);
-            }
             if (Precision.compareTo((double) offsets[0], 0.0, EPSILON) != 0 ||
                     Precision.compareTo((double) offsets[1], 0.0, EPSILON) != 0) {
                 renderedImage = TranslateDescriptor.create(renderedImage, offsets[0], offsets[1], null,
@@ -98,6 +80,25 @@ public class AggregationScaler {
             if (Precision.compareTo((double) xScale, 1.0, EPSILON) != 0
                     || Precision.compareTo((double) yScale, 1.0, EPSILON) != 0) {
                 renderedImage = ScaleDescriptor.create(renderedImage, xScale, yScale, 0.5f, 0.5f, interpolation, renderingHints);
+            }
+            if (masterWidth != renderedImage.getWidth() || masterHeight != renderedImage.getHeight() ||
+                    Precision.compareTo((double) offsets[0], 0.0, EPSILON) != 0 ||
+                    Precision.compareTo((double) offsets[1], 0.0, EPSILON) != 0) {
+                final float scaledXOffset = offsets[0] * xScale;
+                final float scaledYOffset = offsets[1] * yScale;
+                final int leftPad = Math.round(scaledXOffset);
+                final int upperPad = Math.round(scaledYOffset);
+                int borderCorrectorX = (scaledXOffset - leftPad < 0) ? 1 : 0;
+                int borderCorrectorY = (scaledYOffset - upperPad < 0) ? 1 : 0;
+                final BorderExtender borderExtender = new BorderExtenderConstant(new double[]{noDataValue});
+                final int rightPad = Math.max(0, masterWidth - leftPad - renderedImage.getWidth() + borderCorrectorX);
+                final int lowerPad = Math.max(0, masterHeight - upperPad - renderedImage.getHeight() + borderCorrectorY);
+                renderedImage = BorderDescriptor.create(renderedImage,
+                                                        leftPad,
+                                                        rightPad,
+                                                        upperPad,
+                                                        lowerPad,
+                                                        borderExtender, renderingHints);
             }
             renderedImage = CropDescriptor.create(renderedImage, 0.0f, 0.0f, (float) masterWidth, (float) masterHeight,
                                                   renderingHints);
