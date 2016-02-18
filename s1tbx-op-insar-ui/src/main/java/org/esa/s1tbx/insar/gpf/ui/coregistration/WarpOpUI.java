@@ -45,6 +45,7 @@ public class WarpOpUI extends BaseOperatorUI {
 
     private final JCheckBox inSAROptimizedCheckBox = new JCheckBox("InSAR Optimized");
     private Boolean inSAROptimized;
+    private boolean isComplex = false;
 
     private final JCheckBox demRefinementCheckBox = new JCheckBox("Offset Refinement Based on DEM");
     private Boolean demRefinement;
@@ -89,18 +90,12 @@ public class WarpOpUI extends BaseOperatorUI {
         rmsThreshold.setSelectedItem(String.valueOf(paramMap.get("rmsThreshold")));
         warpPolynomialOrder.setSelectedItem(paramMap.get("warpPolynomialOrder"));
 
+        interpolationMethod.setSelectedItem(paramMap.get("interpolationMethod"));
+
         if (sourceProducts != null && sourceProducts.length > 0) {
             final InputProductValidator validator = new InputProductValidator(sourceProducts[0]);
-            if (!validator.isComplex()) {
-                interpolationMethod.removeAllItems();
-                interpolationMethod.addItem(WarpOp.NEAREST_NEIGHBOR);
-                interpolationMethod.addItem(WarpOp.BILINEAR);
-                interpolationMethod.addItem(WarpOp.BICUBIC);
-                interpolationMethod.addItem(WarpOp.BICUBIC2);
-            }
+            isComplex = validator.isComplex();
         }
-
-        interpolationMethod.setSelectedItem(paramMap.get("interpolationMethod"));
 
         inSAROptimized = (Boolean) paramMap.get("inSAROptimized");
         if (inSAROptimized == null) {
@@ -180,7 +175,8 @@ public class WarpOpUI extends BaseOperatorUI {
     }
 
     private void enableDemFields() {
-        demRefinementCheckBox.setEnabled(inSAROptimized);
-        demName.setEnabled(demRefinement);
+        inSAROptimizedCheckBox.setEnabled(isComplex);
+        demRefinementCheckBox.setEnabled(isComplex && inSAROptimized);
+        demName.setEnabled(isComplex && demRefinement);
     }
 }

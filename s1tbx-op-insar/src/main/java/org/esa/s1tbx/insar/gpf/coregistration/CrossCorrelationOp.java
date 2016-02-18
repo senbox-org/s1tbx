@@ -251,8 +251,8 @@ public class CrossCorrelationOp extends Operator {
 
             final double achievableAccuracy = 1.0 / (double) Math.max(rowUpSamplingFactor, colUpSamplingFactor);
             if (gcpTolerance < achievableAccuracy) {
-                throw new OperatorException("The achievable accuracy with current interpolation factors is " +
-                                                    achievableAccuracy + ", GCP Tolerance is below it.");
+                throw new OperatorException("GCP Tolerance is below the achievable accuracy with current interpolation factors of " +
+                                                    achievableAccuracy + ".");
             }
 
             getMasterBands();
