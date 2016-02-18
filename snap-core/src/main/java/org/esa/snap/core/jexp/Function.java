@@ -62,11 +62,11 @@ public interface Function {
     int getArgType(int argIndex);
 
     /**
-     * Evaluates this function to a <code>double</code> value.
+     * Evaluates this function to a <code>boolean</code> value.
      *
      * @param env  the application dependant environment.
      * @param args the (un-evaluated) arguments passed to the function
-     * @return a <code>double</code> value
+     * @return a <code>boolean</code> value
      * @throws EvalException if the evaluation fails
      */
     boolean evalB(EvalEnv env, Term[] args) throws EvalException;
