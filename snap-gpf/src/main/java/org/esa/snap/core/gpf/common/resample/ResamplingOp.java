@@ -9,6 +9,8 @@ import org.esa.snap.core.datamodel.ProductNodeGroup;
 import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.OperatorSpi;
+import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
@@ -25,6 +27,12 @@ import java.awt.Dimension;
  *
  * @author Tonio Fincke
  */
+@OperatorMetadata(alias = "Resample",
+        version = "1.0",
+        authors = "Tonio Fincke",
+        copyright = "(c) 2016 by Brockmann Consult",
+        description = "Resampling of a multi-size source product to a single-size target product.",
+        internal = true)
 public class ResamplingOp extends Operator {
 
     private static final String NAME_EXTENSION = "resampled";
@@ -36,8 +44,9 @@ public class ResamplingOp extends Operator {
     Product targetProduct;
 
     //todo also allow to set a target size/resolution explicitly
-    @Parameter(description = "The reference raster data node. All other bands will be re-sampled to match its size and resolution.")
-    RasterDataNode referenceNode;
+    @Parameter(description = "The name of the reference raster data node. " +
+            "All other bands will be re-sampled to match its size and resolution.")
+    String referenceNodeName;
 
     @Parameter(alias = "interpolation",
             label = "Interpolation Method",
@@ -59,6 +68,7 @@ public class ResamplingOp extends Operator {
             targetProduct = sourceProduct;
             return;
         }
+        final RasterDataNode referenceNode = sourceProduct.getRasterDataNode(referenceNodeName);
         Assert.notNull(referenceNode);
         validateInterpolationParameter();
         final int referenceWidth = referenceNode.getRasterWidth();
@@ -69,26 +79,56 @@ public class ResamplingOp extends Operator {
         final ProductNodeGroup<Band> sourceBands = sourceProduct.getBandGroup();
         for (int i = 0; i < sourceBands.getNodeCount(); i++) {
             Band sourceBand = sourceBands.get(i);
+            Band targetBand;
             if (!sourceBand.getRasterSize().equals(referenceSize)) {
                 //todo consider case when band width is smaller than reference width but band height is larger than reference height or vice versa
-                final Band targetBand = new Band(sourceBand.getName(), sourceBand.getDataType(), referenceWidth, referenceHeight);
+                targetBand = new Band(sourceBand.getName(), sourceBand.getDataType(), referenceWidth, referenceHeight);
                 if (sourceBand.getRasterWidth() < referenceWidth && sourceBand.getRasterHeight() < referenceHeight) {
-                    final MultiLevelImage interpolatedImage = createInterpolatedImage(sourceBand, referenceNode);
+                final MultiLevelImage interpolatedImage = createInterpolatedImage(sourceBand, referenceNode);
                     targetBand.setSourceImage(interpolatedImage);
                 } else {
-                    //aggregation
+                    final MultiLevelImage aggregatedImage = createAggregatedImage(sourceBand, referenceNode);
+                    targetBand.setSourceImage(aggregatedImage);
                 }
                 targetProduct.addBand(targetBand);
             } else {
-                ProductUtils.copyBand(sourceBand.getName(), sourceProduct, targetProduct, true);
+                targetBand = ProductUtils.copyBand(sourceBand.getName(), sourceProduct, targetProduct, true);
             }
+            ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
         }
-        //todo tie point grids need not to be resampled. Instead, they might need to be adapted to new product sizes
+        //todo aggregate / interpolate flags correctly
+        ProductUtils.copyFlagCodings(sourceProduct, targetProduct);
+        ProductUtils.copyIndexCodings(sourceProduct, targetProduct);
+        ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
+        ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
+        ProductUtils.copyMasks(sourceProduct, targetProduct);
+        ProductUtils.copyMetadata(sourceProduct, targetProduct);
+        ProductUtils.copyVectorData(sourceProduct, targetProduct);
+        targetProduct.setAutoGrouping(sourceProduct.getAutoGrouping());
     }
 
     private MultiLevelImage createInterpolatedImage(Band sourceBand, final RasterDataNode referenceNode) {
         final Interpolation interpolation = getInterpolation(sourceBand);
         return Interpolate.createInterpolatedMultiLevelImage(sourceBand, referenceNode, interpolation);
+    }
+
+    private MultiLevelImage createAggregatedImage(Band sourceBand, final RasterDataNode referenceNode) {
+        final Aggregate.Type aggregationType = getAggregationType();
+        return Aggregate.createAggregatedMultiLevelImage(sourceBand, referenceNode, aggregationType);
+    }
+
+    private Aggregate.Type getAggregationType() {
+        if ("First".equalsIgnoreCase(aggregationMethod)) {
+            return Aggregate.Type.FIRST;
+        } else if ("Min".equalsIgnoreCase(aggregationMethod)) {
+            return Aggregate.Type.MIN;
+        } else if ("Max".equalsIgnoreCase(aggregationMethod)) {
+            return Aggregate.Type.MAX;
+        } else if ("Median".equalsIgnoreCase(aggregationMethod)) {
+            return Aggregate.Type.MEDIAN;
+        } else {
+            return Aggregate.Type.MEAN;
+        }
     }
 
     //todo this method has been copied from ReprojectionOp. Find a common place? - tf 20160210
@@ -119,6 +159,13 @@ public class ResamplingOp extends Operator {
     void validateInterpolationParameter() {
         if (getInterpolationType() == -1) {
             throw new OperatorException("Invalid resampling method: " + interpolationMethod);
+        }
+    }
+
+    public static class Spi extends OperatorSpi {
+
+        public Spi() {
+            super(ResamplingOp.class);
         }
     }
 
