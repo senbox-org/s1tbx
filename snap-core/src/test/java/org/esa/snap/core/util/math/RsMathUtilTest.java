@@ -55,6 +55,19 @@ public class RsMathUtilTest extends TestCase {
     }
 
     /**
+     * Tests the functionality of reflectanceToRadiance():
+     */
+    public void testReflectanceToRadiance() {
+        float rad = 80.f;
+        float sza = 30.f;
+        float solarFlux = 1714.9084f;
+
+        float refl = RsMathUtils.radianceToReflectance(rad, sza, solarFlux);   // this is tested above
+        float backToRad = RsMathUtils.reflectanceToRadiance(refl, sza, solarFlux);
+        assertEquals(rad, backToRad);
+    }
+
+    /**
      * Tests the functionality of radianceToReflectance() vector version
      */
     public void testVectorVersion() {
