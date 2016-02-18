@@ -522,6 +522,8 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
 
                 if (isPolsar && applyRadiometricNormalization) {
                     applyRadiometricNormalization = false;
+                    enableRadiometricNormalization(false);
+                    saveSelectedSourceBandCheckBox.setSelected(true);
                     return new UIValidation(UIValidation.State.WARNING, "Radiometric normalization is" +
                             " not available for polarimetric matrix products");
                 }
@@ -534,6 +536,8 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
 
                 if (!canCalibrate() && applyRadiometricNormalization) {
                     applyRadiometricNormalization = false;
+                    enableRadiometricNormalization(false);
+                    saveSelectedSourceBandCheckBox.setSelected(true);
                     return new UIValidation(UIValidation.State.WARNING, "Radiometric normalization currently is" +
                             " not available for " + mission + " products");
                 }
@@ -723,6 +727,10 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
 
     private void enableRadiometricNormalization(final boolean flag) {
         saveSigmaNoughtCheckBox.setSelected(flag);
+        if (!flag) {
+            saveGammaNoughtCheckBox.setSelected(false);
+            saveBetaNoughtCheckBox.setSelected(false);
+        }
         saveSigmaNoughtCheckBox.setEnabled(flag);
         saveGammaNoughtCheckBox.setEnabled(flag);
         saveBetaNoughtCheckBox.setEnabled(flag);
