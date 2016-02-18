@@ -25,7 +25,7 @@ class Interpolate {
         transform.concatenate(referenceModel.getModelToImageTransform(0));
         final RenderingHints targetHints = getRenderingHints(sourceBand.getNoDataValue());
         return SourceImageScaler.scaleMultiLevelImage(referenceNode.getSourceImage(), sourceBand.getSourceImage(),
-                                                      new float[]{(float) transform.getScaleY(), (float) transform.getScaleY()},
+                                                      new float[]{(float) transform.getScaleX(), (float) transform.getScaleY()},
                                                       new float[]{(float) transform.getTranslateX(), (float) transform.getTranslateY()},
                                                       targetHints, sourceBand.getNoDataValue(), interpolation);
     }
