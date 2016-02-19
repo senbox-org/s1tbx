@@ -16,6 +16,7 @@ import java.util.Random;
  *
  * @author Norman Fomferra
  */
+@SuppressWarnings("unused")
 public class Functions {
     
     public static final Function AVG = new AbstractFunction.D("avg", -1) {
@@ -352,6 +353,15 @@ public class Functions {
         @Override
         public double evalD(EvalEnv env, Term[] args) throws EvalException {
             return ExtMath.cosech(args[0].evalD(env));
+        }
+    };
+
+    public static final Function BIT_SET = new AbstractFunction.B("bit_set", 2) {
+        @Override
+        public boolean evalB(EvalEnv env, Term[] args) throws EvalException {
+            final int value = args[0].evalI(env);
+            final int bitIndex = args[1].evalI(env);
+            return (value & (1L << bitIndex)) != 0;
         }
     };
 

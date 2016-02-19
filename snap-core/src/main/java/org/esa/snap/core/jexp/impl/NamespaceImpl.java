@@ -29,10 +29,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Provides an implementation of the <code>{@link org.esa.snap.core.jexp.Namespace}</code> interface.
+ * Provides an implementation of the {@code {@link org.esa.snap.core.jexp.Namespace}} interface.
  *
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
- * @version $Revision$ $Date$
  */
 public class NamespaceImpl implements WritableNamespace {
 
@@ -46,8 +45,8 @@ public class NamespaceImpl implements WritableNamespace {
 
     public NamespaceImpl(final Namespace defaultNamespace) {
         this.defaultNamespace = defaultNamespace;
-        symbols = new HashMap<String, Symbol>(32);
-        functions = new HashMap<String, Function[]>(16);
+        symbols = new HashMap<>(32);
+        functions = new HashMap<>(16);
     }
 
     public final Namespace getDefaultNamespace() {
@@ -91,7 +90,7 @@ public class NamespaceImpl implements WritableNamespace {
     public final void deregisterFunction(final Function function) {
         Function[] array = getFunctions(function.getName());
         if (array != null) {
-            final ArrayList<Function> functionList = new ArrayList<Function>(Arrays.asList(array));
+            final ArrayList<Function> functionList = new ArrayList<>(Arrays.asList(array));
             if (!functionList.remove(function)) {
                 return;
             }
@@ -130,10 +129,6 @@ public class NamespaceImpl implements WritableNamespace {
             if (bestFunction != null) {
                 return bestFunction;
             }
-
-            if (bestFunction != null) {
-                return bestFunction;
-            }
         }
         if (defaultNamespace != null) {
             return defaultNamespace.resolveFunction(name, args);
@@ -142,7 +137,7 @@ public class NamespaceImpl implements WritableNamespace {
     }
 
     public Symbol[] getAllSymbols() {
-        final ArrayList<Symbol> symbolList = new ArrayList<Symbol>(symbols.values());
+        final ArrayList<Symbol> symbolList = new ArrayList<>(symbols.values());
         if (defaultNamespace instanceof WritableNamespace) {
             final WritableNamespace writableNamespace = (WritableNamespace) defaultNamespace;
             final Symbol[] defaultSymbols = writableNamespace.getAllSymbols();
@@ -153,7 +148,7 @@ public class NamespaceImpl implements WritableNamespace {
 
     public final Function[] getAllFunctions() {
         final Collection<Function[]> collection = functions.values();
-        final ArrayList<Function> functionList = new ArrayList<Function>(32 + 2 * collection.size());
+        final ArrayList<Function> functionList = new ArrayList<>(32 + 2 * collection.size());
         for (Function[] functions : collection) {
             functionList.addAll(Arrays.asList(functions));
         }

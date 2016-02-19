@@ -66,6 +66,19 @@ public class RsMathUtils {
     public final static double MEAN_EARTH_RADIUS = 6370997; // meter
 
     /**
+     * Converts a reflectance value to a radiance value for given solar spectral flux and sun zenith angle.
+     * This is the inverse of <code>radianceToReflectance</code>.
+     *
+     * @param refl the reflectance
+     * @param sza the sun zenith angle in decimal degrees
+     * @param e0  the solar spectral flux in mW / (m^2 * sr * nm)
+     * @return the corresponding radiance in mW /(m^2 * sr * nm)
+     */
+    public static float reflectanceToRadiance(float refl, float sza, float e0) {
+        return (float) (refl * e0 * Math.cos(sza * RAD_PER_DEG) / Math.PI);
+    }
+
+    /**
      * Converts a radiance value to a reflectance value for given solar spectral flux and sun zenith angle.
      *
      * @param rad the radiance in mW /(m^2 * sr * nm)
