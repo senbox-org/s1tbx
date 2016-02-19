@@ -76,9 +76,9 @@ public class SpeckleFilterOp extends Operator {
             label = "Frost Damping Factor")
     private int dampingFactor = 2;
 
-    @Parameter(description = "The edge threshold (Refined Lee filter only)", interval = "(0, *)", defaultValue = "5000",
-            label = "Edge detection threshold")
-    private double edgeThreshold = 5000.0;
+//    @Parameter(description = "The edge threshold (Refined Lee filter only)", interval = "(0, *)", defaultValue = "5000",
+//            label = "Edge detection threshold")
+//    private double edgeThreshold = 5000.0;
 
     @Parameter(defaultValue = "false", label = "Estimate Eqivalent Number of Looks")
     private boolean estimateENL = true;
@@ -267,8 +267,7 @@ public class SpeckleFilterOp extends Operator {
                         targetBandNameToSourceBandName, estimateENL, enl);
 
             case LEE_REFINED_FILTER:
-                return new RefinedLee(this, sourceProduct, targetProduct, targetBandNameToSourceBandName,
-                        edgeThreshold);
+                return new RefinedLee(this, sourceProduct, targetProduct, targetBandNameToSourceBandName);
 
             case LEE_SIGMA_FILTER:
                 return new LeeSigma(this, sourceProduct, targetProduct, targetBandNameToSourceBandName,

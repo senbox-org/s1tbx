@@ -107,8 +107,8 @@
       <extent>Master</extent>
     </parameters>
   </node>
-  <node id="GCP-Selection">
-    <operator>GCP-Selection</operator>
+  <node id="Cross-Correlation">
+    <operator>Cross-Correlation</operator>
     <sources>
       <sourceProduct refid="CreateStack"/>
     </sources>
@@ -133,7 +133,7 @@
   <node id="Warp">
     <operator>Warp</operator>
     <sources>
-      <sourceProduct refid="GCP-Selection"/>
+      <sourceProduct refid="Cross-Correlation"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <rmsThreshold>1.0</rmsThreshold>
@@ -171,7 +171,7 @@
     <node id="CreateStack">
       <displayPosition y="41.0" x="204.0"/>
     </node>
-    <node id="GCP-Selection">
+    <node id="Cross-Correlation">
       <displayPosition y="42.0" x="303.0"/>
     </node>
     <node id="Warp">

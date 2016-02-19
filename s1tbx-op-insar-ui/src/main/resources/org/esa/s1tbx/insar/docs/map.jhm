@@ -9,7 +9,7 @@
     <mapID target="PCA" url="operators/PCAOp.html"/>
     <!--Coregistration-->
     <mapID target="CreateStackOp" url="operators/CollocateOp.html"/>
-    <mapID target="GCPSelectionOp" url="operators/GCPSelectionOp.html"/>
+    <mapID target="CrossCorrelationOp" url="operators/CrossCorrelationOp.html"/>
     <mapID target="WarpOp" url="operators/WarpOp.html"/>
     <!-- InSAR -->
     <mapID target="GoldsteinFilterOp" url="operators/GoldsteinFilterOp.html"/>

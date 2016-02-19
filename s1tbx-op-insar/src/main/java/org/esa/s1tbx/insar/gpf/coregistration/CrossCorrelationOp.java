@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2016 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,6 @@
 package org.esa.s1tbx.insar.gpf.coregistration;
 
 import com.bc.ceres.core.ProgressMonitor;
-import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.GcpDescriptor;
@@ -46,16 +45,20 @@ import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
-import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.engine_utilities.gpf.ThreadManager;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.esa.snap.engine_utilities.util.MemUtils;
+import org.jblas.ComplexDoubleMatrix;
+import org.jlinda.core.coregistration.utils.CoregistrationUtils;
+import org.jlinda.nest.gpf.coregistration.GCPManager;
+import org.jlinda.nest.utils.TileUtilsDoris;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RasterFactory;
@@ -77,12 +80,12 @@ import java.util.Map;
  * DEM map generation and analysis. To obtain a high quality InSAR image, the individual complex images need
  * to be co-registered to sub-pixel accuracy. The co-registration is accomplished through an alignment of a
  * master image with a slave image.
- * <p/>
+ * <p>
  * To achieve the alignment of master and slave images, the first step is to generate a set of uniformly
  * spaced ground control points (GCPs) in the master image, along with the corresponding GCPs in the slave
  * image. These GCP pairs are used in constructing a warp distortion function, which establishes a map
  * between pixels in the slave and master images.
- * <p/>
+ * <p>
  * This operator computes the slave GCPS for given master GCPs. First the geometric information of the
  * master GCPs is used in determining the initial positions of the slave GCPs. Then a cross-correlation
  * is performed between imagettes surrounding each master GCP and its corresponding slave GCP to obtain
@@ -90,12 +93,12 @@ import java.util.Map;
  * accurate enough.
  */
 
-@OperatorMetadata(alias = "GCP-Selection",
+@OperatorMetadata(alias = "Cross-Correlation",
         category = "Radar/Coregistration",
-        authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        authors = "Jun Lu, Luis Veci, Petar Marinkovic",
+        copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
         description = "Automatic Selection of Ground Control Points")
-public class GCPSelectionOp extends Operator {
+public class CrossCorrelationOp extends Operator {
 
     @SourceProduct
     private Product sourceProduct;
@@ -124,12 +127,21 @@ public class GCPSelectionOp extends Operator {
     // ==================== input parameters used for complex co-registration ==================
     @Parameter(defaultValue = "true", label = "Apply Fine Registration")
     private boolean applyFineRegistration = true;
+    @Parameter(defaultValue = "true", label = "Optimize for InSAR")
+    private boolean inSAROptimized = true;
 
     @Parameter(valueSet = {"8", "16", "32", "64", "128", "256", "512"}, defaultValue = "32", label = "Fine Registration Window Width")
     private String fineRegistrationWindowWidth = "32";
     @Parameter(valueSet = {"8", "16", "32", "64", "128", "256", "512"}, defaultValue = "32", label = "Fine Registration Window Height")
     private String fineRegistrationWindowHeight = "32";
-    @Parameter(description = "The coherence window size", interval = "(1, 10]", defaultValue = "3",
+    @Parameter(valueSet = {"2", "4", "8", "16", "32", "64"}, defaultValue = "16", label = "Search Window Accuracy in Azimuth Direction")
+    private String fineRegistrationWindowAccAzimuth = "16";
+    @Parameter(valueSet = {"2", "4", "8", "16", "32", "64"}, defaultValue = "16", label = "Search Window Accuracy in Range Direction")
+    private String fineRegistrationWindowAccRange = "16";
+    @Parameter(valueSet = {"2", "4", "8", "16", "32", "64"}, defaultValue = "16", label = "Window oversampling factor")
+    private String fineRegistrationOversampling = "16";
+
+    @Parameter(description = "The coherence window size", interval = "(1, 16]", defaultValue = "3",
             label = "Coherence Window Size")
     private int coherenceWindowSize = 3;
     @Parameter(description = "The coherence threshold", interval = "(0, *)", defaultValue = "0.6",
@@ -142,10 +154,10 @@ public class GCPSelectionOp extends Operator {
     private boolean useAllPolarimetricBands = false;
 
     //    @Parameter(description = "The coherence function tolerance", interval = "(0, *)", defaultValue = "1.e-6",
-//                label="Coherence Function Tolerance")
+    //                label="Coherence Function Tolerance")
     private static final double coherenceFuncToler = 1.e-5;
     //    @Parameter(description = "The coherence value tolerance", interval = "(0, *)", defaultValue = "1.e-3",
-//                label="Coherence Value Tolerance")
+    //                label="Coherence Value Tolerance")
     private static final double coherenceValueToler = 1.e-2;
     // =========================================================================================
     @Parameter(defaultValue = "false", label = "Estimate Coarse Offset")
@@ -153,13 +165,10 @@ public class GCPSelectionOp extends Operator {
     @Parameter(defaultValue = "false", label = "Test GCPs are on land")
     private boolean onlyGCPsOnLand = false;
 
-
-    private Band masterBand1 = null;
-    private Band masterBand2 = null;
-
-    private boolean complexCoregistration = false;
-
-    private ProductNodeGroup<Placemark> masterGcpGroup = null;
+    private Band masterBand1;
+    private Band masterBand2;
+    private boolean complexCoregistration;
+    private ProductNodeGroup<Placemark> masterGcpGroup;
 
     private int sourceImageWidth;
     private int sourceImageHeight;
@@ -174,13 +183,6 @@ public class GCPSelectionOp extends Operator {
     private int fWindowWidth = 0;  // row dimension for master and slave imagette for computing coherence, must be power of 2
     private int fWindowHeight = 0; // column dimension for master and slave imagette for computing coherence, must be power of 2
 
-    private final static int ITMAX = 200;
-    private final static double TOL = 2.0e-4;      // Tolerance passed to brent
-    private final static double GOLD = 1.618034;   // Here GOLD is the default ratio by which successive intervals are magnified
-    private final static double GLIMIT = 100.0;    // GLIMIT is the maximum magnification allowed for a parabolic-fit step.
-    private final static double TINY = 1.0e-20;
-    private final static double CGOLD = 0.3819660; // CGOLD is the golden ratio;
-    private final static double ZEPS = 1.0e-10;    // ZEPS is a small number that protects against trying to achieve fractional
     private final static double MaxInvalidPixelPercentage = 0.66; // maximum percentage of invalid pixels allowed in xcorrelation
 
     private final Map<Band, Band> sourceRasterMap = new HashMap<>(10);
@@ -191,11 +193,14 @@ public class GCPSelectionOp extends Operator {
 
     private ElevationModel dem = null;
 
+    private CorrelationWindow coarseWin;
+    private CorrelationWindow fineWin;
+
     /**
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
      */
-    public GCPSelectionOp() {
+    public CrossCorrelationOp() {
     }
 
     /**
@@ -213,8 +218,7 @@ public class GCPSelectionOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
         try {
-            final InputProductValidator validator = new InputProductValidator(sourceProduct);
-            validator.checkIfCoregisteredStack();
+            getCollocatedStackFlag();
 
             cWindowWidth = Integer.parseInt(coarseRegistrationWindowWidth);
             cWindowHeight = Integer.parseInt(coarseRegistrationWindowHeight);
@@ -224,18 +228,42 @@ public class GCPSelectionOp extends Operator {
             rowUpSamplingFactor = Integer.parseInt(rowInterpFactor);
             colUpSamplingFactor = Integer.parseInt(columnInterpFactor);
 
-            final double achievableAccuracy = 1.0 / (double) Math.max(rowUpSamplingFactor, colUpSamplingFactor);
-            if (gcpTolerance < achievableAccuracy) {
-                throw new OperatorException("The achievable accuracy with current interpolation factors is " +
-                        achievableAccuracy + ", GCP Tolerance is below it.");
+            getMasterBands();
+
+            // parameters: Coarse
+            coarseWin = new CorrelationWindow(
+                    Integer.parseInt(coarseRegistrationWindowWidth),
+                    Integer.parseInt(coarseRegistrationWindowHeight),
+                    Integer.parseInt(rowInterpFactor),
+                    Integer.parseInt(columnInterpFactor),
+                    1);
+
+            // parameters: Fine
+            if(applyFineRegistration) {
+                if (fineRegistrationOversampling == null)
+                    fineRegistrationOversampling = "2";
+
+                if (complexCoregistration) {
+                    fWindowWidth = Integer.parseInt(fineRegistrationWindowWidth);
+                    fWindowHeight = Integer.parseInt(fineRegistrationWindowHeight);
+                }
+
+                fineWin = new CorrelationWindow(
+                        Integer.parseInt(fineRegistrationWindowWidth),
+                        Integer.parseInt(fineRegistrationWindowHeight),
+                        Integer.parseInt(fineRegistrationWindowAccAzimuth),
+                        Integer.parseInt(fineRegistrationWindowAccRange),
+                        Integer.parseInt(fineRegistrationOversampling));
             }
 
-            getMasterBands();
+            final double achievableAccuracy = 1.0 / (double) Math.max(rowUpSamplingFactor, colUpSamplingFactor);
+            if (gcpTolerance < achievableAccuracy) {
+                throw new OperatorException("GCP Tolerance is below the achievable accuracy with current interpolation factors of " +
+                                                    achievableAccuracy + ".");
+            }
 
             sourceImageWidth = sourceProduct.getSceneRasterWidth();
             sourceImageHeight = sourceProduct.getSceneRasterHeight();
-
-            getCollocatedStackFlag();
 
             createTargetProduct();
 
@@ -243,13 +271,9 @@ public class GCPSelectionOp extends Operator {
             masterGcpGroup = GCPManager.instance().getGcpGroup(masterBand1);
             if (masterGcpGroup.getNodeCount() <= 0) {
                 addGCPGrid(sourceImageWidth, sourceImageHeight, numGCPtoGenerate, masterGcpGroup,
-                        targetProduct.getSceneGeoCoding());
+                           targetProduct.getSceneGeoCoding());
             }
 
-            if (complexCoregistration && applyFineRegistration) {
-                fWindowWidth = Integer.parseInt(fineRegistrationWindowWidth);
-                fWindowHeight = Integer.parseInt(fineRegistrationWindowHeight);
-            }
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
@@ -260,9 +284,9 @@ public class GCPSelectionOp extends Operator {
 
         // find co-pol bands
         final String[] masterBandNames = StackUtils.getMasterBandNames(sourceProduct);
-        for(String bandName : masterBandNames) {
+        for (String bandName : masterBandNames) {
             final String mstPol = OperatorUtils.getPolarizationFromBandName(bandName);
-            if(mstPol != null && (mstPol.equals("hh") || mstPol.equals("vv"))) {
+            if (mstPol != null && (mstPol.equals("hh") || mstPol.equals("vv"))) {
                 mstBandName = bandName;
                 break;
             }
@@ -270,7 +294,7 @@ public class GCPSelectionOp extends Operator {
         masterBand1 = sourceProduct.getBand(mstBandName);
         if (masterBand1.getUnit() != null && masterBand1.getUnit().equals(Unit.REAL)) {
             int mstIdx = sourceProduct.getBandIndex(mstBandName);
-            if(sourceProduct.getNumBands() > mstIdx + 1) {
+            if (sourceProduct.getNumBands() > mstIdx + 1) {
                 masterBand2 = sourceProduct.getBandAt(mstIdx + 1);
                 complexCoregistration = true;
             }
@@ -299,9 +323,9 @@ public class GCPSelectionOp extends Operator {
                 final String label = PlacemarkNameFactory.createLabel(gcpDescriptor, pinNumber, true);
 
                 final Placemark newPin = Placemark.createPointPlacemark(gcpDescriptor,
-                        name, label, "",
-                        new PixelPos((int) x, (int) y), null,
-                        targetGeoCoding);
+                                                                        name, label, "",
+                                                                        new PixelPos((int) x, (int) y), null,
+                                                                        targetGeoCoding);
                 group.add(newPin);
                 ++pinNumber;
             }
@@ -309,13 +333,14 @@ public class GCPSelectionOp extends Operator {
     }
 
     private void getCollocatedStackFlag() {
+        collocatedStack = false;
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-        MetadataAttribute attr = absRoot.getAttribute("collocated_stack");
-        if (attr == null) {
-            collocatedStack = false;
-        } else {
-            collocatedStack = true;
-            absRoot.removeAttribute(attr);
+        if (absRoot != null) {
+            MetadataAttribute attr = absRoot.getAttribute("collocated_stack");
+            if (attr != null) {
+                collocatedStack = true;
+                absRoot.removeAttribute(attr);
+            }
         }
     }
 
@@ -325,9 +350,9 @@ public class GCPSelectionOp extends Operator {
     private void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName(),
-                sourceProduct.getProductType(),
-                sourceImageWidth,
-                sourceImageHeight);
+                                    sourceProduct.getProductType(),
+                                    sourceImageWidth,
+                                    sourceImageHeight);
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
@@ -338,10 +363,10 @@ public class GCPSelectionOp extends Operator {
         //find slave band matching master pol
         Band slvBand1 = null, slvBand2 = null;
         final String mstPol = OperatorUtils.getPolarizationFromBandName(masterBand1.getName());
-        for(Band slvBand : sourceProduct.getBands()) {
+        for (Band slvBand : sourceProduct.getBands()) {
             if (!StringUtils.contains(masterBandNames, slvBand.getName()) && slvBand != masterBand1) {
                 final String slvPol = OperatorUtils.getPolarizationFromBandName(slvBand.getName());
-                if(mstPol == null || slvPol == null || mstPol.equals(slvPol)) {
+                if (mstPol == null || slvPol == null || mstPol.equals(slvPol)) {
                     final String unit = slvBand.getUnit();
                     if (unit != null && !unit.contains(Unit.IMAGINARY)) {
                         slvBand1 = slvBand;
@@ -354,9 +379,9 @@ public class GCPSelectionOp extends Operator {
             }
         }
 
-        if(slvBand1 == null) {
+        if (slvBand1 == null) {
             //get any polarization
-            for(Band slvBand : sourceProduct.getBands()) {
+            for (Band slvBand : sourceProduct.getBands()) {
                 if (!StringUtils.contains(masterBandNames, slvBand.getName()) && slvBand != masterBand1) {
                     final String unit = slvBand.getUnit();
                     if (unit != null && !unit.contains(Unit.IMAGINARY)) {
@@ -507,18 +532,18 @@ public class GCPSelectionOp extends Operator {
     /**
      * Compute slave GCPs for the given tile.
      *
-     * @param slaveBand  the input band
+     * @param slaveBand1 the input band
      * @param slaveBand2 for complex
      * @param targetBand the output band
      */
-    private synchronized void computeSlaveGCPs(final Band slaveBand, final Band slaveBand2, final Band targetBand,
+    private synchronized void computeSlaveGCPs(final Band slaveBand1, final Band slaveBand2, final Band targetBand,
                                                final String bandCountStr) throws OperatorException {
 
-        if (gcpsComputedMap.get(slaveBand)) {
+        if (gcpsComputedMap.get(slaveBand1)) {
             return;
         }
 
-        gcpsComputedMap.put(slaveBand, true);
+        gcpsComputedMap.put(slaveBand1, true);
         try {
 
             final ProductNodeGroup<Placemark> targetGCPGroup = GCPManager.instance().getGcpGroup(targetBand);
@@ -526,7 +551,7 @@ public class GCPSelectionOp extends Operator {
 
             final int[] offset = new int[2]; // 0-x, 1-y
             if (computeOffset) {
-                determiningImageOffset(slaveBand, slaveBand2, offset);
+                determiningImageOffset(slaveBand1, slaveBand2, offset);
             }
 
             final ThreadManager threadManager = new ThreadManager();
@@ -536,7 +561,7 @@ public class GCPSelectionOp extends Operator {
 
             final int numberOfMasterGCPs = masterGcpGroup.getNodeCount();
             final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
-            status.beginTask("Cross Correlating " + bandCountStr + ' ' + slaveBand.getName() + "... ", numberOfMasterGCPs);
+            status.beginTask("Cross Correlating " + bandCountStr + ' ' + slaveBand1.getName() + "... ", numberOfMasterGCPs);
 
             for (int i = 0; i < numberOfMasterGCPs; ++i) {
                 checkForCancellation();
@@ -548,7 +573,7 @@ public class GCPSelectionOp extends Operator {
                     final GeoPos mGCPGeoPos = mPin.getGeoPos();
                     final PixelPos mGCPPixelPos = mPin.getPixelPos();
                     final PixelPos sGCPPixelPos = new PixelPos(mPin.getPixelPos().x + offset[0],
-                            mPin.getPixelPos().y + offset[1]);
+                                                               mPin.getPixelPos().y + offset[1]);
                     if (!checkSlaveGCPValidity(sGCPPixelPos)) {
                         //System.out.println("GCP(" + i + ") is outside slave image.");
                         continue;
@@ -559,10 +584,19 @@ public class GCPSelectionOp extends Operator {
                         @Override
                         public void run() {
                             //System.out.println("Running "+mPin.getName());
-                            boolean getSlaveGCP = getCoarseSlaveGCPPosition(slaveBand, slaveBand2, mGCPPixelPos, sGCPPixelPos);
+                            boolean getSlaveGCP;
+                            if (complexCoregistration && inSAROptimized) {
+                                getSlaveGCP = getCoarseOffsets(slaveBand1, slaveBand2, mGCPPixelPos, sGCPPixelPos);
 
-                            if (getSlaveGCP && complexCoregistration && applyFineRegistration) {
-                                getSlaveGCP = getFineSlaveGCPPosition(slaveBand, slaveBand2, mGCPPixelPos, sGCPPixelPos);
+                                if (getSlaveGCP) {
+                                    getSlaveGCP = getFineOffsets(slaveBand1, slaveBand2, mGCPPixelPos, sGCPPixelPos);
+                                }
+                            } else {
+                                getSlaveGCP = getCoarseSlaveGCPPosition(slaveBand1, slaveBand2, mGCPPixelPos, sGCPPixelPos);
+
+                                if (getSlaveGCP && complexCoregistration && applyFineRegistration) {
+                                    getSlaveGCP = getFineSlaveGCPPosition(slaveBand1, slaveBand2, mGCPPixelPos, sGCPPixelPos);
+                                }
                             }
 
                             if (getSlaveGCP) {
@@ -641,7 +675,7 @@ public class GCPSelectionOp extends Operator {
                 final int ypos = tileY * tileHeight;
                 for (int tileX = 0; tileX < tileCountX; tileX++) {
                     final Rectangle tileRectangle = new Rectangle(tileX * tileWidth, ypos,
-                            tileWidth, tileHeight);
+                                                                  tileWidth, tileHeight);
                     tileRectangles[index++] = tileRectangle;
                 }
             }
@@ -798,7 +832,6 @@ public class GCPSelectionOp extends Operator {
         return meanValue / rgAzLooks;
     }
 
-
     /**
      * Copy GCPs of the first target band to current target band.
      *
@@ -843,6 +876,73 @@ public class GCPSelectionOp extends Operator {
 
         return (pixelPos.x - cHalfWindowWidth + 1 >= 0 && pixelPos.x + cHalfWindowWidth <= sourceImageWidth - 1) &&
                 (pixelPos.y - cHalfWindowHeight + 1 >= 0 && pixelPos.y + cHalfWindowHeight <= sourceImageHeight - 1);
+    }
+
+    private boolean getCoarseOffsets(final Band slaveBand1, final Band slaveBand2,
+                                     final PixelPos mGCPPixelPos,
+                                     final PixelPos sGCPPixelPos) {
+
+        try {
+            // get data
+            final ComplexDoubleMatrix mI = getComplexDoubleMatrix(masterBand1, masterBand2, mGCPPixelPos, coarseWin);
+            final ComplexDoubleMatrix sI = getComplexDoubleMatrix(slaveBand1, slaveBand2, sGCPPixelPos, coarseWin);
+
+            final double[] coarseOffset = {0, 0};
+
+            double coherence = CoregistrationUtils.crossCorrelateFFT(coarseOffset, mI, sI, coarseWin.ovsFactor, coarseWin.accY, coarseWin.accX);
+
+            SystemUtils.LOG.info("Coarse sGCP = ({}, {})" + coarseOffset[1] + coarseOffset[0]);
+            SystemUtils.LOG.info("Coarse sGCP coherence = {}" + coherence);
+
+            sGCPPixelPos.x += (float) coarseOffset[1];
+            sGCPPixelPos.y += (float) coarseOffset[0];
+
+            return true;
+
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException(getId() + " getCoarseSlaveGCPPosition ", e);
+        }
+        return false;
+    }
+
+    private boolean getFineOffsets(final Band slaveBand1, final Band slaveBand2,
+                                   final PixelPos mGCPPixelPos,
+                                   final PixelPos sGCPPixelPos) {
+        try {
+            SystemUtils.LOG.info("mGCP = ({}, {})" + mGCPPixelPos.x + mGCPPixelPos.y);
+            SystemUtils.LOG.info("Initial sGCP = ({}, {})" + sGCPPixelPos.x + sGCPPixelPos.y);
+
+            ComplexDoubleMatrix mI = getComplexDoubleMatrix(masterBand1, masterBand2, mGCPPixelPos, fineWin);
+            ComplexDoubleMatrix sI = getComplexDoubleMatrix(slaveBand1, slaveBand2, sGCPPixelPos, fineWin);
+
+            final double[] fineOffset = {sGCPPixelPos.x, sGCPPixelPos.y};
+
+            final double coherence = CoregistrationUtils.crossCorrelateFFT(fineOffset, mI, sI, fineWin.ovsFactor, fineWin.accY, fineWin.accX);
+
+            SystemUtils.LOG.info("Final sGCP = ({},{})" + fineOffset[1] + fineOffset[0]);
+            SystemUtils.LOG.info("Final sGCP coherence = {}" + coherence);
+
+            if (coherence < coherenceThreshold) {
+                //System.out.println("Invalid GCP");
+                return false;
+            } else {
+                sGCPPixelPos.x += (float) fineOffset[1];
+                sGCPPixelPos.y += (float) fineOffset[0];
+                //System.out.println("Valid GCP");
+                return true;
+            }
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException(getId() + " getFineSlaveGCPPosition ", e);
+        }
+        return false;
+    }
+
+    private ComplexDoubleMatrix getComplexDoubleMatrix(Band band1, Band band2, PixelPos pixelPos, CorrelationWindow corrWindow) {
+
+        Rectangle rectangle = corrWindow.defineRectangleMask(pixelPos);
+        Tile tileReal = getSourceTile(band1, rectangle);
+        Tile tileImag = getSourceTile(band2, rectangle);
+        return TileUtilsDoris.pullComplexDoubleMatrix(tileReal, tileImag);
     }
 
     private boolean getCoarseSlaveGCPPosition(final Band slaveBand, final Band slaveBand2,
@@ -1007,14 +1107,14 @@ public class GCPSelectionOp extends Operator {
                     if (complexCoregistration) {
 
                         final double v1 = MathUtils.interpolate2D(wy, wx, slaveData1.getElemDoubleAt(x00),
-                                slaveData1.getElemDoubleAt(x01),
-                                slaveData1.getElemDoubleAt(x10),
-                                slaveData1.getElemDoubleAt(x11));
+                                                                  slaveData1.getElemDoubleAt(x01),
+                                                                  slaveData1.getElemDoubleAt(x10),
+                                                                  slaveData1.getElemDoubleAt(x11));
 
                         final double v2 = MathUtils.interpolate2D(wy, wx, slaveData2.getElemDoubleAt(x00),
-                                slaveData2.getElemDoubleAt(x01),
-                                slaveData2.getElemDoubleAt(x10),
-                                slaveData2.getElemDoubleAt(x11));
+                                                                  slaveData2.getElemDoubleAt(x01),
+                                                                  slaveData2.getElemDoubleAt(x10),
+                                                                  slaveData2.getElemDoubleAt(x11));
 
                         if (v1 == noDataValue1 && v2 == noDataValue2) {
                             numInvalidPixels++;
@@ -1023,9 +1123,9 @@ public class GCPSelectionOp extends Operator {
                     } else {
 
                         final double v = MathUtils.interpolate2D(wy, wx, slaveData1.getElemDoubleAt(x00),
-                                slaveData1.getElemDoubleAt(x01),
-                                slaveData1.getElemDoubleAt(x10),
-                                slaveData1.getElemDoubleAt(x11));
+                                                                 slaveData1.getElemDoubleAt(x01),
+                                                                 slaveData1.getElemDoubleAt(x10),
+                                                                 slaveData1.getElemDoubleAt(x11));
 
                         if (v == noDataValue1) {
                             numInvalidPixels++;
@@ -1213,28 +1313,18 @@ public class GCPSelectionOp extends Operator {
 
     //=========================================== Complex Co-registration ==============================================
 
-    // This function is for debugging only.
-    private static void outputRealImage(final double[][] I) {
-        final int row = I.length;
-        final int col = I[0].length;
-        for (double[] aI : I) {
-            for (int c = 0; c < col; c++) {
-                System.out.print(aI[c] + ",");
-            }
-        }
-        System.out.println();
-    }
-
-
     private boolean getFineSlaveGCPPosition(final Band slaveBand1, final Band slaveBand2,
                                             final PixelPos mGCPPixelPos, final PixelPos sGCPPixelPos) {
         try {
             //System.out.println("mGCP = (" + mGCPPixelPos.x + ", " + mGCPPixelPos.y + ")");
             //System.out.println("Initial sGCP = (" + sGCPPixelPos.x + ", " + sGCPPixelPos.y + ")");
 
-            final ComplexCoregData complexData = new ComplexCoregData(coherenceWindowSize,
-                    coherenceFuncToler, coherenceValueToler,
-                    fWindowWidth, fWindowHeight, useSlidingWindow);
+            final FineRegistration fineRegistration = new FineRegistration();
+
+            final FineRegistration.ComplexCoregData complexData =
+                    new FineRegistration.ComplexCoregData(coherenceWindowSize,
+                                                          coherenceFuncToler, coherenceValueToler,
+                                                          fWindowWidth, fWindowHeight, useSlidingWindow);
 
             getComplexMasterImagette(complexData, mGCPPixelPos);
             /*
@@ -1247,7 +1337,7 @@ public class GCPSelectionOp extends Operator {
 //            getInitialComplexSlaveImagette(complexData, mGCPPixelPos); // for testing only
 //            final double[] p = {mGCPPixelPos.x, mGCPPixelPos.y}; // for testing only
 
-            getInitialComplexSlaveImagette(complexData, slaveBand1, slaveBand2, sGCPPixelPos);
+            getInitialComplexSlaveImagette(fineRegistration, complexData, slaveBand1, slaveBand2, sGCPPixelPos);
             /*
             System.out.println("Real part of initial slave imagette:");
             outputRealImage(complexData.sII0);
@@ -1257,7 +1347,7 @@ public class GCPSelectionOp extends Operator {
 
             final double[] p = {sGCPPixelPos.x, sGCPPixelPos.y};
 
-            final double coherence = powell(complexData, p);
+            final double coherence = fineRegistration.powell(complexData, p);
             //System.out.println("Final sGCP = (" + p[0] + ", " + p[1] + "), coherence = " + (1-coherence));
             //System.out.println("xShift = " + (p[0] - complexData.point0[0]) + ", yShift = " + (p[1] - complexData.point0[1]));
 
@@ -1278,7 +1368,8 @@ public class GCPSelectionOp extends Operator {
         return false;
     }
 
-    private void getComplexMasterImagette(final ComplexCoregData complexData, final PixelPos gcpPixelPos) {
+    private void getComplexMasterImagette(final FineRegistration.ComplexCoregData complexData,
+                                          final PixelPos gcpPixelPos) {
 
         complexData.mII = new double[complexData.fWindowHeight][complexData.fWindowWidth];
         complexData.mIQ = new double[complexData.fWindowHeight][complexData.fWindowWidth];
@@ -1311,7 +1402,9 @@ public class GCPSelectionOp extends Operator {
     }
 
     // This function is for testing only
-    private void getInitialComplexSlaveImagette(final ComplexCoregData complexData, final PixelPos mGCPPixelPos) {
+    private void getInitialComplexSlaveImagette(final FineRegistration fineRegistration,
+                                                final FineRegistration.ComplexCoregData complexData,
+                                                final PixelPos mGCPPixelPos) {
 
         complexData.sII0 = new double[complexData.fWindowHeight][complexData.fWindowWidth];
         complexData.sIQ0 = new double[complexData.fWindowHeight][complexData.fWindowWidth];
@@ -1330,61 +1423,11 @@ public class GCPSelectionOp extends Operator {
         //System.out.println("xShift = " + xShift);
         //System.out.println("yShift = " + yShift);
 
-        getShiftedData(complexData, mIIdata, mIQdata, xShift, yShift, sII0data, sIQ0data);
+        fineRegistration.getShiftedData(complexData, mIIdata, mIQdata, xShift, yShift, sII0data, sIQ0data);
     }
 
-    private static void getShiftedData(final ComplexCoregData complexData, final double[][] srcI, final double[][] srcQ,
-                                final double xShift, final double yShift,
-                                final double[][] tgtI, final double[][] tgtQ) {
-
-        final double[] rowArray = new double[complexData.fTwoWindowWidth];
-        final double[] rowPhaseArray = new double[complexData.fTwoWindowWidth];
-        final DoubleFFT_1D row_fft = new DoubleFFT_1D(complexData.fWindowWidth);
-
-        int signalLength = rowArray.length / 2;
-        computeShiftPhaseArray(xShift, signalLength, rowPhaseArray);
-        for (int r = 0; r < complexData.fWindowHeight; r++) {
-            int k = 0;
-            final double[] sII = srcI[r];
-            final double[] sIQ = srcQ[r];
-            for (int c = 0; c < complexData.fWindowWidth; c++) {
-                rowArray[k++] = sII[c];
-                rowArray[k++] = sIQ[c];
-            }
-
-            row_fft.complexForward(rowArray);
-            multiplySpectrumByShiftFactor(rowArray, rowPhaseArray);
-            row_fft.complexInverse(rowArray, true);
-            for (int c = 0; c < complexData.fWindowWidth; c++) {
-                tgtI[r][c] = rowArray[2 * c];
-                tgtQ[r][c] = rowArray[2 * c + 1];
-            }
-        }
-
-        final double[] colArray = new double[complexData.fTwoWindowHeight];
-        final double[] colPhaseArray = new double[complexData.fTwoWindowHeight];
-        final DoubleFFT_1D col_fft = new DoubleFFT_1D(complexData.fWindowHeight);
-
-        signalLength = colArray.length / 2;
-        computeShiftPhaseArray(yShift, signalLength, colPhaseArray);
-        for (int c = 0; c < complexData.fWindowWidth; c++) {
-            int k = 0;
-            for (int r = 0; r < complexData.fWindowHeight; r++) {
-                colArray[k++] = tgtI[r][c];
-                colArray[k++] = tgtQ[r][c];
-            }
-
-            col_fft.complexForward(colArray);
-            multiplySpectrumByShiftFactor(colArray, colPhaseArray);
-            col_fft.complexInverse(colArray, true);
-            for (int r = 0; r < complexData.fWindowHeight; r++) {
-                tgtI[r][c] = colArray[2 * r];
-                tgtQ[r][c] = colArray[2 * r + 1];
-            }
-        }
-    }
-
-    private void getInitialComplexSlaveImagette(final ComplexCoregData complexData,
+    private void getInitialComplexSlaveImagette(final FineRegistration fineRegistration,
+                                                final FineRegistration.ComplexCoregData complexData,
                                                 final Band slaveBand1, final Band slaveBand2,
                                                 final PixelPos sGCPPixelPos) {
 
@@ -1426,607 +1469,58 @@ public class GCPSelectionOp extends Operator {
 
         final double xShift = sGCPPixelPos.x - x0;
         final double yShift = sGCPPixelPos.y - y0;
-        getShiftedData(complexData, tmpI, tmpQ, xShift, yShift, sII0data, sIQ0data);
+        fineRegistration.getShiftedData(complexData, tmpI, tmpQ, xShift, yShift, sII0data, sIQ0data);
     }
 
-    private static double computeCoherence(final ComplexCoregData complexData, final double[] point) {
+    private static class CorrelationWindow {
 
-        // Set penalty at the boundary of the pixel so that the searching area is within a pixel
-        final double xShift = Math.abs(complexData.point0[0] - point[0]);
-        final double yShift = Math.abs(complexData.point0[1] - point[1]);
-        if (xShift >= 0.5 || yShift >= 0.5) {
-            return 1.0;
+        final int height;
+        final int width;
+        final int halfWidth;
+        final int halfHeight;
+        final int accY;
+        final int accX;
+
+        final int ovsFactor;
+
+        private CorrelationWindow(int winWidth, int winHeight, int accX, int accY, int ovsFactor) {
+            this.accX = accX;
+            this.accY = accY;
+            this.width = winWidth;
+            this.height = winHeight;
+
+            this.halfWidth = winWidth / 2;
+            this.halfHeight = winHeight / 2;
+
+            this.ovsFactor = ovsFactor;
         }
 
-        getComplexSlaveImagette(complexData, point);
-        /*
-        System.out.println("Real part of master imagette:");
-        outputRealImage(complexData.mII);
-        System.out.println("Imaginary part of master imagette:");
-        outputRealImage(complexData.mIQ);
-        System.out.println("Real part of slave imagette:");
-        outputRealImage(complexData.sII);
-        System.out.println("Imaginary part of slave imagette:");
-        outputRealImage(complexData.sIQ);
-        */
+        public org.jlinda.core.Window defineWindowMask(int x, int y) {
+            int l0 = y - halfHeight;
+            int lN = y + halfHeight - 1;
+            int p0 = x - halfWidth;
+            int pN = x + halfWidth - 1;
 
-        double coherence = 0.0;
-        if (complexData.useSlidingWindow) {
-
-            final int maxR = complexData.fWindowHeight - complexData.coherenceWindowSize;
-            final int maxC = complexData.fWindowWidth - complexData.coherenceWindowSize;
-            for (int r = 0; r <= maxR; r++) {
-                for (int c = 0; c <= maxC; c++) {
-                    coherence += getCoherence(complexData, r, c, complexData.coherenceWindowSize, complexData.coherenceWindowSize);
-                }
-            }
-
-            coherence /= (maxR + 1) * (maxC + 1);
-
-        } else {
-            coherence = getCoherence(complexData, 0, 0, complexData.fWindowWidth, complexData.fWindowHeight);
-        }
-        //System.out.println("coherence = " + coherence);
-
-        return 1 - coherence;
-    }
-
-    private static double computeCoherence(final ComplexCoregData complexData,
-                                           final double a, final double[] p, final double[] d) {
-
-        final double[] point = {p[0] + a * d[0], p[1] + a * d[1]};
-        return computeCoherence(complexData, point);
-    }
-
-    private static void getComplexSlaveImagette(final ComplexCoregData compleData, final double[] point) {
-
-        compleData.sII = new double[compleData.fWindowHeight][compleData.fWindowWidth];
-        compleData.sIQ = new double[compleData.fWindowHeight][compleData.fWindowWidth];
-
-        final double[][] sII0data = compleData.sII0;
-        final double[][] sIQ0data = compleData.sIQ0;
-        final double[][] sIIdata = compleData.sII;
-        final double[][] sIQdata = compleData.sIQ;
-
-        final int x0 = (int) (compleData.point0[0] + 0.5);
-        final int y0 = (int) (compleData.point0[1] + 0.5);
-
-        final double xShift = x0 - point[0];
-        final double yShift = y0 - point[1];
-        //System.out.println("xShift = " + xShift);
-        //System.out.println("yShift = " + yShift);
-
-        final double[] rowArray = new double[compleData.fTwoWindowWidth];
-        final double[] rowPhaseArray = new double[compleData.fTwoWindowWidth];
-        final DoubleFFT_1D row_fft = new DoubleFFT_1D(compleData.fWindowWidth);
-
-        int signalLength = rowArray.length / 2;
-        computeShiftPhaseArray(xShift, signalLength, rowPhaseArray);
-        for (int r = 0; r < compleData.fWindowHeight; r++) {
-            int k = 0;
-            final double[] sII = sII0data[r];
-            final double[] sIQ = sIQ0data[r];
-            for (int c = 0; c < compleData.fWindowWidth; c++) {
-                rowArray[k++] = sII[c];
-                rowArray[k++] = sIQ[c];
-            }
-
-            row_fft.complexForward(rowArray);
-            multiplySpectrumByShiftFactor(rowArray, rowPhaseArray);
-            row_fft.complexInverse(rowArray, true);
-            for (int c = 0; c < compleData.fWindowWidth; c++) {
-                sIIdata[r][c] = rowArray[2 * c];
-                sIQdata[r][c] = rowArray[2 * c + 1];
-            }
+            return new org.jlinda.core.Window(l0, lN, p0, pN);
         }
 
-        final double[] colArray = new double[compleData.fTwoWindowHeight];
-        final double[] colPhaseArray = new double[compleData.fTwoWindowHeight];
-        final DoubleFFT_1D col_fft = new DoubleFFT_1D(compleData.fWindowHeight);
+        public org.jlinda.core.Window defineWindowMask(PixelPos pos) {
+            int l0 = (int) (pos.y - halfHeight);
+            int lN = (int) (pos.y + halfHeight - 1);
+            int p0 = (int) (pos.x - halfWidth);
+            int pN = (int) (pos.x + halfWidth - 1);
 
-        signalLength = colArray.length / 2;
-        computeShiftPhaseArray(yShift, signalLength, colPhaseArray);
-        for (int c = 0; c < compleData.fWindowWidth; c++) {
-            int k = 0;
-            for (int r = 0; r < compleData.fWindowHeight; r++) {
-                colArray[k++] = sIIdata[r][c];
-                colArray[k++] = sIQdata[r][c];
-            }
-
-            col_fft.complexForward(colArray);
-            multiplySpectrumByShiftFactor(colArray, colPhaseArray);
-            col_fft.complexInverse(colArray, true);
-            for (int r = 0; r < compleData.fWindowHeight; r++) {
-                sIIdata[r][c] = colArray[2 * r];
-                sIQdata[r][c] = colArray[2 * r + 1];
-            }
-        }
-    }
-
-    private static void computeShiftPhaseArray(final double shift, final int signalLength, final double[] phaseArray) {
-
-        int k2;
-        double phaseK;
-        final double phase = -2.0 * Constants.PI * shift / signalLength;
-        final int halfSignalLength = (int) (signalLength * 0.5 + 0.5);
-
-        for (int k = 0; k < signalLength; ++k) {
-            if (k < halfSignalLength) {
-                phaseK = phase * k;
-            } else {
-                phaseK = phase * (k - signalLength);
-            }
-            k2 = k * 2;
-            phaseArray[k2] = FastMath.cos(phaseK);
-            phaseArray[k2 + 1] = FastMath.sin(phaseK);
-        }
-    }
-
-    private static void multiplySpectrumByShiftFactor(final double[] array, final double[] phaseArray) {
-
-        int k2;
-        double c, s;
-        double real, imag;
-        final int signalLength = array.length / 2;
-        for (int k = 0; k < signalLength; ++k) {
-            k2 = k * 2;
-            c = phaseArray[k2];
-            s = phaseArray[k2 + 1];
-            real = array[k2];
-            imag = array[k2 + 1];
-            array[k2] = real * c - imag * s;
-            array[k2 + 1] = real * s + imag * c;
-        }
-    }
-
-    private static double getCoherence(final ComplexCoregData complexData, final int row, final int col,
-                                       final int coherenceWindowWidth, final int coherenceWindowHeight) {
-
-        // Compute coherence of master and slave imagettes by creating a coherence image
-        double sum1 = 0.0;
-        double sum2 = 0.0;
-        double sum3 = 0.0;
-        double sum4 = 0.0;
-        double mr, mi, sr, si;
-        final double[][] mIIdata = complexData.mII;
-        final double[][] mIQdata = complexData.mIQ;
-        final double[][] sIIdata = complexData.sII;
-        final double[][] sIQdata = complexData.sIQ;
-        double[] mII, mIQ, sII, sIQ;
-        int rIdx, cIdx;
-        for (int r = 0; r < coherenceWindowHeight; r++) {
-            rIdx = row + r;
-            mII = mIIdata[rIdx];
-            mIQ = mIQdata[rIdx];
-            sII = sIIdata[rIdx];
-            sIQ = sIQdata[rIdx];
-            for (int c = 0; c < coherenceWindowWidth; c++) {
-                cIdx = col + c;
-                mr = mII[cIdx];
-                mi = mIQ[cIdx];
-                sr = sII[cIdx];
-                si = sIQ[cIdx];
-                sum1 += mr * sr + mi * si;
-                sum2 += mi * sr - mr * si;
-                sum3 += mr * mr + mi * mi;
-                sum4 += sr * sr + si * si;
-            }
+            return new org.jlinda.core.Window(l0, lN, p0, pN);
         }
 
-        return Math.sqrt(sum1 * sum1 + sum2 * sum2) / Math.sqrt(sum3 * sum4);
-    }
-
-    /**
-     * Minimize coherence as a function of row shift and column shift using
-     * Powell's method. The 1-D minimization subroutine linmin() is used. p
-     * is the starting point and also the final optimal point.  \
-     *
-     * @param complexData the master and slave complex data
-     * @param p           Starting point for the minimization.
-     * @return fp
-     */
-    private static double powell(final ComplexCoregData complexData, final double[] p) {
-
-        final double[][] directions = {{0, 1}, {1, 0}}; // set initial searching directions
-        double fp = computeCoherence(complexData, p); // get function value for initial point
-        //System.out.println("Initial 1 - coherence = " + fp);
-
-        final double[] p0 = {p[0], p[1]}; // save the initial point
-        final double[] currentDirection = {0.0, 0.0}; // current searching direction
-
-        for (int iter = 0; iter < ITMAX; iter++) {
-
-            //System.out.println("Iteration: " + iter);
-
-            p0[0] = p[0];
-            p0[1] = p[1];
-            double fp0 = fp; // save function value for the initial point
-            int imax = 0;     // direction index for the largest single step decrement
-            double maxDecrement = 0.0; // the largest single step decrement
-
-            for (int i = 0; i < 2; i++) { // for each iteration, loop through all directions in the set
-
-                // copy the ith searching direction
-                currentDirection[0] = directions[i][0];
-                currentDirection[1] = directions[i][1];
-
-                final double fpc = fp; // save function value at current point
-                fp = linmin(complexData, p, currentDirection); // minimize function along the ith direction, and get new point in p
-                //System.out.println("Decrement along direction " + (i+1) + ": " + (fpc - fp));
-
-                final double decrement = Math.abs(fpc - fp);
-                if (decrement > maxDecrement) { // if the single step decrement is the largest so far,
-                    maxDecrement = decrement;   // record the decrement and the direction index.
-                    imax = i;
-                }
-            }
-
-            // After trying all directions, check the decrement from start point to end point.
-            // If the decrement is less than certain amount, then stop.
-            /*
-            if (2.0*Math.abs(fp0 - fp) <= ftol*(Math.abs(fp0) + Math.abs(fp))) { //Termination criterion.
-                System.out.println("Number of iterations: " + (iter+1));
-                return fp;
-            }
-            */
-            //Termination criterion 1: stop if coherence change is small
-            if (Math.abs(fp0 - fp) < complexData.coherenceFuncToler) {
-                //System.out.println("C1: Number of iterations: " + (iter+1));
-                return fp;
-            }
-
-            //Termination criterion 2: stop if GCP shift is small
-            if (Math.sqrt((p0[0] - p[0]) * (p0[0] - p[0]) + (p0[1] - p[1]) * (p0[1] - p[1])) < complexData.coherenceValueToler) {
-                //System.out.println("C2: Number of iterations: " + (iter+1));
-                return fp;
-            }
-            // Otherwise, prepare for the next iteration
-            //final double[] pe = new double[2];
-            final double[] averageDirection = {p[0] - p0[0], p[1] - p0[1]};
-            final double norm = Math.sqrt(averageDirection[0] * averageDirection[0] +
-                    averageDirection[1] * averageDirection[1]);
-            for (int j = 0; j < 2; j++) {
-                averageDirection[j] /= norm; // construct the average direction
-                //pe[j] = p[j] + averageDirection[j]; // construct the extrapolated point
-                //p0[j] = p[j]; // save the final opint of current iteration as the initial point for the next iteration
-            }
-
-            //final double fpe = computeCoherence(complexData, pe); // get function value for the extrapolated point.
-            final double fpe = linmin(complexData, p, averageDirection); // JL test
-
-            if (fpe < fp0) { // condition 1 for updating search direction
-
-                final double d1 = (fp0 - fp - maxDecrement) * (fp0 - fp - maxDecrement);
-                final double d2 = (fp0 - fpe) * (fp0 - fpe);
-
-                if (2.0 * (fp0 - 2.0 * fp + fpe) * d1 < maxDecrement * d2) { // condition 2 for updating searching direction
-
-                    // The calling of linmin() next line should be commented out because it changes
-                    // the starting point for the next iteration and this average direction will be
-                    // added to the searching directions anyway.
-                    //fp = linmin(complexData, p, averageDirection); // minimize function along the average direction
-
-                    for (int j = 0; j < 2; j++) {
-                        directions[imax][j] = directions[1][j]; // discard the direction for the largest decrement
-                        directions[1][j] = averageDirection[j]; // add the average direction as a new direction
-                    }
-                }
-            }
-        }
-        return fp;
-    }
-
-    /**
-     * Given a starting point p and a searching direction xi, moves and
-     * resets p to where the function takes on a minimum value along the
-     * direction xi from p, and replaces xi by the actual vector displacement
-     * that p was moved. Also returns the minimum value. This is accomplished
-     * by calling the routines mnbrak() and brent().
-     *
-     * @param complexData the master and slave complex data
-     * @param p           The starting point
-     * @param xi          The searching direction
-     * @return The minimum function value
-     */
-    private static double linmin(final ComplexCoregData complexData, final double[] p, final double[] xi) {
-
-        // set initial guess for brackets: [ax, bx, cx]
-        final double[] bracketPoints = {0.0, 0.02, 0.0};
-
-        // get new brackets [ax, bx, cx] that bracket a minimum of the function
-        mnbrak(complexData, bracketPoints, p, xi);
-
-        // find function minimum in the brackets
-        return brent(complexData, bracketPoints, p, xi);
-    }
-
-    /**
-     * Given a distinct initial points ax and bx in bracketPoints,
-     * this routine searches in the downhill direction (defined by the
-     * function as evaluated at the initial points) and returns new points
-     * ax, bx, cx that bracket a minimum of the function.
-     *
-     * @param complexData   the master and slave complex data
-     * @param bracketPoints The bracket points ax, bx and cx
-     * @param p             The starting point
-     * @param xi            The searching direction
-     */
-    private static void mnbrak(final ComplexCoregData complexData,
-                               final double[] bracketPoints, final double[] p, final double[] xi) {
-
-        double ax = bracketPoints[0];
-        double bx = bracketPoints[1];
-
-        double fa = computeCoherence(complexData, ax, p, xi);
-        double fb = computeCoherence(complexData, bx, p, xi);
-
-        if (fb > fa) { // Switch roles of a and b so that we can go
-            // downhill in the direction from a to b.
-            double tmp = ax;
-            ax = bx;
-            bx = tmp;
-
-            tmp = fa;
-            fa = fb;
-            fb = tmp;
+        public Rectangle defineRectangleMask(int x, int y) {
+            org.jlinda.core.Window temp = defineWindowMask(x, y);
+            return new Rectangle((int) temp.pixlo, (int) temp.linelo, (int) temp.pixels(), (int) temp.lines());
         }
 
-        double cx = bx + GOLD * (bx - ax); // First guess for c.
-        double fc = computeCoherence(complexData, cx, p, xi);
-
-        double fu;
-        while (fb > fc) { // Keep returning here until we bracket.
-
-            final double r = (bx - ax) * (fb - fc); // Compute u by parabolic extrapolation from a; b; c.
-            // TINY is used to prevent any possible division by zero.
-            final double q = (bx - cx) * (fb - fa);
-
-            double u = bx - ((bx - cx) * q - (bx - ax) * r) /
-                    (2.0 * sign(Math.max(Math.abs(q - r), TINY), q - r));
-
-            final double ulim = bx + GLIMIT * (cx - bx);
-
-            // We won't go farther than this. Test various possibilities:
-            if ((bx - u) * (u - cx) > 0.0) { // Parabolic u is between b and c: try it.
-
-                fu = computeCoherence(complexData, u, p, xi);
-
-                if (fu < fc) { // Got a minimum between b and c.
-
-                    ax = bx;
-                    bx = u;
-                    break;
-
-                } else if (fu > fb) { // Got a minimum between between a and u.
-
-                    cx = u;
-                    break;
-                }
-
-                // reach this point can only be:  fc <= fu <= fb
-                u = cx + GOLD * (cx - bx); // Parabolic fit was no use. Use default magnification.
-                fu = computeCoherence(complexData, u, p, xi);
-
-            } else if ((cx - u) * (u - ulim) > 0.0) { // Parabolic fit is between c and its allowed limit.
-
-                fu = computeCoherence(complexData, u, p, xi);
-
-                if (fu < fc) {
-                    bx = cx;
-                    cx = u;
-                    u = cx + GOLD * (cx - bx);
-                    fb = fc;
-                    fc = fu;
-                    fu = computeCoherence(complexData, u, p, xi);
-                }
-
-            } else if ((u - ulim) * (ulim - cx) >= 0.0) { // Limit parabolic u to maximum allowed value.
-
-                u = ulim;
-                fu = computeCoherence(complexData, u, p, xi);
-
-            } else { // Reject parabolic u, use default magnification.
-                u = cx + GOLD * (cx - bx);
-                fu = computeCoherence(complexData, u, p, xi);
-            }
-
-            ax = bx;
-            bx = cx;
-            cx = u; // Eliminate oldest point and continue.
-
-            fa = fb;
-            fb = fc;
-            fc = fu;
-        }
-
-        bracketPoints[0] = ax;
-        bracketPoints[1] = bx;
-        bracketPoints[2] = cx;
-    }
-
-    /**
-     * Given a bracketing triplet of abscissas [ax, bx, cx] (such that bx
-     * is between ax and cx, and f(bx) is less than both f(ax) and f(cx)),
-     * this routine isolates the minimum to a fractional precision of about
-     * tol using Brent's method. p is reset to the point where function
-     * takes on a minimum value along direction xi from p, and xi is replaced
-     * by the axtual displacement that p moved. The minimum function value
-     * is returned.
-     *
-     * @param complexData   the master and slave complex data
-     * @param bracketPoints The bracket points ax, bx and cx
-     * @param pp            The starting point
-     * @param xi            The searching direction
-     * @return The minimum unction value
-     */
-    private static double brent(final ComplexCoregData complexData,
-                                final double[] bracketPoints, final double[] pp, final double[] xi) {
-
-        final int maxNumIterations = 100; // the maximum number of iterations
-
-        final double ax = bracketPoints[0];
-        final double bx = bracketPoints[1];
-        final double cx = bracketPoints[2];
-
-        double d = 0.0;
-        double u = 0.0;
-        double e = 0.0; //This will be the distance moved on the step before last.
-        double a = (ax < cx ? ax : cx); // a and b must be in ascending order,
-        double b = (ax > cx ? ax : cx); // but input abscissas need not be.
-        double x = bx; // Initializations...
-        double w = bx;
-        double v = bx;
-        double fw = computeCoherence(complexData, x, pp, xi);
-        double fv = fw;
-        double fx = fw;
-
-        for (int iter = 0; iter < maxNumIterations; iter++) { // Main loop.
-
-            final double xm = 0.5 * (a + b);
-            final double tol1 = TOL * Math.abs(x) + ZEPS;
-            final double tol2 = 2.0 * tol1;
-
-            if (Math.abs(x - xm) <= (tol2 - 0.5 * (b - a))) { // Test for done here.
-                xi[0] *= x;
-                xi[1] *= x;
-                pp[0] += xi[0];
-                pp[1] += xi[1];
-                return fx;
-            }
-
-            if (Math.abs(e) > tol1) { // Construct a trial parabolic fit.
-
-                final double r = (x - w) * (fx - fv);
-                double q = (x - v) * (fx - fw);
-                double p = (x - v) * q - (x - w) * r;
-                q = 2.0 * (q - r);
-
-                if (q > 0.0) {
-                    p = -p;
-                }
-
-                q = Math.abs(q);
-                final double etemp = e;
-                e = d;
-
-                if (Math.abs(p) >= Math.abs(0.5 * q * etemp) ||
-                        p <= q * (a - x) || p >= q * (b - x)) {
-
-                    e = (x >= xm ? a - x : b - x);
-                    d = CGOLD * e;
-
-                    // The above conditions determine the acceptability of the parabolic fit. Here we
-                    // take the golden section step into the larger of the two segments.
-                } else {
-
-                    d = p / q; // Take the parabolic step.
-                    u = x + d;
-                    if (u - a < tol2 || b - u < tol2)
-                        d = sign(tol1, xm - x);
-                }
-
-            } else {
-
-                e = (x >= xm ? a - x : b - x); // larger part: from x to both ends
-                d = CGOLD * e;
-            }
-
-            u = (Math.abs(d) >= tol1 ? x + d : x + sign(tol1, d));
-            final double fu = computeCoherence(complexData, u, pp, xi);
-
-            // This is the one function evaluation per iteration.
-            if (fu <= fx) { // Now decide what to do with our func tion evaluation.
-
-                if (u >= x) {
-                    a = x;
-                } else {
-                    b = x;
-                }
-                v = w;
-                w = x;
-                x = u;
-
-                fv = fw;
-                fw = fx;
-                fx = fu;
-
-            } else {
-
-                if (u < x) {
-                    a = u;
-                } else {
-                    b = u;
-                }
-
-                if (fu <= fw || w == x) {
-
-                    v = w;
-                    w = u;
-                    fv = fw;
-                    fw = fu;
-
-                } else if (fu <= fv || v == x || v == w) {
-
-                    v = u;
-                    fv = fu;
-                }
-            } // Done with housekeeping. Back for another iteration.
-        }
-
-        System.out.println("Too many iterations in brent");
-        return -1.0;
-    }
-
-    private static double sign(final double a, final double b) {
-        if (b >= 0) return a;
-        return -a;
-    }
-
-    private static class ComplexCoregData {
-        private double[][] mII = null;          // real part of master imagette for coherence computation
-        private double[][] mIQ = null;          // imaginary part of master imagette for coherence computation
-        private double[][] sII = null;          // real part of slave imagette for coherence computation
-        private double[][] sIQ = null;          // imaginary part of slave imagette for coherence computation
-        private double[][] sII0 = null;         // real part of initial slave imagette for coherence computation
-        private double[][] sIQ0 = null;         // imaginary part of initial slave imagette for coherence computation
-        final double[] point0 = new double[2];  // initial slave GCP position
-
-        private final int coherenceWindowSize;
-        private final double coherenceFuncToler;
-        private final double coherenceValueToler;
-
-        private final int fWindowWidth;  // row dimension for master and slave imagette for computing coherence, must be power of 2
-        private final int fWindowHeight; // column dimension for master and slave imagette for computing coherence, must be power of 2
-        private final int fHalfWindowWidth;
-        private final int fHalfWindowHeight;
-        private final int fTwoWindowWidth;
-        private final int fTwoWindowHeight;
-
-        private final boolean useSlidingWindow;
-
-        ComplexCoregData(final int coherenceWindowSize, final double coherenceFuncToler, final double coherenceValueToler,
-                         final int fWindowWidth, final int fWindowHeight, final boolean useSlidingWindow) {
-            this.coherenceWindowSize = coherenceWindowSize;
-            this.coherenceFuncToler = coherenceFuncToler;
-            this.coherenceValueToler = coherenceValueToler;
-
-            this.fWindowWidth = fWindowWidth;
-            this.fWindowHeight = fWindowHeight;
-            this.fHalfWindowWidth = fWindowWidth / 2;
-            this.fHalfWindowHeight = fWindowHeight / 2;
-            this.fTwoWindowWidth = fWindowWidth * 2;
-            this.fTwoWindowHeight = fWindowHeight * 2;
-
-            this.useSlidingWindow = useSlidingWindow;
-        }
-
-        void dispose() {
-            mII = null;
-            mIQ = null;
-            sII = null;
-            sIQ = null;
-            sII0 = null;
-            sIQ0 = null;
+        public Rectangle defineRectangleMask(PixelPos pos) {
+            org.jlinda.core.Window temp = defineWindowMask(pos);
+            return new Rectangle((int) temp.pixlo, (int) temp.linelo, (int) temp.pixels(), (int) temp.lines());
         }
     }
 
@@ -2041,7 +1535,7 @@ public class GCPSelectionOp extends Operator {
      */
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(GCPSelectionOp.class);
+            super(CrossCorrelationOp.class);
         }
     }
 }

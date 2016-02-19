@@ -13,8 +13,9 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.insar.rcp.toolviews;
+package org.esa.s1tbx.insar.rcp.toolviews.insar_statistics;
 
+import org.esa.s1tbx.insar.rcp.toolviews.InSARStatisticsTopComponent;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;

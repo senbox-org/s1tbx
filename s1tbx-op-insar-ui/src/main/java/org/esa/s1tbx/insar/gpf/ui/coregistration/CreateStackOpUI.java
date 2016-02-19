@@ -21,6 +21,7 @@ import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.dataop.resamp.ResamplingFactory;
+import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
@@ -30,15 +31,8 @@ import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.rcp.util.Dialogs;
 import org.esa.snap.ui.AppContext;
 
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -128,9 +122,11 @@ public class CreateStackOpUI extends BaseOperatorUI {
         if (resamplingType.getSelectedItem().equals("NONE") && sourceProducts != null) {
             try {
                 CreateStackOp.checkPixelSpacing(sourceProducts);
-            } catch (Exception e) {
+            } catch (OperatorException e) {
                 return new UIValidation(UIValidation.State.WARNING, "Resampling type cannot be NONE" +
-                        " because pixel spacings are different for master and slave products");
+                        " pixel spacings are different for master and slave");
+            } catch (Exception e) {
+                //ignore
             }
         }
         return new UIValidation(UIValidation.State.OK, "");

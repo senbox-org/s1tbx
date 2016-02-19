@@ -72,7 +72,6 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
             SpeckleFilterOp.SIGMA_90_PERCENT});
 
     private static final JLabel dampingFactorLabel = new JLabel("Damping Factor:");
-    private static final JLabel edgeThresholdLabel = new JLabel("Edge Threshold:");
     private static final JLabel filterSizeXLabel = new JLabel("Filter Size X (odd number):   ");
     private static final JLabel filterSizeYLabel = new JLabel("Filter Size Y (odd number):   ");
 
@@ -84,7 +83,6 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
     private final JTextField filterSizeX = new JTextField("");
     private final JTextField filterSizeY = new JTextField("");
     private final JTextField dampingFactor = new JTextField("");
-    private final JTextField edgeThreshold = new JTextField("");
 
     private final JLabel estimateENLCheckBoxLabel = new JLabel("Estimate Equivalent Number of Looks");
     private final JCheckBox estimateENLCheckBox = new JCheckBox("");
@@ -126,7 +124,6 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
         filterSizeX.setText(String.valueOf(paramMap.get("filterSizeX")));
         filterSizeY.setText(String.valueOf(paramMap.get("filterSizeY")));
         dampingFactor.setText(String.valueOf(paramMap.get("dampingFactor")));
-        edgeThreshold.setText(String.valueOf(paramMap.get("edgeThreshold")));
         estimateENLCheckBox.setSelected(true);
         estimateENL = true;
         enl.setEnabled(false);
@@ -154,7 +151,6 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
         paramMap.put("filterSizeX", Integer.parseInt(filterSizeX.getText()));
         paramMap.put("filterSizeY", Integer.parseInt(filterSizeY.getText()));
         paramMap.put("dampingFactor", Integer.parseInt(dampingFactor.getText()));
-        paramMap.put("edgeThreshold", Double.parseDouble(edgeThreshold.getText()));
         paramMap.put("estimateENL", estimateENL);
         paramMap.put("enl", Double.parseDouble(enl.getText()));
 
@@ -185,10 +181,8 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
 
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, filterSizeXLabel, filterSizeX);
-        DialogUtils.addComponent(contentPane, gbc, edgeThresholdLabel, edgeThreshold);
         DialogUtils.addComponent(contentPane, gbc, numLooksLabel, numLooks);
         DialogUtils.enableComponents(filterSizeXLabel, filterSizeX, true);
-        DialogUtils.enableComponents(edgeThresholdLabel, edgeThreshold, false);
         DialogUtils.enableComponents(numLooksLabel, numLooks, false);
 
         gbc.gridy++;
@@ -225,7 +219,6 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
         DialogUtils.enableComponents(filterSizeXLabel, filterSizeX, false);
         DialogUtils.enableComponents(filterSizeYLabel, filterSizeY, false);
         DialogUtils.enableComponents(dampingFactorLabel, dampingFactor, false);
-        DialogUtils.enableComponents(edgeThresholdLabel, edgeThreshold, false);
         DialogUtils.enableComponents(estimateENLCheckBoxLabel, estimateENLCheckBox, false);
         DialogUtils.enableComponents(enlLabel, enl, false);
         DialogUtils.enableComponents(numLooksLabel, numLooks, false);
@@ -253,10 +246,6 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
             DialogUtils.enableComponents(enlLabel, enl, true);
             estimateENLCheckBox.setSelected(true);
             enl.setEnabled(false);
-        }
-
-        if (item.equals(SpeckleFilterOp.LEE_REFINED_FILTER)) {
-            DialogUtils.enableComponents(edgeThresholdLabel, edgeThreshold, true);
         }
 
         if (item.equals(SpeckleFilterOp.LEE_SIGMA_FILTER)) {
