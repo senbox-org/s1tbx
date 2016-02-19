@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2016 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -62,8 +62,8 @@ import java.util.Map;
 
 @OperatorMetadata(alias = "DEMGeneration",
         category = "Radar/Interferometric/Products",
-        authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        authors = "Jun Lu, Luis Veci, Petar Marinkovic",
+        copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
         description = "DEM Generation")
 public final class DEMGenerationOp extends Operator {
 
@@ -72,13 +72,8 @@ public final class DEMGenerationOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(description = "The list of source bands.", alias = "sourceBands",
-            rasterDataNodeType = Band.class, label = "Source Bands")
-    private String[] sourceBandNames;
-
     @Parameter(description = "The digital elevation model.",
-            defaultValue = "SRTM 3Sec",
-            label = "Digital Elevation Model")
+            defaultValue = "SRTM 3Sec", label = "Digital Elevation Model")
     private String demName = "SRTM 3Sec";
 
     @Parameter(defaultValue = ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
@@ -252,7 +247,7 @@ public final class DEMGenerationOp extends Operator {
      */
     private void addSelectedBands() {
 
-        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
+        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, null, false);
         boolean validProduct = false;
         for (Band band : sourceBands) {
             if (band.getName().startsWith("Unw")) {
