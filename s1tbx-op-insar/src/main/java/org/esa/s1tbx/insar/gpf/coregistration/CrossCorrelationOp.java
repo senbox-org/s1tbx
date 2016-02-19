@@ -148,7 +148,7 @@ public class CrossCorrelationOp extends Operator {
             label = "Coherence Threshold")
     private double coherenceThreshold = 0.6;
     @Parameter(description = "Use sliding window for coherence calculation", defaultValue = "false",
-            label = "Compute coherence with sliding window")
+            label = "Use coherence sliding window")
     private Boolean useSlidingWindow = false;
 
     private boolean useAllPolarimetricBands = false;
@@ -588,7 +588,7 @@ public class CrossCorrelationOp extends Operator {
                             if (complexCoregistration && inSAROptimized) {
                                 getSlaveGCP = getCoarseOffsets(slaveBand1, slaveBand2, mGCPPixelPos, sGCPPixelPos);
 
-                                if (getSlaveGCP) {
+                                if (getSlaveGCP && applyFineRegistration) {
                                     getSlaveGCP = getFineOffsets(slaveBand1, slaveBand2, mGCPPixelPos, sGCPPixelPos);
                                 }
                             } else {
