@@ -62,6 +62,13 @@ public class ResamplingOp extends Operator {
             defaultValue = "Mean")
     private String aggregationMethod;
 
+    @Parameter(alias = "aggregation",
+            label = "Aggregation Method",
+            description = "The method used for aggregation (sampling to a coarser resolution) of flags.",
+            valueSet = {"First", "Min", "Max", "Median"},
+            defaultValue = "Mean")
+    private String flagAggregationMethod;
+
     @Override
     public void initialize() throws OperatorException {
         if (!sourceProduct.isMultiSizeProduct()) {
@@ -108,23 +115,29 @@ public class ResamplingOp extends Operator {
     }
 
     private MultiLevelImage createInterpolatedImage(Band sourceBand, final RasterDataNode referenceNode) {
-        final Interpolation interpolation = getInterpolation(sourceBand);
+        Interpolation interpolation;
+        if (sourceBand.isFlagBand() || sourceBand.isIndexBand()) {
+            interpolation = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
+        } else {
+            interpolation = getInterpolation(sourceBand);
+        }
         return Interpolate.createInterpolatedMultiLevelImage(sourceBand, referenceNode, interpolation);
     }
 
     private MultiLevelImage createAggregatedImage(Band sourceBand, final RasterDataNode referenceNode) {
-        final Aggregate.Type aggregationType = getAggregationType();
-        return Aggregate.createAggregatedMultiLevelImage(sourceBand, referenceNode, aggregationType);
+        final Aggregate.Type aggregationType = getAggregationType(aggregationMethod);
+        final Aggregate.Type flagAggregationType = getAggregationType(flagAggregationMethod);
+        return Aggregate.createAggregatedMultiLevelImage(sourceBand, referenceNode, aggregationType, flagAggregationType);
     }
 
-    private Aggregate.Type getAggregationType() {
-        if ("First".equalsIgnoreCase(aggregationMethod)) {
+    private Aggregate.Type getAggregationType(String method) {
+        if ("First".equalsIgnoreCase(method)) {
             return Aggregate.Type.FIRST;
-        } else if ("Min".equalsIgnoreCase(aggregationMethod)) {
+        } else if ("Min".equalsIgnoreCase(method)) {
             return Aggregate.Type.MIN;
-        } else if ("Max".equalsIgnoreCase(aggregationMethod)) {
+        } else if ("Max".equalsIgnoreCase(method)) {
             return Aggregate.Type.MAX;
-        } else if ("Median".equalsIgnoreCase(aggregationMethod)) {
+        } else if ("Median".equalsIgnoreCase(method)) {
             return Aggregate.Type.MEDIAN;
         } else {
             return Aggregate.Type.MEAN;
