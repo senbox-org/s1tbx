@@ -279,11 +279,11 @@ public final class DEMAssistedCoregistrationOp extends Operator {
             final Band targetBand = ProductUtils.copyBand(
                     bandName, masterProduct, bandName + mstSuffix, targetProduct, true);
 
-            if(targetBand.getUnit().equals(Unit.IMAGINARY)) {
+            /*if(targetBand.getUnit().equals(Unit.IMAGINARY)) {
                 int idx = targetProduct.getBandIndex(targetBand.getName());
                 ReaderUtils.createVirtualIntensityBand(
                         targetProduct, targetProduct.getBandAt(idx - 1), targetBand, mstSuffix);
-            }
+            }*/
         }
 
         final Band masterBand = masterProduct.getBand(masterBandNames[0]);
@@ -314,11 +314,11 @@ public final class DEMAssistedCoregistrationOp extends Operator {
                 targetProduct.addBand(targetBand);
                 targetBandToSlaveBandMap.put(targetBand, srcBand);
 
-                if (targetBand.getUnit().equals(Unit.IMAGINARY)) {
+                /*if (targetBand.getUnit().equals(Unit.IMAGINARY)) {
                     int idx = targetProduct.getBandIndex(targetBand.getName());
                     ReaderUtils.createVirtualIntensityBand(
                             targetProduct, targetProduct.getBandAt(idx - 1), targetBand, slvSuffix);
-                }
+                }*/
             }
 
             copySlaveMetadata(slaveProduct);
