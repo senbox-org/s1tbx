@@ -16,9 +16,14 @@
 package org.esa.s1tbx.insar.gpf.coregistration.experimental;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.s1tbx.insar.gpf.coregistration.GCPManager;
-import org.esa.s1tbx.insar.gpf.coregistration.WarpOp;
-import org.esa.snap.core.datamodel.*;
+import org.esa.s1tbx.insar.gpf.coregistration.WarpData;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Placemark;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductNodeGroup;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -33,8 +38,9 @@ import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
+import org.jlinda.nest.gpf.coregistration.GCPManager;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.Map;
 import java.util.Set;
 
@@ -72,7 +78,7 @@ public class AbsTimingErrCorrectionOp extends Operator {
     private int sourceImageWidth = 0;
     private int sourceImageHeight = 0;
     private boolean warpDataAvailable = false;
-    private WarpOp.WarpData warpData = null;
+    private WarpData warpData = null;
     private double avgZeroDopplerTimingErr = 0.0;
     private double avgSlantRangeTimingErr = 0.0;
     private String processedSlaveBand;
@@ -222,17 +228,17 @@ public class AbsTimingErrCorrectionOp extends Operator {
                 continue;
             }
 
-            warpData = new WarpOp.WarpData(slaveGCPGroup);
+            warpData = new WarpData(slaveGCPGroup);
 
-            WarpOp.computeWARPPolynomialFromGCPs(sourceProduct, srcBand, warpPolynomialOrder, masterGCPGroup,
-                                                 maxIterations, rmsThreshold, false, warpData);
+            warpData.computeWARPPolynomialFromGCPs(sourceProduct, srcBand, warpPolynomialOrder, masterGCPGroup,
+                                                 maxIterations, rmsThreshold, false);
 
-            if (!warpData.notEnoughGCPs) {
+            if (warpData.isValid()) {
                 break;
             }
         }
 
-        if (warpData.notEnoughGCPs) {
+        if (!warpData.isValid()) {
             throw new OperatorException("Do not have enough valid GCPs for the warp");
         }
 
@@ -245,9 +251,9 @@ public class AbsTimingErrCorrectionOp extends Operator {
 
     private void computeAbsTimingErr() {
 
-        double[] rangeOffset = new double[warpData.numValidGCPs];
-        double[] azimuthOffset = new double[warpData.numValidGCPs];
-        for (int i = 0; i < warpData.numValidGCPs; ++i) {
+        double[] rangeOffset = new double[warpData.getNumValidGCPs()];
+        double[] azimuthOffset = new double[warpData.getNumValidGCPs()];
+        for (int i = 0; i < warpData.getNumValidGCPs(); ++i) {
 
             final Placemark sPin = warpData.slaveGCPList.get(i);
             final PixelPos sGCPPos = sPin.getPixelPos();

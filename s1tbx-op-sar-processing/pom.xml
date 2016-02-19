@@ -64,6 +64,11 @@
             <artifactId>jlinda-core</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.jlinda</groupId>
+            <artifactId>jlinda-nest</artifactId>
+            <version>${s1tbx.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-dem</artifactId>
         </dependency>

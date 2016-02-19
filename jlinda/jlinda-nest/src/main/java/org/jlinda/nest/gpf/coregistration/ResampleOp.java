@@ -38,6 +38,7 @@ import org.jlinda.core.Orbit;
 import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
 import org.jlinda.core.coregistration.CPM;
+import org.jlinda.core.coregistration.PolynomialModel;
 import org.jlinda.core.coregistration.SimpleLUT;
 
 import javax.media.jai.Interpolation;
@@ -45,8 +46,7 @@ import javax.media.jai.InterpolationTable;
 import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.WarpPolynomial;
-import java.awt.Desktop;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
@@ -64,7 +64,8 @@ import java.util.Set;
         category = "Radar/Coregistration",
         authors = "Petar Marinkovic (with contributions of Jun Lu, Luis Veci)",
         copyright = "PPO.labs and European Space Agency",
-        description = "Estimate coregistration polynomial and resample slave images")
+        description = "Estimate coregistration polynomial and resample slave images",
+        internal = true)
 public class ResampleOp extends Operator {
 
     @SourceProduct
@@ -120,9 +121,9 @@ public class ResampleOp extends Operator {
     private String processedSlaveBand;
 
     // maps
-    private final Map<Band, Band> sourceRasterMap = new HashMap<Band, Band>(10);
-    private final Map<Band, Band> complexSrcMap = new HashMap<Band, Band>(10);
-    private final Map<Band, CPM> cpmMap = new HashMap<Band, CPM>(10);
+    private final Map<Band, Band> sourceRasterMap = new HashMap<>(10);
+    private final Map<Band, Band> complexSrcMap = new HashMap<>(10);
+    private final Map<Band, PolynomialModel> cpmMap = new HashMap<>(10);
 
     // processing control flags
     private boolean complexCoregistration = false;
@@ -376,15 +377,15 @@ public class ResampleOp extends Operator {
                 return;
 
             // pull CPM from map for source bands
-            final CPM cpmData = cpmMap.get(realSrcBand);
-            if (cpmData.noRedundancy)
+            final PolynomialModel cpmData = cpmMap.get(realSrcBand);
+            if (!cpmData.isValid())
                 return;
 
             // get source image
             final RenderedImage srcImage = sourceRaster.getRasterDataNode().getSourceImage();
 
             // resample source image -> target image
-            final RenderedOp warpedImage = createWarpImage(cpmData.jaiWarp, srcImage);
+            final RenderedOp warpedImage = createWarpImage(cpmData.getJAIWarp(), srcImage);
 
             // copy warped image data to target
             final float[] dataArray = warpedImage.getData(targetRectangle).getSamples(x0, y0, w, h, 0, (float[]) null);
@@ -623,20 +624,20 @@ public class ResampleOp extends Operator {
                 }
             }
 
-            final CPM cpmData = cpmMap.get(band);
-            if(cpmData.numObservations > 0) {
-                for (int i = 0; i < cpmData.numObservations; i++) {
+            final PolynomialModel cpmData = cpmMap.get(band);
+            if(cpmData.getNumObservations() > 0) {
+                for (int i = 0; i < cpmData.getNumObservations(); i++) {
                     final MetadataElement gcpElem = new MetadataElement("GCP"+i);
                     warpDataElem.addElement(gcpElem);
 
-                    gcpElem.setAttributeDouble("mst_x", cpmData.xMaster.get(i));
-                    gcpElem.setAttributeDouble("mst_y", cpmData.yMaster.get(i));
+                    gcpElem.setAttributeDouble("mst_x", cpmData.getXMasterCoord(i));
+                    gcpElem.setAttributeDouble("mst_y", cpmData.getYMasterCoord(i));
 
-                    gcpElem.setAttributeDouble("slv_x", cpmData.xSlave.get(i));
-                    gcpElem.setAttributeDouble("slv_y", cpmData.ySlave.get(i));
+                    gcpElem.setAttributeDouble("slv_x", cpmData.getXSlaveCoord(i));
+                    gcpElem.setAttributeDouble("slv_y", cpmData.getYSlaveCoord(i));
 
-                    if (!cpmData.noRedundancy) {
-                        gcpElem.setAttributeDouble("rms", cpmData.rms.get(i));
+                    if (cpmData.isValid()) {
+                        gcpElem.setAttributeDouble("rms", cpmData.getRMS(i));
                     }
                 }
             }
@@ -680,8 +681,8 @@ public class ResampleOp extends Operator {
     private void announceGCPWarning() {
         String msg = "";
         for(Band srcBand : sourceProduct.getBands()) {
-            final CPM cpmData = cpmMap.get(srcBand);
-            if(cpmData != null && cpmData.noRedundancy) {
+            final PolynomialModel cpmData = cpmMap.get(srcBand);
+            if(cpmData != null && !cpmData.isValid()) {
                 msg += srcBand.getName() +" does not have enough valid GCPs for the warp\n";
                 openResidualsFile = true;
             }

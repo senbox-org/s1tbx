@@ -7,7 +7,7 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
                 <attr name="displayName" stringvalue="InSAR Optimized Coregistration"/>
-                <attr name="graphFile" stringvalue="InSARCoregistrationGraph.xml"/>
+                <attr name="graphFile" stringvalue="coregistration\InSARCoregistrationGraph.xml"/>
                 <attr name="dialogTitle" stringvalue="InSAR Coregistration"/>
                 <attr name="ShortDescription" stringvalue="Perform InSAR Optimized Automatic Coregistration"/>
                 <attr name="icon" stringvalue="esaIcon"/>
@@ -140,10 +140,10 @@
         <folder name="Radar">
             <folder name="Coregistration">
                 <attr name="position" intvalue="300"/>
-                <file name="org-jlinda-nest-gpf-InSARCoregistrationGraph-Action.shadow">
+                <!--file name="org-jlinda-nest-gpf-InSARCoregistrationGraph-Action.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-jlinda-nest-gpf-InSARCoregistrationGraph-Action.instance"/>
                     <attr name="position" intvalue="200"/>
-                </file>
+                </file-->
                 <file name="org-jlinda-nest-gpf-CrossResamplingOp-Action.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-jlinda-nest-gpf-CrossResamplingOp-Action.instance"/>
                     <attr name="position" intvalue="400"/>
@@ -180,7 +180,7 @@
                         </file>
                     </folder>
                 </folder>
-                <folder name="unwrapping">
+                <folder name="Unwrapping">
                     <attr name="position" intvalue="300"/>
                     <file name="org-jlinda-nest-gpf-SnaphuExportOp-Action.shadow">
                         <attr name="originalFile" stringvalue="Actions/Operators/org-jlinda-nest-gpf-SnaphuExportOp-Action.instance"/>

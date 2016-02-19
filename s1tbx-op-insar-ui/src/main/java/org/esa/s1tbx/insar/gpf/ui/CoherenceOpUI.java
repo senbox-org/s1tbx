@@ -16,6 +16,7 @@
 package org.esa.s1tbx.insar.gpf.ui;
 
 import org.esa.s1tbx.insar.gpf.CoherenceOp;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
@@ -34,7 +35,7 @@ import java.util.Map;
 /**
  * User interface for CreateCoherenceImageOp
  */
-public class CreateCoherenceImageOpUI extends BaseOperatorUI {
+public class CoherenceOpUI extends BaseOperatorUI {
 
     private final JCheckBox squarePixelCheckBox = new JCheckBox("Square Pixel");
     private final JCheckBox independentWindowSizeCheckBox = new JCheckBox("Independent Window Sizes");
@@ -143,6 +144,12 @@ public class CreateCoherenceImageOpUI extends BaseOperatorUI {
         setCohWinAz();
         setCohWinRg();
 
+        if(sourceProducts != null && sourceProducts.length > 0) {
+            boolean isComplex = AbstractMetadata.getAbstractedMetadata(sourceProducts[0]).
+                    getAttributeString(AbstractMetadata.SAMPLE_TYPE).contains("COMPLEX");
+
+            enableControls(isComplex);
+        }
     }
 
     @Override
@@ -204,6 +211,10 @@ public class CreateCoherenceImageOpUI extends BaseOperatorUI {
         DialogUtils.fillPanel(contentPane, gbc);
 
         return contentPane;
+    }
+
+    private void enableControls(final boolean flag) {
+        subtractFlatEarthPhaseCheckBox.setEnabled(flag);
     }
 
 

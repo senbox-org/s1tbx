@@ -23,8 +23,8 @@
       <outputRangeAzimuthOffset>false</outputRangeAzimuthOffset>
     </parameters>
   </node>
-  <node id="GCP-Selection">
-    <operator>GCP-Selection</operator>
+  <node id="Cross-Correlation">
+    <operator>Cross-Correlation</operator>
     <sources>
       <sourceProduct refid="DEM-Assisted-Coregistration"/>
     </sources>
@@ -49,7 +49,7 @@
   <node id="Offset-Tracking">
     <operator>Offset-Tracking</operator>
     <sources>
-      <sourceProduct refid="GCP-Selection"/>
+      <sourceProduct refid="Cross-Correlation"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <maxVelocity>5.0</maxVelocity>
@@ -73,7 +73,7 @@
     <node id="DEM-Assisted-Coregistration">
       <displayPosition x="167.0" y="90.0"/>
     </node>
-    <node id="GCP-Selection">
+    <node id="Cross-Correlation">
       <displayPosition x="204.0" y="145.0"/>
     </node>
     <node id="Offset-Tracking">

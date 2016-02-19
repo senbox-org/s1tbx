@@ -45,10 +45,9 @@ public class RefinedLee implements SpeckleFilter {
     private final int sourceImageWidth;
     private final int sourceImageHeight;
     private Map<String, String[]> targetBandNameToSourceBandName;
-    final double edgeThreshold;
 
     public RefinedLee(final Operator op, final Product srcProduct, final Product trgProduct,
-                      final Map<String, String[]> targetBandNameToSourceBandName, final double edgeThreshold) {
+                      final Map<String, String[]> targetBandNameToSourceBandName) {
 
         this.operator = op;
         this.sourceProduct = srcProduct;
@@ -60,7 +59,6 @@ public class RefinedLee implements SpeckleFilter {
         this.sourceImageWidth = srcProduct.getSceneRasterWidth();
         this.sourceImageHeight = srcProduct.getSceneRasterHeight();
         this.targetBandNameToSourceBandName = targetBandNameToSourceBandName;
-        this.edgeThreshold = edgeThreshold;
     }
 
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) {
@@ -138,7 +136,7 @@ public class RefinedLee implements SpeckleFilter {
 
                 if (numSamples > 0) {
                     filteredTile[yy][xx] = getRefinedLeeValueUsingEdgeThreshold(
-                            windowSizeX, windowSizeY, edgeThreshold, numSamples, noDataValue, neighborPixelValues);
+                            windowSizeX, windowSizeY, numSamples, noDataValue, neighborPixelValues);
                 } else {
                     filteredTile[yy][xx] = noDataValue;
                 }
@@ -156,18 +154,19 @@ public class RefinedLee implements SpeckleFilter {
      * @return The filtered pixel value.
      */
     public double getRefinedLeeValueUsingEdgeThreshold(
-            final int filterSizeX, final int filterSizeY, final double edgeThreshold,
-            final int numSamples, final double noDataValue, final double[][] neighborPixelValues) {
+            final int filterSizeX, final int filterSizeY, final int numSamples, final double noDataValue,
+            final double[][] neighborPixelValues) {
 
         if (numSamples < filterSizeX * filterSizeY) {
             return computePixelValueUsingLocalStatistics(neighborPixelValues, noDataValue);
         }
 
+        /*
         final double var = getLocalVarianceValue(
                 getLocalMeanValue(neighborPixelValues, noDataValue), neighborPixelValues, noDataValue);
         if (var < edgeThreshold) {
             return computePixelValueUsingLocalStatistics(neighborPixelValues, noDataValue);
-        }
+        }*/
 
         final double[][] subAreaMeans = new double[3][3];
         computeSubAreaMeans(neighborPixelValues, subAreaMeans);

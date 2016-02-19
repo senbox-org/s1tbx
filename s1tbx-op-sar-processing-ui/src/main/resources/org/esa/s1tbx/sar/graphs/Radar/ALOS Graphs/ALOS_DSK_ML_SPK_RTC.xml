@@ -62,8 +62,8 @@
       <saveLayoverShadowMask>false</saveLayoverShadowMask>
     </parameters>
   </node>
-  <node id="6-GCP-Selection">
-    <operator>GCP-Selection</operator>
+  <node id="Cross-Correlation">
+    <operator>Cross-Correlation</operator>
     <sources>
       <sourceProduct refid="5-SAR-Simulation"/>
     </sources>
@@ -88,7 +88,7 @@
   <node id="7-SARSim-Terrain-Correction">
     <operator>SARSim-Terrain-Correction</operator>
     <sources>
-      <sourceProduct refid="6-GCP-Selection"/>
+      <sourceProduct refid="Cross-Correlation"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <rmsThreshold>0.5</rmsThreshold>
@@ -146,7 +146,7 @@
     <node id="5-SAR-Simulation">
       <displayPosition y="179.0" x="250.0"/>
     </node>
-    <node id="6-GCP-Selection">
+    <node id="Cross-Correlation">
       <displayPosition y="222.0" x="253.0"/>
     </node>
     <node id="7-SARSim-Terrain-Correction">

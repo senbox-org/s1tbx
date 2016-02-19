@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2016 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -43,7 +43,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "PhaseToDisplacement",
         category = "Radar/Interferometric/Products",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
         description = "Phase To Displacement Conversion")
 public final class PhaseToDisplacementOp extends Operator {
 
@@ -52,10 +52,6 @@ public final class PhaseToDisplacementOp extends Operator {
 
     @TargetProduct
     private Product targetProduct;
-
-    @Parameter(description = "The list of source bands.", alias = "sourceBands",
-            rasterDataNodeType = Band.class, label = "Source Bands")
-    private String[] sourceBandNames;
 
     private int sourceImageWidth = 0;
     private int sourceImageHeight = 0;
@@ -81,11 +77,9 @@ public final class PhaseToDisplacementOp extends Operator {
         try {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
             validator.checkIfMapProjected(false);
-            // input should be flat-Earth-phase and topo-phase removed interferogram
+            // input should be flat-Earth-phase and topo-phase removed unwrapped phase
 
             getMetadata();
-
-            getSourceImageDimension();
 
             createTargetProduct();
 
@@ -103,12 +97,7 @@ public final class PhaseToDisplacementOp extends Operator {
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
         wavelength = SARUtils.getRadarFrequency(absRoot);
-    }
 
-    /**
-     * Get source image width and height.
-     */
-    private void getSourceImageDimension() {
         sourceImageWidth = sourceProduct.getSceneRasterWidth();
         sourceImageHeight = sourceProduct.getSceneRasterHeight();
     }
@@ -133,7 +122,6 @@ public final class PhaseToDisplacementOp extends Operator {
      */
     private void addSelectedBands() {
 
-//        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
         final Band[] sourceBands = sourceProduct.getBands();
         boolean validProduct = false;
         for (Band band : sourceBands) {
@@ -181,7 +169,6 @@ public final class PhaseToDisplacementOp extends Operator {
             final int y0 = targetRectangle.y;
             final int w = targetRectangle.width;
             final int h = targetRectangle.height;
-            // System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
             final double wavelengthOver4PI = wavelength / (4.0*Math.PI);
             for (int y = y0; y < y0 + h; y++) {
@@ -199,7 +186,6 @@ public final class PhaseToDisplacementOp extends Operator {
             OperatorUtils.catchOperatorException(getId(), e);
         }
     }
-
 
     /**
      * The SPI is used to register this operator in the graph processing framework

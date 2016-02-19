@@ -16,6 +16,9 @@
 package org.esa.s1tbx.insar.gpf.ui.coregistration;
 
 import org.esa.s1tbx.insar.gpf.coregistration.WarpOp;
+import org.esa.snap.core.dataop.dem.ElevationModelDescriptor;
+import org.esa.snap.core.dataop.dem.ElevationModelRegistry;
+import org.esa.snap.dem.dataio.DEMFactory;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
@@ -38,10 +41,18 @@ public class WarpOpUI extends BaseOperatorUI {
             WarpOp.NEAREST_NEIGHBOR, WarpOp.BILINEAR, WarpOp.BICUBIC, WarpOp.BICUBIC2,
             WarpOp.TRI, WarpOp.CC4P, WarpOp.CC6P, WarpOp.TS6P, WarpOp.TS8P, WarpOp.TS16P});
 
-    private final JTextField rmsThreshold = new JTextField("");
+    private final JComboBox<String> rmsThreshold = new JComboBox(new String[]{"0.001", "0.05", "0.1", "0.5", "1.0"});
 
-    final JCheckBox openResidualsFileCheckBox = new JCheckBox("Show Residuals");
-    boolean openResidualsFile;
+    private final JCheckBox inSAROptimizedCheckBox = new JCheckBox("InSAR Optimized");
+    private Boolean inSAROptimized;
+    private boolean isComplex = false;
+
+    private final JCheckBox demRefinementCheckBox = new JCheckBox("Offset Refinement Based on DEM");
+    private Boolean demRefinement;
+    private final JComboBox<String> demName = new JComboBox<>(DEMFactory.getDEMNameList());
+
+    private final JCheckBox openResidualsFileCheckBox = new JCheckBox("Show Residuals");
+    private boolean openResidualsFile;
 
     @Override
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {
@@ -49,6 +60,20 @@ public class WarpOpUI extends BaseOperatorUI {
         initializeOperatorUI(operatorName, parameterMap);
         final JComponent panel = createPanel();
         initParameters();
+
+        inSAROptimizedCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                inSAROptimized = (e.getStateChange() == ItemEvent.SELECTED);
+                enableDemFields();
+            }
+        });
+
+        demRefinementCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                demRefinement = (e.getStateChange() == ItemEvent.SELECTED);
+                enableDemFields();
+            }
+        });
 
         openResidualsFileCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
@@ -62,21 +87,38 @@ public class WarpOpUI extends BaseOperatorUI {
     @Override
     public void initParameters() {
 
-        rmsThreshold.setText(String.valueOf(paramMap.get("rmsThreshold")));
+        rmsThreshold.setSelectedItem(String.valueOf(paramMap.get("rmsThreshold")));
         warpPolynomialOrder.setSelectedItem(paramMap.get("warpPolynomialOrder"));
+
+        interpolationMethod.setSelectedItem(paramMap.get("interpolationMethod"));
 
         if (sourceProducts != null && sourceProducts.length > 0) {
             final InputProductValidator validator = new InputProductValidator(sourceProducts[0]);
-            if (!validator.isComplex()) {
-                interpolationMethod.removeAllItems();
-                interpolationMethod.addItem(WarpOp.NEAREST_NEIGHBOR);
-                interpolationMethod.addItem(WarpOp.BILINEAR);
-                interpolationMethod.addItem(WarpOp.BICUBIC);
-                interpolationMethod.addItem(WarpOp.BICUBIC2);
-            }
+            isComplex = validator.isComplex();
         }
 
-        interpolationMethod.setSelectedItem(paramMap.get("interpolationMethod"));
+        inSAROptimized = (Boolean) paramMap.get("inSAROptimized");
+        if (inSAROptimized == null) {
+            inSAROptimized = false;
+        }
+        inSAROptimizedCheckBox.setSelected(inSAROptimized);
+
+        demRefinement = (Boolean) paramMap.get("demRefinement");
+        if (demRefinement == null) {
+            demRefinement = false;
+        }
+        demRefinementCheckBox.setSelected(demRefinement);
+
+        final String demNameParam = (String) paramMap.get("demName");
+        if (demNameParam != null) {
+            ElevationModelDescriptor descriptor = ElevationModelRegistry.getInstance().getDescriptor(demNameParam);
+            if (descriptor != null) {
+                demName.setSelectedItem(DEMFactory.getDEMDisplayName(descriptor));
+            } else {
+                demName.setSelectedItem(demNameParam);
+            }
+        }
+        enableDemFields();
     }
 
 
@@ -89,9 +131,16 @@ public class WarpOpUI extends BaseOperatorUI {
     @Override
     public void updateParameters() {
 
-        paramMap.put("rmsThreshold", Float.parseFloat(rmsThreshold.getText()));
+        paramMap.put("rmsThreshold", Float.parseFloat((String)rmsThreshold.getSelectedItem()));
         paramMap.put("warpPolynomialOrder", Integer.parseInt((String) warpPolynomialOrder.getSelectedItem()));
         paramMap.put("interpolationMethod", interpolationMethod.getSelectedItem());
+
+        paramMap.put("inSAROptimized", inSAROptimized);
+        paramMap.put("demRefinement", demRefinement);
+        if (demRefinement) {
+            paramMap.put("demName", DEMFactory.getProperDEMName((String) demName.getSelectedItem()));
+        }
+
         paramMap.put("openResidualsFile", openResidualsFile);
     }
 
@@ -107,7 +156,14 @@ public class WarpOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(contentPane, gbc, "Warp Polynomial Order:", warpPolynomialOrder);
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, "Interpolation Method:", interpolationMethod);
+
+        gbc.gridx = 0;
         gbc.gridy++;
+        contentPane.add(inSAROptimizedCheckBox, gbc);
+        gbc.gridy++;
+        contentPane.add(demRefinementCheckBox, gbc);
+        gbc.gridy++;
+        DialogUtils.addComponent(contentPane, gbc, "Digital Elevation Model:", demName);
 
         gbc.gridx = 0;
         gbc.gridy++;
@@ -118,4 +174,9 @@ public class WarpOpUI extends BaseOperatorUI {
         return contentPane;
     }
 
+    private void enableDemFields() {
+        inSAROptimizedCheckBox.setEnabled(isComplex);
+        demRefinementCheckBox.setEnabled(isComplex && inSAROptimized);
+        demName.setEnabled(isComplex && demRefinement);
+    }
 }

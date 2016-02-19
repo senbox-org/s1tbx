@@ -324,17 +324,18 @@ public final class SARSimulationOp extends Operator {
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
         final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
+        if(absTgt != null) {
+            if (externalDEMFile != null) { // if external DEM file is specified by user
+                AbstractMetadata.setAttribute(absTgt, AbstractMetadata.DEM, externalDEMFile.getPath());
+            } else {
+                AbstractMetadata.setAttribute(absTgt, AbstractMetadata.DEM, demName);
+            }
 
-        if (externalDEMFile != null) { // if external DEM file is specified by user
-            AbstractMetadata.setAttribute(absTgt, AbstractMetadata.DEM, externalDEMFile.getPath());
-        } else {
-            AbstractMetadata.setAttribute(absTgt, AbstractMetadata.DEM, demName);
-        }
+            absTgt.setAttributeString("DEM resampling method", demResamplingMethod);
 
-        absTgt.setAttributeString("DEM resampling method", demResamplingMethod);
-
-        if (externalDEMFile != null) {
-            absTgt.setAttributeDouble("external DEM no data value", externalDEMNoDataValue);
+            if (externalDEMFile != null) {
+                absTgt.setAttributeDouble("external DEM no data value", externalDEMNoDataValue);
+            }
         }
 
         targetGeoCoding = targetProduct.getSceneGeoCoding();

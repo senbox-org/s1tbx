@@ -23,8 +23,8 @@
 	  <includeMaster>true</includeMaster>
     </parameters>
   </node>
-  <node id="GCP-Selection">
-    <operator>GCP-Selection</operator>
+  <node id="Cross-Correlation">
+    <operator>Cross-Correlation</operator>
     <sources>
       <sourceProduct refid="CreateStack"/>
     </sources>
@@ -39,9 +39,13 @@
       <applyFineRegistration>false</applyFineRegistration>
       <fineRegistrationWindowWidth>32</fineRegistrationWindowWidth>
       <fineRegistrationWindowHeight>32</fineRegistrationWindowHeight>
+      <fineRegistrationWindowAccAzimuth>16</fineRegistrationWindowAccAzimuth>
+      <fineRegistrationWindowAccRange>16</fineRegistrationWindowAccRange>
+      <fineRegistrationOversampling>16</fineRegistrationOversampling>
       <coherenceWindowSize>3</coherenceWindowSize>
       <coherenceThreshold>0.6</coherenceThreshold>
       <useSlidingWindow>false</useSlidingWindow>
+      <inSAROptimized>true</inSAROptimized>
       <computeOffset>false</computeOffset>
 	  <onlyGCPsOnLand>false</onlyGCPsOnLand>
     </parameters>
@@ -49,12 +53,13 @@
   <node id="Warp">
     <operator>Warp</operator>
     <sources>
-      <sourceProduct refid="GCP-Selection"/>
+      <sourceProduct refid="Cross-Correlation"/>
     </sources>
     <parameters>
       <rmsThreshold>0.05</rmsThreshold>
       <warpPolynomialOrder>2</warpPolynomialOrder>
-      <interpolationMethod>Bilinear interpolation</interpolationMethod>
+      <interpolationMethod>Cubic convolution (6 points)</interpolationMethod>
+      <inSAROptimized>false</inSAROptimized>
       <openResidualsFile>false</openResidualsFile>
     </parameters>
   </node>
@@ -76,7 +81,7 @@
     <node id="CreateStack">
       <displayPosition y="101.0" x="154.0"/>
     </node>
-    <node id="GCP-Selection">
+    <node id="Cross-Correlation">
       <displayPosition y="100.0" x="248.0"/>
     </node>
     <node id="Warp">

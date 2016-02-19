@@ -15,8 +15,6 @@ import org.jlinda.core.Point;
 import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
 import org.jlinda.core.coregistration.LUT;
-import org.jlinda.core.todo_classes.Input;
-import org.jlinda.core.todo_classes.todo_classes;
 import org.jlinda.core.utils.LinearAlgebraUtils;
 import org.jlinda.core.utils.MathUtils;
 import org.jlinda.core.utils.PolyUtils;
@@ -82,7 +80,7 @@ public class Coregistration implements ICoregistration {
     }
 
     @Override
-    public void coarsecorrel(Input.CoarseCorr input, SLCImage minfo, SLCImage sinfo) {
+    public void coarsecorrel(CoarseCorr input, SLCImage minfo, SLCImage sinfo) {
 
         logger.info("coarsecorrel (PM 01-Apr-2012)");
 
@@ -336,7 +334,7 @@ public class Coregistration implements ICoregistration {
     }
 
     @Override
-    public void coarsecorrelfft(Input.CoarseCorr coarsecorrinput, SLCImage minfo, SLCImage sinfo) {
+    public void coarsecorrelfft(CoarseCorr coarsecorrinput, SLCImage minfo, SLCImage sinfo) {
 
         logger.info("coarsecorrelfft (PM 28-Feb-2012)");
         if (!coarsecorrinput.method.equals("cc_magfft")) {
@@ -562,12 +560,12 @@ public class Coregistration implements ICoregistration {
     } // END coarsecorrelfft
 
     @Override
-    public void mtiming_correl(Input.MasterTiming input, SLCImage minfo, todo_classes.productinfo sinfo) {
+    public void mtiming_correl(MasterTiming input, SLCImage minfo, productinfo sinfo) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public void mtiming_correlfft(Input.MasterTiming input, SLCImage minfo, todo_classes.productinfo sinfo) {
+    public void mtiming_correlfft(MasterTiming input, SLCImage minfo, productinfo sinfo) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -693,7 +691,7 @@ public class Coregistration implements ICoregistration {
     }
 
     @Override
-    public void finecoreg(Input.FineCorr fineinput, SLCImage minfo, SLCImage sinfo) {
+    public void finecoreg(FineCorr fineinput, SLCImage minfo, SLCImage sinfo) {
         logger.info("finecoreg (PM 18-Oct-2011)");
 
         //final  int Mfilelines   = minfo.getCurrentWindow().lines();
@@ -1375,7 +1373,7 @@ public class Coregistration implements ICoregistration {
     }
 
     @Override
-    public void coregpm(SLCImage master, SLCImage slave, String i_resfile, Input.CoregPM coregpminput,
+    public void coregpm(SLCImage master, SLCImage slave, String i_resfile, CoregPM coregpminput,
                         int demassist) {
 
         // see javaschool.estimation.TestEstimation_EJML for implementation stub
@@ -1393,7 +1391,7 @@ public class Coregistration implements ICoregistration {
     }
 
     @Override
-    public void resample(Input.Resample resampleinput,
+    public void resample(Resample resampleinput,
                          SLCImage master, SLCImage slave,
                          double[] cpmL, double[] cpmP,
                          int demassist) {
@@ -1867,7 +1865,7 @@ public class Coregistration implements ICoregistration {
     }
 
     @Override
-    public void ms_timing_error(SLCImage master, String i_resfile, Input.RelTiming timinginput,
+    public void ms_timing_error(SLCImage master, String i_resfile, RelTiming timinginput,
                                 int coarse_orbit_offsetL, int coarse_orbit_offsetP) {
         //To change body of implemented methods use File | Settings | File Templates.
     }

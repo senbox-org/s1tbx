@@ -55,6 +55,7 @@ import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;
 import org.jlinda.core.SLCImage;
+import org.jlinda.nest.gpf.coregistration.GCPManager;
 
 import java.awt.*;
 import java.io.IOException;
@@ -320,8 +321,9 @@ public class CreateStackOp extends Operator {
 
     private void updateMetadata() {
         final MetadataElement abstractedMetadata = AbstractMetadata.getAbstractedMetadata(targetProduct);
-        abstractedMetadata.setAttributeInt("collocated_stack", 1);
-        AbstractMetadata.setAttribute(abstractedMetadata, AbstractMetadata.coregistered_stack, 1);
+        if(abstractedMetadata != null) {
+            abstractedMetadata.setAttributeInt("collocated_stack", 1);
+        }
 
         final MetadataElement inputElem = ProductInformation.getInputProducts(targetProduct);
 
@@ -931,10 +933,10 @@ public class CreateStackOp extends Operator {
                         MessageFormat.format("Product ''{0}'' has no abstract metadata.", prod.getName()));
             }
 
-            final double rangeSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
-            final double azimuthSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.azimuth_spacing);
-            double a = Math.abs(rangeSpacing - savedRangeSpacing);
-            double b = Math.abs(azimuthSpacing - savedAzimuthSpacing);
+            final double rangeSpacing = absRoot.getAttributeDouble(AbstractMetadata.range_spacing, 0);
+            final double azimuthSpacing = absRoot.getAttributeDouble(AbstractMetadata.azimuth_spacing, 0);
+            if(rangeSpacing == 0 || azimuthSpacing == 0)
+                return;
             if (savedRangeSpacing > 0.0 && savedAzimuthSpacing > 0.0 &&
                     (Math.abs(rangeSpacing - savedRangeSpacing) > 0.05 ||
                             Math.abs(azimuthSpacing - savedAzimuthSpacing) > 0.05)) {
