@@ -240,20 +240,22 @@ public class CrossCorrelationOp extends Operator {
 
             // parameters: Fine
             if(applyFineRegistration) {
-                if (fineRegistrationOversampling == null)
-                    fineRegistrationOversampling = "2";
-
                 if (complexCoregistration) {
                     fWindowWidth = Integer.parseInt(fineRegistrationWindowWidth);
                     fWindowHeight = Integer.parseInt(fineRegistrationWindowHeight);
                 }
 
-                fineWin = new CorrelationWindow(
-                        Integer.parseInt(fineRegistrationWindowWidth),
-                        Integer.parseInt(fineRegistrationWindowHeight),
-                        Integer.parseInt(fineRegistrationWindowAccAzimuth),
-                        Integer.parseInt(fineRegistrationWindowAccRange),
-                        Integer.parseInt(fineRegistrationOversampling));
+                if (inSAROptimized) {
+                    if (fineRegistrationOversampling == null)
+                        fineRegistrationOversampling = "2";
+
+                    fineWin = new CorrelationWindow(
+                            Integer.parseInt(fineRegistrationWindowWidth),
+                            Integer.parseInt(fineRegistrationWindowHeight),
+                            Integer.parseInt(fineRegistrationWindowAccAzimuth),
+                            Integer.parseInt(fineRegistrationWindowAccRange),
+                            Integer.parseInt(fineRegistrationOversampling));
+                }
             }
 
             final double achievableAccuracy = 1.0 / (double) Math.max(rowUpSamplingFactor, colUpSamplingFactor);
