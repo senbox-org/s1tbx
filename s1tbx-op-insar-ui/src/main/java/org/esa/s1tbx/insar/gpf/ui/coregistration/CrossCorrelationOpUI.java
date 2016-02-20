@@ -59,7 +59,7 @@ public class CrossCorrelationOpUI extends BaseOperatorUI {
     private final JTextField coherenceWindowSize = new JTextField("");
     private final JTextField coherenceThreshold = new JTextField("");
 
-    private final JCheckBox useSlidingWindowCheckBox = new JCheckBox("Compute Coherence with Sliding Window");
+    private final JCheckBox useSlidingWindowCheckBox = new JCheckBox("Use Coherence Sliding Window");
     private boolean useSlidingWindow = false;
 
     private boolean isComplex = false;
