@@ -66,24 +66,15 @@ public class AzimuthShiftOp extends Operator {
     @TargetProduct(description = "The target product which will use the master's grid.")
     private Product targetProduct = null;
 
-    private int cHalfWindowWidth = 0;
-    private int cHalfWindowHeight = 0;
-    private int rowUpSamplingFactor = 0;
-    private int colUpSamplingFactor = 0;
     private boolean isOffsetAvailable = false;
     private double azOffset = 0.0;
-    private double noDataValue = -9999.0;
-    private Sentinel1Utils su = null;
     private Sentinel1Utils.SubSwathInfo[] subSwath = null;
     private int subSwathIndex = 0;
     private String swathIndexStr = null;
     private String[] subSwathNames = null;
     private String[] polarizations = null;
 
-    private int cWindowWidth = 11;
-    private int cWindowHeight = 11;
-
-    static final String DerampDemodPhase = "derampDemodPhase";
+    private static final String DerampDemodPhase = "derampDemodPhase";
 
     /**
      * Default constructor. The graph processing framework
@@ -114,10 +105,7 @@ public class AzimuthShiftOp extends Operator {
 
             checkDerampDemodPhaseBand();
 
-            cHalfWindowWidth = cWindowWidth / 2;
-            cHalfWindowHeight = cWindowHeight / 2;
-
-            su = new Sentinel1Utils(sourceProduct);
+            final Sentinel1Utils su = new Sentinel1Utils(sourceProduct);
             su.computeDopplerRate();
             subSwath = su.getSubSwath();
 
@@ -482,8 +470,7 @@ public class AzimuthShiftOp extends Operator {
             mQBackArray = (double[]) mTileQBack.getDataBuffer().getElems();
         }
 
-        double[] sIBackArray = null;
-        double[] sQBackArray = null;
+        double[] sIBackArray, sQBackArray;
         if (sDataType == ProductData.TYPE_FLOAT32) {
             final float[] sIBackArrayFloat = (float[])sTileIBack.getDataBuffer().getElems();
             final float[] sQBackArrayFloat = (float[])sTileQBack.getDataBuffer().getElems();
