@@ -27,7 +27,7 @@ public class SNAPEngineBenchmarkOperatorProvider extends BenchmarkOperatorProvid
 
     @Override
     protected List<String> getBenchmarkOperatorAliases() {
-        String[] snapEngineBenchmarkOperatorNames = {"Import-Vector", "Flip", "PassThrough", "Reproject", "WriteRGB", "Convert-Datatype", "Write"};
+        String[] snapEngineBenchmarkOperatorNames = {"GLCM", "Reproject", "KMeansClusterAnalysis", "Write"};
         return Arrays.asList(snapEngineBenchmarkOperatorNames);
     }
 }
