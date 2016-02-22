@@ -19,6 +19,7 @@ import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
+import org.esa.snap.core.transform.MathTransform2D;
 import org.esa.snap.core.util.ProductUtils;
 
 import javax.media.jai.Interpolation;
@@ -83,8 +84,17 @@ public class ResamplingOp extends Operator {
             targetProduct = sourceProduct;
             return;
         }
+        if (!allNodesHaveIdentitySceneTransform(sourceProduct)) {
+            throw new OperatorException("Not all nodes have identity model to scene transform.");
+        }
+        if (!allBandSizesAreIntDivisible(sourceProduct)) {
+            throw new OperatorException("Not all band sizes are int divisible.");
+        }
         final RasterDataNode referenceNode = sourceProduct.getRasterDataNode(referenceNodeName);
         Assert.notNull(referenceNode);
+        if (!allBandsMustBeEitherInterpolatedAggregatedOrLeftAsIs(sourceProduct, referenceNode)) {
+            throw new OperatorException("Bands must be either aggregated, interpolated or left as is.");
+        }
         validateInterpolationParameter();
         final int referenceWidth = referenceNode.getRasterWidth();
         final int referenceHeight = referenceNode.getRasterHeight();
@@ -99,6 +109,93 @@ public class ResamplingOp extends Operator {
         ProductUtils.copyMetadata(sourceProduct, targetProduct);
         ProductUtils.copyVectorData(sourceProduct, targetProduct);
         targetProduct.setAutoGrouping(sourceProduct.getAutoGrouping());
+    }
+
+    public static boolean canBeApplied(Product product, RasterDataNode node) {
+        return allNodesHaveIdentitySceneTransform(product) && allBandSizesAreIntDivisible(product)
+                && allBandsMustBeEitherInterpolatedAggregatedOrLeftAsIs(product, node);
+    }
+
+    private static boolean allNodesHaveIdentitySceneTransform(Product product) {
+        final ProductNodeGroup<Band> bandGroup = product.getBandGroup();
+        for (int i = 0; i < bandGroup.getNodeCount(); i++) {
+            if (bandGroup.get(i).getModelToSceneTransform() != MathTransform2D.IDENTITY) {
+                return false;
+            }
+        }
+        final ProductNodeGroup<TiePointGrid> tiePointGridGroup = product.getTiePointGridGroup();
+        for (int i = 0; i < tiePointGridGroup.getNodeCount(); i++) {
+            if (tiePointGridGroup.get(i).getModelToSceneTransform() != MathTransform2D.IDENTITY) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean allBandSizesAreIntDivisible(Product product) {
+        final ProductNodeGroup<Band> bandGroup = product.getBandGroup();
+        final ProductNodeGroup<TiePointGrid> tiePointGridGroup = product.getTiePointGridGroup();
+        AffineTransform referenceModelToImageTransform;
+        if (bandGroup.getNodeCount() > 0 ) {
+            try {
+                referenceModelToImageTransform = new AffineTransform(bandGroup.get(0).getImageToModelTransform().createInverse());
+            } catch (NoninvertibleTransformException e) {
+                throw new OperatorException(e.getMessage());
+            }
+        } else if (tiePointGridGroup.getNodeCount() > 0) {
+            try {
+                referenceModelToImageTransform = new AffineTransform(tiePointGridGroup.get(0).getImageToModelTransform().createInverse());
+            } catch (NoninvertibleTransformException e) {
+                throw new OperatorException(e.getMessage());
+            }
+        } else {
+            return true;
+        }
+        double modelToImageScaleX = referenceModelToImageTransform.getScaleX();
+        double modelToImageScaleY = referenceModelToImageTransform.getScaleY();
+        for (int i = 0; i < bandGroup.getNodeCount(); i++) {
+            final AffineTransform imageToModelTransform = bandGroup.get(i).getImageToModelTransform();
+            final double scaleX = imageToModelTransform.getScaleX() * modelToImageScaleX;
+            final double scaleY = imageToModelTransform.getScaleY() * modelToImageScaleY;
+            if (!isIntDivisible(scaleX) || !isIntDivisible(scaleY)) {
+                return false;
+            }
+        }
+        for (int i = 0; i < tiePointGridGroup.getNodeCount(); i++) {
+            final AffineTransform imageToModelTransform = bandGroup.get(i).getImageToModelTransform();
+            final double scaleX = imageToModelTransform.getScaleX() * modelToImageScaleX;
+            final double scaleY = imageToModelTransform.getScaleY() * modelToImageScaleY;
+            if (!isIntDivisible(scaleX) || !isIntDivisible(scaleY)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean allBandsMustBeEitherInterpolatedAggregatedOrLeftAsIs(Product product, RasterDataNode referenceNode) {
+        final int referenceWidth = referenceNode.getRasterWidth();
+        final int referenceHeight = referenceNode.getRasterHeight();
+        final ProductNodeGroup<Band> bandGroup = product.getBandGroup();
+        for (int i = 0; i < bandGroup.getNodeCount(); i++) {
+            final int rasterWidth = bandGroup.get(i).getRasterWidth();
+            final int rasterHeight = bandGroup.get(i).getRasterHeight();
+            if (rasterWidth == referenceWidth && rasterHeight == referenceHeight) {
+                continue;
+            } else if (rasterWidth <= referenceWidth && rasterHeight <= referenceHeight) {
+                continue;
+            } else if (rasterWidth >= referenceWidth && rasterHeight >= referenceHeight) {
+                continue;
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean isIntDivisible(double value) {
+        if (value < 1) {
+            value /= 1;
+        }
+        return (value - Math.floor(value)) < 1e-10;
     }
 
     private void resampleTiePointGrids(RasterDataNode referenceNode) {
