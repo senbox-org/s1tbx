@@ -58,15 +58,15 @@ public class ResamplingOp extends Operator {
     @Parameter(alias = "aggregation",
             label = "Aggregation Method",
             description = "The method used for aggregation (sampling to a coarser resolution).",
-            valueSet = {"First", "Min", "Max", "Mean", "Median"},
-            defaultValue = "Mean")
+            valueSet = {"First", "Min", "Max", "Mean","Median"},
+            defaultValue = "First")
     private String aggregationMethod;
 
-    @Parameter(alias = "aggregation",
-            label = "Aggregation Method",
+    @Parameter(alias = "flagAggregation",
+            label = "Flag aggregation Method",
             description = "The method used for aggregation (sampling to a coarser resolution) of flags.",
-            valueSet = {"First", "Min", "Max", "Median"},
-            defaultValue = "Mean")
+            valueSet = {"First", "Min", "Max", "MinMedian", "MaxMedian"},
+            defaultValue = "First")
     private String flagAggregationMethod;
 
     @Override
@@ -91,7 +91,7 @@ public class ResamplingOp extends Operator {
                 //todo consider case when band width is smaller than reference width but band height is larger than reference height or vice versa
                 targetBand = new Band(sourceBand.getName(), sourceBand.getDataType(), referenceWidth, referenceHeight);
                 if (sourceBand.getRasterWidth() < referenceWidth && sourceBand.getRasterHeight() < referenceHeight) {
-                final MultiLevelImage interpolatedImage = createInterpolatedImage(sourceBand, referenceNode);
+                    final MultiLevelImage interpolatedImage = createInterpolatedImage(sourceBand, referenceNode);
                     targetBand.setSourceImage(interpolatedImage);
                 } else {
                     final MultiLevelImage aggregatedImage = createAggregatedImage(sourceBand, referenceNode);
@@ -103,7 +103,6 @@ public class ResamplingOp extends Operator {
             }
             ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
         }
-        //todo aggregate / interpolate flags correctly
         ProductUtils.copyFlagCodings(sourceProduct, targetProduct);
         ProductUtils.copyIndexCodings(sourceProduct, targetProduct);
         ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
@@ -131,16 +130,18 @@ public class ResamplingOp extends Operator {
     }
 
     private Aggregate.Type getAggregationType(String method) {
-        if ("First".equalsIgnoreCase(method)) {
-            return Aggregate.Type.FIRST;
-        } else if ("Min".equalsIgnoreCase(method)) {
+        if ("Min".equalsIgnoreCase(method)) {
             return Aggregate.Type.MIN;
         } else if ("Max".equalsIgnoreCase(method)) {
             return Aggregate.Type.MAX;
         } else if ("Median".equalsIgnoreCase(method)) {
             return Aggregate.Type.MEDIAN;
+        } else if ("MinMedian".equalsIgnoreCase(method)) {
+            return Aggregate.Type.MIN_MEDIAN;
+        } else if ("MaxMedian".equalsIgnoreCase(method)) {
+            return Aggregate.Type.MAX_MEDIAN;
         } else {
-            return Aggregate.Type.MEAN;
+            return Aggregate.Type.FIRST;
         }
     }
 
