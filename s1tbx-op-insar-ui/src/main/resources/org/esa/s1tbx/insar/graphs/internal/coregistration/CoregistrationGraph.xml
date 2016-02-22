@@ -36,7 +36,7 @@
       <columnInterpFactor>4</columnInterpFactor>
       <maxIteration>10</maxIteration>
       <gcpTolerance>0.25</gcpTolerance>
-      <applyFineRegistration>false</applyFineRegistration>
+      <applyFineRegistration>true</applyFineRegistration>
       <fineRegistrationWindowWidth>32</fineRegistrationWindowWidth>
       <fineRegistrationWindowHeight>32</fineRegistrationWindowHeight>
       <fineRegistrationWindowAccAzimuth>16</fineRegistrationWindowAccAzimuth>

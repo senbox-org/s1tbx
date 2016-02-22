@@ -64,11 +64,7 @@ import org.jlinda.core.delaunay.TriangulationException;
 
 import java.awt.Rectangle;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Co-registering non-burst products based on orbits and DEM.
@@ -182,12 +178,33 @@ public final class DEMAssistedCoregistrationOp extends Operator {
 
             createTargetProduct();
 
+            saveSlaveProductNames(targetProduct, targetBandToSlaveBandMap);
+
             updateTargetProductMetadata();
 
             noDataValue = masterProduct.getBandAt(0).getNoDataValue();
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
+        }
+    }
+
+    private void saveSlaveProductNames(final Product targetProduct, final Map<Band, Band> sourceRasterMap) {
+
+        for (Product prod : sourceProduct) {
+            if (prod != masterProduct) {
+                final String suffix = StackUtils.createBandTimeStamp(prod);
+                final List<String> bandNames = new ArrayList<>(10);
+                for (Band tgtBand : sourceRasterMap.keySet()) {
+                    final Band srcBand = sourceRasterMap.get(tgtBand);
+                    final Product srcProduct = srcBand.getProduct();
+                    if (srcProduct == prod) {
+                        bandNames.add(tgtBand.getName());
+                    }
+                }
+                final String prodName = prod.getName() + suffix;
+                StackUtils.saveSlaveProductBandNames(targetProduct, prodName, bandNames.toArray(new String[bandNames.size()]));
+            }
         }
     }
 
@@ -262,11 +279,11 @@ public final class DEMAssistedCoregistrationOp extends Operator {
             final Band targetBand = ProductUtils.copyBand(
                     bandName, masterProduct, bandName + mstSuffix, targetProduct, true);
 
-            if(targetBand.getUnit().equals(Unit.IMAGINARY)) {
+            /*if(targetBand.getUnit().equals(Unit.IMAGINARY)) {
                 int idx = targetProduct.getBandIndex(targetBand.getName());
                 ReaderUtils.createVirtualIntensityBand(
                         targetProduct, targetProduct.getBandAt(idx - 1), targetBand, mstSuffix);
-            }
+            }*/
         }
 
         final Band masterBand = masterProduct.getBand(masterBandNames[0]);
@@ -297,11 +314,11 @@ public final class DEMAssistedCoregistrationOp extends Operator {
                 targetProduct.addBand(targetBand);
                 targetBandToSlaveBandMap.put(targetBand, srcBand);
 
-                if (targetBand.getUnit().equals(Unit.IMAGINARY)) {
+                /*if (targetBand.getUnit().equals(Unit.IMAGINARY)) {
                     int idx = targetProduct.getBandIndex(targetBand.getName());
                     ReaderUtils.createVirtualIntensityBand(
                             targetProduct, targetProduct.getBandAt(idx - 1), targetBand, slvSuffix);
-                }
+                }*/
             }
 
             copySlaveMetadata(slaveProduct);
@@ -347,6 +364,10 @@ public final class DEMAssistedCoregistrationOp extends Operator {
      * Update target product metadata.
      */
     private void updateTargetProductMetadata() {
+        final MetadataElement abstractedMetadata = AbstractMetadata.getAbstractedMetadata(targetProduct);
+        if(abstractedMetadata != null) {
+            abstractedMetadata.setAttributeInt("collocated_stack", 1);
+        }
 
         final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.coregistered_stack, 1);
@@ -839,11 +860,6 @@ public final class DEMAssistedCoregistrationOp extends Operator {
                     index.calculateStride(y[i]);
                     for (int j = 0; j < maxX; j++) {
                         double v = dataBuffer.getElemDoubleAt(index.getIndex(x[j]));
-                        if (usesNoData && noDataValue == v) {
-                            samples[i][j] = Double.NaN;
-                            allValid = false;
-                            continue;
-                        }
                         samples[i][j] = v;
                     }
                 }

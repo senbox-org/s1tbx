@@ -81,18 +81,14 @@ public class RangeShiftOp extends Operator {
     private int maxIteration = 10;
 
     private int cWindowSize = 0;
-    private int cHalfWindowSize = 0;
     private int upSamplingFactor = 0;
     private boolean isOffsetAvailable = false;
     private double gcpTolerance = 0.0;
     private double azOffset = 0.0;
     private double rgOffset = 0.0;
     private double noDataValue = -9999.0;
-    private Sentinel1Utils su = null;
     private Sentinel1Utils.SubSwathInfo[] subSwath = null;
     private int subSwathIndex = 0;
-    private String[] subSwathNames = null;
-    private String[] polarizations = null;
 
     /**
      * Default constructor. The graph processing framework
@@ -122,14 +118,13 @@ public class RangeShiftOp extends Operator {
             validator.checkIfSentinel1Product();
 
             cWindowSize = Integer.parseInt(registrationWindowSize);
-            cHalfWindowSize = cWindowSize / 2;
             upSamplingFactor = Integer.parseInt(interpFactor);
             gcpTolerance = 1.0 / upSamplingFactor;
 
-            su = new Sentinel1Utils(sourceProduct);
+            final Sentinel1Utils su = new Sentinel1Utils(sourceProduct);
             subSwath = su.getSubSwath();
 
-            subSwathNames = su.getSubSwathNames();
+            final String[] subSwathNames = su.getSubSwathNames();
             if (subSwathNames.length != 1) {
                 throw new OperatorException("Split product is expected.");
             } else {
@@ -145,8 +140,6 @@ public class RangeShiftOp extends Operator {
                 throw new OperatorException("Registration window height should not be grater than burst height " +
                         subSwath[subSwathIndex - 1].linesPerBurst);
             }
-
-            polarizations = su.getPolarizations();
 
             createTargetProduct();
 
@@ -212,13 +205,8 @@ public class RangeShiftOp extends Operator {
      public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
              throws OperatorException {
 
-        final int x0 = targetRectangle.x;
-        final int y0 = targetRectangle.y;
         final int w = targetRectangle.width;
         final int h = targetRectangle.height;
-        //final int xMax = x0 + w;
-        //final int yMax = y0 + h;
-        //System.out.println("DEMBasedCoregistrationOp: x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
         try {
             if (!isOffsetAvailable) {
@@ -226,10 +214,8 @@ public class RangeShiftOp extends Operator {
             }
 
             // perform range shift using FFT
-            Band slaveBandI = null;
-            Band slaveBandQ = null;
-            Band targetBandI = null;
-            Band targetBandQ = null;
+            Band slaveBandI = null, slaveBandQ = null;
+            Band targetBandI = null, targetBandQ = null;
             final String[] bandNames = sourceProduct.getBandNames();
             for (String bandName : bandNames) {
                 if (bandName.contains("i_") && bandName.contains("_slv")) {

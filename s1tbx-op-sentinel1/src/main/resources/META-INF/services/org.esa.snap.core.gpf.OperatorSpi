@@ -4,6 +4,7 @@ org.esa.s1tbx.sentinel1.gpf.SliceAssemblyOp$Spi
 org.esa.s1tbx.sentinel1.gpf.BackGeocodingOp$Spi
 org.esa.s1tbx.sentinel1.gpf.RangeShiftOp$Spi
 org.esa.s1tbx.sentinel1.gpf.AzimuthShiftOp$Spi
+org.esa.s1tbx.sentinel1.gpf.SpectralDiversityOp$Spi
 org.esa.s1tbx.sentinel1.gpf.experimental.DerampedAzimuthSpectrumOp$Spi
 org.esa.s1tbx.sentinel1.gpf.experimental.DerampDemodPhaseOp$Spi
 org.esa.s1tbx.sentinel1.gpf.TOPSARMergeOp$Spi

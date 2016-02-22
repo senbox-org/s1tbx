@@ -17,6 +17,7 @@ package org.esa.s1tbx.sar.gpf.geometric;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.calibration.gpf.CalibrationOp;
+import org.esa.s1tbx.calibration.gpf.calibrators.Sentinel1Calibrator;
 import org.esa.s1tbx.calibration.gpf.support.CalibrationFactory;
 import org.esa.s1tbx.calibration.gpf.support.Calibrator;
 import org.esa.s1tbx.insar.gpf.coregistration.WarpData;
@@ -315,6 +316,12 @@ public class SARSimTerrainCorrectionOp extends Operator {
                 calibrator = CalibrationFactory.createCalibrator(sourceProduct);
                 calibrator.setAuxFileFlag(auxFile);
                 calibrator.setExternalAuxFile(externalAuxFile);
+                if (calibrator instanceof Sentinel1Calibrator) {
+                    final String[] selectedPolarisations = getSelectedPolarisations();
+                    Sentinel1Calibrator cal = (Sentinel1Calibrator) calibrator;
+                    cal.setUserSelections(sourceProduct,
+                            selectedPolarisations, saveSigmaNought, saveGammaNought, saveBetaNought, false);
+                }
                 calibrator.initialize(this, sourceProduct, targetProduct, true, true);
                 calibrator.setIncidenceAngleForSigma0(incidenceAngleForSigma0);
             }
@@ -325,6 +332,24 @@ public class SARSimTerrainCorrectionOp extends Operator {
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
+    }
+
+    final String[] getSelectedPolarisations() {
+        final List<String> selectedPolList = new ArrayList<>(4);
+        final String[] targetBandNames = targetProduct.getBandNames();
+        for (String bandName:targetBandNames) {
+            if (bandName.toUpperCase().contains("HH") && !selectedPolList.contains("HH")) {
+                selectedPolList.add("HH");
+            } else if (bandName.toUpperCase().contains("VV") && !selectedPolList.contains("VV")) {
+                selectedPolList.add("VV");
+            } else if (bandName.toUpperCase().contains("HV") && !selectedPolList.contains("HV")) {
+                selectedPolList.add("HV");
+            } else if (bandName.toUpperCase().contains("VH") && !selectedPolList.contains("VH")) {
+                selectedPolList.add("VH");
+            }
+        }
+
+        return selectedPolList.toArray(new String[selectedPolList.size()]);
     }
 
     @Override
@@ -421,8 +446,8 @@ public class SARSimTerrainCorrectionOp extends Operator {
         } else {
             if (applyRadiometricNormalization && mission.equals("ERS")) {
                 throw new OperatorException("For radiometric normalization of ERS product, please use one of the following\n" +
-                                                    " user graphs: 'RemoveAntPat_SARSim_GCPSelection' or 'RemoveAntPat_Multilook_SARSim_GCPSelection',\n" +
-                                                    " then apply 'SARSim Terrain Correction' operator to the output in the Graph Builder.");
+                                            " user graphs: 'RemoveAntPat_SARSim_GCPSelection' or 'RemoveAntPat_Multilook_SARSim_GCPSelection',\n" +
+                                            " then apply 'SARSim Terrain Correction' operator to the output in the Graph Builder.");
             }
         }
 

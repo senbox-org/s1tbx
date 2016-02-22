@@ -17,7 +17,11 @@ package org.esa.s1tbx.insar.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
-import org.esa.snap.core.datamodel.*;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -79,7 +83,7 @@ public class CoherenceOp extends Operator {
             label = "Coherence Range Window Size")
     private int cohWinRg = 10;
 
-    @Parameter(defaultValue="false", label="Subtract flat-earth phase in coherence phase")
+    @Parameter(defaultValue = "false", label = "Subtract flat-earth phase in coherence phase")
     private boolean subtractFlatEarthPhase = false;
 
     @Parameter(valueSet = {"1", "2", "3", "4", "5", "6", "7", "8"},
@@ -109,7 +113,9 @@ public class CoherenceOp extends Operator {
 
     // target
     private HashMap<String, ProductContainer> targetMap = new HashMap<>();
+    private HashMap<Band, Band> detectedSlaveMap = new HashMap<>();
 
+    private boolean isComplex;
     private boolean isTOPSARBurstProduct = false;
     private String productName = null;
     private String productTag = null;
@@ -139,8 +145,7 @@ public class CoherenceOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -152,7 +157,7 @@ public class CoherenceOp extends Operator {
 
             mstRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
             final MetadataElement slaveElem = sourceProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT);
-            if(slaveElem != null) {
+            if (slaveElem != null) {
                 slvRoot = slaveElem.getElements()[0];
             }
 
@@ -166,7 +171,7 @@ public class CoherenceOp extends Operator {
 
             getSourceImageDimension();
 
-            if (subtractFlatEarthPhase) {
+            if (isComplex && subtractFlatEarthPhase) {
 
                 getMeanTerrainElevation();
                 if (isTOPSARBurstProduct) {
@@ -190,8 +195,10 @@ public class CoherenceOp extends Operator {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
             validator.checkIfSARProduct();
             validator.checkIfCoregisteredStack();
-            validator.checkIfSLC();
             isTOPSARBurstProduct = !validator.isDebursted();
+
+            isComplex = AbstractMetadata.getAbstractedMetadata(sourceProduct).
+                    getAttributeString(AbstractMetadata.SAMPLE_TYPE).contains("COMPLEX");
 
             if (isTOPSARBurstProduct) {
                 su = new Sentinel1Utils(sourceProduct);
@@ -215,13 +222,12 @@ public class CoherenceOp extends Operator {
 
         // get sourceMaster & sourceSlave MetadataElement
 
-        /* organize metadata */
         // put sourceMaster metadata into the masterMap
         metaMapPut(masterTag, mstRoot, sourceProduct, masterMap);
 
         // plug sourceSlave metadata into slaveMap
         MetadataElement slaveElem = sourceProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT);
-        if(slaveElem == null) {
+        if (slaveElem == null) {
             slaveElem = sourceProduct.getMetadataRoot().getElement("Slave Metadata");
         }
         MetadataElement[] slaveRoot = slaveElem.getElements();
@@ -298,23 +304,60 @@ public class CoherenceOp extends Operator {
     private void createTargetProduct() {
 
         targetProduct = new Product(productName,
-                sourceProduct.getProductType(),
-                sourceProduct.getSceneRasterWidth(),
-                sourceProduct.getSceneRasterHeight());
+                                    sourceProduct.getProductType(),
+                                    sourceProduct.getSceneRasterWidth(),
+                                    sourceProduct.getSceneRasterHeight());
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
-        for (String key : targetMap.keySet()) {
-            final String coherenceBandName = targetMap.get(key).getBandName(Unit.COHERENCE);
-            final Band coherenceBand = targetProduct.addBand(coherenceBandName, ProductData.TYPE_FLOAT32);
-            coherenceBand.setUnit(Unit.COHERENCE);
+        if (isComplex) {
+            for (String key : targetMap.keySet()) {
+                final String coherenceBandName = targetMap.get(key).getBandName(Unit.COHERENCE);
+                final Band coherenceBand = targetProduct.addBand(coherenceBandName, ProductData.TYPE_FLOAT32);
+                coherenceBand.setUnit(Unit.COHERENCE);
 
-            if (subtractFlatEarthPhase) {
-                final String coherencePhaseBandName = targetMap.get(key).getBandName(COHERENCE_PHASE);
-                final Band coherencePhaseBand = targetProduct.addBand(coherencePhaseBandName, ProductData.TYPE_FLOAT32);
-                coherencePhaseBand.setUnit(Unit.PHASE);
+                if (subtractFlatEarthPhase) {
+                    final String coherencePhaseBandName = targetMap.get(key).getBandName(COHERENCE_PHASE);
+                    final Band coherencePhaseBand = targetProduct.addBand(coherencePhaseBandName, ProductData.TYPE_FLOAT32);
+                    coherencePhaseBand.setUnit(Unit.PHASE);
+                }
+            }
+        } else {
+            final int numSrcBands = sourceProduct.getNumBands();
+            String[] bandNames = sourceProduct.getBandNames();
+            if (numSrcBands < 2) {
+                throw new OperatorException("To create a coherence image, more than 2 bands are needed.");
+            }
+            //masterBand = sourceProduct.getBand(findBandName(bandNames, "mst"));
+            //addTargetBand(masterBand.getName(), masterBand.getDataType(), masterBand.getUnit());
+
+            // add slave and coherence bands
+            for (int i = 1; i <= numSrcBands; i++) {
+
+                final String slaveBandName = findBandName(bandNames, "slv" + i);
+                if (slaveBandName == null) {
+                    break;
+                }
+                final Band slaveBand = sourceProduct.getBand(slaveBandName);
+                //addTargetBand(slaveBandName, slaveBand.getDataType(), slaveBand.getUnit());
+
+                final Band coherenceBand = targetProduct.addBand("Coherence_slv" + i, ProductData.TYPE_FLOAT32);
+                coherenceBand.setUnit("coherence");
+                detectedSlaveMap.put(coherenceBand, slaveBand);
             }
         }
+    }
+
+    private static String findBandName(String[] bandNames, String namePattern) {
+
+        String bandName = null;
+        for (String name : bandNames) {
+            if (name.contains(namePattern)) {
+                bandName = name;
+                break;
+            }
+        }
+        return bandName;
     }
 
     private void getSourceImageDimension() {
@@ -358,11 +401,11 @@ public class CoherenceOp extends Operator {
     private void getSlvApproxSceneCentreAzimuthTime() throws Exception {
 
         final double firstLineTimeInDays = slvRoot.getAttributeUTC(AbstractMetadata.first_line_time).getMJD();
-        final double firstLineTime = (firstLineTimeInDays - (int)firstLineTimeInDays) * Constants.secondsInDay;
+        final double firstLineTime = (firstLineTimeInDays - (int) firstLineTimeInDays) * Constants.secondsInDay;
         final double lastLineTimeInDays = slvRoot.getAttributeUTC(AbstractMetadata.last_line_time).getMJD();
-        final double lastLineTime = (lastLineTimeInDays - (int)lastLineTimeInDays) * Constants.secondsInDay;
+        final double lastLineTime = (lastLineTimeInDays - (int) lastLineTimeInDays) * Constants.secondsInDay;
 
-        slvSceneCentreAzimuthTime = 0.5*(firstLineTime + lastLineTime);
+        slvSceneCentreAzimuthTime = 0.5 * (firstLineTime + lastLineTime);
     }
 
     private void constructFlatEarthPolynomialsForTOPSARProduct() throws Exception {
@@ -417,8 +460,7 @@ public class CoherenceOp extends Operator {
      * @param targetTileMap   The target tiles associated with all target bands to be computed.
      * @param targetRectangle The rectangle of target tile.
      * @param pm              A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.snap.core.gpf.OperatorException
-     *          If an error occurs during computation of the target raster.
+     * @throws org.esa.snap.core.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
@@ -426,9 +468,112 @@ public class CoherenceOp extends Operator {
 
         if (isTOPSARBurstProduct) {
             computeTileForTOPSARProduct(targetTileMap, targetRectangle, pm);
+        } else if (!isComplex) {
+            computeTileForDetectedProduct(targetTileMap, targetRectangle, pm);
         } else {
             computeTileForNormalProduct(targetTileMap, targetRectangle, pm);
         }
+    }
+
+    private void computeTileForDetectedProduct(final Map<Band, Tile> targetTileMap, Rectangle targetRectangle,
+                                               ProgressMonitor pm) throws OperatorException {
+        try {
+            final int x0 = targetRectangle.x;
+            final int y0 = targetRectangle.y;
+            final int w = targetRectangle.width;
+            final int h = targetRectangle.height;
+            final int maxX = x0 + w;
+            final int maxY = y0 + h;
+            //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
+
+            for (Band targetBand : targetTileMap.keySet()) {
+                final Tile targetTile = targetTileMap.get(targetBand);
+
+                final Band srcBand = sourceProduct.getBand(targetBand.getName());
+                if (!targetBand.getUnit().contains("coherence")) { // master and slave bands
+
+                    final Tile srcRaster = getSourceTile(srcBand, targetRectangle);
+                    final ProductData srcData = srcRaster.getDataBuffer();
+                    final ProductData targetData = targetTile.getDataBuffer();
+                    for (int y = y0; y < maxY; y++) {
+                        for (int x = x0; x < maxX; x++) {
+                            final int index = srcRaster.getDataBufferIndex(x, y);
+                            targetData.setElemFloatAt(targetTile.getDataBufferIndex(x, y), srcData.getElemFloatAt(index));
+                        }
+                    }
+
+                } else { // coherence bands
+                    String[] bandNames = sourceProduct.getBandNames();
+                    Band masterBand = sourceProduct.getBand(findBandName(bandNames, "mst"));
+
+                    final Band slaveBand = detectedSlaveMap.get(targetBand);
+                    final float[] dataArray = new float[w * h];
+                    final RealCoherenceData realData = new RealCoherenceData();
+                    int k = 0;
+                    for (int y = y0; y < maxY; y++) {
+                        for (int x = x0; x < maxX; x++) {
+                            getMasterSlaveDataForCurWindow(x, y, masterBand, slaveBand, realData);
+                            dataArray[k++] = computeCoherence(realData);
+                        }
+                    }
+
+                    final ProductData rawTargetData = ProductData.createInstance(dataArray);
+                    targetTile.setRawSamples(rawTargetData);
+                }
+            }
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException(getId(), e);
+        }
+    }
+
+    private void getMasterSlaveDataForCurWindow(
+            int xC, int yC, Band masterBand, Band slaveBand, RealCoherenceData realData) {
+
+        // compute upper left corner coordinate (xUL, yUL)
+        final int halfWindowSizeAz = cohWinAz / 2;
+        final int halfWindowSizeRg = cohWinRg / 2;
+        final int xUL = Math.max(xC - halfWindowSizeRg, 0);
+        final int yUL = Math.max(yC - halfWindowSizeAz, 0);
+
+        // compute lower right corner coordinate (xLR, yLR)
+        final int xLR = Math.min(xC + halfWindowSizeRg, sourceImageWidth - 1);
+        final int yLR = Math.min(yC + halfWindowSizeAz, sourceImageHeight - 1);
+
+        // compute actual window width (w) and height (h)
+        final int w = xLR - xUL + 1;
+        final int h = yLR - yUL + 1;
+
+        realData.m = new double[w * h];
+        realData.s = new double[w * h];
+
+        final Rectangle windowRectangle = new Rectangle(xUL, yUL, w, h);
+        final Tile masterRaster = getSourceTile(masterBand, windowRectangle);
+        final Tile slaveRaster = getSourceTile(slaveBand, windowRectangle);
+        final ProductData masterData = masterRaster.getDataBuffer();
+        final ProductData slaveData = slaveRaster.getDataBuffer();
+
+        int k = 0;
+        for (int y = yUL; y <= yLR; y++) {
+            for (int x = xUL; x <= xLR; x++) {
+                final int index = masterRaster.getDataBufferIndex(x, y);
+                realData.m[k] = masterData.getElemDoubleAt(index);
+                realData.s[k] = slaveData.getElemDoubleAt(index);
+                k++;
+            }
+        }
+    }
+
+    private static float computeCoherence(final RealCoherenceData realData) {
+
+        double sum1 = 0.0, sum2 = 0.0, sum3 = 0.0;
+        for (int i = 0; i < realData.m.length; i++) {
+            final double m = realData.m[i];
+            final double s = realData.s[i];
+            sum1 += m * s;
+            sum2 += m * m;
+            sum3 += s * s;
+        }
+        return (float) (Math.abs(sum1) / Math.sqrt(sum2 * sum3));
     }
 
     private void computeTileForNormalProduct(
@@ -486,7 +631,7 @@ public class CoherenceOp extends Operator {
                     // estimate the phase on the grid
                     final DoubleMatrix realReferencePhase =
                             PolyUtils.polyval(azimuthAxisNormalized, rangeAxisNormalized,
-                                    polyCoeffs, PolyUtils.degreeFromCoefficients(polyCoeffs.length));
+                                              polyCoeffs, PolyUtils.degreeFromCoefficients(polyCoeffs.length));
 
                     // compute the reference phase
                     final ComplexDoubleMatrix complexReferencePhase = new ComplexDoubleMatrix(
@@ -520,7 +665,7 @@ public class CoherenceOp extends Operator {
             //System.out.println("tx0 = " + tx0 + ", ty0 = " + ty0 + ", tw = " + tw + ", th = " + th);
 
             for (int burstIndex = 0; burstIndex < subSwath[subSwathIndex - 1].numOfBursts; burstIndex++) {
-                final int firstLineIdx = burstIndex*subSwath[subSwathIndex - 1].linesPerBurst;
+                final int firstLineIdx = burstIndex * subSwath[subSwathIndex - 1].linesPerBurst;
                 final int lastLineIdx = firstLineIdx + subSwath[subSwathIndex - 1].linesPerBurst - 1;
 
                 if (tyMax <= firstLineIdx || ty0 > lastLineIdx) {
@@ -555,7 +700,7 @@ public class CoherenceOp extends Operator {
             final int cohh = targetRectangle.height + cohWinAz - 1;
             final Rectangle rect = new Rectangle(cohx0, cohy0, cohw, cohh);
 
-            final long minLine = burstIndex*subSwath[subSwathIndex - 1].linesPerBurst;
+            final long minLine = burstIndex * subSwath[subSwathIndex - 1].linesPerBurst;
             final long maxLine = minLine + subSwath[subSwathIndex - 1].linesPerBurst - 1;
             final long minPixel = 0;
             final long maxPixel = subSwath[subSwathIndex - 1].samplesPerBurst - 1;
@@ -587,13 +732,13 @@ public class CoherenceOp extends Operator {
                         if (y < minLine || y > maxLine) {
                             dataMaster.put(r, c, 0.0);
                         } else {
-                            dataMaster.put(r, c, dataMaster.get(r, c).mul(dataSlave.get(r,c).conj()));
+                            dataMaster.put(r, c, dataMaster.get(r, c).mul(dataSlave.get(r, c).conj()));
                         }
                         dataSlave.put(r, c, new ComplexDouble(norm(dataSlave.get(r, c)), tmp));
                     }
                 }
 
-                ComplexDoubleMatrix  cohMatrix = SarUtils.cplxCoherence(dataMaster, dataSlave, cohWinAz, cohWinRg);
+                ComplexDoubleMatrix cohMatrix = SarUtils.cplxCoherence(dataMaster, dataSlave, cohWinAz, cohWinRg);
 
                 if (subtractFlatEarthPhase) {
                     DoubleMatrix rangeAxisNormalized = DoubleMatrix.linspace(x0, xN, targetRectangle.width);
@@ -608,7 +753,7 @@ public class CoherenceOp extends Operator {
                     final DoubleMatrix polyCoeffs = flatEarthPolyMap.get(polynomialName);
 
                     final DoubleMatrix realReferencePhase = PolyUtils.polyval(azimuthAxisNormalized, rangeAxisNormalized,
-                            polyCoeffs, PolyUtils.degreeFromCoefficients(polyCoeffs.length));
+                                                                              polyCoeffs, PolyUtils.degreeFromCoefficients(polyCoeffs.length));
 
                     final ComplexDoubleMatrix complexReferencePhase = new ComplexDoubleMatrix(
                             MatrixFunctions.cos(realReferencePhase),
@@ -625,7 +770,7 @@ public class CoherenceOp extends Operator {
         }
     }
 
-    private void saveComplexCoherence(final ComplexDoubleMatrix  cohMatrix, final ProductContainer product,
+    private void saveComplexCoherence(final ComplexDoubleMatrix cohMatrix, final ProductContainer product,
                                       final Map<Band, Tile> targetTileMap, final Rectangle targetRectangle) {
 
         final int x0 = targetRectangle.x;
@@ -662,18 +807,18 @@ public class CoherenceOp extends Operator {
                 final int xx = x - x0;
 
                 if (srcSlvData.getElemDoubleAt(srcSlvIndex.getIndex(x)) == srcNoDataValue) {
-                    coherenceData.setElemFloatAt(tgtIdx, (float)srcNoDataValue);
+                    coherenceData.setElemFloatAt(tgtIdx, (float) srcNoDataValue);
                     if (subtractFlatEarthPhase) {
-                        coherencePhaseData.setElemFloatAt(tgtIdx, (float)srcNoDataValue);
+                        coherencePhaseData.setElemFloatAt(tgtIdx, (float) srcNoDataValue);
                     }
                 } else {
                     final double cohI = dataReal.get(yy, xx);
                     final double cohQ = dataImag.get(yy, xx);
                     final double coh = Math.sqrt(cohI * cohI + cohQ * cohQ);
-                    coherenceData.setElemFloatAt(tgtIdx, (float)coh);
+                    coherenceData.setElemFloatAt(tgtIdx, (float) coh);
                     if (subtractFlatEarthPhase) {
                         final double cohPhase = Math.atan2(cohQ, cohI);
-                        coherencePhaseData.setElemFloatAt(tgtIdx, (float)cohPhase);
+                        coherencePhaseData.setElemFloatAt(tgtIdx, (float) cohPhase);
                     }
                 }
             }
@@ -681,11 +826,11 @@ public class CoherenceOp extends Operator {
     }
 
     private static double norm(final ComplexDouble number) {
-        return number.real()*number.real() + number.imag()*number.imag();
+        return number.real() * number.real() + number.imag() * number.imag();
     }
 
     private static double norm(final double real, final double imag) {
-        return real*real + imag*imag;
+        return real * real + imag * imag;
     }
 
     public static DoubleMatrix coherence(final double[] iMst, final double[] qMst, final double[] iSlv, final double[] qSlv,
@@ -697,7 +842,7 @@ public class CoherenceOp extends Operator {
             final int stride = y * w;
             for (int x = 0; x < w; x++) {
                 input.put(y, x, new ComplexDouble(iMst[stride + x],
-                        qMst[stride + x]));
+                                                  qMst[stride + x]));
                 norms.put(y, x, new ComplexDouble(iSlv[stride + x], qSlv[stride + x]));
             }
         }
@@ -731,8 +876,8 @@ public class CoherenceOp extends Operator {
                     //sum.addi(input.get(k, l));
                     //power.addi(norms.get(k, l));
                     int inI = 2 * input.index(k, l);
-                    sum.set(sum.real()+input.data[inI], sum.imag()+input.data[inI+1]);
-                    power.set(power.real()+norms.data[inI], power.imag()+norms.data[inI+1]);
+                    sum.set(sum.real() + input.data[inI], sum.imag() + input.data[inI + 1]);
+                    power.set(power.real() + norms.data[inI], power.imag() + norms.data[inI + 1]);
                 }
             }
             result.put(0, minL, coherenceProduct(sum, power));
@@ -747,8 +892,8 @@ public class CoherenceOp extends Operator {
 
                     int inI = 2 * input.index(i, l);
                     int inWinL = 2 * input.index(iwinL, l);
-                    sum.set(sum.real()+(input.data[inWinL]-input.data[inI]), sum.imag()+(input.data[inWinL+1]-input.data[inI+1]));
-                    power.set(power.real()+(norms.data[inWinL]-norms.data[inI]), power.imag()+(norms.data[inWinL+1]-norms.data[inI+1]));
+                    sum.set(sum.real() + (input.data[inWinL] - input.data[inI]), sum.imag() + (input.data[inWinL + 1] - input.data[inI + 1]));
+                    power.set(power.real() + (norms.data[inWinL] - norms.data[inI]), power.imag() + (norms.data[inWinL + 1] - norms.data[inI + 1]));
                 }
                 result.put(i + 1, j - leadingZeros, coherenceProduct(sum, power));
             }
@@ -799,6 +944,10 @@ public class CoherenceOp extends Operator {
         public int cohWinRg = 0;
     }
 
+    private static class RealCoherenceData {
+        private double[] m = null;          // real master data for coherence computation
+        private double[] s = null;          // real slave data for coherence computation
+    }
 
     /**
      * The SPI is used to register this operator in the graph processing framework
