@@ -87,10 +87,8 @@ public class RangeShiftOp extends Operator {
     private double azOffset = 0.0;
     private double rgOffset = 0.0;
     private double noDataValue = -9999.0;
-    private Sentinel1Utils su = null;
     private Sentinel1Utils.SubSwathInfo[] subSwath = null;
     private int subSwathIndex = 0;
-    private String[] subSwathNames = null;
 
     /**
      * Default constructor. The graph processing framework
@@ -123,10 +121,10 @@ public class RangeShiftOp extends Operator {
             upSamplingFactor = Integer.parseInt(interpFactor);
             gcpTolerance = 1.0 / upSamplingFactor;
 
-            su = new Sentinel1Utils(sourceProduct);
+            final Sentinel1Utils su = new Sentinel1Utils(sourceProduct);
             subSwath = su.getSubSwath();
 
-            subSwathNames = su.getSubSwathNames();
+            final String[] subSwathNames = su.getSubSwathNames();
             if (subSwathNames.length != 1) {
                 throw new OperatorException("Split product is expected.");
             } else {
