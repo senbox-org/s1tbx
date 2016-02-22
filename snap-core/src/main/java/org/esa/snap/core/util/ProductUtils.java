@@ -36,6 +36,7 @@ import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductNode;
 import org.esa.snap.core.datamodel.ProductNodeGroup;
 import org.esa.snap.core.datamodel.ProductVisitorAdapter;
 import org.esa.snap.core.datamodel.RGBChannelDef;
@@ -1642,6 +1643,24 @@ public class ProductUtils {
             }
         });
         return messages.toArray(new String[messages.size()]);
+    }
+
+    /**
+     * Checks if the given name is already used within the specified {@link ProductNodeGroup nodeGroup}, if so it returns a new name.
+     *
+     * The new name is the given name appended by an index.
+     *
+     * @param name The name to check if it is already used
+     * @param nodeGroup The node group to check if it already contains the {@code name}
+     * @return The available name. Either the name given as argument it self or the name appended by an index.
+     */
+    public static String getAvailableNodeName(String name, ProductNodeGroup<? extends ProductNode> nodeGroup) {
+        int index = 1;
+        String foundName = name;
+        while (nodeGroup.contains(foundName)) {
+            foundName = name + "_" + index++;
+        }
+        return foundName;
     }
 
     /**

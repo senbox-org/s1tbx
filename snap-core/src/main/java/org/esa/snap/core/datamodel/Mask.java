@@ -29,6 +29,7 @@ import org.esa.snap.core.dataop.barithm.BandArithmetic;
 import org.esa.snap.core.jexp.ParseException;
 import org.esa.snap.core.jexp.impl.Tokenizer;
 import org.esa.snap.core.util.Debug;
+import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.StringUtils;
 import org.jdom.Element;
 
@@ -286,7 +287,7 @@ public class Mask extends Band {
                 final Map<Mask, Mask> translationMap = transferReferredMasks(expression, mask.getProduct(), product);
                 expression = translateExpression(translationMap, expression);
                 final String originalMaskName = mask.getName();
-                final String maskName = getAvailableMaskName(originalMaskName, product.getMaskGroup());
+                final String maskName = ProductUtils.getAvailableNodeName(originalMaskName, product.getMaskGroup());
                 return product.addMask(maskName, expression, mask.getDescription(),
                                        mask.getImageColor(), mask.getImageTransparency());
             }
@@ -481,7 +482,7 @@ public class Mask extends Band {
         public Mask transferMask(Mask mask, Product product) {
             if (canTransferMask(mask, product)) {
                 final String originalMaskName = mask.getName();
-                final String maskName = getAvailableMaskName(originalMaskName, product.getMaskGroup());
+                final String maskName = ProductUtils.getAvailableNodeName(originalMaskName, product.getMaskGroup());
                 final int w = product.getSceneRasterWidth();
                 final int h = product.getSceneRasterHeight();
                 final Mask newMask = new Mask(maskName, w, h, this);
@@ -568,15 +569,6 @@ public class Mask extends Band {
 
             return rasterName + " >= " + min + " && " + rasterName + " <= " + max;
         }
-    }
-
-    private static String getAvailableMaskName(String name, ProductNodeGroup<Mask> maskGroup) {
-        int index = 1;
-        String foundName = name;
-        while (maskGroup.contains(foundName)) {
-            foundName = name + "_" + index;
-        }
-        return foundName;
     }
 
 }
