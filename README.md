@@ -33,6 +33,6 @@ a new program element of ESA's fourth period of the Earth Observation Envelope P
 EOEP-4 will pursue a long-term exploitation strategy and address the broad and growing 
 spectrum of EO user communities, including science, applications and services development.
 
-# Building toolboxes from the source
+### Building toolboxes from the source
 
 How SNAP and the toolboxes can be build from source is documented in our [Deveolper Guide](https://senbox.atlassian.net/wiki/display/SNAP/Developer+Guide).
