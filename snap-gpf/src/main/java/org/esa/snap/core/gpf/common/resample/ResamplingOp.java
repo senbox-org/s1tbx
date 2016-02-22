@@ -2,11 +2,16 @@ package org.esa.snap.core.gpf.common.resample;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.MultiLevelImage;
+import com.bc.ceres.glevel.MultiLevelModel;
+import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
+import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
+import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.ProductNodeGroup;
 import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -18,6 +23,9 @@ import org.esa.snap.core.util.ProductUtils;
 
 import javax.media.jai.Interpolation;
 import java.awt.Dimension;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.image.RenderedImage;
 
 /**
  * The resampling operator creates a product in which every {@code RasterDataNode} is of the same size and resolution.
@@ -58,7 +66,7 @@ public class ResamplingOp extends Operator {
     @Parameter(alias = "aggregation",
             label = "Aggregation Method",
             description = "The method used for aggregation (sampling to a coarser resolution).",
-            valueSet = {"First", "Min", "Max", "Mean","Median"},
+            valueSet = {"First", "Min", "Max", "Mean", "Median"},
             defaultValue = "First")
     private String aggregationMethod;
 
@@ -80,10 +88,53 @@ public class ResamplingOp extends Operator {
         validateInterpolationParameter();
         final int referenceWidth = referenceNode.getRasterWidth();
         final int referenceHeight = referenceNode.getRasterHeight();
-        Dimension referenceSize = referenceNode.getRasterSize();
         targetProduct = new Product(sourceProduct.getName() + "_" + NAME_EXTENSION, sourceProduct.getProductType(),
                                     referenceWidth, referenceHeight);
+        resampleBands(referenceNode);
+        resampleTiePointGrids(referenceNode);
+        ProductUtils.copyFlagCodings(sourceProduct, targetProduct);
+        ProductUtils.copyIndexCodings(sourceProduct, targetProduct);
+        ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
+        ProductUtils.copyMasks(sourceProduct, targetProduct);
+        ProductUtils.copyMetadata(sourceProduct, targetProduct);
+        ProductUtils.copyVectorData(sourceProduct, targetProduct);
+        targetProduct.setAutoGrouping(sourceProduct.getAutoGrouping());
+    }
+
+    private void resampleTiePointGrids(RasterDataNode referenceNode) {
+        final ProductNodeGroup<TiePointGrid> tiePointGridGroup = sourceProduct.getTiePointGridGroup();
+        AffineTransform transform;
+        try {
+            transform = new AffineTransform(referenceNode.getImageToModelTransform().createInverse());
+        } catch (NoninvertibleTransformException e) {
+            throw new OperatorException("Cannot resample: " + e.getMessage());
+        }
+        for (int i = 0; i < tiePointGridGroup.getNodeCount(); i++) {
+            final TiePointGrid grid = tiePointGridGroup.get(i);
+            transform.concatenate(grid.getImageToModelTransform());
+            if (Math.abs(transform.getScaleX() - 1.0) > 1e-8 || Math.abs(transform.getScaleY() - 1.0) > 1e-8) {
+                double subSamplingX = grid.getSubSamplingX() * transform.getScaleX();
+                double subSamplingY = grid.getSubSamplingY() * transform.getScaleY();
+                double offsetX = grid.getOffsetX() * transform.getScaleX();
+                double offsetY = grid.getOffsetY() * transform.getScaleY();
+                final TiePointGrid resampledGrid = new TiePointGrid(grid.getName(), grid.getGridWidth(), grid.getGridHeight(),
+                                                                    offsetX, offsetY,
+                                                                    subSamplingX, subSamplingY, grid.getTiePoints());
+                targetProduct.addTiePointGrid(resampledGrid);
+                ProductUtils.copyRasterDataNodeProperties(grid, resampledGrid);
+            } else {
+                ProductUtils.copyTiePointGrid(grid.getName(), sourceProduct, targetProduct);
+            }
+        }
+    }
+
+    private void resampleBands(RasterDataNode referenceNode) {
         final ProductNodeGroup<Band> sourceBands = sourceProduct.getBandGroup();
+        final int referenceWidth = referenceNode.getRasterWidth();
+        final int referenceHeight = referenceNode.getRasterHeight();
+        Dimension referenceSize = referenceNode.getRasterSize();
+        final DefaultMultiLevelModel multiLevelModel = new DefaultMultiLevelModel(new AffineTransform(),
+                                                                                  referenceWidth, referenceHeight);
         for (int i = 0; i < sourceBands.getNodeCount(); i++) {
             Band sourceBand = sourceBands.get(i);
             Band targetBand;
@@ -92,25 +143,25 @@ public class ResamplingOp extends Operator {
                 targetBand = new Band(sourceBand.getName(), sourceBand.getDataType(), referenceWidth, referenceHeight);
                 if (sourceBand.getRasterWidth() < referenceWidth && sourceBand.getRasterHeight() < referenceHeight) {
                     final MultiLevelImage interpolatedImage = createInterpolatedImage(sourceBand, referenceNode);
-                    targetBand.setSourceImage(interpolatedImage);
+                    final RenderedImage image = createImageWithIdentityImageToModelTransform(interpolatedImage, multiLevelModel);
+                    targetBand.setSourceImage(image);
                 } else {
                     final MultiLevelImage aggregatedImage = createAggregatedImage(sourceBand, referenceNode);
                     targetBand.setSourceImage(aggregatedImage);
                 }
                 targetProduct.addBand(targetBand);
             } else {
-                targetBand = ProductUtils.copyBand(sourceBand.getName(), sourceProduct, targetProduct, true);
+                targetBand = ProductUtils.copyBand(sourceBand.getName(), sourceProduct, targetProduct, false);
+                final RenderedImage image = createImageWithIdentityImageToModelTransform(sourceBand.getSourceImage(), multiLevelModel);
+                targetBand.setSourceImage(image);
+
             }
             ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
         }
-        ProductUtils.copyFlagCodings(sourceProduct, targetProduct);
-        ProductUtils.copyIndexCodings(sourceProduct, targetProduct);
-        ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
-        ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
-        ProductUtils.copyMasks(sourceProduct, targetProduct);
-        ProductUtils.copyMetadata(sourceProduct, targetProduct);
-        ProductUtils.copyVectorData(sourceProduct, targetProduct);
-        targetProduct.setAutoGrouping(sourceProduct.getAutoGrouping());
+    }
+
+    private RenderedImage createImageWithIdentityImageToModelTransform(RenderedImage image, MultiLevelModel multiLevelModel) {
+        return new DefaultMultiLevelImage(new DefaultMultiLevelSource(image, multiLevelModel));
     }
 
     private MultiLevelImage createInterpolatedImage(Band sourceBand, final RasterDataNode referenceNode) {

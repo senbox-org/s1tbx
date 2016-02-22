@@ -4,6 +4,7 @@ import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
+import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import org.apache.commons.math3.util.Precision;
 
 import javax.media.jai.BorderExtender;
@@ -14,6 +15,7 @@ import javax.media.jai.operator.CropDescriptor;
 import javax.media.jai.operator.ScaleDescriptor;
 import javax.media.jai.operator.TranslateDescriptor;
 import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
 
 /**
@@ -25,7 +27,6 @@ public class AggregationScaler {
                                                        float[] scalings, float[] offsets,
                                                        RenderingHints renderingHints, double noDataValue,
                                                        Interpolation interpolation) {
-
         final ScaledMultiLevelSource multiLevelSource = new ScaledMultiLevelSource(masterImage, sourceImage,
                                                                                    scalings, offsets, renderingHints,
                                                                                    noDataValue,
@@ -48,7 +49,7 @@ public class AggregationScaler {
         private ScaledMultiLevelSource(MultiLevelImage masterImage, MultiLevelImage sourceImage, float[] scalings,
                                        float[] offsets, RenderingHints renderingHints, double noDataValue,
                                        Interpolation interpolation) {
-            super(masterImage.getModel());
+            super(new DefaultMultiLevelModel(new AffineTransform(), masterImage.getWidth(), masterImage.getHeight()));
             this.masterImage = masterImage;
             this.sourceImage = sourceImage;
             this.scalings = scalings;
@@ -63,7 +64,7 @@ public class AggregationScaler {
             final int masterWidth = masterImage.getImage(targetLevel).getWidth();
             final int masterHeight = masterImage.getImage(targetLevel).getHeight();
             final MultiLevelModel sourceModel = sourceImage.getModel();
-            final MultiLevelModel targetModel = getModel();
+            final MultiLevelModel targetModel = masterImage.getModel();
             final double targetScale = targetModel.getScale(targetLevel);
             final int sourceLevel = sourceModel.getLevel(targetScale);
             final double sourceScale = sourceModel.getScale(sourceLevel);
