@@ -87,8 +87,8 @@ public class ResamplingOp extends Operator {
         if (!allNodesHaveIdentitySceneTransform(sourceProduct)) {
             throw new OperatorException("Not all nodes have identity model to scene transform.");
         }
-        if (!allBandSizesAreIntDivisible(sourceProduct)) {
-            throw new OperatorException("Not all band sizes are int divisible.");
+        if (!allScalingsAreIntDivisible(sourceProduct)) {
+            throw new OperatorException("Not all band scalings are int divisible.");
         }
         final RasterDataNode referenceNode = sourceProduct.getRasterDataNode(referenceNodeName);
         Assert.notNull(referenceNode);
@@ -112,7 +112,7 @@ public class ResamplingOp extends Operator {
     }
 
     public static boolean canBeApplied(Product product, RasterDataNode node) {
-        return allNodesHaveIdentitySceneTransform(product) && allBandSizesAreIntDivisible(product)
+        return allNodesHaveIdentitySceneTransform(product) && allScalingsAreIntDivisible(product)
                 && allBandsMustBeEitherInterpolatedAggregatedOrLeftAsIs(product, node);
     }
 
@@ -132,7 +132,7 @@ public class ResamplingOp extends Operator {
         return true;
     }
 
-    private static boolean allBandSizesAreIntDivisible(Product product) {
+    private static boolean allScalingsAreIntDivisible(Product product) {
         final ProductNodeGroup<Band> bandGroup = product.getBandGroup();
         final ProductNodeGroup<TiePointGrid> tiePointGridGroup = product.getTiePointGridGroup();
         AffineTransform referenceModelToImageTransform;
