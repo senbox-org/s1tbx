@@ -19,7 +19,6 @@ import org.esa.s1tbx.insar.gpf.coregistration.WarpOp;
 import org.esa.snap.core.dataop.dem.ElevationModelDescriptor;
 import org.esa.snap.core.dataop.dem.ElevationModelRegistry;
 import org.esa.snap.dem.dataio.DEMFactory;
-import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
@@ -36,16 +35,12 @@ import java.util.Map;
  */
 public class WarpOpUI extends BaseOperatorUI {
 
-    private final JComboBox warpPolynomialOrder = new JComboBox(new String[]{"1", "2", "3"});
-    private final JComboBox interpolationMethod = new JComboBox(new String[]{
+    private final JComboBox<String> warpPolynomialOrder = new JComboBox<>(new String[]{"1", "2", "3"});
+    private final JComboBox<String> interpolationMethod = new JComboBox<>(new String[]{
             WarpOp.NEAREST_NEIGHBOR, WarpOp.BILINEAR, WarpOp.BICUBIC, WarpOp.BICUBIC2,
             WarpOp.TRI, WarpOp.CC4P, WarpOp.CC6P, WarpOp.TS6P, WarpOp.TS8P, WarpOp.TS16P});
 
-    private final JComboBox<String> rmsThreshold = new JComboBox(new String[]{"0.001", "0.05", "0.1", "0.5", "1.0"});
-
-    private final JCheckBox inSAROptimizedCheckBox = new JCheckBox("InSAR Optimized");
-    private Boolean inSAROptimized;
-    private boolean isComplex = false;
+    private final JComboBox<String> rmsThreshold = new JComboBox<>(new String[]{"0.001", "0.05", "0.1", "0.5", "1.0"});
 
     private final JCheckBox demRefinementCheckBox = new JCheckBox("Offset Refinement Based on DEM");
     private Boolean demRefinement;
@@ -60,13 +55,6 @@ public class WarpOpUI extends BaseOperatorUI {
         initializeOperatorUI(operatorName, parameterMap);
         final JComponent panel = createPanel();
         initParameters();
-
-        inSAROptimizedCheckBox.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                inSAROptimized = (e.getStateChange() == ItemEvent.SELECTED);
-                enableDemFields();
-            }
-        });
 
         demRefinementCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
@@ -92,17 +80,6 @@ public class WarpOpUI extends BaseOperatorUI {
 
         interpolationMethod.setSelectedItem(paramMap.get("interpolationMethod"));
 
-        if (sourceProducts != null && sourceProducts.length > 0) {
-            final InputProductValidator validator = new InputProductValidator(sourceProducts[0]);
-            isComplex = validator.isComplex();
-        }
-
-        inSAROptimized = (Boolean) paramMap.get("inSAROptimized");
-        if (inSAROptimized == null) {
-            inSAROptimized = false;
-        }
-        inSAROptimizedCheckBox.setSelected(inSAROptimized);
-
         demRefinement = (Boolean) paramMap.get("demRefinement");
         if (demRefinement == null) {
             demRefinement = false;
@@ -121,21 +98,18 @@ public class WarpOpUI extends BaseOperatorUI {
         enableDemFields();
     }
 
-
     @Override
     public UIValidation validateParameters() {
-
         return new UIValidation(UIValidation.State.OK, "");
     }
 
     @Override
     public void updateParameters() {
 
-        paramMap.put("rmsThreshold", Float.parseFloat((String)rmsThreshold.getSelectedItem()));
+        paramMap.put("rmsThreshold", Float.parseFloat((String) rmsThreshold.getSelectedItem()));
         paramMap.put("warpPolynomialOrder", Integer.parseInt((String) warpPolynomialOrder.getSelectedItem()));
         paramMap.put("interpolationMethod", interpolationMethod.getSelectedItem());
 
-        paramMap.put("inSAROptimized", inSAROptimized);
         paramMap.put("demRefinement", demRefinement);
         if (demRefinement) {
             paramMap.put("demName", DEMFactory.getProperDEMName((String) demName.getSelectedItem()));
@@ -159,8 +133,6 @@ public class WarpOpUI extends BaseOperatorUI {
 
         gbc.gridx = 0;
         gbc.gridy++;
-        contentPane.add(inSAROptimizedCheckBox, gbc);
-        gbc.gridy++;
         contentPane.add(demRefinementCheckBox, gbc);
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, "Digital Elevation Model:", demName);
@@ -175,8 +147,7 @@ public class WarpOpUI extends BaseOperatorUI {
     }
 
     private void enableDemFields() {
-        inSAROptimizedCheckBox.setEnabled(isComplex);
-        demRefinementCheckBox.setEnabled(isComplex && inSAROptimized);
-        demName.setEnabled(isComplex && demRefinement);
+        demRefinementCheckBox.setEnabled(true);
+        demName.setEnabled(demRefinement);
     }
 }
