@@ -2,7 +2,6 @@ package org.esa.snap.core.gpf.common.resample;
 
 import com.bc.ceres.jai.GeneralFilterFunction;
 import com.bc.ceres.jai.operator.GeneralFilterDescriptor;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.media.jai.BorderExtender;
@@ -62,7 +61,6 @@ public class AggregateTest_FlagFilterFunctions {
     }
 
     @Test
-    @Ignore //todo make me work! - tf 20160219
     public void testFlagMaxFilterFunction() {
         short[] sourceData = new short[]{
                 0, 1, 2, 3, 3,
@@ -102,7 +100,6 @@ public class AggregateTest_FlagFilterFunctions {
     }
 
     @Test
-    @Ignore //todo make me work! - tf 20160219
     public void testFlagMedianMinFilterFunction() {
         short[] sourceData = new short[]{
                 0, 1, 2, 3, 3,
@@ -113,10 +110,10 @@ public class AggregateTest_FlagFilterFunctions {
         };
         short[] expectedData = new short[]{
                 1, 1, 1, 3, 3,
-                1, 1, 1, 3, 3,
+                1, 1, 3, 3, 3,
                 1, 5, 7, 3, 3,
-                9, 7, 7, 3, 1,
-                7, 7, 6, 5, 1,
+                7, 7, 7, 5, 1,
+                7, 7, 5, 5, 1,
         };
 
         BufferedImage image = createOneBandedUShortImage(5, 5, sourceData);
@@ -153,9 +150,9 @@ public class AggregateTest_FlagFilterFunctions {
         };
         short[] expectedData = new short[]{
                 1, 1, 3, 3, 3,
-                9, 1, 1, 3, 3,
+                9, 1, 3, 3, 3,
                 13, 5, 7, 3, 3,
-                9, 7, 7, 15, 3,
+                7, 7, 7, 5, 3,
                 7, 7, 7, 5, 5,
         };
 

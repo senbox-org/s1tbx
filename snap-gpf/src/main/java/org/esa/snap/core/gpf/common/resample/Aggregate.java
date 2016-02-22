@@ -166,32 +166,30 @@ class Aggregate {
         @Override
         public float filter(float[] fdata) {
             final boolean[] se = structuringElement;
-            float largestFloat = Float.MIN_VALUE;
-            for (float aFdata : fdata) {
-                if (aFdata > largestFloat) {
-                    largestFloat = aFdata;
-                }
-            }
             int n = 0;
-            final int numberOfRelevantBits = (int) Math.floor(Math.sqrt(largestFloat)) + 1;
-            final int[] occurenceCounter = new int[numberOfRelevantBits];
+            final int[] occurenceCounter = new int[63];
+            int highestOccurence = 0;
             for (int i = 0; i < fdata.length; i++) {
                 if ((se == null || se[i]) && !Float.isNaN(fdata[i])) {
                     Long v = (long) fdata[i];
-                    for (int j = 0; j < numberOfRelevantBits; j++) {
+                    int j = 0;
+                    while (v > 0) {
                         long compare = v & 1;
                         if (compare != 0) {
                             occurenceCounter[j]++;
                         }
                         v >>= 1;
+                        j++;
                     }
+                    highestOccurence = Math.max(highestOccurence, j);
                     n++;
                 }
             }
             long res = 0;
-            for (int i = numberOfRelevantBits - 1; i >= 0; i--) {
+            final float halfN = n / 2f;
+            for (int i = highestOccurence; i >= 0; i--) {
                 res <<= 1;
-                if (occurenceCounter[i] > (n / 2)) {
+                if (occurenceCounter[i] > halfN) {
                     res++;
                 }
             }
@@ -218,34 +216,32 @@ class Aggregate {
         @Override
         public float filter(float[] fdata) {
             final boolean[] se = structuringElement;
-            float largestFloat = Float.MIN_VALUE;
-            for (float aFdata : fdata) {
-                if (aFdata > largestFloat) {
-                    largestFloat = aFdata;
-                }
-            }
             int n = 0;
-            final int numberOfRelevantBits = (int) Math.floor(Math.sqrt(largestFloat));
-            final int[] occurenceCounter = new int[numberOfRelevantBits];
+            final int[] occurenceCounter = new int[63];
+            int highestOccurence = 0;
             for (int i = 0; i < fdata.length; i++) {
                 if ((se == null || se[i]) && !Float.isNaN(fdata[i])) {
                     Long v = (long) fdata[i];
-                    for (int j = 0; j < numberOfRelevantBits; j++) {
+                    int j = 0;
+                    while (v > 0) {
                         long compare = v & 1;
                         if (compare != 0) {
                             occurenceCounter[j]++;
                         }
                         v >>= 1;
+                        j++;
                     }
+                    highestOccurence = Math.max(highestOccurence, j - 1);
                     n++;
                 }
             }
             long res = 0;
-            for (int i = 0; i < numberOfRelevantBits; i++) {
-                if (occurenceCounter[i] >= (n / 2)) {
+            final float halfN = n / 2f;
+            for (int i = highestOccurence; i >= 0; i--) {
+                res <<= 1;
+                if (occurenceCounter[i] >= halfN) {
                     res++;
                 }
-                res <<= 1;
             }
             return (float) res;
         }
