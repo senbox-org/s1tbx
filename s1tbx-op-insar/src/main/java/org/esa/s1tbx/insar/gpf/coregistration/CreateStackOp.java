@@ -137,7 +137,7 @@ public class CreateStackOp extends Operator {
 
             for (final Product prod : sourceProduct) {
                 final InputProductValidator validator = new InputProductValidator(prod);
-                if(validator.isTOPSARProduct()) {
+                if(validator.isTOPSARProduct() && !validator.isDebursted()) {
                     throw new OperatorException("S1 TOPS SLC products should use TOPS Coregistration.");
                 }
 
