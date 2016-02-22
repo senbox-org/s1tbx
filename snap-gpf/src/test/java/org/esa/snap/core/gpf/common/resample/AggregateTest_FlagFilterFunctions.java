@@ -139,7 +139,6 @@ public class AggregateTest_FlagFilterFunctions {
     }
 
     @Test
-    @Ignore //todo make me work! - mp 20160222
     public void testFlagMedianMaxFilterFunction() {
         short[] sourceData = new short[]{
                 0, 1, 2, 3, 3,
