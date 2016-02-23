@@ -11,7 +11,9 @@ https://senbox.atlassian.net/issues/?filter=11200
 * Multitemporal Speckle Filter using all filters
 * TOPS RangeShift and AzimthShift merged into Enhance-Spectral-Diversity
 * InSAR Optimized Coregistration and Automatic Coregistration merged into Coregistration
+* GCPSelection renamed to CrossCorrelation
 * Square pixel calculations for improved Coherence
+* Added Snaphu tiling options
 * Generalized Backgeocoding in DEMAssistedCoregistration
 * Offset/Speckle Tracking
 * S1TBX operators added to performance benchmarks
