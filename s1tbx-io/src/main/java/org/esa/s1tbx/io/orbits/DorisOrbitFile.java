@@ -42,13 +42,17 @@ public class DorisOrbitFile extends BaseOrbitFile {
     public static final String DORIS_POR = "DORIS Preliminary POR";
     public static final String DORIS_VOR = "DORIS Precise VOR";
 
-    public DorisOrbitFile(final String orbitType, final MetadataElement absRoot,
+    public DorisOrbitFile(final MetadataElement absRoot,
                           final Product sourceProduct) throws Exception {
-        super(orbitType, absRoot);
+        super(absRoot);
         this.sourceProduct = sourceProduct;
     }
 
-    public File retrieveOrbitFile() throws Exception {
+    public String[] getAvailableOrbitTypes() {
+        return new String[] { DORIS_VOR, DORIS_POR };
+    }
+
+    public File retrieveOrbitFile(final String orbitType) throws Exception {
         dorisReader = EnvisatOrbitReader.getInstance();
         final int absOrbit = absRoot.getAttributeInt(AbstractMetadata.ABS_ORBIT, 0);
 
@@ -79,7 +83,7 @@ public class DorisOrbitFile extends BaseOrbitFile {
         final Date startDate = sourceProduct.getStartTime().getAsDate();
         orbitFile = FindDorisOrbitFile(dorisReader, localPath, startDate, absOrbit);
         if (orbitFile == null) {
-            getRemoteFiles(year);
+            getRemoteFiles(orbitType, year);
             orbitFile = FindDorisOrbitFile(dorisReader, localPath, startDate, absOrbit);
 
             if (orbitFile == null) {
@@ -115,7 +119,7 @@ public class DorisOrbitFile extends BaseOrbitFile {
                 orb.xVel, orb.yVel, orb.zVel);
     }
 
-    private void getRemoteFiles(final int year) throws Exception {
+    private void getRemoteFiles(final String orbitType, final int year) throws Exception {
 
         if(!orbitType.contains(DORIS_VOR)) {
             return;

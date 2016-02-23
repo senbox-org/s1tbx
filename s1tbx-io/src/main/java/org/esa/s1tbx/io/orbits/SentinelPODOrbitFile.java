@@ -87,35 +87,38 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
     private final List<Orbits.OrbitVector> osvList = new ArrayList<>();
 
-    public SentinelPODOrbitFile(final String orbitType, final MetadataElement absRoot,
-                                final Product sourceProduct, final int polyDegree) throws Exception {
-        super(orbitType, absRoot);
+    public SentinelPODOrbitFile(final MetadataElement absRoot, final int polyDegree) throws Exception {
+        super(absRoot);
         this.polyDegree = polyDegree;
     }
 
-    public File retrieveOrbitFile() throws Exception {
+    public String[] getAvailableOrbitTypes() {
+        return new String[] { PRECISE, RESTITUTED };
+    }
+
+    public File retrieveOrbitFile(final String orbitType) throws Exception {
         final double stateVectorTime = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).getMJD();
         final Calendar calendar = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).getAsCalendar();
         final int year = calendar.get(Calendar.YEAR);
         final int month = calendar.get(Calendar.MONTH) + 1; // zero based
         final int day = calendar.get(Calendar.DAY_OF_MONTH);
 
-        this.orbitFile = findOrbitFile(stateVectorTime, year);
+        this.orbitFile = findOrbitFile(orbitType, stateVectorTime, year);
 
         if(orbitFile == null) {
-            getRemoteFiles(year, month);
-            this.orbitFile = findOrbitFile(stateVectorTime, year);
+            getRemoteFiles(orbitType, year, month);
+            this.orbitFile = findOrbitFile(orbitType, stateVectorTime, year);
             if (orbitFile == null) {
                 if(day < 15) {
-                    getRemoteFiles(year, month-1);
+                    getRemoteFiles(orbitType, year, month-1);
                 } else {
-                    getRemoteFiles(year, month+1);
+                    getRemoteFiles(orbitType, year, month+1);
                 }
-                this.orbitFile = findOrbitFile(stateVectorTime, year);
+                this.orbitFile = findOrbitFile(orbitType, stateVectorTime, year);
 
                 if (orbitFile == null) {
                     String timeStr = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).format();
-                    final File destFolder = getDestFolder(year);
+                    final File destFolder = getDestFolder(orbitType, year);
                     throw new OperatorException("No valid orbit file found for " + timeStr + "\nOrbit files may be downloaded from https://qc.sentinel1.eo.esa.int/"
                             + "\nand placed in " + destFolder.getAbsolutePath());
                 }
@@ -134,7 +137,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         return orbitFile;
     }
 
-    private File getDestFolder(final int year) {
+    private File getDestFolder(final String orbitType, final int year) {
         final File orbitFileFolder;
         if(orbitType.startsWith(RESTITUTED)) {
             orbitFileFolder = new File(Settings.getPath("OrbitFiles.sentinel1RESOrbitPath")+File.separator+year);
@@ -144,7 +147,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         return orbitFileFolder;
     }
 
-    private File findOrbitFile(final double stateVectorTime, final int year) {
+    private File findOrbitFile(final String orbitType, final double stateVectorTime, final int year) {
 
         final String prefix;
         final File orbitFileFolder;
@@ -182,7 +185,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         return null;
     }
 
-    private void getRemoteFiles(final int year, final int month) throws Exception {
+    private void getRemoteFiles(final String orbitType, final int year, final int month) throws Exception {
 
         final File localFolder;
         final URL remotePath;

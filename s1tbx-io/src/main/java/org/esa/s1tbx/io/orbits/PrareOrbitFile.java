@@ -42,13 +42,17 @@ public class PrareOrbitFile extends BaseOrbitFile {
     private PrareOrbitReader prareReader = null;
     private final Product sourceProduct;
 
-    public PrareOrbitFile(final String orbitType, final MetadataElement absRoot,
+    public PrareOrbitFile(final MetadataElement absRoot,
                           final Product sourceProduct) throws Exception {
-        super(orbitType, absRoot);
+        super(absRoot);
         this.sourceProduct = sourceProduct;
     }
 
-    public File retrieveOrbitFile() throws Exception {
+    public String[] getAvailableOrbitTypes() {
+        return new String[] { PRARE_PRECISE };
+    }
+
+    public File retrieveOrbitFile(final String orbitType) throws Exception {
         prareReader = PrareOrbitReader.getInstance();
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
 
