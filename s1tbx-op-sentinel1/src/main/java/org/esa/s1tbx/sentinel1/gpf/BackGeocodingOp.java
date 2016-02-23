@@ -144,6 +144,8 @@ public final class BackGeocodingOp extends Operator {
 
     private final double invalidIndex = -9999.0;
 
+    public static final String PRODUCT_SUFFIX = "_Stack";
+
     /**
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
@@ -288,7 +290,7 @@ public final class BackGeocodingOp extends Operator {
     private void createTargetProduct() {
 
         targetProduct = new Product(
-                masterProduct.getName(),
+                masterProduct.getName() + PRODUCT_SUFFIX,
                 masterProduct.getProductType(),
                 masterProduct.getSceneRasterWidth(),
                 masterProduct.getSceneRasterHeight());
