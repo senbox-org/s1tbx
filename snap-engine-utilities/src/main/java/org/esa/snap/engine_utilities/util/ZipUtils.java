@@ -74,7 +74,7 @@ public class ZipUtils {
                     .findFirst();
             return result.isPresent();
         } catch (Exception e) {
-            //
+            SystemUtils.LOG.warning("unable to read zip file " + file + ": " + e.getMessage());
         }
         return false;
     }

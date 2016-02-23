@@ -1,8 +1,10 @@
 # SeNtinel Application Platform
 
 SNAP is the common software platform for the three Sentinel Toolboxes which are developed 
-by the European Space Agency (ESA) for the scientific exploitation 
-of the Sentinel-1, Sentinel-2 and Sentinel-3 missions.
+by the [European Space Agency (ESA)](www.esa.org) for the scientific exploitation 
+of the [Sentinel-1, Sentinel-2 and Sentinel-3 missions](https://sentinel.esa.int/web/sentinel/home).
+
+The project page of SNAP and the sentinel toolboxes can be found at http://step.esa.int. There you will find tuorial about the usage of the application a [forum](http://forum.step.esa.int/) where you can ask questions and lots of other interesting things.
 
 The intention of the development is to primarily support the Sentinel missions for not
 only research but also in an operational context. In addition, a great deal of the 
@@ -24,82 +26,13 @@ The project will run through the next two years with releases every four months.
 first public release of the software will be available in September 2014 and be 
 released under GNU GPL open source license.
 
-This work is funded through the *Scientific Exploitation of Operational Missions* (SEOM)
+This work is funded through the [*Scientific Exploitation of Operational Missions* (SEOM)](http://seom.esa.int/)
 a new program element of ESA's fourth period of the Earth Observation Envelope Programme 
 (2013-2017), referred to as EOEP-4.
 
 EOEP-4 will pursue a long-term exploitation strategy and address the broad and growing 
 spectrum of EO user communities, including science, applications and services development.
 
-# Building toolboxes from the source
+### Building toolboxes from the source
 
-## Requirements
-
-- Java JDK >= 1.8
-- Maven >= 3
-- Git
-
-## Checkout
-Clone the source code and related repositories into a folder _SNAP/_
-
-	git clone https://github.com/senbox-org/snap-engine.git
-	
-	git clone https://github.com/senbox-org/snap-desktop.git
-
-After checking out the source code from the repositories the further steps differ depending
-on either if you want to use the new NetBeans based runtime or if you still want to use the old ceres runtime based configuration.
-Read further at the corresponding section
-
-:exclamation:Note: the snap-engine and snap-desktop repositories are mandatory. The toolboxes are each optional and
-currently only the Sentinel-3 Toolbox is currently configured to be used with SNAP.
-
-	git clone https://github.com/senbox-org/s1tbx.git
-
-	git clone https://github.com/senbox-org/s2tbx.git
-
-	git clone https://github.com/senbox-org/s3tbx.git
-
-
-## Build with NetBeans
-1. CD into SNAP/snap-engine:
-
-   mvn install
-
-2. CD into SNAP/snap-desktop:
-
-   mvn install
-
-3. CD into SNAP/snap-desktop/snap-application:
-
-   mvn nbm:cluster-app
-
-4. Start the application via Maven:
-
-   mvn nbm:run-platform
-
-It is also possible to do step 3 and 4 at once:
-
-   mvn nbm:cluster-app nbm:run-platform
-
-### IDE Setup (IntelliJ IDEA)
-1. Create an empty project with the _SNAP/_ directory as project directory
-
-2. Import the pom.xml files of snap-engine and snap-desktop as modules. Ensure **not** to enable
-the option *'Create module groups for multi-module Maven projects'*. It would create an odd project structure but would still work. Everything can be default values.
-
-3. Set the used SDK for the main project. A JDK 1.8 or later is needed.
-
-4. Use the following configuration to run SNAP in the IDE:
-	* **Main class:** org.esa.snap.nbexec.Launcher
-	* **VM parameters:** -Dsun.awt.nopixfmt=true -Dsun.java2d.noddraw=true -Dsun.java2d.dpiaware=false
-	All VM parameters are optional
-	* **Working directory:** SNAP/snap-desktop/snap-application/target/snap/
-	* **Use classpath of module:** snap-main
-
-### Run SNAP with a Toolbox
-The Sentinel-3 Toolbox is configured to build all the modules into the cluster directory *´${project.basedir}/../s<N>tbx-kit/target/netbeans_clusters/s<N>tbx´*
-This cluster can be set as parameter to the above mentioned launcher.
-Specify as program parameter e.g. *´--clusters "SNAP\s3tbx\s3tbx-kit\target\netbeans_clusters\s3tbx"´*
-
-
-Enjoy!
+How SNAP and the toolboxes can be build from source is documented in our [Deveolper Guide](https://senbox.atlassian.net/wiki/display/SNAP/Developer+Guide).

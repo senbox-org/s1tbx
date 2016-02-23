@@ -41,24 +41,37 @@ public class BenchmarkSingleCalculus implements Comparable<BenchmarkSingleCalcul
     /**
      * execution time
      */
-    private long executionTime;
+    private Long executionTime;
 
     public BenchmarkSingleCalculus(int tileSize, int cacheSize, int nbThreads){
         this.tileSize = tileSize;
         this.cacheSize = cacheSize;
         this.nbThreads = nbThreads;
-        this.executionTime = Long.MAX_VALUE;
+        this.executionTime = null;
     }
 
    public String toString(){
-       return "("+this.getTileSize()+", "+this.getCacheSize()+", "+this.nbThreads+") = "+ this.executionTime+" ms";
+       String toDiaplay = "("+this.getTileSize()+", "+this.getCacheSize()+", "+this.nbThreads+") = ";
+       if(this.executionTime != null) {
+           toDiaplay += this.executionTime+" ms";
+       } else {
+           toDiaplay += "not computed";
+       }
+       return toDiaplay;
    }
 
     @Override
     public int compareTo(BenchmarkSingleCalculus compareBenchmarkSingleCalcul) {
         int order;
-        long compareExecutionTime = compareBenchmarkSingleCalcul.executionTime;
-        if(compareExecutionTime < this.executionTime){
+        Long compareExecutionTime = compareBenchmarkSingleCalcul.executionTime;
+
+        if(compareExecutionTime == null && this.executionTime == null) {
+            order = 0;
+        } else if(compareExecutionTime == null) {
+            order = -1;
+        } else if(this.executionTime == null) {
+            order = 1;
+        } else if(compareExecutionTime < this.executionTime){
             order = 1;
         }
         else {
