@@ -62,6 +62,9 @@ public class GoldsteinFilterOp extends Operator {
     @Parameter(valueSet = {"3", "5", "7"}, defaultValue = "3", label = "Window Size")
     private String windowSizeString = "3";
 
+    @Parameter(description = "Use coherence mask", defaultValue = "false", label = "Use coherence mask")
+    private Boolean useCoherenceMask = false;
+
     @Parameter(description = "The coherence threshold", interval = "(0, 1]", defaultValue = "0.2",
             label = "Coherence Threshold in (0,1]")
     private double coherenceThreshold = 0.2;
@@ -73,6 +76,7 @@ public class GoldsteinFilterOp extends Operator {
     private int windowSize;
     private int halfWindowSize;
     private double noDataValue = 0;
+    private Band cohBand = null;
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -104,6 +108,17 @@ public class GoldsteinFilterOp extends Operator {
             sourceImageHeight = sourceProduct.getSceneRasterHeight();
 
             createTargetProduct();
+
+            if (useCoherenceMask) {
+                for (Band band : sourceProduct.getBands()) {
+                    if(band.getUnit() != null && band.getUnit().equals(Unit.COHERENCE)) {
+                        cohBand = band;
+                    }
+                }
+                if (cohBand == null) {
+                    throw new OperatorException("Cannot find coherence band");
+                }
+            }
 
         } catch (Exception e) {
             throw new OperatorException(e);
@@ -198,15 +213,12 @@ public class GoldsteinFilterOp extends Operator {
             // get the first pair of I/Q bands
             Band iBand = null;
             Band qBand = null;
-            Band cohBand = null;
             for (Band band : sourceProduct.getBands()) {
                 if(band.getUnit() != null) {
                     if (band.getUnit().equals(Unit.REAL) && qBand == null) {
                         qBand = band;
                     } else if (band.getUnit().equals(Unit.IMAGINARY) && iBand == null) {
                         iBand = band;
-                    } else if (band.getUnit().equals(Unit.COHERENCE) && cohBand == null) {
-                        cohBand = band;
                     }
                 }
             }
@@ -290,7 +302,7 @@ public class GoldsteinFilterOp extends Operator {
                 }
             }
 
-            // get target tile coherence
+            // mask out pixels with low coherence
             if(cohBand != null) {
                 Tile cohBandRaster = getSourceTile(cohBand, targetRectangle);
                 final ProductData cohBandData = cohBandRaster.getDataBuffer();
@@ -302,8 +314,9 @@ public class GoldsteinFilterOp extends Operator {
                     for (int x = x0; x < xMax; x++) {
                         final int k = (y - y0)*w + x - x0;
                         if (cohBandData.getElemFloatAt(cohIndex.getIndex(x)) < coherenceThreshold) {
-                            iBandFiltered[k] = Float.NaN;
-                            qBandFiltered[k] = Float.NaN;
+                            final int idx = iBandRaster.getDataBufferIndex(x, y);
+                            iBandFiltered[k] = iBandData.getElemFloatAt(idx);
+                            qBandFiltered[k] = qBandData.getElemFloatAt(idx);
                         }
                     }
                 }
