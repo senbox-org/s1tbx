@@ -290,6 +290,7 @@ public final class TOPSARDeburstOp extends Operator {
 
         ProductUtils.copyMetadata(sourceProduct, targetProduct);
         ProductUtils.copyFlagCodings(sourceProduct, targetProduct);
+        ProductUtils.copyQuicklookBandName(sourceProduct, targetProduct);
         targetProduct.setStartTime(new ProductData.UTC(targetFirstLineTime/Constants.secondsInDay));
         targetProduct.setEndTime(new ProductData.UTC(targetLastLineTime/Constants.secondsInDay));
         targetProduct.setDescription(sourceProduct.getDescription());
