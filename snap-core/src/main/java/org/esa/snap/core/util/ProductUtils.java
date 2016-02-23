@@ -803,6 +803,23 @@ public class ProductUtils {
     }
 
     /**
+     * Copies the quicklook band name if not currently set and band also exists in target
+     *
+     * @param source the source product
+     * @param target the target product
+     */
+    public static void copyQuicklookBandName(Product source, Product target) {
+        Guardian.assertNotNull("source", source);
+        Guardian.assertNotNull("target", target);
+
+        if(target.getQuicklookBandName() == null && source.getQuicklookBandName() != null) {
+            if(target.getBand(source.getQuicklookBandName()) != null) {
+                target.setQuicklookBandName(source.getQuicklookBandName());
+            }
+        }
+    }
+
+    /**
      * Copies the given source index coding to the target product
      * If it exists already, the method simply returns the existing instance.
      *
@@ -1078,6 +1095,7 @@ public class ProductUtils {
         ProductUtils.copyMasks(sourceProduct, targetProduct);
         ProductUtils.copyVectorData(sourceProduct, targetProduct);
         ProductUtils.copyIndexCodings(sourceProduct, targetProduct);
+        ProductUtils.copyQuicklookBandName(sourceProduct, targetProduct);
         targetProduct.setStartTime(sourceProduct.getStartTime());
         targetProduct.setEndTime(sourceProduct.getEndTime());
         targetProduct.setDescription(sourceProduct.getDescription());
