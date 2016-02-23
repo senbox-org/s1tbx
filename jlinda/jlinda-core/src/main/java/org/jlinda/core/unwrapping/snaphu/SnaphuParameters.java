@@ -11,11 +11,6 @@ public class SnaphuParameters {
     public String verbosityFlag;     // snaphu TRUE or FALSE
     public String snaphuInit;        // snaphu MST or MCF
 
-/*
-    Note: I decided to remove these control flags from NEST UI. Setting them properly require some level of
-          understanding of the algos implemented in Snaphu. Still they are in the snaphu.conf file, so more
-          experienced user can declare/change them manually.
-
     // for parallel processing control
     public int nTileRow;
     public int nTileCol;
@@ -23,7 +18,6 @@ public class SnaphuParameters {
     public int columnOverlap;
     public int numProcessors;
     public int tileCostThreshold;
-*/
 
     public SnaphuParameters() {
     }
@@ -73,8 +67,6 @@ public class SnaphuParameters {
     public void setSnaphuInit(String snaphuInit) {
         this.snaphuInit = snaphuInit;
     }
-/*
-    Removed for above mentioned reasons - simplicity in favor of complexity....
 
     public void setnTileRow(int nTileRow) {
         this.nTileRow = nTileRow;
@@ -99,5 +91,4 @@ public class SnaphuParameters {
     public void setTileCostThreshold(int tileCostThreshold) {
         this.tileCostThreshold = tileCostThreshold;
     }
-*/
 }
