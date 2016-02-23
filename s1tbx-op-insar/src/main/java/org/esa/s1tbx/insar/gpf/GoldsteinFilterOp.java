@@ -52,9 +52,7 @@ public class GoldsteinFilterOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(interval = "(0, 1]",
-            description = "adaptive filter exponent",
-            defaultValue = "1.0",
+    @Parameter(description = "adaptive filter exponent", interval = "(0, 1]", defaultValue = "1.0",
             label = "Adaptive Filter Exponent in (0,1]")
     private double alpha = 1.0;
 
@@ -63,6 +61,10 @@ public class GoldsteinFilterOp extends Operator {
 
     @Parameter(valueSet = {"3", "5", "7"}, defaultValue = "3", label = "Window Size")
     private String windowSizeString = "3";
+
+    @Parameter(description = "The coherence threshold", interval = "(0, 1]", defaultValue = "0.2",
+            label = "Coherence Threshold in (0,1]")
+    private double coherenceThreshold = 0.2;
 
     private int sourceImageWidth = 0;
     private int sourceImageHeight = 0;
@@ -216,10 +218,6 @@ public class GoldsteinFilterOp extends Operator {
             final int sh = sourceTileRectangle.height;
             final Tile iBandRaster = getSourceTile(iBand, sourceTileRectangle);
             final Tile qBandRaster = getSourceTile(qBand, sourceTileRectangle);
-            Tile cohBandRaster = null;
-            if(cohBand != null) {
-                cohBandRaster = getSourceTile(cohBand, sourceTileRectangle);
-            }
 
             // arrays saving filtered I/Q data for the tile, note tile size could be different from 512x512 on boundary
             final float[] iBandFiltered = new float[w * h];
@@ -257,10 +255,10 @@ public class GoldsteinFilterOp extends Operator {
             final int colMax = I[0].length;
 
             final int stepSize = FFTSize / 4;
-            final int yMax = FastMath.min(sy0 + sh - FFTSize, sourceImageHeight - FFTSize);
-            final int xMax = FastMath.min(sx0 + sw - FFTSize, sourceImageWidth - FFTSize);
-            for (int y = sy0; y <= yMax; y += stepSize) {
-                for (int x = sx0; x <= xMax; x += stepSize) {
+            final int syMax = FastMath.min(sy0 + sh - FFTSize, sourceImageHeight - FFTSize);
+            final int sxMax = FastMath.min(sx0 + sw - FFTSize, sourceImageWidth - FFTSize);
+            for (int y = sy0; y <= syMax; y += stepSize) {
+                for (int x = sx0; x <= sxMax; x += stepSize) {
 
                     getComplexImagettes(x, y, iBandData, qBandData, srcIndex, I, Q, mask);
 
@@ -289,6 +287,25 @@ public class GoldsteinFilterOp extends Operator {
                     performInverse2DFFT(specI, specQ, fltSpec, I, Q);
 
                     updateFilteredBands(x0, y0, w, h, x, y, I, Q, mask, iBandFiltered, qBandFiltered);
+                }
+            }
+
+            // get target tile coherence
+            if(cohBand != null) {
+                Tile cohBandRaster = getSourceTile(cohBand, targetRectangle);
+                final ProductData cohBandData = cohBandRaster.getDataBuffer();
+                final TileIndex cohIndex = new TileIndex(cohBandRaster);
+                final int yMax = y0 + h;
+                final int xMax = x0 + w;
+                for (int y = y0; y < yMax; y++) {
+                    cohIndex.calculateStride(y);
+                    for (int x = x0; x < xMax; x++) {
+                        final int k = (y - y0)*w + x - x0;
+                        if (cohBandData.getElemFloatAt(cohIndex.getIndex(x)) < coherenceThreshold) {
+                            iBandFiltered[k] = Float.NaN;
+                            qBandFiltered[k] = Float.NaN;
+                        }
+                    }
                 }
             }
 

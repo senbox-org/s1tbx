@@ -454,11 +454,18 @@ public class SnaphuWriter extends AbstractProductWriter {
 
         SnaphuParameters parameters = new SnaphuParameters();
         String temp;
-        temp = masterRoot.getAttributeString("temp_1", "DEFO");
+        temp = masterRoot.getAttributeString("snaphu_cost_mode", "DEFO");
         parameters.setUnwrapMode(temp);
 
-        temp = masterRoot.getAttributeString("temp_2", "MST");
+        temp = masterRoot.getAttributeString("snaphu_init_mode", "MST");
         parameters.setSnaphuInit(temp);
+
+        parameters.setnTileRow(masterRoot.getAttributeInt("snaphu_numberOfTileRows", 1));
+        parameters.setnTileCol(masterRoot.getAttributeInt("snaphu_numberOfTileCols", 1));
+        parameters.setNumProcessors(masterRoot.getAttributeInt("snaphu_numberOfProcessors", 1));
+        parameters.setRowOverlap(masterRoot.getAttributeInt("snaphu_rowOverlap", 0));
+        parameters.setColumnOverlap(masterRoot.getAttributeInt("snaphu_colOverlap", 0));
+        parameters.setTileCostThreshold(masterRoot.getAttributeInt("snaphu_tileCostThreshold", 500));
 
         parameters.setLogFileName("snaphu.log");
         parameters.setPhaseFileName(phaseName + SNAPHU_IMAGE_EXTENSION);

@@ -148,7 +148,7 @@ public class CrossCorrelationOp extends Operator {
             label = "Coherence Threshold")
     private double coherenceThreshold = 0.6;
     @Parameter(description = "Use sliding window for coherence calculation", defaultValue = "false",
-            label = "Compute coherence with sliding window")
+            label = "Use coherence sliding window")
     private Boolean useSlidingWindow = false;
 
     private boolean useAllPolarimetricBands = false;
@@ -240,20 +240,22 @@ public class CrossCorrelationOp extends Operator {
 
             // parameters: Fine
             if(applyFineRegistration) {
-                if (fineRegistrationOversampling == null)
-                    fineRegistrationOversampling = "2";
-
                 if (complexCoregistration) {
                     fWindowWidth = Integer.parseInt(fineRegistrationWindowWidth);
                     fWindowHeight = Integer.parseInt(fineRegistrationWindowHeight);
                 }
 
-                fineWin = new CorrelationWindow(
-                        Integer.parseInt(fineRegistrationWindowWidth),
-                        Integer.parseInt(fineRegistrationWindowHeight),
-                        Integer.parseInt(fineRegistrationWindowAccAzimuth),
-                        Integer.parseInt(fineRegistrationWindowAccRange),
-                        Integer.parseInt(fineRegistrationOversampling));
+                if (inSAROptimized) {
+                    if (fineRegistrationOversampling == null)
+                        fineRegistrationOversampling = "2";
+
+                    fineWin = new CorrelationWindow(
+                            Integer.parseInt(fineRegistrationWindowWidth),
+                            Integer.parseInt(fineRegistrationWindowHeight),
+                            Integer.parseInt(fineRegistrationWindowAccAzimuth),
+                            Integer.parseInt(fineRegistrationWindowAccRange),
+                            Integer.parseInt(fineRegistrationOversampling));
+                }
             }
 
             final double achievableAccuracy = 1.0 / (double) Math.max(rowUpSamplingFactor, colUpSamplingFactor);
@@ -588,7 +590,7 @@ public class CrossCorrelationOp extends Operator {
                             if (complexCoregistration && inSAROptimized) {
                                 getSlaveGCP = getCoarseOffsets(slaveBand1, slaveBand2, mGCPPixelPos, sGCPPixelPos);
 
-                                if (getSlaveGCP) {
+                                if (getSlaveGCP && applyFineRegistration) {
                                     getSlaveGCP = getFineOffsets(slaveBand1, slaveBand2, mGCPPixelPos, sGCPPixelPos);
                                 }
                             } else {

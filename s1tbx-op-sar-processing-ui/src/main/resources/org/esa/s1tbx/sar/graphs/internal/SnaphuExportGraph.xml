@@ -15,7 +15,13 @@
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <targetFolder/>
       <statCostMode>DEFO</statCostMode>
-      <initMethod>MST</initMethod>
+      <initMethod>MCF</initMethod>
+      <numberOfTileRows>10</numberOfTileRows>
+      <numberOfTileCols>10</numberOfTileCols>
+      <numberOfProcessors>4</numberOfProcessors>
+      <rowOverlap>0</rowOverlap>
+      <colOverlap>0</colOverlap>
+      <tileCostThreshold>500</tileCostThreshold>
     </parameters>
   </node>
   <applicationData id="Presentation">

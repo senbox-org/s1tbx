@@ -23,9 +23,6 @@ public class CoregistrationUtils {
                                            ComplexDoubleMatrix master, ComplexDoubleMatrix mask,
                                            int ovsfactor,
                                            int AccL, int AccP) {
-
-        logger.info("crosscorrelate (PM 15-Apr-2012)");
-
         // Internal variables
         final int L = master.rows;
         final int P = master.columns;
@@ -184,17 +181,17 @@ public class CoregistrationUtils {
             LinearAlgebraUtils.setdata(chip, Covar, win3);
 
             // (4b) oversample chip to obtain sub-pixel max : here I can also fit the PolyNomial - much faster!
-            int offL;
-            int offP;
 
             DoubleMatrix chipOversampled = SarUtils.oversample(new ComplexDoubleMatrix(chip), ovsfactor, ovsfactor).getReal();
             int corrIndex = chipOversampled.argmax();
-            offL = chipOversampled.indexColumns(corrIndex); // lines are in columns - JBLAS column major
-            offP = chipOversampled.indexRows(corrIndex); // pixels are index in rows - JBLAS is column major
-            maxCorr = chipOversampled.get(corrIndex);
+            if(corrIndex >= 0) {
+                int offL = chipOversampled.indexColumns(corrIndex); // lines are in columns - JBLAS column major
+                int offP = chipOversampled.indexRows(corrIndex); // pixels are index in rows - JBLAS is column major
+                maxCorr = chipOversampled.get(corrIndex);
 
-            offsetL = -halfL + maxcorrL - AccL + (double) offL / (double) ovsfactor;
-            offsetP = -halfP + maxcorrP - AccP + (double) offP / (double) ovsfactor;
+                offsetL = -halfL + maxcorrL - AccL + (double) offL / (double) ovsfactor;
+                offsetP = -halfP + maxcorrP - AccP + (double) offP / (double) ovsfactor;
+            }
 
             logger.info("Oversampling factor: " + ovsfactor);
             logger.info("Sub-pixel level offset: " + offsetL + ", " + offsetP + " (corr=" + maxCorr + ")");
@@ -208,12 +205,9 @@ public class CoregistrationUtils {
     }
 
 
-    public double crossCorrelateSPACE(double[] offset,
+    public static double crossCorrelateSPACE(double[] offset,
                                       ComplexDoubleMatrix master, ComplexDoubleMatrix mask,
                                       final int AccL, final int AccP, final int osFactor) {
-
-        logger.info("coherencespace (PM 14-Feb-2012)");
-
         // Internal variables
         final int L = master.rows;
         final int P = master.columns;
@@ -276,13 +270,12 @@ public class CoregistrationUtils {
         }
 
         // Correlation in space domain
-        int offL;
-        int offP;
-        final DoubleMatrix coher8 = oversample(coher, factor, factor);
+        final DoubleMatrix coher8 = SarUtils.oversample(new ComplexDoubleMatrix(coher), factor, factor).getReal();
 
         int coher8MaxIndex = coher8.argmax();
-        offL = coher8.indexRows(coher8MaxIndex);
-        offP = coher8.indexColumns(coher8MaxIndex);
+
+        int offL = coher8.indexRows(coher8MaxIndex);
+        int offP = coher8.indexColumns(coher8MaxIndex);
         final double macCorr = coher8.get(coher8MaxIndex);
         offsetL = AccL - offL / (double) (factor);
         offsetP = AccP - offP / (double) (factor);
@@ -295,11 +288,4 @@ public class CoregistrationUtils {
 
         return macCorr;
     }
-
-
-    private DoubleMatrix oversample(final DoubleMatrix data, final int factor, final int factor1) {
-        return SarUtils.oversample(new ComplexDoubleMatrix(data), factor, factor).getReal();
-    }
-
-
 }

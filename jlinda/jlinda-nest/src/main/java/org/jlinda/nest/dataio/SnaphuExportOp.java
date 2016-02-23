@@ -73,6 +73,32 @@ public class SnaphuExportOp extends Operator {
             label = "Initial method")
     private String initMethod = "MST";
 
+    @Parameter(description = "Divide the image into tiles and process in parallel. Set to 1 for single tiled.",
+            defaultValue = "10", label = "Number of Tile Rows")
+    private int numberOfTileRows = 10;
+
+    @Parameter(description = "Divide the image into tiles and process in parallel. Set to 1 for single tiled.",
+            defaultValue = "10", label = "Number of Tile Columns")
+    private int numberOfTileCols = 10;
+
+    @Parameter(description = "Number of concurrent processing threads. Set to 1 for single threaded.",
+            defaultValue = "4", label = "Number of Processors")
+    private int numberOfProcessors = 4;
+
+    @Parameter(description = "Overlap, in pixels, between neighboring tiles.",
+            defaultValue = "0", label = "Row Overlap")
+    private int rowOverlap = 0;
+
+    @Parameter(description = "Overlap, in pixels, between neighboring tiles.",
+            defaultValue = "0", label = "Column Overlap")
+    private int colOverlap = 0;
+
+    @Parameter(description = "Cost threshold to use for determining boundaries of reliable regions\n" +
+            " (long, dimensionless; scaled according to other cost constants).\n" +
+            " Larger cost threshold implies smaller regions---safer, but more expensive computationally.",
+            defaultValue = "500", label = "Tile Cost Threshold")
+    private int tileCostThreshold = 500;
+
     private SubsetInfo subsetInfo;
     private String formatName = "snaphu";
 
@@ -105,10 +131,29 @@ public class SnaphuExportOp extends Operator {
             // update metadata with SNAPHU processing flags: the only way to pass info to the writer
             try {
                 final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
-                AbstractMetadata.addAbstractedAttribute(absTgt, "temp_1", ProductData.TYPE_ASCII, "", "Temp entry");
-                AbstractMetadata.addAbstractedAttribute(absTgt, "temp_2", ProductData.TYPE_ASCII, "", "Temp entry");
-                AbstractMetadata.setAttribute(absTgt, "temp_1", statCostMode.toUpperCase());
-                AbstractMetadata.setAttribute(absTgt, "temp_2", initMethod.toUpperCase());
+                AbstractMetadata.addAbstractedAttribute(absTgt, "snaphu_cost_mode", ProductData.TYPE_ASCII, "", "Snaphu parameter");
+                AbstractMetadata.setAttribute(absTgt, "snaphu_cost_mode", statCostMode.toUpperCase());
+
+                AbstractMetadata.addAbstractedAttribute(absTgt, "snaphu_init_mode", ProductData.TYPE_ASCII, "", "Snaphu parameter");
+                AbstractMetadata.setAttribute(absTgt, "snaphu_init_mode", initMethod.toUpperCase());
+
+                AbstractMetadata.addAbstractedAttribute(absTgt, "snaphu_numberOfTileRows", ProductData.TYPE_INT32, "", "Snaphu parameter");
+                AbstractMetadata.setAttribute(absTgt, "snaphu_numberOfTileRows", numberOfTileRows);
+
+                AbstractMetadata.addAbstractedAttribute(absTgt, "snaphu_numberOfTileCols", ProductData.TYPE_INT32, "", "Snaphu parameter");
+                AbstractMetadata.setAttribute(absTgt, "snaphu_numberOfTileCols", numberOfTileCols);
+
+                AbstractMetadata.addAbstractedAttribute(absTgt, "snaphu_numberOfProcessors", ProductData.TYPE_INT32, "", "Snaphu parameter");
+                AbstractMetadata.setAttribute(absTgt, "snaphu_numberOfProcessors", numberOfProcessors);
+
+                AbstractMetadata.addAbstractedAttribute(absTgt, "snaphu_rowOverlap", ProductData.TYPE_INT32, "", "Snaphu parameter");
+                AbstractMetadata.setAttribute(absTgt, "snaphu_rowOverlap", rowOverlap);
+
+                AbstractMetadata.addAbstractedAttribute(absTgt, "snaphu_colOverlap", ProductData.TYPE_INT32, "", "Snaphu parameter");
+                AbstractMetadata.setAttribute(absTgt, "snaphu_colOverlap", colOverlap);
+
+                AbstractMetadata.addAbstractedAttribute(absTgt, "snaphu_tileCostThreshold", ProductData.TYPE_INT32, "", "Snaphu parameter");
+                AbstractMetadata.setAttribute(absTgt, "snaphu_tileCostThreshold", tileCostThreshold);
             } catch (Throwable e){
                 OperatorUtils.catchOperatorException(getId() + "Metadata of input product is not in the format compatible for SNAPHU export.", e);
             }

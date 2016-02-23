@@ -120,9 +120,9 @@ public class WarpOp extends Operator {
             TRI, CC4P, CC6P, TS6P, TS8P, TS16P}, defaultValue = CC6P, label = "Interpolation Method")
     private String interpolationMethod = CC6P;
 
-    @Parameter(description = "Optimize for Interferometry",
-            defaultValue = "false", label = "InSAR Optimized")
-    private boolean inSAROptimized = false;
+    //@Parameter(description = "Optimize for Interferometry",
+    //        defaultValue = "false", label = "InSAR Optimized")
+    private boolean inSAROptimized = true;
 
     @Parameter(description = "Refine estimated offsets using a-priori DEM",
             defaultValue = "false", label = "Offset Refinement Based on DEM")
@@ -201,15 +201,20 @@ public class WarpOp extends Operator {
 
             getMasterBands();
 
+            if (demRefinement == null)
+                demRefinement = false;
+
             if (rmsThreshold == 0.001f) {
                 cpmWtestCriticalValue = 3.2905267314919f;
+                inSAROptimized = true;
             } else if (rmsThreshold == 0.05f) {
                 cpmWtestCriticalValue = 1.95996398454005f;
+                inSAROptimized = true;
             } else if (rmsThreshold == 0.1f) {
                 cpmWtestCriticalValue = 1.64485362695147f;
+                inSAROptimized = true;
             } else {
-                cpmWtestCriticalValue = 1.95996398454005f;
-                inSAROptimized = false;
+                cpmWtestCriticalValue = 1.0f;
             }
 
             switch (interpolationMethod) {
@@ -251,9 +256,6 @@ public class WarpOp extends Operator {
             }
 
             createTargetProduct();
-
-            if (demRefinement == null)
-                demRefinement = false;
 
         } catch (Throwable e) {
             openResidualsFile = true;

@@ -72,6 +72,11 @@
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-dem</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-smart-configurator</artifactId>
+            <version>${snap.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
