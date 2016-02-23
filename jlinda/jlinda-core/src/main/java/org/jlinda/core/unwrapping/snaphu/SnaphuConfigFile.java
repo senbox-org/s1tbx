@@ -185,15 +185,15 @@ public class SnaphuConfigFile {
                 + "# Tile control #\n"
                 + "################\n"
                 + "\n"
-                + "NTILEROW           1\n"
-                + "NTILECOL           1\n"
+                + "NTILEROW           "+ parameters.nTileRow +"\n"
+                + "NTILECOL           "+ parameters.nTileCol +"\n"
                 + "\n"
-                + "ROWOVRLP           0\n"
-                + "COLOVRLP           0 \n"
+                + "ROWOVRLP           "+ parameters.rowOverlap +"\n"
+                + "COLOVRLP           "+ parameters.columnOverlap +" \n"
                 + "\n"
-                + "NPROC              1\n"
+                + "NPROC              "+ parameters.numProcessors +"\n"
                 + "\n"
-                + "TILECOSTTHRESH   500\n"
+                + "TILECOSTTHRESH   "+ parameters.tileCostThreshold +"\n"
                 + "\n");
     }
 

@@ -1,18 +1,30 @@
-New since SNAP 3.0
-Bug fixes https://senbox.atlassian.net/issues/?filter=11200
+#New since SNAP 3.0
 
-New since SNAP 2.0
-Bug fixes https://senbox.atlassian.net/issues/?filter=11201
+###Bugs fixed 
 
-Dual Pol polarimetric tools
+https://senbox.atlassian.net/issues/?filter=11200
 
-New in S1TBX 1.1.1
+###New Features
 
-Generalized Freeman Durden (RVOG) Decomposition
-Dual Pol processing
-	- C2 matrix
-	- dual pol speckle filtering
-	- dual pol H-Alpha decomposition
-	- dual pol Wishart classifier
+*Polarimetric Parameters operator added
+
+#New since SNAP 2.0
+
+###Bugs fixed 
+
+https://senbox.atlassian.net/issues/?filter=11201
+
+###New Features
+
+*Dual Pol polarimetric tools
+
+#New in S1TBX 1.1.1
+
+*Generalized Freeman Durden (RVOG) Decomposition
+*Dual Pol processing
+  *C2 matrix
+  * dual pol speckle filtering
+  * dual pol H-Alpha decomposition
+  * dual pol Wishart classifier
 
 
