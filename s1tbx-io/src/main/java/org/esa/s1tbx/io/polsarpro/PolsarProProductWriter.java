@@ -104,7 +104,7 @@ public class PolsarProProductWriter extends EnviProductWriter {
         }
         if (!folder.isEmpty()) {
             _outputDir = new File(_outputDir, folder);
-            if(!_outputDir.mkdirs()) {
+            if(!_outputDir.exists() && !_outputDir.mkdirs()) {
                 SystemUtils.LOG.severe("Unable to create folders in "+_outputDir);
             }
             _outputFile = new File(_outputDir, outputFile.getName());

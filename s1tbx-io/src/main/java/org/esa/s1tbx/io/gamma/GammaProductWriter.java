@@ -304,7 +304,7 @@ public class GammaProductWriter extends AbstractProductWriter {
     private static void createPhysicalFile(final File file, final long fileSize) throws IOException {
         final File parentDir = file.getParentFile();
         if (parentDir != null) {
-            if(!parentDir.mkdirs()) {
+            if(!parentDir.exists() && !parentDir.mkdirs()) {
                 throw new IOException("Unable to create folders in "+parentDir);
             }
         }
