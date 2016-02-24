@@ -111,9 +111,8 @@ public class ResamplingOp extends Operator {
         targetProduct.setAutoGrouping(sourceProduct.getAutoGrouping());
     }
 
-    public static boolean canBeApplied(Product product, RasterDataNode node) {
-        return allNodesHaveIdentitySceneTransform(product) && allScalingsAreIntDivisible(product)
-                && allBandsMustBeEitherInterpolatedAggregatedOrLeftAsIs(product, node);
+    public static boolean canBeApplied(Product product) {
+        return allNodesHaveIdentitySceneTransform(product) && allScalingsAreIntDivisible(product);
     }
 
     static boolean allNodesHaveIdentitySceneTransform(Product product) {
@@ -175,7 +174,7 @@ public class ResamplingOp extends Operator {
 
     private static boolean isIntDivisible(double value) {
         if (value < 1) {
-            value /= 1;
+            value = 1 / value;
         }
         return (value - Math.floor(value)) < 1e-10;
     }
