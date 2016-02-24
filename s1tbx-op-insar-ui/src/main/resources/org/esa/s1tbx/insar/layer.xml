@@ -70,7 +70,7 @@
             <file name="org-esa-s1tbx-insar-gpf-PhaseToElevationOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
-                <attr name="displayName" stringvalue="Phase To Elevation"/>
+                <attr name="displayName" stringvalue="Phase to Elevation"/>
                 <attr name="operatorName" stringvalue="PhaseToElevation"/>
                 <attr name="dialogTitle" stringvalue="PhaseToElevation DEM Generation"/>
                 <attr name="ShortDescription" stringvalue="Generate a DEM from unwrapped phase"/>
