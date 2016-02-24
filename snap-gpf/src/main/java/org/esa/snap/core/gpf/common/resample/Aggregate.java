@@ -34,11 +34,6 @@ class Aggregate {
         final AffineTransform sourceTransform = sourceBand.getMultiLevelModel().getImageToModelTransform(0);
         final AffineTransform transform = new AffineTransform(sourceTransform);
         transform.concatenate(referenceNode.getMultiLevelModel().getModelToImageTransform(0));
-        final AffineTransform referenceTransform = referenceNode.getImageToModelTransform();
-        float translateX = (float) (sourceTransform.getTranslateX() / sourceTransform.getScaleX()) -
-                (float) (referenceTransform.getTranslateX() / sourceTransform.getScaleX());
-        float translateY = (float) (sourceTransform.getTranslateY() / sourceTransform.getScaleY()) -
-                (float) (referenceTransform.getTranslateY() / sourceTransform.getScaleY());
         int kernelWidth = (int) (1 / transform.getScaleX());
         int kernelHeight = (int) (1 / transform.getScaleY());
         final Kernel kernel = new Kernel(kernelWidth, kernelHeight, new double[kernelWidth * kernelHeight]);
@@ -63,7 +58,6 @@ class Aggregate {
         }
         return ResamplingScaler.scaleMultiLevelImage(referenceNode.getSourceImage(), multiLevelImage,
                                                      new float[]{(float) transform.getScaleX(), (float) transform.getScaleY()},
-                                                     new float[]{translateX, translateY},
                                                      targetHints,
                                                      sourceBand.getNoDataValue(),
                                                      interpolation);

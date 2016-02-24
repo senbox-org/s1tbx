@@ -7,7 +7,6 @@ import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.awt.geom.AffineTransform;
@@ -21,7 +20,6 @@ import static junit.framework.TestCase.assertNotNull;
 /**
  * @author Tonio Fincke
  */
-@Ignore
 public class AggregateTest {
 
     @Test

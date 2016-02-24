@@ -108,7 +108,11 @@ public class ResamplingOp extends Operator {
         ProductUtils.copyMasks(sourceProduct, targetProduct);
         ProductUtils.copyMetadata(sourceProduct, targetProduct);
         ProductUtils.copyVectorData(sourceProduct, targetProduct);
-        targetProduct.setSceneGeoCoding(referenceNode.getGeoCoding());
+        if (referenceNode.getGeoCoding() instanceof CrsGeoCoding) {
+            targetProduct.setSceneGeoCoding(referenceNode.getGeoCoding());
+        } else {
+            ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
+        }
         targetProduct.setAutoGrouping(sourceProduct.getAutoGrouping());
     }
 

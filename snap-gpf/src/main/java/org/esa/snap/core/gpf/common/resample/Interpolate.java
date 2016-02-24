@@ -19,18 +19,11 @@ class Interpolate {
 
     static MultiLevelImage createInterpolatedMultiLevelImage(Band sourceBand, final RasterDataNode referenceNode, Interpolation interpolation) {
         final RenderingHints targetHints = getRenderingHints(sourceBand.getNoDataValue());
-
         final AffineTransform sourceTransform = sourceBand.getMultiLevelModel().getImageToModelTransform(0);
         final AffineTransform transform = new AffineTransform(sourceTransform);
         transform.concatenate(referenceNode.getMultiLevelModel().getModelToImageTransform(0));
-        final AffineTransform referenceTransform = referenceNode.getImageToModelTransform();
-        float translateX = (float) (sourceTransform.getTranslateX() / sourceTransform.getScaleX()) -
-                (float) (referenceTransform.getTranslateX() / sourceTransform.getScaleX());
-        float translateY = (float) (sourceTransform.getTranslateY() / sourceTransform.getScaleY()) -
-                (float) (referenceTransform.getTranslateY() / sourceTransform.getScaleY());
         return ResamplingScaler.scaleMultiLevelImage(referenceNode.getSourceImage(), sourceBand.getSourceImage(),
                                                      new float[]{(float) transform.getScaleX(), (float) transform.getScaleY()},
-                                                     new float[]{translateX, translateY},
                                                      targetHints, sourceBand.getNoDataValue(), interpolation);
     }
 
