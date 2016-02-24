@@ -37,7 +37,7 @@ import java.awt.event.ActionEvent;
         lazy = true
 )
 @ActionReferences({
-        @ActionReference(path = "Menu/Radar/Coregistration", position = 320)
+        @ActionReference(path = "Menu/Radar/Coregistration", position = 700)
 })
 @NbBundle.Messages({
         "CTL_VirtualStackProcessingAction_MenuText=VirtualStack Processing",

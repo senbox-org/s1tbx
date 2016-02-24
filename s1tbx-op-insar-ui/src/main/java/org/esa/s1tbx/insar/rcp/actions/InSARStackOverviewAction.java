@@ -13,8 +13,9 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.insar.rcp.dialogs;
+package org.esa.s1tbx.insar.rcp.actions;
 
+import org.esa.s1tbx.insar.rcp.dialogs.*;
 import org.esa.snap.rcp.actions.AbstractSnapAction;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -33,8 +34,8 @@ import java.awt.event.ActionEvent;
 public class InSARStackOverviewAction extends AbstractSnapAction {
 
     public InSARStackOverviewAction() {
-        putValue(NAME, Bundle.CTL_InSARStackOverviewActionName());
-        putValue(SHORT_DESCRIPTION, Bundle.CTL_InSARStackOverviewActionDescription());
+        putValue(NAME, "");//Bundle.CTL_InSARStackOverviewActionName());
+        putValue(SHORT_DESCRIPTION, "");//Bundle.CTL_InSARStackOverviewActionDescription());
     }
 
     @Override
