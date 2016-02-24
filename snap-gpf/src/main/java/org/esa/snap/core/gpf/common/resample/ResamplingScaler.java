@@ -21,7 +21,7 @@ import java.awt.image.RenderedImage;
 /**
  * @author Tonio Fincke
  */
-public class AggregationScaler {
+public class ResamplingScaler {
 
     public static MultiLevelImage scaleMultiLevelImage(MultiLevelImage masterImage, MultiLevelImage sourceImage,
                                                        float[] scalings, float[] offsets,

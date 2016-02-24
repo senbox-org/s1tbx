@@ -3,10 +3,11 @@ package org.esa.snap.core.gpf.common.resample;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
+import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
-import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.CrsGeoCoding;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.ProductNodeGroup;
@@ -46,16 +47,16 @@ public class ResamplingOp extends Operator {
 
     private static final String NAME_EXTENSION = "resampled";
 
-    @SourceProduct(alias = "source", description = "The source product which is to be resampled.")
+    @SourceProduct(description = "The source product which is to be resampled.", label = "Name")
     Product sourceProduct;
 
     @TargetProduct(description = "The resampled target product.")
     Product targetProduct;
 
     //todo also allow to set a target size/resolution explicitly
-    @Parameter(description = "The name of the reference raster data node. " +
+    @Parameter(alias = "Reference Band", description = "The name of the reference raster data node. " +
             "All other bands will be re-sampled to match its size and resolution.")
-    String referenceNodeName;
+    String referenceBandName;
 
     @Parameter(alias = "interpolation",
             label = "Interpolation Method",
@@ -72,8 +73,8 @@ public class ResamplingOp extends Operator {
     private String aggregationMethod;
 
     @Parameter(alias = "flagAggregation",
-            label = "Flag aggregation Method",
-            description = "The method used for aggregation (sampling to a coarser resolution) of flags.",
+            label = "Flag and Index Aggregation Method",
+            description = "The method used for aggregation (sampling to a coarser resolution) of flags and indexes.",
             valueSet = {"First", "Min", "Max", "MinMedian", "MaxMedian"},
             defaultValue = "First")
     private String flagAggregationMethod;
@@ -85,12 +86,12 @@ public class ResamplingOp extends Operator {
             return;
         }
         if (!allNodesHaveIdentitySceneTransform(sourceProduct)) {
-            throw new OperatorException("Not all nodes have identity model to scene transform.");
+            throw new OperatorException("Not all nodes have identity model-to-scene transform.");
         }
         if (!allScalingsAreIntDivisible(sourceProduct)) {
             throw new OperatorException("Not all band scalings are int divisible.");
         }
-        final RasterDataNode referenceNode = sourceProduct.getRasterDataNode(referenceNodeName);
+        final RasterDataNode referenceNode = sourceProduct.getRasterDataNode(referenceBandName);
         Assert.notNull(referenceNode);
         if (!allBandsMustBeEitherInterpolatedAggregatedOrLeftAsIs(sourceProduct, referenceNode)) {
             throw new OperatorException("Bands must be either aggregated, interpolated or left as is.");
@@ -104,10 +105,10 @@ public class ResamplingOp extends Operator {
         resampleTiePointGrids(referenceNode);
         ProductUtils.copyFlagCodings(sourceProduct, targetProduct);
         ProductUtils.copyIndexCodings(sourceProduct, targetProduct);
-        ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
         ProductUtils.copyMasks(sourceProduct, targetProduct);
         ProductUtils.copyMetadata(sourceProduct, targetProduct);
         ProductUtils.copyVectorData(sourceProduct, targetProduct);
+        targetProduct.setSceneGeoCoding(referenceNode.getGeoCoding());
         targetProduct.setAutoGrouping(sourceProduct.getAutoGrouping());
     }
 
@@ -230,8 +231,12 @@ public class ResamplingOp extends Operator {
         final int referenceWidth = referenceNode.getRasterWidth();
         final int referenceHeight = referenceNode.getRasterHeight();
         Dimension referenceSize = referenceNode.getRasterSize();
-        final DefaultMultiLevelModel multiLevelModel = new DefaultMultiLevelModel(new AffineTransform(),
-                                                                                  referenceWidth, referenceHeight);
+        MultiLevelModel multiLevelModel;
+        if (referenceNode.getGeoCoding() instanceof CrsGeoCoding) {
+            multiLevelModel = referenceNode.getMultiLevelModel();
+        } else {
+            multiLevelModel = new DefaultMultiLevelModel(new AffineTransform(), referenceWidth, referenceHeight);
+        }
         for (int i = 0; i < sourceBands.getNodeCount(); i++) {
             Band sourceBand = sourceBands.get(i);
             Band targetBand;
@@ -240,16 +245,17 @@ public class ResamplingOp extends Operator {
                 targetBand = new Band(sourceBand.getName(), sourceBand.getDataType(), referenceWidth, referenceHeight);
                 if (sourceBand.getRasterWidth() < referenceWidth && sourceBand.getRasterHeight() < referenceHeight) {
                     final MultiLevelImage interpolatedImage = createInterpolatedImage(sourceBand, referenceNode);
-                    final RenderedImage image = createImageWithIdentityImageToModelTransform(interpolatedImage, multiLevelModel);
+                    final RenderedImage image = adjustImageToModelTransform(interpolatedImage, multiLevelModel);
                     targetBand.setSourceImage(image);
                 } else {
                     final MultiLevelImage aggregatedImage = createAggregatedImage(sourceBand, referenceNode);
-                    targetBand.setSourceImage(aggregatedImage);
+                    final RenderedImage image = adjustImageToModelTransform(aggregatedImage, multiLevelModel);
+                    targetBand.setSourceImage(image);
                 }
                 targetProduct.addBand(targetBand);
             } else {
                 targetBand = ProductUtils.copyBand(sourceBand.getName(), sourceProduct, targetProduct, false);
-                final RenderedImage image = createImageWithIdentityImageToModelTransform(sourceBand.getSourceImage(), multiLevelModel);
+                final RenderedImage image = adjustImageToModelTransform(sourceBand.getSourceImage(), multiLevelModel);
                 targetBand.setSourceImage(image);
 
             }
@@ -257,8 +263,19 @@ public class ResamplingOp extends Operator {
         }
     }
 
-    private RenderedImage createImageWithIdentityImageToModelTransform(RenderedImage image, MultiLevelModel multiLevelModel) {
-        return new DefaultMultiLevelImage(new DefaultMultiLevelSource(image, multiLevelModel));
+    private RenderedImage adjustImageToModelTransform(final MultiLevelImage image, MultiLevelModel model) {
+        MultiLevelModel actualModel = model;
+        if (model.getLevelCount() >  image.getModel().getLevelCount()) {
+            actualModel = new DefaultMultiLevelModel(image.getModel().getLevelCount(), model.getImageToModelTransform(0),
+                                                     image.getWidth(), image.getHeight());
+        }
+        final AbstractMultiLevelSource source = new AbstractMultiLevelSource(actualModel) {
+            @Override
+            protected RenderedImage createImage(int level) {
+                return image.getImage(level);
+            }
+        };
+        return new DefaultMultiLevelImage(source);
     }
 
     private MultiLevelImage createInterpolatedImage(Band sourceBand, final RasterDataNode referenceNode) {
@@ -330,5 +347,4 @@ public class ResamplingOp extends Operator {
             super(ResamplingOp.class);
         }
     }
-
 }
