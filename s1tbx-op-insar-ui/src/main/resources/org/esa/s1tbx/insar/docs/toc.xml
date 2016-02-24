@@ -18,7 +18,7 @@
             </tocitem>
             <tocitem text="Interferometric">
                 <tocitem text="Products">
-                    <tocitem text="Phase To Elevation" target="PhaseToElevationOp"/>
+                    <tocitem text="Phase to Elevation" target="PhaseToElevationOp"/>
                 </tocitem>
                 <tocitem text="Filtering">
                     <tocitem text="Goldstein Phase Filtering" target="GoldsteinFilterOp"/>
