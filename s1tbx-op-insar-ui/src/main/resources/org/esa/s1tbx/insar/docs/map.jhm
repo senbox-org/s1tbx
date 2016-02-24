@@ -13,7 +13,7 @@
     <mapID target="WarpOp" url="operators/WarpOp.html"/>
     <!-- InSAR -->
     <mapID target="GoldsteinFilterOp" url="operators/GoldsteinFilterOp.html"/>
-    <mapID target="DEMGenerationOp" url="operators/DEMGenerationOp.html"/>
+    <mapID target="PhaseToElevationOp" url="operators/PhaseToElevationOp.html"/>
     <mapID target="InSARStackOverview" url="operators/InSARStackOverview.html"/>
 
 </map>

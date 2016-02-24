@@ -84,7 +84,18 @@
                 <attr name="icon" stringvalue="esaIcon"/>
                 <attr name="helpId" stringvalue="BackGeocodingOp"/>
             </file>
-            <file name="org-esa-s1tbx-sentinel1-gpf-RangeShiftOp-Action.instance">
+            <file name="org-esa-s1tbx-sentinel1-gpf-SpectralDiversityOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="S-1 Enhanced Spectral Diversity"/>
+                <attr name="operatorName" stringvalue="Enhanced Spectral Diversity"/>
+                <attr name="dialogTitle" stringvalue="S-1 Enhanced Spectral Diversity"/>
+                <attr name="ShortDescription" stringvalue="Constant Range and Azimuth Offset Estimation"/>
+                <attr name="targetProductNameSuffix" stringvalue="_esd"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="SpectralDiversityOp"/>
+            </file>
+            <!--file name="org-esa-s1tbx-sentinel1-gpf-RangeShiftOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                 <attr name="displayName" stringvalue="S-1 Range Shift"/>
@@ -105,7 +116,7 @@
                 <attr name="targetProductNameSuffix" stringvalue="_az"/>
                 <attr name="icon" stringvalue="esaIcon"/>
                 <attr name="helpId" stringvalue="AzimuthShiftOp"/>
-            </file>
+            </file-->
             <file name="org-esa-s1tbx-sentinel1-gpf-EAPPhaseCorrectionOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
@@ -143,14 +154,18 @@
                         <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sentinel1-gpf-BackGeocodingOp-Action.instance"/>
                         <attr name="position" intvalue="200"/>
                     </file>
-                    <file name="org-esa-s1tbx-sentinel1-gpf-RangeShiftOp-Action.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sentinel1-gpf-RangeShiftOp-Action.instance"/>
+                    <file name="org-esa-s1tbx-sentinel1-gpf-SpectralDiversityOp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sentinel1-gpf-SpectralDiversityOp-Action.instance"/>
                         <attr name="position" intvalue="300"/>
+                    </file>
+                    <!--file name="org-esa-s1tbx-sentinel1-gpf-RangeShiftOp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sentinel1-gpf-RangeShiftOp-Action.instance"/>
+                        <attr name="position" intvalue="310"/>
                     </file>
                     <file name="org-esa-s1tbx-sentinel1-gpf-AzimuthShiftOp-Action.shadow">
                         <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sentinel1-gpf-AzimuthShiftOp-Action.instance"/>
-                        <attr name="position" intvalue="400"/>
-                    </file>
+                        <attr name="position" intvalue="320"/>
+                    </file-->
                 </folder>
             </folder>
             <folder name="Sentinel-1 TOPS">

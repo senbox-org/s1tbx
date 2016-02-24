@@ -44,7 +44,7 @@ import java.util.Map;
         category = "Radar/Interferometric/Products",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
-        description = "Phase To Displacement Conversion")
+        description = "Phase To Displacement Conversion along LOS")
 public final class PhaseToDisplacementOp extends Operator {
 
     @SourceProduct(alias = "source")

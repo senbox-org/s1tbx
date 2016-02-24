@@ -12,6 +12,7 @@ https://senbox.atlassian.net/issues/?filter=11200
 * TOPS RangeShift and AzimthShift merged into Enhance-Spectral-Diversity
 * InSAR Optimized Coregistration and Automatic Coregistration merged into Coregistration
 * GCPSelection renamed to CrossCorrelation
+* DEMGeneration renamed to PhaseToElevation
 * Square pixel calculations for improved Coherence
 * Added Snaphu tiling options
 * Generalized Backgeocoding in DEMAssistedCoregistration

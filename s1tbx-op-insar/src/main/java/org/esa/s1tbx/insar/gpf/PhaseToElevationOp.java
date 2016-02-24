@@ -60,12 +60,12 @@ import java.util.List;
 import java.util.Map;
 
 
-@OperatorMetadata(alias = "DEMGeneration",
+@OperatorMetadata(alias = "PhaseToElevation",
         category = "Radar/Interferometric/Products",
-        authors = "Jun Lu, Luis Veci, Petar Marinkovic",
+        authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
         description = "DEM Generation")
-public final class DEMGenerationOp extends Operator {
+public final class PhaseToElevationOp extends Operator {
 
     @SourceProduct(alias = "source")
     private Product sourceProduct;
@@ -103,7 +103,6 @@ public final class DEMGenerationOp extends Operator {
     private double refPhase = 0.0;
 
     private double demNoDataValue = 0; // no data value for DEM
-    private double noDataValue = 0;
     private double[] lookAngles = null;
     private double firstLineUTC = 0.0; // in days
     private OrbitStateVector[] orbitStateVectors = null;
@@ -135,8 +134,6 @@ public final class DEMGenerationOp extends Operator {
 
             getTiePointGrid();
 
-            getSourceImageDimension();
-
             createTargetProduct();
 
             if (externalDEMFile == null) {
@@ -144,8 +141,6 @@ public final class DEMGenerationOp extends Operator {
             }
 
             DEMFactory.validateDEM(demName, sourceProduct);
-
-            noDataValue = sourceProduct.getBands()[0].getNoDataValue();
 
             getBaseline();
 
@@ -177,12 +172,7 @@ public final class DEMGenerationOp extends Operator {
         waveNumber = Constants.TWO_PI / wavelength;
         orbitStateVectors = AbstractMetadata.getOrbitStateVectors(absRoot);
         firstLineUTC = absRoot.getAttributeUTC(AbstractMetadata.first_line_time).getMJD(); // in days
-    }
 
-    /**
-     * Get source image width and height.
-     */
-    private void getSourceImageDimension() {
         sourceImageWidth = sourceProduct.getSceneRasterWidth();
         sourceImageHeight = sourceProduct.getSceneRasterHeight();
     }
@@ -334,7 +324,7 @@ public final class DEMGenerationOp extends Operator {
                     flatAngle = lookAngles[x] - lookAngles[xc];
                     alpha = -slantRange * FastMath.sin(incidenceAngle) /
                             (2 * waveNumber * (bp * FastMath.sin(flatAngle) + bn * FastMath.cos(flatAngle)));
-//                  alpha = -slantRange*Math.sin(incidenceAngle)/(2*waveNumber*bn);
+//                  alpha = -slantRange*FastMath.sin(incidenceAngle)/(2*waveNumber*bn);
                     height = refHeight + alpha * (phase - refPhase);
                     targetData.setElemDoubleAt(trgIndex.getIndex(x), height);
                 }
@@ -561,7 +551,6 @@ public final class DEMGenerationOp extends Operator {
         }
     }
 
-
     /**
      * The SPI is used to register this operator in the graph processing framework
      * via the SPI configuration file
@@ -573,7 +562,7 @@ public final class DEMGenerationOp extends Operator {
      */
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(DEMGenerationOp.class);
+            super(PhaseToElevationOp.class);
         }
     }
 }

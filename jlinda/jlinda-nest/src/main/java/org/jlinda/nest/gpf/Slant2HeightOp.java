@@ -30,7 +30,7 @@ import org.jlinda.nest.utils.TileUtilsDoris;
 import java.awt.*;
 import java.util.HashMap;
 
-@OperatorMetadata(alias = "Phase2Height",
+@OperatorMetadata(alias = "PhaseToHeight",
         category = "Radar/Interferometric/Products",
         authors = "Petar Marinkovic",
         copyright = "Copyright (C) 2013 by PPO.labs",
@@ -85,28 +85,18 @@ public class Slant2HeightOp extends Operator {
 
     // operator tags
     private static final String PRODUCT_NAME = "slant2h";
-
     public static final String PRODUCT_TAG = "slant2h";
-
-    private int sourceImageWidth;
-    private int sourceImageHeight;
-
-    private Band referenceBand = null;
-//    private Slant2Height slant2Height;
-
 
     @Override
     public void initialize() throws OperatorException {
 
         try {
-
             // work out which is which product: loop through source product and check which product has a 'unwrapped phase' band
-            sortOutSourceProducts(); // -> declares topoProduct and defoProduct
+            sortOutSourceProducts();
 
             constructSourceMetadata();
             constructTargetMetadata();
             createTargetProduct();
-            getSourceImageDimension();
 
             // does the math for slant2height conversion
             slant2Height();
@@ -114,11 +104,12 @@ public class Slant2HeightOp extends Operator {
         } catch (Exception e) {
             throw new OperatorException(e);
         }
-
     }
 
     private void slant2Height() throws Exception {
 
+        int sourceImageWidth = sourceProduct.getSceneRasterWidth();
+        int sourceImageHeight = sourceProduct.getSceneRasterHeight();
         for (Integer keyMaster : masterMap.keySet()) {
             CplxContainer master = masterMap.get(keyMaster);
             for (Integer keySlave : slaveMap.keySet()) {
@@ -129,16 +120,8 @@ public class Slant2HeightOp extends Operator {
                 slant2Height.schwabisch();
 
                 slant2HeightMap.put(slave.date, slant2Height);
-
             }
         }
-
-
-    }
-
-    private void getSourceImageDimension() {
-        sourceImageWidth = sourceProduct.getSceneRasterWidth();
-        sourceImageHeight = sourceProduct.getSceneRasterHeight();
     }
 
     private void constructTargetMetadata() {
@@ -159,7 +142,6 @@ public class Slant2HeightOp extends Operator {
 
                 // put ifg-product bands into map
                 targetMap.put(productName, product);
-
             }
         }
     }
@@ -191,12 +173,11 @@ public class Slant2HeightOp extends Operator {
         // put sourceMaster metadata into the masterMap
         metaMapPut(masterTag, masterMeta, sourceProduct, masterMap);
 
-        // pug sourceSlave metadata into slaveDefoMap
+        // put sourceSlave metadata into slaveDefoMap
         slaveRoot = sourceProduct.getMetadataRoot().getElement(slaveMetadataRoot).getElements();
         for (MetadataElement meta : slaveRoot) {
             metaMapPut(slaveTag, meta, sourceProduct, slaveMap);
         }
-
     }
 
     private void metaMapPut(final String tag,
@@ -253,26 +234,17 @@ public class Slant2HeightOp extends Operator {
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
-        for (final Band band : targetProduct.getBands()) {
-            targetProduct.removeBand(band);
-        }
-
         for (String key : targetMap.keySet()) {
             String bandName = targetMap.get(key).targetBandName_I;
             targetProduct.addBand(bandName, ProductData.TYPE_FLOAT32);
             targetProduct.getBand(bandName).setUnit(Unit.METERS);
         }
-
-//        targetProduct.setPreferredTileSize(1,1);
-
     }
 
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         try {
-
             final Rectangle rect = targetTile.getRectangle();
-//            System.out.println("Original: x0 = " + rect.x + ", y = " + rect.y + ", w = " + rect.width + ", h = " + rect.height);
             final int x0 = rect.x;
             final int y0 = rect.y;
             final int w = rect.width;
@@ -295,9 +267,7 @@ public class Slant2HeightOp extends Operator {
                     slant2Height.applySchwabisch(tileWindow, dataMaster);
 
                     TileUtilsDoris.pushDoubleMatrix(dataMaster, targetTile, targetTile.getRectangle());
-
                 }
-
             }
 
         } catch (Exception e) {
@@ -310,6 +280,4 @@ public class Slant2HeightOp extends Operator {
             super(Slant2HeightOp.class);
         }
     }
-
-
 }
