@@ -88,7 +88,7 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                 <attr name="displayName" stringvalue="S-1 Enhanced Spectral Diversity"/>
-                <attr name="operatorName" stringvalue="Enhanced Spectral Diversity"/>
+                <attr name="operatorName" stringvalue="Enhanced-Spectral-Diversity"/>
                 <attr name="dialogTitle" stringvalue="S-1 Enhanced Spectral Diversity"/>
                 <attr name="ShortDescription" stringvalue="Constant Range and Azimuth Offset Estimation"/>
                 <attr name="targetProductNameSuffix" stringvalue="_esd"/>
