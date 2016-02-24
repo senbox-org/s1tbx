@@ -200,7 +200,7 @@
             <attr name="operatorUIClass" stringvalue="org.jlinda.nest.gpf.ui.CoarseFineCoregOpUI"/>
             <attr name="operatorName" stringvalue="CoarseFine-Coregistration2"/>
         </file>
-        <file-- name="org.jlinda.nest.gpf.ui.ResampleOpUI">
+        <file name="org.jlinda.nest.gpf.ui.ResampleOpUI">
             <attr name="operatorUIClass" stringvalue="org.jlinda.nest.gpf.ui.ResampleOpUI"/>
             <attr name="operatorName" stringvalue="Resample"/>
         </file-->
