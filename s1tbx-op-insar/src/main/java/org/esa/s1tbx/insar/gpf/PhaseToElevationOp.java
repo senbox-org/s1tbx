@@ -240,7 +240,7 @@ public final class PhaseToElevationOp extends Operator {
         final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, null, false);
         boolean validProduct = false;
         for (Band band : sourceBands) {
-            if (band.getName().startsWith("Unw")) {
+            if (band.getName().toLowerCase().startsWith("unw")) {
                 validProduct = true;
                 unwrappedPhaseBand = band;
                 break;
