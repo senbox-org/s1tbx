@@ -34,11 +34,6 @@ class Aggregate {
         final AffineTransform sourceTransform = sourceBand.getMultiLevelModel().getImageToModelTransform(0);
         final AffineTransform transform = new AffineTransform(sourceTransform);
         transform.concatenate(referenceNode.getMultiLevelModel().getModelToImageTransform(0));
-        final AffineTransform referenceTransform = referenceNode.getImageToModelTransform();
-        float translateX = (float) (sourceTransform.getTranslateX() / sourceTransform.getScaleX()) -
-                (float) (referenceTransform.getTranslateX() / sourceTransform.getScaleX());
-        float translateY = (float) (sourceTransform.getTranslateY() / sourceTransform.getScaleY()) -
-                (float) (referenceTransform.getTranslateY() / sourceTransform.getScaleY());
         int kernelWidth = (int) (1 / transform.getScaleX());
         int kernelHeight = (int) (1 / transform.getScaleY());
         final Kernel kernel = new Kernel(kernelWidth, kernelHeight, new double[kernelWidth * kernelHeight]);
@@ -61,12 +56,11 @@ class Aggregate {
             }
             multiLevelImage = new DefaultMultiLevelImage(new DefaultMultiLevelSource(image, sourceBand.getMultiLevelModel()));
         }
-        return AggregationScaler.scaleMultiLevelImage(referenceNode.getSourceImage(), multiLevelImage,
-                                                                                       new float[]{(float) transform.getScaleX(), (float) transform.getScaleY()},
-                                                                                       new float[]{translateX, translateY},
-                                                                                       targetHints,
-                                                                                       sourceBand.getNoDataValue(),
-                                                                                       interpolation);
+        return ResamplingScaler.scaleMultiLevelImage(referenceNode.getSourceImage(), multiLevelImage,
+                                                     new float[]{(float) transform.getScaleX(), (float) transform.getScaleY()},
+                                                     targetHints,
+                                                     sourceBand.getNoDataValue(),
+                                                     interpolation);
     }
 
     private static int getDataBufferType(Band sourceBand) {
@@ -83,6 +77,19 @@ class Aggregate {
                 return DataBuffer.TYPE_INT;
         }
         return DataBuffer.TYPE_UNDEFINED;
+    }
+
+    private static RenderingHints getRenderingHints(double noDataValue) {
+        RenderingHints hints = new RenderingHints(null);
+        final double[] background = new double[]{noDataValue};
+        final BorderExtender borderExtender;
+        if (XArray.allEquals(background, 0)) {
+            borderExtender = BorderExtender.createInstance(BorderExtender.BORDER_ZERO);
+        } else {
+            borderExtender = new BorderExtenderConstant(background);
+        }
+        hints.put(JAI.KEY_BORDER_EXTENDER, borderExtender);
+        return hints;
     }
 
     private static GeneralFilterFunction getFilterFunction(Type type, Kernel kernel) {
@@ -283,19 +290,6 @@ class Aggregate {
             return (float) res;
         }
 
-    }
-
-    private static RenderingHints getRenderingHints(double noDataValue) {
-        RenderingHints hints = new RenderingHints(null);
-        final double[] background = new double[]{noDataValue};
-        final BorderExtender borderExtender;
-        if (XArray.allEquals(background, 0)) {
-            borderExtender = BorderExtender.createInstance(BorderExtender.BORDER_ZERO);
-        } else {
-            borderExtender = new BorderExtenderConstant(background);
-        }
-        hints.put(JAI.KEY_BORDER_EXTENDER, borderExtender);
-        return hints;
     }
 
 }

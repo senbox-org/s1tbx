@@ -141,7 +141,7 @@ public class TestProductDao {
     }
 
     @Ignore("fails")
-    public void testRectIntersect() {
+    public static void testRectIntersect() {
         Rectangle.Float a = new Rectangle.Float(-10, 10, 100, 100);
         Rectangle.Float b = new Rectangle.Float(-20, 20, 50, 50);
 

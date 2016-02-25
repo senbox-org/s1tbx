@@ -167,7 +167,7 @@ public class ProductEntry {
         }
     }
 
-    private long calculateFileSize(final Product product) {
+    private static long calculateFileSize(final Product product) {
         File file = product.getFileLocation();
         if(file != null && file.getName().toLowerCase().endsWith(".zip")) {
             return file.length();

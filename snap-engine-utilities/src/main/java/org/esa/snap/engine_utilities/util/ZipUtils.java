@@ -241,8 +241,10 @@ public class ZipUtils {
                             }
                             final File target = new File(outFolder, String.valueOf(path));
                             targetFiles[index] = target;
-                            if(!target.getParentFile().mkdirs()) {
-                                SystemUtils.LOG.severe("Unable to create folders in "+target.getParentFile());
+                            if(!target.getParentFile().exists()) {
+                                if (!target.getParentFile().mkdirs()) {
+                                    SystemUtils.LOG.severe("Unable to create folders in " + target.getParentFile());
+                                }
                             }
                             out = new BufferedOutputStream(new FileOutputStream(target));
                         }

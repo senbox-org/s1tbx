@@ -70,7 +70,7 @@ public class TestProcessor {
         this.canTestProcessingOnAllProducts = canTestProcessing;
     }
 
-    public void executeOperator(final Operator op) throws Exception {
+    public static void executeOperator(final Operator op) throws Exception {
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
         // readPixels: execute computeTiles()

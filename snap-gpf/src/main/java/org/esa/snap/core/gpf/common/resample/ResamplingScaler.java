@@ -21,16 +21,14 @@ import java.awt.image.RenderedImage;
 /**
  * @author Tonio Fincke
  */
-public class AggregationScaler {
+public class ResamplingScaler {
 
     public static MultiLevelImage scaleMultiLevelImage(MultiLevelImage masterImage, MultiLevelImage sourceImage,
-                                                       float[] scalings, float[] offsets,
-                                                       RenderingHints renderingHints, double noDataValue,
-                                                       Interpolation interpolation) {
+                                                       float[] scalings, RenderingHints renderingHints,
+                                                       double noDataValue, Interpolation interpolation) {
         final ScaledMultiLevelSource multiLevelSource = new ScaledMultiLevelSource(masterImage, sourceImage,
-                                                                                   scalings, offsets, renderingHints,
-                                                                                   noDataValue,
-                                                                                   interpolation);
+                                                                                   scalings, renderingHints,
+                                                                                   noDataValue, interpolation);
         return new DefaultMultiLevelImage(multiLevelSource);
     }
 
@@ -40,22 +38,19 @@ public class AggregationScaler {
         private final float[] scalings;
         private final RenderingHints renderingHints;
         private final double noDataValue;
-        private final float[] offsets;
         private final MultiLevelImage masterImage;
         private Interpolation interpolation;
 
         private static double EPSILON = 1E-12;
 
         private ScaledMultiLevelSource(MultiLevelImage masterImage, MultiLevelImage sourceImage, float[] scalings,
-                                       float[] offsets, RenderingHints renderingHints, double noDataValue,
-                                       Interpolation interpolation) {
-            super(new DefaultMultiLevelModel(new AffineTransform(), masterImage.getWidth(), masterImage.getHeight()));
+                                       RenderingHints renderingHints, double noDataValue, Interpolation interpolation) {
+            super(new DefaultMultiLevelModel(masterImage.getModel().getLevelCount(), new AffineTransform(), masterImage.getWidth(), masterImage.getHeight()));
             this.masterImage = masterImage;
             this.sourceImage = sourceImage;
             this.scalings = scalings;
             this.renderingHints = renderingHints;
             this.noDataValue = noDataValue;
-            this.offsets = offsets;
             this.interpolation = interpolation;
         }
 
@@ -73,9 +68,15 @@ public class AggregationScaler {
             RenderedImage renderedImage = image;
             final float xScale = scalings[0] * scaleRatio;
             final float yScale = scalings[1] * scaleRatio;
-            if (Precision.compareTo((double) offsets[0], 0.0, EPSILON) != 0 ||
-                    Precision.compareTo((double) offsets[1], 0.0, EPSILON) != 0) {
-                renderedImage = TranslateDescriptor.create(renderedImage, offsets[0], offsets[1], null,
+            final AffineTransform sourceTransform = sourceModel.getImageToModelTransform(sourceLevel);
+            final AffineTransform referenceTransform = targetModel.getImageToModelTransform(targetLevel);
+            float offsetX = (float) (sourceTransform.getTranslateX() / sourceTransform.getScaleX()) -
+                    (float) (referenceTransform.getTranslateX() / sourceTransform.getScaleX());
+            float offsetY = (float) (sourceTransform.getTranslateY() / sourceTransform.getScaleY()) -
+                    (float) (referenceTransform.getTranslateY() / sourceTransform.getScaleY());
+            if (Precision.compareTo((double) offsetX, 0.0, EPSILON) != 0 ||
+                    Precision.compareTo((double) offsetY, 0.0, EPSILON) != 0) {
+                renderedImage = TranslateDescriptor.create(renderedImage, offsetX, offsetY, null,
                                                            renderingHints);
             }
             if (Precision.compareTo((double) xScale, 1.0, EPSILON) != 0
@@ -83,10 +84,10 @@ public class AggregationScaler {
                 renderedImage = ScaleDescriptor.create(renderedImage, xScale, yScale, 0.5f, 0.5f, interpolation, renderingHints);
             }
             if (masterWidth != renderedImage.getWidth() || masterHeight != renderedImage.getHeight() ||
-                    Precision.compareTo((double) offsets[0], 0.0, EPSILON) != 0 ||
-                    Precision.compareTo((double) offsets[1], 0.0, EPSILON) != 0) {
-                final float scaledXOffset = offsets[0] * xScale;
-                final float scaledYOffset = offsets[1] * yScale;
+                    Precision.compareTo((double) offsetX, 0.0, EPSILON) != 0 ||
+                    Precision.compareTo((double) offsetY, 0.0, EPSILON) != 0) {
+                final float scaledXOffset = offsetX * xScale;
+                final float scaledYOffset = offsetY * yScale;
                 final int leftPad = Math.round(scaledXOffset);
                 final int upperPad = Math.round(scaledYOffset);
                 int borderCorrectorX = (scaledXOffset - leftPad < 0) ? 1 : 0;

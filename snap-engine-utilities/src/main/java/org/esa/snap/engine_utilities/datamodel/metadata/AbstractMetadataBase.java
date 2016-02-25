@@ -88,8 +88,8 @@ public abstract class AbstractMetadataBase {
      * @param desc     The description
      * @return the newly created attribute
      */
-    public MetadataAttribute addAbstractedAttribute(final MetadataElement dest, final String tag, final int dataType,
-                                                    final String unit, final String desc) {
+    public static MetadataAttribute addAbstractedAttribute(final MetadataElement dest, final String tag, final int dataType,
+                                                           final String unit, final String desc) {
         final MetadataAttribute attribute = new MetadataAttribute(tag, dataType, 1);
         if (dataType == ProductData.TYPE_ASCII) {
             attribute.getData().setElems(NO_METADATA_STRING);
@@ -214,7 +214,7 @@ public abstract class AbstractMetadataBase {
      * @param tag   the name of the attribute
      * @param value the Double value
      */
-    public void setAttribute(final MetadataElement dest, final String tag, final Double value) {
+    public static void setAttribute(final MetadataElement dest, final String tag, final Double value) {
         if (dest == null)
             return;
         final MetadataAttribute attrib = dest.getAttribute(tag);

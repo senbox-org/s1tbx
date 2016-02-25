@@ -3,10 +3,11 @@ package org.esa.snap.core.gpf.common.resample;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
+import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
-import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.CrsGeoCoding;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.ProductNodeGroup;
@@ -46,16 +47,16 @@ public class ResamplingOp extends Operator {
 
     private static final String NAME_EXTENSION = "resampled";
 
-    @SourceProduct(alias = "source", description = "The source product which is to be resampled.")
+    @SourceProduct(description = "The source product which is to be resampled.", label = "Name")
     Product sourceProduct;
 
     @TargetProduct(description = "The resampled target product.")
     Product targetProduct;
 
     //todo also allow to set a target size/resolution explicitly
-    @Parameter(description = "The name of the reference raster data node. " +
+    @Parameter(alias = "Reference Band", description = "The name of the reference raster data node. " +
             "All other bands will be re-sampled to match its size and resolution.")
-    String referenceNodeName;
+    String referenceBandName;
 
     @Parameter(alias = "interpolation",
             label = "Interpolation Method",
@@ -72,7 +73,7 @@ public class ResamplingOp extends Operator {
     private String aggregationMethod;
 
     @Parameter(alias = "flagAggregation",
-            label = "Flag aggregation Method",
+            label = "Flag Aggregation Method",
             description = "The method used for aggregation (sampling to a coarser resolution) of flags.",
             valueSet = {"First", "Min", "Max", "MinMedian", "MaxMedian"},
             defaultValue = "First")
@@ -85,12 +86,12 @@ public class ResamplingOp extends Operator {
             return;
         }
         if (!allNodesHaveIdentitySceneTransform(sourceProduct)) {
-            throw new OperatorException("Not all nodes have identity model to scene transform.");
+            throw new OperatorException("Not all nodes have identity model-to-scene transform.");
         }
-        if (!allBandSizesAreIntDivisible(sourceProduct)) {
-            throw new OperatorException("Not all band sizes are int divisible.");
+        if (!allScalingsAreIntDivisible(sourceProduct)) {
+            throw new OperatorException("Not all band scalings are int divisible.");
         }
-        final RasterDataNode referenceNode = sourceProduct.getRasterDataNode(referenceNodeName);
+        final RasterDataNode referenceNode = sourceProduct.getRasterDataNode(referenceBandName);
         Assert.notNull(referenceNode);
         if (!allBandsMustBeEitherInterpolatedAggregatedOrLeftAsIs(sourceProduct, referenceNode)) {
             throw new OperatorException("Bands must be either aggregated, interpolated or left as is.");
@@ -104,19 +105,22 @@ public class ResamplingOp extends Operator {
         resampleTiePointGrids(referenceNode);
         ProductUtils.copyFlagCodings(sourceProduct, targetProduct);
         ProductUtils.copyIndexCodings(sourceProduct, targetProduct);
-        ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
         ProductUtils.copyMasks(sourceProduct, targetProduct);
         ProductUtils.copyMetadata(sourceProduct, targetProduct);
         ProductUtils.copyVectorData(sourceProduct, targetProduct);
+        if (referenceNode.getGeoCoding() instanceof CrsGeoCoding) {
+            targetProduct.setSceneGeoCoding(referenceNode.getGeoCoding());
+        } else {
+            ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
+        }
         targetProduct.setAutoGrouping(sourceProduct.getAutoGrouping());
     }
 
-    public static boolean canBeApplied(Product product, RasterDataNode node) {
-        return allNodesHaveIdentitySceneTransform(product) && allBandSizesAreIntDivisible(product)
-                && allBandsMustBeEitherInterpolatedAggregatedOrLeftAsIs(product, node);
+    public static boolean canBeApplied(Product product) {
+        return allNodesHaveIdentitySceneTransform(product) && allScalingsAreIntDivisible(product);
     }
 
-    private static boolean allNodesHaveIdentitySceneTransform(Product product) {
+    static boolean allNodesHaveIdentitySceneTransform(Product product) {
         final ProductNodeGroup<Band> bandGroup = product.getBandGroup();
         for (int i = 0; i < bandGroup.getNodeCount(); i++) {
             if (bandGroup.get(i).getModelToSceneTransform() != MathTransform2D.IDENTITY) {
@@ -132,7 +136,7 @@ public class ResamplingOp extends Operator {
         return true;
     }
 
-    private static boolean allBandSizesAreIntDivisible(Product product) {
+    static boolean allScalingsAreIntDivisible(Product product) {
         final ProductNodeGroup<Band> bandGroup = product.getBandGroup();
         final ProductNodeGroup<TiePointGrid> tiePointGridGroup = product.getTiePointGridGroup();
         AffineTransform referenceModelToImageTransform;
@@ -154,25 +158,33 @@ public class ResamplingOp extends Operator {
         double modelToImageScaleX = referenceModelToImageTransform.getScaleX();
         double modelToImageScaleY = referenceModelToImageTransform.getScaleY();
         for (int i = 0; i < bandGroup.getNodeCount(); i++) {
-            final AffineTransform imageToModelTransform = bandGroup.get(i).getImageToModelTransform();
-            final double scaleX = imageToModelTransform.getScaleX() * modelToImageScaleX;
-            final double scaleY = imageToModelTransform.getScaleY() * modelToImageScaleY;
-            if (!isIntDivisible(scaleX) || !isIntDivisible(scaleY)) {
+            if (!isIntDivisible(bandGroup.get(i), modelToImageScaleX, modelToImageScaleY)) {
                 return false;
             }
         }
         for (int i = 0; i < tiePointGridGroup.getNodeCount(); i++) {
-            final AffineTransform imageToModelTransform = bandGroup.get(i).getImageToModelTransform();
-            final double scaleX = imageToModelTransform.getScaleX() * modelToImageScaleX;
-            final double scaleY = imageToModelTransform.getScaleY() * modelToImageScaleY;
-            if (!isIntDivisible(scaleX) || !isIntDivisible(scaleY)) {
+            if (!isIntDivisible(tiePointGridGroup.get(i), modelToImageScaleX, modelToImageScaleY)) {
                 return false;
             }
         }
         return true;
     }
 
-    private static boolean allBandsMustBeEitherInterpolatedAggregatedOrLeftAsIs(Product product, RasterDataNode referenceNode) {
+    private static boolean isIntDivisible(RasterDataNode node, double modelToImageScaleX, double modelToImageScaleY) {
+        final AffineTransform imageToModelTransform = node.getImageToModelTransform();
+        final double scaleX = imageToModelTransform.getScaleX() * modelToImageScaleX;
+        final double scaleY = imageToModelTransform.getScaleY() * modelToImageScaleY;
+        return isIntDivisible(scaleX) && isIntDivisible(scaleY);
+    }
+
+    private static boolean isIntDivisible(double value) {
+        if (value < 1) {
+            value = 1 / value;
+        }
+        return (value - Math.floor(value)) < 1e-10;
+    }
+
+    static boolean allBandsMustBeEitherInterpolatedAggregatedOrLeftAsIs(Product product, RasterDataNode referenceNode) {
         final int referenceWidth = referenceNode.getRasterWidth();
         final int referenceHeight = referenceNode.getRasterHeight();
         final ProductNodeGroup<Band> bandGroup = product.getBandGroup();
@@ -191,29 +203,26 @@ public class ResamplingOp extends Operator {
         return true;
     }
 
-    private static boolean isIntDivisible(double value) {
-        if (value < 1) {
-            value /= 1;
-        }
-        return (value - Math.floor(value)) < 1e-10;
-    }
-
     private void resampleTiePointGrids(RasterDataNode referenceNode) {
         final ProductNodeGroup<TiePointGrid> tiePointGridGroup = sourceProduct.getTiePointGridGroup();
-        AffineTransform transform;
-        try {
-            transform = new AffineTransform(referenceNode.getImageToModelTransform().createInverse());
-        } catch (NoninvertibleTransformException e) {
-            throw new OperatorException("Cannot resample: " + e.getMessage());
-        }
+        final AffineTransform referenceTransform = referenceNode.getImageToModelTransform();
         for (int i = 0; i < tiePointGridGroup.getNodeCount(); i++) {
             final TiePointGrid grid = tiePointGridGroup.get(i);
-            transform.concatenate(grid.getImageToModelTransform());
-            if (Math.abs(transform.getScaleX() - 1.0) > 1e-8 || Math.abs(transform.getScaleY() - 1.0) > 1e-8) {
+            AffineTransform transform;
+            try {
+                transform = new AffineTransform(referenceTransform.createInverse());
+            } catch (NoninvertibleTransformException e) {
+                throw new OperatorException("Cannot resample: " + e.getMessage());
+            }
+            final AffineTransform gridTransform = grid.getImageToModelTransform();
+            transform.concatenate(gridTransform);
+            if (Math.abs(transform.getScaleX() - 1.0) > 1e-8 || Math.abs(transform.getScaleY() - 1.0) > 1e-8 ||
+                    referenceTransform.getTranslateX() != 0 || referenceTransform.getTranslateY() != 0) {
                 double subSamplingX = grid.getSubSamplingX() * transform.getScaleX();
                 double subSamplingY = grid.getSubSamplingY() * transform.getScaleY();
-                double offsetX = grid.getOffsetX() * transform.getScaleX();
-                double offsetY = grid.getOffsetY() * transform.getScaleY();
+                double offsetX = grid.getOffsetX() - (referenceTransform.getTranslateX() / gridTransform.getScaleX());
+                double offsetY = grid.getOffsetY() - (referenceTransform.getTranslateY() / gridTransform.getScaleY());
+
                 final TiePointGrid resampledGrid = new TiePointGrid(grid.getName(), grid.getGridWidth(), grid.getGridHeight(),
                                                                     offsetX, offsetY,
                                                                     subSamplingX, subSamplingY, grid.getTiePoints());
@@ -230,8 +239,12 @@ public class ResamplingOp extends Operator {
         final int referenceWidth = referenceNode.getRasterWidth();
         final int referenceHeight = referenceNode.getRasterHeight();
         Dimension referenceSize = referenceNode.getRasterSize();
-        final DefaultMultiLevelModel multiLevelModel = new DefaultMultiLevelModel(new AffineTransform(),
-                                                                                  referenceWidth, referenceHeight);
+        MultiLevelModel multiLevelModel;
+        if (referenceNode.getGeoCoding() instanceof CrsGeoCoding) {
+            multiLevelModel = referenceNode.getMultiLevelModel();
+        } else {
+            multiLevelModel = new DefaultMultiLevelModel(new AffineTransform(), referenceWidth, referenceHeight);
+        }
         for (int i = 0; i < sourceBands.getNodeCount(); i++) {
             Band sourceBand = sourceBands.get(i);
             Band targetBand;
@@ -240,16 +253,17 @@ public class ResamplingOp extends Operator {
                 targetBand = new Band(sourceBand.getName(), sourceBand.getDataType(), referenceWidth, referenceHeight);
                 if (sourceBand.getRasterWidth() < referenceWidth && sourceBand.getRasterHeight() < referenceHeight) {
                     final MultiLevelImage interpolatedImage = createInterpolatedImage(sourceBand, referenceNode);
-                    final RenderedImage image = createImageWithIdentityImageToModelTransform(interpolatedImage, multiLevelModel);
+                    final RenderedImage image = adjustImageToModelTransform(interpolatedImage, multiLevelModel);
                     targetBand.setSourceImage(image);
                 } else {
                     final MultiLevelImage aggregatedImage = createAggregatedImage(sourceBand, referenceNode);
-                    targetBand.setSourceImage(aggregatedImage);
+                    final RenderedImage image = adjustImageToModelTransform(aggregatedImage, multiLevelModel);
+                    targetBand.setSourceImage(image);
                 }
                 targetProduct.addBand(targetBand);
             } else {
                 targetBand = ProductUtils.copyBand(sourceBand.getName(), sourceProduct, targetProduct, false);
-                final RenderedImage image = createImageWithIdentityImageToModelTransform(sourceBand.getSourceImage(), multiLevelModel);
+                final RenderedImage image = adjustImageToModelTransform(sourceBand.getSourceImage(), multiLevelModel);
                 targetBand.setSourceImage(image);
 
             }
@@ -257,8 +271,19 @@ public class ResamplingOp extends Operator {
         }
     }
 
-    private RenderedImage createImageWithIdentityImageToModelTransform(RenderedImage image, MultiLevelModel multiLevelModel) {
-        return new DefaultMultiLevelImage(new DefaultMultiLevelSource(image, multiLevelModel));
+    private RenderedImage adjustImageToModelTransform(final MultiLevelImage image, MultiLevelModel model) {
+        MultiLevelModel actualModel = model;
+        if (model.getLevelCount() >  image.getModel().getLevelCount()) {
+            actualModel = new DefaultMultiLevelModel(image.getModel().getLevelCount(), model.getImageToModelTransform(0),
+                                                     image.getWidth(), image.getHeight());
+        }
+        final AbstractMultiLevelSource source = new AbstractMultiLevelSource(actualModel) {
+            @Override
+            protected RenderedImage createImage(int level) {
+                return image.getImage(level);
+            }
+        };
+        return new DefaultMultiLevelImage(source);
     }
 
     private MultiLevelImage createInterpolatedImage(Band sourceBand, final RasterDataNode referenceNode) {
@@ -330,5 +355,4 @@ public class ResamplingOp extends Operator {
             super(ResamplingOp.class);
         }
     }
-
 }
