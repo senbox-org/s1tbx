@@ -101,18 +101,31 @@ public class Quicklook extends ProductNode implements Thumbnail {
                      final boolean productCanAppendFiles, final Path productQuicklookFolder,
                      final Band[] quicklookBands) {
         super(name);
-        if(product != null) {
-            this.product = product;
-            this.productFile = product.getFileLocation();
-        }
         this.browseFile = browseFile;
         this.productCanAppendFiles = productCanAppendFiles;
         this.productQuicklookFolder = productQuicklookFolder;
         this.quicklookBands = quicklookBands;
 
+        setProduct(product);
+
         final Preferences preferences = Config.instance().preferences();
         saveWithProduct = preferences.getBoolean(QuicklookGenerator.PREFERENCE_KEY_QUICKLOOKS_SAVE_WITH_PRODUCT,
                                                  QuicklookGenerator.DEFAULT_VALUE_QUICKLOOKS_SAVE_WITH_PRODUCT);
+    }
+
+    public void setProduct(final Product product) {
+        if(product != null) {
+            this.product = product;
+            this.productFile = product.getFileLocation();
+        }
+    }
+
+    public boolean hasProduct() {
+        return product != null;
+    }
+
+    public File getProductFile() {
+        return productFile;
     }
 
     /**
@@ -175,32 +188,29 @@ public class Quicklook extends ProductNode implements Thumbnail {
                 final QuicklookGenerator qlGen = new QuicklookGenerator();
                 try {
                     if (browseFile != null) {
-                        final Product browseProduct = readProduct(browseFile);
+                        final Product browseProduct = readBrowseProduct(browseFile);
                         image = qlGen.createQuickLookFromBrowseProduct(browseProduct);
 
                     } else {
-                        if(product == null) {
-                            this.product = ProductIO.readProduct(productFile);
-                        }
                         if(product != null) {
                             if(quicklookBands == null) {
                                 quicklookBands = QuicklookGenerator.findQuicklookBands(product);
                             }
                             image = qlGen.createQuickLookImage(product, quicklookBands, pm);
                         } else {
-                            throw new IOException("product not set");
+                            throw new IOException("Quicklook: product not set");
                         }
                     }
                     saveQuicklook(image);
                 } catch (IOException e) {
-                    SystemUtils.LOG.severe("Unable to generate quicklook: " + e.getMessage());
+                    SystemUtils.LOG.severe("Quicklook: Unable to generate quicklook: " + e.getMessage());
                 }
             }
         }
         return image;
     }
 
-    private static Product readProduct(final File file) throws IOException {
+    private static Product readBrowseProduct(final File file) throws IOException {
         final String filename = file.getName().toLowerCase();
         ProductReader productReader = null;
         if (filename.endsWith("tif")) {
