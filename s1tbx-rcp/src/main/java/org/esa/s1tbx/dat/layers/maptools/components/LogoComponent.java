@@ -17,7 +17,7 @@ package org.esa.s1tbx.dat.layers.maptools.components;
 
 import org.esa.s1tbx.dat.layers.ScreenPixelConverter;
 import org.esa.snap.core.datamodel.RasterDataNode;
-import org.esa.snap.graphbuilder.rcp.utils.IconUtils;
+import org.esa.snap.ui.UIUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,7 +29,7 @@ import java.awt.image.BufferedImage;
  */
 public class LogoComponent implements MapToolsComponent {
 
-    private static final ImageIcon procNestIcon = IconUtils.LoadIcon("org/esa/s1tbx/dat/icons/s1_64x.png");
+    private static final ImageIcon logoIcon = UIUtils.loadImageIcon("/org/esa/s1tbx/dat/icons/s1_64x.png", LogoComponent.class);
     private final BufferedImage image;
     private final static double marginPct = 0.05;
     private final double scale;
@@ -37,10 +37,10 @@ public class LogoComponent implements MapToolsComponent {
 
     public LogoComponent(final RasterDataNode raster) {
 
-        if(procNestIcon != null) {
-            image = new BufferedImage(procNestIcon.getIconWidth(), procNestIcon.getIconHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+        if(logoIcon != null) {
+            image = new BufferedImage(logoIcon.getIconWidth(), logoIcon.getIconHeight(), BufferedImage.TYPE_4BYTE_ABGR);
             final Graphics2D g = image.createGraphics();
-            g.drawImage(procNestIcon.getImage(), null, null);
+            g.drawImage(logoIcon.getImage(), null, null);
 
             final int rasterWidth = raster.getRasterWidth();
             final int rasterHeight = raster.getRasterHeight();

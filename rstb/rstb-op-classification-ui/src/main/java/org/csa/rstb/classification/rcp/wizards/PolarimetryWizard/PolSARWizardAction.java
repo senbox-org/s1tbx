@@ -16,7 +16,6 @@
 package org.csa.rstb.classification.rcp.wizards.PolarimetryWizard;
 
 import org.esa.s1tbx.dat.wizards.WizardDialog;
-import org.esa.snap.graphbuilder.rcp.utils.IconUtils;
 import org.esa.snap.rcp.SnapApp;
 
 import javax.swing.*;
@@ -47,7 +46,6 @@ public class PolSARWizardAction extends AbstractAction {
     public void actionPerformed(final ActionEvent event) {
         final WizardDialog dialog = new WizardDialog(SnapApp.getDefault().getMainFrame(), false,
                 PolSARWizardInstructPanel.title, "PolSARWizard", new PolSARWizardInstructPanel());
-        dialog.setIcon(IconUtils.rstbIcon);
         dialog.setVisible(true);
     }
 }
