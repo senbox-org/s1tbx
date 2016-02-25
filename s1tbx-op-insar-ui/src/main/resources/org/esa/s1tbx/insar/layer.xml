@@ -32,7 +32,7 @@
                 <attr name="ShortDescription" stringvalue="Stack Averaging"/>
                 <attr name="targetProductNameSuffix" stringvalue="_avg"/>
                 <attr name="icon" stringvalue="esaIcon"/>
-                <attr name="helpId" stringvalue="StackAveraging"/>
+                <attr name="helpId" stringvalue="StackAveragingOp"/>
             </file>
             <file name="org-esa-s1tbx-insar-gpf-StackSplit-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -42,7 +42,7 @@
                 <attr name="dialogTitle" stringvalue="Stack Split"/>
                 <attr name="ShortDescription" stringvalue="Split stack into multiple products"/>
                 <attr name="icon" stringvalue="esaIcon"/>
-                <attr name="helpId" stringvalue="StackSplit"/>
+                <attr name="helpId" stringvalue="StackSplitOp"/>
             </file>
 
             <file name="org-esa-s1tbx-insar-gpf-PrincipalComponents-Action.instance">
