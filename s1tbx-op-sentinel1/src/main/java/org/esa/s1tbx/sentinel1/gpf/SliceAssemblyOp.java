@@ -1371,12 +1371,12 @@ public final class SliceAssemblyOp extends Operator {
             MetadataElement targetGeolocationGrid = e.getElement("product").getElement("geolocationGrid");
             MetadataElement targetGeolocationGridPointList = targetGeolocationGrid.getElement("geolocationGridPointList");
             int count = Integer.parseInt(targetGeolocationGridPointList.getAttributeString("count"));
-            int numberOfLines = 0;
+
+            MetadataElement sliceImageAnnotation = getAnnotationElement(sliceProducts[0], imageNum, "imageAnnotation");
+            MetadataElement sliceImageInformation = sliceImageAnnotation.getElement("imageInformation");
+            int numberOfLines = Integer.parseInt(sliceImageInformation.getAttributeString("numberOfLines"));
             for (int i = 1; i < sliceProducts.length; i++) {
 
-                MetadataElement sliceImageAnnotation = getAnnotationElement(sliceProducts[i], imageNum, "imageAnnotation");
-                MetadataElement sliceImageInformation = sliceImageAnnotation.getElement("imageInformation");
-                numberOfLines += Integer.parseInt(sliceImageInformation.getAttributeString("numberOfLines"));
                 MetadataElement sliceGeolocationGrid = getAnnotationElement(sliceProducts[i], imageNum, "geolocationGrid");
                 MetadataElement sliceGeolocationGridPointList = sliceGeolocationGrid.getElement("geolocationGridPointList");
                 final int sliceCount = Integer.parseInt(sliceGeolocationGridPointList.getAttributeString("count"));
@@ -1391,6 +1391,10 @@ public final class SliceAssemblyOp extends Operator {
                     newP.setAttributeString("line", Long.toString(sliceLine + numberOfLines));
                     targetGeolocationGridPointList.addElementAt(newP, count++);
                 }
+
+                sliceImageAnnotation = getAnnotationElement(sliceProducts[i], imageNum, "imageAnnotation");
+                sliceImageInformation = sliceImageAnnotation.getElement("imageInformation");
+                numberOfLines += Integer.parseInt(sliceImageInformation.getAttributeString("numberOfLines"));
             }
             targetGeolocationGridPointList.setAttributeString("count", Integer.toString(count));
         }
