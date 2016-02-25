@@ -7,7 +7,7 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
                 <attr name="displayName" stringvalue="InSAR Optimized Coregistration"/>
-                <attr name="graphFile" stringvalue="coregistration\InSARCoregistrationGraph.xml"/>
+                <attr name="graphFile" stringvalue="coregistration/InSARCoregistrationGraph.xml"/>
                 <attr name="dialogTitle" stringvalue="InSAR Coregistration"/>
                 <attr name="ShortDescription" stringvalue="Perform InSAR Optimized Automatic Coregistration"/>
                 <attr name="icon" stringvalue="esaIcon"/>

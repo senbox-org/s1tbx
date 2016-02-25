@@ -7,7 +7,7 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
                 <attr name="displayName" stringvalue="S-1 Slice Assembly"/>
-                <attr name="graphFile"  stringvalue="sentinel1\Sentinel1SliceAssemblyGraph.xml"/>
+                <attr name="graphFile"  stringvalue="sentinel1/Sentinel1SliceAssemblyGraph.xml"/>
                 <attr name="dialogTitle" stringvalue="S-1 Slice Assembly"/>
                 <attr name="targetProductNameSuffix" stringvalue="_asm"/>
                 <attr name="ShortDescription" stringvalue="Merge slice products together"/>
@@ -27,7 +27,7 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
                 <attr name="displayName" stringvalue="S-1 TOPS Merge"/>
-                <attr name="graphFile" stringvalue="sentinel1\Sentinel1-TOPSARMergeGraph.xml"/>
+                <attr name="graphFile" stringvalue="sentinel1/Sentinel1-TOPSARMergeGraph.xml"/>
                 <attr name="dialogTitle" stringvalue="S-1 TOPS Merge"/>
                 <attr name="ShortDescription" stringvalue="Merge TOPSAR subswaths together"/>
                 <attr name="targetProductNameSuffix" stringvalue="_mrg"/>
@@ -49,7 +49,7 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
                 <attr name="displayName" stringvalue="S-1 SLC to GRD"/>
-                <attr name="graphFile" stringvalue="sentinel1\Sentinel1SLCtoGRDGraph.xml"/>
+                <attr name="graphFile" stringvalue="sentinel1/Sentinel1SLCtoGRDGraph.xml"/>
                 <attr name="dialogTitle" stringvalue="S-1 SLC to GRD"/>
                 <attr name="ShortDescription" stringvalue="Convert a Sentinel1 SLC product to a detected ground range product"/>
                 <attr name="icon" stringvalue="esaIcon"/>
@@ -60,7 +60,7 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
                 <attr name="displayName" stringvalue="S1 TOPS Coregistration"/>
-                <attr name="graphFile" stringvalue="sentinel1\Sentinel1-TOPS-Coregistration.xml"/>
+                <attr name="graphFile" stringvalue="sentinel1/Sentinel1-TOPS-Coregistration.xml"/>
                 <attr name="dialogTitle" stringvalue="S1 TOPS Coregistration"/>
                 <attr name="ShortDescription" stringvalue="S1 TOPS Coregistration"/>
                 <attr name="icon" stringvalue="esaIcon"/>
@@ -69,7 +69,7 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
                 <attr name="displayName" stringvalue="S1 TOPS Coregistration with ESD"/>
-                <attr name="graphFile" stringvalue="sentinel1\Sentinel1-TOPS-ESD-Coregistration.xml"/>
+                <attr name="graphFile" stringvalue="sentinel1/Sentinel1-TOPS-ESD-Coregistration.xml"/>
                 <attr name="dialogTitle" stringvalue="S1 TOPS ESD Coregistration"/>
                 <attr name="ShortDescription" stringvalue="S1 TOPS Coregistration with Enhanced Spectral Diversity"/>
                 <attr name="icon" stringvalue="esaIcon"/>
@@ -78,7 +78,7 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
                 <attr name="displayName" stringvalue="S-1 Back Geocoding"/>
-                <attr name="graphFile" stringvalue="sentinel1\Sentinel1-BackGeocodingGraph.xml"/>
+                <attr name="graphFile" stringvalue="sentinel1/Sentinel1-BackGeocodingGraph.xml"/>
                 <attr name="dialogTitle" stringvalue="S-1 Back Geocoding"/>
                 <attr name="ShortDescription" stringvalue="Back Geocoding"/>
                 <attr name="icon" stringvalue="esaIcon"/>
