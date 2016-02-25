@@ -33,8 +33,8 @@ public class TestSentinelPODOrbitFile {
         final Product sourceProduct = ProductIO.readProduct(sourceFile);
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
-        final SentinelPODOrbitFile podOrbitFile = new SentinelPODOrbitFile(SentinelPODOrbitFile.PRECISE, absRoot, sourceProduct, 3);
-        podOrbitFile.retrieveOrbitFile();
+        final SentinelPODOrbitFile podOrbitFile = new SentinelPODOrbitFile(absRoot, 3);
+        podOrbitFile.retrieveOrbitFile(SentinelPODOrbitFile.PRECISE);
     }
 
     @Test
@@ -49,8 +49,8 @@ public class TestSentinelPODOrbitFile {
         final Product sourceProduct = ProductIO.readProduct(sourceFile);
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
-        final SentinelPODOrbitFile podOrbitFile = new SentinelPODOrbitFile(SentinelPODOrbitFile.PRECISE, absRoot, sourceProduct, 3);
-        podOrbitFile.retrieveOrbitFile();
+        final SentinelPODOrbitFile podOrbitFile = new SentinelPODOrbitFile(absRoot, 3);
+        podOrbitFile.retrieveOrbitFile(SentinelPODOrbitFile.PRECISE);
 
         // First OSV (exact match)
         String utcStr1 = "UTC=2014-05-25T15:19:21.698661";

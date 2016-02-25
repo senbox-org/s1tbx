@@ -317,15 +317,14 @@ public class AzimuthShiftOp extends Operator {
 
         final int[] overlapSizeArray = computeBurstOverlapSize();
         final int numOverlaps = overlapSizeArray.length;
+        final List<Double> azOffsetArray = new ArrayList<>(numOverlaps);
+        final List<Integer> overlapIndexArray = new ArrayList<>(numOverlaps);
 
         final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
         status.beginTask("Estimating azimuth offset... ", numOverlaps);
 
         final ThreadManager threadManager = new ThreadManager();
         try {
-            final List<Double> azOffsetArray = new ArrayList<>(numOverlaps);
-            final List<Integer> overlapIndexArray = new ArrayList<>(numOverlaps);
-
             for (int i = 0; i < numOverlaps; i++) {
                 checkForCancellation();
                 final int x0 = 0;
@@ -371,29 +370,27 @@ public class AzimuthShiftOp extends Operator {
                     }
                 };
                 threadManager.add(worker);
-
                 status.worked(1);
             }
-
-            // todo The following simple average should be replaced by weighted average using coherence as weight
-            double sumAzOffset = 0.0;
-            for (int i = 0; i < azOffsetArray.size(); i++) {
-                final double anAzOffset = azOffsetArray.get(i);
-                sumAzOffset += anAzOffset;
-                SystemUtils.LOG.info(
-                        "AzimuthShiftOp: overlap area = " + overlapIndexArray.get(i) + ", azimuth offset = " + anAzOffset);
-            }
-            azOffset = sumAzOffset / numOverlaps;
-            SystemUtils.LOG.info("AzimuthShiftOp: whole image azimuth offset = " + azOffset);
-
-            saveAzimuthOffsetToMetadata(overlapIndexArray, azOffsetArray);
-
             status.done();
             threadManager.finish();
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("estimateOffset", e);
         }
+
+        // todo The following simple average should be replaced by weighted average using coherence as weight
+        double sumAzOffset = 0.0;
+        for (int i = 0; i < azOffsetArray.size(); i++) {
+            final double anAzOffset = azOffsetArray.get(i);
+            sumAzOffset += anAzOffset;
+            SystemUtils.LOG.info(
+                    "AzimuthShiftOp: overlap area = " + overlapIndexArray.get(i) + ", azimuth offset = " + anAzOffset);
+        }
+        azOffset = sumAzOffset / numOverlaps;
+        SystemUtils.LOG.info("AzimuthShiftOp: whole image azimuth offset = " + azOffset);
+
+        saveAzimuthOffsetToMetadata(overlapIndexArray, azOffsetArray);
 
         isOffsetAvailable = true;
     }

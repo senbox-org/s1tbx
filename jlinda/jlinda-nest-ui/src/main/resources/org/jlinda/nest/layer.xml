@@ -7,7 +7,7 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
                 <attr name="displayName" stringvalue="InSAR Optimized Coregistration"/>
-                <attr name="graphFile" stringvalue="coregistration\InSARCoregistrationGraph.xml"/>
+                <attr name="graphFile" stringvalue="coregistration/InSARCoregistrationGraph.xml"/>
                 <attr name="dialogTitle" stringvalue="InSAR Coregistration"/>
                 <attr name="ShortDescription" stringvalue="Perform InSAR Optimized Automatic Coregistration"/>
                 <attr name="icon" stringvalue="esaIcon"/>
@@ -50,7 +50,7 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                 <attr name="displayName" stringvalue="Phase to Height"/>
-                <attr name="operatorName" stringvalue="Phase2Height"/>
+                <attr name="operatorName" stringvalue="PhaseToHeight"/>
                 <attr name="dialogTitle" stringvalue="Phase to height conversion"/>
                 <attr name="ShortDescription" stringvalue="Phase to height conversion"/>
                 <attr name="targetProductNameSuffix" stringvalue="_hgt"/>
@@ -196,14 +196,14 @@
     </folder>
 
     <folder name="OperatorUIs">
-        <file name="org.jlinda.nest.gpf.ui.CoarseFineCoregOpUI">
+        <!--file name="org.jlinda.nest.gpf.ui.CoarseFineCoregOpUI">
             <attr name="operatorUIClass" stringvalue="org.jlinda.nest.gpf.ui.CoarseFineCoregOpUI"/>
             <attr name="operatorName" stringvalue="CoarseFine-Coregistration2"/>
         </file>
         <file name="org.jlinda.nest.gpf.ui.ResampleOpUI">
             <attr name="operatorUIClass" stringvalue="org.jlinda.nest.gpf.ui.ResampleOpUI"/>
             <attr name="operatorName" stringvalue="Resample"/>
-        </file>
+        </file-->
         <file name="org.jlinda.nest.gpf.ui.CrossResamplingOpUI">
             <attr name="operatorUIClass" stringvalue="org.jlinda.nest.gpf.ui.CrossResamplingOpUI"/>
             <attr name="operatorName" stringvalue="CrossResampling"/>

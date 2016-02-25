@@ -26,7 +26,6 @@ import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.core.gpf.annotations.OperatorMetadata;
-import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
@@ -36,7 +35,7 @@ import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.Map;
 
 
@@ -44,7 +43,7 @@ import java.util.Map;
         category = "Radar/Interferometric/Products",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
-        description = "Phase To Displacement Conversion")
+        description = "Phase To Displacement Conversion along LOS")
 public final class PhaseToDisplacementOp extends Operator {
 
     @SourceProduct(alias = "source")
@@ -125,7 +124,7 @@ public final class PhaseToDisplacementOp extends Operator {
         final Band[] sourceBands = sourceProduct.getBands();
         boolean validProduct = false;
         for (Band band : sourceBands) {
-            if (band.getName().startsWith("Unw")) {
+            if (band.getName().toLowerCase().startsWith("unw")) {
                 validProduct = true;
                 unwrappedPhaseBand = band;
                 break;

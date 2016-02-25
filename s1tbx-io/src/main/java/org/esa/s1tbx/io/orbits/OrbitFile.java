@@ -24,12 +24,14 @@ import java.io.File;
  */
 public interface OrbitFile {
 
+    String[] getAvailableOrbitTypes();
+
     /**
      * download, find and read orbit file
      *
      * @throws Exception The exceptions.
      */
-    public File retrieveOrbitFile() throws Exception;
+    File retrieveOrbitFile(final String orbitType) throws Exception;
 
     /**
      * Get orbit information for given time.
@@ -38,12 +40,12 @@ public interface OrbitFile {
      * @return The orbit information.
      * @throws Exception The exceptions.
      */
-    public Orbits.OrbitVector getOrbitData(final double utc) throws Exception;
+    Orbits.OrbitVector getOrbitData(final double utc) throws Exception;
 
     /**
      * Get the orbit file used
      *
      * @return the new orbit file
      */
-    public File getOrbitFile();
+    File getOrbitFile();
 }

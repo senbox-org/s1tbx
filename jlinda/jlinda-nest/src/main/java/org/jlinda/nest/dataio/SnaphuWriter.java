@@ -142,7 +142,7 @@ public class SnaphuWriter extends AbstractProductWriter {
             _outputDir = new File(".");
         }
         _outputDir = new File(_outputDir, name);
-        if(!_outputDir.mkdirs()) {
+        if(!_outputDir.exists() && !_outputDir.mkdirs()) {
             SystemUtils.LOG.severe("Unable to create folders in "+_outputDir);
         }
         _outputFile = new File(_outputDir, outputFile.getName());
@@ -330,7 +330,7 @@ public class SnaphuWriter extends AbstractProductWriter {
     private static void createPhysicalFile(File file, long fileSize) throws IOException {
         final File parentDir = file.getParentFile();
         if (parentDir != null) {
-            if(!parentDir.mkdirs()) {
+            if(!parentDir.exists() && !parentDir.mkdirs()) {
                 SystemUtils.LOG.severe("Unable to create folders in "+parentDir);
             }
         }

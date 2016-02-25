@@ -80,7 +80,7 @@ public class MapToolsOptions {
         return scale.isSelected();
     }
 
-    public boolean showNestLogo() {
+    public boolean showLogo() {
         return processedByLogo.isSelected();
     }
 

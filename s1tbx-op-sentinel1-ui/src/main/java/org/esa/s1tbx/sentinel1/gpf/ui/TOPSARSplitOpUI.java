@@ -72,7 +72,7 @@ public class TOPSARSplitOpUI extends BaseOperatorUI {
         });
 
         burstRange.setMinimum(1);
-        burstRange.setMaximum(8);
+        burstRange.setMaximum(9999);
         burstRange.setMajorTickSpacing(1);
 
         burstRange.addChangeListener(new ChangeListener() {

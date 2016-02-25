@@ -44,9 +44,9 @@ import java.io.File;
 import java.util.Map;
 
 /**
- * User interface for DEMGenerationOp
+ * User interface for PhaseToElevationOp
  */
-public class DEMGenerationOpUI extends BaseOperatorUI {
+public class PhaseToElevationOpUI extends BaseOperatorUI {
 
     private final JList bandList = new JList();
     private final JComboBox<String> demName = new JComboBox<>();
@@ -133,7 +133,6 @@ public class DEMGenerationOpUI extends BaseOperatorUI {
 
     @Override
     public UIValidation validateParameters() {
-
         return new UIValidation(UIValidation.State.OK, "");
     }
 

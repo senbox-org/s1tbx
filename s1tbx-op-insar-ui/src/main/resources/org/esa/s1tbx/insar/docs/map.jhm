@@ -8,12 +8,21 @@
     <!--Analysis Operators-->
     <mapID target="PCA" url="operators/PCAOp.html"/>
     <!--Coregistration-->
-    <mapID target="CreateStackOp" url="operators/CollocateOp.html"/>
+    <mapID target="Coregistration" url="operators/Coregistration.html"/>
+    <mapID target="DEMAssistedCoregistrationOp" url="operators/DEMAssistedCoregistrationOp.html"/>
+    <mapID target="CreateStackOp" url="operators/CreateStackOp.html"/>
     <mapID target="CrossCorrelationOp" url="operators/CrossCorrelationOp.html"/>
     <mapID target="WarpOp" url="operators/WarpOp.html"/>
+
+    <mapID target="StackAveragingOp" url="operators/StackAveragingOp.html"/>
+    <mapID target="StackSplitOp" url="operators/StackSplitOp.html"/>
+
+    <mapID target="OffsetTrackingOp" url="operators/OffsetTrackingOp.html"/>
+
     <!-- InSAR -->
     <mapID target="GoldsteinFilterOp" url="operators/GoldsteinFilterOp.html"/>
-    <mapID target="DEMGenerationOp" url="operators/DEMGenerationOp.html"/>
+    <mapID target="PhaseToElevationOp" url="operators/PhaseToElevationOp.html"/>
+    <mapID target="PhaseToDisplacementOp" url="operators/PhaseToDisplacementOp.html"/>
     <mapID target="InSARStackOverview" url="operators/InSARStackOverview.html"/>
 
 </map>

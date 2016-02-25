@@ -15,6 +15,7 @@
 				<tocitem text="Urban Area">
 					<tocitem text="Speckle Divergence" target="SpeckleDivergence"/>
 				</tocitem>
+                <tocitem text="Change Detection" target="ChangeDetection"/>
             </tocitem>
         </tocitem>
     </tocitem>

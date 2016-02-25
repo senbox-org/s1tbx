@@ -159,17 +159,14 @@ public final class ApplyOrbitFileOp extends Operator {
             if (mission.equals("ENVISAT")) {
                 if (!orbitType.startsWith(DelftOrbitFile.DELFT_PRECISE) && !orbitType.startsWith(DorisOrbitFile.DORIS_POR) &&
                         !orbitType.startsWith(DorisOrbitFile.DORIS_VOR)) {
-                    //throw new OperatorException(orbitType + " is not suitable for an ENVISAT product");
                     orbitType = DorisOrbitFile.DORIS_VOR;
                 }
             } else if (mission.startsWith("ERS")) {
                 if (!orbitType.startsWith(DelftOrbitFile.DELFT_PRECISE) && !orbitType.startsWith(PrareOrbitFile.PRARE_PRECISE)) {
-                    //throw new OperatorException(orbitType + " is not suitable for an ERS1 product");
                     orbitType = PrareOrbitFile.PRARE_PRECISE;
                 }
             } else if (mission.startsWith("SENTINEL")) {
                 if (!orbitType.startsWith("Sentinel")) {
-                    //throw new OperatorException(orbitType + " is not suitable for an ERS1 product");
                     orbitType = SentinelPODOrbitFile.PRECISE;
                 }
             } else {
@@ -177,13 +174,13 @@ public final class ApplyOrbitFileOp extends Operator {
             }
 
             if (orbitType.contains("DORIS")) {
-                orbitProvider = new DorisOrbitFile(orbitType, absRoot, sourceProduct);
+                orbitProvider = new DorisOrbitFile(absRoot, sourceProduct);
             } else if (orbitType.contains("DELFT")) {
-                orbitProvider = new DelftOrbitFile(orbitType, absRoot, sourceProduct);
+                orbitProvider = new DelftOrbitFile(absRoot, sourceProduct);
             } else if (orbitType.contains("PRARE")) {
-                orbitProvider = new PrareOrbitFile(orbitType, absRoot, sourceProduct);
+                orbitProvider = new PrareOrbitFile(absRoot, sourceProduct);
             } else if (orbitType.contains("Sentinel")) {
-                orbitProvider = new SentinelPODOrbitFile(orbitType, absRoot, sourceProduct, polyDegree);
+                orbitProvider = new SentinelPODOrbitFile(absRoot, polyDegree);
             }
 
             getTiePointGrid();
@@ -257,7 +254,18 @@ public final class ApplyOrbitFileOp extends Operator {
         if (productUpdated)
             return;
 
-        orbitProvider.retrieveOrbitFile();
+        try {
+            orbitProvider.retrieveOrbitFile(orbitType);
+        } catch (Exception e) {
+            SystemUtils.LOG.warning(e.getMessage());
+            // try other orbit file types
+            for(String type : orbitProvider.getAvailableOrbitTypes()) {
+                if(!orbitType.startsWith(type)) {
+                    orbitProvider.retrieveOrbitFile(type);
+                    SystemUtils.LOG.warning("Using "+type+" "+orbitProvider.getOrbitFile()+" instead");
+                }
+            }
+        }
 
         updateOrbitStateVectors();
 

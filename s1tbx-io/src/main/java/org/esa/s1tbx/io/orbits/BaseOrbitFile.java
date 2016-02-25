@@ -28,19 +28,17 @@ import java.util.Set;
  * Base class for Orbit files
  */
 public abstract class BaseOrbitFile implements OrbitFile {
-    protected final String orbitType;
     protected final MetadataElement absRoot;
     protected File orbitFile = null;
 
     protected FtpDownloader ftp = null;
     protected Map<String, Long> fileSizeMap = null;
 
-    protected BaseOrbitFile(final String orbitType, final MetadataElement absRoot) {
-        this.orbitType = orbitType;
+    protected BaseOrbitFile(final MetadataElement absRoot) {
         this.absRoot = absRoot;
     }
 
-    public abstract File retrieveOrbitFile() throws Exception;
+    public abstract File retrieveOrbitFile(final String orbitType) throws Exception;
 
     public abstract Orbits.OrbitVector getOrbitData(final double utc) throws Exception;
 

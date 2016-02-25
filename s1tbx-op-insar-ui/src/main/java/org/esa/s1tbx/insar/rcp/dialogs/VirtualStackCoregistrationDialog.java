@@ -38,9 +38,10 @@ public class VirtualStackCoregistrationDialog extends BatchGraphDialog {
         super(theAppContext, title, helpID, closeOnDone);
 
         openProcessedProducts = true;
+
+        LoadGraph(getDefaultGraphFile());
     }
 
-    //todo @Override
     protected File getDefaultGraphFile() {
         return new File(defaultGraphPath + File.separator + "internal", "MultiOutputCoregister.xml");
     }

@@ -10,15 +10,23 @@
                 <tocitem text="Principle Component Analysis" target="PCA"/>
             </tocitem>
             <tocitem text="Coregistration">
-                <tocitem text="Automatic Coregistration">
+                <tocitem text="Coregistration" target="Coregistration">
                     <tocitem text="Create Stack" target="CreateStackOp"/>
                     <tocitem text="Cross Correlation" target="CrossCorrelationOp"/>
                     <tocitem text="Warp" target="WarpOp"/>
                 </tocitem>
+                <tocitem text="DEM Assisted Coregistration" target="DEMAssistedCoregistrationOp"/>
+                <tocitem text="Stack Tools">
+                    <tocitem text="Create Stack" target="CreateStackOp"/>
+                    <tocitem text="Stack Averaging" target="StackAveragingOp"/>
+                    <tocitem text="Stack Split" target="StackSplitOp"/>
+                </tocitem>
+                <tocitem text="Offset/Speckle Tracking" target="OffsetTrackingOp"/>
             </tocitem>
             <tocitem text="Interferometric">
                 <tocitem text="Products">
-                    <tocitem text="DEM Generation" target="DEMGenerationOp"/>
+                    <tocitem text="Phase to Displacement" target="PhaseToDisplacementOp"/>
+                    <tocitem text="Phase to Elevation" target="PhaseToElevationOp"/>
                 </tocitem>
                 <tocitem text="Filtering">
                     <tocitem text="Goldstein Phase Filtering" target="GoldsteinFilterOp"/>

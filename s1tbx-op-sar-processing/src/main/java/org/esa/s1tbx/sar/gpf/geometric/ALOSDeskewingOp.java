@@ -170,8 +170,8 @@ public class ALOSDeskewingOp extends Operator {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        if (!mission.contains("ALOS")) {
-            throw new OperatorException("The deskewing operator is for ALOS PALSAR products only");
+        if (!mission.equals("ALOS")) {
+            throw new OperatorException("The deskewing operator is for ALOS PALSAR 1 products only");
         }
 
         orbitStateVectors = AbstractMetadata.getOrbitStateVectors(absRoot);

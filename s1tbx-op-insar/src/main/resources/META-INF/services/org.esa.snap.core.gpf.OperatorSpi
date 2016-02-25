@@ -6,7 +6,7 @@ org.esa.s1tbx.insar.gpf.coregistration.experimental.DEMBasedCoregistrationOp$Spi
 org.esa.s1tbx.insar.gpf.coregistration.OffsetTrackingOp$Spi
 org.esa.s1tbx.insar.gpf.coregistration.experimental.AbsTimingErrCorrectionOp$Spi
 org.esa.s1tbx.insar.gpf.GoldsteinFilterOp$Spi
-org.esa.s1tbx.insar.gpf.DEMGenerationOp$Spi
+org.esa.s1tbx.insar.gpf.PhaseToElevationOp$Spi
 org.esa.s1tbx.insar.gpf.StackAveragingOp$Spi
 org.esa.s1tbx.insar.gpf.StackSplitWriter$Spi
 org.esa.s1tbx.insar.gpf.CoherenceOp$Spi

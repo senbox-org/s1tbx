@@ -35,13 +35,17 @@ public class DelftOrbitFile extends BaseOrbitFile {
     private OrbitalDataRecordReader delftReader = null;
     private final Product sourceProduct;
 
-    public DelftOrbitFile(final String orbitType, final MetadataElement absRoot,
+    public DelftOrbitFile(final MetadataElement absRoot,
                           final Product sourceProduct) throws Exception {
-        super(orbitType, absRoot);
+        super(absRoot);
         this.sourceProduct = sourceProduct;        
     }
 
-    public File retrieveOrbitFile() throws Exception {
+    public String[] getAvailableOrbitTypes() {
+        return new String[] { DELFT_PRECISE };
+    }
+
+    public File retrieveOrbitFile(final String orbitType) throws Exception {
         delftReader = OrbitalDataRecordReader.getInstance();
         // get product start time
         final Date startDate = sourceProduct.getStartTime().getAsDate();

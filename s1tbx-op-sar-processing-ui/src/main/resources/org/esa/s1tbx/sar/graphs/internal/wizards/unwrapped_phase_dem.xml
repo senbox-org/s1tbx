@@ -24,8 +24,8 @@
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement"/>
   </node>
-  <node id="4-DEMGeneration">
-    <operator>DEMGeneration</operator>
+  <node id="4-PhaseToElevation">
+    <operator>PhaseToElevation</operator>
     <sources>
       <sourceProduct refid="3-Stitch"/>
     </sources>
@@ -40,7 +40,7 @@
     <node id="5-Write">
     <operator>Write</operator>
     <sources>
-      <sourceProduct refid="4-DEMGeneration"/>
+      <sourceProduct refid="4-PhaseToElevation"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <formatName>BEAM-DIMAP</formatName>
@@ -58,7 +58,7 @@
     <node id="3-Stitch">
       <displayPosition y="179.0" x="190.0"/>
     </node>
-    <node id="4-DEMGeneration">
+    <node id="4-PhaseToElevation">
       <displayPosition y="243.0" x="171.0"/>
     </node>
 	<node id="5-Write">
