@@ -88,6 +88,14 @@ public class NdviOp extends Operator {
         loadSourceBands(sourceProduct);
         int sceneWidth = sourceProduct.getSceneRasterWidth();
         int sceneHeight = sourceProduct.getSceneRasterHeight();
+        if (sourceProduct.getBand(redSourceBand).getRasterWidth() != sceneWidth ||
+                sourceProduct.getBand(redSourceBand).getRasterHeight() != sceneHeight) {
+            throw new OperatorException(redSourceBand + " is not of same size as product.");
+        }
+        if (sourceProduct.getBand(nirSourceBand).getRasterWidth() != sceneWidth ||
+                sourceProduct.getBand(nirSourceBand).getRasterHeight() != sceneHeight) {
+            throw new OperatorException(nirSourceBand + " is not of same size as product.");
+        }
         targetProduct = new Product("ndvi", sourceProduct.getProductType() + "_NDVI", sceneWidth, sceneHeight);
 
         Band ndviOutputBand = new Band(NDVI_BAND_NAME, ProductData.TYPE_FLOAT32, sceneWidth,
@@ -184,6 +192,9 @@ public class NdviOp extends Operator {
         String bestBand = null;
         float bestBandLowerDelta = Float.MAX_VALUE;
         for (Band band : product.getBands()) {
+            if (!band.getRasterSize().equals(product.getSceneRasterSize())) {
+                continue;
+            }
             float bandWavelength = band.getSpectralWavelength();
             if (bandWavelength != 0.0F) {
                 float lowerDelta = bandWavelength - minWavelength;
