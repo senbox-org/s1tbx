@@ -134,8 +134,7 @@ public class InSARStackOverviewDialog extends ModelessDialog {
                 File[] files = outputProductListPanel.getSelectedFiles();
                 if (files.length == 0)                      // default to get all files
                     files = outputProductListPanel.getFileList();
-                final ProductOpener opener = new ProductOpener();
-                opener.openProducts(files);
+                ProductOpener.openProducts(files);
             }
         });
         buttonPanel2.add(openBtn);
