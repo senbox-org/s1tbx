@@ -5,6 +5,7 @@ import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.Tile;
 
 import java.awt.Rectangle;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -14,6 +15,7 @@ import java.util.Map;
  * @since SNAP 2.0
  */
 public interface PyOperatorDelegate {
+
     /**
      * Initialize the operator.
      *
@@ -29,6 +31,19 @@ public interface PyOperatorDelegate {
      * @param targetRectangle the target rectangle to process in pixel coordinates.
      */
     void compute(Operator context, Map<Band, Tile> targetTiles, Rectangle targetRectangle);
+
+    /**
+     * Compute the tiles associated with the given bands.
+     *
+     * @param context         The GPF operator that provides the context for the Python implementation.
+     * @param band            The target band.
+     * @param targetTile      The band's target tile to be computed.
+     */
+    default void computeTile(Operator context, Band band, Tile targetTile) {
+        final HashMap<Band, Tile> targetTiles = new HashMap<>();
+        targetTiles.put(band, targetTile);
+        compute(context, targetTiles, targetTile.getRectangle());
+    }
 
     /**
      * Disposes the operator and all the resources associated with it.
