@@ -73,8 +73,8 @@ public class ResamplingOp extends Operator {
     private String aggregationMethod;
 
     @Parameter(alias = "flagAggregation",
-            label = "Flag and Index Aggregation Method",
-            description = "The method used for aggregation (sampling to a coarser resolution) of flags and indexes.",
+            label = "Flag Aggregation Method",
+            description = "The method used for aggregation (sampling to a coarser resolution) of flags.",
             valueSet = {"First", "Min", "Max", "MinMedian", "MaxMedian"},
             defaultValue = "First")
     private String flagAggregationMethod;
