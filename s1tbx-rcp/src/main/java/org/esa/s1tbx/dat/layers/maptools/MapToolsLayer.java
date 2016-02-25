@@ -83,7 +83,7 @@ public class MapToolsLayer extends Layer implements LayerSelection {
         if (options.showScale()) {
             components.add(new ScaleComponent(raster));
         }
-        if (options.showNestLogo()) {
+        if (options.showLogo()) {
             components.add(new LogoComponent(raster));
         }
     }

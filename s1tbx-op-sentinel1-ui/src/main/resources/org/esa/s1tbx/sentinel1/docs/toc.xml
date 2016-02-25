@@ -11,6 +11,7 @@
                     <tocitem text="Back Geocoding" target="BackGeocodingOp"/>
                     <tocitem text="Range Shift" target="RangeShiftOp"/>
                     <tocitem text="Azimuth Shift" target="AzimuthShiftOp"/>
+                    <tocitem text="Spectral Diversity" target="SpectralDiversityOp"/>
                 </tocitem>
             </tocitem>
             <tocitem text="Sentinel-1 TOPS" mergetype="javax.help.SortMerge">

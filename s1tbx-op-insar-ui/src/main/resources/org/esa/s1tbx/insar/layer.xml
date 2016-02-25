@@ -7,7 +7,7 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
                 <attr name="displayName" stringvalue="Create Stack"/>
-                <attr name="graphFile" stringvalue="coregistration\CreateStackGraph.xml"/>
+                <attr name="graphFile" stringvalue="coregistration/CreateStackGraph.xml"/>
                 <attr name="dialogTitle" stringvalue="Create Stack"/>
                 <attr name="ShortDescription" stringvalue="Stacks together several products without coregistering"/>
                 <attr name="icon" stringvalue="esaIcon"/>
@@ -17,7 +17,7 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
                 <attr name="displayName" stringvalue="Coregistration"/>
-                <attr name="graphFile" stringvalue="coregistration\CoregistrationGraph.xml"/>
+                <attr name="graphFile" stringvalue="coregistration/CoregistrationGraph.xml"/>
                 <attr name="dialogTitle" stringvalue="Coregistration"/>
                 <attr name="ShortDescription" stringvalue="Perform Automatic Cross-Correlation based Coregistration"/>
                 <attr name="icon" stringvalue="esaIcon"/>
@@ -32,7 +32,7 @@
                 <attr name="ShortDescription" stringvalue="Stack Averaging"/>
                 <attr name="targetProductNameSuffix" stringvalue="_avg"/>
                 <attr name="icon" stringvalue="esaIcon"/>
-                <attr name="helpId" stringvalue="StackAveraging"/>
+                <attr name="helpId" stringvalue="StackAveragingOp"/>
             </file>
             <file name="org-esa-s1tbx-insar-gpf-StackSplit-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -42,7 +42,7 @@
                 <attr name="dialogTitle" stringvalue="Stack Split"/>
                 <attr name="ShortDescription" stringvalue="Split stack into multiple products"/>
                 <attr name="icon" stringvalue="esaIcon"/>
-                <attr name="helpId" stringvalue="StackSplit"/>
+                <attr name="helpId" stringvalue="StackSplitOp"/>
             </file>
 
             <file name="org-esa-s1tbx-insar-gpf-PrincipalComponents-Action.instance">
@@ -93,7 +93,7 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
                 <attr name="displayName" stringvalue="DEM Assisted Coregistration"/>
-                <attr name="graphFile" stringvalue="coregistration\DEMAssistedCoregistrationGraph.xml"/>
+                <attr name="graphFile" stringvalue="coregistration/DEMAssistedCoregistrationGraph.xml"/>
                 <attr name="dialogTitle" stringvalue="DEM Assisted Coregistration"/>
                 <attr name="ShortDescription" stringvalue="DEM Assisted Coregistration"/>
                 <attr name="icon" stringvalue="esaIcon"/>
@@ -114,7 +114,7 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
                 <attr name="displayName" stringvalue="Offset/Speckle Tracking"/>
-                <attr name="graphFile" stringvalue="coregistration\OffsetTrackingGraph.xml"/>
+                <attr name="graphFile" stringvalue="coregistration/OffsetTrackingGraph.xml"/>
                 <attr name="dialogTitle" stringvalue="Offset/Speckle Tracking"/>
                 <attr name="ShortDescription" stringvalue="Perform Offset and Speckle Tracking"/>
                 <attr name="icon" stringvalue="esaIcon"/>

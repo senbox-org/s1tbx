@@ -16,7 +16,6 @@
 package org.csa.rstb.classification.rcp.wizards.TerrainFlattenedClassification;
 
 import org.esa.s1tbx.dat.wizards.WizardDialog;
-import org.esa.snap.graphbuilder.rcp.utils.IconUtils;
 import org.esa.snap.rcp.SnapApp;
 
 import javax.swing.*;
@@ -48,7 +47,6 @@ public class TerrainFlattenedClassificationWizardAction extends AbstractAction {
         final WizardDialog dialog = new WizardDialog(SnapApp.getDefault().getMainFrame(), false,
                 TerrainFlattenedWizardInstructPanel.title, "TerrainFlattenedClassificationWizard",
                 new TerrainFlattenedWizardInstructPanel());
-        dialog.setIcon(IconUtils.rstbIcon);
         dialog.setVisible(true);
     }
 }

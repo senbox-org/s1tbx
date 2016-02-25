@@ -22,7 +22,7 @@ import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.engine_utilities.eo.Constants;
-import org.esa.snap.graphbuilder.rcp.utils.IconUtils;
+import org.esa.snap.ui.UIUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -34,7 +34,7 @@ import java.awt.image.BufferedImage;
  */
 public class CompassComponent implements MapToolsComponent {
 
-    private static final ImageIcon roseIcon = IconUtils.LoadIcon("org/esa/s1tbx/dat/icons/compass_rose.png");
+    private static final ImageIcon roseIcon = UIUtils.loadImageIcon("/org/esa/s1tbx/dat/icons/compass_rose.png", CompassComponent.class);
     private final BufferedImage image;
     private final PixelPos tail, head;
     private final PixelPos point1;
