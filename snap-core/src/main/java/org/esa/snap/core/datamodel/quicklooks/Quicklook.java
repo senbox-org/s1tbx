@@ -31,6 +31,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.prefs.Preferences;
 
 /**
@@ -50,6 +52,8 @@ public class Quicklook extends ProductNode implements Thumbnail {
     private final Path productQuicklookFolder;
     private final boolean productCanAppendFiles;
     private final boolean saveWithProduct;
+
+    private final List<QuicklookListener> listenerList = new ArrayList<>();
 
     public Quicklook(final File productFile) {
         this(null, DEFAULT_QUICKLOOK_NAME);
@@ -206,6 +210,7 @@ public class Quicklook extends ProductNode implements Thumbnail {
                     SystemUtils.LOG.severe("Quicklook: Unable to generate quicklook: " + e.getMessage());
                 }
             }
+            notifyImageUpdated();
         }
         return image;
     }
@@ -275,5 +280,35 @@ public class Quicklook extends ProductNode implements Thumbnail {
 
     private String getQLFileName(final int id) {
         return SNAP_QUICKLOOK_FILE_PREFIX + id + '_' + getName() + QUICKLOOK_EXT;
+    }
+
+    /**
+     * Adds a <code>QuicklookListener</code>.
+     *
+     * @param listener the <code>QuicklookListener</code> to be added.
+     */
+    public void addListener(final QuicklookListener listener) {
+        if (!listenerList.contains(listener)) {
+            listenerList.add(listener);
+        }
+    }
+
+    /**
+     * Removes a <code>QuicklookListener</code>.
+     *
+     * @param listener the <code>QuicklookListener</code> to be removed.
+     */
+    public void removeListener(final QuicklookListener listener) {
+        listenerList.remove(listener);
+    }
+
+    private void notifyImageUpdated() {
+        for (final QuicklookListener listener : listenerList) {
+            listener.notifyImageUpdated(this);
+        }
+    }
+
+    public interface QuicklookListener {
+        void notifyImageUpdated(Quicklook ql);
     }
 }
