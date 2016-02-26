@@ -93,8 +93,10 @@ public class SpectralUnmixingOp extends Operator {
     private Band[] errorBands;
     private Band summaryErrorBand;
     private SpectralUnmixing spectralUnmixing;
+    private boolean computeTileMethodUsable;
 
     public SpectralUnmixingOp() {
+        computeTileMethodUsable = true;
     }
 
 
@@ -163,11 +165,17 @@ public class SpectralUnmixingOp extends Operator {
     }
 
     @Override
-    public void initialize() throws OperatorException {
-        if (computeErrorBands) {
-            deactivateComputeTileMethod();
-        }
+    public boolean canComputeTile() {
+        return !computeErrorBands;
+    }
 
+    @Override
+    public boolean canComputeTileStack() {
+        return true;
+    }
+
+    @Override
+    public void initialize() throws OperatorException {
 
         if (endmemberFile != null) {
             loadEndmemberFile();
