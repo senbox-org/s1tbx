@@ -69,8 +69,6 @@ import static java.text.MessageFormat.*;
  * the {@code computeTile()} method and call it.
  * If all tiles are requested at once, e.g. writing a product to disk, it will attempt to use the {@code computeTileStack()}
  * method. If the framework cannot use its preferred operation, it will use the one implemented by the operator.
- * <p>todo - Explain the role of operator annotations (nf - 15.10.2007)
- * <p>todo - Explain the role of the SPI (nf - 15.10.2007)
  *
  * @author Norman Fomferra
  * @author Marco Peters
@@ -225,7 +223,7 @@ public abstract class Operator {
     /**
      * Deactivates the {@link #computeTile(Band, Tile, ProgressMonitor) computeTile}
      * method. This method can be called from within the {@link #initialize()} method if the current operator configuration prevents
-     * the computation of tiles of individual, independent bands.
+     * the computation of tiles of individual, independent target bands.
      *
      * @throws IllegalStateException if the {@link #computeTileStack(Map, Rectangle, ProgressMonitor) computeTileStack} method is not implemented
      */
