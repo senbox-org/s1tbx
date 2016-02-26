@@ -9,7 +9,6 @@ import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.CrsGeoCoding;
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.ProductNodeGroup;
 import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.datamodel.TiePointGrid;
@@ -220,8 +219,8 @@ public class ResamplingOp extends Operator {
                     referenceTransform.getTranslateX() != 0 || referenceTransform.getTranslateY() != 0) {
                 double subSamplingX = grid.getSubSamplingX() * transform.getScaleX();
                 double subSamplingY = grid.getSubSamplingY() * transform.getScaleY();
-                double offsetX = grid.getOffsetX() - (referenceTransform.getTranslateX() / gridTransform.getScaleX());
-                double offsetY = grid.getOffsetY() - (referenceTransform.getTranslateY() / gridTransform.getScaleY());
+                double offsetX = (grid.getOffsetX() * transform.getScaleX()) - (referenceTransform.getTranslateX() / gridTransform.getScaleX());
+                double offsetY = (grid.getOffsetY() * transform.getScaleY()) - (referenceTransform.getTranslateY() / gridTransform.getScaleY());
 
                 final TiePointGrid resampledGrid = new TiePointGrid(grid.getName(), grid.getGridWidth(), grid.getGridHeight(),
                                                                     offsetX, offsetY,
@@ -291,43 +290,40 @@ public class ResamplingOp extends Operator {
         if (sourceBand.isFlagBand() || sourceBand.isIndexBand()) {
             interpolation = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
         } else {
-            interpolation = getInterpolation(sourceBand);
+            interpolation = getInterpolation();
         }
-        return Interpolate.createInterpolatedMultiLevelImage(sourceBand, referenceNode, interpolation);
+        return Resample.createInterpolatedMultiLevelImage(sourceBand, referenceNode, interpolation);
     }
 
     private MultiLevelImage createAggregatedImage(Band sourceBand, final RasterDataNode referenceNode) {
-        final Aggregate.Type aggregationType = getAggregationType(aggregationMethod);
-        final Aggregate.Type flagAggregationType = getAggregationType(flagAggregationMethod);
-        return Aggregate.createAggregatedMultiLevelImage(sourceBand, referenceNode, aggregationType, flagAggregationType);
+        final Resample.Type aggregationType = getAggregationType(aggregationMethod);
+        final Resample.Type flagAggregationType = getAggregationType(flagAggregationMethod);
+        return Resample.createAggregatedMultiLevelImage(sourceBand, referenceNode, aggregationType, flagAggregationType);
     }
 
-    private Aggregate.Type getAggregationType(String method) {
+    private Resample.Type getAggregationType(String method) {
         if ("Min".equalsIgnoreCase(method)) {
-            return Aggregate.Type.MIN;
+            return Resample.Type.MIN;
         } else if ("Max".equalsIgnoreCase(method)) {
-            return Aggregate.Type.MAX;
+            return Resample.Type.MAX;
         } else if ("Median".equalsIgnoreCase(method)) {
-            return Aggregate.Type.MEDIAN;
+            return Resample.Type.MEDIAN;
+        } else if ("Mean".equalsIgnoreCase(method)) {
+            return Resample.Type.MEAN;
         } else if ("MinMedian".equalsIgnoreCase(method)) {
-            return Aggregate.Type.MIN_MEDIAN;
+            return Resample.Type.MIN_MEDIAN;
         } else if ("MaxMedian".equalsIgnoreCase(method)) {
-            return Aggregate.Type.MAX_MEDIAN;
+            return Resample.Type.MAX_MEDIAN;
         } else {
-            return Aggregate.Type.FIRST;
+            return Resample.Type.FIRST;
         }
     }
 
-    //todo this method has been copied from ReprojectionOp. Find a common place? - tf 20160210
-    private Interpolation getInterpolation(Band band) {
+    private Interpolation getInterpolation() {
         int interpolation = getInterpolationType();
-        if (!ProductData.isFloatingPointType(band.getDataType())) {
-            interpolation = Interpolation.INTERP_NEAREST;
-        }
         return Interpolation.getInstance(interpolation);
     }
 
-    //todo this method has been copied from ReprojectionOp. Find a common place? - tf 20160210
     private int getInterpolationType() {
         final int interpolationType;
         if ("Nearest".equalsIgnoreCase(interpolationMethod)) {

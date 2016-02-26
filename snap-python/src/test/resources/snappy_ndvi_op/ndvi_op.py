@@ -42,7 +42,8 @@ class NdviOp:
 
         context.setTargetProduct(ndvi_product)
 
-    def compute(self, context, target_tiles, target_rectangle):
+    #def compute(self, context, target_tiles, target_rectangle):
+    def computeTileStack(self, context, target_tiles, target_rectangle):
         lower_tile = context.getSourceTile(self.lower_band, target_rectangle)
         upper_tile = context.getSourceTile(self.upper_band, target_rectangle)
 

@@ -36,7 +36,7 @@ public class PyOperatorTest {
         assumeTrue(String.format("Please set '%s' to execute this test", PyBridge.PYTHON_EXECUTABLE_PROPERTY),
                    pythonExe != null);
 
-        Config.instance().preferences().put(PyBridge.FORCE_PYTHON_CONFIG_PROPERTY, "true");
+        Config.instance().preferences().put(PyBridge.FORCE_PYTHON_CONFIG_PROPERTY, "false");
         Config.instance().preferences().put(PyBridge.PYTHON_MODULE_DIR_PROPERTY, moduleDir.getPath());
 
         PyOperatorSpiTest.init();

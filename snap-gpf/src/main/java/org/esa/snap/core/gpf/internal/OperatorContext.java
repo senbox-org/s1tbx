@@ -116,12 +116,12 @@ public class OperatorContext {
     private final Map<String, Product> sourceProductMap;
     private final Map<String, Object> targetPropertyMap;
     private final RenderingHints renderingHints;
+    private final boolean computeTileMethodImplemented;
+    private final boolean computeTileStackMethodImplemented;
 
     private String id;
     private Product targetProduct;
     private OperatorSpi operatorSpi;
-    private boolean computeTileMethodUsable;
-    private boolean computeTileStackMethodUsable;
     private Map<Band, OperatorImage> targetImageMap;
     private OperatorConfiguration configuration;
     private Logger logger;
@@ -138,8 +138,8 @@ public class OperatorContext {
         }
 
         this.operator = operator;
-        this.computeTileMethodUsable = canOperatorComputeTile(operator.getClass());
-        this.computeTileStackMethodUsable = canOperatorComputeTileStack(operator.getClass());
+        this.computeTileMethodImplemented = isComputeTileMethodImplemented(operator.getClass());
+        this.computeTileStackMethodImplemented = isComputeTileStackMethodImplemented(operator.getClass());
         this.sourceProductList = new ArrayList<>(3);
         this.sourceProductMap = new HashMap<>(3);
         this.targetPropertyMap = new HashMap<>(3);
@@ -380,20 +380,12 @@ public class OperatorContext {
         return targetProduct != null;
     }
 
-    public boolean isComputeTileMethodUsable() {
-        return computeTileMethodUsable;
+    public boolean isComputeTileMethodImplemented() {
+        return computeTileMethodImplemented;
     }
 
-    public boolean isComputeTileStackMethodUsable() {
-        return computeTileStackMethodUsable;
-    }
-
-    public void setComputeTileMethodUsable(boolean computeTileMethodUsable) {
-        this.computeTileMethodUsable = computeTileMethodUsable;
-    }
-
-    public void setComputeTileStackMethodUsable(boolean computeTileStackMethodUsable) {
-        this.computeTileStackMethodUsable = computeTileStackMethodUsable;
+    public boolean isComputeTileStackMethodImplemented() {
+        return computeTileStackMethodImplemented;
     }
 
     public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region) {
@@ -442,7 +434,7 @@ public class OperatorContext {
         }
     }
 
-    private static boolean canOperatorComputeTile(Class<? extends Operator> aClass) {
+    private static boolean isComputeTileMethodImplemented(Class<? extends Operator> aClass) {
         return implementsMethod(aClass, "computeTile",
                                 new Class[]{
                                         Band.class,
@@ -451,7 +443,7 @@ public class OperatorContext {
                                 });
     }
 
-    private static boolean canOperatorComputeTileStack(Class<? extends Operator> aClass) {
+    private static boolean isComputeTileStackMethodImplemented(Class<? extends Operator> aClass) {
         return implementsMethod(aClass, "computeTileStack",
                                 new Class[]{
                                         Map.class,
@@ -461,7 +453,7 @@ public class OperatorContext {
     }
 
     private boolean operatorMustComputeTileStack() {
-        return isComputeTileStackMethodUsable() && !isComputeTileMethodUsable();
+        return operator.canComputeTileStack() && !operator.canComputeTile();
     }
 
     private static boolean implementsMethod(Class<?> aClass, String methodName, Class[] methodParameterTypes) {

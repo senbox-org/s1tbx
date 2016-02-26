@@ -76,7 +76,7 @@ public class OperatorImage extends SourcelessOpImage {
         }
         operatorContext.startWatch();
         // computeTile() may have been deactivated
-        if (targetTile != null && operatorContext.isComputeTileMethodUsable()) {
+        if (targetTile != null && operatorContext.getOperator().canComputeTile()) {
             operatorContext.getOperator().computeTile(getTargetBand(), targetTile, ProgressMonitor.NULL);
         }
         operatorContext.stopWatch();

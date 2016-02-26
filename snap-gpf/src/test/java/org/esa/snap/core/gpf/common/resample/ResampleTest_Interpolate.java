@@ -23,7 +23,7 @@ import static junit.framework.TestCase.assertNotNull;
 /**
  * @author Tonio Fincke
  */
-public class InterpolateTest {
+public class ResampleTest_Interpolate {
     private Interpolation interpolation;
 
     @Before
@@ -46,7 +46,8 @@ public class InterpolateTest {
         final Band sourceBand = createSourceBand(imageToModelTransform, sourceWidth, sourceHeight);
         final Band referenceBand = createReferenceBand(referenceWidth, referenceHeight, levelCount, new AffineTransform());
 
-        final MultiLevelImage scaledMultiLevelImage = Interpolate.createInterpolatedMultiLevelImage(sourceBand, referenceBand, interpolation);
+//        final MultiLevelImage scaledMultiLevelImage = Interpolate.createInterpolatedMultiLevelImage(sourceBand, referenceBand, interpolation);
+        final MultiLevelImage scaledMultiLevelImage = Resample.createInterpolatedMultiLevelImage(sourceBand, referenceBand, interpolation);
 
         assertNotNull(scaledMultiLevelImage);
         assertEquals(levelCount, scaledMultiLevelImage.getModel().getLevelCount());
@@ -82,7 +83,8 @@ public class InterpolateTest {
         final Band sourceBand = createSourceBand(imageToModelTransform, sourceWidth, sourceHeight);
         final Band referenceBand = createReferenceBand(referenceWidth, referenceHeight, levelCount, new AffineTransform());
 
-        final MultiLevelImage scaledMultiLevelImage = Interpolate.createInterpolatedMultiLevelImage(sourceBand, referenceBand, interpolation);
+//        final MultiLevelImage scaledMultiLevelImage = Interpolate.createInterpolatedMultiLevelImage(sourceBand, referenceBand, interpolation);
+        final MultiLevelImage scaledMultiLevelImage = Resample.createInterpolatedMultiLevelImage(sourceBand, referenceBand, interpolation);
 
         assertNotNull(scaledMultiLevelImage);
         assertEquals(levelCount, scaledMultiLevelImage.getModel().getLevelCount());
@@ -127,7 +129,8 @@ public class InterpolateTest {
         final AffineTransform referenceImageToModelTransform = new AffineTransform(referenceScaleX, 0, 0, referenceScaleY, referenceTranslateX, referenceTranslateY);
         final Band referenceBand = createReferenceBand(referenceWidth, referenceHeight, levelCount, referenceImageToModelTransform);
 
-        final MultiLevelImage scaledMultiLevelImage = Interpolate.createInterpolatedMultiLevelImage(sourceBand, referenceBand, interpolation);
+//        final MultiLevelImage scaledMultiLevelImage = Interpolate.createInterpolatedMultiLevelImage(sourceBand, referenceBand, interpolation);
+        final MultiLevelImage scaledMultiLevelImage = Resample.createInterpolatedMultiLevelImage(sourceBand, referenceBand, interpolation);
 
         assertNotNull(scaledMultiLevelImage);
         assertEquals(levelCount, scaledMultiLevelImage.getModel().getLevelCount());
@@ -169,7 +172,8 @@ public class InterpolateTest {
         final AffineTransform referenceImageToModelTransform = new AffineTransform(referenceScaleX, 0, 0, referenceScaleY, referenceTranslateX, referenceTranslateY);
         final Band referenceBand = createReferenceBand(referenceWidth, referenceHeight, referenceLevelCount, referenceImageToModelTransform);
 
-        final MultiLevelImage scaledMultiLevelImage = Interpolate.createInterpolatedMultiLevelImage(sourceBand, referenceBand, interpolation);
+//        final MultiLevelImage scaledMultiLevelImage = Interpolate.createInterpolatedMultiLevelImage(sourceBand, referenceBand, interpolation);
+        final MultiLevelImage scaledMultiLevelImage = Resample.createInterpolatedMultiLevelImage(sourceBand, referenceBand, interpolation);
 
         assertNotNull(scaledMultiLevelImage);
         assertEquals(referenceLevelCount, scaledMultiLevelImage.getModel().getLevelCount());
