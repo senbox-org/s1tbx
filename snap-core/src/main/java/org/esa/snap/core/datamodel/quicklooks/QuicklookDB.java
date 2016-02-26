@@ -54,10 +54,9 @@ public class QuicklookDB {
     }
 
     private QuicklookDB() {
-        if (!qlCacheDir.toFile().exists()) {
-            if (!qlCacheDir.toFile().mkdirs()) {
-                SystemUtils.LOG.severe("Unable to create quicklook cache folder: " + qlCacheDir);
-            }
+        final File cacheDir = qlCacheDir.toFile();
+        if (!cacheDir.exists() && !cacheDir.mkdirs()) {
+            SystemUtils.LOG.severe("Unable to create quicklook cache folder: " + qlCacheDir);
         }
 
         propertyMap = new DefaultPropertyMap();

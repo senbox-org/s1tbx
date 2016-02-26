@@ -16,17 +16,44 @@
 package org.esa.snap.core.datamodel.quicklooks;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.datamodel.Product;
 
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by luis on 29/01/2016.
  */
 public interface Thumbnail {
 
+    final List<ThumbnailListener> listenerList = new ArrayList<>();
+
     boolean hasImage();
 
     boolean hasCachedImage();
 
     BufferedImage getImage(final ProgressMonitor pm);
+
+    Product getProduct();
+
+    default void addListener(final ThumbnailListener listener) {
+        if (!listenerList.contains(listener)) {
+            listenerList.add(listener);
+        }
+    }
+
+    default void removeListener(final ThumbnailListener listener) {
+        listenerList.remove(listener);
+    }
+
+    default void notifyImageUpdated() {
+        for (final ThumbnailListener listener : listenerList) {
+            listener.notifyImageUpdated(this);
+        }
+    }
+
+    public interface ThumbnailListener {
+        void notifyImageUpdated(Thumbnail thumbnail);
+    }
 }
