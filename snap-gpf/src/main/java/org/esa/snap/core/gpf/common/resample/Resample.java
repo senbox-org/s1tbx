@@ -7,7 +7,6 @@ import com.bc.ceres.jai.GeneralFilterFunction;
 import com.bc.ceres.jai.operator.GeneralFilterDescriptor;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Kernel;
-import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.RasterDataNode;
 import org.geotools.resources.XArray;
 
@@ -15,10 +14,8 @@ import javax.media.jai.BorderExtender;
 import javax.media.jai.BorderExtenderConstant;
 import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
-import javax.media.jai.operator.FormatDescriptor;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
-import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 
 /**
@@ -52,13 +49,7 @@ class Resample {
         MultiLevelImage multiLevelImage = sourceBand.getSourceImage();
         if (filterFunction != null) {
             RenderedImage image = sourceBand.getSourceImage();
-            if (!ProductData.isFloatingPointType(sourceBand.getDataType())) {
-                image = FormatDescriptor.create(image, DataBuffer.TYPE_FLOAT, null);
-            }
             image = GeneralFilterDescriptor.create(image, filterFunction, getRenderingHints(Double.NaN));
-            if (!ProductData.isFloatingPointType(sourceBand.getDataType())) {
-                image = FormatDescriptor.create(image, getDataBufferType(sourceBand), null);
-            }
             multiLevelImage = new DefaultMultiLevelImage(new DefaultMultiLevelSource(image, sourceBand.getMultiLevelModel()));
         }
         return ResamplingScaler.scaleMultiLevelImage(referenceNode.getSourceImage(), multiLevelImage, scalings,
@@ -70,22 +61,6 @@ class Resample {
         final AffineTransform transform = new AffineTransform(sourceTransform);
         transform.concatenate(referenceNode.getMultiLevelModel().getModelToImageTransform(0));
         return new float[]{(float) transform.getScaleX(), (float) transform.getScaleY()};
-    }
-
-    private static int getDataBufferType(Band sourceBand) {
-        switch(sourceBand.getDataType()) {
-            case ProductData.TYPE_INT8:
-            case ProductData.TYPE_UINT8:
-                return DataBuffer.TYPE_BYTE;
-            case ProductData.TYPE_INT16:
-                return DataBuffer.TYPE_SHORT;
-            case ProductData.TYPE_UINT16:
-                return DataBuffer.TYPE_USHORT;
-            case ProductData.TYPE_INT32:
-            case ProductData.TYPE_UINT32:
-                return DataBuffer.TYPE_INT;
-        }
-        return DataBuffer.TYPE_UNDEFINED;
     }
 
     private static RenderingHints getRenderingHints(double noDataValue) {
