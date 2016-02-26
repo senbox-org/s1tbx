@@ -87,6 +87,7 @@ public class SnaphuImportOp extends Operator {
             }
 
             // assuming this is unwrapped phase result
+            boolean unwrappedPhaseFound = false;
             bands = slaveProduct.getBands();
             for (Band srcBand : bands) {
 
@@ -100,7 +101,13 @@ public class SnaphuImportOp extends Operator {
                     targetBand.setUnit(Unit.ABS_PHASE); // if there is a band with "unw" set unit to ABS phase
                     targetBand.setName("Unw_Phase_ifg_" + masterDate + "_" + slaveDate); // set the name to Unw_Phase_ifg_masterDate_slaveDate
                     targetProduct.setQuicklookBandName(targetBand.getName());
+                    unwrappedPhaseFound = true;
+
+                    targetProduct.setQuicklookBandName(targetBand.getName());
                 }
+            }
+            if(!unwrappedPhaseFound) {
+                throw new OperatorException("SnaphuImportOp requires an unwrapped phase product");
             }
 
         } catch (Throwable e) {

@@ -297,7 +297,11 @@ public final class TOPSARDeburstOp extends Operator {
 
         createTiePointGrids();
 
-        //targetProduct.setPreferredTileSize(500, 50);
+        if(sourceProduct.getQuicklookBandName() != null) {
+            if(targetProduct.getBand(sourceProduct.getQuicklookBandName()) != null) {
+                targetProduct.setQuicklookBandName(sourceProduct.getQuicklookBandName());
+            }
+        }
     }
 
     private String getTargetBandNameFromSourceBandName(final String srcBandName) {
