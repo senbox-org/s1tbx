@@ -95,7 +95,7 @@ public class OffsetTrackingOp extends Operator {
     private final Map<Band, Band> sourceRasterMap = new HashMap<>(10);
     private final Map<Band, FastDelaunayTriangulator> triangulatorMap = new HashMap<>(10);
     private final Map<Band, VelocityData[]> velocityMap = new HashMap<>(10);
-    private final double invalidIndex = -9999.0;
+    private final static double invalidIndex = -9999.0;
 
     private final static String PRODUCT_SUFFIX = "_Vel";
 
@@ -208,6 +208,8 @@ public class OffsetTrackingOp extends Operator {
                     targetBand = targetProduct.addBand(velocityBandName, ProductData.TYPE_FLOAT32);
                     ProductUtils.copyRasterDataNodeProperties(srcBand, targetBand);
                     sourceRasterMap.put(targetBand, srcBand);
+
+                    targetProduct.setQuicklookBandName(targetBand.getName());
                 }
 
                 final String gcpPositionBandName = productName + "_pos";
@@ -695,7 +697,6 @@ public class OffsetTrackingOp extends Operator {
         }
     }
 
-
     /**
      * The SPI is used to register this operator in the graph processing framework
      * via the SPI configuration file
@@ -710,5 +711,4 @@ public class OffsetTrackingOp extends Operator {
             super(OffsetTrackingOp.class);
         }
     }
-
 }
