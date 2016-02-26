@@ -20,7 +20,7 @@ import static junit.framework.TestCase.assertNotNull;
 /**
  * @author Tonio Fincke
  */
-public class AggregateTest {
+public class ResampleTest_Aggregate {
 
     @Test
     public void testCreateAggregatedMultiLevelImage_First() throws Exception {
@@ -28,7 +28,7 @@ public class AggregateTest {
         final Band referenceBand = createReferenceBand();
 
         final MultiLevelImage aggregatedMultiLevelImage =
-                Aggregate.createAggregatedMultiLevelImage(sourceBand, referenceBand, Aggregate.Type.FIRST, Aggregate.Type.MEDIAN);
+                Resample.createAggregatedMultiLevelImage(sourceBand, referenceBand, Resample.Type.FIRST, Resample.Type.MEDIAN);
 
         assertNotNull(aggregatedMultiLevelImage);
         assertEquals(2, aggregatedMultiLevelImage.getModel().getLevelCount());
@@ -55,7 +55,7 @@ public class AggregateTest {
         final Band referenceBand = createReferenceBand();
 
         final MultiLevelImage aggregatedMultiLevelImage =
-                Aggregate.createAggregatedMultiLevelImage(sourceBand, referenceBand, Aggregate.Type.MIN, Aggregate.Type.MEDIAN);
+                Resample.createAggregatedMultiLevelImage(sourceBand, referenceBand, Resample.Type.MIN, Resample.Type.MEDIAN);
 
         assertNotNull(aggregatedMultiLevelImage);
         assertEquals(2, aggregatedMultiLevelImage.getModel().getLevelCount());
@@ -82,7 +82,7 @@ public class AggregateTest {
         final Band referenceBand = createReferenceBand();
 
         final MultiLevelImage aggregatedMultiLevelImage =
-                Aggregate.createAggregatedMultiLevelImage(sourceBand, referenceBand, Aggregate.Type.MAX, Aggregate.Type.MEDIAN);
+                Resample.createAggregatedMultiLevelImage(sourceBand, referenceBand, Resample.Type.MAX, Resample.Type.MEDIAN);
 
         assertNotNull(aggregatedMultiLevelImage);
         assertEquals(2, aggregatedMultiLevelImage.getModel().getLevelCount());
@@ -109,7 +109,7 @@ public class AggregateTest {
         final Band referenceBand = createReferenceBand();
 
         final MultiLevelImage aggregatedMultiLevelImage =
-                Aggregate.createAggregatedMultiLevelImage(sourceBand, referenceBand, Aggregate.Type.MEDIAN, Aggregate.Type.MEDIAN);
+                Resample.createAggregatedMultiLevelImage(sourceBand, referenceBand, Resample.Type.MEDIAN, Resample.Type.MEDIAN);
 
         assertNotNull(aggregatedMultiLevelImage);
         assertEquals(2, aggregatedMultiLevelImage.getModel().getLevelCount());
@@ -136,7 +136,7 @@ public class AggregateTest {
         final Band referenceBand = createReferenceBand();
 
         final MultiLevelImage aggregatedMultiLevelImage =
-                Aggregate.createAggregatedMultiLevelImage(sourceBand, referenceBand, Aggregate.Type.MEAN, Aggregate.Type.MEDIAN);
+                Resample.createAggregatedMultiLevelImage(sourceBand, referenceBand, Resample.Type.MEAN, Resample.Type.MEDIAN);
 
         assertNotNull(aggregatedMultiLevelImage);
         assertEquals(2, aggregatedMultiLevelImage.getModel().getLevelCount());

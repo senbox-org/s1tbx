@@ -24,18 +24,23 @@ import java.awt.image.RenderedImage;
 /**
  * @author Tonio Fincke
  */
-class Aggregate {
+class Resample {
 
     enum Type {FIRST, MIN, MAX, MEDIAN, MEAN, MIN_MEDIAN, MAX_MEDIAN}
+
+    static MultiLevelImage createInterpolatedMultiLevelImage(Band sourceBand, final RasterDataNode referenceNode, Interpolation interpolation) {
+        final RenderingHints targetHints = getRenderingHints(sourceBand.getNoDataValue());
+        final float[] scalings = getScalings(sourceBand, referenceNode);
+        return ResamplingScaler.scaleMultiLevelImage(referenceNode.getSourceImage(), sourceBand.getSourceImage(),
+                                                     scalings, targetHints, sourceBand.getNoDataValue(), interpolation);
+    }
 
     static MultiLevelImage createAggregatedMultiLevelImage(Band sourceBand, final RasterDataNode referenceNode,
                                                            Type type, Type flagType) {
         final RenderingHints targetHints = getRenderingHints(sourceBand.getNoDataValue());
-        final AffineTransform sourceTransform = sourceBand.getMultiLevelModel().getImageToModelTransform(0);
-        final AffineTransform transform = new AffineTransform(sourceTransform);
-        transform.concatenate(referenceNode.getMultiLevelModel().getModelToImageTransform(0));
-        int kernelWidth = (int) (1 / transform.getScaleX());
-        int kernelHeight = (int) (1 / transform.getScaleY());
+        final float[] scalings = getScalings(sourceBand, referenceNode);
+        int kernelWidth = (int) (1 / scalings[0]);
+        int kernelHeight = (int) (1 / scalings[1]);
         final Kernel kernel = new Kernel(kernelWidth, kernelHeight, new double[kernelWidth * kernelHeight]);
         final GeneralFilterFunction filterFunction;
         if (sourceBand.isFlagBand() || sourceBand.isIndexBand()) {
@@ -56,11 +61,15 @@ class Aggregate {
             }
             multiLevelImage = new DefaultMultiLevelImage(new DefaultMultiLevelSource(image, sourceBand.getMultiLevelModel()));
         }
-        return ResamplingScaler.scaleMultiLevelImage(referenceNode.getSourceImage(), multiLevelImage,
-                                                     new float[]{(float) transform.getScaleX(), (float) transform.getScaleY()},
-                                                     targetHints,
-                                                     sourceBand.getNoDataValue(),
-                                                     interpolation);
+        return ResamplingScaler.scaleMultiLevelImage(referenceNode.getSourceImage(), multiLevelImage, scalings,
+                                                     targetHints, sourceBand.getNoDataValue(), interpolation);
+    }
+
+    private static float[] getScalings(Band sourceBand, RasterDataNode referenceNode) {
+        final AffineTransform sourceTransform = sourceBand.getMultiLevelModel().getImageToModelTransform(0);
+        final AffineTransform transform = new AffineTransform(sourceTransform);
+        transform.concatenate(referenceNode.getMultiLevelModel().getModelToImageTransform(0));
+        return new float[]{(float) transform.getScaleX(), (float) transform.getScaleY()};
     }
 
     private static int getDataBufferType(Band sourceBand) {
@@ -225,7 +234,7 @@ class Aggregate {
                         v >>= 1;
                         j++;
                     }
-                    highestOccurence = Math.max(highestOccurence, j);
+                    highestOccurence = Math.max(highestOccurence, j - 1);
                     n++;
                 }
             }

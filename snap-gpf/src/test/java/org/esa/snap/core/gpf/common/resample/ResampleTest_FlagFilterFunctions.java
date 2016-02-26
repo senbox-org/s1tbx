@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
 /**
  * @author Tonio Fincke
  */
-public class AggregateTest_FlagFilterFunctions {
+public class ResampleTest_FlagFilterFunctions {
 
     @Test
     public void testFlagMinFilterFunction() {
@@ -39,7 +39,7 @@ public class AggregateTest_FlagFilterFunctions {
         };
 
         BufferedImage image = createOneBandedUShortImage(5, 5, sourceData);
-        final GeneralFilterFunction function = new Aggregate.FlagMinFunction(3, 3, 1, 1, null);
+        final GeneralFilterFunction function = new Resample.FlagMinFunction(3, 3, 1, 1, null);
         final BorderExtender borderExtender = new BorderExtenderConstant(new double[]{Double.NaN});
 
         final RenderingHints hints = new RenderingHints(JAI.KEY_BORDER_EXTENDER, borderExtender);
@@ -78,7 +78,7 @@ public class AggregateTest_FlagFilterFunctions {
         };
 
         BufferedImage image = createOneBandedUShortImage(5, 5, sourceData);
-        final GeneralFilterFunction function = new Aggregate.FlagMaxFunction(3, 3, 1, 1, null);
+        final GeneralFilterFunction function = new Resample.FlagMaxFunction(3, 3, 1, 1, null);
         final BorderExtender borderExtender = new BorderExtenderConstant(new double[]{Double.NaN});
 
         final RenderingHints hints = new RenderingHints(JAI.KEY_BORDER_EXTENDER, borderExtender);
@@ -117,7 +117,7 @@ public class AggregateTest_FlagFilterFunctions {
         };
 
         BufferedImage image = createOneBandedUShortImage(5, 5, sourceData);
-        final GeneralFilterFunction function = new Aggregate.FlagMedianMinFunction(3, 3, 1, 1, null);
+        final GeneralFilterFunction function = new Resample.FlagMedianMinFunction(3, 3, 1, 1, null);
         final BorderExtender borderExtender = new BorderExtenderConstant(new double[]{Double.NaN});
 
         final RenderingHints hints = new RenderingHints(JAI.KEY_BORDER_EXTENDER, borderExtender);
@@ -156,7 +156,7 @@ public class AggregateTest_FlagFilterFunctions {
         };
 
         BufferedImage image = createOneBandedUShortImage(5, 5, sourceData);
-        final GeneralFilterFunction function = new Aggregate.FlagMedianMaxFunction(3, 3, 1, 1, null);
+        final GeneralFilterFunction function = new Resample.FlagMedianMaxFunction(3, 3, 1, 1, null);
         final BorderExtender borderExtender = new BorderExtenderConstant(new double[]{Double.NaN});
 
         final RenderingHints hints = new RenderingHints(JAI.KEY_BORDER_EXTENDER, borderExtender);
