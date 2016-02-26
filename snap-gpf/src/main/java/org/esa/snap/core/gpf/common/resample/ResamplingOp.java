@@ -73,8 +73,8 @@ public class ResamplingOp extends Operator {
     private String aggregationMethod;
 
     @Parameter(alias = "flagAggregation",
-            label = "Flag and Index Aggregation Method",
-            description = "The method used for aggregation (sampling to a coarser resolution) of flags and indexes.",
+            label = "Flag Aggregation Method",
+            description = "The method used for aggregation (sampling to a coarser resolution) of flags.",
             valueSet = {"First", "Min", "Max", "MinMedian", "MaxMedian"},
             defaultValue = "First")
     private String flagAggregationMethod;
@@ -205,20 +205,24 @@ public class ResamplingOp extends Operator {
 
     private void resampleTiePointGrids(RasterDataNode referenceNode) {
         final ProductNodeGroup<TiePointGrid> tiePointGridGroup = sourceProduct.getTiePointGridGroup();
-        AffineTransform transform;
-        try {
-            transform = new AffineTransform(referenceNode.getImageToModelTransform().createInverse());
-        } catch (NoninvertibleTransformException e) {
-            throw new OperatorException("Cannot resample: " + e.getMessage());
-        }
+        final AffineTransform referenceTransform = referenceNode.getImageToModelTransform();
         for (int i = 0; i < tiePointGridGroup.getNodeCount(); i++) {
             final TiePointGrid grid = tiePointGridGroup.get(i);
-            transform.concatenate(grid.getImageToModelTransform());
-            if (Math.abs(transform.getScaleX() - 1.0) > 1e-8 || Math.abs(transform.getScaleY() - 1.0) > 1e-8) {
+            AffineTransform transform;
+            try {
+                transform = new AffineTransform(referenceTransform.createInverse());
+            } catch (NoninvertibleTransformException e) {
+                throw new OperatorException("Cannot resample: " + e.getMessage());
+            }
+            final AffineTransform gridTransform = grid.getImageToModelTransform();
+            transform.concatenate(gridTransform);
+            if (Math.abs(transform.getScaleX() - 1.0) > 1e-8 || Math.abs(transform.getScaleY() - 1.0) > 1e-8 ||
+                    referenceTransform.getTranslateX() != 0 || referenceTransform.getTranslateY() != 0) {
                 double subSamplingX = grid.getSubSamplingX() * transform.getScaleX();
                 double subSamplingY = grid.getSubSamplingY() * transform.getScaleY();
-                double offsetX = grid.getOffsetX() * transform.getScaleX();
-                double offsetY = grid.getOffsetY() * transform.getScaleY();
+                double offsetX = grid.getOffsetX() - (referenceTransform.getTranslateX() / gridTransform.getScaleX());
+                double offsetY = grid.getOffsetY() - (referenceTransform.getTranslateY() / gridTransform.getScaleY());
+
                 final TiePointGrid resampledGrid = new TiePointGrid(grid.getName(), grid.getGridWidth(), grid.getGridHeight(),
                                                                     offsetX, offsetY,
                                                                     subSamplingX, subSamplingY, grid.getTiePoints());
