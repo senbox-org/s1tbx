@@ -5,7 +5,6 @@ import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.Tile;
 
 import java.awt.Rectangle;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -27,23 +26,32 @@ public interface PyOperatorDelegate {
      * Compute the tiles associated with the given bands.
      *
      * @param context         The GPF operator that provides the context for the Python implementation.
-     * @param targetTiles     a mapping from {@link Band} objects to {@link Tile} objects.
-     * @param targetRectangle the target rectangle to process in pixel coordinates.
+     * @param targetTiles     A mapping from {@link Band} objects to target {@link Tile} objects.
+     * @param targetRectangle The target rectangle to process in pixel coordinates.
+     * @deprecated since SNAP 3.0. Use {@link #computeTileStack} instead.
      */
+    @Deprecated
     void compute(Operator context, Map<Band, Tile> targetTiles, Rectangle targetRectangle);
+
+    /**
+     * Compute the tile associated with the given band.
+     *
+     * @param context    The GPF operator that provides the context for the Python implementation.
+     * @param band       The band.
+     * @param targetTile The band's target tile to be computed.
+     * @since SNAP 3.0
+     */
+    void computeTile(Operator context, Band band, Tile targetTile);
 
     /**
      * Compute the tiles associated with the given bands.
      *
      * @param context         The GPF operator that provides the context for the Python implementation.
-     * @param band            The target band.
-     * @param targetTile      The band's target tile to be computed.
+     * @param targetTiles     A mapping from {@link Band} objects to target {@link Tile} objects.
+     * @param targetRectangle The target rectangle in pixel coordinates.
+     * @since SNAP 3.0
      */
-    default void computeTile(Operator context, Band band, Tile targetTile) {
-        final HashMap<Band, Tile> targetTiles = new HashMap<>();
-        targetTiles.put(band, targetTile);
-        compute(context, targetTiles, targetTile.getRectangle());
-    }
+    void computeTileStack(Operator context, Map<Band, Tile> targetTiles, Rectangle targetRectangle);
 
     /**
      * Disposes the operator and all the resources associated with it.
