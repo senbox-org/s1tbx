@@ -32,8 +32,7 @@ import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 
-import java.awt.Color;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.Map;
 
 /**
@@ -43,10 +42,11 @@ import java.util.Map;
  */
 @OperatorMetadata(
         alias = "NdviOp",
+        version="1.3",
         category = "Optical/Thematic Land Processing",
         description = "The retrieves the Normalized Difference Vegetation Index (NDVI).",
         authors = "Maximilian Aulinger, Thomas Storm",
-        copyright = "Copyright (C) 2002-2014 by Brockmann Consult (info@brockmann-consult.de)")
+        copyright = "Copyright (C) 2016 by Brockmann Consult (info@brockmann-consult.de)")
 public class NdviOp extends Operator {
 
     // constants
