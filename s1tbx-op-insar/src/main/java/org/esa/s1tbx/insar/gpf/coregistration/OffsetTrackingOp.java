@@ -63,7 +63,7 @@ import java.util.Set;
         category = "Radar/Coregistration",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
-        description = "Create Warp Function And Get Co-registrated Images")
+        description = "Create velocity vectors from offset tracking")
 public class OffsetTrackingOp extends Operator {
 
     @SourceProduct
@@ -77,7 +77,7 @@ public class OffsetTrackingOp extends Operator {
 
     @Parameter(description = "Output range and azimuth shifts", defaultValue = "false",
             label = "Output range and azimuth shifts")
-    private Boolean outputShifts = false;
+    private boolean outputRangeAzimuthOffset = false;
 
     private Band masterBand = null;
     private boolean GCPVelocityAvailable = false;
@@ -219,7 +219,7 @@ public class OffsetTrackingOp extends Operator {
                     sourceRasterMap.put(targetBand, srcBand);
                 }
 
-                if (outputShifts) {
+                if (outputRangeAzimuthOffset) {
                     final String rangeShiftBandName = productName + "_range_shift";
                     if (targetProduct.getBand(rangeShiftBandName) == null) {
                         targetBand = targetProduct.addBand(rangeShiftBandName, ProductData.TYPE_FLOAT32);
@@ -333,7 +333,7 @@ public class OffsetTrackingOp extends Operator {
                 }
             }
 
-            if (outputShifts && tgtRangeShiftBuffer!= null && tgtAzimuthShiftBuffer != null) {
+            if (outputRangeAzimuthOffset && tgtRangeShiftBuffer!= null && tgtAzimuthShiftBuffer != null) {
                 for (int y = y0; y < yMax; y++) {
                     tgtIndex.calculateStride(y);
                     final int yy = y - y0;
