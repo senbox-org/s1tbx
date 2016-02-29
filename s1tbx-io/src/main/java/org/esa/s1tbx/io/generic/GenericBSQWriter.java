@@ -34,7 +34,7 @@ import java.io.IOException;
 import java.nio.ByteOrder;
 
 
-public class GenericWriter extends AbstractProductWriter {
+public class GenericBSQWriter extends AbstractProductWriter {
 
     private ImageOutputStream _outputStream = null;
 
@@ -47,7 +47,7 @@ public class GenericWriter extends AbstractProductWriter {
      *
      * @param writerPlugIn the given product writer plug-in, must not be <code>null</code>
      */
-    public GenericWriter(final ProductWriterPlugIn writerPlugIn) {
+    public GenericBSQWriter(final ProductWriterPlugIn writerPlugIn) {
         super(writerPlugIn);
 
     }

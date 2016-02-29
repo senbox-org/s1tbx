@@ -25,17 +25,15 @@ import org.esa.snap.core.util.io.SnapFileFilter;
 import java.io.File;
 import java.util.Locale;
 
+public class GenericBSQWriterPlugIn implements ProductWriterPlugIn {
 
-public class GenericWriterPlugIn implements ProductWriterPlugIn {
-
-    private static final String FORMAT_NAME = "Generic Binary";
+    private static final String FORMAT_NAME = "Generic Binary BSQ";
     private final static String FILE_EXTENSION = ".bin";
-
 
     /**
      * Constructs a new product writer plug-in instance.
      */
-    public GenericWriterPlugIn() {
+    public GenericBSQWriterPlugIn() {
     }
 
     @Override
@@ -88,7 +86,7 @@ public class GenericWriterPlugIn implements ProductWriterPlugIn {
      * @return a new instance of the <code>GDALWriter</code> class
      */
     public ProductWriter createWriterInstance() {
-        return new GenericWriter(this);
+        return new GenericBSQWriter(this);
     }
 
     public SnapFileFilter getProductFileFilter() {
