@@ -36,7 +36,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "Unwrap",
         category = "Radar/Interferometric/Unwrapping",
         description = "Unwrap input complex data",
-        internal = false)
+        internal = true)
 public class UnwrapOp extends Operator {
 
     @SourceProduct(alias = "source")

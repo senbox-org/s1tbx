@@ -24,11 +24,13 @@ import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.datamodel.quicklooks.Quicklook;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.util.ExceptionLog;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -76,6 +78,12 @@ public abstract class SARReader extends AbstractProductReader {
                 product.setQuicklookBandName(band.getName());
                 return;
             }
+        }
+    }
+
+    protected void addQuicklook(final Product product, final File qlFile) {
+        if(qlFile != null) {
+            product.getQuicklookGroup().add(new Quicklook(product, Quicklook.DEFAULT_QUICKLOOK_NAME, qlFile));
         }
     }
 

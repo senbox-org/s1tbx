@@ -135,6 +135,12 @@ public class GoldsteinFilterOp extends Operator {
         addSelectedBands();
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
+
+        if(sourceProduct.getQuicklookBandName() != null) {
+            if(targetProduct.getBand(sourceProduct.getQuicklookBandName()) != null) {
+                targetProduct.setQuicklookBandName(sourceProduct.getQuicklookBandName());
+            }
+        }
     }
 
     /**

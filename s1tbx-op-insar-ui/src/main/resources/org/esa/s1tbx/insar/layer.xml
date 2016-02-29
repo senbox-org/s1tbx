@@ -201,10 +201,6 @@
             <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.coregistration.WarpOpUI"/>
             <attr name="operatorName" stringvalue="Warp"/>
         </file>
-        <file name="org.esa.s1tbx.insar.gpf.ui.coregistration.DEMBasedCoregistrationOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.coregistration.DEMBasedCoregistrationOpUI"/>
-            <attr name="operatorName" stringvalue="DEM-Based-Coregistration"/>
-        </file>
         <file name="org.esa.s1tbx.insar.gpf.ui.coregistration.DEMAssistedCoregistrationOpUI">
             <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.coregistration.DEMAssistedCoregistrationOpUI"/>
             <attr name="operatorName" stringvalue="DEM-Assisted-Coregistration"/>

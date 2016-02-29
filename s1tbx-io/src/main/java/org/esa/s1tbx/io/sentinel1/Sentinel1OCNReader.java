@@ -209,11 +209,10 @@ public class Sentinel1OCNReader {
                         bandName += variable.getFullName();
                         addBand(product, bandName, variable, shape[1], shape[0]);
                         bandNameNCFileMap.put(bandName, netcdfFile);
-                        /*
-                        if (bandName.contains("rvlLon")) {
-                            dumpVariableValues(variable, bandName);
+
+                        if (bandName.contains("owiNrcs")) {
+                            product.setQuicklookBandName(bandName);
                         }
-                        */
                     }
                     break;
                     case 3:

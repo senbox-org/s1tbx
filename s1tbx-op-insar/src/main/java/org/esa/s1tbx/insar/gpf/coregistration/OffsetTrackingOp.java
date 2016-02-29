@@ -63,7 +63,7 @@ import java.util.Set;
         category = "Radar/Coregistration",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
-        description = "Create Warp Function And Get Co-registrated Images")
+        description = "Create velocity vectors from offset tracking")
 public class OffsetTrackingOp extends Operator {
 
     @SourceProduct
@@ -77,7 +77,7 @@ public class OffsetTrackingOp extends Operator {
 
     @Parameter(description = "Output range and azimuth shifts", defaultValue = "false",
             label = "Output range and azimuth shifts")
-    private Boolean outputShifts = false;
+    private boolean outputRangeAzimuthOffset = false;
 
     private Band masterBand = null;
     private boolean GCPVelocityAvailable = false;
@@ -95,7 +95,7 @@ public class OffsetTrackingOp extends Operator {
     private final Map<Band, Band> sourceRasterMap = new HashMap<>(10);
     private final Map<Band, FastDelaunayTriangulator> triangulatorMap = new HashMap<>(10);
     private final Map<Band, VelocityData[]> velocityMap = new HashMap<>(10);
-    private final double invalidIndex = -9999.0;
+    private final static double invalidIndex = -9999.0;
 
     private final static String PRODUCT_SUFFIX = "_Vel";
 
@@ -208,6 +208,8 @@ public class OffsetTrackingOp extends Operator {
                     targetBand = targetProduct.addBand(velocityBandName, ProductData.TYPE_FLOAT32);
                     ProductUtils.copyRasterDataNodeProperties(srcBand, targetBand);
                     sourceRasterMap.put(targetBand, srcBand);
+
+                    targetProduct.setQuicklookBandName(targetBand.getName());
                 }
 
                 final String gcpPositionBandName = productName + "_pos";
@@ -217,7 +219,7 @@ public class OffsetTrackingOp extends Operator {
                     sourceRasterMap.put(targetBand, srcBand);
                 }
 
-                if (outputShifts) {
+                if (outputRangeAzimuthOffset) {
                     final String rangeShiftBandName = productName + "_range_shift";
                     if (targetProduct.getBand(rangeShiftBandName) == null) {
                         targetBand = targetProduct.addBand(rangeShiftBandName, ProductData.TYPE_FLOAT32);
@@ -331,7 +333,7 @@ public class OffsetTrackingOp extends Operator {
                 }
             }
 
-            if (outputShifts && tgtRangeShiftBuffer!= null && tgtAzimuthShiftBuffer != null) {
+            if (outputRangeAzimuthOffset && tgtRangeShiftBuffer!= null && tgtAzimuthShiftBuffer != null) {
                 for (int y = y0; y < yMax; y++) {
                     tgtIndex.calculateStride(y);
                     final int yy = y - y0;
@@ -695,7 +697,6 @@ public class OffsetTrackingOp extends Operator {
         }
     }
 
-
     /**
      * The SPI is used to register this operator in the graph processing framework
      * via the SPI configuration file
@@ -710,5 +711,4 @@ public class OffsetTrackingOp extends Operator {
             super(OffsetTrackingOp.class);
         }
     }
-
 }

@@ -30,7 +30,6 @@ import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.core.gpf.internal.TileImpl;
 import org.esa.snap.core.util.Guardian;
-import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 
 import javax.imageio.stream.ImageOutputStream;
@@ -75,6 +74,9 @@ public class GammaProductWriter extends AbstractProductWriter {
             outputFile = (File) output;
         }
         outputDir = outputFile.getParentFile();
+        if(!outputDir.exists()) {
+            outputDir.mkdirs();
+        }
 
         srcProduct = getSourceProduct();
         srcProduct.setProductWriter(this);
@@ -172,7 +174,7 @@ public class GammaProductWriter extends AbstractProductWriter {
         return srcProduct.getBand(name);
     }
 
-    private Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region) {
+    private static Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region) {
         MultiLevelImage image = rasterDataNode.getSourceImage();
 
         Raster awtRaster = image.getData(region); // Note: copyData is NOT faster!

@@ -328,8 +328,10 @@ public final class SubtRefDemOp extends Operator {
                 ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBand(targetBandName_I),
                         targetProduct.getBand(targetBandName_Q), countStr);
 
-                ReaderUtils.createVirtualPhaseBand(targetProduct, targetProduct.getBand(targetBandName_I),
+                Band phaseBand = ReaderUtils.createVirtualPhaseBand(targetProduct, targetProduct.getBand(targetBandName_I),
                         targetProduct.getBand(targetBandName_Q), countStr);
+
+                targetProduct.setQuicklookBandName(phaseBand.getName());
             }
 
             if (targetMap.get(key).subProductsFlag) {

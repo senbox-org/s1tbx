@@ -151,6 +151,15 @@
                 <attr name="formatName" stringvalue="Gamma"/>
                 <attr name="useAllFileFilter" boolvalue="false"/>
             </file>
+            <file name="org-esa-s1tbx-io-exportGenericBSQ.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.context"/>
+                <attr name="type" stringvalue="org.esa.snap.core.datamodel.ProductNode"/>
+                <attr name="selectionType" stringvalue="EXACTLY_ONE"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ExportProductAction.create"/>
+                <attr name="displayName" stringvalue="Generic Binary BSQ"/>
+                <attr name="formatName" stringvalue="Generic Binary BSQ"/>
+                <attr name="useAllFileFilter" boolvalue="false"/>
+            </file>
         </folder>
     </folder>
 
@@ -223,6 +232,10 @@
                     <file name="org-esa-s1tbx-io-exportPolSARPro.shadow">
                         <attr name="originalFile" stringvalue="Actions/Writers/org-esa-s1tbx-io-exportPolSARPro.instance"/>
                         <attr name="position" intvalue="200"/>
+                    </file>
+                    <file name="org-esa-s1tbx-io-exportGenericBSQ.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Writers/org-esa-s1tbx-io-exportGenericBSQ.instance"/>
+                        <attr name="position" intvalue="300"/>
                     </file>
                 </folder>
             </folder>

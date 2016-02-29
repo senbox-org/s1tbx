@@ -57,11 +57,6 @@ public class SnaphuImportOp extends Operator {
                 throw new OperatorException("SnaphuImportOp requires at least one product with InSAR metadata.");
             }
 
-            targetProduct = new Product(sourceProduct.getName(),
-                    sourceProduct.getProductType(),
-                    sourceProduct.getSceneRasterWidth(),
-                    sourceProduct.getSceneRasterHeight());
-
             if (masterProduct.getSceneRasterHeight() != slaveProduct.getSceneRasterHeight()) {
                 throw new OperatorException("SnaphuImportOp requires input products to be of the same HEIGHT dimension.");
             }
@@ -92,6 +87,7 @@ public class SnaphuImportOp extends Operator {
             }
 
             // assuming this is unwrapped phase result
+            boolean unwrappedPhaseFound = false;
             bands = slaveProduct.getBands();
             for (Band srcBand : bands) {
 
@@ -104,7 +100,14 @@ public class SnaphuImportOp extends Operator {
                 if (targetBand.getName().toLowerCase().contains("unw") || targetBand.getName().toLowerCase().contains("band")) {
                     targetBand.setUnit(Unit.ABS_PHASE); // if there is a band with "unw" set unit to ABS phase
                     targetBand.setName("Unw_Phase_ifg_" + masterDate + "_" + slaveDate); // set the name to Unw_Phase_ifg_masterDate_slaveDate
+                    targetProduct.setQuicklookBandName(targetBand.getName());
+                    unwrappedPhaseFound = true;
+
+                    targetProduct.setQuicklookBandName(targetBand.getName());
                 }
+            }
+            if(!unwrappedPhaseFound) {
+                throw new OperatorException("SnaphuImportOp requires an unwrapped phase product");
             }
 
         } catch (Throwable e) {

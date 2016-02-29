@@ -290,13 +290,18 @@ public final class TOPSARDeburstOp extends Operator {
 
         ProductUtils.copyMetadata(sourceProduct, targetProduct);
         ProductUtils.copyFlagCodings(sourceProduct, targetProduct);
+        ProductUtils.copyQuicklookBandName(sourceProduct, targetProduct);
         targetProduct.setStartTime(new ProductData.UTC(targetFirstLineTime/Constants.secondsInDay));
         targetProduct.setEndTime(new ProductData.UTC(targetLastLineTime/Constants.secondsInDay));
         targetProduct.setDescription(sourceProduct.getDescription());
 
         createTiePointGrids();
 
-        //targetProduct.setPreferredTileSize(500, 50);
+        if(sourceProduct.getQuicklookBandName() != null) {
+            if(targetProduct.getBand(sourceProduct.getQuicklookBandName()) != null) {
+                targetProduct.setQuicklookBandName(sourceProduct.getQuicklookBandName());
+            }
+        }
     }
 
     private String getTargetBandNameFromSourceBandName(final String srcBandName) {

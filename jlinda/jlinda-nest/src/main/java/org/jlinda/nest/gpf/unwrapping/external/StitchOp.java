@@ -38,7 +38,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "Stitch",
         category = "Radar/Interferometric/Unwrapping",
         description = "Unwrap phase for each tile",
-        internal = false)
+        internal = true)
 public class StitchOp extends Operator {
 
     @SourceProduct
