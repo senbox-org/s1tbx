@@ -25,6 +25,7 @@ import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 
 /**
@@ -36,8 +37,8 @@ public class HeaderWriter {
     private final Product srcProduct;
     private final MetadataElement absRoot;
     private String baseFileName;
-    private boolean isComplex = false;
-    private boolean isCoregistered = false;
+    private boolean isComplex;
+    private boolean isCoregistered;
     private final GammaProductWriter writer;
 
     private final static String sep = ":\t";
@@ -45,6 +46,8 @@ public class HeaderWriter {
     public HeaderWriter(final GammaProductWriter writer, final Product srcProduct, final File userOutputFile) {
         this.writer = writer;
         this.srcProduct = srcProduct;
+        this.isComplex = false;
+        this.isCoregistered = false;
 
         absRoot = AbstractMetadata.getAbstractedMetadata(srcProduct);
         if (absRoot != null) {
@@ -63,11 +66,9 @@ public class HeaderWriter {
         return baseFileName;
     }
 
-    public void writeParFile() {
-        PrintStream p = null;
-        try {
-            final FileOutputStream out = new FileOutputStream(outputFile);
-            p = new PrintStream(out);
+    public void writeParFile() throws IOException {
+        final FileOutputStream out = new FileOutputStream(outputFile);
+        try(PrintStream p = new PrintStream(out)) {
 
             p.println(GammaConstants.HEADER_KEY_NAME + sep + srcProduct.getName());
             p.println(GammaConstants.HEADER_KEY_SENSOR_TYPE + sep + absRoot.getAttributeString(AbstractMetadata.MISSION));
@@ -80,11 +81,9 @@ public class HeaderWriter {
             p.println(GammaConstants.HEADER_KEY_RADAR_FREQUENCY + sep + absRoot.getAttributeString(AbstractMetadata.radar_frequency));
             p.println(GammaConstants.HEADER_KEY_PRF + sep + absRoot.getAttributeString(AbstractMetadata.pulse_repetition_frequency));
 
+            p.flush();
         } catch (Exception e) {
-            System.out.println("GammaWriter unable to write par file " + e.getMessage());
-        } finally {
-            if (p != null)
-                p.close();
+            throw new IOException("GammaWriter unable to write par file " + e.getMessage());
         }
     }
 
