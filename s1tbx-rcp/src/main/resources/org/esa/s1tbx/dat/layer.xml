@@ -11,6 +11,7 @@
                 <attr name="useAllFileFilter" boolvalue="true"/>
                 <attr name="helpId" stringvalue="importGenericComplex"/>
                 <attr name="ShortDescription" stringvalue="Open Generic Complex product."/>
+                <attr name="timeBeforeDialogAppears" intvalue="3600000"/>
             </file>
             <file name="org-esa-s1tbx-io-importGenericBinary.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -20,6 +21,7 @@
                 <attr name="useAllFileFilter" boolvalue="true"/>
                 <attr name="helpId" stringvalue="importGenericBinary"/>
                 <attr name="ShortDescription" stringvalue="Open Generic Binary product."/>
+                <attr name="timeBeforeDialogAppears" intvalue="3600000"/>
             </file>
         </folder>
     </folder>
