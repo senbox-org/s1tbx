@@ -49,6 +49,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "Image-Filter",
         category = "Raster",
         authors = "Norman Fomferra, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Common Image Processing Filters")
 public class FilterOperator extends Operator {

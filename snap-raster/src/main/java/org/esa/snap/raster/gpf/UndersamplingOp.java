@@ -94,6 +94,7 @@ import java.util.StringTokenizer;
 @OperatorMetadata(alias = "Undersample",
         category = "Raster/Data Conversion/Resampling",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Undersample the datset")
 public class UndersamplingOp extends Operator {

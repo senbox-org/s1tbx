@@ -51,6 +51,7 @@ import java.io.File;
 @OperatorMetadata(alias = "Terrain-Mask",
         category = "Raster/Masks",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Terrain Mask Generation")
 public final class TerrainMaskOp extends Operator {

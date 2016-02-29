@@ -60,6 +60,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "GLCM",
         category = "Raster/Image Analysis/Texture Analysis",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Extract Texture Features")
 public final class GLCMOp extends Operator {

@@ -39,6 +39,7 @@ import java.util.List;
 @OperatorMetadata(alias = "Flip",
         category = "Raster",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "flips a product horizontal/vertical")
 public final class FlipOp extends Operator {

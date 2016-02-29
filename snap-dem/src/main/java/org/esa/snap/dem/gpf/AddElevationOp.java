@@ -50,6 +50,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "AddElevation",
         category = "Raster/DEM Tools",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Creates a DEM band")
 public final class AddElevationOp extends Operator {

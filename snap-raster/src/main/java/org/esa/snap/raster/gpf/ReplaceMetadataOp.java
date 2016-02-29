@@ -35,6 +35,7 @@ import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 @OperatorMetadata(alias = "ReplaceMetadata",
         category = "Tools",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Replace the metadata of the first product with that of the second")
 public class ReplaceMetadataOp extends Operator {

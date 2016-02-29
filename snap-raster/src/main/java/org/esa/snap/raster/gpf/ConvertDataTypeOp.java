@@ -43,6 +43,7 @@ import java.util.List;
 @OperatorMetadata(alias = "Convert-Datatype",
         category = "Raster/Data Conversion",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Convert product data type")
 public class ConvertDataTypeOp extends Operator {

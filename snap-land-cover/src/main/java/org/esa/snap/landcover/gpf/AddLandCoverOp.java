@@ -52,6 +52,7 @@ import java.io.File;
 @OperatorMetadata(alias = "AddLandCover",
         category = "Raster/Masks",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Creates a land cover band")
 public final class AddLandCoverOp extends Operator {

@@ -67,6 +67,7 @@ import java.util.Arrays;
 @OperatorMetadata(alias = "Import-Vector",
         category = "Vector",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Imports a shape file into a product")
 public class ImportVectorOp extends Operator {

@@ -29,6 +29,7 @@ import org.esa.snap.core.gpf.annotations.TargetProduct;
 @OperatorMetadata(alias = "ProductSet-Reader",
         category = "Input-Output",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Adds a list of sources")
 public class ProductSetReaderOp extends Operator {

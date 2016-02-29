@@ -49,6 +49,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "Land-Cover-Mask",
         category = "Raster/Masks",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Perform decision tree classification")
 public final class LandCoverMaskOp extends Operator {
