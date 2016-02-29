@@ -8,9 +8,12 @@ import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.CrsGeoCoding;
+import org.esa.snap.core.datamodel.Mask;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductNodeGroup;
 import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.Scene;
+import org.esa.snap.core.datamodel.SceneFactory;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
@@ -53,28 +56,28 @@ public class ResamplingOp extends Operator {
     Product targetProduct;
 
     //todo also allow to set a target size/resolution explicitly
-    @Parameter(alias = "Reference Band", description = "The name of the reference raster data node. " +
+    @Parameter(alias = "Reference Band", description = "The name of the reference band. " +
             "All other bands will be re-sampled to match its size and resolution.")
     String referenceBandName;
 
     @Parameter(alias = "interpolation",
             label = "Interpolation Method",
-            description = "The method used for interpolation (sampling to a finer resolution).",
+            description = "The method used for interpolation (upsampling to a finer resolution).",
             valueSet = {"Nearest", "Bilinear", "Bicubic"},
             defaultValue = "Nearest")
     private String interpolationMethod;
 
     @Parameter(alias = "aggregation",
             label = "Aggregation Method",
-            description = "The method used for aggregation (sampling to a coarser resolution).",
-            valueSet = {"First", "Min", "Max", "Mean", "Median"},
+            description = "The method used for aggregation (downsampling to a coarser resolution).",
+            valueSet = {"First", "And", "Or", "Mean", "Median"},
             defaultValue = "First")
     private String aggregationMethod;
 
     @Parameter(alias = "flagAggregation",
             label = "Flag Aggregation Method",
-            description = "The method used for aggregation (sampling to a coarser resolution) of flags.",
-            valueSet = {"First", "Min", "Max", "MinMedian", "MaxMedian"},
+            description = "The method used for aggregation (downsampling to a coarser resolution) of flags.",
+            valueSet = {"First", "And", "Or", "Median-And", "Median-Or"},
             defaultValue = "First")
     private String flagAggregationMethod;
 
@@ -90,29 +93,52 @@ public class ResamplingOp extends Operator {
         if (!allScalingsAreIntDivisible(sourceProduct)) {
             throw new OperatorException("Not all band scalings are int divisible.");
         }
-        final RasterDataNode referenceNode = sourceProduct.getRasterDataNode(referenceBandName);
-        Assert.notNull(referenceNode);
-        if (!allBandsMustBeEitherInterpolatedAggregatedOrLeftAsIs(sourceProduct, referenceNode)) {
+        final Band referenceBand = sourceProduct.getBand(referenceBandName);
+        Assert.notNull(referenceBand);
+        if (!allBandsMustBeEitherInterpolatedAggregatedOrLeftAsIs(sourceProduct, referenceBand)) {
             throw new OperatorException("Bands must be either aggregated, interpolated or left as is.");
         }
         validateInterpolationParameter();
-        final int referenceWidth = referenceNode.getRasterWidth();
-        final int referenceHeight = referenceNode.getRasterHeight();
+        final int referenceWidth = referenceBand.getRasterWidth();
+        final int referenceHeight = referenceBand.getRasterHeight();
         targetProduct = new Product(sourceProduct.getName() + "_" + NAME_EXTENSION, sourceProduct.getProductType(),
                                     referenceWidth, referenceHeight);
-        resampleBands(referenceNode);
-        resampleTiePointGrids(referenceNode);
+        resampleBands(referenceBand);
+        resampleTiePointGrids(referenceBand);
         ProductUtils.copyFlagCodings(sourceProduct, targetProduct);
         ProductUtils.copyIndexCodings(sourceProduct, targetProduct);
-        ProductUtils.copyMasks(sourceProduct, targetProduct);
-        ProductUtils.copyMetadata(sourceProduct, targetProduct);
         ProductUtils.copyVectorData(sourceProduct, targetProduct);
-        if (referenceNode.getGeoCoding() instanceof CrsGeoCoding) {
-            targetProduct.setSceneGeoCoding(referenceNode.getGeoCoding());
-        } else {
-            ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
-        }
+        copyMasks(sourceProduct, targetProduct);
+        ProductUtils.copyMetadata(sourceProduct, targetProduct);
+        transferGeoCoding(referenceBand, targetProduct);
         targetProduct.setAutoGrouping(sourceProduct.getAutoGrouping());
+    }
+
+    private static void transferGeoCoding(Band referenceBand, Product targetProduct) {
+        final Scene srcScene = SceneFactory.createScene(referenceBand);
+        final Scene destScene = SceneFactory.createScene(targetProduct);
+        if (srcScene != null && destScene != null) {
+            srcScene.transferGeoCodingTo(destScene, null);
+        }
+    }
+
+    //convenience method to increase speed for band maths type masks
+    private static void copyMasks(Product sourceProduct, Product targetProduct) {
+        final ProductNodeGroup<Mask> sourceMaskGroup = sourceProduct.getMaskGroup();
+        for (int i = 0; i < sourceMaskGroup.getNodeCount(); i++) {
+            final Mask mask = sourceMaskGroup.get(i);
+            final Mask.ImageType imageType = mask.getImageType();
+            if (imageType.getName().equals(Mask.BandMathsType.TYPE_NAME)) {
+                String expression = Mask.BandMathsType.getExpression(mask);
+                final Mask targetMask = Mask.BandMathsType.create(mask.getName(), mask.getDescription(),
+                                                                  targetProduct.getSceneRasterWidth(),
+                                                                  targetProduct.getSceneRasterHeight(), expression,
+                                                                  mask.getImageColor(), mask.getImageTransparency());
+                targetProduct.addMask(targetMask);
+            } else if (imageType.canTransferMask(mask, targetProduct)) {
+                imageType.transferMask(mask, targetProduct);
+            }
+        }
     }
 
     public static boolean canBeApplied(Product product) {
@@ -139,7 +165,7 @@ public class ResamplingOp extends Operator {
         final ProductNodeGroup<Band> bandGroup = product.getBandGroup();
         final ProductNodeGroup<TiePointGrid> tiePointGridGroup = product.getTiePointGridGroup();
         AffineTransform referenceModelToImageTransform;
-        if (bandGroup.getNodeCount() > 0 ) {
+        if (bandGroup.getNodeCount() > 0) {
             try {
                 referenceModelToImageTransform = new AffineTransform(bandGroup.get(0).getImageToModelTransform().createInverse());
             } catch (NoninvertibleTransformException e) {
@@ -272,7 +298,7 @@ public class ResamplingOp extends Operator {
 
     private RenderedImage adjustImageToModelTransform(final MultiLevelImage image, MultiLevelModel model) {
         MultiLevelModel actualModel = model;
-        if (model.getLevelCount() >  image.getModel().getLevelCount()) {
+        if (model.getLevelCount() > image.getModel().getLevelCount()) {
             actualModel = new DefaultMultiLevelModel(image.getModel().getLevelCount(), model.getImageToModelTransform(0),
                                                      image.getWidth(), image.getHeight());
         }
@@ -302,17 +328,17 @@ public class ResamplingOp extends Operator {
     }
 
     private Resample.Type getAggregationType(String method) {
-        if ("Min".equalsIgnoreCase(method)) {
+        if ("And".equalsIgnoreCase(method)) {
             return Resample.Type.MIN;
-        } else if ("Max".equalsIgnoreCase(method)) {
+        } else if ("Or".equalsIgnoreCase(method)) {
             return Resample.Type.MAX;
         } else if ("Median".equalsIgnoreCase(method)) {
             return Resample.Type.MEDIAN;
         } else if ("Mean".equalsIgnoreCase(method)) {
             return Resample.Type.MEAN;
-        } else if ("MinMedian".equalsIgnoreCase(method)) {
+        } else if ("Median-And".equalsIgnoreCase(method)) {
             return Resample.Type.MIN_MEDIAN;
-        } else if ("MaxMedian".equalsIgnoreCase(method)) {
+        } else if ("Median-Or".equalsIgnoreCase(method)) {
             return Resample.Type.MAX_MEDIAN;
         } else {
             return Resample.Type.FIRST;
