@@ -26,13 +26,11 @@ import java.util.List;
 
 public final class Triangle {
 
-
     /**
      * HORIZON is a virtual point used as the C point of all the Triangles
      * triangles lacated out of the triangulation convex hull.
      */
-    public final static Coordinate HORIZON = new Coordinate(Double.NaN, Double.NaN);
-
+    private final static Coordinate HORIZON = new Coordinate(Double.NaN, Double.NaN);
 
     /**
      * A Triangle edge may be :
@@ -74,7 +72,6 @@ public final class Triangle {
         this.C = C;
     }
 
-
     /**
      * Triangle constructor checking validity of input vertices, and ensuring
      * the order of vertices is counterclockwise.
@@ -91,42 +88,13 @@ public final class Triangle {
         assert (A.equals(C)) : "A must not be equal to C";
         assert (B.equals(C)) : "B must not be equal to C";
         this.A = A;
-        if (C==HORIZON || !ccw || MathUtils.ccw(A.x, A.y, B.x, B.y, C.x, C.y) < 0) {
+        if (C==HORIZON || !ccw || ccw(A, B, C) < 0) {
             this.B = B;
             this.C = C;
         }
         else {
             this.C = B;
             this.B = C;
-        }
-    }
-
-
-    /**
-     * A valid triangle must have 3 non null vertices
-     * It must not be flat and vertices must be in a ccw order
-     * Last point (C) can eventually be the HORIZON (in which case flat and ccw
-     * condition are not checked).
-     * @return if this Triangle is valid or not
-     */
-    public boolean isValid() {
-        if (A == null || B == null || C == null) {
-            return false;
-        }
-        else if (A == HORIZON || B == HORIZON) {
-            return false;
-        }
-        else if (C != HORIZON && MathUtils.ccw(A.x, A.y, B.x, B.y, C.x, C.y) <= 0) {
-            return false;
-        }
-        else if (A.equals(B) || B.equals(C) || C.equals(A)) {
-            return false;
-        }
-        else if (BAO == null || CBO==null || ACO == null) {
-            return false;
-        }
-        else {
-            return true;
         }
     }
 
@@ -160,10 +128,7 @@ public final class Triangle {
      *  points (A,B, or C) respectively. If p not vertex of Triangle, returns -1.
      */
     public int getIndex(Coordinate p) {
-        if (p.equals(A)) return 0;
-        else if (p.equals(B)) return 1;
-        else if (p.equals(C)) return 2;
-        else return -1;
+        return p.equals(A) ? 0 : p.equals(B) ? 1 : p.equals(C) ? 2 : -1;
     }
 
     public void setA(Coordinate A) {
@@ -295,10 +260,10 @@ public final class Triangle {
      * r/100 * (r/10)%10 * r%10 > 1 if p is out of t
      * @return an integer representing the position of p
      */
-    public int locate(Coordinate p) {
-        int cc0 = MathUtils.ccw(A.x, A.y, B.x, B.y, p.x, p.y);
-        int cc1 = MathUtils.ccw(B.x, B.y, C.x, C.y, p.x, p.y);
-        int cc2 = MathUtils.ccw(C.x, C.y, A.x, A.y, p.x, p.y);
+    public int locate(final Coordinate p) {
+        int cc0 = ccw(A, B, p);
+        int cc1 = ccw(B, C, p);
+        int cc2 = ccw(C, A, p);
         cc0 = cc0<0?2:cc0;
         cc1 = cc1<0?2:cc1;
         cc2 = cc2<0?2:cc2;
@@ -318,7 +283,7 @@ public final class Triangle {
      * @param pts the coordinates list
      */
     public String toString(List<Coordinate> pts) {
-        StringBuffer sb = new StringBuffer("T:");
+        StringBuilder sb = new StringBuilder("T:");
         if (A!=null) sb.append(Collections.binarySearch(pts, A, COORD2DCOMP) + "-");
         else sb.append("null-");
         if (B!=null) sb.append(Collections.binarySearch(pts, B, COORD2DCOMP) + "-");
@@ -369,10 +334,12 @@ public final class Triangle {
     public final int ccw(final Coordinate c) {
         final double dx1dy2 = (B.x - A.x) * (c.y - A.y);
         final double dy1dx2 = (B.y - A.y) * (c.x - A.x);
-        if (dx1dy2 > dy1dx2)
-            return 1;
-        else if (dx1dy2 < dy1dx2)
-            return -1;
-        return 0;
+        return dx1dy2 > dy1dx2 ? 1 : dx1dy2 < dy1dx2 ? -1 : 0;
+    }
+
+    private static final int ccw(final Coordinate a, final Coordinate b, final Coordinate c) {
+        double dx1dy2 = (b.x - a.x) * (c.y - a.y);
+        double dy1dx2 = (b.y - a.y) * (c.x - a.x);
+        return dx1dy2 > dy1dx2 ? 1 : dx1dy2 < dy1dx2 ? -1 : 0;
     }
 }
