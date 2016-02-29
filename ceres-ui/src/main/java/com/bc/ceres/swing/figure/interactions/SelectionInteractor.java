@@ -16,6 +16,7 @@
 
 package com.bc.ceres.swing.figure.interactions;
 
+import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.FigureEditorInteractor;
@@ -23,11 +24,9 @@ import com.bc.ceres.swing.figure.FigureSelection;
 import com.bc.ceres.swing.figure.Handle;
 import com.bc.ceres.swing.figure.support.VertexHandle;
 
-import java.awt.Cursor;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -48,6 +47,9 @@ public class SelectionInteractor extends FigureEditorInteractor {
     protected Point referencePoint;
     private Object figureMemento;
     private Tool tool;
+    private boolean cursorDrag = false;
+    private int viewportX;
+    private int viewportY;
 
     public SelectionInteractor() {
         tool = new NullTool();
@@ -69,6 +71,9 @@ public class SelectionInteractor extends FigureEditorInteractor {
 
     @Override
     public void mousePressed(MouseEvent event) {
+        viewportX = event.getX();
+        viewportY = event.getY();
+
         if (startInteraction(event)) {
             referencePoint = event.getPoint();
             canceled = false;
@@ -80,19 +85,31 @@ public class SelectionInteractor extends FigureEditorInteractor {
     @Override
     public void mouseDragged(MouseEvent event) {
         if (!canceled) {
-            if (tool == selectPointTool) {
-                if (selectHandle(event)) {
-                    tool = moveHandleTool;
-                } else {
-                    if (isMouseOverSelection(event)) {
-                        tool = moveSelectionTool;
+            if (cursorDrag) {
+                Viewport viewport = getViewport(event);
+                int viewportX = event.getX();
+                int viewportY = event.getY();
+                final double dx = viewportX - this.viewportX;
+                final double dy = viewportY - this.viewportY;
+                viewport.moveViewDelta(dx, dy);
+                this.viewportX = viewportX;
+                this.viewportY = viewportY;
+            } else {
+                if (tool == selectPointTool) {
+                    if (selectHandle(event)) {
+                        tool = moveHandleTool;
                     } else {
-                        tool = selectRectangleTool;
+                        if (isMouseOverSelection(event)) {
+                            tool = moveSelectionTool;
+                        } else {
+                            tool = selectRectangleTool;
+                        }
                     }
+                    tool.start(event);
                 }
-                tool.start(event);
+                tool.drag(event);
+
             }
-            tool.drag(event);
         }
     }
 
@@ -110,20 +127,16 @@ public class SelectionInteractor extends FigureEditorInteractor {
         setCursor(event);
     }
 
-    protected SelectPointTool createSelectPointTool() {
-        return new SelectPointTool();
+    @Override
+    public void keyPressed(KeyEvent event) {
+        if (event.getKeyCode() == KeyEvent.VK_SPACE) {
+            cursorDrag = true;
+        }
     }
 
-    protected SelectRectangleTool createSelectRectangleTool() {
-        return new SelectRectangleTool();
-    }
-
-    protected MoveSelectionTool createMoveSelectionTool() {
-        return new MoveSelectionTool();
-    }
-
-    protected MoveHandleTool createMoveHandleTool() {
-        return new MoveHandleTool();
+    @Override
+    public void keyReleased(KeyEvent event) {
+        cursorDrag = false;
     }
 
     private void setCursor(MouseEvent event) {
@@ -143,12 +156,31 @@ public class SelectionInteractor extends FigureEditorInteractor {
         if (cursor == null) {
             cursor = Cursor.getDefaultCursor();
         }
+        if (cursorDrag) {
+            cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
+        }
         figureEditor.getEditorComponent().setCursor(cursor);
+    }
+
+    protected SelectPointTool createSelectPointTool() {
+        return new SelectPointTool();
+    }
+
+    protected SelectRectangleTool createSelectRectangleTool() {
+        return new SelectRectangleTool();
+    }
+
+    protected MoveSelectionTool createMoveSelectionTool() {
+        return new MoveSelectionTool();
+    }
+
+    protected MoveHandleTool createMoveHandleTool() {
+        return new MoveHandleTool();
     }
 
     private Point2D.Double toModelDelta(MouseEvent event) {
         Point2D.Double p = new Point2D.Double(event.getX() - referencePoint.x,
-                                              event.getY() - referencePoint.y);
+                event.getY() - referencePoint.y);
         AffineTransform transform = getViewToModelTransform(event);
         transform.deltaTransform(p, p);
         return p;
@@ -162,12 +194,12 @@ public class SelectionInteractor extends FigureEditorInteractor {
 
     protected boolean isMouseOverSelection(MouseEvent event) {
         return getFigureEditor(event).getFigureSelection().isCloseTo(toModelPoint(event),
-                                                                     getModelToViewTransform(event));
+                getModelToViewTransform(event));
     }
 
     private Figure findFigure(MouseEvent event) {
         return getFigureEditor(event).getFigureCollection().getFigure(toModelPoint(event),
-                                                                      getModelToViewTransform(event));
+                getModelToViewTransform(event));
     }
 
     private Handle findHandle(MouseEvent event) {
@@ -252,13 +284,13 @@ public class SelectionInteractor extends FigureEditorInteractor {
         @Override
         public void end(MouseEvent event) {
             if (event.isControlDown()) {
-               maybeRemoveSegment(event);
+                maybeRemoveSegment(event);
             }
             // Handle selection no longer required
             FigureEditor figureEditor = getFigureEditor(event);
             figureEditor.getFigureSelection().setSelectedHandle(null);
             figureEditor.changeFigure(figureEditor.getFigureSelection(), figureMemento, "Change Figure Shape");
-         }
+        }
 
         private void maybeAddSegment(MouseEvent event) {
             FigureSelection figureSelection = getFigureEditor(event).getFigureSelection();
@@ -273,8 +305,8 @@ public class SelectionInteractor extends FigureEditorInteractor {
                 segment[1] += 0.1;
                 figure.addSegment(segmentIndex, segment);
                 VertexHandle newVertexHandle = new VertexHandle(figure, segmentIndex,
-                                                                selectedVertexHandle.getNormalStyle(),
-                                                                selectedVertexHandle.getSelectedStyle());
+                        selectedVertexHandle.getNormalStyle(),
+                        selectedVertexHandle.getSelectedStyle());
                 figureSelection.setSelectedHandle(newVertexHandle);
                 for (Handle handle : figureSelection.getHandles()) {
                     if (handle instanceof VertexHandle) {
@@ -303,7 +335,7 @@ public class SelectionInteractor extends FigureEditorInteractor {
                         Point2D p2 = m2v.transform(vertexHandle.getLocation(), null);
                         if ((vertexHandle.getSegmentIndex() == segmentIndex - 1
                                 || vertexHandle.getSegmentIndex() == segmentIndex + 1)
-                                && vertexHandle.getShape().contains(new Point2D.Double(p1.getX()-p2.getX(), p1.getY()-p2.getY()))) {
+                                && vertexHandle.getShape().contains(new Point2D.Double(p1.getX() - p2.getX(), p1.getY() - p2.getY()))) {
                             figure.removeSegment(segmentIndex);
                         }
                     }
