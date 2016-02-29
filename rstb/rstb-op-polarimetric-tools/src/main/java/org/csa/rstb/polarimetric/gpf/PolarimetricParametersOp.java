@@ -48,6 +48,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "Polarimetric-Parameters",
         category = "Radar/Polarimetric",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
         description = "Compute general polarimetric parameters")
 public final class PolarimetricParametersOp extends Operator {

@@ -42,6 +42,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "GoldsteinPhaseFiltering",
         category = "Radar/Interferometric/Filtering",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Phase Filtering")
 public class GoldsteinFilterOp extends Operator {

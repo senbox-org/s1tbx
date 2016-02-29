@@ -48,6 +48,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "Three-passDInSAR",
         category = "Radar/Interferometric/Products",
         authors = "Petar Marinkovic",
+        version = "1.0",
         copyright = "Copyright (C) 2013 by PPO.labs",
         description = "Differential Interferometry")
 public class DInSAROp extends Operator {

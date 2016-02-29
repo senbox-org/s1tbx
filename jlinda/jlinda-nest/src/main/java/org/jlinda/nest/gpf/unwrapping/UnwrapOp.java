@@ -36,6 +36,9 @@ import java.util.Map;
 @OperatorMetadata(alias = "Unwrap",
         category = "Radar/Interferometric/Unwrapping",
         description = "Unwrap input complex data",
+        version = "1.0",
+        authors = "Petar Marinkovic",
+        copyright = "Copyright (C) 2013 by PPO.labs",
         internal = true)
 public class UnwrapOp extends Operator {
 

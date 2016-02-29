@@ -60,6 +60,7 @@ import java.util.Set;
         category = "Radar/Sentinel-1 TOPS",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        version = "1.0",
         description = "Mask no-value pixels for GRD product")
 public final class RemoveGRDBorderNoiseOp extends Operator {
 

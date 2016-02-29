@@ -102,6 +102,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "SAR-Simulation",
         category = "Radar/Geometric/Terrain Correction",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Rigorous SAR Simulation")
 public final class SARSimulationOp extends Operator {

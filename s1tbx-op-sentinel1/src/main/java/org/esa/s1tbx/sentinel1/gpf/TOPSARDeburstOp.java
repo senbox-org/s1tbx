@@ -58,6 +58,7 @@ import java.util.StringTokenizer;
 @OperatorMetadata(alias = "TOPSAR-Deburst",
         category = "Radar/Sentinel-1 TOPS",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Debursts a Sentinel-1 TOPSAR product")
 public final class TOPSARDeburstOp extends Operator {

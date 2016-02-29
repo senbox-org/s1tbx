@@ -63,6 +63,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "Enhanced-Spectral-Diversity",
         category = "Radar/Coregistration/S-1 TOPS Coregistration",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
         description = "Estimate constant range and azimuth offsets for the whole image")
 public class SpectralDiversityOp extends Operator {

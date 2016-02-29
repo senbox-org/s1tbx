@@ -96,6 +96,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "Cross-Correlation",
         category = "Radar/Coregistration",
         authors = "Jun Lu, Luis Veci, Petar Marinkovic",
+        version = "1.0",
         copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
         description = "Automatic Selection of Ground Control Points")
 public class CrossCorrelationOp extends Operator {

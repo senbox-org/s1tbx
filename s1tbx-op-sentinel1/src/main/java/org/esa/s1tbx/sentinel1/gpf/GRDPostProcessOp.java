@@ -37,6 +37,7 @@ import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 @OperatorMetadata(alias = "GRD-Post",
         category = "Radar/Sentinel-1 TOPS",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Applies GRD post-processing")
 public final class GRDPostProcessOp extends Operator {

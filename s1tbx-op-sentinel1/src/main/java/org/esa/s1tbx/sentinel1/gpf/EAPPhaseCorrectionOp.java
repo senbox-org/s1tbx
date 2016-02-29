@@ -69,6 +69,7 @@ import java.util.zip.ZipFile;
 @OperatorMetadata(alias = "EAP-Phase-Correction",
         category = "Radar/Sentinel-1 TOPS",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "EAP Phase Correction")
 public final class EAPPhaseCorrectionOp extends Operator {

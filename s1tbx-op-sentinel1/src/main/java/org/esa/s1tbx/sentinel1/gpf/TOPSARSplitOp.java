@@ -54,6 +54,7 @@ import java.util.List;
 @OperatorMetadata(alias = "TOPSAR-Split",
         category = "Radar/Sentinel-1 TOPS",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
         description = "Creates a new product with only the selected subswath")
 public final class TOPSARSplitOp extends Operator {

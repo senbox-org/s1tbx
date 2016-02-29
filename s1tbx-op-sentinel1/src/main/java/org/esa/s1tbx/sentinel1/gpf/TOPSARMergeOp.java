@@ -54,6 +54,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "TOPSAR-Merge",
         category = "Radar/Sentinel-1 TOPS",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Merge subswaths of a Sentinel-1 TOPSAR product")
 public final class TOPSARMergeOp extends Operator {

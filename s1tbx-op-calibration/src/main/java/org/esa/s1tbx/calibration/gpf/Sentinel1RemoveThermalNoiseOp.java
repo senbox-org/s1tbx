@@ -49,6 +49,7 @@ import java.util.HashMap;
         category = "Radar/Radiometric",
         authors = "Cecilia Wong, Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        version = "1.0",
         description = "Removes thermal noise from products")
 public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 

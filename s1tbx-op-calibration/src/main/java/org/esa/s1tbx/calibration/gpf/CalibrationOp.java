@@ -48,6 +48,7 @@ import java.io.File;
         category = "Radar/Radiometric",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        version = "1.0",
         description = "Calibration of products")
 public class CalibrationOp extends Operator {
 

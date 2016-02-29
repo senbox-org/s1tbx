@@ -52,6 +52,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "SimulateAmplitude",
         category = "Radar/Interferometric/Products",
         authors = "Petar Marinkovic",
+        version = "1.0",
         copyright = "Copyright (C) 2013 by PPO.labs",
         description = "Simulate amplitude based on DEM", internal = true)
 public final class SimulateAmplitudeOp extends Operator {

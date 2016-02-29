@@ -83,6 +83,7 @@ import java.util.List;
 @OperatorMetadata(alias = "Wind-Field-Estimation",
         category = "Radar/Feature Extraction/Ocean Tools",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Estimate wind speed and direction")
 public class WindFieldEstimationOp extends Operator {

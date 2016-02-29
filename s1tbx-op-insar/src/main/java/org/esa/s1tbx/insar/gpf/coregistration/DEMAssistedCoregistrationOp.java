@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2016 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -72,6 +72,7 @@ import java.util.*;
 @OperatorMetadata(alias = "DEM-Assisted-Coregistration",
         category = "Radar/Coregistration",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
         description = "Orbit and DEM based co-registration")
 public final class DEMAssistedCoregistrationOp extends Operator {

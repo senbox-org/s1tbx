@@ -53,6 +53,7 @@ import java.util.logging.Logger;
 @OperatorMetadata(alias = "CrossResampling",
         category = "Radar/Coregistration",
         authors = "Petar Marinkovic",
+        version = "1.0",
         copyright = "Copyright (C) 2013 by PPO.labs",
         description = "Estimate Resampling Polynomial using SAR Image Geometry, and Resample Input Images")
 public class CrossResamplingOp extends Operator {

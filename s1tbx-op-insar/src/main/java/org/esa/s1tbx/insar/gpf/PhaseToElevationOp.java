@@ -63,6 +63,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "PhaseToElevation",
         category = "Radar/Interferometric/Products",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
         description = "DEM Generation")
 public final class PhaseToElevationOp extends Operator {

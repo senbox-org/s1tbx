@@ -71,6 +71,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "Update-Geo-Reference",
         category = "Radar/Geometric",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Update Geo Reference")
 public final class UpdateGeoRefOp extends Operator {

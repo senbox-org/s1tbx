@@ -47,6 +47,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "Orientation-Angle-Correction",
         category = "Radar/Polarimetric",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Perform polarization orientation angle correction for given coherency matrix")
 public final class OrientationAngleCorrectionOp extends Operator {
