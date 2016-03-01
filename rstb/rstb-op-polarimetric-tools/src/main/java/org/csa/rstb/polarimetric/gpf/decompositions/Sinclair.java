@@ -105,14 +105,18 @@ public class Sinclair extends DecompositionBase implements Decomposition {
                 sourceTiles[i] = op.getSourceTile(bandList.srcBands[i], targetRectangle);
                 dataBuffers[i] = sourceTiles[i].getDataBuffer();
             }
+            final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
+
             double re = 0.0, im = 0.0, v = 0.0;
             for (int y = y0; y < maxY; ++y) {
                 trgIndex.calculateStride(y);
+                srcIndex.calculateStride(y);
                 for (int x = x0; x < maxX; ++x) {
-                    final int index = trgIndex.getIndex(x);
+                    final int tgtIdx = trgIndex.getIndex(x);
+                    final int srcIdx = srcIndex.getIndex(x);
 
                     if (sourceProductType == PolBandUtils.MATRIX.FULL) {
-                        PolOpUtils.getComplexScatterMatrix(index, dataBuffers, Sr, Si);
+                        PolOpUtils.getComplexScatterMatrix(srcIdx, dataBuffers, Sr, Si);
 
                         for (TargetInfo target : targetInfo) {
 
@@ -132,12 +136,12 @@ public class Sinclair extends DecompositionBase implements Decomposition {
                                 v = PolOpUtils.EPS;
                             }
                             v = 10.0 * Math.log10(v);
-                            target.dataBuffer.setElemFloatAt(index, (float) v);
+                            target.dataBuffer.setElemFloatAt(tgtIdx, (float) v);
                         }
 
                     } else if (sourceProductType == PolBandUtils.MATRIX.C3) {
 
-                        PolOpUtils.getCovarianceMatrixC3(index, dataBuffers, Cr, Ci);
+                        PolOpUtils.getCovarianceMatrixC3(srcIdx, dataBuffers, Cr, Ci);
                         for (TargetInfo target : targetInfo) {
 
                             if (target.colour == TargetBandColour.R) { // C33
@@ -152,12 +156,12 @@ public class Sinclair extends DecompositionBase implements Decomposition {
                                 v = PolOpUtils.EPS;
                             }
                             v = 10.0 * Math.log10(v);
-                            target.dataBuffer.setElemFloatAt(index, (float) v);
+                            target.dataBuffer.setElemFloatAt(tgtIdx, (float) v);
                         }
 
                     } else if (sourceProductType == PolBandUtils.MATRIX.T3) {
 
-                        PolOpUtils.getCoherencyMatrixT3(index, dataBuffers, Tr, Ti);
+                        PolOpUtils.getCoherencyMatrixT3(srcIdx, dataBuffers, Tr, Ti);
                         for (TargetInfo target : targetInfo) {
 
                             if (target.colour == TargetBandColour.R) { // 0.5*(T11+T22) - T12_real
@@ -172,7 +176,7 @@ public class Sinclair extends DecompositionBase implements Decomposition {
                                 v = PolOpUtils.EPS;
                             }
                             v = 10.0 * Math.log10(v);
-                            target.dataBuffer.setElemFloatAt(index, (float) v);
+                            target.dataBuffer.setElemFloatAt(tgtIdx, (float) v);
                         }
                     }
 
