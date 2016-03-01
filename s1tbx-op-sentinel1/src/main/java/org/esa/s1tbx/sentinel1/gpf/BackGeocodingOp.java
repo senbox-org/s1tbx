@@ -115,6 +115,9 @@ public final class BackGeocodingOp extends Operator {
     @Parameter(defaultValue = "false", label = "Output Deramp and Demod Phase")
     private boolean outputDerampDemodPhase = false;
 
+    @Parameter(defaultValue = "false", label = "Disable Reramp")
+    private boolean disableReramp = false;
+
     private Resampling selectedResampling = null;
 
     private Product masterProduct = null;
@@ -1194,8 +1197,13 @@ public final class BackGeocodingOp extends Operator {
                             rerampRemodQ = noDataValue;
                         }
 
-                        tgtBufferI.setElemDoubleAt(tgtIdx, rerampRemodI);
-                        tgtBufferQ.setElemDoubleAt(tgtIdx, rerampRemodQ);
+                        if (disableReramp) {
+                            tgtBufferI.setElemDoubleAt(tgtIdx, sampleI);
+                            tgtBufferQ.setElemDoubleAt(tgtIdx, sampleQ);
+                        } else {
+                            tgtBufferI.setElemDoubleAt(tgtIdx, rerampRemodI);
+                            tgtBufferQ.setElemDoubleAt(tgtIdx, rerampRemodQ);
+                        }
 
                         if (outputDerampDemodPhase) {
                             tgtBufferPhase.setElemFloatAt(tgtIdx, (float)samplePhase);
