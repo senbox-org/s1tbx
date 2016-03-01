@@ -56,6 +56,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "Azimuth-Shift",
         category = "Radar/Coregistration/S-1 TOPS Coregistration",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Estimate global azimuth offset for the whole image")
 public class AzimuthShiftOp extends Operator {

@@ -57,6 +57,7 @@ import java.util.HashMap;
         category = "Raster",
         description = "Computes statistics",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         internal = true)
 public class DataAnalysisOp extends Operator {

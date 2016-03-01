@@ -43,6 +43,7 @@ import java.util.Set;
 @OperatorMetadata(alias = "Stack-Averaging",
         category = "Radar/Coregistration/Stack Tools",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Averaging multi-temporal images")
 public class StackAveragingOp extends Operator {

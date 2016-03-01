@@ -46,6 +46,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "Polarimetric-Speckle-Filter",
         category = "Radar/Polarimetric",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Polarimetric Speckle Reduction")
 public class PolarimetricSpeckleFilterOp extends Operator {

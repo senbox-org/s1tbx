@@ -55,6 +55,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "TopoPhaseRemoval",
         category = "Radar/Interferometric/Products",
         authors = "Petar Marinkovic",
+        version = "1.0",
         copyright = "Copyright (C) 2013 by PPO.labs",
         description = "Compute and subtract TOPO phase")
 public final class SubtRefDemOp extends Operator {

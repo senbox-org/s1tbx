@@ -37,6 +37,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "RangeFilter",
         category = "Radar/Interferometric/Filtering",
         authors = "Petar Marinkovic",
+        version = "1.0",
         copyright = "Copyright (C) 2013 by PPO.labs",
         description = "Range Filter")
 public class RangeFilterOp extends Operator {

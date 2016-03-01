@@ -38,6 +38,7 @@ import java.util.regex.Pattern;
 @OperatorMetadata(alias = "BandSelect",
         category = "Raster",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Creates a new product with only selected bands")
 public final class BandSelectOp extends Operator {

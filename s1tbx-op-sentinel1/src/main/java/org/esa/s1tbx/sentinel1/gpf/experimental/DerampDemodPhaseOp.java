@@ -42,6 +42,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "Deramp-Demod-Phase",
         category = "Radar/Coregistration/S-1 TOPS Coregistration",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Compute Deramp and Demodulation Phases",
         internal = true)

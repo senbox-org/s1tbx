@@ -53,8 +53,12 @@ import java.util.Map;
  * The operator performs principle component analysis for user selected master/slave pairs.
  */
 
-@OperatorMetadata(alias = "Principle-Components", description = "Principle Component Analysis",
-        category = "Raster/Image Analysis")
+@OperatorMetadata(alias = "Principle-Components",
+        description = "Principle Component Analysis",
+        category = "Raster/Image Analysis",
+        version = "1.0",
+        authors = "Jun Lu, Luis Veci",
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.")
 public class PCAOp extends Operator {
 
     @SourceProduct

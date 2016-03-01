@@ -16,8 +16,10 @@ import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 
 @OperatorMetadata(alias = "SnaphuImport",
         category = "Radar/Interferometric/Unwrapping",
-        description = "Ingest SNAPHU results into InSAR product.",
-        internal = false)
+        authors = "Petar Marinkovic, Jun Lu, Luis Veci",
+        version = "1.0",
+        copyright = "Copyright (C) 2013 by PPO.labs",
+        description = "Ingest SNAPHU results into InSAR product.")
 public class SnaphuImportOp extends Operator {
 
     @SourceProducts(description = "The array of source product of InSAR bands.")

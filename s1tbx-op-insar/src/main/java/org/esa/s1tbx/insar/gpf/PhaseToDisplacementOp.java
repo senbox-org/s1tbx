@@ -42,6 +42,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "PhaseToDisplacement",
         category = "Radar/Interferometric/Products",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
         description = "Phase To Displacement Conversion along LOS")
 public final class PhaseToDisplacementOp extends Operator {

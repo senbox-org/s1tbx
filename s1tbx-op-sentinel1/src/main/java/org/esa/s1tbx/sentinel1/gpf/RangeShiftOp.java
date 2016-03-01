@@ -59,6 +59,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "Range-Shift",
         category = "Radar/Coregistration/S-1 TOPS Coregistration",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Estimate constant range offset for the whole image")
 public class RangeShiftOp extends Operator {

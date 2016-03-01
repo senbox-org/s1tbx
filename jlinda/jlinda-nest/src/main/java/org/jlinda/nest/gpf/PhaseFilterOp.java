@@ -36,6 +36,7 @@ import static org.jlinda.core.utils.MathUtils.*;
 @OperatorMetadata(alias = "PhaseFilter",
         category = "Radar/Interferometric/Filtering",
         authors = "Petar Marinkovic",
+        version = "1.0",
         copyright = "Copyright (C) 2013 by PPO.labs",
         description = "Interferometric phase filtering")
 public class PhaseFilterOp extends Operator {

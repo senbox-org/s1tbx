@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2016 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -80,7 +80,8 @@ import java.io.File;
 @OperatorMetadata(alias = "Apply-Orbit-File",
         category = "Radar",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
+        version = "1.0",
+        copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
         description = "Apply orbit file")
 public final class ApplyOrbitFileOp extends Operator {
 

@@ -68,6 +68,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "Terrain-Flattening",
         category = "Radar/Radiometric",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Terrain Flattening")
 public final class TerrainFlatteningOp extends Operator {

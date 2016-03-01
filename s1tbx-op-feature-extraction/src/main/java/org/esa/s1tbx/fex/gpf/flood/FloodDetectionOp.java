@@ -40,7 +40,8 @@ import java.util.List;
 @OperatorMetadata(alias = "Flood-Detection",
         category = "Radar/Feature Extraction",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
+        copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
+        version = "1.0",
         description = "Detect flooded area.", internal = true)
 public class FloodDetectionOp extends Operator {
 

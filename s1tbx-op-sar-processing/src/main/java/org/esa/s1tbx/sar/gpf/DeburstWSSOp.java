@@ -54,6 +54,7 @@ import java.util.Vector;
 @OperatorMetadata(alias = "DeburstWSS",
         category = "Radar",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Debursts an ASAR WSS product")
 public final class DeburstWSSOp extends Operator {

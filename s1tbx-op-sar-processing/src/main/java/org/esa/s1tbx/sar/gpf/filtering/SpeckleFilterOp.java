@@ -47,6 +47,7 @@ import java.util.*;
 @OperatorMetadata(alias = "Speckle-Filter",
         category = "Radar/Speckle Filtering",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Speckle Reduction")
 public class SpeckleFilterOp extends Operator {

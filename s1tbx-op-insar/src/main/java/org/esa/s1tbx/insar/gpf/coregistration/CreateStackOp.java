@@ -71,6 +71,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "CreateStack",
         category = "Radar/Coregistration/Stack Tools",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Collocates two or more products based on their geo-codings.")
 public class CreateStackOp extends Operator {

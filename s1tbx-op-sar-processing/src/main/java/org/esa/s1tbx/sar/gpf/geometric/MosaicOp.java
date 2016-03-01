@@ -68,6 +68,7 @@ import java.util.Set;
 @OperatorMetadata(alias = "SAR-Mosaic",
         category = "Radar/Geometric",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Mosaics two or more products based on their geo-codings.")
 public class MosaicOp extends Operator {

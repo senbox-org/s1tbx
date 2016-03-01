@@ -71,6 +71,7 @@ import static org.esa.s1tbx.io.sentinel1.Sentinel1Level1Directory.*;
 @OperatorMetadata(alias = "SliceAssembly",
         category = "Radar/Sentinel-1 TOPS",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Merges Sentinel-1 slice products")
 public final class SliceAssemblyOp extends Operator {

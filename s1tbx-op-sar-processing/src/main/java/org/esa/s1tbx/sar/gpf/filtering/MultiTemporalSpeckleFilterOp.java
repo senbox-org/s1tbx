@@ -75,6 +75,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "Multi-Temporal-Speckle-Filter",
         category = "Radar/Speckle Filtering",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
         description = "Speckle Reduction using Multitemporal Filtering")
 public class MultiTemporalSpeckleFilterOp extends Operator {

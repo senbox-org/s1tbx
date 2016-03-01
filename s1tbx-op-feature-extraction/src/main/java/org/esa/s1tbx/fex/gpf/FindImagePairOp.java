@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2016 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -44,7 +44,7 @@ import java.io.IOException;
         category = "Input-Output",
         version = "1.0",
         authors = "Luis Veci",
-        copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
+        copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
         description = "DB query to find matching image pair")
 public class FindImagePairOp extends Operator {
 

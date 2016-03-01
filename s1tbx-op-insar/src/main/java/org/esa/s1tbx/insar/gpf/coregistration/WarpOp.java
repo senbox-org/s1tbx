@@ -96,6 +96,7 @@ import java.util.Set;
 @OperatorMetadata(alias = "Warp",
         category = "Radar/Coregistration",
         authors = "Jun Lu, Luis Veci, Petar Marinkovic",
+        version = "1.0",
         copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
         description = "Create Warp Function And Get Co-registrated Images")
 public class WarpOp extends Operator {

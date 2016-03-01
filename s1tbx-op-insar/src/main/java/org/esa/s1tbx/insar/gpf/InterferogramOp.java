@@ -67,6 +67,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "Interferogram",
         category = "Radar/Interferometric/Products",
         authors = "Petar Marinkovic, Jun Lu",
+        version = "1.0",
         description = "Compute interferograms from stack of coregistered S-1 images", internal = false)
 public class InterferogramOp extends Operator {
     @SourceProduct

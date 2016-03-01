@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2016 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -51,7 +51,8 @@ import java.util.Map;
 @OperatorMetadata(alias = "Forest-Area-Detection",
         category = "Radar/Feature Extraction",
         authors = "Jun Lu, Luis Veci",
-        copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
+        copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
+        version = "1.0",
         description = "Detect forest area.", internal = true)
 public class ForestAreaDetectionOp extends Operator {
 

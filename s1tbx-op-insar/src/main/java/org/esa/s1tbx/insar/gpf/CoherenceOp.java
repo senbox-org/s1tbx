@@ -61,6 +61,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "Coherence",
         category = "Radar/Interferometric/Products",
         authors = "Petar Marinkovic, Jun Lu",
+        version = "1.0",
         copyright = "Copyright (C) 2013 by PPO.labs",
         description = "Estimate coherence from stack of coregistered images")
 public class CoherenceOp extends Operator {

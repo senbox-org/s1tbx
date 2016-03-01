@@ -33,6 +33,7 @@ import java.util.HashMap;
 @OperatorMetadata(alias = "PhaseToHeight",
         category = "Radar/Interferometric/Products",
         authors = "Petar Marinkovic",
+        version = "1.0",
         copyright = "Copyright (C) 2013 by PPO.labs",
         description = "Phase to Height conversion")
 public class Slant2HeightOp extends Operator {

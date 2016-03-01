@@ -49,6 +49,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "TileWriter",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
+        version = "1.0",
         description = "Writes a data product to a tiles.",
         autoWriteDisabled = true,
         category = "Tools")

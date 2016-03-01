@@ -42,6 +42,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "TestPattern",
         category = "Tools",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "For testing only", internal = true)
 public final class TestPatternOp extends Operator {

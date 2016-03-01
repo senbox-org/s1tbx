@@ -52,6 +52,7 @@ import java.awt.Rectangle;
 @OperatorMetadata(alias = "SRGR",
         category = "Radar/Geometric",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Converts Slant Range to Ground Range")
 public class SRGROp extends Operator {

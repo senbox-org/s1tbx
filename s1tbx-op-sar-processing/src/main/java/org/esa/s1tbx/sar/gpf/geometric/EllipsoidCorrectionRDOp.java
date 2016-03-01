@@ -27,6 +27,7 @@ import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 @OperatorMetadata(alias = "Ellipsoid-Correction-RD",
         category = "Radar/Geometric/Ellipsoid Correction",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Ellipsoid correction with RD method and average scene height")
 public final class EllipsoidCorrectionRDOp extends RangeDopplerGeocodingOp {

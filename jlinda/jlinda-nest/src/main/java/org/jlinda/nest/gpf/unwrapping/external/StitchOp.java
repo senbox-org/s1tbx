@@ -38,6 +38,9 @@ import java.util.Map;
 @OperatorMetadata(alias = "Stitch",
         category = "Radar/Interferometric/Unwrapping",
         description = "Unwrap phase for each tile",
+        authors = "Petar Marinkovic",
+        copyright = "Copyright (C) 2013 by PPO.labs",
+        version = "1.0",
         internal = true)
 public class StitchOp extends Operator {
 

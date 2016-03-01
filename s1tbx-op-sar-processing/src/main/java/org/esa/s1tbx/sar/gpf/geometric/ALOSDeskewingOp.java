@@ -61,6 +61,7 @@ import java.util.Set;
 @OperatorMetadata(alias = "ALOS-Deskewing",
         category = "Radar/Geometric",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Deskewing ALOS product")
 public class ALOSDeskewingOp extends Operator {

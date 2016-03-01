@@ -57,6 +57,7 @@ import java.util.Map;
 @OperatorMetadata(alias = "Object-Discrimination",
         category = "Radar/Feature Extraction/Ocean Tools/Object Detection",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Remove false alarms from the detected objects.")
 public class ObjectDiscriminationOp extends Operator {

@@ -51,6 +51,7 @@ import java.util.Set;
 @OperatorMetadata(alias = "Stack-Split",
         description = "Writes all bands to files.",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         autoWriteDisabled = true,
         category = "Radar/Coregistration/Stack Tools")

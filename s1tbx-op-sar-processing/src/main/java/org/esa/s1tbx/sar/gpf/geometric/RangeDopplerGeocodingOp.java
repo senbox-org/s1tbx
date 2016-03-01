@@ -100,6 +100,7 @@ import java.util.logging.Logger;
 @OperatorMetadata(alias = "Terrain-Correction",
         category = "Radar/Geometric/Terrain Correction",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "RD method for orthorectification")
 public class RangeDopplerGeocodingOp extends Operator {

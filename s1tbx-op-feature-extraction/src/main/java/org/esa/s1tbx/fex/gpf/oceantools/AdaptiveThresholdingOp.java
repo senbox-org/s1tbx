@@ -62,6 +62,7 @@ import java.util.List;
 @OperatorMetadata(alias = "AdaptiveThresholding",
         category = "Radar/Feature Extraction/Ocean Tools/Object Detection",
         authors = "Jun Lu, Luis Veci",
+        version = "1.0",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Detect ships using Constant False Alarm Rate detector.")
 public class AdaptiveThresholdingOp extends Operator {
