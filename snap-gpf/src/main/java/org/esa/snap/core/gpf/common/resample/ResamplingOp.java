@@ -57,14 +57,18 @@ public class ResamplingOp extends Operator {
 
     //todo also allow to set a target size/resolution explicitly
     @Parameter(alias = "Reference Band", description = "The name of the reference band. " +
-            "All other bands will be re-sampled to match its size and resolution.")
+            "All other bands will be re-sampled to match its size and resolution.",
+            rasterDataNodeType = Band.class,
+            notEmpty = true
+    )
     String referenceBandName;
 
     @Parameter(alias = "interpolation",
             label = "Interpolation Method",
             description = "The method used for interpolation (upsampling to a finer resolution).",
             valueSet = {"Nearest", "Bilinear", "Bicubic"},
-            defaultValue = "Nearest")
+            defaultValue = "Nearest"
+    )
     private String interpolationMethod;
 
     @Parameter(alias = "aggregation",
