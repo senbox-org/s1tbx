@@ -43,7 +43,7 @@ public class GenericComplexReaderPlugIn implements ProductReaderPlugIn {
      * @return true if this product reader can decode the given input, otherwise false.
      */
     public DecodeQualification getDecodeQualification(final Object input) {
-        return DecodeQualification.SUITABLE;
+        return DecodeQualification.UNABLE;
     }
 
     /**

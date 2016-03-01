@@ -15,12 +15,27 @@
  */
 package org.esa.s1tbx.io.generic;
 
+import com.bc.ceres.core.Assert;
+import org.esa.snap.core.dataio.ProductIO;
+import org.esa.snap.core.dataio.ProductReader;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.rcp.actions.file.ProductFileChooser;
+import org.esa.snap.rcp.actions.file.ProductOpener;
+import org.esa.snap.rcp.util.Dialogs;
+import org.openide.util.Cancellable;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.io.File;
+import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.prefs.Preferences;
 
 /**
  * Generic configurable action for importing data products with parameters.
@@ -56,7 +71,7 @@ public class ImportParameterizedProductAction extends AbstractAction {
     }
 
     private boolean openProduct() {
-    /*    Preferences preferences = SnapApp.getDefault().getPreferences();
+        Preferences preferences = SnapApp.getDefault().getPreferences();
         String userHomePath = SystemUtils.getUserHomeDir().getAbsolutePath();
         ProductFileChooser fc = new ProductFileChooser(new File(preferences.get(ProductOpener.PREFERENCES_KEY_LAST_PRODUCT_DIR, userHomePath)));
         fc.setSubsetEnabled(true);
@@ -93,18 +108,71 @@ public class ImportParameterizedProductAction extends AbstractAction {
 
         for (File file : files) {
             openProductFileDoNotCheckOpened(file, formatName);
-        }*/
+        }
         return true;
     }
 
-//    private static Boolean openProductFileDoNotCheckOpened(File file, String formatName) {
-//        SnapApp.getDefault().setStatusBarMessage(MessageFormat.format("Reading product ''{0}''...", file.getName()));
-//
-//        ReadProductOperation operation = new ReadProductOperation(file, formatName);
-//        operation.run();
-//
-//        SnapApp.getDefault().setStatusBarMessage("");
-//
-//        return operation.getStatus();
-//    }
+    private static Boolean openProductFileDoNotCheckOpened(File file, String formatName) {
+        SnapApp.getDefault().setStatusBarMessage(MessageFormat.format("Reading product ''{0}''...", file.getName()));
+
+        ReadProductOperation operation = new ReadProductOperation(file, formatName);
+        operation.run();
+
+        SnapApp.getDefault().setStatusBarMessage("");
+
+        return operation.getStatus();
+    }
+
+    private static class ReadProductOperation implements Runnable, Cancellable {
+
+        private final File file;
+        private final String formatName;
+        private Boolean status;
+
+        public ReadProductOperation(File file, String formatName) {
+            Assert.notNull(file, "file");
+            Assert.notNull(formatName, "formatName");
+            this.file = file;
+            this.formatName = formatName;
+        }
+
+        public Boolean getStatus() {
+            return status;
+        }
+
+        @Override
+        public void run() {
+            try {
+                ProductReader reader = ProductIO.getProductReader(formatName);
+                Product product = reader.readProductNodes(file, null);
+
+                if (!Thread.interrupted()) {
+                    if (product == null) {
+                        status = false;
+                        SwingUtilities.invokeLater(() -> Dialogs.showError(String.format("%nFile '%s' can not be opened.", file)));
+                    } else {
+                        status = true;
+                        SwingUtilities.invokeLater(() -> SnapApp.getDefault().getProductManager().addProduct(product));
+                    }
+                } else {
+                    status = null;
+                }
+            } catch (IOException problem) {
+                status = false;
+                SwingUtilities.invokeLater(() -> Dialogs.showError("Import", problem.getMessage()));
+            }
+        }
+
+        @Override
+        public boolean cancel() {
+            Dialogs.Answer answer = Dialogs.requestDecision("Import",
+                                                            "Do you really want to cancel the read process?",
+                                                            false, null);
+            boolean cancel = answer == Dialogs.Answer.YES;
+            if (cancel) {
+                status = null;
+            }
+            return cancel;
+        }
+    }
 }

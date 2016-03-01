@@ -5,23 +5,21 @@
         <folder name="Readers">
             <file name="org-esa-s1tbx-io-importGenericComplex.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="delegate" methodvalue="org.esa.s1tbx.io.generic.ImportParameterizedProductAction.create"/>
                 <attr name="displayName" stringvalue="Generic Complex"/>
                 <attr name="formatName" stringvalue="Complex Binary"/>
                 <attr name="useAllFileFilter" boolvalue="true"/>
                 <attr name="helpId" stringvalue="importGenericComplex"/>
                 <attr name="ShortDescription" stringvalue="Open Generic Complex product."/>
-                <attr name="timeBeforeDialogAppears" intvalue="3600000"/>
             </file>
             <file name="org-esa-s1tbx-io-importGenericBinary.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="delegate" methodvalue="org.esa.s1tbx.io.generic.ImportParameterizedProductAction.create"/>
                 <attr name="displayName" stringvalue="Generic Binary"/>
                 <attr name="formatName" stringvalue="Generic Binary"/>
                 <attr name="useAllFileFilter" boolvalue="true"/>
                 <attr name="helpId" stringvalue="importGenericBinary"/>
                 <attr name="ShortDescription" stringvalue="Open Generic Binary product."/>
-                <attr name="timeBeforeDialogAppears" intvalue="3600000"/>
             </file>
         </folder>
     </folder>
