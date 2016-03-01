@@ -231,7 +231,7 @@ class CommandLineTool implements GraphProcessingObserver {
             final String sourcePath = sourceFilePathMap.get(sourceId);
             try {
                 metadataResourceEngine.readRelatedResource(sourceId, sourcePath);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 String msgPattern = "Failed to load metadata file associated with '%s = %s': %s";
                 logSevereProblem(String.format(msgPattern, sourceId, sourcePath, e.getMessage()), e);
             }
