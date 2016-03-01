@@ -32,7 +32,7 @@ import java.util.Locale;
 
 public class ImageIOWriterPlugIn implements ProductWriterPlugIn {
 
-    private static final String[] FORMAT_NAMES = {"JP2", "JPG", "PNG", "BMP", "GIF", "BTF"};
+    private static final String[] FORMAT_NAMES = {"JP2", "JPG", "PNG", "BMP", "GIF"};
 
     /**
      * Constructs a new product writer plug-in instance.
@@ -53,7 +53,7 @@ public class ImageIOWriterPlugIn implements ProductWriterPlugIn {
         final List<String> extList = new ArrayList<>(20);
         extList.addAll(Arrays.asList(ImageIO.getWriterFileSuffixes()));
 
-        final String[] exclude = {"pbm", "jpeg", "wbmp", "pgm", "ppm", "tiff", "tif", "tf8", "gz"};
+        final String[] exclude = {"pbm", "jpeg", "wbmp", "pgm", "ppm", "tiff", "tif", "tf8", "btf", "gz"};
         for (String ext : exclude) {
             extList.remove(ext);
             extList.remove(ext.toUpperCase());
