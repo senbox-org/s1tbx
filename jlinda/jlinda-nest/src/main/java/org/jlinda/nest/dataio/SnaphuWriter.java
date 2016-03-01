@@ -110,7 +110,7 @@ public class SnaphuWriter extends AbstractProductWriter {
             }
         }
         if(phaseBand == null) {
-            return;
+            throw new IOException("SNAPHU writer requires a wrapped phase band");
         }
 
         String bandName = UNWRAPPED_PREFIX + phaseBand.getName() + SNAPHU_HEADER_EXTENSION;
