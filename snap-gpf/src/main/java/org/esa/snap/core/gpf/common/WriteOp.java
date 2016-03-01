@@ -240,6 +240,7 @@ public class WriteOp extends Operator {
             throw new OperatorException("No data product writer for the '" + formatName + "' format available");
         }
         productWriter.setIncrementalMode(incremental);
+        productWriter.setFormatName(formatName);
         targetProduct.setProductWriter(productWriter);
 
         final Band[] bands = targetProduct.getBands();
