@@ -136,10 +136,6 @@
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-coregistration-DEMAssistedCoregistrationOp-Action.instance"/>
                     <attr name="position" intvalue="260"/>
                 </file>
-                <file name="org-esa-s1tbx-insar-gpf-coregistration-OffsetTrackingGraph-Action.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-coregistration-OffsetTrackingGraph-Action.instance"/>
-                    <attr name="position" intvalue="270"/>
-                </file>
                 <folder name="Stack Tools">
                     <attr name="position" intvalue="300"/>
                     <file name="org-esa-s1tbx-insar-gpf-coregistration-CreateStack-Action.shadow">
@@ -184,6 +180,13 @@
                         <attr name="position" intvalue="300"/>
                     </file>
                 </folder>
+            </folder>
+            <folder name="Feature Extraction">
+                <attr name="position" intvalue="900"/>
+                <file name="org-esa-s1tbx-insar-gpf-coregistration-OffsetTrackingGraph-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-coregistration-OffsetTrackingGraph-Action.instance"/>
+                    <attr name="position" intvalue="300"/>
+                </file>
             </folder>
         </folder>
     </folder>

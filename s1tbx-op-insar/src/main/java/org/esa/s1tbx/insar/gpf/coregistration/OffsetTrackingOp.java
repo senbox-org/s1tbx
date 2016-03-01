@@ -60,7 +60,7 @@ import java.util.Set;
  */
 
 @OperatorMetadata(alias = "Offset-Tracking",
-        category = "Radar/Coregistration",
+        category = "Radar/Feature Extraction",
         authors = "Jun Lu, Luis Veci",
         version = "1.0",
         copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",

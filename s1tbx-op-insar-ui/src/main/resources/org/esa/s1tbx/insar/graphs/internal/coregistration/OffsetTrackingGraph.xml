@@ -1,35 +1,19 @@
 <graph id="Graph">
   <version>1.0</version>
-  <node id="ProductSet-Reader">
-    <operator>ProductSet-Reader</operator>
+  <node id="Read">
+    <operator>Read</operator>
     <sources/>
-    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <fileList/>
-    </parameters>
-  </node>
-  <node id="DEM-Assisted-Coregistration">
-    <operator>DEM-Assisted-Coregistration</operator>
-    <sources>
-      <sourceProduct refid="ProductSet-Reader"/>
-    </sources>
-    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <demName>SRTM 3Sec</demName>
-      <demResamplingMethod>BICUBIC_INTERPOLATION</demResamplingMethod>
-      <externalDEMFile/>
-      <externalDEMNoDataValue>0.0</externalDEMNoDataValue>
-      <resamplingType>BISINC_5_POINT_INTERPOLATION</resamplingType>
-      <tileExtensionPercent>50</tileExtensionPercent>
-      <maskOutAreaWithoutElevation>true</maskOutAreaWithoutElevation>
-      <outputRangeAzimuthOffset>false</outputRangeAzimuthOffset>
+    <parameters>
+      <file></file>
     </parameters>
   </node>
   <node id="Cross-Correlation">
     <operator>Cross-Correlation</operator>
     <sources>
-      <sourceProduct refid="DEM-Assisted-Coregistration"/>
+      <sourceProduct refid="Read"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <numGCPtoGenerate>200000</numGCPtoGenerate>
+      <numGCPtoGenerate>20000</numGCPtoGenerate>
       <coarseRegistrationWindowWidth>64</coarseRegistrationWindowWidth>
       <coarseRegistrationWindowHeight>64</coarseRegistrationWindowHeight>
       <rowInterpFactor>2</rowInterpFactor>
@@ -67,11 +51,8 @@
   </node>
   <applicationData id="Presentation">
     <Description/>
-    <node id="ProductSet-Reader">
-      <displayPosition x="26.0" y="91.0"/>
-    </node>
-    <node id="DEM-Assisted-Coregistration">
-      <displayPosition x="167.0" y="90.0"/>
+    <node id="Read">
+      <displayPosition x="100.0" y="145.0"/>
     </node>
     <node id="Cross-Correlation">
       <displayPosition x="204.0" y="145.0"/>
