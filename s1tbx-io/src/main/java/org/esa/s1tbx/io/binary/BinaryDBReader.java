@@ -328,11 +328,13 @@ public final class BinaryDBReader {
     }
 
     public final Integer getAttributeInt(final String name) {
-        return (Integer) get(name);
+        Integer i = (Integer) get(name);
+        return i == null ? 0 : i;
     }
 
     public final Double getAttributeDouble(final String name) {
-        return (Double) get(name);
+        Double d = (Double) get(name);
+        return d == null ? 0 : d;
     }
 
     public final void set(final String name, final Object o) {

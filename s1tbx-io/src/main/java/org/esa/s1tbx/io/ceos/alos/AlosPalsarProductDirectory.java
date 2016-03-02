@@ -170,7 +170,8 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
             addGeoCodingFromWorkReport(product);
         }
 
-        if (product.getSceneGeoCoding() == null) {
+        if (product.getSceneGeoCoding() == null &&
+                leaderFile.getSceneRecord() != null && leaderFile.getFacilityRecord() != null) {
             Double refLat = leaderFile.getSceneRecord().getAttributeDouble("scene centre geodetic latitude");
             Double refLon = leaderFile.getSceneRecord().getAttributeDouble("scene centre geodetic longitude");
             if (refLat == null || refLat == 0 || refLon == null || refLon == 0) {

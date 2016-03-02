@@ -22,23 +22,23 @@ import java.io.File;
  */
 public interface CEOSConstants {
 
-    Class[] VALID_INPUT_TYPES = new Class[]{File.class, String.class};
+    Class[] VALID_INPUT_TYPES = {File.class, String.class};
 
-    public String[] getVolumeFilePrefix();
+    String[] getVolumeFilePrefix();
 
-    public String[] getLeaderFilePrefix();
+    String[] getLeaderFilePrefix();
 
-    public String[] getImageFilePrefix();
+    String[] getImageFilePrefix();
 
-    public String[] getTrailerFilePrefix();
+    String[] getTrailerFilePrefix();
 
-    public int getMinimumNumFiles();
+    int getMinimumNumFiles();
 
-    public String getPluginDescription();
+    String getPluginDescription();
 
-    public String[] getFormatNames();
+    String[] getFormatNames();
 
-    public String[] getForamtFileExtensions();
+    String[] getForamtFileExtensions();
 
-    public String getMission();
+    String getMission();
 }

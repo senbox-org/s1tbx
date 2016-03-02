@@ -27,6 +27,7 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
@@ -88,7 +89,7 @@ public abstract class CEOSProductDirectory {
         binaryReader.close();
 
         productType = volumeDirectoryFile.getProductType();
-        if (productType == null || productType.equals("unknown"))
+        if (null == productType || productType.equals("unknown"))
             throw new IOException("Unable to read level 0 product");
 
         isProductSLC = productType.contains("SLC") || productType.contains("COMPLEX") || productType.contains("1.1");
@@ -374,7 +375,7 @@ public abstract class CEOSProductDirectory {
 
         Double interval = platformPosRec.getAttributeDouble("Time interval between DATA points");
         if (interval == null || interval <= 0.0) {
-            System.out.println("CEOSProductDirectory: Time interval between DATA points in Platform Position Data is " + interval);
+            SystemUtils.LOG.info("CEOSProductDirectory: Time interval between DATA points in Platform Position Data is " + interval);
             interval = 0.0;
         }
         second += interval * (num - 1);
@@ -449,7 +450,7 @@ public abstract class CEOSProductDirectory {
                 String folder = "";
                 String[] fileList = productDir.list("");
                 while(fileList.length > 0 && fileList.length <= 3) {
-                    folder += fileList[0] + "/";
+                    folder += fileList[0] + '/';
                     fileList = productDir.list(folder);
                 }
                 if (!folder.isEmpty() && !folder.endsWith("/")) {
@@ -469,7 +470,7 @@ public abstract class CEOSProductDirectory {
         String folder = "";
         String[] fileList = productDir.list("");
         while(fileList.length > 0 && fileList.length <= 3) {
-            folder += fileList[0] + "/";
+            folder += fileList[0] + '/';
             fileList = productDir.list(folder);
         }
         if (!folder.isEmpty() && !folder.endsWith("/")) {
