@@ -193,18 +193,18 @@ public final class FastDelaunayTriangulator {
     /**
      * If t0 and t1 are two triangles sharing a common edge AB,
      * the method replaces ABC and BAD triangles by DCA and DBC, respectively.
-     * B                      B
-     * *                      *
-     * / | \                  /   \
-     * /   |   \              /       \
-     * /    |    \            /         \
-     * C *     |     * D      C *-----------* D
-     * \    |    /            \         /
-     * \   |   /              \       /
-     * \  |  /                \     /
-     * \ | /                  \   /
-     * *                      *
-     * A                      A
+     *          B                      B       
+     *          *                      *       
+     *        / | \                  /   \     
+     *      /   |   \              /       \   
+     *     /    |    \            /         \  
+     *  C *     |     * D      C *-----------* D
+     *     \    |    /            \         /  
+     *      \   |   /              \       /   
+     *       \  |  /                \     /    
+     *        \ | /                  \   /     
+     *          *                      *       
+     *          A                      A       
      * To be fast, this method supposed that input triangles share a common
      * edge and that this common edge is known.
      * A check may be performed to ensure these conditions are verified.
@@ -218,14 +218,19 @@ public final class FastDelaunayTriangulator {
 
         final Coordinate t0A = t1.getVertex(side1_2);
         final Coordinate t0B = t0.getVertex(side0_2);
-
+        Coordinate t1B = t0.getVertex(side0_1);
+        // New neighbours
+        Triangle newt0N1 = t0.getNeighbour(side0_2);
+        Triangle newt0N2 = t1.getNeighbour(side1_1);
+        Triangle newt1N0 = t1.getNeighbour(side1_2);
+        Triangle newt1N1 = t0.getNeighbour(side0_1);
         t0.setABC(t0A, t0B, t0.getVertex(side0));
         t0.setBAO(t1);
-        link(t0, 1, t0.getNeighbour(side0_2));
-        link(t0, 2, t1.getNeighbour(side1_1));
-        t1.setABC(t0A, t0.getVertex(side0_1), t0B);
-        link(t1, 0, t1.getNeighbour(side1_2));
-        link(t1, 1, t0.getNeighbour(side0_1));
+        link(t0,1,newt0N1);
+        link(t0,2,newt0N2);
+        t1.setABC(t0A, t1B, t0B);
+        link(t1,0,newt1N0);
+        link(t1,1,newt1N1);
         t1.setACO(t0);
     }
 
