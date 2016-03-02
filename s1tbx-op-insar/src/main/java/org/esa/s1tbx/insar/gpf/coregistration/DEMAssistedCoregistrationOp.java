@@ -51,20 +51,23 @@ import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.OrbitStateVector;
 import org.esa.snap.engine_utilities.datamodel.PosVector;
 import org.esa.snap.engine_utilities.datamodel.ProductInformation;
-import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.eo.GeoUtils;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
-import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.jlinda.core.delaunay.FastDelaunayTriangulator;
 import org.jlinda.core.delaunay.Triangle;
 import org.jlinda.core.delaunay.TriangulationException;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Co-registering non-burst products based on orbits and DEM.
@@ -124,6 +127,8 @@ public final class DEMAssistedCoregistrationOp extends Operator {
     private GeoCoding targetGeoCoding = null;
     private final HashMap<Band, Band> targetBandToSlaveBandMap = new HashMap<>(2);
     private final double invalidIndex = -9999.0;
+
+    private static final String PRODUCT_SUFFIX = "_Stack";
 
     /**
      * Default constructor. The graph processing framework
@@ -259,7 +264,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
     private void createTargetProduct() {
 
         targetProduct = new Product(
-                masterProduct.getName(),
+                masterProduct.getName() + PRODUCT_SUFFIX,
                 masterProduct.getProductType(),
                 masterProduct.getSceneRasterWidth(),
                 masterProduct.getSceneRasterHeight());

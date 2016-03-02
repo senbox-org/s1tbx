@@ -124,6 +124,8 @@ public class CreateStackOp extends Operator {
     private boolean appendToMaster = false;
     private boolean productPixelSpacingChecked = false;
 
+    private static final String PRODUCT_SUFFIX = "_Stack";
+
     @Override
     public void initialize() throws OperatorException {
 
@@ -193,7 +195,7 @@ public class CreateStackOp extends Operator {
             switch (extent) {
                 case MASTER_EXTENT:
 
-                    targetProduct = new Product(masterProduct.getName(),
+                    targetProduct = new Product(masterProduct.getName() + PRODUCT_SUFFIX,
                                                 masterProduct.getProductType(),
                                                 masterProduct.getSceneRasterWidth(),
                                                 masterProduct.getSceneRasterHeight());

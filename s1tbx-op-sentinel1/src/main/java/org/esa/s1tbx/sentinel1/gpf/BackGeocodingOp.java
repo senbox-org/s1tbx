@@ -148,7 +148,7 @@ public final class BackGeocodingOp extends Operator {
 
     private final double invalidIndex = -9999.0;
 
-    public static final String PRODUCT_SUFFIX = "_Stack";
+    private static final String PRODUCT_SUFFIX = "_Stack";
 
     /**
      * Default constructor. The graph processing framework
@@ -478,7 +478,7 @@ public final class BackGeocodingOp extends Operator {
         }
     }
 
-    private int getSubswathIndex(final String targetBandName) {
+    private static int getSubswathIndex(final String targetBandName) {
         for (int i = 0; i < 5; i++) {
             if (targetBandName.contains(String.valueOf(i+1))){
                 return (i+1);
@@ -557,7 +557,7 @@ public final class BackGeocodingOp extends Operator {
         }
     }
 
-    private BurstIndices getBurstIndices(final int subSwathIndex, final Sentinel1Utils su,
+    private static BurstIndices getBurstIndices(final int subSwathIndex, final Sentinel1Utils su,
                                          final SARGeocoding.Orbit orbit, final PosVector earthPoint) {
 
         try {
@@ -951,7 +951,7 @@ public final class BackGeocodingOp extends Operator {
     /**
      * Compute azimuth and range indices in SAR image for a given target point on the Earth's surface.
      */
-    private boolean getPosition(final int subSwathIndex, final int burstIndex, final Sentinel1Utils su,
+    private static boolean getPosition(final int subSwathIndex, final int burstIndex, final Sentinel1Utils su,
                                 final SARGeocoding.Orbit orbit, final PositionData data) {
 
         try {
@@ -1224,7 +1224,7 @@ public final class BackGeocodingOp extends Operator {
         }
     }
 
-    private Band getBand(
+    private static Band getBand(
             final Product product, final String prefix, final String swathIndexStr, final String polarization) {
 
         final String[] bandNames = product.getBandNames();

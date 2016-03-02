@@ -118,6 +118,8 @@ public final class ApplyOrbitFileOp extends Operator {
 
     private boolean productUpdated = false;
 
+    private static final String PRODUCT_SUFFIX = "_Orb";
+
     /**
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
@@ -235,7 +237,7 @@ public final class ApplyOrbitFileOp extends Operator {
      */
     void createTargetProduct() {
 
-        targetProduct = new Product(sourceProduct.getName(),
+        targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                                     sourceProduct.getProductType(),
                                     sourceProduct.getSceneRasterWidth(),
                                     sourceProduct.getSceneRasterHeight());
