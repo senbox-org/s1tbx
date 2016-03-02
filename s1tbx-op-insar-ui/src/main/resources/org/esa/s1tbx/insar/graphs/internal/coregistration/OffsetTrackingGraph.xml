@@ -23,6 +23,9 @@
       <applyFineRegistration>true</applyFineRegistration>
       <fineRegistrationWindowWidth>32</fineRegistrationWindowWidth>
       <fineRegistrationWindowHeight>32</fineRegistrationWindowHeight>
+      <fineRegistrationWindowAccAzimuth>16</fineRegistrationWindowAccAzimuth>
+      <fineRegistrationWindowAccRange>16</fineRegistrationWindowAccRange>
+      <fineRegistrationOversampling>16</fineRegistrationOversampling>
       <coherenceWindowSize>3</coherenceWindowSize>
       <coherenceThreshold>0.6</coherenceThreshold>
       <useSlidingWindow>false</useSlidingWindow>
