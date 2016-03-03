@@ -85,8 +85,8 @@ public class Slant2HeightOp extends Operator {
     private HashMap<String, Slant2Height> slant2HeightMap = new HashMap<String, Slant2Height>();
 
     // operator tags
-    private static final String PRODUCT_NAME = "slant2h";
     public static final String PRODUCT_TAG = "slant2h";
+    private static final String PRODUCT_SUFFIX = "_Hgt";
 
     @Override
     public void initialize() throws OperatorException {
@@ -228,7 +228,7 @@ public class Slant2HeightOp extends Operator {
     private void createTargetProduct() {
 
         // construct target product
-        targetProduct = new Product(PRODUCT_NAME,
+        targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                 sourceProduct.getProductType(),
                 sourceProduct.getSceneRasterWidth(),
                 sourceProduct.getSceneRasterHeight());

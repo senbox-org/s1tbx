@@ -125,7 +125,6 @@ public class InterferogramOp extends Operator {
 
     // operator tags
     private static final boolean CREATE_VIRTUAL_BAND = true;
-    private String productName;
     public String productTag;
     private int sourceImageWidth;
     private int sourceImageHeight;
@@ -143,7 +142,7 @@ public class InterferogramOp extends Operator {
 
     private boolean outputFlatEarthPhase = false;
     private static final String COHERENCE_PHASE = "coherence_phase";
-    private static final String PRODUCT_SUFFIX = "_ifg";
+    private static final String PRODUCT_SUFFIX = "_Ifg";
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -164,10 +163,8 @@ public class InterferogramOp extends Operator {
         try {
             // rename product if no subtraction of the flat-earth phase
             if (!subtractFlatEarthPhase) {
-                productName = "ifgs";
                 productTag = "ifg";
             } else {
-                productName = "srp_ifgs";
                 productTag = "ifg_srp";
             }
 
@@ -214,9 +211,9 @@ public class InterferogramOp extends Operator {
 
             if (isTOPSARBurstProduct) {
                 final String mProcSysId = mstRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
-                final float mVersion = Float.valueOf(mProcSysId.substring(mProcSysId.lastIndexOf(" ")));
+                final float mVersion = Float.valueOf(mProcSysId.substring(mProcSysId.lastIndexOf(' ')));
                 final String sProcSysId = slvRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
-                final float sVersion = Float.valueOf(sProcSysId.substring(sProcSysId.lastIndexOf(" ")));
+                final float sVersion = Float.valueOf(sProcSysId.substring(sProcSysId.lastIndexOf(' ')));
                 if ((mVersion < 2.43 && sVersion >= 2.43 && mstRoot.getAttribute("EAP Correction") == null) ||
                         (sVersion < 2.43 && mVersion >= 2.43 && slvRoot.getAttribute("EAP Correction") == null)) {
                     throw new OperatorException("Source products cannot be InSAR pairs: one is EAP phase corrected" +
@@ -229,7 +226,7 @@ public class InterferogramOp extends Operator {
                 subSwathIndex = 1; // subSwathIndex is always 1 because of split product
 
                 final String topsarTag = getTOPSARTag(sourceProduct);
-                productTag = productTag + "_" + topsarTag;
+                productTag = productTag + '_' + topsarTag;
             }
         } catch (Exception e) {
             throw new OperatorException(e);
@@ -348,7 +345,7 @@ public class InterferogramOp extends Operator {
 
                     for (int b = 0; b < numBursts; b++) {
 
-                        final String polynomialName = slave.name + "_" + s + "_" + b;
+                        final String polynomialName = slave.name + '_' + s + '_' + b;
 
                         flatEarthPolyMap.put(polynomialName, estimateFlatEarthPolynomial(
                                 master, slave, s+1, b, mstSceneCentreXYZ, orbitDegree, srpPolynomialDegree,
@@ -368,30 +365,30 @@ public class InterferogramOp extends Operator {
             for (Integer keySlave : slaveMap.keySet()) {
 
                 // generate name for product bands
-                final String productName = keyMaster.toString() + "_" + keySlave.toString();
+                final String productName = keyMaster.toString() + '_' + keySlave.toString();
 
                 final CplxContainer slave = slaveMap.get(keySlave);
                 final ProductContainer product = new ProductContainer(productName, master, slave, true);
 
-                product.addBand(Unit.REAL, "i_" + productTag + "_" + master.date + "_" + slave.date);
-                product.addBand(Unit.IMAGINARY, "q_" + productTag + "_" + master.date + "_" + slave.date);
+                product.addBand(Unit.REAL, "i_" + productTag + '_' + master.date + '_' + slave.date);
+                product.addBand(Unit.IMAGINARY, "q_" + productTag + '_' + master.date + '_' + slave.date);
 
                 if(includeCoherence) {
                     String cohTag = "coh";
                     if (isTOPSARBurstProduct) {
                         final String topsarTag = getTOPSARTag(sourceProduct);
-                        cohTag += "_" + topsarTag;
+                        cohTag += '_' + topsarTag;
                     }
-                    product.addBand(Unit.COHERENCE, cohTag + "_" + master.date + "_" + slave.date);
+                    product.addBand(Unit.COHERENCE, cohTag + '_' + master.date + '_' + slave.date);
                 }
 
                 if(subtractFlatEarthPhase && outputFlatEarthPhase) {
                     String fepTag = "fep";
                     if (isTOPSARBurstProduct) {
                         final String topsarTag = getTOPSARTag(sourceProduct);
-                        fepTag += "_" + topsarTag;
+                        fepTag += '_' + topsarTag;
                     }
-                    product.addBand(Unit.PHASE, fepTag + "_" + master.date + "_" + slave.date);
+                    product.addBand(Unit.PHASE, fepTag + '_' + master.date + '_' + slave.date);
                 }
 
                 // put ifg-product bands into map
@@ -470,7 +467,7 @@ public class InterferogramOp extends Operator {
     private void createTargetProduct() {
 
         // construct target product
-        targetProduct = new Product(productName,
+        targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                 sourceProduct.getProductType(),
                 sourceProduct.getSceneRasterWidth(),
                 sourceProduct.getSceneRasterHeight());
@@ -490,7 +487,7 @@ public class InterferogramOp extends Operator {
             final String tag0 = targetMap.get(key).sourceMaster.date;
             final String tag1 = targetMap.get(key).sourceSlave.date;
             if (CREATE_VIRTUAL_BAND) {
-                final String countStr = "_" + productTag + "_" + tag0 + "_" + tag1;
+                final String countStr = '_' + productTag + '_' + tag0 + '_' + tag1;
                 ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBand(targetBandName_I), targetProduct.getBand(targetBandName_Q), countStr);
                 Band phaseBand = ReaderUtils.createVirtualPhaseBand(targetProduct, targetProduct.getBand(targetBandName_I), targetProduct.getBand(targetBandName_Q), countStr);
                 
@@ -1017,7 +1014,7 @@ public class InterferogramOp extends Operator {
                     DoubleMatrix azimuthAxisNormalized = DoubleMatrix.linspace(y0, yN, dataMaster.rows);
                     azimuthAxisNormalized = normalizeDoubleMatrix(azimuthAxisNormalized, minLine, maxLine);
 
-                    final String polynomialName = product.sourceSlave.name + "_" + (subSwathIndex - 1) + "_" + burstIndex;
+                    final String polynomialName = product.sourceSlave.name + '_' + (subSwathIndex - 1) + '_' + burstIndex;
                     final DoubleMatrix polyCoeffs = flatEarthPolyMap.get(polynomialName);
 
                     realReferencePhase = PolyUtils.polyval(azimuthAxisNormalized, rangeAxisNormalized,

@@ -111,6 +111,7 @@ public final class PhaseToElevationOp extends Operator {
     private final Baseline baseline = new Baseline();
 
     private Band unwrappedPhaseBand;
+    private static final String PRODUCT_SUFFIX = "_Hgt";
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -209,7 +210,7 @@ public final class PhaseToElevationOp extends Operator {
      */
     private void createTargetProduct() {
 
-        targetProduct = new Product(sourceProduct.getName(),
+        targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                 sourceProduct.getProductType(),
                 sourceImageWidth,
                 sourceImageHeight);

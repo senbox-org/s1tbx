@@ -118,7 +118,6 @@ public class CoherenceOp extends Operator {
 
     private boolean isComplex;
     private boolean isTOPSARBurstProduct = false;
-    private String productName = null;
     private String productTag = null;
     private Sentinel1Utils su = null;
     private Sentinel1Utils.SubSwathInfo[] subSwath = null;
@@ -136,7 +135,7 @@ public class CoherenceOp extends Operator {
 
     private static final int ORBIT_DEGREE = 3; // hardcoded
     private static final String COHERENCE_PHASE = "coherence_phase";
-    private static final String PRODUCT_SUFFIX = "_coh";
+    private static final String PRODUCT_SUFFIX = "_Coh";
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -154,7 +153,6 @@ public class CoherenceOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
-            productName = "coherence";
             productTag = "coh";
 
             mstRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
@@ -209,7 +207,7 @@ public class CoherenceOp extends Operator {
                 subSwathIndex = 1; // subSwathIndex is always 1 because of split product
 
                 final String topsarTag = InterferogramOp.getTOPSARTag(sourceProduct);
-                productTag = productTag + "_" + topsarTag;
+                productTag = productTag + '_' + topsarTag;
             }
         } catch (Exception e) {
             throw new OperatorException(e);
@@ -238,10 +236,10 @@ public class CoherenceOp extends Operator {
         }
     }
 
-    private void metaMapPut(final String tag,
-                            final MetadataElement root,
-                            final Product product,
-                            final HashMap<Integer, CplxContainer> map) throws Exception {
+    private static void metaMapPut(final String tag,
+                                   final MetadataElement root,
+                                   final Product product,
+                                   final HashMap<Integer, CplxContainer> map) throws Exception {
 
         // TODO: include polarization flags/checks!
         // pull out band names for this product
@@ -289,13 +287,13 @@ public class CoherenceOp extends Operator {
             for (Integer keySlave : slaveMap.keySet()) {
 
                 // generate name for product bands
-                String productName = keyMaster.toString() + "_" + keySlave.toString();
+                String productName = keyMaster.toString() + '_' + keySlave.toString();
 
                 final CplxContainer slave = slaveMap.get(keySlave);
                 final ProductContainer product = new ProductContainer(productName, master, slave, false);
 
-                product.addBand(Unit.COHERENCE, productTag + "_" + master.date + "_" + slave.date);
-                product.addBand(COHERENCE_PHASE, "Phase_" + productTag + "_" + master.date + "_" + slave.date);
+                product.addBand(Unit.COHERENCE, productTag + '_' + master.date + '_' + slave.date);
+                product.addBand(COHERENCE_PHASE, "Phase_" + productTag + '_' + master.date + '_' + slave.date);
 
                 // put ifg-product bands into map
                 targetMap.put(productName, product);
@@ -305,7 +303,7 @@ public class CoherenceOp extends Operator {
 
     private void createTargetProduct() {
 
-        targetProduct = new Product(productName,
+        targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                                     sourceProduct.getProductType(),
                                     sourceProduct.getSceneRasterWidth(),
                                     sourceProduct.getSceneRasterHeight());
@@ -426,7 +424,7 @@ public class CoherenceOp extends Operator {
 
                     for (int b = 0; b < numBursts; b++) {
 
-                        final String polynomialName = slave.name + "_" + s + "_" + b;
+                        final String polynomialName = slave.name + '_' + s + '_' + b;
 
                         flatEarthPolyMap.put(polynomialName, InterferogramOp.estimateFlatEarthPolynomial(
                                 master, slave, s + 1, b, mstSceneCentreXYZ, orbitDegree, srpPolynomialDegree,
@@ -751,7 +749,7 @@ public class CoherenceOp extends Operator {
                     azimuthAxisNormalized = InterferogramOp.normalizeDoubleMatrix(
                             azimuthAxisNormalized, minLine, maxLine);
 
-                    final String polynomialName = product.sourceSlave.name + "_" + (subSwathIndex - 1) + "_" + burstIndex;
+                    final String polynomialName = product.sourceSlave.name + '_' + (subSwathIndex - 1) + '_' + burstIndex;
                     final DoubleMatrix polyCoeffs = flatEarthPolyMap.get(polynomialName);
 
                     final DoubleMatrix realReferencePhase = PolyUtils.polyval(azimuthAxisNormalized, rangeAxisNormalized,

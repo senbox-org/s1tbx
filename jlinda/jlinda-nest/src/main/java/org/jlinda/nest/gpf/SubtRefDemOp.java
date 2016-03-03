@@ -107,11 +107,10 @@ public final class SubtRefDemOp extends Operator {
     private HashMap<String, ProductContainer> targetMap = new HashMap<String, ProductContainer>();
 
     // operator tags
-    private String productName;
     public String productTag;
 
     private static final boolean CREATE_VIRTUAL_BAND = true;
-
+    private static final String PRODUCT_SUFFIX = "_DInSAR";
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -152,7 +151,6 @@ public final class SubtRefDemOp extends Operator {
         validator.checkIfSLC();
         validator.checkIfTOPSARBurstProduct(false);
 
-        productName = "srd_ifgs";
         productTag = "_ifg_srd";
         if (validator.isSentinel1Product()) {
             final String topsarTag = getTOPSARTag(sourceProduct);
@@ -307,7 +305,7 @@ public final class SubtRefDemOp extends Operator {
 
     private void createTargetProduct() {
 
-        targetProduct = new Product(productName,
+        targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                 sourceProduct.getProductType(),
                 sourceProduct.getSceneRasterWidth(),
                 sourceProduct.getSceneRasterHeight());

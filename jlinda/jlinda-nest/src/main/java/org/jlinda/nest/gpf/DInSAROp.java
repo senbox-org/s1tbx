@@ -82,7 +82,6 @@ public class DInSAROp extends Operator {
 
     // operator tags
     private static final boolean CREATE_VIRTUAL_BAND = true;
-    private static final String PRODUCT_NAME = "dinsar";
     public static final String PRODUCT_TAG = "dinsar";
 
     private int sourceImageWidth;
@@ -94,6 +93,8 @@ public class DInSAROp extends Operator {
 
     private Product topoProduct = null;
     private Product defoProduct = null;
+
+    private static final String PRODUCT_SUFFIX = "_DInSAR";
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -187,7 +188,7 @@ public class DInSAROp extends Operator {
     private void createTargetProduct() {
 
         // construct target product
-        targetProduct = new Product(PRODUCT_NAME,
+        targetProduct = new Product(defoProduct.getName() + PRODUCT_SUFFIX,
                 defoProduct.getProductType(),
                 defoProduct.getSceneRasterWidth(),
                 defoProduct.getSceneRasterHeight());

@@ -79,7 +79,7 @@ public class GoldsteinFilterOp extends Operator {
     private double noDataValue = 0;
     private Band cohBand = null;
 
-    private static final String PRODUCT_SUFFIX = "_flt";
+    private static final String PRODUCT_SUFFIX = "_Flt";
 
     /**
      * Initializes this operator and sets the one and only target product.

@@ -88,9 +88,8 @@ public class PhaseFilterOp extends Operator {
 
     // operator tags
     private static final boolean CREATE_VIRTUAL_BAND = true;
-    private static final String PRODUCT_NAME = "filt_ifgs";
     public static final String PRODUCT_TAG = "_ifg_filt";
-
+    private static final String PRODUCT_SUFFIX = "_Flt";
 
     @Override
     public void initialize() throws OperatorException {
@@ -156,7 +155,7 @@ public class PhaseFilterOp extends Operator {
 
     }
 
-    private void metaMapPut(final String tag,
+    private static void metaMapPut(final String tag,
                             final MetadataElement root,
                             final Product product,
                             final HashMap<Integer, CplxContainer> map) throws Exception {
@@ -225,7 +224,7 @@ public class PhaseFilterOp extends Operator {
 
     private void createTargetProduct() {
 
-        targetProduct = new Product(PRODUCT_NAME,
+        targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                 sourceProduct.getProductType(),
                 sourceProduct.getSceneRasterWidth(),
                 sourceProduct.getSceneRasterHeight());

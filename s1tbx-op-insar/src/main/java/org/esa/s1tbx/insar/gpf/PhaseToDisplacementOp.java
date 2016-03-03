@@ -59,6 +59,8 @@ public final class PhaseToDisplacementOp extends Operator {
     private double wavelength = 0.0;
     private Band unwrappedPhaseBand;
 
+    private static final String PRODUCT_SUFFIX = "_Disp";
+
     /**
      * Initializes this operator and sets the one and only target product.
      * <p>The target product can be either defined by a field of type {@link Product} annotated with the
@@ -107,7 +109,7 @@ public final class PhaseToDisplacementOp extends Operator {
      */
     private void createTargetProduct() {
 
-        targetProduct = new Product(sourceProduct.getName(),
+        targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                 sourceProduct.getProductType(),
                 sourceImageWidth,
                 sourceImageHeight);
