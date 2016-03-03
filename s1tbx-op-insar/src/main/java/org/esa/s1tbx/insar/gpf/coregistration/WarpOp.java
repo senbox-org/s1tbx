@@ -289,7 +289,8 @@ public class WarpOp extends Operator {
     private void addSlaveGCPs(final PolynomialModel warpData, final String bandName) {
 
         final GeoCoding targetGeoCoding = targetProduct.getSceneGeoCoding();
-        final ProductNodeGroup<Placemark> targetGCPGroup = GCPManager.instance().getGcpGroup(targetProduct.getBand(bandName));
+        final String newName = excludeMaster ? StackUtils.getBandNameWithoutDate(bandName) : bandName;
+        final ProductNodeGroup<Placemark> targetGCPGroup = GCPManager.instance().getGcpGroup(targetProduct.getBand(newName));
         targetGCPGroup.removeAll();
 
         final List<Placemark> slaveGCPList = warpData.getSlaveGCPList();
