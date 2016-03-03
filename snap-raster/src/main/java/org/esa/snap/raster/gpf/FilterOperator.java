@@ -72,6 +72,8 @@ public class FilterOperator extends Operator {
     private transient Map<Band, Band> bandMap = new HashMap<>(5);
     private transient final Map<String, Filter> filterMap = new HashMap<>(5);
 
+    private static final String PRODUCT_SUFFIX = "_Flt";
+
     /**
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
@@ -107,7 +109,7 @@ public class FilterOperator extends Operator {
     public void initialize() throws OperatorException {
 
         try {
-            targetProduct = new Product(sourceProduct.getName(),
+            targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                     sourceProduct.getProductType(),
                     sourceProduct.getSceneRasterWidth(),
                     sourceProduct.getSceneRasterHeight());

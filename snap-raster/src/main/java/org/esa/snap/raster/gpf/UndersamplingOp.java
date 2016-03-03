@@ -177,6 +177,8 @@ public class UndersamplingOp extends Operator {
     public static final String FILTER_SIZE_5x5 = "5x5";
     public static final String FILTER_SIZE_7x7 = "7x7";
 
+    private static final String PRODUCT_SUFFIX = "_Udr";
+
     @Override
     public void initialize() throws OperatorException {
 
@@ -506,7 +508,7 @@ public class UndersamplingOp extends Operator {
      */
     private void createTargetProduct() {
 
-        targetProduct = new Product(sourceProduct.getName(),
+        targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                 sourceProduct.getProductType(),
                 targetImageWidth,
                 targetImageHeight);

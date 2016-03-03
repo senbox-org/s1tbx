@@ -111,6 +111,8 @@ public class OversamplingOp extends Operator {
     private static final String ENVISAT = "ENVISAT";
     private static final String OTHER = "OTHER";
 
+    private static final String PRODUCT_SUFFIX = "_Ovr";
+
     /**
      * Initializes this operator and sets the one and only target product.
      * <p>The target product can be either defined by a field of type {@link Product} annotated with the
@@ -374,7 +376,7 @@ public class OversamplingOp extends Operator {
 
     private void createTargetProduct() {
 
-        targetProduct = new Product(sourceProduct.getName(),
+        targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                 sourceProduct.getProductType(),
                 targetImageWidth,
                 targetImageHeight);

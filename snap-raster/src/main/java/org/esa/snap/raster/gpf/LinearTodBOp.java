@@ -58,8 +58,9 @@ public final class LinearTodBOp extends Operator {
             rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames;
 
-    private static final String dBStr = "_" + Unit.DB;
+    private static final String dBStr = '_' + Unit.DB;
     private static final double underFlowFloat = 1.0e-30;
+    private static final String PRODUCT_SUFFIX = "_dB";
 
     private final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<>();
 
@@ -181,7 +182,7 @@ public final class LinearTodBOp extends Operator {
      */
     private void createTargetProduct() {
 
-        targetProduct = new Product(sourceProduct.getName(),
+        targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                 sourceProduct.getProductType(),
                 sourceProduct.getSceneRasterWidth(),
                 sourceProduct.getSceneRasterHeight());

@@ -173,6 +173,8 @@ public final class GLCMOp extends Operator {
         Unknown
     }
 
+    private static final String PRODUCT_SUFFIX = "_GLCM";
+
     /**
      * Initializes this operator and sets the one and only target product.
      * <p>The target product can be either defined by a field of type {@link Product} annotated with the
@@ -314,7 +316,7 @@ public final class GLCMOp extends Operator {
         sourceImageWidth = sourceProduct.getSceneRasterWidth();
         sourceImageHeight = sourceProduct.getSceneRasterHeight();
 
-        targetProduct = new Product(sourceProduct.getName(),
+        targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                                     sourceProduct.getProductType(),
                                     sourceImageWidth,
                                     sourceImageHeight);
