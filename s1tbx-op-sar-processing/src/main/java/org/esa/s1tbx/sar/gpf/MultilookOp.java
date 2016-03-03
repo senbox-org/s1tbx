@@ -105,6 +105,7 @@ public final class MultilookOp extends Operator {
     private boolean isPolsar = false;
 
     private final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<>();
+    private static final String PRODUCT_SUFFIX = "_ML";
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -284,7 +285,7 @@ public final class MultilookOp extends Operator {
         targetImageWidth = sourceImageWidth / nRgLooks;
         targetImageHeight = sourceImageHeight / nAzLooks;
 
-        targetProduct = new Product(sourceProduct.getName(),
+        targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                 sourceProduct.getProductType(),
                 targetImageWidth,
                 targetImageHeight);

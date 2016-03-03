@@ -101,6 +101,7 @@ public class PolarimetricClassificationOp extends Operator {
 
     protected PolBandUtils.MATRIX sourceProductType;
     protected PolClassifier classifier;
+    private static final String PRODUCT_SUFFIX = "_Class";
 
     /**
      * Set classification. This function is used by unit test only.
@@ -224,7 +225,7 @@ public class PolarimetricClassificationOp extends Operator {
      */
     private void createTargetProduct() {
 
-        targetProduct = new Product(sourceProduct.getName(),
+        targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                 sourceProduct.getProductType(),
                 sourceImageWidth, sourceImageHeight);
 

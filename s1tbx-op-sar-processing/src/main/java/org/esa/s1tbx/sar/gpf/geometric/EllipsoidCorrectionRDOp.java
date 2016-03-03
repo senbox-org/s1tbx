@@ -32,10 +32,17 @@ import org.esa.snap.core.gpf.annotations.OperatorMetadata;
         description = "Ellipsoid correction with RD method and average scene height")
 public final class EllipsoidCorrectionRDOp extends RangeDopplerGeocodingOp {
 
+    private static final String PRODUCT_SUFFIX = "_EC";
+
     @Override
     public void initialize() throws OperatorException {
         useAvgSceneHeight = true;
         super.initialize();
+    }
+
+    @Override
+    protected String getProductSuffix() {
+        return PRODUCT_SUFFIX;
     }
 
     /**

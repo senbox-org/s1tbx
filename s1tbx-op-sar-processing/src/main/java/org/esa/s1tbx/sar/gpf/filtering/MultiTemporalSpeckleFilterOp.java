@@ -142,7 +142,7 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
     private final Map<String, String[]> targetBandNameToSourceBandName = new HashMap<>();
 
     private SpeckleFilter speckleFilter;
-
+    private static final String PRODUCT_SUFFIX = "_Spk";
 
     /**
      * Default constructor. The graph processing framework
@@ -195,7 +195,7 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
      */
     private void createTargetProduct() {
 
-        targetProduct = new Product(sourceProduct.getName(),
+        targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                 sourceProduct.getProductType(),
                 sourceProduct.getSceneRasterWidth(),
                 sourceProduct.getSceneRasterHeight());

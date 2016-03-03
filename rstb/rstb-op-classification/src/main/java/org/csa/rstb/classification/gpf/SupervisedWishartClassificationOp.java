@@ -80,6 +80,8 @@ public final class SupervisedWishartClassificationOp extends Operator {
     private int numClasses = 0;
     private boolean isDualPol = false;
 
+    private static final String PRODUCT_SUFFIX = "_Class";
+
     /**
      * Initializes this operator and sets the one and only target product.
      * <p>The target product can be either defined by a field of type {@link Product} annotated with the
@@ -225,7 +227,7 @@ public final class SupervisedWishartClassificationOp extends Operator {
         sourceImageWidth = sourceProduct.getSceneRasterWidth();
         sourceImageHeight = sourceProduct.getSceneRasterHeight();
 
-        targetProduct = new Product(sourceProduct.getName(),
+        targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                 sourceProduct.getProductType(),
                 sourceImageWidth,
                 sourceImageHeight);

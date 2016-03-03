@@ -105,8 +105,6 @@ import java.util.logging.Logger;
         description = "RD method for orthorectification")
 public class RangeDopplerGeocodingOp extends Operator {
 
-    public static final String PRODUCT_SUFFIX = "_TC";
-
     @SourceProduct(alias = "source")
     Product sourceProduct;
     @TargetProduct
@@ -246,6 +244,8 @@ public class RangeDopplerGeocodingOp extends Operator {
     private boolean nearRangeOnLeft = true; // temp fix for descending Radarsat2
     private String mission = null;
     private boolean skipBistaticCorrection = false;
+
+    private static final String PRODUCT_SUFFIX = "_TC";
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -519,6 +519,10 @@ public class RangeDopplerGeocodingOp extends Operator {
         sourceImageHeight = sourceProduct.getSceneRasterHeight();
     }
 
+    protected String getProductSuffix() {
+        return PRODUCT_SUFFIX;
+    }
+
     private void createTargetProduct() {
         try {
             if (pixelSpacingInMeter <= 0.0 && pixelSpacingInDegree <= 0) {
@@ -540,7 +544,7 @@ public class RangeDopplerGeocodingOp extends Operator {
 
             targetCRS = crsHandler.getTargetCRS();
 
-            targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
+            targetProduct = new Product(sourceProduct.getName() + getProductSuffix(),
                     sourceProduct.getProductType(), crsHandler.getTargetWidth(), crsHandler.getTargetHeight());
             targetProduct.setSceneGeoCoding(crsHandler.getCrsGeoCoding());
 

@@ -136,6 +136,7 @@ public class CoherenceOp extends Operator {
 
     private static final int ORBIT_DEGREE = 3; // hardcoded
     private static final String COHERENCE_PHASE = "coherence_phase";
+    private static final String PRODUCT_SUFFIX = "_coh";
 
     /**
      * Initializes this operator and sets the one and only target product.

@@ -66,7 +66,7 @@ import java.util.Set;
         description = "Deskewing ALOS product")
 public class ALOSDeskewingOp extends Operator {
 
-    public static final String PRODUCT_SUFFIX = "_DS";
+    public static final String PRODUCT_SUFFIX = "_DSk";
 
     @SourceProduct(alias = "source")
     Product sourceProduct;

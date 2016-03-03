@@ -106,6 +106,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
     public static final String NUM_LOOKS_4 = "4";
 
     private SpeckleFilter speckleFilter;
+    private static final String PRODUCT_SUFFIX = "_Spk";
 
     /**
      * Default constructor. The graph processing framework
@@ -230,7 +231,8 @@ public class PolarimetricSpeckleFilterOp extends Operator {
      */
     private void createTargetProduct() {
 
-        targetProduct = new Product(sourceProduct.getName(), sourceProduct.getProductType(),
+        targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
+                                    sourceProduct.getProductType(),
                                     sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);

@@ -100,14 +100,12 @@ public class InterferogramOp extends Operator {
     @Parameter(defaultValue="true", label="Include coherence estimation")
     private boolean includeCoherence = true;
 
-    @Parameter(interval = "(1, 75]",
-            description = "Size of coherence estimation window in Azimuth direction",
+    @Parameter(description = "Size of coherence estimation window in Azimuth direction",
             defaultValue = "10",
             label = "Coherence Azimuth Window Size")
     private int cohWinAz = 10;
 
-    @Parameter(interval = "(1, 75]",
-            description = "Size of coherence estimation window in Range direction",
+    @Parameter(description = "Size of coherence estimation window in Range direction",
             defaultValue = "10",
             label = "Coherence Range Window Size")
     private int cohWinRg = 10;
@@ -145,6 +143,7 @@ public class InterferogramOp extends Operator {
 
     private boolean outputFlatEarthPhase = false;
     private static final String COHERENCE_PHASE = "coherence_phase";
+    private static final String PRODUCT_SUFFIX = "_ifg";
 
     /**
      * Initializes this operator and sets the one and only target product.

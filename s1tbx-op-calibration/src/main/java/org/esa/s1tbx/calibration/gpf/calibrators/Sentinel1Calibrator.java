@@ -314,7 +314,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
         validate(sourceProduct);
 
-        targetProduct = new Product(sourceProduct.getName(),
+        targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                 sourceProduct.getProductType(),
                 sourceProduct.getSceneRasterWidth(),
                 sourceProduct.getSceneRasterHeight());

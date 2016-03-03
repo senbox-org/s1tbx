@@ -48,6 +48,7 @@ public class BaseCalibrator {
     protected MetadataElement origMetadataRoot = null;
 
     protected static final double underFlowFloat = 1.0e-30;
+    protected static final String PRODUCT_SUFFIX = "_Cal";
 
     protected final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<>(2);
 
@@ -95,13 +96,12 @@ public class BaseCalibrator {
         }
     }
 
-
     /**
      * Create target product.
      */
     public Product createTargetProduct(final Product sourceProduct, final String[] sourceBandNames) {
 
-        targetProduct = new Product(sourceProduct.getName(),
+        targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                 sourceProduct.getProductType(),
                 sourceProduct.getSceneRasterWidth(),
                 sourceProduct.getSceneRasterHeight());
@@ -164,7 +164,7 @@ public class BaseCalibrator {
             targetBandQ.setUnit(nextUnit);
             targetBandQ.setNoDataValueUsed(true);
 
-            final String suffix = "_" + OperatorUtils.getSuffixFromBandName(srcBandI.getName());
+            final String suffix = '_' + OperatorUtils.getSuffixFromBandName(srcBandI.getName());
             ReaderUtils.createVirtualIntensityBand(targetProduct, targetBandI, targetBandQ, suffix);
         }
     }

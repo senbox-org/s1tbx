@@ -142,6 +142,7 @@ public final class TerrainFlatteningOp extends Operator {
     private boolean detectShadow = true;
     private double threshold = 0.05;
 
+    private static final String PRODUCT_SUFFIX = "_TF";
 
     enum UnitType {AMPLITUDE,INTENSITY,COMPLEX,RATIO}
 
@@ -310,7 +311,7 @@ public final class TerrainFlatteningOp extends Operator {
      */
     private void createTargetProduct() {
 
-        targetProduct = new Product(sourceProduct.getName(),
+        targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                 sourceProduct.getProductType(),
                 sourceImageWidth,
                 sourceImageHeight);

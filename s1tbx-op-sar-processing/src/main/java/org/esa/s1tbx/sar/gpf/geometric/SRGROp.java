@@ -103,6 +103,8 @@ public class SRGROp extends Operator {
     private static final String cubic2Str = "Cubic2 interpolation";
     private static final String sincStr = "Sinc interpolation";
 
+    private static final String PRODUCT_SUFFIX = "_SRGR";
+
     /**
      * Initializes this operator and sets the one and only target product.
      * <p>The target product can be either defined by a field of type {@link Product} annotated with the
@@ -371,7 +373,7 @@ public class SRGROp extends Operator {
 
         computeTargetImageDimension();
 
-        targetProduct = new Product(sourceProduct.getName(),
+        targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                 sourceProduct.getProductType(),
                 targetImageWidth,
                 targetImageHeight);

@@ -107,8 +107,6 @@ import java.util.Set;
         description = "Orthorectification with SAR simulation")
 public class SARSimTerrainCorrectionOp extends Operator {
 
-    public static final String PRODUCT_SUFFIX = "_SimTC";
-
     @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
@@ -261,6 +259,9 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
     private boolean nearRangeOnLeft = true; // temp fix for descending Radarsat2
     private int maxIterations = 20;
+
+    private static final String PRODUCT_SUFFIX = "_TC";
+
 
     /**
      * Initializes this operator and sets the one and only target product.

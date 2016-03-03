@@ -81,8 +81,6 @@ import java.util.Map;
         description = "GG method for orthorectification")
 public final class GeolocationGridGeocodingOp extends Operator {
 
-    public static final String PRODUCT_SUFFIX = "_EC";
-
     @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
@@ -125,6 +123,8 @@ public final class GeolocationGridGeocodingOp extends Operator {
 
     private boolean nearRangeOnLeft = true;
     private boolean unBiasedZeroDoppler = false;
+
+    private static final String PRODUCT_SUFFIX = "_EC";
 
     /**
      * Initializes this operator and sets the one and only target product.

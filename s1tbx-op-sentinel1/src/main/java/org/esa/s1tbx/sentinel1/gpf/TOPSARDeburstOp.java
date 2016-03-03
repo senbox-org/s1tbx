@@ -91,6 +91,7 @@ public final class TOPSARDeburstOp extends Operator {
     private Sentinel1Utils.SubSwathInfo[] subSwath = null;
 
     private static int numOfBoundaryPoints = 6;
+    private static final String PRODUCT_SUFFIX = "_Deb";
 
     /**
      * Default constructor. The graph processing framework
@@ -242,7 +243,8 @@ public final class TOPSARDeburstOp extends Operator {
      */
     private void createTargetProduct() {
 
-        targetProduct = new Product(sourceProduct.getName(), sourceProduct.getProductType(), targetWidth, targetHeight);
+        targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
+                                    sourceProduct.getProductType(), targetWidth, targetHeight);
 
         final Band[] sourceBands = sourceProduct.getBands();
 

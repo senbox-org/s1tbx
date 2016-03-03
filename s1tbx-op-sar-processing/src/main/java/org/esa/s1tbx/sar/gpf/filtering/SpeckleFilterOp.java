@@ -138,6 +138,7 @@ public class SpeckleFilterOp extends Operator {
     public static final String SIGMA_90_PERCENT = "0.9";
 
     private SpeckleFilter speckleFilter;
+    private static final String PRODUCT_SUFFIX = "_Spk";
 
     /**
      * Default constructor. The graph processing framework
@@ -202,7 +203,7 @@ public class SpeckleFilterOp extends Operator {
      */
     private void createTargetProduct() throws Exception {
 
-        targetProduct = new Product(sourceProduct.getName(),
+        targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                 sourceProduct.getProductType(),
                 sourceProduct.getSceneRasterWidth(),
                 sourceProduct.getSceneRasterHeight());
