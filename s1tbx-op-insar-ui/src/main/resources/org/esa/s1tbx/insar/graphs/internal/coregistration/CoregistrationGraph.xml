@@ -20,7 +20,6 @@
       <resamplingType>NONE</resamplingType>
       <initialOffsetMethod>ORBIT</initialOffsetMethod>
       <extent>Master</extent>
-	  <includeMaster>true</includeMaster>
     </parameters>
   </node>
   <node id="Cross-Correlation">
@@ -59,7 +58,6 @@
       <rmsThreshold>0.05</rmsThreshold>
       <warpPolynomialOrder>2</warpPolynomialOrder>
       <interpolationMethod>Cubic convolution (6 points)</interpolationMethod>
-      <inSAROptimized>false</inSAROptimized>
       <openResidualsFile>false</openResidualsFile>
     </parameters>
   </node>
