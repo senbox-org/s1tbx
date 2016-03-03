@@ -40,7 +40,7 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
                 <attr name="displayName" stringvalue="Ocean Object Detection"/>
-                <attr name="graphFile" stringvalue="ShipDetectionGraph.xml"/>
+                <attr name="graphFile" stringvalue="FeatureExtractors/ShipDetectionGraph.xml"/>
                 <attr name="dialogTitle" stringvalue="Ocean Object Detection"/>
                 <attr name="targetProductNameSuffix" stringvalue="_ship"/>
                 <attr name="ShortDescription" stringvalue="Ship Detection"/>
@@ -51,7 +51,7 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
                 <attr name="displayName" stringvalue="Oil Spill Detection"/>
-                <attr name="graphFile" stringvalue="OilSpillDetectionGraph.xml"/>
+                <attr name="graphFile" stringvalue="FeatureExtractors/OilSpillDetectionGraph.xml"/>
                 <attr name="dialogTitle" stringvalue="Oil Spill Detection"/>
                 <attr name="targetProductNameSuffix" stringvalue="_oil"/>
                 <attr name="ShortDescription" stringvalue="Oil Spill Detection"/>
@@ -62,7 +62,7 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
                 <attr name="displayName" stringvalue="Wind Field Estimation"/>
-                <attr name="graphFile" stringvalue="WindFieldEstimationGraph.xml"/>
+                <attr name="graphFile" stringvalue="FeatureExtractors/WindFieldEstimationGraph.xml"/>
                 <attr name="dialogTitle" stringvalue="Wind Field Estimation"/>
                 <attr name="targetProductNameSuffix" stringvalue="_oil"/>
                 <attr name="ShortDescription" stringvalue="Wind Field Estimation"/>

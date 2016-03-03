@@ -17,7 +17,7 @@ public class StitchAction extends AbstractAction {
         dialog.show();
 
         final File graphPath = GraphBuilderDialog.getInternalGraphFolder();
-        final File graphFile =  new File(graphPath, "StitchTileGraph.xml");
+        final File graphFile =  new File(graphPath, "insar/StitchTileGraph.xml");
 
         dialog.LoadGraph(graphFile);
     }

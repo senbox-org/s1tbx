@@ -387,7 +387,7 @@ public class CPMUtils {
     public static DenseMatrix64F diagxmat(final RowD1Matrix64F diag, final RowD1Matrix64F B) {
 
         //if (!MatrixFeatures.isVector(diag))
-            logger.severe("diagXMat: sizes A,B: diag is NOT vector.");
+            //logger.info("diagXMat: sizes A,B: diag is NOT vector.");
 
         DenseMatrix64F result = B.copy();
         for (int i = 0; i < result.numRows; i++) {
@@ -473,7 +473,7 @@ public class CPMUtils {
 
         DiagXMat(RowD1Matrix64F diag, RowD1Matrix64F matrix, int start, int end, RowD1Matrix64F result) {
             if (!MatrixFeatures.isVector(diag))
-                logger.severe("diagXMat: sizes A,B: diag is NOT vector.");
+                logger.info("diagXMat: sizes A,B: diag is NOT vector.");
             this.mStart = start;
             this.mLength = end;
             this.diag = diag;

@@ -17,7 +17,7 @@ public class UnwrapAction extends AbstractAction {
         dialog.show();
 
         final File graphPath = GraphBuilderDialog.getInternalGraphFolder();
-        final File graphFile =  new File(graphPath, "UnwrapTileGraph.xml");
+        final File graphFile =  new File(graphPath, "insar/UnwrapTileGraph.xml");
 
         dialog.LoadGraph(graphFile);
     }
