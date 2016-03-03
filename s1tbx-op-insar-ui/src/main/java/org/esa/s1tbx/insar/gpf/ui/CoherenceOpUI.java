@@ -45,9 +45,9 @@ public class CoherenceOpUI extends BaseOperatorUI {
     private final JTextField cohWinAz = new JTextField("");
     private final JTextField cohWinRg = new JTextField("");
 
-    private final JComboBox srpPolynomialDegreeStr = new JComboBox(new Integer[]{1, 2, 3, 4, 5, 6, 7, 8});
-    private final JComboBox srpNumberPointsStr = new JComboBox(new Integer[]{301, 401, 501, 601, 701, 801, 901, 1001});
-    private final JComboBox orbitDegreeStr = new JComboBox(new Integer[]{1, 2, 3, 4, 5});
+    private final JComboBox<Integer> srpPolynomialDegreeStr = new JComboBox(new Integer[]{1, 2, 3, 4, 5, 6, 7, 8});
+    private final JComboBox<Integer> srpNumberPointsStr = new JComboBox(new Integer[]{301, 401, 501, 601, 701, 801, 901, 1001});
+    private final JComboBox<Integer> orbitDegreeStr = new JComboBox(new Integer[]{1, 2, 3, 4, 5});
 
     private static final JLabel cohWinAzLabel = new JLabel("Coherence Azimuth Window Size");
     private static final JLabel cohWinRgLabel = new JLabel("Coherence Range Window Size");
@@ -58,7 +58,6 @@ public class CoherenceOpUI extends BaseOperatorUI {
     private Boolean squarePixel = true;
     private Boolean subtractFlatEarthPhase = false;
     private final CoherenceOp.DerivedParams param = new CoherenceOp.DerivedParams();
-
 
     @Override
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {
@@ -89,7 +88,7 @@ public class CoherenceOpUI extends BaseOperatorUI {
                 squarePixel = (e.getStateChange() == ItemEvent.SELECTED);
                 independentWindowSizeCheckBox.setSelected(!squarePixel);
                 if (squarePixel) {
-                    cohWinAz.setText("");
+                    cohWinAz.setText("1");
                     cohWinAz.setEditable(false);
                 }
                 setCohWinAz();
@@ -134,7 +133,7 @@ public class CoherenceOpUI extends BaseOperatorUI {
             squarePixelCheckBox.setSelected(squarePixel);
             independentWindowSizeCheckBox.setSelected(!squarePixel);
             if (squarePixel) {
-                cohWinAz.setText("");
+                cohWinAz.setText("1");
                 cohWinAz.setEditable(false);
             } else {
                 cohWinAz.setEditable(true);
