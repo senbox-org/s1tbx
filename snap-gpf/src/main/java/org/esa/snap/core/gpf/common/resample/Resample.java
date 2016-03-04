@@ -2,6 +2,7 @@ package org.esa.snap.core.gpf.common.resample;
 
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
+import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.jai.GeneralFilterFunction;
 import com.bc.ceres.jai.operator.GeneralFilterDescriptor;
@@ -12,11 +13,18 @@ import org.geotools.resources.XArray;
 
 import javax.media.jai.BorderExtender;
 import javax.media.jai.BorderExtenderConstant;
+import javax.media.jai.GeometricOpImage;
+import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
+import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
+import java.util.Map;
+import java.util.Vector;
 
 /**
  * @author Tonio Fincke
@@ -27,15 +35,26 @@ class Resample {
 
     static MultiLevelImage createInterpolatedMultiLevelImage(Band sourceBand, final RasterDataNode referenceNode, Interpolation interpolation) {
         final RenderingHints targetHints = getRenderingHints(sourceBand.getNoDataValue());
-        final float[] scalings = getScalings(sourceBand, referenceNode);
+        final float[] scalings = getScalings(sourceBand.getImageToModelTransform(), referenceNode);
         return ResamplingScaler.scaleMultiLevelImage(referenceNode.getSourceImage(), sourceBand.getSourceImage(),
                                                      scalings, targetHints, sourceBand.getNoDataValue(), interpolation);
+    }
+
+    static MultiLevelImage createInterpolatedMultiLevelImage(
+            RenderedImage sourceImage, double noDataValue, AffineTransform sourceTransform,
+            final RasterDataNode referenceNode, Interpolation interpolation) {
+        final RenderingHints targetHints = getRenderingHints(noDataValue);
+        final float[] scalings = getScalings(sourceTransform, referenceNode);
+        final DefaultMultiLevelModel multiLevelModel = new DefaultMultiLevelModel(sourceTransform, sourceImage.getWidth(), sourceImage.getHeight());
+        final DefaultMultiLevelImage multiLevelImage = new DefaultMultiLevelImage(new DefaultMultiLevelSource(sourceImage, multiLevelModel));
+        return ResamplingScaler.scaleMultiLevelImage(referenceNode.getSourceImage(), multiLevelImage,
+                                                     scalings, targetHints, noDataValue, interpolation);
     }
 
     static MultiLevelImage createAggregatedMultiLevelImage(Band sourceBand, final RasterDataNode referenceNode,
                                                            Type type, Type flagType) {
         final RenderingHints targetHints = getRenderingHints(sourceBand.getNoDataValue());
-        final float[] scalings = getScalings(sourceBand, referenceNode);
+        final float[] scalings = getScalings(sourceBand.getImageToModelTransform(), referenceNode);
         int kernelWidth = (int) (1 / scalings[0]);
         int kernelHeight = (int) (1 / scalings[1]);
         final Kernel kernel = new Kernel(kernelWidth, kernelHeight, new double[kernelWidth * kernelHeight]);
@@ -56,8 +75,7 @@ class Resample {
                                                      targetHints, sourceBand.getNoDataValue(), interpolation);
     }
 
-    private static float[] getScalings(Band sourceBand, RasterDataNode referenceNode) {
-        final AffineTransform sourceTransform = sourceBand.getMultiLevelModel().getImageToModelTransform(0);
+    private static float[] getScalings(AffineTransform sourceTransform, RasterDataNode referenceNode) {
         final AffineTransform transform = new AffineTransform(sourceTransform);
         transform.concatenate(referenceNode.getMultiLevelModel().getModelToImageTransform(0));
         return new float[]{(float) transform.getScaleX(), (float) transform.getScaleY()};
@@ -274,6 +292,33 @@ class Resample {
             return (float) res;
         }
 
+    }
+
+    private class NewImage extends PlanarImage {
+
+
+        @Override
+        public Raster getTile(int i, int i1) {
+            return null;
+        }
+    }
+
+    private class NewOp extends GeometricOpImage {
+
+
+        public NewOp(Vector sources, ImageLayout layout, Map configuration, boolean cobbleSources, BorderExtender extender, Interpolation interp) {
+            super(sources, layout, configuration, cobbleSources, extender, interp);
+        }
+
+        @Override
+        protected Rectangle forwardMapRect(Rectangle rectangle, int i) {
+            return null;
+        }
+
+        @Override
+        protected Rectangle backwardMapRect(Rectangle rectangle, int i) {
+            return null;
+        }
     }
 
 }

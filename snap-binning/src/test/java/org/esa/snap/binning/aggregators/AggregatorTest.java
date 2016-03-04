@@ -21,7 +21,7 @@ import org.junit.Test;
 import static org.esa.snap.binning.AbstractAggregator.*;
 import static org.junit.Assert.*;
 
-public class AbstractAggregatorTest {
+public class AggregatorTest {
 
     @Test
     public void testCreateFeatureNames() {
