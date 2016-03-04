@@ -141,8 +141,6 @@ public class Reprojector {
         final int x2 = x1 + rasterRegion.width - 1;
         final int y1 = rasterRegion.y;
         final int y2 = y1 + rasterRegion.height - 1;
-        final int gridWidth = planetaryGrid.getNumRows() * 2;
-        final int gridHeight = planetaryGrid.getNumRows();
 
         final List<TemporalBin> binRow = new ArrayList<TemporalBin>();
         int yUltimate = -1;
@@ -153,7 +151,7 @@ public class Reprojector {
             if (y != yUltimate) {
                 if (yUltimate >= y1 && yUltimate <= y2) {
                     processRowsWithoutBins(x1, x2, yGlobalUltimate + 1, yUltimate - 1);
-                    processRowWithBins(yUltimate, binRow, gridWidth, gridHeight);
+                    processRowWithBins(yUltimate, binRow);
                     yGlobalUltimate = yUltimate;
                 }
                 binRow.clear();
@@ -165,29 +163,31 @@ public class Reprojector {
         if (yUltimate >= y1 && yUltimate <= y2) {
             // last row
             processRowsWithoutBins(x1, x2, yGlobalUltimate + 1, yUltimate - 1);
-            processRowWithBins(yUltimate, binRow, gridWidth, gridHeight);
+            processRowWithBins(yUltimate, binRow);
             yGlobalUltimate = yUltimate;
         }
     }
 
-    private void processRowWithBins(int y,
-                                    List<TemporalBin> binRow,
-                                    int gridWidth,
-                                    int gridHeight) throws Exception {
+    private void processRowWithBins(int y, List<TemporalBin> binRow) throws Exception {
 
         Assert.argument(!binRow.isEmpty(), "!binRow.isEmpty()");
 
         final int x1 = rasterRegion.x;
         final int x2 = rasterRegion.x + rasterRegion.width - 1;
         final int y1 = rasterRegion.y;
+
+        long[] binIndicesForBinningLine;
+        if (planetaryGrid instanceof MosaickingGrid) {
+            binIndicesForBinningLine = binIndicesForMosaicingLine(y, x1, x2);
+        } else {
+            binIndicesForBinningLine = binIndicesForBinningLine(y, x1, x2);
+        }
         Vector resultVector = null;
-        final double lat = 90.0 - (y + 0.5) * 180.0 / gridHeight;
         long lastBinIndex = -1;
         TemporalBin temporalBin = null;
         int rowIndex = -1;
-        for (int x = x1; x <= x2; x++) {
-            double lon = -180.0 + (x + 0.5) * 360.0 / gridWidth;
-            long wantedBinIndex = planetaryGrid.getBinIndex(lat, lon);
+        for (int x = x1, xb = 0; x <= x2; x++, xb++) {
+            long wantedBinIndex = binIndicesForBinningLine[xb];
             if (lastBinIndex != wantedBinIndex) {
                 // search temporalBin for wantedBinIndex
                 temporalBin = null;
@@ -223,4 +223,26 @@ public class Reprojector {
             temporalBinRenderer.renderMissingBin(x - x1, y);
         }
     }
+
+    private long[] binIndicesForBinningLine(int y, int x1, int x2) {
+        final int gridWidth = planetaryGrid.getNumRows() * 2;
+        final int gridHeight = planetaryGrid.getNumRows();
+        long[] binIndices = new long[x2 - x1 + 1];
+        final double lat = 90.0 - (y + 0.5) * 180.0 / gridHeight;
+        for (int x = x1, i = 0; x <= x2; x++, i++) {
+            double lon = -180.0 + (x + 0.5) * 360.0 / gridWidth;
+            binIndices[i] = planetaryGrid.getBinIndex(lat, lon);
+        }
+        return binIndices;
+    }
+
+    private long[] binIndicesForMosaicingLine(int y, int x1, int x2) {
+        final int gridWidth = planetaryGrid.getNumCols(0);
+        long[] binIndices = new long[x2 - x1 + 1];
+        for (int x = x1, i = 0; x <= x2; x++, i++) {
+            binIndices[i] = x + y * gridWidth;
+        }
+        return binIndices;
+    }
+
 }

@@ -26,6 +26,7 @@ import org.esa.snap.binning.support.BinningContextImpl;
 import org.esa.snap.binning.support.SEAGrid;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.converters.JtsGeometryConverter;
@@ -74,7 +75,7 @@ public class ProductTemporalBinRendererTest {
         int[] expectedPassesLine = new int[region.width];
         for (int y = 0; y < region.height; y++) {
             numPasses.readPixels(0, y, region.width, 1, actualPassesLine);
-            Arrays.fill(expectedPassesLine, y+1);
+            Arrays.fill(expectedPassesLine, y + 1);
             if (y == 3) {
                 expectedPassesLine[0] = -1;
             }
@@ -148,7 +149,9 @@ public class ProductTemporalBinRendererTest {
         ProductData.UTC startTime = ProductData.UTC.parse("12-May-2006 11:50:10");
         ProductData.UTC endTime = ProductData.UTC.parse("12-May-2006 11:55:15");
         String[] resultFeatureNames = binningContext.getBinManager().getResultFeatureNames();
-        return new ProductTemporalBinRenderer(resultFeatureNames, tempFile, "NetCDF-BEAM", region, 1.0, startTime, endTime, productCustomizer);
+        double pixelSize = Reprojector.getRasterPixelSize(binningContext.getPlanetaryGrid());
+        GeoCoding geoCoding = ProductTemporalBinRenderer.createMapGeoCoding(region, pixelSize);
+        return new ProductTemporalBinRenderer(resultFeatureNames, tempFile, "NetCDF-BEAM", region, geoCoding, startTime, endTime, productCustomizer);
     }
 
     private class MyProductCustomizer extends ProductCustomizer {

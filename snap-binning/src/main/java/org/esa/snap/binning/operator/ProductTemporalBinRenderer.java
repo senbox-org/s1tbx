@@ -25,6 +25,7 @@ import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.ProductWriter;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.CrsGeoCoding;
+import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
@@ -65,7 +66,7 @@ public final class ProductTemporalBinRenderer implements TemporalBinRenderer {
                                       File outputFile,
                                       String outputFormat,
                                       Rectangle outputRegion,
-                                      double pixelSize,
+                                      GeoCoding geoCoding,
                                       ProductData.UTC startTime,
                                       ProductData.UTC endTime,
                                       ProductCustomizer productCustomizer,
@@ -79,7 +80,7 @@ public final class ProductTemporalBinRenderer implements TemporalBinRenderer {
         this.outputRegion = new Rectangle(outputRegion);
         this.outputFile = outputFile;
 
-        CrsGeoCoding geoCoding = createMapGeoCoding(outputRegion, pixelSize);
+//        CrsGeoCoding geoCoding = createMapGeoCoding(outputRegion, pixelSize);
 
         product = new Product(outputFile.getName(), "BINNED-L3", outputRegion.width, outputRegion.height);
         product.setProductWriter(productWriter);
@@ -254,7 +255,7 @@ public final class ProductTemporalBinRenderer implements TemporalBinRenderer {
         }
     }
 
-    private static CrsGeoCoding createMapGeoCoding(Rectangle outputRegion, double pixelSize) {
+    static CrsGeoCoding createMapGeoCoding(Rectangle outputRegion, double pixelSize) {
         CrsGeoCoding geoCoding;
         try {
             geoCoding = new CrsGeoCoding(DefaultGeographicCRS.WGS84,
