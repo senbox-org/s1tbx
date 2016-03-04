@@ -20,6 +20,7 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductManager;
 import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.gpf.annotations.OperatorMetadata;
@@ -36,7 +37,7 @@ import java.text.MessageFormat;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import static java.text.MessageFormat.*;
+import static java.text.MessageFormat.format;
 
 
 /**
@@ -159,8 +160,8 @@ public abstract class Operator {
      * <p>
      * Don't call this method directly. The framework may call this method
      * <ol>
-     *     <li>once before the very first tile is computed, or</li>
-     *     <li>as a result of a call to {@link #execute(ProgressMonitor)}.</li>
+     * <li>once before the very first tile is computed, or</li>
+     * <li>as a result of a call to {@link #execute(ProgressMonitor)}.</li>
      * </ol>
      * <p>
      * The default implementation does nothing.
@@ -177,11 +178,9 @@ public abstract class Operator {
      * <p>The default implementation throws a runtime exception with the message "not implemented".
      * <p>This method shall never be called directly.
      *
-     *
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     *
      * @throws OperatorException If an error occurs during computation of the target raster.
      */
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
@@ -196,15 +195,13 @@ public abstract class Operator {
      * <p>The default implementation throws a runtime exception with the message "not implemented".
      * <p>This method shall never be called directly.
      *
-     *
      * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed (same for all rasters in <code>targetRasters</code>).
      * @param pm              A progress monitor which should be used to determine computation cancelation requests.
-     *
      * @throws OperatorException if an error occurs during computation of the target rasters.
      */
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws
-                                                                                                             OperatorException {
+            OperatorException {
         throw new RuntimeException(
                 MessageFormat.format("{0}: ''computeTileStack()'' method not implemented", getClass().getSimpleName()));
     }
@@ -260,6 +257,17 @@ public abstract class Operator {
         //context.setComputeTileMethodImplemented(false);
     }
 
+    /**
+     * Provides the context product manager which can be used to exchange product instances across operators
+     * or allow (reading) operators to check if a given product is already opened.
+     *
+     * @return A context product manager.
+     * @since SNAP 3.0
+     */
+    public ProductManager getProductManager() {
+        return GPF.getDefaultInstance().getProductManager();
+    }
+
     // todo - seems not very helpful, only usage in WriteOp (nf - 17.12.2010)
 
     protected final void setRequiresAllBands(boolean requiresAllBands) {
@@ -286,7 +294,6 @@ public abstract class Operator {
      * Sets the source products.
      *
      * @param products The source products.
-     *
      * @since BEAM 4.2
      */
     public final void setSourceProducts(Product... products) {
@@ -299,7 +306,6 @@ public abstract class Operator {
      * {@code getSourceProduct("sourceProduct")}.
      *
      * @return The source product, or {@code null} if not set.
-     *
      * @since BEAM 4.2
      */
     public Product getSourceProduct() {
@@ -319,7 +325,6 @@ public abstract class Operator {
      * {@code setSourceProduct("sourceProduct", sourceProduct)}.
      *
      * @param sourceProduct the source product to be set
-     *
      * @since BEAM 4.2
      */
     public void setSourceProduct(Product sourceProduct) {
@@ -330,9 +335,7 @@ public abstract class Operator {
      * Gets the source product using the specified name.
      *
      * @param id the identifier
-     *
      * @return the source product, or {@code null} if not found
-     *
      * @see #getSourceProductId(Product)
      */
     public final Product getSourceProduct(String id) {
@@ -347,7 +350,6 @@ public abstract class Operator {
      *
      * @param id      a source product identifier
      * @param product the source product to be set
-     *
      * @since BEAM 4.2
      */
     public final void setSourceProduct(String id, Product product) {
@@ -360,9 +362,7 @@ public abstract class Operator {
      * Gets the identifier for the given source product.
      *
      * @param product The source product.
-     *
      * @return The identifier, or {@code null} if no such exists.
-     *
      * @see #getSourceProduct(String)
      */
     public final String getSourceProductId(Product product) {
@@ -376,7 +376,6 @@ public abstract class Operator {
      * call to {@link #initialize()}.
      *
      * @return The target product.
-     *
      * @throws OperatorException May be caused by {@link #initialize()}, if the operator is not initialised,
      *                           or if the target product is not set.
      */
@@ -400,9 +399,7 @@ public abstract class Operator {
      * call to {@link #initialize()}.
      *
      * @param name the name of the property requested.
-     *
      * @return the target property requested.
-     *
      * @throws OperatorException May be caused by {@link #initialize()}, if the operator is not initialised,
      *                           or if the target product is not been set.
      */
@@ -414,9 +411,7 @@ public abstract class Operator {
      * Gets the value for the parameter with the given name.
      *
      * @param name The parameter name.
-     *
      * @return The parameter value, which may be {@code null}.
-     *
      * @since BEAM 4.7
      */
     public Object getParameter(String name) {
@@ -426,11 +421,9 @@ public abstract class Operator {
     /**
      * Gets the value for the parameter with the given name.
      *
-     * @param name The parameter name.
+     * @param name         The parameter name.
      * @param defaultValue The default value which is used in case {@link #getParameter(String)} returns {@code null}. May be {@code null}.
-     *
      * @return The parameter value, or the given {@code defaultValue}.
-     *
      * @since BEAM 5.0
      */
     public Object getParameter(String name, Object defaultValue) {
@@ -443,7 +436,6 @@ public abstract class Operator {
      *
      * @param name  The parameter name.
      * @param value The parameter value, which may be {@code null}.
-     *
      * @since BEAM 4.7
      */
     public void setParameter(String name, Object value) {
@@ -457,9 +449,7 @@ public abstract class Operator {
      *                       e.g. a {@link Band Band} or
      *                       {@link TiePointGrid TiePointGrid}.
      * @param region         the image region in pixel coordinates
-     *
      * @return a tile.
-     *
      * @throws OperatorException if the tile request cannot be processed
      */
     public final Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle region)
@@ -477,9 +467,7 @@ public abstract class Operator {
      *                       {@link TiePointGrid TiePointGrid}.
      * @param region         The image region in pixel coordinates
      * @param borderExtender A strategy used to fill the raster regions that lie outside the bounds of the source image.
-     *
      * @return A tile whose region can overlap the bounds of source image.
-     *
      * @throws OperatorException if the tile request cannot be processed
      * @since BEAM 4.7.1
      */
@@ -551,7 +539,6 @@ public abstract class Operator {
     protected OperatorException createMultiSizeException(Product product) {
         return new OperatorException(format("Product ''{0}'' has raster of different sizes and can not be processed.", product.getName()));
     }
-
 
 
 }
