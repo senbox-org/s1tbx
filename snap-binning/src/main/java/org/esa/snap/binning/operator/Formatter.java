@@ -71,7 +71,11 @@ public class Formatter {
                 System.out.println("roiGeometry = " + roiGeometry);
                 Geometry imageGeometry = crsGrid.getImageGeometry(roiGeometry);
                 System.out.println("imageGeometry = " + imageGeometry);
-                outputRegion = crsGrid.getBounds(imageGeometry);
+                if (imageGeometry == null) {
+                    outputRegion = new Rectangle(planetaryGrid.getNumCols(0), planetaryGrid.getNumRows());
+                } else {
+                    outputRegion = crsGrid.getBounds(imageGeometry);
+                }
             }
         } else {
             outputRegion = Reprojector.computeRasterSubRegion(planetaryGrid, roiGeometry);

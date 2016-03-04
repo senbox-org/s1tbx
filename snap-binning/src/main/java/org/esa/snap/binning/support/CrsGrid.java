@@ -189,6 +189,9 @@ public abstract class CrsGrid implements MosaickingGrid {
                 null,
                 ProgressMonitor.NULL);
         FeatureIterator<SimpleFeature> features = productFeatures.features();
+        if (!features.hasNext()) {
+            return null;
+        }
         SimpleFeature simpleFeature = features.next();
         Geometry clippedGeometry = (Geometry) simpleFeature.getDefaultGeometry();
 
@@ -235,6 +238,9 @@ public abstract class CrsGrid implements MosaickingGrid {
         System.out.println("sourceProductGeometry = " + sourceProductGeometry);
 
         Geometry imageGeometry = getImageGeometry(sourceProductGeometry);
+        if (imageGeometry == null) {
+            return new Rectangle[0];
+        }
         Rectangle productBoundingBox = getBounds(imageGeometry);
 
         System.out.println("imageGeometry = " + imageGeometry);
