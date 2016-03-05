@@ -97,7 +97,10 @@ public abstract class CEOSProductReader extends SARReader {
             dataDir.readProductDirectory();
             product = dataDir.createProduct();
             product.setFileLocation(inputFile);
+
             setQuicklookBandName(product);
+            addQuicklooks(product, productDir);
+
             product.getGcpGroup();
             product.setProductReader(this);
             product.setModified(false);
@@ -106,6 +109,9 @@ public abstract class CEOSProductReader extends SARReader {
         }
 
         return product;
+    }
+
+    protected void addQuicklooks(final Product product, final VirtualDir productDir) throws IOException {
     }
 
     /**

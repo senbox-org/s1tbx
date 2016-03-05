@@ -120,7 +120,7 @@ public class Radarsat2ProductReader extends SARReader {
             product.setProductReader(this);
 
             setQuicklookBandName(product);
-            addQuicklook(product, getQuicklookFile());
+            addQuicklook(product, Quicklook.DEFAULT_QUICKLOOK_NAME, getQuicklookFile());
             addPauliQuicklooks(product);
 
             return product;
@@ -143,7 +143,7 @@ public class Radarsat2ProductReader extends SARReader {
         return null;
     }
 
-    private void addPauliQuicklooks(final Product product) {
+    private static void addPauliQuicklooks(final Product product) {
         final InputProductValidator validator = new InputProductValidator(product);
         if(validator.isFullPolSLC()) {
             final Band[] pauliBands = pauliVirtualBands(product);

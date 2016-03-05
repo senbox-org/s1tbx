@@ -24,6 +24,7 @@ import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.quicklooks.Quicklook;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
@@ -101,7 +102,7 @@ public class TerraSarXProductReader extends SARReader {
             product.setProductReader(this);
 
             setQuicklookBandName(product);
-            addQuicklook(product, getQuicklookFile());
+            addQuicklooks(product);
 
             /*if(dataDir.isComplex()) {
                 product = product.createFlippedProduct(ProductFlipper.FLIP_HORIZONTAL, product.getName(), product.getDescription());
@@ -117,9 +118,24 @@ public class TerraSarXProductReader extends SARReader {
         return product;
     }
 
-    private File getQuicklookFile() {
+    private void addQuicklooks(final Product product) {
+        if(dataDir.isTanDEMX()) {
+            addQuicklook(product, Quicklook.DEFAULT_QUICKLOOK_NAME, getQuicklookFile("COMMON_PREVIEW/QL_SLT_ampl_composite.tif"));
+            addQuicklook(product, "QL_SLT_coher", getQuicklookFile("COMMON_PREVIEW/QL_SLT_coher.tif"));
+            addQuicklook(product, "QL_SLT_phase", getQuicklookFile("COMMON_PREVIEW/QL_SLT_phase.tif"));
+            addQuicklook(product, "QL_GTC_amplitude", getQuicklookFile("COMMON_PREVIEW/QL_GTC_amplitude.tif"));
+            addQuicklook(product, "QL_GTC_coherence", getQuicklookFile("COMMON_PREVIEW/QL_GTC_coherence.tif"));
+            addQuicklook(product, "QL_GTC_DEM", getQuicklookFile("COMMON_PREVIEW/QL_GTC_DEM.tif"));
+            addQuicklook(product, "QL_SLT_dinsar_phase", getQuicklookFile("COMMON_PREVIEW/QL_SLT_dinsar_phase.tif"));
+            addQuicklook(product, "QL_SLT_dinsar_radargr", getQuicklookFile("COMMON_PREVIEW/QL_SLT_dinsar_radargr.tif"));
+        } else {
+            addQuicklook(product, Quicklook.DEFAULT_QUICKLOOK_NAME, getQuicklookFile("PREVIEW/BROWSE.tif"));
+        }
+    }
+
+    private File getQuicklookFile(final String relativeFilePath) {
         try {
-            return dataDir.getFile(dataDir.getRootFolder() + "PREVIEW/BROWSE.tif");
+            return dataDir.getFile(dataDir.getRootFolder() + relativeFilePath);
         } catch (IOException e) {
             SystemUtils.LOG.severe("Unable to load quicklook " + dataDir.getProductName());
         }

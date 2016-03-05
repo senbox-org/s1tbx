@@ -59,8 +59,8 @@ import java.util.Set;
  */
 public class TerraSarXProductDirectory extends XMLProductDirectory {
 
-    private static String TERRA_SAR_X = "TerraSAR-X";
-    private static String TAN_DEM_X = "TanDEM-X";
+    private static final String TERRA_SAR_X = "TerraSAR-X";
+    private static final String TAN_DEM_X = "TanDEM-X";
 
     private final File headerFile;
     private String productName = null;
@@ -82,7 +82,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     private String slaveSatellite = null;
     private String masterProductName = null;
     private String slaveProductName = null;
-    int numMasterBands = 0;
+    private int numMasterBands = 0;
+    private boolean isTanDEMX = false;
 
     public TerraSarXProductDirectory(final File inputFile) {
         super(inputFile);
@@ -101,7 +102,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         return getRootFolder() + "IMAGEDATA" + '/';
     }
 
-    private void replaceAbstractedMetadataField(final MetadataElement abstractedMetadata, final String attrName, final String newValue) {
+    private static void replaceAbstractedMetadataField(final MetadataElement abstractedMetadata, final String attrName, final String newValue) {
 
         final ProductData productData = abstractedMetadata.getAttribute(attrName).getData();
         productData.setElems(newValue);
@@ -145,13 +146,13 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
 
         final String masterHeader = masterAnnotationComponent.getChild("file").getChild("location").getChildText("name");
-        masterProductName = masterHeader.substring(0, masterHeader.indexOf("/"));
+        masterProductName = masterHeader.substring(0, masterHeader.indexOf('/'));
 
 
         // Build the slave metadata
 
         final String slaveHeader = slaveAnnotationComponent.getChild("file").getChild("location").getChildText("name");
-        slaveProductName = slaveHeader.substring(0, slaveHeader.indexOf("/"));
+        slaveProductName = slaveHeader.substring(0, slaveHeader.indexOf('/'));
 
         final Document slaveDoc = XMLSupport.LoadXML(getInputStream(slaveHeader));
         final Element slaveRootElement = slaveDoc.getRootElement();
@@ -221,6 +222,10 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         return metadataRoot;
     }
 
+    public boolean isTanDEMX() {
+        return isTanDEMX;
+    }
+
     @Override
     protected MetadataElement addMetaData() throws IOException {
 
@@ -231,6 +236,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         } else if (getHeaderFileName().startsWith("TDM")) {
             productName = TAN_DEM_X;
             productType = TAN_DEM_X;
+            isTanDEMX = true;
             return addMetaDataForTanDemX();
         } else {
             throw new IOException("Invalid header file: " + getHeaderFileName());
@@ -446,14 +452,14 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
     }
 
-    private void findImagedForTanDemX(final MetadataElement newRoot) throws IOException {
+    private void findImagesForTanDemX(final MetadataElement newRoot) throws IOException {
 
-        String parentPath = masterProductName + "/" + getRelativePathToImageFolder();
+        String parentPath = masterProductName + '/' + getRelativePathToImageFolder();
         findImages(parentPath, newRoot);
 
         numMasterBands = cosarFileList.size();
 
-        parentPath = slaveProductName + "/" + getRelativePathToImageFolder();
+        parentPath = slaveProductName + '/' + getRelativePathToImageFolder();
         findImages(parentPath, newRoot);
     }
 
@@ -463,7 +469,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         if (getHeaderFileName().startsWith("TSX") || getHeaderFileName().startsWith("TDX")) {
             super.findImages(newRoot);
         } else if (getHeaderFileName().startsWith("TDM")) {
-            findImagedForTanDemX(newRoot);
+            findImagesForTanDemX(newRoot);
         } else {
             throw new IOException("Invalid header file: " + getHeaderFileName());
         }
@@ -935,23 +941,9 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
     }
 
-    private boolean isBelongToCoSSC() {
-        // This checks if the product is in fact part of a CoSSC product by checking if the parent
-        // directory contains a file that starts with "TDM" and ends in "xml".
-        // This handles the case where the user just opens one of the two SSC products inside a CoSSC
-        // product.
-        final String[] fileList = getBaseDir().getParentFile().list();
-        for (String s : fileList) {
-            if (s.startsWith("TDM") && s.endsWith("xml")) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private String appendIfMatch(final Band band, final String key, String bands) {
+    private static String appendIfMatch(final Band band, final String key, String bands) {
         if (band.getName().contains(key)) {
-            bands = bands + band.getName() + " ";
+            bands = bands + band.getName() + ' ';
         }
         return bands;
     }
@@ -990,9 +982,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             String extraInfo = "";         // if pols not unique add the extra info
             final String mission = absRoot.getAttributeString("MISSION");
 
-            for (int i = 0; i < cosarFileList.size(); i++) {
+            for (final File file : cosarFileList) {
 
-                final File file = cosarFileList.get(i);
                 final String fileName = file.getName().toUpperCase();
                 final String pol = SARReader.findPolarizationInBandName(fileName);
 
@@ -1006,12 +997,11 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                     extraInfo += StackUtils.createBandTimeStamp(product);
                 } else if (!polsUnique) {
                     final int polIndex = fileName.indexOf(pol);
-                    extraInfo = fileName.substring(polIndex + 2, fileName.indexOf(".", polIndex + 3));
+                    extraInfo = fileName.substring(polIndex + 2, fileName.indexOf('.', polIndex + 3));
                 }
 
-                final int bandDataType = (mission.contains("TDM") || isBelongToCoSSC()) ?
+                final int bandDataType = (mission.contains("TDM")) ?
                         ProductData.TYPE_FLOAT32 : ProductData.TYPE_INT16;
-                //System.out.println("TerraSarXProductDirectory.addBands: band data type = " + ProductData.getTypeString(bandDataType));
 
                 final Band realBand = new Band("i_" + pol + extraInfo, bandDataType, width, height);
                 realBand.setUnit(Unit.REAL);

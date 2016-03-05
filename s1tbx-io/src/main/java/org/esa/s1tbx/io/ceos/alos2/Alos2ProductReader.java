@@ -24,8 +24,10 @@ import org.esa.s1tbx.io.ceos.alos.AlosPalsarImageFile;
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.quicklooks.Quicklook;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 
 import java.io.File;
@@ -63,6 +65,18 @@ public class Alos2ProductReader extends CEOSProductReader {
 
         } catch (Exception e) {
             return DecodeQualification.UNABLE;
+        }
+    }
+
+    @Override
+    protected void addQuicklooks(final Product product, final VirtualDir productDir) throws IOException {
+        final String[] files = productDir.list("");
+        for(String file : files) {
+            String name = file.toLowerCase();
+            if(name.startsWith("brs") && name.endsWith(".jpg")) {
+                addQuicklook(product, Quicklook.DEFAULT_QUICKLOOK_NAME, productDir.getFile(file));
+                return;
+            }
         }
     }
 

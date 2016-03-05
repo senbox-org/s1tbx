@@ -128,7 +128,7 @@ public abstract class XMLProductDirectory {
         }
     }
 
-    protected String getBandFileNameFromImage(final String imgPath) {
+    protected static String getBandFileNameFromImage(final String imgPath) {
         return imgPath.substring(imgPath.lastIndexOf('/') + 1, imgPath.length()).toLowerCase();
     }
 
@@ -272,7 +272,7 @@ public abstract class XMLProductDirectory {
         return product;
     }
 
-    protected void updateProduct(final Product product, final MetadataElement newRoot) {
+    protected static void updateProduct(final Product product, final MetadataElement newRoot) {
         final MetadataElement root = product.getMetadataRoot();
         for(MetadataElement elem : newRoot.getElements()) {
             root.addElement(elem);

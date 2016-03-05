@@ -81,9 +81,9 @@ public abstract class SARReader extends AbstractProductReader {
         }
     }
 
-    protected void addQuicklook(final Product product, final File qlFile) {
+    protected void addQuicklook(final Product product, final String name, final File qlFile) {
         if(qlFile != null) {
-            product.getQuicklookGroup().add(new Quicklook(product, Quicklook.DEFAULT_QUICKLOOK_NAME, qlFile));
+            product.getQuicklookGroup().add(new Quicklook(product, name, qlFile));
         }
     }
 
