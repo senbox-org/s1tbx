@@ -38,6 +38,7 @@ import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.eo.GeoUtils;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
+import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;
@@ -55,8 +56,7 @@ import org.jlinda.nest.utils.TileUtilsDoris;
 
 import javax.media.jai.BorderExtender;
 import java.awt.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @OperatorMetadata(alias = "Coherence",
         category = "Radar/Interferometric/Products",
@@ -169,8 +169,6 @@ public class CoherenceOp extends Operator {
 
             createTargetProduct();
 
-            getSourceImageDimension();
-
             if (isComplex && subtractFlatEarthPhase) {
 
                 getMeanTerrainElevation();
@@ -209,6 +207,9 @@ public class CoherenceOp extends Operator {
                 final String topsarTag = InterferogramOp.getTOPSARTag(sourceProduct);
                 productTag = productTag + '_' + topsarTag;
             }
+
+            sourceImageWidth = sourceProduct.getSceneRasterWidth();
+            sourceImageHeight = sourceProduct.getSceneRasterHeight();
         } catch (Exception e) {
             throw new OperatorException(e);
         }
@@ -312,15 +313,24 @@ public class CoherenceOp extends Operator {
 
         if (isComplex) {
             for (String key : targetMap.keySet()) {
-                final String coherenceBandName = targetMap.get(key).getBandName(Unit.COHERENCE);
+                final java.util.List<String> targetBandNames = new ArrayList<>();
+
+                final ProductContainer container = targetMap.get(key);
+                final String coherenceBandName = container.getBandName(Unit.COHERENCE);
                 final Band coherenceBand = targetProduct.addBand(coherenceBandName, ProductData.TYPE_FLOAT32);
                 coherenceBand.setUnit(Unit.COHERENCE);
+                targetBandNames.add(coherenceBand.getName());
 
                 if (subtractFlatEarthPhase) {
-                    final String coherencePhaseBandName = targetMap.get(key).getBandName(COHERENCE_PHASE);
+                    final String coherencePhaseBandName = container.getBandName(COHERENCE_PHASE);
                     final Band coherencePhaseBand = targetProduct.addBand(coherencePhaseBandName, ProductData.TYPE_FLOAT32);
                     coherencePhaseBand.setUnit(Unit.PHASE);
+                    targetBandNames.add(coherencePhaseBand.getName());
                 }
+
+                String slvProductName = StackUtils.findOriginalSlaveProductName(sourceProduct, container.sourceSlave.realBand);
+                StackUtils.saveSlaveProductBandNames(targetProduct, slvProductName,
+                                                     targetBandNames.toArray(new String[targetBandNames.size()]));
             }
         } else {
             final int numSrcBands = sourceProduct.getNumBands();
@@ -358,11 +368,6 @@ public class CoherenceOp extends Operator {
             }
         }
         return bandName;
-    }
-
-    private void getSourceImageDimension() {
-        sourceImageWidth = sourceProduct.getSceneRasterWidth();
-        sourceImageHeight = sourceProduct.getSceneRasterHeight();
     }
 
     private void getMeanTerrainElevation() throws Exception {

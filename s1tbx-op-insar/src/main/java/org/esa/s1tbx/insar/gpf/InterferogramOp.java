@@ -59,8 +59,10 @@ import org.jlinda.nest.utils.ProductContainer;
 import org.jlinda.nest.utils.TileUtilsDoris;
 
 import javax.media.jai.BorderExtender;
-import java.awt.Rectangle;
+import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -471,43 +473,48 @@ public class InterferogramOp extends Operator {
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
         for (String key : targetMap.keySet()) {
+            final List<String> targetBandNames = new ArrayList<>();
 
-            final String targetBandName_I = targetMap.get(key).getBandName(Unit.REAL);
+            final ProductContainer container = targetMap.get(key);
+            final String targetBandName_I = container.getBandName(Unit.REAL);
             final Band iBand = targetProduct.addBand(targetBandName_I, ProductData.TYPE_FLOAT32);
             iBand.setUnit(Unit.REAL);
+            targetBandNames.add(iBand.getName());
 
-            final String targetBandName_Q = targetMap.get(key).getBandName(Unit.IMAGINARY);
+            final String targetBandName_Q = container.getBandName(Unit.IMAGINARY);
             final Band qBand = targetProduct.addBand(targetBandName_Q, ProductData.TYPE_FLOAT32);
             qBand.setUnit(Unit.IMAGINARY);
+            targetBandNames.add(qBand.getName());
 
-            final String tag0 = targetMap.get(key).sourceMaster.date;
-            final String tag1 = targetMap.get(key).sourceSlave.date;
+            final String tag0 = container.sourceMaster.date;
+            final String tag1 = container.sourceSlave.date;
             if (CREATE_VIRTUAL_BAND) {
                 final String countStr = '_' + productTag + '_' + tag0 + '_' + tag1;
                 ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBand(targetBandName_I), targetProduct.getBand(targetBandName_Q), countStr);
                 Band phaseBand = ReaderUtils.createVirtualPhaseBand(targetProduct, targetProduct.getBand(targetBandName_I), targetProduct.getBand(targetBandName_Q), countStr);
                 
                 targetProduct.setQuicklookBandName(phaseBand.getName());
+                targetBandNames.add(phaseBand.getName());
             }
 
             if(includeCoherence) {
-                final String targetBandCoh = targetMap.get(key).getBandName(Unit.COHERENCE);
+                final String targetBandCoh = container.getBandName(Unit.COHERENCE);
                 final Band cohBand = targetProduct.addBand(targetBandCoh, ProductData.TYPE_FLOAT32);
                 cohBand.setUnit(Unit.COHERENCE);
+                targetBandNames.add(cohBand.getName());
             }
 
             if(subtractFlatEarthPhase && outputFlatEarthPhase) {
-                final String targetBandFep = targetMap.get(key).getBandName(Unit.PHASE);
+                final String targetBandFep = container.getBandName(Unit.PHASE);
                 final Band fepBand = targetProduct.addBand(targetBandFep, ProductData.TYPE_FLOAT32);
                 fepBand.setUnit(Unit.PHASE);
+                targetBandNames.add(fepBand.getName());
             }
+
+            String slvProductName = StackUtils.findOriginalSlaveProductName(sourceProduct, container.sourceSlave.realBand);
+            StackUtils.saveSlaveProductBandNames(targetProduct, slvProductName,
+                                                 targetBandNames.toArray(new String[targetBandNames.size()]));
         }
-
-        updateMetadata();
-    }
-
-    private void updateMetadata() {
-
     }
 
     public static DoubleMatrix estimateFlatEarthPolynomial(
