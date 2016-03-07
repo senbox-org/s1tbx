@@ -17,7 +17,6 @@ package org.esa.s1tbx.analysis.rcp.toolviews.timeseries;
 
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.rcp.SnapApp;
-import org.esa.snap.ui.ModalDialog;
 import org.esa.snap.ui.ModelessDialog;
 
 import javax.swing.*;
@@ -30,7 +29,7 @@ import java.util.List;
 /**
  * Parameter settings for the time series
  */
-public class TimeSeriesSettingsDlg extends ModalDialog {
+public class TimeSeriesSettingsDlg extends ModelessDialog {
 
     private final JCheckBox showGridCB = new JCheckBox("Show Grid");
     private final JCheckBox showLegendCB = new JCheckBox("Show Legend");
@@ -71,11 +70,6 @@ public class TimeSeriesSettingsDlg extends ModalDialog {
         final GridBagConstraints gbc = DialogUtils.createGridBagConstraints();
 
         final JPanel optionsPanel = new JPanel();
-        optionsPanel.add(showGridCB);
-        optionsPanel.add(showLegendCB);
-
-        DialogUtils.addComponent(content, gbc, "", optionsPanel);
-        gbc.gridy++;
 
         final JButton addGraphBtn = DialogUtils.createButton("addGraphBtn", "Add Graph", null, content, DialogUtils.ButtonStyle.Text);
         final TimeSeriesSettingsDlg settingsDlg = this;
@@ -91,11 +85,16 @@ public class TimeSeriesSettingsDlg extends ModalDialog {
                 graphListPanel.revalidate();
             }
         });
+
+        optionsPanel.add(addGraphBtn);
+        optionsPanel.add(showGridCB);
+        optionsPanel.add(showLegendCB);
+
+        DialogUtils.addComponent(content, gbc, "", optionsPanel);
+        gbc.gridy++;
         gbc.gridx = 0;
-        content.add(addGraphBtn, gbc);
 
         final JScrollPane scrollPane = new JScrollPane(graphListPanel);
-        scrollPane.setPreferredSize(new Dimension(680, 300));
         DialogUtils.addComponent(content, gbc, "", scrollPane);
 
         for (GraphProductSetPanel productListPanel : graphList) {

@@ -17,6 +17,7 @@ package org.esa.s1tbx.analysis.rcp.toolviews.timeseries;
 
 import org.esa.snap.graphbuilder.rcp.dialogs.ProductSetPanel;
 import org.esa.snap.graphbuilder.rcp.dialogs.PromptDialog;
+import org.esa.snap.graphbuilder.rcp.dialogs.support.FileModel;
 import org.esa.snap.graphbuilder.rcp.dialogs.support.FileTable;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.ui.AppContext;
@@ -39,7 +40,7 @@ public class GraphProductSetPanel extends ProductSetPanel {
     public GraphProductSetPanel(final AppContext theAppContext,
                                 final TimeSeriesSettingsDlg settingsDlg, final GraphData graphData,
                                 final boolean addDeleteButton) {
-        super(theAppContext, graphData.getTitle(), new FileTable(), false, true);
+        super(theAppContext, graphData.getTitle(), new FileTable(new FileModel(), new Dimension(500, 250)), false, true);
         this.title = graphData.getTitle();
         this.settingsDlg = settingsDlg;
 
@@ -47,9 +48,7 @@ public class GraphProductSetPanel extends ProductSetPanel {
         getButtonPanel().add(colorCombo);
 
         getButtonPanel().add(createRenameButton(this));
-        if (addDeleteButton) {
-            getButtonPanel().add(createDeleteButton(this));
-        }
+        getButtonPanel().add(addDeleteButton ? createDeleteButton(this) : new JLabel("       "));
     }
 
     private static JButton createRenameButton(final GraphProductSetPanel panel) {
@@ -67,7 +66,7 @@ public class GraphProductSetPanel extends ProductSetPanel {
     }
 
     private JButton createDeleteButton(final GraphProductSetPanel panel) {
-        final JButton deleteBtn = DialogUtils.createButton("deleteBtn", "Delete Graph", null, panel, DialogUtils.ButtonStyle.Text);
+        final JButton deleteBtn = DialogUtils.createButton("deleteBtn", "Delete", null, panel, DialogUtils.ButtonStyle.Text);
         deleteBtn.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 settingsDlg.removeGraphPanel(panel);
