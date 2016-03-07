@@ -27,6 +27,7 @@ import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
+import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
 import org.jblas.MatrixFunctions;
@@ -50,6 +51,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @OperatorMetadata(alias = "TopoPhaseRemoval",
@@ -100,11 +102,11 @@ public final class SubtRefDemOp extends Operator {
     private double demSamplingLon;
 
     // source maps
-    private HashMap<Integer, CplxContainer> masterMap = new HashMap<Integer, CplxContainer>();
-    private HashMap<Integer, CplxContainer> slaveMap = new HashMap<Integer, CplxContainer>();
+    private HashMap<Integer, CplxContainer> masterMap = new HashMap<>();
+    private HashMap<Integer, CplxContainer> slaveMap = new HashMap<>();
 
     // target maps
-    private HashMap<String, ProductContainer> targetMap = new HashMap<String, ProductContainer>();
+    private HashMap<String, ProductContainer> targetMap = new HashMap<>();
 
     // operator tags
     public String productTag;
@@ -132,7 +134,6 @@ public final class SubtRefDemOp extends Operator {
             checkUserInput();
 
             constructSourceMetadata();
-
             constructTargetMetadata();
 
             createTargetProduct();
@@ -154,7 +155,7 @@ public final class SubtRefDemOp extends Operator {
         productTag = "_ifg_srd";
         if (validator.isSentinel1Product()) {
             final String topsarTag = getTOPSARTag(sourceProduct);
-            productTag = productTag + "_" + topsarTag;
+            productTag = productTag + '_' + topsarTag;
         }
     }
 
@@ -216,7 +217,7 @@ public final class SubtRefDemOp extends Operator {
 
         // define sourceMaster/sourceSlave name tags
         final String masterTag = "ifg";
-        final String slaveTag = "dummy";
+        final String slaveTag = "ifg";
 
         // get sourceMaster & sourceSlave MetadataElement
         final MetadataElement masterMeta = AbstractMetadata.getAbstractedMetadata(sourceProduct);
@@ -286,16 +287,16 @@ public final class SubtRefDemOp extends Operator {
             for (Integer keySlave : slaveMap.keySet()) {
 
                 // generate name for product bands
-                String productName = keyMaster.toString() + "_" + keySlave.toString();
+                String productName = keyMaster.toString() + '_' + keySlave.toString();
 
                 final CplxContainer slave = slaveMap.get(keySlave);
                 final ProductContainer product = new ProductContainer(productName, master, slave, true);
 
-                product.targetBandName_I = "i" + productTag + "_" + master.date + "_" + slave.date;
-                product.targetBandName_Q = "q" + productTag + "_" + master.date + "_" + slave.date;
+                product.targetBandName_I = 'i' + productTag + '_' + master.date + '_' + slave.date;
+                product.targetBandName_Q = 'q' + productTag + '_' + master.date + '_' + slave.date;
 
                 product.masterSubProduct.name = topoPhaseBandName;
-                product.masterSubProduct.targetBandName_I = topoPhaseBandName + "_" + master.date + "_" + slave.date;
+                product.masterSubProduct.targetBandName_I = topoPhaseBandName + '_' + master.date + '_' + slave.date;
 
                 // put ifg-product bands into map
                 targetMap.put(productName, product);
@@ -313,36 +314,45 @@ public final class SubtRefDemOp extends Operator {
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
         for (String key : targetMap.keySet()) {
+            final List<String> targetBandNames = new ArrayList<>();
+            final ProductContainer container = targetMap.get(key);
 
-            String targetBandName_I = targetMap.get(key).targetBandName_I;
-            String targetBandName_Q = targetMap.get(key).targetBandName_Q;
-            targetProduct.addBand(targetBandName_I, ProductData.TYPE_FLOAT32).setUnit(Unit.REAL);
-            targetProduct.addBand(targetBandName_Q, ProductData.TYPE_FLOAT32).setUnit(Unit.IMAGINARY);
+            String targetBandName_I = container.targetBandName_I;
+            String targetBandName_Q = container.targetBandName_Q;
+            Band iBand = targetProduct.addBand(targetBandName_I, ProductData.TYPE_FLOAT32);
+            iBand.setUnit(Unit.REAL);
+            targetBandNames.add(iBand.getName());
+            Band qBand = targetProduct.addBand(targetBandName_Q, ProductData.TYPE_FLOAT32);
+            qBand.setUnit(Unit.IMAGINARY);
+            targetBandNames.add(qBand.getName());
 
-            final String tag0 = targetMap.get(key).sourceMaster.date;
-            final String tag1 = targetMap.get(key).sourceSlave.date;
+            final String tag0 = container.sourceMaster.date;
+            final String tag1 = container.sourceSlave.date;
             if (CREATE_VIRTUAL_BAND) {
-                String countStr = productTag + "_" + tag0 + "_" + tag1;
+                String countStr = productTag + '_' + tag0 + '_' + tag1;
 
-                ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBand(targetBandName_I),
+                Band intensityBand = ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBand(targetBandName_I),
                         targetProduct.getBand(targetBandName_Q), countStr);
+                targetBandNames.add(intensityBand.getName());
 
                 Band phaseBand = ReaderUtils.createVirtualPhaseBand(targetProduct, targetProduct.getBand(targetBandName_I),
                         targetProduct.getBand(targetBandName_Q), countStr);
+                targetBandNames.add(phaseBand.getName());
 
                 targetProduct.setQuicklookBandName(phaseBand.getName());
             }
 
-            if (targetMap.get(key).subProductsFlag) {
-                String topoBandName = targetMap.get(key).masterSubProduct.targetBandName_I;
-                targetProduct.addBand(topoBandName, ProductData.TYPE_FLOAT32);
-                targetProduct.getBand(topoBandName).setNoDataValue(demNoDataValue);
-                targetProduct.getBand(topoBandName).setUnit(Unit.PHASE);
-                targetProduct.getBand(topoBandName).setDescription("topographic_phase");
+            if (container.subProductsFlag) {
+                String topoBandName = container.masterSubProduct.targetBandName_I;
+                Band topoBand = targetProduct.addBand(topoBandName, ProductData.TYPE_FLOAT32);
+                topoBand.setNoDataValue(demNoDataValue);
+                topoBand.setUnit(Unit.PHASE);
+                topoBand.setDescription("topographic_phase");
+                targetBandNames.add(topoBand.getName());
             }
 
             // copy other bands through
-            String tagStr = tag0 + "_" + tag1;
+            String tagStr = tag0 + '_' + tag1;
             for(Band srcBand : sourceProduct.getBands()) {
                 if(srcBand instanceof VirtualBand) {
                     continue;
@@ -351,10 +361,15 @@ public final class SubtRefDemOp extends Operator {
                 String srcBandName = srcBand.getName();
                 if(srcBandName.endsWith(tagStr)) {
                     if (srcBandName.startsWith("coh")|| srcBandName.startsWith("elev")) {
-                        ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, true);
+                        Band band = ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, true);
+                        targetBandNames.add(band.getName());
                     }
                 }
             }
+
+            String slvProductName = StackUtils.findOriginalSlaveProductName(sourceProduct, container.sourceSlave.realBand);
+            StackUtils.saveSlaveProductBandNames(targetProduct, slvProductName,
+                                                 targetBandNames.toArray(new String[targetBandNames.size()]));
         }
     }
 
@@ -379,6 +394,71 @@ public final class SubtRefDemOp extends Operator {
             int xN = targetRectangle.x + targetRectangle.width - 1;
             final Window tileWindow = new Window(y0, yN, x0, xN);
 
+            ProductContainer mstContainer = targetMap.values().iterator().next();
+
+            // compute tile geo-corners ~ work on ellipsoid
+            GeoPoint[] geoCorners = GeoUtils.computeCorners(
+                    mstContainer.sourceMaster.metaData, mstContainer.sourceMaster.orbit, tileWindow);
+
+            // get corners as DEM indices
+            PixelPos[] pixelCorners = new PixelPos[2];
+            pixelCorners[0] = dem.getIndex(new GeoPos(geoCorners[0].lat, geoCorners[0].lon));
+            pixelCorners[1] = dem.getIndex(new GeoPos(geoCorners[1].lat, geoCorners[1].lon));
+
+            final int x0DEM = (int)Math.round(pixelCorners[0].x);
+            final int y0DEM = (int)Math.round(pixelCorners[0].y);
+            final int x1DEM = (int)Math.round(pixelCorners[1].x);
+            final int y1DEM = (int)Math.round(pixelCorners[1].y);
+            final Rectangle demTileRect = new Rectangle(x0DEM, y0DEM, x1DEM - x0DEM + 1, y1DEM - y0DEM + 1);
+
+            // get max/min height of tile ~ uses 'fast' GCP based interpolation technique
+            final double[] tileHeights = computeMaxHeight(pixelCorners, demTileRect);
+
+            // compute extra lat/lon for dem tile
+            GeoPoint geoExtent = GeoUtils.defineExtraPhiLam(tileHeights[0], tileHeights[1],
+                                                            tileWindow, mstContainer.sourceMaster.metaData,
+                                                            mstContainer.sourceMaster.orbit);
+
+            // extend corners
+            geoCorners = GeoUtils.extendCorners(geoExtent, geoCorners);
+
+            // update corners
+            pixelCorners[0] = dem.getIndex(new GeoPos(geoCorners[0].lat, geoCorners[0].lon));
+            pixelCorners[1] = dem.getIndex(new GeoPos(geoCorners[1].lat, geoCorners[1].lon));
+
+            pixelCorners[0] = new PixelPos(Math.floor(pixelCorners[0].x), Math.floor(pixelCorners[0].y));
+            pixelCorners[1] = new PixelPos(Math.ceil(pixelCorners[1].x), Math.ceil(pixelCorners[1].y));
+
+            GeoPos upperLeftGeo = dem.getGeoPos(pixelCorners[0]);
+
+            int nLatPixels = (int) Math.abs(pixelCorners[1].y - pixelCorners[0].y);
+            int nLonPixels = (int) Math.abs(pixelCorners[1].x - pixelCorners[0].x);
+
+            int startX = (int) pixelCorners[0].x;
+            int endX = startX + nLonPixels;
+            int startY = (int) pixelCorners[0].y;
+            int endY = startY + nLatPixels;
+
+            double[][] elevation = new double[nLatPixels][nLonPixels];
+            for (int y = startY, i = 0; y < endY; y++, i++) {
+                for (int x = startX, j = 0; x < endX; x++, j++) {
+                    try {
+                        double elev = dem.getSample(x, y);
+                        if (Double.isNaN(elev)) {
+                            elev = demNoDataValue;
+                        }
+                        elevation[i][j] = elev;
+                    } catch (Exception e) {
+                        elevation[i][j] = demNoDataValue;
+                    }
+                }
+            }
+
+            DemTile demTile = new DemTile(upperLeftGeo.lat * Constants.DTOR, upperLeftGeo.lon * Constants.DTOR,
+                                          nLatPixels, nLonPixels, Math.abs(demSamplingLat), Math.abs(demSamplingLon), (long)demNoDataValue);
+
+            demTile.setData(elevation);
+
             Band topoPhaseBand;
             Band targetBand_I;
             Band targetBand_Q;
@@ -388,68 +468,6 @@ public final class SubtRefDemOp extends Operator {
             for (String ifgKey : targetMap.keySet()) {
 
                 ProductContainer product = targetMap.get(ifgKey);
-
-                // compute tile geo-corners ~ work on ellipsoid
-                GeoPoint[] geoCorners = GeoUtils.computeCorners(
-                        product.sourceMaster.metaData, product.sourceMaster.orbit, tileWindow);
-
-                // get corners as DEM indices
-                PixelPos[] pixelCorners = new PixelPos[2];
-                pixelCorners[0] = dem.getIndex(new GeoPos(geoCorners[0].lat, geoCorners[0].lon));
-                pixelCorners[1] = dem.getIndex(new GeoPos(geoCorners[1].lat, geoCorners[1].lon));
-
-                final int x0DEM = (int)Math.round(pixelCorners[0].x);
-                final int y0DEM = (int)Math.round(pixelCorners[0].y);
-                final int x1DEM = (int)Math.round(pixelCorners[1].x);
-                final int y1DEM = (int)Math.round(pixelCorners[1].y);
-                final Rectangle demTileRect = new Rectangle(x0DEM, y0DEM, x1DEM - x0DEM + 1, y1DEM - y0DEM + 1);
-
-                // get max/min height of tile ~ uses 'fast' GCP based interpolation technique
-                double[] tileHeights = computeMaxHeight(pixelCorners, demTileRect);
-
-                // compute extra lat/lon for dem tile
-                GeoPoint geoExtent = GeoUtils.defineExtraPhiLam(tileHeights[0], tileHeights[1],
-                        tileWindow, product.sourceMaster.metaData, product.sourceMaster.orbit);
-
-                // extend corners
-                geoCorners = GeoUtils.extendCorners(geoExtent, geoCorners);
-
-                // update corners
-                pixelCorners[0] = dem.getIndex(new GeoPos(geoCorners[0].lat, geoCorners[0].lon));
-                pixelCorners[1] = dem.getIndex(new GeoPos(geoCorners[1].lat, geoCorners[1].lon));
-
-                pixelCorners[0] = new PixelPos(Math.floor(pixelCorners[0].x), Math.floor(pixelCorners[0].y));
-                pixelCorners[1] = new PixelPos(Math.ceil(pixelCorners[1].x), Math.ceil(pixelCorners[1].y));
-
-                GeoPos upperLeftGeo = dem.getGeoPos(pixelCorners[0]);
-
-                int nLatPixels = (int) Math.abs(pixelCorners[1].y - pixelCorners[0].y);
-                int nLonPixels = (int) Math.abs(pixelCorners[1].x - pixelCorners[0].x);
-
-                int startX = (int) pixelCorners[0].x;
-                int endX = startX + nLonPixels;
-                int startY = (int) pixelCorners[0].y;
-                int endY = startY + nLatPixels;
-
-                double[][] elevation = new double[nLatPixels][nLonPixels];
-                for (int y = startY, i = 0; y < endY; y++, i++) {
-                    for (int x = startX, j = 0; x < endX; x++, j++) {
-                        try {
-                            double elev = dem.getSample(x, y);
-                            if (Double.isNaN(elev)) {
-                                elev = demNoDataValue;
-                            }
-                            elevation[i][j] = elev;
-                        } catch (Exception e) {
-                            elevation[i][j] = demNoDataValue;
-                        }
-                    }
-                }
-
-                DemTile demTile = new DemTile(upperLeftGeo.lat * Constants.DTOR, upperLeftGeo.lon * Constants.DTOR,
-                        nLatPixels, nLonPixels, Math.abs(demSamplingLat), Math.abs(demSamplingLon), (long)demNoDataValue);
-
-                demTile.setData(elevation);
 
                 final TopoPhase topoPhase = new TopoPhase(product.sourceMaster.metaData, product.sourceMaster.orbit,
                         product.sourceSlave.metaData, product.sourceSlave.orbit, tileWindow, demTile);
