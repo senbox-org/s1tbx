@@ -32,6 +32,9 @@ import java.util.Set;
  */
 public final class StackUtils {
 
+    public static final String MST = "_mst";
+    public static final String SLV = "_slv";
+
     public static boolean isCoregisteredStack(final Product product) {
         if(!AbstractMetadata.hasAbstractedMetadata(product))
             return false;
@@ -79,6 +82,21 @@ public final class StackUtils {
         elem.setAttributeString(AbstractMetadata.SLAVE_BANDS, value.toString().trim());
     }
 
+    public static String findOriginalSlaveProductName(final Product sourceProduct, final Band slvBand) {
+        final MetadataElement slaveMetadataRoot = sourceProduct.getMetadataRoot().getElement(
+                AbstractMetadata.SLAVE_METADATA_ROOT);
+        if (slaveMetadataRoot != null) {
+            final String slvBandName = slvBand.getName();
+            for (MetadataElement elem : slaveMetadataRoot.getElements()) {
+                final String slvBandNames = elem.getAttributeString(AbstractMetadata.SLAVE_BANDS, "");
+                if (slvBandNames.contains(slvBandName)) {
+                    return elem.getName();
+                }
+            }
+        }
+        return null;
+    }
+
     /**
      * Returns only i and q master band names
      * @param sourceProduct coregistered product
@@ -95,7 +113,7 @@ public final class StackUtils {
         }
         final List<String> bandNames = new ArrayList<>();
         for(String bandName : sourceProduct.getBandNames()) {
-            if(bandName.toLowerCase().contains("mst")) {
+            if(bandName.toLowerCase().contains(MST)) {
                 bandNames.add(bandName);
             }
         }
@@ -112,8 +130,8 @@ public final class StackUtils {
         String suffix = null;
         final String[] srcBandNames = sourceProduct.getBandNames();
         for(String bandName : srcBandNames) {
-            if (bandName.contains("_mst")) {
-                suffix = bandName.substring(bandName.lastIndexOf("_mst")+4);
+            if (bandName.contains(MST)) {
+                suffix = bandName.substring(bandName.lastIndexOf(MST)+4);
                 break;
             }
         }
@@ -142,7 +160,7 @@ public final class StackUtils {
         final List<String> bandNames = new ArrayList<>();
         for(String bandName : sourceProduct.getBandNames()) {
             final String name = bandName.toLowerCase();
-            if(name.contains("slv") && name.endsWith(dateSuffix)) {
+            if(name.contains(SLV) && name.endsWith(dateSuffix)) {
                 bandNames.add(bandName);
             }
         }
@@ -159,10 +177,10 @@ public final class StackUtils {
     }
 
     public static String getBandNameWithoutDate(final String bandName) {
-        if (bandName.contains("_mst")) {
-            return bandName.substring(0, bandName.lastIndexOf("_mst"));
-        } else if (bandName.contains("_slv")) {
-            return bandName.substring(0, bandName.lastIndexOf("_slv"));
+        if (bandName.contains(MST)) {
+            return bandName.substring(0, bandName.lastIndexOf(MST));
+        } else if (bandName.contains(SLV)) {
+            return bandName.substring(0, bandName.lastIndexOf(SLV));
         } else if (bandName.contains("_")) {
             return bandName.substring(0, bandName.lastIndexOf('_'));
         }
@@ -179,10 +197,10 @@ public final class StackUtils {
 
     public static String getBandSuffix(final String bandName) {
         final String suffix;
-        if (bandName.contains("_mst")) {
-            suffix = bandName.substring(bandName.lastIndexOf("_mst"), bandName.length());
-        } else if (bandName.contains("_slv")) {
-            suffix = bandName.substring(bandName.lastIndexOf("_slv"), bandName.length());
+        if (bandName.contains(MST)) {
+            suffix = bandName.substring(bandName.lastIndexOf(MST), bandName.length());
+        } else if (bandName.contains(SLV)) {
+            suffix = bandName.substring(bandName.lastIndexOf(SLV), bandName.length());
         } else if (bandName.contains("_")) {
             suffix = bandName.substring(bandName.lastIndexOf('_'), bandName.length());
         } else {
