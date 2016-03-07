@@ -52,7 +52,10 @@ public class TimeSeriesTimes {
             if (foundInMaster(product, band)) {
                 return getIndex(product.getStartTime());
             }
-            return getIndex(getSlaveTime(product, band));
+            ProductData.UTC slaveTime = getSlaveTime(product, band);
+            if(slaveTime != null) {
+                return getIndex(slaveTime);
+            }
         }
         return getIndex(product.getStartTime());
     }
@@ -81,7 +84,7 @@ public class TimeSeriesTimes {
             final boolean isIntensity = slvBandName.startsWith("Intensity");
             for (MetadataElement elem : slaveMetadataRoot.getElements()) {
                 final String slvBandNames = elem.getAttributeString(AbstractMetadata.SLAVE_BANDS, "");
-                if (slvBandName.contains(slvBandNames))
+                if (slvBandNames.contains(slvBandName))
                     return elem.getAttributeUTC(AbstractMetadata.first_line_time);
                 if (isIntensity) {
                     final String iName = slvBandName.replace("Intensity_", "i_");

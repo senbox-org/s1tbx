@@ -46,7 +46,7 @@ public class TimeSeriesSettingsDlg extends ModelessDialog {
         super(parent, title, ModelessDialog.ID_APPLY_CLOSE, helpID);
         this.settings = settings;
         this.view = view;
-        this.getJDialog().setResizable(false);
+        this.getJDialog().setResizable(true);
 
         final List<GraphData> graphDataLists = settings.getGraphDataList();
         int cnt = 1;
@@ -66,9 +66,7 @@ public class TimeSeriesSettingsDlg extends ModelessDialog {
     }
 
     private void initUI() {
-        final JPanel content = new JPanel(new GridBagLayout());
-        final GridBagConstraints gbc = DialogUtils.createGridBagConstraints();
-
+        final JPanel content = new JPanel(new BorderLayout());
         final JPanel optionsPanel = new JPanel();
 
         final JButton addGraphBtn = DialogUtils.createButton("addGraphBtn", "Add Graph", null, content, DialogUtils.ButtonStyle.Text);
@@ -90,12 +88,10 @@ public class TimeSeriesSettingsDlg extends ModelessDialog {
         optionsPanel.add(showGridCB);
         optionsPanel.add(showLegendCB);
 
-        DialogUtils.addComponent(content, gbc, "", optionsPanel);
-        gbc.gridy++;
-        gbc.gridx = 0;
-
         final JScrollPane scrollPane = new JScrollPane(graphListPanel);
-        DialogUtils.addComponent(content, gbc, "", scrollPane);
+
+        content.add(optionsPanel, BorderLayout.NORTH);
+        content.add(scrollPane, BorderLayout.CENTER);
 
         for (GraphProductSetPanel productListPanel : graphList) {
             graphListPanel.add(productListPanel, glGbc);
