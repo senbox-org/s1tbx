@@ -82,6 +82,21 @@ public final class StackUtils {
         elem.setAttributeString(AbstractMetadata.SLAVE_BANDS, value.toString().trim());
     }
 
+    public static String findOriginalSlaveProductName(final Product sourceProduct, final Band slvBand) {
+        final MetadataElement slaveMetadataRoot = sourceProduct.getMetadataRoot().getElement(
+                AbstractMetadata.SLAVE_METADATA_ROOT);
+        if (slaveMetadataRoot != null) {
+            final String slvBandName = slvBand.getName();
+            for (MetadataElement elem : slaveMetadataRoot.getElements()) {
+                final String slvBandNames = elem.getAttributeString(AbstractMetadata.SLAVE_BANDS, "");
+                if (slvBandNames.contains(slvBandName)) {
+                    return elem.getName();
+                }
+            }
+        }
+        return null;
+    }
+
     /**
      * Returns only i and q master band names
      * @param sourceProduct coregistered product
