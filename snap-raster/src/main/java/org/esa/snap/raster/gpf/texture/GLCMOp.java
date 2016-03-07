@@ -469,7 +469,6 @@ public final class GLCMOp extends Operator {
                     }
                 }
                 srcInfoList[cnt].tileDataList = tileDataList.toArray(new TileData[tileDataList.size()]);
-
                 ++cnt;
             }
 
@@ -487,12 +486,21 @@ public final class GLCMOp extends Operator {
                     final int w = Math.min(tx + halfWindowSize, sourceImageWidth - 1) - x0 + 1;
                     final int xMax = x0 + w;
 
-                    for (SrcInfo srcInfo : srcInfoList) {
-                        srcInfo.reset(w, h);
-                    }
+                    if (tx == tx0 || x0 == 0 || xMax == sourceImageWidth) {
+                        for (SrcInfo srcInfo : srcInfoList) {
+                            srcInfo.reset(w, h);
+                        }
 
-                    computeQuantizedImages(quantizer, srcIndex, x0, y0, xMax, yMax, srcInfoList);
-                    computeGLCM(x0, y0, xMax, yMax, srcInfoList);
+                        computeQuantizedImages(quantizer, srcIndex, x0, y0, xMax, yMax, srcInfoList);
+                        computeGLCM(srcInfoList);
+
+                    } else {
+
+                        final int xNew = Math.min(tx + halfWindowSize, sourceImageWidth - 1);
+                        updateGLCMWithFirstColumnOfQuantizedImageRemoved(srcInfoList);
+                        updateQuantizedImages(quantizer, srcIndex, xNew, y0, yMax, srcInfoList);
+                        updateGLCMWithLastColumnOfQuantizedImageAdded(srcInfoList);
+                    }
 
                     for (SrcInfo srcInfo : srcInfoList) {
 
@@ -504,7 +512,6 @@ public final class GLCMOp extends Operator {
                     }
                 }
             }
-
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
@@ -574,108 +581,187 @@ public final class GLCMOp extends Operator {
         return new Rectangle(sx0, sy0, sw, sh);
     }
 
-    private void computeGLCM(final int x0, final int y0, final int xMax, final int yMax,
-                             final SrcInfo[] srcInfoList) {
+    private void computeGLCM(final SrcInfo[] srcInfoList) {
 
-        int xx, yy, i, j;
-        if (computeGLCPWithAllAngles) {
-
-            for (int y = y0; y < yMax; y++) {
-
-                final boolean withinY0 = y >= y0 && y < yMax;
-                final boolean withinY = y + displacement >= y0 && y + displacement < yMax;
-                if(!withinY && !withinY0)
-                    continue;
-
-                yy = y - y0;
-                final int yyDisp = yy + displacement;
-                for (int x = x0; x < xMax; x++) {
-
-                    final boolean withinX = x + displacement >= x0 && x + displacement < xMax;
-                    final boolean within45 = withinY && x + -displacement >= x0 && x + -displacement < xMax;
-                    final boolean within90 = withinY && x >= x0 && x < xMax;
-                    if(!withinX && !within45 && !within90)
-                        continue;
-
-                    xx = x - x0;
-                    for(SrcInfo srcInfo : srcInfoList) {
-                        i = srcInfo.quantizedImage[yy][xx];
-                        if (i < 0)
-                            continue;
-                        int indexI = i * numQuantLevels;
-
-                        // 0
-                        if (withinY0 && withinX) {
-                            j = srcInfo.quantizedImage[yy][xx + displacement];
-                            if (j >= 0) {
-                                addElements(srcInfo, i, j, indexI+j, j * numQuantLevels + i);
-                            }
-                        }
-
-                        // 45
-                        if (within45) {
-                            j = srcInfo.quantizedImage[yyDisp][xx - displacement];
-                            if (j >= 0) {
-                                addElements(srcInfo, i, j, indexI+j, j * numQuantLevels + i);
-                            }
-                        }
-
-                        // 90
-                        if (within90) {
-                            j = srcInfo.quantizedImage[yyDisp][xx];
-                            if (j >= 0) {
-                                addElements(srcInfo, i, j, indexI+j, j * numQuantLevels + i);
-                            }
-                        }
-
-                        // 135
-                        if (withinY && withinX) {
-                            j = srcInfo.quantizedImage[yyDisp][xx + displacement];
-                            if (j >= 0) {
-                                addElements(srcInfo, i, j, indexI+j, j * numQuantLevels + i);
-                            }
-                        }
-                    }
+        switch (angleStr) {
+            case ANGLE_0:
+                for(SrcInfo srcInfo : srcInfoList) {
+                    final int h = srcInfo.quantizedImage.length;
+                    final int w = srcInfo.quantizedImage[0].length;
+                    add0DegreeElements(0, h, 0, w, srcInfo);
                 }
-            }
-
-        } else {
-
-            for (int y = y0; y < yMax; y++) {
-                yy = y - y0;
-                boolean withinY = y + displacementY >= y0 && y + displacementY < yMax;
-                for (int x = x0; x < xMax; x++) {
-                    xx = x - x0;
-                    boolean withinImage = withinY && x + displacementX >= x0 && x + displacementX < xMax;
-
-                    for(SrcInfo srcInfo : srcInfoList) {
-                        i = srcInfo.quantizedImage[yy][xx];
-                        if (i < 0) {
-                            continue;
-                        }
-
-                        if (withinImage) {
-                            j = srcInfo.quantizedImage[yy + displacementY][xx + displacementX];
-                            if (j >= 0) {
-                                addElements(srcInfo, i, j, i * numQuantLevels + j, j * numQuantLevels + i);
-                            }
-                        }
-                    }
+                break;
+            case ANGLE_45:
+                for(SrcInfo srcInfo : srcInfoList) {
+                    final int h = srcInfo.quantizedImage.length;
+                    final int w = srcInfo.quantizedImage[0].length;
+                    add45DegreeElements(0, h, 0, w, srcInfo);
                 }
+                break;
+            case ANGLE_90:
+                for(SrcInfo srcInfo : srcInfoList) {
+                    final int h = srcInfo.quantizedImage.length;
+                    final int w = srcInfo.quantizedImage[0].length;
+                    add90DegreeElements(0, h, 0, w, srcInfo);
+                }
+                break;
+            case ANGLE_135:
+                for(SrcInfo srcInfo : srcInfoList) {
+                    final int h = srcInfo.quantizedImage.length;
+                    final int w = srcInfo.quantizedImage[0].length;
+                    add135DegreeElements(0, h, 0, w, srcInfo);
+                }
+                break;
+            case ANGLE_ALL:
+                for(SrcInfo srcInfo : srcInfoList) {
+                    final int h = srcInfo.quantizedImage.length;
+                    final int w = srcInfo.quantizedImage[0].length;
+                    add0DegreeElements(0, h, 0, w, srcInfo);
+                    add45DegreeElements(0, h, 0, w, srcInfo);
+                    add90DegreeElements(0, h, 0, w, srcInfo);
+                    add135DegreeElements(0, h, 0, w, srcInfo);
+                }
+                break;
+            default:
+                throw new OperatorException("Unknown angle: " + angleStr);
+        }
+    }
+
+    private void updateGLCMWithFirstColumnOfQuantizedImageRemoved(final SrcInfo[] srcInfoList) {
+
+        switch (angleStr) {
+            case ANGLE_0:
+                for(SrcInfo srcInfo : srcInfoList) {
+                    final int h = srcInfo.quantizedImage.length;
+                    remove0DegreeElements(0, h, 0, 1 + displacement, srcInfo);
+                }
+                break;
+            case ANGLE_45:
+                for(SrcInfo srcInfo : srcInfoList) {
+                    final int h = srcInfo.quantizedImage.length;
+                    remove45DegreeElements(0, h, 0, 1 + displacement, srcInfo);
+                }
+                break;
+            case ANGLE_90:
+                for(SrcInfo srcInfo : srcInfoList) {
+                    final int h = srcInfo.quantizedImage.length;
+                    remove90DegreeElements(0, h, 0, 1, srcInfo);
+                }
+                break;
+            case ANGLE_135:
+                for(SrcInfo srcInfo : srcInfoList) {
+                    final int h = srcInfo.quantizedImage.length;
+                    remove135DegreeElements(0, h, 0, 1 + displacement, srcInfo);
+                }
+                break;
+            case ANGLE_ALL:
+                for(SrcInfo srcInfo : srcInfoList) {
+                    final int h = srcInfo.quantizedImage.length;
+                    remove0DegreeElements(0, h, 0, 1 + displacement, srcInfo);
+                    remove45DegreeElements(0, h, 0, 1 + displacement, srcInfo);
+                    remove90DegreeElements(0, h, 0, 1, srcInfo);
+                    remove135DegreeElements(0, h, 0, 1 + displacement, srcInfo);
+                }
+                break;
+            default:
+                throw new OperatorException("Unknown angle: " + angleStr);
+        }
+    }
+
+    private void updateGLCMWithLastColumnOfQuantizedImageAdded(final SrcInfo[] srcInfoList) {
+
+        switch (angleStr) {
+            case ANGLE_0:
+                for(SrcInfo srcInfo : srcInfoList) {
+                    final int h = srcInfo.quantizedImage.length;
+                    final int w = srcInfo.quantizedImage[0].length;
+                    add0DegreeElements(0, h, w - 1 - displacement, w, srcInfo);
+                }
+                break;
+            case ANGLE_45:
+                for(SrcInfo srcInfo : srcInfoList) {
+                    final int h = srcInfo.quantizedImage.length;
+                    final int w = srcInfo.quantizedImage[0].length;
+                    add45DegreeElements(0, h, w - 1 - displacement, w, srcInfo);
+                }
+                break;
+            case ANGLE_90:
+                for(SrcInfo srcInfo : srcInfoList) {
+                    final int h = srcInfo.quantizedImage.length;
+                    final int w = srcInfo.quantizedImage[0].length;
+                    add90DegreeElements(0, h, w - 1, w, srcInfo);
+                }
+                break;
+            case ANGLE_135:
+                for(SrcInfo srcInfo : srcInfoList) {
+                    final int h = srcInfo.quantizedImage.length;
+                    final int w = srcInfo.quantizedImage[0].length;
+                    add135DegreeElements(0, h, w - 1 - displacement, w, srcInfo);
+                }
+                break;
+            case ANGLE_ALL:
+                for(SrcInfo srcInfo : srcInfoList) {
+                    final int h = srcInfo.quantizedImage.length;
+                    final int w = srcInfo.quantizedImage[0].length;
+                    add0DegreeElements(0, h, w - 1 - displacement, w, srcInfo);
+                    add45DegreeElements(0, h, w - 1 - displacement, w, srcInfo);
+                    add90DegreeElements(0, h, w - 1, w, srcInfo);
+                    add135DegreeElements(0, h, w - 1 - displacement, w, srcInfo);
+                }
+                break;
+            default:
+                throw new OperatorException("Unknown angle: " + angleStr);
+        }
+    }
+
+    private void add0DegreeElements(final int r0, final int rMax, final int c0, final int cMax, SrcInfo srcInfo) {
+        for (int r = r0; r < rMax; r++) {
+            for (int c = c0; c < cMax - displacement; c++) {
+                addElements(srcInfo, srcInfo.quantizedImage[r][c],
+                        srcInfo.quantizedImage[r][c + displacement]);
             }
         }
     }
 
-    private static void addElements(final SrcInfo srcInfo, int i, int j, int indexI, int indexJ) {
+    private void add45DegreeElements(final int r0, final int rMax, final int c0, final int cMax, SrcInfo srcInfo) {
+        for (int r = r0; r < rMax - displacement; r++) {
+            for (int c = c0 + displacement; c < cMax; c++) {
+                addElements(srcInfo, srcInfo.quantizedImage[r][c],
+                        srcInfo.quantizedImage[r + displacement][c - displacement]);
+            }
+        }
+    }
 
-        GLCMElem elem = srcInfo.GLCM[indexI];
+    private void add90DegreeElements(final int r0, final int rMax, final int c0, final int cMax, SrcInfo srcInfo) {
+        for (int r = r0; r < rMax - displacement; r++) {
+            for (int c = c0; c < cMax; c++) {
+                addElements(srcInfo, srcInfo.quantizedImage[r][c],
+                        srcInfo.quantizedImage[r + displacement][c]);
+            }
+        }
+    }
+
+    private void add135DegreeElements(final int r0, final int rMax, final int c0, final int cMax, SrcInfo srcInfo) {
+        for (int r = r0; r < rMax - displacement; r++) {
+            for (int c = c0; c < cMax - displacement; c++) {
+                addElements(srcInfo, srcInfo.quantizedImage[r][c],
+                        srcInfo.quantizedImage[r + displacement][c + displacement]);
+            }
+        }
+    }
+
+    private void addElements(final SrcInfo srcInfo, int i, int j) {
+
+        if (i < 0 || j < 0) return;
+
+        GLCMElem elem = srcInfo.GLCM[i * numQuantLevels + j];
         if (!elem.init) {
             elem.setPos(i, j);
             srcInfo.totals.numElems++;
         }
         elem.value++;
 
-        elem = srcInfo.GLCM[indexJ];
+        elem = srcInfo.GLCM[j * numQuantLevels + i];
         if (!elem.init) {
             elem.setPos(j, i);
             srcInfo.totals.numElems++;
@@ -683,6 +769,63 @@ public final class GLCMOp extends Operator {
         elem.value++;
 
         srcInfo.totals.totalCount++;
+    }
+
+    private void remove0DegreeElements(final int r0, final int rMax, final int c0, final int cMax, SrcInfo srcInfo) {
+        for (int r = r0; r < rMax; r++) {
+            for (int c = c0; c < cMax - displacement; c++) {
+                removeElements(srcInfo, srcInfo.quantizedImage[r][c],
+                        srcInfo.quantizedImage[r][c + displacement]);
+            }
+        }
+    }
+
+    private void remove45DegreeElements(final int r0, final int rMax, final int c0, final int cMax, SrcInfo srcInfo) {
+        for (int r = r0; r < rMax - displacement; r++) {
+            for (int c = c0 + displacement; c < cMax; c++) {
+                removeElements(srcInfo, srcInfo.quantizedImage[r][c],
+                        srcInfo.quantizedImage[r + displacement][c - displacement]);
+            }
+        }
+    }
+
+    private void remove90DegreeElements(final int r0, final int rMax, final int c0, final int cMax, SrcInfo srcInfo) {
+        for (int r = r0; r < rMax - displacement; r++) {
+            for (int c = c0; c < cMax; c++) {
+                removeElements(srcInfo, srcInfo.quantizedImage[r][c],
+                        srcInfo.quantizedImage[r + displacement][c]);
+            }
+        }
+    }
+
+    private void remove135DegreeElements(final int r0, final int rMax, final int c0, final int cMax, SrcInfo srcInfo) {
+        for (int r = r0; r < rMax - displacement; r++) {
+            for (int c = c0; c < cMax - displacement; c++) {
+                removeElements(srcInfo, srcInfo.quantizedImage[r][c],
+                        srcInfo.quantizedImage[r + displacement][c + displacement]);
+            }
+        }
+    }
+
+    private void removeElements(final SrcInfo srcInfo, int i, int j) {
+
+        if (i < 0 || j < 0) return;
+
+        GLCMElem elem = srcInfo.GLCM[i * numQuantLevels + j];
+        elem.value--;
+        if (elem.value == 0) {
+            elem.init = false;
+            srcInfo.totals.numElems--;
+        }
+
+        elem = srcInfo.GLCM[j * numQuantLevels + i];
+        elem.value--;
+        if (elem.value == 0) {
+            elem.init = false;
+            srcInfo.totals.numElems--;
+        }
+
+        srcInfo.totals.totalCount--;
     }
 
     private static void computeQuantizedImages(final Quantizer quantizer, final TileIndex srcIndex,
@@ -700,6 +843,29 @@ public final class GLCMOp extends Operator {
                     v = srcInfo.srcData.getElemDoubleAt(index);
                     srcInfo.quantizedImage[yy][xx] = v == srcInfo.noDataValue ? -1 : quantizer.compute(v);
                 }
+            }
+        }
+    }
+
+    private static void updateQuantizedImages(final Quantizer quantizer, final TileIndex srcIndex,
+                                              final int xNew, final int y0, final int yMax,
+                                              final SrcInfo[] srcInfoList) {
+        double v;
+
+        for (SrcInfo srcInfo : srcInfoList) {
+            final int h = srcInfo.quantizedImage.length;
+            final int w = srcInfo.quantizedImage[0].length;
+            for (int i = 0; i < w - 1; i++) {
+                for (int j = 0; j < h; j++) {
+                    srcInfo.quantizedImage[j][i] = srcInfo.quantizedImage[j][i + 1];
+                }
+            }
+
+            for (int y = y0; y < yMax; y++) {
+                int yy = y - y0;
+                srcIndex.calculateStride(y);
+                v = srcInfo.srcData.getElemDoubleAt(srcIndex.getIndex(xNew));
+                srcInfo.quantizedImage[yy][w - 1] = (v == srcInfo.noDataValue) ? -1 : quantizer.compute(v);
             }
         }
     }
