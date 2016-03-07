@@ -65,8 +65,6 @@ public class AggregatedOpImage extends GeometricOpImage {
         Raster source = sources[0];
         final Rectangle srcRect = mapDestRect(destRect, 0);
         int srcW = (int) srcRect.getWidth();
-        int dstMinY = destRect.y;
-        int dstMinX = destRect.x;
         //dest.getWidth() and destRect.width can be different!
         final int destRasterWidth = dest.getWidth();
         int dstH = destRect.height;
@@ -102,14 +100,8 @@ public class AggregatedOpImage extends GeometricOpImage {
                         srcX1--;
                     }
                 }
-                if (dstX > 1343 && dstY > 178) {
-                    int x = 1;
-                }
                 aggregator.aggregate(srcY0, srcY1, srcX0, srcX1, srcW, wx0, wx1, wy0, wy1, dstY * destRasterWidth + dstX);
             }
-        }
-        if (dstMinX == 1344) {
-            int x = 1;
         }
         if (dstAccessor.isDataCopy()) {
             dstAccessor.clampDataArrays();
