@@ -990,9 +990,9 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 if (mission.contains("TDM")) {
                     final String level1ProductDirName = file.getParentFile().getParentFile().getName();
                     if (level1ProductDirName.equals(masterProductName)) {
-                        extraInfo = "_mst";
+                        extraInfo = StackUtils.MST;
                     } else if (level1ProductDirName.equals(slaveProductName)) {
-                        extraInfo = "_slv1";
+                        extraInfo = StackUtils.SLV + '1';
                     }
                     extraInfo += StackUtils.createBandTimeStamp(product);
                 } else if (!polsUnique) {

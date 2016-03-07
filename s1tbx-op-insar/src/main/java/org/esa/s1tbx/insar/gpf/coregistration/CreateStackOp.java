@@ -228,12 +228,12 @@ public class CreateStackOp extends Operator {
                 }
             }
 
-            String suffix = "_mst";
+            String suffix = StackUtils.MST;
             // add master bands first
             if (!appendToMaster) {
                 for (final Band srcBand : slaveBandList) {
                     if (srcBand == masterBands[0] || (masterBands.length > 1 && srcBand == masterBands[1])) {
-                        suffix = "_mst" + StackUtils.createBandTimeStamp(srcBand.getProduct());
+                        suffix = StackUtils.MST + StackUtils.createBandTimeStamp(srcBand.getProduct());
 
                         final Band targetBand = new Band(srcBand.getName() + suffix,
                                                          srcBand.getDataType(),
@@ -255,7 +255,7 @@ public class CreateStackOp extends Operator {
             if (appendToMaster) {
                 for (Band trgBand : targetProduct.getBands()) {
                     final String name = trgBand.getName();
-                    if (name.contains("slv" + cnt))
+                    if (name.contains(StackUtils.SLV + cnt))
                         ++cnt;
                 }
             }
@@ -263,7 +263,7 @@ public class CreateStackOp extends Operator {
                 if (!(srcBand == masterBands[0] || (masterBands.length > 1 && srcBand == masterBands[1]))) {
                     if (srcBand.getUnit() != null && srcBand.getUnit().equals(Unit.IMAGINARY)) {
                     } else {
-                        suffix = "_slv" + cnt++ + StackUtils.createBandTimeStamp(srcBand.getProduct());
+                        suffix = StackUtils.SLV + cnt++ + StackUtils.createBandTimeStamp(srcBand.getProduct());
                     }
                     final String tgtBandName = srcBand.getName() + suffix;
 

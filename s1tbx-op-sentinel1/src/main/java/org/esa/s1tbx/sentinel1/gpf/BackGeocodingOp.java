@@ -302,7 +302,7 @@ public final class BackGeocodingOp extends Operator {
         ProductUtils.copyProductNodes(masterProduct, targetProduct);
         
         final String[] masterBandNames = masterProduct.getBandNames();
-        final String mstSuffix = "_mst" + StackUtils.createBandTimeStamp(masterProduct);
+        final String mstSuffix = StackUtils.MST + StackUtils.createBandTimeStamp(masterProduct);
         for (String bandName : masterBandNames) {
             if (masterProduct.getBand(bandName) instanceof VirtualBand) {
                 continue;
@@ -320,7 +320,7 @@ public final class BackGeocodingOp extends Operator {
         final int masterBandHeight = masterBand.getRasterHeight();
 
         final String[] slaveBandNames = slaveProduct.getBandNames();
-        final String slvSuffix = "_slv1" + StackUtils.createBandTimeStamp(slaveProduct);
+        final String slvSuffix = StackUtils.SLV+'1' + StackUtils.createBandTimeStamp(slaveProduct);
         for (String bandName:slaveBandNames) {
             final Band srcBand = slaveProduct.getBand(bandName);
             if (srcBand instanceof VirtualBand) {
@@ -345,7 +345,7 @@ public final class BackGeocodingOp extends Operator {
         //final Band[] trgBands = targetProduct.getBands();
         //for(int i=0; i < trgBands.length; ++i) {
         //    if(trgBands[i].getUnit().equals(Unit.REAL)) {
-        //        final String suffix = trgBands[i].getName().contains("_mst") ? mstSuffix : slvSuffix;
+        //        final String suffix = trgBands[i].getName().contains(StackUtils.MST) ? mstSuffix : slvSuffix;
         //        ReaderUtils.createVirtualIntensityBand(targetProduct, trgBands[i], trgBands[i+1], suffix);
         //    }
         //}
@@ -1131,9 +1131,9 @@ public final class BackGeocodingOp extends Operator {
             Band phaseBand = null;
             for (Band band : targetBands) {
                 final String bandName = band.getName();
-                if (bandName.contains("i_") && bandName.contains("_slv")) {
+                if (bandName.contains("i_") && bandName.contains(StackUtils.SLV)) {
                     iBand = band;
-                } else if (bandName.contains("q_") && bandName.contains("_slv")) {
+                } else if (bandName.contains("q_") && bandName.contains(StackUtils.SLV)) {
                     qBand = band;
                 } else if (bandName.contains("derampDemodPhase")) {
                     phaseBand = band;

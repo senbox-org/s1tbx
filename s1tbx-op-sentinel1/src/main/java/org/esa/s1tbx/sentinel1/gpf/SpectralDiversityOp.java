@@ -43,6 +43,7 @@ import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
+import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.engine_utilities.gpf.ThreadManager;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
@@ -202,7 +203,7 @@ public class SpectralDiversityOp extends Operator {
             }
 
             Band targetBand;
-            if (srcBandName.contains("_mst") || srcBandName.contains("derampDemod")) {
+            if (srcBandName.contains(StackUtils.MST) || srcBandName.contains("derampDemod")) {
                 targetBand = ProductUtils.copyBand(srcBandName, sourceProduct, srcBandName, targetProduct, true);
             } else if (srcBandName.contains("azOffset") || srcBandName.contains("rgOffset")) {
                 continue;
@@ -261,10 +262,10 @@ public class SpectralDiversityOp extends Operator {
             Band derampDemodPhaseBand = null;
             final String[] bandNames = sourceProduct.getBandNames();
             for (String bandName : bandNames) {
-                if (bandName.contains("i_") && bandName.contains("_slv")) {
+                if (bandName.contains("i_") && bandName.contains(StackUtils.SLV)) {
                     slvBandI = sourceProduct.getBand(bandName);
                     tgtBandI = targetProduct.getBand(bandName);
-                } else if (bandName.contains("q_") && bandName.contains("_slv")) {
+                } else if (bandName.contains("q_") && bandName.contains(StackUtils.SLV)) {
                     slvBandQ = sourceProduct.getBand(bandName);
                     tgtBandQ = targetProduct.getBand(bandName);
                 }
@@ -507,8 +508,8 @@ public class SpectralDiversityOp extends Operator {
         final int w = rectangle.width;
         final int h = rectangle.height;
 
-        final Band mBand = getAmplitudeOrIntensityBand("_mst");
-        final Band sBand = getAmplitudeOrIntensityBand("_slv");
+        final Band mBand = getAmplitudeOrIntensityBand(StackUtils.MST);
+        final Band sBand = getAmplitudeOrIntensityBand(StackUtils.SLV);
         final Tile mTile = getSourceTile(mBand, rectangle);
         final Tile sTile = getSourceTile(sBand, rectangle);
         final ProductData mData = mTile.getDataBuffer();
@@ -600,10 +601,10 @@ public class SpectralDiversityOp extends Operator {
                             SystemUtils.LOG.info("forwardRectangle = " + forwardRectangle);
                             SystemUtils.LOG.info("backwardRectangle = " + backwardRectangle);
 
-                            final Band mBandI = getBand("_mst", "i_", swathIndexStr, polarizations[0]);
-                            final Band mBandQ = getBand("_mst", "q_", swathIndexStr, polarizations[0]);
-                            final Band sBandI = getBand("_slv", "i_", swathIndexStr, polarizations[0]);
-                            final Band sBandQ = getBand("_slv", "q_", swathIndexStr, polarizations[0]);
+                            final Band mBandI = getBand(StackUtils.MST, "i_", swathIndexStr, polarizations[0]);
+                            final Band mBandQ = getBand(StackUtils.MST, "q_", swathIndexStr, polarizations[0]);
+                            final Band sBandI = getBand(StackUtils.SLV, "i_", swathIndexStr, polarizations[0]);
+                            final Band sBandQ = getBand(StackUtils.SLV, "q_", swathIndexStr, polarizations[0]);
 
                             final double azOffset = estimateAzOffsets(mBandI, mBandQ, sBandI, sBandQ,
                                                                       backwardRectangle, forwardRectangle, spectralSeparation);

@@ -272,7 +272,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
         ProductUtils.copyProductNodes(masterProduct, targetProduct);
         
         final String[] masterBandNames = masterProduct.getBandNames();
-        final String mstSuffix = "_mst" + StackUtils.createBandTimeStamp(masterProduct);
+        final String mstSuffix = StackUtils.MST + StackUtils.createBandTimeStamp(masterProduct);
         for (String bandName : masterBandNames) {
             if (masterProduct.getBand(bandName) instanceof VirtualBand) {
                 continue;
@@ -298,7 +298,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
 
         for(Product slaveProduct : slaveProducts) {
             final String[] slaveBandNames = slaveProduct.getBandNames();
-            final String slvSuffix = "_slv1" + StackUtils.createBandTimeStamp(slaveProduct);
+            final String slvSuffix = StackUtils.SLV+'1' + StackUtils.createBandTimeStamp(slaveProduct);
             for (String bandName : slaveBandNames) {
                 final Band srcBand = slaveProduct.getBand(bandName);
                 if (srcBand instanceof VirtualBand) {

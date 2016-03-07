@@ -39,6 +39,7 @@ import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
+import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.engine_utilities.gpf.ThreadManager;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
@@ -164,7 +165,7 @@ public class AzimuthShiftOp extends Operator {
             }
 
             Band targetBand;
-            if (srcBandName.contains("_mst") || srcBandName.contains("derampDemod")) {
+            if (srcBandName.contains(StackUtils.MST) || srcBandName.contains("derampDemod")) {
                 targetBand = ProductUtils.copyBand(srcBandName, sourceProduct, srcBandName, targetProduct, true);
             } else if (srcBandName.contains("azOffset") || srcBandName.contains("rgOffset")) {
                 continue;
@@ -220,12 +221,12 @@ public class AzimuthShiftOp extends Operator {
             final Band[] sourceBands = sourceProduct.getBands();
             for (Band band:sourceBands) {
                 final String bandName = band.getName();
-                if (bandName.contains("i_") && bandName.contains("_slv")) {
+                if (bandName.contains("i_") && bandName.contains(StackUtils.SLV)) {
                     slvBandI = band;
                     tgtBandI = targetProduct.getBand(bandName);
                 }
 
-                if (bandName.contains("q_") && bandName.contains("_slv")) {
+                if (bandName.contains("q_") && bandName.contains(StackUtils.SLV)) {
                     slvBandQ = band;
                     tgtBandQ = targetProduct.getBand(bandName);
                 }
@@ -352,10 +353,10 @@ public class AzimuthShiftOp extends Operator {
                         try {
                             final Rectangle backwardRectangle = new Rectangle(x0, y0, w, h);
                             final Rectangle forwardRectangle = new Rectangle(x0, y0 - h, w, h);
-                            final Band mBandI = getBand("_mst", "i_", swathIndexStr, polarizations[0]);
-                            final Band mBandQ = getBand("_mst", "q_", swathIndexStr, polarizations[0]);
-                            final Band sBandI = getBand("_slv", "i_", swathIndexStr, polarizations[0]);
-                            final Band sBandQ = getBand("_slv", "q_", swathIndexStr, polarizations[0]);
+                            final Band mBandI = getBand(StackUtils.MST, "i_", swathIndexStr, polarizations[0]);
+                            final Band mBandQ = getBand(StackUtils.MST, "q_", swathIndexStr, polarizations[0]);
+                            final Band sBandI = getBand(StackUtils.SLV, "i_", swathIndexStr, polarizations[0]);
+                            final Band sBandQ = getBand(StackUtils.SLV, "q_", swathIndexStr, polarizations[0]);
 
                             final double azOffset = estimateAzOffsets(mBandI, mBandQ, sBandI, sBandQ,
                                     backwardRectangle, forwardRectangle, spectralSeparation);

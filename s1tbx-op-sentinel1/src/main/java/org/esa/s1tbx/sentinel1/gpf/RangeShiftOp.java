@@ -40,6 +40,7 @@ import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
+import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.engine_utilities.gpf.ThreadManager;
 
 import java.awt.Rectangle;
@@ -169,7 +170,7 @@ public class RangeShiftOp extends Operator {
             }
 
             Band targetBand;
-            if (srcBandName.contains("_mst") || srcBandName.contains("derampDemod")) {
+            if (srcBandName.contains(StackUtils.MST) || srcBandName.contains("derampDemod")) {
                 targetBand = ProductUtils.copyBand(srcBandName, sourceProduct, srcBandName, targetProduct, true);
             } else if (srcBandName.contains("azOffset") || srcBandName.contains("rgOffset")) {
                 continue;
@@ -219,10 +220,10 @@ public class RangeShiftOp extends Operator {
             Band targetBandI = null, targetBandQ = null;
             final String[] bandNames = sourceProduct.getBandNames();
             for (String bandName : bandNames) {
-                if (bandName.contains("i_") && bandName.contains("_slv")) {
+                if (bandName.contains("i_") && bandName.contains(StackUtils.SLV)) {
                     slaveBandI = sourceProduct.getBand(bandName);
                     targetBandI = targetProduct.getBand(bandName);
-                } else if (bandName.contains("q_") && bandName.contains("_slv")) {
+                } else if (bandName.contains("q_") && bandName.contains(StackUtils.SLV)) {
                     slaveBandQ = sourceProduct.getBand(bandName);
                     targetBandQ = targetProduct.getBand(bandName);
                 }
@@ -396,8 +397,8 @@ public class RangeShiftOp extends Operator {
         final int w = rectangle.width;
         final int h = rectangle.height;
 
-        final Band mBand = getAmplitudeOrIntensityBand("_mst");
-        final Band sBand = getAmplitudeOrIntensityBand("_slv");
+        final Band mBand = getAmplitudeOrIntensityBand(StackUtils.MST);
+        final Band sBand = getAmplitudeOrIntensityBand(StackUtils.SLV);
         final Tile mTile = getSourceTile(mBand, rectangle);
         final Tile sTile = getSourceTile(sBand, rectangle);
         final ProductData mData = mTile.getDataBuffer();

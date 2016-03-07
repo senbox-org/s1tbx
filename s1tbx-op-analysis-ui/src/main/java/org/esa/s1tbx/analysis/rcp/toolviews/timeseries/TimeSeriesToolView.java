@@ -312,12 +312,12 @@ public class TimeSeriesToolView extends ToolTopComponent {
 
     private static String getCoregBandName(final Band band) {
         String bandName = band.getName();
-        int suffixLoc = bandName.indexOf("_mst");
+        int suffixLoc = bandName.indexOf(StackUtils.MST);
         if (suffixLoc < 0) {
-            suffixLoc = bandName.indexOf("_slv");
+            suffixLoc = bandName.indexOf(StackUtils.SLV);
         }
         if (suffixLoc < 0) {
-            suffixLoc = bandName.indexOf("_");
+            suffixLoc = bandName.indexOf('_');
         }
         return bandName.substring(0, suffixLoc);
     }

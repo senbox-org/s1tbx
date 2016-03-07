@@ -180,8 +180,6 @@ public class InterferogramOp extends Operator {
             constructTargetMetadata();
             createTargetProduct();
 
-            getSourceImageDimension();
-
             if (subtractFlatEarthPhase) {
 
                 getMeanTerrainElevation();
@@ -228,6 +226,9 @@ public class InterferogramOp extends Operator {
                 final String topsarTag = getTOPSARTag(sourceProduct);
                 productTag = productTag + '_' + topsarTag;
             }
+
+            sourceImageWidth = sourceProduct.getSceneRasterWidth();
+            sourceImageHeight = sourceProduct.getSceneRasterHeight();
         } catch (Exception e) {
             throw new OperatorException(e);
         }
@@ -238,8 +239,8 @@ public class InterferogramOp extends Operator {
         final Band[] bands = sourceProduct.getBands();
         for (Band band:bands) {
             final String bandName = band.getName();
-            if (bandName.contains("i_") && bandName.contains("_mst")) {
-                return bandName.substring(bandName.indexOf("i_")+2, bandName.indexOf("_mst"));
+            if (bandName.contains("i_") && bandName.contains(StackUtils.MST)) {
+                return bandName.substring(bandName.indexOf("i_")+2, bandName.indexOf(StackUtils.MST));
             }
         }
         return "";
@@ -301,11 +302,6 @@ public class InterferogramOp extends Operator {
         final double lastLineTime = (lastLineTimeInDays - (int)lastLineTimeInDays) * Constants.secondsInDay;
 
         slvSceneCentreAzimuthTime = 0.5*(firstLineTime + lastLineTime);
-    }
-
-    private void getSourceImageDimension() {
-        sourceImageWidth = sourceProduct.getSceneRasterWidth();
-        sourceImageHeight = sourceProduct.getSceneRasterHeight();
     }
 
     private void getMeanTerrainElevation() throws Exception {
@@ -506,6 +502,12 @@ public class InterferogramOp extends Operator {
                 fepBand.setUnit(Unit.PHASE);
             }
         }
+
+        updateMetadata();
+    }
+
+    private void updateMetadata() {
+
     }
 
     public static DoubleMatrix estimateFlatEarthPolynomial(
