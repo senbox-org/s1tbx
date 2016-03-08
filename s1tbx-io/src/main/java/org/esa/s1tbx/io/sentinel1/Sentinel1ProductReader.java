@@ -121,7 +121,9 @@ public class Sentinel1ProductReader extends SARReader {
         if (dataDir instanceof Sentinel1Level1Directory) {
             Sentinel1Level1Directory level1Directory = (Sentinel1Level1Directory) dataDir;
             try {
-                return level1Directory.getFile(level1Directory.getRootFolder() + "preview/quick-look.png");
+                if(level1Directory.exists(level1Directory.getRootFolder() + "preview/quick-look.png")) {
+                    return level1Directory.getFile(level1Directory.getRootFolder() + "preview/quick-look.png");
+                }
             } catch (IOException e) {
                 SystemUtils.LOG.severe("Unable to load quicklook " + level1Directory.getProductName());
             }

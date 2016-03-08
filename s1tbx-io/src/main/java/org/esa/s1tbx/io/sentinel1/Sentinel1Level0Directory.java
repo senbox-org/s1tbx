@@ -488,7 +488,7 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
     }
 
     protected String getProductType() {
-        return "Level-0";
+        return "RAW";
     }
 
     private static void getListInEvenlySpacedGrid(

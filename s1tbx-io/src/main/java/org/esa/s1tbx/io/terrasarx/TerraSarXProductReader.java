@@ -135,7 +135,9 @@ public class TerraSarXProductReader extends SARReader {
 
     private File getQuicklookFile(final String relativeFilePath) {
         try {
-            return dataDir.getFile(dataDir.getRootFolder() + relativeFilePath);
+            if(dataDir.exists(dataDir.getRootFolder() + relativeFilePath)) {
+                return dataDir.getFile(dataDir.getRootFolder() + relativeFilePath);
+            }
         } catch (IOException e) {
             SystemUtils.LOG.severe("Unable to load quicklook " + dataDir.getProductName());
         }

@@ -43,6 +43,8 @@ public class TestSentinel1ProductReader {
     public final static File inputS1_AnnotGRD = new File(TestData.inputSAR+"S1"+File.separator+"S1A_IW_GRDH_1ADV_20140819T224528_20140819T224546_002015_001F3B_979A.SAFE");
     public final static File inputS1_AnnotGRDZip = new File(TestData.inputSAR+"S1"+File.separator+"S1A_IW_GRDH_1ADV_20140819T224528_20140819T224546_002015_001F3B_979A.zip");
 
+    private String[] productTypeExemptions = {"RAW"};
+
     public TestSentinel1ProductReader() throws Exception {
         readerPlugin = new Sentinel1ProductReaderPlugIn();
         reader = readerPlugin.createReaderInstance();
@@ -56,7 +58,7 @@ public class TestSentinel1ProductReader {
     @Test
     public void testOpenAll() throws Exception {
         TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
-        testProcessor.recurseReadFolder(this, S1TBXTests.rootPathsSentinel1, readerPlugin, reader, null, null);
+        testProcessor.recurseReadFolder(this, S1TBXTests.rootPathsSentinel1, readerPlugin, reader, productTypeExemptions, null);
     }
 
     @Test

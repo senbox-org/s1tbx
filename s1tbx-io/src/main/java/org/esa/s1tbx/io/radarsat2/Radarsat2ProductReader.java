@@ -136,7 +136,9 @@ public class Radarsat2ProductReader extends SARReader {
 
     private File getQuicklookFile() {
         try {
-            return dataDir.getFile(dataDir.getRootFolder() + "BrowseImage.tif");
+            if(dataDir.exists(dataDir.getRootFolder() + "BrowseImage.tif")) {
+                return dataDir.getFile(dataDir.getRootFolder() + "BrowseImage.tif");
+            }
         } catch (IOException e) {
             SystemUtils.LOG.severe("Unable to load quicklook " + dataDir.getProductName());
         }
