@@ -27,7 +27,6 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.datamodel.quicklooks.Quicklook;
 import org.esa.snap.core.dataop.downloadable.XMLSupport;
-import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
@@ -45,6 +44,7 @@ import java.awt.image.SampleModel;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.*;
 
 /**
  * The product reader for Radarsat2 products.
@@ -211,7 +211,7 @@ public class Radarsat2ProductReader extends SARReader {
 
         final Element gainsElem = rootElement.getChild("gains");
         final String gainsValue = gainsElem.getValue().trim().replace("  ", " ");
-        final double[] gainsArray = StringUtils.toDoubleArray(gainsValue, " ");
+        final double[] gainsArray = toDoubleArray(gainsValue, " ");
         if (flipLUT) {
             double tmp;
             for (int i = 0; i < gainsArray.length / 2; i++) {
@@ -231,6 +231,21 @@ public class Radarsat2ProductReader extends SARReader {
         final MetadataAttribute gainsAttrib = new MetadataAttribute("gains", ProductData.TYPE_FLOAT64, gainsArray.length);
         gainsAttrib.getData().setElems(gainsArray);
         lut.addAttribute(gainsAttrib);
+    }
+
+    public static double[] toDoubleArray(String text, String delim) {
+
+        final StringTokenizer st = new StringTokenizer(text, delim);
+        final double[] numbers = new double[st.countTokens()];
+        int i = 0;
+        while (st.hasMoreTokens()) {
+            try {
+                numbers[i++] = Double.parseDouble(st.nextToken());
+            } catch (Exception e) {
+                break;
+            }
+        }
+        return numbers;
     }
 
     /**
