@@ -26,6 +26,7 @@ import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -65,6 +66,26 @@ public final class StackUtils {
         final String masterBandNames = value.toString().trim();
         if (!masterBandNames.isEmpty()) {
             targetSlaveMetadataRoot.setAttributeString(AbstractMetadata.MASTER_BANDS, masterBandNames);
+        }
+    }
+
+    public static void saveSlaveProductNames(final Product[] sourceProducts, final Product targetProduct,
+                                             final Product masterProduct, final Map<Band, Band> sourceRasterMap) {
+
+        for (Product prod : sourceProducts) {
+            if (prod != masterProduct) {
+                final String suffix = StackUtils.createBandTimeStamp(prod);
+                final List<String> bandNames = new ArrayList<>(10);
+                for (Band tgtBand : sourceRasterMap.keySet()) {
+                    final Band srcBand = sourceRasterMap.get(tgtBand);
+                    final Product srcProduct = srcBand.getProduct();
+                    if (srcProduct == prod) {
+                        bandNames.add(tgtBand.getName());
+                    }
+                }
+                final String prodName = prod.getName() + suffix;
+                StackUtils.saveSlaveProductBandNames(targetProduct, prodName, bandNames.toArray(new String[bandNames.size()]));
+            }
         }
     }
 
