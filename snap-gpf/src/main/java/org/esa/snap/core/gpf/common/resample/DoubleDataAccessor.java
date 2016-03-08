@@ -18,10 +18,18 @@ abstract class DoubleDataAccessor implements DataAccessor {
         private final double noDataValue;
         private final double[] dstArray;
         private final double[] srcArray;
+        private final int srcScanlineStride;
+        private final int dstScanlineStride;
+        private final int srcOffset;
+        private final int dstOffset;
 
         Double(RasterAccessor srcAccessor, RasterAccessor dstAccessor, double noDataValue) {
             srcArray = srcAccessor.getDoubleDataArray(0);
             dstArray = dstAccessor.getDoubleDataArray(0);
+            srcScanlineStride = srcAccessor.getScanlineStride();
+            dstScanlineStride = dstAccessor.getScanlineStride();
+            srcOffset = srcAccessor.getBandOffset(0);
+            dstOffset = dstAccessor.getBandOffset(0);
             this.noDataValue = noDataValue;
         }
 
@@ -39,6 +47,26 @@ abstract class DoubleDataAccessor implements DataAccessor {
         double getNoDataValue() {
             return noDataValue;
         }
+
+        @Override
+        public int getSrcScalineStride() {
+            return srcScanlineStride;
+        }
+
+        @Override
+        public int getDstScalineStride() {
+            return dstScanlineStride;
+        }
+
+        @Override
+        public int getSrcOffset() {
+            return srcOffset;
+        }
+
+        @Override
+        public int getDstOffset() {
+            return dstOffset;
+        }
     }
 
     static class Float extends DoubleDataAccessor {
@@ -46,10 +74,18 @@ abstract class DoubleDataAccessor implements DataAccessor {
         private final double noDataValue;
         private final float[] dstArray;
         private final float[] srcArray;
+        private final int srcScanlineStride;
+        private final int dstScanlineStride;
+        private final int srcOffset;
+        private final int dstOffset;
 
         Float(RasterAccessor srcAccessor, RasterAccessor dstAccessor, double noDataValue) {
             srcArray = srcAccessor.getFloatDataArray(0);
             dstArray = dstAccessor.getFloatDataArray(0);
+            srcScanlineStride = srcAccessor.getScanlineStride();
+            dstScanlineStride = dstAccessor.getScanlineStride();
+            srcOffset = srcAccessor.getBandOffset(0);
+            dstOffset = dstAccessor.getBandOffset(0);
             this.noDataValue = noDataValue;
         }
 
@@ -66,6 +102,26 @@ abstract class DoubleDataAccessor implements DataAccessor {
         @Override
         double getNoDataValue() {
             return noDataValue;
+        }
+
+        @Override
+        public int getSrcScalineStride() {
+            return srcScanlineStride;
+        }
+
+        @Override
+        public int getDstScalineStride() {
+            return dstScanlineStride;
+        }
+
+        @Override
+        public int getSrcOffset() {
+            return srcOffset;
+        }
+
+        @Override
+        public int getDstOffset() {
+            return dstOffset;
         }
     }
 
