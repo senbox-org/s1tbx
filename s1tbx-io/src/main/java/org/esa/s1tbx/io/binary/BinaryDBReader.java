@@ -68,16 +68,18 @@ public final class BinaryDBReader {
             final Object value = metaMap.get(key);                   // Get the value for that key.
             if (value == null || key.isEmpty()) continue;
 
-            if (value instanceof String) {
-                elem.setAttributeString(key, value.toString());
-            } else if (value instanceof Integer) {
-                elem.setAttributeInt(key, (Integer) value);
+            if (value instanceof Integer) {
+                MetadataAttribute attrib = new MetadataAttribute(key, ProductData.TYPE_INT32, 1);
+                attrib.getData().setElemInt((Integer) value);
+                elem.addAttribute(attrib);
             } else if (value instanceof Double) {
                 MetadataAttribute attrib = new MetadataAttribute(key, ProductData.TYPE_FLOAT64, 1);
                 attrib.getData().setElemDouble((Double) value);
                 elem.addAttribute(attrib);
             } else {
-                elem.setAttributeString(key, String.valueOf(value));
+                MetadataAttribute attrib = new MetadataAttribute(key, ProductData.TYPE_ASCII, 1);
+                attrib.getData().setElemString(String.valueOf(value));
+                elem.addAttribute(attrib);
             }
         }
     }
