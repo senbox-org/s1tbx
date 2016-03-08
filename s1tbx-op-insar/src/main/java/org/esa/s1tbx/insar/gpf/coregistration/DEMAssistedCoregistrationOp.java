@@ -184,7 +184,9 @@ public final class DEMAssistedCoregistrationOp extends Operator {
 
             createTargetProduct();
 
-            saveSlaveProductNames(targetProduct, targetBandToSlaveBandMap);
+            StackUtils.saveMasterProductBandNames(targetProduct, masterProduct.getBandNames());
+            StackUtils.saveSlaveProductNames(sourceProduct, targetProduct,
+                    masterProduct, targetBandToSlaveBandMap);
 
             updateTargetProductMetadata();
 
@@ -192,25 +194,6 @@ public final class DEMAssistedCoregistrationOp extends Operator {
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
-        }
-    }
-
-    private void saveSlaveProductNames(final Product targetProduct, final Map<Band, Band> sourceRasterMap) {
-
-        for (Product prod : sourceProduct) {
-            if (prod != masterProduct) {
-                final String suffix = StackUtils.createBandTimeStamp(prod);
-                final List<String> bandNames = new ArrayList<>(10);
-                for (Band tgtBand : sourceRasterMap.keySet()) {
-                    final Band srcBand = sourceRasterMap.get(tgtBand);
-                    final Product srcProduct = srcBand.getProduct();
-                    if (srcProduct == prod) {
-                        bandNames.add(tgtBand.getName());
-                    }
-                }
-                final String prodName = prod.getName() + suffix;
-                StackUtils.saveSlaveProductBandNames(targetProduct, prodName, bandNames.toArray(new String[bandNames.size()]));
-            }
         }
     }
 

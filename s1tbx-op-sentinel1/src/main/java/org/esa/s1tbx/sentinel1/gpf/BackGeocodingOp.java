@@ -68,6 +68,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -129,7 +130,6 @@ public final class BackGeocodingOp extends Operator {
     private Sentinel1Utils.SubSwathInfo[] mSubSwath = null;
     private Sentinel1Utils.SubSwathInfo[] sSubSwath = null;
 
-    private int numOfSubSwath = 0;
     private String acquisitionMode = null;
     private ElevationModel dem = null;
     private boolean isElevationModelAvailable = false;
@@ -145,6 +145,8 @@ public final class BackGeocodingOp extends Operator {
 
     private SARGeocoding.Orbit mOrbit = null;
     private SARGeocoding.Orbit sOrbit = null;
+
+    private final HashMap<Band, Band> targetBandToSlaveBandMap = new HashMap<>(2);
 
     private final double invalidIndex = -9999.0;
 
@@ -229,6 +231,10 @@ public final class BackGeocodingOp extends Operator {
             selectedResampling = ResamplingFactory.createResampling(resamplingType);
 
             createTargetProduct();
+
+            StackUtils.saveMasterProductBandNames(targetProduct, masterProduct.getBandNames());
+            StackUtils.saveSlaveProductNames(sourceProduct, targetProduct,
+                    masterProduct, targetBandToSlaveBandMap);
 
             updateTargetProductMetadata();
 
@@ -321,7 +327,7 @@ public final class BackGeocodingOp extends Operator {
 
         final String[] slaveBandNames = slaveProduct.getBandNames();
         final String slvSuffix = StackUtils.SLV+'1' + StackUtils.createBandTimeStamp(slaveProduct);
-        for (String bandName:slaveBandNames) {
+        for (String bandName : slaveBandNames) {
             final Band srcBand = slaveProduct.getBand(bandName);
             if (srcBand instanceof VirtualBand) {
                 continue;
@@ -335,6 +341,7 @@ public final class BackGeocodingOp extends Operator {
             targetBand.setUnit(srcBand.getUnit());
             targetBand.setDescription(srcBand.getDescription());
             targetProduct.addBand(targetBand);
+            targetBandToSlaveBandMap.put(targetBand, srcBand);
 
             if(targetBand.getUnit().equals(Unit.IMAGINARY)) {
                 int idx = targetProduct.getBandIndex(targetBand.getName());

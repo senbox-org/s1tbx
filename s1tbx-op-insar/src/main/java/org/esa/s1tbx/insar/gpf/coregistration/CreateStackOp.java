@@ -294,7 +294,8 @@ public class CreateStackOp extends Operator {
 
             StackUtils.saveMasterProductBandNames(targetProduct,
                                                   masterProductBands.toArray(new String[masterProductBands.size()]));
-            saveSlaveProductNames(targetProduct, sourceRasterMap);
+            StackUtils.saveSlaveProductNames(sourceProduct, targetProduct,
+                    masterProduct, sourceRasterMap);
 
             updateMetadata();
 
@@ -354,25 +355,6 @@ public class CreateStackOp extends Operator {
                     targetSlaveMetadataRoot.addElement(targetSlaveMetadata);
                     ProductUtils.copyMetadata(slvAbsMetadata, targetSlaveMetadata);
                 }
-            }
-        }
-    }
-
-    private void saveSlaveProductNames(final Product targetProduct, final Map<Band, Band> sourceRasterMap) {
-
-        for (Product prod : sourceProduct) {
-            if (prod != masterProduct) {
-                final String suffix = StackUtils.createBandTimeStamp(prod);
-                final List<String> bandNames = new ArrayList<>(10);
-                for (Band tgtBand : sourceRasterMap.keySet()) {
-                    final Band srcBand = sourceRasterMap.get(tgtBand);
-                    final Product srcProduct = srcBand.getProduct();
-                    if (srcProduct == prod) {
-                        bandNames.add(tgtBand.getName());
-                    }
-                }
-                final String prodName = prod.getName() + suffix;
-                StackUtils.saveSlaveProductBandNames(targetProduct, prodName, bandNames.toArray(new String[bandNames.size()]));
             }
         }
     }
