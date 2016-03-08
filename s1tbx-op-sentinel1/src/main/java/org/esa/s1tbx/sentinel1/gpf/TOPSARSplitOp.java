@@ -15,8 +15,15 @@
  */
 package org.esa.s1tbx.sentinel1.gpf;
 
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
+import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.dataio.ProductSubsetBuilder;
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.datamodel.Band;
@@ -43,6 +50,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -75,6 +83,9 @@ public final class TOPSARSplitOp extends Operator {
 
     @Parameter(description = "The last burst index", interval = "[1, *)", defaultValue = "9999", label = "Last Burst Index")
     private Integer lastBurstIndex = 9999;
+
+    @Parameter(description = "WKT polygon to be used for selecting bursts", label = "WKT Area of Interest")
+    private String wktAoi = null;
 
     private Sentinel1Utils su = null;
     private Sentinel1Utils.SubSwathInfo[] subSwathInfo = null;
@@ -154,6 +165,8 @@ public final class TOPSARSplitOp extends Operator {
                 lastBurstIndex = maxBursts;
             }
 
+            findValidBurstsBasedOnWkt();
+
             subsetBuilder = new ProductSubsetBuilder();
             final ProductSubsetDef subsetDef = new ProductSubsetDef();
 
@@ -224,6 +237,52 @@ public final class TOPSARSplitOp extends Operator {
         } catch (IOException e) {
             throw new OperatorException(e);
         }
+    }
+
+    /**
+     * Find bursts (i.e. firstBurstIndex and lastBurstIndex) that overlap AOI WKT
+     */
+    private void findValidBurstsBasedOnWkt() {
+        // Read AOI polygon
+        Geometry aoi = null;
+        try {
+            aoi = new WKTReader().read(wktAoi);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        // Read burst polygons and check if it intersects AOI
+        int numBursts = lastBurstIndex - firstBurstIndex + 1;
+        GeoPos[][] geoBound = new GeoPos[numBursts][4];
+        Sentinel1Utils.SubSwathInfo swath = subSwathInfo[subSwathIndex - 1];
+        GeometryFactory gf = new GeometryFactory();
+        Coordinate[] coordinates;
+        LinearRing linearRing;
+        Geometry burst;
+        int numPoints = swath.latitude[0].length - 1;
+        List<Integer> validSelBursts = new ArrayList<>();
+
+        int burst_i;
+        for (int i = 0; i < numBursts; ++i) {
+            burst_i = firstBurstIndex - 1 + i;
+            geoBound[i][0] = new GeoPos(swath.latitude[burst_i][0], swath.longitude[burst_i][0]);
+            geoBound[i][1] = new GeoPos(swath.latitude[burst_i][numPoints], swath.longitude[burst_i][numPoints]);
+            geoBound[i][2] = new GeoPos(swath.latitude[burst_i + 1][numPoints], swath.longitude[burst_i + 1][numPoints]);
+            geoBound[i][3] = new GeoPos(swath.latitude[burst_i + 1][0], swath.longitude[burst_i + 1][0]);
+            coordinates = new Coordinate[5];
+            for (int c_i = 0; c_i < 4; ++c_i) {
+                coordinates[c_i] = new Coordinate(geoBound[i][c_i].getLon(), geoBound[i][c_i].getLat());
+            }
+            coordinates[4] = new Coordinate(geoBound[i][0].getLon(), geoBound[i][0].getLat());
+            linearRing = gf.createLinearRing(coordinates);
+            burst = gf.createPolygon(linearRing, null);
+            if (aoi.intersects(burst)) {
+                validSelBursts.add(burst_i + 1);
+            }
+        }
+
+        firstBurstIndex = Collections.min(validSelBursts);
+        lastBurstIndex = Collections.max(validSelBursts);
     }
 
     /**
