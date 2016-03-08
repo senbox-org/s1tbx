@@ -18,10 +18,18 @@ public abstract class LongDataAccessor implements DataAccessor {
         private final long noDataValue;
         private final byte[] dstArray;
         private final byte[] srcArray;
+        private final int srcScanlineStride;
+        private final int dstScanlineStride;
+        private final int srcOffset;
+        private final int dstOffset;
 
         Byte(RasterAccessor srcAccessor, RasterAccessor dstAccessor, double noDataValue) {
             srcArray = srcAccessor.getByteDataArray(0);
             dstArray = dstAccessor.getByteDataArray(0);
+            srcScanlineStride = srcAccessor.getScanlineStride();
+            dstScanlineStride = dstAccessor.getScanlineStride();
+            srcOffset = srcAccessor.getBandOffset(0);
+            dstOffset = dstAccessor.getBandOffset(0);
             this.noDataValue = (long) noDataValue;
         }
 
@@ -44,6 +52,26 @@ public abstract class LongDataAccessor implements DataAccessor {
         long getNoDataValue() {
             return noDataValue;
         }
+
+        @Override
+        public int getSrcScalineStride() {
+            return srcScanlineStride;
+        }
+
+        @Override
+        public int getDstScalineStride() {
+            return dstScanlineStride;
+        }
+
+        @Override
+        public int getSrcOffset() {
+            return srcOffset;
+        }
+
+        @Override
+        public int getDstOffset() {
+            return dstOffset;
+        }
     }
 
     static class Short extends LongDataAccessor {
@@ -51,10 +79,18 @@ public abstract class LongDataAccessor implements DataAccessor {
         private final long noDataValue;
         private final short[] dstArray;
         private final short[] srcArray;
+        private final int srcScanlineStride;
+        private final int dstScanlineStride;
+        private final int srcOffset;
+        private final int dstOffset;
 
         Short(RasterAccessor srcAccessor, RasterAccessor dstAccessor, double noDataValue) {
             srcArray = srcAccessor.getShortDataArray(0);
             dstArray = dstAccessor.getShortDataArray(0);
+            srcScanlineStride = srcAccessor.getScanlineStride();
+            dstScanlineStride = dstAccessor.getScanlineStride();
+            srcOffset = srcAccessor.getBandOffset(0);
+            dstOffset = dstAccessor.getBandOffset(0);
             this.noDataValue = (long) noDataValue;
         }
 
@@ -77,6 +113,26 @@ public abstract class LongDataAccessor implements DataAccessor {
         long getNoDataValue() {
             return noDataValue;
         }
+
+        @Override
+        public int getSrcScalineStride() {
+            return srcScanlineStride;
+        }
+
+        @Override
+        public int getDstScalineStride() {
+            return dstScanlineStride;
+        }
+
+        @Override
+        public int getSrcOffset() {
+            return srcOffset;
+        }
+
+        @Override
+        public int getDstOffset() {
+            return dstOffset;
+        }
     }
 
     static class UShort extends LongDataAccessor {
@@ -84,10 +140,18 @@ public abstract class LongDataAccessor implements DataAccessor {
         private final long noDataValue;
         private final short[] dstArray;
         private final short[] srcArray;
+        private final int srcScanlineStride;
+        private final int dstScanlineStride;
+        private final int srcOffset;
+        private final int dstOffset;
 
         UShort(RasterAccessor srcAccessor, RasterAccessor dstAccessor, double noDataValue) {
             srcArray = srcAccessor.getShortDataArray(0);
             dstArray = dstAccessor.getShortDataArray(0);
+            srcScanlineStride = srcAccessor.getScanlineStride();
+            dstScanlineStride = dstAccessor.getScanlineStride();
+            srcOffset = srcAccessor.getBandOffset(0);
+            dstOffset = dstAccessor.getBandOffset(0);
             this.noDataValue = (long) noDataValue;
         }
 
@@ -110,6 +174,26 @@ public abstract class LongDataAccessor implements DataAccessor {
         long getNoDataValue() {
             return noDataValue;
         }
+
+        @Override
+        public int getSrcScalineStride() {
+            return srcScanlineStride;
+        }
+
+        @Override
+        public int getDstScalineStride() {
+            return dstScanlineStride;
+        }
+
+        @Override
+        public int getSrcOffset() {
+            return srcOffset;
+        }
+
+        @Override
+        public int getDstOffset() {
+            return dstOffset;
+        }
     }
 
     static class Int extends LongDataAccessor {
@@ -117,10 +201,18 @@ public abstract class LongDataAccessor implements DataAccessor {
         private final long noDataValue;
         private final int[] dstArray;
         private final int[] srcArray;
+        private final int srcScanlineStride;
+        private final int dstScanlineStride;
+        private final int srcOffset;
+        private final int dstOffset;
 
         Int(RasterAccessor srcAccessor, RasterAccessor dstAccessor, double noDataValue) {
             srcArray = srcAccessor.getIntDataArray(0);
             dstArray = dstAccessor.getIntDataArray(0);
+            srcScanlineStride = srcAccessor.getScanlineStride();
+            dstScanlineStride = dstAccessor.getScanlineStride();
+            srcOffset = srcAccessor.getBandOffset(0);
+            dstOffset = dstAccessor.getBandOffset(0);
             this.noDataValue = (long) noDataValue;
         }
 
@@ -142,6 +234,26 @@ public abstract class LongDataAccessor implements DataAccessor {
         @Override
         long getNoDataValue() {
             return noDataValue;
+        }
+
+        @Override
+        public int getSrcScalineStride() {
+            return srcScanlineStride;
+        }
+
+        @Override
+        public int getDstScalineStride() {
+            return dstScanlineStride;
+        }
+
+        @Override
+        public int getSrcOffset() {
+            return srcOffset;
+        }
+
+        @Override
+        public int getDstOffset() {
+            return dstOffset;
         }
     }
 

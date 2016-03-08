@@ -16,27 +16,28 @@ import java.awt.image.WritableRaster;
 /**
  * @author Tonio Fincke
  */
-public class AggregatedOpImage extends GeometricOpImage {
-
-    private static final double EPS = 1e-10;
+public class InterpolatedOpImage extends GeometricOpImage {
 
     private final double scaleX;
     private final double scaleY;
     private final float offsetX;
     private final float offsetY;
     private final double noDataValue;
-    private AggregationType aggregationType;
     private final int dataType;
+    private InterpolationType interpolationType;
 
-    public AggregatedOpImage(RenderedImage sourceImage, ImageLayout layout, double noDataValue, AggregationType aggregationType, int dataType,
-                                 AffineTransform sourceImageToModelTransform, AffineTransform referenceImageToModelTransform) throws NoninvertibleTransformException {
-        this(sourceImage, layout, noDataValue, new BorderExtenderConstant(new double[]{noDataValue}), aggregationType,
-             dataType, new double[]{noDataValue}, sourceImageToModelTransform, referenceImageToModelTransform);
+    public InterpolatedOpImage(RenderedImage sourceImage, ImageLayout layout, double noDataValue, int dataType,
+                               InterpolationType interpolationType, AffineTransform sourceImageToModelTransform,
+                               AffineTransform referenceImageToModelTransform) throws NoninvertibleTransformException {
+        this(sourceImage, layout, noDataValue, new BorderExtenderConstant(new double[]{noDataValue}),
+             interpolationType, dataType,
+             new double[]{noDataValue}, sourceImageToModelTransform, referenceImageToModelTransform);
     }
 
-    public AggregatedOpImage(RenderedImage sourceImage, ImageLayout layout, double noDataValue, BorderExtender extender,
-                             AggregationType aggregationType, int dataType, double[] backgroundValues, AffineTransform sourceImageToModelTransform,
-                             AffineTransform referenceImageToModelTransform) throws NoninvertibleTransformException {
+    public InterpolatedOpImage(RenderedImage sourceImage, ImageLayout layout, double noDataValue, BorderExtender extender,
+                               InterpolationType interpolationType, int dataType, double[] backgroundValues,
+                               AffineTransform sourceImageToModelTransform, AffineTransform referenceImageToModelTransform)
+            throws NoninvertibleTransformException {
         super(vectorize(sourceImage), layout, null, true, extender, null, backgroundValues);
         this.noDataValue = noDataValue;
         final AffineTransform transform = new AffineTransform(sourceImageToModelTransform);
@@ -47,7 +48,7 @@ public class AggregatedOpImage extends GeometricOpImage {
                 (float) (sourceImageToModelTransform.getTranslateX() / sourceImageToModelTransform.getScaleX());
         offsetY = (float) (referenceImageToModelTransform.getTranslateY() / sourceImageToModelTransform.getScaleY()) -
                 (float) (sourceImageToModelTransform.getTranslateY() / sourceImageToModelTransform.getScaleY());
-        this.aggregationType = aggregationType;
+        this.interpolationType = interpolationType;
         this.dataType = dataType;
     }
 
@@ -63,52 +64,18 @@ public class AggregatedOpImage extends GeometricOpImage {
                                WritableRaster dest,
                                Rectangle destRect) {
         RasterFormatTag[] formatTags = getFormatTags();
-
         Raster source = sources[0];
         final Rectangle srcRect = mapDestRect(destRect, 0);
-        int dstH = destRect.height;
-        int dstW = destRect.width;
-
         RasterAccessor srcAccessor = new RasterAccessor(source, srcRect, formatTags[0], getSourceImage(0).getColorModel());
         RasterAccessor dstAccessor = new RasterAccessor(dest, destRect, formatTags[1], getColorModel());
-        final Aggregator aggregator = AggregatorFactory.createAggregator(aggregationType, dataType);
-        aggregator.init(srcAccessor, dstAccessor, noDataValue);
-
-        for (int dstY = 0; dstY < dstH; dstY++) {
-            double srcYF0 = scaleY * dstY;
-            double srcYF1 = srcYF0 + scaleY;
-            int srcY0 = (int) srcYF0;
-            int srcY1 = (int) srcYF1;
-            double wy0 = 1.0 - (srcYF0 - srcY0);
-            double wy1 = srcYF1 - srcY1;
-            if (wy1 < EPS) {
-                wy1 = 1.0;
-                if (srcY1 > srcY0) {
-                    srcY1--;
-                }
-            }
-            final int dstYIndexOffset = dstAccessor.getBandOffset(0) + dstY * dstAccessor.getScanlineStride();
-            for (int dstX = 0; dstX < dstW; dstX++) {
-                double srcXF0 = scaleX * dstX;
-                double srcXF1 = srcXF0 + scaleX;
-                int srcX0 = (int) srcXF0;
-                int srcX1 = (int) srcXF1;
-                double wx0 = 1.0 - (srcXF0 - srcX0);
-                double wx1 = srcXF1 - srcX1;
-                if (wx1 < EPS) {
-                    wx1 = 1.0;
-                    if (srcX1 > srcX0) {
-                        srcX1--;
-                    }
-                }
-                aggregator.aggregate(srcY0, srcY1, srcX0, srcX1, srcAccessor.getScanlineStride(), wx0, wx1, wy0, wy1,
-                                     dstYIndexOffset + dstX);
-            }
-        }
+        final Interpolator interpolator = InterpolatorFactory.createInterpolator(interpolationType, dataType);
+        interpolator.init(srcAccessor, dstAccessor, noDataValue);
+        interpolator.interpolate(destRect, srcRect, scaleX, scaleY, offsetX, offsetY);
         if (dstAccessor.isDataCopy()) {
             dstAccessor.clampDataArrays();
             dstAccessor.copyDataToRaster();
         }
+
     }
 
     @Override
@@ -141,5 +108,4 @@ public class AggregatedOpImage extends GeometricOpImage {
         final int height = (int) Math.ceil(rectangle.getHeight() * scaleY);
         return new Rectangle(x, y, width, height);
     }
-
 }

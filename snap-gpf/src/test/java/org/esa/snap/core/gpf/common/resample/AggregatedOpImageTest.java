@@ -204,9 +204,9 @@ public class AggregatedOpImageTest {
         final Band sourceBand = createSourceBand(dataType);
         final ImageLayout imageLayout = createImageLayout(sourceBand);
 
-        final Aggregator aggregator = AggregatorFactory.createAggregator("Mean", dataType);
         final AggregatedOpImage image = new AggregatedOpImage(sourceBand.getSourceImage(), imageLayout,
-                                                              sourceBand.getNoDataValue(), aggregator,
+                                                              sourceBand.getNoDataValue(),
+                                                              AggregationType.Mean, dataType,
                                                               sourceBand.getImageToModelTransform(),
                                                               referenceBand.getImageToModelTransform());
 
@@ -232,9 +232,8 @@ public class AggregatedOpImageTest {
         final Band sourceBand = createSourceBand_Median(dataType);
         final ImageLayout imageLayout = createImageLayout(sourceBand);
 
-        final Aggregator aggregator = AggregatorFactory.createAggregator("Median", dataType);
         final AggregatedOpImage image = new AggregatedOpImage(sourceBand.getSourceImage(), imageLayout,
-                                                              sourceBand.getNoDataValue(), aggregator,
+                                                              sourceBand.getNoDataValue(), AggregationType.Median, dataType,
                                                               sourceBand.getImageToModelTransform(),
                                                               referenceBand.getImageToModelTransform());
 
@@ -253,9 +252,8 @@ public class AggregatedOpImageTest {
         final Band sourceBand = createSourceBand(dataType);
         final ImageLayout imageLayout = createImageLayout(sourceBand);
 
-        final Aggregator aggregator = AggregatorFactory.createAggregator("And", dataType);
         final AggregatedOpImage image = new AggregatedOpImage(sourceBand.getSourceImage(), imageLayout,
-                                                              sourceBand.getNoDataValue(), aggregator,
+                                                              sourceBand.getNoDataValue(), AggregationType.Min, dataType,
                                                               sourceBand.getImageToModelTransform(),
                                                               referenceBand.getImageToModelTransform());
 
@@ -274,9 +272,8 @@ public class AggregatedOpImageTest {
         final Band sourceBand = createSourceBand(dataType);
         final ImageLayout imageLayout = createImageLayout(sourceBand);
 
-        final Aggregator aggregator = AggregatorFactory.createAggregator("Or", dataType);
         final AggregatedOpImage image = new AggregatedOpImage(sourceBand.getSourceImage(), imageLayout,
-                                                              sourceBand.getNoDataValue(), aggregator,
+                                                              sourceBand.getNoDataValue(), AggregationType.Max, dataType,
                                                               sourceBand.getImageToModelTransform(),
                                                               referenceBand.getImageToModelTransform());
 
@@ -295,9 +292,8 @@ public class AggregatedOpImageTest {
         final Band sourceBand = createSourceBand(dataType);
         final ImageLayout imageLayout = createImageLayout(sourceBand);
 
-        final Aggregator aggregator = AggregatorFactory.createAggregator("First", dataType);
         final AggregatedOpImage image = new AggregatedOpImage(sourceBand.getSourceImage(), imageLayout,
-                                                              sourceBand.getNoDataValue(), aggregator,
+                                                              sourceBand.getNoDataValue(), AggregationType.First, dataType,
                                                               sourceBand.getImageToModelTransform(),
                                                               referenceBand.getImageToModelTransform());
 

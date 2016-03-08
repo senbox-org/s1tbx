@@ -5,4 +5,12 @@ package org.esa.snap.core.gpf.common.resample;
  */
 public interface DataAccessor {
 
+    int getSrcScalineStride();
+
+    int getDstScalineStride();
+
+    int getSrcOffset();
+
+    int getDstOffset();
+
 }

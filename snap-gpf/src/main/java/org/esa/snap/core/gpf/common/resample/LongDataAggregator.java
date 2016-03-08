@@ -28,23 +28,27 @@ public abstract class LongDataAggregator implements Aggregator {
         return accessor.getNoDataValue();
     }
 
+    protected int getSrcOffset() { return accessor.getSrcOffset(); }
+
     static class Mean extends LongDataAggregator {
 
         @Override
-        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcW, double wx0, double wx1, double wy0, double wy1, int dstPos) {
+        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcScanlineStride, double wx0, double wx1, double wy0, double wy1, int dstPos) {
             long vSum = 0;
             double wSum = 0.0;
+            int srcIndexY = getSrcOffset() + srcY0 * srcScanlineStride;
             for (int srcY = srcY0; srcY <= srcY1; srcY++) {
                 double wy = srcY == srcY0 ? wy0 : srcY == srcY1 ? wy1 : 1;
                 for (int srcX = srcX0; srcX <= srcX1; srcX++) {
                     double wx = srcX == srcX0 ? wx0 : srcX == srcX1 ? wx1 : 1;
-                    long v = getSrcData(srcY * srcW + srcX);
+                    long v = getSrcData(srcIndexY + srcX);
                     if (v != getNoDataValue()) {
                         double w = wx * wy;
                         vSum += w * v;
                         wSum += w;
                     }
                 }
+                srcIndexY += srcScanlineStride;
             }
             if (wSum == 0.0) {
                 setDstData(dstPos, getNoDataValue());
@@ -58,15 +62,17 @@ public abstract class LongDataAggregator implements Aggregator {
     static class Median extends LongDataAggregator {
 
         @Override
-        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcW, double wx0, double wx1, double wy0, double wy1, int dstPos) {
+        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcScanlineStride, double wx0, double wx1, double wy0, double wy1, int dstPos) {
             List<Long> validValues = new ArrayList<>();
+            int srcIndexY = getSrcOffset() + srcY0 * srcScanlineStride;
             for (int srcY = srcY0; srcY <= srcY1; srcY++) {
                 for (int srcX = srcX0; srcX <= srcX1; srcX++) {
-                    long v = getSrcData(srcY * srcW + srcX);
+                    long v = getSrcData(srcIndexY + srcX);
                     if (v != getNoDataValue()) {
                         validValues.add(v);
                     }
                 }
+                srcIndexY += srcScanlineStride;
             }
             final int numValidValues = validValues.size();
             if (numValidValues == 0) {
@@ -87,17 +93,19 @@ public abstract class LongDataAggregator implements Aggregator {
     static class Min extends LongDataAggregator {
 
         @Override
-        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcW, double wx0, double wx1, double wy0, double wy1, int dstPos) {
+        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcScanlineStride, double wx0, double wx1, double wy0, double wy1, int dstPos) {
             long minValue = Long.MAX_VALUE;
             int n = 0;
+            int srcIndexY = getSrcOffset() + srcY0 * srcScanlineStride;
             for (int srcY = srcY0; srcY <= srcY1; srcY++) {
                 for (int srcX = srcX0; srcX <= srcX1; srcX++) {
-                    long v = getSrcData(srcY * srcW + srcX);
+                    long v = getSrcData(srcIndexY + srcX);
                     if (v != getNoDataValue() && v < minValue) {
                         minValue = v;
                         n++;
                     }
                 }
+                srcIndexY += srcScanlineStride;
             }
             if (n > 0) {
                 setDstData(dstPos, minValue);
@@ -111,17 +119,19 @@ public abstract class LongDataAggregator implements Aggregator {
     static class Max extends LongDataAggregator {
 
         @Override
-        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcW, double wx0, double wx1, double wy0, double wy1, int dstPos) {
+        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcScanlineStride, double wx0, double wx1, double wy0, double wy1, int dstPos) {
             long maxValue = Long.MIN_VALUE;
             int n = 0;
+            int srcIndexY = getSrcOffset() + srcY0 * srcScanlineStride;
             for (int srcY = srcY0; srcY <= srcY1; srcY++) {
                 for (int srcX = srcX0; srcX <= srcX1; srcX++) {
-                    long v = getSrcData(srcY * srcW + srcX);
+                    long v = getSrcData(srcIndexY + srcX);
                     if (v != getNoDataValue() && v > maxValue) {
                         maxValue = v;
                         n++;
                     }
                 }
+                srcIndexY += srcScanlineStride;
             }
             if (n > 0) {
                 setDstData(dstPos, maxValue);
@@ -135,25 +145,27 @@ public abstract class LongDataAggregator implements Aggregator {
     static class First extends LongDataAggregator {
 
         @Override
-        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcW, double wx0, double wx1, double wy0, double wy1, int dstPos) {
-            setDstData(dstPos, getSrcData(srcY0 * srcW + srcX0));
+        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcScanlineStride, double wx0, double wx1, double wy0, double wy1, int dstPos) {
+            setDstData(dstPos, getSrcData(getSrcOffset() + srcY0 * srcScanlineStride + srcX0));
         }
     }
 
     static class FlagAnd extends LongDataAggregator {
 
         @Override
-        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcW, double wx0, double wx1, double wy0, double wy1, int dstPos) {
+        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcScanlineStride, double wx0, double wx1, double wy0, double wy1, int dstPos) {
             long res = Long.MAX_VALUE;
             int n = 0;
+            int srcIndexY = getSrcOffset() + srcY0 * srcScanlineStride;
             for (int srcY = srcY0; srcY <= srcY1; srcY++) {
                 for (int srcX = srcX0; srcX <= srcX1; srcX++) {
-                    long v = getSrcData(srcY * srcW + srcX);
+                    long v = getSrcData(srcIndexY + srcX);
                     if (v != getNoDataValue()) {
                         res = res & v;
                         n++;
                     }
                 }
+                srcIndexY += srcScanlineStride;
             }
             res = n > 0 ? res : 0;
             setDstData(dstPos, res);
@@ -163,15 +175,17 @@ public abstract class LongDataAggregator implements Aggregator {
     static class FlagOr extends LongDataAggregator {
 
         @Override
-        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcW, double wx0, double wx1, double wy0, double wy1, int dstPos) {
+        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcScanlineStride, double wx0, double wx1, double wy0, double wy1, int dstPos) {
             long res = 0;
+            int srcIndexY = getSrcOffset() + srcY0 * srcScanlineStride;
             for (int srcY = srcY0; srcY <= srcY1; srcY++) {
                 for (int srcX = srcX0; srcX <= srcX1; srcX++) {
-                    long v = getSrcData(srcY * srcW + srcX);
+                    long v = getSrcData(srcIndexY + srcX);
                     if (v != getNoDataValue()) {
                         res = res | v;
                     }
                 }
+                srcIndexY += srcScanlineStride;
             }
             setDstData(dstPos, res);
         }
@@ -180,13 +194,14 @@ public abstract class LongDataAggregator implements Aggregator {
     static class FlagMedianAnd extends LongDataAggregator {
 
         @Override
-        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcW, double wx0, double wx1, double wy0, double wy1, int dstPos) {
+        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcScanlineStride, double wx0, double wx1, double wy0, double wy1, int dstPos) {
             int n = 0;
             final int[] occurenceCounter = new int[63];
             int highestOccurence = 0;
+            int srcIndexY = getSrcOffset() + srcY0 * srcScanlineStride;
             for (int srcY = srcY0; srcY <= srcY1; srcY++) {
                 for (int srcX = srcX0; srcX <= srcX1; srcX++) {
-                    long v = getSrcData(srcY * srcW + srcX);
+                    long v = getSrcData(srcIndexY + srcX);
                     if (v != getNoDataValue()) {
                         int j = 0;
                         while (v > 0) {
@@ -201,6 +216,7 @@ public abstract class LongDataAggregator implements Aggregator {
                         n++;
                     }
                 }
+                srcIndexY += srcScanlineStride;
             }
             long res = 0;
             final float halfN = n / 2f;
@@ -217,13 +233,14 @@ public abstract class LongDataAggregator implements Aggregator {
     static class FlagMedianOr extends LongDataAggregator {
 
         @Override
-        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcW, double wx0, double wx1, double wy0, double wy1, int dstPos) {
+        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcScanlineStride, double wx0, double wx1, double wy0, double wy1, int dstPos) {
             int n = 0;
             final int[] occurenceCounter = new int[63];
             int highestOccurence = 0;
+            int srcIndexY = getSrcOffset() + srcY0 * srcScanlineStride;
             for (int srcY = srcY0; srcY <= srcY1; srcY++) {
                 for (int srcX = srcX0; srcX <= srcX1; srcX++) {
-                    long v = getSrcData(srcY * srcW + srcX);
+                    long v = getSrcData(srcIndexY + srcX);
                     if (v != getNoDataValue()) {
                         int j = 0;
                         while (v > 0) {
@@ -238,6 +255,7 @@ public abstract class LongDataAggregator implements Aggregator {
                         n++;
                     }
                 }
+                srcIndexY += srcScanlineStride;
             }
             long res = 0;
             final float halfN = n / 2f;

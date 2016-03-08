@@ -28,23 +28,27 @@ public abstract class DoubleDataAggregator implements Aggregator {
         return accessor.getNoDataValue();
     }
 
+    protected  int getSrcOffset() { return accessor.getSrcOffset(); }
+
     static class Mean extends DoubleDataAggregator {
 
         @Override
-        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcW, double wx0, double wx1, double wy0, double wy1, int dstPos) {
+        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcScanlineStride, double wx0, double wx1, double wy0, double wy1, int dstPos) {
             double vSum = 0.0;
             double wSum = 0.0;
+            int srcIndexY = getSrcOffset() + srcY0 * srcScanlineStride;
             for (int srcY = srcY0; srcY <= srcY1; srcY++) {
                 double wy = srcY == srcY0 ? wy0 : srcY == srcY1 ? wy1 : 1;
                 for (int srcX = srcX0; srcX <= srcX1; srcX++) {
                     double wx = srcX == srcX0 ? wx0 : srcX == srcX1 ? wx1 : 1;
-                    double v = getSrcData(srcY * srcW + srcX);
+                    double v = getSrcData(srcIndexY + srcX);
                     if (!java.lang.Double.isNaN(v) && Math.abs(v - getNoDataValue()) > 1e-8) {
                         double w = wx * wy;
                         vSum += w * v;
                         wSum += w;
                     }
                 }
+                srcIndexY += srcScanlineStride;
             }
             if (java.lang.Double.isNaN(vSum) || wSum == 0.0) {
                 setDstData(dstPos, getNoDataValue());
@@ -58,15 +62,17 @@ public abstract class DoubleDataAggregator implements Aggregator {
     static class Median extends DoubleDataAggregator {
 
         @Override
-        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcW, double wx0, double wx1, double wy0, double wy1, int dstPos) {
+        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcScanlineStride, double wx0, double wx1, double wy0, double wy1, int dstPos) {
             List<Double> validValues = new ArrayList<>();
+            int srcIndexY = getSrcOffset() + srcY0 * srcScanlineStride;
             for (int srcY = srcY0; srcY <= srcY1; srcY++) {
                 for (int srcX = srcX0; srcX <= srcX1; srcX++) {
-                    double v = getSrcData(srcY * srcW + srcX);
+                    double v = getSrcData(srcIndexY + srcX);
                     if (!Double.isNaN(v) && Math.abs(v - getNoDataValue()) > 1e-8) {
                         validValues.add(v);
                     }
                 }
+                srcIndexY += srcScanlineStride;
             }
             final int numValidValues = validValues.size();
             if (numValidValues == 0) {
@@ -87,15 +93,17 @@ public abstract class DoubleDataAggregator implements Aggregator {
     static class Min extends DoubleDataAggregator {
 
         @Override
-        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcW, double wx0, double wx1, double wy0, double wy1, int dstPos) {
+        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcScanlineStride, double wx0, double wx1, double wy0, double wy1, int dstPos) {
             double minValue = Double.POSITIVE_INFINITY;
+            int srcIndexY = getSrcOffset() + srcY0 * srcScanlineStride;
             for (int srcY = srcY0; srcY <= srcY1; srcY++) {
                 for (int srcX = srcX0; srcX <= srcX1; srcX++) {
-                    double v = getSrcData(srcY * srcW + srcX);
+                    double v = getSrcData(srcIndexY + srcX);
                     if (!Double.isNaN(v) && Math.abs(v - getNoDataValue()) > 1e-8 && v < minValue) {
                         minValue = v;
                     }
                 }
+                srcIndexY += srcScanlineStride;
             }
             setDstData(dstPos, minValue);
         }
@@ -105,15 +113,17 @@ public abstract class DoubleDataAggregator implements Aggregator {
     static class Max extends DoubleDataAggregator {
 
         @Override
-        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcW, double wx0, double wx1, double wy0, double wy1, int dstPos) {
+        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcScanlineStride, double wx0, double wx1, double wy0, double wy1, int dstPos) {
             double maxValue = Double.NEGATIVE_INFINITY;
+            int srcIndexY = getSrcOffset() + srcY0 * srcScanlineStride;
             for (int srcY = srcY0; srcY <= srcY1; srcY++) {
                 for (int srcX = srcX0; srcX <= srcX1; srcX++) {
-                    double v = getSrcData(srcY * srcW + srcX);
+                    double v = getSrcData(srcIndexY + srcX);
                     if (!Double.isNaN(v) && Math.abs(v - getNoDataValue()) > 1e-8 && v > maxValue) {
                         maxValue = v;
                     }
                 }
+                srcIndexY += srcScanlineStride;
             }
             setDstData(dstPos, maxValue);
         }
@@ -123,8 +133,8 @@ public abstract class DoubleDataAggregator implements Aggregator {
     static class First extends DoubleDataAggregator {
 
         @Override
-        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcW, double wx0, double wx1, double wy0, double wy1, int dstPos) {
-            setDstData(dstPos, getSrcData(srcY0 * srcW + srcX0));
+        public void aggregate(int srcY0, int srcY1, int srcX0, int srcX1, int srcScanlineStride, double wx0, double wx1, double wy0, double wy1, int dstPos) {
+            setDstData(dstPos, getSrcData(getSrcOffset() + srcY0 * srcScanlineStride + srcX0));
         }
 
     }
