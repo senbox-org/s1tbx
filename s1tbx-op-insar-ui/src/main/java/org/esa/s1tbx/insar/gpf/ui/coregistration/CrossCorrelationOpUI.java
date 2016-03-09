@@ -46,7 +46,7 @@ public class CrossCorrelationOpUI extends BaseOperatorUI {
     private final JTextField gcpTolerance = new JTextField("");
 
     // for complex products
-    final JCheckBox applyFineRegistrationCheckBox = new JCheckBox("Apply Fine Registration");
+    final JCheckBox applyFineRegistrationCheckBox = new JCheckBox("Apply Fine Registration for SLCs");
     final JCheckBox inSAROptimizedCheckBox = new JCheckBox("Optimize for InSAR");
     private final JComboBox fineRegistrationWindowWidth = new JComboBox(
             new String[]{"8", "16", "32", "64", "128", "256", "512"});
