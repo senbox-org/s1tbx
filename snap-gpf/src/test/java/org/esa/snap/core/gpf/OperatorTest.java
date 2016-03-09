@@ -20,6 +20,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.ProductManager;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.junit.Test;
 
@@ -176,6 +177,19 @@ public class OperatorTest {
         Product product = new Product("foo", "grunt", 1, 1);
         product.addBand("bar", ProductData.TYPE_FLOAT64);
         return product;
+    }
+
+    @Test
+    public void testThatProductManagerIsAvailableAndRemainsSame() throws OperatorException, IOException {
+        FooExecOp op = new FooExecOp();
+        ProductManager productManager = op.getProductManager();
+        assertNotNull(productManager);
+        assertSame(productManager, op.getProductManager());
+        op.getTargetProduct();
+        assertSame(productManager, op.getProductManager());
+
+        FooExecOp op2 = new FooExecOp();
+        assertSame(productManager, op2.getProductManager());
     }
 
     private static class FooExecOp extends Operator {
