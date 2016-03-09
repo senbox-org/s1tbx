@@ -54,7 +54,7 @@ import java.util.Set;
         description = "Creates a bitmask defining land vs ocean.")
 public class CreateLandMaskOp extends Operator {
 
-    @SourceProduct(alias = "source")
+    @SourceProduct(alias = "source", canBeMultisize = false)
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct = null;

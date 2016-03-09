@@ -68,7 +68,7 @@ import static java.lang.Math.*;
         description = "Create a spatial and/or spectral subset of a data product.")
 public class SubsetOp extends Operator {
 
-    @SourceProduct(alias = "source", description = "The source product to create the subset from.")
+    @SourceProduct(alias = "source", description = "The source product to create the subset from.", canBeMultisize = false)
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;

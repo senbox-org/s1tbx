@@ -35,6 +35,6 @@ public interface Resampler {
      *
      * @param multiSizeProduct  A product with multiple sizes and/or resolutions.
      */
-    void resample(Product multiSizeProduct);
+    Product resample(Product multiSizeProduct);
 
 }

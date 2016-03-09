@@ -54,7 +54,7 @@ import java.util.Map;
         description = "Perform decision tree classification")
 public final class LandCoverMaskOp extends Operator {
 
-    @SourceProduct(alias = "source")
+    @SourceProduct(alias = "source", canBeMultisize = false)
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
