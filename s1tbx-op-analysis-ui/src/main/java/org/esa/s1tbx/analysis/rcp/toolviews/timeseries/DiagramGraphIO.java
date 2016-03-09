@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.analysis.rcp.toolviews.timeseries;
 
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.io.CsvReader;
 import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.ui.SnapFileChooser;
@@ -129,7 +130,10 @@ public class DiagramGraphIO {
     private static void writeGraphGroup(List<DiagramGraph> graphGroup, Writer writer) throws IOException {
         DiagramGraph graph0 = graphGroup.get(0);
 
+        writer.write("Date");
+        writer.write((int) '\t');
         writer.write(graph0.getXName());
+
         for (DiagramGraph graph : graphGroup) {
             writer.write((int) '\t');
             writer.write(graph.getYName());
@@ -138,13 +142,21 @@ public class DiagramGraphIO {
 
         int numValues = graph0.getNumValues();
         for (int i = 0; i < numValues; i++) {
+            writer.write(toDate(graph0.getXValueAt(i)));
+            writer.write((int) '\t');
             writer.write(String.valueOf(graph0.getXValueAt(i)));
+
             for (DiagramGraph graph : graphGroup) {
                 writer.write((int) '\t');
                 writer.write(String.valueOf(graph.getYValueAt(i)));
             }
             writer.write((int) '\n');
         }
+    }
+
+    private static String toDate(double time) {
+        final ProductData.UTC newTime = new ProductData.UTC(time);
+        return DateAxis.dateFormat.format(newTime.getAsDate());
     }
 
     public static boolean equalXValues(DiagramGraph g1, DiagramGraph g2) {
