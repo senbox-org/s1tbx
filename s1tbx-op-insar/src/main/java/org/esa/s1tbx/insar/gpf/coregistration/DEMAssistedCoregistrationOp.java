@@ -65,7 +65,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -184,7 +183,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
 
             createTargetProduct();
 
-            StackUtils.saveMasterProductBandNames(targetProduct, masterProduct.getBandNames());
+            //StackUtils.saveMasterProductBandNames(targetProduct, masterProduct.getBandNames());
             StackUtils.saveSlaveProductNames(sourceProduct, targetProduct,
                     masterProduct, targetBandToSlaveBandMap);
 
