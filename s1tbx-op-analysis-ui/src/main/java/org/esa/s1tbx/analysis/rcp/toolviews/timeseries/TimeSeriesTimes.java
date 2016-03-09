@@ -49,12 +49,12 @@ public class TimeSeriesTimes {
     public int getIndex(final Band band) {
         final Product product = band.getProduct();
         if (StackUtils.isCoregisteredStack(product)) {
-            if (foundInMaster(product, band)) {
-                return getIndex(product.getStartTime());
-            }
             ProductData.UTC slaveTime = getSlaveTime(product, band);
             if(slaveTime != null) {
                 return getIndex(slaveTime);
+            }
+            if (foundInMaster(product, band)) {
+                return 0;
             }
         }
         return getIndex(product.getStartTime());
