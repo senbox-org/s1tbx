@@ -140,12 +140,14 @@ public class NodeContext {
         }
     }
 
-    private static boolean productIsOpened(ProductManager productManager, Product targetProduct) {
+    private static boolean isPproductOpened(ProductManager productManager, Product targetProduct) {
         if(productManager.contains(targetProduct))
             return true;
+        final File file = targetProduct.getFileLocation();
+        if(file == null)
+            return false;
 
         final Product[] openedProducts = productManager.getProducts();
-        final File file = targetProduct.getFileLocation();
         for(Product openedProduct : openedProducts) {
             if (file != null && file.equals(openedProduct.getFileLocation())) {
                 return true;
@@ -156,7 +158,7 @@ public class NodeContext {
 
     public synchronized void dispose() {
         if (targetProduct != null) {
-            if(!(operator != null && productIsOpened(operator.getProductManager(), targetProduct))) {
+            if(!(operator != null && isPproductOpened(operator.getProductManager(), targetProduct))) {
                 targetProduct.dispose();
                 targetProduct = null;
             }
