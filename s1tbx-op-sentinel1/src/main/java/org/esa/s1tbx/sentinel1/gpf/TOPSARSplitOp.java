@@ -165,7 +165,9 @@ public final class TOPSARSplitOp extends Operator {
                 lastBurstIndex = maxBursts;
             }
 
-            findValidBurstsBasedOnWkt();
+            if(wktAoi != null) {
+                findValidBurstsBasedOnWkt();
+            }
 
             subsetBuilder = new ProductSubsetBuilder();
             final ProductSubsetDef subsetDef = new ProductSubsetDef();
