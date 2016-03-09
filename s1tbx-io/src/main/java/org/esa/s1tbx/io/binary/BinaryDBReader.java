@@ -77,9 +77,7 @@ public final class BinaryDBReader {
                 attrib.getData().setElemDouble((Double) value);
                 elem.addAttribute(attrib);
             } else {
-                MetadataAttribute attrib = new MetadataAttribute(key, ProductData.TYPE_ASCII, 1);
-                attrib.getData().setElemString(String.valueOf(value));
-                elem.addAttribute(attrib);
+                elem.setAttributeString(key, String.valueOf(value));
             }
         }
     }
