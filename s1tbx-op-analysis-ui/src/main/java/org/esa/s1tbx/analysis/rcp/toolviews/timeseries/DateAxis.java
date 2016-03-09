@@ -26,7 +26,7 @@ import java.util.ArrayList;
  */
 public class DateAxis extends DiagramAxis {
     private TimeSeriesTimes times;
-    private final DateFormat dateFormat = ProductData.UTC.createDateFormat("ddMMMyy");
+    public static final DateFormat dateFormat = ProductData.UTC.createDateFormat("ddMMMyy");
 
     public DateAxis(String name, String unit) {
         super(name, unit);
