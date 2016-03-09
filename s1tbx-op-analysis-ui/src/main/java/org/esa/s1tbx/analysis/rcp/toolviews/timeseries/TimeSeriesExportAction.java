@@ -47,7 +47,7 @@ class TimeSeriesExportAction extends AbstractAction {
 
         DiagramGraphIO.writeGraphs(SnapApp.getDefault().getMainFrame(),
                                    "Export Pin",
-                                   new SnapFileFilter[]{DiagramGraphIO.CSV_FILE_FILTER, DiagramGraphIO.DBF_FILE_FILTER},
+                                   new SnapFileFilter[]{DiagramGraphIO.CSV_FILE_FILTER},
                                    Config.instance().preferences(), graphs);
     }
 }

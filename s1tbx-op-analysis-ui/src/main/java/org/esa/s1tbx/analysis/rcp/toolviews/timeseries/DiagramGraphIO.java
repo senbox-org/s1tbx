@@ -35,7 +35,6 @@ import java.util.prefs.Preferences;
 
 public class DiagramGraphIO {
     public static final SnapFileFilter CSV_FILE_FILTER = new SnapFileFilter("CSV", ".csv", "CSV (plain text)");
-    public static final SnapFileFilter DBF_FILE_FILTER = new SnapFileFilter("DBF", ".dbf", "DBF database");
 
     public static final String DIAGRAM_GRAPH_IO_LAST_DIR_KEY = "diagramGraphIO.lastDir";
 
