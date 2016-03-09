@@ -143,7 +143,7 @@ import java.util.HashMap;
 public class ReprojectionOp extends Operator {
 
 
-    @SourceProduct(alias = "source", description = "The product which will be reprojected.")
+    @SourceProduct(alias = "source", description = "The product which will be reprojected.", canBeMultisize = false)
     private Product sourceProduct;
     @SourceProduct(alias = "collocateWith", optional = true, label = "Collocation product",
             description = "The source product will be collocated with this product.")

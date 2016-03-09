@@ -47,7 +47,7 @@ import java.awt.Rectangle;
         description = "Fill holes in given DEM product file.")
 public final class FillDEMHoleOp extends Operator {
 
-    @SourceProduct(alias = "source")
+    @SourceProduct(alias = "source", canBeMultisize = false)
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;

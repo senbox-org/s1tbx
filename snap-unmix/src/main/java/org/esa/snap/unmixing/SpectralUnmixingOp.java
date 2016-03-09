@@ -58,7 +58,7 @@ public class SpectralUnmixingOp extends Operator {
     private final String C_LSU = "Constrained LSU";
     private final String FC_LSU = "Fully Constrained LSU";
 
-    @SourceProduct(alias="source", description = "The source product.")
+    @SourceProduct(alias="source", description = "The source product.", canBeMultisize = false)
     Product sourceProduct;
 
     @TargetProduct(description = "The target product.")

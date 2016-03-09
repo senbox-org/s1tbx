@@ -99,7 +99,7 @@ import java.util.StringTokenizer;
         description = "Undersample the datset")
 public class UndersamplingOp extends Operator {
 
-    @SourceProduct(alias = "source")
+    @SourceProduct(alias = "source", canBeMultisize = false)
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;

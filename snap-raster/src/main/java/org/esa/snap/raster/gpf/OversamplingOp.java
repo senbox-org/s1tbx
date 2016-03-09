@@ -59,7 +59,7 @@ import java.util.Map;
         description = "Oversample the datset")
 public class OversamplingOp extends Operator {
 
-    @SourceProduct(alias = "source")
+    @SourceProduct(alias = "source", canBeMultisize = false)
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
