@@ -6,10 +6,10 @@ import com.vividsolutions.jts.geom.Geometry;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Fast Delaunay Triangulator.
@@ -42,7 +42,6 @@ public final class FastDelaunayTriangulator {
      */
     public void triangulate(Iterator<Geometry> geometryIterator) throws TriangulationException {
         Collection<Coordinate> vertices = extractUniqueVertices(geometryIterator);
-        vertices = sortVertices(vertices);
         Iterator<Coordinate> vertexIterator = vertices.iterator();
         if (vertices.size() > 2) {
             initTriangulation(vertexIterator.next(), vertexIterator.next());
@@ -56,17 +55,11 @@ public final class FastDelaunayTriangulator {
     }
 
     private static Collection<Coordinate> extractUniqueVertices(final Iterator<Geometry> geometryIterator) {
-        Set<Coordinate> vertices = new HashSet<>();
+        SortedSet<Coordinate> vertices = new TreeSet<>();
         for (Iterator<Geometry> it = geometryIterator; it.hasNext(); ) {
             Collections.addAll(vertices, it.next().getCoordinates());
         }
         return vertices;
-    }
-
-    private static List<Coordinate> sortVertices(Collection<Coordinate> vertices) {
-        List list = new ArrayList(vertices);
-        Collections.sort(list, new Coordinate.DimensionalComparator());
-        return list;
     }
 
     private void initTriangulation(Coordinate c0, Coordinate c1) {
