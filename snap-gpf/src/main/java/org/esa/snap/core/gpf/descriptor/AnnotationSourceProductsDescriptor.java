@@ -66,6 +66,12 @@ public class AnnotationSourceProductsDescriptor implements SourceProductsDescrip
         return Product[].class;
     }
 
+    @Override
+    public boolean canBeMultisize() {
+        return annotation.canBeMultisize();
+    }
+
+
     private static String getNonEmptyStringOrNull(String label) {
         return label == null || label.isEmpty() ? null : label;
     }

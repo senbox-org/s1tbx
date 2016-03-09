@@ -17,6 +17,7 @@ public class DefaultSourceProductDescriptor implements SourceProductDescriptor {
     Boolean optional;
     String productType;
     String[] bands;
+    Boolean canBeMultisize;
 
     @Override
     public String getName() {
@@ -56,5 +57,10 @@ public class DefaultSourceProductDescriptor implements SourceProductDescriptor {
     @Override
     public Class<? extends Product> getDataType() {
         return Product.class;
+    }
+
+    @Override
+    public boolean canBeMultisize() {
+        return canBeMultisize != null ? canBeMultisize : false;
     }
 }
