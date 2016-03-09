@@ -22,6 +22,7 @@ import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -29,8 +30,9 @@ import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
+import org.esa.snap.core.util.ProductUtils;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
@@ -85,6 +87,29 @@ public class ReadOp extends Operator {
                     throw new OperatorException("No product reader found for format '" + formatName + "'");
                 }
             } else {
+                // check if product is already opened
+                final Product[] openedProducts = getProductManager().getProducts();
+                for(Product openedProduct : openedProducts) {
+                    if(file.equals(openedProduct.getFileLocation())) {
+                        //targetProduct = openedProduct;    // won't work. Product must be copied and use copySourceImage
+
+                        targetProduct = new Product(openedProduct.getName(), openedProduct.getProductType(),
+                                                    openedProduct.getSceneRasterWidth(), openedProduct.getSceneRasterHeight(),
+                                                    openedProduct.getProductReader());
+                        ProductUtils.copyProductNodes(openedProduct, targetProduct);
+                        targetProduct.setFileLocation(file);
+
+                        for(Band srcband : openedProduct.getBands()) {
+                            if(srcband instanceof VirtualBand) {
+                                ProductUtils.copyVirtualBand(targetProduct, (VirtualBand)srcband, srcband.getName());
+                            } else {
+                                ProductUtils.copyBand(srcband.getName(), openedProduct, targetProduct, true);
+                            }
+                        }
+                        return;
+                    }
+                }
+
                 productReader = ProductIO.getProductReaderForInput(file);
                 if (productReader == null) {
                     throw new OperatorException("No product reader found for file " + file);
