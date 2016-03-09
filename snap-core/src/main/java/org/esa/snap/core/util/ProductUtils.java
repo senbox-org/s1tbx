@@ -963,6 +963,30 @@ public class ProductUtils {
     }
 
     /**
+     * Copies a virtual band and keeps it as a virtual band
+     *
+     * @param sourceProduct   the source product.
+     * @param srcBand   the virtual band to copy.
+     * @param name the name of the new band.
+     * @return the copy of the band.
+     */
+    public static VirtualBand copyVirtualBand(final Product product, final VirtualBand srcBand, final String name) {
+
+        final VirtualBand virtBand = new VirtualBand(name,
+                                                     srcBand.getDataType(),
+                                                     srcBand.getRasterWidth(),
+                                                     srcBand.getRasterHeight(),
+                                                     srcBand.getExpression());
+        virtBand.setUnit(srcBand.getUnit());
+        virtBand.setDescription(srcBand.getDescription());
+        virtBand.setNoDataValue(srcBand.getNoDataValue());
+        virtBand.setNoDataValueUsed(srcBand.isNoDataValueUsed());
+        virtBand.setOwner(product);
+        product.addBand(virtBand);
+        return virtBand;
+    }
+
+    /**
      * Copies the named band from the source product to the target product.
      * <p>
      * The method does not copy any image geo-coding/geometry information.
