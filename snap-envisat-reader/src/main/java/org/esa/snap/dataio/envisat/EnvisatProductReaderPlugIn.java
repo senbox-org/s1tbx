@@ -255,11 +255,18 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
                                                        "reflec_1"
                                                }
         ));
-        manager.addProfile(new RGBImageProfile("AATSR L1b - Forward, Day",
+        manager.addProfile(new RGBImageProfile("AATSR L1b - False colour",
                                                new String[]{
-                                                       "reflec_fward_0870",
-                                                       "reflec_fward_0670",
-                                                       "reflec_fward_0550"
+                                                   "reflec_nadir_1600",
+                                                   "reflec_nadir_0870",
+                                                   "reflec_nadir_0670",
+                                               }
+        ));
+        manager.addProfile(new RGBImageProfile("AATSR L1b - False colour (logarithmic scale)",
+                                               new String[]{
+                                                   "log(reflec_nadir_1600)",
+                                                   "log(reflec_nadir_0870)",
+                                                   "log(reflec_nadir_0670)",
                                                }
         ));
         manager.addProfile(new RGBImageProfile("AATSR L1b - Nadir, Day",
@@ -269,6 +276,13 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
                                                        "reflec_nadir_0550"
                                                }
         ));
-    }
+        manager.addProfile(new RGBImageProfile("AATSR L1b - Forward, Day",
+                                               new String[]{
+                                                   "reflec_fward_0870",
+                                                   "reflec_fward_0670",
+                                                   "reflec_fward_0550"
+                                               }
+        ));
+   }
 
 }
