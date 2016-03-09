@@ -16,7 +16,7 @@ import java.awt.image.WritableRaster;
 /**
  * @author Tonio Fincke
  */
-public class InterpolatedOpImage extends GeometricOpImage {
+class InterpolatedOpImage extends GeometricOpImage {
 
     private final double scaleX;
     private final double scaleY;
@@ -26,30 +26,31 @@ public class InterpolatedOpImage extends GeometricOpImage {
     private final int dataType;
     private InterpolationType interpolationType;
 
-    public InterpolatedOpImage(RenderedImage sourceImage, ImageLayout layout, double noDataValue, int dataType,
+    InterpolatedOpImage(RenderedImage sourceImage, ImageLayout layout, double noDataValue, int dataType,
                                InterpolationType interpolationType, AffineTransform sourceImageToModelTransform,
                                AffineTransform referenceImageToModelTransform) throws NoninvertibleTransformException {
-        this(sourceImage, layout, noDataValue, new BorderExtenderConstant(new double[]{noDataValue}),
-             interpolationType, dataType,
-             new double[]{noDataValue}, sourceImageToModelTransform, referenceImageToModelTransform);
-    }
-
-    public InterpolatedOpImage(RenderedImage sourceImage, ImageLayout layout, double noDataValue, BorderExtender extender,
-                               InterpolationType interpolationType, int dataType, double[] backgroundValues,
-                               AffineTransform sourceImageToModelTransform, AffineTransform referenceImageToModelTransform)
-            throws NoninvertibleTransformException {
-        super(vectorize(sourceImage), layout, null, true, extender, null, backgroundValues);
+        super(vectorize(sourceImage), layout, null, true, createBorderExtender(noDataValue), null,
+              createBackground(noDataValue));
         this.noDataValue = noDataValue;
-        final AffineTransform transform = new AffineTransform(sourceImageToModelTransform);
-        transform.concatenate(referenceImageToModelTransform.createInverse());
-        scaleX = 1 / transform.getScaleX();
-        scaleY = 1 / transform.getScaleY();
+        final AffineTransform transform = new AffineTransform(referenceImageToModelTransform);
+        transform.concatenate(sourceImageToModelTransform.createInverse());
+        scaleX = transform.getScaleX();
+        scaleY = transform.getScaleY();
         offsetX = (float) (referenceImageToModelTransform.getTranslateX() / sourceImageToModelTransform.getScaleX()) -
                 (float) (sourceImageToModelTransform.getTranslateX() / sourceImageToModelTransform.getScaleX());
         offsetY = (float) (referenceImageToModelTransform.getTranslateY() / sourceImageToModelTransform.getScaleY()) -
                 (float) (sourceImageToModelTransform.getTranslateY() / sourceImageToModelTransform.getScaleY());
         this.interpolationType = interpolationType;
         this.dataType = dataType;
+    }
+
+
+    private static BorderExtender createBorderExtender(double value) {
+        return new BorderExtenderConstant(new double[]{value});
+    }
+
+    private static double[] createBackground(double value) {
+        return new double[]{value};
     }
 
     /**

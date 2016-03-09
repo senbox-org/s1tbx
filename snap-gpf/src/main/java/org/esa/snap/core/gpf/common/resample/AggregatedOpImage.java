@@ -16,7 +16,7 @@ import java.awt.image.WritableRaster;
 /**
  * @author Tonio Fincke
  */
-public class AggregatedOpImage extends GeometricOpImage {
+class AggregatedOpImage extends GeometricOpImage {
 
     private static final double EPS = 1e-10;
 
@@ -28,27 +28,29 @@ public class AggregatedOpImage extends GeometricOpImage {
     private AggregationType aggregationType;
     private final int dataType;
 
-    public AggregatedOpImage(RenderedImage sourceImage, ImageLayout layout, double noDataValue, AggregationType aggregationType, int dataType,
+    AggregatedOpImage(RenderedImage sourceImage, ImageLayout layout, double noDataValue, AggregationType aggregationType, int dataType,
                                  AffineTransform sourceImageToModelTransform, AffineTransform referenceImageToModelTransform) throws NoninvertibleTransformException {
-        this(sourceImage, layout, noDataValue, new BorderExtenderConstant(new double[]{noDataValue}), aggregationType,
-             dataType, new double[]{noDataValue}, sourceImageToModelTransform, referenceImageToModelTransform);
-    }
-
-    public AggregatedOpImage(RenderedImage sourceImage, ImageLayout layout, double noDataValue, BorderExtender extender,
-                             AggregationType aggregationType, int dataType, double[] backgroundValues, AffineTransform sourceImageToModelTransform,
-                             AffineTransform referenceImageToModelTransform) throws NoninvertibleTransformException {
-        super(vectorize(sourceImage), layout, null, true, extender, null, backgroundValues);
+        super(vectorize(sourceImage), layout, null, true, createBorderExtender(noDataValue), null,
+              createBackground(noDataValue));
         this.noDataValue = noDataValue;
-        final AffineTransform transform = new AffineTransform(sourceImageToModelTransform);
-        transform.concatenate(referenceImageToModelTransform.createInverse());
-        scaleX = 1 / transform.getScaleX();
-        scaleY = 1 / transform.getScaleY();
+        final AffineTransform transform = new AffineTransform(referenceImageToModelTransform);
+        transform.concatenate(sourceImageToModelTransform.createInverse());
+        scaleX = transform.getScaleX();
+        scaleY = transform.getScaleY();
         offsetX = (float) (referenceImageToModelTransform.getTranslateX() / sourceImageToModelTransform.getScaleX()) -
                 (float) (sourceImageToModelTransform.getTranslateX() / sourceImageToModelTransform.getScaleX());
         offsetY = (float) (referenceImageToModelTransform.getTranslateY() / sourceImageToModelTransform.getScaleY()) -
                 (float) (sourceImageToModelTransform.getTranslateY() / sourceImageToModelTransform.getScaleY());
         this.aggregationType = aggregationType;
         this.dataType = dataType;
+    }
+
+    private static BorderExtender createBorderExtender(double value) {
+        return new BorderExtenderConstant(new double[]{value});
+    }
+
+    private static double[] createBackground(double value) {
+        return new double[]{value};
     }
 
     /**
