@@ -5,8 +5,10 @@
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
     <tocitem text="Sentinel Toolbox Application">
-        <tocitem text="Analysis" target="analysisMenu">
-            <tocitem text="Time Series Analysis" target="TimeSeries"/>
+        <tocitem text="Radar">
+            <tocitem text="Analysis">
+                <tocitem text="Time Series Analysis" target="TimeSeries"/>
+            </tocitem>
         </tocitem>
     </tocitem>
 </toc>
