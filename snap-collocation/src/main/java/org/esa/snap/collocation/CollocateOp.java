@@ -74,10 +74,10 @@ public class CollocateOp extends Operator {
     private static final String BILINEAR_INTERPOLATION = "BILINEAR_INTERPOLATION";
     private static final String CUBIC_CONVOLUTION = "CUBIC_CONVOLUTION";
 
-    @SourceProduct(alias = "master", description = "The source product which serves as master.")
+    @SourceProduct(alias = "master", description = "The source product which serves as master.", canBeMultisize = false)
     private Product masterProduct;
 
-    @SourceProduct(alias = "slave", description = "The source product which serves as slave.")
+    @SourceProduct(alias = "slave", description = "The source product which serves as slave.", canBeMultisize = false)
     private Product slaveProduct;
 
     @TargetProduct(description = "The target product which will use the master's grid.")
