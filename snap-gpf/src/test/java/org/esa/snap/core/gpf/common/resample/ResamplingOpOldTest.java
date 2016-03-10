@@ -18,7 +18,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Tonio Fincke
  */
-public class ResamplingOpTest {
+public class ResamplingOpOldTest {
 
     @Test
     public void testAllNodesHaveIdentitySceneTransform() {
@@ -26,11 +26,11 @@ public class ResamplingOpTest {
         product.addBand("band_1", "X + Y");
         final Band band2 = product.addBand("band_2", "X + 1 + Y");
 
-        assertTrue(ResamplingOp.allNodesHaveIdentitySceneTransform(product));
+        assertTrue(ResamplingOp_Old.allNodesHaveIdentitySceneTransform(product));
 
         band2.setModelToSceneTransform(MathTransform2D.NULL);
 
-        assertFalse(ResamplingOp.allNodesHaveIdentitySceneTransform(product));
+        assertFalse(ResamplingOp_Old.allNodesHaveIdentitySceneTransform(product));
     }
 
     @Test
@@ -39,7 +39,7 @@ public class ResamplingOpTest {
         product.addBand("band_1", "X + Y");
         product.addBand("band_2", "X + 1 + Y");
 
-        assertTrue(ResamplingOp.allScalingsAreIntDivisible(product));
+        assertTrue(ResamplingOp_Old.allScalingsAreIntDivisible(product));
 
         final VirtualBandOpImage image = VirtualBandOpImage.builder("X + Y", product).create();
         final AffineTransform nonIntScalableTransform = new AffineTransform(1.5, 0, 0, 1.5, 0, 0);
@@ -50,7 +50,7 @@ public class ResamplingOpTest {
         band_3.setSourceImage(nonIntScalableImage);
         product.addBand(band_3);
 
-        assertFalse(ResamplingOp.allScalingsAreIntDivisible(product));
+        assertFalse(ResamplingOp_Old.allScalingsAreIntDivisible(product));
     }
 
     @Test
@@ -59,11 +59,11 @@ public class ResamplingOpTest {
         final Band band_1 = product.addBand("band_1", "X + Y");
         product.addBand("band_2", "X + 1 + Y");
 
-        assertTrue(ResamplingOp.allBandsMustBeEitherInterpolatedAggregatedOrLeftAsIs(product, band_1));
+        assertTrue(ResamplingOp_Old.allBandsMustBeEitherInterpolatedAggregatedOrLeftAsIs(product, band_1));
 
         product.addBand(new Band("band_3", ProductData.TYPE_INT8, 1, 3));
 
-        assertFalse(ResamplingOp.allBandsMustBeEitherInterpolatedAggregatedOrLeftAsIs(product, band_1));
+        assertFalse(ResamplingOp_Old.allBandsMustBeEitherInterpolatedAggregatedOrLeftAsIs(product, band_1));
     }
 
 }
