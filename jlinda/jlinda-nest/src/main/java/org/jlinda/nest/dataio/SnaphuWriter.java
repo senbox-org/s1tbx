@@ -430,8 +430,8 @@ public class SnaphuWriter extends AbstractProductWriter {
         final MetadataElement[] slaveRootS = sourceProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements();
         final MetadataElement slaveRoot = slaveRootS[0];
 
-        final SLCImage masterMetadata = new SLCImage(masterRoot);
-        final SLCImage slaveMetadata = new SLCImage(slaveRoot);
+        final SLCImage masterMetadata = new SLCImage(masterRoot, sourceProduct);
+        final SLCImage slaveMetadata = new SLCImage(slaveRoot, sourceProduct);
 
         Orbit masterOrbit = null;
         Orbit slaveOrbit = null;
