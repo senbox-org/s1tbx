@@ -107,10 +107,10 @@ public class ResamplingOp extends Operator {
         resampleTiePointGrids(referenceBand);
         ProductUtils.copyFlagCodings(sourceProduct, targetProduct);
         ProductUtils.copyIndexCodings(sourceProduct, targetProduct);
-        ProductUtils.copyVectorData(sourceProduct, targetProduct);
-        copyMasks(sourceProduct, targetProduct);
         ProductUtils.copyMetadata(sourceProduct, targetProduct);
         transferGeoCoding(referenceBand, targetProduct);
+        ProductUtils.copyVectorData(sourceProduct, targetProduct);
+        copyMasks(sourceProduct, targetProduct);
         targetProduct.setAutoGrouping(sourceProduct.getAutoGrouping());
     }
 
