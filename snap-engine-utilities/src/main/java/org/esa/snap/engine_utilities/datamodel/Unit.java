@@ -37,11 +37,20 @@ public final class Unit {
     public static final String INTENSITY_DB = INTENSITY + '_' + DB;
 
     public static final String METERS = "meters";
+    public static final String METERS_PER_DAY = "m/day";
     public static final String CLASS = "class";
+
+    // tiepoint grid units
+
+    public static final String DEGREES = "deg";
+    public static final String NANOSECONDS = "ns";
+
+    // temporary unit, should be removed later and use bit mask
+    public static final String BIT = "bit";
 
     public enum UnitType {
         AMPLITUDE, INTENSITY, REAL, IMAGINARY, PHASE, ABS_PHASE, COHERENCE,
-        AMPLITUDE_DB, INTENSITY_DB, METERS, CLASS, UNKNOWN
+        AMPLITUDE_DB, INTENSITY_DB, METERS, METERS_PER_DAY, CLASS, DEGREES, NANOSECONDS, UNKNOWN
     }
 
     public static UnitType getUnitType(final Band sourceBand) {
@@ -69,20 +78,18 @@ public final class Unit {
             return UnitType.IMAGINARY;
         } else if (unit.contains(METERS)) {
             return UnitType.METERS;
+        } else if (unit.contains(METERS_PER_DAY)) {
+            return UnitType.METERS_PER_DAY;
         } else if (unit.contains(COHERENCE)) {
             return UnitType.COHERENCE;
         } else if (unit.contains(CLASS)) {
             return UnitType.CLASS;
+        } else if (unit.contains(DEGREES)) {
+            return UnitType.DEGREES;
+        } else if (unit.contains(NANOSECONDS)) {
+            return UnitType.NANOSECONDS;
         } else {
             return UnitType.UNKNOWN;
         }
     }
-
-    // tiepoint grid units
-
-    public static final String DEGREES = "deg";
-    public static final String NANOSECONDS = "ns";
-
-    // temporary unit, should be removed later and use bit mask
-    public static final String BIT = "bit";
 }
