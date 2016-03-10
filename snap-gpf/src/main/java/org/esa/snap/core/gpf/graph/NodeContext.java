@@ -19,6 +19,7 @@ package org.esa.snap.core.gpf.graph;
 import com.bc.ceres.core.Assert;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductManager;
 import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
@@ -28,6 +29,7 @@ import org.esa.snap.core.gpf.internal.OperatorConfiguration;
 import org.esa.snap.core.gpf.internal.OperatorContext;
 
 import javax.media.jai.PlanarImage;
+import java.io.File;
 import java.lang.reflect.Field;
 
 /**
@@ -138,15 +140,33 @@ public class NodeContext {
         }
     }
 
+    private static boolean isPproductOpened(ProductManager productManager, Product targetProduct) {
+        if(productManager.contains(targetProduct))
+            return true;
+        final File file = targetProduct.getFileLocation();
+        if(file == null)
+            return false;
+
+        final Product[] openedProducts = productManager.getProducts();
+        for(Product openedProduct : openedProducts) {
+            if (file != null && file.equals(openedProduct.getFileLocation())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public synchronized void dispose() {
+        if (targetProduct != null) {
+            if(!(operator != null && isPproductOpened(operator.getProductManager(), targetProduct))) {
+                targetProduct.dispose();
+                targetProduct = null;
+            }
+        }
         if (operatorContext != null && !operatorContext.isDisposed()) {
             operatorContext.dispose(); // disposes operator as well
             operatorContext = null;
             operator = null;
-        }
-        if (targetProduct != null) {
-            targetProduct.dispose();
-            targetProduct = null;
         }
     }
 }
