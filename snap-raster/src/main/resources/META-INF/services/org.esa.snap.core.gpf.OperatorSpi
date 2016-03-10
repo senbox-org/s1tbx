@@ -1,5 +1,3 @@
-org.esa.snap.raster.gpf.OversamplingOp$Spi
-org.esa.snap.raster.gpf.UndersamplingOp$Spi
 org.esa.snap.raster.gpf.FilterOperator$Spi
 org.esa.snap.raster.gpf.ReplaceMetadataOp$Spi
 org.esa.snap.raster.gpf.LinearTodBOp$Spi
