@@ -145,7 +145,6 @@ public class PyOperator extends Operator {
 
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
-        super.computeTile(targetBand, targetTile, pm);
         synchronized (PyLib.class) {
             //System.out.println("computeTileStack: thread = " + Thread.currentThread());
             //PyLib.Diag.setFlags(PyLib.Diag.F_EXEC);
