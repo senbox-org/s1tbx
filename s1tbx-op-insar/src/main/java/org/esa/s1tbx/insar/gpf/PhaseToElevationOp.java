@@ -262,12 +262,12 @@ public final class PhaseToElevationOp extends Operator {
 
     private void getBaseline() throws Exception {
         final MetadataElement masterMeta = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-        final SLCImage masterMetaData = new SLCImage(masterMeta);
+        final SLCImage masterMetaData = new SLCImage(masterMeta, sourceProduct);
         final Orbit masterOrbit = new Orbit(masterMeta, 3);
 
         final MetadataElement[] slaveRoot = sourceProduct.getMetadataRoot().
                 getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElements();
-        final SLCImage slaveMetaData = new SLCImage(slaveRoot[0]);
+        final SLCImage slaveMetaData = new SLCImage(slaveRoot[0], sourceProduct);
         final Orbit slaveOrbit = new Orbit(slaveRoot[0], 3);
 
         baseline.model(masterMetaData, slaveMetaData, masterOrbit, slaveOrbit);

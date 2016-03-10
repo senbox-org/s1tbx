@@ -171,7 +171,7 @@ public class InSARStackOverview {
 
         for(Product product : srcProducts) {
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-            imgList.add(new SLCImage(absRoot));
+            imgList.add(new SLCImage(absRoot, product));
             orbList.add(new Orbit(absRoot, 3));
         }
 
@@ -187,12 +187,14 @@ public class InSARStackOverview {
         return srcProducts[0];
     }
 
-    public static InSARStackOverview.IfgStack[] calculateInSAROverview(final MetadataElement[] absRoots) throws Exception {
+    public static InSARStackOverview.IfgStack[] calculateInSAROverview(
+            final MetadataElement[] absRoots, final Product product) throws Exception {
+
         final List<SLCImage> imgList = new ArrayList<>(absRoots.length);
         final List<Orbit> orbList = new ArrayList<>(absRoots.length);
 
         for (MetadataElement absRoot : absRoots) {
-            imgList.add(new SLCImage(absRoot));
+            imgList.add(new SLCImage(absRoot, product));
             orbList.add(new Orbit(absRoot, 3));
         }
 
@@ -207,7 +209,7 @@ public class InSARStackOverview {
 
         for (Product product : products) {
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-            imgList.add(new SLCImage(absRoot));
+            imgList.add(new SLCImage(absRoot, product));
             orbList.add(new Orbit(absRoot, 3));
         }
 
