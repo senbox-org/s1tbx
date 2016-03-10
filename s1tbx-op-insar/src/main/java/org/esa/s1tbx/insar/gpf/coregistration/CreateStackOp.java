@@ -765,7 +765,7 @@ public class CreateStackOp extends Operator {
 
             final int orbitDegree = 3;
 
-            SLCImage metaMaster = new SLCImage(root);
+            SLCImage metaMaster = new SLCImage(root, targetProduct);
             Orbit orbitMaster = new Orbit(root, orbitDegree);
             SLCImage metaSlave;
             Orbit orbitSlave;
@@ -786,7 +786,7 @@ public class CreateStackOp extends Operator {
                     throw new Exception("Orbit offset method is not support for product " + slvProd.getName());
                 }
                 root = AbstractMetadata.getAbstractedMetadata(slvProd);
-                metaSlave = new SLCImage(root);
+                metaSlave = new SLCImage(root, slvProd);
                 orbitSlave = new Orbit(root, orbitDegree);
 
                 // (lp_master) & (master_orbit)-> (xyz_master) & (slave_orbit)-> (lp_slave)
