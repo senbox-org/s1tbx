@@ -102,10 +102,10 @@ public class PluginActivator implements Activator {
             }
         }
 
-        ServiceFinder serviceFinder = new ServiceFinder(PluginActivator.class.getName());
+        ServiceFinder serviceFinder = new ServiceFinder(PluginActivator.class);
         serviceFinder.addSearchPath(jythonDir);
         serviceFinder.addSearchPathsFromPreferences(JYTHON_EXTRA_PATHS_PROPERTY);
-        serviceFinder.searchClassPath(true);
+        serviceFinder.setUseClassPath(true);
         List<ServiceFinder.Module> modules = serviceFinder.findServices();
         for (ServiceFinder.Module module : modules) {
             for (String pythonClassName : module.getServiceNames()) {
