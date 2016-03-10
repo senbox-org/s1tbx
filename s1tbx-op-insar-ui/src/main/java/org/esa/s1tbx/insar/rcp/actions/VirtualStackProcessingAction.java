@@ -17,15 +17,11 @@ package org.esa.s1tbx.insar.rcp.actions;
 
 import org.esa.s1tbx.insar.rcp.dialogs.VirtualStackCoregistrationDialog;
 import org.esa.snap.rcp.SnapApp;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionReference;
-import org.openide.awt.ActionReferences;
-import org.openide.awt.ActionRegistration;
-import org.openide.util.NbBundle;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
+/*
 @ActionID(
         category = "Tools",
         id = "VirtualStackProcessingAction"
@@ -42,7 +38,7 @@ import java.awt.event.ActionEvent;
 @NbBundle.Messages({
         "CTL_VirtualStackProcessingAction_MenuText=VirtualStack Processing",
         "CTL_VirtualStackProcessingAction_ShortDescription=VirtualStack multi-output coregistration"
-})
+}) */
 public class VirtualStackProcessingAction extends AbstractAction {
 
     @Override
