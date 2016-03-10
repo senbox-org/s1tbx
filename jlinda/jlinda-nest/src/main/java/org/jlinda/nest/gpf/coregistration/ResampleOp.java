@@ -447,7 +447,7 @@ public class ResampleOp extends Operator {
         Orbit masterOrbit = null;
         if (cpmDemRefinement) {
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
-            masterMeta = new SLCImage(absRoot);
+            masterMeta = new SLCImage(absRoot, targetProduct);
             masterOrbit = new Orbit(absRoot,ORBIT_INTERP_DEGREE);
         }
 
@@ -515,7 +515,7 @@ public class ResampleOp extends Operator {
                 }
 
                 final MetadataElement slaveRoot = targetProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT).getElementAt(slaveMetaCnt);
-                final SLCImage slaveMeta = new SLCImage(slaveRoot);
+                final SLCImage slaveMeta = new SLCImage(slaveRoot, targetProduct);
                 final Orbit slaveOrbit = new Orbit(slaveRoot, ORBIT_INTERP_DEGREE);
                 cpm.setDemNoDataValue(demNoDataValue);
                 cpm.setUpDEMRefinement(masterMeta, masterOrbit, slaveMeta, slaveOrbit, heightArray);
