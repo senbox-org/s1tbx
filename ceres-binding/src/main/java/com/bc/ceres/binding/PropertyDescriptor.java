@@ -295,7 +295,7 @@ public class PropertyDescriptor {
             attributes.remove(name);
         }
         if (!equals(oldValue, value)) {
-            firePropertyChange(name, oldValue, value);
+            firePropertyChange(name, value, oldValue);
         }
     }
 
