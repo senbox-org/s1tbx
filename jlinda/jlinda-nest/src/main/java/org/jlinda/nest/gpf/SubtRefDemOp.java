@@ -250,7 +250,7 @@ public final class SubtRefDemOp extends Operator {
 
         // metadata: construct classes and define bands
         final String date = OperatorUtils.getAcquisitionDate(root);
-        final SLCImage meta = new SLCImage(root);
+        final SLCImage meta = new SLCImage(root, product);
         final Orbit orbit = new Orbit(root, orbitDegree);
 
         // TODO: resolve multilook factors

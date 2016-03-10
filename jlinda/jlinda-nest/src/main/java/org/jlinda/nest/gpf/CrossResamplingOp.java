@@ -153,7 +153,7 @@ public class CrossResamplingOp extends Operator {
         try {
 
             absSrc = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-            slcMetadata = new SLCImage(absSrc);
+            slcMetadata = new SLCImage(absSrc, sourceProduct);
 
             final String sourceMission = slcMetadata.getMission().toLowerCase();
 
@@ -359,8 +359,8 @@ public class CrossResamplingOp extends Operator {
 
     private void updateTargetProductGEOCoding() throws Exception {
 
-        targetMeta = new SLCImage(absTgt);
-        sourceMeta = new SLCImage(absSrc);
+        targetMeta = new SLCImage(absTgt, targetProduct);
+        sourceMeta = new SLCImage(absSrc, sourceProduct);
         targetOrbit = new Orbit(absTgt, 3);
 
         latitudeTPG = OperatorUtils.getLatitude(sourceProduct);

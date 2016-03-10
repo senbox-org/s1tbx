@@ -169,7 +169,7 @@ public class PhaseFilterOp extends Operator {
 
         // metadata: construct classes and define bands
         final String date = OperatorUtils.getAcquisitionDate(root);
-        final SLCImage meta = new SLCImage(root);
+        final SLCImage meta = new SLCImage(root, product);
         final Orbit orbit = null; // ORBIT not needed
 
         // TODO: resolve multilook factors

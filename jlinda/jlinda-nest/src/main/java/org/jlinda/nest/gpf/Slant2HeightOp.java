@@ -195,7 +195,7 @@ public class Slant2HeightOp extends Operator {
 
         // metadata: construct classes and define bands
         final String date = OperatorUtils.getAcquisitionDate(root);
-        final SLCImage meta = new SLCImage(root);
+        final SLCImage meta = new SLCImage(root, product);
         final Orbit orbit = new Orbit(root, orbitDegree);
 
         // TODO: mlook factores are hard-coded for now

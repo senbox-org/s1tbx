@@ -222,7 +222,7 @@ public class RangeFilterOp extends Operator {
 
         // metadata: construct classes and define bands
         final String date = OperatorUtils.getAcquisitionDate(root);
-        final SLCImage meta = new SLCImage(root);
+        final SLCImage meta = new SLCImage(root, product);
         final Orbit orbit = new Orbit(root, ORBIT_DEGREE);
         Band bandReal = null;
         Band bandImag = null;
