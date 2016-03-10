@@ -6,7 +6,7 @@
 
     <tocitem text="Sentinel Toolbox Application">
         <tocitem text="Radar">
-            <tocitem text="Image Analysis">
+            <tocitem text="Analysis">
                 <tocitem text="Principle Component Analysis" target="PCA"/>
             </tocitem>
             <tocitem text="Coregistration">

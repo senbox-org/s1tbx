@@ -4,5 +4,5 @@
         "http://java.sun.com/products/javahelp/map_2_0.dtd">
 
 <map version="2.0">
-    <mapID target="TimeSeries" url="visat/TimeSeries.html"/>
+    <mapID target="TimeSeries" url="rcp/TimeSeries.html"/>
 </map>
