@@ -38,6 +38,7 @@ import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
@@ -207,7 +208,8 @@ public class OffsetTrackingOp extends Operator {
                 final String velocityBandName = productName + "_vel";
                 if (targetProduct.getBand(velocityBandName) == null) {
                     targetBand = targetProduct.addBand(velocityBandName, ProductData.TYPE_FLOAT32);
-                    ProductUtils.copyRasterDataNodeProperties(srcBand, targetBand);
+                    targetBand.setUnit(Unit.METERS_PER_DAY);
+                    targetBand.setDescription("Velocity");
                     sourceRasterMap.put(targetBand, srcBand);
 
                     targetProduct.setQuicklookBandName(targetBand.getName());
@@ -216,7 +218,8 @@ public class OffsetTrackingOp extends Operator {
                 final String gcpPositionBandName = productName + "_pos";
                 if (targetProduct.getBand(gcpPositionBandName) == null) {
                     targetBand = targetProduct.addBand(gcpPositionBandName, ProductData.TYPE_FLOAT32);
-                    ProductUtils.copyRasterDataNodeProperties(srcBand, targetBand);
+                    targetBand.setUnit(Unit.METERS_PER_DAY);
+                    targetBand.setDescription("Velocity Points");
                     sourceRasterMap.put(targetBand, srcBand);
                 }
 
