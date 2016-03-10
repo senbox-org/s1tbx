@@ -140,8 +140,8 @@ public class ProductUtils {
     }
 
     /**
-     * Creates a RGB image from the given array of <code>{@link RasterDataNode}</code>s.
-     * The given array <code>rasters</code> containing one or three raster data nodes. If three rasters are given
+     * Creates a RGB image from the given array of {@code {@link RasterDataNode}}s.
+     * The given array {@code rasters} containing one or three raster data nodes. If three rasters are given
      * RGB image is created, if only one raster is provided a gray scale image created.
      *
      * @param rasters   an array of one or three raster nodes.
@@ -399,11 +399,11 @@ public class ProductUtils {
 
 
     /**
-     * Creates a greyscale image from the given <code>{@link RasterDataNode}</code>.
-     * <p>The method uses the given raster data node's image information (an instance of <code>{@link
-     * ImageInfo}</code>) to create the image.
+     * Creates a greyscale image from the given {@code {@link RasterDataNode}}.
+     * <p>The method uses the given raster data node's image information (an instance of {@code {@link
+     * ImageInfo}}) to create the image.
      *
-     * @param rasterDataNode the raster data node, must not be <code>null</code>
+     * @param rasterDataNode the raster data node, must not be {@code null}
      * @param pm             a monitor to inform the user about progress
      * @return the color indexed image
      * @throws IOException if the given raster data is not loaded and reload causes an I/O error
@@ -465,7 +465,7 @@ public class ProductUtils {
      * Creates the geographical boundary of the given region within the given product and returns it as a list of
      * geographical coordinates.
      * <p> This method delegates to {@link #createGeoBoundary(Product, java.awt.Rectangle, int, boolean) createGeoBoundary(Product, Rectangle, int, boolean)}
-     * and the additional boolean parameter <code>usePixelCenter</code> is <code>true</code>.
+     * and the additional boolean parameter {@code usePixelCenter} is {@code true}.
      *
      * @param product the input product, must not be null
      * @param region  the region rectangle in product pixel coordinates, can be null for entire product
@@ -486,7 +486,7 @@ public class ProductUtils {
      * @param product        the input product, must not be null
      * @param region         the region rectangle in product pixel coordinates, can be null for entire product
      * @param step           the step given in pixels
-     * @param usePixelCenter <code>true</code> if the pixel center should be used to create the boundary
+     * @param usePixelCenter {@code true} if the pixel center should be used to create the boundary
      * @return an array of geographical coordinates
      * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
      * @see #createPixelBoundary(Product, java.awt.Rectangle, int, boolean)
@@ -564,7 +564,7 @@ public class ProductUtils {
      * shapes are created and returned in the order from west to east.
      * <p>
      * This method delegates to {@link #createGeoBoundaryPaths(Product, java.awt.Rectangle, int, boolean) createGeoBoundaryPaths(Product, Rectangle, int, boolean)}
-     * and the additional parameter <code>usePixelCenter</code> is <code>true</code>.
+     * and the additional parameter {@code usePixelCenter} is {@code true}.
      * <p>
      * The geographic boundary of the given product are returned as shapes comprising (longitude,latitude) pairs.
      *
@@ -590,7 +590,7 @@ public class ProductUtils {
      * @param product        the input product
      * @param region         the region rectangle in product pixel coordinates, can be null for entire product
      * @param step           the step given in pixels
-     * @param usePixelCenter <code>true</code> if the pixel center should be used to create the pathes
+     * @param usePixelCenter {@code true} if the pixel center should be used to create the pathes
      * @return an array of shape objects
      * @throws IllegalArgumentException if product is null or if the product's {@link GeoCoding} is null
      * @see #createGeoBoundary(Product, java.awt.Rectangle, int, boolean)
@@ -612,12 +612,12 @@ public class ProductUtils {
 
     /**
      * Creates a rectangular boundary expressed in pixel positions for the given source rectangle. If the source
-     * <code>rect</code> is 100 x 50 pixels and <code>step</code> is 10 the returned array will countain exactly 2 * 10
+     * {@code rect} is 100 x 50 pixels and {@code step} is 10 the returned array will countain exactly 2 * 10
      * + 2 * (5 - 2) = 26 pixel positions.
      * <p>This method is used for an intermediate step when determining a product boundary expressed in geographical
      * co-ordinates.
      * <p> This method delegates to {@link #createPixelBoundary(Product, java.awt.Rectangle, int, boolean) createPixelBoundary(Product, Rectangle, int, boolean)}
-     * and the additional boolean parameter <code>usePixelCenter</code> is <code>true</code>.
+     * and the additional boolean parameter {@code usePixelCenter} is {@code true}.
      *
      * @param product the product
      * @param rect    the source rectangle
@@ -631,7 +631,7 @@ public class ProductUtils {
 
     /**
      * Creates a rectangular boundary expressed in pixel positions for the given source rectangle. If the source
-     * <code>rect</code> is 100 x 50 pixels and <code>step</code> is 10 the returned array will countain exactly 2 * 10
+     * {@code rect} is 100 x 50 pixels and {@code step} is 10 the returned array will countain exactly 2 * 10
      * + 2 * (5 - 2) = 26 pixel positions.
      * <p>This method is used for an intermediate step when determining a product boundary expressed in geographical
      * co-ordinates.
@@ -639,7 +639,7 @@ public class ProductUtils {
      * @param product        the product
      * @param rect           the source rectangle
      * @param step           the mean distance from one pixel position to the other in the returned array
-     * @param usePixelCenter <code>true</code> if the pixel center should be used to create the boundary
+     * @param usePixelCenter {@code true} if the pixel center should be used to create the boundary
      * @return the rectangular boundary
      */
     public static PixelPos[] createPixelBoundary(Product product, Rectangle rect, int step,
@@ -655,7 +655,7 @@ public class ProductUtils {
 
     /**
      * Creates a rectangular boundary expressed in pixel positions for the given source rectangle. If the source
-     * <code>rect</code> is 100 x 50 pixels and <code>step</code> is 10 the returned array will countain exactly 2 * 10
+     * {@code rect} is 100 x 50 pixels and {@code step} is 10 the returned array will countain exactly 2 * 10
      * + 2 * (5 - 2) = 26 pixel positions.
      * <p>This method is used for an intermediate step when determining a raster boundary expressed in geographical
      * co-ordinates.
@@ -677,12 +677,12 @@ public class ProductUtils {
 
     /**
      * Creates a rectangular boundary expressed in pixel positions for the given source rectangle. If the source
-     * <code>rect</code> is 100 x 50 pixels and <code>step</code> is 10 the returned array will countain exactly 2 * 10
+     * {@code rect} is 100 x 50 pixels and {@code step} is 10 the returned array will countain exactly 2 * 10
      * + 2 * (5 - 2) = 26 pixel positions.
      * <p>This method is used for an intermediate step when determining a product boundary expressed in geographical
      * co-ordinates.
      * <p> This method delegates to {@link #createRectBoundary(java.awt.Rectangle, int, boolean) createRectBoundary(Rectangle, int, boolean)}
-     * and the additional boolean parameter <code>usePixelCenter</code> is <code>true</code>.
+     * and the additional boolean parameter {@code usePixelCenter} is {@code true}.
      *
      * @param rect the source rectangle
      * @param step the mean distance from one pixel position to the other in the returned array
@@ -695,7 +695,7 @@ public class ProductUtils {
 
     /**
      * Creates a rectangular boundary expressed in pixel positions for the given source rectangle. If the source
-     * <code>rect</code> is 100 x 50 pixels and <code>step</code> is 10 the returned array will countain exactly 2 * 10
+     * {@code rect} is 100 x 50 pixels and {@code step} is 10 the returned array will countain exactly 2 * 10
      * + 2 * (5 - 2) = 26 pixel positions.
      * <p>
      * This method is used for an intermediate step when determining a product boundary expressed in geographical
@@ -704,7 +704,7 @@ public class ProductUtils {
      *
      * @param rect           the source rectangle
      * @param step           the mean distance from one pixel position to the other in the returned array
-     * @param usePixelCenter <code>true</code> if the pixel center should be used
+     * @param usePixelCenter {@code true} if the pixel center should be used
      * @return the rectangular boundary
      */
     public static PixelPos[] createRectBoundary(final Rectangle rect, int step, final boolean usePixelCenter) {
@@ -944,7 +944,7 @@ public class ProductUtils {
      * @param gridName      the name of the tie-point grid to be copied.
      * @param sourceProduct the source product
      * @param targetProduct the target product
-     * @return the copied tie-point grid, or <code>null</code> if the sourceProduct does not contain a tie-point grid with the given name.
+     * @return the copied tie-point grid, or {@code null} if the sourceProduct does not contain a tie-point grid with the given name.
      */
     public static TiePointGrid copyTiePointGrid(String gridName, Product sourceProduct, Product targetProduct) {
         Guardian.assertNotNull("sourceProduct", sourceProduct);
@@ -965,7 +965,7 @@ public class ProductUtils {
     /**
      * Copies a virtual band and keeps it as a virtual band
      *
-     * @param sourceProduct   the source product.
+     * @param product   the source product.
      * @param srcBand   the virtual band to copy.
      * @param name the name of the new band.
      * @return the copy of the band.
@@ -996,7 +996,7 @@ public class ProductUtils {
      * @param sourceProduct   the source product.
      * @param targetProduct   the target product.
      * @param copySourceImage whether the source image of the source band should be copied.
-     * @return the copy of the band, or <code>null</code> if the sourceProduct does not contain a band with the given name.
+     * @return the copy of the band, or {@code null} if the sourceProduct does not contain a band with the given name.
      * @since BEAM 4.10
      */
     public static Band copyBand(String sourceBandName, Product sourceProduct, Product targetProduct,
@@ -1015,7 +1015,7 @@ public class ProductUtils {
      * @param targetBandName  the name of the band copied.
      * @param targetProduct   the target product.
      * @param copySourceImage whether the source image of the source band should be copied.
-     * @return the copy of the band, or <code>null</code> if the sourceProduct does not contain a band with the given name.
+     * @return the copy of the band, or {@code null} if the sourceProduct does not contain a band with the given name.
      * @since BEAM 4.10
      */
     public static Band copyBand(String sourceBandName, Product sourceProduct,
@@ -1147,8 +1147,36 @@ public class ProductUtils {
      * @since SNAP 2.0
      */
     public static void copyGeoCoding(RasterDataNode sourceRaster, RasterDataNode targetRaster) {
-        final Scene srcScene = SceneFactory.createScene(sourceRaster);
-        final Scene destScene = SceneFactory.createScene(targetRaster);
+        copyGeoCodingImpl(sourceRaster, targetRaster);
+    }
+
+    /**
+     * Deeply copies the geo-coding from the source raster data node to the target product.
+     *
+     * @param sourceRaster the source raster data node
+     * @param targetProduct the target product
+     * @throws IllegalArgumentException if one of the params is {@code null}.
+     * @since SNAP 3.0
+     */
+    public static void copyGeoCoding(RasterDataNode sourceRaster, Product targetProduct) {
+        copyGeoCodingImpl(sourceRaster, targetProduct);
+    }
+
+    /**
+     * Deeply copies the geo-coding from the source raster data node to the target product.
+     *
+     * @param sourceProduct the source product
+     * @param targetRaster the target raster data node
+     * @throws IllegalArgumentException if one of the params is {@code null}.
+     * @since SNAP 3.0
+     */
+    public static void copyGeoCoding(Product sourceProduct, RasterDataNode targetRaster) {
+        copyGeoCodingImpl(sourceProduct, targetRaster);
+    }
+
+    private static void copyGeoCodingImpl(ProductNode sourceNode, ProductNode targetNode) {
+        final Scene srcScene = SceneFactory.createScene(sourceNode);
+        final Scene destScene = SceneFactory.createScene(targetNode);
         if (srcScene != null && destScene != null) {
             srcScene.transferGeoCodingTo(destScene, null);
         }
@@ -1273,7 +1301,7 @@ public class ProductUtils {
      * Returns whether or not a product can return a pixel position from a given geographical position.
      *
      * @param product the product to be checked
-     * @return <code>true</code> if the given product can return a pixel position
+     * @return {@code true} if the given product can return a pixel position
      */
     public static boolean canGetPixelPos(Product product) {
         return product != null
@@ -1285,7 +1313,7 @@ public class ProductUtils {
      * Returns whether or not a raster can return a pixel position from a given geographical position.
      *
      * @param raster the raster to be checked
-     * @return <code>true</code> if the given raster can return a pixel position
+     * @return {@code true} if the given raster can return a pixel position
      */
     public static boolean canGetPixelPos(final RasterDataNode raster) {
         return raster != null
@@ -1306,7 +1334,7 @@ public class ProductUtils {
      * @param width      the width of the output image
      * @param height     the height of the output image
      * @param background the background color of the output image
-     * @param image      an image to be used as output image, if <code>null</code> a new image is created
+     * @param image      an image to be used as output image, if {@code null} a new image is created
      * @param pm         the progress monitor
      * @return the density plot image
      * @throws java.io.IOException when an error occurred.
@@ -1620,7 +1648,7 @@ public class ProductUtils {
      * does not contain a history entry a new one will be created.
      *
      * @param product the product to add the history element.
-     * @param elem    the element to add to the products history. If <code>null</code> nothing will be added.
+     * @param elem    the element to add to the products history. If {@code null} nothing will be added.
      */
     public static void addElementToHistory(Product product, MetadataElement elem) {
         Guardian.assertNotNull("product", product);
@@ -1824,9 +1852,9 @@ public class ProductUtils {
      * @param pixelPositions the {@link PixelPos} array
      * @return an int array which containes the minimum and maximum y value of the given {@link PixelPos} array in the
      * order:<br> &nbsp;&nbsp;&nbsp;&nbsp;[0] - the minimum value<br>&nbsp;&nbsp;&nbsp;&nbsp;[1] - the maximum
-     * value<br><br>or <code>null</code> if no minimum or maximum can be retrieved because there given array is
+     * value<br><br>or {@code null} if no minimum or maximum can be retrieved because there given array is
      * empty.
-     * @throws IllegalArgumentException if the given pixelPositions are <code>null</code>.
+     * @throws IllegalArgumentException if the given pixelPositions are {@code null}.
      */
     public static double[] computeMinMaxY(PixelPos[] pixelPositions) {
         Guardian.assertNotNull("pixelPositions", pixelPositions);
@@ -1885,8 +1913,8 @@ public class ProductUtils {
      * will be either the one from the source band, if any, or otherwise the one passed into this method.
      *
      * @param sourceProduct        the source product as the source for the band specifications. Must be not
-     *                             <code>null</code>.
-     * @param targetProduct        the destination product to receive the bands created. Must be not <code>null</code>.
+     *                             {@code null}.
+     * @param targetProduct        the destination product to receive the bands created. Must be not {@code null}.
      * @param includeTiePointGrids if {@code true}, tie-point grids of source product will be included as bands in target product
      * @param defaultNoDataValue   the default, geophysical no-data value to be used if no no-data value is used by the source band.
      * @param targetToSourceMap    a mapping from a target band to a source raster data node, can be {@code null}
