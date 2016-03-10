@@ -186,6 +186,9 @@ public class OffsetTrackingOp extends Operator {
             }
         }
         masterBand = sourceProduct.getBand(mstBandName);
+        if(masterBand == null) {
+            masterBand = sourceProduct.getBand(sourceProduct.getBandAt(0).getName());
+        }
     }
 
     /**

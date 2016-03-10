@@ -295,6 +295,10 @@ public class CrossCorrelationOp extends Operator {
             }
         }
         masterBand1 = sourceProduct.getBand(mstBandName);
+        if(masterBand1 == null) {
+            mstBandName = sourceProduct.getBandAt(0).getName();
+            masterBand1 = sourceProduct.getBand(mstBandName);
+        }
         if (masterBand1.getUnit() != null && masterBand1.getUnit().equals(Unit.REAL)) {
             int mstIdx = sourceProduct.getBandIndex(mstBandName);
             if (sourceProduct.getNumBands() > mstIdx + 1) {
