@@ -100,6 +100,10 @@ public class OffsetTrackingOp extends Operator {
     private final static double invalidIndex = -9999.0;
 
     private final static String PRODUCT_SUFFIX = "_Vel";
+    private final static String VELOCITY = "Velocity";
+    private final static String POINTS = "Points";
+    private final static String RANGE_SHIFT = "Range_Shift";
+    private final static String AZIMUTH_SHIFT = "Azimuth_Shift";
 
     /**
      * Default constructor. The graph processing framework
@@ -204,8 +208,8 @@ public class OffsetTrackingOp extends Operator {
                 targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, false);
                 targetBand.setSourceImage(srcBand.getSourceImage());
             } else {
-                final String productName = srcBand.getProduct().getDisplayName();
-                final String velocityBandName = productName + "_vel";
+                final String suffix = StackUtils.getBandSuffix(srcBand.getName());
+                final String velocityBandName = VELOCITY + suffix;
                 if (targetProduct.getBand(velocityBandName) == null) {
                     targetBand = targetProduct.addBand(velocityBandName, ProductData.TYPE_FLOAT32);
                     targetBand.setUnit(Unit.METERS_PER_DAY);
@@ -215,7 +219,7 @@ public class OffsetTrackingOp extends Operator {
                     targetProduct.setQuicklookBandName(targetBand.getName());
                 }
 
-                final String gcpPositionBandName = productName + "_pos";
+                final String gcpPositionBandName = POINTS + suffix;
                 if (targetProduct.getBand(gcpPositionBandName) == null) {
                     targetBand = targetProduct.addBand(gcpPositionBandName, ProductData.TYPE_FLOAT32);
                     targetBand.setUnit(Unit.METERS_PER_DAY);
@@ -224,17 +228,19 @@ public class OffsetTrackingOp extends Operator {
                 }
 
                 if (outputRangeAzimuthOffset) {
-                    final String rangeShiftBandName = productName + "_range_shift";
+                    final String rangeShiftBandName = RANGE_SHIFT + suffix;
                     if (targetProduct.getBand(rangeShiftBandName) == null) {
                         targetBand = targetProduct.addBand(rangeShiftBandName, ProductData.TYPE_FLOAT32);
-                        ProductUtils.copyRasterDataNodeProperties(srcBand, targetBand);
+                        targetBand.setUnit(Unit.METERS_PER_DAY);
+                        targetBand.setDescription("Range Shift");
                         sourceRasterMap.put(targetBand, srcBand);
                     }
 
-                    final String azimuthShiftBandName = productName + "_azimuth_shift";
+                    final String azimuthShiftBandName = AZIMUTH_SHIFT + suffix;
                     if (targetProduct.getBand(azimuthShiftBandName) == null) {
                         targetBand = targetProduct.addBand(azimuthShiftBandName, ProductData.TYPE_FLOAT32);
-                        ProductUtils.copyRasterDataNodeProperties(srcBand, targetBand);
+                        targetBand.setUnit(Unit.METERS_PER_DAY);
+                        targetBand.setDescription("Azimuth Shift");
                         sourceRasterMap.put(targetBand, srcBand);
                     }
                 }
@@ -291,16 +297,16 @@ public class OffsetTrackingOp extends Operator {
             final Band[] targetBands = targetProduct.getBands();
             for (Band tgtBand:targetBands) {
                 final String tgtBandName = tgtBand.getName();
-                if (tgtBandName.contains("_range_shift")) {
+                if (tgtBandName.contains(RANGE_SHIFT)) {
                     tgtRangeShiftBand = tgtBand;
                     tgtRangeShiftBuffer = targetTileMap.get(tgtRangeShiftBand).getDataBuffer();
-                } else if (tgtBandName.contains("_azimuth_shift")) {
+                } else if (tgtBandName.contains(AZIMUTH_SHIFT)) {
                     tgtAzimuthShiftBand = tgtBand;
                     tgtAzimuthShiftBuffer = targetTileMap.get(tgtAzimuthShiftBand).getDataBuffer();
-                } else if (tgtBandName.contains("_vel")) {
+                } else if (tgtBandName.contains(VELOCITY)) {
                     tgtVelocityBand = tgtBand;
                     tgtVelocityBuffer = targetTileMap.get(tgtVelocityBand).getDataBuffer();
-                } else if (tgtBandName.contains("_pos")) {
+                } else if (tgtBandName.contains(POINTS)) {
                     tgtGCPPositionBand = tgtBand;
                     tgtGCPPositionBuffer = targetTileMap.get(tgtGCPPositionBand).getDataBuffer();
                 }
@@ -386,7 +392,7 @@ public class OffsetTrackingOp extends Operator {
 
         final Band[] targetBands = targetProduct.getBands();
         for (Band tgtBand : targetBands) {
-            if (!tgtBand.getName().contains("_vel"))
+            if (!tgtBand.getName().contains(VELOCITY))
                 continue;
 
             final Band srcBand = sourceRasterMap.get(tgtBand);
@@ -443,8 +449,8 @@ public class OffsetTrackingOp extends Operator {
         final Set<Band> bandSet = velocityMap.keySet();
 
         for (Band srcBand : bandSet) {
-            final String productName = srcBand.getProduct().getDisplayName();
-            final String velocityBandName = productName + "_vel";
+            final String suffix = StackUtils.getBandSuffix(srcBand.getName());
+            final String velocityBandName = VELOCITY + suffix;
 
             final MetadataElement bandElem = AbstractMetadata.getBandAbsMetadata(absRoot, velocityBandName, true);
 
