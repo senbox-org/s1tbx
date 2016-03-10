@@ -37,13 +37,13 @@ import java.awt.image.RenderedImage;
 /**
  * @author Tonio Fincke
  */
-@OperatorMetadata(alias = "Resample2",
+@OperatorMetadata(alias = "Resample",
         version = "2.0",
         authors = "Tonio Fincke",
         copyright = "(c) 2016 by Brockmann Consult",
         description = "Resampling of a multi-size source product to a single-size target product.",
         internal = true)
-public class ResamplingOp2 extends Operator {
+public class ResamplingOp extends Operator {
 
     private static final String NAME_EXTENSION = "resampled";
 
@@ -431,7 +431,7 @@ public class ResamplingOp2 extends Operator {
     public static class Spi extends OperatorSpi {
 
         public Spi() {
-            super(ResamplingOp2.class);
+            super(ResamplingOp.class);
         }
     }
 
