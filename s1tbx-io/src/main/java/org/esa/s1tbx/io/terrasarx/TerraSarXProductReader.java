@@ -28,7 +28,7 @@ import org.esa.snap.core.datamodel.quicklooks.Quicklook;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
-import org.esa.snap.engine_utilities.gpf.OperatorUtils;
+import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import javax.imageio.ImageReadParam;
@@ -109,6 +109,7 @@ public class TerraSarXProductReader extends SARReader {
                 product.setFileLocation(fileFromInput);
                 product.setProductReader(this);
             }    */
+
             product.getGcpGroup();
             product.setModified(false);
         } catch (Throwable e) {
@@ -158,7 +159,7 @@ public class TerraSarXProductReader extends SARReader {
 
                 Product product = destBand.getProduct();
 
-                if (OperatorUtils.isMapProjected(product)) {
+                if (dataDir.isMapProjected()) {
 
                     bandInfo.img.readImageIORasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
                             destBuffer, destOffsetX, destOffsetY, destWidth, destHeight, bandInfo.imageID,

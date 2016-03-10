@@ -641,7 +641,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE);
 
-        if (OperatorUtils.isMapProjected(product) || sampleType.contains("COMPLEX")) {
+        if (isMapProjected() || sampleType.contains("COMPLEX")) {
 
             ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
 
@@ -900,7 +900,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE);
 
-        if (OperatorUtils.isMapProjected(product) || sampleType.contains("COMPLEX")) {
+        if (isMapProjected() || sampleType.contains("COMPLEX")) {
 
             flippedSlantRangeCorners[0] = (float) slantRangeCorners[0];
             flippedSlantRangeCorners[1] = (float) slantRangeCorners[1];

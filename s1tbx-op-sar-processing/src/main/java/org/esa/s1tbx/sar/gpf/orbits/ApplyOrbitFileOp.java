@@ -246,7 +246,7 @@ public final class ApplyOrbitFileOp extends Operator {
 
         for (Band srcBand : sourceProduct.getBands()) {
             if (srcBand instanceof VirtualBand) {
-                OperatorUtils.copyVirtualBand(targetProduct, (VirtualBand) srcBand, srcBand.getName());
+                ProductUtils.copyVirtualBand(targetProduct, (VirtualBand) srcBand, srcBand.getName());
             } else {
                 ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, true);
             }

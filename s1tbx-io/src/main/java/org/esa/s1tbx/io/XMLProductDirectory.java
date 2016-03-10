@@ -24,6 +24,7 @@ import org.esa.snap.core.dataop.downloadable.XMLSupport;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.metadata.AbstractMetadataIO;
+import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.util.ZipUtils;
 import org.jdom2.Document;
@@ -56,6 +57,7 @@ public abstract class XMLProductDirectory {
     protected final File productInputFile;
 
     private boolean isSLC = false;
+    private boolean isMapProjected;
 
     protected transient final Map<String, ImageIOFile> bandImageFileMap = new TreeMap<>();
     protected transient final Map<Band, ImageIOFile.BandInfo> bandMap = new HashMap<>(3);
@@ -110,6 +112,10 @@ public abstract class XMLProductDirectory {
         isSLC = flag;
     }
 
+    public boolean isMapProjected() {
+        return isMapProjected;
+    }
+
     protected boolean isCompressed() {
         return productDir.isCompressed();
     }
@@ -132,7 +138,7 @@ public abstract class XMLProductDirectory {
         return imgPath.substring(imgPath.lastIndexOf('/') + 1, imgPath.length()).toLowerCase();
     }
 
-    protected Dimension getBandDimensions(final MetadataElement newRoot, final String bandMetadataName) {
+    protected static Dimension getBandDimensions(final MetadataElement newRoot, final String bandMetadataName) {
         final MetadataElement absRoot = newRoot.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
         final MetadataElement bandMetadata = absRoot.getElement(bandMetadataName);
         final int width, height;
@@ -259,6 +265,10 @@ public abstract class XMLProductDirectory {
         updateProduct(product, newRoot);
 
         addBands(product);
+
+        InputProductValidator validator = new InputProductValidator(product);
+        isMapProjected = validator.isMapProjected();
+
         addGeoCoding(product);
         addTiePointGrids(product);
 
