@@ -16,7 +16,6 @@
 package org.esa.s1tbx.insar.rcp.toolviews;
 
 import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.InSARStatistic;
-import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.StatBaselines;
 import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.StatESDMeasure;
 import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.StatInSARInfo;
 import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.StatResiduals;
@@ -33,13 +32,12 @@ import org.openide.awt.ActionReferences;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import java.awt.BorderLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.esa.snap.rcp.SnapApp.SelectionSourceHint.*;
+import static org.esa.snap.rcp.SnapApp.SelectionSourceHint.AUTO;
 
 /**
  * Displays InSAR Statistics
@@ -101,7 +99,7 @@ public class InSARStatisticsTopComponent extends TopComponent {
         statisticList.add(new StatInSARInfo());
         statisticList.add(new StatResiduals());
         statisticList.add(new StatESDMeasure());
-        statisticList.add(new StatBaselines());
+        //statisticList.add(new StatBaselines());
 
         final JTabbedPane tabbedPane = new JTabbedPane();
         for (InSARStatistic statistic : statisticList) {
