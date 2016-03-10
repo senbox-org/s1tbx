@@ -250,7 +250,7 @@ public class InSARStackOverviewDialog extends ModelessDialog {
             try {
                 final Product product = CommonReaders.readProduct(file);
                 final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-                final SLCImage img = new SLCImage(absRoot);
+                final SLCImage img = new SLCImage(absRoot, product);
                 final Orbit orb = new Orbit(absRoot, 3);
 
                 slcFileMap.put(img, file);
