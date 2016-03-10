@@ -226,7 +226,7 @@ public final class SARSimulationOp extends Operator {
             computeDEMTraversalSampleInterval();
 
             if (orbitMethod) {
-                meta = new SLCImage(absRoot);
+                meta = new SLCImage(absRoot, sourceProduct);
                 jOrbit = new Orbit(absRoot, 3);
             }
         } catch (Throwable e) {

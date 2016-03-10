@@ -173,7 +173,7 @@ public final class UpdateGeoRefOp extends Operator {
             if (reGridMethod) {
                 computeDEMTraversalSampleInterval();
             } else if (orbitMethod) {
-                meta = new SLCImage(absRoot);
+                meta = new SLCImage(absRoot, sourceProduct);
                 jOrbit = new Orbit(absRoot, 3);
             }
         } catch (Throwable e) {
