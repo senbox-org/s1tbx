@@ -16,6 +16,7 @@ import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.datamodel.Scene;
 import org.esa.snap.core.datamodel.SceneFactory;
 import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -208,7 +209,8 @@ public class ResamplingOp extends Operator {
             Band targetBand;
             AffineTransform sourceTransform = sourceBand.getImageToModelTransform();
             AffineTransform referenceTransform = referenceBand.getImageToModelTransform();
-            if (!sourceBand.getRasterSize().equals(referenceSize)) {
+            final boolean isVirtualBand = sourceBand instanceof VirtualBand;
+            if (!sourceBand.getRasterSize().equals(referenceSize) && !isVirtualBand) {
                 targetBand = new Band(sourceBand.getName(), sourceBand.getDataType(), referenceWidth, referenceHeight);
                 MultiLevelImage targetImage = sourceBand.getSourceImage();
                 MultiLevelImage sourceImage = sourceBand.getSourceImage();
@@ -242,8 +244,13 @@ public class ResamplingOp extends Operator {
                 targetBand.setSourceImage(adjustImageToModelTransform(targetImage, multiLevelModel));
                 targetProduct.addBand(targetBand);
             } else {
-                targetBand = ProductUtils.copyBand(sourceBand.getName(), sourceProduct, targetProduct, false);
-                targetBand.setSourceImage(adjustImageToModelTransform(sourceBand.getSourceImage(), multiLevelModel));
+                if (isVirtualBand) {
+                    targetBand = ProductUtils.copyVirtualBand(targetProduct, (VirtualBand) sourceBand, sourceBand.getName());
+                    targetBand.setImageToModelTransform(referenceBand.getImageToModelTransform());
+                } else {
+                    targetBand = ProductUtils.copyBand(sourceBand.getName(), sourceProduct, targetProduct, false);
+                    targetBand.setSourceImage(adjustImageToModelTransform(sourceBand.getSourceImage(), multiLevelModel));
+                }
             }
             ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
         }
