@@ -349,7 +349,7 @@ public final class ApplyOrbitFileOp extends Operator {
         final MetadataElement tgtAbsRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
 
         // put abstracted_metadata into jLinda metadata containers
-        final SLCImage metaData = new SLCImage(tgtAbsRoot);
+        final SLCImage metaData = new SLCImage(tgtAbsRoot, targetProduct);
         final Orbit orbit = new Orbit(tgtAbsRoot, polyDegree); // New Orbits - assumed metadata updated!
         final Orbit oldOrbit = new Orbit(absRoot, polyDegree); // Old Orbits
 
