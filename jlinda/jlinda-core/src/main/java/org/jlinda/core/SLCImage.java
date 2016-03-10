@@ -2,7 +2,10 @@ package org.jlinda.core;
 
 import org.apache.commons.math3.util.FastMath;
 import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.jlinda.core.io.ResFile;
 import org.jlinda.core.utils.DateUtils;
 
@@ -35,6 +38,7 @@ public final class SLCImage {
     private Point approxRadarCentreOriginal = new Point(); // use PixelPos as double!
     private GeoPoint approxGeoCentreOriginal = new GeoPoint();
     private Point approxXYZCentreOriginal = new Point();
+    private boolean nearRangeOnLeft = true;
 
     private double averageHeight;
 
@@ -151,7 +155,7 @@ public final class SLCImage {
 
     }
 
-    public SLCImage(MetadataElement element) throws IOException {
+    public SLCImage(final MetadataElement element, final Product product) throws IOException {
 
         this();
 
@@ -232,6 +236,18 @@ public final class SLCImage {
         this.mlAz = (int) element.getAttributeDouble(AbstractMetadata.azimuth_looks);
         this.mlRg = (int) element.getAttributeDouble(AbstractMetadata.range_looks);
 
+        this.nearRangeOnLeft = isNearRangeOnLeft(product);
+    }
+
+    private boolean isNearRangeOnLeft(final Product product) {
+
+        TiePointGrid incidenceAngle = OperatorUtils.getIncidenceAngle(product);
+        if (incidenceAngle != null) {
+            final double incidenceAngleToFirstPixel = incidenceAngle.getPixelDouble(0, 0);
+            final double incidenceAngleToLastPixel = incidenceAngle.getPixelDouble(currentWindow.pixhi - 1, 0);
+            return (incidenceAngleToFirstPixel < incidenceAngleToLastPixel);
+        }
+        return true;
     }
 
     public void parseResFile(File resFileName) throws Exception {
@@ -301,7 +317,12 @@ public final class SLCImage {
 
     // Convert pixel number to range time (1 is first pixel)
     public double pix2tr(double pixel) {
-        return tRange1 + ((pixel - 1.0) / rsr2x);
+//        return tRange1 + ((pixel - 1.0) / rsr2x);
+        if (nearRangeOnLeft) {
+            return tRange1 + pixel / rsr2x;
+        } else {
+            return tRange1 + (currentWindow.pixhi - 1 - pixel) / rsr2x;
+        }
     }
 
     // Convert pixel number to range (1 is first pixel)
@@ -311,7 +332,12 @@ public final class SLCImage {
 
     // Convert range time to pixel number (1 is first pixel)
     public double tr2pix(double rangeTime) {
-        return 1.0 + (rsr2x * (rangeTime - tRange1));
+//        return 1.0 + (rsr2x * (rangeTime - tRange1));
+        if (nearRangeOnLeft) {
+            return rsr2x * (rangeTime - tRange1);
+        } else {
+            return currentWindow.pixhi - 1 - rsr2x * (rangeTime - tRange1);
+        }
     }
 
     /*---  AZIMUTH CONVERSIONS ---*/
