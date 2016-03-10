@@ -39,7 +39,7 @@ public class GCPVectorLayer extends Layer {
 
     private final Product product;
     private final Band band;
-    private static final float lineThickness = 4.0f;
+    private static final float lineThickness = 1.0f;
     private final List<GCPData> gcpList = new ArrayList<>(200);
 
     public GCPVectorLayer(PropertySet configuration) {
@@ -94,7 +94,7 @@ public class GCPVectorLayer extends Layer {
         for (GCPData gcp : gcpList) {
             GraphicShape.drawArrow(graphics, screenPixel,
                     (int) gcp.slvX, (int) gcp.slvY,
-                    (int) gcp.mstX, (int) gcp.mstY);
+                    (int) gcp.mstX, (int) gcp.mstY, 50);
         }
     }
 

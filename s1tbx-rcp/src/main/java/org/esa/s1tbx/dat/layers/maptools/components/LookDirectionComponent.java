@@ -105,12 +105,12 @@ public class LookDirectionComponent implements MapToolsComponent {
             g.setStroke(thickStroke);
             GraphicShape.drawArrow(g, screenPixel,
                     (int) tails.get(i).getX(), (int) tails.get(i).getY(),
-                    (int) heads.get(i).getX(), (int) heads.get(i).getY());
+                    (int) heads.get(i).getX(), (int) heads.get(i).getY(), 4);
             g.setColor(Color.CYAN);
             g.setStroke(thinStroke);
             GraphicShape.drawArrow(g, screenPixel,
                     (int) tails.get(i).getX(), (int) tails.get(i).getY(),
-                    (int) heads.get(i).getX(), (int) heads.get(i).getY());
+                    (int) heads.get(i).getX(), (int) heads.get(i).getY(), 4);
         }
     }
 }
