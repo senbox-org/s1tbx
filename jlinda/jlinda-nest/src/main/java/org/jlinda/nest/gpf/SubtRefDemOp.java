@@ -394,10 +394,62 @@ public final class SubtRefDemOp extends Operator {
             int xN = targetRectangle.x + targetRectangle.width - 1;
             final Window tileWindow = new Window(y0, yN, x0, xN);
 
+            DemTile demTile = getDEMTile(
+                    tileWindow, targetMap, dem, demNoDataValue, demSamplingLat, demSamplingLon, tileExtensionPercent);
+
+            Band topoPhaseBand, targetBand_I, targetBand_Q;
+
+            // TODO: smarter extension of search space : foreshortening extension? can I calculate how bit tile I
+            // need (extra space) for the coverage, taking into the consideration only height of the tile?
+            for (String ifgKey : targetMap.keySet()) {
+
+                ProductContainer product = targetMap.get(ifgKey);
+
+                TopoPhase topoPhase = computeTopoPhase(product, tileWindow, demTile);
+
+                /// check out results from source ///
+                Tile tileReal = getSourceTile(product.sourceMaster.realBand, targetRectangle);
+                Tile tileImag = getSourceTile(product.sourceMaster.imagBand, targetRectangle);
+                ComplexDoubleMatrix complexIfg = TileUtilsDoris.pullComplexDoubleMatrix(tileReal, tileImag);
+
+                final ComplexDoubleMatrix cplxTopoPhase = new ComplexDoubleMatrix(
+                        MatrixFunctions.cos(new DoubleMatrix(topoPhase.demPhase)),
+                        MatrixFunctions.sin(new DoubleMatrix(topoPhase.demPhase)));
+
+                complexIfg.muli(cplxTopoPhase.conji());
+
+                /// commit to target ///
+                targetBand_I = targetProduct.getBand(product.targetBandName_I);
+                Tile tileOutReal = targetTileMap.get(targetBand_I);
+                TileUtilsDoris.pushDoubleMatrix(complexIfg.real(), tileOutReal, targetRectangle);
+
+                targetBand_Q = targetProduct.getBand(product.targetBandName_Q);
+                Tile tileOutImag = targetTileMap.get(targetBand_Q);
+                TileUtilsDoris.pushDoubleMatrix(complexIfg.imag(), tileOutImag, targetRectangle);
+
+                topoPhaseBand = targetProduct.getBand(product.masterSubProduct.targetBandName_I);
+                Tile tileOutTopoPhase = targetTileMap.get(topoPhaseBand);
+                TileUtilsDoris.pushDoubleArray2D(topoPhase.demPhase, tileOutTopoPhase, targetRectangle);
+            }
+
+        } catch (Exception e) {
+            throw new OperatorException(e);
+        }
+    }
+
+    public static DemTile getDEMTile(final org.jlinda.core.Window tileWindow,
+                                     final HashMap<String, ProductContainer> targetMap,
+                                     final ElevationModel dem,
+                                     final double demNoDataValue,
+                                     final double demSamplingLat,
+                                     final double demSamplingLon,
+                                     final String tileExtensionPercent) {
+
+        try {
             ProductContainer mstContainer = targetMap.values().iterator().next();
 
             // compute tile geo-corners ~ work on ellipsoid
-            GeoPoint[] geoCorners = GeoUtils.computeCorners(
+            GeoPoint[] geoCorners = org.jlinda.core.utils.GeoUtils.computeCorners(
                     mstContainer.sourceMaster.metaData, mstContainer.sourceMaster.orbit, tileWindow);
 
             // get corners as DEM indices
@@ -412,15 +464,16 @@ public final class SubtRefDemOp extends Operator {
             final Rectangle demTileRect = new Rectangle(x0DEM, y0DEM, x1DEM - x0DEM + 1, y1DEM - y0DEM + 1);
 
             // get max/min height of tile ~ uses 'fast' GCP based interpolation technique
-            final double[] tileHeights = computeMaxHeight(pixelCorners, demTileRect);
+            final double[] tileHeights = computeMaxHeight(
+                    pixelCorners, demTileRect, tileExtensionPercent, dem, demNoDataValue);
 
             // compute extra lat/lon for dem tile
-            GeoPoint geoExtent = GeoUtils.defineExtraPhiLam(tileHeights[0], tileHeights[1],
-                                                            tileWindow, mstContainer.sourceMaster.metaData,
-                                                            mstContainer.sourceMaster.orbit);
+            GeoPoint geoExtent = org.jlinda.core.utils.GeoUtils.defineExtraPhiLam(tileHeights[0], tileHeights[1],
+                    tileWindow, mstContainer.sourceMaster.metaData,
+                    mstContainer.sourceMaster.orbit);
 
             // extend corners
-            geoCorners = GeoUtils.extendCorners(geoExtent, geoCorners);
+            geoCorners = org.jlinda.core.utils.GeoUtils.extendCorners(geoExtent, geoCorners);
 
             // update corners
             pixelCorners[0] = dem.getIndex(new GeoPos(geoCorners[0].lat, geoCorners[0].lon));
@@ -454,59 +507,41 @@ public final class SubtRefDemOp extends Operator {
                 }
             }
 
-            DemTile demTile = new DemTile(upperLeftGeo.lat * Constants.DTOR, upperLeftGeo.lon * Constants.DTOR,
-                                          nLatPixels, nLonPixels, Math.abs(demSamplingLat), Math.abs(demSamplingLon), (long)demNoDataValue);
+            DemTile demTile = new DemTile(upperLeftGeo.lat * org.jlinda.core.Constants.DTOR,
+                    upperLeftGeo.lon * org.jlinda.core.Constants.DTOR,
+                    nLatPixels, nLonPixels, Math.abs(demSamplingLat),
+                    Math.abs(demSamplingLon), (long)demNoDataValue);
 
             demTile.setData(elevation);
 
-            Band topoPhaseBand;
-            Band targetBand_I;
-            Band targetBand_Q;
-
-            // TODO: smarter extension of search space : foreshortening extension? can I calculate how bit tile I
-            // need (extra space) for the coverage, taking into the consideration only height of the tile?
-            for (String ifgKey : targetMap.keySet()) {
-
-                ProductContainer product = targetMap.get(ifgKey);
-
-                final TopoPhase topoPhase = new TopoPhase(product.sourceMaster.metaData, product.sourceMaster.orbit,
-                        product.sourceSlave.metaData, product.sourceSlave.orbit, tileWindow, demTile);
-
-                topoPhase.radarCode();
-
-                topoPhase.gridData();
-
-                /// check out results from source ///
-                Tile tileReal = getSourceTile(product.sourceMaster.realBand, targetRectangle);
-                Tile tileImag = getSourceTile(product.sourceMaster.imagBand, targetRectangle);
-                ComplexDoubleMatrix complexIfg = TileUtilsDoris.pullComplexDoubleMatrix(tileReal, tileImag);
-
-                final ComplexDoubleMatrix cplxTopoPhase = new ComplexDoubleMatrix(
-                        MatrixFunctions.cos(new DoubleMatrix(topoPhase.demPhase)),
-                        MatrixFunctions.sin(new DoubleMatrix(topoPhase.demPhase)));
-
-                complexIfg.muli(cplxTopoPhase.conji());
-
-                /// commit to target ///
-                targetBand_I = targetProduct.getBand(product.targetBandName_I);
-                Tile tileOutReal = targetTileMap.get(targetBand_I);
-                TileUtilsDoris.pushDoubleMatrix(complexIfg.real(), tileOutReal, targetRectangle);
-
-                targetBand_Q = targetProduct.getBand(product.targetBandName_Q);
-                Tile tileOutImag = targetTileMap.get(targetBand_Q);
-                TileUtilsDoris.pushDoubleMatrix(complexIfg.imag(), tileOutImag, targetRectangle);
-
-                topoPhaseBand = targetProduct.getBand(product.masterSubProduct.targetBandName_I);
-                Tile tileOutTopoPhase = targetTileMap.get(topoPhaseBand);
-                TileUtilsDoris.pushDoubleArray2D(topoPhase.demPhase, tileOutTopoPhase, targetRectangle);
-            }
+            return demTile;
 
         } catch (Exception e) {
             throw new OperatorException(e);
         }
     }
 
-    private double[] computeMaxHeight(PixelPos[] corners, Rectangle rectangle) throws Exception {
+    public static TopoPhase computeTopoPhase(
+            final ProductContainer product, final Window tileWindow, final DemTile demTile) {
+
+        try {
+            final TopoPhase topoPhase = new TopoPhase(product.sourceMaster.metaData, product.sourceMaster.orbit,
+                    product.sourceSlave.metaData, product.sourceSlave.orbit, tileWindow, demTile);
+
+            topoPhase.radarCode();
+
+            topoPhase.gridData();
+
+            return topoPhase;
+
+        } catch (Exception e) {
+            throw new OperatorException(e);
+        }
+    }
+
+    private static double[] computeMaxHeight(
+            final PixelPos[] corners, final Rectangle rectangle, final String tileExtensionPercent,
+            final ElevationModel dem, final double demNoDataValue) throws Exception {
 
         /* Notes:
           - The scaling and extensions of extreme values of DEM tiles has to be performed to guarantee the overlap
