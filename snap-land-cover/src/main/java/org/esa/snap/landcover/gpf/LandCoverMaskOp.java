@@ -103,6 +103,7 @@ public final class LandCoverMaskOp extends Operator {
      * Create target product.
      */
     private void createTargetProduct() {
+        ensureSingleRasterSize(sourceProduct);
 
         targetProduct = new Product(sourceProduct.getName(),
                 sourceProduct.getProductType(),
