@@ -66,8 +66,8 @@ public class GoldsteinFilterOp extends Operator {
     @Parameter(description = "Use coherence mask", defaultValue = "false", label = "Use coherence mask")
     private Boolean useCoherenceMask = false;
 
-    @Parameter(description = "The coherence threshold", interval = "(0, 1]", defaultValue = "0.2",
-            label = "Coherence Threshold in (0,1]")
+    @Parameter(description = "The coherence threshold", interval = "[0, 1]", defaultValue = "0.2",
+            label = "Coherence Threshold in [0,1]")
     private double coherenceThreshold = 0.2;
 
     private int sourceImageWidth = 0;
