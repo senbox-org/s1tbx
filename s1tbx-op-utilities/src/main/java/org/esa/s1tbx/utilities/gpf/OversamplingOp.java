@@ -44,7 +44,7 @@ import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -60,7 +60,7 @@ import java.util.Map;
         description = "Oversample the datset")
 public class OversamplingOp extends Operator {
 
-    @SourceProduct(alias = "source", canBeMultisize = false)
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;

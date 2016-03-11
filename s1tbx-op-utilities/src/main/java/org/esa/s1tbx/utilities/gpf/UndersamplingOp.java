@@ -43,7 +43,7 @@ import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.util.ResourceUtils;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -99,7 +99,7 @@ import java.util.StringTokenizer;
         description = "Undersample the datset")
 public class UndersamplingOp extends Operator {
 
-    @SourceProduct(alias = "source", canBeMultisize = false)
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
