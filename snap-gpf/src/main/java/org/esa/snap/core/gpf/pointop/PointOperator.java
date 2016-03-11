@@ -214,10 +214,7 @@ public abstract class PointOperator extends Operator {
         int h = 0;
         for (int i = 0; i < sourceProducts.length; i++) {
             Product sourceProduct = sourceProducts[i];
-            if (sourceProduct.isMultiSizeProduct()) {
-                throw createMultiSizeException(sourceProduct);
-            }
-
+            ensureSingleSizeProduct(sourceProduct);
             if (i == 0) {
                 w = sourceProduct.getSceneRasterWidth();
                 h = sourceProduct.getSceneRasterHeight();

@@ -161,9 +161,7 @@ public class SubsetOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        if(sourceProduct.isMultiSizeProduct()) {
-            throw createMultiSizeException(sourceProduct);
-        }
+        ensureSingleSizeProduct(sourceProduct);
 
         subsetReader = new ProductSubsetBuilder();
         final ProductSubsetDef subsetDef = new ProductSubsetDef();

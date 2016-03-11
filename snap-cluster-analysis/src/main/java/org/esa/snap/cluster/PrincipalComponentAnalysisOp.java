@@ -94,9 +94,7 @@ public class PrincipalComponentAnalysisOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        if (sourceProduct.isMultiSizeProduct()) {
-            throw createMultiSizeException(sourceProduct);
-        }
+        ensureSingleSizeProduct(sourceProduct);
         collectSourceBands();
         if (componentCount <= 0 || componentCount > sourceBands.length) {
             componentCount = sourceBands.length;

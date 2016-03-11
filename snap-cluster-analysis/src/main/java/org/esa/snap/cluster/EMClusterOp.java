@@ -104,21 +104,20 @@ public class EMClusterOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        if (sourceProduct.isMultiSizeProduct()) {
-            throw createMultiSizeException(sourceProduct);
-        }
+        Product sourceProduct = this.sourceProduct;
+        ensureSingleSizeProduct(sourceProduct);
         sourceBands = collectSourceBands();
 
-        int width = sourceProduct.getSceneRasterWidth();
-        int height = sourceProduct.getSceneRasterHeight();
-        final String name = sourceProduct.getName() + "_CLUSTERS";
-        final String type = sourceProduct.getProductType() + "_CLUSTERS";
+        int width = this.sourceProduct.getSceneRasterWidth();
+        int height = this.sourceProduct.getSceneRasterHeight();
+        final String name = this.sourceProduct.getName() + "_CLUSTERS";
+        final String type = this.sourceProduct.getProductType() + "_CLUSTERS";
 
         targetProduct = new Product(name, type, width, height);
-        ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
-        ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
-        targetProduct.setStartTime(sourceProduct.getStartTime());
-        targetProduct.setEndTime(sourceProduct.getEndTime());
+        ProductUtils.copyTiePointGrids(this.sourceProduct, targetProduct);
+        ProductUtils.copyGeoCoding(this.sourceProduct, targetProduct);
+        targetProduct.setStartTime(this.sourceProduct.getStartTime());
+        targetProduct.setEndTime(this.sourceProduct.getEndTime());
 
         targetProduct.setPreferredTileSize(width, height);  //TODO ????
 

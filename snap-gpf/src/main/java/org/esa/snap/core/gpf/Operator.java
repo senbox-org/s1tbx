@@ -37,8 +37,6 @@ import java.text.MessageFormat;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import static java.text.MessageFormat.format;
-
 
 /**
  * The abstract base class for all operators intended to be extended by clients.
@@ -488,6 +486,22 @@ public abstract class Operator {
     }
 
     /**
+     * Ensures that the given product only contains raster data nodes having the same size (in pixels).
+     *
+     * @param product The product to test.
+     * @throws OperatorException if the product contains multi-size rasters.
+     * @since SNAP 3
+     */
+    protected void ensureSingleSizeProduct(Product product) throws OperatorException {
+        if (product.isMultiSizeProduct()) {
+            String message = String.format("Product '%s' contains rasters of different sizes and can not be processed.\n" +
+                                                   "Please consider resampling it so that all rasters have the same size.",
+                                           product.getName());
+            throw new OperatorException(message);
+        }
+    }
+
+    /**
      * Gets the logger whuich can be used to log information during initialisation and tile computation.
      *
      * @return The logger.
@@ -534,11 +548,5 @@ public abstract class Operator {
         Assert.argument(operatorSpi.getOperatorClass().isAssignableFrom(getClass()), "operatorSpi");
         context.setOperatorSpi(operatorSpi);
     }
-
-    // NOT API - don't use it in your implementation. Soon it will be removed.
-    protected OperatorException createMultiSizeException(Product product) {
-        return new OperatorException(format("Product ''{0}'' has raster of different sizes and can not be processed.", product.getName()));
-    }
-
 
 }

@@ -320,9 +320,7 @@ public class CollocateOp extends Operator {
         if (product.getSceneGeoCoding() == null) {
             throw new OperatorException(format("Product ''{0}'' has no geo-coding.", product.getName()));
         }
-        if (product.isMultiSizeProduct()) {
-            throw createMultiSizeException(product);
-        }
+        ensureSingleSizeProduct(product);
     }
 
     @Override

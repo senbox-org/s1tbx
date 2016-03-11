@@ -192,6 +192,24 @@ public class OperatorTest {
         assertSame(productManager, op2.getProductManager());
     }
 
+    @Test
+    public void testEnsureSingleSizeProduct_Single() {
+        Product source = new Product("sp1", "t", 10, 10);
+        source.addBand(new Band("b1", ProductData.TYPE_INT8, 10, 10));
+        source.addBand(new Band("b2", ProductData.TYPE_INT8, 10, 10));
+        FooExecOp op = new FooExecOp();
+        op.ensureSingleSizeProduct(source);
+    }
+
+    @Test(expected = OperatorException.class)
+    public void testEnsureSingleSizeProduct_Multi() throws OperatorException, IOException {
+        Product source = new Product("sp2", "t", 10, 10);
+        source.addBand(new Band("b1", ProductData.TYPE_INT8, 10, 10));
+        source.addBand(new Band("b2", ProductData.TYPE_INT8, 5, 5));
+        FooExecOp op = new FooExecOp();
+        op.ensureSingleSizeProduct(source);
+    }
+
     private static class FooExecOp extends Operator {
 
         private boolean initializeCalled;

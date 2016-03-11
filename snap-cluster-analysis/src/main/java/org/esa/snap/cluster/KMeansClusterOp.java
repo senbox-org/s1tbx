@@ -87,9 +87,7 @@ public class KMeansClusterOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        if (sourceProduct.isMultiSizeProduct()) {
-            throw createMultiSizeException(sourceProduct);
-        }
+        ensureSingleSizeProduct(sourceProduct);
         collectSourceBands();
 
         int width = sourceProduct.getSceneRasterWidth();
