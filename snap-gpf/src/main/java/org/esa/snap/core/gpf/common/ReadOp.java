@@ -32,7 +32,7 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
 
@@ -89,8 +89,8 @@ public class ReadOp extends Operator {
             } else {
                 // check if product is already opened
                 final Product[] openedProducts = getProductManager().getProducts();
-                for(Product openedProduct : openedProducts) {
-                    if(file.equals(openedProduct.getFileLocation())) {
+                for (Product openedProduct : openedProducts) {
+                    if (file.equals(openedProduct.getFileLocation())) {
                         //targetProduct = openedProduct;    // won't work. Product must be copied and use copySourceImage
 
                         targetProduct = new Product(openedProduct.getName(), openedProduct.getProductType(),
@@ -101,9 +101,9 @@ public class ReadOp extends Operator {
                         targetProduct.setFileLocation(file);
                         targetProduct.setProductReader(this.productReader);
 
-                        for(Band srcband : openedProduct.getBands()) {
-                            if(srcband instanceof VirtualBand) {
-                                ProductUtils.copyVirtualBand(targetProduct, (VirtualBand)srcband, srcband.getName());
+                        for (Band srcband : openedProduct.getBands()) {
+                            if (srcband instanceof VirtualBand) {
+                                ProductUtils.copyVirtualBand(targetProduct, (VirtualBand) srcband, srcband.getName());
                             } else {
                                 ProductUtils.copyBand(srcband.getName(), openedProduct, targetProduct, true);
                             }
