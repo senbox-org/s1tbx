@@ -111,6 +111,7 @@ public class FilterOperator extends Operator {
      */
     @Override
     public void initialize() throws OperatorException {
+        ensureSingleRasterSize(sourceProduct);
 
         try {
             targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
