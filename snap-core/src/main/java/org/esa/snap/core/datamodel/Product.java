@@ -881,7 +881,13 @@ public class Product extends ProductNode {
         return getSceneRasterSize().height;
     }
 
-    public boolean isMultiSizeProduct() {
+    /**
+     * Test if this product's raster data nodes are all of the same size (in pixels).
+     *
+     * @return {@code true}, if so.
+     * @since SNAP 2.0
+     */
+    public boolean isMultiSize() {
         final List<RasterDataNode> rasterDataNodes = getRasterDataNodes();
         return !ProductUtils.areRastersEqualInSize(rasterDataNodes.toArray(new RasterDataNode[rasterDataNodes.size()]));
     }

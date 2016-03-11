@@ -790,7 +790,7 @@ public class PixExOp extends Operator {
         if (product == null) {
             return false;
         }
-        if(product.isMultiSizeProduct()) {
+        if(product.isMultiSize()) {
             final String msgPattern = "Product [%s] refused. Cause: Product has rasters of different size.";
             logger.warning(String.format(msgPattern, product.getFileLocation()));
             return false;

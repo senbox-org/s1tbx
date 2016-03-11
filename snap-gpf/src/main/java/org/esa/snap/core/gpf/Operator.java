@@ -493,7 +493,7 @@ public abstract class Operator {
      * @since SNAP 3
      */
     protected void ensureSingleSizeProduct(Product product) throws OperatorException {
-        if (product.isMultiSizeProduct()) {
+        if (product.isMultiSize()) {
             String message = String.format("Product '%s' contains rasters of different sizes and can not be processed.\n" +
                                                    "Please consider resampling it so that all rasters have the same size.",
                                            product.getName());

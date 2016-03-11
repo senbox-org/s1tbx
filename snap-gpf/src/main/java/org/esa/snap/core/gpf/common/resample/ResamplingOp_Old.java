@@ -87,7 +87,7 @@ public class ResamplingOp_Old extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        if (!sourceProduct.isMultiSizeProduct()) {
+        if (!sourceProduct.isMultiSize()) {
             targetProduct = sourceProduct;
             return;
         }

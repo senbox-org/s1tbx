@@ -923,7 +923,7 @@ public class BinningOp extends Operator {
 
         @Override
         protected boolean acceptForBinning(Product product) {
-            if (!product.isMultiSizeProduct()) {
+            if (!product.isMultiSize()) {
                 return true;
             } else {
                 setReason("Product with rasters of different size are not supported yet.");
