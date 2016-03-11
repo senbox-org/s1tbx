@@ -158,7 +158,15 @@ public abstract class XMLProductDirectory {
     }
 
     public ImageIOFile.BandInfo getBandInfo(final Band destBand) {
-        return bandMap.get(destBand);
+        ImageIOFile.BandInfo bandInfo = bandMap.get(destBand);
+        if(bandInfo == null) {
+            for(Band srcBand : bandMap.keySet()) {
+                if(srcBand.getName().equals(destBand.getName())) {
+                    bandInfo = bandMap.get(srcBand);
+                }
+            }
+        }
+        return bandInfo;
     }
 
     public void close() throws IOException {
