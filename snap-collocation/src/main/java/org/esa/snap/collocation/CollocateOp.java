@@ -186,6 +186,8 @@ public class CollocateOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
+        ensureSingleRasterSize(masterProduct);
+        ensureSingleRasterSize(slaveProduct);
 
         validateProduct(masterProduct);
         validateProduct(slaveProduct);
