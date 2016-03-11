@@ -78,6 +78,7 @@ public final class FillDEMHoleOp extends Operator {
      */
     @Override
     public void initialize() throws OperatorException {
+        ensureSingleRasterSize(sourceProduct);
 
         try {
             getSourceImageDimension();
