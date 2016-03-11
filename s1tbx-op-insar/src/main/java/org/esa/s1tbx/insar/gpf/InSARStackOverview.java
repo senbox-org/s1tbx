@@ -25,7 +25,6 @@ import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;
 import org.jlinda.core.SLCImage;
 
-import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -187,14 +186,12 @@ public class InSARStackOverview {
         return srcProducts[0];
     }
 
-    public static InSARStackOverview.IfgStack[] calculateInSAROverview(
-            final MetadataElement[] absRoots, final Product product) throws Exception {
-
+    public static InSARStackOverview.IfgStack[] calculateInSAROverview(final MetadataElement[] absRoots) throws Exception {
         final List<SLCImage> imgList = new ArrayList<>(absRoots.length);
         final List<Orbit> orbList = new ArrayList<>(absRoots.length);
 
         for (MetadataElement absRoot : absRoots) {
-            imgList.add(new SLCImage(absRoot, product));
+            imgList.add(new SLCImage(absRoot, null));
             orbList.add(new Orbit(absRoot, 3));
         }
 

@@ -236,7 +236,9 @@ public final class SLCImage {
         this.mlAz = (int) element.getAttributeDouble(AbstractMetadata.azimuth_looks);
         this.mlRg = (int) element.getAttributeDouble(AbstractMetadata.range_looks);
 
-        this.nearRangeOnLeft = isNearRangeOnLeft(product);
+        if(product != null) {
+            this.nearRangeOnLeft = isNearRangeOnLeft(product);
+        }
     }
 
     private boolean isNearRangeOnLeft(final Product product) {
