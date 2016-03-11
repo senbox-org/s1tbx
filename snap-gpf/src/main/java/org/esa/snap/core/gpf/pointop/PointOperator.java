@@ -210,20 +210,7 @@ public abstract class PointOperator extends Operator {
      */
     protected final void checkRasterSize() throws OperatorException {
         Product[] sourceProducts = getSourceProducts();
-        int w = 0;
-        int h = 0;
-        for (int i = 0; i < sourceProducts.length; i++) {
-            Product sourceProduct = sourceProducts[i];
-            ensureSingleSizeProduct(sourceProduct);
-            if (i == 0) {
-                w = sourceProduct.getSceneRasterWidth();
-                h = sourceProduct.getSceneRasterHeight();
-            } else {
-                if (sourceProduct.getSceneRasterWidth() != w || sourceProduct.getSceneRasterHeight() != h) {
-                    throw new OperatorException("Source products must all have the same raster size.");
-                }
-            }
-        }
+        ensureSingleRasterSize(sourceProducts);
     }
 
     Sample[] createSourceSamples(Rectangle targetRectangle, Point location) {

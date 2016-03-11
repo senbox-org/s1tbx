@@ -317,10 +317,8 @@ public class CollocateOp extends Operator {
     }
 
     private void validateProduct(Product product) {
-        if (product.getSceneGeoCoding() == null) {
-            throw new OperatorException(format("Product ''{0}'' has no geo-coding.", product.getName()));
-        }
-        ensureSingleSizeProduct(product);
+        ensureSceneGeoCoding(product);
+        ensureSingleRasterSize(product);
     }
 
     @Override

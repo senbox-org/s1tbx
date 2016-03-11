@@ -94,7 +94,7 @@ public class PrincipalComponentAnalysisOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        ensureSingleSizeProduct(sourceProduct);
+        ensureSingleRasterSize(sourceProduct);
         collectSourceBands();
         if (componentCount <= 0 || componentCount > sourceBands.length) {
             componentCount = sourceBands.length;

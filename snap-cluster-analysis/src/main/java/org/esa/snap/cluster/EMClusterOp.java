@@ -105,7 +105,7 @@ public class EMClusterOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
         Product sourceProduct = this.sourceProduct;
-        ensureSingleSizeProduct(sourceProduct);
+        ensureSingleRasterSize(sourceProduct);
         sourceBands = collectSourceBands();
 
         int width = this.sourceProduct.getSceneRasterWidth();

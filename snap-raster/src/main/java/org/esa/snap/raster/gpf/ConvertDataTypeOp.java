@@ -100,7 +100,7 @@ public class ConvertDataTypeOp extends Operator {
      */
     @Override
     public void initialize() throws OperatorException {
-        ensureSingleSizeProduct(sourceProduct);
+        ensureSingleRasterSize(sourceProduct);
 
         try {
             targetProduct = new Product(sourceProduct.getName(),

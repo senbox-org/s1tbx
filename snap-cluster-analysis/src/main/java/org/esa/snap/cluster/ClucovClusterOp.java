@@ -65,7 +65,7 @@ public class ClucovClusterOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        ensureSingleSizeProduct(sourceProduct);
+        ensureSingleRasterSize(sourceProduct);
 
         featureBands = new Band[sourceBandNames.length];
         for (int i = 0; i < sourceBandNames.length; i++) {

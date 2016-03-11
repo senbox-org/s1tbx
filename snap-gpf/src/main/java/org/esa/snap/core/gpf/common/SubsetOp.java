@@ -171,7 +171,7 @@ public class SubsetOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        ensureSingleSizeProduct(sourceProduct);
+        ensureSingleRasterSize(sourceProduct);
 
         subsetReader = new ProductSubsetBuilder();
         final ProductSubsetDef subsetDef = new ProductSubsetDef();

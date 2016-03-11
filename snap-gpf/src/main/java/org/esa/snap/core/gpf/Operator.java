@@ -32,6 +32,7 @@ import org.esa.snap.core.gpf.annotations.TargetProperty;
 import org.esa.snap.core.gpf.internal.OperatorContext;
 
 import javax.media.jai.BorderExtender;
+import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.text.MessageFormat;
 import java.util.Map;
@@ -486,19 +487,73 @@ public abstract class Operator {
     }
 
     /**
-     * Ensures that the given product only contains raster data nodes having the same size (in pixels).
+     * Ensures that the given source products all have a scene geo-coding.
+     * Operator implementations may use this method in their {@link #initialize()} method to ensure that their
+     * sources are geo-coded.
      *
-     * @param product The product to test.
+     * @param products The products to test.
+     * @throws OperatorException if any product has no geo-coding.
+     * @since SNAP 3
+     */
+    protected void ensureSceneGeoCoding(Product... products) throws OperatorException {
+        for (Product product : products) {
+            if (product.getSceneGeoCoding() == null) {
+                throw new OperatorException(String.format("Source product '%s' must be geo-coded.", product.getName()));
+            }
+        }
+    }
+
+    /**
+     * Ensures that the given source products only contain raster data nodes having the same size in pixels and that all
+     * products have the same scene raster size.
+     * Operator implementations may use this method in their {@link #initialize()} method if they can only deal with
+     * single-size sources.
+     *
+     * @param products Source products products to test.
+     * @return the unique raster size, {@code null} if {@code products} is an empty array
      * @throws OperatorException if the product contains multi-size rasters.
      * @since SNAP 3
      */
-    protected void ensureSingleSizeProduct(Product product) throws OperatorException {
-        if (product.isMultiSize()) {
-            String message = String.format("Product '%s' contains rasters of different sizes and can not be processed.\n" +
-                                                   "Please consider resampling it so that all rasters have the same size.",
-                                           product.getName());
-            throw new OperatorException(message);
+    protected Dimension ensureSingleRasterSize(Product... products) throws OperatorException {
+        Dimension sceneRasterSize = null;
+        for (Product product : products) {
+            if (product.isMultiSize()) {
+                String message = String.format("Source product '%s' contains rasters of different sizes and can not be processed.\n" +
+                                                       "Please consider resampling it so that all rasters have the same size.",
+                                               product.getName());
+                throw new OperatorException(message);
+            }
+            if (sceneRasterSize == null) {
+                sceneRasterSize = product.getSceneRasterSize();
+            } else if (!product.getSceneRasterSize().equals(sceneRasterSize)) {
+                throw new OperatorException(String.format("All source products must have the same raster size of %d x %d pixels.",
+                                                          sceneRasterSize.width,
+                                                          sceneRasterSize.height));
+            }
         }
+        return sceneRasterSize;
+    }
+
+    /**
+     * Ensures that the given raster data nodes only contain raster data nodes having the same size in pixels.
+     *
+     * @param rasterDataNodes Other optional products to test.
+     * @return the unique raster size, {@code null} if {@code rasterDataNodes} is an empty array
+     * @throws OperatorException if the product contains multi-size rasters.
+     * @since SNAP 3
+     */
+    protected Dimension ensureSingleRasterSize(RasterDataNode... rasterDataNodes) throws OperatorException {
+        Dimension rasterSize = null;
+        for (RasterDataNode rasterDataNode : rasterDataNodes) {
+            if (rasterSize == null) {
+                rasterSize = rasterDataNode.getRasterSize();
+            } else if (!rasterSize.equals(rasterDataNode.getRasterSize())) {
+                throw new OperatorException(String.format("All source rasters must have the same size of %d x %d pixels.",
+                                                          rasterSize.width,
+                                                          rasterSize.height));
+            }
+        }
+        return rasterSize;
     }
 
     /**

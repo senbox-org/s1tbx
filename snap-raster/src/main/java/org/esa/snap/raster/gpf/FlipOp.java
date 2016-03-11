@@ -73,7 +73,7 @@ public final class FlipOp extends Operator {
      */
     @Override
     public void initialize() throws OperatorException {
-        ensureSingleSizeProduct(sourceProduct);
+        ensureSingleRasterSize(sourceProduct);
 
         try {
             int flippingType = ProductFlipper.FLIP_BOTH;

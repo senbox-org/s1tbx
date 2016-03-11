@@ -216,7 +216,7 @@ public class ReprojectionOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        ensureSingleSizeProduct(sourceProduct);
+        ensureSingleRasterSize(sourceProduct);
         validateCrsParameters();
         validateResamplingParameter();
         validateReferencingParameters();
