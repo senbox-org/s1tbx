@@ -97,7 +97,9 @@ public class ReadOp extends Operator {
                                                     openedProduct.getSceneRasterWidth(), openedProduct.getSceneRasterHeight(),
                                                     openedProduct.getProductReader());
                         ProductUtils.copyProductNodes(openedProduct, targetProduct);
+                        this.productReader = openedProduct.getProductReader();
                         targetProduct.setFileLocation(file);
+                        targetProduct.setProductReader(this.productReader);
 
                         for(Band srcband : openedProduct.getBands()) {
                             if(srcband instanceof VirtualBand) {
