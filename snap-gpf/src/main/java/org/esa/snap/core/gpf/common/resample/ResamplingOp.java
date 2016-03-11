@@ -54,7 +54,7 @@ public class ResamplingOp extends Operator {
     Product targetProduct;
 
     //todo also allow to set a target size/resolution explicitly
-    @Parameter(alias = "Reference Band", description = "The name of the reference band. " +
+    @Parameter(alias = "referenceBand",label = "Reference Band", description = "The name of the reference band. " +
             "All other bands will be re-sampled to match its size and resolution.",
             rasterDataNodeType = Band.class,
             notEmpty = true
