@@ -40,6 +40,8 @@ import org.esa.snap.core.util.math.MathUtils;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 /**
  * Implements a Principal Component Analysis.
@@ -61,24 +63,24 @@ public class PrincipalComponentAnalysisOp extends Operator {
     private Product targetProduct;
 
     @Parameter(label = "Source band names",
-               description = "The names of the bands being used for the cluster analysis.",
-               rasterDataNodeType = Band.class)
+            description = "The names of the bands being used for the cluster analysis.",
+            rasterDataNodeType = Band.class)
     private String[] sourceBandNames;
 
     @Parameter(label = "Maximum component count",
-               description = "The maximum number of principal components to compute.",
-               defaultValue = "-1")
+            description = "The maximum number of principal components to compute.",
+            defaultValue = "-1")
     private int componentCount;
 
     @Parameter(label = "ROI mask name",
-               description = "The name of the ROI mask that should be used.",
-               defaultValue = "",
-               rasterDataNodeType = Mask.class)
+            description = "The name of the ROI mask that should be used.",
+            defaultValue = "",
+            rasterDataNodeType = Mask.class)
     private String roiMaskName;
 
     @Parameter(label = "Remove non-ROI pixels",
-               description = "Removes all non-ROI pixels in the target product.",
-               defaultValue = "false")
+            description = "Removes all non-ROI pixels in the target product.",
+            defaultValue = "false")
     private boolean removeNonRoiPixels;
 
     private transient Roi roi;
@@ -94,20 +96,27 @@ public class PrincipalComponentAnalysisOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        ensureSingleRasterSize(sourceProduct);
         collectSourceBands();
-        if (componentCount <= 0 || componentCount > sourceBands.length) {
+        if (componentCount <= 0 || componentCount > this.sourceBands.length) {
             componentCount = sourceBands.length;
         }
+        if (roiMaskName != null) {
+            ensureSingleRasterSize(Stream.concat(Arrays.stream(sourceBands),
+                                                 Stream.of(sourceProduct.getMaskGroup().get(roiMaskName))).toArray(Band[]::new));
+        } else {
+            ensureSingleRasterSize(sourceBands);
+        }
 
-        int width = sourceProduct.getSceneRasterWidth();
-        int height = sourceProduct.getSceneRasterHeight();
+        int width = sourceBands[0].getRasterWidth();
+        int height = sourceBands[0].getRasterHeight();
         final String name = sourceProduct.getName() + "_PCA";
         final String type = sourceProduct.getProductType() + "_PCA";
 
         targetProduct = new Product(name, type, width, height);
-        ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
-        ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
+        if (sourceProduct.getSceneRasterSize().equals(targetProduct.getSceneRasterSize())) {
+            ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
+            ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
+        }
         targetProduct.setStartTime(sourceProduct.getStartTime());
         targetProduct.setEndTime(sourceProduct.getEndTime());
 
@@ -116,7 +125,7 @@ public class PrincipalComponentAnalysisOp extends Operator {
             final Band componentBand = targetProduct.addBand("component_" + (i + 1), ProductData.TYPE_FLOAT32);
             // Reuse spectral properties for components --> allow for analysis in spectrum view
             // Although, this is geo-physical nonsense.
-            ProductUtils.copySpectralBandProperties(sourceBands[i], componentBand);
+            ProductUtils.copySpectralBandProperties(this.sourceBands[i], componentBand);
             componentBands[i] = componentBand;
         }
         responseBand = targetProduct.addBand("response", ProductData.TYPE_FLOAT32);
@@ -142,7 +151,7 @@ public class PrincipalComponentAnalysisOp extends Operator {
             throw new OperatorException("Missing required mask '" + roiMaskName + "' in source product.");
         }
 
-        roi = new Roi(sourceProduct, sourceBands, roiMaskName);
+        roi = new Roi(sourceProduct, this.sourceBands, roiMaskName);
 
         setTargetProduct(targetProduct);
     }

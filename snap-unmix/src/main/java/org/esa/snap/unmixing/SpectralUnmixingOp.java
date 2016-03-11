@@ -242,11 +242,10 @@ public class SpectralUnmixingOp extends Operator {
             spectralUnmixing = new UnconstrainedLSU(lsuMatrixElements);
         }
 
-        int width = sourceProduct.getSceneRasterWidth();
-        int height = sourceProduct.getSceneRasterHeight();
+        int width = sourceBands[0].getRasterWidth();
+        int height = sourceBands[0].getRasterHeight();
 
-        targetProduct = new Product(sourceProduct.getName() + "_unmixed",
-                "SpectralUnmixing", width, height);
+        targetProduct = new Product(sourceProduct.getName() + "_unmixed", "SpectralUnmixing", width, height);
 
         abundanceBands = new Band[numEndmembers];
         for (int i = 0; i < numEndmembers; i++) {
@@ -265,8 +264,10 @@ public class SpectralUnmixingOp extends Operator {
         }
 
         ProductUtils.copyMetadata(sourceProduct, targetProduct);
-        ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
-        ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
+        if (sourceProduct.getSceneRasterSize().equals(targetProduct.getSceneRasterSize())) {
+            ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
+            ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
+        }
     }
 
     @Override
