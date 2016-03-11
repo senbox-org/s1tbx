@@ -65,7 +65,6 @@ public class ClucovClusterOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        ensureSingleRasterSize(sourceProduct);
 
         featureBands = new Band[sourceBandNames.length];
         for (int i = 0; i < sourceBandNames.length; i++) {
@@ -76,9 +75,13 @@ public class ClucovClusterOp extends Operator {
             }
             featureBands[i] = band;
         }
+        if (featureBands.length == 0) {
+            throw new OperatorException("Need at least a single feature band.");
+        }
+        ensureSingleRasterSize(featureBands);
 
-        int width = sourceProduct.getSceneRasterWidth();
-        int height = sourceProduct.getSceneRasterHeight();
+        int width = featureBands[0].getRasterWidth();
+        int height = featureBands[0].getRasterHeight();
         targetProduct = new Product("clucov", "clucov", width, height);
 // todo - use option to decide if to output probability bands         
 //        for (int i = 0; i < featureBands.length; i++) {

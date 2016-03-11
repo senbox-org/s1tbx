@@ -34,8 +34,12 @@ import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 
 import java.awt.Rectangle;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Operator for cluster analysis.
@@ -104,22 +108,28 @@ public class EMClusterOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        Product sourceProduct = this.sourceProduct;
-        ensureSingleRasterSize(sourceProduct);
         sourceBands = collectSourceBands();
+        if (roiMaskName != null) {
+            ensureSingleRasterSize(Stream.concat(Arrays.stream(sourceBands),
+                                                 Stream.of(sourceProduct.getMaskGroup().get(roiMaskName))).toArray(Band[]::new));
+        } else {
+            ensureSingleRasterSize(sourceBands);
+        }
 
-        int width = this.sourceProduct.getSceneRasterWidth();
-        int height = this.sourceProduct.getSceneRasterHeight();
-        final String name = this.sourceProduct.getName() + "_CLUSTERS";
-        final String type = this.sourceProduct.getProductType() + "_CLUSTERS";
+        int width = sourceBands[0].getRasterWidth();
+        int height = sourceBands[0].getRasterHeight();
+        final String name = sourceProduct.getName() + "_CLUSTERS";
+        final String type = sourceProduct.getProductType() + "_CLUSTERS";
 
         targetProduct = new Product(name, type, width, height);
-        ProductUtils.copyTiePointGrids(this.sourceProduct, targetProduct);
-        ProductUtils.copyGeoCoding(this.sourceProduct, targetProduct);
-        targetProduct.setStartTime(this.sourceProduct.getStartTime());
-        targetProduct.setEndTime(this.sourceProduct.getEndTime());
+        if (sourceProduct.getSceneRasterSize().equals(sourceBands[0].getRasterSize())) {
+            ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
+            ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
+        }
+        targetProduct.setStartTime(sourceProduct.getStartTime());
+        targetProduct.setEndTime(sourceProduct.getEndTime());
 
-        targetProduct.setPreferredTileSize(width, height);  //TODO ????
+        targetProduct.setPreferredTileSize(width, height);
 
         if (includeProbabilityBands) {
             createProbabilityBands();
@@ -158,7 +168,7 @@ public class EMClusterOp extends Operator {
             for (int i = 0; i < sourceBandNames.length; i++) {
                 final Band sourceBand = sourceProduct.getBand(sourceBandNames[i]);
                 if (sourceBand == null) {
-                    throw new OperatorException("source band not found: " + sourceBandNames[i]);
+                    throw new OperatorException("Source band not found: " + sourceBandNames[i]);
                 }
                 srcBands[i] = sourceBand;
             }

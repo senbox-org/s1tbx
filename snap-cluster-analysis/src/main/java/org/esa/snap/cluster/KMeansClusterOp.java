@@ -37,6 +37,10 @@ import org.esa.snap.core.util.math.MathUtils;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Operator for k-means cluster analysis.
@@ -87,17 +91,25 @@ public class KMeansClusterOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        ensureSingleRasterSize(sourceProduct);
-        collectSourceBands();
+        Band[] sourceBands = collectSourceBands();
+        if (roiMaskName != null) {
+            ensureSingleRasterSize(Stream.concat(Arrays.stream(sourceBands),
+                                                 Stream.of(sourceProduct.getMaskGroup().get(roiMaskName))).toArray(Band[]::new));
+        } else {
+            ensureSingleRasterSize(sourceBands);
+        }
 
-        int width = sourceProduct.getSceneRasterWidth();
-        int height = sourceProduct.getSceneRasterHeight();
+        int width = sourceBands[0].getRasterWidth();
+        int height = sourceBands[0].getRasterHeight();
         final String name = sourceProduct.getName() + "_CLUSTERS";
         final String type = sourceProduct.getProductType() + "_CLUSTERS";
 
         targetProduct = new Product(name, type, width, height);
-        ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
-        ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
+        if (sourceProduct.getSceneRasterSize().equals(sourceBands[0].getRasterSize())) {
+            ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
+            ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
+        }
+
         targetProduct.setStartTime(sourceProduct.getStartTime());
         targetProduct.setEndTime(sourceProduct.getEndTime());
 
@@ -126,7 +138,7 @@ public class KMeansClusterOp extends Operator {
             for (int i = 0; i < sourceBandNames.length; i++) {
                 final Band sourceBand = sourceProduct.getBand(sourceBandNames[i]);
                 if (sourceBand == null) {
-                    throw new OperatorException("source band not found: " + sourceBandNames[i]);
+                    throw new OperatorException("Source band not found: " + sourceBandNames[i]);
                 }
                 sourceBands[i] = sourceBand;
             }
