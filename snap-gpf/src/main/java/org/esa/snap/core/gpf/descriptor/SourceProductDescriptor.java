@@ -11,11 +11,6 @@ import org.esa.snap.core.datamodel.Product;
 public interface SourceProductDescriptor extends DataElementDescriptor {
 
     /**
-     * @return true if the source product is allowed to contain bands of different sizes
-     */
-    boolean canBeMultisize();
-
-    /**
      * @return {@code true} if the source product is optional.
      * Defaults to {@code false}.
      */

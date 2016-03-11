@@ -32,11 +32,6 @@ public class AnnotationSourceProductDescriptor implements SourceProductDescripto
     }
 
     @Override
-    public boolean canBeMultisize() {
-        return annotation.canBeMultisize();
-    }
-
-    @Override
     public boolean isOptional() {
         return annotation.optional();
     }

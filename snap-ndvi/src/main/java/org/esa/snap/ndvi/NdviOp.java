@@ -32,7 +32,8 @@ import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Rectangle;
 import java.util.Map;
 
 /**
@@ -59,7 +60,7 @@ public class NdviOp extends Operator {
     public static final int NDVI_LOW_FLAG_VALUE = 1 << 1;
     public static final int NDVI_HIGH_FLAG_VALUE = 1 << 2;
 
-    @SourceProduct(alias = "source", description="The source product.", canBeMultisize = false)
+    @SourceProduct(alias = "source", description="The source product.")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;

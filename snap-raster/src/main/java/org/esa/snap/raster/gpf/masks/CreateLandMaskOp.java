@@ -36,7 +36,7 @@ import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.TileGeoreferencing;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +54,7 @@ import java.util.Set;
         description = "Creates a bitmask defining land vs ocean.")
 public class CreateLandMaskOp extends Operator {
 
-    @SourceProduct(alias = "source", canBeMultisize = false)
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct = null;

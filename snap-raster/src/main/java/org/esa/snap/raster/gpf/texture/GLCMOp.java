@@ -35,7 +35,7 @@ import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
 import javax.media.jai.Histogram;
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -65,7 +65,7 @@ import java.util.Map;
         description = "Extract Texture Features")
 public final class GLCMOp extends Operator {
 
-    @SourceProduct(alias = "source", canBeMultisize = false)
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;

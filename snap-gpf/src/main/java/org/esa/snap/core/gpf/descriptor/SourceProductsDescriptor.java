@@ -36,8 +36,4 @@ public interface SourceProductsDescriptor extends DataElementDescriptor {
      */
     Class<? extends Product[]> getDataType();
 
-    /**
-     * @return true if the source product is allowed to contain bands of different sizes
-     */
-    boolean canBeMultisize();
 }

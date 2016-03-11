@@ -48,7 +48,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.text.MessageFormat.format;
+import static java.text.MessageFormat.*;
 
 /**
  * This operator is used to spatially collocate two data products. It requires two source products,
@@ -74,10 +74,10 @@ public class CollocateOp extends Operator {
     private static final String BILINEAR_INTERPOLATION = "BILINEAR_INTERPOLATION";
     private static final String CUBIC_CONVOLUTION = "CUBIC_CONVOLUTION";
 
-    @SourceProduct(alias = "master", description = "The source product which serves as master.", canBeMultisize = false)
+    @SourceProduct(alias = "master", description = "The source product which serves as master.")
     private Product masterProduct;
 
-    @SourceProduct(alias = "slave", description = "The source product which serves as slave.", canBeMultisize = false)
+    @SourceProduct(alias = "slave", description = "The source product which serves as slave.")
     private Product slaveProduct;
 
     @TargetProduct(description = "The target product which will use the master's grid.")

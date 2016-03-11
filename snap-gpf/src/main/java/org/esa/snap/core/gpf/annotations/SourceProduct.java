@@ -74,8 +74,4 @@ public @interface SourceProduct {
      */
     String label() default "";
 
-    /**
-     * @return If true, the operator supports multisize-products
-     */
-    boolean canBeMultisize() default true;
 }

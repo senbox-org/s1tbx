@@ -38,7 +38,7 @@ import org.esa.snap.core.jexp.impl.ParserImpl;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,7 +54,7 @@ import java.util.Map;
         description = "Perform decision tree classification")
 public final class LandCoverMaskOp extends Operator {
 
-    @SourceProduct(alias = "source", canBeMultisize = false)
+    @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;

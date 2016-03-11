@@ -53,7 +53,7 @@ public class EMClusterOp extends Operator {
 
     private static final int NO_DATA_VALUE = 0xFF;
 
-    @SourceProduct(alias = "source", label = "Source product", description = "The source product", canBeMultisize = false)
+    @SourceProduct(alias = "source", label = "Source product", description = "The source product")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;

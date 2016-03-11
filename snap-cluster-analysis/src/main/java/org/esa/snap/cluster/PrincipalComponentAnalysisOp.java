@@ -55,7 +55,7 @@ import java.awt.Rectangle;
         description = "Performs a Principal Component Analysis.")
 public class PrincipalComponentAnalysisOp extends Operator {
 
-    @SourceProduct(alias = "source", label = "Source product", description = "The source product.", canBeMultisize = false)
+    @SourceProduct(alias = "source", label = "Source product", description = "The source product.")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
