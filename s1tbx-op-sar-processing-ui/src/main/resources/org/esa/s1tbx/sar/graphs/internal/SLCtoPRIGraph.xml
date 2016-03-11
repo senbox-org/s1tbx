@@ -1,16 +1,16 @@
 <graph id="Graph">
   <version>1.0</version>
-  <node id="1-Read">
+  <node id="Read">
     <operator>Read</operator>
     <sources/>
     <parameters>
       <file></file>
     </parameters>
   </node>
-  <node id="2-Calibration">
+  <node id="Calibration">
     <operator>Calibration</operator>
     <sources>
-      <sourceProduct refid="1-Read"/>
+      <sourceProduct refid="Read"/>
     </sources>
     <parameters>
       <sourceBands>Intensity</sourceBands>
@@ -21,10 +21,10 @@
       <createBetaBand>false</createBetaBand>
     </parameters>
   </node>
-  <node id="3-SRGR">
+  <node id="SRGR">
     <operator>SRGR</operator>
     <sources>
-      <sourceProduct refid="2-Calibration"/>
+      <sourceProduct refid="Calibration"/>
     </sources>
     <parameters>
       <sourceBands>
@@ -33,10 +33,10 @@
 	  <interpolationMethod>Linear interpolation</interpolationMethod>
     </parameters>
   </node>
-  <node id="4-Multilook">
+  <node id="Multilook">
     <operator>Multilook</operator>
     <sources>
-      <sourceProduct refid="3-SRGR"/>
+      <sourceProduct refid="SRGR"/>
     </sources>
     <parameters>
 	  <sourceBands>
@@ -46,10 +46,10 @@
 	  <outputIntensity>true</outputIntensity>
     </parameters>
   </node>
-  <node id="5-Write">
+  <node id="Write">
     <operator>Write</operator>
     <sources>
-      <sourceProduct refid="4-Multilook"/>
+      <sourceProduct refid="Multilook"/>
     </sources>
     <parameters>
       <formatName>BEAM-DIMAP</formatName>
@@ -58,19 +58,19 @@
   </node>
   <applicationData id="Presentation">
     <Description/>
-    <node id="1-Read">
+    <node id="Read">
       <displayPosition y="134.0" x="37.0"/>
     </node>
-	<node id="2-Calibration">
+	<node id="Calibration">
       <displayPosition y="135.0" x="135.0"/>
     </node>
-    <node id="3-SRGR">
+    <node id="SRGR">
       <displayPosition y="204.0" x="138.0"/>
     </node>
-    <node id="4-Multilook">
+    <node id="Multilook">
       <displayPosition y="203.0" x="250.0"/>
     </node>
-    <node id="5-Write">
+    <node id="Write">
       <displayPosition y="203.0" x="360.0"/>
     </node>
   </applicationData>

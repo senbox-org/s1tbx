@@ -28,7 +28,7 @@
     </sources>
     <parameters>
       <formatName>BEAM-DIMAP</formatName>
-      <file>stack.dim</file>
+      <file>target.dim</file>
     </parameters>
   </node>
   <applicationData id="Presentation">

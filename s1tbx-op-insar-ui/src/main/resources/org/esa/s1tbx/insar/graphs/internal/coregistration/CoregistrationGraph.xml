@@ -68,7 +68,7 @@
     </sources>
     <parameters>
       <formatName>BEAM-DIMAP</formatName>
-      <file>coregistered_stack.dim</file>
+      <file>target.dim</file>
     </parameters>
   </node>
   <applicationData id="Presentation">
