@@ -167,15 +167,15 @@ public class SarUtils {
     @Deprecated
     public static DoubleMatrix coherence(final ComplexDoubleMatrix inputMatrix, final ComplexDoubleMatrix normsMatrix, final int winL, final int winP) {
 
-        logger.info("coherence ver #2");
-        if (!(winL >= winP)) {
-            logger.warning("coherence: estimator window size L<P not very efficiently programmed.");
-        }
-
-        if (inputMatrix.rows != normsMatrix.rows || inputMatrix.rows != inputMatrix.rows) {
-            logger.severe("coherence: not same dimensions.");
-            throw new IllegalArgumentException("coherence: not the same dimensions.");
-        }
+//        logger.info("coherence ver #2");
+//        if (!(winL >= winP)) {
+//            logger.warning("coherence: estimator window size L<P not very efficiently programmed.");
+//        }
+//
+//        if (inputMatrix.rows != normsMatrix.rows || inputMatrix.rows != inputMatrix.rows) {
+//            logger.severe("coherence: not same dimensions.");
+//            throw new IllegalArgumentException("coherence: not the same dimensions.");
+//        }
 
         // allocate output :: account for window overlap
         DoubleMatrix outputMatrix = new DoubleMatrix(inputMatrix.rows - winL + 1, inputMatrix.columns);
@@ -215,15 +215,15 @@ public class SarUtils {
 
     public static DoubleMatrix coherence2(final ComplexDoubleMatrix input, final ComplexDoubleMatrix norms, final int winL, final int winP) {
 
-        logger.info("coherence ver #2");
-        if (!(winL >= winP)) {
-            logger.warning("coherence: estimator window size L<P not very efficiently programmed.");
-        }
-
-        if (input.rows != norms.rows) {
-            logger.severe("coherence: not same dimensions.");
-            throw new IllegalArgumentException("coherence: not the same dimensions.");
-        }
+//        logger.info("coherence ver #2");
+//        if (!(winL >= winP)) {
+//            logger.warning("coherence: estimator window size L<P not very efficiently programmed.");
+//        }
+//
+//        if (input.rows != norms.rows) {
+//            logger.severe("coherence: not same dimensions.");
+//            throw new IllegalArgumentException("coherence: not the same dimensions.");
+//        }
 
         // allocate output :: account for window overlap
         final int extent_RG = input.columns;
@@ -278,15 +278,15 @@ public class SarUtils {
     public static ComplexDoubleMatrix cplxCoherence(
             final ComplexDoubleMatrix input, final ComplexDoubleMatrix norms, final int winL, final int winP) {
 
-        logger.info("cplx coherence");
-        if (!(winL >= winP)) {
-            logger.warning("coherence: estimator window size L<P not very efficiently programmed.");
-        }
-
-        if (input.rows != norms.rows) {
-            logger.severe("coherence: not same dimensions.");
-            throw new IllegalArgumentException("coherence: not the same dimensions.");
-        }
+//        logger.info("cplx coherence");
+//        if (!(winL >= winP)) {
+//            logger.warning("coherence: estimator window size L<P not very efficiently programmed.");
+//        }
+//
+//        if (input.rows != norms.rows) {
+//            logger.severe("coherence: not same dimensions.");
+//            throw new IllegalArgumentException("coherence: not the same dimensions.");
+//        }
 
         final int extent_RG = input.columns;
         final int extent_AZ = input.rows - winL + 1;
