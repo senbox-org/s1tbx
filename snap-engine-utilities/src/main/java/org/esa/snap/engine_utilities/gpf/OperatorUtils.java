@@ -16,11 +16,9 @@
 package org.esa.snap.engine_utilities.gpf;
 
 import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.CrsGeoCoding;
 import org.esa.snap.core.datamodel.GcpDescriptor;
 import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.GeoPos;
-import org.esa.snap.core.datamodel.MapGeoCoding;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Placemark;
@@ -38,8 +36,7 @@ import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.db.DBQuery;
 import org.esa.snap.engine_utilities.util.ExceptionLog;
 
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -216,29 +213,6 @@ public final class OperatorUtils {
             return bandName.substring(idx3 + 1);
         }
         return null;
-    }
-
-    public static void copyVirtualBand(final Product product, final VirtualBand srcBand, final String name) {
-
-        final VirtualBand virtBand = new VirtualBand(name,
-                srcBand.getDataType(),
-                srcBand.getRasterWidth(),
-                srcBand.getRasterHeight(),
-                srcBand.getExpression());
-        virtBand.setUnit(srcBand.getUnit());
-        virtBand.setDescription(srcBand.getDescription());
-        virtBand.setNoDataValue(srcBand.getNoDataValue());
-        virtBand.setNoDataValueUsed(srcBand.isNoDataValueUsed());
-        virtBand.setOwner(product);
-        product.addBand(virtBand);
-    }
-
-    @Deprecated
-    public static boolean isMapProjected(final Product product) {
-        if (product.getSceneGeoCoding() instanceof MapGeoCoding || product.getSceneGeoCoding() instanceof CrsGeoCoding)
-            return true;
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        return absRoot != null && !AbstractMetadata.isNoData(absRoot, AbstractMetadata.map_projection);
     }
 
     /**

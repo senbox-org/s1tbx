@@ -7,39 +7,39 @@ import org.esa.snap.core.datamodel.ProductData;
  */
 public class AggregatorFactory {
 
-    public static Aggregator createAggregator(String method, int dataType) {
+    public static Aggregator createAggregator(AggregationType aggregationType, int dataType) {
         if (dataType == ProductData.TYPE_FLOAT32 || dataType == ProductData.TYPE_FLOAT64) {
-            switch (method) {
-                case "Mean":
+            switch (aggregationType) {
+                case Mean:
                     return new DoubleDataAggregator.Mean();
-                case "Median":
+                case Median:
                     return new DoubleDataAggregator.Median();
-                case "And":
+                case Min:
                     return new DoubleDataAggregator.Min();
-                case "Or":
+                case Max:
                     return new DoubleDataAggregator.Max();
-                case "First":
+                case First:
                     return new DoubleDataAggregator.First();
             }
         } else {
-            switch (method) {
-                case "Mean":
+            switch (aggregationType) {
+                case Mean:
                     return new LongDataAggregator.Mean();
-                case "Median":
+                case Median:
                     return new LongDataAggregator.Median();
-                case "And":
+                case Min:
                     return new LongDataAggregator.Min();
-                case "Or":
+                case Max:
                     return new LongDataAggregator.Max();
-                case "First":
+                case First:
                     return new LongDataAggregator.First();
-                case "FlagAnd":
+                case FlagAnd:
                     return new LongDataAggregator.FlagAnd();
-                case "FlagOr":
+                case FlagOr:
                     return new LongDataAggregator.FlagOr();
-                case "FlagMedianAnd":
+                case FlagMedianAnd:
                     return new LongDataAggregator.FlagMedianAnd();
-                case "FlagMedianOr":
+                case FlagMedianOr:
                     return new LongDataAggregator.FlagMedianOr();
             }
         }

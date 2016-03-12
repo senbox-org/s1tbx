@@ -1,18 +1,17 @@
 package org.esa.snap.core.gpf.common.resample;
 
-import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
-import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
-import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.image.VirtualBandOpImage;
+import org.esa.snap.core.gpf.GPF;
+import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.transform.MathTransform2D;
 import org.junit.Test;
 
-import java.awt.geom.AffineTransform;
+import java.util.HashMap;
+import java.util.Map;
 
-import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.*;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -26,44 +25,95 @@ public class ResamplingOpTest {
         product.addBand("band_1", "X + Y");
         final Band band2 = product.addBand("band_2", "X + 1 + Y");
 
-        assertTrue(ResamplingOp.allNodesHaveIdentitySceneTransform(product));
+        assertTrue(ResamplingOp_Old.allNodesHaveIdentitySceneTransform(product));
 
         band2.setModelToSceneTransform(MathTransform2D.NULL);
 
-        assertFalse(ResamplingOp.allNodesHaveIdentitySceneTransform(product));
+        assertFalse(ResamplingOp_Old.allNodesHaveIdentitySceneTransform(product));
     }
 
     @Test
-    public void testAllScalingsAreIntDivisible() {
-        final Product product = new Product("name", "tapce", 2, 2);
-        product.addBand("band_1", "X + Y");
-        product.addBand("band_2", "X + 1 + Y");
-
-        assertTrue(ResamplingOp.allScalingsAreIntDivisible(product));
-
-        final VirtualBandOpImage image = VirtualBandOpImage.builder("X + Y", product).create();
-        final AffineTransform nonIntScalableTransform = new AffineTransform(1.5, 0, 0, 1.5, 0, 0);
-        final DefaultMultiLevelModel nonIntScalbleModel = new DefaultMultiLevelModel(nonIntScalableTransform, 3, 3);
-        final DefaultMultiLevelSource nonInScalableSource = new DefaultMultiLevelSource(image, nonIntScalbleModel);
-        final DefaultMultiLevelImage nonIntScalableImage = new DefaultMultiLevelImage(nonInScalableSource);
-        final Band band_3 = new Band("band_3", ProductData.TYPE_FLOAT32, 3, 3);
-        band_3.setSourceImage(nonIntScalableImage);
-        product.addBand(band_3);
-
-        assertFalse(ResamplingOp.allScalingsAreIntDivisible(product));
+    public void testOnlyReferenceBandIsSet() {
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new ResamplingOp.Spi());
+        Product product = new Product("dummy", "dummy", 2, 2);
+        product.addBand("dummy", ProductData.TYPE_INT8);
+        final Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("referenceBandName", "dummy");
+        parameterMap.put("targetWidth", 3);
+        try {
+            GPF.createProduct("Resample", parameterMap, product);
+            fail("Exception expected");
+        } catch (OperatorException oe) {
+            assertEquals("If referenceBandName is set, targetWidth, targetHeight, and targetResolution must not be set",
+                         oe.getMessage());
+        }
+        parameterMap.remove("targetWidth");
+        parameterMap.put("targetHeight", 3);
+        try {
+            GPF.createProduct("Resample", parameterMap, product);
+            fail("Exception expected");
+        } catch (OperatorException oe) {
+            assertEquals("If referenceBandName is set, targetWidth, targetHeight, and targetResolution must not be set",
+                         oe.getMessage());
+        }
+        parameterMap.remove("targetHeight");
+        parameterMap.put("targetResolution", 20);
+        try {
+            GPF.createProduct("Resample", parameterMap, product);
+            fail("Exception expected");
+        } catch (OperatorException oe) {
+            assertEquals("If referenceBandName is set, targetWidth, targetHeight, and targetResolution must not be set",
+                         oe.getMessage());
+        }
     }
 
     @Test
-    public void testAllBandsMustBeEitherInterpolatedAggregatedOrLeftAsIs() {
-        final Product product = new Product("name", "tapce", 2, 2);
-        final Band band_1 = product.addBand("band_1", "X + Y");
-        product.addBand("band_2", "X + 1 + Y");
-
-        assertTrue(ResamplingOp.allBandsMustBeEitherInterpolatedAggregatedOrLeftAsIs(product, band_1));
-
-        product.addBand(new Band("band_3", ProductData.TYPE_INT8, 1, 3));
-
-        assertFalse(ResamplingOp.allBandsMustBeEitherInterpolatedAggregatedOrLeftAsIs(product, band_1));
+    public void testOnlyTargetWidthAndHeightAreSet() {
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new ResamplingOp.Spi());
+        Product product = new Product("dummy", "dummy", 2, 2);
+        product.addBand("dummy", ProductData.TYPE_INT8);
+        final Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("targetWidth", 3);
+        parameterMap.put("targetHeight", 3);
+        parameterMap.put("referenceBandName", "dummy");
+        try {
+            GPF.createProduct("Resample", parameterMap, product);
+            fail("Exception expected");
+        } catch (OperatorException oe) {
+            assertEquals("If referenceBandName is set, targetWidth, targetHeight, and targetResolution must not be set",
+                         oe.getMessage());
+        }
+        parameterMap.remove("referenceBandName");
+        parameterMap.put("targetResolution", 20);
+        try {
+            GPF.createProduct("Resample", parameterMap, product);
+            fail("Exception expected");
+        } catch (OperatorException oe) {
+            assertEquals("If targetResolution is set, targetWidth, targetHeight, and referenceBandName must not be set",
+                         oe.getMessage());
+        }
     }
 
+    @Test
+    public void testBothTargetWidthAndHeightAreSet() {
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new ResamplingOp.Spi());
+        Product product = new Product("dummy", "dummy", 2, 2);
+        product.addBand("dummy", ProductData.TYPE_INT8);
+        final Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("targetWidth", 3);
+        try {
+            GPF.createProduct("Resample", parameterMap, product);
+            fail("Exception expected");
+        } catch (OperatorException oe) {
+            assertEquals("If targetWidth is set, targetHeight must be set, too.", oe.getMessage());
+        }
+        parameterMap.remove("targetWidth");
+        parameterMap.put("targetHeight", 3);
+        try {
+            GPF.createProduct("Resample", parameterMap, product);
+            fail("Exception expected");
+        } catch (OperatorException oe) {
+            assertEquals("If targetHeight is set, targetWidth must be set, too.", oe.getMessage());
+        }
+    }
 }

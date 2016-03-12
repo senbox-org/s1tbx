@@ -68,9 +68,8 @@ public class AggregatedOpImageTest_Flags {
         final RenderedImage sourceImage = createSourceImage(sourceData);
         final ImageLayout imageLayout = createImageLayout(sourceImage);
 
-        final Aggregator aggregator = AggregatorFactory.createAggregator("FlagAnd", ProductData.TYPE_UINT16);
-        final AggregatedOpImage image = new AggregatedOpImage(sourceImage, imageLayout,
-                                                              noDataValue, aggregator, sourceTransform,
+        final AggregatedOpImage image = new AggregatedOpImage(sourceImage, imageLayout, noDataValue,
+                                                              AggregationType.FlagAnd, ProductData.TYPE_UINT16, sourceTransform,
                                                               referenceBand.getImageToModelTransform());
 
         assertNotNull(image);
@@ -99,9 +98,8 @@ public class AggregatedOpImageTest_Flags {
         final RenderedImage sourceImage = createSourceImage(sourceData);
         final ImageLayout imageLayout = createImageLayout(sourceImage);
 
-        final Aggregator aggregator = AggregatorFactory.createAggregator("FlagOr", ProductData.TYPE_UINT16);
-        final AggregatedOpImage image = new AggregatedOpImage(sourceImage, imageLayout,
-                                                              noDataValue, aggregator, sourceTransform,
+        final AggregatedOpImage image = new AggregatedOpImage(sourceImage, imageLayout, noDataValue,
+                                                              AggregationType.FlagOr, ProductData.TYPE_UINT16, sourceTransform,
                                                               referenceBand.getImageToModelTransform());
 
         assertNotNull(image);
@@ -130,9 +128,8 @@ public class AggregatedOpImageTest_Flags {
         final RenderedImage sourceImage = createSourceImage(sourceData);
         final ImageLayout imageLayout = createImageLayout(sourceImage);
 
-        final Aggregator aggregator = AggregatorFactory.createAggregator("FlagMedianAnd", ProductData.TYPE_UINT16);
-        final AggregatedOpImage image = new AggregatedOpImage(sourceImage, imageLayout,
-                                                              noDataValue, aggregator, sourceTransform,
+        final AggregatedOpImage image = new AggregatedOpImage(sourceImage, imageLayout, noDataValue,
+                                                              AggregationType.FlagMedianAnd, ProductData.TYPE_UINT16, sourceTransform,
                                                               referenceBand.getImageToModelTransform());
 
         assertNotNull(image);
@@ -161,9 +158,8 @@ public class AggregatedOpImageTest_Flags {
         final RenderedImage sourceImage = createSourceImage(sourceData);
         final ImageLayout imageLayout = createImageLayout(sourceImage);
 
-        final Aggregator aggregator = AggregatorFactory.createAggregator("FlagMedianOr", ProductData.TYPE_UINT16);
-        final AggregatedOpImage image = new AggregatedOpImage(sourceImage, imageLayout,
-                                                              noDataValue, aggregator, sourceTransform,
+        final AggregatedOpImage image = new AggregatedOpImage(sourceImage, imageLayout, noDataValue,
+                                                              AggregationType.FlagMedianOr, ProductData.TYPE_UINT16, sourceTransform,
                                                               referenceBand.getImageToModelTransform());
 
         assertNotNull(image);

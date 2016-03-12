@@ -1,11 +1,7 @@
 package org.esa.snap.core.gpf.common.resample;
 
 import com.bc.ceres.glevel.MultiLevelImage;
-import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
-import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
-import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import com.bc.ceres.jai.GeneralFilterFunction;
-import com.bc.ceres.jai.operator.GeneralFilterDescriptor;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Kernel;
 import org.esa.snap.core.datamodel.RasterDataNode;
@@ -22,7 +18,6 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.Raster;
-import java.awt.image.RenderedImage;
 import java.util.Map;
 import java.util.Vector;
 
@@ -37,18 +32,7 @@ class Resample {
         final RenderingHints targetHints = getRenderingHints(sourceBand.getNoDataValue());
         final float[] scalings = getScalings(sourceBand.getImageToModelTransform(), referenceNode);
         return ResamplingScaler.scaleMultiLevelImage(referenceNode.getSourceImage(), sourceBand.getSourceImage(),
-                                                     scalings, targetHints, sourceBand.getNoDataValue(), interpolation);
-    }
-
-    static MultiLevelImage createInterpolatedMultiLevelImage(
-            RenderedImage sourceImage, double noDataValue, AffineTransform sourceTransform,
-            final RasterDataNode referenceNode, Interpolation interpolation) {
-        final RenderingHints targetHints = getRenderingHints(noDataValue);
-        final float[] scalings = getScalings(sourceTransform, referenceNode);
-        final DefaultMultiLevelModel multiLevelModel = new DefaultMultiLevelModel(sourceTransform, sourceImage.getWidth(), sourceImage.getHeight());
-        final DefaultMultiLevelImage multiLevelImage = new DefaultMultiLevelImage(new DefaultMultiLevelSource(sourceImage, multiLevelModel));
-        return ResamplingScaler.scaleMultiLevelImage(referenceNode.getSourceImage(), multiLevelImage,
-                                                     scalings, targetHints, noDataValue, interpolation);
+                                                     scalings, null, targetHints, sourceBand.getNoDataValue(), interpolation);
     }
 
     static MultiLevelImage createAggregatedMultiLevelImage(Band sourceBand, final RasterDataNode referenceNode,
@@ -66,12 +50,7 @@ class Resample {
         }
         final Interpolation interpolation = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
         MultiLevelImage multiLevelImage = sourceBand.getSourceImage();
-        if (filterFunction != null) {
-            RenderedImage image = sourceBand.getSourceImage();
-            image = GeneralFilterDescriptor.create(image, filterFunction, getRenderingHints(Double.NaN));
-            multiLevelImage = new DefaultMultiLevelImage(new DefaultMultiLevelSource(image, sourceBand.getMultiLevelModel()));
-        }
-        return ResamplingScaler.scaleMultiLevelImage(referenceNode.getSourceImage(), multiLevelImage, scalings,
+        return ResamplingScaler.scaleMultiLevelImage(referenceNode.getSourceImage(), multiLevelImage, scalings, filterFunction,
                                                      targetHints, sourceBand.getNoDataValue(), interpolation);
     }
 

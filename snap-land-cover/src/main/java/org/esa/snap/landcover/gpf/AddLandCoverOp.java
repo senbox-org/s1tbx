@@ -101,6 +101,7 @@ public final class AddLandCoverOp extends Operator {
      * Create target product.
      */
     void createTargetProduct() throws Exception {
+        ensureSingleRasterSize(sourceProduct);
 
         targetProduct = new Product(sourceProduct.getName(),
                 sourceProduct.getProductType(),

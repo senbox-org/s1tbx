@@ -126,7 +126,7 @@ public class QuicklookGenerator {
                 if(productSubset.getBand(band.getName()) != null) {
                     bandList.add(productSubset.getBand(band.getName()));
                 } else if(band instanceof VirtualBand) {
-                    copyVirtualBand(productSubset, (VirtualBand)band);
+                    ProductUtils.copyVirtualBand(productSubset, (VirtualBand)band, band.getName());
                     bandList.add(productSubset.getBand(band.getName()));
                 }
             }
@@ -145,22 +145,6 @@ public class QuicklookGenerator {
                 .keepAspectRatio(true)
                 .fitWithinDimensions(true)
                 .make(image);
-    }
-
-    private static Band copyVirtualBand(final Product product, final VirtualBand origBand) {
-        final VirtualBand virtBand = new VirtualBand(origBand.getName(),
-                                                     ProductData.TYPE_FLOAT32,
-                                                     product.getSceneRasterWidth(),
-                                                     product.getSceneRasterHeight(),
-                                                     origBand.getExpression());
-        virtBand.setUnit(origBand.getUnit());
-        virtBand.setDescription(origBand.getDescription());
-        virtBand.setNoDataValueUsed(origBand.isNoDataValueUsed());
-        virtBand.setNoDataValue(origBand.getNoDataValue());
-        virtBand.setOwner(product);
-        product.addBand(virtBand);
-
-        return virtBand;
     }
 
     public static Band[] findQuicklookBands(final Product product) {

@@ -38,7 +38,7 @@ import org.esa.snap.core.jexp.impl.ParserImpl;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -103,6 +103,7 @@ public final class LandCoverMaskOp extends Operator {
      * Create target product.
      */
     private void createTargetProduct() {
+        ensureSingleRasterSize(sourceProduct);
 
         targetProduct = new Product(sourceProduct.getName(),
                 sourceProduct.getProductType(),

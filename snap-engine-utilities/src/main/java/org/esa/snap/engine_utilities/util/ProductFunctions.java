@@ -31,13 +31,13 @@ import java.util.ArrayList;
  */
 public class ProductFunctions {
 
-    private final static String[] validExtensions = {".dim", ".n1", ".e1", ".e2", ".h5", ".zip"};
-    private final static String[] xmlPrefix = {"product", "tsx1_sar", "tsx2_sar", "tdx1_sar", "tdx2_sar"};
+    private final static String[] validExtensions = {".dim", ".safe", ".n1", ".e1", ".e2", ".h5", ".zip"};
+    private final static String[] xmlPrefix = {"product", "tsx1_sar", "tsx2_sar", "tdx1_sar", "tdx2_sar", "tdm1_sar"};
 
     // valid but not products
     private static final String[] excludedExtensions = {"pix", "tif"};
 
-    private static final String[] nonValidExtensions = {"xsd", "xsl", "xls", "pdf", "doc", "ps", "db", "rtf",
+    private static final String[] nonValidExtensions = {"xsd", "xsl", "xls", "pdf", "doc", "docx", "ps", "db", "rtf",
             "ief", "ord", "rrd", "lbl", "aux", "ovr", "brs",
             "self", "report", "raw", "tgz", "pox", "img", "hdr", "ras", "ntf",
             "tfw", "gif", "jpg", "jgw", "log", "html", "htm", "png", "bmp", "kml", "kmz",
@@ -48,7 +48,7 @@ public class ProductFunctions {
             "readme", "l1b_iif", "dor_vor", "imagery_", "browse"};
 
     final static String[] invalidFolders = {"annotation", "measurement", "auxraster", "auxfiles", "imagedata", "preview",
-            "support", "quality", "source_images", "schemas", "granule", "datastrip", "html"};
+            "support", "quality", "source_images", "schemas", "granule", "datastrip", "html", "iif", "tools"};
 
     public static boolean isValidProduct(final File file) {
         final String name = file.getName().toLowerCase();
@@ -114,6 +114,13 @@ public class ProductFunctions {
             for (String ext : validExtensions) {
                 if (name.endsWith(ext)) {
                     return !name.startsWith("asa_wss");     // exclude wss products
+                }
+            }
+            if (name.endsWith("xml")) {
+                for (String str : xmlPrefix) {
+                    if (name.startsWith(str)) {
+                        return true;
+                    }
                 }
             }
             for (String pre : nonValidprefixes) {

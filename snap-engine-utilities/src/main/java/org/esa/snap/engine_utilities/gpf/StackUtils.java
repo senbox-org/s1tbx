@@ -20,11 +20,13 @@ import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -67,10 +69,36 @@ public final class StackUtils {
         }
     }
 
+    public static void saveSlaveProductNames(final Product[] sourceProducts, final Product targetProduct,
+                                             final Product masterProduct, final Map<Band, Band> sourceRasterMap) {
+
+        for (Product prod : sourceProducts) {
+            if (prod != masterProduct) {
+                final String suffix = StackUtils.createBandTimeStamp(prod);
+                final List<String> bandNames = new ArrayList<>(10);
+                for (Band tgtBand : sourceRasterMap.keySet()) {
+                    final Band srcBand = sourceRasterMap.get(tgtBand);
+                    final Product srcProduct = srcBand.getProduct();
+                    if (srcProduct == prod) {
+                        bandNames.add(tgtBand.getName());
+                    }
+                }
+                final String prodName = prod.getName() + suffix;
+                StackUtils.saveSlaveProductBandNames(targetProduct, prodName, bandNames.toArray(new String[bandNames.size()]));
+            }
+        }
+    }
+
     public static void saveSlaveProductBandNames(final Product targetProduct, final String slvProductName,
                                                  final String[] bandNames) {
-        if (bandNames.length == 0)
+        if (bandNames.length == 0) {
+            SystemUtils.LOG.warning("saveSlaveProductBandNames: bandNames is empty");
             return;
+        }
+        if(slvProductName == null) {
+            SystemUtils.LOG.warning("saveSlaveProductBandNames: slvProductName is null");
+            return;
+        }
 
         final MetadataElement targetSlaveMetadataRoot = AbstractMetadata.getSlaveMetadata(targetProduct.getMetadataRoot());
         final MetadataElement elem = targetSlaveMetadataRoot.getElement(slvProductName);

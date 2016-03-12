@@ -32,7 +32,8 @@ import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Rectangle;
 import java.util.Map;
 
 /**
@@ -86,37 +87,38 @@ public class NdviOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
         loadSourceBands(sourceProduct);
-        int sceneWidth = sourceProduct.getSceneRasterWidth();
-        int sceneHeight = sourceProduct.getSceneRasterHeight();
-        if (sourceProduct.getBand(redSourceBand).getRasterWidth() != sceneWidth ||
-                sourceProduct.getBand(redSourceBand).getRasterHeight() != sceneHeight) {
-            throw new OperatorException(redSourceBand + " is not of same size as product.");
-        }
-        if (sourceProduct.getBand(nirSourceBand).getRasterWidth() != sceneWidth ||
-                sourceProduct.getBand(nirSourceBand).getRasterHeight() != sceneHeight) {
-            throw new OperatorException(nirSourceBand + " is not of same size as product.");
-        }
-        targetProduct = new Product("ndvi", sourceProduct.getProductType() + "_NDVI", sceneWidth, sceneHeight);
+        Band band1 = sourceProduct.getBand(redSourceBand);
+        Band band2 = sourceProduct.getBand(nirSourceBand);
+        ensureSingleRasterSize(band1, band2);
 
-        Band ndviOutputBand = new Band(NDVI_BAND_NAME, ProductData.TYPE_FLOAT32, sceneWidth,
-                                       sceneHeight);
+        int targetWidth = band1.getRasterWidth();
+        int targetHeight = band1.getRasterHeight();
+
+        targetProduct = new Product("ndvi", sourceProduct.getProductType() + "_NDVI", targetWidth, targetHeight);
+
+        Band ndviOutputBand = new Band(NDVI_BAND_NAME, ProductData.TYPE_FLOAT32, targetWidth, targetHeight);
         targetProduct.addBand(ndviOutputBand);
 
-        ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
-        ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
-        ProductUtils.copyFlagBands(sourceProduct, targetProduct, true);
+        boolean sceneSizeRetained = sourceProduct.getSceneRasterSize().equals(targetProduct.getSceneRasterSize());
+        if (sceneSizeRetained) {
+            ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
+            ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
+            ProductUtils.copyFlagBands(sourceProduct, targetProduct, true);
+        }
 
         FlagCoding ndviFlagCoding = createNdviFlagCoding();
         targetProduct.getFlagCodingGroup().add(ndviFlagCoding);
 
         Band ndviFlagsOutputBand = new Band(NDVI_FLAGS_BAND_NAME, ProductData.TYPE_INT32,
-                                            sceneWidth, sceneHeight);
+                                            targetWidth, targetHeight);
         ndviFlagsOutputBand.setDescription("NDVI specific flags");
         ndviFlagsOutputBand.setSampleCoding(ndviFlagCoding);
         targetProduct.addBand(ndviFlagsOutputBand);
 
-        ProductUtils.copyMasks(sourceProduct, targetProduct);
-        ProductUtils.copyOverlayMasks(sourceProduct, targetProduct);
+        if (sceneSizeRetained) {
+            ProductUtils.copyMasks(sourceProduct, targetProduct);
+            ProductUtils.copyOverlayMasks(sourceProduct, targetProduct);
+        }
 
         targetProduct.addMask(NDVI_ARITHMETIC_FLAG_NAME, (NDVI_FLAGS_BAND_NAME + "." + NDVI_ARITHMETIC_FLAG_NAME),
                               "An arithmetic exception occurred.",

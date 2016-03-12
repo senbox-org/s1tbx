@@ -48,7 +48,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.text.MessageFormat.format;
+import static java.text.MessageFormat.*;
 
 /**
  * This operator is used to spatially collocate two data products. It requires two source products,
@@ -186,6 +186,8 @@ public class CollocateOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
+        ensureSingleRasterSize(masterProduct);
+        ensureSingleRasterSize(slaveProduct);
 
         validateProduct(masterProduct);
         validateProduct(slaveProduct);
@@ -317,12 +319,8 @@ public class CollocateOp extends Operator {
     }
 
     private void validateProduct(Product product) {
-        if (product.getSceneGeoCoding() == null) {
-            throw new OperatorException(format("Product ''{0}'' has no geo-coding.", product.getName()));
-        }
-        if (product.isMultiSizeProduct()) {
-            throw createMultiSizeException(product);
-        }
+        ensureSceneGeoCoding(product);
+        ensureSingleRasterSize(product);
     }
 
     @Override

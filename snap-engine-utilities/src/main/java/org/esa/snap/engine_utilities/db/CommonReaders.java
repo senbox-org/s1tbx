@@ -31,6 +31,7 @@ public class CommonReaders {
     public static Product readProduct(final File file) throws IOException {
         Product product = CommonReaders.readCommonProductReader(file);
         if(product == null) {
+            //SystemUtils.LOG.warning("Reading uncommon "+file);
             product = ProductIO.readProduct(file);
         }
         return product;

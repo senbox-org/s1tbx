@@ -361,7 +361,7 @@ public class MosaicOp extends Operator {
                 getLogger().warning(msg);
                 continue;
             }
-            if (sourceProduct.isMultiSizeProduct()) {
+            if (sourceProduct.isMultiSize()) {
                 String msg = "Source product: '" + sourceProduct.getName() + "' contains rasters of different sizes. Skipped for further processing.";
                 getLogger().warning(msg);
                 continue;

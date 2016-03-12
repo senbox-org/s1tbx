@@ -16,8 +16,10 @@
 
 package org.esa.snap.core.gpf;
 
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductManager;
 import org.esa.snap.core.gpf.common.WriteOp;
 import org.esa.snap.core.gpf.descriptor.OperatorDescriptor;
 import org.esa.snap.core.gpf.descriptor.SourceProductDescriptor;
@@ -94,6 +96,8 @@ public class GPF {
     private static GPF defaultInstance = new GPF();
 
     private OperatorSpiRegistry spiRegistry;
+
+    private ProductManager productManager;
 
     /**
      * Constructor.
@@ -403,6 +407,32 @@ public class GPF {
          writeOp.setIncremental(incremental);
          writeOp.writeProduct(pm);
      }
+
+    /**
+     * Gets the context product manager which can be used to exchange product instances across operators
+     * or allow (reading) operators to check if a given product is already opened.
+     *
+     * @return The context product manager.
+     * @since SNAP 3.0
+     */
+    public synchronized ProductManager getProductManager() {
+        if (productManager == null) {
+            productManager = new ProductManager();
+        }
+        return productManager;
+    }
+
+    /**
+     * Sets the context product manager which can be used to exchange product instances across operators
+     * or allow (reading) operators to check if a given product is already opened.
+     *
+     * @param productManager The new context product manager.
+     * @since SNAP 3.0
+     */
+    public synchronized void setProductManager(ProductManager productManager) {
+        Assert.notNull(productManager, "productManager");
+        this.productManager = productManager;
+    }
 
     static class RenderingKey<T> extends RenderingHints.Key {
 

@@ -36,12 +36,16 @@ import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 
 import java.awt.*;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * image filter operator
@@ -107,6 +111,7 @@ public class FilterOperator extends Operator {
      */
     @Override
     public void initialize() throws OperatorException {
+        ensureSingleRasterSize(sourceProduct);
 
         try {
             targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
@@ -192,7 +197,7 @@ public class FilterOperator extends Operator {
 
     private static KernelFilter getUserDefinedFilter(File userDefinedKernelFile) throws IOException {
         FileInputStream fis = new FileInputStream(userDefinedKernelFile);
-        final float[][] kernelData = UndersamplingOp.readFile(fis, userDefinedKernelFile.getName());
+        final float[][] kernelData = readFile(fis, userDefinedKernelFile.getName());
         final int filterWidth = kernelData.length;
         final int filterHeight = kernelData[0].length;
         final double[] data = new double[filterWidth * filterHeight];
@@ -205,6 +210,64 @@ public class FilterOperator extends Operator {
         return new KernelFilter("User Defined Filter", new Kernel(filterWidth, filterHeight, data));
     }
 
+    /**
+     * Read data from kernel file and save them in a 2D array.
+     *
+     * @param fileName The kernel file name
+     * @return array The 2D array holding kernel data
+     */
+    public static float[][] readFile(final InputStream stream, final String fileName) {
+
+        // get reader
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+
+        // read data from file and save them in 2-D array
+        String line = "";
+        StringTokenizer st;
+        float[][] array;
+        int rowIdx = 0;
+
+        try {
+            // get the 1st line
+            if ((line = reader.readLine()) == null) {
+                throw new OperatorException("Empty file: " + fileName);
+            }
+
+            st = new StringTokenizer(line);
+            if (st.countTokens() != 2) {
+                throw new OperatorException("Incorrect file format: " + fileName);
+            }
+
+            final int numRows = Integer.parseInt(st.nextToken());
+            final int numCols = Integer.parseInt(st.nextToken());
+            array = new float[numRows][numCols];
+
+            // get the rest numRows lines
+            while ((line = reader.readLine()) != null) {
+
+                st = new StringTokenizer(line);
+                if (st.countTokens() != numCols) {
+                    throw new OperatorException("Incorrect file format: " + fileName);
+                }
+
+                for (int j = 0; j < numCols; j++) {
+                    array[rowIdx][j] = Float.parseFloat(st.nextToken());
+                }
+                rowIdx++;
+            }
+
+            if (numRows != rowIdx) {
+                throw new OperatorException("Incorrect number of lines in file: " + fileName);
+            }
+
+            reader.close();
+            stream.close();
+
+        } catch (IOException e) {
+            throw new OperatorException(e);
+        }
+        return array;
+    }
 
     public static abstract class Filter {
 

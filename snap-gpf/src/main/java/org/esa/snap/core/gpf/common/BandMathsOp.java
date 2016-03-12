@@ -252,6 +252,8 @@ public class BandMathsOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
+        ensureSingleRasterSize(sourceProducts);
+
         if (targetBandDescriptors == null || targetBandDescriptors.length == 0) {
             throw new OperatorException("No target bands specified.");
         }

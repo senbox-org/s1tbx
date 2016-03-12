@@ -57,4 +57,5 @@ public class DefaultSourceProductsDescriptor implements SourceProductsDescriptor
     public Class<? extends Product[]> getDataType() {
         return Product[].class;
     }
+
 }

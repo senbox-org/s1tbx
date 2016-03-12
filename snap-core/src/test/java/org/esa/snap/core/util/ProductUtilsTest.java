@@ -538,14 +538,33 @@ public class ProductUtilsTest {
     }
 
     @Test
-    public void testCopyGeoCoding_forRaster() throws Exception {
-        final Product sourceProduct = new DummyProductBuilder().gc(TIE_POINTS).gcOcc(
-                UNIQUE).create();
+    public void testCopyGeoCoding_fromRasterToRaster() throws Exception {
+        final Product sourceProduct = new DummyProductBuilder().gc(TIE_POINTS).gcOcc(UNIQUE).create();
         final Product targetProduct = new Product("N", "T", sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
 
         final Band sourceBand = sourceProduct.getBand("band_a");
         final Band targetBand = targetProduct.addBand("targetBand", ProductData.TYPE_INT8);
         ProductUtils.copyGeoCoding(sourceBand, targetBand);
+        assertNotNull(targetBand.getGeoCoding());
+    }
+
+    @Test
+    public void testCopyGeoCoding_fromRasterToProduct() throws Exception {
+        final Product sourceProduct = new DummyProductBuilder().gc(TIE_POINTS).gcOcc(UNIQUE).create();
+        final Product targetProduct = new Product("N", "T", sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
+
+        final Band sourceBand = sourceProduct.getBand("band_a");
+        ProductUtils.copyGeoCoding(sourceBand, targetProduct);
+        assertNotNull(targetProduct.getSceneGeoCoding());
+    }
+
+    @Test
+    public void testCopyGeoCoding_fromProductToRaster() throws Exception {
+        final Product sourceProduct = new DummyProductBuilder().gc(TIE_POINTS).gcOcc(UNIQUE).create();
+        final Product targetProduct = new Product("N", "T", sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
+
+        final Band targetBand = targetProduct.addBand("targetBand", ProductData.TYPE_INT8);
+        ProductUtils.copyGeoCoding(sourceProduct, targetBand);
         assertNotNull(targetBand.getGeoCoding());
     }
 

@@ -216,10 +216,7 @@ public class ReprojectionOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        if (sourceProduct.isMultiSizeProduct()) {
-            throw createMultiSizeException(sourceProduct);
-        }
-
+        ensureSingleRasterSize(sourceProduct);
         validateCrsParameters();
         validateResamplingParameter();
         validateReferencingParameters();

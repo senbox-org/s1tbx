@@ -58,7 +58,7 @@ public class InputProductValidator {
     }
 
     public void checkIfSARProduct() {
-        if("RAW".equals(product.getProductType()) || "Level-0".equals(product.getProductType())) {
+        if("RAW".equals(product.getProductType())) {
             throw new OperatorException(SHOULD_NOT_BE_LEVEL0);
         }
         if(!isSARProduct()) {
