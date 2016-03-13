@@ -5,7 +5,9 @@ import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
+import org.esa.snap.core.datamodel.AbstractGeoCoding;
 import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.CrsGeoCoding;
 import org.esa.snap.core.datamodel.Mask;
 import org.esa.snap.core.datamodel.Product;
@@ -124,15 +126,16 @@ public class ResamplingOp extends Operator {
     }
 
     private void transferGeoCoding(Product targetProduct) {
-        if (referenceBandName != null) {
-            final Band referenceBand = sourceProduct.getBand(referenceBandName);
-            final Scene srcScene = SceneFactory.createScene(referenceBand);
-            final Scene destScene = SceneFactory.createScene(targetProduct);
-            if (srcScene != null && destScene != null) {
-                srcScene.transferGeoCodingTo(destScene, null);
+        final Scene srcScene = SceneFactory.createScene(sourceProduct);
+        final Scene destScene = SceneFactory.createScene(targetProduct);
+        if (srcScene != null && destScene != null) {
+            final GeoCoding sourceGeoCoding = srcScene.getGeoCoding();
+            if (sourceGeoCoding == null) {
+                destScene.setGeoCoding(null);
+            } else if (sourceGeoCoding instanceof AbstractGeoCoding) {
+                AbstractGeoCoding abstractGeoCoding = (AbstractGeoCoding) sourceGeoCoding;
+                abstractGeoCoding.transferGeoCoding(srcScene, destScene, null);
             }
-        } else {
-            ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
         }
     }
 
@@ -177,6 +180,8 @@ public class ResamplingOp extends Operator {
 
     private void resampleTiePointGrids() {
         final ProductNodeGroup<TiePointGrid> tiePointGridGroup = sourceProduct.getTiePointGridGroup();
+        double scaledReferenceOffsetX = referenceImageToModelTransform.getTranslateX() / referenceImageToModelTransform.getScaleX();
+        double scaledReferenceOffsetY = referenceImageToModelTransform.getTranslateY() / referenceImageToModelTransform.getScaleY();
         for (int i = 0; i < tiePointGridGroup.getNodeCount(); i++) {
             final TiePointGrid grid = tiePointGridGroup.get(i);
             AffineTransform transform;
@@ -188,15 +193,13 @@ public class ResamplingOp extends Operator {
             final AffineTransform gridTransform = grid.getImageToModelTransform();
             transform.concatenate(gridTransform);
             if (Math.abs(transform.getScaleX() - 1.0) > 1e-8 || Math.abs(transform.getScaleY() - 1.0) > 1e-8 ||
-                    referenceImageToModelTransform.getTranslateX() != 0 || referenceImageToModelTransform.getTranslateY() != 0) {
+                    scaledReferenceOffsetX != 0 || scaledReferenceOffsetY != 0) {
                 double subSamplingX = grid.getSubSamplingX() * transform.getScaleX();
                 double subSamplingY = grid.getSubSamplingY() * transform.getScaleY();
-                double offsetX = (grid.getOffsetX() * transform.getScaleX()) - (referenceImageToModelTransform.getTranslateX() / gridTransform.getScaleX());
-                double offsetY = (grid.getOffsetY() * transform.getScaleY()) - (referenceImageToModelTransform.getTranslateY() / gridTransform.getScaleY());
-
+                double offsetX = (grid.getOffsetX() * transform.getScaleX()) - scaledReferenceOffsetX;
+                double offsetY = (grid.getOffsetY() * transform.getScaleY()) - scaledReferenceOffsetY;
                 final TiePointGrid resampledGrid = new TiePointGrid(grid.getName(), grid.getGridWidth(), grid.getGridHeight(),
-                                                                    offsetX, offsetY,
-                                                                    subSamplingX, subSamplingY, grid.getTiePoints());
+                        offsetX, offsetY, subSamplingX, subSamplingY, grid.getTiePoints());
                 targetProduct.addTiePointGrid(resampledGrid);
                 ProductUtils.copyRasterDataNodeProperties(grid, resampledGrid);
             } else {
