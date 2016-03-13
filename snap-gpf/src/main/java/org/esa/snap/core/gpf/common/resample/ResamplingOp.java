@@ -105,10 +105,6 @@ public class ResamplingOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        if (!sourceProduct.isMultiSize()) {
-            targetProduct = sourceProduct;
-            return;
-        }
         if (!allNodesHaveIdentitySceneTransform(sourceProduct)) {
             throw new OperatorException("Not all nodes have identity model-to-scene transform.");
         }
