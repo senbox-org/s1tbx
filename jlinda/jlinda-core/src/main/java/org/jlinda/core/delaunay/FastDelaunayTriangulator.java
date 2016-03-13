@@ -100,7 +100,7 @@ public final class FastDelaunayTriangulator {
         boolean oneCycleCompleted = false;
         //if (debug) System.out.println("   searching visible sides of convex hull");
         while (true) {
-            currentT = currentT.getACO();
+            currentT = currentT.ACO;
             currentCCW = currentT.ccw(c);
             if (currentCCW > 0) {
                 if (lastCCW <= 0) {
@@ -147,9 +147,9 @@ public final class FastDelaunayTriangulator {
      * t2 following t1 if one iterates around the triangulation in ccw.
      */
     private static void linkExteriorTriangles(Triangle t1, Triangle t2) {
-        assert (t1.getC() == HORIZON && t2.getC() == HORIZON && t1.getA() == t2.getB());
-        t1.setACO(t2);
-        t2.setCBO(t1);
+        //assert (t1.C == HORIZON && t2.C == HORIZON && t1.A == t2.B);
+        t1.ACO = t2;
+        t2.CBO = t1;
     }
 
     /**
@@ -167,13 +167,14 @@ public final class FastDelaunayTriangulator {
      */
     private static void delaunay(final Triangle t, final int side) {
 
-        if (t.getEdgeType(side) == Triangle.EdgeType.HARDBREAK) return;
+        //if (t.getEdgeType(side) == Triangle.EdgeType.HARDBREAK) return;
+        if ((side==0 ? t.AB : side==1 ? t.BC : t.CA) == Triangle.EdgeType.HARDBREAK) return;
 
-        final Triangle opp = t.getNeighbour(side);
-        if (opp.getC() == HORIZON) return;
+        final Triangle opp = (side==0? t.BAO : side==1 ? t.CBO:t.ACO); //t.getNeighbour(side);
+        if (opp.C == HORIZON) return;
         final int i = t.getOpposite(side);
 
-        if (t.inCircle(opp.getVertex(i)) > 0) {
+        if (t.inCircle(i==0?opp.A:i==1?opp.B:opp.C) > 0) { //opp.getVertex(i)) > 0) {
             // Flip triangles without creating new Triangle objects
             flip(t, side, opp, (i + 1) % 3);
             delaunay(t, 1);
@@ -209,14 +210,14 @@ public final class FastDelaunayTriangulator {
         final int side1_1 = (side1 + 1) % 3;
         final int side1_2 = (side1 + 2) % 3;
 
-        final Coordinate t0A = t1.getVertex(side1_2);
-        final Coordinate t0B = t0.getVertex(side0_2);
-        Coordinate t1B = t0.getVertex(side0_1);
+        final Coordinate t0A = side1_2==0?t1.A:side1_2==1?t1.B:t1.C;    //t1.getVertex(side1_2);
+        final Coordinate t0B = side0_2==0?t0.A:side0_2==1?t0.B:t0.C;    //t0.getVertex(side0_2);
+        Coordinate t1B = side0_1==0?t0.A:side0_1==1?t0.B:t0.C;          //t0.getVertex(side0_1);
         // New neighbours
-        Triangle newt0N1 = t0.getNeighbour(side0_2);
-        Triangle newt0N2 = t1.getNeighbour(side1_1);
-        Triangle newt1N0 = t1.getNeighbour(side1_2);
-        Triangle newt1N1 = t0.getNeighbour(side0_1);
+        Triangle newt0N1 = (side0_2==0?t0.BAO:side0_2==1?t0.CBO:t0.ACO); //t0.getNeighbour(side0_2);
+        Triangle newt0N2 = (side1_1==0?t1.BAO:side1_1==1?t1.CBO:t1.ACO); //t1.getNeighbour(side1_1);
+        Triangle newt1N0 = (side1_2==0?t1.BAO:side1_2==1?t1.CBO:t1.ACO); //t1.getNeighbour(side1_2);
+        Triangle newt1N1 = (side0_1==0?t0.BAO:side0_1==1?t0.CBO:t0.ACO); //t0.getNeighbour(side0_1);
         t0.setABC(t0A, t0B, t0.getVertex(side0));
         t0.setBAO(t1);
         link(t0,1,newt0N1);
@@ -233,18 +234,21 @@ public final class FastDelaunayTriangulator {
     }
 
     private static void link(final Triangle t1, final int side1, final Triangle t2) {
-        final Coordinate p1 = t1.getVertex(side1);
-        if (p1 == t2.getVertex(side1)) {
+        final Coordinate p1 = side1==0?t1.A:side1==1?t1.B:t1.C; //t1.getVertex(side1);
+        if (p1 == (side1==0?t2.A:side1==1?t2.B:t2.C)) {         //t2.getVertex(side1)) {
             t1.setNeighbour(side1, t2);
             t2.setNeighbour((side1 + 2) % 3, t1);
         } else {
             final int side2 = (side1 + 1) % 3;
-            if (p1 == t2.getVertex(side2)) {
+            if (p1 == (side2==0?t2.A:side2==1?t2.B:t2.C)) {     //t2.getVertex(side2)) {
                 t1.setNeighbour(side1, t2);
                 t2.setNeighbour(side1, t1);
-            } else if (p1 == t2.getVertex((side1 + 2) % 3)) {
-                t1.setNeighbour(side1, t2);
-                t2.setNeighbour(side2, t1);
+            } else {
+                final int side3 = (side1 + 2) % 3;
+                if (p1 == (side3==0?t2.A:side3==1?t2.B:t2.C)) { //t2.getVertex(side3)) {
+                    t1.setNeighbour(side1, t2);
+                    t2.setNeighbour(side2, t1);
+                }
             }
         }
     }

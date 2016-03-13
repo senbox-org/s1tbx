@@ -46,14 +46,13 @@ public final class Triangle {
         HARDBREAK
     };
 
+    public Coordinate A, B, C;
 
-    private Coordinate A, B, C;
+    public Triangle BAO, CBO, ACO;
 
-    private Triangle BAO, CBO, ACO;
-
-    private EdgeType AB = EdgeType.VIRTUAL;
-    private EdgeType BC = EdgeType.VIRTUAL;
-    private EdgeType CA = EdgeType.VIRTUAL;
+    public EdgeType AB = EdgeType.VIRTUAL;
+    public EdgeType BC = EdgeType.VIRTUAL;
+    public EdgeType CA = EdgeType.VIRTUAL;
 
     private static final Coordinate.DimensionalComparator COORD2DCOMP = new Coordinate.DimensionalComparator();
 
