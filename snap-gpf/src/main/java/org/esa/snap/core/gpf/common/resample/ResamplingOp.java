@@ -2,13 +2,15 @@ package org.esa.snap.core.gpf.common.resample;
 
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
+import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
+import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 import org.esa.snap.core.datamodel.AbstractGeoCoding;
 import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.CrsGeoCoding;
+import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.Mask;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductNodeGroup;
@@ -95,6 +97,16 @@ public class ResamplingOp extends Operator {
             valueSet = {"First", "FlagAnd", "FlagOr", "FlagMedianAnd", "FlagMedianOr"},
             defaultValue = "First")
     private String flagDownsamplingMethod;
+
+    @Parameter(label = "Resample on pyramid levels (for faster imaging)", defaultValue = "true",
+            description = "This setting will increase performance when viewing the image, but accurate resamplings " +
+                    "are only retrieved when zooming in on a pixel.")
+//            description = "<html>When this is set, the resampling will be performed on level images, not on the underlying " +
+//                    "source image.<br/>This will significantly increase performance when viewing the image, but the pixel values " +
+//                    "are only approximations. <br/>To get the value at the lowest level, you need to request it by, e.g.,  " +
+//                    "zooming in close to the area around the pixel in question. <br/>" +
+//                    "When performing operations, the image on level 0 will be used, so this setting will not have an effect.</html>")
+    private boolean resampleOnPyramidLevels;
 
     private InterpolationType interpolationType;
     private AggregationType aggregationType;
@@ -199,7 +211,7 @@ public class ResamplingOp extends Operator {
                 double offsetX = (grid.getOffsetX() * transform.getScaleX()) - scaledReferenceOffsetX;
                 double offsetY = (grid.getOffsetY() * transform.getScaleY()) - scaledReferenceOffsetY;
                 final TiePointGrid resampledGrid = new TiePointGrid(grid.getName(), grid.getGridWidth(), grid.getGridHeight(),
-                        offsetX, offsetY, subSamplingX, subSamplingY, grid.getTiePoints());
+                                                                    offsetX, offsetY, subSamplingX, subSamplingY, grid.getTiePoints());
                 targetProduct.addTiePointGrid(resampledGrid);
                 ProductUtils.copyRasterDataNodeProperties(grid, resampledGrid);
             } else {
@@ -291,33 +303,50 @@ public class ResamplingOp extends Operator {
             throw new OperatorException("Invalid upsampling method");
         }
         float[] scalings = new float[2];
-        scalings[0] = sourceImage.getWidth() / referenceWidth;
-        scalings[1] = sourceImage.getHeight() / referenceHeight;
-        final AbstractMultiLevelSource source = new AbstractMultiLevelSource(referenceModel) {
-            @Override
-            protected RenderedImage createImage(int targetLevel) {
-                final MultiLevelModel targetModel = getModel();
-                final double targetScale = targetModel.getScale(targetLevel);
-                final MultiLevelModel sourceModel = sourceImage.getModel();
-                final int sourceLevel = findBestSourceLevel(targetScale, sourceModel, scalings);
-                final RenderedImage sourceLevelImage = sourceImage.getImage(sourceLevel);
-                final Dimension tileSize = JAIUtils.computePreferredTileSize(targetWidth, targetHeight, 1);
-                final ResolutionLevel resolutionLevel = ResolutionLevel.create(getModel(), targetLevel);
-                final AffineTransform sourceImageToModelTransform = sourceModel.getImageToModelTransform(sourceLevel);
-                final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(dataType, null,
-                                                                                           referenceWidth,
-                                                                                           referenceHeight,
-                                                                                           tileSize,
-                                                                                           resolutionLevel);
-                try {
-                    return new InterpolatedOpImage(sourceLevelImage, imageLayout, noDataValue, dataType, interpolationType,
-                                                   sourceImageToModelTransform,
-                                                   targetModel.getImageToModelTransform(targetLevel));
-                } catch (NoninvertibleTransformException e) {
-                    throw new OperatorException("Could not downsample band image");
+        final Dimension tileSize = JAIUtils.computePreferredTileSize(targetWidth, targetHeight, 1);
+        MultiLevelSource source;
+        if (resampleOnPyramidLevels) {
+            scalings[0] = sourceImage.getWidth() / referenceWidth;
+            scalings[1] = sourceImage.getHeight() / referenceHeight;
+            source = new AbstractMultiLevelSource(referenceModel) {
+                @Override
+                protected RenderedImage createImage(int targetLevel) {
+                    final MultiLevelModel targetModel = getModel();
+                    final double targetScale = targetModel.getScale(targetLevel);
+                    final MultiLevelModel sourceModel = sourceImage.getModel();
+                    final int sourceLevel = findBestSourceLevel(targetScale, sourceModel, scalings);
+                    final RenderedImage sourceLevelImage = sourceImage.getImage(sourceLevel);
+                    final ResolutionLevel resolutionLevel = ResolutionLevel.create(getModel(), targetLevel);
+                    final AffineTransform sourceImageToModelTransform = sourceModel.getImageToModelTransform(sourceLevel);
+                    final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(dataType, null,
+                                                                                               referenceWidth,
+                                                                                               referenceHeight,
+                                                                                               tileSize,
+                                                                                               resolutionLevel);
+                    try {
+                        return new InterpolatedOpImage(sourceLevelImage, imageLayout, noDataValue, dataType, interpolationType,
+                                                       sourceImageToModelTransform,
+                                                       targetModel.getImageToModelTransform(targetLevel));
+                    } catch (NoninvertibleTransformException e) {
+                        throw new OperatorException("Could not downsample band image");
+                    }
                 }
+            };
+        } else {
+            try {
+                final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(dataType, null,
+                                                                                           referenceWidth, referenceHeight,
+                                                                                           tileSize,
+                                                                                           ResolutionLevel.MAXRES);
+                final RenderedImage image = new InterpolatedOpImage(sourceImage, imageLayout, noDataValue, dataType,
+                                                                    interpolationType,
+                                                                    sourceImage.getModel().getImageToModelTransform(0),
+                                                                    referenceModel.getImageToModelTransform(0));
+                source = new DefaultMultiLevelSource(image, referenceModel);
+            } catch (NoninvertibleTransformException e) {
+                throw new OperatorException("Could not downsample band image");
             }
-        };
+        }
         return new DefaultMultiLevelImage(source);
     }
 
@@ -336,33 +365,49 @@ public class ResamplingOp extends Operator {
             }
             type = aggregationType;
         }
-        float[] scalings = new float[2];
-        scalings[0] = sourceImage.getWidth() / referenceWidth;
-        scalings[1] = sourceImage.getHeight() / referenceHeight;
-        final AbstractMultiLevelSource source = new AbstractMultiLevelSource(referenceModel) {
-            @Override
-            protected RenderedImage createImage(int targetLevel) {
-                final MultiLevelModel targetModel = getModel();
-                final double targetScale = targetModel.getScale(targetLevel);
-                final MultiLevelModel sourceModel = sourceImage.getModel();
-                final int sourceLevel = findBestSourceLevel(targetScale, sourceModel, scalings);
-                final RenderedImage sourceLevelImage = sourceImage.getImage(sourceLevel);
-                final Dimension tileSize = JAIUtils.computePreferredTileSize(targetWidth, targetHeight, 1);
-                final ResolutionLevel resolutionLevel = ResolutionLevel.create(getModel(), targetLevel);
-                final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(dataType, null,
-                                                                                           referenceWidth,
-                                                                                           referenceHeight,
-                                                                                           tileSize,
-                                                                                           resolutionLevel);
-                try {
-                    return new AggregatedOpImage(sourceLevelImage, imageLayout, noDataValue, type, dataType,
-                                                 sourceModel.getImageToModelTransform(sourceLevel),
-                                                 targetModel.getImageToModelTransform(targetLevel));
-                } catch (NoninvertibleTransformException e) {
-                    throw new OperatorException("Could not downsample band image");
+        MultiLevelSource source;
+        final Dimension tileSize = JAIUtils.computePreferredTileSize(targetWidth, targetHeight, 1);
+        if (resampleOnPyramidLevels) {
+            float[] scalings = new float[2];
+            scalings[0] = sourceImage.getWidth() / referenceWidth;
+            scalings[1] = sourceImage.getHeight() / referenceHeight;
+            source = new AbstractMultiLevelSource(referenceModel) {
+                @Override
+                protected RenderedImage createImage(int targetLevel) {
+                    final MultiLevelModel targetModel = getModel();
+                    final double targetScale = targetModel.getScale(targetLevel);
+                    final MultiLevelModel sourceModel = sourceImage.getModel();
+                    final int sourceLevel = findBestSourceLevel(targetScale, sourceModel, scalings);
+                    final RenderedImage sourceLevelImage = sourceImage.getImage(sourceLevel);
+                    final ResolutionLevel resolutionLevel = ResolutionLevel.create(getModel(), targetLevel);
+                    final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(dataType, null,
+                                                                                               referenceWidth,
+                                                                                               referenceHeight,
+                                                                                               tileSize,
+                                                                                               resolutionLevel);
+                    try {
+                        return new AggregatedOpImage(sourceLevelImage, imageLayout, noDataValue, type, dataType,
+                                                     sourceModel.getImageToModelTransform(sourceLevel),
+                                                     targetModel.getImageToModelTransform(targetLevel));
+                    } catch (NoninvertibleTransformException e) {
+                        throw new OperatorException("Could not downsample band image");
+                    }
                 }
+            };
+        } else {
+            try {
+                final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(dataType, null,
+                                                                                           referenceWidth, referenceHeight,
+                                                                                           tileSize,
+                                                                                           ResolutionLevel.MAXRES);
+                final RenderedImage image = new AggregatedOpImage(sourceImage, imageLayout, noDataValue, type, dataType,
+                                                                  sourceImage.getModel().getImageToModelTransform(0),
+                                                                  referenceModel.getImageToModelTransform(0));
+                source = new DefaultMultiLevelSource(image, referenceModel);
+            } catch (NoninvertibleTransformException e) {
+                throw new OperatorException("Could not downsample band image");
             }
-        };
+        }
         return new DefaultMultiLevelImage(source);
     }
 
@@ -389,8 +434,7 @@ public class ResamplingOp extends Operator {
                 optimizedScaling = scalings[0] * scaleRatio;
                 optimizedSourceLevel = sourceLevel;
                 initialized = true;
-            }
-            else {
+            } else {
                 // We want to be as close to 1.0 as possible
                 if (Math.abs(1 - scalings[0] * scaleRatio) < Math.abs(1 - optimizedScaling)) {
                     optimizedScaling = scalings[0] * scaleRatio;
@@ -428,8 +472,8 @@ public class ResamplingOp extends Operator {
             final MathTransform imageToMapTransform = sourceProduct.getSceneGeoCoding().getImageToMapTransform();
             if (imageToMapTransform instanceof AffineTransform) {
                 AffineTransform mapTransform = (AffineTransform) imageToMapTransform;
-                referenceWidth = (int) (sourceProduct.getSceneRasterWidth()  * Math.abs(mapTransform.getScaleX()) / targetResolution);
-                referenceHeight = (int) (sourceProduct.getSceneRasterHeight()  * Math.abs(mapTransform.getScaleY()) / targetResolution);
+                referenceWidth = (int) (sourceProduct.getSceneRasterWidth() * Math.abs(mapTransform.getScaleX()) / targetResolution);
+                referenceHeight = (int) (sourceProduct.getSceneRasterHeight() * Math.abs(mapTransform.getScaleY()) / targetResolution);
                 referenceImageToModelTransform = new AffineTransform(targetResolution, 0, 0, -targetResolution,
                                                                      mapTransform.getTranslateX(), mapTransform.getTranslateY());
                 referenceMultiLevelModel = new DefaultMultiLevelModel(referenceImageToModelTransform, referenceWidth, referenceHeight);
