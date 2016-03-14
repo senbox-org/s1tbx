@@ -265,9 +265,6 @@ public class BandMathsOp extends Operator {
         descriptorMap = new HashMap<>(targetBandDescriptors.length);
         for (BandDescriptor bandDescriptor : targetBandDescriptors) {
             Term targetTerm = createTerm(bandDescriptor.expression, true);
-            if (!BandArithmetic.areRastersEqualInSize(targetTerm)) {
-                throw new OperatorException("Referenced rasters must all be the same size: " + bandDescriptor.expression);
-            }
             final RasterDataNode[] refRasters = BandArithmetic.getRefRasters(targetTerm);
             ensureSingleRasterSize(refRasters);
             Dimension targetBandDimension = findTargetBandSize(refRasters);
