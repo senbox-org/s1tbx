@@ -290,14 +290,16 @@ public class ResamplingOp extends Operator {
         if (interpolationType == null) {
             throw new OperatorException("Invalid upsampling method");
         }
-
+        float[] scalings = new float[2];
+        scalings[0] = sourceImage.getWidth() / referenceWidth;
+        scalings[1] = sourceImage.getHeight() / referenceHeight;
         final AbstractMultiLevelSource source = new AbstractMultiLevelSource(referenceModel) {
             @Override
             protected RenderedImage createImage(int targetLevel) {
                 final MultiLevelModel targetModel = getModel();
-                final double scale = targetModel.getScale(targetLevel);
+                final double targetScale = targetModel.getScale(targetLevel);
                 final MultiLevelModel sourceModel = sourceImage.getModel();
-                final int sourceLevel = sourceModel.getLevel(scale);
+                final int sourceLevel = findBestSourceLevel(targetScale, sourceModel, scalings);
                 final RenderedImage sourceLevelImage = sourceImage.getImage(sourceLevel);
                 final Dimension tileSize = JAIUtils.computePreferredTileSize(targetWidth, targetHeight, 1);
                 final ResolutionLevel resolutionLevel = ResolutionLevel.create(getModel(), targetLevel);
@@ -334,13 +336,16 @@ public class ResamplingOp extends Operator {
             }
             type = aggregationType;
         }
+        float[] scalings = new float[2];
+        scalings[0] = sourceImage.getWidth() / referenceWidth;
+        scalings[1] = sourceImage.getHeight() / referenceHeight;
         final AbstractMultiLevelSource source = new AbstractMultiLevelSource(referenceModel) {
             @Override
             protected RenderedImage createImage(int targetLevel) {
                 final MultiLevelModel targetModel = getModel();
-                final double scale = targetModel.getScale(targetLevel);
+                final double targetScale = targetModel.getScale(targetLevel);
                 final MultiLevelModel sourceModel = sourceImage.getModel();
-                final int sourceLevel = sourceModel.getLevel(scale);
+                final int sourceLevel = findBestSourceLevel(targetScale, sourceModel, scalings);
                 final RenderedImage sourceLevelImage = sourceImage.getImage(sourceLevel);
                 final Dimension tileSize = JAIUtils.computePreferredTileSize(targetWidth, targetHeight, 1);
                 final ResolutionLevel resolutionLevel = ResolutionLevel.create(getModel(), targetLevel);
@@ -359,6 +364,41 @@ public class ResamplingOp extends Operator {
             }
         };
         return new DefaultMultiLevelImage(source);
+    }
+
+    //todo remove code duplication with sourceimagescaler - tf 20160314
+    private int findBestSourceLevel(double targetScale, MultiLevelModel sourceModel, float[] scalings) {
+            /*
+             * Find the source level such that the final scaling factor is the closest to 1.0
+             *
+             * Example : When scaling a 20m resolution image to 10m resolution,
+             * when generating the level 1 image of the scaled image, we prefer using the source image data at level 0,
+             * since it will provide a better resolution than upscaling by 2 the source image data at level 1.
+             *
+             * We can't find the best on both X and Y directions if scaling factors are arbitrary, so we limit the
+             * search algorithm by optimizing only for the X direction.
+             * This will cover the most frequent use case where scaling factors in both directions are equal.
+             */
+        float optimizedScaling = 0;
+        int optimizedSourceLevel = 0;
+        boolean initialized = false;
+        for (int sourceLevel = 0; sourceLevel < sourceModel.getLevelCount(); sourceLevel++) {
+            final double sourceScale = sourceModel.getScale(sourceLevel);
+            final float scaleRatio = (float) (sourceScale / targetScale);
+            if (!initialized) {
+                optimizedScaling = scalings[0] * scaleRatio;
+                optimizedSourceLevel = sourceLevel;
+                initialized = true;
+            }
+            else {
+                // We want to be as close to 1.0 as possible
+                if (Math.abs(1 - scalings[0] * scaleRatio) < Math.abs(1 - optimizedScaling)) {
+                    optimizedScaling = scalings[0] * scaleRatio;
+                    optimizedSourceLevel = sourceLevel;
+                }
+            }
+        }
+        return optimizedSourceLevel;
     }
 
     private void setReferenceValues() {
