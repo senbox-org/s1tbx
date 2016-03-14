@@ -14,6 +14,7 @@ import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.Mask;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductNodeGroup;
+import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.datamodel.Scene;
 import org.esa.snap.core.datamodel.SceneFactory;
 import org.esa.snap.core.datamodel.TiePointGrid;
@@ -30,7 +31,9 @@ import org.esa.snap.core.image.ResolutionLevel;
 import org.esa.snap.core.transform.MathTransform2D;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.jai.JAIUtils;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.TransformException;
 
 import javax.media.jai.ImageLayout;
 import java.awt.Dimension;
@@ -143,12 +146,43 @@ public class ResamplingOp extends Operator {
         if (srcScene != null && destScene != null) {
             final GeoCoding sourceGeoCoding = srcScene.getGeoCoding();
             if (sourceGeoCoding == null) {
-                destScene.setGeoCoding(null);
+                targetProduct.setSceneGeoCoding(null);
+            } else if (sourceGeoCoding instanceof CrsGeoCoding) {
+                final CrsGeoCoding srcCrsGeoCoding = (CrsGeoCoding) sourceGeoCoding;
+                final RasterDataNode anyRasterDataNode = getAnyRasterDataNode(targetProduct);
+                if (anyRasterDataNode != null) {
+                    final AffineTransform destImage2MapTransform = anyRasterDataNode.getImageToModelTransform();
+                    AffineTransform destImageToMapTransform = new AffineTransform(destImage2MapTransform);
+                    try {
+                        final CrsGeoCoding destCrsGeoCoding = new CrsGeoCoding(srcCrsGeoCoding.getMapCRS(),
+                                                                               anyRasterDataNode.getSourceImage().getBounds(),
+                                                                               destImageToMapTransform);
+                        targetProduct.setSceneGeoCoding(destCrsGeoCoding);
+                    } catch (FactoryException | TransformException e) {
+                        //do not set geo-coding then
+                    }
+                }
             } else if (sourceGeoCoding instanceof AbstractGeoCoding) {
                 AbstractGeoCoding abstractGeoCoding = (AbstractGeoCoding) sourceGeoCoding;
                 abstractGeoCoding.transferGeoCoding(srcScene, destScene, null);
             }
         }
+    }
+
+    private RasterDataNode getAnyRasterDataNode(Product product) {
+        RasterDataNode node = null;
+        if (product != null) {
+            final ProductNodeGroup<Band> bandGroup = product.getBandGroup();
+            if (bandGroup.getNodeCount() == 0) {
+                final ProductNodeGroup<TiePointGrid> tiePointGridGroup = product.getTiePointGridGroup();
+                if (tiePointGridGroup.getNodeCount() > 0) {
+                    node = tiePointGridGroup.get(0);
+                }
+            } else {
+                node = bandGroup.get(0);
+            }
+        }
+        return node;
     }
 
     //convenience method to increase speed for band maths type masks
