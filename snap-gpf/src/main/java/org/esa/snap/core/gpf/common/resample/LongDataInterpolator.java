@@ -44,17 +44,18 @@ public abstract class LongDataInterpolator implements Interpolator {
         public void interpolate(Rectangle destRect, Rectangle srcRect, double scaleX, double scaleY,
                                 double offsetX, double offsetY) {
             int dstIndexY = getDstOffset();
+            double subPixelOffsetY = offsetY - (int) offsetY;
+            double subPixelOffsetX = offsetX - (int) offsetX;
             for (int dstY = 0; dstY < destRect.getHeight(); dstY++) {
-                double srcYF = offsetY + (scaleY * dstY);
-                final boolean yValid = srcYF >= 0 && srcYF < srcRect.getHeight();
-                int srcY = getSrcOffset() + (int) srcYF * getSrcScalineStride();
+                int srcY = (int) (subPixelOffsetY + scaleY * dstY);
+                int srcIndexY = getSrcOffset() + srcY * getSrcScalineStride();
+                boolean yValid = srcY < srcRect.getHeight();
                 for (int dstX = 0; dstX < destRect.getWidth(); dstX++) {
-                    double srcXF = offsetX + (scaleX * dstX);
-                    int srcX = (int) srcXF;
-                    if (yValid && srcX >= 0 && srcX < srcRect.getWidth()) {
-                        setDstData(dstIndexY + dstX, getSrcData(srcY + srcX));
+                    int srcX = (int) (subPixelOffsetX + scaleX * dstX);
+                    if (yValid && srcX < srcRect.getWidth()) {
+                        setDstData(dstIndexY + dstX, getSrcData(srcIndexY + srcX));
                     } else {
-                        setDstData(dstIndexY + dstX, 2000);
+                        setDstData(dstIndexY + dstX, getNoDataValue());
                     }
                 }
                 dstIndexY += getDstScalineStride();
@@ -69,13 +70,15 @@ public abstract class LongDataInterpolator implements Interpolator {
             final int srcH = (int) srcRect.getHeight();
             final int srcW = (int) srcRect.getWidth();
             int dstIndexY = getDstOffset();
+            double subPixelOffsetY = offsetY - (int) offsetY;
+            double subPixelOffsetX = offsetX - (int) offsetX;
             for (int dstY = 0; dstY < destRect.getHeight(); dstY++) {
-                double srcYF = offsetY + (scaleY * (dstY + 0.5)) - 0.5;
+                double srcYF = subPixelOffsetY + (scaleY * (dstY + 0.5)) - 0.5;
                 int srcY = (int) srcYF;
                 double wy = srcYF - srcY;
                 int srcIndexY = getSrcOffset() + srcY * getSrcScalineStride();
                 for (int dstX = 0; dstX < destRect.getWidth(); dstX++) {
-                    double srcXF = offsetX + (scaleX * (dstX + 0.5)) - 0.5;
+                    double srcXF = subPixelOffsetX + (scaleX * (dstX + 0.5)) - 0.5;
                     int srcX = (int) srcXF;
                     double wx = srcXF - srcX;
                     boolean withinSrcH = srcY + 1 < srcH;

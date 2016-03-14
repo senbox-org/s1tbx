@@ -9,5 +9,4 @@ org.esa.snap.core.gpf.common.ProductSetReaderOp$Spi
 org.esa.snap.core.gpf.common.BandMathsOp$Spi
 org.esa.snap.core.gpf.common.reproject.ReprojectionOp$Spi
 org.esa.snap.core.gpf.common.resample.ResamplingOp$Spi
-org.esa.snap.core.gpf.common.resample.ResamplingOp2$Spi
 org.esa.snap.core.gpf.common.ImportVectorOp$Spi
