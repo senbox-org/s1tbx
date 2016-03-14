@@ -252,8 +252,6 @@ public class BandMathsOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        ensureSingleRasterSize(sourceProducts);
-
         if (targetBandDescriptors == null || targetBandDescriptors.length == 0) {
             throw new OperatorException("No target bands specified.");
         }
@@ -270,12 +268,13 @@ public class BandMathsOp extends Operator {
             if (!BandArithmetic.areRastersEqualInSize(targetTerm)) {
                 throw new OperatorException("Referenced rasters must all be the same size: " + bandDescriptor.expression);
             }
-            final RasterDataSymbol[] rasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(targetTerm);
-            Dimension targetBandDimension = findTargetBandSize(rasterDataSymbols);
+            final RasterDataNode[] refRasters = BandArithmetic.getRefRasters(targetTerm);
+            ensureSingleRasterSize(refRasters);
+            Dimension targetBandDimension = findTargetBandSize(refRasters);
             final Band targetBand = createBand(bandDescriptor, targetBandDimension);
             targetProduct.addBand(targetBand);
-            if (rasterDataSymbols.length > 0) {
-                ProductUtils.copyImageGeometry(rasterDataSymbols[0].getRaster(), targetBand, true);
+            if (refRasters.length > 0) {
+                ProductUtils.copyImageGeometry(refRasters[0], targetBand, true);
             }
             descriptorMap.put(targetBand, bandDescriptor);
         }
@@ -424,6 +423,14 @@ public class BandMathsOp extends Operator {
             targetBand.setScalingFactor(bandDescriptor.scalingFactor);
         }
         return targetBand;
+    }
+
+    private Dimension findTargetBandSize(RasterDataNode[] rasterDataNodes) {
+        if (rasterDataNodes.length > 0) {
+            return rasterDataNodes[0].getRasterSize();
+        } else {
+            return targetProduct.getSceneRasterSize();
+        }
     }
 
     private Dimension findTargetBandSize(RasterDataSymbol[] rasterDataSymbols) {
