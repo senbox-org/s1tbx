@@ -152,6 +152,8 @@ public final class BackGeocodingOp extends Operator {
 
     private static final String PRODUCT_SUFFIX = "_Stack";
 
+    private boolean outputDEM = false;
+
     /**
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
@@ -388,6 +390,17 @@ public final class BackGeocodingOp extends Operator {
 
             phaseBand.setUnit("radian");
             targetProduct.addBand(phaseBand);
+        }
+
+        if (outputDEM) {
+            final Band elevBand = new Band(
+                    "elevation" + slvSuffix,
+                    ProductData.TYPE_FLOAT32,
+                    masterBandWidth,
+                    masterBandHeight);
+
+            elevBand.setUnit(Unit.METERS);
+            targetProduct.addBand(elevBand);
         }
     }
 
@@ -709,15 +722,25 @@ public final class BackGeocodingOp extends Operator {
             return;
         }
 
-        final PixelPos[][] slavePixPos = computeSlavePixPos(
-                subSwathIndex, mBurstIndex, sBurstIndex, x0, y0, w, h, extendedAmount, pm);
+        double[][] elevation = null;
+        if (outputDEM) {
+            elevation = new double[h][w];
+        }
 
-        if (slavePixPos == null) {
+        final PixelPos[][] slavePixPos = new PixelPos[h][w];
+        final boolean isSuccessful = computeSlavePixPos(
+                subSwathIndex, mBurstIndex, sBurstIndex, x0, y0, w, h, extendedAmount, slavePixPos, elevation, pm);
+
+        if (!isSuccessful) {
             return;
         }
 
         if (outputRangeAzimuthOffset) {
             outputRangeAzimuthOffsets(x0, y0, w, h, targetTileMap, slavePixPos, subSwathIndex, mBurstIndex, sBurstIndex);
+        }
+
+        if (outputDEM) {
+            outputDEM(x0, y0, w, h, targetTileMap, elevation);
         }
 
         final int margin = selectedResampling.getKernelSize();
@@ -751,9 +774,10 @@ public final class BackGeocodingOp extends Operator {
                 derampDemodI, derampDemodQ, slavePixPos, subSwathIndex, sBurstIndex);
     }
 
-    private PixelPos[][] computeSlavePixPos(final int subSwathIndex, final int mBurstIndex, final int sBurstIndex,
-                                            final int x0, final int y0, final int w, final int h,
-                                            final double[] extendedAmount, ProgressMonitor pm)
+    private boolean computeSlavePixPos(final int subSwathIndex, final int mBurstIndex, final int sBurstIndex,
+                                       final int x0, final int y0, final int w, final int h,
+                                       final double[] extendedAmount, final PixelPos[][] slavePixelPos,
+                                       final double[][] elevation, ProgressMonitor pm)
             throws Exception {
 
         try {
@@ -831,7 +855,7 @@ public final class BackGeocodingOp extends Operator {
             }
 
             if (noValidSlavePixPos) {
-                return null;
+                return false;
             }
 
             // Compute azimuth/range offsets for pixels in target tile using Delaunay interpolation
@@ -856,16 +880,15 @@ public final class BackGeocodingOp extends Operator {
                     tileWindow, rgAzRatio, 1, 1, invalidIndex, 0);
 
             boolean allElementsAreNull = true;
-            final PixelPos[][] slavePixelPos = new PixelPos[h][w];
-
             double alt = 0;
             for(int yy = 0; yy < h; yy++) {
                 for (int xx = 0; xx < w; xx++) {
                     if (rgArray[yy][xx] == invalidIndex || azArray[yy][xx] == invalidIndex) {
                         slavePixelPos[yy][xx] = null;
                     } else {
-                        if (maskOutAreaWithoutElevation) {
+                        if (maskOutAreaWithoutElevation || elevation != null) {
                             alt = dem.getElevation(new GeoPos(latArray[yy][xx], lonArray[yy][xx]));
+                            elevation[yy][xx] = alt;
                             if (alt != demNoDataValue) {
                                 slavePixelPos[yy][xx] = new PixelPos(rgArray[yy][xx], azArray[yy][xx]);
                                 allElementsAreNull = false;
@@ -880,17 +903,13 @@ public final class BackGeocodingOp extends Operator {
                 }
             }
 
-            if (allElementsAreNull) {
-                return null;
-            }
-
-            return slavePixelPos;
+            return !allElementsAreNull;
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("computeSlavePixPos", e);
         }
 
-        return null;
+        return false;
     }
 
     /**
@@ -1132,20 +1151,9 @@ public final class BackGeocodingOp extends Operator {
             final ResamplingRaster resamplingRasterQ = new ResamplingRaster(slaveTileQ, derampDemodQ);
             final ResamplingRaster resamplingRasterPhase = new ResamplingRaster(slaveTileI, derampDemodPhase);
 
-            final Band[] targetBands = targetProduct.getBands();
-            Band iBand = null;
-            Band qBand = null;
-            Band phaseBand = null;
-            for (Band band : targetBands) {
-                final String bandName = band.getName();
-                if (bandName.contains("i_") && bandName.contains(StackUtils.SLV)) {
-                    iBand = band;
-                } else if (bandName.contains("q_") && bandName.contains(StackUtils.SLV)) {
-                    qBand = band;
-                } else if (bandName.contains("derampDemodPhase")) {
-                    phaseBand = band;
-                }
-            }
+            final Band iBand = getTargetBand("i_", StackUtils.SLV);
+            final Band qBand = getTargetBand("q_", StackUtils.SLV);
+            final Band phaseBand = getTargetBand("derampDemodPhase", null);
 
             if (iBand == null || qBand == null) {
                 return;
@@ -1254,8 +1262,8 @@ public final class BackGeocodingOp extends Operator {
                                            final int subSwathIndex, final int mBurstIndex, final int sBurstIndex) {
 
         try {
-            final Band azOffsetBand = targetProduct.getBand("azOffset");
-            final Band rgOffsetBand = targetProduct.getBand("rgOffset");
+            final Band azOffsetBand = getTargetBand("azOffset", null);
+            final Band rgOffsetBand = getTargetBand("rgOffset", null);
 
             if (azOffsetBand == null || rgOffsetBand == null) {
                 return;
@@ -1307,6 +1315,55 @@ public final class BackGeocodingOp extends Operator {
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("outputRangeAzimuthOffsets", e);
         }
+    }
+
+    private void outputDEM(final int x0, final int y0, final int w, final int h,
+                           final Map<Band, Tile> targetTileMap, final double[][] elevation) {
+
+        try {
+            final Band elevBand = getTargetBand("elevation", null);
+            if (elevBand == null) {
+                return;
+            }
+
+            final Tile tgtTileElev = targetTileMap.get(elevBand);
+            final ProductData tgtBufferElev = tgtTileElev.getDataBuffer();
+            final TileIndex tgtIndex = new TileIndex(tgtTileElev);
+
+            for (int y = y0; y < y0 + h; y++) {
+                tgtIndex.calculateStride(y);
+                final int yy = y - y0;
+                for (int x = x0; x < x0 + w; x++) {
+                    final int tgtIdx = tgtIndex.getIndex(x);
+                    final int xx = x - x0;
+                    tgtBufferElev.setElemFloatAt(tgtIdx, (float)(elevation[yy][xx]));
+                }
+            }
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException("outputDEM", e);
+        }
+    }
+
+    private Band getTargetBand(final String name, final String tag) {
+
+        final Band[] targetBands = targetProduct.getBands();
+        if (tag != null) {
+            for (Band band : targetBands) {
+                final String bandName = band.getName();
+                if (bandName.contains(name) && bandName.contains(tag)) {
+                    return band;
+                }
+            }
+        } else {
+            for (Band band : targetBands) {
+                final String bandName = band.getName();
+                if (bandName.contains(name)) {
+                    return band;
+                }
+            }
+        }
+
+        return null;
     }
 
     private static class PositionData {
