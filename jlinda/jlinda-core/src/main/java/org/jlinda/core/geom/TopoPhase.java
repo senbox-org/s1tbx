@@ -25,10 +25,12 @@ public class TopoPhase {
 
     private DemTile dem;           // demTileData
     public double[][] demPhase;
+    public double[][] elevation;
 
     private double[][] demRadarCode_x;
     private double[][] demRadarCode_y;
     private double[][] demRadarCode_phase; // interpolated grid
+    private double[][] demElevation;
 
     private int nRows;
     private int nCols;
@@ -103,6 +105,7 @@ public class TopoPhase {
         demRadarCode_x = new double[nRows][nCols];
         demRadarCode_y = new double[nRows][nCols];
         demRadarCode_phase = new double[nRows][nCols];
+        demElevation = new double[nRows][nCols];
 
         final int nPoints = nRows * nCols;
         final boolean onlyTopoRefPhase = true;
@@ -114,8 +117,8 @@ public class TopoPhase {
 
         double phi, lambda, height, line, pix, ref_phase;
 
-        final double upperLeftPhi = dem.lat0 - dem.indexPhi0DEM * dem.latitudeDelta;
-        final double upperLeftLambda = dem.lon0 + dem.indexLambda0DEM * dem.longitudeDelta;
+        final double upperLeftPhi = dem.lat0;// - dem.indexPhi0DEM * dem.latitudeDelta;
+        final double upperLeftLambda = dem.lon0;// + dem.indexLambda0DEM * dem.longitudeDelta;
 
         Point pointOnDem;
         Point slaveTime;
@@ -133,6 +136,7 @@ public class TopoPhase {
             for (int j = 0; j < nCols; j++) {
 
                 height = heightArray[j];
+                demElevation[i][j] = height;
 
                 if (height != dem.noDataValue) {
 
@@ -265,6 +269,17 @@ public class TopoPhase {
         int mlRg = masterMeta.getMlRg();
         int offset = 0;
         demPhase = TriangleUtils.gridDataLinear(demRadarCode_y, demRadarCode_x, demRadarCode_phase,
+                tileWindow, rngAzRatio, mlAz, mlRg, dem.noDataValue, offset);
+    }
+
+    public void getDEM() throws Exception {
+        if (rngAzRatio == 0) {
+            calculateScalingRatio();
+        }
+        int mlAz = masterMeta.getMlAz();
+        int mlRg = masterMeta.getMlRg();
+        int offset = 0;
+        elevation = TriangleUtils.gridDataLinear(demRadarCode_y, demRadarCode_x, demElevation,
                 tileWindow, rngAzRatio, mlAz, mlRg, dem.noDataValue, offset);
     }
 
