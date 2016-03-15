@@ -109,7 +109,7 @@ public class InterpolatedOpImageTest {
         final int dataBufferType = sourceBand.getSourceImage().getSampleModel().getDataType();
         final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(referenceBand, dataBufferType);
         final InterpolatedOpImage image = new InterpolatedOpImage(sourceBand.getSourceImage(), imageLayout,
-                                                                  sourceBand.getNoDataValue(), dataType,
+                                                                  sourceBand.getNoDataValue(), dataBufferType,
                                                                   InterpolationType.Bilinear,
                                                                   sourceBand.getImageToModelTransform(),
                                                                   referenceBand.getImageToModelTransform());
@@ -183,7 +183,7 @@ public class InterpolatedOpImageTest {
         final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(referenceBand, dataBufferType);
 
         final InterpolatedOpImage image = new InterpolatedOpImage(sourceBand.getSourceImage(), imageLayout,
-                                                                  sourceBand.getNoDataValue(), dataType,
+                                                                  sourceBand.getNoDataValue(), dataBufferType,
                                                                   InterpolationType.Nearest,
                                                                   sourceBand.getImageToModelTransform(),
                                                                   referenceBand.getImageToModelTransform());

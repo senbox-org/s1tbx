@@ -14,7 +14,6 @@ import javax.media.jai.ImageLayout;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 
@@ -202,18 +201,19 @@ public class AggregatedOpImageTest {
 
     private void test_mean(int dataType) throws NoninvertibleTransformException {
         final Band sourceBand = createSourceBand(dataType);
+        final int dataBufferType = ImageManager.getDataBufferType(dataType);
         final ImageLayout imageLayout = createImageLayout(sourceBand);
 
         final AggregatedOpImage image = new AggregatedOpImage(sourceBand.getSourceImage(), imageLayout,
                                                               sourceBand.getNoDataValue(),
-                                                              AggregationType.Mean, dataType,
+                                                              AggregationType.Mean, dataBufferType,
                                                               sourceBand.getImageToModelTransform(),
                                                               referenceBand.getImageToModelTransform());
 
         assertNotNull(image);
         assertEquals(2, image.getWidth());
         assertEquals(2, image.getHeight());
-        assertEquals(getExpectedDataBufferDataType(dataType), image.getSampleModel().getDataType());
+        assertEquals(dataBufferType, image.getSampleModel().getDataType());
         final Raster imageData = image.getData();
         if (dataType != ProductData.TYPE_FLOAT32 && dataType != ProductData.TYPE_FLOAT64) {
             assertEquals(7.0, imageData.getSample(0, 0, 0), 1e-8);
@@ -230,17 +230,19 @@ public class AggregatedOpImageTest {
 
     private void test_median(int dataType) throws NoninvertibleTransformException {
         final Band sourceBand = createSourceBand_Median(dataType);
+        final int dataBufferType = ImageManager.getDataBufferType(dataType);
         final ImageLayout imageLayout = createImageLayout(sourceBand);
 
         final AggregatedOpImage image = new AggregatedOpImage(sourceBand.getSourceImage(), imageLayout,
-                                                              sourceBand.getNoDataValue(), AggregationType.Median, dataType,
+                                                              sourceBand.getNoDataValue(), AggregationType.Median,
+                                                              dataBufferType,
                                                               sourceBand.getImageToModelTransform(),
                                                               referenceBand.getImageToModelTransform());
 
         assertNotNull(image);
         assertEquals(2, image.getWidth());
         assertEquals(2, image.getHeight());
-        assertEquals(getExpectedDataBufferDataType(dataType), image.getSampleModel().getDataType());
+        assertEquals(dataBufferType, image.getSampleModel().getDataType());
         final Raster imageData = image.getData();
         assertEquals(6.0, imageData.getSampleDouble(0, 0, 0), 1e-8);
         assertEquals(10.0, imageData.getSampleDouble(0, 1, 0), 1e-8);
@@ -250,17 +252,19 @@ public class AggregatedOpImageTest {
 
     private void test_min(int dataType) throws NoninvertibleTransformException {
         final Band sourceBand = createSourceBand(dataType);
+        final int dataBufferType = ImageManager.getDataBufferType(dataType);
         final ImageLayout imageLayout = createImageLayout(sourceBand);
 
         final AggregatedOpImage image = new AggregatedOpImage(sourceBand.getSourceImage(), imageLayout,
-                                                              sourceBand.getNoDataValue(), AggregationType.Min, dataType,
+                                                              sourceBand.getNoDataValue(), AggregationType.Min,
+                                                              dataBufferType,
                                                               sourceBand.getImageToModelTransform(),
                                                               referenceBand.getImageToModelTransform());
 
         assertNotNull(image);
         assertEquals(2, image.getWidth());
         assertEquals(2, image.getHeight());
-        assertEquals(getExpectedDataBufferDataType(dataType), image.getSampleModel().getDataType());
+        assertEquals(dataBufferType, image.getSampleModel().getDataType());
         final Raster imageData = image.getData();
         assertEquals(5.0, imageData.getSampleDouble(0, 0, 0), 1e-8);
         assertEquals(7.0, imageData.getSampleDouble(0, 1, 0), 1e-8);
@@ -270,17 +274,19 @@ public class AggregatedOpImageTest {
 
     private void test_max(int dataType) throws NoninvertibleTransformException {
         final Band sourceBand = createSourceBand(dataType);
+        final int dataBufferType = ImageManager.getDataBufferType(dataType);
         final ImageLayout imageLayout = createImageLayout(sourceBand);
 
         final AggregatedOpImage image = new AggregatedOpImage(sourceBand.getSourceImage(), imageLayout,
-                                                              sourceBand.getNoDataValue(), AggregationType.Max, dataType,
+                                                              sourceBand.getNoDataValue(), AggregationType.Max,
+                                                              dataBufferType,
                                                               sourceBand.getImageToModelTransform(),
                                                               referenceBand.getImageToModelTransform());
 
         assertNotNull(image);
         assertEquals(2, image.getWidth());
         assertEquals(2, image.getHeight());
-        assertEquals(getExpectedDataBufferDataType(dataType), image.getSampleModel().getDataType());
+        assertEquals(dataBufferType, image.getSampleModel().getDataType());
         final Raster imageData = image.getData();
         assertEquals(10.0, imageData.getSampleDouble(0, 0, 0), 1e-8);
         assertEquals(11.0, imageData.getSampleDouble(0, 1, 0), 1e-8);
@@ -290,39 +296,24 @@ public class AggregatedOpImageTest {
 
     private void test_first(int dataType) throws NoninvertibleTransformException {
         final Band sourceBand = createSourceBand(dataType);
+        final int dataBufferType = ImageManager.getDataBufferType(dataType);
         final ImageLayout imageLayout = createImageLayout(sourceBand);
 
         final AggregatedOpImage image = new AggregatedOpImage(sourceBand.getSourceImage(), imageLayout,
-                                                              sourceBand.getNoDataValue(), AggregationType.First, dataType,
+                                                              sourceBand.getNoDataValue(), AggregationType.First,
+                                                              dataBufferType,
                                                               sourceBand.getImageToModelTransform(),
                                                               referenceBand.getImageToModelTransform());
 
         assertNotNull(image);
         assertEquals(2, image.getWidth());
         assertEquals(2, image.getHeight());
-        assertEquals(getExpectedDataBufferDataType(dataType), image.getSampleModel().getDataType());
+        assertEquals(dataBufferType, image.getSampleModel().getDataType());
         final Raster imageData = image.getData();
         assertEquals(5.0, imageData.getSampleDouble(0, 0, 0), 1e-8);
         assertEquals(7.0, imageData.getSampleDouble(0, 1, 0), 1e-8);
         assertEquals(13.0, imageData.getSampleDouble(1, 0, 0), 1e-8);
         assertEquals(15.0, imageData.getSampleDouble(1, 1, 0), 1e-8);
-    }
-
-    private int getExpectedDataBufferDataType(int productDataType) {
-        if (productDataType == ProductData.TYPE_INT8 || productDataType == ProductData.TYPE_UINT8) {
-            return DataBuffer.TYPE_BYTE;
-        } else if (productDataType == ProductData.TYPE_INT16) {
-            return DataBuffer.TYPE_SHORT;
-        } else if (productDataType == ProductData.TYPE_UINT16) {
-            return DataBuffer.TYPE_USHORT;
-        } else if (productDataType == ProductData.TYPE_INT32 || productDataType == ProductData.TYPE_UINT32) {
-            return DataBuffer.TYPE_INT;
-        } else if (productDataType == ProductData.TYPE_FLOAT32) {
-            return DataBuffer.TYPE_FLOAT;
-        } else if (productDataType == ProductData.TYPE_FLOAT64) {
-            return DataBuffer.TYPE_DOUBLE;
-        }
-        return -1;
     }
 
     private ImageLayout createImageLayout(Band sourceBand) {
