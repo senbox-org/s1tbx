@@ -114,6 +114,8 @@ public final class SubtRefDemOp extends Operator {
     private static final boolean CREATE_VIRTUAL_BAND = true;
     private static final String PRODUCT_SUFFIX = "_DInSAR";
 
+    private boolean outputDEM = false;
+
     /**
      * Initializes this operator and sets the one and only target product.
      * <p>The target product can be either defined by a field of type {@link Product} annotated with the
@@ -349,6 +351,14 @@ public final class SubtRefDemOp extends Operator {
                 topoBand.setUnit(Unit.PHASE);
                 topoBand.setDescription("topographic_phase");
                 targetBandNames.add(topoBand.getName());
+
+                if (outputDEM) {
+                    Band elevBand = targetProduct.addBand("elevation", ProductData.TYPE_FLOAT32);
+                    elevBand.setNoDataValue(demNoDataValue);
+                    elevBand.setUnit(Unit.METERS);
+                    elevBand.setDescription("elevation");
+                    targetBandNames.add(elevBand.getName());
+                }
             }
 
             // copy other bands through
@@ -397,7 +407,7 @@ public final class SubtRefDemOp extends Operator {
             DemTile demTile = getDEMTile(
                     tileWindow, targetMap, dem, demNoDataValue, demSamplingLat, demSamplingLon, tileExtensionPercent);
 
-            Band topoPhaseBand, targetBand_I, targetBand_Q;
+            Band topoPhaseBand, targetBand_I, targetBand_Q, elevBand;
 
             // TODO: smarter extension of search space : foreshortening extension? can I calculate how bit tile I
             // need (extra space) for the coverage, taking into the consideration only height of the tile?
@@ -405,7 +415,7 @@ public final class SubtRefDemOp extends Operator {
 
                 ProductContainer product = targetMap.get(ifgKey);
 
-                TopoPhase topoPhase = computeTopoPhase(product, tileWindow, demTile);
+                TopoPhase topoPhase = computeTopoPhase(product, tileWindow, demTile, outputDEM);
 
                 /// check out results from source ///
                 Tile tileReal = getSourceTile(product.sourceMaster.realBand, targetRectangle);
@@ -430,6 +440,12 @@ public final class SubtRefDemOp extends Operator {
                 topoPhaseBand = targetProduct.getBand(product.masterSubProduct.targetBandName_I);
                 Tile tileOutTopoPhase = targetTileMap.get(topoPhaseBand);
                 TileUtilsDoris.pushDoubleArray2D(topoPhase.demPhase, tileOutTopoPhase, targetRectangle);
+
+                if (outputDEM) {
+                    elevBand = targetProduct.getBand("elevation");
+                    Tile tileElevBand = targetTileMap.get(elevBand);
+                    TileUtilsDoris.pushDoubleArray2D(topoPhase.elevation, tileElevBand, targetRectangle);
+                }
             }
 
         } catch (Exception e) {
@@ -515,14 +531,13 @@ public final class SubtRefDemOp extends Operator {
             demTile.setData(elevation);
 
             return demTile;
-
         } catch (Exception e) {
             throw new OperatorException(e);
         }
     }
 
     public static TopoPhase computeTopoPhase(
-            final ProductContainer product, final Window tileWindow, final DemTile demTile) {
+            final ProductContainer product, final Window tileWindow, final DemTile demTile, final boolean outputDEM) {
 
         try {
             final TopoPhase topoPhase = new TopoPhase(product.sourceMaster.metaData, product.sourceMaster.orbit,
@@ -531,6 +546,10 @@ public final class SubtRefDemOp extends Operator {
             topoPhase.radarCode();
 
             topoPhase.gridData();
+
+            if (outputDEM) {
+                topoPhase.getDEM();
+            }
 
             return topoPhase;
 
