@@ -23,10 +23,10 @@ class InterpolatedOpImage extends GeometricOpImage {
     private final float offsetX;
     private final float offsetY;
     private final double noDataValue;
-    private final int dataType;
+    private final int dataBufferType;
     private InterpolationType interpolationType;
 
-    InterpolatedOpImage(RenderedImage sourceImage, ImageLayout layout, double noDataValue, int dataType,
+    InterpolatedOpImage(RenderedImage sourceImage, ImageLayout layout, double noDataValue, int dataBufferType,
                                InterpolationType interpolationType, AffineTransform sourceImageToModelTransform,
                                AffineTransform referenceImageToModelTransform) throws NoninvertibleTransformException {
         super(vectorize(sourceImage), layout, null, true, createBorderExtender(noDataValue), null,
@@ -41,7 +41,7 @@ class InterpolatedOpImage extends GeometricOpImage {
         offsetY = (float) (referenceImageToModelTransform.getTranslateY() / sourceImageToModelTransform.getScaleY()) -
                 (float) (sourceImageToModelTransform.getTranslateY() / sourceImageToModelTransform.getScaleY());
         this.interpolationType = interpolationType;
-        this.dataType = dataType;
+        this.dataBufferType = dataBufferType;
     }
 
 
@@ -69,7 +69,7 @@ class InterpolatedOpImage extends GeometricOpImage {
         final Rectangle srcRect = mapDestRect(destRect, 0);
         RasterAccessor srcAccessor = new RasterAccessor(source, srcRect, formatTags[0], getSourceImage(0).getColorModel());
         RasterAccessor dstAccessor = new RasterAccessor(dest, destRect, formatTags[1], getColorModel());
-        final Interpolator interpolator = InterpolatorFactory.createInterpolator(interpolationType, dataType);
+        final Interpolator interpolator = InterpolatorFactory.createInterpolator(interpolationType, dataBufferType);
         interpolator.init(srcAccessor, dstAccessor, noDataValue);
         interpolator.interpolate(destRect, srcRect, scaleX, scaleY, offsetX, offsetY);
         if (dstAccessor.isDataCopy()) {

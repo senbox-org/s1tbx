@@ -1,6 +1,6 @@
 package org.esa.snap.core.gpf.common.resample;
 
-import org.esa.snap.core.datamodel.ProductData;
+import java.awt.image.DataBuffer;
 
 /**
  * @author Tonio Fincke
@@ -8,7 +8,7 @@ import org.esa.snap.core.datamodel.ProductData;
 public class InterpolatorFactory {
 
     public static Interpolator createInterpolator(InterpolationType type, int dataType) {
-        if (dataType == ProductData.TYPE_FLOAT32 || dataType == ProductData.TYPE_FLOAT64) {
+        if (dataType == DataBuffer.TYPE_FLOAT || dataType == DataBuffer.TYPE_DOUBLE) {
             switch (type) {
                 case Nearest:
                     return new DoubleDataInterpolator.NearestNeighbour();

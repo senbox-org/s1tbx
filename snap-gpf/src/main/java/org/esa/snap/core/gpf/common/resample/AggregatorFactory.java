@@ -1,14 +1,14 @@
 package org.esa.snap.core.gpf.common.resample;
 
-import org.esa.snap.core.datamodel.ProductData;
+import java.awt.image.DataBuffer;
 
 /**
  * @author Tonio Fincke
  */
 public class AggregatorFactory {
 
-    public static Aggregator createAggregator(AggregationType aggregationType, int dataType) {
-        if (dataType == ProductData.TYPE_FLOAT32 || dataType == ProductData.TYPE_FLOAT64) {
+    public static Aggregator createAggregator(AggregationType aggregationType, int dataBufferType) {
+        if (dataBufferType == DataBuffer.TYPE_FLOAT || dataBufferType == DataBuffer.TYPE_DOUBLE) {
             switch (aggregationType) {
                 case Mean:
                     return new DoubleDataAggregator.Mean();

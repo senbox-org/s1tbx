@@ -331,7 +331,7 @@ public class ResamplingOp extends Operator {
         return new DefaultMultiLevelImage(source);
     }
 
-    private MultiLevelImage createInterpolatedImage(MultiLevelImage sourceImage, int dataType, double noDataValue,
+    private MultiLevelImage createInterpolatedImage(MultiLevelImage sourceImage, int dataBufferType, double noDataValue,
                                                     MultiLevelModel referenceModel, int targetWidth, int targetHeight) {
         if (interpolationType == null) {
             throw new OperatorException("Invalid upsampling method");
@@ -352,13 +352,13 @@ public class ResamplingOp extends Operator {
                     final RenderedImage sourceLevelImage = sourceImage.getImage(sourceLevel);
                     final ResolutionLevel resolutionLevel = ResolutionLevel.create(getModel(), targetLevel);
                     final AffineTransform sourceImageToModelTransform = sourceModel.getImageToModelTransform(sourceLevel);
-                    final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(dataType, null,
+                    final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(dataBufferType, null,
                                                                                                referenceWidth,
                                                                                                referenceHeight,
                                                                                                tileSize,
                                                                                                resolutionLevel);
                     try {
-                        return new InterpolatedOpImage(sourceLevelImage, imageLayout, noDataValue, dataType, interpolationType,
+                        return new InterpolatedOpImage(sourceLevelImage, imageLayout, noDataValue, dataBufferType, interpolationType,
                                                        sourceImageToModelTransform,
                                                        targetModel.getImageToModelTransform(targetLevel));
                     } catch (NoninvertibleTransformException e) {
@@ -368,11 +368,11 @@ public class ResamplingOp extends Operator {
             };
         } else {
             try {
-                final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(dataType, null,
+                final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(dataBufferType, null,
                                                                                            referenceWidth, referenceHeight,
                                                                                            tileSize,
                                                                                            ResolutionLevel.MAXRES);
-                final RenderedImage image = new InterpolatedOpImage(sourceImage, imageLayout, noDataValue, dataType,
+                final RenderedImage image = new InterpolatedOpImage(sourceImage, imageLayout, noDataValue, dataBufferType,
                                                                     interpolationType,
                                                                     sourceImage.getModel().getImageToModelTransform(0),
                                                                     referenceModel.getImageToModelTransform(0));
@@ -384,7 +384,7 @@ public class ResamplingOp extends Operator {
         return new DefaultMultiLevelImage(source);
     }
 
-    private MultiLevelImage createAggregatedImage(MultiLevelImage sourceImage, int dataType, double noDataValue,
+    private MultiLevelImage createAggregatedImage(MultiLevelImage sourceImage, int dataBufferType, double noDataValue,
                                                   boolean isFlagBand, MultiLevelModel referenceModel,
                                                   int targetWidth, int targetHeight) {
         AggregationType type;
@@ -414,13 +414,13 @@ public class ResamplingOp extends Operator {
                     final int sourceLevel = findBestSourceLevel(targetScale, sourceModel, scalings);
                     final RenderedImage sourceLevelImage = sourceImage.getImage(sourceLevel);
                     final ResolutionLevel resolutionLevel = ResolutionLevel.create(getModel(), targetLevel);
-                    final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(dataType, null,
+                    final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(dataBufferType, null,
                                                                                                referenceWidth,
                                                                                                referenceHeight,
                                                                                                tileSize,
                                                                                                resolutionLevel);
                     try {
-                        return new AggregatedOpImage(sourceLevelImage, imageLayout, noDataValue, type, dataType,
+                        return new AggregatedOpImage(sourceLevelImage, imageLayout, noDataValue, type, dataBufferType,
                                                      sourceModel.getImageToModelTransform(sourceLevel),
                                                      targetModel.getImageToModelTransform(targetLevel));
                     } catch (NoninvertibleTransformException e) {
@@ -430,11 +430,11 @@ public class ResamplingOp extends Operator {
             };
         } else {
             try {
-                final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(dataType, null,
+                final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(dataBufferType, null,
                                                                                            referenceWidth, referenceHeight,
                                                                                            tileSize,
                                                                                            ResolutionLevel.MAXRES);
-                final RenderedImage image = new AggregatedOpImage(sourceImage, imageLayout, noDataValue, type, dataType,
+                final RenderedImage image = new AggregatedOpImage(sourceImage, imageLayout, noDataValue, type, dataBufferType,
                                                                   sourceImage.getModel().getImageToModelTransform(0),
                                                                   referenceModel.getImageToModelTransform(0));
                 source = new DefaultMultiLevelSource(image, referenceModel);
