@@ -133,7 +133,9 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
         windowSize.setSelectedItem(paramMap.get("windowSize"));
         targetWindowSize.setSelectedItem(paramMap.get("targetWindowSizeStr"));
         sigmaStr.setSelectedItem(paramMap.get("sigmaStr"));
-        anSize.setText(String.valueOf(paramMap.get("anSize")));
+
+        Integer anSizeStr = (Integer)paramMap.get("anSize");
+        anSize.setText(String.valueOf(anSizeStr == null ? 50 : anSizeStr));
     }
 
     @Override
