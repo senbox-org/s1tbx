@@ -35,31 +35,31 @@ public class TriangleInterpolator {
     private static FastDelaunayTriangulator triangulate(double[][] x_in, double[][] y_in, double xyRatio) throws Exception {
 
         //// organize input data
-        long t0 = System.currentTimeMillis();
+        //long t0 = System.currentTimeMillis();
         final List<Geometry> list = new ArrayList<>();
-        GeometryFactory gf = new GeometryFactory();
+        final GeometryFactory gf = new GeometryFactory();
         for (int i = 0; i < x_in.length; i++) {
             for (int j = 0; j < x_in[0].length; j++) {
                 list.add(gf.createPoint(new Coordinate(x_in[i][j], y_in[i][j] * xyRatio, i*x_in[0].length + j)));
             }
         }
-        long t1 = System.currentTimeMillis();
-        SystemUtils.LOG.info("Input set constructed in " + (0.001 * (t1 - t0)) + " sec");
+        //long t1 = System.currentTimeMillis();
+        //SystemUtils.LOG.info("Input set constructed in " + (0.001 * (t1 - t0)) + " sec");
 
         if (list.size() < 3) {
             return null;
         }
 
         //// triangulate input data
-        long t2 = System.currentTimeMillis();
+        //long t2 = System.currentTimeMillis();
         FastDelaunayTriangulator FDT = new FastDelaunayTriangulator();
         try {
             FDT.triangulate(list.iterator());
         } catch (TriangulationException te) {
             te.printStackTrace();
         }
-        long t3 = System.currentTimeMillis();
-        SystemUtils.LOG.info("Data set triangulated in " + (0.001 * (t3 - t2)) + " sec");
+        //long t3 = System.currentTimeMillis();
+        //SystemUtils.LOG.info("Data set triangulated in " + (0.001 * (t3 - t2)) + " sec");
         return FDT;
     }
 
@@ -85,7 +85,7 @@ public class TriangleInterpolator {
         final int ny = (int) tileWindow.pixels();
 
         //// interpolate: loop over triangles
-        long t4 = System.currentTimeMillis();
+        //long t4 = System.currentTimeMillis();
         for (Triangle triangle : FDT.triangles) {
 
             // store triangle coordinates in local variables
@@ -176,8 +176,8 @@ public class TriangleInterpolator {
                 }
             }
         }
-        long t5 = System.currentTimeMillis();
-        SystemUtils.LOG.info("Data set interpolated in " + (0.001 * (t5 - t4)) + " sec");
+        //long t5 = System.currentTimeMillis();
+        //SystemUtils.LOG.info("Data set interpolated in " + (0.001 * (t5 - t4)) + " sec");
     }
 
     private static void getABC(
