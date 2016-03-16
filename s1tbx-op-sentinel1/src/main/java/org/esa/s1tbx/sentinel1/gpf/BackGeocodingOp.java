@@ -888,7 +888,9 @@ public final class BackGeocodingOp extends Operator {
                     } else {
                         if (maskOutAreaWithoutElevation || elevation != null) {
                             alt = dem.getElevation(new GeoPos(latArray[yy][xx], lonArray[yy][xx]));
-                            elevation[yy][xx] = alt;
+                            if(elevation != null) {
+                                elevation[yy][xx] = alt;
+                            }
                             if (alt != demNoDataValue) {
                                 slavePixelPos[yy][xx] = new PixelPos(rgArray[yy][xx], azArray[yy][xx]);
                                 allElementsAreNull = false;
