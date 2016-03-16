@@ -7,7 +7,7 @@ import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;
 import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
-import org.jlinda.core.utils.TriangleUtils;
+import org.jlinda.core.delaunay.TriangleInterpolator;
 
 import java.util.logging.Logger;
 
@@ -36,13 +36,6 @@ public class TopoPhase {
     private int nCols;
 
     private double rngAzRatio = 0;
-
-    public TopoPhase(DemTile dem, DemTile demTile, DemTile tile, Window tileWindow) {
-        this.dem = dem;
-        this.tileWindow = tileWindow;
-        dem = tile;
-        dem = demTile;
-    }
 
     public TopoPhase(SLCImage masterMeta, Orbit masterOrbit, SLCImage slaveMeta, Orbit slaveOrbit, Window window,
                      DemTile demTile) throws Exception {
@@ -261,26 +254,29 @@ public class TopoPhase {
 
     }
 
-    public void gridData() throws Exception {
+    public void gridData(boolean includeDEM) throws Exception {
         if (rngAzRatio == 0) {
             calculateScalingRatio();
         }
         int mlAz = masterMeta.getMlAz();
         int mlRg = masterMeta.getMlRg();
         int offset = 0;
-        demPhase = TriangleUtils.gridDataLinear(demRadarCode_y, demRadarCode_x, demRadarCode_phase,
-                tileWindow, rngAzRatio, mlAz, mlRg, dem.noDataValue, offset);
-    }
+        demPhase = new double[(int) tileWindow.lines()][(int) tileWindow.pixels()];
 
-    public void getDEM() throws Exception {
-        if (rngAzRatio == 0) {
-            calculateScalingRatio();
+        TriangleInterpolator.ZData[] data;
+        if(includeDEM) {
+            elevation = new double[(int) tileWindow.lines()][(int) tileWindow.pixels()];
+            data = new TriangleInterpolator.ZData[] {
+                    new TriangleInterpolator.ZData(demRadarCode_phase, demPhase)
+            };
+        } else {
+            data = new TriangleInterpolator.ZData[] {
+                    new TriangleInterpolator.ZData(demRadarCode_phase, demPhase),
+                    new TriangleInterpolator.ZData(demElevation, elevation)
+            };
         }
-        int mlAz = masterMeta.getMlAz();
-        int mlRg = masterMeta.getMlRg();
-        int offset = 0;
-        elevation = TriangleUtils.gridDataLinear(demRadarCode_y, demRadarCode_x, demElevation,
+
+        TriangleInterpolator.gridDataLinear(demRadarCode_y, demRadarCode_x, data,
                 tileWindow, rngAzRatio, mlAz, mlRg, dem.noDataValue, offset);
     }
-
 }

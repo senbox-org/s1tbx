@@ -545,11 +545,7 @@ public final class SubtRefDemOp extends Operator {
 
             topoPhase.radarCode();
 
-            topoPhase.gridData();
-
-            if (outputDEM) {
-                topoPhase.getDEM();
-            }
+            topoPhase.gridData(outputDEM);
 
             return topoPhase;
 

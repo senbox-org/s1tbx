@@ -175,7 +175,7 @@ public class TopoPhaseTest {
         /* computation */
         long t0 = System.currentTimeMillis();
 
-        topoPhase.gridData();
+        topoPhase.gridData(false);
         long t1 = System.currentTimeMillis();
         logger.info("Data set gridded in " + (0.001 * (t1 - t0)) + " sec");
 

@@ -1,12 +1,13 @@
 package org.jlinda.core.utils;
 
 import org.jlinda.core.Window;
+import org.jlinda.core.delaunay.TriangleInterpolator;
 import org.junit.Assert;
 import org.junit.Test;
 
 import static org.jlinda.core.io.DataReader.readDoubleData;
 
-public class TriangleUtilsTest {
+public class TriangleInterpolatorTest {
 
     @Test
     public void testGridDataLinear() throws Exception {
@@ -43,12 +44,17 @@ public class TriangleUtilsTest {
 
         bufferFileName = testDataDir + "output_buffer.r8.swap";
         grd_EXPECTED = readDoubleData(bufferFileName, 128, 512).toArray2();
+        double[][] grd_ACTUAL = new double[128][512];
 
         /* computation */
 
+        TriangleInterpolator.ZData[] zList = new TriangleInterpolator.ZData[] {
+            new TriangleInterpolator.ZData(input_buffer, grd_ACTUAL)
+        };
+
         /* grid input tile */
         long t0 = System.currentTimeMillis();
-        double[][] grd_ACTUAL = TriangleUtils.gridDataLinear(DEMline_buffer, DEMpixel_buffer, input_buffer,
+        TriangleInterpolator.gridDataLinear(DEMline_buffer, DEMpixel_buffer, zList,
                 tileWin, r_az_ratio,
                 mlL, mlP,
                 NODATA, offset);

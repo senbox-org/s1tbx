@@ -531,10 +531,10 @@ public class OffsetTrackingOp extends Operator {
             double f; // function
 
             // containers for xy coordinates of Triangles: p1-p2-p3-p1
-            double[] vx = new double[4];
-            double[] vy = new double[4];
-            double[] vz = new double[3];
-            int[] idx = new int[3];
+            final double[] vx = new double[4];
+            final double[] vy = new double[4];
+            final double[] vz = new double[3];
+            final int[] idx = new int[3];
 
             // declare demRadarCode_phase
             final int nx = (int) tileWindow.lines();

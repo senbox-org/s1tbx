@@ -6,7 +6,7 @@ import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;
 import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
-import org.jlinda.core.utils.TriangleUtils;
+import org.jlinda.core.delaunay.TriangleInterpolator;
 
 import java.util.logging.Logger;
 
@@ -195,7 +195,10 @@ public class ThetaTile {
         int mlAz = masterMeta.getMlAz();
         int mlRg = masterMeta.getMlRg();
         int offset = 0;
-        thetaArray = TriangleUtils.gridDataLinear(demRadarCode_y, demRadarCode_x, demRadarCode_theta,
+        thetaArray = new double[(int) tileWindow.lines()][(int) tileWindow.pixels()];
+
+        TriangleInterpolator.gridDataLinear(demRadarCode_y, demRadarCode_x,
+                new TriangleInterpolator.ZData[] { new TriangleInterpolator.ZData(demRadarCode_theta, thetaArray)},
                 tileWindow, rngAzRatio, mlAz, mlRg, dem.noDataValue, offset);
     }
 

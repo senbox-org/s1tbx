@@ -5,7 +5,7 @@ import org.jlinda.core.Constants;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
-import org.jlinda.core.utils.TriangleUtils;
+import org.jlinda.core.delaunay.TriangleInterpolator;
 
 /**
  * User: pmar@ppolabs.com
@@ -45,8 +45,11 @@ public class SimAmpTile {
         this.thetaArray = thetaTile.getThetaArray();
 
         final int offset = 0;
-        demArray = TriangleUtils.gridDataLinear(thetaTile.getDemRadarCode_y(), thetaTile.getDemRadarCode_x(),
-                demTile.getData(),
+        double[][] griddedData = new double[(int) tileWindow.lines()][(int) tileWindow.pixels()];
+        demArray = new double[(int) tileWindow.lines()][(int) tileWindow.pixels()];
+
+        TriangleInterpolator.gridDataLinear(thetaTile.getDemRadarCode_y(), thetaTile.getDemRadarCode_x(),
+                new TriangleInterpolator.ZData[] { new TriangleInterpolator.ZData(griddedData, demArray)},
                 thetaTile.getTileWindow(), thetaTile.getRngAzRatio(),
                 masterMeta.getMlAz(), masterMeta.getMlRg(), demTile.noDataValue, offset);
 
