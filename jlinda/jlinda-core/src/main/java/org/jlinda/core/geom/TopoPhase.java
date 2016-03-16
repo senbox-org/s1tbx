@@ -267,12 +267,12 @@ public class TopoPhase {
         if(includeDEM) {
             elevation = new double[(int) tileWindow.lines()][(int) tileWindow.pixels()];
             data = new TriangleInterpolator.ZData[] {
-                    new TriangleInterpolator.ZData(demRadarCode_phase, demPhase)
+                    new TriangleInterpolator.ZData(demRadarCode_phase, demPhase),
+                    new TriangleInterpolator.ZData(demElevation, elevation)
             };
         } else {
             data = new TriangleInterpolator.ZData[] {
-                    new TriangleInterpolator.ZData(demRadarCode_phase, demPhase),
-                    new TriangleInterpolator.ZData(demElevation, elevation)
+                    new TriangleInterpolator.ZData(demRadarCode_phase, demPhase)
             };
         }
 
