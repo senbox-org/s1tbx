@@ -23,16 +23,17 @@ public class TriangleInterpolator {
     }
 
     public static void gridDataLinear(final double[][] x_in, final double[][] y_in, final ZData[] zList,
-                                            final Window window, final double xyRatio, final int xScale,
-                                            final int yScale, final double nodata, final int offset) throws Exception {
+                                      final Window window, final double xyRatio, final int xScale,
+                                      final int yScale, final double invalidIndex, final int offset) throws Exception {
 
-        final FastDelaunayTriangulator FDT = triangulate(x_in, y_in, xyRatio);
+        final FastDelaunayTriangulator FDT = triangulate(x_in, y_in, xyRatio, invalidIndex);
         if(FDT != null) {
-            interpolate(xyRatio, window, xScale, yScale, offset, nodata, FDT, zList);
+            interpolate(xyRatio, window, xScale, yScale, offset, invalidIndex, FDT, zList);
         }
     }
 
-    private static FastDelaunayTriangulator triangulate(double[][] x_in, double[][] y_in, double xyRatio) throws Exception {
+    private static FastDelaunayTriangulator triangulate(final double[][] x_in, final double[][] y_in,
+                                                        final double xyRatio, final double invalidIndex) throws Exception {
 
         //// organize input data
         //long t0 = System.currentTimeMillis();
@@ -40,6 +41,9 @@ public class TriangleInterpolator {
         final GeometryFactory gf = new GeometryFactory();
         for (int i = 0; i < x_in.length; i++) {
             for (int j = 0; j < x_in[0].length; j++) {
+                if (x_in[i][j] == invalidIndex || y_in[i][j] == invalidIndex) {
+                    continue;
+                }
                 list.add(gf.createPoint(new Coordinate(x_in[i][j], y_in[i][j] * xyRatio, i*x_in[0].length + j)));
             }
         }
@@ -63,10 +67,10 @@ public class TriangleInterpolator {
         return FDT;
     }
 
-    private static void interpolate(double xyRatio, final Window tileWindow,
-                                          final double xScale, final double yScale,
-                                          final double offset, final double invalidIndex,
-                                          final FastDelaunayTriangulator FDT, final ZData[] zList) {
+    private static void interpolate(final double xyRatio, final Window tileWindow,
+                                    final double xScale, final double yScale,
+                                    final double offset, final double invalidIndex,
+                                    final FastDelaunayTriangulator FDT, final ZData[] zList) {
 
         final double x_min = tileWindow.linelo;
         final double y_min = tileWindow.pixlo;
