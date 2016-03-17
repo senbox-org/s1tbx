@@ -1,5 +1,6 @@
 package org.esa.snap.core.gpf.common.resample;
 
+import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
@@ -7,6 +8,7 @@ import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
+import com.vividsolutions.jts.geom.Geometry;
 import org.esa.snap.core.datamodel.AbstractGeoCoding;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.CrsGeoCoding;
@@ -30,9 +32,15 @@ import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.image.ResolutionLevel;
 import org.esa.snap.core.transform.MathTransform2D;
+import org.esa.snap.core.util.FeatureUtils;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.jai.JAIUtils;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
@@ -120,6 +128,7 @@ public class ResamplingOp extends Operator {
     private int referenceHeight;
     private AffineTransform referenceImageToModelTransform;
     private MultiLevelModel referenceMultiLevelModel;
+    private Geometry clipGeometry;
 
     @Override
     public void initialize() throws OperatorException {
@@ -187,7 +196,7 @@ public class ResamplingOp extends Operator {
     }
 
     //convenience method to increase speed for band maths type masks
-    private static void copyMasks(Product sourceProduct, Product targetProduct) {
+    private void copyMasks(Product sourceProduct, Product targetProduct) {
         final ProductNodeGroup<Mask> sourceMaskGroup = sourceProduct.getMaskGroup();
         for (int i = 0; i < sourceMaskGroup.getNodeCount(); i++) {
             final Mask mask = sourceMaskGroup.get(i);
@@ -200,14 +209,58 @@ public class ResamplingOp extends Operator {
                                                                   mask.getImageColor(), mask.getImageTransparency());
                 targetProduct.addMask(targetMask);
             } else if (imageType.getName().equals(Mask.VectorDataType.TYPE_NAME)) {
-                final String vectorDataNodeName = Mask.VectorDataType.getVectorData(mask).getName();
-                final VectorDataNode targetVectorDataNode = targetProduct.getVectorDataGroup().get(vectorDataNodeName);
+                final VectorDataNode vectorDataMaskNode = Mask.VectorDataType.getVectorData(mask);
+                final String vectorDataNodeName = vectorDataMaskNode.getName();
+                VectorDataNode targetVectorDataNode = targetProduct.getVectorDataGroup().get(vectorDataNodeName);
+                if (targetVectorDataNode == null) {
+                    targetVectorDataNode = convertVectorDataNodeForMask(sourceProduct, targetProduct, vectorDataMaskNode);
+                }
                 targetProduct.addMask(mask.getName(), targetVectorDataNode, mask.getDescription(), mask.getImageColor(),
                                       mask.getImageTransparency());
             } else if (imageType.canTransferMask(mask, targetProduct)) {
                 imageType.transferMask(mask, targetProduct);
             }
         }
+    }
+
+    private Geometry getClipGeometry() {
+        if (clipGeometry != null) {
+            return clipGeometry;
+        }
+        try {
+            Geometry sourceGeometryWGS84 = FeatureUtils.createGeoBoundaryPolygon(sourceProduct);
+            Geometry targetGeometryWGS84 = FeatureUtils.createGeoBoundaryPolygon(targetProduct);
+            if (!sourceGeometryWGS84.intersects(targetGeometryWGS84)) {
+                return null;
+            }
+            clipGeometry = sourceGeometryWGS84.intersection(targetGeometryWGS84);
+            return clipGeometry;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private VectorDataNode convertVectorDataNodeForMask(Product sourceProduct, Product targetProduct, VectorDataNode sourceVDN) {
+        CoordinateReferenceSystem srcModelCrs = sourceProduct.getSceneCRS();
+        CoordinateReferenceSystem targetModelCrs = targetProduct.getSceneCRS();
+
+        final Geometry geometry = getClipGeometry();
+
+        String name = sourceVDN.getName();
+        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = sourceVDN.getFeatureCollection();
+        featureCollection = FeatureUtils.clipCollection(featureCollection,
+                                                        srcModelCrs,
+                                                        geometry,
+                                                        DefaultGeographicCRS.WGS84,
+                                                        null,
+                                                        targetModelCrs,
+                                                        ProgressMonitor.NULL);
+        VectorDataNode targetVDN = new VectorDataNode(name, featureCollection.getSchema());
+        targetVDN.setOwner(targetProduct);
+        targetVDN.getFeatureCollection().addAll(featureCollection);
+        targetVDN.setDefaultStyleCss(sourceVDN.getDefaultStyleCss());
+        targetVDN.setDescription(sourceVDN.getDescription());
+        return targetVDN;
     }
 
     public static boolean canBeApplied(Product product) {
