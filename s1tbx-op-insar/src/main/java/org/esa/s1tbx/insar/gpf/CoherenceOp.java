@@ -124,7 +124,6 @@ public class CoherenceOp extends Operator {
     private int numSubSwaths = 0;
     private int subSwathIndex = 0;
 
-    private double avgSceneHeight = 0.0;
     private MetadataElement mstRoot = null;
     private MetadataElement slvRoot = null;
     private org.jlinda.core.Point[] mstSceneCentreXYZ = null;
@@ -170,10 +169,7 @@ public class CoherenceOp extends Operator {
             createTargetProduct();
 
             if (isComplex && subtractFlatEarthPhase) {
-
-                getMeanTerrainElevation();
                 if (isTOPSARBurstProduct) {
-
                     getMstApproxSceneCentreXYZ();
                     getSlvApproxSceneCentreAzimuthTime();
                     constructFlatEarthPolynomialsForTOPSARProduct();
@@ -370,10 +366,6 @@ public class CoherenceOp extends Operator {
         return bandName;
     }
 
-    private void getMeanTerrainElevation() throws Exception {
-        avgSceneHeight = AbstractMetadata.getAttributeDouble(mstRoot, AbstractMetadata.avg_scene_height);
-    }
-
     private void getMstApproxSceneCentreXYZ() throws Exception {
 
         final int numOfBursts = subSwath[subSwathIndex - 1].numOfBursts;
@@ -433,7 +425,7 @@ public class CoherenceOp extends Operator {
 
                         flatEarthPolyMap.put(polynomialName, InterferogramOp.estimateFlatEarthPolynomial(
                                 master, slave, s + 1, b, mstSceneCentreXYZ, orbitDegree, srpPolynomialDegree,
-                                srpNumberPoints, avgSceneHeight, slvSceneCentreAzimuthTime, subSwath, su));
+                                srpNumberPoints, slvSceneCentreAzimuthTime, subSwath, su));
                     }
                 }
             }
@@ -452,7 +444,7 @@ public class CoherenceOp extends Operator {
 
                 flatEarthPolyMap.put(slave.name, InterferogramOp.estimateFlatEarthPolynomial(
                         master.metaData, master.orbit, slave.metaData, slave.orbit, sourceImageWidth,
-                        sourceImageHeight, srpPolynomialDegree, srpNumberPoints, avgSceneHeight, sourceProduct));
+                        sourceImageHeight, srpPolynomialDegree, srpNumberPoints, sourceProduct));
             }
         }
     }
