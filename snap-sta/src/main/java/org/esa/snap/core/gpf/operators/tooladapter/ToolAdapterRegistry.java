@@ -21,10 +21,8 @@ import org.esa.snap.core.gpf.OperatorSpiRegistry;
 import org.esa.snap.core.gpf.descriptor.OperatorDescriptor;
 import org.esa.snap.core.gpf.descriptor.ToolAdapterOperatorDescriptor;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Registry (map) class for mapping ToolAdapterOpSpi-s to adapter names.
@@ -92,6 +90,20 @@ public enum ToolAdapterRegistry {
             operatorSpiRegistry.removeOperatorSpi(spi);
             notifyAdapterRemoved(operatorDescriptor);
         }
+    }
+
+    public ToolAdapterOperatorDescriptor findByAlias(String alias) {
+        ToolAdapterOperatorDescriptor result = null;
+        if (alias != null) {
+            List<ToolAdapterOpSpi> filtered = registeredAdapters.values().stream().filter(d -> alias.equals(d.getOperatorAlias())).collect(Collectors.toList());
+            if (filtered.size() > 0) {
+                OperatorDescriptor operatorDescriptor = filtered.get(0).getOperatorDescriptor();
+                if (operatorDescriptor instanceof ToolAdapterOperatorDescriptor) {
+                    result = (ToolAdapterOperatorDescriptor) operatorDescriptor;
+                }
+            }
+        }
+        return result;
     }
 
     void clear() {

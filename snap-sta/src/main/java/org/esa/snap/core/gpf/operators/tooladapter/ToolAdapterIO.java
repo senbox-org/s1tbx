@@ -84,22 +84,22 @@ public class ToolAdapterIO {
     public static void saveVariable(String name, String value) {
         if (value != null && value.length() > 0) {
             Preferences preferences = getPreferences();
-            //if (preferences.get(name, null) == null) {
-                preferences.put(name, value);
-                try {
-                    preferences.sync();
-                } catch (BackingStoreException e) {
-                    logger.severe(String.format("Cannot set %s value in preferences: %s", name, e.getMessage()));
-                }
-            //}
+            preferences.put(name, value);
+            try {
+                preferences.sync();
+            } catch (BackingStoreException e) {
+                logger.severe(String.format("Cannot set %s value in preferences: %s", name, e.getMessage()));
+            }
         }
     }
 
-    public static String getVariableValue(String name, String defaultValue) {
+    public static String getVariableValue(String name, String defaultValue, boolean isShared) {
         Preferences preferences = getPreferences();
         String retVal = preferences.get(name, null);
         if ((retVal == null || retVal.isEmpty()) && defaultValue != null) {
-            saveVariable(name, defaultValue);
+            if (isShared) {
+                saveVariable(name, defaultValue);
+            }
             retVal = defaultValue;
         }
         return retVal;
@@ -148,6 +148,7 @@ public class ToolAdapterIO {
             operatorDescriptor = ToolAdapterOperatorDescriptor.fromXml(descriptorFile, ToolAdapterIO.class.getClassLoader());
         } else {
             operatorDescriptor = new ToolAdapterOperatorDescriptor(operatorFolder.getName(), ToolAdapterOp.class);
+            operatorDescriptor.setAlias(operatorFolder.getName());
             logger.warning(String.format("Missing operator metadata file '%s'", descriptorFile));
         }
         return new ToolAdapterOpSpi(operatorDescriptor) {
