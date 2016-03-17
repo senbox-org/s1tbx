@@ -18,6 +18,7 @@ import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.datamodel.Scene;
 import org.esa.snap.core.datamodel.SceneFactory;
 import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.VectorDataNode;
 import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
@@ -198,6 +199,11 @@ public class ResamplingOp extends Operator {
                                                                   targetProduct.getSceneRasterHeight(), expression,
                                                                   mask.getImageColor(), mask.getImageTransparency());
                 targetProduct.addMask(targetMask);
+            } else if (imageType.getName().equals(Mask.VectorDataType.TYPE_NAME)) {
+                final String vectorDataNodeName = Mask.VectorDataType.getVectorData(mask).getName();
+                final VectorDataNode targetVectorDataNode = targetProduct.getVectorDataGroup().get(vectorDataNodeName);
+                targetProduct.addMask(mask.getName(), targetVectorDataNode, mask.getDescription(), mask.getImageColor(),
+                                      mask.getImageTransparency());
             } else if (imageType.canTransferMask(mask, targetProduct)) {
                 imageType.transferMask(mask, targetProduct);
             }
