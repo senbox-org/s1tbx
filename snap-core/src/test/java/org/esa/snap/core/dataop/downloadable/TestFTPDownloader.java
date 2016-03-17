@@ -16,6 +16,7 @@
 package org.esa.snap.core.dataop.downloadable;
 
 import org.esa.snap.core.util.SystemUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -31,6 +32,7 @@ import static org.junit.Assert.assertTrue;
 public class TestFTPDownloader {
 
     @Test
+    @Ignore
     public void testConnect() throws Exception {
         final String server = "xftp.jrc.it";
         final String remotePath = "/pub/srtmV4/tiff/";
