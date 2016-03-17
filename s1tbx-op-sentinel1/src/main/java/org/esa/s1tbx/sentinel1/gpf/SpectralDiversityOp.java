@@ -256,7 +256,7 @@ public class SpectralDiversityOp extends Operator {
                 estimateAzimuthOffset();
             }
 
-            // perform range shift using FFT
+            // perform range and azimuth shift using FFT
             Band slvBandI = null, slvBandQ = null;
             Band tgtBandI = null, tgtBandQ = null;
             Band derampDemodPhaseBand = null;
@@ -274,6 +274,44 @@ public class SpectralDiversityOp extends Operator {
                 }
             }
 
+            // Perform range shift
+
+            final Tile slvTileI = getSourceTile(slvBandI, targetRectangle);
+            final Tile slvTileQ = getSourceTile(slvBandQ, targetRectangle);
+            final float[] slvArrayI = (float[]) slvTileI.getDataBuffer().getElems();
+            final float[] slvArrayQ = (float[]) slvTileQ.getDataBuffer().getElems();
+
+            final double[] line = new double[2*w];
+            final double[] phaseRg = new double[2*w];
+            final DoubleFFT_1D row_fft = new DoubleFFT_1D(w);
+            final double[][] rangeShiftedI = new double[h][w];
+            final double[][] rangeShiftedQ = new double[h][w];
+
+            computeShiftPhaseArray(rgOffset, w, phaseRg);
+
+            for (int r = 0; r < h; r++) {
+                final int rw = r * w;
+                for (int c = 0; c < w; c++) {
+                    int c2 = c * 2;
+                    line[c2] = slvArrayI[rw + c];
+                    line[c2 + 1] = slvArrayQ[rw + c];
+                }
+
+                row_fft.complexForward(line);
+
+                multiplySpectrumByShiftFactor(line, phaseRg);
+
+                row_fft.complexInverse(line, true);
+
+                for (int c = 0; c < w; c++) {
+                    int c2 = c * 2;
+                    rangeShiftedI[r][c] = (float)line[c2];
+                    rangeShiftedQ[r][c] = (float)line[c2 + 1];
+                }
+            }
+
+            // Perform azimuth Shift
+
             // get deramp/demodulation phase
             final Tile derampDemodPhaseTile = getSourceTile(derampDemodPhaseBand, targetRectangle);
             final ProductData derampDemodPhaseData = derampDemodPhaseTile.getDataBuffer();
@@ -288,15 +326,17 @@ public class SpectralDiversityOp extends Operator {
                 }
             }
 
-            // Azimuth Shift
-
             // perform deramp and demodulation
-            final Tile slvTileI = getSourceTile(slvBandI, targetRectangle);
-            final Tile slvTileQ = getSourceTile(slvBandQ, targetRectangle);
             final double[][] derampDemodI = new double[h][w];
             final double[][] derampDemodQ = new double[h][w];
-            BackGeocodingOp.performDerampDemod(
-                    slvTileI, slvTileQ, targetRectangle, derampDemodPhase, derampDemodI, derampDemodQ);
+            for (int r = 0; r < h; r++) {
+                for (int c = 0; c < w; c++) {
+                    final double cosPhase = FastMath.cos(derampDemodPhase[r][c]);
+                    final double sinPhase = FastMath.sin(derampDemodPhase[r][c]);
+                    derampDemodI[r][c] = rangeShiftedI[r][c]*cosPhase - rangeShiftedQ[r][c]*sinPhase;
+                    derampDemodQ[r][c] = rangeShiftedI[r][c]*sinPhase + rangeShiftedQ[r][c]*cosPhase;
+                }
+            }
 
             // compute shift phase
             final double[] phaseAz = new double[2*h];
@@ -307,11 +347,6 @@ public class SpectralDiversityOp extends Operator {
             final Tile tgtTileQ = targetTileMap.get(tgtBandQ);
             final ProductData tgtDataI = tgtTileI.getDataBuffer();
             final ProductData tgtDataQ = tgtTileQ.getDataBuffer();
-
-            final float[] slvArrayI = (float[]) slvTileI.getDataBuffer().getElems();
-            final float[] slvArrayQ = (float[]) slvTileQ.getDataBuffer().getElems();
-            final float[] tgtArrayI = (float[]) tgtTileI.getDataBuffer().getElems();
-            final float[] tgtArrayQ = (float[]) tgtTileQ.getDataBuffer().getElems();
 
             final double[] col1 = new double[2 * h];
             final double[] col2 = new double[2 * h];
@@ -344,36 +379,6 @@ public class SpectralDiversityOp extends Operator {
                     final int idx = tgtTileI.getDataBufferIndex(x, y);
                     tgtDataI.setElemDoubleAt(idx, (float)(col1[r2] * cosPhase + col1[r2 + 1] * sinPhase));
                     tgtDataQ.setElemDoubleAt(idx, (float)(-col1[r2] * sinPhase + col1[r2 + 1] * cosPhase));
-                }
-            }
-
-
-            // Range Shift
-
-            final double[] line = new double[2*w];
-            final double[] phaseRg = new double[2*w];
-            final DoubleFFT_1D row_fft = new DoubleFFT_1D(w);
-
-            computeShiftPhaseArray(rgOffset, w, phaseRg);
-
-            for (int r = 0; r < h; r++) {
-                final int rw = r * w;
-                for (int c = 0; c < w; c++) {
-                    int c2 = c * 2;
-                    line[c2] = slvArrayI[rw + c];
-                    line[c2 + 1] = slvArrayQ[rw + c];
-                }
-
-                row_fft.complexForward(line);
-
-                multiplySpectrumByShiftFactor(line, phaseRg);
-
-                row_fft.complexInverse(line, true);
-
-                for (int c = 0; c < w; c++) {
-                    int c2 = c * 2;
-                    tgtArrayI[rw + c] = (float)line[c2];
-                    tgtArrayQ[rw + c] = (float)line[c2 + 1];
                 }
             }
 
