@@ -137,6 +137,7 @@ public class ApplyOrbitFileOpUI extends BaseOperatorUI {
         final String polyDegreeStr = polyDegree.getText();
         if (polyDegreeStr != null && !polyDegreeStr.isEmpty())
             paramMap.put("polyDegree", Integer.parseInt(polyDegreeStr));
+        paramMap.put("orbitType", orbitTypeCombo.getSelectedItem());
         paramMap.put("continueOnFail", continueOnFail);
     }
 
