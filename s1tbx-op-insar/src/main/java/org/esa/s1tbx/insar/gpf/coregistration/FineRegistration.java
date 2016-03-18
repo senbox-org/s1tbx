@@ -406,9 +406,9 @@ public class FineRegistration {
         // Set penalty at the boundary of the pixel so that the searching area is within a pixel
         final double xShift = Math.abs(complexData.point0[0] - point[0]);
         final double yShift = Math.abs(complexData.point0[1] - point[1]);
-        if (xShift >= 0.5 || yShift >= 0.5) {
-            return 1.0;
-        }
+//        if (xShift >= 0.5 || yShift >= 0.5) {
+//            return 1.0;
+//        }
 
         getComplexSlaveImagette(complexData, point);
         /*

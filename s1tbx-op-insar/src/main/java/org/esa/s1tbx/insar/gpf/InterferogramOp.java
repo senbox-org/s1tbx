@@ -126,8 +126,7 @@ public class InterferogramOp extends Operator {
     private HashMap<String, ProductContainer> targetMap = new HashMap<>();
 
     // operator tags
-    private static final boolean CREATE_VIRTUAL_BAND = true;
-    public String productTag;
+    private String productTag;
     private int sourceImageWidth;
     private int sourceImageHeight;
 
@@ -138,12 +137,11 @@ public class InterferogramOp extends Operator {
     private org.jlinda.core.Point[] mstSceneCentreXYZ = null;
     private double slvSceneCentreAzimuthTime = 0.0;
     private int subSwathIndex = 0;
-    private double avgSceneHeight = 0.0;
     private MetadataElement mstRoot = null;
     private MetadataElement slvRoot = null;
 
-    private boolean outputFlatEarthPhase = false;
-    private static final String COHERENCE_PHASE = "coherence_phase";
+    private static final boolean CREATE_VIRTUAL_BAND = true;
+    private static final boolean OUTPUT_FLAT_EARTH_PHASE = false;
     private static final String PRODUCT_SUFFIX = "_Ifg";
 
     /**
@@ -183,8 +181,6 @@ public class InterferogramOp extends Operator {
             createTargetProduct();
 
             if (subtractFlatEarthPhase) {
-
-                getMeanTerrainElevation();
                 if (isTOPSARBurstProduct) {
 
                     getMstApproxSceneCentreXYZ();
@@ -306,10 +302,6 @@ public class InterferogramOp extends Operator {
         slvSceneCentreAzimuthTime = 0.5*(firstLineTime + lastLineTime);
     }
 
-    private void getMeanTerrainElevation() throws Exception {
-        avgSceneHeight = AbstractMetadata.getAttributeDouble(mstRoot, AbstractMetadata.avg_scene_height);
-    }
-
     private void constructFlatEarthPolynomials() throws Exception {
 
         for (Integer keyMaster : masterMap.keySet()) {
@@ -322,7 +314,7 @@ public class InterferogramOp extends Operator {
 
                 flatEarthPolyMap.put(slave.name, estimateFlatEarthPolynomial(
                         master.metaData, master.orbit, slave.metaData, slave.orbit, sourceImageWidth,
-                        sourceImageHeight, srpPolynomialDegree, srpNumberPoints, avgSceneHeight, sourceProduct));
+                        sourceImageHeight, srpPolynomialDegree, srpNumberPoints, sourceProduct));
             }
         }
     }
@@ -347,7 +339,7 @@ public class InterferogramOp extends Operator {
 
                         flatEarthPolyMap.put(polynomialName, estimateFlatEarthPolynomial(
                                 master, slave, s+1, b, mstSceneCentreXYZ, orbitDegree, srpPolynomialDegree,
-                                srpNumberPoints, avgSceneHeight, slvSceneCentreAzimuthTime, subSwath, su));
+                                srpNumberPoints, slvSceneCentreAzimuthTime, subSwath, su));
                     }
                 }
             }
@@ -380,7 +372,7 @@ public class InterferogramOp extends Operator {
                     product.addBand(Unit.COHERENCE, cohTag + '_' + master.date + '_' + slave.date);
                 }
 
-                if(subtractFlatEarthPhase && outputFlatEarthPhase) {
+                if(subtractFlatEarthPhase && OUTPUT_FLAT_EARTH_PHASE) {
                     String fepTag = "fep";
                     if (isTOPSARBurstProduct) {
                         final String topsarTag = getTOPSARTag(sourceProduct);
@@ -504,7 +496,7 @@ public class InterferogramOp extends Operator {
                 targetBandNames.add(cohBand.getName());
             }
 
-            if(subtractFlatEarthPhase && outputFlatEarthPhase) {
+            if(subtractFlatEarthPhase && OUTPUT_FLAT_EARTH_PHASE) {
                 final String targetBandFep = container.getBandName(Unit.PHASE);
                 final Band fepBand = targetProduct.addBand(targetBandFep, ProductData.TYPE_FLOAT32);
                 fepBand.setUnit(Unit.PHASE);
@@ -520,8 +512,7 @@ public class InterferogramOp extends Operator {
     public static DoubleMatrix estimateFlatEarthPolynomial(
             final SLCImage masterMetadata, final Orbit masterOrbit, final SLCImage slaveMetadata,
             final Orbit slaveOrbit, final int sourceImageWidth, final int sourceImageHeight,
-            final int srpPolynomialDegree, final int srpNumberPoints, final double avgSceneHeight,
-            final Product sourceProduct)
+            final int srpPolynomialDegree, final int srpNumberPoints, final Product sourceProduct)
             throws Exception {
 
         long minLine = 0;
@@ -551,7 +542,7 @@ public class InterferogramOp extends Operator {
             final double masterTimeRange = masterMetadata.pix2tr(pixel + 1);
 
             // compute xyz of this point : sourceMaster
-            org.jlinda.core.Point xyzMaster = masterOrbit.lph2xyz(line + 1, pixel + 1, avgSceneHeight, masterMetadata);
+            org.jlinda.core.Point xyzMaster = masterOrbit.lp2xyz(line + 1, pixel + 1, masterMetadata);
             org.jlinda.core.Point slaveTimeVector = slaveOrbit.xyz2t(xyzMaster, slaveMetadata);
 
             double slaveTimeRange;
@@ -593,7 +584,7 @@ public class InterferogramOp extends Operator {
     public static DoubleMatrix estimateFlatEarthPolynomial(
             final CplxContainer master, final CplxContainer slave, final int subSwathIndex, final int burstIndex,
             final org.jlinda.core.Point[] mstSceneCentreXYZ, final int orbitDegree, final int srpPolynomialDegree,
-            final int srpNumberPoints, final double avgSceneHeight, final double slvSceneCentreAzimuthTime,
+            final int srpNumberPoints, final double slvSceneCentreAzimuthTime,
             final Sentinel1Utils.SubSwathInfo[] subSwath, final Sentinel1Utils su)
             throws Exception {
 
@@ -632,7 +623,7 @@ public class InterferogramOp extends Operator {
 
             // compute xyz of this point : sourceMaster
             org.jlinda.core.Point xyzMaster = masterOrbit.lph2xyz(
-                    mstAzTime, mstRgTime, avgSceneHeight, mstSceneCentreXYZ[burstIndex]);
+                    mstAzTime, mstRgTime, 0.0, mstSceneCentreXYZ[burstIndex]);
 
             org.jlinda.core.Point slaveTimeVector = slaveOrbit.xyz2t(xyzMaster, slvSceneCentreAzimuthTime);
 
@@ -1061,7 +1052,7 @@ public class InterferogramOp extends Operator {
                 }
 
                 ProductData samplesFep = null;
-                if (subtractFlatEarthPhase && outputFlatEarthPhase) {
+                if (subtractFlatEarthPhase && OUTPUT_FLAT_EARTH_PHASE) {
                     final Band targetBandFep = targetProduct.getBand(product.getBandName(Unit.PHASE));
                     final Tile tileOutFep = targetTileMap.get(targetBandFep);
                     samplesFep = tileOutFep.getDataBuffer();
