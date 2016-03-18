@@ -1,6 +1,5 @@
 package org.esa.snap.core.gpf.common.resample;
 
-import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.MultiLevelSource;
@@ -32,15 +31,17 @@ import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.image.ResolutionLevel;
 import org.esa.snap.core.transform.MathTransform2D;
-import org.esa.snap.core.util.FeatureUtils;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.jai.JAIUtils;
+import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.feature.FeatureIterator;
+import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.geometry.jts.GeometryCoordinateSequenceTransformer;
+import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
@@ -213,51 +214,50 @@ public class ResamplingOp extends Operator {
                 final String vectorDataNodeName = vectorDataMaskNode.getName();
                 VectorDataNode targetVectorDataNode = targetProduct.getVectorDataGroup().get(vectorDataNodeName);
                 if (targetVectorDataNode == null) {
-                    targetVectorDataNode = convertVectorDataNodeForMask(sourceProduct, targetProduct, vectorDataMaskNode);
+                    targetVectorDataNode = transferVectorDataNode(targetProduct, vectorDataMaskNode);
                 }
-                targetProduct.addMask(mask.getName(), targetVectorDataNode, mask.getDescription(), mask.getImageColor(),
-                                      mask.getImageTransparency());
+                if (targetVectorDataNode != null) {
+                    targetProduct.addMask(mask.getName(), targetVectorDataNode, mask.getDescription(), mask.getImageColor(),
+                                          mask.getImageTransparency());
+                }
             } else if (imageType.canTransferMask(mask, targetProduct)) {
                 imageType.transferMask(mask, targetProduct);
             }
         }
     }
 
-    private Geometry getClipGeometry() {
-        if (clipGeometry != null) {
-            return clipGeometry;
-        }
+    private VectorDataNode transferVectorDataNode(Product targetProduct, VectorDataNode sourceVDN) {
+        AffineTransform referenceModelToImageTransform;
         try {
-            Geometry sourceGeometryWGS84 = FeatureUtils.createGeoBoundaryPolygon(sourceProduct);
-            Geometry targetGeometryWGS84 = FeatureUtils.createGeoBoundaryPolygon(targetProduct);
-            if (!sourceGeometryWGS84.intersects(targetGeometryWGS84)) {
-                return null;
-            }
-            clipGeometry = sourceGeometryWGS84.intersection(targetGeometryWGS84);
-            return clipGeometry;
-        } catch (Exception e) {
+            referenceModelToImageTransform = referenceImageToModelTransform.createInverse();
+        } catch (NoninvertibleTransformException e) {
             return null;
         }
-    }
-
-    private VectorDataNode convertVectorDataNodeForMask(Product sourceProduct, Product targetProduct, VectorDataNode sourceVDN) {
-        CoordinateReferenceSystem srcModelCrs = sourceProduct.getSceneCRS();
-        CoordinateReferenceSystem targetModelCrs = targetProduct.getSceneCRS();
-
-        final Geometry geometry = getClipGeometry();
-
-        String name = sourceVDN.getName();
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = sourceVDN.getFeatureCollection();
-        featureCollection = FeatureUtils.clipCollection(featureCollection,
-                                                        srcModelCrs,
-                                                        geometry,
-                                                        DefaultGeographicCRS.WGS84,
-                                                        null,
-                                                        targetModelCrs,
-                                                        ProgressMonitor.NULL);
-        VectorDataNode targetVDN = new VectorDataNode(name, featureCollection.getSchema());
+        final GeometryCoordinateSequenceTransformer transformer = new GeometryCoordinateSequenceTransformer();
+        final AffineTransform targetImageToModelTransform = Product.findImageToModelTransform(targetProduct.getSceneGeoCoding());
+        referenceModelToImageTransform.concatenate(targetImageToModelTransform);
+        final AffineTransform2D mathTransform = new AffineTransform2D(referenceModelToImageTransform);
+        transformer.setMathTransform(mathTransform);
+        final FeatureCollection<SimpleFeatureType, SimpleFeature> sourceCollection = sourceVDN.getFeatureCollection();
+        final DefaultFeatureCollection targetCollection = new DefaultFeatureCollection(sourceCollection.getID(), sourceCollection.getSchema());
+        final FeatureIterator<SimpleFeature> featureIterator = sourceCollection.features();
+        while (featureIterator.hasNext()) {
+            final SimpleFeature srcFeature = featureIterator.next();
+            final Object defaultGeometry = srcFeature.getDefaultGeometry();
+            if (defaultGeometry != null && defaultGeometry instanceof Geometry) {
+                try {
+                    final Geometry transformedGeometry = transformer.transform((Geometry) defaultGeometry);
+                    final SimpleFeature targetFeature = SimpleFeatureBuilder.copy(srcFeature);
+                    targetFeature.setDefaultGeometry(transformedGeometry);
+                    targetCollection.add(targetFeature);
+                } catch (TransformException e) {
+                    return null;
+                }
+            }
+        }
+        VectorDataNode targetVDN = new VectorDataNode(sourceVDN.getName(), sourceCollection.getSchema());
         targetVDN.setOwner(targetProduct);
-        targetVDN.getFeatureCollection().addAll(featureCollection);
+        targetVDN.getFeatureCollection().addAll(targetCollection);
         targetVDN.setDefaultStyleCss(sourceVDN.getDefaultStyleCss());
         targetVDN.setDescription(sourceVDN.getDescription());
         return targetVDN;
