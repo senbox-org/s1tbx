@@ -43,6 +43,7 @@ import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
+import org.jlinda.core.delaunay.TriangleInterpolator;
 import org.jlinda.core.delaunay.FastDelaunayTriangulator;
 import org.jlinda.core.delaunay.Triangle;
 import org.jlinda.core.delaunay.TriangulationException;
@@ -96,7 +97,7 @@ public class OffsetTrackingOp extends Operator {
     private String[] masterBandNames = null;
     private final Map<Band, Band> sourceRasterMap = new HashMap<>(10);
     private final Map<Band, FastDelaunayTriangulator> triangulatorMap = new HashMap<>(10);
-    private final Map<Band, VelocityData[]> velocityMap = new HashMap<>(10);
+    private final Map<Band, VelocityData> velocityMap = new HashMap<>(10);
     private final static double invalidIndex = -9999.0;
 
     private final static String PRODUCT_SUFFIX = "_Vel";
@@ -320,7 +321,7 @@ public class OffsetTrackingOp extends Operator {
                 getGCPVelocity(srcBand, targetRectangle);
             }
 
-            final VelocityData[] velocityList = velocityMap.get(srcBand);
+            final VelocityData velocityData = velocityMap.get(srcBand);
             final FastDelaunayTriangulator FDT = triangulatorMap.get(srcBand);
             if (FDT == null)
                 return;
@@ -331,8 +332,13 @@ public class OffsetTrackingOp extends Operator {
             final double[][] azimuthShiftArray = new double[h][w];
             final double[][] velocityArray = new double[h][w];
 
-            TriangleUtils.interpolate(rgAzRatio, tileWindow, 1, 1, 0, invalidIndex, FDT,
-                    velocityList, rangeShiftArray, azimuthShiftArray, velocityArray);
+            TriangleInterpolator.ZData[] dataList = new TriangleInterpolator.ZData[] {
+                    new TriangleInterpolator.ZData(velocityData.rangeShift, rangeShiftArray),
+                    new TriangleInterpolator.ZData(velocityData.azimuthShift, azimuthShiftArray),
+                    new TriangleInterpolator.ZData(velocityData.velocity, velocityArray)
+            };
+
+            TriangleInterpolator.interpolate(rgAzRatio, tileWindow, 1, 1, 0, invalidIndex, FDT, dataList);
 
             final Tile tgtTile = targetTileMap.get(tgtVelocityBand);
             final TileIndex tgtIndex = new TileIndex(tgtTile);
@@ -366,11 +372,12 @@ public class OffsetTrackingOp extends Operator {
 
             // output GCP positions
             if (tgtGCPPositionBuffer != null) {
-                for (VelocityData data : velocityList) {
-                    final int x = (int) data.mstGCPx;
-                    final int y = (int) data.mstGCPy;
-                    if (x >= x0 && x < xMax && y >= y0 && y < yMax) {
-                        tgtGCPPositionBuffer.setElemFloatAt(tgtTile.getDataBufferIndex(x, y), (float) data.velocity);
+                for (int i = 0; i < velocityData.mstGCPx.length; i++) {
+                    final int x = (int) velocityData.mstGCPx[i];
+                    final int y = (int) velocityData.mstGCPy[i];
+                    if (x != invalidIndex && y != invalidIndex && x >= x0 && x < xMax && y >= y0 && y < yMax) {
+                        tgtGCPPositionBuffer.setElemFloatAt(
+                                tgtTile.getDataBufferIndex(x, y), (float) velocityData.velocity[i]);
                     }
                 }
             }
@@ -403,10 +410,11 @@ public class OffsetTrackingOp extends Operator {
             ProductNodeGroup<Placemark> slaveGCPGroup = GCPManager.instance().getGcpGroup(srcBand);
 
             if (slaveGCPGroup.getNodeCount() > 0) {
-                VelocityData[] velocityList = computeGCPVelocity(masterGCPGroup, slaveGCPGroup);
-                velocityMap.put(srcBand, velocityList);
+                VelocityData velocityData = computeGCPVelocity(masterGCPGroup, slaveGCPGroup);
+                velocityMap.put(srcBand, velocityData);
 
-                FastDelaunayTriangulator FDT = TriangleUtils.triangulate(velocityList, rgAzRatio, invalidIndex);
+                FastDelaunayTriangulator FDT = TriangleInterpolator.triangulate(
+                        velocityData.mstGCPy, velocityData.mstGCPx, rgAzRatio, invalidIndex);
                 triangulatorMap.put(srcBand, FDT);
             }
         }
@@ -422,10 +430,10 @@ public class OffsetTrackingOp extends Operator {
         GCPVelocityAvailable = true;
     }
 
-    private VelocityData[] computeGCPVelocity(final ProductNodeGroup<Placemark> masterGCPGroup,
-                                              final ProductNodeGroup<Placemark> slaveGCPGroup) {
+    private VelocityData computeGCPVelocity(final ProductNodeGroup<Placemark> masterGCPGroup,
+                                            final ProductNodeGroup<Placemark> slaveGCPGroup) {
         final int numGCPs = slaveGCPGroup.getNodeCount();
-        final List<VelocityData> velocityList = new ArrayList<>(numGCPs);
+        final VelocityData velocityData = new VelocityData(numGCPs);
         for (int i = 0; i < numGCPs; i++) {
             final Placemark sPin = slaveGCPGroup.get(i);
             final PixelPos sGCPPos = sPin.getPixelPos();
@@ -437,13 +445,21 @@ public class OffsetTrackingOp extends Operator {
             final double azimuthShift = (mGCPPos.y - sGCPPos.y) * azimuthSpacing;
             final double v = Math.sqrt(rangeShift * rangeShift + azimuthShift * azimuthShift) / acquisitionTimeInterval;
 
-            // eliminate outliers
             if (v < maxVelocity) {
-                velocityList.add(new VelocityData(mGCPPos.x, mGCPPos.y, sGCPPos.x, sGCPPos.y, rangeShift, azimuthShift, v));
+                velocityData.velocity[i] = v;
+                velocityData.azimuthShift[i] = azimuthShift;
+                velocityData.rangeShift[i] = rangeShift;
+                velocityData.mstGCPx[i] = mGCPPos.x;
+                velocityData.mstGCPy[i] = mGCPPos.y;
+                velocityData.slvGCPx[i] = sGCPPos.x;
+                velocityData.slvGCPy[i] = sGCPPos.y;
+            } else { // outliers
+                velocityData.mstGCPx[i] = invalidIndex;
+                velocityData.mstGCPy[i] = invalidIndex;
             }
         }
 
-        return velocityList.toArray(new VelocityData[velocityList.size()]);
+        return velocityData;
     }
 
     private void writeGCPsToMetadata() {
@@ -469,244 +485,40 @@ public class OffsetTrackingOp extends Operator {
                 }
             }
 
-            final VelocityData[] velocityList = velocityMap.get(srcBand);
-            if (velocityList.length > 0) {
-                for (int i = 0; i < velocityList.length; i++) {
-                    final MetadataElement gcpElem = new MetadataElement("GCP" + i);
+            final VelocityData velocityData = velocityMap.get(srcBand);
+            int k = 0;
+            for (int i = 0; i < velocityData.mstGCPx.length; i++) {
+                if (velocityData.mstGCPx[i] != invalidIndex && velocityData.mstGCPy[i] != invalidIndex) {
+                    final MetadataElement gcpElem = new MetadataElement("GCP" + k);
                     warpDataElem.addElement(gcpElem);
 
-                    gcpElem.setAttributeDouble("mst_x", velocityList[i].mstGCPx);
-                    gcpElem.setAttributeDouble("mst_y", velocityList[i].mstGCPy);
-                    gcpElem.setAttributeDouble("slv_x", velocityList[i].slvGCPx);
-                    gcpElem.setAttributeDouble("slv_y", velocityList[i].slvGCPy);
+                    gcpElem.setAttributeDouble("mst_x", velocityData.mstGCPx[i]);
+                    gcpElem.setAttributeDouble("mst_y", velocityData.mstGCPy[i]);
+                    gcpElem.setAttributeDouble("slv_x", velocityData.slvGCPx[i]);
+                    gcpElem.setAttributeDouble("slv_y", velocityData.slvGCPy[i]);
+                    k++;
                 }
             }
-        }
-    }
-
-    private static class TriangleUtils {
-
-        public static FastDelaunayTriangulator triangulate(
-                final VelocityData[] velocityList, final double xyRatio, final double invalidIndex)
-                throws Exception {
-
-            java.util.List<Geometry> list = new ArrayList<>();
-            GeometryFactory gf = new GeometryFactory();
-
-            for (int i = 0; i < velocityList.length; i++) {
-                VelocityData data = velocityList[i];
-                if (data.mstGCPy == invalidIndex || data.mstGCPx == invalidIndex) {
-                    continue;
-                }
-                list.add(gf.createPoint(new Coordinate(data.mstGCPy, data.mstGCPx * xyRatio, i)));
-            }
-
-            if (list.size() < 3) {
-                return null;
-            }
-
-            FastDelaunayTriangulator FDT = new FastDelaunayTriangulator();
-            try {
-                FDT.triangulate(list.iterator());
-            } catch (TriangulationException te) {
-                te.printStackTrace();
-            }
-
-            return FDT;
-        }
-
-        public static void interpolate(final double xyRatio, final org.jlinda.core.Window tileWindow,
-                                       final double xScale, final double yScale, final double offset,
-                                       final double invalidIndex, FastDelaunayTriangulator FDT,
-                                       final VelocityData[] velocityList,
-                                       final double[][] z1_out, final double[][] z2_out, final double[][] z3_out) {
-
-            final double x_min = tileWindow.linelo;
-            final double y_min = tileWindow.pixlo;
-
-            int i, j; // counters
-            long i_min, i_max, j_min, j_max; // minimas/maximas
-            double xp, yp;
-            double xkj, ykj, xlj, ylj;
-            double f; // function
-
-            // containers for xy coordinates of Triangles: p1-p2-p3-p1
-            final double[] vx = new double[4];
-            final double[] vy = new double[4];
-            final double[] vz = new double[3];
-            final int[] idx = new int[3];
-
-            // declare demRadarCode_phase
-            final int nx = (int) tileWindow.lines();
-            final int ny = (int) tileWindow.pixels();
-
-            // interpolate: loop over triangles
-            for (Triangle triangle : FDT.triangles) {
-
-                // store triangle coordinates in local variables
-                vx[0] = vx[3] = triangle.getA().x;
-                vy[0] = vy[3] = triangle.getA().y / xyRatio;
-
-                vx[1] = triangle.getB().x;
-                vy[1] = triangle.getB().y / xyRatio;
-
-                vx[2] = triangle.getC().x;
-                vy[2] = triangle.getC().y / xyRatio;
-
-                // skip invalid indices
-                if (vx[0] == invalidIndex || vx[1] == invalidIndex || vx[2] == invalidIndex ||
-                        vy[0] == invalidIndex || vy[1] == invalidIndex || vy[2] == invalidIndex) {
-                    continue;
-                }
-
-                // Compute grid indices the current triangle may cover
-                xp = Math.min(Math.min(vx[0], vx[1]), vx[2]);
-                i_min = coordToIndex(xp, x_min, xScale, offset);
-
-                xp = Math.max(Math.max(vx[0], vx[1]), vx[2]);
-                i_max = coordToIndex(xp, x_min, xScale, offset);
-
-                yp = Math.min(Math.min(vy[0], vy[1]), vy[2]);
-                j_min = coordToIndex(yp, y_min, yScale, offset);
-
-                yp = Math.max(Math.max(vy[0], vy[1]), vy[2]);
-                j_max = coordToIndex(yp, y_min, yScale, offset);
-
-                // skip triangle that is above or below the region
-                if ((i_max < 0) || (i_min >= nx)) {
-                    continue;
-                }
-
-                // skip triangle that is on the left or right of the region
-                if ((j_max < 0) || (j_min >= ny)) {
-                    continue;
-                }
-
-                // triangle covers the upper or lower boundary
-                if (i_min < 0) {
-                    i_min = 0;
-                }
-
-                if (i_max >= nx) {
-                    i_max = nx - 1;
-                }
-
-                // triangle covers left or right boundary
-                if (j_min < 0) {
-                    j_min = 0;
-                }
-
-                if (j_max >= ny) {
-                    j_max = ny - 1;
-                }
-
-                // compute plane defined by the three vertices of the triangle: z = ax + by + c
-                xkj = vx[1] - vx[0];
-                ykj = vy[1] - vy[0];
-                xlj = vx[2] - vx[0];
-                ylj = vy[2] - vy[0];
-
-                f = 1.0 / (xkj * ylj - ykj * xlj);
-
-                idx[0] = (int)triangle.getA().z;
-                idx[1] = (int)triangle.getB().z;
-                idx[2] = (int)triangle.getC().z;
-
-                vz[0] = velocityList[idx[0]].rangeShift;
-                vz[1] = velocityList[idx[1]].rangeShift;
-                vz[2] = velocityList[idx[2]].rangeShift;
-                double[] abc1 = getABC(vx, vy, vz, f, xkj, ykj, xlj, ylj);
-
-                vz[0] = velocityList[idx[0]].azimuthShift;
-                vz[1] = velocityList[idx[1]].azimuthShift;
-                vz[2] = velocityList[idx[2]].azimuthShift;
-                double[] abc2 = getABC(vx, vy, vz, f, xkj, ykj, xlj, ylj);
-
-                vz[0] = velocityList[idx[0]].velocity;
-                vz[1] = velocityList[idx[1]].velocity;
-                vz[2] = velocityList[idx[2]].velocity;
-                double[] abc3 = getABC(vx, vy, vz, f, xkj, ykj, xlj, ylj);
-
-                for (i = (int) i_min; i <= i_max; i++) {
-                    xp = indexToCoord(i, x_min, xScale, offset);
-                    for (j = (int) j_min; j <= j_max; j++) {
-                        yp = indexToCoord(j, y_min, yScale, offset);
-
-                        if (!pointInTriangle(vx, vy, xp, yp)) {
-                            continue;
-                        }
-
-                        z1_out[i][j] = abc1[0] * xp + abc1[1] * yp + abc1[2];
-                        z2_out[i][j] = abc2[0] * xp + abc2[1] * yp + abc2[2];
-                        z3_out[i][j] = abc3[0] * xp + abc3[1] * yp + abc3[2];
-                    }
-                }
-            }
-        }
-
-        private static double[] getABC(
-                final double[] vx, final double[] vy, final double[] vz,
-                final double f, final double  xkj, final double ykj, final double xlj, final double ylj) {
-
-            final double zj = vz[0];
-            final double zk = vz[1];
-            final double zl = vz[2];
-            final double zkj = zk - zj;
-            final double zlj = zl - zj;
-
-            final double[] abc = new double[3];
-            abc[0] = -f * (ykj * zlj - zkj * ylj);
-            abc[1] = -f * (zkj * xlj - xkj * zlj);
-            abc[2] = -abc[0] * vx[1] - abc[1] * vy[1] + zk;
-
-            return abc;
-        }
-
-        private static boolean pointInTriangle(double[] xt, double[] yt, double x, double y) {
-            int iRet0 = ((xt[2] - xt[0]) * (y - yt[0])) > ((x - xt[0]) * (yt[2] - yt[0])) ? 1 : -1;
-            int iRet1 = ((xt[0] - xt[1]) * (y - yt[1])) > ((x - xt[1]) * (yt[0] - yt[1])) ? 1 : -1;
-            int iRet2 = ((xt[1] - xt[2]) * (y - yt[2])) > ((x - xt[2]) * (yt[1] - yt[2])) ? 1 : -1;
-
-            return (iRet0 > 0 && iRet1 > 0 && iRet2 > 0) || (iRet0 < 0 && iRet1 < 0 && iRet2 < 0);
-        }
-
-        private static long coordToIndex(final double coord, final double coord0, final double deltaCoord, final double offset) {
-            return irint((((coord - coord0) / (deltaCoord)) - offset));
-        }
-
-        private static double indexToCoord(final long idx, final double coord0, final double deltaCoord, final double offset) {
-            return (coord0 + idx * deltaCoord + offset);
-        }
-
-        private static long irint(final double coord) {
-            return ((long) rint(coord));
-        }
-
-        private static double rint(final double coord) {
-            return Math.floor(coord + 0.5);
         }
     }
 
     public static class VelocityData {
+        public double[] mstGCPx;
+        public double[] mstGCPy;
+        public double[] slvGCPx;
+        public double[] slvGCPy;
+        public double[] velocity;
+        public double[] rangeShift;
+        public double[] azimuthShift;
 
-        public double mstGCPx;
-        public double mstGCPy;
-        public double slvGCPx;
-        public double slvGCPy;
-        public double velocity;
-        public double rangeShift;
-        public double azimuthShift;
-
-        public VelocityData(final double mstGCPx, final double mstGCPy, final double slvGCPx, final double slvGCPy,
-                            final double rangeShift, final double azimuthShift, final double velocity) {
-
-            this.mstGCPx = mstGCPx;
-            this.mstGCPy = mstGCPy;
-            this.slvGCPx = slvGCPx;
-            this.slvGCPy = slvGCPy;
-            this.rangeShift = rangeShift;
-            this.azimuthShift = azimuthShift;
-            this.velocity = velocity;
+        public VelocityData(final int numGCPs) {
+            this.mstGCPx = new double[numGCPs];
+            this.mstGCPy = new double[numGCPs];
+            this.slvGCPx = new double[numGCPs];
+            this.slvGCPy = new double[numGCPs];
+            this.rangeShift = new double[numGCPs];
+            this.azimuthShift = new double[numGCPs];
+            this.velocity = new double[numGCPs];
         }
     }
 
