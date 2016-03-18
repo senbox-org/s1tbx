@@ -286,7 +286,7 @@ public class StackAveragingOp extends Operator {
         for (Band band : sourceBands) {
             if (cnt > 0)
                 expression.append(" + ");
-            expression.append("sqr(");
+            expression.append("sq(");
             expression.append(band.getName());
             expression.append(")");
             ++cnt;
@@ -315,12 +315,12 @@ public class StackAveragingOp extends Operator {
     }
 
     private static String stddev(final Band[] sourceBands) {
-        return "sqrt( " + mean2(sourceBands) + " - " + "sqr(" + mean(sourceBands) + "))";
+        return "sqrt( " + mean2(sourceBands) + " - " + "sq(" + mean(sourceBands) + "))";
     }
 
     private static String coefVar(final Band[] sourceBands) {
         final String m2 = mean2(sourceBands);
-        return "sqrt( " + mean4(sourceBands) + " - " + "sqr(" + m2 + ")) / " + m2;
+        return "sqrt( " + mean4(sourceBands) + " - " + "sq(" + m2 + ")) / " + m2;
     }
 
     private static class BandInfo {
