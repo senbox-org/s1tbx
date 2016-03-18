@@ -36,6 +36,7 @@ public class TopoPhase {
     private int nCols;
 
     private double rngAzRatio = 0;
+    private boolean isBiStaticStack = false;
 
     public TopoPhase(SLCImage masterMeta, Orbit masterOrbit, SLCImage slaveMeta, Orbit slaveOrbit, Window window,
                      DemTile demTile) throws Exception {
@@ -48,6 +49,8 @@ public class TopoPhase {
 
         nRows = dem.data.length;
         nCols = dem.data[0].length;
+
+        isBiStaticStack = masterMeta.isBiStaticStack;
     }
 
     public void setMasterOrbit(Orbit masterOrbit) {
@@ -168,11 +171,14 @@ public class TopoPhase {
                     if (onlyTopoRefPhase) {
                         Point masterXYZPos = masterOrbit.lp2xyz(line, pix, masterMeta);
                         Point flatEarthTime = slaveOrbit.xyz2t(masterXYZPos, slaveMeta);
-                        ref_phase = slaveMin4piCDivLam * (flatEarthTime.x - slaveTime.x);
+                        if (isBiStaticStack) {
+                            ref_phase = slaveMin4piCDivLam * (flatEarthTime.x - slaveTime.x) * 0.5;
+                        } else {
+                            ref_phase = slaveMin4piCDivLam * (flatEarthTime.x - slaveTime.x);
+                        }
                     } else {
                         // include flatearth, ref.pha = phi_topo+phi_flatearth
-                        ref_phase = masterMin4piCDivLam * masterMeta.pix2tr(pix)
-                                - slaveMin4piCDivLam * slaveTime.x;
+                        ref_phase = masterMin4piCDivLam * masterMeta.pix2tr(pix) - slaveMin4piCDivLam * slaveTime.x;
                     }
 
                     demRadarCode_phase[i][j] = ref_phase;
