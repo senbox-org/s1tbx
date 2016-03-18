@@ -58,13 +58,10 @@ public class DorisOrbitFile extends BaseOrbitFile {
 
         // construct path to the orbit file folder
         String orbitPath = "";
-        String remoteBaseFolder = "";
         if (orbitType.contains(DORIS_VOR)) {
             orbitPath = Settings.getPath("OrbitFiles.dorisVOROrbitPath");
-            remoteBaseFolder = Settings.getPath("OrbitFiles.dorisFTP_vor_remotePath");
         } else if (orbitType.contains(DORIS_POR)) {
             orbitPath = Settings.getPath("OrbitFiles.dorisPOROrbitPath");
-            remoteBaseFolder = Settings.getPath("OrbitFiles.dorisFTP_por_remotePath");
         }
 
         final Calendar startCal = sourceProduct.getStartTime().getAsCalendar();
@@ -85,13 +82,6 @@ public class DorisOrbitFile extends BaseOrbitFile {
         if (orbitFile == null) {
             getRemoteFiles(orbitType, year);
             orbitFile = FindDorisOrbitFile(dorisReader, localPath, startDate, absOrbit);
-
-            if (orbitFile == null) {
-                final String remotePath = remoteBaseFolder + '/' + folder;
-                getRemoteDorisFiles(remotePath, localPath);
-                // find again in newly downloaded folder
-                orbitFile = FindDorisOrbitFile(dorisReader, localPath, startDate, absOrbit);
-            }
         }
 
         if (orbitFile == null) {
@@ -177,28 +167,5 @@ public class DorisOrbitFile extends BaseOrbitFile {
         }
 
         return null;
-    }
-
-    private void getRemoteDorisFiles(final String remotePath, final File localPath) {
-        final String dorisFTP = Settings.instance().get("OrbitFiles.dorisFTP");
-        try {
-            if (ftp == null) {
-                final String user = Settings.instance().get("OrbitFiles.dorisFTP_user");
-                final String pass = Settings.instance().get("OrbitFiles.dorisFTP_pass");
-                ftp = new FtpDownloader(dorisFTP, user, pass);
-                fileSizeMap = FtpDownloader.readRemoteFileList(ftp, dorisFTP, remotePath);
-            }
-
-            if (!localPath.exists()) {
-                if(!localPath.mkdirs()) {
-                    throw new IOException("Failed to create directory '" + localPath + "'.");
-                }
-            }
-
-            getRemoteFiles(ftp, fileSizeMap, remotePath, localPath, new NullProgressMonitor());
-
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
     }
 }
