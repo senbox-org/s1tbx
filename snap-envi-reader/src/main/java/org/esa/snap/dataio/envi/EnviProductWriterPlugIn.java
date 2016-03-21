@@ -27,6 +27,10 @@ public class EnviProductWriterPlugIn implements ProductWriterPlugIn {
 
     @Override
     public EncodeQualification getEncodeQualification(Product product) {
+        if (product.isMultiSize()) {
+            return new EncodeQualification(EncodeQualification.Preservation.UNABLE,
+                                           "Cannot write multisize products. Consider resampling the product first.");
+        }
         return new EncodeQualification(EncodeQualification.Preservation.PARTIAL);
     }
 

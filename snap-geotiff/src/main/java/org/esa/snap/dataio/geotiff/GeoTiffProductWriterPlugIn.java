@@ -57,6 +57,9 @@ public class GeoTiffProductWriterPlugIn implements ProductWriterPlugIn {
         } else if (!(geoCoding instanceof MapGeoCoding) && !(geoCoding instanceof CrsGeoCoding)) {
             return new EncodeQualification(EncodeQualification.Preservation.PARTIAL,
                                            "The product is geo-coded but seems not rectified. Geo-coding information may not be properly preserved.");
+        } else if (product.isMultiSize()) {
+            return new EncodeQualification(EncodeQualification.Preservation.UNABLE,
+                                           "Cannot write multisize products. Consider resampling the product first.");
         } else {
             return new EncodeQualification(EncodeQualification.Preservation.FULL);
         }
