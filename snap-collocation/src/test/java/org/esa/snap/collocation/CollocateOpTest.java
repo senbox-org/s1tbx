@@ -17,24 +17,25 @@
 package org.esa.snap.collocation;
 
 import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.CrsGeoCoding;
 import org.esa.snap.core.datamodel.FlagCoding;
 import org.esa.snap.core.datamodel.IndexCoding;
-import org.esa.snap.core.datamodel.MapGeoCoding;
 import org.esa.snap.core.datamodel.Mask;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.datamodel.VirtualBand;
-import org.esa.snap.core.dataop.maptransf.Datum;
-import org.esa.snap.core.dataop.maptransf.MapInfo;
-import org.esa.snap.core.dataop.maptransf.MapProjectionRegistry;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.Test;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.operation.TransformException;
 
 import java.awt.Color;
 
 import static org.junit.Assert.*;
 
 public class CollocateOpTest {
+
     @Test
     public void testCollocate1Type() {
         final Product masterProduct = createTestProduct1();
@@ -68,20 +69,22 @@ public class CollocateOpTest {
         assertEquals("l1_flags_M", targetProduct.getBandAt(15).getName());
         assertEquals("l1_class_M", targetProduct.getBandAt(16).getName());
 
-        assertEquals("radiance_1_S", targetProduct.getBandAt(16+1).getName());
-        assertEquals("radiance_2_S", targetProduct.getBandAt(16+2).getName());
-        assertEquals("l1_flags_S", targetProduct.getBandAt(16+16).getName());
-        assertEquals("l1_class_S", targetProduct.getBandAt(16+17).getName());
+        assertEquals("radiance_1_S", targetProduct.getBandAt(16 + 1).getName());
+        assertEquals("radiance_2_S", targetProduct.getBandAt(16 + 2).getName());
+        assertEquals("l1_flags_S", targetProduct.getBandAt(16 + 16).getName());
+        assertEquals("l1_class_S", targetProduct.getBandAt(16 + 17).getName());
 
-        assertEquals("latitude_S", targetProduct.getBandAt(16+17+1).getName());
-        assertEquals("longitude_S", targetProduct.getBandAt(16+17+2).getName());
-        assertEquals("dem_altitude_S", targetProduct.getBandAt(16+17+3).getName());
+        assertEquals("latitude_S", targetProduct.getBandAt(16 + 17 + 1).getName());
+        assertEquals("longitude_S", targetProduct.getBandAt(16 + 17 + 2).getName());
+        assertEquals("dem_altitude_S", targetProduct.getBandAt(16 + 17 + 3).getName());
 
         assertEquals("!l1_flags_M.INVALID && radiance_1_M > 10", targetProduct.getBandAt(0).getValidMaskExpression());
         assertEquals("!l1_flags_M.INVALID && radiance_1_M > 10", targetProduct.getBandAt(1).getValidMaskExpression());
 
-        assertEquals("(!l1_flags_S.INVALID && radiance_1_S > 10) && collocation_flags.SLAVE_PRESENT", targetProduct.getBandAt(16 + 1).getValidMaskExpression());
-        assertEquals("(!l1_flags_S.INVALID && radiance_1_S > 10) && collocation_flags.SLAVE_PRESENT", targetProduct.getBandAt(16 + 2).getValidMaskExpression());
+        assertEquals("(!l1_flags_S.INVALID && radiance_1_S > 10) && collocation_flags.SLAVE_PRESENT",
+                     targetProduct.getBandAt(16 + 1).getValidMaskExpression());
+        assertEquals("(!l1_flags_S.INVALID && radiance_1_S > 10) && collocation_flags.SLAVE_PRESENT",
+                     targetProduct.getBandAt(16 + 2).getValidMaskExpression());
 
         assertEquals(4, targetProduct.getMaskGroup().getNodeCount());
         Mask mask1 = targetProduct.getMaskGroup().get(0);
@@ -120,8 +123,8 @@ public class CollocateOpTest {
         Product.AutoGrouping autoGrouping = targetProduct.getAutoGrouping();
         assertNotNull(autoGrouping);
         assertEquals(2, autoGrouping.size());
-        assertArrayEquals(new String[]{"radiance*_M"}, autoGrouping.get(0));
-        assertArrayEquals(new String[]{"radiance*_S"}, autoGrouping.get(1));
+        assertArrayEquals(new String[]{"*radiance*_M"}, autoGrouping.get(0));
+        assertArrayEquals(new String[]{"*radiance*_S"}, autoGrouping.get(1));
     }
 
     @Test
@@ -157,20 +160,22 @@ public class CollocateOpTest {
         assertEquals("l1_flags_M", targetProduct.getBandAt(15).getName());
         assertEquals("l1_class_M", targetProduct.getBandAt(16).getName());
 
-        assertEquals("reflec_1_S", targetProduct.getBandAt(16+1).getName());
-        assertEquals("reflec_2_S", targetProduct.getBandAt(16+2).getName());
-        assertEquals("l2_flags_S", targetProduct.getBandAt(16+16).getName());
-        assertEquals("l2_class_S", targetProduct.getBandAt(16+17).getName());
+        assertEquals("reflec_1_S", targetProduct.getBandAt(16 + 1).getName());
+        assertEquals("reflec_2_S", targetProduct.getBandAt(16 + 2).getName());
+        assertEquals("l2_flags_S", targetProduct.getBandAt(16 + 16).getName());
+        assertEquals("l2_class_S", targetProduct.getBandAt(16 + 17).getName());
 
-        assertEquals("latitude_S", targetProduct.getBandAt(16+17+1).getName());
-        assertEquals("longitude_S", targetProduct.getBandAt(16+17+2).getName());
-        assertEquals("dem_altitude_S", targetProduct.getBandAt(16+17+3).getName());
+        assertEquals("latitude_S", targetProduct.getBandAt(16 + 17 + 1).getName());
+        assertEquals("longitude_S", targetProduct.getBandAt(16 + 17 + 2).getName());
+        assertEquals("dem_altitude_S", targetProduct.getBandAt(16 + 17 + 3).getName());
 
         assertEquals("!l1_flags_M.INVALID && radiance_1_M > 10", targetProduct.getBandAt(0).getValidMaskExpression());
         assertEquals("!l1_flags_M.INVALID && radiance_1_M > 10", targetProduct.getBandAt(1).getValidMaskExpression());
 
-        assertEquals("(!l2_flags_S.INVALID && reflec_1_S > 0.1) && collocation_flags.SLAVE_PRESENT", targetProduct.getBandAt(16 + 1).getValidMaskExpression());
-        assertEquals("(!l2_flags_S.INVALID && reflec_1_S > 0.1) && collocation_flags.SLAVE_PRESENT", targetProduct.getBandAt(16 + 2).getValidMaskExpression());
+        assertEquals("(!l2_flags_S.INVALID && reflec_1_S > 0.1) && collocation_flags.SLAVE_PRESENT",
+                     targetProduct.getBandAt(16 + 1).getValidMaskExpression());
+        assertEquals("(!l2_flags_S.INVALID && reflec_1_S > 0.1) && collocation_flags.SLAVE_PRESENT",
+                     targetProduct.getBandAt(16 + 2).getValidMaskExpression());
 
         assertEquals(3, targetProduct.getMaskGroup().getNodeCount());
         Mask mask1 = targetProduct.getMaskGroup().get(0);
@@ -203,11 +208,31 @@ public class CollocateOpTest {
         Product.AutoGrouping autoGrouping = targetProduct.getAutoGrouping();
         assertNotNull(autoGrouping);
         assertEquals(2, autoGrouping.size());
-        assertArrayEquals(new String[]{"radiance*_M"}, autoGrouping.get(0));
-        assertArrayEquals(new String[]{"reflec*_S"}, autoGrouping.get(1));
+        assertArrayEquals(new String[]{"*radiance*_M"}, autoGrouping.get(0));
+        assertArrayEquals(new String[]{"*reflec*_S"}, autoGrouping.get(1));
     }
 
-    static float[] wl = new float[]{
+    @Test
+    public void testAutogroupingAATSRStyle() {
+        final Product masterProduct = createTestProductAATSR();
+        final Product slaveProduct = createTestProduct1();
+
+        CollocateOp op = new CollocateOp();
+        op.setParameterDefaultValues();
+
+        op.setMasterProduct(masterProduct);
+        op.setSlaveProduct(slaveProduct);
+
+        Product targetProduct = op.getTargetProduct();
+        Product.AutoGrouping autoGrouping = targetProduct.getAutoGrouping();
+        assertNotNull(autoGrouping);
+        assertEquals(3, autoGrouping.size());
+        assertArrayEquals(new String[]{"*nadir*_M"}, autoGrouping.get(0));
+        assertArrayEquals(new String[]{"*fward*_M"}, autoGrouping.get(1));
+        assertArrayEquals(new String[]{"*radiance*_S"}, autoGrouping.get(2));
+    }
+
+    private static float[] wl = new float[]{
             412.6395569f,
             442.5160217f,
             489.8732910f,
@@ -225,7 +250,7 @@ public class CollocateOpTest {
             899.9100342f
     };
 
-    public static Product createTestProduct1() {
+    private static Product createTestProduct1() {
         final Product product = new Product("MER_RR_1P", "MER_RR_1P", 16, 16);
         for (int i = 0; i < wl.length; i++) {
             Band band = new VirtualBand("radiance_" + (i + 1), ProductData.TYPE_FLOAT32, 16, 16, "X+Y");
@@ -240,17 +265,14 @@ public class CollocateOpTest {
         product.addTiePointGrid(createTPG("latitude"));
         product.addTiePointGrid(createTPG("longitude"));
         product.addTiePointGrid(createTPG("dem_altitude"));
-        MapInfo mapInfo1 = new MapInfo(MapProjectionRegistry.getProjection("Geographic Lat/Lon"), 0.0f, 0.0f, 0.0f, 0.0f, 0.1f, 0.1f, Datum.WGS_84);
-        mapInfo1.setSceneWidth(16);
-        mapInfo1.setSceneHeight(16);
-        product.setSceneGeoCoding(new MapGeoCoding(mapInfo1));
+        setSceneGeoCoding(product);
         product.addMask("bitmask", "radiance_1 > 10", null, Color.RED, 0.5f);
         product.addMask("invalid", "l1_flags.INVALID", null, Color.GREEN, 0.5f);
         product.setAutoGrouping("radiance");
         return product;
     }
 
-    public static Product createTestProduct2() {
+    private static Product createTestProduct2() {
         final Product product = new Product("MER_RR_2P", "MER_RR_2P", 16, 16);
         for (int i = 0; i < wl.length; i++) {
             Band band = new VirtualBand("reflec_" + (i + 1), ProductData.TYPE_FLOAT32, 16, 16, "X*Y");
@@ -265,13 +287,31 @@ public class CollocateOpTest {
         product.addTiePointGrid(createTPG("latitude"));
         product.addTiePointGrid(createTPG("longitude"));
         product.addTiePointGrid(createTPG("dem_altitude"));
-        MapInfo mapInfo2 = new MapInfo(MapProjectionRegistry.getProjection("Geographic Lat/Lon"), 0.0f, 0.0f, 0.2f, 0.2f, 0.1f, 0.1f, Datum.WGS_84);
-        mapInfo2.setSceneWidth(16);
-        mapInfo2.setSceneHeight(16);
-        product.setSceneGeoCoding(new MapGeoCoding(mapInfo2));
+        setSceneGeoCoding(product);
         product.addMask("invalid", "l2_flags.INVALID", null, Color.BLUE, 0.5f);
         product.setAutoGrouping("reflec");
         return product;
+    }
+
+    private static Product createTestProductAATSR() {
+        final Product product = new Product("ATS_TOA_1P", "ATS_TOA_1P", 16, 16);
+        product.addBand(new VirtualBand("btemp_nadir_1200", ProductData.TYPE_FLOAT32, 16, 16, "X*Y"));
+        product.addBand(new VirtualBand("btemp_nadir_1100", ProductData.TYPE_FLOAT32, 16, 16, "X+Y"));
+        product.addBand(new VirtualBand("btemp_nadir_0370", ProductData.TYPE_FLOAT32, 16, 16, "X*X"));
+        product.addBand(new VirtualBand("btemp_fward_1200", ProductData.TYPE_FLOAT32, 16, 16, "Y"));
+        product.addBand(new VirtualBand("btemp_fward_1100", ProductData.TYPE_FLOAT32, 16, 16, "Y*Y"));
+
+        setSceneGeoCoding(product);
+        product.setAutoGrouping("nadir:fward");
+        return product;
+    }
+
+    private static void setSceneGeoCoding(Product product) {
+        try {
+            product.setSceneGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, 16, 16, 0.2, 0.2, 0.1, 0.1));
+        } catch (FactoryException | TransformException e) {
+            fail("Test product could not be created");
+        }
     }
 
     private static void addIndexCoding(Product product, String indexCodingName) {
