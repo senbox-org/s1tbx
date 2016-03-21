@@ -148,7 +148,7 @@ public class PixExOp extends Operator {
     @Parameter(description = "The acceptable time difference compared to the time given for a coordinate.\n" +
             "The format is a number followed by (D)ay, (H)our or (M)inute. If no time difference is provided, " +
             "all input products are considered regardless of their time.",
-               defaultValue = "")
+            defaultValue = "")
     private String timeDifference = "";
 
     @Parameter(description = "Path to a file containing geo-coordinates. BEAM's placemark files can be used.")
@@ -159,7 +159,7 @@ public class PixExOp extends Operator {
     private File matchupFile;
 
     @Parameter(description = "Side length of surrounding window (uneven)", defaultValue = "1",
-               validator = WindowSizeValidator.class)
+            validator = WindowSizeValidator.class)
     private Integer windowSize;
 
     @Parameter(description = "The output directory.", notNull = true)
@@ -173,7 +173,7 @@ public class PixExOp extends Operator {
 
     @Parameter(description = "If true, the expression result is exported per pixel, otherwise the expression \n" +
             "is used as filter (all pixels in given window must be valid).",
-               defaultValue = "true")
+            defaultValue = "true")
     private Boolean exportExpressionResult;
 
     @Parameter(
@@ -184,7 +184,7 @@ public class PixExOp extends Operator {
     private String aggregatorStrategyType;
 
     @Parameter(description = "If set to true, sub-scenes of the regions, where pixels are found, are exported.",
-               defaultValue = "false")
+            defaultValue = "false")
     private boolean exportSubScenes;
 
     @Parameter(description = "An additional border around the region where pixels are found.", defaultValue = "0")
@@ -192,7 +192,7 @@ public class PixExOp extends Operator {
 
     @Parameter(description = "If set to true, a Google KMZ file will be created, which contains the coordinates " +
             "where pixels are found.",
-               defaultValue = "false")
+            defaultValue = "false")
     private boolean exportKmz;
 
     @Parameter(
@@ -211,9 +211,9 @@ public class PixExOp extends Operator {
     private String dateInterpretationPattern;
 
     @Parameter(description = "Describes how the filename of a product should be interpreted.",
-               validator = TimeStampExtractor.FilenameInterpretationPatternValidator.class,
-               defaultValue = "*${startDate}*${endDate}*",
-               label = "Time extraction pattern in filename")
+            validator = TimeStampExtractor.FilenameInterpretationPatternValidator.class,
+            defaultValue = "*${startDate}*${endDate}*",
+            label = "Time extraction pattern in filename")
     private String filenameInterpretationPattern;
 
     @Parameter(defaultValue = "false", description = "Determines if the original input measurements shall be " +
@@ -222,7 +222,7 @@ public class PixExOp extends Operator {
 
     @Parameter(description = "Array of 2-tuples of variable names; " +
             "for each of these tuples a scatter plot will be exported.", notNull = false,
-               itemAlias = "variableCombination")
+            itemAlias = "variableCombination")
     private VariableCombination[] scatterPlotVariableCombinations;
 
     private List<Coordinate> coordinateList;
@@ -728,7 +728,7 @@ public class PixExOp extends Operator {
                         final String coordinateName = matchedCoordinate.getName();
                         if (!knownKmzPlacemarks.contains(coordinateName)) {
                             final Point2D.Double position = new Point2D.Double(matchedCoordinate.getLon(),
-                                                                             matchedCoordinate.getLat());
+                                                                               matchedCoordinate.getLat());
                             kmlDocument.addChild(new KmlPlacemark(coordinateName, null, position));
                             knownKmzPlacemarks.add(coordinateName);
                         }
@@ -790,8 +790,9 @@ public class PixExOp extends Operator {
         if (product == null) {
             return false;
         }
-        if(product.isMultiSize()) {
-            final String msgPattern = "Product [%s] refused. Cause: Product has rasters of different size.";
+        if (product.isMultiSize()) {
+            final String msgPattern = "Product [%s] refused. Cause: Product has rasters of different size. " +
+                    "Please consider resampling it so that all rasters have the same size.";
             logger.warning(String.format(msgPattern, product.getFileLocation()));
             return false;
         }
