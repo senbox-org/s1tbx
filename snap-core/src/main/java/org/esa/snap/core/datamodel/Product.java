@@ -2338,7 +2338,7 @@ public class Product extends ProductNode {
                 refRasters = BandArithmetic.getRefRasters(expression, this);
             }
         } catch (ParseException e) {
-            e.printStackTrace();
+            throw new IllegalArgumentException("Expression is invalid: " + e.getMessage());
         }
         Mask mask;
         if (refRasters.length == 0) {
