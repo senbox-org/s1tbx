@@ -12,12 +12,20 @@ import java.util.List;
 public class TriangleInterpolator {
 
     public static class ZData {
+        public final double[] z_1d_in;
         public final double[][] z_in;
         public final double[][] z_out;
         public double a, b, c;
 
         public ZData(final double[][] z_in, final double[][] z_out) {
+            this.z_1d_in = null;
             this.z_in = z_in;
+            this.z_out = z_out;
+        }
+
+        public ZData(final double[] z_in, final double[][] z_out) {
+            this.z_1d_in = z_in;
+            this.z_in = null;
             this.z_out = z_out;
         }
     }
@@ -32,8 +40,19 @@ public class TriangleInterpolator {
         }
     }
 
-    private static FastDelaunayTriangulator triangulate(final double[][] x_in, final double[][] y_in,
-                                                        final double xyRatio, final double invalidIndex) throws Exception {
+    public static void gridDataLinear(final double[] x_in, final double[] y_in, final ZData[] zList,
+                                      final Window window, final double xyRatio, final int xScale,
+                                      final int yScale, final double invalidIndex, final int offset) throws Exception {
+
+        final FastDelaunayTriangulator FDT = triangulate(x_in, y_in, xyRatio, invalidIndex);
+        if(FDT != null) {
+            interpolate(xyRatio, window, xScale, yScale, offset, invalidIndex, FDT, zList);
+        }
+    }
+
+    public static FastDelaunayTriangulator triangulate(final double[][] x_in, final double[][] y_in,
+                                                       final double xyRatio, final double invalidIndex)
+            throws Exception {
 
         //// organize input data
         //long t0 = System.currentTimeMillis();
@@ -67,10 +86,37 @@ public class TriangleInterpolator {
         return FDT;
     }
 
-    private static void interpolate(final double xyRatio, final Window tileWindow,
-                                    final double xScale, final double yScale,
-                                    final double offset, final double invalidIndex,
-                                    final FastDelaunayTriangulator FDT, final ZData[] zList) {
+    public static FastDelaunayTriangulator triangulate(final double[] x_in, final double[] y_in,
+                                                       final double xyRatio, final double invalidIndex)
+            throws Exception {
+
+        java.util.List<Geometry> list = new ArrayList<>();
+        GeometryFactory gf = new GeometryFactory();
+        for (int i = 0; i < x_in.length; i++) {
+            if (x_in[i] == invalidIndex || y_in[i] == invalidIndex) {
+                continue;
+            }
+            list.add(gf.createPoint(new Coordinate(x_in[i], y_in[i] * xyRatio, i)));
+        }
+
+        if (list.size() < 3) {
+            return null;
+        }
+
+        FastDelaunayTriangulator FDT = new FastDelaunayTriangulator();
+        try {
+            FDT.triangulate(list.iterator());
+        } catch (TriangulationException te) {
+            te.printStackTrace();
+        }
+
+        return FDT;
+    }
+
+    public static void interpolate(final double xyRatio, final Window tileWindow,
+                                   final double xScale, final double yScale,
+                                   final double offset, final double invalidIndex,
+                                   final FastDelaunayTriangulator FDT, final ZData[] zList) {
 
         final double x_min = tileWindow.linelo;
         final double y_min = tileWindow.pixlo;
@@ -188,17 +234,24 @@ public class TriangleInterpolator {
             final double[] vx, final double[] vy, final double[] vz, final ZData data,
             final double f, final double  xkj, final double ykj, final double xlj, final double ylj) {
 
-        final int i0 = (int)(vz[0]/data.z_in[0].length);
-        final int j0 = (int)(vz[0] - i0*data.z_in[0].length);
-        final double zj = data.z_in[i0][j0];
+        double zj, zk, zl;
+        if (data.z_1d_in != null) {
+            zj = data.z_1d_in[(int)vz[0]];
+            zk = data.z_1d_in[(int)vz[1]];
+            zl = data.z_1d_in[(int)vz[2]];
+        } else {
+            final int i0 = (int)(vz[0]/data.z_in[0].length);
+            final int j0 = (int)(vz[0] - i0*data.z_in[0].length);
+            zj = data.z_in[i0][j0];
 
-        final int i1 = (int)(vz[1]/data.z_in[1].length);
-        final int j1 = (int)(vz[1] - i1*data.z_in[1].length);
-        final double zk = data.z_in[i1][j1];
+            final int i1 = (int)(vz[1]/data.z_in[1].length);
+            final int j1 = (int)(vz[1] - i1*data.z_in[1].length);
+            zk = data.z_in[i1][j1];
 
-        final int i2 = (int)(vz[2]/data.z_in[2].length);
-        final int j2 = (int)(vz[2] - i2*data.z_in[2].length);
-        final double zl = data.z_in[i2][j2];
+            final int i2 = (int)(vz[2]/data.z_in[2].length);
+            final int j2 = (int)(vz[2] - i2*data.z_in[2].length);
+            zl = data.z_in[i2][j2];
+        }
 
         final double zkj = zk - zj;
         final double zlj = zl - zj;

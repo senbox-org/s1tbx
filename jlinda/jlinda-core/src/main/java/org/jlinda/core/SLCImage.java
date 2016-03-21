@@ -94,6 +94,7 @@ public final class SLCImage {
     Window currentWindow;        // position and size of the subset
     SlaveWindow slaveMasterOffsets;   // overlapping slave window in master coordinates
     public Doppler doppler;
+    public boolean isBiStaticStack = false;
 
     public SLCImage() {
 
@@ -238,6 +239,7 @@ public final class SLCImage {
 
         if(product != null) {
             this.nearRangeOnLeft = isNearRangeOnLeft(product);
+            this.isBiStaticStack = isBiStaticStack(product);
         }
     }
 
@@ -250,6 +252,11 @@ public final class SLCImage {
             return (incidenceAngleToFirstPixel < incidenceAngleToLastPixel);
         }
         return true;
+    }
+
+    private static boolean isBiStaticStack(final Product product) {
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        return absRoot != null && absRoot.getAttributeInt(AbstractMetadata.bistatic_stack, 0) == 1;
     }
 
     public void parseResFile(File resFileName) throws Exception {
