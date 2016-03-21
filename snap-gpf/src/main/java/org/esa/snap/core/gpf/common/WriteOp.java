@@ -17,6 +17,7 @@
 package org.esa.snap.core.gpf.common;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.dataio.EncodeQualification;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.ProductWriter;
 import org.esa.snap.core.dataio.dimap.DimapProductWriter;
@@ -238,6 +239,11 @@ public class WriteOp extends Operator {
         productWriter = ProductIO.getProductWriter(formatName);
         if (productWriter == null) {
             throw new OperatorException("No data product writer for the '" + formatName + "' format available");
+        }
+        final EncodeQualification encodeQualification = productWriter.getWriterPlugIn().getEncodeQualification(sourceProduct);
+        if (encodeQualification.getPreservation() == EncodeQualification.Preservation.UNABLE) {
+            throw new OperatorException("Product writer is unable to write this product as '" + formatName +
+                                                "': " + encodeQualification.getInfoString());
         }
         productWriter.setIncrementalMode(incremental);
         productWriter.setFormatName(formatName);

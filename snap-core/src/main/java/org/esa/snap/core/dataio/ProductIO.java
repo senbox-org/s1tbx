@@ -267,7 +267,7 @@ public class ProductIO {
                     selectedPlugIn = plugIn;
                 }
             } catch (Exception e) {
-                logger.severe("Error attempting to read "+input+" with plugin reader "+plugIn.toString()+": "+e.getMessage());
+                logger.severe("Error attempting to read " + input + " with plugin reader " + plugIn.toString() + ": " + e.getMessage());
             }
         }
         final long endTimeTotal = System.currentTimeMillis();
@@ -381,7 +381,11 @@ public class ProductIO {
         }
         ProductWriter productWriter = getProductWriter(formatName);
         if (productWriter == null) {
-            throw new ProductIOException("no product writer for the '" + formatName + "' format available");
+            throw new ProductIOException("No product writer for the '" + formatName + "' format available.");
+        }
+        final EncodeQualification encodeQualification = productWriter.getWriterPlugIn().getEncodeQualification(product);
+        if (encodeQualification.getPreservation() == EncodeQualification.Preservation.UNABLE) {
+            throw new ProductIOException("Product writer is unable to write product:\n" + encodeQualification.getInfoString());
         }
         productWriter.setIncrementalMode(incremental);
 
