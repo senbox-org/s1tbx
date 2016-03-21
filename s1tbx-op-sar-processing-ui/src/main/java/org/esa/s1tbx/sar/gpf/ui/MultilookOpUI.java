@@ -117,8 +117,25 @@ public class MultilookOpUI extends BaseOperatorUI {
             }
         }
 
-        setAzimuthLooks();
-        setRangeLooks();
+        if (sourceProducts != null && sourceProducts.length > 0) {
+            if(containsPhase()) {
+                outputIntensityCheckBox.setSelected(false);
+            }
+
+            setAzimuthLooks();
+            setRangeLooks();
+        }
+    }
+
+    private boolean containsPhase() {
+        if (sourceProducts != null && sourceProducts.length > 0) {
+            for(String bandName : sourceProducts[0].getBandNames()) {
+                if(bandName.startsWith("Phase")) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private synchronized void setAzimuthLooks() {
