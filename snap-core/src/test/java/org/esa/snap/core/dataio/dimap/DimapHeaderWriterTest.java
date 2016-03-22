@@ -15,8 +15,6 @@
  */
 package org.esa.snap.core.dataio.dimap;
 
-import static junit.framework.TestCase.assertEquals;
-
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ConvolutionFilterBand;
@@ -39,7 +37,9 @@ import org.esa.snap.core.dataop.resamp.Resampling;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.math.FXYSum;
 import org.geotools.referencing.CRS;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.Color;
@@ -47,6 +47,8 @@ import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.io.StringWriter;
+
+import static junit.framework.TestCase.assertEquals;
 
 public class DimapHeaderWriterTest {
 
@@ -402,8 +404,8 @@ public class DimapHeaderWriterTest {
     }
 
     private String addMasksToProductAndGetExpected() {
-        product.addMask("bitmaskDef1", "!l1_flags.INVALID", "description1", Color.BLUE, 0.75f);
-        product.addMask("bitmaskDef2", "l1_flags.LAND", "description2", Color.GREEN, 0.5f);
+        product.addMask("bitmaskDef1", "sin(X) + cos(Y)", "description1", Color.BLUE, 0.75f);
+        product.addMask("bitmaskDef2", "tanh(X)", "description2", Color.GREEN, 0.5f);
 
         return header +
                getRasterDimensions() +
@@ -415,7 +417,7 @@ public class DimapHeaderWriterTest {
                "            <DESCRIPTION value=\"description1\" />" + LS +
                "            <COLOR red=\"0\" green=\"0\" blue=\"255\" alpha=\"255\" />" + LS +
                "            <TRANSPARENCY value=\"0.75\" />" + LS +
-               "            <EXPRESSION value=\"!l1_flags.INVALID\" />" + LS +
+               "            <EXPRESSION value=\"sin(X) + cos(Y)\" />" + LS +
                "        </Mask>" + LS +
                "        <Mask type=\"Maths\">" + LS +
                "            <NAME value=\"bitmaskDef2\" />" + LS +
@@ -424,7 +426,7 @@ public class DimapHeaderWriterTest {
                "            <DESCRIPTION value=\"description2\" />" + LS +
                "            <COLOR red=\"0\" green=\"255\" blue=\"0\" alpha=\"255\" />" + LS +
                "            <TRANSPARENCY value=\"0.5\" />" + LS +
-               "            <EXPRESSION value=\"l1_flags.LAND\" />" + LS +
+               "            <EXPRESSION value=\"tanh(X)\" />" + LS +
                "        </Mask>" + LS +
                "    </Masks>" + LS +
                footer;
