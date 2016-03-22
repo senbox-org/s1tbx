@@ -36,6 +36,7 @@ import org.esa.snap.core.util.io.SnapFileFilter;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
@@ -129,6 +130,45 @@ public class ProductTest {
         assertEquals("band1", product.getBandAt(0).getName());
         assertNotNull(product.getBand("band1"));
         assertEquals("band1", product.getBand("band1").getName());
+    }
+
+    @Test
+    public void addMask() {
+        final Mask mask = product.addMask("maskName", "sin(X)", "description", Color.BLUE, 0.5);
+        assertNotNull(mask);
+        assertEquals("maskName", mask.getName());
+        assertEquals("sin(X)", Mask.BandMathsType.getExpression(mask));
+        assertEquals("description", mask.getDescription());
+        assertEquals(Color.BLUE, mask.getImageColor());
+        assertEquals(0.5, mask.getImageTransparency(), 1e-12);
+    }
+
+    @Test
+    public void addMask_FailsWithInvalidExpressions() {
+        try {
+            product.addMask("otherMask", "nonsense", "description", Color.BLUE, 0.5);
+            fail("Exception expected");
+        } catch (Exception e) {
+            assertEquals("Expression is invalid: Undefined symbol 'nonsense'.", e.getMessage());
+        }
+        try {
+            product.addMask("otherMask", "$2.X", "description", Color.BLUE, 0.5);
+            fail("Exception expected");
+        } catch (Exception e) {
+            assertEquals("Expression is invalid: Undefined symbol '$2.X'.", e.getMessage());
+        }
+    }
+
+    @Test
+    public void addMask_FailsWithExpressionInvolvingBandsOfDifferentSizes() {
+        product.addBand(new Band("band1", ProductData.TYPE_INT8, _sceneWidth + 5, _sceneHeight + 5));
+        product.addBand(new Band("band2", ProductData.TYPE_INT8, _sceneWidth + 10, _sceneHeight + 10));
+        try {
+            product.addMask("mask", "band1 + band2", "description", Color.BLUE, 0.5);
+            fail("Exception expected");
+        } catch (Exception e) {
+            assertEquals("Expression is invalid: Referenced rasters must be of same size", e.getMessage());
+        }
     }
 
     @Test
