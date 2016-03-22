@@ -31,7 +31,7 @@
 
     <parameters>
         <parameter>
-            <!-- The name of the parameter; user operator.getParameter('lowerFactor') in your Python code to retrieve the value -->
+            <!-- The name of the parameter; use operator.getParameter('lowerFactor') in your Python code to retrieve the value -->
             <name>lowerFactor</name>
             <!-- The description is shown in the help on the command line and also as tooltip in the GUI -->
             <description>The value of the lower band is multiplied by this value.</description>
