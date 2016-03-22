@@ -246,13 +246,14 @@ public class ProductManagerTest extends TestCase {
 
     public void testMaskExpressionsAreUpdateIfForeignNodeNameChanged() {
         final Product product1 = new Product("P1", "t", 1, 1);
-        final VirtualBand p1v1 = new VirtualBand("P1V1", ProductData.TYPE_FLOAT32, 1, 1, "42");
-        product1.addBand(p1v1);
         final Product product2 = new Product("P2", "t", 1, 1);
-        Mask mask = product2.addMask("P2BD", "$1.P1V1 == 42.0", "P2-Bitmask", Color.RED, 0.5f);
 
         productManager.addProduct(product1);
         productManager.addProduct(product2);
+
+        final VirtualBand p1v1 = new VirtualBand("P1V1", ProductData.TYPE_FLOAT32, 1, 1, "42");
+        product1.addBand(p1v1);
+        Mask mask = product2.addMask("P2BD", "$1.P1V1 == 42.0", "P2-Bitmask", Color.RED, 0.5f);
 
         p1v1.setName("TheAnswer");
 
