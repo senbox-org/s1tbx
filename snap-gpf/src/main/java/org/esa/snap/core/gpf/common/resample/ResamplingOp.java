@@ -612,6 +612,8 @@ public class ResamplingOp extends Operator {
                 return InterpolationType.Nearest;
             case "Bilinear":
                 return InterpolationType.Bilinear;
+            case "CubicConvolution":
+                return InterpolationType.Cubic_Convolution;
         }
         return null;
     }
