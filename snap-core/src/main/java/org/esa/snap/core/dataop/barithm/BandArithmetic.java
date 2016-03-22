@@ -175,8 +175,8 @@ public class BandArithmetic {
      * Utility method which returns all raster data nodes referenced in the given
      * band math expressions.
      *
-     * @param expression          the expression
-     * @param products            the array of source products which form the valid namespace for the expression
+     * @param expression the expression
+     * @param products   the array of source products which form the valid namespace for the expression
      * @return the array of raster data nodes, which may be empty
      */
     public static RasterDataNode[] getRefRasters(String expression, Product... products) throws ParseException {
@@ -207,7 +207,7 @@ public class BandArithmetic {
      * @param terms the array of terms to be analysed
      * @return the array of raster data nodes, which may be empty
      */
-    public static RasterDataNode[] getRefRasters(Term...terms) {
+    public static RasterDataNode[] getRefRasters(Term... terms) {
         RasterDataSymbol[] symbols = getRefRasterDataSymbols(terms);
         return getRefRasters(symbols);
     }
@@ -340,43 +340,41 @@ public class BandArithmetic {
      * @param product     The product to which the expressions can refer
      * @param expressions the expressions in question
      * @return true if all referenced rasters are compatible
+     * @throws ParseException if a parse error occurs
      */
-    public static boolean areRastersEqualInSize(Product product, String... expressions) {
+    public static boolean areRastersEqualInSize(Product product, String... expressions) throws ParseException {
         return areRastersEqualInSize(new Product[]{product}, 0, expressions);
     }
 
     /**
      * Determines whether all rasters which are referenced in the given expressions are compatible.
      *
-     * @param products     The product to which the expressions can refer
-     * @param defaultProductIndex     The index of the default product
-     * @param expressions the expressions in question
+     * @param products            The product to which the expressions can refer
+     * @param defaultProductIndex The index of the default product
+     * @param expressions         the expressions in question
      * @return true if all referenced rasters are compatible
+     * @throws ParseException if a parse error occurs
      */
-    public static boolean areRastersEqualInSize(Product[] products, int defaultProductIndex, String... expressions) {
+    public static boolean areRastersEqualInSize(Product[] products, int defaultProductIndex, String... expressions) throws ParseException {
         if (expressions.length == 0) {
             return true;
         }
-        try {
-            int referenceWidth = -1;
-            int referenceHeight = -1;
-            for (String expression : expressions) {
-                final RasterDataNode[] refRasters = getRefRasters(expression, products, defaultProductIndex);
-                if (refRasters.length > 0) {
-                    if (!areRastersEqualInSize(parseExpression(expression, products, defaultProductIndex))) {
-                        return false;
-                    }
-                    if (referenceWidth == -1) {
-                        referenceWidth = refRasters[0].getRasterWidth();
-                        referenceHeight = refRasters[0].getRasterHeight();
-                    } else if (refRasters[0].getRasterWidth() != referenceWidth ||
-                            refRasters[0].getRasterHeight() != referenceHeight) {
-                        return false;
-                    }
+        int referenceWidth = -1;
+        int referenceHeight = -1;
+        for (String expression : expressions) {
+            final RasterDataNode[] refRasters = getRefRasters(expression, products, defaultProductIndex);
+            if (refRasters.length > 0) {
+                if (!areRastersEqualInSize(parseExpression(expression, products, defaultProductIndex))) {
+                    return false;
+                }
+                if (referenceWidth == -1) {
+                    referenceWidth = refRasters[0].getRasterWidth();
+                    referenceHeight = refRasters[0].getRasterHeight();
+                } else if (refRasters[0].getRasterWidth() != referenceWidth ||
+                        refRasters[0].getRasterHeight() != referenceHeight) {
+                    return false;
                 }
             }
-        } catch (ParseException e) {
-            return false;
         }
         return true;
     }
