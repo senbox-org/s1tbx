@@ -159,7 +159,9 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
         product.setEndTime(getUTCScanStopTime(leaderFile.getSceneRecord(), null));
         product.setDescription(getProductDescription());
 
-        addGeoCodingFromPixelToLatLonCoefficients(product, leaderFile.getFacilityRecord());
+        if(isSLC()) {
+            addGeoCodingFromPixelToLatLonCoefficients(product, leaderFile.getFacilityRecord());
+        }
 
         if (product.getSceneGeoCoding() == null) {
             ReaderUtils.addGeoCoding(product, leaderFile.getLatCorners(leaderFile.getMapProjRecord()),
