@@ -5,6 +5,22 @@ sudo: false
 jdk:
   - oraclejdk8
 
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "Urdp3wHfJdggrwxUVYC3/5DjPUMt83h/KDZBHg1tY2NFtZv+3/z1jX627o0ZMPC8rT553YOa75dtgJdF03BtBYbepsPGDqaWzOqcH177yi+BfBOoXnCRsDBm79+qhuXVpXUbAI+MPPd/iRVUhNnlHK55eZ9ovfv07Lj0AqYY4o0="
+
+addons:
+  coverity_scan:
+    project:
+      name: "senbox-org/s1tbx"
+      description: "Build submitted via Travis CI"
+    notification_email: stb-coverity@thor.si.c-s.fr
+    build_command_prepend: "mvn clean"
+    build_command:   "mvn -DskipTests=true compile"
+    branch_pattern: coverity_scan
+
 before_install:
   # Work around discontinued nexus.codehaus.org (see https://github.com/travis-ci/travis-ci/issues/4629)
   # For building, everything is available in nexus.senbox.net, which is stored in pom.xml,
