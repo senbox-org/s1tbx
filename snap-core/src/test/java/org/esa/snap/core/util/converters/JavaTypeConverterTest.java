@@ -19,16 +19,19 @@ package org.esa.snap.core.util.converters;
 import com.bc.ceres.binding.ConversionException;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import java.util.Date;
 
+import static org.junit.Assert.*;
 
-public class JavaTypeConverterTest extends TestCase {
+
+public class JavaTypeConverterTest {
     static {
         JtsGeometryConverter.registerConverter();
     }
 
+    @Test
     public void testSuccess() throws ConversionException {
         JavaTypeConverter typeConverter = new JavaTypeConverter();
 
@@ -47,6 +50,7 @@ public class JavaTypeConverterTest extends TestCase {
         assertEquals("org.esa.snap.core.util.converters.JavaTypeConverter", typeConverter.format(JavaTypeConverter.class));
     }
 
+    @Test
     public void testFailure()  {
         JavaTypeConverter typeConverter = new JavaTypeConverter();
 
