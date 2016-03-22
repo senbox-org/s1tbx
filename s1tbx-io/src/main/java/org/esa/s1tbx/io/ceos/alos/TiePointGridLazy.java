@@ -17,6 +17,7 @@ package org.esa.s1tbx.io.ceos.alos;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.util.SystemUtils;
 
@@ -58,12 +59,23 @@ public class TiePointGridLazy extends TiePointGrid {
     private void initData() {
         try {
             // read all or nothing
-            getProductReader().readTiePointGridRasterData(this, 0, 0, getGridWidth(), getGridHeight(), getGridData(),
+            getProductReader().readTiePointGridRasterData(this, 0, 0, getGridWidth(), getGridHeight(), super.getData(),
                                                           ProgressMonitor.NULL);
             hasData = true;
         } catch (IOException e) {
             SystemUtils.LOG.severe("Unable to load TPG: " + e.getMessage());
         }
+    }
+
+    /**
+     * @return The data buffer representing the single tie-points.
+     */
+    @Override
+    public ProductData getGridData() {
+        if (!hasData) {
+            initData();
+        }
+        return super.getData();
     }
 
     @Override

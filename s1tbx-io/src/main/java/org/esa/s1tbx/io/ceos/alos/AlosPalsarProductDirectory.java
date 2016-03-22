@@ -70,6 +70,8 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
     public static final DateFormat dateFormat2 = ProductData.UTC.createDateFormat("yyyyMMdd HH:mm:ss");
     public static final DateFormat dateFormat3 = ProductData.UTC.createDateFormat("yyyyDDDSSSSSSSS");
 
+    private float[] rangeDist;
+
     public AlosPalsarProductDirectory(final VirtualDir dir) {
         Guardian.assertNotNull("dir", dir);
         constants = new AlosPalsarConstants();
@@ -330,42 +332,44 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
         final int gridWidth = 11;
         final int gridHeight = 11;
         final int subSamplingX = (int)tpg.getSubSamplingX();
-        final int subSamplingY = (int)tpg.getSubSamplingY();
-        final float[] rangeDist = new float[gridWidth * gridHeight];
         final float[] rangeTime = new float[gridWidth * gridHeight];
 
         final BinaryRecord sceneRec = leaderFile.getSceneRecord();
 
-        // slant range time (2-way)
-        if (leaderFile.getProductLevel() == AlosPalsarConstants.LEVEL1_1 && sceneRec != null) {
+        if(rangeDist == null) {
+            rangeDist = new float[gridWidth * gridHeight];
 
-            final double samplingRate = sceneRec.getAttributeDouble("Range sampling rate") * Constants.oneMillion;  // MHz to Hz
+            // slant range time (2-way)
+            if (leaderFile.getProductLevel() == AlosPalsarConstants.LEVEL1_1 && sceneRec != null) {
 
-            final double tmp = subSamplingX * Constants.halfLightSpeed / samplingRate;
-            int k = 0;
-            for (int j = 0; j < gridHeight; j++) {
-                final double slantRangeToFirstPixel = imageFiles[0].getSlantRangeToFirstPixel(j * subSamplingY);
-                for (int i = 0; i < gridWidth; i++) {
-                    rangeDist[k++] = (float) (slantRangeToFirstPixel + i * tmp);
+                final double samplingRate = sceneRec.getAttributeDouble("Range sampling rate") * Constants.oneMillion;  // MHz to Hz
+
+                final double rangePixelSpacing = subSamplingX * Constants.halfLightSpeed / samplingRate;
+                final double slantRangeToFirstPixel = imageFiles[0].getSlantRangeToFirstPixel(0);
+                int k = 0;
+                for (int j = 0; j < gridHeight; j++) {
+                    for (int i = 0; i < gridWidth; i++) {
+                        rangeDist[k++] = (float) (slantRangeToFirstPixel + i * rangePixelSpacing);
+                    }
                 }
-            }
 
-        } else if (leaderFile.getProductLevel() == AlosPalsarConstants.LEVEL1_5) {
+            } else if (leaderFile.getProductLevel() == AlosPalsarConstants.LEVEL1_5) {
 
-            int k = 0;
-            for (int j = 0; j < gridHeight; j++) {
-                final int y = Math.min(j * subSamplingY, sceneHeight - 1);
-                final double slantRangeToFirstPixel = imageFiles[0].getSlantRangeToFirstPixel(y); // meters
-                final double slantRangeToMidPixel = imageFiles[0].getSlantRangeToMidPixel(y);
-                final double slantRangeToLastPixel = imageFiles[0].getSlantRangeToLastPixel(y);
-                final double[] polyCoef = computePolynomialCoefficients(slantRangeToFirstPixel,
-                        slantRangeToMidPixel,
-                        slantRangeToLastPixel,
-                        sceneWidth);
+                final double slantRangeToFirstPixel = imageFiles[0].getSlantRangeToFirstPixel(0); // meters
+                final double slantRangeToMidPixel = imageFiles[0].getSlantRangeToMidPixel(0);
+                final double slantRangeToLastPixel = imageFiles[0].getSlantRangeToLastPixel(0);
 
-                for (int i = 0; i < gridWidth; i++) {
-                    final int x = i * subSamplingX;
-                    rangeDist[k++] = (float)(polyCoef[0] + polyCoef[1] * x + polyCoef[2] * x * x);
+                int k = 0;
+                for (int j = 0; j < gridHeight; j++) {
+                    final double[] polyCoef = computePolynomialCoefficients(slantRangeToFirstPixel,
+                            slantRangeToMidPixel,
+                            slantRangeToLastPixel,
+                            sceneWidth);
+
+                    for (int i = 0; i < gridWidth; i++) {
+                        final int x = i * subSamplingX;
+                        rangeDist[k++] = (float) (polyCoef[0] + polyCoef[1] * x + polyCoef[2] * x * x);
+                    }
                 }
             }
         }
@@ -376,7 +380,7 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
                 rangeTime[k] = (float) (rangeDist[k] / Constants.halfLightSpeed * Constants.oneBillion); // in ns
             }
 
-            tpg.getGridData().setElems(rangeTime);
+            tpg.getData().setElems(rangeTime);
         } else if(tpg.getName().equals(OperatorUtils.TPG_INCIDENT_ANGLE)) {
 
             if (sceneRec != null) {
@@ -400,7 +404,7 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
                     }
                 }
 
-                tpg.getGridData().setElems(angles);
+                tpg.getData().setElems(angles);
             }
         }
     }
