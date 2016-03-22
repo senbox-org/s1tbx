@@ -1,6 +1,7 @@
 package org.esa.snap.core.gpf.common;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.dataio.EncodeQualification;
 import org.esa.snap.core.dataio.ProductIOPlugInManager;
 import org.esa.snap.core.dataio.ProductWriter;
 import org.esa.snap.core.dataio.ProductWriterPlugIn;
@@ -31,7 +32,9 @@ public class WriteVirtualBandWithWriteOpTest {
 
             ProductWriter mockedWriter = Mockito.mock(ProductWriter.class);
             Mockito.when(mockedWriter.shouldWrite(Mockito.any(Band.class))).thenReturn(true);
+            Mockito.when(mockedWriter.getWriterPlugIn()).thenReturn(mockPlugin);
             Mockito.when(mockPlugin.createWriterInstance()).thenReturn(mockedWriter);
+            Mockito.when(mockPlugin.getEncodeQualification(Mockito.any(Product.class))).thenReturn(EncodeQualification.FULL);
 
             Product productToWrite = new Product("TODO", "TBD", 10, 10);
             productToWrite.addBand(new VirtualBand("virtband", ProductData.TYPE_FLOAT32, 10, 10, "3 * 4"));
@@ -52,7 +55,7 @@ public class WriteVirtualBandWithWriteOpTest {
         }
     }
 
-    class IsBand extends ArgumentMatcher<Band> {
+    private class IsBand extends ArgumentMatcher<Band> {
 
         private final String bandName;
 
@@ -66,7 +69,7 @@ public class WriteVirtualBandWithWriteOpTest {
         }
     }
 
-    class HasValidValue extends ArgumentMatcher<ProductData> {
+    private class HasValidValue extends ArgumentMatcher<ProductData> {
 
 
         private final float expectedValue;
