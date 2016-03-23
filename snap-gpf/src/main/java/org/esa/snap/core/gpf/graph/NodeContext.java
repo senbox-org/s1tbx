@@ -27,6 +27,7 @@ import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.OperatorSpiRegistry;
 import org.esa.snap.core.gpf.internal.OperatorConfiguration;
 import org.esa.snap.core.gpf.internal.OperatorContext;
+import org.esa.snap.runtime.Config;
 
 import javax.media.jai.PlanarImage;
 import java.io.File;
@@ -116,7 +117,11 @@ public class NodeContext {
         final OperatorSpiRegistry spiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
         OperatorSpi operatorSpi = spiRegistry.getOperatorSpi(node.getOperatorName());
         if (operatorSpi == null) {
-            throw new GraphException("SPI not found for operator '" + node.getOperatorName() + "'");
+            String msg = Config.instance().preferences().get("snap.gpf.unsupported." + node.getOperatorName(), null);
+            if(msg == null) {
+                msg = "SPI not found for operator '" + node.getOperatorName() + "'";
+            }
+            throw new GraphException(msg);
         }
 
         try {
