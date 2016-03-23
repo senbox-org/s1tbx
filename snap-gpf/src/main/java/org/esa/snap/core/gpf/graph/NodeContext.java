@@ -117,7 +117,7 @@ public class NodeContext {
         final OperatorSpiRegistry spiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
         OperatorSpi operatorSpi = spiRegistry.getOperatorSpi(node.getOperatorName());
         if (operatorSpi == null) {
-            String msg = Config.instance().preferences().get("deprecated.operator." + node.getOperatorName(), null);
+            String msg = Config.instance().preferences().get("snap.gpf.unsupported." + node.getOperatorName(), null);
             if(msg == null) {
                 msg = "SPI not found for operator '" + node.getOperatorName() + "'";
             }
