@@ -27,10 +27,8 @@ import org.esa.snap.runtime.Config;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -146,20 +144,21 @@ public class ToolAdapterIO {
         File descriptorFile = new File(operatorFolder, ToolAdapterConstants.DESCRIPTOR_FILE);
         if (descriptorFile.exists()) {
             operatorDescriptor = ToolAdapterOperatorDescriptor.fromXml(descriptorFile, ToolAdapterIO.class.getClassLoader());
+            return new ToolAdapterOpSpi(operatorDescriptor) {
+                @Override
+                public Operator createOperator() throws OperatorException {
+                    ToolAdapterOp toolOperator = (ToolAdapterOp) super.createOperator();
+                    toolOperator.setAdapterFolder(operatorFolder);
+                    toolOperator.setParameterDefaultValues();
+                    return toolOperator;
+                }
+            };
         } else {
-            operatorDescriptor = new ToolAdapterOperatorDescriptor(operatorFolder.getName(), ToolAdapterOp.class);
-            operatorDescriptor.setAlias(operatorFolder.getName());
-            logger.warning(String.format("Missing operator metadata file '%s'", descriptorFile));
+            //if the folder does not have the metadata, the adaptor cannot be created.
+            //operatorDescriptor = new ToolAdapterOperatorDescriptor(operatorFolder.getName(), ToolAdapterOp.class);
+            //operatorDescriptor.setAlias(operatorFolder.getName());
+            throw new OperatorException(String.format("Missing operator metadata file '%s'", descriptorFile));
         }
-        return new ToolAdapterOpSpi(operatorDescriptor) {
-            @Override
-            public Operator createOperator() throws OperatorException {
-                ToolAdapterOp toolOperator = (ToolAdapterOp) super.createOperator();
-                toolOperator.setAdapterFolder(operatorFolder);
-                toolOperator.setParameterDefaultValues();
-                return toolOperator;
-            }
-        };
         //return new ToolAdapterOpSpi(operatorDescriptor, operatorFolder);
     }
 
@@ -207,35 +206,51 @@ public class ToolAdapterIO {
      * @throws URISyntaxException
      */
     public static void saveAndRegisterOperator(ToolAdapterOperatorDescriptor operator, String templateContent) throws IOException, URISyntaxException {
-        removeOperator(operator, false);
+
         File rootFolder = getUserAdapterPath();
         File moduleFolder = new File(rootFolder, operator.getAlias());
-        if (!moduleFolder.exists()) {
-            if (!moduleFolder.mkdir()) {
-                throw new OperatorException("Operator folder " + moduleFolder + " could not be created!");
+        //create a temporary copy for the old adapter files; if everything goes fine, the copy is deleted
+        String tempAlias = operator.getAlias() + "_TEMP" + (new Random().nextInt(100));
+        Path tempPath = moduleFolder.toPath().resolveSibling(tempAlias);
+        Files.deleteIfExists(tempPath);
+        copyFolderContent(moduleFolder.toPath(), tempPath, true);
+        try {
+            //when removing the operator, also remove his old files, the new ones will be created for the new version of the adapter.
+            removeOperator(operator, true);
+            if (!moduleFolder.exists()) {
+                if (!moduleFolder.mkdir()) {
+                    throw new OperatorException("Operator folder " + moduleFolder + " could not be created!");
+                }
+            }
+            ToolAdapterOpSpi operatorSpi = new ToolAdapterOpSpi(operator) {
+                @Override
+                public Operator createOperator() throws OperatorException {
+                    ToolAdapterOp toolOperator = (ToolAdapterOp) super.createOperator();
+                    toolOperator.setAdapterFolder(moduleFolder);
+                    toolOperator.setParameterDefaultValues();
+                    return toolOperator;
+                }
+            };
+            File descriptorFile = new File(moduleFolder, ToolAdapterConstants.DESCRIPTOR_FILE);
+            if (!descriptorFile.exists()) {
+                //noinspection ResultOfMethodCallIgnored
+                descriptorFile.getParentFile().mkdirs();
+                if (!descriptorFile.createNewFile()) {
+                    throw new OperatorException("Operator file " + descriptorFile + " could not be created!");
+                }
+            }
+            String xmlContent = operator.toXml(ToolAdapterIO.class.getClassLoader());
+            saveFileContent(descriptorFile, xmlContent);
+            ToolAdapterRegistry.INSTANCE.registerOperator(operatorSpi);
+            writeOperatorTemplate(operator.getName(), templateContent);
+            //since no error occurred, the copy must be deleted
+            deleteFolder(tempPath);
+        }finally {
+            if(Files.exists(tempPath) && !moduleFolder.exists()){
+                //in any case, if an error occurred or not, the existing copy must be renamed to the original name.
+                Files.move(tempPath, moduleFolder.toPath(), StandardCopyOption.ATOMIC_MOVE);
             }
         }
-        ToolAdapterOpSpi operatorSpi = new ToolAdapterOpSpi(operator) {
-            @Override
-            public Operator createOperator() throws OperatorException {
-                ToolAdapterOp toolOperator = (ToolAdapterOp) super.createOperator();
-                toolOperator.setAdapterFolder(moduleFolder);
-                toolOperator.setParameterDefaultValues();
-                return toolOperator;
-            }
-        };
-        File descriptorFile = new File(moduleFolder, ToolAdapterConstants.DESCRIPTOR_FILE);
-        if (!descriptorFile.exists()) {
-            //noinspection ResultOfMethodCallIgnored
-            descriptorFile.getParentFile().mkdirs();
-            if (!descriptorFile.createNewFile()) {
-                throw new OperatorException("Operator file " + descriptorFile + " could not be created!");
-            }
-        }
-        String xmlContent = operator.toXml(ToolAdapterIO.class.getClassLoader());
-        saveFileContent(descriptorFile, xmlContent);
-        ToolAdapterRegistry.INSTANCE.registerOperator(operatorSpi);
-        writeOperatorTemplate(operator.getName(), templateContent);
     }
 
     /**
@@ -452,4 +467,43 @@ public class ToolAdapterIO {
         Config instance = Config.instance().load();
         return instance.preferences();
     }
+
+    private static void copyFolderContent(Path source, Path destination, boolean recursive) throws IOException{
+        if(Files.exists(source)) {
+            if (!Files.exists(destination)) {
+                Files.createDirectory(destination);
+            }
+            try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(source)) {
+                for (Path path : directoryStream) {
+                    if (Files.isDirectory(path)) {
+                        copyFolderContent(path, destination.resolve(path.getFileName()), recursive);
+                    } else {
+                        Files.copy(path, destination.resolve(path.getFileName()));
+                    }
+                }
+            } catch (IOException ex) {
+                throw ex;
+            }
+        }
+    }
+
+        private static void deleteFolder(Path location) throws IOException {
+            if (Files.exists(location)) {
+                Files.walkFileTree(location, new SimpleFileVisitor<Path>() {
+                    @Override
+                    public FileVisitResult postVisitDirectory(Path dir,
+                                                              IOException exc) throws IOException {
+                        Files.deleteIfExists(dir);
+                        return FileVisitResult.CONTINUE;
+                    }
+
+                    @Override
+                    public FileVisitResult visitFile(Path file,
+                                                     BasicFileAttributes attrs) throws IOException {
+                        Files.deleteIfExists(file);
+                        return FileVisitResult.CONTINUE;
+                    }
+                });
+            }
+        }
 }
