@@ -14,6 +14,8 @@ public class InterpolatorFactory {
                     return new DoubleDataInterpolator.NearestNeighbour();
                 case Bilinear:
                     return new DoubleDataInterpolator.Bilinear();
+                case Cubic_Convolution:
+                    return new DoubleDataInterpolator.CubicConvolution();
             }
         } else {
             switch (type) {

@@ -2334,8 +2334,15 @@ public class Product extends ProductNode {
     public Mask addMask(String maskName, String expression, String description, Color color, double transparency) {
         RasterDataNode[] refRasters = new RasterDataNode[0];
         try {
-            if (BandArithmetic.areRastersEqualInSize(this, expression)) {
-                refRasters = BandArithmetic.getRefRasters(expression, this);
+            final ProductManager productManager = getProductManager();
+            Product[] products = new Product[]{this};
+            int productIndex = 0;
+            if (productManager != null) {
+                products = productManager.getProducts();
+                productIndex = productManager.getProductIndex(this);
+            }
+            if (BandArithmetic.areRastersEqualInSize(products, productIndex, expression)) {
+                refRasters = BandArithmetic.getRefRasters(expression, products, productIndex);
             }
         } catch (ParseException e) {
             throw new IllegalArgumentException("Expression is invalid: " + e.getMessage());

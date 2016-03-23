@@ -5,6 +5,6 @@ package org.esa.snap.core.gpf.common.resample;
  */
 public enum InterpolationType {
 
-    Nearest, Bilinear
+    Nearest, Bilinear, Cubic_Convolution
 
 }

@@ -19,16 +19,19 @@ package com.bc.ceres.binding.converters;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 
-import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ClassConverter implements Converter<Class> {
-    private final ClassLoader classLoader;
+
+    private static final String ARRAY_SUFFIX = "[]";
+
     private static Map<String, Class<?>> primitiveTypes;
 
     static {
-        primitiveTypes = new HashMap<String, Class<?>>();
+        primitiveTypes = new HashMap<>();
         primitiveTypes.put("char", Character.TYPE);
         primitiveTypes.put("boolean", Boolean.TYPE);
         primitiveTypes.put("byte", Byte.TYPE);
@@ -40,33 +43,26 @@ public class ClassConverter implements Converter<Class> {
         primitiveTypes.put("void", Void.TYPE);
     }
 
+    private final ClassLoader classLoader;
+
+    private final List<String> packageQualifiers = new ArrayList<>();
+
     public ClassConverter() {
         this(Thread.currentThread().getContextClassLoader());
     }
 
-    public ClassConverter(ClassLoader classLoader) {
+    private ClassConverter(ClassLoader classLoader) {
         this.classLoader = classLoader;
+        addPackageQualifier("");
+        addPackageQualifier("java.lang.");
+        addPackageQualifier("java.util.");
     }
 
-    /**
-     * Gets the value type.
-     *
-     * @return The value type.
-     */
     @Override
-    public Class<? extends Class> getValueType() {
+    public Class<Class> getValueType() {
         return Class.class;
     }
 
-    /**
-     * Converts a value from its plain text representation to a Java object instance
-     * of the type returned by {@link #getValueType()}.
-     *
-     * @param text The textual representation of the value.
-     * @return The converted value.
-     * @throws com.bc.ceres.binding.ConversionException
-     *          If the conversion fails.
-     */
     @Override
     public Class parse(String text) throws ConversionException {
         if (text.isEmpty()) {
@@ -76,36 +72,58 @@ public class ClassConverter implements Converter<Class> {
         if (aClass != null) {
             return aClass;
         }
-        if (text.indexOf('.') == -1) {
+
+        Class type = null;
+        for (String defaultPackageQualifier : packageQualifiers) {
+            if (text.endsWith(ARRAY_SUFFIX)) {
+                String typeString = defaultPackageQualifier + text.subSequence(0, text.length() - ARRAY_SUFFIX.length());
+                String arrayTypeString = "[L" + typeString + ";";
+                type = loadClass(arrayTypeString);
+            } else {
+                type = loadClass(defaultPackageQualifier + text);
+            }
+            if (type != null) {
+                break;
+            }
+        }
+        if (type == null) {
+            throw new ConversionException(text);
+        }
+        return type;
+    }
+
+    private Class<?> loadClass(String typeString) {
+        try {
+            return Class.forName(typeString);
+        } catch (ClassNotFoundException e) {
             try {
-                return Class.forName("java.lang." + text);
-            } catch (ClassNotFoundException e) {
+                return classLoader.loadClass(typeString);
+            } catch (ClassNotFoundException cnfe2) {
                 // ok
             }
         }
-        try {
-            return classLoader.loadClass(text);
-        } catch (ClassNotFoundException e) {
-            throw new ConversionException(MessageFormat.format("''{0}'' is not a known type.", text));
-        }
+        return null;
     }
 
-    /**
-     * Converts a value of the type returned by {@link #getValueType()} to its
-     * plain text representation.
-     *
-     * @param value The value to be converted to text.
-     * @return The textual representation of the value.
-     */
     @Override
-    public String format(Class value) {
-        if (value == null) {
+    public String format(Class javaType) {
+        if (javaType == null) {
             return "";
         }
-        Package aPackage = value.getPackage();
-        if (aPackage == null || aPackage.getName().equals("java.lang")) {
-            return value.getSimpleName();
+        String name = javaType.getName();
+        for (int i = 1; i < packageQualifiers.size(); i++) {
+            String defaultPackageQualifier = packageQualifiers.get(i);
+            if (name.startsWith("[L")) {
+                name = name.substring(2, name.length() - 1) + "[]";
+            }
+            if (name.startsWith(defaultPackageQualifier)) {
+                return name.substring(defaultPackageQualifier.length());
+            }
         }
-        return value.getName();
+        return name;
+    }
+
+    protected void addPackageQualifier(String qualifier) {
+        packageQualifiers.add(qualifier);
     }
 }

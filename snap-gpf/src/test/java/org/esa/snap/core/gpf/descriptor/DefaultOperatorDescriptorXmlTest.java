@@ -1,7 +1,10 @@
 package org.esa.snap.core.gpf.descriptor;
 
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 import org.junit.Test;
 
+import java.io.StringReader;
 import java.net.URL;
 
 import static org.junit.Assert.*;
@@ -94,11 +97,84 @@ public class DefaultOperatorDescriptorXmlTest {
                                              "    </parameter>\n" +
                                              "    <parameter>\n" +
                                              "      <name>algorithmName</name>\n" +
-                                             "      <dataType>java.lang.String</dataType>\n" +
+                                             "      <dataType>String</dataType>\n" +
                                              "    </parameter>\n" +
                                              "  </parameters>\n" +
                                              "  <targetProduct/>\n" +
                                              "</operator>");
+    }
+
+    @Test
+    public void testWithStringArrayParameterToXml() throws Exception {
+        DefaultOperatorDescriptor operatorDescriptor = new DefaultOperatorDescriptor();
+        operatorDescriptor.name = "org.esa.snap.some.Operator";
+        DefaultParameterDescriptor parameterDescriptor1 = new DefaultParameterDescriptor();
+        parameterDescriptor1.name = "names";
+        parameterDescriptor1.dataType = String[].class;
+        DefaultParameterDescriptor parameterDescriptor2 = new DefaultParameterDescriptor();
+        parameterDescriptor2.name = "pin";
+        parameterDescriptor2.dataType = Point[].class;
+        operatorDescriptor.parameterDescriptors = new DefaultParameterDescriptor[]{
+                parameterDescriptor1,
+                parameterDescriptor2,
+        };
+
+        operatorDescriptor.targetProductDescriptor = new DefaultTargetProductDescriptor();
+
+        assertXmlCorrect(operatorDescriptor, "<operator>\n" +
+                                             "  <name>org.esa.snap.some.Operator</name>\n" +
+                                             "  <parameters>\n" +
+                                             "    <parameter>\n" +
+                                             "      <name>names</name>\n" +
+                                             "      <dataType>String[]</dataType>\n" +
+                                             "    </parameter>\n" +
+                                             "    <parameter>\n" +
+                                             "      <name>pin</name>\n" +
+                                             "      <dataType>Point[]</dataType>\n" +
+                                             "    </parameter>\n" +
+                                             "  </parameters>\n" +
+                                             "  <targetProduct/>\n" +
+                                             "</operator>");
+    }
+
+    @Test
+    public void testWithStringArrayParameterFromXml() throws Exception {
+        DefaultOperatorDescriptor expectedDescriptor = new DefaultOperatorDescriptor();
+        expectedDescriptor.name = "org.esa.snap.some.Operator";
+        expectedDescriptor.alias = "OpWithArray";
+        DefaultParameterDescriptor parameterDescriptor1 = new DefaultParameterDescriptor();
+        parameterDescriptor1.name = "names";
+        parameterDescriptor1.dataType = String[].class;
+        DefaultParameterDescriptor parameterDescriptor2 = new DefaultParameterDescriptor();
+        parameterDescriptor2.name = "region";
+        parameterDescriptor2.dataType = Polygon[].class;
+        expectedDescriptor.parameterDescriptors = new DefaultParameterDescriptor[]{
+                parameterDescriptor1,
+                parameterDescriptor2,
+        };
+
+        expectedDescriptor.targetProductDescriptor = new DefaultTargetProductDescriptor();
+
+        String actualXml = "<operator>\n" +
+                          "  <name>org.esa.snap.some.Operator</name>\n" +
+                          "  <alias>OpWithArray</alias>\n" +
+                          "  <parameters>\n" +
+                          "    <parameter>\n" +
+                          "      <name>names</name>\n" +
+                          "      <dataType>String[]</dataType>\n" +
+                          "    </parameter>\n" +
+                          "    <parameter>\n" +
+                          "      <name>region</name>\n" +
+                          "      <dataType>Polygon[]</dataType>\n" +
+                          "    </parameter>\n" +
+                           "  </parameters>\n" +
+                          "  <targetProduct/>\n" +
+                          "</operator>";
+        DefaultOperatorDescriptor actualDescriptor = DefaultOperatorDescriptor.fromXml(new StringReader(actualXml), "xml-string",
+                                                                                                DefaultOperatorDescriptor.class.getClassLoader());
+        assertEquals(expectedDescriptor.getName(), actualDescriptor.getName());
+        assertEquals(expectedDescriptor.getParameterDescriptors()[0].getName(), actualDescriptor.getParameterDescriptors()[0].getName());
+        assertEquals(expectedDescriptor.getParameterDescriptors()[0].getDataType(), actualDescriptor.getParameterDescriptors()[0].getDataType());
     }
 
     @Test
@@ -132,7 +208,7 @@ public class DefaultOperatorDescriptorXmlTest {
                                      "    </parameter>\n" +
                                      "    <parameter>\n" +
                                      "      <name>algorithmName</name>\n" +
-                                     "      <dataType>java.lang.String</dataType>\n" +
+                                     "      <dataType>String</dataType>\n" +
                                      "    </parameter>\n" +
                                      "  </parameters>\n" +
                                      "  <targetProduct/>\n" +
@@ -157,11 +233,11 @@ public class DefaultOperatorDescriptorXmlTest {
                                      "  <parameters>\n" +
                                      "    <parameter>\n" +
                                      "      <name>startDate</name>\n" +
-                                     "      <dataType>java.util.Date</dataType>\n" +
+                                     "      <dataType>Date</dataType>\n" +
                                      "    </parameter>\n" +
                                      "    <parameter>\n" +
                                      "      <name>endDate</name>\n" +
-                                     "      <dataType>java.util.Date</dataType>\n" +
+                                     "      <dataType>Date</dataType>\n" +
                                      "    </parameter>\n" +
                                      "    <parameter>\n" +
                                      "      <name>resolution</name>\n" +

@@ -1,5 +1,6 @@
-import snappy
 import numpy
+
+import snappy
 
 
 class NdviOp:
@@ -37,6 +38,7 @@ class NdviOp:
         print('initialize: lower_factor =', self.lower_factor, ', upper_factor =', self.upper_factor)
 
         ndvi_product = snappy.Product('py_NDVI', 'py_NDVI', width, height)
+        snappy.ProductUtils.copyGeoCoding(source_product, ndvi_product)
         self.ndvi_band = ndvi_product.addBand('ndvi', snappy.ProductData.TYPE_FLOAT32)
         self.ndvi_flags_band = ndvi_product.addBand('ndvi_flags', snappy.ProductData.TYPE_UINT8)
 

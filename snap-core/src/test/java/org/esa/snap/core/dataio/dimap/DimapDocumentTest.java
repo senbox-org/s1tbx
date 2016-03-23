@@ -15,8 +15,6 @@
  */
 package org.esa.snap.core.dataio.dimap;
 
-import static org.junit.Assert.*;
-
 import org.esa.snap.GlobalTestTools;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ColorPaletteDef;
@@ -46,7 +44,10 @@ import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.StringUtils;
 import org.jdom.Document;
 import org.jdom.Element;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.awt.Color;
 import java.io.ByteArrayInputStream;
@@ -57,6 +58,8 @@ import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import static org.junit.Assert.*;
 
 public class DimapDocumentTest {
 
@@ -253,9 +256,9 @@ public class DimapDocumentTest {
     }
 
     private void addMasks(Product product) {
-        product.addMask("name1", "mask.expression1", "mask.description1", Color.black, 1.0F);
-        product.addMask("name2", "mask.expression2", "mask.description2", Color.blue, 0.75F);
-        product.addMask("name3", "mask.expression3", "mask.description3", Color.green, 0.2341F);
+        product.addMask("name1", "sin(X)", "mask.description1", Color.black, 1.0F);
+        product.addMask("name2", "cos(X)", "mask.description2", Color.blue, 0.75F);
+        product.addMask("name3", "tan(Y)", "mask.description3", Color.green, 0.2341F);
     }
 
     private void addMetadata(Product product) {

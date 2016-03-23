@@ -624,7 +624,13 @@ public class CollocateOp extends Operator {
                 String last = clone[clone.length - 1];
                 if (!last.endsWith("*")) {
                     last += "*";
+                    // If an asterisk has been added also one is needed at the beginning.
+                    // If it is not added the node name must start with the pattern.
+                    if (!last.startsWith("*")) {
+                        last = "*" + last;
+                    }
                 }
+
                 last = componentPattern.replace(SOURCE_NAME_REFERENCE, last);
                 clone[clone.length - 1] = last;
             }
