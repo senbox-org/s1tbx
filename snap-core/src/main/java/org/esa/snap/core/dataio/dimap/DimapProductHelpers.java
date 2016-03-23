@@ -1060,12 +1060,12 @@ public class DimapProductHelpers {
             setDescription();
             addQuicklook();
             addMasks();
-            addOldBitmaskDefinitions();
             addFlagsCoding();
             addIndexCoding();
             addBands();
             addTiePointGrids();
             addDisplayInfosToBandsAndTiePointGrids();
+            addOldBitmaskDefinitions();
             addAnnotationDataset();
             addPointingFactory();
 
