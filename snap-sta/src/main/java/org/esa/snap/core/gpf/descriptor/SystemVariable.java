@@ -28,15 +28,18 @@ import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterIO;
 public class SystemVariable {
     String key;
     String value;
+    boolean isShared;
 
     SystemVariable() {
         this.key = "";
         this.value = "";
+        this.isShared = false;
     }
 
     public SystemVariable(String key, String value) {
         this.key = key;
         this.value = value;
+        this.isShared = false;
     }
 
     /**
@@ -69,10 +72,20 @@ public class SystemVariable {
      */
     public void setValue(String value) {
         this.value = value;
-        if (this.value != null && !this.value.isEmpty()) {
+        if (this.value != null && !this.value.isEmpty() && this.isShared) {
             ToolAdapterIO.saveVariable(this.key, this.value);
         }
     }
+
+    /**
+     * Returns <code>true</code> if the variable is intended to be shared with other adapters.
+     */
+    public boolean isShared() { return this.isShared; }
+
+    /*
+     * Sets the shared status of the variable.
+     */
+    public void setShared(boolean value) { this.isShared = value; }
 
     /**
      *  Creates a copy of this SystemVariable instance.
@@ -83,15 +96,18 @@ public class SystemVariable {
         SystemVariable newVariable = new SystemVariable();
         newVariable.setKey(this.key);
         newVariable.setValue(this.value);
+        newVariable.setShared(this.isShared);
         return newVariable;
     }
 
     protected String resolve() {
         String existingValue = System.getenv(this.key);
         if (existingValue == null || existingValue.isEmpty()) {
-            existingValue = ToolAdapterIO.getVariableValue(this.key, this.value);
+            existingValue = ToolAdapterIO.getVariableValue(this.key, this.value, this.isShared);
         } else {
-            ToolAdapterIO.saveVariable(this.key, existingValue);
+            if (this.isShared) {
+                ToolAdapterIO.saveVariable(this.key, existingValue);
+            }
         }
         return existingValue;
     }

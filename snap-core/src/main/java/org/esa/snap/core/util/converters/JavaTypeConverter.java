@@ -17,15 +17,14 @@
 package org.esa.snap.core.util.converters;
 
 import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.Converter;
+import com.bc.ceres.binding.converters.ClassConverter;
 
-public class JavaTypeConverter implements Converter<Class> {
-    private static final String[] DEFAULT_PACKAGE_QUALIFIERS = new String[]{
-            "",
-            "java.lang.",
-            "java.util.",
-            "com.vividsolutions.jts.geom.",
-    };
+public class JavaTypeConverter extends ClassConverter {
+
+    public JavaTypeConverter() {
+        super();
+        addPackageQualifier("com.vividsolutions.jts.geom.");
+    }
 
     @Override
     public Class<Class> getValueType() {
@@ -34,30 +33,15 @@ public class JavaTypeConverter implements Converter<Class> {
 
     @Override
     public Class parse(String text) throws ConversionException {
-        Class type = null;
-        for (String defaultPackageQualifier : DEFAULT_PACKAGE_QUALIFIERS) {
-            try {
-                type = getClass().getClassLoader().loadClass(defaultPackageQualifier + text);
-                break;
-            } catch (ClassNotFoundException e) {
-                // ignore
-            }
-        }
-        if (type == null) {
+        if(text.isEmpty()) {
             throw new ConversionException(text);
+
         }
-        return type;
+        return super.parse(text);
     }
 
     @Override
     public String format(Class javaType) {
-        final String name = javaType.getName();
-        for (int i = 1; i < DEFAULT_PACKAGE_QUALIFIERS.length; i++) {
-            String defaultPackageQualifier = DEFAULT_PACKAGE_QUALIFIERS[i];
-            if (name.startsWith(defaultPackageQualifier)) {
-                return name.substring(defaultPackageQualifier.length());
-            }
-        }
-        return name;
+        return super.format(javaType);
     }
 }

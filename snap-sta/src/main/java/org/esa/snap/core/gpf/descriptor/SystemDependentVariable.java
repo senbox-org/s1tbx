@@ -70,7 +70,7 @@ public class SystemDependentVariable extends SystemVariable {
                 this.macosx = value;
                 break;
         }
-        if (!isTransient && value != null && !value.isEmpty()) {
+        if (!isTransient && value != null && !value.isEmpty() && this.isShared) {
             ToolAdapterIO.saveVariable(this.key, value);
         }
     }
@@ -79,6 +79,7 @@ public class SystemDependentVariable extends SystemVariable {
     public SystemVariable createCopy() {
         SystemDependentVariable copy = new SystemDependentVariable();
         copy.setKey(this.getKey());
+        copy.setShared(this.isShared());
         copy.setValue(this.getValue());
         copy.setWindows(this.getWindows());
         copy.setLinux(this.getLinux());

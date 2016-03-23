@@ -32,10 +32,11 @@ import java.util.ArrayList;
 public class ProductFunctions {
 
     private final static String[] validExtensions = {".dim", ".safe", ".n1", ".e1", ".e2", ".h5", ".zip"};
-    private final static String[] xmlPrefix = {"product", "tsx1_sar", "tsx2_sar", "tdx1_sar", "tdx2_sar", "tdm1_sar"};
-
+    private final static String[] xmlPrefix = {"product", "tsx1_sar", "tsx2_sar", "tdx1_sar", "tdx2_sar", "tdm1_sar",
+            "xfdumanifest", "metadata"};
+    private final static String[] txtPrefix = {"LC8"};
     // valid but not products
-    private static final String[] excludedExtensions = {"pix", "tif"};
+    private static final String[] excludedExtensions = {"pix", "tif", "nc"};
 
     private static final String[] nonValidExtensions = {"xsd", "xsl", "xls", "pdf", "doc", "docx", "ps", "db", "rtf",
             "ief", "ord", "rrd", "lbl", "aux", "ovr", "brs",
@@ -43,12 +44,13 @@ public class ProductFunctions {
             "tfw", "gif", "jpg", "jgw", "log", "html", "htm", "png", "bmp", "kml", "kmz",
             "sav", "7z", "z", "gz", "tar", "exe", "so", "dll", "bat", "sh",
             "prj", "dbf", "shx", "shp", "ace", "ace2", "tooldes"};
-    private static final String[] nonValidprefixes = {"led", "trl", "tra_", "nul", "lea", "dat", "img", "imop", "sarl", "sart", "par_",
-            "dfas", "dfdn", "lut",
+    private static final String[] nonValidprefixes = {"led", "trl", "tra_", "nul", "lea", "dat", "img", "imop", "sarl",
+            "sart", "par_", "dfas", "dfdn", "lut",
             "readme", "l1b_iif", "dor_vor", "imagery_", "browse"};
 
     final static String[] invalidFolders = {"annotation", "measurement", "auxraster", "auxfiles", "imagedata", "preview",
-            "support", "quality", "source_images", "schemas", "granule", "datastrip", "html", "iif", "tools"};
+            "support", "quality", "source_images", "schemas", "aux_data", "granule", "datastrip", "rep_info",
+            "html", "iif", "tools"};
 
     public static boolean isValidProduct(final File file) {
         final String name = file.getName().toLowerCase();
@@ -58,8 +60,14 @@ public class ProductFunctions {
             }
         }
         if (name.endsWith("xml")) {
-
             for (String str : xmlPrefix) {
+                if (name.contains(str)) {
+                    return true;
+                }
+            }
+            return false;
+        } else if (name.endsWith("txt")) {
+            for (String str : txtPrefix) {
                 if (name.startsWith(str)) {
                     return true;
                 }
@@ -113,11 +121,17 @@ public class ProductFunctions {
             final String name = file.getName().toLowerCase();
             for (String ext : validExtensions) {
                 if (name.endsWith(ext)) {
-                    return !name.startsWith("asa_wss");     // exclude wss products
+                    return true;
                 }
             }
             if (name.endsWith("xml")) {
                 for (String str : xmlPrefix) {
+                    if (name.contains(str)) {
+                        return true;
+                    }
+                }
+            } else if (name.endsWith("txt")) {
+                for (String str : txtPrefix) {
                     if (name.startsWith(str)) {
                         return true;
                     }

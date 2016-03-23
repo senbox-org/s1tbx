@@ -26,9 +26,9 @@ class AggregatedOpImage extends GeometricOpImage {
     private final float offsetY;
     private final double noDataValue;
     private AggregationType aggregationType;
-    private final int dataType;
+    private final int dataBufferType;
 
-    AggregatedOpImage(RenderedImage sourceImage, ImageLayout layout, double noDataValue, AggregationType aggregationType, int dataType,
+    AggregatedOpImage(RenderedImage sourceImage, ImageLayout layout, double noDataValue, AggregationType aggregationType, int dataBufferType,
                                  AffineTransform sourceImageToModelTransform, AffineTransform referenceImageToModelTransform) throws NoninvertibleTransformException {
         super(vectorize(sourceImage), layout, null, true, createBorderExtender(noDataValue), null,
               createBackground(noDataValue));
@@ -42,7 +42,7 @@ class AggregatedOpImage extends GeometricOpImage {
         offsetY = (float) (referenceImageToModelTransform.getTranslateY() / sourceImageToModelTransform.getScaleY()) -
                 (float) (sourceImageToModelTransform.getTranslateY() / sourceImageToModelTransform.getScaleY());
         this.aggregationType = aggregationType;
-        this.dataType = dataType;
+        this.dataBufferType = dataBufferType;
     }
 
     private static BorderExtender createBorderExtender(double value) {
@@ -73,7 +73,7 @@ class AggregatedOpImage extends GeometricOpImage {
 
         RasterAccessor srcAccessor = new RasterAccessor(source, srcRect, formatTags[0], getSourceImage(0).getColorModel());
         RasterAccessor dstAccessor = new RasterAccessor(dest, destRect, formatTags[1], getColorModel());
-        final Aggregator aggregator = AggregatorFactory.createAggregator(aggregationType, dataType);
+        final Aggregator aggregator = AggregatorFactory.createAggregator(aggregationType, dataBufferType);
         aggregator.init(srcAccessor, dstAccessor, noDataValue);
 
         for (int dstY = 0; dstY < dstH; dstY++) {

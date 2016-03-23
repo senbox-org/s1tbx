@@ -18,9 +18,9 @@ package com.bc.ceres.binding.converters;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
+import com.bc.ceres.binding.ValueSet;
 
 public class ClassConverterTest extends AbstractConverterTest {
-
     private ClassConverter converter;
 
     @Override
@@ -59,13 +59,25 @@ public class ClassConverterTest extends AbstractConverterTest {
         testFormatSuccess("Float", Float.class);
         testFormatSuccess("String", String.class);
 
+        testParseSuccess(String[].class, "String[]");
+        testParseSuccess(String[].class, "java.lang.String[]");
+        testParseSuccess(String[].class, "[Ljava.lang.String;");
+        testParseSuccess(Float[].class, "Float[]");
+        testParseSuccess(ValueSet[].class, "com.bc.ceres.binding.ValueSet[]");
+
+        testFormatSuccess("String[]", String[].class);
+        testFormatSuccess("Float[]", Float[].class);
+        testFormatSuccess("com.bc.ceres.binding.ValueSet[]", ValueSet[].class);
+
+
         testParseSuccess(java.awt.Color.class, "java.awt.Color");
         testParseSuccess(java.util.Date.class, "java.util.Date");
+        testParseSuccess(java.util.Date.class, "Date");
         testParseSuccess(org.w3c.dom.Text.class, "org.w3c.dom.Text");
         testParseSuccess(null, "");
 
         testFormatSuccess("java.awt.Color", java.awt.Color.class);
-        testFormatSuccess("java.util.Date", java.util.Date.class);
+        testFormatSuccess("Date", java.util.Date.class);
         testFormatSuccess("org.w3c.dom.Text", org.w3c.dom.Text.class);
         testFormatSuccess("", null);
 

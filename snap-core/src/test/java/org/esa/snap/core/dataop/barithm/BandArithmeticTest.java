@@ -158,7 +158,7 @@ public class BandArithmeticTest {
     }
 
     @Test
-    public void testAreRastersEqualInSize() {
+    public void testAreRastersEqualInSize() throws ParseException {
         String[] compatibleExpressions = new String[]{"b1", "b2"};
         final Band anotherBand = new Band("anotherBand", ProductData.TYPE_UINT8, width + 1, height);
         product1.addBand(anotherBand);
@@ -172,16 +172,21 @@ public class BandArithmeticTest {
     }
 
     @Test
-    public void testAreRastersEqualInSize_multipleProducts() {
+    public void testAreRastersEqualInSize_multipleProducts() throws ParseException {
         assertEquals(true, BandArithmetic.areRastersEqualInSize(new Product[]{product1}, 0));
-        assertEquals(false, BandArithmetic.areRastersEqualInSize(new Product[]{product1}, 0, "b2 + $2.b1"));
         assertEquals(true, BandArithmetic.areRastersEqualInSize(new Product[]{product1, product2}, 0, "b2 + $2.b1"));
         assertEquals(true, BandArithmetic.areRastersEqualInSize(new Product[]{product1, product2}, 1, "$1.b2 + b1"));
         assertEquals(true, BandArithmetic.areRastersEqualInSize(new Product[]{product1, product2}, 1, "$1.b2 + $2.b1"));
+        try {
+            assertEquals(false, BandArithmetic.areRastersEqualInSize(new Product[]{product1}, 0, "b2 + $2.b1"));
+            fail("Exception expected");
+        } catch (ParseException e) {
+            assertEquals("Undefined symbol '$2.b1'.", e.getMessage());
+        }
     }
 
     @Test
-    public void testAreRastersEqualInSize_TiePointGrid() {
+    public void testAreRastersEqualInSize_TiePointGrid() throws ParseException {
         final TiePointGrid tiePointGrid = new TiePointGrid("tiePointGrid", 2, 2, 0, 0, 2, 1, new float[]{1f, 1f, 1f, 1f});
         product1.addTiePointGrid(tiePointGrid);
 
