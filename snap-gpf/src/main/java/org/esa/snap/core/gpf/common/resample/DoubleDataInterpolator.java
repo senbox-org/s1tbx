@@ -79,31 +79,108 @@ public abstract class DoubleDataInterpolator implements Interpolator {
             double subPixelOffsetX = offsetX - (int) offsetX;
             for (int dstY = 0; dstY < destRect.getHeight(); dstY++) {
                 double srcYF = subPixelOffsetY + (scaleY * (dstY + 0.5)) - 0.5;
+//                double srcYF = subPixelOffsetY + (scaleY * (dstY));
                 int srcY = (int) srcYF;
                 int srcIndexY = getSrcOffset() + srcY * getSrcScalineStride();
                 double wy = srcYF - srcY;
                 for (int dstX = 0; dstX < destRect.getWidth(); dstX++) {
                     double srcXF = subPixelOffsetX + (scaleX * (dstX + 0.5)) - 0.5;
+//                    double srcXF = subPixelOffsetX + (scaleX * (dstX));
                     int srcX = (int) srcXF;
                     double wx = srcXF - srcX;
                     boolean withinSrcH = srcY + 1 < srcH;
                     boolean withinSrcW = srcX + 1 < srcW;
                     double v00 = getSrcData(srcIndexY + srcX);
-                    double v01 = withinSrcW ? getSrcData(srcIndexY + srcX + 1) : v00;
-                    double v10 = withinSrcH ? getSrcData((srcIndexY + getSrcScalineStride()) + srcX) : v00;
-                    double v11 = withinSrcW && withinSrcH ? getSrcData((srcIndexY + getSrcScalineStride()) + srcX + 1) : v00;
-                    double v0 = v00 + wx * (v01 - v00);
-                    double v1 = v10 + wx * (v11 - v10);
-                    double v = v0 + wy * (v1 - v0);
-                    if (Double.isNaN(v) || Math.abs(v - getNoDataValue()) < 1e-8) {
-                        setDstData(dstIndexY + dstX, getNoDataValue());
-                    } else {
-                        setDstData(dstIndexY + dstX, v);
+                    final int dstIndex = dstIndexY + dstX;
+                    if (!withinSrcW && !withinSrcH) {
+                        setDstData(dstIndex, v00);
+                        continue;
+                    }
+                    double v01 = withinSrcW ? getSrcData(srcIndexY + srcX + 1) : getNoDataValue();
+                    double v10 = withinSrcH ? getSrcData((srcIndexY + getSrcScalineStride()) + srcX) : getNoDataValue();
+                    double v11 = withinSrcW && withinSrcH ? getSrcData((srcIndexY + getSrcScalineStride()) + srcX + 1) : getNoDataValue();
+                    final boolean v00Valid = isValid(v00);
+                    final boolean v01Valid = isValid(v01);
+                    final boolean v10Valid = isValid(v10);
+                    final boolean v11Valid = isValid(v11);
+                    int validityCounter = 0;
+                    validityCounter = v00Valid ? validityCounter + 1 : validityCounter;
+                    validityCounter = v01Valid ? validityCounter + 1 : validityCounter;
+                    validityCounter = v10Valid ? validityCounter + 1 : validityCounter;
+                    validityCounter = v11Valid ? validityCounter + 1 : validityCounter;
+                    if (validityCounter == 0) {
+                        setDstData(dstIndex, getNoDataValue());
+                    } else if (validityCounter == 4) {
+                        double v0 = v00 + wx * (v01 - v00);
+                        double v1 = v10 + wx * (v11 - v10);
+                        double v = v0 + wy * (v1 - v0);
+                        setDstData(dstIndex, v);
+                    } else if (validityCounter == 1) {
+                        if (v00Valid) {
+                            setDstData(dstIndex, v00);
+                        } else if (v01Valid) {
+                            setDstData(dstIndex, v01);
+                        } else if (v10Valid) {
+                            setDstData(dstIndex, v10);
+                        } else {
+                            setDstData(dstIndex, v11);
+                        }
+                    } else if (validityCounter == 2) {
+                        if (v00Valid && v01Valid) {
+                            setDstData(dstIndex, (v00 * (1 - wx)) + (v01 * wx));
+                        } else if (v10Valid && v11Valid) {
+                            setDstData(dstIndex, (v10 * (1 - wx)) + (v11 * wx));
+                        } else if (v00Valid && v10Valid) {
+                            setDstData(dstIndex, (v00 * (1 - wy)) + (v10 * wy));
+                        } else if (v01Valid && v11Valid) {
+                            setDstData(dstIndex, (v01 * (1 - wy)) + (v11 * wy));
+                        } else if (v00Valid && v11Valid) {
+                            double ws = 1 / ((wx * wy) + ((1 - wx) * (1 - wy)));
+                            double v = ((v00 * (1 - wx)) * (1 - wy)) + (v11 * wx * wy);
+                            v *= ws;
+                            setDstData(dstIndex, v);
+                        } else {
+                            double ws = 1 / (((1 - wx) * wy) + (wx * (1 - wy)));
+                            double v = (v01 * wx * (1 - wy)) + (v10 * (1 - wx) * wy);
+                            v *= ws;
+                            setDstData(dstIndex, v);
+                        }
+                    } else { //validityCounter == 3
+                        double w00 = (1 - wx) * (1 - wy);
+                        double w01 = wx * (1 - wy);
+                        double w10 = (1 - wx) * wy;
+                        double w11 = wx * wy;
+                        if (!v00Valid) {
+                            w01 += (0.5 * w00);
+                            w10 += (0.5 * w00);
+                            double v = v01 * w01 + v10 * w10 + v11 * w11;
+                            setDstData(dstIndex, v);
+                        } else if (!v01Valid) {
+                            w00 += (0.5 * w01);
+                            w11 += (0.5 * w01);
+                            double v = v00 * w00 + v10 * w10 + v11 * w11;
+                            setDstData(dstIndex, v);
+                        } else if (!v10Valid) {
+                            w00 += (0.5 * w10);
+                            w11 += (0.5 * w10);
+                            double v = v00 * w00 + v01 * w01 + v11 * w11;
+                            setDstData(dstIndex, v);
+                        } else {
+                            w01 += (0.5 * w11);
+                            w10 += (0.5 * w11);
+                            double v = v00 * w00 + v01 * w01 + v10 * w10;
+                            setDstData(dstIndex, v);
+                        }
                     }
                 }
                 dstIndexY += getDstScalineStride();
             }
         }
+
+        private boolean isValid(double v) {
+            return !Double.isNaN(v) && Math.abs(v - getNoDataValue()) > 1e-8;
+        }
+
     }
 
     static class CubicConvolution extends DoubleDataInterpolator {
@@ -126,29 +203,24 @@ public abstract class DoubleDataInterpolator implements Interpolator {
                     int srcX = (int) srcXF;
                     double wx = srcXF - srcX;
                     final double[][] validRectangle = getValidRectangle(srcX, srcY, srcIndexY, srcW, srcH);
-
-                    //being the only value we know to be included for sure
-//                    double v11 = getSrcData(srcIndexY + srcX);
-//
-//                    double v10 = srcX - 1 >= 0 ? getSrcData(srcIndexY + srcX - 1) : v11;
-//                    double v01 = srcY - 1 >= 0 ? getSrcData((srcIndexY - getSrcScalineStride()) + srcX) : v11;
-//                    double v12 = srcX + 1 < srcW ? getSrcData(srcIndexY + srcX + 1) : v11;
-//                    double v21 = srcY + 1 < srcH ? getSrcData((srcIndexY + getSrcScalineStride()) + srcX) : v11;
-
-//                    boolean withinSrcH = srcY + 1 < srcH;
-//                    boolean withinSrcW = srcX + 1 < srcW;
-//                    double v01 = withinSrcW ? getSrcData(srcIndexY + srcX + 1) : v00;
-//                    double v10 = withinSrcH ? getSrcData((srcIndexY + getSrcScalineStride()) + srcX) : v00;
-//                    double v11 = withinSrcW && withinSrcH ? getSrcData((srcIndexY + getSrcScalineStride()) + srcX + 1) : v00;
-//                    double v0 = v00 + wx * (v01 - v00);
-//                    double v1 = v10 + wx * (v11 - v10);
-//                    double v = v0 + wy * (v1 - v0);
-
-//                    if (Double.isNaN(v) || Math.abs(v - getNoDataValue()) < 1e-8) {
-//                        setDstData(dstIndexY + dstX, getNoDataValue());
-//                    } else {
-//                        setDstData(dstIndexY + dstX, v);
-//                    }
+                    double[] rowMeans = new double[4];
+                    for (int i = 0; i < 4; i++) {
+                        rowMeans[i] =
+                                (validRectangle[i][0] * (4 - 8 * (1 + wx) + 5 * Math.pow(1 + wx, 2) - Math.pow(1 + wx, 3))) +
+                                        (validRectangle[i][1] * (1 - 2 * Math.pow(wx, 2) + Math.pow(wx, 3))) +
+                                        (validRectangle[i][2] * (1 - 2 * Math.pow(1 - wx, 2) + Math.pow(1 - wx, 3))) +
+                                        (validRectangle[i][3] * (4 - 8 * (2 - wx) + 5 * Math.pow(2 - wx, 2) - Math.pow(2 - wx, 3)));
+                    }
+                    double v =
+                            (rowMeans[0] * (4 - 8 * (1 + wy) + 5 * Math.pow(1 + wy, 2) - Math.pow(1 + wy, 3))) +
+                                    (rowMeans[1] * (1 - 2 * Math.pow(wy, 2) + Math.pow(wy, 3))) +
+                                    (rowMeans[2] * (1 - 2 * Math.pow(1 - wy, 2) + Math.pow(1 - wy, 3))) +
+                                    (rowMeans[3] * (4 - 8 * (2 - wy) + 5 * Math.pow(2 - wy, 2) - Math.pow(2 - wy, 3)));
+                    if (Double.isNaN(v) || Math.abs(v - getNoDataValue()) < 1e-8) {
+                        setDstData(dstIndexY + dstX, getNoDataValue());
+                    } else {
+                        setDstData(dstIndexY + dstX, v);
+                    }
                 }
                 dstIndexY += getDstScalineStride();
             }

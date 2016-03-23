@@ -84,8 +84,8 @@ class InterpolatedOpImage extends GeometricOpImage {
         //calculates the dest rectangle for a source rectangle
         final int x = (int) (rectangle.getX() * (1 / scaleX) - offsetX);
         final int y = (int) (rectangle.getY() * (1 / scaleY) - offsetY);
-        final int width = (int) Math.ceil(rectangle.getWidth() * (1 / scaleX));
-        final int height = (int) Math.ceil(rectangle.getHeight() * (1 / scaleY));
+        final int width = (int) Math.ceil((rectangle.getWidth() - 1) * (1 / scaleX));
+        final int height = (int) Math.ceil((rectangle.getHeight() - 1) * (1 / scaleY));
         return new Rectangle(x, y, width, height);
     }
 
@@ -105,8 +105,8 @@ class InterpolatedOpImage extends GeometricOpImage {
         //calculates the source rectangle for a dest rectangle
         final int x = (int) (offsetX + rectangle.getX() * scaleX);
         final int y = (int) (offsetY + rectangle.getY() * scaleY);
-        final int width = (int) Math.ceil(rectangle.getWidth() * scaleX);
-        final int height = (int) Math.ceil(rectangle.getHeight() * scaleY);
+        final int width = (int) Math.ceil(rectangle.getWidth() * scaleX) + 1;
+        final int height = (int) Math.ceil(rectangle.getHeight() * scaleY) + 1;
         return new Rectangle(x, y, width, height);
     }
 }
