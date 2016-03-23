@@ -118,7 +118,7 @@ public class NodeContext {
         OperatorSpi operatorSpi = spiRegistry.getOperatorSpi(node.getOperatorName());
         if (operatorSpi == null) {
             String msg = Config.instance().preferences().get("snap.gpf.unsupported." + node.getOperatorName(), null);
-            if(msg == null) {
+            if (msg == null) {
                 msg = "SPI not found for operator '" + node.getOperatorName() + "'";
             }
             throw new GraphException(msg);
@@ -146,14 +146,16 @@ public class NodeContext {
     }
 
     private static boolean isProductOpened(ProductManager productManager, Product targetProduct) {
-        if(productManager.contains(targetProduct))
+        if (productManager.contains(targetProduct)) {
             return true;
+        }
         final File file = targetProduct.getFileLocation();
-        if(file == null)
+        if (file == null) {
             return false;
+        }
 
         final Product[] openedProducts = productManager.getProducts();
-        for(Product openedProduct : openedProducts) {
+        for (Product openedProduct : openedProducts) {
             if (file.equals(openedProduct.getFileLocation())) {
                 return true;
             }
@@ -163,7 +165,7 @@ public class NodeContext {
 
     public synchronized void dispose() {
         if (targetProduct != null) {
-            if(!(operator != null && isProductOpened(operator.getProductManager(), targetProduct))) {
+            if (!(operator != null && isProductOpened(operator.getProductManager(), targetProduct))) {
                 targetProduct.dispose();
                 targetProduct = null;
             }
