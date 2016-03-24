@@ -5,8 +5,6 @@ import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.ceres.glevel.support.DefaultMultiLevelModel;
-import com.bc.ceres.jai.GeneralFilterFunction;
-import com.bc.ceres.jai.operator.GeneralFilterDescriptor;
 import org.apache.commons.math3.util.Precision;
 import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.image.ResolutionLevel;
@@ -32,11 +30,11 @@ class InterpolationScaler {
 
     static MultiLevelImage scaleMultiLevelImage(int masterWidth, int masterHeight,
                                                        MultiLevelModel masterMultiLevelModel, MultiLevelImage sourceImage,
-                                                       float[] scalings, GeneralFilterFunction filterFunction, RenderingHints renderingHints,
+                                                       float[] scalings, RenderingHints renderingHints,
                                                        double noDataValue, Interpolation interpolation) {
         final ScaledMultiLevelSource multiLevelSource = new ScaledMultiLevelSource(masterWidth, masterHeight,
                                                                                    masterMultiLevelModel,
-                                                                                   sourceImage, filterFunction,
+                                                                                   sourceImage,
                                                                                    scalings, renderingHints,
                                                                                    noDataValue, interpolation);
         return new DefaultMultiLevelImage(multiLevelSource);
@@ -48,7 +46,6 @@ class InterpolationScaler {
         private final float[] scalings;
         private final RenderingHints renderingHints;
         private final double noDataValue;
-        private final GeneralFilterFunction filterFunction;
         private final MultiLevelModel masterMultiLevelModel;
         private final int masterWidth;
         private final int masterHeight;
@@ -58,8 +55,8 @@ class InterpolationScaler {
         private final Dimension tileSize;
 
         private ScaledMultiLevelSource(int masterWidth, int masterHeight, MultiLevelModel masterMultiLevelModel,
-                                       MultiLevelImage sourceImage, GeneralFilterFunction filterFunction, float[] scalings,
-                                       RenderingHints renderingHints, double noDataValue, Interpolation interpolation) {
+                                       MultiLevelImage sourceImage, float[] scalings, RenderingHints renderingHints,
+                                       double noDataValue, Interpolation interpolation) {
             super(new DefaultMultiLevelModel(masterMultiLevelModel.getLevelCount(), new AffineTransform(), masterWidth, masterHeight));
             tileSize = JAIUtils.computePreferredTileSize(masterWidth, masterHeight, 1);
             this.sourceImage = sourceImage;
@@ -67,7 +64,6 @@ class InterpolationScaler {
             this.renderingHints = renderingHints;
             this.noDataValue = noDataValue;
             this.interpolation = interpolation;
-            this.filterFunction = filterFunction;
             this.masterWidth = masterWidth;
             this.masterHeight = masterHeight;
             this.masterMultiLevelModel = masterMultiLevelModel;
@@ -99,9 +95,6 @@ class InterpolationScaler {
                     (float) (referenceTransform.getTranslateX() / sourceTransform.getScaleX());
             float offsetY = (float) (sourceTransform.getTranslateY() / sourceTransform.getScaleY()) -
                     (float) (referenceTransform.getTranslateY() / sourceTransform.getScaleY());
-            if (filterFunction != null) {
-                renderedImage = GeneralFilterDescriptor.create(image, filterFunction, renderingHints);
-            }
             if (Precision.compareTo((double) offsetX, 0.0, EPSILON) != 0 ||
                     Precision.compareTo((double) offsetY, 0.0, EPSILON) != 0) {
                 renderedImage = TranslateDescriptor.create(renderedImage, offsetX, offsetY, null,

@@ -36,7 +36,7 @@ class Resample {
         final RenderingHints targetHints = getRenderingHints(noDataValue);
         final float[] scalings = getScalings(sourceImageToModelTransform, referenceMultiLevelModel);
         return InterpolationScaler.scaleMultiLevelImage(referenceWidth, referenceHeight, referenceMultiLevelModel, sourceImage,
-                                                        scalings, null, targetHints, noDataValue, interpolation);
+                                                        scalings, targetHints, noDataValue, interpolation);
     }
 
     private static float[] getScalings(AffineTransform sourceTransform, MultiLevelModel referenceMultiLevelModel) {
