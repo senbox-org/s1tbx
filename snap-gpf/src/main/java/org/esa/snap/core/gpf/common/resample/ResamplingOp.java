@@ -52,6 +52,7 @@ import javax.media.jai.Interpolation;
 import java.awt.Dimension;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
+import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 
 /**
@@ -325,7 +326,7 @@ public class ResamplingOp extends Operator {
         }
         for (int i = 0; i < sourceBands.getNodeCount(); i++) {
             Band sourceBand = sourceBands.get(i);
-            final int dataBufferType = ImageManager.getDataBufferType(sourceBand.getDataType());
+            int dataBufferType = ImageManager.getDataBufferType(sourceBand.getDataType());
             Band targetBand;
             AffineTransform sourceTransform = sourceBand.getImageToModelTransform();
             final boolean isVirtualBand = sourceBand instanceof VirtualBand;
@@ -334,6 +335,9 @@ public class ResamplingOp extends Operator {
                 MultiLevelImage targetImage = sourceBand.getSourceImage();
                 MultiLevelImage sourceImage = createMaskedImage(sourceBand, Double.NaN);
                 final boolean replacedNoData = sourceImage != sourceBand.getSourceImage();
+                if (replacedNoData) {
+                    dataBufferType = DataBuffer.TYPE_DOUBLE;
+                }
                 if (referenceWidth <= sourceBand.getRasterWidth() && referenceHeight <= sourceBand.getRasterHeight()) {
                     targetImage = createAggregatedImage(sourceImage, dataBufferType, sourceBand.getNoDataValue(),
                                                         sourceBand.isFlagBand(), referenceMultiLevelModel,
