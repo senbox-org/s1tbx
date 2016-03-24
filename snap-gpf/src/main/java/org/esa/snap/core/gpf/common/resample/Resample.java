@@ -1,6 +1,7 @@
 package org.esa.snap.core.gpf.common.resample;
 
 import com.bc.ceres.glevel.MultiLevelImage;
+import com.bc.ceres.glevel.MultiLevelModel;
 import com.bc.ceres.jai.GeneralFilterFunction;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Kernel;
@@ -27,6 +28,22 @@ import java.util.Vector;
 class Resample {
 
     enum Type {FIRST, MIN, MAX, MEDIAN, MEAN, MIN_MEDIAN, MAX_MEDIAN}
+
+    static MultiLevelImage createInterpolatedMultiLevelImage(MultiLevelImage sourceImage, double noDataValue,
+                                                             AffineTransform sourceImageToModelTransform,
+                                                             final int referenceWidth, int referenceHeight,
+                                                             MultiLevelModel referenceMultiLevelModel, Interpolation interpolation) {
+        final RenderingHints targetHints = getRenderingHints(noDataValue);
+        final float[] scalings = getScalings(sourceImageToModelTransform, referenceMultiLevelModel);
+        return InterpolationScaler.scaleMultiLevelImage(referenceWidth, referenceHeight, referenceMultiLevelModel, sourceImage,
+                                                        scalings, null, targetHints, noDataValue, interpolation);
+    }
+
+    private static float[] getScalings(AffineTransform sourceTransform, MultiLevelModel referenceMultiLevelModel) {
+        final AffineTransform transform = new AffineTransform(sourceTransform);
+        transform.concatenate(referenceMultiLevelModel.getModelToImageTransform(0));
+        return new float[]{(float) transform.getScaleX(), (float) transform.getScaleY()};
+    }
 
     static MultiLevelImage createInterpolatedMultiLevelImage(Band sourceBand, final RasterDataNode referenceNode, Interpolation interpolation) {
         final RenderingHints targetHints = getRenderingHints(sourceBand.getNoDataValue());

@@ -46,6 +46,7 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
 import javax.media.jai.ImageLayout;
+import javax.media.jai.Interpolation;
 import java.awt.Dimension;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
@@ -92,8 +93,8 @@ public class ResamplingOp extends Operator {
     @Parameter(alias = "upsampling",
             label = "Upsampling method",
             description = "The method used for interpolation (upsampling to a finer resolution).",
-            valueSet = {"NearestNeighbour", "Bilinear"}, //todo add bicubic interpolation
-            defaultValue = "NearestNeighbour"
+            valueSet = {"Nearest", "Bilinear", "Bicubic"},
+            defaultValue = "Nearest"
     )
     private String upsamplingMethod;
 
@@ -121,7 +122,6 @@ public class ResamplingOp extends Operator {
 //                    "When performing operations, the image on level 0 will be used, so this setting will not have an effect.</html>")
     private boolean resampleOnPyramidLevels;
 
-    private InterpolationType interpolationType;
     private AggregationType aggregationType;
     private AggregationType flagAggregationType;
 
@@ -129,13 +129,13 @@ public class ResamplingOp extends Operator {
     private int referenceHeight;
     private AffineTransform referenceImageToModelTransform;
     private MultiLevelModel referenceMultiLevelModel;
-    private Geometry clipGeometry;
 
     @Override
     public void initialize() throws OperatorException {
         if (!allNodesHaveIdentitySceneTransform(sourceProduct)) {
             throw new OperatorException("Not all nodes have identity model-to-scene transform.");
         }
+        validateInterpolationParameter();
         setReferenceValues();
         setResamplingTypes();
         targetProduct = new Product(sourceProduct.getName() + "_" + NAME_EXTENSION, sourceProduct.getProductType(),
@@ -336,8 +336,8 @@ public class ResamplingOp extends Operator {
                                                         sourceBand.isFlagBand(), referenceMultiLevelModel,
                                                         referenceWidth, referenceHeight);
                 } else if (referenceWidth >= sourceBand.getRasterWidth() && referenceHeight >= sourceBand.getRasterHeight()) {
-                    targetImage = createInterpolatedImage(sourceImage, dataBufferType, sourceBand.getNoDataValue(),
-                                                          referenceMultiLevelModel, referenceWidth, referenceHeight);
+                    targetImage = createInterpolatedImage(sourceImage, sourceBand.getNoDataValue(), sourceBand.getImageToModelTransform(),
+                                                          sourceBand.isFlagBand() || sourceBand.isIndexBand());
                 } else if (referenceWidth < sourceBand.getRasterWidth()) {
                     AffineTransform intermediateTransform = new AffineTransform(
                             referenceImageToModelTransform.getScaleX(), referenceImageToModelTransform.getShearX(), sourceTransform.getShearY(),
@@ -347,8 +347,9 @@ public class ResamplingOp extends Operator {
                     targetImage = createAggregatedImage(targetImage, dataBufferType, sourceBand.getNoDataValue(),
                                                         sourceBand.isFlagBand(), intermediateMultiLevelModel,
                                                         referenceWidth, sourceBand.getRasterHeight());
-                    targetImage = createInterpolatedImage(targetImage, dataBufferType, sourceBand.getNoDataValue(),
-                                                          referenceMultiLevelModel, referenceWidth, referenceHeight);
+                    targetImage = createInterpolatedImage(targetImage, sourceBand.getNoDataValue(),
+                                                          intermediateTransform,
+                                                          sourceBand.isFlagBand() || sourceBand.isIndexBand());
                 } else if (referenceHeight < sourceBand.getRasterHeight()) {
                     AffineTransform intermediateTransform = new AffineTransform(
                             sourceTransform.getScaleX(), sourceTransform.getShearX(), referenceImageToModelTransform.getShearY(),
@@ -358,8 +359,9 @@ public class ResamplingOp extends Operator {
                     targetImage = createAggregatedImage(targetImage, dataBufferType, sourceBand.getNoDataValue(),
                                                         sourceBand.isFlagBand(), intermediateMultiLevelModel,
                                                         sourceBand.getRasterWidth(), referenceHeight);
-                    targetImage = createInterpolatedImage(targetImage, dataBufferType, sourceBand.getNoDataValue(),
-                                                          referenceMultiLevelModel, referenceWidth, referenceHeight);
+                    targetImage = createInterpolatedImage(targetImage, sourceBand.getNoDataValue(),
+                                                          intermediateTransform,
+                                                          sourceBand.isFlagBand() || sourceBand.isIndexBand());
                 }
                 targetBand.setSourceImage(adjustImageToModelTransform(targetImage, targetMultiLevelModel));
                 targetProduct.addBand(targetBand);
@@ -390,57 +392,36 @@ public class ResamplingOp extends Operator {
         return new DefaultMultiLevelImage(source);
     }
 
-    private MultiLevelImage createInterpolatedImage(MultiLevelImage sourceImage, int dataBufferType, double noDataValue,
-                                                    MultiLevelModel referenceModel, int targetWidth, int targetHeight) {
-        if (interpolationType == null) {
-            throw new OperatorException("Invalid upsampling method");
-        }
-        float[] scalings = new float[2];
-        final Dimension tileSize = JAIUtils.computePreferredTileSize(targetWidth, targetHeight, 1);
-        MultiLevelSource source;
-        if (resampleOnPyramidLevels) {
-            scalings[0] = sourceImage.getWidth() / referenceWidth;
-            scalings[1] = sourceImage.getHeight() / referenceHeight;
-            source = new AbstractMultiLevelSource(referenceModel) {
-                @Override
-                protected RenderedImage createImage(int targetLevel) {
-                    final MultiLevelModel targetModel = getModel();
-                    final double targetScale = targetModel.getScale(targetLevel);
-                    final MultiLevelModel sourceModel = sourceImage.getModel();
-                    final int sourceLevel = findBestSourceLevel(targetScale, sourceModel, scalings);
-                    final RenderedImage sourceLevelImage = sourceImage.getImage(sourceLevel);
-                    final ResolutionLevel resolutionLevel = ResolutionLevel.create(getModel(), targetLevel);
-                    final AffineTransform sourceImageToModelTransform = sourceModel.getImageToModelTransform(sourceLevel);
-                    final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(dataBufferType, null,
-                                                                                               referenceWidth,
-                                                                                               referenceHeight,
-                                                                                               tileSize,
-                                                                                               resolutionLevel);
-                    try {
-                        return new InterpolatedOpImage(sourceLevelImage, imageLayout, noDataValue, dataBufferType, interpolationType,
-                                                       sourceImageToModelTransform,
-                                                       targetModel.getImageToModelTransform(targetLevel));
-                    } catch (NoninvertibleTransformException e) {
-                        throw new OperatorException("Could not downsample band image");
-                    }
-                }
-            };
+    private MultiLevelImage createInterpolatedImage(MultiLevelImage sourceImage, double noDataValue,
+                                                    AffineTransform sourceImageToModelTransform, boolean isFlagOrIndexBand) {
+        Interpolation interpolation;
+        if (isFlagOrIndexBand) {
+            interpolation = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
         } else {
-            try {
-                final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(dataBufferType, null,
-                                                                                           referenceWidth, referenceHeight,
-                                                                                           tileSize,
-                                                                                           ResolutionLevel.MAXRES);
-                final RenderedImage image = new InterpolatedOpImage(sourceImage, imageLayout, noDataValue, dataBufferType,
-                                                                    interpolationType,
-                                                                    sourceImage.getModel().getImageToModelTransform(0),
-                                                                    referenceModel.getImageToModelTransform(0));
-                source = new DefaultMultiLevelSource(image, referenceModel);
-            } catch (NoninvertibleTransformException e) {
-                throw new OperatorException("Could not downsample band image");
-            }
+            interpolation = getInterpolation();
         }
-        return new DefaultMultiLevelImage(source);
+        return Resample.createInterpolatedMultiLevelImage(sourceImage, noDataValue, sourceImageToModelTransform,
+                                                          referenceWidth, referenceHeight,
+                                                          referenceMultiLevelModel, interpolation);
+    }
+
+    private Interpolation getInterpolation() {
+        int interpolation = getInterpolationType();
+        return Interpolation.getInstance(interpolation);
+    }
+
+    private int getInterpolationType() {
+        final int interpolationType;
+        if ("Nearest".equalsIgnoreCase(upsamplingMethod)) {
+            interpolationType = Interpolation.INTERP_NEAREST;
+        } else if ("Bilinear".equalsIgnoreCase(upsamplingMethod)) {
+            interpolationType = Interpolation.INTERP_BILINEAR;
+        } else if ("Bicubic".equalsIgnoreCase(upsamplingMethod)) {
+            interpolationType = Interpolation.INTERP_BICUBIC;
+        } else {
+            interpolationType = -1;
+        }
+        return interpolationType;
     }
 
     private MultiLevelImage createAggregatedImage(MultiLevelImage sourceImage, int dataBufferType, double noDataValue,
@@ -600,22 +581,16 @@ public class ResamplingOp extends Operator {
         }
     }
 
-    private void setResamplingTypes() {
-        interpolationType = getInterpolationType(upsamplingMethod);
-        aggregationType = getAggregationType(downsamplingMethod);
-        flagAggregationType = getAggregationType(flagDownsamplingMethod);
+    //todo this method has been copied from ReprojectionOp. Find a common place? - tf 20160210
+    void validateInterpolationParameter() {
+        if (getInterpolationType() == -1) {
+            throw new OperatorException("Invalid upsampling method: " + upsamplingMethod);
+        }
     }
 
-    private InterpolationType getInterpolationType(String interpolationMethod) {
-        switch (interpolationMethod) {
-            case "NearestNeighbour":
-                return InterpolationType.Nearest;
-            case "Bilinear":
-                return InterpolationType.Bilinear;
-            case "CubicConvolution":
-                return InterpolationType.Cubic_Convolution;
-        }
-        return null;
+    private void setResamplingTypes() {
+        aggregationType = getAggregationType(downsamplingMethod);
+        flagAggregationType = getAggregationType(flagDownsamplingMethod);
     }
 
     private AggregationType getAggregationType(String aggregationMethod) {
