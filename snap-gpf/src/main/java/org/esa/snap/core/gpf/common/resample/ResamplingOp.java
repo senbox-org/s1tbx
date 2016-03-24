@@ -28,7 +28,9 @@ import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
+import org.esa.snap.core.image.FillConstantOpImage;
 import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.image.ReplaceValueOpImage;
 import org.esa.snap.core.image.ResolutionLevel;
 import org.esa.snap.core.transform.MathTransform2D;
 import org.esa.snap.core.util.ProductUtils;
@@ -330,7 +332,8 @@ public class ResamplingOp extends Operator {
             if ((sourceBand.getRasterWidth() != referenceWidth || sourceBand.getRasterHeight() != referenceHeight) && !isVirtualBand) {
                 targetBand = new Band(sourceBand.getName(), sourceBand.getDataType(), referenceWidth, referenceHeight);
                 MultiLevelImage targetImage = sourceBand.getSourceImage();
-                MultiLevelImage sourceImage = sourceBand.getSourceImage();
+                MultiLevelImage sourceImage = createMaskedImage(sourceBand, Double.NaN);
+                final boolean replacedNoData = sourceImage != sourceBand.getSourceImage();
                 if (referenceWidth <= sourceBand.getRasterWidth() && referenceHeight <= sourceBand.getRasterHeight()) {
                     targetImage = createAggregatedImage(sourceImage, dataBufferType, sourceBand.getNoDataValue(),
                                                         sourceBand.isFlagBand(), referenceMultiLevelModel,
@@ -363,6 +366,9 @@ public class ResamplingOp extends Operator {
                                                           intermediateTransform,
                                                           sourceBand.isFlagBand() || sourceBand.isIndexBand());
                 }
+                if (replacedNoData) {
+                    targetImage = replaceNoDataValue(targetBand, targetImage, Double.NaN, sourceBand.getNoDataValue());
+                }
                 targetBand.setSourceImage(adjustImageToModelTransform(targetImage, targetMultiLevelModel));
                 targetProduct.addBand(targetBand);
             } else {
@@ -375,6 +381,44 @@ public class ResamplingOp extends Operator {
             }
             ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
         }
+    }
+
+    private static MultiLevelImage createMaskedImage(final RasterDataNode node, Number maskValue) {
+        MultiLevelImage varImage = node.getSourceImage();
+        if (node.getValidPixelExpression() != null) {
+            varImage = replaceInvalidValuesByNaN(node, varImage, node.getValidMaskImage(), maskValue);
+        }
+        if (node.isNoDataValueUsed() && node.isNoDataValueSet()) {
+            varImage = replaceNoDataValue(node, varImage, node.getNoDataValue(), maskValue);
+        }
+        return varImage;
+    }
+
+    private static MultiLevelImage replaceInvalidValuesByNaN(final RasterDataNode rasterDataNode, final MultiLevelImage srcImage,
+                                                             final MultiLevelImage maskImage, final Number fillValue) {
+
+        final MultiLevelModel multiLevelModel = rasterDataNode.getMultiLevelModel();
+        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(multiLevelModel) {
+
+            @Override
+            public RenderedImage createImage(int sourceLevel) {
+                return new FillConstantOpImage(srcImage.getImage(sourceLevel), maskImage.getImage(sourceLevel), fillValue);
+            }
+        });
+    }
+
+    private static MultiLevelImage replaceNoDataValue(final RasterDataNode rasterDataNode, final MultiLevelImage srcImage,
+                                                      final double noDataValue, final Number newValue) {
+
+        final MultiLevelModel multiLevelModel = rasterDataNode.getMultiLevelModel();
+        final int targetDataType = ImageManager.getDataBufferType(rasterDataNode.getDataType());
+        return new DefaultMultiLevelImage(new AbstractMultiLevelSource(multiLevelModel) {
+
+            @Override
+            public RenderedImage createImage(int sourceLevel) {
+                return new ReplaceValueOpImage(srcImage.getImage(sourceLevel), noDataValue, newValue, targetDataType);
+            }
+        });
     }
 
     private RenderedImage adjustImageToModelTransform(final MultiLevelImage image, MultiLevelModel model) {
@@ -460,7 +504,8 @@ public class ResamplingOp extends Operator {
                                                                                                tileSize,
                                                                                                resolutionLevel);
                     try {
-                        return new AggregatedOpImage(sourceLevelImage, imageLayout, noDataValue, type, dataBufferType,
+                        return new AggregatedOpImage(sourceLevelImage, imageLayout, noDataValue,
+                                                     type, dataBufferType,
                                                      sourceModel.getImageToModelTransform(sourceLevel),
                                                      targetModel.getImageToModelTransform(targetLevel));
                     } catch (NoninvertibleTransformException e) {
