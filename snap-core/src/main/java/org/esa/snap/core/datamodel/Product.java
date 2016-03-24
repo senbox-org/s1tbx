@@ -77,6 +77,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
@@ -2323,6 +2324,7 @@ public class Product extends ProductNode {
      * Creates a new mask using a band arithmetic expression
      * and adds it to this product and returns it.
      *
+     *
      * @param maskName     the new mask's name
      * @param expression   the band arithmetic expression
      * @param description  the mask's description
@@ -2330,6 +2332,7 @@ public class Product extends ProductNode {
      * @param transparency the display transparency
      * @return the new mask which has just been added
      * @since BEAM 4.10
+     * @throws IllegalArgumentException when the expression references rasters of different sizes
      */
     public Mask addMask(String maskName, String expression, String description, Color color, double transparency) {
         RasterDataNode[] refRasters = new RasterDataNode[0];
@@ -2345,7 +2348,11 @@ public class Product extends ProductNode {
                 refRasters = BandArithmetic.getRefRasters(expression, products, productIndex);
             }
         } catch (ParseException e) {
-            throw new IllegalArgumentException("Expression is invalid: " + e.getMessage());
+            if (e.getMessage().equals("Referenced rasters must be of same size")) {
+                throw new IllegalArgumentException("Expression must not reference rasters of different sizes");
+            }
+            Logger.getLogger(Product.class.getName()).warning(String.format("Adding invalid expression '%s' to product",
+                                                                            expression));
         }
         Mask mask;
         if (refRasters.length == 0) {

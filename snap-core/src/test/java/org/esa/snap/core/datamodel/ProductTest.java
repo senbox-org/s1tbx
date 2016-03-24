@@ -144,22 +144,6 @@ public class ProductTest {
     }
 
     @Test
-    public void addMask_FailsWithInvalidExpressions() {
-        try {
-            product.addMask("otherMask", "nonsense", "description", Color.BLUE, 0.5);
-            fail("Exception expected");
-        } catch (Exception e) {
-            assertEquals("Expression is invalid: Undefined symbol 'nonsense'.", e.getMessage());
-        }
-        try {
-            product.addMask("otherMask", "$2.X", "description", Color.BLUE, 0.5);
-            fail("Exception expected");
-        } catch (Exception e) {
-            assertEquals("Expression is invalid: Undefined symbol '$2.X'.", e.getMessage());
-        }
-    }
-
-    @Test
     public void addMask_FailsWithExpressionInvolvingBandsOfDifferentSizes() {
         product.addBand(new Band("band1", ProductData.TYPE_INT8, _sceneWidth + 5, _sceneHeight + 5));
         product.addBand(new Band("band2", ProductData.TYPE_INT8, _sceneWidth + 10, _sceneHeight + 10));
@@ -167,7 +151,7 @@ public class ProductTest {
             product.addMask("mask", "band1 + band2", "description", Color.BLUE, 0.5);
             fail("Exception expected");
         } catch (Exception e) {
-            assertEquals("Expression is invalid: Referenced rasters must be of same size", e.getMessage());
+            assertEquals("Expression must not reference rasters of different sizes", e.getMessage());
         }
     }
 
