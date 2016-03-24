@@ -26,10 +26,30 @@ import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.OperatorSpiRegistry;
 import org.esa.snap.core.gpf.descriptor.OperatorDescriptor;
+import org.esa.snap.core.util.io.WildcardMatcher;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.TreeSet;
 
 // This Main must be started with ceres launcher. Otherwise not all dependencies are on the classpath.
-// Main class: com.bc.ceres.launcher.Launcher
-// VM options: -Dceres.context=beam -Dbeam.mainClass=OperatorDoclet
+// Main class: org.esa.snap.runtime.Launcher
+// VM options: -Dsnap.mainClass=org.esa.snap.core.gpf.doclet.OperatorDoclet
+//             -Dsnap.home="<projectDir>\snap-desktop\snap-application\target\snap"
+//             -Dsnap.extraClusters=<clusterPaths>
+//             -Dsnap.debug=true
+//             -Xmx2G
+// Working dir: "<projectDir>\snap-desktop\snap-application\target\snap"
+// classpath of module snap-gpf
+//
+// snap.extraClusters is not needed if only snap-engine shall be scanned
+
+
 
 
 /**
@@ -38,7 +58,7 @@ import org.esa.snap.core.gpf.descriptor.OperatorDescriptor;
  * <p>
  * This Doclet can be called on Windows from the command line
  * by the following instruction.
- * <b>NOTE:</b> You have to adopt the pathes to your needs.
+ * <b>NOTE:</b> You have to adopt the paths to your needs.
  * <p>
  * <pre>
  *  SET DocletClassName=OperatorDoclet
@@ -53,74 +73,57 @@ import org.esa.snap.core.gpf.descriptor.OperatorDescriptor;
  * </pre>
  *
  * @author Norman Fomferra
- * @version $Revision$ $Date$
  */
 public class OperatorDoclet extends Doclet {
 
-    static String format;
+    private static String format;
+    private static Path projectPath;
 
-    public static void main(String[] args) {
-        if (args.length == 0) {
-            format = "console";
-        } else if (args.length == 1) {
-            format = args[0];
-        } else {
-            System.out.println("Usage: OperatorDoclet [ console | html ]");
+    public static void main(String[] args) throws IOException {
+        if (args.length < 1 || args.length > 2) {
+            System.out.println("Usage: OperatorDoclet <projectPath> [ console | html ]");
             System.exit(1);
         }
+        projectPath = Paths.get(args[0]);
+        if (args.length == 2) {
+            format = args[1];
+        }
 
-        com.sun.tools.javadoc.Main.main(new String[]{
-                "-doclet", OperatorDoclet.class.getName(),
-                "-sourcepath", "" +
-                               "./beam-gpf/src/main/java;" +
-                               "./beam-aatsr-sst/src/main/java;" +
-                               "./beam-binning/src/main/java;" +
-                               "./beam-cluster-analysis/src/main/java;" +
-                               "./beam-collocation/src/main/java;" +
-                               "./beam-flhmci/src/main/java;" +
-                               "./beam-meris-radiometry/src/main/java;" +
-                               "./beam-meris-smac/src/main/java;" +
-                               "./beam-meris-cloud/src/main/java;" +
-                               "./beam-pixel-extraction/src/main/java;" +
-                               "./beam-statistics-op/src/main/java;" +
-                               "./beam-temporal-percentile-op/src/main/java;" +
-                               "./beam-ndvi/src/main/java;" +
-                               "./beam-unmix/src/main/java",
+        Set<String> packageNameSet = getPackagesToConsider();
+        File[] sourcePaths = WildcardMatcher.glob(projectPath.toString() + "/snap-engine/*/src/main/java");
+        String sourcePathParam = concatPaths(sourcePaths);
 
-                "-classpath", "" +
-                              "./modules/beam-core-5.0.1;" +
-                              "./modules/beam-gpf-5.0;" +
-                              "./modules/beam-aatsr-sst-5.0;" +
-                              "./modules/beam-binning-5.0.1;" +
-                              "./modules/beam-cluster-analysis-5.0;" +
-                              "./modules/beam-collocation-5.0;" +
-                              "./modules/beam-flhmci-5.0;" +
-                              "./modules/beam-meris-radiometry-5.0;" +
-                              "./modules/beam-meris-smac-5.0;" +
-                              "./modules/beam-meris-cloud-5.0;" +
-                              "./modules/beam-pixel-extraction-5.0;" +
-                              "./modules/beam-statistics-op-5.0;" +
-                              "./modules/beam-temporal-percentile-op-5.0;" +
-                              "./modules/beam-ndvi-5.0;" +
-                              "./modules/beam-unmix-5.0",
+        ArrayList<String> params = new ArrayList<>();
+        params.add("-doclet");
+        params.add(OperatorDoclet.class.getName());
+        params.add("-sourcepath");
+        params.add(sourcePathParam);
+        params.addAll(packageNameSet);
+        com.sun.tools.javadoc.Main.main(params.toArray(new String[0]));
+    }
 
-                "org.esa.snap.core.gpf.common",
-                "org.esa.snap.core.gpf.common.reproject",
-                "org.esa.snap.s3tbx.meris",
-                "org.esa.snap.aatsr.sst",
-                "org.esa.snap.binning.operator",
-                "org.esa.snap.cluster",
-                "org.esa.snap.collocation",
-                "org.esa.snap.processor.flh_mci",
-                "org.esa.snap.meris.radiometry",
-                "org.esa.snap.smac",
-                "org.esa.snap.operator.cloud",
-                "org.esa.snap.pixex",
-                "org.esa.snap.statistics",
-                "org.esa.snap.statistics.percentile.interpolated",
-                "org.esa.snap.ndvi",
-                "org.esa.snap.unmixing",
-        });
+    private static String concatPaths(File[] sourcePaths) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < sourcePaths.length; i++) {
+            sb.append(sourcePaths[i]);
+            if (i < sourcePaths.length - 1) {
+                sb.append(";");
+            }
+        }
+        return sb.toString();
+    }
+
+    private static Set<String> getPackagesToConsider() {
+        OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        operatorSpiRegistry.loadOperatorSpis();
+        Set<OperatorSpi> operatorSpis = operatorSpiRegistry.getOperatorSpis();
+
+        Set<String> packageNameSet = new TreeSet<>();
+        for (OperatorSpi operatorSpi : operatorSpis) {
+            String packageName = operatorSpi.getOperatorClass().getPackage().getName();
+            packageNameSet.add(packageName);
+        }
+        return packageNameSet;
     }
 
     public static boolean start(RootDoc root) {
@@ -128,7 +131,13 @@ public class OperatorDoclet extends Doclet {
         if ("console".equalsIgnoreCase(format)) {
             operatorHandler = new OperatorHandlerConsole();
         } else if ("html".equalsIgnoreCase(format)) {
-            operatorHandler = new OperatorHandlerHtml();
+            Path outputDir = projectPath.resolve("target").resolve("operatorDoclet");
+            try {
+                Files.createDirectories(outputDir);
+                operatorHandler = new OperatorHandlerHtml(outputDir);
+            } catch (IOException e) {
+                throw new RuntimeException("Could not create output directory: " + outputDir);
+            }
         } else {
             throw new RuntimeException("Illegal output format: " + format);
         }
