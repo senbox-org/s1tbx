@@ -235,8 +235,8 @@ public class CrossCorrelationOp extends Operator {
             coarseWin = new CorrelationWindow(
                     Integer.parseInt(coarseRegistrationWindowWidth),
                     Integer.parseInt(coarseRegistrationWindowHeight),
-                    Integer.parseInt(rowInterpFactor),
                     Integer.parseInt(columnInterpFactor),
+                    Integer.parseInt(rowInterpFactor),
                     1);
 
             // parameters: Fine
@@ -253,8 +253,8 @@ public class CrossCorrelationOp extends Operator {
                     fineWin = new CorrelationWindow(
                             Integer.parseInt(fineRegistrationWindowWidth),
                             Integer.parseInt(fineRegistrationWindowHeight),
-                            Integer.parseInt(fineRegistrationWindowAccAzimuth),
                             Integer.parseInt(fineRegistrationWindowAccRange),
+                            Integer.parseInt(fineRegistrationWindowAccAzimuth),
                             Integer.parseInt(fineRegistrationOversampling));
                 }
             }
