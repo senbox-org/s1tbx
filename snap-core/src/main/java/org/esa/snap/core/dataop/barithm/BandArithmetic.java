@@ -362,9 +362,12 @@ public class BandArithmetic {
         int referenceWidth = -1;
         int referenceHeight = -1;
         for (String expression : expressions) {
-            final RasterDataNode[] refRasters = getRefRasters(expression, products, defaultProductIndex);
+            final Namespace namespace = createDefaultNamespace(products, defaultProductIndex);
+            final Parser parser = new ParserImpl(namespace, false);
+            final Term term = parser.parse(expression);
+            final RasterDataNode[] refRasters = getRefRasters(term);
             if (refRasters.length > 0) {
-                if (!areRastersEqualInSize(parseExpression(expression, products, defaultProductIndex))) {
+                if (!areRastersEqualInSize(term)) {
                     return false;
                 }
                 if (referenceWidth == -1) {

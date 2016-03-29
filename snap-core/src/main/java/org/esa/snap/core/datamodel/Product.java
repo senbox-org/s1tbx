@@ -2346,11 +2346,10 @@ public class Product extends ProductNode {
             }
             if (BandArithmetic.areRastersEqualInSize(products, productIndex, expression)) {
                 refRasters = BandArithmetic.getRefRasters(expression, products, productIndex);
-            }
-        } catch (ParseException e) {
-            if (e.getMessage().equals("Referenced rasters must be of same size")) {
+            } else {
                 throw new IllegalArgumentException("Expression must not reference rasters of different sizes");
             }
+        } catch (ParseException e) {
             Logger.getLogger(Product.class.getName()).warning(String.format("Adding invalid expression '%s' to product",
                                                                             expression));
         }
