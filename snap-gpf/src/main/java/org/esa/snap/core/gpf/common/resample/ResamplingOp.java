@@ -499,7 +499,7 @@ public class ResamplingOp extends Operator {
                     final MultiLevelModel targetModel = getModel();
                     final double targetScale = targetModel.getScale(targetLevel);
                     final MultiLevelModel sourceModel = sourceImage.getModel();
-                    final int sourceLevel = findBestSourceLevel(targetScale, sourceModel, scalings);
+                    final int sourceLevel = sourceModel.getLevel(targetScale);
                     final RenderedImage sourceLevelImage = sourceImage.getImage(sourceLevel);
                     final ResolutionLevel resolutionLevel = ResolutionLevel.create(getModel(), targetLevel);
                     final ImageLayout imageLayout = ImageManager.createSingleBandedImageLayout(dataBufferType, null,
