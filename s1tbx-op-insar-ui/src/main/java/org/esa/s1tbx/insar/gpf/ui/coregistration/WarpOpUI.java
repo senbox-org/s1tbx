@@ -16,9 +16,6 @@
 package org.esa.s1tbx.insar.gpf.ui.coregistration;
 
 import org.esa.s1tbx.insar.gpf.coregistration.WarpOp;
-import org.esa.snap.core.dataop.dem.ElevationModelDescriptor;
-import org.esa.snap.core.dataop.dem.ElevationModelRegistry;
-import org.esa.snap.dem.dataio.DEMFactory;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
@@ -42,9 +39,9 @@ public class WarpOpUI extends BaseOperatorUI {
 
     private final JComboBox<String> rmsThreshold = new JComboBox<>(new String[]{"0.001", "0.05", "0.1", "0.5", "1.0"});
 
-    private final JCheckBox demRefinementCheckBox = new JCheckBox("Offset Refinement Based on DEM");
-    private Boolean demRefinement;
-    private final JComboBox<String> demName = new JComboBox<>(DEMFactory.getDEMNameList());
+    //private final JCheckBox demRefinementCheckBox = new JCheckBox("Offset Refinement Based on DEM");
+    //private Boolean demRefinement;
+    //private final JComboBox<String> demName = new JComboBox<>(DEMFactory.getDEMNameList());
 
     private final JCheckBox openResidualsFileCheckBox = new JCheckBox("Show Residuals");
     private boolean openResidualsFile;
@@ -56,12 +53,12 @@ public class WarpOpUI extends BaseOperatorUI {
         final JComponent panel = createPanel();
         initParameters();
 
-        demRefinementCheckBox.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                demRefinement = (e.getStateChange() == ItemEvent.SELECTED);
-                enableDemFields();
-            }
-        });
+//        demRefinementCheckBox.addItemListener(new ItemListener() {
+//            public void itemStateChanged(ItemEvent e) {
+//                demRefinement = (e.getStateChange() == ItemEvent.SELECTED);
+//                enableDemFields();
+//            }
+//        });
 
         openResidualsFileCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
@@ -80,22 +77,22 @@ public class WarpOpUI extends BaseOperatorUI {
 
         interpolationMethod.setSelectedItem(paramMap.get("interpolationMethod"));
 
-        demRefinement = (Boolean) paramMap.get("demRefinement");
-        if (demRefinement == null) {
-            demRefinement = false;
-        }
-        demRefinementCheckBox.setSelected(demRefinement);
+//        demRefinement = (Boolean) paramMap.get("demRefinement");
+//        if (demRefinement == null) {
+//            demRefinement = false;
+//        }
+//        demRefinementCheckBox.setSelected(demRefinement);
 
-        final String demNameParam = (String) paramMap.get("demName");
-        if (demNameParam != null) {
-            ElevationModelDescriptor descriptor = ElevationModelRegistry.getInstance().getDescriptor(demNameParam);
-            if (descriptor != null) {
-                demName.setSelectedItem(DEMFactory.getDEMDisplayName(descriptor));
-            } else {
-                demName.setSelectedItem(demNameParam);
-            }
-        }
-        enableDemFields();
+//        final String demNameParam = (String) paramMap.get("demName");
+//        if (demNameParam != null) {
+//            ElevationModelDescriptor descriptor = ElevationModelRegistry.getInstance().getDescriptor(demNameParam);
+//            if (descriptor != null) {
+//                demName.setSelectedItem(DEMFactory.getDEMDisplayName(descriptor));
+//            } else {
+//                demName.setSelectedItem(demNameParam);
+//            }
+//        }
+//        enableDemFields();
     }
 
     @Override
@@ -110,10 +107,10 @@ public class WarpOpUI extends BaseOperatorUI {
         paramMap.put("warpPolynomialOrder", Integer.parseInt((String) warpPolynomialOrder.getSelectedItem()));
         paramMap.put("interpolationMethod", interpolationMethod.getSelectedItem());
 
-        paramMap.put("demRefinement", demRefinement);
-        if (demRefinement) {
-            paramMap.put("demName", DEMFactory.getProperDEMName((String) demName.getSelectedItem()));
-        }
+//        paramMap.put("demRefinement", demRefinement);
+//        if (demRefinement) {
+//            paramMap.put("demName", DEMFactory.getProperDEMName((String) demName.getSelectedItem()));
+//        }
 
         paramMap.put("openResidualsFile", openResidualsFile);
     }
@@ -133,9 +130,9 @@ public class WarpOpUI extends BaseOperatorUI {
 
         gbc.gridx = 0;
         gbc.gridy++;
-        contentPane.add(demRefinementCheckBox, gbc);
-        gbc.gridy++;
-        DialogUtils.addComponent(contentPane, gbc, "Digital Elevation Model:", demName);
+//        contentPane.add(demRefinementCheckBox, gbc);
+//        gbc.gridy++;
+//        DialogUtils.addComponent(contentPane, gbc, "Digital Elevation Model:", demName);
 
         gbc.gridx = 0;
         gbc.gridy++;
@@ -146,8 +143,8 @@ public class WarpOpUI extends BaseOperatorUI {
         return contentPane;
     }
 
-    private void enableDemFields() {
-        demRefinementCheckBox.setEnabled(true);
-        demName.setEnabled(demRefinement);
-    }
+//    private void enableDemFields() {
+//        demRefinementCheckBox.setEnabled(true);
+//        demName.setEnabled(demRefinement);
+//    }
 }
