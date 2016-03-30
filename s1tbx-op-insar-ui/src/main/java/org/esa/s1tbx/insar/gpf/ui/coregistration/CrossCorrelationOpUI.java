@@ -32,13 +32,13 @@ import java.util.Map;
  */
 public class CrossCorrelationOpUI extends BaseOperatorUI {
 
-    private final JComboBox coarseRegistrationWindowWidth = new JComboBox(
+    private final JComboBox<String> coarseRegistrationWindowWidth = new JComboBox(
             new String[]{"32", "64", "128", "256", "512", "1024", "2048"});
-    private final JComboBox coarseRegistrationWindowHeight = new JComboBox(
+    private final JComboBox<String> coarseRegistrationWindowHeight = new JComboBox(
             new String[]{"32", "64", "128", "256", "512", "1024", "2048"});
-    private final JComboBox rowInterpFactor = new JComboBox(
+    private final JComboBox<String> rowInterpFactor = new JComboBox(
             new String[]{"2", "4", "8", "16"});
-    private final JComboBox columnInterpFactor = new JComboBox(
+    private final JComboBox<String> columnInterpFactor = new JComboBox(
             new String[]{"2", "4", "8", "16"});
 
     private final JTextField numGCPtoGenerate = new JTextField("");
@@ -47,14 +47,16 @@ public class CrossCorrelationOpUI extends BaseOperatorUI {
 
     // for complex products
     final JCheckBox applyFineRegistrationCheckBox = new JCheckBox("Apply Fine Registration for SLCs");
-    final JCheckBox inSAROptimizedCheckBox = new JCheckBox("Optimize for InSAR");
-    private final JComboBox fineRegistrationWindowWidth = new JComboBox(
+    final JRadioButton crossCorrelationCheckBox = new JRadioButton("Cross-Correlation based registration");
+    final JRadioButton coherenceCheckBox = new JRadioButton("Coherence based registration");
+
+    private final JComboBox<String> fineRegistrationWindowWidth = new JComboBox(
             new String[]{"8", "16", "32", "64", "128", "256", "512"});
-    private final JComboBox fineRegistrationWindowHeight = new JComboBox(
+    private final JComboBox<String> fineRegistrationWindowHeight = new JComboBox(
             new String[]{"8", "16", "32", "64", "128", "256", "512"});
-    private final JComboBox fineRegistrationWindowAccAzimuth = new JComboBox(new String[]{"2", "4", "8", "16", "64"});
-    private final JComboBox fineRegistrationWindowAccRange = new JComboBox(new String[]{"2", "4", "8", "16", "64"});
-    private final JComboBox fineRegistrationOversampling = new JComboBox(new String[]{"2", "4", "8", "16", "32", "64"});
+    private final JComboBox<String> fineRegistrationWindowAccAzimuth = new JComboBox(new String[]{"2", "4", "8", "16", "64"});
+    private final JComboBox<String> fineRegistrationWindowAccRange = new JComboBox(new String[]{"2", "4", "8", "16", "64"});
+    private final JComboBox<String> fineRegistrationOversampling = new JComboBox(new String[]{"2", "4", "8", "16", "32", "64"});
 
     private final JTextField coherenceWindowSize = new JTextField("");
     private final JTextField coherenceThreshold = new JTextField("");
@@ -84,7 +86,7 @@ public class CrossCorrelationOpUI extends BaseOperatorUI {
                 enableComplexFields();
             }
         });
-        inSAROptimizedCheckBox.addItemListener(new ItemListener() {
+        crossCorrelationCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 inSAROptimized = (e.getStateChange() == ItemEvent.SELECTED);
                 enableComplexFields();
@@ -133,7 +135,7 @@ public class CrossCorrelationOpUI extends BaseOperatorUI {
         if (isComplex) {
             applyFineRegistration = (Boolean) paramMap.get("applyFineRegistration");
             applyFineRegistrationCheckBox.setSelected(applyFineRegistration);
-            inSAROptimizedCheckBox.setSelected(inSAROptimized);
+            crossCorrelationCheckBox.setSelected(inSAROptimized);
 
             fineRegistrationWindowWidth.setSelectedItem(paramMap.get("fineRegistrationWindowWidth"));
             fineRegistrationWindowHeight.setSelectedItem(paramMap.get("fineRegistrationWindowHeight"));
@@ -248,14 +250,8 @@ public class CrossCorrelationOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(finePanel, gbc3, "Fine Window Height:", fineRegistrationWindowHeight);
         gbc3.gridy++;
 
-        finePanel.add(useSlidingWindowCheckBox, gbc3);
-        gbc3.gridy++;
-        DialogUtils.addComponent(finePanel, gbc3, "Coherence Window Size:", coherenceWindowSize);
-        gbc3.gridy++;
-        DialogUtils.addComponent(finePanel, gbc3, "Coherence Threshold:", coherenceThreshold);
-        gbc3.gridy++;
 
-        finePanel.add(inSAROptimizedCheckBox, gbc3);
+        finePanel.add(crossCorrelationCheckBox, gbc3);
         gbc3.gridy++;
 
         DialogUtils.addComponent(finePanel, gbc3, "Fine Accuracy in Azimuth:", fineRegistrationWindowAccAzimuth);
@@ -263,6 +259,20 @@ public class CrossCorrelationOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(finePanel, gbc3, "Fine Accuracy in Range:", fineRegistrationWindowAccRange);
         gbc3.gridy++;
         DialogUtils.addComponent(finePanel, gbc3, "Fine Window oversampling factor:", fineRegistrationOversampling);
+        gbc3.gridy++;
+
+        ButtonGroup group = new ButtonGroup();
+        group.add(crossCorrelationCheckBox);
+        group.add(coherenceCheckBox);
+
+        finePanel.add(coherenceCheckBox, gbc3);
+        gbc3.gridy++;
+
+        finePanel.add(useSlidingWindowCheckBox, gbc3);
+        gbc3.gridy++;
+        DialogUtils.addComponent(finePanel, gbc3, "Coherence Window Size:", coherenceWindowSize);
+        gbc3.gridy++;
+        DialogUtils.addComponent(finePanel, gbc3, "Coherence Threshold:", coherenceThreshold);
         gbc3.gridy++;
 
         enableComplexFields();
@@ -280,7 +290,7 @@ public class CrossCorrelationOpUI extends BaseOperatorUI {
 
     private void enableComplexFields() {
         applyFineRegistrationCheckBox.setEnabled(isComplex);
-        inSAROptimizedCheckBox.setEnabled(isComplex && applyFineRegistration);
+        crossCorrelationCheckBox.setEnabled(isComplex && applyFineRegistration);
 
         fineRegistrationWindowWidth.setEnabled(isComplex && applyFineRegistration);
         fineRegistrationWindowHeight.setEnabled(isComplex && applyFineRegistration);
@@ -289,7 +299,7 @@ public class CrossCorrelationOpUI extends BaseOperatorUI {
         fineRegistrationOversampling.setEnabled(isComplex && applyFineRegistration && inSAROptimized);
 
         coherenceWindowSize.setEnabled(isComplex && applyFineRegistration && useSlidingWindow && !inSAROptimized);
-        coherenceThreshold.setEnabled(isComplex && applyFineRegistration);
+        coherenceThreshold.setEnabled(isComplex && applyFineRegistration && !inSAROptimized);
         useSlidingWindowCheckBox.setEnabled(isComplex && applyFineRegistration && !inSAROptimized);
     }
 }
