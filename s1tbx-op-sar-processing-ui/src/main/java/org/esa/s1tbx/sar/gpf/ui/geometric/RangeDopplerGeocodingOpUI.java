@@ -752,7 +752,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
             Double pixM = 0.0, pixD = 0.0;
             try {
                 pixM = Double.parseDouble(pixelSpacingInMeter.getText());
-                if (pixM != pixMSaved) {
+                if (Double.compare(pixM, pixMSaved) != 0) {
                     pixD = SARGeocoding.getPixelSpacingInDegree(pixM);
                     pixelSpacingInDegree.setText(String.valueOf(pixD));
                     pixMSaved = pixM;
@@ -773,7 +773,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
             Double pixM = 0.0, pixD = 0.0;
             try {
                 pixD = Double.parseDouble(pixelSpacingInDegree.getText());
-                if (pixD != pixDSaved) {
+                if (Double.compare(pixD, pixDSaved) != 0) {
                     pixM = SARGeocoding.getPixelSpacingInMeter(pixD);
                     pixelSpacingInMeter.setText(String.valueOf(pixM));
                     pixMSaved = pixM;
