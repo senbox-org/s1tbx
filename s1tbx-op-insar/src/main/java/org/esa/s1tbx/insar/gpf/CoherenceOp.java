@@ -317,12 +317,12 @@ public class CoherenceOp extends Operator {
                 coherenceBand.setUnit(Unit.COHERENCE);
                 targetBandNames.add(coherenceBand.getName());
 
-                if (subtractFlatEarthPhase) {
+                /*if (subtractFlatEarthPhase) {
                     final String coherencePhaseBandName = container.getBandName(COHERENCE_PHASE);
                     final Band coherencePhaseBand = targetProduct.addBand(coherencePhaseBandName, ProductData.TYPE_FLOAT32);
                     coherencePhaseBand.setUnit(Unit.PHASE);
                     targetBandNames.add(coherencePhaseBand.getName());
-                }
+                }*/
 
                 String slvProductName = StackUtils.findOriginalSlaveProductName(sourceProduct, container.sourceSlave.realBand);
                 StackUtils.saveSlaveProductBandNames(targetProduct, slvProductName,
@@ -779,12 +779,12 @@ public class CoherenceOp extends Operator {
         final Tile coherenceTile = targetTileMap.get(coherenceBand);
         final ProductData coherenceData = coherenceTile.getDataBuffer();
 
-        ProductData coherencePhaseData = null;
+        /*ProductData coherencePhaseData = null;
         if (subtractFlatEarthPhase) {
             final Band coherencePhaseBand = targetProduct.getBand(product.getBandName(COHERENCE_PHASE));
             final Tile coherencePhaseTile = targetTileMap.get(coherencePhaseBand);
             coherencePhaseData = coherencePhaseTile.getDataBuffer();
-        }
+        }*/
 
         final DoubleMatrix dataReal = cohMatrix.real();
         final DoubleMatrix dataImag = cohMatrix.imag();
@@ -805,18 +805,18 @@ public class CoherenceOp extends Operator {
 
                 if (srcSlvData.getElemDoubleAt(srcSlvIndex.getIndex(x)) == srcNoDataValue) {
                     coherenceData.setElemFloatAt(tgtIdx, (float) srcNoDataValue);
-                    if (subtractFlatEarthPhase) {
+                    /*if (subtractFlatEarthPhase) {
                         coherencePhaseData.setElemFloatAt(tgtIdx, (float) srcNoDataValue);
-                    }
+                    }*/
                 } else {
                     final double cohI = dataReal.get(yy, xx);
                     final double cohQ = dataImag.get(yy, xx);
                     final double coh = Math.sqrt(cohI * cohI + cohQ * cohQ);
                     coherenceData.setElemFloatAt(tgtIdx, (float) coh);
-                    if (subtractFlatEarthPhase) {
+                    /*if (subtractFlatEarthPhase) {
                         final double cohPhase = Math.atan2(cohQ, cohI);
                         coherencePhaseData.setElemFloatAt(tgtIdx, (float) cohPhase);
-                    }
+                    }*/
                 }
             }
         }
