@@ -67,13 +67,17 @@
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <sourceBands/>
-      <filter>Mean</filter>
-      <filterSizeX>5</filterSizeX>
-      <filterSizeY>5</filterSizeY>
+      <filter>Boxcar</filter>
+      <filterSizeX>3</filterSizeX>
+      <filterSizeY>3</filterSizeY>
       <dampingFactor>2</dampingFactor>
-      <edgeThreshold>5000.0</edgeThreshold>
       <estimateENL>true</estimateENL>
       <enl>1.0</enl>
+      <numLooksStr>1</numLooksStr>
+      <windowSize>7x7</windowSize>
+      <targetWindowSizeStr>3x3</targetWindowSizeStr>
+      <sigmaStr>0.9</sigmaStr>
+      <anSize>50</anSize>
     </parameters>
   </node>
   <node id="SRGR">
