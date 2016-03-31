@@ -929,7 +929,7 @@ public class CoherenceOp extends Operator {
 
         final double cohWinAz = param.cohWinRg * groundRangeSpacing / azimuthSpacing;
         if (cohWinAz < 1.0) {
-            param.cohWinAz = 1;
+            param.cohWinAz = 2;
             param.cohWinRg = (int) Math.round(azimuthSpacing / groundRangeSpacing);
         } else {
             param.cohWinAz = (int) Math.round(cohWinAz);
