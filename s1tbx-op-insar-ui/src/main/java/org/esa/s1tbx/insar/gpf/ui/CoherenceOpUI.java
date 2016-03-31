@@ -133,7 +133,7 @@ public class CoherenceOpUI extends BaseOperatorUI {
             squarePixelCheckBox.setSelected(squarePixel);
             independentWindowSizeCheckBox.setSelected(!squarePixel);
             if (squarePixel) {
-                cohWinAz.setText("1");
+                cohWinAz.setText("2");
                 cohWinAz.setEditable(false);
             } else {
                 cohWinAz.setEditable(true);
