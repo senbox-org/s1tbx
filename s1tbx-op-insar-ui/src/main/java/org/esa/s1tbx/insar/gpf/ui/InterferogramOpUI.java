@@ -106,7 +106,7 @@ public class InterferogramOpUI extends BaseOperatorUI {
                 squarePixel = (e.getStateChange() == ItemEvent.SELECTED);
                 independentWindowSizeCheckBox.setSelected(!squarePixel);
                 if (squarePixel) {
-                    cohWinAz.setText("1");
+                    cohWinAz.setText("2");
                     cohWinAz.setEditable(false);
                 }
                 setCohWinAz();
