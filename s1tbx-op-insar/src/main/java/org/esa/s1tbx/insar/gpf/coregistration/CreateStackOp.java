@@ -309,10 +309,12 @@ public class CreateStackOp extends Operator {
             if (!resamplingType.contains("NONE")) {
                 selectedResampling = ResamplingFactory.createResampling(resamplingType);
             } else {
+                if(initialOffsetMethod == null) {
+                    initialOffsetMethod = INITIAL_OFFSET_ORBIT;
+                }
                 if (initialOffsetMethod.equals(INITIAL_OFFSET_GEOLOCATION)) {
                     computeTargetSlaveCoordinateOffsets_GCP();
                 }
-
                 if (initialOffsetMethod.equals(INITIAL_OFFSET_ORBIT)) {
                     computeTargetSlaveCoordinateOffsets_Orbits();
                 }
