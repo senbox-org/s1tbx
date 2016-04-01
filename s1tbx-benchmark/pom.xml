@@ -67,12 +67,6 @@
             <artifactId>s1tbx-op-sentinel1</artifactId>
             <version>${s1tbx.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-graph-builder</artifactId>
-            <version>1.0.1</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <!--build>
