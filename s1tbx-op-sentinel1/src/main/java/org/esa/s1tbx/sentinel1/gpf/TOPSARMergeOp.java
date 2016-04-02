@@ -491,6 +491,16 @@ public final class TOPSARMergeOp extends Operator {
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_far_lat, latGrid.getPixelFloat(targetWidth, targetHeight));
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_far_long, lonGrid.getPixelFloat(targetWidth, targetHeight));
 
+        final double incidenceNear = OperatorUtils.getIncidenceAngle(targetProduct).getPixelDouble(
+                0, targetProduct.getSceneRasterHeight() / 2);
+
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.incidence_near, incidenceNear);
+
+        final double incidenceFar = OperatorUtils.getIncidenceAngle(targetProduct).getPixelDouble(
+                targetProduct.getSceneRasterWidth() - 1, targetProduct.getSceneRasterHeight() / 2);
+
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.incidence_far, incidenceFar);
+
         absTgt.removeAttribute(absTgt.getAttribute("firstValidPixel"));
         absTgt.removeAttribute(absTgt.getAttribute("lastValidPixel"));
         absTgt.removeAttribute(absTgt.getAttribute("slrTimeToFirstValidPixel"));
