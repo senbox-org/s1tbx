@@ -214,7 +214,7 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
         }
     }
 
-    private static File getRemoteHttpFile(final URL remoteURL, final File localZipFile) throws IOException {
+    public static File getRemoteHttpFile(final URL remoteURL, final File localZipFile) throws IOException {
         final String remotePath = remoteURL.toString() + localZipFile.getName();
         SystemUtils.LOG.info("http retrieving " + remotePath);
 
