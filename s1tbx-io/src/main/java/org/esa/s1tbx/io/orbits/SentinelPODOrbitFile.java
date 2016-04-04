@@ -17,14 +17,16 @@ package org.esa.s1tbx.io.orbits;
 
 import Jama.Matrix;
 import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.DownloadableArchive;
+import org.esa.snap.engine_utilities.datamodel.DownloadableContentImpl;
 import org.esa.snap.engine_utilities.datamodel.Orbits;
 import org.esa.snap.engine_utilities.util.Maths;
 import org.esa.snap.engine_utilities.util.Settings;
+import org.esa.snap.engine_utilities.util.ZipUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
@@ -65,7 +67,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
     private final static DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyyMMdd-HHmmss");
     private final static DateFormat orbitDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    private final class FixedHeader {
+    private static final class FixedHeader {
 
         // We can add more members as needed
 
@@ -93,36 +95,30 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
     }
 
     public String[] getAvailableOrbitTypes() {
-        return new String[] { PRECISE, RESTITUTED };
+        return new String[]{PRECISE, RESTITUTED};
     }
 
     public File retrieveOrbitFile(final String orbitType) throws Exception {
         final double stateVectorTime = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).getMJD();
         final Calendar calendar = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).getAsCalendar();
-        final int year = calendar.get(Calendar.YEAR);
-        final int month = calendar.get(Calendar.MONTH) + 1; // zero based
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH) + 1; // zero based
         final int day = calendar.get(Calendar.DAY_OF_MONTH);
 
-        this.orbitFile = findOrbitFile(orbitType, stateVectorTime, year);
+        orbitFile = findOrbitFile(orbitType, stateVectorTime, year);
 
-        if(orbitFile == null) {
-            getRemoteFiles(orbitType, year, month);
-            this.orbitFile = findOrbitFile(orbitType, stateVectorTime, year);
-            if (orbitFile == null) {
-                if(day < 15) {
-                    getRemoteFiles(orbitType, year, month-1);
-                } else {
-                    getRemoteFiles(orbitType, year, month+1);
-                }
-                this.orbitFile = findOrbitFile(orbitType, stateVectorTime, year);
+        if (orbitFile == null) {
+            orbitFile = downloadArchive(orbitType, year, month, day, stateVectorTime);
+        }
+        if (orbitFile == null) {
+            orbitFile = downloadFromQCWebsite(orbitType, year, month, day, stateVectorTime);
+        }
 
-                if (orbitFile == null) {
-                    String timeStr = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).format();
-                    final File destFolder = getDestFolder(orbitType, year);
-                    throw new OperatorException("No valid orbit file found for " + timeStr + "\nOrbit files may be downloaded from https://qc.sentinel1.eo.esa.int/"
-                            + "\nand placed in " + destFolder.getAbsolutePath());
-                }
-            }
+        if (orbitFile == null) {
+            String timeStr = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).format();
+            final File destFolder = getDestFolder(orbitType, year);
+            throw new OperatorException("No valid orbit file found for " + timeStr + "\nOrbit files may be downloaded from https://qc.sentinel1.eo.esa.int/"
+                                                + "\nand placed in " + destFolder.getAbsolutePath());
         }
 
         if (!orbitFile.exists()) {
@@ -137,45 +133,87 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         return orbitFile;
     }
 
-    private File getDestFolder(final String orbitType, final int year) {
+    private static File downloadArchive(final String orbitType, int year, int month, final int day,
+                                 final double stateVectorTime) throws Exception {
+        getRemoteFiles(orbitType, year, month);
+        File orbitFile = findOrbitFile(orbitType, stateVectorTime, year);
+        if (orbitFile == null) {
+            if (day < 15) {
+                month--;
+                if(month < 1) {
+                    month = 12;
+                    year--;
+                }
+            } else {
+                month++;
+                if(month > 12) {
+                    month = 1;
+                    year++;
+                }
+            }
+            getRemoteFiles(orbitType, year, month);
+            orbitFile = findOrbitFile(orbitType, stateVectorTime, year);
+        }
+        return orbitFile;
+    }
+
+    private static File downloadFromQCWebsite(final String orbitType, int year, int month, final int day,
+                                        final double stateVectorTime) throws Exception {
+        getQCFiles(orbitType, year, month);
+        File orbitFile = findOrbitFile(orbitType, stateVectorTime, year);
+        if (orbitFile == null) {
+            if (day < 15) {
+                month--;
+                if(month < 1) {
+                    month = 12;
+                    year--;
+                }
+            } else {
+                month++;
+                if(month > 12) {
+                    month = 1;
+                    year++;
+                }
+            }
+            getQCFiles(orbitType, year, month);
+            orbitFile = findOrbitFile(orbitType, stateVectorTime, year);
+        }
+        return orbitFile;
+    }
+
+    private static File getDestFolder(final String orbitType, final int year) {
         final File orbitFileFolder;
-        if(orbitType.startsWith(RESTITUTED)) {
-            orbitFileFolder = new File(Settings.getPath("OrbitFiles.sentinel1RESOrbitPath")+File.separator+year);
+        if (orbitType.startsWith(RESTITUTED)) {
+            orbitFileFolder = new File(Settings.getPath("OrbitFiles.sentinel1RESOrbitPath") + File.separator + year);
         } else {
-            orbitFileFolder = new File(Settings.getPath("OrbitFiles.sentinel1POEOrbitPath")+File.separator+year);
+            orbitFileFolder = new File(Settings.getPath("OrbitFiles.sentinel1POEOrbitPath") + File.separator + year);
         }
         return orbitFileFolder;
     }
 
-    private File findOrbitFile(final String orbitType, final double stateVectorTime, final int year) {
+    private static File findOrbitFile(final String orbitType, final double stateVectorTime, final int year) {
 
         final String prefix;
         final File orbitFileFolder;
-        if(orbitType.startsWith(RESTITUTED)) {
+        if (orbitType.startsWith(RESTITUTED)) {
             prefix = "S1A_OPER_AUX_RESORB_OPOD_";
-            orbitFileFolder = new File(Settings.getPath("OrbitFiles.sentinel1RESOrbitPath")+File.separator+year);
+            orbitFileFolder = new File(Settings.getPath("OrbitFiles.sentinel1RESOrbitPath") + File.separator + year);
         } else {
             prefix = "S1A_OPER_AUX_POEORB_OPOD_";
-            orbitFileFolder = new File(Settings.getPath("OrbitFiles.sentinel1POEOrbitPath") + File.separator+year);
+            orbitFileFolder = new File(Settings.getPath("OrbitFiles.sentinel1POEOrbitPath") + File.separator + year);
         }
 
-        final File[] files = orbitFileFolder.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                name = name.toUpperCase();
-                return (name.endsWith(".ZIP") || name.endsWith(".EOF")) && name.startsWith(prefix);
-            }
-        });
-        if(files == null || files.length == 0)
+        final File[] files = orbitFileFolder.listFiles(new MyFilenameFilter(prefix));
+        if (files == null || files.length == 0)
             return null;
 
-        for(File file : files) {
+        for (File file : files) {
             try {
                 final String filename = file.getName();
                 final ProductData.UTC utcStart = SentinelPODOrbitFile.getValidityStartFromFilenameUTC(filename);
                 final ProductData.UTC utcEnd = SentinelPODOrbitFile.getValidityStopFromFilenameUTC(filename);
-                if(utcStart != null && utcEnd != null) {
-                    if(stateVectorTime >= utcStart.getMJD() && stateVectorTime < utcEnd.getMJD()) {
+                if (utcStart != null && utcEnd != null) {
+                    if (stateVectorTime >= utcStart.getMJD() && stateVectorTime < utcEnd.getMJD()) {
                         return file;
                     }
                 }
@@ -185,11 +223,11 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         return null;
     }
 
-    private void getRemoteFiles(final String orbitType, final int year, final int month) throws Exception {
+    private static void getRemoteFiles(final String orbitType, final int year, final int month) throws Exception {
 
         final File localFolder;
         final URL remotePath;
-        if(orbitType.startsWith(RESTITUTED)) {
+        if (orbitType.startsWith(RESTITUTED)) {
             localFolder = new File(Settings.getPath("OrbitFiles.sentinel1RESOrbitPath"), String.valueOf(year));
             remotePath = new URL(Settings.instance().getPath("OrbitFiles.sentinel1RESOrbit_remotePath"));
         } else {
@@ -202,7 +240,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
             final DownloadableArchive archive = new DownloadableArchive(localFile, remotePath);
             archive.getContentFiles();
         } catch (Exception e) {
-            if(localFile.exists()) {
+            if (localFile.exists()) {
                 localFile.delete();
                 final DownloadableArchive archive = new DownloadableArchive(localFile, remotePath);
                 archive.getContentFiles();
@@ -210,8 +248,38 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         }
     }
 
+    private static void getQCFiles(final String orbitType, int year, int month) throws Exception {
+
+        final String type;
+        final File localFolder;
+
+        if(orbitType.startsWith(RESTITUTED)) {
+            type = QCScraper.RESORB;
+            localFolder = new File(Settings.getPath("OrbitFiles.sentinel1RESOrbitPath"), String.valueOf(year));
+        } else {
+            type = QCScraper.POEORB;
+            localFolder = new File(Settings.getPath("OrbitFiles.sentinel1POEOrbitPath"), String.valueOf(year));
+        }
+
+        final QCScraper qc = new QCScraper(type);
+        final URL remotePath = new URL(qc.getQCURL());
+
+        final String[] orbitFiles = qc.getFileURLs(year, month);
+
+        for(String file : orbitFiles) {
+            final File localFile = new File(localFolder, file);
+            DownloadableContentImpl.getRemoteHttpFile(remotePath, localFile);
+
+            final File localZipFile = FileUtils.exchangeExtension(localFile, ".zip");
+            ZipUtils.zipFile(localFile, localZipFile);
+
+            localFile.delete();
+        }
+    }
+
     /**
      * Check if product acquisition time is within the validity period of the orbit file.
+     *
      * @throws Exception
      */
     private void checkOrbitFileValidity() throws Exception {
@@ -233,7 +301,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         int startIdx = Collections.binarySearch(osvList, startOSV, new Orbits.OrbitComparator());
 
         if (startIdx < 0) {
-            final int insertionPt = -(startIdx+1);
+            final int insertionPt = -(startIdx + 1);
             if (insertionPt == osvList.size()) {
                 startIdx = insertionPt - 1;
             } else if (insertionPt <= 0) {
@@ -247,7 +315,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         int endIdx = Collections.binarySearch(osvList, endOSV, new Orbits.OrbitComparator());
 
         if (endIdx < 0) {
-            final int insertionPt = -(endIdx+1);
+            final int insertionPt = -(endIdx + 1);
             if (insertionPt == osvList.size()) {
                 endIdx = insertionPt - 1;
             } else if (insertionPt == 0) {
@@ -287,7 +355,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         final int numVecPolyFit = 4;
         final int[] vectorIndices = new int[numVecPolyFit];
 
-        final int vecIdx = (int)((utc - t0) / (tN - t0) * (numVectors - 1));
+        final int vecIdx = (int) ((utc - t0) / (tN - t0) * (numVectors - 1));
         if (vecIdx <= 0) {
             for (int i = 0; i < numVecPolyFit; i++) {
                 vectorIndices[i] = i;
@@ -331,96 +399,96 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         final double normalizedTime = utc - t0;
 
         return new Orbits.OrbitVector(utc,
-                Maths.polyVal(normalizedTime, xPosCoeff),
-                Maths.polyVal(normalizedTime, yPosCoeff),
-                Maths.polyVal(normalizedTime, zPosCoeff),
-                Maths.polyVal(normalizedTime, xVelCoeff),
-                Maths.polyVal(normalizedTime, yVelCoeff),
-                Maths.polyVal(normalizedTime, zVelCoeff));
+                                      Maths.polyVal(normalizedTime, xPosCoeff),
+                                      Maths.polyVal(normalizedTime, yPosCoeff),
+                                      Maths.polyVal(normalizedTime, zPosCoeff),
+                                      Maths.polyVal(normalizedTime, xVelCoeff),
+                                      Maths.polyVal(normalizedTime, yVelCoeff),
+                                      Maths.polyVal(normalizedTime, zVelCoeff));
     }
 
     private void readOrbitFile() throws Exception {
 
-            final DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
-            final DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
+        final DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
+        final DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
 
-            final Document doc;
-            if(orbitFile.getName().toLowerCase().endsWith(".zip")) {
-                final ZipFile productZip = new ZipFile(orbitFile, ZipFile.OPEN_READ);
-                final Enumeration<? extends ZipEntry> entries = productZip.entries();
-                final ZipEntry zipEntry = entries.nextElement();
+        final Document doc;
+        if (orbitFile.getName().toLowerCase().endsWith(".zip")) {
+            final ZipFile productZip = new ZipFile(orbitFile, ZipFile.OPEN_READ);
+            final Enumeration<? extends ZipEntry> entries = productZip.entries();
+            final ZipEntry zipEntry = entries.nextElement();
 
-                doc = documentBuilder.parse(productZip.getInputStream(zipEntry));
-            } else {
-                doc = documentBuilder.parse(orbitFile);
-            }
+            doc = documentBuilder.parse(productZip.getInputStream(zipEntry));
+        } else {
+            doc = documentBuilder.parse(orbitFile);
+        }
 
-            doc.getDocumentElement().normalize();
+        doc.getDocumentElement().normalize();
 
-            final NodeList nodeList = doc.getElementsByTagName("Earth_Explorer_File");
-            if (nodeList.getLength() != 1) {
-                throw new Exception("SentinelPODOrbitFile.readOrbitFile: ERROR found too many Earth_Explorer_File " + nodeList.getLength());
-            }
+        final NodeList nodeList = doc.getElementsByTagName("Earth_Explorer_File");
+        if (nodeList.getLength() != 1) {
+            throw new Exception("SentinelPODOrbitFile.readOrbitFile: ERROR found too many Earth_Explorer_File " + nodeList.getLength());
+        }
 
-            org.w3c.dom.Node fixedHeaderNode = null;
-            org.w3c.dom.Node variableHeaderNode = null;
-            org.w3c.dom.Node listOfOSVsNode = null;
+        org.w3c.dom.Node fixedHeaderNode = null;
+        org.w3c.dom.Node variableHeaderNode = null;
+        org.w3c.dom.Node listOfOSVsNode = null;
 
-            final NodeList fileChildNodes = nodeList.item(0).getChildNodes();
+        final NodeList fileChildNodes = nodeList.item(0).getChildNodes();
 
-            for (int i = 0; i < fileChildNodes.getLength(); i++) {
+        for (int i = 0; i < fileChildNodes.getLength(); i++) {
 
-                final org.w3c.dom.Node fileChildNode = fileChildNodes.item(i);
+            final org.w3c.dom.Node fileChildNode = fileChildNodes.item(i);
 
-                if (fileChildNode.getNodeName().equals("Earth_Explorer_Header")) {
+            if (fileChildNode.getNodeName().equals("Earth_Explorer_Header")) {
 
-                    final NodeList headerChildNodes = fileChildNode.getChildNodes();
+                final NodeList headerChildNodes = fileChildNode.getChildNodes();
 
-                    for (int j = 0; j < headerChildNodes.getLength(); j++) {
+                for (int j = 0; j < headerChildNodes.getLength(); j++) {
 
-                        final org.w3c.dom.Node headerChildNode = headerChildNodes.item(j);
+                    final org.w3c.dom.Node headerChildNode = headerChildNodes.item(j);
 
-                        if (headerChildNode.getNodeName().equals("Fixed_Header")) {
+                    if (headerChildNode.getNodeName().equals("Fixed_Header")) {
 
-                            fixedHeaderNode = headerChildNode;
+                        fixedHeaderNode = headerChildNode;
 
-                        }  else if (headerChildNode.getNodeName().equals("Variable_Header")) {
+                    } else if (headerChildNode.getNodeName().equals("Variable_Header")) {
 
-                            variableHeaderNode = headerChildNode;
-                        }
-                    }
-
-                }  else if (fileChildNode.getNodeName().equals("Data_Block")) {
-
-                    final NodeList dataBlockChildNodes = fileChildNode.getChildNodes();
-
-                    for (int j = 0; j < dataBlockChildNodes.getLength(); j++) {
-
-                        final org.w3c.dom.Node dataBlockChildNode = dataBlockChildNodes.item(j);
-
-                        if (dataBlockChildNode.getNodeName().equals("List_of_OSVs")) {
-
-                            listOfOSVsNode = dataBlockChildNode;
-                        }
+                        variableHeaderNode = headerChildNode;
                     }
                 }
 
-                if (fixedHeaderNode != null && variableHeaderNode != null && listOfOSVsNode != null) {
-                    break;
+            } else if (fileChildNode.getNodeName().equals("Data_Block")) {
+
+                final NodeList dataBlockChildNodes = fileChildNode.getChildNodes();
+
+                for (int j = 0; j < dataBlockChildNodes.getLength(); j++) {
+
+                    final org.w3c.dom.Node dataBlockChildNode = dataBlockChildNodes.item(j);
+
+                    if (dataBlockChildNode.getNodeName().equals("List_of_OSVs")) {
+
+                        listOfOSVsNode = dataBlockChildNode;
+                    }
                 }
             }
 
-            if (fixedHeaderNode != null) {
-
-                readFixedHeader(fixedHeaderNode);
+            if (fixedHeaderNode != null && variableHeaderNode != null && listOfOSVsNode != null) {
+                break;
             }
+        }
 
-            // Don't need anything from Variable_Header.
+        if (fixedHeaderNode != null) {
 
-            if (listOfOSVsNode != null) {
+            readFixedHeader(fixedHeaderNode);
+        }
 
-                readOSVList(listOfOSVsNode);
-            }
+        // Don't need anything from Variable_Header.
+
+        if (listOfOSVsNode != null) {
+
+            readOSVList(listOfOSVsNode);
+        }
     }
 
     private void readFixedHeader(final org.w3c.dom.Node fixedHeaderNode) {
@@ -525,31 +593,31 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
                 case "UTC": {
                     utc = childNode.getTextContent();
                 }
-                    break;
+                break;
                 case "X": {
                     x = Double.parseDouble(childNode.getTextContent());
                 }
-                    break;
+                break;
                 case "Y": {
                     y = Double.parseDouble(childNode.getTextContent());
                 }
-                    break;
+                break;
                 case "Z": {
                     z = Double.parseDouble(childNode.getTextContent());
                 }
-                    break;
+                break;
                 case "VX": {
                     vx = Double.parseDouble(childNode.getTextContent());
                 }
-                    break;
+                break;
                 case "VY": {
                     vy = Double.parseDouble(childNode.getTextContent());
                 }
-                    break;
+                break;
                 case "VZ": {
                     vz = Double.parseDouble(childNode.getTextContent());
                 }
-                    break;
+                break;
                 default:
                     break;
             }
@@ -557,13 +625,13 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
             childNode = childNode.getNextSibling();
         }
 
-        final double utcTime =  toUTC(utc).getMJD();
+        final double utcTime = toUTC(utc).getMJD();
 
         osvList.add(new Orbits.OrbitVector(utcTime, x, y, z, vx, vy, vz));
     }
 
     // TODO This is copied from Sentinel1Level0Reader.java; may be we should put in in some utilities class.
-    private org.w3c.dom.Node getAttributeFromNode(final org.w3c.dom.Node node, final String attrName) {
+    private static org.w3c.dom.Node getAttributeFromNode(final org.w3c.dom.Node node, final String attrName) {
 
         // Will look for attribute called attrName in the given node
 
@@ -592,12 +660,12 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
     private static String convertUTC(String utc) {
 
-        return utc.replace("UTC=","").replace("T"," ");
+        return utc.replace("UTC=", "").replace("T", " ");
     }
 
     public static String getMissionIDFromFilename(String filename) {
 
-        return filename.substring(0,3);
+        return filename.substring(0, 3);
     }
 
     public static String getFileTypeFromFilename(String filename) {
@@ -607,24 +675,24 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
     private static String extractUTCTimeFromFilename(final String filename, final int offset) {
 
-        final String yyyy = filename.substring(offset,offset+4);
-        final String mmDate = filename.substring(offset+4, offset+6);
-        final String dd = filename.substring(offset+6, offset+8);
-        final String hh = filename.substring(offset+9, offset+11);
-        final String mmTime = filename.substring(offset+11, offset+13);
-        final String ss = filename.substring(offset+13, offset+15);
+        final String yyyy = filename.substring(offset, offset + 4);
+        final String mmDate = filename.substring(offset + 4, offset + 6);
+        final String dd = filename.substring(offset + 6, offset + 8);
+        final String hh = filename.substring(offset + 9, offset + 11);
+        final String mmTime = filename.substring(offset + 11, offset + 13);
+        final String ss = filename.substring(offset + 13, offset + 15);
 
-        return "UTC=" + yyyy + "-" + mmDate + "-" + dd + "T" + hh + ":" + mmTime + ":" + ss;
+        return "UTC=" + yyyy + '-' + mmDate + '-' + dd + 'T' + hh + ':' + mmTime + ':' + ss;
     }
 
     private static String extractTimeFromFilename(final String filename, final int offset) {
 
-        return filename.substring(offset,offset+15).replace("T","-");
+        return filename.substring(offset, offset + 15).replace("T", "-");
     }
 
     public static ProductData.UTC getValidityStartFromFilenameUTC(String filename) throws ParseException {
 
-        if (filename.substring(41,42).equals("V")) {
+        if (filename.substring(41, 42).equals("V")) {
 
             String val = extractTimeFromFilename(filename, 42);
             return ProductData.UTC.parse(val, dateFormat);
@@ -634,7 +702,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
     public static ProductData.UTC getValidityStopFromFilenameUTC(String filename) throws ParseException {
 
-        if (filename.substring(41,42).equals("V")) {
+        if (filename.substring(41, 42).equals("V")) {
 
             String val = extractTimeFromFilename(filename, 58);
             return ProductData.UTC.parse(val, dateFormat);
@@ -644,7 +712,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
     public static String getValidityStartFromFilename(String filename) {
 
-        if (filename.substring(41,42).equals("V")) {
+        if (filename.substring(41, 42).equals("V")) {
 
             return extractUTCTimeFromFilename(filename, 42);
         }
@@ -653,7 +721,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
     public static String getValidityStopFromFilename(String filename) {
 
-        if (filename.substring(41,42).equals("V")) {
+        if (filename.substring(41, 42).equals("V")) {
 
             return extractUTCTimeFromFilename(filename, 58);
         }
@@ -694,5 +762,19 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
     public static ProductData.UTC toUTC(final String str) throws ParseException {
         return ProductData.UTC.parse(convertUTC(str), orbitDateFormat);
+    }
+
+    private static class MyFilenameFilter implements FilenameFilter {
+        private final String prefix;
+
+        public MyFilenameFilter(String prefix) {
+            this.prefix = prefix;
+        }
+
+        @Override
+        public boolean accept(File dir, String name) {
+            name = name.toUpperCase();
+            return (name.endsWith(".ZIP") || name.endsWith(".EOF")) && name.startsWith(prefix);
+        }
     }
 }
