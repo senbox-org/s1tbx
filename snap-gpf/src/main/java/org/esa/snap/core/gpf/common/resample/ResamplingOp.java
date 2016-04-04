@@ -149,8 +149,8 @@ public class ResamplingOp extends Operator {
         ProductUtils.copyIndexCodings(sourceProduct, targetProduct);
         ProductUtils.copyMetadata(sourceProduct, targetProduct);
         transferGeoCoding(targetProduct);
-        ProductUtils.copyVectorData(sourceProduct, targetProduct);
         copyMasks(sourceProduct, targetProduct);
+        ProductUtils.copyVectorData(sourceProduct, targetProduct);
         targetProduct.setAutoGrouping(sourceProduct.getAutoGrouping());
     }
 
@@ -215,13 +215,13 @@ public class ResamplingOp extends Operator {
             } else if (imageType.getName().equals(Mask.VectorDataType.TYPE_NAME)) {
                 final VectorDataNode vectorDataMaskNode = Mask.VectorDataType.getVectorData(mask);
                 final String vectorDataNodeName = vectorDataMaskNode.getName();
-                VectorDataNode targetVectorDataNode = targetProduct.getVectorDataGroup().get(vectorDataNodeName);
-                if (targetVectorDataNode == null) {
-                    targetVectorDataNode = transferVectorDataNode(targetProduct, vectorDataMaskNode);
-                }
-                if (targetVectorDataNode != null) {
-                    targetProduct.addMask(mask.getName(), targetVectorDataNode, mask.getDescription(), mask.getImageColor(),
-                                          mask.getImageTransparency());
+                //deal with case that a mask's vector data node is not in a product's vector data group
+                if (sourceProduct.getVectorDataGroup().get(vectorDataNodeName) == null) {
+                    final VectorDataNode targetVectorDataNode = transferVectorDataNode(targetProduct, vectorDataMaskNode);
+                    if (targetVectorDataNode != null) {
+                        targetProduct.addMask(mask.getName(), targetVectorDataNode, mask.getDescription(), mask.getImageColor(),
+                                              mask.getImageTransparency());
+                    }
                 }
             } else if (imageType.canTransferMask(mask, targetProduct)) {
                 imageType.transferMask(mask, targetProduct);
@@ -259,10 +259,10 @@ public class ResamplingOp extends Operator {
             }
         }
         VectorDataNode targetVDN = new VectorDataNode(sourceVDN.getName(), sourceCollection.getSchema());
-        targetVDN.setOwner(targetProduct);
         targetVDN.getFeatureCollection().addAll(targetCollection);
         targetVDN.setDefaultStyleCss(sourceVDN.getDefaultStyleCss());
         targetVDN.setDescription(sourceVDN.getDescription());
+        targetVDN.setOwner(targetProduct);
         return targetVDN;
     }
 
