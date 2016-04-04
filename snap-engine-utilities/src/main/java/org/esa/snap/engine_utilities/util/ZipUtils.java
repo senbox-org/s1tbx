@@ -38,10 +38,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 /**
  * For zipping and unzipping compressed files
@@ -149,6 +154,47 @@ public class ZipUtils {
 
     public static InputStream unZipToStream(final File file) throws Exception {
         return new ZipArchiveInputStream(new FileInputStream(file));
+    }
+
+    public static void zipFolder(final Path directory, final File outputZipFile) throws IOException {
+
+        try( ZipOutputStream zipStream = new ZipOutputStream(new FileOutputStream(outputZipFile)) ) {
+
+            // traverse every file in the selected directory and add them
+            // to the zip file by calling addToZipFile(..)
+            DirectoryStream<Path> dirStream = Files.newDirectoryStream(directory);
+            dirStream.forEach(path -> addToZipFile(path.toFile(), zipStream));
+        } catch (IOException e) {
+            throw e;
+        }
+    }
+
+    public static void zipFile(final File file, final File outputZipFile) throws IOException {
+
+        try( ZipOutputStream zipStream = new ZipOutputStream(new FileOutputStream(outputZipFile)) ) {
+            addToZipFile(file, zipStream);
+        }
+    }
+
+    private static void addToZipFile(File file, ZipOutputStream zipStream) {
+
+        try (FileInputStream inputStream = new FileInputStream(file.getPath())) {
+
+            ZipEntry entry = new ZipEntry(file.getName());
+            entry.setCreationTime(FileTime.fromMillis(file.lastModified()));
+            zipStream.putNextEntry(entry);
+
+            final byte[] readBuffer = new byte[2048];
+            int amountRead;
+            int written = 0;
+
+            while ((amountRead = inputStream.read(readBuffer)) > 0) {
+                zipStream.write(readBuffer, 0, amountRead);
+                written += amountRead;
+            }
+        } catch (Exception e) {
+            SystemUtils.LOG.severe("Unable to zip "+file);
+        }
     }
 
     public static InputStream unzipToStream(final File file) throws Exception {
