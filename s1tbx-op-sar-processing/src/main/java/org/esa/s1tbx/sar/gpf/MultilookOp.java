@@ -84,9 +84,9 @@ public final class MultilookOp extends Operator {
             label = "Number of Azimuth Looks")
     private int nAzLooks = 1;
 
-    @Parameter(description = "For complex product output intensity or i and q", defaultValue = "true",
+    @Parameter(description = "For complex product output intensity or i and q", defaultValue = "false",
             label = "Output Intensity")
-    private Boolean outputIntensity = true;
+    private Boolean outputIntensity = false;
 
     @Parameter(description = "Use ground square pixel", defaultValue = "true", label = "GR Square Pixel")
     private Boolean grSquarePixel = true;

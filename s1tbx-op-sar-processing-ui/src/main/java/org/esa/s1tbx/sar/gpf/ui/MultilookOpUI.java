@@ -46,7 +46,7 @@ public class MultilookOpUI extends BaseOperatorUI {
     private final JCheckBox independentLooksCheckBox = new JCheckBox("Independent Looks");
     private final JCheckBox outputIntensityCheckBox = new JCheckBox("Output Intensity");
 
-    private Boolean outputIntensity = true;
+    private Boolean outputIntensity = false;
     private Boolean grSquarePixel = true;
     private final MultilookOp.DerivedParams param = new MultilookOp.DerivedParams();
 
@@ -118,24 +118,9 @@ public class MultilookOpUI extends BaseOperatorUI {
         }
 
         if (sourceProducts != null && sourceProducts.length > 0) {
-            if(containsPhase()) {
-                outputIntensityCheckBox.setSelected(false);
-            }
-
             setAzimuthLooks();
             setRangeLooks();
         }
-    }
-
-    private boolean containsPhase() {
-        if (sourceProducts != null && sourceProducts.length > 0) {
-            for(String bandName : sourceProducts[0].getBandNames()) {
-                if(bandName.startsWith("Phase")) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     private synchronized void setAzimuthLooks() {
