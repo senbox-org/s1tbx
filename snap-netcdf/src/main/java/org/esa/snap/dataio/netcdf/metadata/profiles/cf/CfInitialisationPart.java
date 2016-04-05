@@ -19,6 +19,7 @@ package org.esa.snap.dataio.netcdf.metadata.profiles.cf;
 import org.esa.snap.core.dataio.ProductIOException;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.image.ImageManager;
+import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.dataio.netcdf.ProfileReadContext;
 import org.esa.snap.dataio.netcdf.ProfileWriteContext;
 import org.esa.snap.dataio.netcdf.metadata.ProfileInitPartIO;
@@ -77,8 +78,8 @@ public class CfInitialisationPart extends ProfileInitPartIO {
 
     public String readProductType(final ProfileReadContext ctx) {
         Attribute productType = ctx.getNetcdfFile().findGlobalAttribute("Conventions");
-        if (productType != null) {
-            return productType.getStringValue();
+        if (productType != null && StringUtils.isNotNullAndNotEmpty(productType.getStringValue())) {
+            return  productType.getStringValue();
         } else {
             return Constants.FORMAT_NAME;
         }
