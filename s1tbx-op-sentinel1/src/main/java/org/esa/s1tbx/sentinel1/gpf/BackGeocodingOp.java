@@ -43,6 +43,7 @@ import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.dem.dataio.DEMFactory;
+import org.esa.snap.dem.dataio.EarthGravitationalModel96;
 import org.esa.snap.dem.dataio.FileElevationModel;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.PosVector;
@@ -813,6 +814,8 @@ public final class BackGeocodingOp extends Operator {
             final PositionData posData = new PositionData();
             final PixelPos pix = new PixelPos();
 
+            final EarthGravitationalModel96 egm = EarthGravitationalModel96.instance();
+
             boolean noValidSlavePixPos = true;
             for (int l = 0; l < numLines; l++) {
                 for (int p = 0; p < numPixels; p++) {
@@ -821,7 +824,11 @@ public final class BackGeocodingOp extends Operator {
                     GeoPos gp = dem.getGeoPos(pix);
                     lat[l][p] = gp.lat;
                     lon[l][p] = gp.lon;
-                    final double alt = dem.getElevation(gp);
+
+                    double alt = dem.getElevation(gp);
+                    if (alt == demNoDataValue && !maskOutAreaWithoutElevation) { // get corrected elevation for 0
+                        alt = egm.getEGM(gp.lat, gp.lon);
+                    }
 
                     if (alt != demNoDataValue) {
                         GeoUtils.geo2xyzWGS84(gp.lat, gp.lon, alt, posData.earthPoint);
