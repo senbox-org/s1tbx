@@ -30,7 +30,7 @@ public class TestQCScraper {
         final QCScraper qc = new QCScraper(QCScraper.POEORB);
 
         String[] orbitFiles = qc.getFileURLs(2016, 2);
-        assertEquals(73, orbitFiles.length);
+        assertEquals(60, orbitFiles.length);
     }
 
     @Test
@@ -38,6 +38,6 @@ public class TestQCScraper {
         final QCScraper qc = new QCScraper(QCScraper.RESORB);
 
         String[] orbitFiles = qc.getFileURLs(2016, 2);
-        assertEquals(620, orbitFiles.length);
+        assertEquals(640, orbitFiles.length);
     }
 }
