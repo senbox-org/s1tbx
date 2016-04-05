@@ -16,12 +16,9 @@
 package org.esa.s1tbx.sentinel1.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
 import org.apache.commons.math3.util.FastMath;
-import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
 import org.esa.s1tbx.insar.gpf.support.SARGeocoding;
+import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.MetadataAttribute;
@@ -44,6 +41,7 @@ import org.esa.snap.core.gpf.annotations.SourceProducts;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.dem.dataio.DEMFactory;
 import org.esa.snap.dem.dataio.FileElevationModel;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
@@ -57,17 +55,13 @@ import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
-import org.jlinda.core.delaunay.FastDelaunayTriangulator;
-import org.jlinda.core.delaunay.Triangle;
 import org.jlinda.core.delaunay.TriangleInterpolator;
-import org.jlinda.core.delaunay.TriangulationException;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -142,14 +136,13 @@ public final class BackGeocodingOp extends Operator {
     private boolean burstOffsetComputed = false;
     private String swathIndexStr = null;
     private String subSwathName = null;
-    private String polarization = null;
 
     private SARGeocoding.Orbit mOrbit = null;
     private SARGeocoding.Orbit sOrbit = null;
 
     private final HashMap<Band, Band> targetBandToSlaveBandMap = new HashMap<>(2);
 
-    private final double invalidIndex = -9999.0;
+    private static final double invalidIndex = -9999.0;
 
     private static final String PRODUCT_SUFFIX = "_Stack";
 
@@ -223,8 +216,6 @@ public final class BackGeocodingOp extends Operator {
 				throw new OperatorException("Same polarization is expected.");
 			}
 
-			polarization = mPolarizations[0];
-
             if (externalDEMFile == null) {
                 DEMFactory.checkIfDEMInstalled(demName);
             }
@@ -241,7 +232,7 @@ public final class BackGeocodingOp extends Operator {
 
             updateTargetProductMetadata();
 
-            final Band masterBandI = getBand(masterProduct, "i_", swathIndexStr, polarization);
+            final Band masterBandI = getBand(masterProduct, "i_", swathIndexStr, mSU.getPolarizations()[0]);
             noDataValue = masterBandI.getNoDataValue();
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -459,10 +450,6 @@ public final class BackGeocodingOp extends Operator {
             //System.out.println("tx0 = " + tx0 + ", ty0 = " + ty0 + ", tw = " + tw + ", th = " + th);
 
             if (!isElevationModelAvailable) {
-                if (mSU.getPolarizations().length != 1 || sSU.getPolarizations().length != 1) {
-                    throw new OperatorException("Split product with one polarization is expected.");
-                }
-
                 getElevationModel();
             }
 
@@ -757,22 +744,24 @@ public final class BackGeocodingOp extends Operator {
             return;
         }
 
-        final Band slaveBandI = getBand(slaveProduct, "i_", swathIndexStr, polarization);
-        final Band slaveBandQ = getBand(slaveProduct, "q_", swathIndexStr, polarization);
-        final Tile slaveTileI = getSourceTile(slaveBandI, sourceRectangle);
-        final Tile slaveTileQ = getSourceTile(slaveBandQ, sourceRectangle);
+        for(String polarization : mSU.getPolarizations()) {
+            final Band slaveBandI = getBand(slaveProduct, "i_", swathIndexStr, polarization);
+            final Band slaveBandQ = getBand(slaveProduct, "q_", swathIndexStr, polarization);
+            final Tile slaveTileI = getSourceTile(slaveBandI, sourceRectangle);
+            final Tile slaveTileQ = getSourceTile(slaveBandQ, sourceRectangle);
 
-        if (slaveTileI == null || slaveTileQ == null) {
-            return;
+            if (slaveTileI == null || slaveTileQ == null) {
+                return;
+            }
+
+            final double[][] derampDemodI = new double[sourceRectangle.height][sourceRectangle.width];
+            final double[][] derampDemodQ = new double[sourceRectangle.height][sourceRectangle.width];
+
+            performDerampDemod(slaveTileI, slaveTileQ, sourceRectangle, derampDemodPhase, derampDemodI, derampDemodQ);
+
+            performInterpolation(x0, y0, w, h, sourceRectangle, slaveTileI, slaveTileQ, targetTileMap, derampDemodPhase,
+                                 derampDemodI, derampDemodQ, slavePixPos, subSwathIndex, sBurstIndex, polarization);
         }
-
-        final double[][] derampDemodI = new double[sourceRectangle.height][sourceRectangle.width];
-        final double[][] derampDemodQ = new double[sourceRectangle.height][sourceRectangle.width];
-
-        performDerampDemod(slaveTileI, slaveTileQ, sourceRectangle, derampDemodPhase, derampDemodI, derampDemodQ);
-
-        performInterpolation(x0, y0, w, h, sourceRectangle, slaveTileI, slaveTileQ, targetTileMap, derampDemodPhase,
-                derampDemodI, derampDemodQ, slavePixPos, subSwathIndex, sBurstIndex);
     }
 
     private boolean computeSlavePixPos(final int subSwathIndex, final int mBurstIndex, final int sBurstIndex,
@@ -1153,16 +1142,17 @@ public final class BackGeocodingOp extends Operator {
                                       final Rectangle sourceRectangle, final Tile slaveTileI, final Tile slaveTileQ,
                                       final Map<Band, Tile> targetTileMap, final double[][] derampDemodPhase,
                                       final double[][] derampDemodI, final double[][] derampDemodQ,
-                                      final PixelPos[][] slavePixPos, final int subswathIndex, final int sBurstIndex) {
+                                      final PixelPos[][] slavePixPos, final int subswathIndex, final int sBurstIndex,
+                                      final String polarization) {
 
         try {
             final ResamplingRaster resamplingRasterI = new ResamplingRaster(slaveTileI, derampDemodI);
             final ResamplingRaster resamplingRasterQ = new ResamplingRaster(slaveTileQ, derampDemodQ);
             final ResamplingRaster resamplingRasterPhase = new ResamplingRaster(slaveTileI, derampDemodPhase);
 
-            final Band iBand = getTargetBand("i_", StackUtils.SLV);
-            final Band qBand = getTargetBand("q_", StackUtils.SLV);
-            final Band phaseBand = getTargetBand("derampDemodPhase", null);
+            final Band iBand = getTargetBand("i_", StackUtils.SLV, polarization);
+            final Band qBand = getTargetBand("q_", StackUtils.SLV, polarization);
+            final Band phaseBand = getTargetBand("derampDemodPhase");
 
             if (iBand == null || qBand == null) {
                 return;
@@ -1271,8 +1261,8 @@ public final class BackGeocodingOp extends Operator {
                                            final int subSwathIndex, final int mBurstIndex, final int sBurstIndex) {
 
         try {
-            final Band azOffsetBand = getTargetBand("azOffset", null);
-            final Band rgOffsetBand = getTargetBand("rgOffset", null);
+            final Band azOffsetBand = getTargetBand("azOffset");
+            final Band rgOffsetBand = getTargetBand("rgOffset");
 
             if (azOffsetBand == null || rgOffsetBand == null) {
                 return;
@@ -1330,7 +1320,7 @@ public final class BackGeocodingOp extends Operator {
                            final Map<Band, Tile> targetTileMap, final double[][] elevation) {
 
         try {
-            final Band elevBand = getTargetBand("elevation", null);
+            final Band elevBand = getTargetBand("elevation");
             if (elevBand == null) {
                 return;
             }
@@ -1353,25 +1343,21 @@ public final class BackGeocodingOp extends Operator {
         }
     }
 
-    private Band getTargetBand(final String name, final String tag) {
+    private Band getTargetBand(final String name) {
+        return getTargetBand(name, null, null);
+    }
+
+    private Band getTargetBand(final String name, final String tag, final String pol) {
 
         final Band[] targetBands = targetProduct.getBands();
-        if (tag != null) {
-            for (Band band : targetBands) {
-                final String bandName = band.getName();
-                if (bandName.contains(name) && bandName.contains(tag)) {
-                    return band;
-                }
-            }
-        } else {
-            for (Band band : targetBands) {
-                final String bandName = band.getName();
-                if (bandName.contains(name)) {
-                    return band;
-                }
+        for (Band band : targetBands) {
+            final String bandName = band.getName();
+            if (tag != null && bandName.contains(name) && bandName.contains(tag) && pol != null && bandName.contains(pol)) {
+                return band;
+            } else if (tag == null && bandName.contains(name)) {
+                return band;
             }
         }
-
         return null;
     }
 
@@ -1432,7 +1418,7 @@ public final class BackGeocodingOp extends Operator {
                     ++i;
                 }
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+                SystemUtils.LOG.severe(e.getMessage());
                 allValid = false;
             }
 
