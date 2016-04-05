@@ -106,7 +106,7 @@ public class InterferogramOpUI extends BaseOperatorUI {
                 squarePixel = (e.getStateChange() == ItemEvent.SELECTED);
                 independentWindowSizeCheckBox.setSelected(!squarePixel);
                 if (squarePixel) {
-                    cohWinAz.setText("2");
+                    cohWinAz.setText("");
                     cohWinAz.setEditable(false);
                 }
                 setCohWinAz();
@@ -163,7 +163,7 @@ public class InterferogramOpUI extends BaseOperatorUI {
             squarePixelCheckBox.setSelected(squarePixel);
             independentWindowSizeCheckBox.setSelected(!squarePixel);
             if (squarePixel) {
-                cohWinAz.setText("2");
+                cohWinAz.setText("");
                 cohWinAz.setEditable(false);
             } else {
                 cohWinAz.setEditable(true);
@@ -201,8 +201,15 @@ public class InterferogramOpUI extends BaseOperatorUI {
         paramMap.put("includeCoherence", includeCoherence);
 
         if (includeCoherence) {
-            paramMap.put("cohWinAz", Integer.parseInt(cohWinAz.getText()));
-            paramMap.put("cohWinRg", Integer.parseInt(cohWinRg.getText()));
+            final String cohWinRgStr = cohWinRg.getText();
+            final String cohWinAzStr = cohWinAz.getText();
+            if (cohWinRgStr != null && !cohWinRgStr.isEmpty())
+                paramMap.put("cohWinRg", Integer.parseInt(cohWinRg.getText()));
+
+            if (cohWinAzStr != null && !cohWinAzStr.isEmpty())
+                paramMap.put("cohWinAz", Integer.parseInt(cohWinAz.getText()));
+
+            paramMap.put("squarePixel", squarePixel);
         }
     }
 
