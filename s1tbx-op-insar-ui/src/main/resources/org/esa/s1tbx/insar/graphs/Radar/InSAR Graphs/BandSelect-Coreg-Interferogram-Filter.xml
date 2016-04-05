@@ -98,6 +98,7 @@
       <srpNumberPoints>501</srpNumberPoints>
       <orbitDegree>3</orbitDegree>
       <includeCoherence>true</includeCoherence>
+	  <squarePixel>true</squarePixel>
       <cohWinAz>2</cohWinAz>
       <cohWinRg>10</cohWinRg>
     </parameters>
