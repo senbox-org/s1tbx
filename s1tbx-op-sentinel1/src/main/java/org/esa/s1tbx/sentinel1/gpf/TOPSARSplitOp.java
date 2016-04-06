@@ -342,16 +342,16 @@ public final class TOPSARSplitOp extends Operator {
                 subSwathInfo[subSwathIndex - 1].longitude[firstBurstIndex - 1][cols - 1]);
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat,
-                subSwathInfo[subSwathIndex - 1].latitude[lastBurstIndex - 1][0]);
+                subSwathInfo[subSwathIndex - 1].latitude[lastBurstIndex][0]);
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long,
-                subSwathInfo[subSwathIndex - 1].longitude[lastBurstIndex - 1][0]);
+                subSwathInfo[subSwathIndex - 1].longitude[lastBurstIndex][0]);
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat,
-                subSwathInfo[subSwathIndex - 1].latitude[lastBurstIndex - 1][cols - 1]);
+                subSwathInfo[subSwathIndex - 1].latitude[lastBurstIndex][cols - 1]);
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long,
-                subSwathInfo[subSwathIndex - 1].longitude[lastBurstIndex - 1][cols - 1]);
+                subSwathInfo[subSwathIndex - 1].longitude[lastBurstIndex][cols - 1]);
 
         final double incidenceNear = OperatorUtils.getIncidenceAngle(targetProduct).getPixelDouble(
                 0, targetProduct.getSceneRasterHeight() / 2);
