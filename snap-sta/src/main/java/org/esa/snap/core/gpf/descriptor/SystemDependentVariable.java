@@ -59,17 +59,8 @@ public class SystemDependentVariable extends SystemVariable {
     @Override
     public void setValue(String value) {
         values.put(currentOS, value);
-        switch (currentOS) {
-            case windows:
-                this.windows = value;
-                break;
-            case linux:
-                this.linux = value;
-                break;
-            case macosx:
-                this.macosx = value;
-                break;
-        }
+        this.value = value;
+
         if (!isTransient && value != null && !value.isEmpty() && this.isShared) {
             ToolAdapterIO.saveVariable(this.key, value);
         }
@@ -95,7 +86,7 @@ public class SystemDependentVariable extends SystemVariable {
      * Sets the property value for Windows
      */
     public void setWindows(String value) {
-        windows = value;
+        this.windows = value;
         if (currentOS == OS.windows) {
             setValue(value);
         }
@@ -110,7 +101,7 @@ public class SystemDependentVariable extends SystemVariable {
      * Sets the property value for Linux
      */
     public void setLinux(String value) {
-        linux = value;
+        this.linux = value;
         if (currentOS == OS.linux) {
             setValue(value);
         }
@@ -123,7 +114,7 @@ public class SystemDependentVariable extends SystemVariable {
      * Sets the property value for MacOSX
      */
     public void setMacosx(String value) {
-        macosx = value;
+        this.macosx = value;
         if (currentOS == OS.macosx) {
             setValue(value);
         }
@@ -155,5 +146,9 @@ public class SystemDependentVariable extends SystemVariable {
             }
         });
         values.put(currentOS, resolve());
+    }
+
+    public String getCurrentOSValue(){
+        return values.get(currentOS);
     }
 }
