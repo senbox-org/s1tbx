@@ -102,6 +102,9 @@ public class ReadOp extends Operator {
                         targetProduct.setProductReader(this.productReader);
 
                         for (Band srcband : openedProduct.getBands()) {
+                            if(targetProduct.getBand(srcband.getName()) != null) {
+                                continue;
+                            }
                             if (srcband instanceof VirtualBand) {
                                 ProductUtils.copyVirtualBand(targetProduct, (VirtualBand) srcband, srcband.getName());
                             } else {
