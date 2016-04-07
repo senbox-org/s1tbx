@@ -193,8 +193,6 @@ public class CrossCorrelationOp extends Operator {
     private boolean collocatedStack = false;
 
     private ElevationModel dem = null;
-
-    private CorrelationWindow coarseWin;
     private CorrelationWindow fineWin;
 
     /**
@@ -231,14 +229,6 @@ public class CrossCorrelationOp extends Operator {
 
             getMasterBands();
 
-            // parameters: Coarse
-            coarseWin = new CorrelationWindow(
-                    Integer.parseInt(coarseRegistrationWindowWidth),
-                    Integer.parseInt(coarseRegistrationWindowHeight),
-                    Integer.parseInt(rowInterpFactor),
-                    Integer.parseInt(columnInterpFactor),
-                    1);
-
             // parameters: Fine
             if(applyFineRegistration) {
                 if (complexCoregistration) {
@@ -253,8 +243,8 @@ public class CrossCorrelationOp extends Operator {
                     fineWin = new CorrelationWindow(
                             Integer.parseInt(fineRegistrationWindowWidth),
                             Integer.parseInt(fineRegistrationWindowHeight),
-                            Integer.parseInt(fineRegistrationWindowAccAzimuth),
                             Integer.parseInt(fineRegistrationWindowAccRange),
+                            Integer.parseInt(fineRegistrationWindowAccAzimuth),
                             Integer.parseInt(fineRegistrationOversampling));
                 }
             }
@@ -591,17 +581,12 @@ public class CrossCorrelationOp extends Operator {
                         @Override
                         public void run() {
                             //System.out.println("Running "+mPin.getName());
-                            boolean getSlaveGCP;
-                            if (complexCoregistration && inSAROptimized) {
-                                getSlaveGCP = getCoarseOffsets(slaveBand1, slaveBand2, mGCPPixelPos, sGCPPixelPos);
+                            boolean getSlaveGCP = getCoarseSlaveGCPPosition(slaveBand1, slaveBand2, mGCPPixelPos, sGCPPixelPos);
 
-                                if (getSlaveGCP && applyFineRegistration) {
+                            if (getSlaveGCP && complexCoregistration && applyFineRegistration) {
+                                if (inSAROptimized) {
                                     getSlaveGCP = getFineOffsets(slaveBand1, slaveBand2, mGCPPixelPos, sGCPPixelPos);
-                                }
-                            } else {
-                                getSlaveGCP = getCoarseSlaveGCPPosition(slaveBand1, slaveBand2, mGCPPixelPos, sGCPPixelPos);
-
-                                if (getSlaveGCP && complexCoregistration && applyFineRegistration) {
+                                } else {
                                     getSlaveGCP = getFineSlaveGCPPosition(slaveBand1, slaveBand2, mGCPPixelPos, sGCPPixelPos);
                                 }
                             }
@@ -804,7 +789,7 @@ public class CrossCorrelationOp extends Operator {
             // System.out.println("offsetX = " + offset[0] + ", offsetY = " + offset[1]);
 
         } catch (Throwable e) {
-            OperatorUtils.catchOperatorException(getId() + " getCoarseSlaveGCPPosition ", e);
+            OperatorUtils.catchOperatorException(getId() + " determiningImageOffset ", e);
         }
     }
 
@@ -883,33 +868,6 @@ public class CrossCorrelationOp extends Operator {
 
         return (pixelPos.x - cHalfWindowWidth + 1 >= 0 && pixelPos.x + cHalfWindowWidth <= sourceImageWidth - 1) &&
                 (pixelPos.y - cHalfWindowHeight + 1 >= 0 && pixelPos.y + cHalfWindowHeight <= sourceImageHeight - 1);
-    }
-
-    private boolean getCoarseOffsets(final Band slaveBand1, final Band slaveBand2,
-                                     final PixelPos mGCPPixelPos,
-                                     final PixelPos sGCPPixelPos) {
-
-        try {
-            // get data
-            final ComplexDoubleMatrix mI = getComplexDoubleMatrix(masterBand1, masterBand2, mGCPPixelPos, coarseWin);
-            final ComplexDoubleMatrix sI = getComplexDoubleMatrix(slaveBand1, slaveBand2, sGCPPixelPos, coarseWin);
-
-            final double[] coarseOffset = {0, 0};
-
-            double coherence = CoregistrationUtils.crossCorrelateFFT(coarseOffset, mI, sI, coarseWin.ovsFactor, coarseWin.accY, coarseWin.accX);
-
-            SystemUtils.LOG.info("Coarse sGCP = ({}, {})" + coarseOffset[1] + coarseOffset[0]);
-            SystemUtils.LOG.info("Coarse sGCP coherence = {}" + coherence);
-
-            sGCPPixelPos.x += (float) coarseOffset[1];
-            sGCPPixelPos.y += (float) coarseOffset[0];
-
-            return true;
-
-        } catch (Throwable e) {
-            OperatorUtils.catchOperatorException(getId() + " getCoarseSlaveGCPPosition ", e);
-        }
-        return false;
     }
 
     private boolean getFineOffsets(final Band slaveBand1, final Band slaveBand2,
