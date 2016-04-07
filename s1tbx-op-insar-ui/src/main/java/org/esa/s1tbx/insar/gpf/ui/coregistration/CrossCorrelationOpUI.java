@@ -249,6 +249,8 @@ public class CrossCorrelationOpUI extends BaseOperatorUI {
         gbc3.gridy++;
         DialogUtils.addComponent(finePanel, gbc3, "Fine Window Height:", fineRegistrationWindowHeight);
         gbc3.gridy++;
+        DialogUtils.addComponent(finePanel, gbc3, "Coherence Threshold:", coherenceThreshold);
+        gbc3.gridy++;
 
 
         finePanel.add(crossCorrelationCheckBox, gbc3);
@@ -271,8 +273,6 @@ public class CrossCorrelationOpUI extends BaseOperatorUI {
         finePanel.add(useSlidingWindowCheckBox, gbc3);
         gbc3.gridy++;
         DialogUtils.addComponent(finePanel, gbc3, "Coherence Window Size:", coherenceWindowSize);
-        gbc3.gridy++;
-        DialogUtils.addComponent(finePanel, gbc3, "Coherence Threshold:", coherenceThreshold);
         gbc3.gridy++;
 
         enableComplexFields();
@@ -299,7 +299,7 @@ public class CrossCorrelationOpUI extends BaseOperatorUI {
         fineRegistrationOversampling.setEnabled(isComplex && applyFineRegistration && inSAROptimized);
 
         coherenceWindowSize.setEnabled(isComplex && applyFineRegistration && useSlidingWindow && !inSAROptimized);
-        coherenceThreshold.setEnabled(isComplex && applyFineRegistration && !inSAROptimized);
+        coherenceThreshold.setEnabled(isComplex && applyFineRegistration);
         useSlidingWindowCheckBox.setEnabled(isComplex && applyFineRegistration && !inSAROptimized);
     }
 }
