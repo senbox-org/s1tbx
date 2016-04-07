@@ -47,6 +47,7 @@ import javax.media.jai.TileScheduler;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.StringReader;
+import java.nio.file.Files;
 
 import static junit.framework.TestCase.*;
 
@@ -134,6 +135,24 @@ public class WriteOpTest {
         // assertEquals(40, placemarkProductNodeGroup.getNodeCount());
 
         productOnDisk.dispose();
+    }
+
+    @Test
+    public void testWritingEmptyProduct() throws Exception {
+        Product product = new Product("empty", "EMPTY", 0, 0);
+
+        File testDir = Files.createTempDirectory("WriteOpTestDir").toFile();
+        try {
+            File testOuptutFile = new File(testDir, "file.dim");
+            WriteOp writeOp = new WriteOp(product, testOuptutFile, "BEAM-DIMAP");
+            writeOp.writeProduct(ProgressMonitor.NULL);
+
+            // assert that it is not written
+            assertFalse(testOuptutFile.isFile());
+        } finally {
+            testDir.deleteOnExit();
+        }
+
     }
 
     @Test
