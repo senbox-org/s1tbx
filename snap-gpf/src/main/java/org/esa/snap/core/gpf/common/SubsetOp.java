@@ -203,7 +203,11 @@ public class SubsetOp extends Operator {
         }
         if (region != null) {
             if (region.isEmpty()) {
-                throw new OperatorException("Subset: No intersection with source product boundary " + sourceProduct.getName());
+                targetProduct = new Product("empty", "EMPTY", 0, 0);
+                String msg = "No intersection with source product boundary " + sourceProduct.getName();
+                targetProduct.setDescription(msg);
+                getLogger().log(Level.WARNING, msg);
+                return;
             }
             if (region.width == 0 || region.x + region.width > sourceProduct.getSceneRasterWidth()) {
                 region.width = sourceProduct.getSceneRasterWidth() - region.x;

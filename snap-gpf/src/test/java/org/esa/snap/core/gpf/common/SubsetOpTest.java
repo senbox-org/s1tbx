@@ -15,19 +15,31 @@
  */
 package org.esa.snap.core.gpf.common;
 
-import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
-import org.esa.snap.core.datamodel.*;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.CrsGeoCoding;
+import org.esa.snap.core.datamodel.GcpDescriptor;
+import org.esa.snap.core.datamodel.GcpGeoCoding;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.MetadataAttribute;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Placemark;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.dataop.maptransf.Datum;
 import org.esa.snap.core.gpf.GPF;
-import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.graph.GraphException;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.Test;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -57,7 +69,7 @@ public class SubsetOpTest {
         assertNotNull(tp.getBand("radiance_3"));
     }
 
-    @Test(expected = OperatorException.class)
+    @Test
     public void testEmptyRegionFails() throws Exception {
         final Product sp = createTestProduct(100, 100);
 
@@ -65,10 +77,13 @@ public class SubsetOpTest {
         op.setSourceProduct(sp);
         op.setRegion(new Rectangle(0, 0, 0, 0));
 
-        op.getTargetProduct();
+        Product targetProduct = op.getTargetProduct();
+        assertNotNull(targetProduct);
+        assertEquals(0, targetProduct.getSceneRasterWidth());
+        assertEquals(0, targetProduct.getSceneRasterHeight());
     }
 
-    @Test(expected = OperatorException.class)
+    @Test
     public void testNonGeoMatchingRegionFails() throws Exception {
         final Product sp = createTestProduct(100, 100);
         // product's geo-location: mid-northern Germany, more or less
@@ -80,7 +95,10 @@ public class SubsetOpTest {
         Polygon subsetRegion = createBBOX(-59, -35, 2, 2);
         op.setGeoRegion(subsetRegion);
 
-        op.getTargetProduct();
+        Product targetProduct = op.getTargetProduct();
+        assertNotNull(targetProduct);
+        assertEquals(0, targetProduct.getSceneRasterWidth());
+        assertEquals(0, targetProduct.getSceneRasterHeight());
     }
 
     @Test
