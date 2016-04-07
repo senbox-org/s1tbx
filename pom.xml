@@ -5,7 +5,7 @@
 	
     <groupId>org.esa.s1tbx</groupId>
     <artifactId>s1tbx</artifactId>
-    <version>3.0.1</version>
+    <version>3.0.2-SNAPSHOT</version>
     <name>Sentinel-1 Toolbox</name>
     <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
     <description>Tools for SAR Earth Observation</description>
@@ -33,11 +33,11 @@
             This is necessary to make NetBeans modules updatable and independent from the Maven version (= s1tbx.version).
         -->
 		<s1tbx.version>[3.0.0,4.0.0-SNAPSHOT)</s1tbx.version>
-        <s1tbx.nbmSpecVersion>3.0.1</s1tbx.nbmSpecVersion>
+        <s1tbx.nbmSpecVersion>3.0.2</s1tbx.nbmSpecVersion>
         <rstb.version>[7.1.0,7.2.0-SNAPSHOT)</rstb.version>
         <rstb.nbmSpecVersion>7.1.1</rstb.nbmSpecVersion>
         <jlinda.version>[3.0.0,4.0.0-SNAPSHOT)</jlinda.version>
-        <jlinda.nbmSpecVersion>3.0.1</jlinda.nbmSpecVersion>
+        <jlinda.nbmSpecVersion>3.0.2</jlinda.nbmSpecVersion>
         
 		<geotools.version>2.7.4</geotools.version>
 		<hdf.version>2.7.1</hdf.version>
