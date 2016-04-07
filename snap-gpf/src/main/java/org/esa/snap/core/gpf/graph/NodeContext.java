@@ -76,7 +76,7 @@ public class NodeContext {
         try {
             targetProduct = operator.getTargetProduct();
         } catch (OperatorException e) {
-            throw new GraphException("Node: " + node.getId() + " - " + e.getMessage(), e);
+            throw new GraphException("[Node:" + node.getId() + "] " + e.getMessage(), e);
         }
     }
 
