@@ -368,9 +368,7 @@ public final class OperatorUtils {
     }
 
     public static void catchOperatorException(String opName, final Throwable e) throws OperatorException {
-        if (opName.contains("$"))
-            opName = opName.substring(0, opName.indexOf('$'));
-        String message = opName + ": ";
+        String message = "";
         if (e.getMessage() != null) {
             message += e.getMessage();
         }
