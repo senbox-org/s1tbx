@@ -5,7 +5,7 @@
 	
     <groupId>org.esa.s1tbx</groupId>
     <artifactId>s1tbx</artifactId>
-    <version>3.0.1-SNAPSHOT</version>
+    <version>3.0.1</version>
     <name>Sentinel-1 Toolbox</name>
     <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
     <description>Tools for SAR Earth Observation</description>
