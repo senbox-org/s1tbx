@@ -21,7 +21,7 @@ import org.junit.Test;
 import java.io.File;
 import java.util.Map;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * FTPDownloaderTester.
@@ -42,10 +42,24 @@ public class TestFTPDownloader {
         final String remoteFileName = localFile.getName();
         final Long fileSize = fileSizeMap.get(remoteFileName);
 
-        final FtpDownloader.FTPError result = ftp.retrieveFile(remotePath + remoteFileName, localFile, fileSize);
-        assertTrue(result == FtpDownloader.FTPError.OK);
-
-        localFile.delete();
+        Exception exception = null;
+        for (int i = 0; i < 5; i++) {
+            final FtpDownloader.FTPError result;
+            try {
+                result = ftp.retrieveFile(remotePath + remoteFileName, localFile, fileSize);
+                if(result == FtpDownloader.FTPError.OK) {
+                    localFile.delete();
+                    return;
+                }
+            } catch (Exception ex) {
+                exception = ex;
+            }
+        }
+        String msg = "Not able to retrieve file";
+        if(exception != null) {
+            msg += " (" + exception.getMessage() + ")";
+        }
+        fail(msg);
     }
 
 }
