@@ -81,11 +81,12 @@ public final class TOPSARMergeOp extends Operator {
     private double targetSlantRangeTimeToFirstPixel = 0;
     private double targetSlantRangeTimeToLastPixel = 0;
     private double targetDeltaSlantRangeTime = 0;
-    private SubSwathEffectStartEndPixels[] subSwathEffectStartEndPixels = null;
 
     private Sentinel1Utils[] su = null;
     private Sentinel1Utils.SubSwathInfo[] subSwath = null;
-    private BiMap<Integer, Integer> sourceProductIndexToSubSwathIndexMap = HashBiMap.create();
+    private final BiMap<Integer, Integer> sourceProductIndexToSubSwathIndexMap = HashBiMap.create();
+
+    private static final String PRODUCT_SUFFIX = "_mrg";
 
     /**
      * Default constructor. The graph processing framework
@@ -277,7 +278,8 @@ public final class TOPSARMergeOp extends Operator {
 
         final int prodIdx = sourceProductIndexToSubSwathIndexMap.inverse().get(refSubSwathIndex);
 
-        targetProduct = new Product(sourceProduct[prodIdx].getName(), productType, targetWidth, targetHeight);
+        targetProduct = new Product(sourceProduct[prodIdx].getName() + PRODUCT_SUFFIX,
+                productType, targetWidth, targetHeight);
 
         final Band[] sourceBands = sourceProduct[prodIdx].getBands();
 
@@ -323,7 +325,6 @@ public final class TOPSARMergeOp extends Operator {
                 }
             }
         }
-
 
         ProductUtils.copyMetadata(sourceProduct[prodIdx], targetProduct);
         ProductUtils.copyFlagCodings(sourceProduct[prodIdx], targetProduct);
@@ -1025,15 +1026,6 @@ public final class TOPSARMergeOp extends Operator {
                                            noiseLUT1[pixelIdx0], noiseLUT1[pixelIdx0 + pixelIdxInc],
                                            dx, dy);
     }
-
-    private static class SubSwathEffectStartEndPixels {
-        public int xMin;
-        public int xMax;
-
-        public SubSwathEffectStartEndPixels() {
-        }
-    }
-
 
     /**
      * The SPI is used to register this operator in the graph processing framework
