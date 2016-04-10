@@ -126,7 +126,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
     private double noDataValue = 0.0;
     private GeoCoding targetGeoCoding = null;
     private final HashMap<Band, Band> targetBandToSlaveBandMap = new HashMap<>(2);
-    private final double invalidIndex = -9999.0;
+    private static final double invalidIndex = -9999.0;
 
     private static final String PRODUCT_SUFFIX = "_Stack";
 
@@ -267,12 +267,6 @@ public final class DEMAssistedCoregistrationOp extends Operator {
 
             final Band targetBand = ProductUtils.copyBand(
                     bandName, masterProduct, bandName + mstSuffix, targetProduct, true);
-
-            /*if(targetBand.getUnit().equals(Unit.IMAGINARY)) {
-                int idx = targetProduct.getBandIndex(targetBand.getName());
-                ReaderUtils.createVirtualIntensityBand(
-                        targetProduct, targetProduct.getBandAt(idx - 1), targetBand, mstSuffix);
-            }*/
         }
 
         final Band masterBand = masterProduct.getBand(masterBandNames[0]);
@@ -302,16 +296,13 @@ public final class DEMAssistedCoregistrationOp extends Operator {
                 targetBand.setDescription(srcBand.getDescription());
                 targetProduct.addBand(targetBand);
                 targetBandToSlaveBandMap.put(targetBand, srcBand);
-
-                /*if (targetBand.getUnit().equals(Unit.IMAGINARY)) {
-                    int idx = targetProduct.getBandIndex(targetBand.getName());
-                    ReaderUtils.createVirtualIntensityBand(
-                            targetProduct, targetProduct.getBandAt(idx - 1), targetBand, slvSuffix);
-                }*/
             }
 
             copySlaveMetadata(slaveProduct);
         }
+
+        // set non-elevation areas to no data value for the master bands using the slave bands
+        setMasterValidPixelExpression(targetProduct, maskOutAreaWithoutElevation);
 
         if (outputRangeAzimuthOffset) {
             final Band azOffsetBand = new Band(
@@ -334,6 +325,26 @@ public final class DEMAssistedCoregistrationOp extends Operator {
         }
 
         targetGeoCoding = targetProduct.getSceneGeoCoding();
+    }
+
+    public static void setMasterValidPixelExpression(final Product targetProduct,
+                                                     final boolean maskOutAreaWithoutElevation) {
+        if(maskOutAreaWithoutElevation) {
+            Band slvBand = null;
+            for(Band tgtBand : targetProduct.getBands()) {
+                if(tgtBand.getName().contains("_slv")) {
+                    slvBand = tgtBand;
+                    break;
+                }
+            }
+            if(slvBand != null) {
+                for (Band tgtBand : targetProduct.getBands()) {
+                    if (tgtBand.getName().contains("_mst")) {
+                        tgtBand.setValidPixelExpression(slvBand.getName());
+                    }
+                }
+            }
+        }
     }
 
     private void copySlaveMetadata(final Product slaveProduct) {
@@ -822,19 +833,10 @@ public final class DEMAssistedCoregistrationOp extends Operator {
 
         private final Tile tile;
         private final ProductData dataBuffer;
-        private final boolean usesNoData;
-        private final boolean scalingApplied;
-        private final double noDataValue;
-        private final double geophysicalNoDataValue;
 
         public ResamplingRaster(final Tile tile, final ProductData dataBuffer) {
             this.tile = tile;
             this.dataBuffer = dataBuffer;
-            final RasterDataNode rasterDataNode = tile.getRasterDataNode();
-            this.usesNoData = rasterDataNode.isNoDataValueUsed();
-            this.noDataValue = rasterDataNode.getNoDataValue();
-            this.geophysicalNoDataValue = rasterDataNode.getGeophysicalNoDataValue();
-            this.scalingApplied = rasterDataNode.isScalingApplied();
         }
 
         public final int getWidth() {

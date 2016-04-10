@@ -17,6 +17,7 @@ package org.esa.s1tbx.sentinel1.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
+import org.esa.s1tbx.insar.gpf.coregistration.DEMAssistedCoregistrationOp;
 import org.esa.s1tbx.insar.gpf.support.SARGeocoding;
 import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
 import org.esa.snap.core.datamodel.Band;
@@ -126,7 +127,6 @@ public final class BackGeocodingOp extends Operator {
     private Sentinel1Utils.SubSwathInfo[] mSubSwath = null;
     private Sentinel1Utils.SubSwathInfo[] sSubSwath = null;
 
-    private String acquisitionMode = null;
     private ElevationModel dem = null;
     private boolean isElevationModelAvailable = false;
     private double demNoDataValue = 0; // no data value for DEM
@@ -136,7 +136,6 @@ public final class BackGeocodingOp extends Operator {
     private int burstOffset = 0;
     private boolean burstOffsetComputed = false;
     private String swathIndexStr = null;
-    private String subSwathName = null;
 
     private SARGeocoding.Orbit mOrbit = null;
     private SARGeocoding.Orbit sOrbit = null;
@@ -207,7 +206,6 @@ public final class BackGeocodingOp extends Operator {
 				throw new OperatorException("Same sub-swath is expected.");
 			}
 
-			subSwathName = mSubSwathNames[0];
 			subSwathIndex = 1; // subSwathIndex is always 1 because of split product
             swathIndexStr = mSubSwathNames[0].substring(2);
 
@@ -286,7 +284,6 @@ public final class BackGeocodingOp extends Operator {
         if (!mAcquisitionMode.equals(sAcquisitionMode)) {
             throw new OperatorException("Source products should have the same acquisition modes");
         }
-        acquisitionMode = mAcquisitionMode;
     }
 
     /**
@@ -344,13 +341,8 @@ public final class BackGeocodingOp extends Operator {
             }
         }
 
-        //final Band[] trgBands = targetProduct.getBands();
-        //for(int i=0; i < trgBands.length; ++i) {
-        //    if(trgBands[i].getUnit().equals(Unit.REAL)) {
-        //        final String suffix = trgBands[i].getName().contains(StackUtils.MST) ? mstSuffix : slvSuffix;
-        //        ReaderUtils.createVirtualIntensityBand(targetProduct, trgBands[i], trgBands[i+1], suffix);
-        //    }
-        //}
+        // set non-elevation areas to no data value for the master bands using the slave bands
+        DEMAssistedCoregistrationOp.setMasterValidPixelExpression(targetProduct, maskOutAreaWithoutElevation);
 
         copySlaveMetadata();
 
