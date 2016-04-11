@@ -180,7 +180,7 @@ class CommandLineTool implements GraphProcessingObserver {
     private void initVelocityContext() throws Exception {
         VelocityContext velocityContext = metadataResourceEngine.getVelocityContext();
         velocityContext.put("system", System.getProperties());
-        velocityContext.put("softwareName", "BEAM gpt");
+        velocityContext.put("softwareName", "SNAP gpt");
         String versionKey = String.format("%s.version", SystemUtils.getApplicationContextId());
         velocityContext.put("softwareVersion", System.getProperty(versionKey, ""));
         velocityContext.put("commandLineArgs", commandLineArgs);
