@@ -9,7 +9,12 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.Set;
-import java.util.logging.*;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Formatter;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -60,7 +65,7 @@ public class EngineConfig extends Config {
     public static final String PROPERTY_LOG_LEVEL = "snap.log.level";
 
     static String[] DEFAULT_EXCLUDED_CLUSTER_NAMES = new String[]{
-            "etc", "platform", "ide"
+            "bin", "etc", "platform", "ide"
     };
 
     static String[] DEFAULT_EXCLUDED_MODULE_NAMES = new String[]{
