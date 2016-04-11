@@ -72,7 +72,6 @@ import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map;
 
 /**
@@ -252,7 +251,7 @@ public class CrossCorrelationOp extends Operator {
             final double achievableAccuracy = 1.0 / (double) Math.max(rowUpSamplingFactor, colUpSamplingFactor);
             if (gcpTolerance < achievableAccuracy) {
                 throw new OperatorException("GCP Tolerance is below the achievable accuracy with current interpolation factors of " +
-                                                    achievableAccuracy + ".");
+                                                    achievableAccuracy + '.');
             }
 
             sourceImageWidth = sourceProduct.getSceneRasterWidth();
@@ -830,7 +829,7 @@ public class CrossCorrelationOp extends Operator {
      * @param firstTargetBand First target band.
      * @param targetBand      Current target band.
      */
-    private void copyFirstTargetBandGCPs(final Band firstTargetBand, final Band targetBand) {
+    private static void copyFirstTargetBandGCPs(final Band firstTargetBand, final Band targetBand) {
 
         final ProductNodeGroup<Placemark> firstTargetBandGcpGroup = GCPManager.instance().getGcpGroup(firstTargetBand);
         final ProductNodeGroup<Placemark> currentTargetBandGCPGroup = GCPManager.instance().getGcpGroup(targetBand);
@@ -1169,7 +1168,7 @@ public class CrossCorrelationOp extends Operator {
 
             return true;
         } catch (Throwable t) {
-            System.out.println("getSlaveGCPShift failed " + t.getMessage());
+            SystemUtils.LOG.warning("getSlaveGCPShift failed " + t.getMessage());
             return false;
         }
     }
@@ -1219,7 +1218,7 @@ public class CrossCorrelationOp extends Operator {
         final DataBufferDouble dataBuffer = new DataBufferDouble(array, array.length);
         final WritableRaster raster = RasterFactory.createWritableRaster(sampleModel, dataBuffer, new Point(0, 0));
 
-        return new BufferedImage(colourModel, raster, false, new Hashtable());
+        return new BufferedImage(colourModel, raster, false, null);
     }
 
     // This function is for debugging only.
@@ -1367,7 +1366,7 @@ public class CrossCorrelationOp extends Operator {
     }
 
     // This function is for testing only
-    private void getInitialComplexSlaveImagette(final FineRegistration fineRegistration,
+    private static void getInitialComplexSlaveImagette(final FineRegistration fineRegistration,
                                                 final FineRegistration.ComplexCoregData complexData,
                                                 final PixelPos mGCPPixelPos) {
 
