@@ -3,7 +3,6 @@ package org.jlinda.core.delaunay;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import org.esa.snap.core.util.SystemUtils;
 import org.jlinda.core.Window;
 
 import java.util.ArrayList;
@@ -156,16 +155,16 @@ public class TriangleInterpolator {
 
             // Compute grid indices the current triangle may cover
             xp = Math.min(Math.min(vx[0], vx[1]), vx[2]);
-            i_min = TriangleInterpolator.coordToIndex(xp, x_min, xScale, offset);
+            i_min = coordToIndex(xp, x_min, xScale, offset);
 
             xp = Math.max(Math.max(vx[0], vx[1]), vx[2]);
-            i_max = TriangleInterpolator.coordToIndex(xp, x_min, xScale, offset);
+            i_max = coordToIndex(xp, x_min, xScale, offset);
 
             yp = Math.min(Math.min(vy[0], vy[1]), vy[2]);
-            j_min = TriangleInterpolator.coordToIndex(yp, y_min, yScale, offset);
+            j_min = coordToIndex(yp, y_min, yScale, offset);
 
             yp = Math.max(Math.max(vy[0], vy[1]), vy[2]);
-            j_max = TriangleInterpolator.coordToIndex(yp, y_min, yScale, offset);
+            j_max = coordToIndex(yp, y_min, yScale, offset);
 
             // skip triangle that is above or below the region
             if ((i_max < 0) || (i_min >= nx)) {
@@ -211,12 +210,14 @@ public class TriangleInterpolator {
                 getABC(vx, vy, vz, data, f, xkj, ykj, xlj, ylj);
             }
 
-            for (int i = (int)i_min; i <= i_max; i++) {
-                xp = indexToCoord(i, x_min, xScale, offset);
-                for (int j = (int)j_min; j <= j_max; j++) {
-                    yp = indexToCoord(j, y_min, yScale, offset);
+            final PointInTriangle pointInTriangle = new PointInTriangle(vx, vy);
 
-                    if (!pointInTriangle(vx, vy, xp, yp)) {
+            for (int i = (int)i_min; i <= i_max; i++) {
+                xp = x_min + i * xScale + offset;
+                for (int j = (int)j_min; j <= j_max; j++) {
+                    yp = y_min + j * yScale + offset;
+
+                    if(!pointInTriangle.test(xp, yp)) {
                         continue;
                     }
 
@@ -261,19 +262,31 @@ public class TriangleInterpolator {
         data.c = -data.a * vx[1] - data.b * vy[1] + zk;
     }
 
-    private static boolean pointInTriangle(double[] xt, double[] yt, double x, double y) {
-        int iRet0 = ((xt[2] - xt[0]) * (y - yt[0])) > ((x - xt[0]) * (yt[2] - yt[0])) ? 1 : -1;
-        int iRet1 = ((xt[0] - xt[1]) * (y - yt[1])) > ((x - xt[1]) * (yt[0] - yt[1])) ? 1 : -1;
-        int iRet2 = ((xt[1] - xt[2]) * (y - yt[2])) > ((x - xt[2]) * (yt[1] - yt[2])) ? 1 : -1;
-
-        return (iRet0 > 0 && iRet1 > 0 && iRet2 > 0) || (iRet0 < 0 && iRet1 < 0 && iRet2 < 0);
-    }
-
     public static long coordToIndex(final double coord, final double coord0, final double deltaCoord, final double offset) {
         return (long) Math.floor((((coord - coord0) / (deltaCoord)) - offset) + 0.5);
     }
 
-    private static double indexToCoord(final long idx, final double coord0, final double deltaCoord, final double offset) {
-        return (coord0 + idx * deltaCoord + offset);
+    private static class PointInTriangle {
+        private final double[] xt, yt;
+        private final double xtd0, xtd1, xtd2, ytd0, ytd1, ytd2;
+
+        public PointInTriangle(double[] xt, double[] yt) {
+            this.xt = xt;
+            this.yt = yt;
+            xtd0 = xt[2] - xt[0];
+            xtd1 = xt[0] - xt[1];
+            xtd2 = xt[1] - xt[2];
+            ytd0 = yt[2] - yt[0];
+            ytd1 = yt[0] - yt[1];
+            ytd2 = yt[1] - yt[2];
+        }
+
+        public boolean test(double x, double y) {
+            int iRet0 = (xtd0 * (y - yt[0])) > ((x - xt[0]) * ytd0) ? 1 : -1;
+            int iRet1 = (xtd1 * (y - yt[1])) > ((x - xt[1]) * ytd1) ? 1 : -1;
+            int iRet2 = (xtd2 * (y - yt[2])) > ((x - xt[2]) * ytd2) ? 1 : -1;
+
+            return (iRet0 > 0 && iRet1 > 0 && iRet2 > 0) || (iRet0 < 0 && iRet1 < 0 && iRet2 < 0);
+        }
     }
 }
