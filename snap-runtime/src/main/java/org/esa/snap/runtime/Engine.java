@@ -52,6 +52,7 @@ public class Engine {
 
     /**
      * @return The runtime singleton instance, if the SNAP Engine has been started, {@code null} otherwise.
+     *
      * @see #start()
      * @see #stop()
      */
@@ -82,6 +83,7 @@ public class Engine {
      * It is recommended to call {@link #stop()} once the Engine is longer required by any client code.
      *
      * @return The runtime singleton instance.
+     *
      * @see #start(boolean)
      */
     public static Engine start() {
@@ -105,6 +107,7 @@ public class Engine {
      * @param setContextClassLoader If {@code true}, the {@link #getClientClassLoader() client
      *                              class loader} will become the current thread's context class loader.
      * @return The runtime singleton instance
+     *
      * @see #start()
      */
     public static Engine start(boolean setContextClassLoader) {
@@ -143,6 +146,7 @@ public class Engine {
      *  </pre>
      *
      * @return The class loader providing access to SNAP Engine classes and resources.
+     *
      * @throws IllegalStateException If {@link #stop()} has already been called.
      * @see #setContextClassLoader()
      */
@@ -158,6 +162,7 @@ public class Engine {
      *  </pre>
      *
      * @return The previous context class loader.
+     *
      * @throws IllegalStateException If {@link #stop()} has already been called.
      * @see #getClientClassLoader()
      */
@@ -174,6 +179,7 @@ public class Engine {
      *
      * @param runnable Client code to be executed using the client class loader.
      * @return This instance so that calls can be chained in a single expression.
+     *
      * @throws IllegalStateException If {@link #stop()} has already been called.
      */
     public Engine runClientCode(Runnable runnable) {
@@ -194,6 +200,7 @@ public class Engine {
      *
      * @param runnable Client code to be executed using the client class loader.
      * @return A new runnable which will delegate to the given runnable.
+     *
      * @see #getClientClassLoader()
      */
     public Runnable createClientRunnable(Runnable runnable) {
@@ -207,7 +214,8 @@ public class Engine {
         for (Activator activator : activators) {
             activatorList.add(activator);
         }
-        activatorList.sort((a1, a2) -> lifecycle == Lifecycle.START ? a1.getStartLevel() - a2.getStartLevel() : a2.getStartLevel() - a1.getStartLevel());
+        activatorList.sort(
+                (a1, a2) -> lifecycle == Lifecycle.START ? a1.getStartLevel() - a2.getStartLevel() : a2.getStartLevel() - a1.getStartLevel());
         for (Activator activator : activatorList) {
             try {
                 if (lifecycle == Lifecycle.START) {
@@ -284,36 +292,33 @@ public class Engine {
     }
 
     private void traceClassLoader(String name, ClassLoader classLoader) {
-        if (getConfig().debug()) {
-            Logger logger = getLogger();
-            logger.info(name + ".class = " + classLoader.getClass() + " =========================================================");
-            if (classLoader instanceof URLClassLoader) {
-                URL[] classpath = ((URLClassLoader) classLoader).getURLs();
-                for (int i = 0; i < classpath.length; i++) {
-                    logger.info(name + ".url[" + i + "] = " + classpath[i]);
-                }
+        Logger logger = getLogger();
+        logger.info(name + ".class = " + classLoader.getClass() + " =========================================================");
+        if (classLoader instanceof URLClassLoader) {
+            URL[] classpath = ((URLClassLoader) classLoader).getURLs();
+            for (int i = 0; i < classpath.length; i++) {
+                logger.info(name + ".url[" + i + "] = " + classpath[i]);
+                System.out.println(name + ".url[" + i + "] = " + classpath[i]);
             }
-            if (classLoader.getParent() != null) {
-                traceClassLoader(name + ".parent", classLoader.getParent());
-            } else {
-                logger.info(name + ".parent = null");
-            }
+        }
+        if (classLoader.getParent() != null) {
+            traceClassLoader(name + ".parent", classLoader.getParent());
+        } else {
+            logger.info(name + ".parent = null");
         }
     }
 
     private void traceLibraryPaths() {
-        if (getConfig().debug()) {
-            Logger logger = getLogger();
-            String[] paths = System.getProperty("java.library.path", "").split(File.pathSeparator);
-            if (paths.length > 0) {
-                logger.info("JNI library paths:");
-                for (int i = 0; i < paths.length; i++) {
-                    String path = paths[i];
-                    logger.info("java.library.path[" + i + "] = " + path);
-                }
-            } else {
-                logger.info("JNI library paths: none");
+        Logger logger = getLogger();
+        String[] paths = System.getProperty("java.library.path", "").split(File.pathSeparator);
+        if (paths.length > 0) {
+            logger.info("JNI library paths:");
+            for (int i = 0; i < paths.length; i++) {
+                String path = paths[i];
+                logger.info("java.library.path[" + i + "] = " + path);
             }
+        } else {
+            logger.info("JNI library paths: none");
         }
     }
 
@@ -322,7 +327,6 @@ public class Engine {
             throw new IllegalStateException("Please call " + Engine.class + ".start() first.");
         }
     }
-
 
 
 }
