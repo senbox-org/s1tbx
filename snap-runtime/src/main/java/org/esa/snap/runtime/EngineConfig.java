@@ -115,9 +115,9 @@ public class EngineConfig extends Config {
     public Path installDir() {
         String value = preferences().get(PROPERTY_INSTALL_DIR, null);
         if (value != null) {
-            return Paths.get(value);
+            return Paths.get(value).normalize();
         }
-        return Paths.get(System.getProperty("user.dir"));
+        return Paths.get(System.getProperty("user.dir")).normalize();
     }
 
     public EngineConfig userDir(Path value) {
