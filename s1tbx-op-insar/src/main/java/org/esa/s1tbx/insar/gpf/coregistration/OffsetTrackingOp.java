@@ -95,11 +95,10 @@ public class OffsetTrackingOp extends Operator {
 
     private String processedSlaveBand;
     private String[] masterBandNames = null;
-    private final Map<Band, Band> sourceRasterMap = new HashMap<>(10);
-    private final Map<Band, FastDelaunayTriangulator> triangulatorMap = new HashMap<>(10);
-    private final Map<Band, VelocityData> velocityMap = new HashMap<>(10);
-    private final static double invalidIndex = -9999.0;
+    private VelocityData velocityData = null;
+    private FastDelaunayTriangulator FDT = null;
 
+    private final static double invalidIndex = -9999.0;
     private final static String PRODUCT_SUFFIX = "_Vel";
     private final static String VELOCITY = "Velocity";
     private final static String POINTS = "Points";
@@ -159,6 +158,9 @@ public class OffsetTrackingOp extends Operator {
                 mstAbsRoot.getAttributeString(AbstractMetadata.first_line_time)).getMJD(); // in days
 
         processedSlaveBand = mstAbsRoot.getAttributeString("processed_slave");
+        if (processedSlaveBand == null) {
+            throw new OperatorException("processed_slave not found in metadata");
+        }
 
         rangeSpacing = AbstractMetadata.getAttributeDouble(mstAbsRoot, AbstractMetadata.range_spacing);
 
@@ -178,7 +180,7 @@ public class OffsetTrackingOp extends Operator {
         String mstBandName = sourceProduct.getBandAt(0).getName();
 
         // find co-pol bands
-        final String[] masterBandNames = StackUtils.getMasterBandNames(sourceProduct);
+        masterBandNames = getMasterBandNames(sourceProduct);
         for (String bandName : masterBandNames) {
             final String mstPol = OperatorUtils.getPolarizationFromBandName(bandName);
             if (mstPol != null && (mstPol.equals("hh") || mstPol.equals("vv"))) {
@@ -192,6 +194,17 @@ public class OffsetTrackingOp extends Operator {
         }
     }
 
+    private static String[] getMasterBandNames(final Product sourceProduct) {
+
+        final List<String> bandNames = new ArrayList<>();
+        for(String bandName : sourceProduct.getBandNames()) {
+            if(bandName.toLowerCase().contains("_mst")) {
+                bandNames.add(bandName);
+            }
+        }
+        return bandNames.toArray(new String[bandNames.size()]);
+    }
+
     /**
      * Create target product.
      */
@@ -202,52 +215,36 @@ public class OffsetTrackingOp extends Operator {
                 sourceProduct.getSceneRasterWidth(),
                 sourceProduct.getSceneRasterHeight());
 
-        masterBandNames = StackUtils.getMasterBandNames(sourceProduct);
-
-        final int numSrcBands = sourceProduct.getNumBands();
         Band targetBand;
-        for (int i = 0; i < numSrcBands; i++) {
-            final Band srcBand = sourceProduct.getBandAt(i);
-            if (srcBand == masterBand || StringUtils.contains(masterBandNames, srcBand.getName())) {
-                targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, false);
-                targetBand.setSourceImage(srcBand.getSourceImage());
-            } else {
-                final String suffix = StackUtils.getBandSuffix(srcBand.getName());
-                final String velocityBandName = VELOCITY + suffix;
-                if (targetProduct.getBand(velocityBandName) == null) {
-                    targetBand = targetProduct.addBand(velocityBandName, ProductData.TYPE_FLOAT32);
-                    targetBand.setUnit(Unit.METERS_PER_DAY);
-                    targetBand.setDescription("Velocity");
-                    sourceRasterMap.put(targetBand, srcBand);
+        final String suffix = StackUtils.getBandSuffix(processedSlaveBand);
+        final String velocityBandName = VELOCITY + suffix;
+        if (targetProduct.getBand(velocityBandName) == null) {
+            targetBand = targetProduct.addBand(velocityBandName, ProductData.TYPE_FLOAT32);
+            targetBand.setUnit(Unit.METERS_PER_DAY);
+            targetBand.setDescription("Velocity");
+            targetProduct.setQuicklookBandName(targetBand.getName());
+        }
 
-                    targetProduct.setQuicklookBandName(targetBand.getName());
-                }
+        final String gcpPositionBandName = POINTS + suffix;
+        if (targetProduct.getBand(gcpPositionBandName) == null) {
+            targetBand = targetProduct.addBand(gcpPositionBandName, ProductData.TYPE_FLOAT32);
+            targetBand.setUnit(Unit.METERS_PER_DAY);
+            targetBand.setDescription("Velocity Points");
+        }
 
-                final String gcpPositionBandName = POINTS + suffix;
-                if (targetProduct.getBand(gcpPositionBandName) == null) {
-                    targetBand = targetProduct.addBand(gcpPositionBandName, ProductData.TYPE_FLOAT32);
-                    targetBand.setUnit(Unit.METERS_PER_DAY);
-                    targetBand.setDescription("Velocity Points");
-                    sourceRasterMap.put(targetBand, srcBand);
-                }
+        if (outputRangeAzimuthOffset) {
+            final String rangeShiftBandName = RANGE_SHIFT + suffix;
+            if (targetProduct.getBand(rangeShiftBandName) == null) {
+                targetBand = targetProduct.addBand(rangeShiftBandName, ProductData.TYPE_FLOAT32);
+                targetBand.setUnit(Unit.METERS_PER_DAY);
+                targetBand.setDescription("Range Shift");
+            }
 
-                if (outputRangeAzimuthOffset) {
-                    final String rangeShiftBandName = RANGE_SHIFT + suffix;
-                    if (targetProduct.getBand(rangeShiftBandName) == null) {
-                        targetBand = targetProduct.addBand(rangeShiftBandName, ProductData.TYPE_FLOAT32);
-                        targetBand.setUnit(Unit.METERS_PER_DAY);
-                        targetBand.setDescription("Range Shift");
-                        sourceRasterMap.put(targetBand, srcBand);
-                    }
-
-                    final String azimuthShiftBandName = AZIMUTH_SHIFT + suffix;
-                    if (targetProduct.getBand(azimuthShiftBandName) == null) {
-                        targetBand = targetProduct.addBand(azimuthShiftBandName, ProductData.TYPE_FLOAT32);
-                        targetBand.setUnit(Unit.METERS_PER_DAY);
-                        targetBand.setDescription("Azimuth Shift");
-                        sourceRasterMap.put(targetBand, srcBand);
-                    }
-                }
+            final String azimuthShiftBandName = AZIMUTH_SHIFT + suffix;
+            if (targetProduct.getBand(azimuthShiftBandName) == null) {
+                targetBand = targetProduct.addBand(azimuthShiftBandName, ProductData.TYPE_FLOAT32);
+                targetBand.setUnit(Unit.METERS_PER_DAY);
+                targetBand.setDescription("Azimuth Shift");
             }
         }
 
@@ -316,15 +313,9 @@ public class OffsetTrackingOp extends Operator {
                 }
             }
 
-            final Band srcBand = sourceRasterMap.get(tgtVelocityBand);
             if (!GCPVelocityAvailable) {
-                getGCPVelocity(srcBand, targetRectangle);
+                getGCPVelocity(targetRectangle);
             }
-
-            final VelocityData velocityData = velocityMap.get(srcBand);
-            final FastDelaunayTriangulator FDT = triangulatorMap.get(srcBand);
-            if (FDT == null)
-                return;
 
             // output velocity, range shift and azimuth shift
             final org.jlinda.core.Window tileWindow = new org.jlinda.core.Window(y0, yMax - 1, x0, xMax - 1);
@@ -378,6 +369,17 @@ public class OffsetTrackingOp extends Operator {
                     if (x != invalidIndex && y != invalidIndex && x >= x0 && x < xMax && y >= y0 && y < yMax) {
                         tgtGCPPositionBuffer.setElemFloatAt(
                                 tgtTile.getDataBufferIndex(x, y), (float) velocityData.velocity[i]);
+                        /*
+                        tgtGCPPositionBuffer.setElemFloatAt(tgtTile.getDataBufferIndex(x, y), 100.0f);
+                        tgtGCPPositionBuffer.setElemFloatAt(tgtTile.getDataBufferIndex(x-2, y), 100.0f);
+                        tgtGCPPositionBuffer.setElemFloatAt(tgtTile.getDataBufferIndex(x-1, y), 100.0f);
+                        tgtGCPPositionBuffer.setElemFloatAt(tgtTile.getDataBufferIndex(x+1, y), 100.0f);
+                        tgtGCPPositionBuffer.setElemFloatAt(tgtTile.getDataBufferIndex(x+2, y), 100.0f);
+                        tgtGCPPositionBuffer.setElemFloatAt(tgtTile.getDataBufferIndex(x, y-2), 100.0f);
+                        tgtGCPPositionBuffer.setElemFloatAt(tgtTile.getDataBufferIndex(x, y-1), 100.0f);
+                        tgtGCPPositionBuffer.setElemFloatAt(tgtTile.getDataBufferIndex(x, y+1), 100.0f);
+                        tgtGCPPositionBuffer.setElemFloatAt(tgtTile.getDataBufferIndex(x, y+2), 100.0f);
+                        */
                     }
                 }
             }
@@ -389,38 +391,40 @@ public class OffsetTrackingOp extends Operator {
         }
     }
 
-    private synchronized void getGCPVelocity(final Band sourceBand, final Rectangle targetRectangle) throws Exception {
+    private synchronized void getGCPVelocity(final Rectangle targetRectangle) throws Exception {
 
         if (GCPVelocityAvailable) {
             return;
         }
 
         // force getSourceTile to computeTiles on GCPSelection
-        final Tile sourceRaster = getSourceTile(sourceBand, targetRectangle);
+        final Tile sourceRaster = getSourceTile(sourceProduct.getBand(processedSlaveBand), targetRectangle);
 
         final ProductNodeGroup<Placemark> masterGCPGroup = GCPManager.instance().getGcpGroup(masterBand);
 
-        final Band[] targetBands = targetProduct.getBands();
-        for (Band tgtBand : targetBands) {
-            if (!tgtBand.getName().contains(VELOCITY))
+        final Band[] sourceBands = sourceProduct.getBands();
+        for (Band srcBand : sourceBands) {
+            if (StringUtils.contains(masterBandNames, srcBand.getName()))
                 continue;
-
-            final Band srcBand = sourceRasterMap.get(tgtBand);
 
             ProductNodeGroup<Placemark> slaveGCPGroup = GCPManager.instance().getGcpGroup(srcBand);
 
             if (slaveGCPGroup.getNodeCount() > 0) {
-                VelocityData velocityData = computeGCPVelocity(masterGCPGroup, slaveGCPGroup);
-                velocityMap.put(srcBand, velocityData);
+                velocityData = computeGCPVelocity(masterGCPGroup, slaveGCPGroup);
 
-                FastDelaunayTriangulator FDT = TriangleInterpolator.triangulate(
+                FDT = TriangleInterpolator.triangulate(
                         velocityData.mstGCPy, velocityData.mstGCPx, rgAzRatio, invalidIndex);
-                triangulatorMap.put(srcBand, FDT);
+
+                break;
             }
         }
 
-        if(velocityMap.isEmpty()) {
+        if(velocityData == null) {
             throw new OperatorException("No velocity GCPs found");
+        }
+
+        if (FDT == null) {
+            throw new OperatorException("Not enough GCPs for interpolation");
         }
 
         GCPManager.instance().removeAllGcpGroups();
@@ -465,39 +469,34 @@ public class OffsetTrackingOp extends Operator {
     private void writeGCPsToMetadata() {
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
-        final Set<Band> bandSet = velocityMap.keySet();
+        final String suffix = StackUtils.getBandSuffix(processedSlaveBand);
+        final String velocityBandName = VELOCITY + suffix;
 
-        for (Band srcBand : bandSet) {
-            final String suffix = StackUtils.getBandSuffix(srcBand.getName());
-            final String velocityBandName = VELOCITY + suffix;
+        final MetadataElement bandElem = AbstractMetadata.getBandAbsMetadata(absRoot, velocityBandName, true);
 
-            final MetadataElement bandElem = AbstractMetadata.getBandAbsMetadata(absRoot, velocityBandName, true);
-
-            MetadataElement warpDataElem = bandElem.getElement("WarpData");
-            if (warpDataElem == null) {
-                warpDataElem = new MetadataElement("WarpData");
-                bandElem.addElement(warpDataElem);
-            } else {
-                // empty out element
-                final MetadataAttribute[] attribList = warpDataElem.getAttributes();
-                for (MetadataAttribute attrib : attribList) {
-                    warpDataElem.removeAttribute(attrib);
-                }
+        MetadataElement warpDataElem = bandElem.getElement("WarpData");
+        if (warpDataElem == null) {
+            warpDataElem = new MetadataElement("WarpData");
+            bandElem.addElement(warpDataElem);
+        } else {
+            // empty out element
+            final MetadataAttribute[] attribList = warpDataElem.getAttributes();
+            for (MetadataAttribute attrib : attribList) {
+                warpDataElem.removeAttribute(attrib);
             }
+        }
 
-            final VelocityData velocityData = velocityMap.get(srcBand);
-            int k = 0;
-            for (int i = 0; i < velocityData.mstGCPx.length; i++) {
-                if (velocityData.mstGCPx[i] != invalidIndex && velocityData.mstGCPy[i] != invalidIndex) {
-                    final MetadataElement gcpElem = new MetadataElement("GCP" + k);
-                    warpDataElem.addElement(gcpElem);
+        int k = 0;
+        for (int i = 0; i < velocityData.mstGCPx.length; i++) {
+            if (velocityData.mstGCPx[i] != invalidIndex && velocityData.mstGCPy[i] != invalidIndex) {
+                final MetadataElement gcpElem = new MetadataElement("GCP" + k);
+                warpDataElem.addElement(gcpElem);
 
-                    gcpElem.setAttributeDouble("mst_x", velocityData.mstGCPx[i]);
-                    gcpElem.setAttributeDouble("mst_y", velocityData.mstGCPy[i]);
-                    gcpElem.setAttributeDouble("slv_x", velocityData.slvGCPx[i]);
-                    gcpElem.setAttributeDouble("slv_y", velocityData.slvGCPy[i]);
-                    k++;
-                }
+                gcpElem.setAttributeDouble("mst_x", velocityData.mstGCPx[i]);
+                gcpElem.setAttributeDouble("mst_y", velocityData.mstGCPy[i]);
+                gcpElem.setAttributeDouble("slv_x", velocityData.slvGCPx[i]);
+                gcpElem.setAttributeDouble("slv_y", velocityData.slvGCPy[i]);
+                k++;
             }
         }
     }
