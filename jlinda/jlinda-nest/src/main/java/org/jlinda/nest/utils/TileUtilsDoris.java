@@ -25,13 +25,23 @@ public class TileUtilsDoris {
         final ComplexDoubleMatrix result = new ComplexDoubleMatrix(height, width);
 
         final ProductData samples1 = tile1.getRawSamples();
-        final ProductData samples2 = tile2.getRawSamples();
 
-        for (int y = 0; y < height; y++) {
-            final int stride = y * width;
-            for (int x = 0; x < width; x++) {
-                result.put(y, x, new ComplexDouble(samples1.getElemDoubleAt(stride + x),
-                        samples2.getElemDoubleAt(stride + x)));
+        if (tile2 != null) {
+            final ProductData samples2 = tile2.getRawSamples();
+
+            for (int y = 0; y < height; y++) {
+                final int stride = y * width;
+                for (int x = 0; x < width; x++) {
+                    result.put(y, x, new ComplexDouble(samples1.getElemDoubleAt(stride + x),
+                            samples2.getElemDoubleAt(stride + x)));
+                }
+            }
+        } else {
+            for (int y = 0; y < height; y++) {
+                final int stride = y * width;
+                for (int x = 0; x < width; x++) {
+                    result.put(y, x, new ComplexDouble(samples1.getElemDoubleAt(stride + x), 0.0));
+                }
             }
         }
 
