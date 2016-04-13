@@ -94,9 +94,11 @@ class InstallationScanner {
             fail(e);
         }
         for (String pathName : config.preferences().get("snap.extraClusters", "").split(File.pathSeparator)) {
-            Path clusterPath = Paths.get(pathName);
-            if (Files.isDirectory(clusterPath)) {
-                clusterPaths.add(clusterPath);
+            if (!pathName.isEmpty()) {
+                Path clusterPath = Paths.get(pathName);
+                if (Files.isDirectory(clusterPath)) {
+                    clusterPaths.add(clusterPath);
+                }
             }
         }
 
