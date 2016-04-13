@@ -33,11 +33,8 @@
             This is necessary to make NetBeans modules updatable and independent from the Maven version (= s1tbx.version).
         -->
 		<s1tbx.version>4.0.0-SNAPSHOT</s1tbx.version>
-        <s1tbx.nbmSpecVersion>4.0.0</s1tbx.nbmSpecVersion>
         <rstb.version>7.2.0-SNAPSHOT</rstb.version>
-        <rstb.nbmSpecVersion>7.2.0</rstb.nbmSpecVersion>
         <jlinda.version>4.0.0-SNAPSHOT</jlinda.version>
-        <jlinda.nbmSpecVersion>4.0.0</jlinda.nbmSpecVersion>
         
 		<geotools.version>2.7.4</geotools.version>
 		<hdf.version>2.7.1</hdf.version>
@@ -593,6 +590,35 @@
 	                </configuration>
 	            </plugin>
 				
+                <plugin>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>2.7</version>
+                    <configuration>
+                        <encoding>UTF-8</encoding>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>file-manifest</id>
+                            <phase>process-sources</phase>
+                            <goals>
+                                <goal>copy-resources</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>${project.build.directory}/nbm</outputDirectory>
+                                <resources>
+                                    <resource>
+                                        <directory>src/main/nbm</directory>
+                                        <filtering>true</filtering>
+                                        <includes>
+                                            <include>manifest.mf</include>
+                                        </includes>
+                                    </resource>
+                                </resources>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            
 				<plugin>
                     <artifactId>maven-assembly-plugin</artifactId>
                     <version>2.4.1</version>
@@ -692,6 +718,26 @@
                         <keystorepassword>snap-123</keystorepassword>
                         <sourceManifestFile>target/nbm/manifest.mf</sourceManifestFile>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>1.10</version>
+                    <executions>
+                        <execution>
+                            <id>regex-property</id>
+                            <goals>
+                                <goal>regex-property</goal>
+                            </goals>
+                            <configuration>
+                                <name>s1tbx.nbmSpecVersion</name>
+                                <value>${project.version}</value>
+                                <regex>-SNAPSHOT</regex>
+                                <replacement>.0</replacement>
+                                <failIfNoMatch>false</failIfNoMatch>
+                            </configuration>
+                        </execution>
+                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
