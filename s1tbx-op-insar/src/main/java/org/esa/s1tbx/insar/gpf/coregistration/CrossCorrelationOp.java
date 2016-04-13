@@ -71,8 +71,7 @@ import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Image co-registration is fundamental for Interferometry SAR (InSAR) imaging and its applications, such as
@@ -169,6 +168,7 @@ public class CrossCorrelationOp extends Operator {
     private Band masterBand2;
     private boolean complexCoregistration;
     private ProductNodeGroup<Placemark> masterGcpGroup;
+    private String[] masterBandNames = null;
 
     private int sourceImageWidth;
     private int sourceImageHeight;
@@ -275,7 +275,7 @@ public class CrossCorrelationOp extends Operator {
         String mstBandName = sourceProduct.getBandAt(0).getName();
 
         // find co-pol bands
-        final String[] masterBandNames = StackUtils.getMasterBandNames(sourceProduct);
+        masterBandNames = getMasterBandNames(sourceProduct);
         for (String bandName : masterBandNames) {
             final String mstPol = OperatorUtils.getPolarizationFromBandName(bandName);
             if (mstPol != null && (mstPol.equals("hh") || mstPol.equals("vv"))) {
@@ -295,6 +295,17 @@ public class CrossCorrelationOp extends Operator {
                 complexCoregistration = true;
             }
         }
+    }
+
+    private static String[] getMasterBandNames(final Product sourceProduct) {
+
+        final java.util.List<String> bandNames = new ArrayList<>();
+        for(String bandName : sourceProduct.getBandNames()) {
+            if(bandName.toLowerCase().contains("_mst")) {
+                bandNames.add(bandName);
+            }
+        }
+        return bandNames.toArray(new String[bandNames.size()]);
     }
 
     private static void addGCPGrid(final int width, final int height, final int numPins,
@@ -351,8 +362,6 @@ public class CrossCorrelationOp extends Operator {
                                     sourceImageHeight);
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
-
-        final String[] masterBandNames = StackUtils.getMasterBandNames(sourceProduct);
 
         final int numSrcBands = sourceProduct.getNumBands();
 
@@ -539,7 +548,6 @@ public class CrossCorrelationOp extends Operator {
             return;
         }
 
-        gcpsComputedMap.put(slaveBand1, true);
         try {
 
             final ProductNodeGroup<Placemark> targetGCPGroup = GCPManager.instance().getGcpGroup(targetBand);
@@ -631,6 +639,8 @@ public class CrossCorrelationOp extends Operator {
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId() + " computeSlaveGCPs ", e);
         }
+
+        gcpsComputedMap.put(slaveBand1, true);
     }
 
     private void determiningImageOffset(final Band slaveBand1, final Band slaveBand2, int[] offset) {
@@ -869,6 +879,34 @@ public class CrossCorrelationOp extends Operator {
                 (pixelPos.y - cHalfWindowHeight + 1 >= 0 && pixelPos.y + cHalfWindowHeight <= sourceImageHeight - 1);
     }
 
+    /*private boolean getCoarseOffsets(final Band slaveBand1, final Band slaveBand2,
+                                     final PixelPos mGCPPixelPos,
+                                     final PixelPos sGCPPixelPos) {
+
+        try {
+            // get data
+            final ComplexDoubleMatrix mI = getComplexDoubleMatrix(masterBand1, masterBand2, mGCPPixelPos, coarseWin);
+            final ComplexDoubleMatrix sI = getComplexDoubleMatrix(slaveBand1, slaveBand2, sGCPPixelPos, coarseWin);
+
+            final double[] coarseOffset = {0, 0};
+
+            double coherence = CoregistrationUtils.crossCorrelateFFT(
+                    coarseOffset, mI, sI, coarseWin.ovsFactor, coarseWin.accY, coarseWin.accX);
+
+            SystemUtils.LOG.info("Coarse sGCP = ({}, {})" + coarseOffset[1] + coarseOffset[0]);
+            SystemUtils.LOG.info("Coarse sGCP coherence = {}" + coherence);
+
+            sGCPPixelPos.x += (float) coarseOffset[1];
+            sGCPPixelPos.y += (float) coarseOffset[0];
+
+            return true;
+
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException(getId() + " getCoarseSlaveGCPPosition ", e);
+        }
+        return false;
+    }*/
+
     private boolean getFineOffsets(final Band slaveBand1, final Band slaveBand2,
                                    final PixelPos mGCPPixelPos,
                                    final PixelPos sGCPPixelPos) {
@@ -901,11 +939,16 @@ public class CrossCorrelationOp extends Operator {
         return false;
     }
 
-    private ComplexDoubleMatrix getComplexDoubleMatrix(Band band1, Band band2, PixelPos pixelPos, CorrelationWindow corrWindow) {
+    private ComplexDoubleMatrix getComplexDoubleMatrix(
+            final Band band1, final Band band2, final PixelPos pixelPos, final CorrelationWindow corrWindow) {
 
         Rectangle rectangle = corrWindow.defineRectangleMask(pixelPos);
         Tile tileReal = getSourceTile(band1, rectangle);
-        Tile tileImag = getSourceTile(band2, rectangle);
+
+        Tile tileImag = null;
+        if (band2 != null) {
+            tileImag = getSourceTile(band2, rectangle);
+        }
         return TileUtilsDoris.pullComplexDoubleMatrix(tileReal, tileImag);
     }
 
