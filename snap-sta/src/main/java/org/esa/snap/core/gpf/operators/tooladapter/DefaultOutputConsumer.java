@@ -100,8 +100,8 @@ class DefaultOutputConsumer implements ProcessOutputConsumer {
             if (step != null && (matcher = step.matcher(line)).matches()) {
                 progressMonitor.setTaskName(matcher.group(1));
             }
-            if (error != null && (matcher = error.matcher(line)).matches()) {
-                getLogger().severe(matcher.group(1));
+            if (error != null && (error.matcher(line)).matches()) {
+                getLogger().severe(line);
             } else {
                 getLogger().info(line);
             }
