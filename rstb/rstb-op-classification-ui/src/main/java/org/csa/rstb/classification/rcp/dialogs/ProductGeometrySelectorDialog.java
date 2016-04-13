@@ -16,7 +16,6 @@
 package org.csa.rstb.classification.rcp.dialogs;
 
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.util.Settings;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
@@ -25,24 +24,15 @@ import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.util.Dialogs;
 import org.esa.snap.ui.ModalDialog;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.List;
 
-import static org.esa.snap.rcp.SnapApp.SelectionSourceHint.*;
+import static org.esa.snap.rcp.SnapApp.SelectionSourceHint.AUTO;
 
 /**
  * Created by IntelliJ IDEA.
@@ -150,7 +140,8 @@ public class ProductGeometrySelectorDialog extends ModalDialog {
     }
 
     public String[] getSelectedGeometries() {
-        return StringUtils.toStringArray(geometries.getSelectedValues());
+        final List<String> list = geometries.getSelectedValuesList();
+        return list.toArray(new String[list.size()]);
     }
 
     public File getSaveFile() {
@@ -160,7 +151,7 @@ public class ProductGeometrySelectorDialog extends ModalDialog {
     private static File getDefaultSaveLocation() {
         File folder;
         try {
-            folder = new File(Settings.instance().getAuxDataFolder(), "SupervisedTraining");
+            folder = new File(Settings.instance().getAuxDataFolder(), "classifiers"+ File.separator +"Wishart");
         } catch (Exception e) {
             folder = FileSystemView.getFileSystemView().getRoots()[0];
         }
@@ -168,8 +159,9 @@ public class ProductGeometrySelectorDialog extends ModalDialog {
     }
 
     private boolean validate() {
-        final String[] geometries = getSelectedGeometries();
-        if (geometries == null || geometries.length < 1) {
+        final String[] geometryNames = getSelectedGeometries();
+
+        if (geometryNames == null || geometryNames.length < 1) {
             Dialogs.showError("Please select the product geometries to use");
             return false;
         }
