@@ -22,7 +22,6 @@ import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
@@ -43,23 +42,15 @@ import java.util.HashMap;
 
 public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator {
 
-    private String sampleType = null;
     private double referenceSlantRange = 0.;
     private double referenceSlantRangeExp = 0.;
     private double referenceIncidenceAngle = 0.;
     private double rescalingFactor = 0.;
     private final HashMap<String, Double> calibrationFactor = new HashMap<>(2);
 
-    private TiePointGrid incidenceAngle = null;
-    private TiePointGrid slantRangeTime = null;
-    private TiePointGrid latitude = null;
-
     private boolean applyRangeSpreadingLossCorrection = false;
     private boolean applyIncidenceAngleCorrection = false;
     private boolean applyConstantCorrection = false;
-    private boolean incAngleCompFlag = false;
-    private boolean rangeSpreadCompFlag = false;
-    private boolean constantCompFlag = false;
 
     /**
      * Default constructor. The graph processing framework
@@ -107,13 +98,9 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
                 throw new OperatorException("Absolute radiometric calibration has already been applied to the product");
             }
 
-            sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE);
-
             getCalibrationFlags();
 
             getCalibrationFactors();
-
-            getTiePointGridData(sourceProduct);
 
             getSampleType();
 
@@ -132,8 +119,9 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
     private void updateTargetProductMetadata() {
 
         final MetadataElement abs = AbstractMetadata.getAbstractedMetadata(targetProduct);
-
-        abs.getAttribute(AbstractMetadata.abs_calibration_flag).getData().setElemBoolean(true);
+        if (abs != null) {
+            abs.getAttribute(AbstractMetadata.abs_calibration_flag).getData().setElemBoolean(true);
+        }
     }
 
     /**
@@ -147,20 +135,20 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
             throw new OperatorException("The product has already been calibrated");
         }
 
-        incAngleCompFlag =
+        final boolean incAngleCompFlag =
                 AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.inc_angle_comp_flag);
         if (incAngleCompFlag) {
             applyIncidenceAngleCorrection = true;
         }
 
-        rangeSpreadCompFlag =
+        final boolean rangeSpreadCompFlag =
                 AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.range_spread_comp_flag);
         if (rangeSpreadCompFlag) {
             applyRangeSpreadingLossCorrection = true;
         }
 
         final MetadataElement globalElem = origMetadataRoot.getElement("Global_Attributes");
-        constantCompFlag = AbstractMetadata.getAttributeBoolean(globalElem, "Calibration_Constant_Compensation_Flag");
+        final boolean constantCompFlag = AbstractMetadata.getAttributeBoolean(globalElem, "Calibration_Constant_Compensation_Flag");
         if (!constantCompFlag) {
             applyConstantCorrection = true;
         }
@@ -172,7 +160,7 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
     private void getCalibrationFactors() {
 
         String pol;
-        double factor = 0.0;
+        double factor;
         final MetadataElement globalElem = origMetadataRoot.getElement("Global_Attributes");
         final MetadataElement s01Elem = globalElem.getElement("S01");
         if (s01Elem != null) {
@@ -180,8 +168,8 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
             factor = s01Elem.getAttributeDouble("Calibration_Constant");
             calibrationFactor.put(pol, factor);
         } else {
-            pol = globalElem.getAttributeString("S01_"+"Polarisation", "").toUpperCase();
-            if(!pol.isEmpty()) {
+            pol = globalElem.getAttributeString("S01_" + "Polarisation", "").toUpperCase();
+            if (!pol.isEmpty()) {
                 factor = globalElem.getAttributeDouble("S01_" + "Calibration_Constant");
                 calibrationFactor.put(pol, factor);
             }
@@ -193,8 +181,8 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
             factor = s02Elem.getAttributeDouble("Calibration_Constant");
             calibrationFactor.put(pol, factor);
         } else {
-            pol = globalElem.getAttributeString("S02_"+"Polarisation", "").toUpperCase();
-            if(!pol.isEmpty()) {
+            pol = globalElem.getAttributeString("S02_" + "Polarisation", "").toUpperCase();
+            if (!pol.isEmpty()) {
                 factor = globalElem.getAttributeDouble("S02_" + "Calibration_Constant");
                 calibrationFactor.put(pol, factor);
             }
@@ -210,17 +198,6 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
                 AbstractMetadata.rescaling_factor);
 
         //System.out.println("Calibration factor is " + calibrationFactor);
-    }
-
-    /**
-     * Get incidence angle and slant range time tie point grids.
-     *
-     * @param sourceProduct the source
-     */
-    private void getTiePointGridData(Product sourceProduct) {
-        slantRangeTime = OperatorUtils.getSlantRangeTime(sourceProduct);
-        incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
-        latitude = OperatorUtils.getLatitude(sourceProduct);
     }
 
     /**
@@ -247,7 +224,7 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
             Ks = calibrationFactor.get(bandPolar.toUpperCase());
         }
 
-        double sigma = 0.0;
+        double sigma;
         if (bandUnit == Unit.UnitType.AMPLITUDE) {
             sigma = v * v;
         } else if (bandUnit == Unit.UnitType.INTENSITY || bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
@@ -289,10 +266,10 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
         final int w = targetTileRectangle.width;
         final int h = targetTileRectangle.height;
 
-        Tile sourceRaster1 = null;
-        ProductData srcData1 = null;
+        Tile sourceRaster1;
+        ProductData srcData1;
         ProductData srcData2 = null;
-        Band sourceBand1 = null;
+        Band sourceBand1;
 
         final String[] srcBandNames = targetBandNameToSourceBandName.get(targetBand.getName());
         if (srcBandNames.length == 1) {
@@ -373,10 +350,10 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
 
                 calFactor /= rescaleCalFactor;
 
-                sigma = dn2*calFactor;
+                sigma = dn2 * calFactor;
 
                 if (isComplex && outputImageInComplex) {
-                    sigma = Math.sqrt(sigma)*phaseTerm;
+                    sigma = Math.sqrt(sigma) * phaseTerm;
                 }
 
                 if (outputImageScaleInDb) { // convert calibration result to dB
@@ -397,6 +374,5 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
         Band sourceBand = sourceProduct.getBand(targetBand.getName());
         Tile sourceTile = calibrationOp.getSourceTile(sourceBand, targetTile.getRectangle());
         targetTile.setRawSamples(sourceTile.getRawSamples());
-
     }
 }
