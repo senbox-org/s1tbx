@@ -87,20 +87,20 @@ class DefaultOutputConsumer implements ProcessOutputConsumer {
     public void consumeOutput(String line) {
         Matcher matcher;
         try {
-            if (progress != null && (matcher = progress.matcher(line)).matches()) {
+            if (progress != null && (matcher = progress.matcher(line)).find()) {
                 int worked;
                 try {
-                    worked = Integer.parseInt(matcher.group(1));
+                    worked = Integer.parseInt(matcher.group());
                 } catch (Exception e) {
-                    worked = (int) Float.parseFloat(matcher.group(1));
+                    worked = (int) Float.parseFloat(matcher.group());
                 }
                 progressMonitor.worked(Math.min(worked, MAX_UNITS));
                 progressMonitor.setSubTaskName(line);
             }
-            if (step != null && (matcher = step.matcher(line)).matches()) {
-                progressMonitor.setTaskName(matcher.group(1));
+            if (step != null && (matcher = step.matcher(line)).find()) {
+                progressMonitor.setTaskName(matcher.group());
             }
-            if (error != null && (error.matcher(line)).matches()) {
+            if (error != null && (error.matcher(line)).find()) {
                 getLogger().severe(line);
             } else {
                 getLogger().info(line);
