@@ -16,8 +16,20 @@
 package org.esa.s1tbx.sar.gpf.filtering;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.*;
-import org.esa.snap.core.datamodel.*;
+import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.Boxcar;
+import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.Frost;
+import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.GammaMap;
+import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.IDAN;
+import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.Lee;
+import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.LeeSigma;
+import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.Median;
+import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.RefinedLee;
+import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.SpeckleFilter;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -29,10 +41,11 @@ import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.gpf.FilterWindow;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -121,14 +134,14 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
             SpeckleFilterOp.NUM_LOOKS_4}, defaultValue = SpeckleFilterOp.NUM_LOOKS_1, label = "Number of Looks")
     private String numLooksStr = SpeckleFilterOp.NUM_LOOKS_1;
 
-    @Parameter(valueSet = {SpeckleFilterOp.WINDOW_SIZE_5x5, SpeckleFilterOp.WINDOW_SIZE_7x7,
-            SpeckleFilterOp.WINDOW_SIZE_9x9, SpeckleFilterOp.WINDOW_SIZE_11x11},
-            defaultValue = SpeckleFilterOp.WINDOW_SIZE_7x7, label = "Window Size")
-    private String windowSize = SpeckleFilterOp.WINDOW_SIZE_7x7; // window size for all filters
+    @Parameter(valueSet = {FilterWindow.SIZE_5x5, FilterWindow.SIZE_7x7, FilterWindow.SIZE_9x9, FilterWindow.SIZE_11x11,
+            FilterWindow.SIZE_13x13, FilterWindow.SIZE_15x15, FilterWindow.SIZE_17x17},
+            defaultValue = FilterWindow.SIZE_7x7, label = "Window Size")
+    private String windowSize = FilterWindow.SIZE_7x7; // window size for all filters
 
-    @Parameter(valueSet = {SpeckleFilterOp.WINDOW_SIZE_3x3, SpeckleFilterOp.WINDOW_SIZE_5x5},
-            defaultValue = SpeckleFilterOp.WINDOW_SIZE_3x3, label = "Point target window Size")
-    private String targetWindowSizeStr = SpeckleFilterOp.WINDOW_SIZE_3x3; // window size for point target determination in Lee sigma
+    @Parameter(valueSet = {FilterWindow.SIZE_3x3, FilterWindow.SIZE_5x5},
+            defaultValue = FilterWindow.SIZE_3x3, label = "Point target window Size")
+    private String targetWindowSizeStr = FilterWindow.SIZE_3x3; // window size for point target determination in Lee sigma
 
     @Parameter(valueSet = {SpeckleFilterOp.SIGMA_50_PERCENT, SpeckleFilterOp.SIGMA_60_PERCENT,
             SpeckleFilterOp.SIGMA_70_PERCENT, SpeckleFilterOp.SIGMA_80_PERCENT, SpeckleFilterOp.SIGMA_90_PERCENT},

@@ -23,6 +23,7 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.gpf.FilterWindow;
 import org.esa.snap.engine_utilities.util.TestUtils;
 import org.junit.Test;
 
@@ -95,7 +96,7 @@ public class TestUndersamplingOperator {
 
         op.setUndersamplingMethod(op.KERNEL_FILTERING);
         op.setFilterType(op.LOW_PASS);
-        op.setFilterSize(op.FILTER_SIZE_3x3);
+        op.setFilterSize(FilterWindow.SIZE_3x3);
         op.setOutputImageBy(op.IMAGE_SIZE);
         op.setOutputImageSize(2, 4);
 
@@ -263,7 +264,7 @@ public class TestUndersamplingOperator {
 
         op.setUndersamplingMethod(op.KERNEL_FILTERING);
         op.setFilterType(op.HORIZONTAL);
-        op.setFilterSize(op.FILTER_SIZE_3x3);
+        op.setFilterSize(FilterWindow.SIZE_3x3);
         op.setOutputImageBy(op.IMAGE_SIZE);
         op.setOutputImageSize(2, 4);
 
@@ -307,7 +308,7 @@ public class TestUndersamplingOperator {
 
         op.setUndersamplingMethod(op.KERNEL_FILTERING);
         op.setFilterType(op.VERTICAL);
-        op.setFilterSize(op.FILTER_SIZE_3x3);
+        op.setFilterSize(FilterWindow.SIZE_3x3);
         op.setOutputImageBy(op.IMAGE_SIZE);
         op.setOutputImageSize(2, 4);
 
@@ -350,7 +351,7 @@ public class TestUndersamplingOperator {
 
         op.setUndersamplingMethod(op.KERNEL_FILTERING);
         op.setFilterType(op.SUMMARY);
-        op.setFilterSize(op.FILTER_SIZE_3x3);
+        op.setFilterSize(FilterWindow.SIZE_3x3);
         op.setOutputImageBy(op.IMAGE_SIZE);
         op.setOutputImageSize(2, 4);
 

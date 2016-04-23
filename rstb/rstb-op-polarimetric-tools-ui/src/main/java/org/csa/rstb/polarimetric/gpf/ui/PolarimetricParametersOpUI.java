@@ -31,22 +31,23 @@ import java.util.Map;
  */
 public class PolarimetricParametersOpUI extends BaseOperatorUI {
 
-    private final JComboBox windowSizeXStr = new JComboBox(new String[]{"3", "5", "7", "9", "11", "13", "15", "17", "19"});
-    private final JComboBox windowSizeYStr = new JComboBox(new String[]{"3", "5", "7", "9", "11", "13", "15", "17", "19"});
+    private final JComboBox<String> windowSizeXStr =
+            new JComboBox(new String[]{"3", "5", "7", "9", "11", "13", "15", "17", "19"});
+    private final JComboBox<String> windowSizeYStr =
+            new JComboBox(new String[]{"3", "5", "7", "9", "11", "13", "15", "17", "19"});
 
-    final JCheckBox useMeanMatrixCheckBox = new JCheckBox("Use Mean Matrix");
-    final JCheckBox outputSpanCheckBox = new JCheckBox("Span");
-    final JCheckBox outputPedestalHeightCheckBox = new JCheckBox("Pedestal Height");
-    final JCheckBox outputRVICheckBox = new JCheckBox("Radar Vegetation Index");
-    final JCheckBox outputRFDICheckBox = new JCheckBox("Radar Forest Degradation Index");
-    final JCheckBox outputHHHVRatioCheckBox = new JCheckBox("HH/HV Ratio");
-
-    private Boolean useMeanMatrix = false;
-    private Boolean outputSpan = false;
-    private Boolean outputPedestalHeight = false;
-    private Boolean outputRVI = false;
-    private Boolean outputRFDI = false;
-    private Boolean outputHHHVRatio = false;
+    private final CheckBox useMeanMatrixCheckBox = new CheckBox("Use Mean Matrix");
+    private final CheckBox outputSpanCheckBox = new CheckBox("Span");
+    private final CheckBox outputPedestalHeightCheckBox = new CheckBox("Pedestal Height");
+    private final CheckBox outputRVICheckBox = new CheckBox("Radar Vegetation Index (RVI)");
+    private final CheckBox outputRFDICheckBox = new CheckBox("Radar Forest Degradation Index (RFDI)");
+    private final CheckBox outputCSICheckBox = new CheckBox("Canopy Structure Index (CSI)");
+    private final CheckBox outputBMICheckBox = new CheckBox("Biomass Index (BMI)");
+    private final CheckBox outputVSICheckBox = new CheckBox("Volume Scattering Index (VSI)");
+    private final CheckBox outputITICheckBox = new CheckBox("Interaction Index (ITI) HH VV phase difference");
+    private final CheckBox outputHHVVRatioCheckBox = new CheckBox("Co-Pol HH/VV Ratio");
+    private final CheckBox outputHHHVRatioCheckBox = new CheckBox("Cross-Pol HH/HV Ratio");
+    private final CheckBox outputVVVHRatioCheckBox = new CheckBox("Cross-Pol VV/VH Ratio");
 
     @Override
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {
@@ -58,45 +59,9 @@ public class PolarimetricParametersOpUI extends BaseOperatorUI {
 
         useMeanMatrixCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
-
-                useMeanMatrix = (e.getStateChange() == ItemEvent.SELECTED);
-                if (useMeanMatrix) {
-                    windowSizeXStr.setEnabled(true);
-                    windowSizeYStr.setEnabled(true);
-                } else {
-                    windowSizeXStr.setEnabled(false);
-                    windowSizeYStr.setEnabled(false);
-                }
-            }
-        });
-
-        outputSpanCheckBox.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                outputSpan = (e.getStateChange() == ItemEvent.SELECTED);
-            }
-        });
-
-        outputPedestalHeightCheckBox.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                outputPedestalHeight = (e.getStateChange() == ItemEvent.SELECTED);
-            }
-        });
-
-        outputRVICheckBox.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                outputRVI = (e.getStateChange() == ItemEvent.SELECTED);
-            }
-        });
-
-        outputRFDICheckBox.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                outputRFDI = (e.getStateChange() == ItemEvent.SELECTED);
-            }
-        });
-
-        outputHHHVRatioCheckBox.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                outputHHHVRatio = (e.getStateChange() == ItemEvent.SELECTED);
+                boolean useMeanMatrix = (e.getStateChange() == ItemEvent.SELECTED);
+                windowSizeXStr.setEnabled(useMeanMatrix);
+                windowSizeYStr.setEnabled(useMeanMatrix);
             }
         });
 
@@ -109,42 +74,19 @@ public class PolarimetricParametersOpUI extends BaseOperatorUI {
         windowSizeXStr.setSelectedItem(paramMap.get("windowSizeXStr"));
         windowSizeYStr.setSelectedItem(paramMap.get("windowSizeYStr"));
 
-        Boolean paramVal;
-        paramVal = (Boolean) paramMap.get("useMeanMatrix");
-        if (paramVal != null) {
-            useMeanMatrix = paramVal;
-            useMeanMatrixCheckBox.setSelected(useMeanMatrix);
-        }
+        useMeanMatrixCheckBox.set(paramMap.get("useMeanMatrix"));
 
-        paramVal = (Boolean) paramMap.get("outputSpan");
-        if (paramVal != null) {
-            outputSpan = paramVal;
-            outputSpanCheckBox.setSelected(outputSpan);
-        }
-
-        paramVal = (Boolean) paramMap.get("outputPedestalHeight");
-        if (paramVal != null) {
-            outputPedestalHeight = paramVal;
-            outputPedestalHeightCheckBox.setSelected(outputPedestalHeight);
-        }
-
-        paramVal = (Boolean) paramMap.get("outputRVI");
-        if (paramVal != null) {
-            outputRVI = paramVal;
-            outputRVICheckBox.setSelected(outputRVI);
-        }
-
-        paramVal = (Boolean) paramMap.get("outputRFDI");
-        if (paramVal != null) {
-            outputRFDI = paramVal;
-            outputRFDICheckBox.setSelected(outputRFDI);
-        }
-
-        paramVal = (Boolean) paramMap.get("outputHHHVRatio");
-        if (paramVal != null) {
-            outputHHHVRatio = paramVal;
-            outputHHHVRatioCheckBox.setSelected(outputHHHVRatio);
-        }
+        outputSpanCheckBox.set(paramMap.get("outputSpan"));
+        outputPedestalHeightCheckBox.set(paramMap.get("outputPedestalHeight"));
+        outputRVICheckBox.set(paramMap.get("outputRVI"));
+        outputRFDICheckBox.set(paramMap.get("outputRFDI"));
+        outputCSICheckBox.set(paramMap.get("outputCSI"));
+        outputVSICheckBox.set(paramMap.get("outputVSI"));
+        outputBMICheckBox.set(paramMap.get("outputBMI"));
+        outputITICheckBox.set(paramMap.get("outputITI"));
+        outputHHVVRatioCheckBox.set(paramMap.get("outputHHVVRatio"));
+        outputHHHVRatioCheckBox.set(paramMap.get("outputHHHVRatio"));
+        outputVVVHRatioCheckBox.set(paramMap.get("outputVVVHRatio"));
     }
 
     @Override
@@ -156,16 +98,22 @@ public class PolarimetricParametersOpUI extends BaseOperatorUI {
     @Override
     public void updateParameters() {
 
-        if (useMeanMatrix) {
+        if (useMeanMatrixCheckBox.getValue()) {
             paramMap.put("windowSizeXStr", windowSizeXStr.getSelectedItem());
             paramMap.put("windowSizeYStr", windowSizeYStr.getSelectedItem());
         }
-        paramMap.put("useMeanMatrix", useMeanMatrix);
-        paramMap.put("outputSpan", outputSpan);
-        paramMap.put("outputPedestalHeight", outputPedestalHeight);
-        paramMap.put("outputRVI", outputRVI);
-        paramMap.put("outputRFDI", outputRFDI);
-        paramMap.put("outputHHHVRatio", outputHHHVRatio);
+        paramMap.put("useMeanMatrix", useMeanMatrixCheckBox.getValue());
+        paramMap.put("outputSpan", outputSpanCheckBox.getValue());
+        paramMap.put("outputPedestalHeight", outputPedestalHeightCheckBox.getValue());
+        paramMap.put("outputRVI", outputRVICheckBox.getValue());
+        paramMap.put("outputRFDI", outputRFDICheckBox.getValue());
+        paramMap.put("outputCSI", outputCSICheckBox.getValue());
+        paramMap.put("outputVSI", outputVSICheckBox.getValue());
+        paramMap.put("outputBMI", outputBMICheckBox.getValue());
+        paramMap.put("outputITI", outputITICheckBox.getValue());
+        paramMap.put("outputHHVVRatio", outputHHVVRatioCheckBox.getValue());
+        paramMap.put("outputHHHVRatio", outputHHHVRatioCheckBox.getValue());
+        paramMap.put("outputVVVHRatio", outputVVVHRatioCheckBox.getValue());
     }
 
     JComponent createPanel() {
@@ -186,18 +134,55 @@ public class PolarimetricParametersOpUI extends BaseOperatorUI {
 
         gbc.gridy++;
         contentPane.add(outputPedestalHeightCheckBox, gbc);
-
         gbc.gridy++;
         contentPane.add(outputRVICheckBox, gbc);
-
         gbc.gridy++;
         contentPane.add(outputRFDICheckBox, gbc);
 
         gbc.gridy++;
+        contentPane.add(outputCSICheckBox, gbc);
+        gbc.gridy++;
+        contentPane.add(outputVSICheckBox, gbc);
+        gbc.gridy++;
+        contentPane.add(outputBMICheckBox, gbc);
+        gbc.gridy++;
+        contentPane.add(outputITICheckBox, gbc);
+
+        gbc.gridy++;
+        contentPane.add(outputHHVVRatioCheckBox, gbc);
+        gbc.gridy++;
         contentPane.add(outputHHHVRatioCheckBox, gbc);
+        gbc.gridy++;
+        contentPane.add(outputVVVHRatioCheckBox, gbc);
 
         DialogUtils.fillPanel(contentPane, gbc);
 
         return contentPane;
+    }
+
+    private static class CheckBox extends JCheckBox {
+        private Boolean value;
+
+        public CheckBox(String text) {
+            super(text);
+
+            this.addItemListener(new ItemListener() {
+                public void itemStateChanged(ItemEvent e) {
+                    value = (e.getStateChange() == ItemEvent.SELECTED);
+                }
+            });
+        }
+
+        public void set(Object o) {
+            Boolean paramVal = (Boolean) o;
+            if (paramVal != null) {
+                value = paramVal;
+                setSelected(value);
+            }
+        }
+
+        public Boolean getValue() {
+            return value;
+        }
     }
 }

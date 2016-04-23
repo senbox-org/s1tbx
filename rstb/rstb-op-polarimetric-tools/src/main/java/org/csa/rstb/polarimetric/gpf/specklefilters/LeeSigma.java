@@ -24,6 +24,7 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
+import org.esa.snap.engine_utilities.gpf.FilterWindow;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
 import java.awt.*;
@@ -74,16 +75,7 @@ public class LeeSigma implements SpeckleFilter {
 
         this.numLooks = numLooks;
 
-        switch (targetWindowSizeStr) {
-            case PolarimetricSpeckleFilterOp.WINDOW_SIZE_3x3:
-                targetWindowSize = 3;
-                break;
-            case PolarimetricSpeckleFilterOp.WINDOW_SIZE_5x5:
-                targetWindowSize = 5;
-                break;
-            default:
-                throw new OperatorException("Unknown target window size: " + targetWindowSizeStr);
-        }
+        targetWindowSize = FilterWindow.parseWindowSize(targetWindowSizeStr);
 
         halfTargetWindowSize = targetWindowSize / 2;
         sigmaV = 1.0 / Math.sqrt(numLooks);

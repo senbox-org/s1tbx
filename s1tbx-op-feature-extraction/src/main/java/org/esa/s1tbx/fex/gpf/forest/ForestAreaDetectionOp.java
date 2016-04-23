@@ -32,6 +32,7 @@ import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
+import org.esa.snap.engine_utilities.gpf.FilterWindow;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
@@ -69,9 +70,9 @@ public class ForestAreaDetectionOp extends Operator {
             rasterDataNodeType = Band.class, label = "Denominator Band")
     private String denominatorBandName = null;
 
-    @Parameter(valueSet = {WINDOW_SIZE_3x3, WINDOW_SIZE_5x5, WINDOW_SIZE_7x7, WINDOW_SIZE_9x9},
-            defaultValue = WINDOW_SIZE_3x3, label = "Window Size")
-    private String windowSizeStr = WINDOW_SIZE_3x3;
+    @Parameter(valueSet = {FilterWindow.SIZE_3x3, FilterWindow.SIZE_5x5, FilterWindow.SIZE_7x7, FilterWindow.SIZE_9x9},
+            defaultValue = FilterWindow.SIZE_3x3, label = "Window Size")
+    private String windowSizeStr = FilterWindow.SIZE_3x3;
 
     @Parameter(description = "The lower bound for ratio image", interval = "(0, *)", defaultValue = "3.76",
             label = "Ratio lower bound (dB)")
@@ -87,18 +88,13 @@ public class ForestAreaDetectionOp extends Operator {
 
     private int sourceImageWidth = 0;
     private int sourceImageHeight = 0;
-    private int windowSize = 0;
-    private int halfWindowSize = 0;
+    private FilterWindow window;
 
     private String[] sourceBandNames = new String[2];
 
     public static final String FOREST_MASK_NAME = "forest_mask";
     public static final String RATIO_BAND_NAME = "ratio";
 
-    private static final String WINDOW_SIZE_3x3 = "3x3";
-    private static final String WINDOW_SIZE_5x5 = "5x5";
-    private static final String WINDOW_SIZE_7x7 = "7x7";
-    private static final String WINDOW_SIZE_9x9 = "9x9";
     /*
     private static double T_Ratio_Low = 3.76; // dB
     private static double T_Ratio_High = 6.55; // dB
@@ -110,42 +106,16 @@ public class ForestAreaDetectionOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
-
             sourceImageWidth = sourceProduct.getSceneRasterWidth();
             sourceImageHeight = sourceProduct.getSceneRasterHeight();
 
-            setWindowSize();
+            window = new FilterWindow(windowSizeStr);
 
             createTargetProduct();
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
-    }
-
-    /**
-     * Set Window size.
-     */
-    private void setWindowSize() {
-
-        switch (windowSizeStr) {
-            case WINDOW_SIZE_3x3:
-                windowSize = 3;
-                break;
-            case WINDOW_SIZE_5x5:
-                windowSize = 5;
-                break;
-            case WINDOW_SIZE_7x7:
-                windowSize = 7;
-                break;
-            case WINDOW_SIZE_9x9:
-                windowSize = 9;
-                break;
-            default:
-                throw new OperatorException("Unknown window size: " + windowSize);
-        }
-
-        halfWindowSize = windowSize / 2;
     }
 
     /**
@@ -242,7 +212,8 @@ public class ForestAreaDetectionOp extends Operator {
             final int th = targetRectangle.height;
             //System.out.println("tx0 = " + tx0 + ", ty0 = " + ty0 + ", tw = " + tw + ", th = " + th);
 
-            final Rectangle sourceTileRectangle = getSourceTileRectangle(tx0, ty0, tw, th);
+            final Rectangle sourceTileRectangle = window.getSourceTileRectangle(tx0, ty0, tw, th,
+                                                                                sourceImageWidth, sourceImageHeight);
             final Band nominatorBand = sourceProduct.getBand(sourceBandNames[0]);
             final Band denominatorBand = sourceProduct.getBand(sourceBandNames[1]);
             final Tile nominatorTile = getSourceTile(nominatorBand, sourceTileRectangle);
@@ -266,6 +237,7 @@ public class ForestAreaDetectionOp extends Operator {
 
             final int maxy = ty0 + th;
             final int maxx = tx0 + tw;
+            final int windowSize = window.getWindowSize();
 
             double vDDB, vRatioDB;
             for (int ty = ty0; ty < maxy; ty++) {
@@ -283,7 +255,7 @@ public class ForestAreaDetectionOp extends Operator {
                         continue;
                     }
 
-                    final double vRatio = computeRatio(tx, ty, nominatorTile, nominatorData, denominatorTile,
+                    final double vRatio = computeRatio(tx, ty, windowSize, nominatorTile, nominatorData, denominatorTile,
                             denominatorData, nominatorBandUnit, denominatorBandUnit, noDataValueN, noDataValueD);
 
                     if (vRatio == noDataValueN || vRatio == noDataValueD) {
@@ -311,43 +283,6 @@ public class ForestAreaDetectionOp extends Operator {
     }
 
     /**
-     * Get source tile rectangle.
-     *
-     * @param x0 X coordinate of pixel at the upper left corner of the target tile.
-     * @param y0 Y coordinate of pixel at the upper left corner of the target tile.
-     * @param w  The width of the target tile.
-     * @param h  The height of the target tile.
-     * @return The source tile rectangle.
-     */
-    private Rectangle getSourceTileRectangle(int x0, int y0, int w, int h) {
-
-        int sx0 = x0;
-        int sy0 = y0;
-        int sw = w;
-        int sh = h;
-
-        if (x0 >= halfWindowSize) {
-            sx0 -= halfWindowSize;
-            sw += halfWindowSize;
-        }
-
-        if (y0 >= halfWindowSize) {
-            sy0 -= halfWindowSize;
-            sh += halfWindowSize;
-        }
-
-        if (x0 + w + halfWindowSize <= sourceImageWidth) {
-            sw += halfWindowSize;
-        }
-
-        if (y0 + h + halfWindowSize <= sourceImageHeight) {
-            sh += halfWindowSize;
-        }
-
-        return new Rectangle(sx0, sy0, sw, sh);
-    }
-
-    /**
      * Compute pixel value for ratio band.
      *
      * @param tx              The x coordinate of the central pixel of the sliding window.
@@ -362,20 +297,24 @@ public class ForestAreaDetectionOp extends Operator {
      * @param noDataValueD    The place holder for no data for denominator band.
      * @return The local coefficient of variance.
      */
-    private double computeRatio(final int tx, final int ty, final Tile nominatorTile, final ProductData nominatorData,
+    private double computeRatio(final int tx, final int ty, final int windowSize,
+                                final Tile nominatorTile, final ProductData nominatorData,
                                 final Tile denominatorTile, final ProductData denominatorData,
                                 final String bandUnitN, final String bandUnitD,
                                 final double noDataValueN, final double noDataValueD) {
 
         final double[] samplesN = new double[windowSize * windowSize];
         final double[] samplesD = new double[windowSize * windowSize];
+        final int halfWindowSize = windowSize/2;
 
-        final int numSamplesN = getSamples(tx, ty, bandUnitN, noDataValueN, nominatorTile, nominatorData, samplesN);
+        final int numSamplesN = getSamples(tx, ty, bandUnitN, noDataValueN, halfWindowSize,
+                                           nominatorTile, nominatorData, samplesN);
         if (numSamplesN == 0) {
             return noDataValueN;
         }
 
-        final int numSamplesD = getSamples(tx, ty, bandUnitD, noDataValueD, denominatorTile, denominatorData, samplesD);
+        final int numSamplesD = getSamples(tx, ty, bandUnitD, noDataValueD, halfWindowSize,
+                                           denominatorTile, denominatorData, samplesD);
         if (numSamplesD == 0) {
             return noDataValueD;
         }
@@ -404,8 +343,7 @@ public class ForestAreaDetectionOp extends Operator {
      * @return The number of samples.
      */
     private int getSamples(final int tx, final int ty, final String bandUnit, final double noDataValue,
-                           final Tile sourceTile, final ProductData srcData, final double[] samples) {
-
+                           final int halfWindowSize, final Tile sourceTile, final ProductData srcData, final double[] samples) {
 
         final int x0 = Math.max(tx - halfWindowSize, 0);
         final int y0 = Math.max(ty - halfWindowSize, 0);

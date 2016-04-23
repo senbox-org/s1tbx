@@ -17,6 +17,7 @@ package org.csa.rstb.polarimetric.gpf.ui;
 
 import org.csa.rstb.polarimetric.gpf.PolarimetricSpeckleFilterOp;
 import org.csa.rstb.polarimetric.gpf.specklefilters.LeeSigma;
+import org.esa.snap.engine_utilities.gpf.FilterWindow;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
@@ -30,26 +31,25 @@ import java.util.Map;
 
 public class PolarimetricSpeckleFilterOpUI extends BaseOperatorUI {
 
-    private final JComboBox filter = new JComboBox(new String[]{PolarimetricSpeckleFilterOp.BOXCAR_SPECKLE_FILTER,
+    private final JComboBox<String> filter = new JComboBox(new String[]{PolarimetricSpeckleFilterOp.BOXCAR_SPECKLE_FILTER,
             PolarimetricSpeckleFilterOp.IDAN_FILTER,
             PolarimetricSpeckleFilterOp.REFINED_LEE_FILTER,
             PolarimetricSpeckleFilterOp.LEE_SIGMA_FILTER});
 
-    private final JComboBox numLooks = new JComboBox(new String[]{PolarimetricSpeckleFilterOp.NUM_LOOKS_1,
+    private final JComboBox<String> numLooks = new JComboBox(new String[]{PolarimetricSpeckleFilterOp.NUM_LOOKS_1,
             PolarimetricSpeckleFilterOp.NUM_LOOKS_2,
             PolarimetricSpeckleFilterOp.NUM_LOOKS_3,
             PolarimetricSpeckleFilterOp.NUM_LOOKS_4});
 
-    private final JComboBox windowSize = new JComboBox(new String[]{PolarimetricSpeckleFilterOp.WINDOW_SIZE_5x5,
-            PolarimetricSpeckleFilterOp.WINDOW_SIZE_7x7,
-            PolarimetricSpeckleFilterOp.WINDOW_SIZE_9x9,
-            PolarimetricSpeckleFilterOp.WINDOW_SIZE_11x11});
+    private final JComboBox<String> windowSize = new JComboBox(new String[]{
+            FilterWindow.SIZE_5x5, FilterWindow.SIZE_7x7, FilterWindow.SIZE_9x9, FilterWindow.SIZE_11x11,
+            FilterWindow.SIZE_13x13, FilterWindow.SIZE_15x15, FilterWindow.SIZE_17x17});
 
-    private final JComboBox targetWindowSize = new JComboBox(new String[]{
-            PolarimetricSpeckleFilterOp.WINDOW_SIZE_3x3,
-            PolarimetricSpeckleFilterOp.WINDOW_SIZE_5x5});
+    private final JComboBox<String> targetWindowSize = new JComboBox(new String[]{
+            FilterWindow.SIZE_3x3,
+            FilterWindow.SIZE_5x5});
 
-    private final JComboBox sigmaStr = new JComboBox(new String[]{LeeSigma.SIGMA_50_PERCENT,
+    private final JComboBox<String> sigmaStr = new JComboBox(new String[]{LeeSigma.SIGMA_50_PERCENT,
             LeeSigma.SIGMA_60_PERCENT,
             LeeSigma.SIGMA_70_PERCENT,
             LeeSigma.SIGMA_80_PERCENT,
