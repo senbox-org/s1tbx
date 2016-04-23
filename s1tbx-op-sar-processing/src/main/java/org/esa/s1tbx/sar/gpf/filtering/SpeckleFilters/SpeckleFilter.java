@@ -50,32 +50,6 @@ public interface SpeckleFilter {
     default Rectangle getSourceTileRectangle(final int x0, final int y0, final int w, final int h,
                                              final int halfSizeX, final int halfSizeY,
                                              final int sourceImageWidth, final int sourceImageHeight) {
-/*
-        int sx0 = x0;
-        int sy0 = y0;
-        int sw = w;
-        int sh = h;
-
-        if (x0 >= halfSizeX) {
-            sx0 -= halfSizeX;
-            sw += halfSizeX;
-        }
-
-        if (y0 >= halfSizeY) {
-            sy0 -= halfSizeY;
-            sh += halfSizeY;
-        }
-
-        if (x0 + w + halfSizeX <= sourceImageWidth) {
-            sw += halfSizeX;
-        }
-
-        if (y0 + h + halfSizeY <= sourceImageHeight) {
-            sh += halfSizeY;
-        }
-
-        return new Rectangle(sx0, sy0, sw, sh);
-*/
         final int sx0 = Math.max(0, x0 - halfSizeX);
         final int sy0 = Math.max(0, y0 - halfSizeY);
         final int sw = Math.min(x0 + w + halfSizeX, sourceImageWidth) - sx0;

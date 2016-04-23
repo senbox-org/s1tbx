@@ -16,6 +16,7 @@
 package org.esa.s1tbx.utilities.gpf.ui;
 
 import org.esa.s1tbx.utilities.gpf.UndersamplingOp;
+import org.esa.snap.engine_utilities.gpf.FilterWindow;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.OperatorUIUtils;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
@@ -53,11 +54,13 @@ public class UndersamplingOpUI extends BaseOperatorUI {
                                                                         UndersamplingOp.VERTICAL,
                                                                         UndersamplingOp.USER_DEFINED } );
     */
-    private final JComboBox<String> filterSize = new JComboBox(new String[]{UndersamplingOp.FILTER_SIZE_3x3,
-            UndersamplingOp.FILTER_SIZE_5x5,
-            UndersamplingOp.FILTER_SIZE_7x7});
+    private final JComboBox<String> filterSize = new JComboBox(new String[]{
+            FilterWindow.SIZE_3x3,
+            FilterWindow.SIZE_5x5,
+            FilterWindow.SIZE_7x7});
 
-    private final JComboBox<String> outputImageBy = new JComboBox(new String[]{UndersamplingOp.IMAGE_SIZE,
+    private final JComboBox<String> outputImageBy = new JComboBox(new String[]{
+            UndersamplingOp.IMAGE_SIZE,
             UndersamplingOp.RATIO,
             UndersamplingOp.PIXEL_SPACING});
 

@@ -16,6 +16,7 @@
 package org.esa.s1tbx.sar.gpf.ui.filtering;
 
 import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilterOp;
+import org.esa.snap.engine_utilities.gpf.FilterWindow;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.OperatorUIUtils;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
@@ -39,7 +40,7 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
 
     private final JList bandList = new JList();
 
-    private final JComboBox filter = new JComboBox(new String[]{
+    private final JComboBox<String> filter = new JComboBox(new String[]{
             SpeckleFilterOp.NONE,
             SpeckleFilterOp.BOXCAR_SPECKLE_FILTER,
             SpeckleFilterOp.MEDIAN_SPECKLE_FILTER,
@@ -50,21 +51,20 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
             SpeckleFilterOp.LEE_SIGMA_FILTER,
             SpeckleFilterOp.IDAN_FILTER});
 
-    private final JComboBox numLooks = new JComboBox(new String[]{SpeckleFilterOp.NUM_LOOKS_1,
+    private final JComboBox<String> numLooks = new JComboBox(new String[]{SpeckleFilterOp.NUM_LOOKS_1,
             SpeckleFilterOp.NUM_LOOKS_2,
             SpeckleFilterOp.NUM_LOOKS_3,
             SpeckleFilterOp.NUM_LOOKS_4});
 
-    private final JComboBox windowSize = new JComboBox(new String[]{SpeckleFilterOp.WINDOW_SIZE_5x5,
-            SpeckleFilterOp.WINDOW_SIZE_7x7,
-            SpeckleFilterOp.WINDOW_SIZE_9x9,
-            SpeckleFilterOp.WINDOW_SIZE_11x11});
+    private final JComboBox<String> windowSize = new JComboBox(new String[]{
+            FilterWindow.SIZE_5x5, FilterWindow.SIZE_7x7, FilterWindow.SIZE_9x9, FilterWindow.SIZE_11x11,
+            FilterWindow.SIZE_13x13, FilterWindow.SIZE_15x15, FilterWindow.SIZE_17x17});
 
-    private final JComboBox targetWindowSize = new JComboBox(new String[]{
-            SpeckleFilterOp.WINDOW_SIZE_3x3,
-            SpeckleFilterOp.WINDOW_SIZE_5x5});
+    private final JComboBox<String> targetWindowSize = new JComboBox(new String[]{
+            FilterWindow.SIZE_3x3,
+            FilterWindow.SIZE_5x5});
 
-    private final JComboBox sigmaStr = new JComboBox(new String[]{
+    private final JComboBox<String> sigmaStr = new JComboBox(new String[]{
             SpeckleFilterOp.SIGMA_50_PERCENT,
             SpeckleFilterOp.SIGMA_60_PERCENT,
             SpeckleFilterOp.SIGMA_70_PERCENT,

@@ -16,7 +16,19 @@
 package org.esa.s1tbx.sar.gpf.filtering;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.core.datamodel.*;
+import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.Boxcar;
+import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.Frost;
+import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.GammaMap;
+import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.IDAN;
+import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.Lee;
+import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.LeeSigma;
+import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.Median;
+import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.RefinedLee;
+import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.SpeckleFilter;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -27,19 +39,12 @@ import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.gpf.FilterWindow;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
-import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.Boxcar;
-import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.Median;
-import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.Frost;
-import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.GammaMap;
-import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.Lee;
-import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.RefinedLee;
-import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.LeeSigma;
-import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.IDAN;
-import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters.SpeckleFilter;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Applies a Speckle Filter to the data
@@ -92,13 +97,14 @@ public class SpeckleFilterOp extends Operator {
             defaultValue = NUM_LOOKS_1, label = "Number of Looks")
     private String numLooksStr = NUM_LOOKS_1;
 
-    @Parameter(valueSet = {WINDOW_SIZE_5x5, WINDOW_SIZE_7x7, WINDOW_SIZE_9x9, WINDOW_SIZE_11x11},
-            defaultValue = WINDOW_SIZE_7x7, label = "Window Size")
-    private String windowSize = WINDOW_SIZE_7x7; // window size for all filters
+    @Parameter(valueSet = {FilterWindow.SIZE_5x5, FilterWindow.SIZE_7x7, FilterWindow.SIZE_9x9, FilterWindow.SIZE_11x11,
+            FilterWindow.SIZE_13x13, FilterWindow.SIZE_15x15, FilterWindow.SIZE_17x17},
+            defaultValue = FilterWindow.SIZE_7x7, label = "Window Size")
+    private String windowSize = FilterWindow.SIZE_7x7; // window size for all filters
 
-    @Parameter(valueSet = {WINDOW_SIZE_3x3, WINDOW_SIZE_5x5}, defaultValue = WINDOW_SIZE_3x3,
+    @Parameter(valueSet = {FilterWindow.SIZE_3x3, FilterWindow.SIZE_5x5}, defaultValue = FilterWindow.SIZE_3x3,
             label = "Point target window Size")
-    private String targetWindowSizeStr = WINDOW_SIZE_3x3; // window size for point target determination in Lee sigma
+    private String targetWindowSizeStr = FilterWindow.SIZE_3x3; // window size for point target determination in Lee sigma
 
     @Parameter(valueSet = {SIGMA_50_PERCENT, SIGMA_60_PERCENT, SIGMA_70_PERCENT, SIGMA_80_PERCENT, SIGMA_90_PERCENT},
             defaultValue = SIGMA_90_PERCENT, label = "Point target window Size")
@@ -119,12 +125,6 @@ public class SpeckleFilterOp extends Operator {
     public static final String LEE_REFINED_FILTER = "Refined Lee";
     public static final String LEE_SIGMA_FILTER = "Lee Sigma";
     public static final String IDAN_FILTER = "IDAN";
-
-    public static final String WINDOW_SIZE_3x3 = "3x3";
-    public static final String WINDOW_SIZE_5x5 = "5x5";
-    public static final String WINDOW_SIZE_7x7 = "7x7";
-    public static final String WINDOW_SIZE_9x9 = "9x9";
-    public static final String WINDOW_SIZE_11x11 = "11x11";
 
     public static final String NUM_LOOKS_1 = "1";
     public static final String NUM_LOOKS_2 = "2";

@@ -40,6 +40,7 @@ import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.ResourceInstaller;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.gpf.FilterWindow;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.util.ResourceUtils;
 
@@ -115,9 +116,9 @@ public class UndersamplingOp extends Operator {
 //               defaultValue = LOW_PASS, label="Filter Type")
     private String filterType = LOW_PASS;
 
-    @Parameter(valueSet = {FILTER_SIZE_3x3, FILTER_SIZE_5x5, FILTER_SIZE_7x7},
-            defaultValue = FILTER_SIZE_3x3, label = "Filter Size")
-    private String filterSize = FILTER_SIZE_3x3;
+    @Parameter(valueSet = {FilterWindow.SIZE_3x3, FilterWindow.SIZE_5x5, FilterWindow.SIZE_7x7},
+            defaultValue = FilterWindow.SIZE_3x3, label = "Filter Size")
+    private String filterSize = FilterWindow.SIZE_3x3;
 
     @Parameter(defaultValue = "2", label = "Sub-Sampling in X")
     private int subSamplingX = 2;
@@ -172,10 +173,6 @@ public class UndersamplingOp extends Operator {
     public static final String IMAGE_SIZE = "Image Size";
     public static final String RATIO = "Ratio";
     public static final String PIXEL_SPACING = "Pixel Spacing";
-
-    public static final String FILTER_SIZE_3x3 = "3x3";
-    public static final String FILTER_SIZE_5x5 = "5x5";
-    public static final String FILTER_SIZE_7x7 = "7x7";
 
     private static final String PRODUCT_SUFFIX = "_Udr";
 
@@ -286,7 +283,8 @@ public class UndersamplingOp extends Operator {
     private void initializeForKernelFiltering() throws OperatorException {
         try {
 
-            getFilterDimension();
+            filterWidth = FilterWindow.parseWindowSize(filterSize);
+            filterHeight = filterWidth;
 
             getSrcImagePixelSpacings();
 
@@ -299,26 +297,6 @@ public class UndersamplingOp extends Operator {
             createTargetProduct();
         } catch (Exception e) {
             throw new OperatorException(e.getMessage());
-        }
-    }
-
-    private void getFilterDimension() {
-
-        switch (filterSize) {
-            case FILTER_SIZE_3x3:
-                filterWidth = 3;
-                filterHeight = 3;
-                break;
-            case FILTER_SIZE_5x5:
-                filterWidth = 5;
-                filterHeight = 5;
-                break;
-            case FILTER_SIZE_7x7:
-                filterWidth = 7;
-                filterHeight = 7;
-                break;
-            default:
-                throw new OperatorException("Unknown filter size: " + filterSize);
         }
     }
 

@@ -34,6 +34,7 @@ import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.gpf.FilterWindow;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 
@@ -67,13 +68,14 @@ public class PolarimetricSpeckleFilterOp extends Operator {
             defaultValue = NUM_LOOKS_1, label = "Number of Looks")
     private String numLooksStr = NUM_LOOKS_1;
 
-    @Parameter(valueSet = {WINDOW_SIZE_5x5, WINDOW_SIZE_7x7, WINDOW_SIZE_9x9, WINDOW_SIZE_11x11},
-            defaultValue = WINDOW_SIZE_7x7, label = "Window Size")
-    private String windowSize = WINDOW_SIZE_7x7; // window size for all filters
+    @Parameter(valueSet = {FilterWindow.SIZE_5x5, FilterWindow.SIZE_7x7, FilterWindow.SIZE_9x9, FilterWindow.SIZE_11x11,
+            FilterWindow.SIZE_13x13, FilterWindow.SIZE_15x15, FilterWindow.SIZE_17x17},
+            defaultValue = FilterWindow.SIZE_7x7, label = "Window Size")
+    private String windowSize = FilterWindow.SIZE_7x7; // window size for all filters
 
-    @Parameter(valueSet = {WINDOW_SIZE_3x3, WINDOW_SIZE_5x5}, defaultValue = WINDOW_SIZE_3x3,
+    @Parameter(valueSet = {FilterWindow.SIZE_3x3,FilterWindow.SIZE_5x5}, defaultValue = FilterWindow.SIZE_3x3,
             label = "Point target window Size")
-    private String targetWindowSizeStr = WINDOW_SIZE_3x3; // window size for point target determination in Lee sigma
+    private String targetWindowSizeStr = FilterWindow.SIZE_3x3; // window size for point target determination in Lee sigma
 
     @Parameter(description = "The Adaptive Neighbourhood size", interval = "(1, 200]", defaultValue = "50",
             label = "Adaptive Neighbourhood Size")
@@ -93,12 +95,6 @@ public class PolarimetricSpeckleFilterOp extends Operator {
     public static final String REFINED_LEE_FILTER = "Refined Lee Filter";
     public static final String IDAN_FILTER = "IDAN Filter";
     public static final String LEE_SIGMA_FILTER = "Improved Lee Sigma Filter";
-
-    public static final String WINDOW_SIZE_3x3 = "3x3";
-    public static final String WINDOW_SIZE_5x5 = "5x5";
-    public static final String WINDOW_SIZE_7x7 = "7x7";
-    public static final String WINDOW_SIZE_9x9 = "9x9";
-    public static final String WINDOW_SIZE_11x11 = "11x11";
 
     public static final String NUM_LOOKS_1 = "1";
     public static final String NUM_LOOKS_2 = "2";
@@ -151,7 +147,8 @@ public class PolarimetricSpeckleFilterOp extends Operator {
             validator.checkIfSLC();
             validator.checkIfTOPSARBurstProduct(false);
 
-            getSourceImageDimension();
+            sourceImageWidth = sourceProduct.getSceneRasterWidth();
+            sourceImageHeight = sourceProduct.getSceneRasterHeight();
 
             sourceProductType = PolBandUtils.getSourceProductType(sourceProduct);
 
@@ -168,31 +165,12 @@ public class PolarimetricSpeckleFilterOp extends Operator {
         }
     }
 
-    private void checkSourceProductType(final PolBandUtils.MATRIX sourceProductType) {
+    private static void checkSourceProductType(final PolBandUtils.MATRIX sourceProductType) {
 
         // Inside each of the 4 filters, there is a check for sourceProductType and UNKNOWN will cause an exception.
         // Without this check, we get a null pointer exception.
         if(sourceProductType == PolBandUtils.MATRIX.UNKNOWN) {
             throw new OperatorException("Input should be a polarimetric product");
-        }
-    }
-
-    private void getWindowSize() {
-        switch (windowSize) {
-            case WINDOW_SIZE_5x5:
-                filterSize = 5;
-                break;
-            case WINDOW_SIZE_7x7:
-                filterSize = 7;
-                break;
-            case WINDOW_SIZE_9x9:
-                filterSize = 9;
-                break;
-            case WINDOW_SIZE_11x11:
-                filterSize = 11;
-                break;
-            default:
-                throw new OperatorException("Unknown window size: " + windowSize);
         }
     }
 
@@ -203,27 +181,19 @@ public class PolarimetricSpeckleFilterOp extends Operator {
             case BOXCAR_SPECKLE_FILTER:
                 return new BoxCar(this, sourceProduct, targetProduct, sourceProductType, srcBandList, filterSize);
             case REFINED_LEE_FILTER:
-                getWindowSize();
+                filterSize = FilterWindow.parseWindowSize(windowSize);
                 return new RefinedLee(this, sourceProduct, targetProduct, sourceProductType, srcBandList, filterSize,
                                       numLooks);
             case IDAN_FILTER:
                 return new IDAN(this, sourceProduct, targetProduct, sourceProductType, srcBandList, anSize,
                                 numLooks);
             case LEE_SIGMA_FILTER:
-                getWindowSize();
+                filterSize = FilterWindow.parseWindowSize(windowSize);
                 return new LeeSigma(this, sourceProduct, targetProduct, sourceProductType, srcBandList, filterSize,
                                     numLooks, sigmaStr, targetWindowSizeStr);
             default:
                 return null;
         }
-    }
-
-    /**
-     * Get source image dimension.
-     */
-    private void getSourceImageDimension() {
-        sourceImageWidth = sourceProduct.getSceneRasterWidth();
-        sourceImageHeight = sourceProduct.getSceneRasterHeight();
     }
 
     /**

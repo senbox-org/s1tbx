@@ -17,7 +17,6 @@ package org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.google.common.primitives.Doubles;
-import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilterOp;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
@@ -25,11 +24,14 @@ import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.gpf.FilterWindow;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
 import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
 
 /**
  * LeeSigma Speckle Filter
@@ -66,12 +68,6 @@ public class LeeSigma implements SpeckleFilter {
     private int halfTargetWindowSize = 0;
     private int targetSize = 5;
 
-    private static final String WINDOW_SIZE_3x3 = "3x3";
-    private static final String WINDOW_SIZE_5x5 = "5x5";
-    private static final String WINDOW_SIZE_7x7 = "7x7";
-    private static final String WINDOW_SIZE_9x9 = "9x9";
-    private static final String WINDOW_SIZE_11x11 = "11x11";
-
     private static final String SIGMA_50_PERCENT = "0.5";
     private static final String SIGMA_60_PERCENT = "0.6";
     private static final String SIGMA_70_PERCENT = "0.7";
@@ -99,37 +95,12 @@ public class LeeSigma implements SpeckleFilter {
     private void setLeeSigmaParameters() {
 
         numLooks = Integer.parseInt(numLooksStr);
+        filterSize = FilterWindow.parseWindowSize(windowSize);
 
-        switch (windowSize) {
-            case WINDOW_SIZE_5x5:
-                filterSize = 5;
-                break;
-            case WINDOW_SIZE_7x7:
-                filterSize = 7;
-                break;
-            case WINDOW_SIZE_9x9:
-                filterSize = 9;
-                break;
-            case WINDOW_SIZE_11x11:
-                filterSize = 11;
-                break;
-            default:
-                throw new OperatorException("Unknown window size: " + windowSize);
-        }
-
-        halfSizeX = filterSize/2;
+        halfSizeX = filterSize / 2;
         halfSizeY = halfSizeX;
 
-        switch (targetWindowSizeStr) {
-            case WINDOW_SIZE_3x3:
-                targetWindowSize = 3;
-                break;
-            case WINDOW_SIZE_5x5:
-                targetWindowSize = 5;
-                break;
-            default:
-                throw new OperatorException("Unknown target window size: " + targetWindowSizeStr);
-        }
+        targetWindowSize = FilterWindow.parseWindowSize(targetWindowSizeStr);
 
         halfTargetWindowSize = targetWindowSize / 2;
 
@@ -471,7 +442,7 @@ public class LeeSigma implements SpeckleFilter {
                         x - halfSizeX < sx0 || x + halfSizeX > sx0 + sw - 1) {
 
                     getWindowPixels(x, y, sx0, sy0, sw, sh, sourceTile1, noDataValue, bandUnit,
-                            sourceData1, sourceData2, filterWindow);
+                                    sourceData1, sourceData2, filterWindow);
 
                     pixelsSelected = getValidPixels(filterWindow, noDataValue);
 
@@ -482,7 +453,7 @@ public class LeeSigma implements SpeckleFilter {
                 }
 
                 getWindowPixels(x, y, sx0, sy0, sw, sh, sourceTile1, noDataValue, bandUnit,
-                        sourceData1, sourceData2, targetWindow);
+                                sourceData1, sourceData2, targetWindow);
 
                 if (checkPointTarget(x, y, z98, targetWindow, isPointTarget, x0, y0, w, h, noDataValue)) {
                     filteredTile[yy][xx] = v;
@@ -494,7 +465,7 @@ public class LeeSigma implements SpeckleFilter {
                 double[] sigmaRange = {meanEst * sigmaRangeLow, meanEst * sigmaRangeHigh};
 
                 getWindowPixels(x, y, sx0, sy0, sw, sh, sourceTile1, noDataValue, bandUnit,
-                        sourceData1, sourceData2, filterWindow);
+                                sourceData1, sourceData2, filterWindow);
 
                 pixelsSelected = selectPixelsInSigmaRange(sigmaRange, filterWindow, noDataValue);
                 if (pixelsSelected.length == 0) {
@@ -510,9 +481,9 @@ public class LeeSigma implements SpeckleFilter {
         return filteredTile;
     }
 
-    private double computeZ98Values(final TileIndex srcIndex, final Rectangle sourceRectangle,
-                                    final double noDataValue, final Unit.UnitType unit,
-                                    final ProductData srcData1, final ProductData srcData2) {
+    private static double computeZ98Values(final TileIndex srcIndex, final Rectangle sourceRectangle,
+                                           final double noDataValue, final Unit.UnitType unit,
+                                           final ProductData srcData1, final ProductData srcData2) {
 
         final int sx0 = sourceRectangle.x;
         final int sy0 = sourceRectangle.y;
@@ -535,8 +506,8 @@ public class LeeSigma implements SpeckleFilter {
         return pixelValues[z98Index];
     }
 
-    private double getPixelValue(final int index, final double noDataValue, final Unit.UnitType unit,
-                                 final ProductData srcData1, final ProductData srcData2) {
+    private static double getPixelValue(final int index, final double noDataValue, final Unit.UnitType unit,
+                                        final ProductData srcData1, final ProductData srcData2) {
 
         if (unit == Unit.UnitType.REAL || unit == Unit.UnitType.IMAGINARY) {
             final double I = srcData1.getElemDoubleAt(index);
@@ -551,9 +522,9 @@ public class LeeSigma implements SpeckleFilter {
         }
     }
 
-    private void getWindowPixels(final int x, final int y, final int sx0, final int sy0, final int sw, final int sh,
-                                 final Tile sourceTile, final double noDataValue, final Unit.UnitType unit,
-                                 final ProductData srcData1, final ProductData srcData2, final double[][] windowPixel) {
+    private static void getWindowPixels(final int x, final int y, final int sx0, final int sy0, final int sw, final int sh,
+                                        final Tile sourceTile, final double noDataValue, final Unit.UnitType unit,
+                                        final ProductData srcData1, final ProductData srcData2, final double[][] windowPixel) {
 
         final TileIndex srcIndex = new TileIndex(sourceTile);
         final int windowSize = windowPixel.length;
@@ -574,15 +545,15 @@ public class LeeSigma implements SpeckleFilter {
         }
     }
 
-    private double[] getValidPixels(final double[][] filterWindow, final double noDataValue) {
+    private static double[] getValidPixels(final double[][] filterWindow, final double noDataValue) {
 
         final java.util.List<Double> pixelsSelected = new ArrayList<>();
         final int nRows = filterWindow.length;
         final int nCols = filterWindow[0].length;
-        for (int j = 0; j < nRows; j++) {
+        for (double[] aFilterWindow : filterWindow) {
             for (int i = 0; i < nCols; i++) {
-                if (filterWindow[j][i] != noDataValue) {
-                    pixelsSelected.add(filterWindow[j][i]);
+                if (aFilterWindow[i] != noDataValue) {
+                    pixelsSelected.add(aFilterWindow[i]);
                 }
             }
         }
@@ -616,9 +587,9 @@ public class LeeSigma implements SpeckleFilter {
         return clusterSize;
     }
 
-    private void markClusterPixels( final int x, final int y,
-                                    boolean[][] isPointTarget, final double threshold, final double[][] targetWindow,
-                                    final int x0, final int y0, final int w, final int h, final double noDataValue) {
+    private void markClusterPixels(final int x, final int y,
+                                   boolean[][] isPointTarget, final double threshold, final double[][] targetWindow,
+                                   final int x0, final int y0, final int w, final int h, final double noDataValue) {
 
         final int windowSize = targetWindow.length;
         final int halfWindowSize = windowSize / 2;
@@ -644,7 +615,7 @@ public class LeeSigma implements SpeckleFilter {
             return 0.0;
         }
 
-        double varX  = (varY - meanY * meanY * sigmaVSqr) / (1 + sigmaVSqr);
+        double varX = (varY - meanY * meanY * sigmaVSqr) / (1 + sigmaVSqr);
         if (varX < 0.0) {
             varX = 0.0;
         }

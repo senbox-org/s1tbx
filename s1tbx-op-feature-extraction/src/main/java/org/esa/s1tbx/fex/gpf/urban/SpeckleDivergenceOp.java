@@ -16,7 +16,6 @@
 package org.esa.s1tbx.fex.gpf.urban;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.raster.gpf.masks.TerrainMaskOp;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Mask;
 import org.esa.snap.core.datamodel.MetadataElement;
@@ -33,9 +32,11 @@ import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.gpf.FilterWindow;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
+import org.esa.snap.raster.gpf.masks.TerrainMaskOp;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -70,28 +71,20 @@ public class SpeckleDivergenceOp extends Operator {
             label = "Source Bands")
     private String[] sourceBandNames = null;
 
-    @Parameter(valueSet = {WINDOW_SIZE_5x5, WINDOW_SIZE_7x7, WINDOW_SIZE_9x9, WINDOW_SIZE_11x11, WINDOW_SIZE_13x13,
-            WINDOW_SIZE_15x15, WINDOW_SIZE_17x17}, defaultValue = WINDOW_SIZE_15x15, label = "Window Size")
-    private String windowSizeStr = WINDOW_SIZE_15x15;
+    @Parameter(valueSet = {FilterWindow.SIZE_5x5, FilterWindow.SIZE_7x7, FilterWindow.SIZE_9x9,
+            FilterWindow.SIZE_11x11, FilterWindow.SIZE_13x13, FilterWindow.SIZE_15x15, FilterWindow.SIZE_17x17},
+            defaultValue = FilterWindow.SIZE_15x15, label = "Window Size")
+    private String windowSizeStr = FilterWindow.SIZE_15x15;
 
     private MetadataElement absRoot = null;
     private int sourceImageWidth = 0;
     private int sourceImageHeight = 0;
-    private int windowSize = 0;
-    private int halfWindowSize = 0;
+    private FilterWindow window;
 
     private double c = 0.0; // theoretical coefficient of variance
     private final HashMap<String, String> targetBandNameToSourceBandName = new HashMap<>();
 
     public static final String SPECKLE_DIVERGENCE_MASK_NAME = "_speckle_divergence";
-
-    private static final String WINDOW_SIZE_5x5 = "5x5";
-    private static final String WINDOW_SIZE_7x7 = "7x7";
-    private static final String WINDOW_SIZE_9x9 = "9x9";
-    private static final String WINDOW_SIZE_11x11 = "11x11";
-    private static final String WINDOW_SIZE_13x13 = "13x13";
-    private static final String WINDOW_SIZE_15x15 = "15x15";
-    private static final String WINDOW_SIZE_17x17 = "17x17";
 
     @Override
     public void initialize() throws OperatorException {
@@ -105,7 +98,7 @@ public class SpeckleDivergenceOp extends Operator {
             sourceImageWidth = sourceProduct.getSceneRasterWidth();
             sourceImageHeight = sourceProduct.getSceneRasterHeight();
 
-            setWindowSize();
+            window = new FilterWindow(windowSizeStr);
 
             computeTheoreticalCoefficientOfVariance();
 
@@ -114,40 +107,6 @@ public class SpeckleDivergenceOp extends Operator {
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
-    }
-
-    /**
-     * Set Window size.
-     */
-    private void setWindowSize() {
-
-        switch (windowSizeStr) {
-            case WINDOW_SIZE_5x5:
-                windowSize = 5;
-                break;
-            case WINDOW_SIZE_7x7:
-                windowSize = 7;
-                break;
-            case WINDOW_SIZE_9x9:
-                windowSize = 9;
-                break;
-            case WINDOW_SIZE_11x11:
-                windowSize = 11;
-                break;
-            case WINDOW_SIZE_13x13:
-                windowSize = 13;
-                break;
-            case WINDOW_SIZE_15x15:
-                windowSize = 15;
-                break;
-            case WINDOW_SIZE_17x17:
-                windowSize = 17;
-                break;
-            default:
-                throw new OperatorException("Unknown window size: " + windowSize);
-        }
-
-        halfWindowSize = windowSize / 2;
     }
 
     /**
@@ -285,7 +244,8 @@ public class SpeckleDivergenceOp extends Operator {
             final ProductData trgData = targetTile.getDataBuffer();
             //System.out.println("tx0 = " + tx0 + ", ty0 = " + ty0 + ", tw = " + tw + ", th = " + th);
 
-            final Rectangle sourceTileRectangle = getSourceTileRectangle(tx0, ty0, tw, th);
+            final Rectangle sourceTileRectangle = window.getSourceTileRectangle(tx0, ty0, tw, th,
+                                                                                sourceImageWidth, sourceImageHeight);
             final String srcBandName = targetBandNameToSourceBandName.get(targetBand.getName());
             final Band sourceBand = sourceProduct.getBand(srcBandName);
             final Tile sourceTile = getSourceTile(sourceBand, sourceTileRectangle);
@@ -306,6 +266,7 @@ public class SpeckleDivergenceOp extends Operator {
 
             final int maxy = ty0 + th;
             final int maxx = tx0 + tw;
+            final int windowSize = window.getWindowSize();
 
             for (int ty = ty0; ty < maxy; ty++) {
                 trgIndex.calculateStride(ty);
@@ -319,7 +280,8 @@ public class SpeckleDivergenceOp extends Operator {
                         continue;
                     }
 
-                    final double cv = computeCoefficientOfVariance(tx, ty, sourceTile, srcData, bandUnit, noDataValue);
+                    final double cv = computeCoefficientOfVariance(tx, ty, windowSize,
+                                                                   sourceTile, srcData, bandUnit, noDataValue);
                     final double speckleDivergence = cv - c;
                     trgData.setElemFloatAt(idx, (float) speckleDivergence);
                 }
@@ -328,43 +290,6 @@ public class SpeckleDivergenceOp extends Operator {
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
-    }
-
-    /**
-     * Get source tile rectangle.
-     *
-     * @param x0 X coordinate of pixel at the upper left corner of the target tile.
-     * @param y0 Y coordinate of pixel at the upper left corner of the target tile.
-     * @param w  The width of the target tile.
-     * @param h  The height of the target tile.
-     * @return The source tile rectangle.
-     */
-    private Rectangle getSourceTileRectangle(int x0, int y0, int w, int h) {
-
-        int sx0 = x0;
-        int sy0 = y0;
-        int sw = w;
-        int sh = h;
-
-        if (x0 >= halfWindowSize) {
-            sx0 -= halfWindowSize;
-            sw += halfWindowSize;
-        }
-
-        if (y0 >= halfWindowSize) {
-            sy0 -= halfWindowSize;
-            sh += halfWindowSize;
-        }
-
-        if (x0 + w + halfWindowSize <= sourceImageWidth) {
-            sw += halfWindowSize;
-        }
-
-        if (y0 + h + halfWindowSize <= sourceImageHeight) {
-            sh += halfWindowSize;
-        }
-
-        return new Rectangle(sx0, sy0, sw, sh);
     }
 
     /**
@@ -378,13 +303,13 @@ public class SpeckleDivergenceOp extends Operator {
      * @param noDataValue the place holder for no data
      * @return The local coefficient of variance.
      */
-    private double computeCoefficientOfVariance(final int tx, final int ty,
+    private double computeCoefficientOfVariance(final int tx, final int ty, final int windowSize,
                                                 final Tile sourceTile, final ProductData srcData,
                                                 final Unit.UnitType bandUnit, final double noDataValue) {
 
         final double[] samples = new double[windowSize * windowSize];
 
-        final int numSamples = getSamples(tx, ty, bandUnit, noDataValue, sourceTile, srcData, samples);
+        final int numSamples = getSamples(tx, ty, bandUnit, noDataValue, windowSize/2, sourceTile, srcData, samples);
 
         if (numSamples == 0) {
             return noDataValue;
@@ -410,7 +335,7 @@ public class SpeckleDivergenceOp extends Operator {
      * @return The number of samples.
      */
     private int getSamples(final int tx, final int ty, final Unit.UnitType bandUnit, final double noDataValue,
-                           final Tile sourceTile, final ProductData srcData, final double[] samples) {
+                           final int halfWindowSize, final Tile sourceTile, final ProductData srcData, final double[] samples) {
 
 
         final int x0 = Math.max(tx - halfWindowSize, 0);
