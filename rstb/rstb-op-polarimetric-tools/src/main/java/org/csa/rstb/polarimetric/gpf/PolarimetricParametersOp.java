@@ -16,6 +16,7 @@
 package org.csa.rstb.polarimetric.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.csa.rstb.polarimetric.gpf.decompositions.hAAlpha;
 import org.esa.s1tbx.io.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
@@ -32,6 +33,7 @@ import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.gpf.FilterWindow;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
@@ -67,34 +69,39 @@ public final class PolarimetricParametersOp extends Operator {
     @Parameter(valueSet = {"3", "5", "7", "9", "11", "13", "15", "17", "19"}, defaultValue = "5", label = "Window Size Y")
     private String windowSizeYStr = "5";
 
-    @Parameter(description = "Output Span", defaultValue = "true",
-            label = "Span")
+    @Parameter(description = "Output Span", defaultValue = "true", label = "Span")
     private boolean outputSpan = true;
 
-    @Parameter(description = "Output pedestal height", defaultValue = "false",
-            label = "Pedestal Height")
+    @Parameter(description = "Output pedestal height", defaultValue = "false", label = "Pedestal Height")
     private boolean outputPedestalHeight = false;
-
-    @Parameter(description = "Output RVI", defaultValue = "false",
-            label = "Radar Vegetation Index")
+    @Parameter(description = "Output RVI", defaultValue = "false", label = "Radar Vegetation Index")
     private boolean outputRVI = false;
-
-    @Parameter(description = "Output RFDI", defaultValue = "false",
-            label = "Radar Forest Degradation Index")
+    @Parameter(description = "Output RFDI", defaultValue = "false", label = "Radar Forest Degradation Index")
     private boolean outputRFDI = false;
 
-    @Parameter(description = "Output HH/HV", defaultValue = "false",
-            label = "HH/HV Ratio")
-    private boolean outputHHHVRatio = false;
+    @Parameter(description = "Output CSI", defaultValue = "false", label = "Canopy Structure Index")
+    private boolean outputCSI = false;
+    @Parameter(description = "Output VSI", defaultValue = "false", label = "Volume Scattering Index")
+    private boolean outputVSI = false;
+    @Parameter(description = "Output BMI", defaultValue = "false", label = "Biomass Index")
+    private boolean outputBMI = false;
+    @Parameter(description = "Output ITI", defaultValue = "false", label = "Interaction Index")
+    private boolean outputITI = false;
 
-    private int windowSizeX = 0;
-    private int windowSizeY = 0;
+    @Parameter(description = "Output Co-Pol HH/VV", defaultValue = "false", label = "HH/VV Ratio")
+    private boolean outputHHVVRatio = false;
+    @Parameter(description = "Output Cross-Pol HH/HV", defaultValue = "false", label = "HH/HV Ratio")
+    private boolean outputHHHVRatio = false;
+    @Parameter(description = "Output Cross-Pol VV/VH", defaultValue = "false", label = "VV/VH Ratio")
+    private boolean outputVVVHRatio = false;
+
+    private FilterWindow window;
     private int sourceImageWidth = 0;
     private int sourceImageHeight = 0;
     private boolean isCompactPol = false;
     private PolBandUtils.MATRIX sourceProductType = null;
     private PolBandUtils.PolSourceBand[] srcBandList;
-    private Band hhBand = null, hvBand = null;
+    private Band hhBand = null, hvBand = null, vvBand = null, vhBand = null;
 
     /**
      * Set output parameter. This function is used by unit test only.
@@ -116,26 +123,32 @@ public final class PolarimetricParametersOp extends Operator {
             case "RFDI":
                 outputRFDI = true;
                 break;
+            case "CSI":
+                outputCSI = true;
+                break;
+            case "VSI":
+                outputVSI = true;
+                break;
+            case "BMI":
+                outputBMI = true;
+                break;
+            case "ITI":
+                outputITI = true;
+                break;
+            case "HHVVRatio":
+                outputHHVVRatio = true;
+                break;
             case "HHHVRatio":
                 outputHHHVRatio = true;
+                break;
+            case "VVVHRatio":
+                outputVVVHRatio = true;
                 break;
             default:
                 throw new OperatorException(s + " is an invalid parameter name.");
         }
     }
 
-    /**
-     * Initializes this operator and sets the one and only target product.
-     * <p>The target product can be either defined by a field of type {@link Product} annotated with the
-     * {@link TargetProduct TargetProduct} annotation or
-     * by calling {@link #setTargetProduct} method.</p>
-     * <p>The framework calls this method after it has created this operator.
-     * Any client code that must be performed before computation of tile data
-     * should be placed here.</p>
-     *
-     * @throws OperatorException If an error occurs during operator initialisation.
-     * @see #getTargetProduct()
-     */
     @Override
     public void initialize() throws OperatorException {
 
@@ -153,24 +166,25 @@ public final class PolarimetricParametersOp extends Operator {
                         sourceProductType == PolBandUtils.MATRIX.FULL) {
                     isCompactPol = false;
                 } else {
-                    throw new OperatorException("A quad-pol product is expected.");
+                    throw new OperatorException("A quad-pol product is expected as input.");
                 }
             }
-            if(isCompactPol) {
-                throw new OperatorException("A quad-pol product is expected.");
+            if (isCompactPol) {
+                throw new OperatorException("A quad-pol product is expected as input.");
             }
 
-            if (outputRFDI || outputHHHVRatio) {
-                for (Band srcBand : sourceProduct.getBands()) {
-                    if (srcBand.getUnit().equals(Unit.INTENSITY)) {
-                        if (srcBand.getName().toUpperCase().contains("HH")) {
-                            hhBand = srcBand;
-                        } else if (srcBand.getName().toUpperCase().contains("HV")) {
-                            hvBand = srcBand;
-                        }
-                        if (hhBand != null && hvBand != null) {
-                            break;
-                        }
+            for (Band srcBand : sourceProduct.getBands()) {
+                String unit = srcBand.getUnit();
+                String bandName = srcBand.getName().toUpperCase();
+                if (unit.equals(Unit.INTENSITY)) {
+                    if (bandName.contains("_HH")) {
+                        hhBand = srcBand;
+                    } else if (bandName.contains("_HV")) {
+                        hvBand = srcBand;
+                    } else if (bandName.contains("_VV")) {
+                        vvBand = srcBand;
+                    } else if (bandName.contains("_VH")) {
+                        vhBand = srcBand;
                     }
                 }
             }
@@ -178,14 +192,23 @@ public final class PolarimetricParametersOp extends Operator {
             if (!outputSpan && !outputPedestalHeight && !outputRVI && !outputRFDI && !outputHHHVRatio) {
                 throw new OperatorException("Please select parameters to output.");
             }
+            if ((outputHHVVRatio || outputCSI || outputBMI) && (hhBand == null || vvBand == null)) {
+                throw new OperatorException("Input product containing HH and VV bands is required");
+            }
             if ((outputRFDI || outputHHHVRatio) && (hhBand == null || hvBand == null)) {
                 throw new OperatorException("Input product containing HH and HV bands is required");
+            }
+            if (outputVVVHRatio && (vvBand == null || vhBand == null)) {
+                throw new OperatorException("Input product containing VV and VH bands is required");
+            }
+            if (outputVSI && (hhBand == null || vvBand == null || hvBand == null || vhBand == null)) {
+                throw new OperatorException("Input product containing HH, VV, HV and VH bands is required");
             }
 
             srcBandList = PolBandUtils.getSourceBands(sourceProduct, sourceProductType);
 
-            windowSizeX = Integer.parseInt(windowSizeXStr);
-            windowSizeY = Integer.parseInt(windowSizeYStr);
+            window = new FilterWindow(Integer.parseInt(windowSizeXStr), Integer.parseInt(windowSizeYStr));
+
             sourceImageWidth = sourceProduct.getSceneRasterWidth();
             sourceImageHeight = sourceProduct.getSceneRasterHeight();
 
@@ -242,8 +265,26 @@ public final class PolarimetricParametersOp extends Operator {
         if (outputRFDI) {
             targetBandNameList.add("RFDI");
         }
+        if (outputCSI) {
+            targetBandNameList.add("CSI");
+        }
+        if (outputVSI) {
+            targetBandNameList.add("VSI");
+        }
+        if (outputBMI) {
+            targetBandNameList.add("BMI");
+        }
+        if (outputITI) {
+            targetBandNameList.add("ITI");
+        }
+        if (outputHHVVRatio) {
+            targetBandNameList.add("HHVVRatio");
+        }
         if (outputHHHVRatio) {
             targetBandNameList.add("HHHVRatio");
+        }
+        if (outputVVVHRatio) {
+            targetBandNameList.add("VVVHRatio");
         }
 
         return targetBandNameList.toArray(new String[targetBandNameList.size()]);
@@ -261,15 +302,6 @@ public final class PolarimetricParametersOp extends Operator {
         PolBandUtils.saveNewBandNames(targetProduct, srcBandList);
     }
 
-    /**
-     * Called by the framework in order to compute the stack of tiles for the given target bands.
-     * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
-     *
-     * @param targetTiles     The current tiles to be computed for each target band.
-     * @param targetRectangle The area in pixel coordinates to be computed (same for all rasters in <code>targetRasters</code>).
-     * @param pm              A progress monitor which should be used to determine computation cancelation requests.
-     * @throws OperatorException if an error occurs during computation of the target rasters.
-     */
     @Override
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm)
             throws OperatorException {
@@ -287,17 +319,22 @@ public final class PolarimetricParametersOp extends Operator {
         final double[][] Tr = new double[3][3];
         final double[][] Ti = new double[3][3];
 
-        final Rectangle sourceRectangle = getSourceTileRectangle(x0, y0, w, h, windowSizeX, windowSizeY);
-        final int halfWindowSize = windowSizeX / 2;
+        final Rectangle sourceRectangle = window.getSourceTileRectangle(x0, y0, w, h, sourceImageWidth, sourceImageHeight);
 
         final boolean computePolarimetricParam = outputSpan || outputPedestalHeight || outputRVI;
 
-        Tile hhTile = null, hvTile = null;
+        Tile hhTile = null, hvTile = null, vvTile = null, vhTile = null;
         if (hhBand != null) {
             hhTile = getSourceTile(hhBand, sourceRectangle);
         }
         if (hvBand != null) {
             hvTile = getSourceTile(hvBand, sourceRectangle);
+        }
+        if (vvBand != null) {
+            vvTile = getSourceTile(vvBand, sourceRectangle);
+        }
+        if (vhBand != null) {
+            vhTile = getSourceTile(vhBand, sourceRectangle);
         }
 
         for (final PolBandUtils.PolSourceBand bandList : srcBandList) {
@@ -318,7 +355,7 @@ public final class PolarimetricParametersOp extends Operator {
                     dataBuffers[j] = sourceTiles[j].getDataBuffer();
                 }
                 final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
-                PolOpUtils.PolarimetricParameters cp = null;
+                PolarimetricParameters param = null;
 
                 for (int y = y0; y < maxY; ++y) {
                     trgIndex.calculateStride(y);
@@ -328,25 +365,27 @@ public final class PolarimetricParametersOp extends Operator {
 
                         if (computePolarimetricParam) {
                             if (useMeanMatrix) {
-                                PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSize, halfWindowSize, sourceImageWidth,
-                                                                  sourceImageHeight, sourceProductType, srcIndex, dataBuffers, Tr, Ti);
+                                PolOpUtils.getMeanCoherencyMatrix(x, y,
+                                                                  window.getHalfWindowSizeX(), window.getHalfWindowSizeY(),
+                                                                  sourceImageWidth, sourceImageHeight, sourceProductType,
+                                                                  srcIndex, dataBuffers, Tr, Ti);
                             } else {
                                 PolOpUtils.getT3(srcIndex.getIndex(x), sourceProductType, dataBuffers, Tr, Ti);
                             }
 
-                            cp = PolOpUtils.computePolarimetricParameters(Tr, Ti);
+                            param = computePolarimetricParameters(Tr, Ti);
                         }
 
                         for (final TileData tileData : tileDataList) {
 
                             if (outputSpan && tileData.bandName.equals("Span")) {
-                                tileData.dataBuffer.setElemFloatAt(tgtIdx, (float) cp.Span);
+                                tileData.dataBuffer.setElemFloatAt(tgtIdx, (float) param.Span);
                             }
                             if (outputPedestalHeight && tileData.bandName.equals("PedestalHeight")) {
-                                tileData.dataBuffer.setElemFloatAt(tgtIdx, (float) cp.PedestalHeight);
+                                tileData.dataBuffer.setElemFloatAt(tgtIdx, (float) param.PedestalHeight);
                             }
                             if (outputRVI && tileData.bandName.equals("RVI")) {
-                                tileData.dataBuffer.setElemFloatAt(tgtIdx, (float) cp.RVI);
+                                tileData.dataBuffer.setElemFloatAt(tgtIdx, (float) param.RVI);
                             }
                             if (hhTile != null && hvTile != null) {
                                 final float hh = hhTile.getSampleFloat(x, y);
@@ -369,48 +408,6 @@ public final class PolarimetricParametersOp extends Operator {
         }
     }
 
-    /**
-     * Get source tile rectangle.
-     *
-     * @param x0          X coordinate of pixel at the upper left corner of the target tile.
-     * @param y0          Y coordinate of pixel at the upper left corner of the target tile.
-     * @param w           The width of the target tile.
-     * @param h           The height of the target tile.
-     * @param windowSizeX The sliding window width.
-     * @param windowSizeY The sliding window height.
-     * @return The source tile rectangle.
-     */
-    private Rectangle getSourceTileRectangle(final int x0, final int y0, final int w, final int h,
-                                             final int windowSizeX, final int windowSizeY) {
-
-        int sx0 = x0;
-        int sy0 = y0;
-        int sw = w;
-        int sh = h;
-        final int halfWindowSizeX = windowSizeX / 2;
-        final int halfWindowSizeY = windowSizeY / 2;
-
-        if (x0 >= halfWindowSizeX) {
-            sx0 -= halfWindowSizeX;
-            sw += halfWindowSizeX;
-        }
-
-        if (y0 >= halfWindowSizeY) {
-            sy0 -= halfWindowSizeY;
-            sh += halfWindowSizeY;
-        }
-
-        if (x0 + w + halfWindowSizeX <= sourceImageWidth) {
-            sw += halfWindowSizeX;
-        }
-
-        if (y0 + h + halfWindowSizeY <= sourceImageHeight) {
-            sh += halfWindowSizeY;
-        }
-
-        return new Rectangle(sx0, sy0, sw, sh);
-    }
-
     private static class TileData {
         final Tile tile;
         final ProductData dataBuffer;
@@ -421,6 +418,31 @@ public final class PolarimetricParametersOp extends Operator {
             this.dataBuffer = tile.getDataBuffer();
             this.bandName = bandName;
         }
+    }
+
+    /**
+     * Compute general polarimetric parameters for given coherency matrix.
+     *
+     * @param Tr Real part of the mean coherency matrix.
+     * @param Ti Imaginary part of the mean coherency matrix.
+     * @return The general polarimetric parameters.
+     */
+    public static PolarimetricParameters computePolarimetricParameters(final double[][] Tr, final double[][] Ti) {
+
+        final PolarimetricParameters parameters = new PolarimetricParameters();
+
+        parameters.Span = 2 * (Tr[0][0] + Tr[1][1] + Tr[2][2]);
+        hAAlpha.HAAlpha data = hAAlpha.computeHAAlpha(Tr, Ti);
+        parameters.PedestalHeight = data.lambda3 / data.lambda1;
+        parameters.RVI = 4.0 * data.lambda3 / (data.lambda1 + data.alpha2 + data.lambda3);
+
+        return parameters;
+    }
+
+    public static class PolarimetricParameters {
+        public double Span;
+        public double PedestalHeight;
+        public double RVI;
     }
 
     /**
