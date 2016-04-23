@@ -33,9 +33,10 @@ import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
+import org.esa.snap.engine_utilities.gpf.FilterWindow;
 
 import javax.media.jai.Histogram;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -74,9 +75,9 @@ public final class GLCMOp extends Operator {
             label = "Source Bands")
     private String[] sourceBandNames = null;
 
-    @Parameter(valueSet = {WINDOW_SIZE_5x5, WINDOW_SIZE_7x7, WINDOW_SIZE_9x9, WINDOW_SIZE_11x11},
-            defaultValue = WINDOW_SIZE_9x9, label = "Window Size")
-    private String windowSizeStr = WINDOW_SIZE_9x9;
+    @Parameter(valueSet = {FilterWindow.SIZE_5x5, FilterWindow.SIZE_7x7, FilterWindow.SIZE_9x9, FilterWindow.SIZE_11x11},
+            defaultValue = FilterWindow.SIZE_9x9, label = "Window Size")
+    private String windowSizeStr = FilterWindow.SIZE_9x9;
 
     @Parameter(valueSet = {ANGLE_0, ANGLE_45, ANGLE_90, ANGLE_135, ANGLE_ALL},
             defaultValue = ANGLE_ALL, label = "Angle")
@@ -124,7 +125,7 @@ public final class GLCMOp extends Operator {
     @Parameter(description = "Output GLCM Correlation", defaultValue = "true", label = "GLCM Correlation")
     private Boolean outputCorrelation = true;
 
-    private int halfWindowSize = 0;
+    private FilterWindow window;
     private int numQuantLevels = 0;
     private int displacementX = 0;
     private int displacementY = 0;
@@ -153,11 +154,6 @@ public final class GLCMOp extends Operator {
     private static final String QUANTIZATION_LEVELS_64 = "64";
     private static final String QUANTIZATION_LEVELS_96 = "96";
     private static final String QUANTIZATION_LEVELS_128 = "128";
-
-    private static final String WINDOW_SIZE_5x5 = "5x5";
-    private static final String WINDOW_SIZE_7x7 = "7x7";
-    private static final String WINDOW_SIZE_9x9 = "9x9";
-    private static final String WINDOW_SIZE_11x11 = "11x11";
 
     enum GLCM_TYPES {
         Contrast,
@@ -197,7 +193,10 @@ public final class GLCMOp extends Operator {
                 throw new OperatorException("Please select output features.");
             }
 
-            setWindowSize();
+            window = new FilterWindow(windowSizeStr);
+            if (displacement >= window.getWindowSize()) {
+                throw new OperatorException("Displacement should not be larger than window size.");
+            }
 
             setQuantizer();
 
@@ -209,36 +208,6 @@ public final class GLCMOp extends Operator {
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
-        }
-    }
-
-    /**
-     * Set Window size.
-     */
-    private void setWindowSize() {
-
-        int windowSize = 0;
-        switch (windowSizeStr) {
-            case WINDOW_SIZE_5x5:
-                windowSize = 5;
-                break;
-            case WINDOW_SIZE_7x7:
-                windowSize = 7;
-                break;
-            case WINDOW_SIZE_9x9:
-                windowSize = 9;
-                break;
-            case WINDOW_SIZE_11x11:
-                windowSize = 11;
-                break;
-            default:
-                throw new OperatorException("Unknown window size: " + windowSizeStr);
-        }
-
-        halfWindowSize = windowSize / 2;
-
-        if (displacement >= windowSize) {
-            throw new OperatorException("Displacement should not be larger than window size.");
         }
     }
 
@@ -452,7 +421,8 @@ public final class GLCMOp extends Operator {
 
         try {
             final TileIndex trgIndex = new TileIndex(targetTiles.get(targetTiles.keySet().iterator().next()));
-            final Rectangle sourceTileRectangle = getSourceTileRectangle(tx0, ty0, tw, th);
+            final Rectangle sourceTileRectangle = window.getSourceTileRectangle(tx0, ty0, tw, th,
+                                                                                sourceImageWidth, sourceImageHeight);
             final SrcInfo[] srcInfoList = new SrcInfo[sourceBandNames.length];
 
             int cnt = 0;
@@ -471,6 +441,8 @@ public final class GLCMOp extends Operator {
                 srcInfoList[cnt].tileDataList = tileDataList.toArray(new TileData[tileDataList.size()]);
                 ++cnt;
             }
+
+            final int halfWindowSize = window.getHalfWindowSize();
 
             final TileIndex srcIndex = new TileIndex(srcInfoList[0].sourceTile);
             for (int ty = ty0; ty < maxY; ty++) {
@@ -542,43 +514,6 @@ public final class GLCMOp extends Operator {
                 tileData.dataBuffer.setElemFloatAt(idx, (float) tf.GLCMCorrelation);
             }
         }
-    }
-
-    /**
-     * Get source tile rectangle.
-     *
-     * @param x0 X coordinate of pixel at the upper left corner of the target tile.
-     * @param y0 Y coordinate of pixel at the upper left corner of the target tile.
-     * @param w  The width of the target tile.
-     * @param h  The height of the target tile.
-     * @return The source tile rectangle.
-     */
-    private Rectangle getSourceTileRectangle(int x0, int y0, int w, int h) {
-
-        int sx0 = x0;
-        int sy0 = y0;
-        int sw = w;
-        int sh = h;
-
-        if (x0 >= halfWindowSize) {
-            sx0 -= halfWindowSize;
-            sw += halfWindowSize;
-        }
-
-        if (y0 >= halfWindowSize) {
-            sy0 -= halfWindowSize;
-            sh += halfWindowSize;
-        }
-
-        if (x0 + w + halfWindowSize <= sourceImageWidth) {
-            sw += halfWindowSize;
-        }
-
-        if (y0 + h + halfWindowSize <= sourceImageHeight) {
-            sh += halfWindowSize;
-        }
-
-        return new Rectangle(sx0, sy0, sw, sh);
     }
 
     private void computeGLCM(final SrcInfo[] srcInfoList) {
