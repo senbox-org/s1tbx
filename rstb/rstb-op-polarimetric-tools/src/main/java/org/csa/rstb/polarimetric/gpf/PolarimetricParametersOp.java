@@ -98,56 +98,13 @@ public final class PolarimetricParametersOp extends Operator {
     private FilterWindow window;
     private int sourceImageWidth = 0;
     private int sourceImageHeight = 0;
-    private boolean isCompactPol = false;
+
+    private boolean isComplex;
     private PolBandUtils.MATRIX sourceProductType = null;
     private PolBandUtils.PolSourceBand[] srcBandList;
     private Band hhBand = null, hvBand = null, vvBand = null, vhBand = null;
 
-    /**
-     * Set output parameter. This function is used by unit test only.
-     *
-     * @param s The output parameter string.
-     */
-    public void SetOutputParameter(final String s) {
-
-        switch (s) {
-            case "Span":
-                outputSpan = true;
-                break;
-            case "Pedestal Height":
-                outputPedestalHeight = true;
-                break;
-            case "RVI":
-                outputRVI = true;
-                break;
-            case "RFDI":
-                outputRFDI = true;
-                break;
-            case "CSI":
-                outputCSI = true;
-                break;
-            case "VSI":
-                outputVSI = true;
-                break;
-            case "BMI":
-                outputBMI = true;
-                break;
-            case "ITI":
-                outputITI = true;
-                break;
-            case "HHVVRatio":
-                outputHHVVRatio = true;
-                break;
-            case "HHHVRatio":
-                outputHHHVRatio = true;
-                break;
-            case "VVVHRatio":
-                outputVVVHRatio = true;
-                break;
-            default:
-                throw new OperatorException(s + " is an invalid parameter name.");
-        }
-    }
+    private enum BandType { Span, PedestalHeight, RVI, RFDI, CSI, VSI, BMI, ITI, HHVVRatio, HHHVRatio, VVVHRatio }
 
     @Override
     public void initialize() throws OperatorException {
@@ -155,22 +112,22 @@ public final class PolarimetricParametersOp extends Operator {
         try {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
             validator.checkIfSARProduct();
+            isComplex = validator.isComplex();
 
             sourceProductType = PolBandUtils.getSourceProductType(sourceProduct);
 
             if (outputSpan || outputPedestalHeight || outputRVI) {
                 if (sourceProductType == PolBandUtils.MATRIX.LCHCP || sourceProductType == PolBandUtils.MATRIX.RCHCP ||
                         sourceProductType == PolBandUtils.MATRIX.C2) {
-                    isCompactPol = true;
+                    throw new OperatorException("A quad-pol product is expected as input.");
                 } else if (sourceProductType == PolBandUtils.MATRIX.C3 || sourceProductType == PolBandUtils.MATRIX.T3 ||
                         sourceProductType == PolBandUtils.MATRIX.FULL) {
-                    isCompactPol = false;
+                    if(!isComplex && (outputSpan || outputPedestalHeight)) {
+                        throw new OperatorException("A T3,C3, or quad-pol slc product is expected as input for span and pedistal height.");
+                    }
                 } else {
                     throw new OperatorException("A quad-pol product is expected as input.");
                 }
-            }
-            if (isCompactPol) {
-                throw new OperatorException("A quad-pol product is expected as input.");
             }
 
             for (Band srcBand : sourceProduct.getBands()) {
@@ -189,9 +146,6 @@ public final class PolarimetricParametersOp extends Operator {
                 }
             }
 
-            if (!outputSpan && !outputPedestalHeight && !outputRVI && !outputRFDI && !outputHHHVRatio) {
-                throw new OperatorException("Please select parameters to output.");
-            }
             if ((outputHHVVRatio || outputCSI || outputBMI) && (hhBand == null || vvBand == null)) {
                 throw new OperatorException("Input product containing HH and VV bands is required");
             }
@@ -248,43 +202,47 @@ public final class PolarimetricParametersOp extends Operator {
             final Band[] targetBands = OperatorUtils.addBands(targetProduct, targetBandNames, bandList.suffix);
             bandList.addTargetBands(targetBands);
         }
+
+        if(targetProduct.getNumBands() == 0) {
+            throw new OperatorException("No output bands selected");
+        }
     }
 
     private String[] getTargetBandNames() {
         final List<String> targetBandNameList = new ArrayList<>(13);
 
         if (outputSpan) {
-            targetBandNameList.add("Span");
+            targetBandNameList.add(BandType.Span.toString());
         }
         if (outputPedestalHeight) {
-            targetBandNameList.add("PedestalHeight");
+            targetBandNameList.add(BandType.PedestalHeight.toString());
         }
         if (outputRVI) {
-            targetBandNameList.add("RVI");
+            targetBandNameList.add(BandType.RVI.toString());
         }
         if (outputRFDI) {
-            targetBandNameList.add("RFDI");
+            targetBandNameList.add(BandType.RFDI.toString());
         }
         if (outputCSI) {
-            targetBandNameList.add("CSI");
+            targetBandNameList.add(BandType.CSI.toString());
         }
         if (outputVSI) {
-            targetBandNameList.add("VSI");
+            targetBandNameList.add(BandType.VSI.toString());
         }
         if (outputBMI) {
-            targetBandNameList.add("BMI");
+            targetBandNameList.add(BandType.BMI.toString());
         }
         if (outputITI) {
-            targetBandNameList.add("ITI");
+            targetBandNameList.add(BandType.ITI.toString());
         }
         if (outputHHVVRatio) {
-            targetBandNameList.add("HHVVRatio");
+            targetBandNameList.add(BandType.HHVVRatio.toString());
         }
         if (outputHHHVRatio) {
-            targetBandNameList.add("HHHVRatio");
+            targetBandNameList.add(BandType.HHHVRatio.toString());
         }
         if (outputVVVHRatio) {
-            targetBandNameList.add("VVVHRatio");
+            targetBandNameList.add(BandType.VVVHRatio.toString());
         }
 
         return targetBandNameList.toArray(new String[targetBandNameList.size()]);
@@ -321,7 +279,7 @@ public final class PolarimetricParametersOp extends Operator {
 
         final Rectangle sourceRectangle = window.getSourceTileRectangle(x0, y0, w, h, sourceImageWidth, sourceImageHeight);
 
-        final boolean computePolarimetricParam = outputSpan || outputPedestalHeight || outputRVI;
+        final boolean computePolarimetricParam = isComplex && (outputSpan || outputPedestalHeight || outputRVI);
 
         Tile hhTile = null, hvTile = null, vvTile = null, vhTile = null;
         if (hhBand != null) {
@@ -376,27 +334,59 @@ public final class PolarimetricParametersOp extends Operator {
                             param = computePolarimetricParameters(Tr, Ti);
                         }
 
+                        float hh=0, hv=0, vv=0, vh=0;
+                        if (hhTile != null) {
+                            hh = hhTile.getSampleFloat(x, y);
+                        }
+                        if(hvTile != null) {
+                            hv = hvTile.getSampleFloat(x, y);
+                        }
+                        if(vvTile != null) {
+                            vv = vvTile.getSampleFloat(x, y);
+                        }
+                        if(vhTile != null) {
+                            vh = vhTile.getSampleFloat(x, y);
+                        }
+
                         for (final TileData tileData : tileDataList) {
 
-                            if (outputSpan && tileData.bandName.equals("Span")) {
+                            if (outputSpan && tileData.bandType.equals(BandType.Span)) {
                                 tileData.dataBuffer.setElemFloatAt(tgtIdx, (float) param.Span);
                             }
-                            if (outputPedestalHeight && tileData.bandName.equals("PedestalHeight")) {
+                            if (outputPedestalHeight && tileData.bandType.equals(BandType.PedestalHeight)) {
                                 tileData.dataBuffer.setElemFloatAt(tgtIdx, (float) param.PedestalHeight);
                             }
-                            if (outputRVI && tileData.bandName.equals("RVI")) {
-                                tileData.dataBuffer.setElemFloatAt(tgtIdx, (float) param.RVI);
+                            if (outputRVI && tileData.bandType.equals(BandType.RVI)) {
+                                if(param == null) {
+                                    tileData.dataBuffer.setElemFloatAt(tgtIdx, (8*hv)/(hh + vv + 2*hv));
+                                } else {
+                                    tileData.dataBuffer.setElemFloatAt(tgtIdx, (float) param.RVI);
+                                }
                             }
-                            if (hhTile != null && hvTile != null) {
-                                final float hh = hhTile.getSampleFloat(x, y);
-                                final float hv = hvTile.getSampleFloat(x, y);
 
-                                if (outputRFDI && tileData.bandName.equals("RFDI")) {
-                                    tileData.dataBuffer.setElemFloatAt(tgtIdx, (hh - hv) / (hh + hv));
-                                }
-                                if (outputHHHVRatio && tileData.bandName.equals("HHHVRatio")) {
-                                    tileData.dataBuffer.setElemFloatAt(tgtIdx, hh / hv);
-                                }
+                            if (outputRFDI && tileData.bandType.equals(BandType.RFDI)) {
+                                tileData.dataBuffer.setElemFloatAt(tgtIdx, (hh - hv) / (hh + hv));
+                            }
+                            if (outputCSI && tileData.bandType.equals(BandType.CSI)) {
+                                tileData.dataBuffer.setElemFloatAt(tgtIdx, vv / (vv + hh));
+                            }
+                            if (outputBMI && tileData.bandType.equals(BandType.BMI)) {
+                                tileData.dataBuffer.setElemFloatAt(tgtIdx, (vv + hh) / 2.0f);
+                            }
+                            if (outputVSI && tileData.bandType.equals(BandType.VSI)) {
+                                tileData.dataBuffer.setElemFloatAt(tgtIdx, (hv + vh) / (hh + vv + hv + vh));
+                            }
+                            if (outputITI && tileData.bandType.equals(BandType.ITI)) {
+                                tileData.dataBuffer.setElemFloatAt(tgtIdx, hh / vv);
+                            }
+                            if (outputHHVVRatio && tileData.bandType.equals(BandType.HHVVRatio)) {
+                                tileData.dataBuffer.setElemFloatAt(tgtIdx, hh / vv);
+                            }
+                            if (outputHHHVRatio && tileData.bandType.equals(BandType.HHHVRatio)) {
+                                tileData.dataBuffer.setElemFloatAt(tgtIdx, hh / hv);
+                            }
+                            if (outputVVVHRatio && tileData.bandType.equals(BandType.VVVHRatio)) {
+                                tileData.dataBuffer.setElemFloatAt(tgtIdx, vv / vh);
                             }
                         }
                     }
@@ -412,11 +402,13 @@ public final class PolarimetricParametersOp extends Operator {
         final Tile tile;
         final ProductData dataBuffer;
         final String bandName;
+        final BandType bandType;
 
         public TileData(final Tile tile, final String bandName) {
             this.tile = tile;
             this.dataBuffer = tile.getDataBuffer();
             this.bandName = bandName;
+            this.bandType = BandType.valueOf(bandName);
         }
     }
 
