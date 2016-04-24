@@ -202,10 +202,31 @@ public class PolBandUtils {
     private static Band[] getQuadPolSrcBands(final Product srcProduct, final String[] srcBandNames)
             throws Exception {
 
-        final Band[] sourceBands = new Band[8];
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(srcProduct);
+        final boolean isComplex = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE).equals("COMPLEX");
+
+        if(!isComplex) {
+            final List<Band> bandList = new ArrayList<>();
+            for (final String srcBandName : srcBandNames) {
+                final Band band = srcProduct.getBand(srcBandName);
+                final String bandUnit = band.getUnit();
+                if (bandUnit == null || !bandUnit.contains(Unit.INTENSITY))
+                    continue;
+                final String pol = OperatorUtils.getBandPolarization(band.getName(), absRoot);
+
+                if (pol.contains("hh") || pol.contains("hv") || pol.contains("vh") || pol.contains("vv")) {
+                    bandList.add(band);
+                }
+            }
+
+            if(bandList.size() < 4) {
+                throw new OperatorException("A full polarization product is expected as input.");
+            }
+            return bandList.toArray(new Band[bandList.size()]);
+        }
 
         int validBandCnt = 0;
+        final Band[] sourceBands = new Band[8];
         for (final String srcBandName : srcBandNames) {
 
             final Band band = srcProduct.getBand(srcBandName);
@@ -214,30 +235,38 @@ public class PolBandUtils {
                 continue;
             final String pol = OperatorUtils.getBandPolarization(band.getName(), absRoot);
 
-            if (pol.contains("hh") && bandUnit == Unit.UnitType.REAL) {
-                sourceBands[0] = band;
-                ++validBandCnt;
-            } else if (pol.contains("hh") && bandUnit == Unit.UnitType.IMAGINARY) {
-                sourceBands[1] = band;
-                ++validBandCnt;
-            } else if (pol.contains("hv") && bandUnit == Unit.UnitType.REAL) {
-                sourceBands[2] = band;
-                ++validBandCnt;
-            } else if (pol.contains("hv") && bandUnit == Unit.UnitType.IMAGINARY) {
-                sourceBands[3] = band;
-                ++validBandCnt;
-            } else if (pol.contains("vh") && bandUnit == Unit.UnitType.REAL) {
-                sourceBands[4] = band;
-                ++validBandCnt;
-            } else if (pol.contains("vh") && bandUnit == Unit.UnitType.IMAGINARY) {
-                sourceBands[5] = band;
-                ++validBandCnt;
-            } else if (pol.contains("vv") && bandUnit == Unit.UnitType.REAL) {
-                sourceBands[6] = band;
-                ++validBandCnt;
-            } else if (pol.contains("vv") && bandUnit == Unit.UnitType.IMAGINARY) {
-                sourceBands[7] = band;
-                ++validBandCnt;
+            if (pol.contains("hh")) {
+                if (bandUnit.equals(Unit.UnitType.REAL)) {
+                    sourceBands[0] = band;
+                    ++validBandCnt;
+                } else if (bandUnit.equals(Unit.UnitType.IMAGINARY)) {
+                    sourceBands[1] = band;
+                    ++validBandCnt;
+                }
+            } else if (pol.contains("hv")) {
+                if (bandUnit.equals(Unit.UnitType.REAL)) {
+                    sourceBands[2] = band;
+                    ++validBandCnt;
+                } else if (bandUnit.equals(Unit.UnitType.IMAGINARY)) {
+                    sourceBands[3] = band;
+                    ++validBandCnt;
+                }
+            } else if (pol.contains("vh")) {
+                if (bandUnit.equals(Unit.UnitType.REAL)) {
+                    sourceBands[4] = band;
+                    ++validBandCnt;
+                } else if (bandUnit.equals(Unit.UnitType.IMAGINARY)) {
+                    sourceBands[5] = band;
+                    ++validBandCnt;
+                }
+            } else if (pol.contains("vv")) {
+                if (bandUnit.equals(Unit.UnitType.REAL)) {
+                    sourceBands[6] = band;
+                    ++validBandCnt;
+                } else if (bandUnit.equals(Unit.UnitType.IMAGINARY)) {
+                    sourceBands[7] = band;
+                    ++validBandCnt;
+                }
             }
         }
 
