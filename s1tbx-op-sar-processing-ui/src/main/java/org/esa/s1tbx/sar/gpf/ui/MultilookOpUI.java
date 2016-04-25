@@ -100,10 +100,14 @@ public class MultilookOpUI extends BaseOperatorUI {
         nAzLooks.setText(String.valueOf(paramMap.get("nAzLooks")));
 
         outputIntensity = (Boolean) paramMap.get("outputIntensity");
+        boolean isComplex = isComplexSrcProduct();
+        if(!isComplex) {
+            outputIntensity = true;
+        }
         if (outputIntensity != null) {
             outputIntensityCheckBox.setSelected(outputIntensity);
         }
-        outputIntensityCheckBox.setVisible(isComplexSrcProduct());
+        outputIntensityCheckBox.setVisible(isComplex);
 
         grSquarePixel = (Boolean) paramMap.get("grSquarePixel");
         if (grSquarePixel != null) {
