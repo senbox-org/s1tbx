@@ -22,6 +22,7 @@ import org.esa.snap.core.datamodel.FlagCoding;
 import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.IndexCoding;
+import org.esa.snap.core.datamodel.LineTimeCoding;
 import org.esa.snap.core.datamodel.Mask;
 import org.esa.snap.core.datamodel.MetadataAttribute;
 import org.esa.snap.core.datamodel.MetadataElement;
@@ -649,6 +650,20 @@ public class ProductUtilsTest {
         double endTimeMJD = endTime.getMJD();
         assertEquals(startTimeMJD, ProductUtils.getScanLineTime(product, 0).getMJD(), 1E-6);
         assertEquals(endTimeMJD, ProductUtils.getScanLineTime(product, 9).getMJD(), 1E-6);
+    }
+
+    @Test
+    public void testGetPixelScanTime() throws Exception {
+        Product product = new Product("name", "type", 10, 10);
+        ProductData.UTC startTime = ProductData.UTC.parse("01-01-2010", "dd-MM-yyyy");
+        ProductData.UTC endTime = ProductData.UTC.parse("02-01-2010", "dd-MM-yyyy");
+        Band dummyBand = product.addBand("dummy", ProductData.TYPE_INT8);
+        double startTimeMJD = startTime.getMJD();
+        double endTimeMJD = endTime.getMJD();
+        dummyBand.setTimeCoding(new LineTimeCoding(dummyBand.getRasterHeight(), startTimeMJD, endTimeMJD));
+
+        assertEquals(startTimeMJD, ProductUtils.getPixelScanTime(dummyBand, 0, 0).getMJD(), 1E-6);
+        assertEquals(endTimeMJD, ProductUtils.getPixelScanTime(dummyBand, 0, 9).getMJD(), 1E-6);
     }
 
     @Test
