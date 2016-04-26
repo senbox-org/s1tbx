@@ -31,10 +31,13 @@ public final class SRTM3GeoTiffFile extends ElevationFile {
 
     private final SRTM3GeoTiffElevationModel demModel;
 
+    private static final String remoteHTTP1 = "http://srtm.csi.cgiar.org/SRT-ZIP/SRTM_V41/SRTM_Data_GeoTiff/";
+    private static final String remoteHTTP2 = "http://srtm.geog.kcl.ac.uk/portal/srtm41/srtm_data_geotiff/";
+    private static final String remoteHTTP3 = "http://gis-lab.info/data/srtm-tif/";
+
     private static final String remoteFTP = Settings.instance().get("DEM.srtm3GeoTiffDEM_FTP", "xftp.jrc.it");
     private static final String remotePath = Settings.getPath("DEM.srtm3GeoTiffDEM_remotePath");
-    private static final String remoteHTTP = Settings.instance().get("DEM.srtm3GeoTiffDEM_HTTP",
-                                                                     "http://droppr.org/srtm/v4.1/6_5x5_TIFs/");
+    private static final String remoteHTTP = Settings.instance().get("DEM.srtm3GeoTiffDEM_HTTP", remoteHTTP1);
 
     public SRTM3GeoTiffFile(final SRTM3GeoTiffElevationModel model, final File localFile, final ProductReader reader) {
         super(localFile, reader);
@@ -51,7 +54,15 @@ public final class SRTM3GeoTiffFile extends ElevationFile {
         try {
             return getRemoteHttpFile(remoteHTTP);
         } catch (Exception e) {
-            return getRemoteFTPFile(remoteFTP, remotePath);
+            try {
+                return getRemoteHttpFile(remoteHTTP1);
+            } catch (Exception e2) {
+                try {
+                    return getRemoteHttpFile(remoteHTTP2);
+                } catch (Exception e3) {
+                    return getRemoteHttpFile(remoteHTTP3);
+                }
+            }
         }
     }
 }

@@ -152,6 +152,8 @@ public abstract class ElevationFile {
             downloadFile(new URL(remotePath), localZipFile);
 
             return true;
+        } catch (SocketException e) {
+            throw e;
         } catch (Exception e) {
             // no need to alarm the user. Tiles may not be found because they are in the ocean or outside valid areas
             SystemUtils.LOG.warning("http error:" + e.getMessage() + " on " + remotePath);
