@@ -131,7 +131,7 @@ public class StackAveragingOp extends Operator {
         sourceProduct.setModified(false);
     }
 
-    private void updateMetadata(final Product targetProduct) {
+    private static void updateMetadata(final Product targetProduct) {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.coregistered_stack, 0);
@@ -255,7 +255,7 @@ public class StackAveragingOp extends Operator {
             ++cnt;
         }
         for (int i = 0; i < sourceBands.length - 1; ++i) {
-            expression.append(")");
+            expression.append(')');
         }
 
         return expression.toString();
@@ -274,7 +274,7 @@ public class StackAveragingOp extends Operator {
             ++cnt;
         }
         for (int i = 0; i < sourceBands.length - 1; ++i) {
-            expression.append(")");
+            expression.append(')');
         }
 
         return expression.toString();
@@ -288,7 +288,7 @@ public class StackAveragingOp extends Operator {
                 expression.append(" + ");
             expression.append("sq(");
             expression.append(band.getName());
-            expression.append(")");
+            expression.append(')');
             ++cnt;
         }
         expression.append(") / ");
