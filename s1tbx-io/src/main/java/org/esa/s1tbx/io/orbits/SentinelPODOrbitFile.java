@@ -111,7 +111,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
             orbitFile = downloadArchive(orbitType, year, month, day, stateVectorTime);
         }
         if (orbitFile == null) {
-            orbitFile = downloadFromQCWebsite(orbitType, year, month, day, stateVectorTime);
+            //orbitFile = downloadFromQCWebsite(orbitType, year, month, day, stateVectorTime);
         }
 
         if (orbitFile == null) {
