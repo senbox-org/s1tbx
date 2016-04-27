@@ -16,13 +16,10 @@
 package org.esa.s1tbx.sar.gpf.filtering.SpeckleFilters;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilterOp;
-import org.esa.s1tbx.io.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.Operator;
-import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
@@ -160,7 +157,7 @@ public class IDAN implements SpeckleFilter {
         return filteredTile;
     }
 
-    private double[][] getSourceTileIntensity(
+    private static double[][] getSourceTileIntensity(
             final int sx0, final int sy0, final int sw, final int sh, final ProductData srcData1,
             final ProductData srcData2, final TileIndex srcIndex, final double noDataValue, final Unit.UnitType unit) {
 
@@ -192,7 +189,7 @@ public class IDAN implements SpeckleFilter {
                     srcTileData[yy][x - sx0] = v * v;
                 }
             }
-        } else if (unit == Unit.UnitType.INTENSITY) {
+        } else {
             for (int y = sy0; y < yMax; ++y) {
                 srcIndex.calculateStride(y);
                 final int yy = y - sy0;
@@ -200,8 +197,6 @@ public class IDAN implements SpeckleFilter {
                     srcTileData[yy][x - sx0] = srcData1.getElemDoubleAt(srcIndex.getIndex(x));
                 }
             }
-        } else {
-            throw new OperatorException("Band unit not handled: " + unit);
         }
 
         return srcTileData;
