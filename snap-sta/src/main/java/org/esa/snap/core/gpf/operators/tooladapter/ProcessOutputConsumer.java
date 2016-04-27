@@ -23,7 +23,7 @@ import java.util.logging.Logger;
  *
  * @author Lucian Barbulescu.
  */
-interface ProcessOutputConsumer {
+public interface ProcessOutputConsumer {
     /**
      * Consume a line of output obtained from a tool.
      *

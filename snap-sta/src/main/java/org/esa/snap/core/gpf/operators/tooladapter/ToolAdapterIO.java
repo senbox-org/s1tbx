@@ -15,6 +15,8 @@
  */
 package org.esa.snap.core.gpf.operators.tooladapter;
 
+import org.esa.snap.core.dataio.ProductIOPlugInManager;
+import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
@@ -487,23 +489,33 @@ public class ToolAdapterIO {
         }
     }
 
-        private static void deleteFolder(Path location) throws IOException {
-            if (Files.exists(location)) {
-                Files.walkFileTree(location, new SimpleFileVisitor<Path>() {
-                    @Override
-                    public FileVisitResult postVisitDirectory(Path dir,
-                                                              IOException exc) throws IOException {
-                        Files.deleteIfExists(dir);
-                        return FileVisitResult.CONTINUE;
-                    }
+    private static void deleteFolder(Path location) throws IOException {
+        if (Files.exists(location)) {
+            Files.walkFileTree(location, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    Files.deleteIfExists(dir);
+                    return FileVisitResult.CONTINUE;
+                }
 
-                    @Override
-                    public FileVisitResult visitFile(Path file,
-                                                     BasicFileAttributes attrs) throws IOException {
-                        Files.deleteIfExists(file);
-                        return FileVisitResult.CONTINUE;
-                    }
-                });
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    Files.deleteIfExists(file);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        }
+    }
+
+    static List<ProductReaderPlugIn> getReaderPlugInsByExtension(String extension) {
+        List<ProductReaderPlugIn> plugIns = new ArrayList<>();
+        final Iterator<ProductReaderPlugIn> readerPlugIns = ProductIOPlugInManager.getInstance().getAllReaderPlugIns();
+        while (readerPlugIns.hasNext()) {
+            final ProductReaderPlugIn plugIn = readerPlugIns.next();
+            if (Arrays.stream(plugIn.getDefaultFileExtensions()).filter(e -> e.equalsIgnoreCase(extension)).count() > 0) {
+                plugIns.add(plugIn);
             }
         }
+        return plugIns;
+    }
 }
