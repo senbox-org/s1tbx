@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
  *
  * @author Cosmin Cara
  */
-class DefaultOutputConsumer implements ProcessOutputConsumer {
+public class DefaultOutputConsumer implements ProcessOutputConsumer {
 
     private Pattern error;
     private Pattern progress;

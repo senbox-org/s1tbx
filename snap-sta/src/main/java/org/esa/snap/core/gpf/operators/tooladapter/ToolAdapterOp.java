@@ -22,9 +22,7 @@ import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
-import org.esa.snap.core.dataio.ProductIO;
-import org.esa.snap.core.dataio.ProductIOPlugInManager;
-import org.esa.snap.core.dataio.ProductWriterPlugIn;
+import org.esa.snap.core.dataio.*;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.Operator;
@@ -125,7 +123,7 @@ public class ToolAdapterOp extends Operator {
     }
 
     /**
-     * Set a consumer for the tool's output.
+     * Registers a consumer for the tool's output.
      *
      * @param consumer the output consumer.
      */
@@ -447,11 +445,14 @@ public class ToolAdapterOp extends Operator {
                     input = selectCandidateRasterFile(input);
                 }
                 getLogger().info(String.format("Trying to open %s", input.getAbsolutePath()));
-                Product target = ProductIO.readProduct(input);
-                /*for (Band band : target.getBands()) {
-                    ImageManager.getInstance().getSourceImage(band, 0);
-                }*/
-                setTargetProduct(target);
+                Product target;// = ProductIO.readProduct(input);
+                List<ProductReaderPlugIn> plugInsByExtension = ToolAdapterIO.getReaderPlugInsByExtension(FileUtils.getExtension(input));
+                ProductReaderPlugIn readerPlugIn;
+                if (plugInsByExtension.size() > 0 && (readerPlugIn = plugInsByExtension.get(0)) != null) {
+                    ProductReader productReader = readerPlugIn.createReaderInstance();
+                    target = productReader.readProductNodes(input, null);
+                    setTargetProduct(target);
+                }
             } catch (IOException e) {
                 throw new OperatorException("Error reading product '" + input.getPath() + "'");
             }
