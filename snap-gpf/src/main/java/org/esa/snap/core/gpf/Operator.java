@@ -62,6 +62,8 @@ import java.util.logging.Logger;
  * because they are a simultaneous output. This is often the case for algorithms based on neural network, cluster analyses,
  * model inversion methods or spectral unmixing.</li>
  * </ol>
+ * <p>For information on how to best implement the {@code computeTile()} or {@code computeTileStack()} method please
+ * read also the {@link Tile} documentation.
  *
  * <p>The framework execute either the {@code computeTile()} or the {@code computeTileStack()} method
  * based on the current use case or request.
@@ -80,6 +82,8 @@ import java.util.logging.Logger;
  * @see TargetProperty
  * @see SourceProduct
  * @see SourceProducts
+ * @see Tile
+ *
  * @since 4.1
  */
 public abstract class Operator {
