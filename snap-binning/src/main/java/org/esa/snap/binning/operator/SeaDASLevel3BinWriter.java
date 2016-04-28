@@ -293,7 +293,7 @@ class SeaDASLevel3BinWriter extends AbstractBinWriter {
                 rowBins.add(temporalBin);
             } else {
                 if (!rowBins.isEmpty()) {
-                    bufferIndex = writeRowBins(netcdfFile, rowBins, vars, origin, bufferIndex, rowIndex,
+                    bufferIndex = writeRowBins(netcdfFile, rowBins, vars, origin, bufferIndex, lastRowIndex,
                             binRowBeginOffsets, binRowBegins, binRowExtends);
                     rowBins.clear();
                 }
