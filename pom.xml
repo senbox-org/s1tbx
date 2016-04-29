@@ -35,7 +35,7 @@
 		<s1tbx.version>[3.0.0,4.0.0-SNAPSHOT)</s1tbx.version>
         <s1tbx.nbmSpecVersion>3.0.2</s1tbx.nbmSpecVersion>
         <rstb.version>[7.1.0,7.2.0-SNAPSHOT)</rstb.version>
-        <rstb.nbmSpecVersion>7.1.1</rstb.nbmSpecVersion>
+        <rstb.nbmSpecVersion>7.1.2</rstb.nbmSpecVersion>
         <jlinda.version>[3.0.0,4.0.0-SNAPSHOT)</jlinda.version>
         <jlinda.nbmSpecVersion>3.0.2</jlinda.nbmSpecVersion>
         
