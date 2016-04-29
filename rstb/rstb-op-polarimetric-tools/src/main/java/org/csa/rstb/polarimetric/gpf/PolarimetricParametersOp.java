@@ -336,16 +336,16 @@ public final class PolarimetricParametersOp extends Operator {
 
                         float hh=0, hv=0, vv=0, vh=0;
                         if (hhTile != null) {
-                            hh = hhTile.getSampleFloat(x, y);
+                            hh = (float)Math.sqrt(hhTile.getSampleFloat(x, y));
                         }
                         if(hvTile != null) {
-                            hv = hvTile.getSampleFloat(x, y);
+                            hv = (float)Math.sqrt(hvTile.getSampleFloat(x, y));
                         }
                         if(vvTile != null) {
-                            vv = vvTile.getSampleFloat(x, y);
+                            vv = (float)Math.sqrt(vvTile.getSampleFloat(x, y));
                         }
                         if(vhTile != null) {
-                            vh = vhTile.getSampleFloat(x, y);
+                            vh = (float)Math.sqrt(vhTile.getSampleFloat(x, y));
                         }
 
                         for (final TileData tileData : tileDataList) {
