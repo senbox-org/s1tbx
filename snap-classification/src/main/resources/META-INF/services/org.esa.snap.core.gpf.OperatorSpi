@@ -1,1 +1,5 @@
-
+org.esa.snap.classification.gpf.kdtknn.KDTreeKNNClassifierOp$Spi
+org.esa.snap.classification.gpf.knn.KNNClassifierOp$Spi
+org.esa.snap.classification.gpf.maximumlikelihood.MaximumLikelihoodClassifierOp$Spi
+org.esa.snap.classification.gpf.minimumdistance.MinimumDistanceClassifierOp$Spi
+org.esa.snap.classification.gpf.randomForest.RandomForestClassifierOp$Spi
