@@ -69,6 +69,7 @@
         <module>snap-arcbingrid-reader</module>
         <module>snap-bigtiff</module>
         <module>snap-binning</module>
+        <module>snap-classification</module>
         <module>snap-cluster-analysis</module>
         <module>snap-collocation</module>
         <module>snap-csv-dataio</module>
