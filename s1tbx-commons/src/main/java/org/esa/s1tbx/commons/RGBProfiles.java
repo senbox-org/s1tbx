@@ -34,6 +34,13 @@ public class RGBProfiles {
                                                        "((i_HH+i_VV)*(i_HH+i_VV)+(q_HH+q_VV)*(q_HH+q_VV))/2"
                                                }
         ));
+        manager.addProfile(new RGBImageProfile("Pauli",
+                                               new String[]{
+                                                       "sqrt(Sigma0_HH-Sigma0_VV)",
+                                                       "sqrt(Sigma0_HV+Sigma0_VH)",
+                                                       "sqrt(Sigma0_HH+Sigma0_VV)"
+                                               }
+        ));
         manager.addProfile(new RGBImageProfile("Sinclair",
                                                new String[]{
                                                        "i_VV*i_VV+q_VV*q_VV",
@@ -72,27 +79,27 @@ public class RGBProfiles {
                                                    final String suffix) {
         switch (profileType) {
             case RATIO:
-                return new RGBImageProfile("Dual Pol Ratio " + name + suffix + " " + pol1 + "+" + pol2,
+                return new RGBImageProfile("Dual Pol Ratio " + name + suffix + ' ' + pol1 + '+' + pol2,
                                            new String[]{
-                                                   name + "_" + pol1 + suffix,
-                                                   name + "_" + pol2 + suffix,
-                                                   name + "_" + pol1 + suffix + "/" + name + "_" + pol2 + suffix
+                                                   name + '_' + pol1 + suffix,
+                                                   name + '_' + pol2 + suffix,
+                                                   name + '_' + pol1 + suffix + '/' + name + '_' + pol2 + suffix
                                            }
                 );
             case MULTIPLE:
-                return new RGBImageProfile("Dual Pol Multiple " + name + suffix + " " + pol1 + "+" + pol2,
+                return new RGBImageProfile("Dual Pol Multiple " + name + suffix + ' ' + pol1 + '+' + pol2,
                                            new String[]{
-                                                   name + "_" + pol1 + suffix,
-                                                   name + "_" + pol2 + suffix,
-                                                   "abs(" + name + "_" + pol1 + suffix + "*" + name + "_" + pol2 + suffix + ")"
+                                                   name + '_' + pol1 + suffix,
+                                                   name + '_' + pol2 + suffix,
+                                                   "abs(" + name + '_' + pol1 + suffix + '*' + name + '_' + pol2 + suffix + ')'
                                            }
                 );
             case DIFFERENCE:
-                return new RGBImageProfile("Dual Pol Difference " + name + suffix + " " + pol1 + "+" + pol2,
+                return new RGBImageProfile("Dual Pol Difference " + name + suffix + ' ' + pol1 + '+' + pol2,
                                            new String[]{
-                                                   name + "_" + pol2 + suffix,
-                                                   name + "_" + pol1 + suffix,
-                                                   "abs(" + name + "_" + pol1 + suffix + "-" + name + "_" + pol2 + suffix + ")"
+                                                   name + '_' + pol2 + suffix,
+                                                   name + '_' + pol1 + suffix,
+                                                   "abs(" + name + '_' + pol1 + suffix + '-' + name + '_' + pol2 + suffix + ')'
                                            }
                 );
             default:
