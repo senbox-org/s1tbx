@@ -35,11 +35,8 @@ import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.math.MathUtils;
 
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -49,7 +46,7 @@ import java.util.stream.Stream;
  * @version $Revision$ $Date$
  */
 @OperatorMetadata(alias = "KMeansClusterAnalysis",
-                  category = "Raster/Image Analysis/Clustering",
+                  category = "Raster/Classification/Supervised Classification",
                   version = "1.0",
                   authors = "Ralf Quast, Marco Zuehlke",
                   copyright = "(c) 2008 by Brockmann Consult",

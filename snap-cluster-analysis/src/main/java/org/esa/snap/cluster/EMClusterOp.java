@@ -33,13 +33,11 @@ import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 /**
  * Operator for cluster analysis.
@@ -48,7 +46,7 @@ import java.util.stream.StreamSupport;
  * @version $Revision$ $Date$
  */
 @OperatorMetadata(alias = "EMClusterAnalysis",
-                  category = "Raster/Image Analysis/Clustering",
+                  category = "Raster/Classification/Supervised Classification",
                   version = "1.0",
                   authors = "Ralf Quast",
                   copyright = "(c) 2007 by Brockmann Consult",

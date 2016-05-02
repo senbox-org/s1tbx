@@ -36,21 +36,27 @@
         <folder name="Raster">
             <folder name="Image Analysis">
                 <attr name="position" intvalue="400"/>
-                <file name="org-esa-snap-cluster-EmClusterAnalysis.shadow">
-                    <attr name="originalFile"
-                          stringvalue="Actions/Operators/org-esa-snap-cluster-EmClusterAnalysis.instance"/>
-                    <attr name="position" intvalue="10"/>
-                </file>
-                <file name="org-esa-snap-cluster-KMeansClusterAnalysis.shadow">
-                    <attr name="originalFile"
-                          stringvalue="Actions/Operators/org-esa-snap-cluster-KMeansClusterAnalysis.instance"/>
-                    <attr name="position" intvalue="20"/>
-                </file>
                 <file name="org-esa-snap-cluster-PrincipalComponentAnalysis.shadow">
                     <attr name="originalFile"
                           stringvalue="Actions/Operators/org-esa-snap-cluster-PrincipalComponentAnalysis.instance"/>
-                    <attr name="position" intvalue="30"/>
+                    <attr name="position" intvalue="10"/>
                 </file>
+            </folder>
+            <folder name="Classification">
+                <attr name="position" intvalue="450"/>
+                    <folder name="Unsupervised Classification">
+                        <attr name="position" intvalue="100"/>
+                        <file name="org-esa-snap-cluster-EmClusterAnalysis.shadow">
+                            <attr name="originalFile"
+                                  stringvalue="Actions/Operators/org-esa-snap-cluster-EmClusterAnalysis.instance"/>
+                            <attr name="position" intvalue="10"/>
+                        </file>
+                        <file name="org-esa-snap-cluster-KMeansClusterAnalysis.shadow">
+                            <attr name="originalFile"
+                                  stringvalue="Actions/Operators/org-esa-snap-cluster-KMeansClusterAnalysis.instance"/>
+                            <attr name="position" intvalue="20"/>
+                        </file>
+                </folder>
             </folder>
         </folder>
     </folder>
