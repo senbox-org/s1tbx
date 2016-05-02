@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.sentinel1;
 
-import org.esa.s1tbx.commons.S1TBXSetup;
+import org.esa.snap.engine_utilities.util.ResourceUtils;
 import org.openide.modules.OnStart;
 
 /**
@@ -28,7 +28,7 @@ public class s1tbxSentinel1Module {
 
         @Override
         public void run() {
-            S1TBXSetup.installGraphs(this.getClass(), "org/esa/s1tbx/sentinel1/graphs/");
+            ResourceUtils.installGraphs(this.getClass(), "org/esa/s1tbx/sentinel1/graphs/");
         }
     }
 }

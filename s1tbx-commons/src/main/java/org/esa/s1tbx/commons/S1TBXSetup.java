@@ -18,10 +18,8 @@ package org.esa.s1tbx.commons;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.util.ResourceInstaller;
 import org.esa.snap.core.util.SystemUtils;
-import org.esa.snap.core.util.io.TreeCopier;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
@@ -49,27 +47,5 @@ public class S1TBXSetup {
 
     private static Path getColorPalettesDir() {
         return SystemUtils.getAuxDataPath().resolve("color_palettes");
-    }
-
-    private static Path getGraphsDir() {
-        return SystemUtils.getApplicationDataDir().toPath().resolve("graphs");
-    }
-
-    public static void installGraphs(final Class callingClass, final String path) {
-        installFiles(callingClass, path, getGraphsDir());
-    }
-
-    public static void installFiles(final Class callingClass, final String srcResPath, final Path dstPath) {
-        final Path moduleBasePath = ResourceInstaller.findModuleCodeBasePath(callingClass);
-        final Path srcGraphPath = moduleBasePath.resolve(srcResPath);
-
-        try {
-            if (!Files.exists(dstPath)) {
-                Files.createDirectories(dstPath);
-            }
-            TreeCopier.copy(srcGraphPath, dstPath);
-        } catch (IOException e) {
-            SystemUtils.LOG.severe("Unable to install files "+srcGraphPath+" to "+dstPath+" "+e.getMessage());
-        }
     }
 }

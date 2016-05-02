@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.insar;
 
-import org.esa.s1tbx.commons.S1TBXSetup;
+import org.esa.snap.engine_utilities.util.ResourceUtils;
 import org.openide.modules.OnStart;
 
 /**
@@ -28,7 +28,7 @@ public class s1tbxInSARModule {
 
         @Override
         public void run() {
-            S1TBXSetup.installGraphs(this.getClass(), "org/esa/s1tbx/insar/graphs/");
+            ResourceUtils.installGraphs(this.getClass(), "org/esa/s1tbx/insar/graphs/");
         }
     }
 }
