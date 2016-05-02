@@ -15,13 +15,16 @@
  */
 package org.esa.s1tbx.io.orbits;
 
-import com.jaunt.Element;
-import com.jaunt.Elements;
-import com.jaunt.JauntException;
-import com.jaunt.UserAgent;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -38,13 +41,11 @@ public class QCScraper {
     private static final String validityStartYear = "&validity_start_time=";
     private static final String validityStartMonth = "&validity_start_time=";
 
-    private final UserAgent userAgent;
     private final String orbitType;
 
     public QCScraper(String orbitType) {
-        userAgent = new UserAgent();
-        userAgent.settings.checkSSLCerts = false;
         this.orbitType = orbitType;
+        System.setProperty("jsse.enableSNIExtension", "false");
     }
 
     public String getQCURL() {
@@ -69,17 +70,21 @@ public class QCScraper {
     private List<String> getFileURLs(String path) {
         final List<String> fileList = new ArrayList<>();
         try {
-            userAgent.visit(path);
+            final Document doc = Jsoup.connect(path).validateTLSCertificates(false).get();
 
-            Elements tables = userAgent.doc.findEvery("<table class=\"table table-striped\">");
-            int cnt = 1;
-            for (Element table : tables) {
-                Elements addrLinks = table.findEvery("<a>");
-                for (Element addr : addrLinks) {
-                    fileList.add(addr.getText());
+            Element table = doc.select("table").first();
+            Elements tbRows = table.select("tr");
+
+            for(Element row : tbRows) {
+                Elements tbCols = row.select("td");
+                for(Element col : tbCols) {
+                    Elements elems = col.getElementsByTag("a");
+                    for(Element elem : elems) {
+                        fileList.add(elem.text());
+                    }
                 }
             }
-        } catch (JauntException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return fileList;

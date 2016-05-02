@@ -15,7 +15,6 @@
  */
 package org.esa.s1tbx.io.orbits;
 
-import com.jaunt.JauntException;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
@@ -26,7 +25,7 @@ import static junit.framework.TestCase.assertEquals;
 public class TestQCScraper {
 
     @Test
-    public void testDownloadPreciseOrbitFile() throws JauntException {
+    public void testDownloadPreciseOrbitFile() {
         final QCScraper qc = new QCScraper(QCScraper.POEORB);
 
         String[] orbitFiles = qc.getFileURLs(2016, 2);
@@ -34,7 +33,7 @@ public class TestQCScraper {
     }
 
     @Test
-    public void testDownloadRestituteOrbitFile() throws JauntException {
+    public void testDownloadRestituteOrbitFile() {
         final QCScraper qc = new QCScraper(QCScraper.RESORB);
 
         String[] orbitFiles = qc.getFileURLs(2016, 2);
