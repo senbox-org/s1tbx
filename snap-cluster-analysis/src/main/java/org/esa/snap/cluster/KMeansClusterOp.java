@@ -46,7 +46,7 @@ import java.util.stream.Stream;
  * @version $Revision$ $Date$
  */
 @OperatorMetadata(alias = "KMeansClusterAnalysis",
-                  category = "Raster/Classification/Supervised Classification",
+                  category = "Raster/Classification/Unsupervised Classification",
                   version = "1.0",
                   authors = "Ralf Quast, Marco Zuehlke",
                   copyright = "(c) 2008 by Brockmann Consult",

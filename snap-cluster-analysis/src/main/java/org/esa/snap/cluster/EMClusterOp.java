@@ -46,7 +46,7 @@ import java.util.stream.Stream;
  * @version $Revision$ $Date$
  */
 @OperatorMetadata(alias = "EMClusterAnalysis",
-                  category = "Raster/Classification/Supervised Classification",
+                  category = "Raster/Classification/Unsupervised Classification",
                   version = "1.0",
                   authors = "Ralf Quast",
                   copyright = "(c) 2007 by Brockmann Consult",
