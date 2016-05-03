@@ -15,6 +15,7 @@
  */
 package org.esa.snap.classification.gpf;
 
+import com.bc.ceres.core.ProgressMonitor;
 import net.sf.javaml.classification.Classifier;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
@@ -35,8 +36,8 @@ public interface SupervisedClassifier {
 
     Product createTargetProduct();
 
-    void computeTileStack(Operator operator, Map<Band, Tile> targetTileMap, Rectangle targetRectangle)
-            throws OperatorException, IOException;
+    void computeTileStack(Operator operator, Map<Band, Tile> targetTileMap, Rectangle targetRectangle,
+                          ProgressMonitor pm) throws OperatorException, IOException;
 
     Classifier createMLClassifier(final BaseClassifier.FeatureInfo[] featureInfos);
 

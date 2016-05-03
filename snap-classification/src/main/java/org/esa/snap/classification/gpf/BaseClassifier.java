@@ -16,6 +16,7 @@
 package org.esa.snap.classification.gpf;
 
 import be.abeel.util.Pair;
+import com.bc.ceres.core.ProgressMonitor;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.thoughtworks.xstream.XStream;
@@ -443,7 +444,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
     }
 
     public void computeTileStack(final Operator operator, final Map<Band, Tile> targetTileMap,
-                                 final Rectangle targetRectangle) throws OperatorException, IOException {
+                                 final Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException, IOException {
 
         final int x0 = targetRectangle.x;
         final int y0 = targetRectangle.y;
@@ -455,7 +456,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
             if (doLoadClassifier) {
                 loadClassifier(operator);
             } else {
-                trainClassifier(operator);
+                trainClassifier(operator, pm);
             }
         }
 
@@ -545,7 +546,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
         return false;
     }
 
-    private synchronized void trainClassifier(final Operator operator) throws IOException {
+    private synchronized void trainClassifier(final Operator operator, final ProgressMonitor opPM) throws IOException {
 
         if (classifierTrained) return;
         try {
@@ -603,7 +604,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
                                                                              featureInfoList);
 
             if (params.evaluateClassifier && params.evaluateFeaturePowerSet) {
-                runFeaturePowerSet(operator, allLabeledInstances, featureInfoList);
+                runFeaturePowerSet(operator, allLabeledInstances, featureInfoList, opPM);
             }
 
             if (!classifierTrained) {
@@ -743,7 +744,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
     }
 
     private void runFeaturePowerSet(final Operator operator, final LabeledInstances allLabeledInstances,
-                                    final FeatureInfo[] completeFeatureInfoList) {
+                                    final FeatureInfo[] completeFeatureInfoList, final ProgressMonitor opPM) {
         final StatusProgressMonitor pm = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
 
         try {
@@ -759,6 +760,9 @@ public abstract class BaseClassifier implements SupervisedClassifier {
 
             int cnt = 1;
             for (Set<FeatureInfo> featureSet : featureSetList) {
+                if(opPM.isCanceled()) {
+                    break;
+                }
 
                 final FeatureInfo[] featureInfos = featureSet.toArray(new FeatureInfo[featureSet.size()]);
 

@@ -118,7 +118,7 @@ public class KNNClassifierOp extends Operator {
     public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
             throws OperatorException {
         try {
-            classifier.computeTileStack(this, targetTileMap, targetRectangle);
+            classifier.computeTileStack(this, targetTileMap, targetRectangle, pm);
         } catch (Exception e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
