@@ -228,16 +228,14 @@ public abstract class BaseClassifier implements SupervisedClassifier {
             }
         }
 
-        if (maskProduct != null) {
-            if (params.trainOnRaster && params.trainingBands != null && params.trainingBands.length == 1) {
-                String bandName = params.trainingBands[0];
-                if (params.trainingBands[0].contains("::")) {
-                    bandName = params.trainingBands[0].substring(0, params.trainingBands[0].indexOf("::"));
-                }
-                trainingSetMaskBand = maskProduct.getBand(bandName);
-                if (trainingSetMaskBand == null) {
-                    throw new OperatorException("Fail to find training band in 1st source product: " + bandName);
-                }
+        if (params.trainOnRaster && params.trainingBands != null && params.trainingBands.length == 1) {
+            String bandName = params.trainingBands[0];
+            if (params.trainingBands[0].contains("::")) {
+                bandName = params.trainingBands[0].substring(0, params.trainingBands[0].indexOf("::"));
+            }
+            trainingSetMaskBand = maskProduct.getBand(bandName);
+            if (trainingSetMaskBand == null) {
+                throw new OperatorException("Fail to find training band in 1st source product: " + bandName);
             }
         }
 
@@ -306,12 +304,10 @@ public abstract class BaseClassifier implements SupervisedClassifier {
                         String classLabel = getAttribValue(polygonVectorDataNodes[i], params.labelSource);
 
                         if (!classLabelMap.values().contains(classLabel)) {
-                            System.out.println("class " + classIndex + " = " + classLabel);
                             classLabelMap.put(classIndex, classLabel);
                             labelClassMap.put(classLabel, classIndex);
                             classIndex++;
                         }
-
                     }
                 }
             }
@@ -323,7 +319,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
         //        + "; class levels = " + classLevels + "; max class value = " + maxClassValue);
     }
 
-    private static String getAttribValue(final VectorDataNode node, final String attribName) {
+    public static String getAttribValue(final VectorDataNode node, final String attribName) {
         final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection =
                 node.getFeatureCollection();
         final SimpleFeature simpleFeature = featureCollection.features().next();
