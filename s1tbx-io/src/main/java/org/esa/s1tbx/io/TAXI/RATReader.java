@@ -70,7 +70,7 @@ public class RATReader extends EnviProductReader {
         tgtBandI.setUnit("real");
         product.addBand(tgtBandI);
 
-        final Band tgtBandQ = new Band("q_band", ProductData.TYPE_FLOAT32, width, height);
+        final Band tgtBandQ = new Band("q_band", bandType, width, height);
         tgtBandQ.setUnit("imaginary");
         product.addBand(tgtBandQ);
 
