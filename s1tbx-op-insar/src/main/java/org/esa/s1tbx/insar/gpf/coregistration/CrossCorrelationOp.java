@@ -1479,7 +1479,7 @@ public class CrossCorrelationOp extends Operator {
         fineRegistration.getShiftedData(complexData, tmpI, tmpQ, xShift, yShift, sII0data, sIQ0data);
     }
 
-    private static class CorrelationWindow {
+    public static class CorrelationWindow {
 
         final int height;
         final int width;
@@ -1490,7 +1490,7 @@ public class CrossCorrelationOp extends Operator {
 
         final int ovsFactor;
 
-        private CorrelationWindow(int winWidth, int winHeight, int accX, int accY, int ovsFactor) {
+        public CorrelationWindow(int winWidth, int winHeight, int accX, int accY, int ovsFactor) {
             this.accX = accX;
             this.accY = accY;
             this.width = winWidth;
