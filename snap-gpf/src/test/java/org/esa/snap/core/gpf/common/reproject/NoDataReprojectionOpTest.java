@@ -37,9 +37,9 @@ public class NoDataReprojectionOpTest extends AbstractReprojectionOpTest {
         final Band srcBand = sourceProduct.getBand(FLOAT_BAND_NAME);
         srcBand.setNoDataValue(299);
         srcBand.setNoDataValueUsed(true);
-        final Product targetPoduct = createReprojectedProduct();
+        final Product targetProduct = createReprojectedProduct();
 
-        assertNoDataValue(targetPoduct.getBand(FLOAT_BAND_NAME), new PixelPos(23.5f, 13.5f), 299.0, 299.0);
+        assertNoDataValue(targetProduct.getBand(FLOAT_BAND_NAME), new PixelPos(23.5f, 13.5f), 299.0, 299.0);
     }
 
     @Test
