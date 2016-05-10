@@ -156,13 +156,12 @@ public class ImageGeometry {
         if (pixelSizeX == null || pixelSizeY == null) {
             // used float here to preserve same behavior as in old map-projection implementation
             // if double would be used scene size would differ sometimes by one pixel
-            float pixelSize = (float) Math.min(mapW / sourceWidth,
-                                               mapH / sourceHeight);
+            float pixelSize = (float) Math.min(mapW / sourceWidth, mapH / sourceHeight);
             if (MathUtils.equalValues(pixelSize, 0.0f)) {
                 pixelSize = 1.0f;
             }
-            ig.pixelSizeX = (double) pixelSize;
-            ig.pixelSizeY = (double) pixelSize;
+            ig.pixelSizeX = pixelSize;
+            ig.pixelSizeY = pixelSize;
         } else {
             ig.pixelSizeX = pixelSizeX;
             ig.pixelSizeY = pixelSizeY;
