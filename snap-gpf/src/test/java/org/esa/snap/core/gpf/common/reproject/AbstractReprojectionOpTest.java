@@ -158,7 +158,7 @@ public abstract class AbstractReprojectionOpTest {
         assertEquals(expectedPixelValue, pixels[0], delta);
     }
 
-    private PixelPos computeTargetPP(Band targetBand, double sourceX, double sourceY) {
+    protected PixelPos computeTargetPP(Band targetBand, double sourceX, double sourceY) {
         final Band sourceBand = sourceProduct.getBand(targetBand.getName());
         final PixelPos sourcePP = new PixelPos(sourceX, sourceY);
         final GeoPos geoPos = sourceBand.getGeoCoding().getGeoPos(sourcePP, null);

@@ -335,8 +335,7 @@ public class ReprojectionOp extends Operator {
     }
 
     private void reprojectSourceRaster(RasterDataNode sourceRaster) {
-        final ReprojectionSettings reprojectionSettings =
-                reprojectionSettingsProvider.getReprojectionSettings(sourceRaster);
+        final ReprojectionSettings reprojectionSettings = reprojectionSettingsProvider.getReprojectionSettings(sourceRaster);
         final int targetDataType;
         MultiLevelImage sourceImage;
         if (sourceRaster.isScalingApplied()) {
@@ -378,9 +377,8 @@ public class ReprojectionOp extends Operator {
             reprojection = new Reproject(targetModel.getLevelCount());
             reprojectionSettings.setReprojection(reprojection);
         }
-        MultiLevelImage projectedImage =
-                createProjectedImage(sourceGeoCoding, sourceImage, reprojectionSettings.getSourceModel(),
-                                     targetBand, resampling, targetModel, reprojection);
+        MultiLevelImage projectedImage = createProjectedImage(sourceGeoCoding, sourceImage, reprojectionSettings.getSourceModel(),
+                                                              targetBand, resampling, targetModel, reprojection);
         if (mustReplaceNaN(sourceRaster, targetDataType, targetNoDataValue.doubleValue())) {
             projectedImage = createNaNReplacedImage(projectedImage, targetModel, targetNoDataValue.doubleValue());
         }

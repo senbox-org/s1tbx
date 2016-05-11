@@ -18,7 +18,9 @@ package org.esa.snap.core.datamodel;
 import org.esa.snap.core.util.math.MathUtils;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.resources.geometry.XRectangle2D;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.TransformException;
 
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -154,10 +156,8 @@ public class ImageGeometry {
         double mapH = mapBoundary.getHeight();
 
         if (pixelSizeX == null || pixelSizeY == null) {
-            // used float here to preserve same behavior as in old map-projection implementation
-            // if double would be used scene size would differ sometimes by one pixel
-            float pixelSize = (float) Math.min(mapW / sourceWidth, mapH / sourceHeight);
-            if (MathUtils.equalValues(pixelSize, 0.0f)) {
+            double pixelSize = Math.min(mapW / sourceWidth, mapH / sourceHeight);
+            if (MathUtils.equalValues(pixelSize, 0.0)) {
                 pixelSize = 1.0f;
             }
             ig.pixelSizeX = pixelSize;
@@ -217,46 +217,42 @@ public class ImageGeometry {
 
     private static Rectangle2D createMapBoundary(final RasterDataNode rdn, CoordinateReferenceSystem targetCrs) {
         try {
-            final CoordinateReferenceSystem sourceCrs = rdn.getGeoCoding().getImageCRS();
+            GeoCoding geoCoding = rdn.getGeoCoding();
             final int sourceW = rdn.getRasterWidth();
             final int sourceH = rdn.getRasterHeight();
-            final Rectangle2D rect = XRectangle2D.createFromExtremums(0.5, 0.5, sourceW - 0.5, sourceH - 0.5);
-            int pointsPerSide = Math.max(sourceH, sourceW) / 10;
-            pointsPerSide = Math.max(9, pointsPerSide);
-            final ReferencedEnvelope sourceEnvelope = new ReferencedEnvelope(rect, sourceCrs);
-            final ReferencedEnvelope targetEnvelope = sourceEnvelope.transform(targetCrs, true, pointsPerSide);
-            double minX = targetEnvelope.getMinX();
-            double width = targetEnvelope.getWidth();
-            if (rdn.getGeoCoding().isCrossingMeridianAt180()) {
-                minX = -180.0;
-                width = 360;
-            }
-            return new Rectangle2D.Double(minX, targetEnvelope.getMinY(), width, targetEnvelope.getHeight());
+            return createMapBoundary(geoCoding, sourceW, sourceH, targetCrs);
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
     }
 
-    private static Rectangle2D createMapBoundary(final Product product, CoordinateReferenceSystem targetCrs) {
+    static Rectangle2D createMapBoundary(final Product product, CoordinateReferenceSystem targetCrs) {
         try {
-            final CoordinateReferenceSystem sourceCrs = product.getSceneGeoCoding().getImageCRS();
+            GeoCoding sceneGeoCoding = product.getSceneGeoCoding();
             final int sourceW = product.getSceneRasterWidth();
             final int sourceH = product.getSceneRasterHeight();
-            final Rectangle2D rect = XRectangle2D.createFromExtremums(0.5, 0.5, sourceW - 0.5, sourceH - 0.5);
-            int pointsPerSide = Math.max(sourceH, sourceW) / 10;
-            pointsPerSide = Math.max(9, pointsPerSide);
-            final ReferencedEnvelope sourceEnvelope = new ReferencedEnvelope(rect, sourceCrs);
-            final ReferencedEnvelope targetEnvelope = sourceEnvelope.transform(targetCrs, true, pointsPerSide);
-            double minX = targetEnvelope.getMinX();
-            double width = targetEnvelope.getWidth();
-            if (product.getSceneGeoCoding().isCrossingMeridianAt180()) {
-                minX = -180.0;
-                width = 360;
-            }
-            return new Rectangle2D.Double(minX, targetEnvelope.getMinY(), width, targetEnvelope.getHeight());
+            return createMapBoundary(sceneGeoCoding, sourceW, sourceH, targetCrs);
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    private static Rectangle2D createMapBoundary(GeoCoding geoCoding, int sourceW, int sourceH,
+                                                 CoordinateReferenceSystem targetCrs) throws TransformException, FactoryException {
+        final CoordinateReferenceSystem sourceCrs = geoCoding.getImageCRS();
+//        final Rectangle2D rect = XRectangle2D.createFromExtremums(0.0 + 0.5, 0.0 + 0.5, sourceW - 0.5, sourceH - 0.5);
+        final Rectangle2D rect = XRectangle2D.createFromExtremums(0.0, 0.0, sourceW, sourceH);
+        int pointsPerSide = Math.max(sourceH, sourceW) / 10;
+        pointsPerSide = Math.max(9, pointsPerSide);
+        final ReferencedEnvelope sourceEnvelope = new ReferencedEnvelope(rect, sourceCrs);
+        final ReferencedEnvelope targetEnvelope = sourceEnvelope.transform(targetCrs, true, pointsPerSide);
+        double minX = targetEnvelope.getMinX();
+        double width = targetEnvelope.getWidth();
+        if (geoCoding.isCrossingMeridianAt180()) {
+            minX = -180.0;
+            width = 360;
+        }
+        return new Rectangle2D.Double(minX, targetEnvelope.getMinY(), width, targetEnvelope.getHeight());
     }
 
     static AffineTransform createImageToMapTransform(double referencePixelX,
