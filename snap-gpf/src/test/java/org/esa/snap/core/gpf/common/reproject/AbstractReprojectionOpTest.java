@@ -36,7 +36,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
 
 /**
  * @author Marco Peters
@@ -120,7 +120,7 @@ public abstract class AbstractReprojectionOpTest {
 
     @Before
     public void setupTestMethod() throws Exception {
-        parameterMap = new HashMap<String, Object>(5);
+        parameterMap = new HashMap<>(5);
         createSourceProduct();
     }
 
