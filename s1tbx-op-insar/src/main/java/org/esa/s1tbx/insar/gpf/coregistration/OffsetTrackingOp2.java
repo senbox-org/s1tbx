@@ -34,6 +34,7 @@ import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.*;
 import org.esa.snap.engine_utilities.util.Maths;
+import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;
 import org.jlinda.core.coregistration.utils.CoregistrationUtils;
 import org.jlinda.nest.utils.TileUtilsDoris;
@@ -74,13 +75,17 @@ public class OffsetTrackingOp2 extends Operator {
     private String coarseRegistrationWindowHeight = "128";
 
     @Parameter(valueSet = {"2", "4", "8", "16", "32", "64", "128", "256"},
-            defaultValue = "4", label = "Search Window Accuracy in Azimuth Direction")
-    private String coarseRegistrationWindowAccAzimuth = "4";
+            defaultValue = "16", label = "Search Window Accuracy in Azimuth Direction")
+    private String coarseRegistrationWindowAccAzimuth = "16";
 
     @Parameter(valueSet = {"2", "4", "8", "16", "32", "64", "128", "256"},
-            defaultValue = "4", label = "Search Window Accuracy in Range Direction")
-    private String coarseRegistrationWindowAccRange = "4";
-/*
+            defaultValue = "16", label = "Search Window Accuracy in Range Direction")
+    private String coarseRegistrationWindowAccRange = "16";
+
+    @Parameter(valueSet = {"2", "4", "8", "16", "32", "64"}, defaultValue = "16",
+            label = "Window oversampling factor")
+    private String coarseRegistrationOversampling = "16";
+    /*
     @Parameter(valueSet = {"8", "16", "32", "64", "128", "256", "512"}, defaultValue = "32",
             label = "Fine Registration Window Width")
     private String fineRegistrationWindowWidth = "32";
@@ -100,16 +105,14 @@ public class OffsetTrackingOp2 extends Operator {
     @Parameter(valueSet = {"2", "4", "8", "16", "32", "64"}, defaultValue = "16",
             label = "Window oversampling factor")
     private String fineRegistrationOversampling = "16";
-
-    @Parameter(description = "The coherence threshold", interval = "(0, *)", defaultValue = "0.6",
+    */
+    @Parameter(description = "The coherence threshold", interval = "(0, *)", defaultValue = "0.1",
             label = "Coherence Threshold")
-    private double coherenceThreshold = 0.6;
-*/
-    @Parameter(valueSet = {ResamplingFactory.NEAREST_NEIGHBOUR_NAME, ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
-            ResamplingFactory.BICUBIC_INTERPOLATION_NAME, ResamplingFactory.BISINC_5_POINT_INTERPOLATION_NAME,
-            ResamplingFactory.CUBIC_CONVOLUTION_NAME}, defaultValue = ResamplingFactory.BICUBIC_INTERPOLATION_NAME,
-            description = "Methods for velocity interpolation.", label = "Resampling Type")
-    private String resamplingType = ResamplingFactory.BICUBIC_INTERPOLATION_NAME;
+    private double coherenceThreshold = 0.1;
+
+    @Parameter(valueSet = {"3", "5", "9", "11"}, defaultValue = "5",
+            label = "Averaging Box Size")
+    private String averagingBoxSize = "5";
 
     @Parameter(description = "The threshold for eliminating invalid GCPs", interval = "(0, *)", defaultValue = "5.0",
             label = "Max Velocity (m/day)")
@@ -119,6 +122,12 @@ public class OffsetTrackingOp2 extends Operator {
             label = "Radius for Hole-Filling")
     private int radius = 4;
 
+    @Parameter(valueSet = {ResamplingFactory.NEAREST_NEIGHBOUR_NAME, ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
+            ResamplingFactory.BICUBIC_INTERPOLATION_NAME, ResamplingFactory.BISINC_5_POINT_INTERPOLATION_NAME,
+            ResamplingFactory.CUBIC_CONVOLUTION_NAME}, defaultValue = ResamplingFactory.BICUBIC_INTERPOLATION_NAME,
+            description = "Methods for velocity interpolation.", label = "Resampling Type")
+    private String resamplingType = ResamplingFactory.BICUBIC_INTERPOLATION_NAME;
+
     @Parameter(description = "Output range and azimuth shifts", defaultValue = "false",
             label = "Output range and azimuth shifts")
     private boolean outputRangeAzimuthOffset = false;
@@ -127,6 +136,8 @@ public class OffsetTrackingOp2 extends Operator {
     private int cWindowHeight = 0;
     private int cHalfWindowWidth = 0;
     private int cHalfWindowHeight = 0;
+    private int avgWindowSize = 0;
+    private int halfAvgWindowSize = 0;
     private CrossCorrelationOp.CorrelationWindow fineWin = null;
     private CrossCorrelationOp.CorrelationWindow coarseWin = null;
 
@@ -180,6 +191,8 @@ public class OffsetTrackingOp2 extends Operator {
 
         try {
             selectedResampling = ResamplingFactory.createResampling(resamplingType);
+            avgWindowSize = Integer.parseInt(averagingBoxSize);
+            halfAvgWindowSize = avgWindowSize / 2;
 
             setRegistrationWindows();
 
@@ -210,9 +223,9 @@ public class OffsetTrackingOp2 extends Operator {
                 Integer.parseInt(coarseRegistrationWindowHeight),
                 Integer.parseInt(coarseRegistrationWindowAccAzimuth),
                 Integer.parseInt(coarseRegistrationWindowAccRange),
-                4);
-
-        /*fineWin = new CrossCorrelationOp.CorrelationWindow(
+                Integer.parseInt(coarseRegistrationOversampling));
+        /*
+        fineWin = new CrossCorrelationOp.CorrelationWindow(
                 Integer.parseInt(fineRegistrationWindowWidth),
                 Integer.parseInt(fineRegistrationWindowHeight),
                 Integer.parseInt(fineRegistrationWindowAccRange),
@@ -478,6 +491,8 @@ public class OffsetTrackingOp2 extends Operator {
 
         computeGCPVelocities();
 
+        averageOffsets();
+
         fillHoles();
 
         writeGCPsToMetadata();
@@ -507,14 +522,12 @@ public class OffsetTrackingOp2 extends Operator {
                     final Thread worker = new Thread() {
                         @Override
                         public void run() {
-//                            if (mGCP.x == 2402 && mGCP.y == 139) {
-//                                System.out.println();
-//                            }
                             boolean getSlaveGCP = getCoarseOffsets(mGCP, sGCP);
-//                            if (getSlaveGCP) {
-//                                getSlaveGCP = getFineOffsets(mGCP, sGCP);
-//                            }
-
+                            /*
+                            if (getSlaveGCP) {
+                                getSlaveGCP = getFineOffsets(mGCP, sGCP);
+                            }
+                            */
                             if (getSlaveGCP) {
                                 synchronized(velocityData.slvGCPx) {
                                     velocityData.slvGCPx[iIdx][jIdx] = sGCP.x;
@@ -593,6 +606,95 @@ public class OffsetTrackingOp2 extends Operator {
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("computeGCPVelocities", e);
+        }
+    }
+
+    private void averageOffsets() {
+
+        final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
+        status.beginTask("Average Offsets... ", numGCPsPerAzLine * numGCPsPerRgLine);
+
+        final ThreadManager threadManager = new ThreadManager();
+        try {
+            for (int i = 0; i < numGCPsPerAzLine; i++) {
+                for (int j = 0; j < numGCPsPerRgLine; j++) {
+                    checkForCancellation();
+                    final int iIdx = i;
+                    final int jIdx = j;
+
+                    if (velocityData.slvGCPx[i][j] == invalidIndex || velocityData.slvGCPy[i][j] == invalidIndex) {
+                        continue;
+                    }
+
+                    final Thread worker = new Thread() {
+                        @Override
+                        public void run() {
+
+                            final int i0 = Math.max(iIdx - halfAvgWindowSize, 0);
+                            final int iN = Math.min(iIdx + halfAvgWindowSize, numGCPsPerAzLine - 1);
+                            final int j0 = Math.max(jIdx - halfAvgWindowSize, 0);
+                            final int jN = Math.min(jIdx + halfAvgWindowSize, numGCPsPerRgLine - 1);
+
+                            int count = 0;
+                            double rangeShiftSum = 0.0, azimuthShiftSum = 0.0;
+                            for (int ii = i0; ii <= iN; ii++) {
+                                for (int jj = j0; jj <= jN; jj++) {
+                                    if (velocityData.slvGCPx[ii][jj] != invalidIndex &&
+                                            velocityData.slvGCPy[ii][jj] != invalidIndex) {
+
+                                        rangeShiftSum += rangeSpacing *
+                                                (velocityData.mstGCPx[ii][jj] - velocityData.slvGCPx[ii][jj]);
+
+                                        azimuthShiftSum += azimuthSpacing *
+                                                (velocityData.mstGCPy[ii][jj] - velocityData.slvGCPy[ii][jj]);
+
+                                        count++;
+                                    }
+                                }
+                            }
+
+                            if (count > 0) {
+                                final double xShift = rangeShiftSum / count;
+
+                                final double yShift = azimuthShiftSum / count;
+
+                                final double v = Math.sqrt(xShift * xShift + yShift * yShift) / acquisitionTimeInterval;
+
+                                final double slvGCPx = velocityData.mstGCPx[iIdx][jIdx] - xShift / rangeSpacing;
+
+                                final double slvGCPy = velocityData.mstGCPy[iIdx][jIdx] - yShift / azimuthSpacing;
+
+                                synchronized (velocityData.velocity) {
+                                    velocityData.velocity[iIdx][jIdx] = v;
+                                }
+
+                                synchronized (velocityData.rangeShift) {
+                                    velocityData.rangeShift[iIdx][jIdx] = xShift;
+                                }
+
+                                synchronized (velocityData.azimuthShift) {
+                                    velocityData.azimuthShift[iIdx][jIdx] = yShift;
+                                }
+
+                                synchronized (velocityData.slvGCPx) {
+                                    velocityData.slvGCPx[iIdx][jIdx] = slvGCPx;
+                                }
+
+                                synchronized (velocityData.slvGCPy) {
+                                    velocityData.slvGCPy[iIdx][jIdx] = slvGCPy;
+                                }
+                            }
+                        }
+                    };
+                    threadManager.add(worker);
+                    status.worked(1);
+                }
+            }
+            status.done();
+            threadManager.finish();
+
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException("averageOffsets", e);
         }
     }
 
@@ -702,10 +804,13 @@ public class OffsetTrackingOp2 extends Operator {
             double coherence = CoregistrationUtils.crossCorrelateFFT(
                     coarseOffset, mI, sI, coarseWin.ovsFactor, coarseWin.accY, coarseWin.accX);
 
-            sGCPPixelPos.x += coarseOffset[1];
-            sGCPPixelPos.y += coarseOffset[0];
-
-            return true;
+            if (coherence < coherenceThreshold) {
+                return false;
+            } else {
+                sGCPPixelPos.x += coarseOffset[1];
+                sGCPPixelPos.y += coarseOffset[0];
+                return true;
+            }
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId() + " getCoarseOffsets ", e);
@@ -713,13 +818,13 @@ public class OffsetTrackingOp2 extends Operator {
         return false;
     }
 
-    /*private boolean getFineOffsets(final PixelPos mGCPPixelPos, final PixelPos sGCPPixelPos) {
+    private boolean getFineOffsets(final PixelPos mGCPPixelPos, final PixelPos sGCPPixelPos) {
 
         try {
             ComplexDoubleMatrix mI = getComplexDoubleMatrix(masterBand, null, mGCPPixelPos, fineWin);
             ComplexDoubleMatrix sI = getComplexDoubleMatrix(slaveBand, null, sGCPPixelPos, fineWin);
 
-            final double[] fineOffset = {sGCPPixelPos.x, sGCPPixelPos.y};
+            final double[] fineOffset = {0, 0};
 
             final double coherence = CoregistrationUtils.crossCorrelateFFT(
                     fineOffset, mI, sI, fineWin.ovsFactor, fineWin.accY, fineWin.accX);
@@ -735,7 +840,23 @@ public class OffsetTrackingOp2 extends Operator {
             OperatorUtils.catchOperatorException(getId() + " getFineOffsets ", e);
         }
         return false;
-    }*/
+    }
+
+    private void dumpComplexMatrix(ComplexDoubleMatrix I, final String title) {
+
+        System.out.println(title);
+        final int numRows = I.rows;
+        final int numCols = I.columns;
+        for (int r = 0; r < numRows; r++) {
+            for (int c = 0; c < numCols; c++) {
+                ComplexDouble v = I.get(r,c);
+//                System.out.print(v.real() + " + j*" + v.imag() + ", ");
+                System.out.print(v.real() + ", ");
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
 
     private ComplexDoubleMatrix getComplexDoubleMatrix(
             final Band band1, final Band band2, final PixelPos pixelPos, final CrossCorrelationOp.CorrelationWindow corrWindow) {
