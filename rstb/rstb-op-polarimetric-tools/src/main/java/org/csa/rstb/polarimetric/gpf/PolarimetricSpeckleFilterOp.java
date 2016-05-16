@@ -144,7 +144,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
         try {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
             validator.checkIfSARProduct();
-            validator.checkIfSLC();
+            //validator.checkIfSLC();
             validator.checkIfTOPSARBurstProduct(false);
 
             sourceImageWidth = sourceProduct.getSceneRasterWidth();
