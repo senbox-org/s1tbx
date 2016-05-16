@@ -88,8 +88,8 @@ public class CommandLineToolTemplateTest {
                      "\n" +
                      "    <target>\n" +
                      "        <name>projected_MERIS</name>\n" +
-                     "        <width>226</width>\n" +
-                     "        <height>451</height>\n" +
+                     "        <width>251</width>\n" +
+                     "        <height>501</height>\n" +
                      "    </target>\n" +
                      "\n" +
                      "    <parameterMetadata>\n" +
@@ -126,7 +126,7 @@ public class CommandLineToolTemplateTest {
         assertEquals("<html>\n" +
                      "<body>\n" +
                      "Size of MERIS: 10 x 10 pixels<br/>\n" +
-                     "Size of projected_MERIS: 226 x 451 pixels<br/>\n" +
+                     "Size of projected_MERIS: 251 x 501 pixels<br/>\n" +
                      "Extra data:<br/>\n" +
                      "processingCenter = BC<br/>\n" +
                      "softwareName = BEAM<br/>\n" +
@@ -212,8 +212,8 @@ public class CommandLineToolTemplateTest {
                      "\n" +
                      "    <target>\n" +
                      "        <name>projected_MERIS</name>\n" +
-                     "        <width>226</width>\n" +
-                     "        <height>451</height>\n" +
+                     "        <width>251</width>\n" +
+                     "        <height>501</height>\n" +
                      "    </target>\n" +
                      "\n" +
                      "    <parameterMetadata>\n" +
@@ -261,7 +261,7 @@ public class CommandLineToolTemplateTest {
         assertEquals("<html>\n" +
                      "<body>\n" +
                      "Size of MERIS: 10 x 10 pixels<br/>\n" +
-                     "Size of projected_MERIS: 226 x 451 pixels<br/>\n" +
+                     "Size of projected_MERIS: 251 x 501 pixels<br/>\n" +
                      "Extra data:<br/>\n" +
                      "processingCenter = BC<br/>\n" +
                      "softwareName = BEAM<br/>\n" +

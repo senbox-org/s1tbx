@@ -90,15 +90,15 @@ public class DefaultOutputConsumer implements ProcessOutputConsumer {
             if (progress != null && (matcher = progress.matcher(line)).find()) {
                 int worked;
                 try {
-                    worked = Integer.parseInt(matcher.group());
+                    worked = Integer.parseInt(matcher.group(1));
                 } catch (Exception e) {
-                    worked = (int) Float.parseFloat(matcher.group());
+                    worked = (int) Float.parseFloat(matcher.group(1));
                 }
                 progressMonitor.worked(Math.min(worked, MAX_UNITS));
                 progressMonitor.setSubTaskName(line);
             }
             if (step != null && (matcher = step.matcher(line)).find()) {
-                progressMonitor.setTaskName(matcher.group());
+                progressMonitor.setTaskName(matcher.group(1));
             }
             if (error != null && (error.matcher(line)).find()) {
                 getLogger().severe(line);

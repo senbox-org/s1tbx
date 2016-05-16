@@ -51,7 +51,7 @@ public class SystemDependentVariable extends SystemVariable {
             initialize();
         }
         String retVal = resolve();
-        return retVal != null ? retVal : values.getOrDefault(currentOS, null);
+        return (retVal != null && !retVal.isEmpty()) ? retVal : values.getOrDefault(currentOS, null);
     }
     /**
      * Gets the property value for the current OS

@@ -41,8 +41,8 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
 
         assertNotNull(targetPoduct);
         // because source is rectangular the size of source is preserved
-        assertEquals(50, targetPoduct.getSceneRasterWidth());
-        assertEquals(50, targetPoduct.getSceneRasterHeight());
+        assertEquals(51, targetPoduct.getSceneRasterWidth());
+        assertEquals(51, targetPoduct.getSceneRasterHeight());
         assertNotNull(targetPoduct.getSceneGeoCoding());
 
         assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 23.5f, 13.5f, (double) 299, EPS);
@@ -112,8 +112,8 @@ public class ReprojectionOpTest extends AbstractReprojectionOpTest {
         assertNotNull(targetPoduct.getSceneGeoCoding());
         // 299, 312
         // 322, 336
-        // interpolated = 317.25 for pixel (24, 14)
-        assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 24.0f, 14.0f, 317.25, 1.0e-2);
+        // interpolated = 311.96527 considering fractional accuracy for pixel (24, 14)
+        assertPixelValue(targetPoduct.getBand(FLOAT_BAND_NAME), 24f, 14f, 311.96527, 1.0e-2);
     }
 
     @Test

@@ -36,7 +36,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
 
 /**
  * @author Marco Peters
@@ -120,7 +120,7 @@ public abstract class AbstractReprojectionOpTest {
 
     @Before
     public void setupTestMethod() throws Exception {
-        parameterMap = new HashMap<String, Object>(5);
+        parameterMap = new HashMap<>(5);
         createSourceProduct();
     }
 
@@ -137,23 +137,32 @@ public abstract class AbstractReprojectionOpTest {
 
     protected void assertPixelValidState(Band targetBand, double sourceX, double sourceY,
                                          boolean expectedValid) throws IOException {
-        final Band sourceBand = sourceProduct.getBand(targetBand.getName());
-        final PixelPos sourcePP = new PixelPos(sourceX, sourceY);
-        final GeoPos geoPos = sourceBand.getGeoCoding().getGeoPos(sourcePP, null);
-        final PixelPos targetPP = targetBand.getGeoCoding().getPixelPos(geoPos, null);
+        final PixelPos targetPP = computeTargetPP(targetBand, sourceX, sourceY);
+        assertTargetPixelValidState(targetBand, targetPP, expectedValid);
+    }
+
+    protected void assertTargetPixelValidState(Band targetBand, PixelPos targetPP, boolean expectedValid) {
         boolean pixelValid = targetBand.isPixelValid((int) Math.floor(targetPP.x), (int) Math.floor(targetPP.y));
         assertEquals(expectedValid, pixelValid);
     }
 
     protected void assertPixelValue(Band targetBand, double sourceX, double sourceY,
                                   double expectedPixelValue, double delta) throws IOException {
-        final Band sourceBand = sourceProduct.getBand(targetBand.getName());
-        final PixelPos sourcePP = new PixelPos(sourceX, sourceY);
-        final GeoPos geoPos = sourceBand.getGeoCoding().getGeoPos(sourcePP, null);
-        final PixelPos targetPP = targetBand.getGeoCoding().getPixelPos(geoPos, null);
+        final PixelPos targetPP = computeTargetPP(targetBand, sourceX, sourceY);
+        assertTargetPixelValue(targetBand, targetPP, expectedPixelValue, delta);
+    }
+
+    protected void assertTargetPixelValue(Band targetBand, PixelPos targetPP, double expectedPixelValue, double delta) throws IOException {
         final double[] pixels = new double[1];
         targetBand.readPixels((int) Math.floor(targetPP.x), (int) Math.floor(targetPP.y), 1, 1, pixels);
         assertEquals(expectedPixelValue, pixels[0], delta);
+    }
+
+    protected PixelPos computeTargetPP(Band targetBand, double sourceX, double sourceY) {
+        final Band sourceBand = sourceProduct.getBand(targetBand.getName());
+        final PixelPos sourcePP = new PixelPos(sourceX, sourceY);
+        final GeoPos geoPos = sourceBand.getGeoCoding().getGeoPos(sourcePP, null);
+        return targetBand.getGeoCoding().getPixelPos(geoPos, null);
     }
 
     private static ProductData createDataFor(Band dataBand) {
