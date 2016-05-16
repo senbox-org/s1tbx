@@ -185,8 +185,8 @@ public class CoregistrationUtils {
             DoubleMatrix chipOversampled = SarUtils.oversample(new ComplexDoubleMatrix(chip), ovsfactor, ovsfactor).getReal();
             int corrIndex = chipOversampled.argmax();
             if(corrIndex >= 0) {
-                int offL = chipOversampled.indexColumns(corrIndex); // lines are in columns - JBLAS column major
-                int offP = chipOversampled.indexRows(corrIndex); // pixels are index in rows - JBLAS is column major
+                int offP = chipOversampled.indexColumns(corrIndex);
+                int offL = chipOversampled.indexRows(corrIndex);
                 maxCorr = chipOversampled.get(corrIndex);
 
                 offsetL = -halfL + maxcorrL - AccL + (double) offL / (double) ovsfactor;
