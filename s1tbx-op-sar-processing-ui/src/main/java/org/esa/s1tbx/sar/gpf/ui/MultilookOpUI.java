@@ -16,6 +16,8 @@
 package org.esa.s1tbx.sar.gpf.ui;
 
 import org.esa.s1tbx.sar.gpf.MultilookOp;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.OperatorUIUtils;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
@@ -177,6 +179,9 @@ public class MultilookOpUI extends BaseOperatorUI {
             paramMap.put("nRgLooks", Integer.parseInt(nRgLooksStr));
         if (nAzLooksStr != null && !nAzLooksStr.isEmpty())
             paramMap.put("nAzLooks", Integer.parseInt(nAzLooksStr));
+        if(!isComplexSrcProduct()) {
+            outputIntensity = true;
+        }
         paramMap.put("outputIntensity", outputIntensity);
         paramMap.put("grSquarePixel", grSquarePixel);
     }
@@ -223,6 +228,20 @@ public class MultilookOpUI extends BaseOperatorUI {
         DialogUtils.fillPanel(contentPane, gbc);
 
         return contentPane;
+    }
+
+    private boolean isComplexSrcProduct() {
+        if (sourceProducts != null && sourceProducts.length > 0) {
+            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProducts[0]);
+            if (absRoot != null) {
+                final String sampleType = absRoot.getAttributeString(
+                        AbstractMetadata.SAMPLE_TYPE, AbstractMetadata.NO_METADATA_STRING).trim();
+                if (sampleType.equalsIgnoreCase("complex"))
+                    return true;
+            }
+            return false;
+        }
+        return false;
     }
 
     @SuppressWarnings("serial")
