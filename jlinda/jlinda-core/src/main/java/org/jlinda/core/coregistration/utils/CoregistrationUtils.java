@@ -18,6 +18,170 @@ public class CoregistrationUtils {
 
     static Logger logger = SystemUtils.LOG;
 
+    public static double normalizedCrossCorrelation(final double[] offset,
+                                                    final ComplexDoubleMatrix master,
+                                                    final ComplexDoubleMatrix mask,
+                                                    final int overSamplingFactor,
+                                                    final int AccL,
+                                                    final int AccP) {
+
+        final int L = master.rows;
+        final int P = master.columns;
+        final int twoL = 2 * L;
+        final int twoP = 2 * P;
+        final int LP = L * P;
+
+        if (master.rows != mask.rows || master.columns != mask.columns) {
+            throw new IllegalArgumentException("mask, master not same size.");
+        }
+
+        if (!(MathUtils.isPower2(L) || MathUtils.isPower2(P))) {
+            throw new IllegalArgumentException("mask, master size not power of 2.");
+        }
+
+        if (!MathUtils.isPower2(overSamplingFactor)) {
+            throw new IllegalArgumentException("coherencefft factor not power of 2");
+        }
+
+        // Zero mean magnitude images
+        DoubleMatrix magMaster = SarUtils.magnitude(master);
+        DoubleMatrix magMask = SarUtils.magnitude(mask);
+
+        // Pad zeros to slave
+        ComplexDoubleMatrix mask2 = ComplexDoubleMatrix.zeros(twoL - 1, twoP - 1);
+        Window windef = new Window();
+        Window win = new Window(0, L - 1, 0, P - 1);
+        LinearAlgebraUtils.setdata(mask2, win, new ComplexDoubleMatrix(magMask), windef);
+
+        // Rotate master 180 degrees and pad zeros
+        ComplexDoubleMatrix master2 = ComplexDoubleMatrix.zeros(twoL - 1, twoP - 1);
+        for (int l = 0; l < L; ++l) {
+            for (int p = 0; p < P; ++p) {
+                double realPart = magMaster.get(L - 1 - l, P - 1 - p);
+                master2.put(l, p, new ComplexDouble(realPart, 0.0));
+            }
+        }
+
+        SpectralUtils.fft2D_inplace(master2);
+        SpectralUtils.fft2D_inplace(mask2);
+        mask2.muli(master2);
+        SpectralUtils.invfft2D_inplace(mask2);
+
+        // Compute local sum of slave and slave^2
+        final DoubleMatrix slaveSq = magMask.mul(magMask);
+        final DoubleMatrix localSumSlave = computeLocalSum(magMask, L, P);
+        final DoubleMatrix localSumSlave2 = computeLocalSum(slaveSq, L, P);
+
+        // Compute mean and std of master
+        final double masterMean = magMaster.mean();
+        final DoubleMatrix magMasterCol = magMaster.dup();
+        magMasterCol.subi(masterMean);
+        magMasterCol.muli(magMasterCol);
+        final double masterStd = Math.sqrt(magMasterCol.mean()*LP/(LP - 1));
+
+        // Compute normalized cross-correlation
+        DoubleMatrix ncc = new DoubleMatrix(twoL - 1, twoP - 1);
+
+        double maxCorr = -999.0f;
+        int maxcorrL = 0, maxcorrP = 0;
+        for (int l = 0; l < twoL - 1; ++l) {
+            for (int p = 0; p < twoP - 1; ++p) {
+                final double numerator = (mask2.get(l,p).real() - localSumSlave.get(l, p)*masterMean) / (LP - 1);
+
+                final double a = localSumSlave2.get(l, p);
+                final double b = localSumSlave.get(l, p)*localSumSlave.get(l, p) / LP;
+                final double c = Math.sqrt((a - b)/(LP - 1));
+                final double d = c * masterStd;
+                final double denominator = Math.sqrt((localSumSlave2.get(l, p) -
+                        localSumSlave.get(l, p)*localSumSlave.get(l, p) / LP) / (LP - 1)) * masterStd;
+
+                if (denominator != 0.0) {
+                    ncc.put(l, p, numerator / denominator);
+                }
+
+                if (ncc.get(l, p) > maxCorr) {
+                    maxCorr = ncc.get(l, p);
+                    maxcorrL = l;
+                    maxcorrP = p;
+                }
+            }
+        }
+
+        double offsetL = maxcorrL + 1 - L;
+        double offsetP = maxcorrP + 1 - P;
+
+        // Estimate shift by oversampling cross-correlation
+        if (overSamplingFactor > 1) {
+            final int linelo = Math.max(maxcorrL - AccL, 0);
+            final int linehi = Math.min(maxcorrL + AccL - 1, twoL - 2);
+            final int pixello = Math.max(maxcorrP - AccP, 0);
+            final int pixelhi = Math.min(maxcorrP + AccP - 1, twoP - 2);
+            Window win3 = new Window(linelo, linehi, pixello, pixelhi);
+            final DoubleMatrix chip = new DoubleMatrix((int) win3.lines(), (int) win3.pixels());
+            LinearAlgebraUtils.setdata(chip, ncc, win3);
+
+            DoubleMatrix chipOversampled = SarUtils.oversample(
+                    new ComplexDoubleMatrix(chip), overSamplingFactor, overSamplingFactor).getReal();
+
+            int corrIndex = chipOversampled.argmax();
+            if(corrIndex >= 0) {
+                int offP = chipOversampled.indexColumns(corrIndex);
+                int offL = chipOversampled.indexRows(corrIndex);
+                maxCorr = chipOversampled.get(corrIndex);
+
+                offsetL = linelo + (double)(offL + 1) / (double) overSamplingFactor - L + 1;
+                offsetP = pixello + (double)(offP + 1) / (double) overSamplingFactor - P + 1;
+            }
+        }
+
+        offset[0] = offsetL;
+        offset[1] = offsetP;
+
+        return maxCorr;
+    }
+
+    public static DoubleMatrix computeLocalSum(final DoubleMatrix magMaster, final int L, final int P) {
+
+        DoubleMatrix master2 = DoubleMatrix.zeros(3*L - 1, 3*P - 1);
+        Window windef = new Window();
+        Window win = new Window(L, 2*L - 1, P, 2*P - 1);
+        LinearAlgebraUtils.setdata(master2, win, magMaster, windef);
+
+        double tmp1, tmp2, tmp3;
+        DoubleMatrix s = new DoubleMatrix(3*L - 1, 3*P - 1);
+        for (int l = 0; l < 3*L - 1; ++l) {
+            for (int p = 0; p < 3*P - 1; ++p) {
+                if (l < 1) {
+                    tmp1 = 0;
+                } else {
+                    tmp1 = s.get(l - 1, p);
+                }
+
+                if (p < 1) {
+                    tmp2 = 0;
+                } else {
+                    tmp2 = s.get(l, p - 1);
+                }
+
+                if (l < 1 || p < 1) {
+                    tmp3 = 0;
+                } else {
+                    tmp3 = s.get(l - 1, p - 1);
+                }
+
+                s.put(l, p, master2.get(l, p) + tmp1 + tmp2 - tmp3);
+            }
+        }
+
+        DoubleMatrix localSum = DoubleMatrix.zeros(2*L - 1, 2*P - 1);
+        for (int l = 0; l < 2*L - 1; ++l) {
+            for (int p = 0; p < 2*P - 1; ++p) {
+                localSum.put(l, p, s.get(l + L, p + P) - s.get(l, p + P) - s.get(l + L, p) + s.get(l, p));
+            }
+        }
+
+        return localSum;
+    }
 
     public static double crossCorrelateFFT(double[] offset,
                                            ComplexDoubleMatrix master, ComplexDoubleMatrix mask,
@@ -36,22 +200,22 @@ public class CoregistrationUtils {
 
         // Check input
         if (master.rows != mask.rows || master.columns != mask.columns) {
-            logger.severe("mask, master not same size.");
+//            logger.severe("mask, master not same size.");
             throw new IllegalArgumentException("mask, master not same size.");
         }
 
         if (!(MathUtils.isPower2(L) || MathUtils.isPower2(P))) {
-            logger.severe("mask, master size not power of 2.");
+//            logger.severe("mask, master size not power of 2.");
             throw new IllegalArgumentException("mask, master size not power of 2.");
         }
 
         if (!MathUtils.isPower2(ovsfactor)) {
-            logger.severe("coherencefft factor not power of 2");
+//            logger.severe("coherencefft factor not power of 2");
             throw new IllegalArgumentException("coherencefft factor not power of 2");
         }
 
         // Zero mean magnitude images
-        logger.info("Using de-meaned magnitude patches for incoherent cross-correlation");
+//        logger.info("Using de-meaned magnitude patches for incoherent cross-correlation");
         DoubleMatrix magMaster = SarUtils.magnitude(master);
         DoubleMatrix magMask = SarUtils.magnitude(mask);
         magMaster.subi(magMaster.mean());
@@ -71,7 +235,7 @@ public class CoregistrationUtils {
         LinearAlgebraUtils.setdata(mask2, win2, new ComplexDoubleMatrix(magMask), windef); // zero-mean magnitude
 
         // Crossproducts in spectral/space domain
-        // Use mask2 to store cross products temporarly
+        // Use mask2 to store cross products temporarily
         SpectralUtils.fft2D_inplace(master2);
         SpectralUtils.fft2D_inplace(mask2);
 
@@ -106,7 +270,7 @@ public class CoregistrationUtils {
         // allocate block for reuse
         ComplexDoubleMatrix BLOCK = new ComplexDoubleMatrix(0, 0);
         if (BLOCK.rows != twoL || BLOCK.columns != twoP) {
-            logger.info("crosscorrelate:changing static block to size [" + twoL + ", " + twoP + "]");
+//            logger.info("crosscorrelate:changing static block to size [" + twoL + ", " + twoP + "]");
             BLOCK.resize(twoL, twoP);
             for (l = halfL; l < halfL + L; ++l)
                 for (p = halfP; p < halfP + P; ++p)
@@ -150,7 +314,7 @@ public class CoregistrationUtils {
 
         offsetL = -halfL + maxcorrL; // update by reference
         offsetP = -halfP + maxcorrP; // update by reference
-        logger.info("Pixel level offset:     " + offsetL + ", " + offsetP + " (corr=" + maxCorr + ")");
+//        logger.info("Pixel level offset:     " + offsetL + ", " + offsetP + " (corr=" + maxCorr + ")");
 
         // ======
         // (4) oversample to find peak sub-pixel
@@ -159,19 +323,19 @@ public class CoregistrationUtils {
             // --- (4a) get little chip around max. corr, if possible ---
             // --- make sure that we can copy the data ---
             if (maxcorrL < AccL) {
-                logger.info("Careful, decrease AccL or increase winsizeL");
+//                logger.info("Careful, decrease AccL or increase winsizeL");
                 maxcorrL = AccL;
             }
             if (maxcorrP < AccP) {
-                logger.info("Careful, decrease AccP or increase winsizeP");
+//                logger.info("Careful, decrease AccP or increase winsizeP");
                 maxcorrP = AccP;
             }
             if (maxcorrL > (L - AccL)) {
-                logger.info("Careful, decrease AccL or increase winsizeL");
+//                logger.info("Careful, decrease AccL or increase winsizeL");
                 maxcorrL = L - AccL;
             }
             if (maxcorrP > (P - AccP)) {
-                logger.info("Careful, decrease AccP or increase winsizeP");
+//                logger.info("Careful, decrease AccP or increase winsizeP");
                 maxcorrP = P - AccP;
             }
 
@@ -193,9 +357,9 @@ public class CoregistrationUtils {
                 offsetP = -halfP + maxcorrP - AccP + (double) offP / (double) ovsfactor;
             }
 
-            logger.info("Oversampling factor: " + ovsfactor);
-            logger.info("Sub-pixel level offset: " + offsetL + ", " + offsetP + " (corr=" + maxCorr + ")");
-            logger.info("Sub-pixel level offset: " + offsetL + ", " + offsetP + " (corr=" + maxCorr + ")");
+//            logger.info("Oversampling factor: " + ovsfactor);
+//            logger.info("Sub-pixel level offset: " + offsetL + ", " + offsetP + " (corr=" + maxCorr + ")");
+//            logger.info("Sub-pixel level offset: " + offsetL + ", " + offsetP + " (corr=" + maxCorr + ")");
         }
 
         offset[0] = offsetL;
