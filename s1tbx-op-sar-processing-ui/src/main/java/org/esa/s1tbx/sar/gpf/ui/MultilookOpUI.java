@@ -230,7 +230,7 @@ public class MultilookOpUI extends BaseOperatorUI {
         return contentPane;
     }
 
-    private boolean isComplexSrcProduct() {
+    public boolean isComplexSrcProduct() {
         if (sourceProducts != null && sourceProducts.length > 0) {
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProducts[0]);
             if (absRoot != null) {
