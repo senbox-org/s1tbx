@@ -81,7 +81,8 @@ public class MergeOp extends Operator {
     private NodeDescriptor[] excludes;
 
     @Parameter(defaultValue = "1.0E-5f",
-               description = "Defines the maximum lat/lon error in degree between the products.")
+               description = "Defines the maximum lat/lon error in degree between the products. If set to NaN no check " +
+                             "for compatible geographic boundary is performed")
     private float geographicError;
 
     @Override
@@ -172,7 +173,7 @@ public class MergeOp extends Operator {
 
     private void validateSourceProducts() {
         for (Product sourceProduct : getSourceProducts()) {
-            if (!targetProduct.isCompatibleProduct(sourceProduct, geographicError)) {
+            if (!Float.isNaN(geographicError) && !targetProduct.isCompatibleProduct(sourceProduct, geographicError)) {
                 throw new OperatorException(String.format("Product [%s] is not compatible to master product.",
                                                           getSourceProductId(sourceProduct)));
             }
