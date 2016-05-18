@@ -689,6 +689,13 @@ public class WarpOp extends Operator {
                     }
                 }
             }
+
+            warpDataElem.setAttributeDouble("rmsStd", warpData.getRMSStd());
+            warpDataElem.setAttributeDouble("rmsMean", warpData.getRMSMean());
+            warpDataElem.setAttributeDouble("rowResidualStd", warpData.getRowResidualStd());
+            warpDataElem.setAttributeDouble("rowResidualMean", warpData.getRowResidualMean());
+            warpDataElem.setAttributeDouble("colResidualStd", warpData.getColResidualStd());
+            warpDataElem.setAttributeDouble("colResidualMean", warpData.getColResidualMean());
         }
     }
 
