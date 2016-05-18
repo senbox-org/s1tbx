@@ -57,7 +57,7 @@ import java.util.regex.Pattern;
                   description = "Allows copying raster data from any number of source products to a specified 'master'" +
                           " product.",
                   authors = "BEAM team",
-                  version = "1.0",
+                  version = "1.1",
                   copyright = "(c) 2012 by Brockmann Consult",
                   internal = false)
 public class MergeOp extends Operator {
@@ -77,7 +77,7 @@ public class MergeOp extends Operator {
     private NodeDescriptor[] includes;
 
     @Parameter(itemAlias = "exclude",
-               description = "Defines nodes to be excluded from the target product (not supported in version 1.0).")
+               description = "Defines nodes to be excluded from the target product (not supported yet).")
     private NodeDescriptor[] excludes;
 
     @Parameter(defaultValue = "1.0E-5f",
