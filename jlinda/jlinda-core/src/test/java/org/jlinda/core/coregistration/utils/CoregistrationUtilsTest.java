@@ -2,6 +2,7 @@ package org.jlinda.core.coregistration.utils;
 
 import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;
+import org.jblas.DoubleMatrix;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -10,9 +11,46 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CoregistrationUtilsTest {
 
+    @Test
+    public void firstTest_localSum() throws Exception {
+        final double[][] m = {{3, 1, 4}, {1, 5, 9}, {2, 6, 5}};
+        final DoubleMatrix M = new DoubleMatrix(m);
+        final DoubleMatrix localSumTable = CoregistrationUtils.computeLocalSum(M, 3, 3);
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                System.out.print(localSumTable.get(i, j) + ", ");
+            }
+            System.out.println();
+        }
+        // The result should be
+        // 3.0, 4.0, 8.0, 5.0, 4.0,
+        // 4.0, 10.0, 23.0, 19.0, 13.0,
+        // 6.0, 18.0, 36.0, 30.0, 18.0,
+        // 3.0, 14.0, 28.0, 25.0, 14.0,
+        // 2.0, 8.0, 13.0, 11.0, 5.0,
+
+        // test matrix square calculation
+        final DoubleMatrix M2 = M.mul(M);
+        System.out.println();
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                System.out.print(M2.get(i, j) + ", ");
+            }
+            System.out.println();
+        }
+
+        // test matrix std calculation
+        final double mean = M.mean();
+        final DoubleMatrix MCol = M.dup();
+        MCol.subi(mean);
+        MCol.muli(MCol);
+        final double mStd = Math.sqrt(MCol.mean());
+        System.out.println();
+        System.out.println("Mean = " + mean + ", Std = " + mStd);
+    }
 
     @Test
-    public void sixthTest_Resampling() throws Exception {
+    public void secondTest_XCorrelation() throws Exception {
 
         // Test data: sI is mI shifted in range direction by 0.3 pixel
         final double[][] mI = { {147, 145, 102, 82, 92, 119, 110, 101, 95, 97, 105, 96, 77, 81, 91, 68, 59, 68, 56, 57, 52, 51, 73, 53, 33, 56, 82, 81, 65, 79, 78, 57},
@@ -134,6 +172,7 @@ public class CoregistrationUtilsTest {
         final int AccL = 16;
         final int AccP = 16;
         final double coherence = CoregistrationUtils.crossCorrelateFFT(Offset, master, slave, ovsfactor, AccL, AccP);
+//        final double coherence = CoregistrationUtils.normalizedCrossCorrelation(Offset, master, slave, ovsfactor, AccL, AccP);
         System.out.println("Range Offset = " + Offset[1] + ", Azimuth Offset = " + Offset[0]);
         // Azimuth shift should be 0 and range shift should be around 0.3
     }
