@@ -391,7 +391,7 @@ public class SpectralDiversityOp extends Operator {
      * Estimate range and azimuth offset using cross-correlation.
      * @throws Exception The exception.
      */
-    private synchronized void estimateRangeOffset() throws Exception {
+    private synchronized void estimateRangeOffset() {
 
         if (isRangeOffsetAvailable) {
             return;
@@ -558,7 +558,7 @@ public class SpectralDiversityOp extends Operator {
      * Estimate azimuth offset using ESD approach.
      * @throws Exception The exception.
      */
-    private synchronized void estimateAzimuthOffset() throws Exception {
+    private synchronized void estimateAzimuthOffset() {
 
         if (isAzimuthOffsetAvailable) {
             return;
@@ -567,7 +567,7 @@ public class SpectralDiversityOp extends Operator {
         final int[] overlapSizeArray = computeBurstOverlapSize();
         final int numOverlaps = overlapSizeArray.length;
 
-        SystemUtils.LOG.info("estimateAzimuthOffset numOverlaps = " + numOverlaps);
+        //SystemUtils.LOG.info("estimateAzimuthOffset numOverlaps = " + numOverlaps);
 
         final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
         status.beginTask("Estimating azimuth offset... ", numOverlaps);
@@ -603,8 +603,8 @@ public class SpectralDiversityOp extends Operator {
                         try {
                             final Rectangle backwardRectangle = new Rectangle(x0, y0, w, h);
                             final Rectangle forwardRectangle = new Rectangle(x0, y0 - h, w, h);
-                            SystemUtils.LOG.info("forwardRectangle = " + forwardRectangle);
-                            SystemUtils.LOG.info("backwardRectangle = " + backwardRectangle);
+                            //SystemUtils.LOG.info("forwardRectangle = " + forwardRectangle);
+                            //SystemUtils.LOG.info("backwardRectangle = " + backwardRectangle);
 
                             final Band mBandI = getBand(StackUtils.MST, "i_", swathIndexStr, polarizations[0]);
                             final Band mBandQ = getBand(StackUtils.MST, "q_", swathIndexStr, polarizations[0]);
@@ -613,7 +613,7 @@ public class SpectralDiversityOp extends Operator {
 
                             final double azOffset = estimateAzOffsets(mBandI, mBandQ, sBandI, sBandQ,
                                                                       backwardRectangle, forwardRectangle, spectralSeparation);
-                            SystemUtils.LOG.info("azOffset = " + azOffset);
+                            //SystemUtils.LOG.info("azOffset = " + azOffset);
 
                             synchronized(azOffsetArray) {
                                 azOffsetArray.add(azOffset);
@@ -633,14 +633,14 @@ public class SpectralDiversityOp extends Operator {
 
             // todo The following simple average should be replaced by weighted average using coherence as weight
             double sumAzOffset = 0.0;
-            for (int i = 0; i < azOffsetArray.size(); i++) {
-                final double anAzOffset = azOffsetArray.get(i);
+            for (Double anAzOffsetArray : azOffsetArray) {
+                final double anAzOffset = anAzOffsetArray;
                 sumAzOffset += anAzOffset;
-                SystemUtils.LOG.info(
-                        "AzimuthShiftOp: overlap area = " + overlapIndexArray.get(i) + ", azimuth offset = " + anAzOffset);
+                //SystemUtils.LOG.info(
+                //        "AzimuthShiftOp: overlap area = " + overlapIndexArray.get(i) + ", azimuth offset = " + anAzOffset);
             }
             azOffset = sumAzOffset / numOverlaps;
-            SystemUtils.LOG.info("AzimuthShiftOp: whole image azimuth offset = " + azOffset);
+            //SystemUtils.LOG.info("AzimuthShiftOp: whole image azimuth offset = " + azOffset);
 
             saveAzimuthOffsetToMetadata(overlapIndexArray, azOffsetArray);
 
