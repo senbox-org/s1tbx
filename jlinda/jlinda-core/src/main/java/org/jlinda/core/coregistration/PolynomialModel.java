@@ -27,4 +27,11 @@ public interface PolynomialModel {
     double getYSlaveCoord(int index);
 
     List<Placemark> getSlaveGCPList();
+
+    double getRMSStd();
+    double getRMSMean();
+    double getRowResidualStd();
+    double getRowResidualMean();
+    double getColResidualStd();
+    double getColResidualMean();
 }
