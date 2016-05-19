@@ -16,6 +16,7 @@
 package org.esa.s1tbx.insar.rcp.toolviews;
 
 import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.InSARStatistic;
+import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.StatBaselines;
 import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.StatESDMeasure;
 import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.StatInSARInfo;
 import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.StatResiduals;
@@ -99,7 +100,7 @@ public class InSARStatisticsTopComponent extends TopComponent {
         statisticList.add(new StatInSARInfo());
         statisticList.add(new StatResiduals());
         statisticList.add(new StatESDMeasure());
-        //statisticList.add(new StatBaselines());
+        statisticList.add(new StatBaselines());
 
         final JTabbedPane tabbedPane = new JTabbedPane();
         for (InSARStatistic statistic : statisticList) {
@@ -108,7 +109,7 @@ public class InSARStatisticsTopComponent extends TopComponent {
         tabbedPane.setSelectedIndex(0);
 
         final JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.add(tabbedPane);
+        mainPanel.add(tabbedPane, BorderLayout.CENTER);
 
         return mainPanel;
     }
@@ -118,8 +119,10 @@ public class InSARStatisticsTopComponent extends TopComponent {
         @Override
         public void productAdded(ProductManager.Event event) {
             final Product product = event.getProduct();
-            for (InSARStatistic statistic : statisticList) {
-                statistic.update(product);
+            if(InSARStatistic.isValidProduct(product)) {
+                for (InSARStatistic statistic : statisticList) {
+                    statistic.update(product);
+                }
             }
         }
 
@@ -129,9 +132,5 @@ public class InSARStatisticsTopComponent extends TopComponent {
                 statistic.update(null);
             }
         }
-    }
-
-    public static boolean isValidProduct(final Product product) throws Exception {
-        return product != null && StackUtils.isCoregisteredStack(product);
     }
 }

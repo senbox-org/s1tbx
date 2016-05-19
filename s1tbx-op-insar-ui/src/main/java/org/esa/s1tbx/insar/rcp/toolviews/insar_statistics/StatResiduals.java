@@ -53,7 +53,7 @@ public class StatResiduals implements InSARStatistic {
 
     public void update(final Product product) {
         try {
-            if (!InSARStatisticsTopComponent.isValidProduct(product)) {
+            if (!InSARStatistic.isValidProduct(product)) {
                 textarea.setText(EmptyMsg);
             } else {
                 String content = "";

@@ -15,7 +15,10 @@
  */
 package org.esa.s1tbx.insar.rcp.toolviews.insar_statistics;
 
+import org.esa.s1tbx.insar.gpf.InSARStackOverview;
+import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -31,7 +34,7 @@ public class StatBaselines implements InSARStatistic {
 
     private TileCacheTableModel tableModel;
 
-    private static class CachedTileInfo {
+    private static class CachedBaseline {
         Object uid;
         String imageName;
         int level;
@@ -44,7 +47,7 @@ public class StatBaselines implements InSARStatistic {
         private final static String[] COLUM_NAMES = {"1", "2", "3", "4", "5"};
         private final static Class[] COLUM_CLASSES = {String.class, Integer.class, Long.class,
                 Integer.class, String.class};
-        List<CachedTileInfo> data = new ArrayList<>(50);
+        List<CachedBaseline> data = new ArrayList<>(50);
 
         @Override
         public int getRowCount() {
@@ -73,7 +76,7 @@ public class StatBaselines implements InSARStatistic {
 
         @Override
         public Object getValueAt(int row, int column) {
-            CachedTileInfo cachedTileInfo = data.get(row);
+            CachedBaseline cachedTileInfo = data.get(row);
             switch (column) {
                 case 0:
                     return cachedTileInfo.imageName;
@@ -90,23 +93,23 @@ public class StatBaselines implements InSARStatistic {
         }
 
         public void reset() {
-            for (CachedTileInfo tileInfo : data) {
+            for (CachedBaseline tileInfo : data) {
                 tileInfo.numTiles = 0;
                 tileInfo.size = 0;
             }
         }
 
         public void cleanUp() {
-            Iterator<CachedTileInfo> iterator = data.iterator();
+            Iterator<CachedBaseline> iterator = data.iterator();
             while (iterator.hasNext()) {
-                CachedTileInfo tileInfo = iterator.next();
+                CachedBaseline tileInfo = iterator.next();
                 if (tileInfo.numTiles == 0) {
                     iterator.remove();
                 }
             }
         }
 
-        public void addRow(CachedTileInfo tileInfo) {
+        public void addRow(CachedBaseline tileInfo) {
             data.add(tileInfo);
         }
     }
@@ -122,6 +125,22 @@ public class StatBaselines implements InSARStatistic {
 
     public void update(final Product product) {
 
+        if(InSARStatistic.isValidProduct(product)) {
+            MetadataElement slaveElem = product.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT);
+            if (slaveElem == null) {
+                slaveElem = product.getMetadataRoot().getElement("Slave Metadata");
+            }
+            final MetadataElement[] slaveRoot = slaveElem.getElements();
+
+            try {
+                final InSARStackOverview.IfgStack[] stackOverview = InSARStackOverview.calculateInSAROverview(
+                        new MetadataElement[]{AbstractMetadata.getAbstractedMetadata(product), slaveRoot[0]});
+
+                float hoaCalc = stackOverview[0].getMasterSlave()[1].getHeightAmb();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
 

@@ -86,7 +86,7 @@ public class StatESDMeasure implements InSARStatistic {
 
     public void update(final Product product) {
         try {
-            if (InSARStatisticsTopComponent.isValidProduct(product) && readESDMeasure(product)) {
+            if (InSARStatistic.isValidProduct(product) && readESDMeasure(product)) {
                 setVisible(true);
 
                 dataset.removeAllSeries();
