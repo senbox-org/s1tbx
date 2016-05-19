@@ -35,6 +35,7 @@ import java.util.List;
 public class StatBaselines implements InSARStatistic {
 
     private TileCacheTableModel tableModel;
+    private JTable table;
     private final static DecimalFormat df = new DecimalFormat("0.00");
 
     public String getName() {
@@ -43,7 +44,8 @@ public class StatBaselines implements InSARStatistic {
 
     public Component createPanel() {
         tableModel = new TileCacheTableModel();
-        return new JScrollPane(new JTable(tableModel));
+        table = new JTable(tableModel);
+        return new JScrollPane(table);
     }
 
     public void update(final Product product) {
@@ -53,14 +55,19 @@ public class StatBaselines implements InSARStatistic {
                 final InSARStackOverview.IfgStack[] stackOverview = InSARStackOverview.calculateInSAROverview(product);
                 final InSARStackOverview.IfgPair[] slaves = stackOverview[0].getMasterSlave();
 
+                tableModel.clear();
                 for(InSARStackOverview.IfgPair slave : slaves) {
                     CachedBaseline baseline = new CachedBaseline(slave);
                     tableModel.addRow(baseline);
                 }
+                table.repaint();
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        } else {
+            tableModel.clear();
+            table.repaint();
         }
     }
 
@@ -115,6 +122,10 @@ public class StatBaselines implements InSARStatistic {
                     return baseline.dopplerDifference;
             }
             return null;
+        }
+
+        public void clear() {
+            data.clear();
         }
 
         public void addRow(CachedBaseline baseline) {

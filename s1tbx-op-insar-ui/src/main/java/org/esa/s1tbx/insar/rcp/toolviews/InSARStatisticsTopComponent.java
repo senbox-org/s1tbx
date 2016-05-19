@@ -17,13 +17,13 @@ package org.esa.s1tbx.insar.rcp.toolviews;
 
 import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.InSARStatistic;
 import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.StatBaselines;
+import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.StatESDHistogram;
 import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.StatESDMeasure;
 import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.StatInSARInfo;
 import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.StatResiduals;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductManager;
 import org.esa.snap.core.datamodel.ProductNode;
-import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.util.SelectionSupport;
 import org.netbeans.api.annotations.common.NullAllowed;
@@ -90,8 +90,11 @@ public class InSARStatisticsTopComponent extends TopComponent {
             }
         });
 
-        for (InSARStatistic statistic : statisticList) {
-            statistic.update(snapApp.getSelectedProduct(AUTO));
+        Product product = snapApp.getSelectedProduct(AUTO);
+        if(InSARStatistic.isValidProduct(product)) {
+            for (InSARStatistic statistic : statisticList) {
+                statistic.update(product);
+            }
         }
     }
 
@@ -100,6 +103,7 @@ public class InSARStatisticsTopComponent extends TopComponent {
         statisticList.add(new StatInSARInfo());
         statisticList.add(new StatResiduals());
         statisticList.add(new StatESDMeasure());
+        statisticList.add(new StatESDHistogram());
         statisticList.add(new StatBaselines());
 
         final JTabbedPane tabbedPane = new JTabbedPane();
@@ -119,10 +123,8 @@ public class InSARStatisticsTopComponent extends TopComponent {
         @Override
         public void productAdded(ProductManager.Event event) {
             final Product product = event.getProduct();
-            if(InSARStatistic.isValidProduct(product)) {
-                for (InSARStatistic statistic : statisticList) {
-                    statistic.update(product);
-                }
+            for (InSARStatistic statistic : statisticList) {
+                statistic.update(product);
             }
         }
 
