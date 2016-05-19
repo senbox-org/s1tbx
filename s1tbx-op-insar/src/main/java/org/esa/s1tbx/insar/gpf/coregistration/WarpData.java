@@ -62,6 +62,30 @@ public class WarpData implements PolynomialModel {
         }
     }
 
+    public double getRMSStd() {
+        return rmsStd;
+    }
+
+    public double getRMSMean() {
+        return rmsMean;
+    }
+
+    public double getRowResidualStd() {
+        return rowResidualStd;
+    }
+
+    public double getRowResidualMean() {
+        return rowResidualMean;
+    }
+
+    public double getColResidualStd() {
+        return colResidualStd;
+    }
+
+    public double getColResidualMean() {
+        return colResidualMean;
+    }
+
     public boolean isValid() {
         return !notEnoughGCPs;
     }
