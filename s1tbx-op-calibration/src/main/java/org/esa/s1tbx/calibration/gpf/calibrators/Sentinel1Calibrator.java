@@ -46,7 +46,7 @@ import java.util.List;
  * Calibration for Sentinel1 data products.
  */
 
-public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
+public final class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
     private CalibrationInfo[] calibration = null;
     private boolean isMultiSwath = false;
@@ -560,12 +560,14 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
                 }
                 final double azTime = calInfo.firstLineTime + y * calInfo.lineTimeInterval;
                 final double muY = (azTime - vec0.timeMJD) / (vec1.timeMJD - vec0.timeMJD);
+                final int[] vec0Pixels = vec0.pixels;
+                final Sentinel1Utils.CalibrationVector calVec = calInfo.calibrationVectorList[calVecIdx];
 
                 for (int x = x0; x < maxX; ++x) {
                     srcIdx = srcIndex.getIndex(x);
 
-                    final int pixelIdx = calInfo.getPixelIndex(x, calVecIdx);
-                    muX = (x - vec0.pixels[pixelIdx]) / (double)(vec0.pixels[pixelIdx + 1] - vec0.pixels[pixelIdx]);
+                    final int pixelIdx = calVec.getPixelIndex(x);
+                    muX = (x - vec0Pixels[pixelIdx]) / (double)(vec0Pixels[pixelIdx + 1] - vec0Pixels[pixelIdx]);
 
                     lutVal = (1 - muY) * ((1 - muX) * vec0LUT[pixelIdx] + muX * vec0LUT[pixelIdx + 1]) +
                             muY * ((1 - muX) * vec1LUT[pixelIdx] + muX * vec1LUT[pixelIdx + 1]);
@@ -660,7 +662,8 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         final CALTYPE calType = getCalibrationType(bandName);
         final float[] vec0LUT = getVector(calType, vec0);
         final float[] vec1LUT = getVector(calType, vec1);
-        final int pixelIdx = calInfo.getPixelIndex((int)rangeIndex, calVecIdx);
+        final Sentinel1Utils.CalibrationVector calVec = calInfo.calibrationVectorList[calVecIdx];
+        final int pixelIdx = calVec.getPixelIndex((int)rangeIndex);
         final double azTime = calInfo.firstLineTime + azimuthIndex * calInfo.lineTimeInterval;
         final double muY = (azTime - vec0.timeMJD) / (vec1.timeMJD - vec0.timeMJD);
         final double muX =
@@ -736,20 +739,6 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
         public Sentinel1Utils.CalibrationVector getCalibrationVector(final int calVecIdx) {
             return calibrationVectorList[calVecIdx];
-        }
-
-        public final int getPixelIndex(final int x, final int calVecIdx) {
-
-            final Sentinel1Utils.CalibrationVector calVec = calibrationVectorList[calVecIdx];
-
-            int i=0;
-            for(int pixel : calVec.pixels) {
-                if(x < pixel) {
-                    return i-1;
-                }
-                ++i;
-            }
-            return calVec.pixels.length - 2;
         }
     }
 }

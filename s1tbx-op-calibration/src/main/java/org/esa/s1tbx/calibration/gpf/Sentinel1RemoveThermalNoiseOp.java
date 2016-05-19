@@ -468,7 +468,8 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                     final Sentinel1Utils.CalibrationVector vec1 = calInfo.getCalibrationVector(calVecIdx + 1);
                     final float[] vec0LUT = Sentinel1Calibrator.getVector(calType, vec0);
                     final float[] vec1LUT = Sentinel1Calibrator.getVector(calType, vec1);
-                    final int pixelIdx0 = calInfo.getPixelIndex(x0, calVecIdx);
+                    final Sentinel1Utils.CalibrationVector calVec = calInfo.calibrationVectorList[calVecIdx];
+                    final int pixelIdx0 = calVec.getPixelIndex(x0);
 
                     computeTileScaledNoiseLUT(y, x0, w, noiseInfo, calInfo, vec0.timeMJD, vec1.timeMJD,
                             vec0LUT, vec1LUT, vec0.pixels, pixelIdx0, lut);
