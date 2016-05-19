@@ -590,7 +590,7 @@ public class SpectralDiversityOp extends Operator {
             final double spectralSeparation = sumSpectralSeparation / (subSwath[subSwathIndex - 1].numOfBursts *
                     subSwath[subSwathIndex - 1].samplesPerBurst);
 
-            final List<AzimuthShiftData> azShiftArray = new ArrayList<>(numOverlaps);
+            final List<AzimuthShiftData> azShiftArray = new ArrayList<>(numShifts);
 
             for (int i = 0; i < numOverlaps; i++) {
                 final int y0 = subSwath[subSwathIndex - 1].linesPerBurst * (i + 1);
@@ -655,7 +655,7 @@ public class SpectralDiversityOp extends Operator {
             azOffset = totalOffset / numShifts;
             SystemUtils.LOG.info("AzimuthShiftOp: whole image azimuth offset = " + azOffset);
 
-            saveAzimuthShiftPerOverlapArea(averagedAzShiftArray);
+            saveAzimuthShiftPerOverlap(averagedAzShiftArray);
 
             saveAzimuthShiftPerBlock(azShiftArray);
 
@@ -666,7 +666,7 @@ public class SpectralDiversityOp extends Operator {
         isAzimuthOffsetAvailable = true;
     }
 
-    private void saveAzimuthShiftPerOverlapArea(final double[] averagedAzShiftArray) {
+    private void saveAzimuthShiftPerOverlap(final double[] averagedAzShiftArray) {
 
         final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
         if (absTgt == null) {
