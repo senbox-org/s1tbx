@@ -22,6 +22,10 @@ import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.RuntimeServices;
+import org.apache.velocity.runtime.RuntimeSingleton;
+import org.apache.velocity.runtime.parser.ParseException;
+import org.apache.velocity.runtime.parser.node.SimpleNode;
 import org.esa.snap.core.dataio.*;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
@@ -89,6 +93,8 @@ public class ToolAdapterOp extends Operator {
 
     private VelocityContext lastPostContext;
 
+    private String macroTemplateContents;
+
     /**
      * Constructor.
      */
@@ -103,6 +109,11 @@ public class ToolAdapterOp extends Operator {
             logger.severe(e.getMessage());
         }
         Velocity.init();
+        try {
+            this.macroTemplateContents = new String(Files.readAllBytes(Paths.get(getClass().getResource("macros.vm").toURI())));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         //this.progressMonitor = ProgressMonitor.NULL;
         //this.descriptor = ((ToolAdapterOperatorDescriptor) accessibleContext.getOperatorSpi().getOperatorDescriptor());
         intermediateProductFiles = new ArrayList<>();
@@ -520,31 +531,31 @@ public class ToolAdapterOp extends Operator {
     private void putParametersToVeloContext(VelocityContext context, boolean transformTemplates){
         Property[] params = accessibleContext.getParameterSet().getProperties();
         for (Property param : params) {
-            boolean foundTemplateParam = false;
-            if(transformTemplates) {
-                for (TemplateParameterDescriptor paramDescriptor : descriptor.getToolParameterDescriptors()) {
-                    if (paramDescriptor.getName().equals(param.getName()) && paramDescriptor.isTemplateParameter()) {
-                        foundTemplateParam = true;
-                        try {
-                            String transformedFile = transformTemplateParameter(paramDescriptor);
-                            context.put(param.getName(), transformedFile);
-                            break;
-                        } catch (IOException ex) {
-                            throw new OperatorException("Error on transforming template for parameter '" + paramDescriptor.getName());
-                        }
-                    }
-                }
+            Optional<TemplateParameterDescriptor> descriptor = this.descriptor.getToolParameterDescriptors().stream().filter(d -> d.getName().equals(param.getName())).findFirst();
+            if (!descriptor.isPresent()) {
+                throw new OperatorException("Unexpected parameter: " + param.getName());
             }
-            if(!foundTemplateParam) {
+            TemplateParameterDescriptor paramDescriptor = descriptor.get();
+            if (transformTemplates && paramDescriptor.isTemplateParameter()) {
+                try {
+                    String transformedFile = transformTemplateParameter(paramDescriptor);
+                    context.put(param.getName(), transformedFile);
+                    break;
+                } catch (IOException ex) {
+                    throw new OperatorException("Error on transforming template for parameter '" + paramDescriptor.getName());
+                }
+            } else {
                 String paramName = param.getName();
                 Object paramValue = param.getValue();
                 if (ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE.equals(paramName)) {
-                    paramValue = getNextFileName(descriptor.resolveVariables((File) paramValue));
+                    paramValue = getNextFileName(this.descriptor.resolveVariables((File) paramValue));
                 }
                 if (param.getType().isArray()) {
                     paramValue = StringUtils.arrayToString(paramValue, "\n");
                 }
-                context.put(paramName, paramValue);
+                if (paramDescriptor.isNotEmpty() || paramDescriptor.isNotNull() || !paramValue.toString().isEmpty()) {
+                    context.put(paramName, paramValue);
+                }
             }
         }
 
@@ -604,19 +615,38 @@ public class ToolAdapterOp extends Operator {
             veloEngine.addProperty(variable.getKey(), variable.getValue());
         }
         veloEngine.init();
-        Template veloTemplate = veloEngine.getTemplate(templateFile.getName());
-        VelocityContext veloContext = new VelocityContext();
-        putParametersToVeloContext(veloContext, true);
-
-        for (SystemVariable variable : variables) {
-            veloContext.put(variable.getKey(), variable.getValue());
+        try {
+            Template veloTemplate = createTemplate(veloEngine, templateFile); //veloEngine.getTemplate(templateFile.getName());
+            VelocityContext veloContext = new VelocityContext();
+            putParametersToVeloContext(veloContext, true);
+            for (SystemVariable variable : variables) {
+                veloContext.put(variable.getKey(), variable.getValue());
+            }
+            StringWriter writer = new StringWriter();
+            veloTemplate.merge(veloContext, writer);
+            String result = writer.toString();
+            return Arrays.asList(result.split(VELOCITY_LINE_SEPARATOR));
+        } catch (Exception e) {
+            throw new OperatorException(e);
         }
+    }
 
-        StringWriter writer = new StringWriter();
-        veloTemplate.merge(veloContext, writer);
-        String result = writer.toString();
-
-        return Arrays.asList(result.split(VELOCITY_LINE_SEPARATOR));
+    private Template createTemplate(VelocityEngine engine, File templateFile) throws ParseException, IOException {
+        Template template = null;
+        if (this.macroTemplateContents != null && !this.macroTemplateContents.isEmpty()) {
+            RuntimeServices runtimeServices = RuntimeSingleton.getRuntimeServices();
+            String veloTemplate = this.macroTemplateContents + "\n" +
+                    new String(Files.readAllBytes(templateFile.toPath()));
+            StringReader reader = new StringReader(veloTemplate);
+            SimpleNode node = runtimeServices.parse(reader, templateFile.getName());
+            template = new Template();
+            template.setRuntimeServices(runtimeServices);
+            template.setData(node);
+            template.initDocument();
+        } else {
+            template = engine.getTemplate(templateFile.getName());
+        }
+        return template;
     }
 
     private File selectCandidateRasterFile(File folder) {
