@@ -1,0 +1,45 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="ProductSet-Reader">
+    <operator>ProductSet-Reader</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <fileList/>
+    </parameters>
+  </node>
+  <node id="CreateStack">
+    <operator>CreateStack</operator>
+    <sources>
+      <sourceProduct refid="ProductSet-Reader"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <masterBands/>
+      <sourceBands/>
+      <resamplingType>BILINEAR_INTERPOLATION</resamplingType>
+      <extent>Master</extent>
+      <initialOffsetMethod>Product Geolocation</initialOffsetMethod>
+    </parameters>
+  </node>
+  <node id="Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="CreateStack"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <file>target.dim</file>
+      <formatName>BEAM-DIMAP</formatName>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="ProductSet-Reader">
+      <displayPosition x="21.0" y="102.0"/>
+    </node>
+    <node id="CreateStack">
+      <displayPosition x="154.0" y="101.0"/>
+    </node>
+    <node id="Write">
+      <displayPosition x="448.0" y="101.0"/>
+    </node>
+  </applicationData>
+</graph>
