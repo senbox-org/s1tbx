@@ -37,6 +37,7 @@ public final class Unit {
     public static final String INTENSITY_DB = INTENSITY + '_' + DB;
 
     public static final String METERS = "meters";
+    public static final String CENTIMETERS = "centimeters";
     public static final String METERS_PER_DAY = "m/day";
     public static final String CLASS = "class";
 
