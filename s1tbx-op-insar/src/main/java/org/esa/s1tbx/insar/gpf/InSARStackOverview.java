@@ -26,6 +26,8 @@ import org.jlinda.core.Point;
 import org.jlinda.core.SLCImage;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -73,7 +75,7 @@ public class InSARStackOverview {
 
     // methods
     private static float modelCoherence(float bPerp, float bTemp, float fDc, float bPerpCritical,
-                                 float bTempCritical, float fDcCritical) {
+                                        float bTempCritical, float fDcCritical) {
         return coherenceFnc(bPerp, bPerpCritical) * coherenceFnc(bTemp, bTempCritical) * coherenceFnc(fDc, fDcCritical);
     }
 
@@ -160,15 +162,16 @@ public class InSARStackOverview {
 
     /**
      * Finds the optimal master product from a list of products
+     *
      * @param srcProducts input products
      * @return the optimal master product
      */
     public static Product findOptimalMasterProduct(final Product[] srcProducts) throws Exception {
         final int size = srcProducts.length;
-        final List<SLCImage> imgList = new ArrayList<SLCImage>(size);
-        final List<Orbit> orbList = new ArrayList<Orbit>(size);
+        final List<SLCImage> imgList = new ArrayList<>(size);
+        final List<Orbit> orbList = new ArrayList<>(size);
 
-        for(Product product : srcProducts) {
+        for (Product product : srcProducts) {
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
             imgList.add(new SLCImage(absRoot, product));
             orbList.add(new Orbit(absRoot, 3));
@@ -180,10 +183,24 @@ public class InSARStackOverview {
             int index = dataStack.estimateOptimalMaster(ProgressMonitor.NULL);
             return srcProducts[index];
 
-        } catch(Throwable t) {
+        } catch (Throwable t) {
             Debug.trace(t);
         }
         return srcProducts[0];
+    }
+
+    public static InSARStackOverview.IfgStack[] calculateInSAROverview(final Product coregProduct) throws Exception {
+
+        MetadataElement slaveElem = coregProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT);
+        if (slaveElem == null) {
+            slaveElem = coregProduct.getMetadataRoot().getElement("Slave Metadata");
+        }
+
+        final List<MetadataElement> absMetaList = new ArrayList<>();
+        absMetaList.add(AbstractMetadata.getAbstractedMetadata(coregProduct));
+        absMetaList.addAll(Arrays.asList(slaveElem.getElements()));
+
+        return InSARStackOverview.calculateInSAROverview(absMetaList.toArray(new MetadataElement[absMetaList.size()]));
     }
 
     public static InSARStackOverview.IfgStack[] calculateInSAROverview(final MetadataElement[] absRoots) throws Exception {
@@ -215,20 +232,13 @@ public class InSARStackOverview {
         return dataStack.getCoherenceScores(ProgressMonitor.NULL);
     }
 
-
     // inner classes
     private static class CplxContainer {
 
-        public long orbitNumber;
-        public double dateMjd;
-        public SLCImage metaData;
-        public Orbit orbit;
-
-        public CplxContainer(double dateMjd, SLCImage metaData, Orbit orbit) {
-            this.dateMjd = dateMjd;
-            this.metaData = metaData;
-            this.orbit = orbit;
-        }
+        public final long orbitNumber;
+        public final double dateMjd;
+        public final SLCImage metaData;
+        public final Orbit orbit;
 
         public CplxContainer(long orbitNumber, double dateMjd, SLCImage metaData, Orbit orbit) {
             this.orbitNumber = orbitNumber;
@@ -236,19 +246,13 @@ public class InSARStackOverview {
             this.metaData = metaData;
             this.orbit = orbit;
         }
-
-        public CplxContainer(long orbitNumber, SLCImage metaData) {
-            this.orbitNumber = orbitNumber;
-            this.metaData = metaData;
-        }
     }
-
 
     public static class IfgStack {
 
-        CplxContainer master;
-        IfgPair[] master_slave;
-        float meanCoherence;
+        private final CplxContainer master;
+        private final IfgPair[] master_slave;
+        private float meanCoherence;
 
         public IfgStack(CplxContainer master, IfgPair... master_slave) {
             this.master = master;
@@ -269,18 +273,16 @@ public class InSARStackOverview {
 
     public static class IfgPair {
 
-        int refLine;
-        int refPixel;
-        double refHeight;
+        private final int refLine, refPixel;
+        private final double refHeight;
 
-        CplxContainer master;
-        CplxContainer slave;
+        private final CplxContainer master, slave;
 
-        float bPerp;   // perpendicular baseline
-        float bTemp;   // temporal baseline
-        float deltaDoppler;     // doppler centroid frequency difference
-        float coherence;     // modeled coherence
-        float heightAmb;     // modeled coherence
+        private float bPerp;            // perpendicular baseline
+        private final float bTemp;            // temporal baseline
+        private final float deltaDoppler;     // doppler centroid frequency difference
+        private final float coherence;        // modeled coherence
+        private float heightAmb;        // modeled coherence
 
         public IfgPair(CplxContainer master, CplxContainer slave) {
 
@@ -297,7 +299,6 @@ public class InSARStackOverview {
                 baseline.model(master.metaData, slave.metaData, master.orbit, slave.orbit);
                 bPerp = (float) baseline.getBperp(refLine, refPixel);
                 heightAmb = (float) baseline.getHamb(refLine, refPixel, refHeight);
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -306,7 +307,6 @@ public class InSARStackOverview {
             deltaDoppler = (float) (master.metaData.doppler.getF_DC_a0() - slave.metaData.doppler.getF_DC_a0());
 
             coherence = modelCoherence(bPerp, bTemp, deltaDoppler);
-
         }
 
         public float getPerpendicularBaseline() {
@@ -330,12 +330,11 @@ public class InSARStackOverview {
         }
 
         public SLCImage getMasterMetadata() {
-            return master.metaData;   
+            return master.metaData;
         }
 
         public SLCImage getSlaveMetadata() {
-            return slave.metaData;   
+            return slave.metaData;
         }
     }
-
 }
