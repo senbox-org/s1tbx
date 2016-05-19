@@ -16,7 +16,6 @@
 package org.esa.s1tbx.insar.rcp.toolviews.insar_statistics;
 
 import org.esa.s1tbx.insar.rcp.toolviews.InSARStatisticsTopComponent;
-import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
@@ -28,8 +27,6 @@ import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Formatter;
-import java.util.Locale;
 
 /**
  * Residual Stack Information
@@ -37,7 +34,7 @@ import java.util.Locale;
 public class StatResiduals implements InSARStatistic {
 
     private JTextArea textarea;
-    private static final String EmptyMsg = "This tool window requires a coregistered Stripmap stack product to be selected";
+    public static final String EmptyMsg = "This tool window requires a coregistered Stripmap stack product to be selected";
 
     public StatResiduals() {
     }
@@ -56,15 +53,13 @@ public class StatResiduals implements InSARStatistic {
             if (!InSARStatistic.isValidProduct(product)) {
                 textarea.setText(EmptyMsg);
             } else {
-                String content = "";
-                final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-
-                final File residualFile = getResidualFile(absRoot);
-                if(residualFile.exists()) {
-                    content = readFile(residualFile);
-                } else {
-                    content = readFromMetadata(product, absRoot);
+                final File residualFile = getResidualFile(product);
+                if(!residualFile.exists()) {
+                    textarea.setText(EmptyMsg);
+                    return;
                 }
+
+                final String content = readFile(residualFile);
 
                 textarea.setText(content);
             }
@@ -73,8 +68,10 @@ public class StatResiduals implements InSARStatistic {
         }
     }
 
-    private static File getResidualFile(final MetadataElement absRoot) {
+    private static File getResidualFile(final Product product) {
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final String mstName = absRoot.getAttributeString(AbstractMetadata.PRODUCT);
+
         return new File(ResourceUtils.getReportFolder(), mstName + "_residual.txt");
     }
 
@@ -89,43 +86,6 @@ public class StatResiduals implements InSARStatistic {
             e.printStackTrace();
         }
 
-        return str.toString();
-    }
-
-    private String readFromMetadata(final Product product, final MetadataElement absRoot) {
-        final StringBuilder str = new StringBuilder();
-        final Formatter formatter = new Formatter(str, Locale.US);
-
-        final Band[] bands = product.getBands();
-        for(Band band : bands) {
-            final MetadataElement bandElem = AbstractMetadata.getBandAbsMetadata(absRoot, band.getName(), false);
-            if(bandElem != null) {
-                MetadataElement warpDataElem = bandElem.getElement("WarpData");
-                if(warpDataElem != null) {
-                    final MetadataElement[] GCPElems = warpDataElem.getElements();
-                    formatter.format("%15s %15s %15s %15s %15s %20s\n", "GCP", "mst_x", "mst_y", "slv_x", "slv_y", "rms");
-
-                    for(MetadataElement GCPElem : GCPElems) {
-                        formatter.format("%15s", GCPElem.getName());
-                        for(String attrib : GCPElem.getAttributeNames()) {
-                            double value = GCPElem.getAttributeDouble(attrib);
-                            formatter.format("%15.4f", value);
-                        }
-                        str.append('\n');
-                    }
-
-                    str.append('\n');
-                    formatter.format("%-20s %-25.4f\n", "rmsStd", warpDataElem.getAttributeDouble("rmsStd", 0));
-                    formatter.format("%-20s %-25.4f\n", "rmsMean", warpDataElem.getAttributeDouble("rmsMean", 0));
-                    formatter.format("%-20s %-25.4f\n", "rowResidualStd", warpDataElem.getAttributeDouble("rowResidualStd", 0));
-                    formatter.format("%-20s %-25.4f\n", "rowResidualMean", warpDataElem.getAttributeDouble("rowResidualMean", 0));
-                    formatter.format("%-20s %-25.4f\n", "colResidualStd", warpDataElem.getAttributeDouble("colResidualStd", 0));
-                    formatter.format("%-20s %-25.4f\n", "colResidualMean", warpDataElem.getAttributeDouble("colResidualMean", 0));
-
-                    break;
-                }
-            }
-        }
         return str.toString();
     }
 }

@@ -782,21 +782,21 @@ public class ResampleOp extends Operator {
                 }
 
                 p.println();
-                p.print("Row residual mean = " + cpm.getRowResidualMean());
+                p.print("Row residual mean = " + cpm.yErrorMean);
                 p.println();
-                p.print("Row residual std = " + cpm.getRowResidualStd());
-                p.println();
-
-                p.println();
-                p.print("Col residual mean = " + cpm.getColResidualMean());
-                p.println();
-                p.print("Col residual std = " + cpm.getColResidualStd());
+                p.print("Row residual std = " + cpm.yErrorStd);
                 p.println();
 
                 p.println();
-                p.print("RMS mean = " + cpm.getRMSMean());
+                p.print("Col residual mean = " + cpm.xErrorMean);
                 p.println();
-                p.print("RMS std = " + cpm.getRMSStd());
+                p.print("Col residual std = " + cpm.xErrorStd);
+                p.println();
+
+                p.println();
+                p.print("RMS mean = " + cpm.rmsMean);
+                p.println();
+                p.print("RMS std = " + cpm.rmsStd);
                 p.println();
 
             } else {

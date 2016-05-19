@@ -78,12 +78,12 @@ public class CPM implements PolynomialModel {
 
     // statistics -- for legacy
     public TDoubleArrayList rms = new TDoubleArrayList();
-    private double rmsStd = 0;
-    private double rmsMean = 0;
-    private double rowResidualStd = 0;
-    private double rowResidualMean = 0;
-    private double colResidualStd = 0;
-    private double colResidualMean = 0;
+    public double rmsMean = 0;
+    public double rmsStd = 0;
+    public double yErrorMean = 0;
+    public double yErrorStd = 0;
+    public double xErrorMean = 0;
+    public double xErrorStd = 0;
 
     // JAI polynomial -- for legacy
 
@@ -165,30 +165,6 @@ public class CPM implements PolynomialModel {
             }
 
         }
-    }
-
-    public double getRMSStd() {
-        return rmsStd;
-    }
-
-    public double getRMSMean() {
-        return rmsMean;
-    }
-
-    public double getRowResidualStd() {
-        return rowResidualStd;
-    }
-
-    public double getRowResidualMean() {
-        return rowResidualMean;
-    }
-
-    public double getColResidualStd() {
-        return colResidualStd;
-    }
-
-    public double getColResidualMean() {
-        return colResidualMean;
     }
 
     public boolean isValid() {
@@ -278,6 +254,8 @@ public class CPM implements PolynomialModel {
 
         for (int i = 0; i < numObservations; i++) {
 
+            Point masterXYZ;
+
             double height = heightMaster.getQuick(i);
 
             Point delta;
@@ -326,8 +304,13 @@ public class CPM implements PolynomialModel {
 
             ySlave.replace(i, ySlave.getQuick(i) - deltaY);
             xSlave.replace(i, xSlave.getQuick(i) - deltaX);
+
+//            System.out.println("deltaX and height = " + delta.toString() + ", " + height);
+
         }
+
     }
+
 
     public void computeCPM() {
 
@@ -714,8 +697,8 @@ public class CPM implements PolynomialModel {
             rms.add(Math.sqrt(dY * dY + dX * dX));
 
             rmsMean += rms.get(i);
-            rowResidualMean += yError[i];
-            colResidualMean += xError[i];
+            yErrorMean += yError[i];
+            xErrorMean += xError[i];
 
             rms2Mean += rms.getQuick(i) * rms.getQuick(i);
             yError2Mean += yError[i] * yError[i];
@@ -726,16 +709,16 @@ public class CPM implements PolynomialModel {
         rmsMean /= numObservations;
         rms2Mean /= numObservations;
 
-        rowResidualMean /= numObservations;
+        yErrorMean /= numObservations;
         yError2Mean /= numObservations;
 
-        colResidualMean /= numObservations;
+        xErrorMean /= numObservations;
         xError2Mean /= numObservations;
 
         // std
         rmsStd = Math.sqrt(rms2Mean - rmsMean * rmsMean);
-        rowResidualStd = Math.sqrt(yError2Mean - rowResidualMean * rowResidualMean);
-        colResidualStd = Math.sqrt(xError2Mean - colResidualMean * colResidualMean);
+        yErrorStd = Math.sqrt(yError2Mean - yErrorMean * yErrorMean);
+        xErrorStd = Math.sqrt(xError2Mean - xErrorMean * xErrorMean);
     }
 
 }
