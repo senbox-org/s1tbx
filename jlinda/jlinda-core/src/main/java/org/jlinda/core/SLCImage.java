@@ -25,6 +25,8 @@ public final class SLCImage {
     private String fileName;
     private int formatFlag; // not used
 
+    private MetadataElement abstractedMetadata;
+
     // sensor
     private String mission;
     private String sensor;
@@ -153,13 +155,14 @@ public final class SLCImage {
 
 
         this.slaveMasterOffsets = new SlaveWindow();
-
+        this.abstractedMetadata = null;
     }
 
     public SLCImage(final MetadataElement element, final Product product) throws IOException {
 
         this();
 
+        this.abstractedMetadata = element;
         this.sensor = element.getAttributeString(AbstractMetadata.MISSION);
         this.mission = sensor; // redundant parameter, for legacy use
 
@@ -241,6 +244,10 @@ public final class SLCImage {
             this.nearRangeOnLeft = isNearRangeOnLeft(product);
             this.isBiStaticStack = isBiStaticStack(product);
         }
+    }
+
+    public MetadataElement getAbstractedMetadata() {
+        return abstractedMetadata;
     }
 
     private boolean isNearRangeOnLeft(final Product product) {
