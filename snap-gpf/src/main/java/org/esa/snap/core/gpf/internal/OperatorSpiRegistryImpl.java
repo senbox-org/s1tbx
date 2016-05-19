@@ -24,11 +24,11 @@ import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.OperatorSpiRegistry;
 import org.esa.snap.core.util.SystemUtils;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 /**
@@ -49,7 +49,7 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
      */
     public OperatorSpiRegistryImpl() {
         serviceRegistry = ServiceRegistryManager.getInstance().getServiceRegistry(OperatorSpi.class);
-        classNames = new HashMap<>(20);
+        classNames = new ConcurrentHashMap<>(20);
         serviceRegistry.addListener(new ServiceRegistryListener<OperatorSpi>() {
             @Override
             public void serviceAdded(ServiceRegistry<OperatorSpi> registry, OperatorSpi service) {
@@ -65,7 +65,7 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
         for (OperatorSpi operatorSpi : services) {
             registerAlias(operatorSpi);
         }
-        extraOperatorSpis = new HashMap<>();
+        extraOperatorSpis = new ConcurrentHashMap<>();
     }
 
     /**
