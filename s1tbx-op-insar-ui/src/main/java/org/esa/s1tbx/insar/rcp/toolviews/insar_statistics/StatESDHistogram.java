@@ -15,7 +15,6 @@
  */
 package org.esa.s1tbx.insar.rcp.toolviews.insar_statistics;
 
-import org.esa.s1tbx.insar.rcp.toolviews.InSARStatisticsTopComponent;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
@@ -35,7 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class StatESDMeasure implements InSARStatistic {
+public class StatESDHistogram implements InSARStatistic {
 
     private JPanel panel;
     private ChartPanel chartPanel;
@@ -51,7 +50,7 @@ public class StatESDMeasure implements InSARStatistic {
     public static final String EmptyMsg = "This tool window requires a coregistered TOPSAR stack product to be selected with ESD applied to it.";
 
     public String getName() {
-        return "ESD Measure";
+        return "ESD Histogram";
     }
 
     public Component createPanel() {
@@ -72,7 +71,7 @@ public class StatESDMeasure implements InSARStatistic {
         );
 
         chartPanel = new ChartPanel(chart);
-        chartPanel.setPreferredSize(new java.awt.Dimension(500, 470));
+        chartPanel.setPreferredSize(new Dimension(500, 470));
         chartPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         panel = new JPanel(new BorderLayout());
@@ -127,7 +126,7 @@ public class StatESDMeasure implements InSARStatistic {
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         if(absRoot != null) {
-            final MetadataElement esdElem = absRoot.getElement("Azimuth_Shift_Per_Overlap");
+            final MetadataElement esdElem = absRoot.getElement("Azimuth_Shift_Per_Block");
             if (esdElem != null) {
                 final MetadataElement[] subSwathElems = esdElem.getElements();
                 if (subSwathElems != null) {

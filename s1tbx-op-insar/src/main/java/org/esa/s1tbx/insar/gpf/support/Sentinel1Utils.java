@@ -1346,7 +1346,7 @@ public final class Sentinel1Utils {
     }
 
 
-    public static class SubSwathInfo {
+    public final static class SubSwathInfo {
 
         // subswath info
         public String subSwathName;
@@ -1408,7 +1408,7 @@ public final class Sentinel1Utils {
 
     }
 
-    public static class AzimuthFmRate {
+    public final static class AzimuthFmRate {
         public double time;
         public double t0;
         public double c0;
@@ -1416,13 +1416,13 @@ public final class Sentinel1Utils {
         public double c2;
     }
 
-    public static class DCPolynomial {
+    public final static class DCPolynomial {
         public double time;
         public double t0;
         public double[] dataDcPolynomial;
     }
 
-    public static class NoiseVector {
+    public final static class NoiseVector {
         public final double timeMJD;
         public final int line;
         public final int[] pixels;
@@ -1436,7 +1436,7 @@ public final class Sentinel1Utils {
         }
     }
 
-    public static class CalibrationVector {
+    public final static class CalibrationVector {
         public final double timeMJD;
         public final int line;
         public final int[] pixels;
@@ -1460,9 +1460,19 @@ public final class Sentinel1Utils {
             this.gamma = gamma;
             this.dn = dn;
         }
+
+        public int getPixelIndex(int x) {
+            int i=0;
+            for(int pixel : pixels) {
+                if(x < pixel)
+                    return i-1;
+                ++i;
+            }
+            return pixels.length - 2;
+        }
     }
 
-    private static class Index {
+    private final static class Index {
         public int i0;
         public int i1;
         public int j0;

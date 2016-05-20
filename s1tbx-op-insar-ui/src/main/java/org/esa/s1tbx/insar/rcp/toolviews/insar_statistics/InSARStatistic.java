@@ -16,11 +16,12 @@
 package org.esa.s1tbx.insar.rcp.toolviews.insar_statistics;
 
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.engine_utilities.gpf.StackUtils;
 
 import java.awt.*;
 
 /**
- * tab for InSARStatistic TopComponent
+ * tab interface for InSARStatistic TopComponent
  */
 public interface InSARStatistic {
 
@@ -29,4 +30,8 @@ public interface InSARStatistic {
     Component createPanel();
 
     void update(final Product product);
+
+    static boolean isValidProduct(final Product product) {
+        return product != null && StackUtils.isCoregisteredStack(product);
+    }
 }

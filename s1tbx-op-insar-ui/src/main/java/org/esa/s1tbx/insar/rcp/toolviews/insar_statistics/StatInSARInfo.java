@@ -49,7 +49,7 @@ public class StatInSARInfo implements InSARStatistic {
 
     public void update(final Product product) {
         try {
-            if (!InSARStatisticsTopComponent.isValidProduct(product)) {
+            if (!InSARStatistic.isValidProduct(product)) {
                 textarea.setText(InSARStatisticsTopComponent.EmptyMsg);
             } else {
                 final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);

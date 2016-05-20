@@ -130,21 +130,17 @@ public final class Orbit {
     // TODO: switch on interpolation method, either spline method or degree of polynomial
     private void computeCoefficients() throws Exception {
 
-        logger.info("Computing coefficients for orbit polyfit degree: " + poly_degree);
-//        poly_degree = degree;
         this.coeff_X = PolyUtils.polyFitNormalized(new DoubleMatrix(time), new DoubleMatrix(data_X), poly_degree);
         this.coeff_Y = PolyUtils.polyFitNormalized(new DoubleMatrix(time), new DoubleMatrix(data_Y), poly_degree);
         this.coeff_Z = PolyUtils.polyFitNormalized(new DoubleMatrix(time), new DoubleMatrix(data_Z), poly_degree);
 
         isInterpolated = true;
-
     }
 
     public void computeCoefficients(int degree) throws Exception {
         poly_degree = degree;
         computeCoefficients();
     }
-
 
     // TODO: for splines!
     private void getKloKhi() {

@@ -15,11 +15,16 @@
  */
 package org.esa.s1tbx.insar.rcp.toolviews.insar_statistics;
 
+import org.esa.s1tbx.insar.gpf.InSARStackOverview;
+import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.awt.*;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -30,21 +35,49 @@ import java.util.List;
 public class StatBaselines implements InSARStatistic {
 
     private TileCacheTableModel tableModel;
+    private JTable table;
+    private final static DecimalFormat df = new DecimalFormat("0.00");
 
-    private static class CachedTileInfo {
-        Object uid;
-        String imageName;
-        int level;
-        int numTiles;
-        long size;
-        String comment;
+    public String getName() {
+        return "Baselines";
+    }
+
+    public Component createPanel() {
+        tableModel = new TileCacheTableModel();
+        table = new JTable(tableModel);
+        return new JScrollPane(table);
+    }
+
+    public void update(final Product product) {
+
+        if(InSARStatistic.isValidProduct(product)) {
+            try {
+                final InSARStackOverview.IfgStack[] stackOverview = InSARStackOverview.calculateInSAROverview(product);
+                final InSARStackOverview.IfgPair[] slaves = stackOverview[0].getMasterSlave();
+
+                tableModel.clear();
+                for(InSARStackOverview.IfgPair slave : slaves) {
+                    CachedBaseline baseline = new CachedBaseline(slave);
+                    tableModel.addRow(baseline);
+                }
+                table.repaint();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            tableModel.clear();
+            table.repaint();
+        }
     }
 
     private static class TileCacheTableModel extends AbstractTableModel {
-        private final static String[] COLUM_NAMES = {"1", "2", "3", "4", "5"};
-        private final static Class[] COLUM_CLASSES = {String.class, Integer.class, Long.class,
-                Integer.class, String.class};
-        List<CachedTileInfo> data = new ArrayList<>(50);
+        private final static String[] COLUMN_NAMES =
+                {"Product", "Perp Baseline [m]", "Temp Baseline [days]", "Coherence", "Height of Ambiguity [m]", "Doppler Diff [Hz]"};
+        private final static Class[] COLUMN_CLASSES =
+                {String.class, String.class, String.class, String.class, String.class, String.class};
+
+        private final List<CachedBaseline> data = new ArrayList<>(50);
 
         @Override
         public int getRowCount() {
@@ -53,17 +86,17 @@ public class StatBaselines implements InSARStatistic {
 
         @Override
         public int getColumnCount() {
-            return COLUM_NAMES.length;
+            return COLUMN_NAMES.length;
         }
 
         @Override
         public String getColumnName(int columnIndex) {
-            return COLUM_NAMES[columnIndex];
+            return COLUMN_NAMES[columnIndex];
         }
 
         @Override
         public Class<?> getColumnClass(int columnIndex) {
-            return COLUM_CLASSES[columnIndex];
+            return COLUMN_CLASSES[columnIndex];
         }
 
         @Override
@@ -73,55 +106,52 @@ public class StatBaselines implements InSARStatistic {
 
         @Override
         public Object getValueAt(int row, int column) {
-            CachedTileInfo cachedTileInfo = data.get(row);
+            CachedBaseline baseline = data.get(row);
             switch (column) {
                 case 0:
-                    return cachedTileInfo.imageName;
+                    return baseline.productName;
                 case 1:
-                    return cachedTileInfo.numTiles;
+                    return baseline.perpendicularBaseline;
                 case 2:
-                    return cachedTileInfo.size / 1024;
+                    return baseline.temporalBaseline;
                 case 3:
-                    return cachedTileInfo.level;
+                    return baseline.coherence;
                 case 4:
-                    return cachedTileInfo.comment;
+                    return baseline.hao;
+                case 5:
+                    return baseline.dopplerDifference;
             }
             return null;
         }
 
-        public void reset() {
-            for (CachedTileInfo tileInfo : data) {
-                tileInfo.numTiles = 0;
-                tileInfo.size = 0;
-            }
+        public void clear() {
+            data.clear();
         }
 
-        public void cleanUp() {
-            Iterator<CachedTileInfo> iterator = data.iterator();
-            while (iterator.hasNext()) {
-                CachedTileInfo tileInfo = iterator.next();
-                if (tileInfo.numTiles == 0) {
-                    iterator.remove();
-                }
-            }
-        }
-
-        public void addRow(CachedTileInfo tileInfo) {
-            data.add(tileInfo);
+        public void addRow(CachedBaseline baseline) {
+            data.add(baseline);
         }
     }
 
-    public String getName() {
-        return "Baselines";
-    }
+    private static class CachedBaseline {
+        private final String productName;
+        private final String perpendicularBaseline;
+        private final String temporalBaseline;
+        private final String coherence;
+        private final String hao;
+        private final String dopplerDifference;
 
-    public Component createPanel() {
-        tableModel = new TileCacheTableModel();
-        return new JScrollPane(new JTable(tableModel));
-    }
+        public CachedBaseline(InSARStackOverview.IfgPair slave) {
+            this.perpendicularBaseline = df.format(slave.getPerpendicularBaseline());
+            this.temporalBaseline = df.format(slave.getTemporalBaseline());
+            this.coherence = df.format(slave.getCoherence());
+            this.hao = df.format(slave.getHeightAmb());
+            this.dopplerDifference = df.format(slave.getDopplerDifference());
 
-    public void update(final Product product) {
+            final MetadataElement absRoot = slave.getSlaveMetadata().getAbstractedMetadata();
 
+            productName = absRoot.getAttributeString(AbstractMetadata.PRODUCT);
+        }
     }
 }
 
