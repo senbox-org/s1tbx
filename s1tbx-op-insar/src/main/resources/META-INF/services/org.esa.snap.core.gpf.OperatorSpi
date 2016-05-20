@@ -12,3 +12,4 @@ org.esa.s1tbx.insar.gpf.CoherenceOp$Spi
 org.esa.s1tbx.insar.gpf.InterferogramOp$Spi
 org.esa.s1tbx.insar.gpf.PCAOp$Spi
 org.esa.s1tbx.insar.gpf.PhaseToDisplacementOp$Spi
+org.esa.s1tbx.insar.gpf.IntegerInterferogramOp$Spi
