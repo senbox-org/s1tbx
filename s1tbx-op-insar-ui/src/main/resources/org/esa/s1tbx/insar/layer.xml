@@ -120,6 +120,17 @@
                 <attr name="icon" stringvalue="esaIcon"/>
                 <attr name="helpId" stringvalue="OffsetTrackingOp"/>
             </file>
+            <file name="org-esa-s1tbx-insar-gpf-IntegerInterferogram-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="Integer Interferogram"/>
+                <attr name="graphFile" stringvalue="coregistration/IntegerInterferogramGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="Integer Interferogram"/>
+                <attr name="ShortDescription" stringvalue="Integer Interferogram"/>
+                <attr name="targetProductNameSuffix" stringvalue="_iifg"/>
+                <attr name="icon" stringvalue="csaIcon"/>
+                <attr name="helpId" stringvalue="IntegerInterferogramOp"/>
+            </file>
         </folder>
     </folder>
 
@@ -171,6 +182,10 @@
                     <file name="org-esa-s1tbx-insar-gpf-PhaseToElevationOp-Action.shadow">
                         <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-PhaseToElevationOp-Action.instance"/>
                         <attr name="position" intvalue="750"/>
+                    </file>
+                    <file name="org-esa-s1tbx-insar-gpf-IntegerInterferogram-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-IntegerInterferogram-Action.instance"/>
+                        <attr name="position" intvalue="760"/>
                     </file>
                 </folder>
                 <folder name="Filtering">
@@ -227,6 +242,10 @@
         <file name="org.esa.s1tbx.insar.gpf.ui.InterferogramOpUI">
             <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.InterferogramOpUI"/>
             <attr name="operatorName" stringvalue="Interferogram"/>
+        </file>
+        <file name="org.esa.s1tbx.insar.gpf.ui.IntegerInterferogramOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.IntegerInterferogramOpUI"/>
+            <attr name="operatorName" stringvalue="IntegerInterferogram"/>
         </file>
     </folder>
 
