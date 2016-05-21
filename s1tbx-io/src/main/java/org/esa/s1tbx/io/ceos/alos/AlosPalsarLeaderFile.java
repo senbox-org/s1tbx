@@ -20,6 +20,7 @@ import org.esa.s1tbx.io.binary.BinaryFileReader;
 import org.esa.s1tbx.io.binary.BinaryRecord;
 import org.esa.s1tbx.io.ceos.CEOSLeaderFile;
 import org.esa.s1tbx.io.ceos.CeosRecordHeader;
+import org.esa.snap.core.util.SystemUtils;
 import org.jdom2.Document;
 
 import javax.imageio.stream.ImageInputStream;
@@ -30,11 +31,10 @@ import java.io.IOException;
  */
 public class AlosPalsarLeaderFile extends CEOSLeaderFile {
 
-    protected final static String mission = "alos";
-    private final static String leader_recordDefinitionFile = "leader_file.xml";
-
     private int productLevel = -1;
 
+    protected final static String mission = "alos";
+    private final static String leader_recordDefinitionFile = "leader_file.xml";
     private final static String facility_record1_5DefinitionFile = "facility_record1_5.xml";
 
     private final static Document leaderXML = BinaryDBReader.loadDefinitionFile(mission, leader_recordDefinitionFile);
@@ -70,7 +70,7 @@ public class AlosPalsarLeaderFile extends CEOSLeaderFile {
                 mapProjRecord = new BinaryRecord(reader, -1, mapProjXML, mapproj_recordDefinitionFile);
                 header.seekToEnd();
             } catch (Exception e) {
-                System.out.println("unable to read projection");
+                SystemUtils.LOG.warning("unable to read projection");
             }
         }
         for (int i = 0; i < leaderFDR.getAttributeInt("Number of platform pos. data records"); ++i) {
@@ -79,7 +79,7 @@ public class AlosPalsarLeaderFile extends CEOSLeaderFile {
                 platformPositionRecord = new BinaryRecord(reader, -1, platformXML, platformPosition_recordDefinitionFile);
                 header.seekToEnd();
             } catch (Exception e) {
-                System.out.println("unable to read platform pos");
+                SystemUtils.LOG.warning("unable to read platform pos");
             }
         }
         for (int i = 0; i < leaderFDR.getAttributeInt("Number of attitude data records"); ++i) {
@@ -88,7 +88,7 @@ public class AlosPalsarLeaderFile extends CEOSLeaderFile {
                 attitudeRecord = new BinaryRecord(reader, -1, attitudeXML, attitude_recordDefinitionFile);
                 header.seekToEnd();
             } catch (Exception e) {
-                System.out.println("unable to read attitude");
+                SystemUtils.LOG.warning("unable to read attitude");
             }
         }
         for (int i = 0; i < leaderFDR.getAttributeInt("Number of radiometric data records"); ++i) {
@@ -97,7 +97,7 @@ public class AlosPalsarLeaderFile extends CEOSLeaderFile {
                 radiometricRecord = new BinaryRecord(reader, -1, radiometricXML, radiometric_recordDefinitionFile);
                 header.seekToEnd();
             } catch (Exception e) {
-                System.out.println("unable to read radiometric");
+                SystemUtils.LOG.warning("unable to read radiometric");
             }
         }
         for (int i = 0; i < leaderFDR.getAttributeInt("Number of data quality summary records"); ++i) {
@@ -106,7 +106,7 @@ public class AlosPalsarLeaderFile extends CEOSLeaderFile {
                 dataQualityRecord = new BinaryRecord(reader, -1, dataQualityXML, dataQuality_recordDefinitionFile);
                 header.seekToEnd();
             } catch (Exception e) {
-                System.out.println("unable to read quality");
+                SystemUtils.LOG.warning("unable to read quality");
             }
         }
 
@@ -144,7 +144,7 @@ public class AlosPalsarLeaderFile extends CEOSLeaderFile {
                     header.seekToEnd();
                 }
             } catch (Exception e) {
-                System.out.println("Unable to read ALOS facility record: " + e.getMessage());
+                SystemUtils.LOG.warning("Unable to read ALOS facility record: " + e.getMessage());
             }
         }
     }

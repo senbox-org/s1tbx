@@ -50,16 +50,16 @@ public class CEOSLeaderFile {
     protected final static String detailedProcessing_recordDefinitionFile = "detailed_processing_record.xml";
     protected final static String facility_recordDefinitionFile = "facility_record.xml";
 
-    private static Document sceneXML;
-    private static Document mapProjXML;
-    private static Document platformXML;
-    private static Document attitudeXML;
-    private static Document radiometricXML;
-    private static Document radiometricCompXML;
-    private static Document dataQualityXML;
-    private static Document histogramXML;
-    private static Document detailProcXML;
-    private static Document facilityXML;
+    private Document sceneXML;
+    private Document mapProjXML;
+    private Document platformXML;
+    private Document attitudeXML;
+    private Document radiometricXML;
+    private Document radiometricCompXML;
+    private Document dataQualityXML;
+    private Document histogramXML;
+    private Document detailProcXML;
+    private Document facilityXML;
 
     protected CEOSLeaderFile() {
     }
