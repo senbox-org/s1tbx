@@ -7,10 +7,21 @@
       <file></file>
     </parameters>
   </node>
+  <node id="ThermalNoiseRemoval">
+    <operator>ThermalNoiseRemoval</operator>
+    <sources>
+      <sourceProduct refid="Read"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <selectedPolarisations/>
+      <removeThermalNoise>true</removeThermalNoise>
+      <reIntroduceThermalNoise>false</reIntroduceThermalNoise>
+    </parameters>
+  </node>
   <node id="Calibration">
     <operator>Calibration</operator>
     <sources>
-      <sourceProduct refid="Read"/>
+      <sourceProduct refid="ThermalNoiseRemoval"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <sourceBands/>
@@ -27,21 +38,10 @@
       <outputDNBand>false</outputDNBand>
     </parameters>
   </node>
-  <node id="ThermalNoiseRemoval">
-    <operator>ThermalNoiseRemoval</operator>
-    <sources>
-      <sourceProduct refid="Calibration"/>
-    </sources>
-    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <selectedPolarisations/>
-      <removeThermalNoise>true</removeThermalNoise>
-      <reIntroduceThermalNoise>false</reIntroduceThermalNoise>
-    </parameters>
-  </node>
   <node id="TOPSAR-Deburst">
     <operator>TOPSAR-Deburst</operator>
     <sources>
-      <sourceProduct refid="ThermalNoiseRemoval"/>
+      <sourceProduct refid="Calibration"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <selectedPolarisations/>
@@ -113,10 +113,10 @@
     <node id="Read">
       <displayPosition x="20.0" y="34.0"/>
     </node>
-    <node id="Calibration">
+    <node id="ThermalNoiseRemoval">
       <displayPosition x="113.0" y="36.0"/>
     </node>
-    <node id="ThermalNoiseRemoval">
+    <node id="Calibration">
       <displayPosition x="196.0" y="35.0"/>
     </node>
     <node id="TOPSAR-Deburst">

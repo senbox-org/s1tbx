@@ -218,12 +218,12 @@ public class CreateStackOp extends Operator {
                                                          b.getDataType(),
                                                          targetProduct.getSceneRasterWidth(),
                                                          targetProduct.getSceneRasterHeight());
-                        ProductUtils.copyRasterDataNodeProperties(b, targetBand);
-                        targetBand.setSourceImage(b.getSourceImage());
-
                         masterProductBands.add(b.getName());
                         sourceRasterMap.put(targetBand, b);
                         targetProduct.addBand(targetBand);
+
+                        ProductUtils.copyRasterDataNodeProperties(b, targetBand);
+                        targetBand.setSourceImage(b.getSourceImage());
                     }
                 }
             }
@@ -239,14 +239,16 @@ public class CreateStackOp extends Operator {
                                                          srcBand.getDataType(),
                                                          targetProduct.getSceneRasterWidth(),
                                                          targetProduct.getSceneRasterHeight());
+                        masterProductBands.add(targetBand.getName());
+                        sourceRasterMap.put(targetBand, srcBand);
+                        targetProduct.addBand(targetBand);
+
                         ProductUtils.copyRasterDataNodeProperties(srcBand, targetBand);
                         if (extent.equals(MASTER_EXTENT)) {
                             targetBand.setSourceImage(srcBand.getSourceImage());
                         }
 
-                        masterProductBands.add(targetBand.getName());
-                        sourceRasterMap.put(targetBand, srcBand);
-                        targetProduct.addBand(targetBand);
+                        fixDependencies(targetBand, slaveBandList, suffix);
                     }
                 }
             }
@@ -273,6 +275,9 @@ public class CreateStackOp extends Operator {
                                                          srcBand.getDataType(),
                                                          targetProduct.getSceneRasterWidth(),
                                                          targetProduct.getSceneRasterHeight());
+                        sourceRasterMap.put(targetBand, srcBand);
+                        targetProduct.addBand(targetBand);
+
                         ProductUtils.copyRasterDataNodeProperties(srcBand, targetBand);
                         if (extent.equals(MASTER_EXTENT) &&
                                 (srcProduct == masterProduct || srcProduct.isCompatibleProduct(targetProduct, 1.0e-3f))) {
@@ -283,8 +288,7 @@ public class CreateStackOp extends Operator {
                             masterProductBands.add(tgtBandName);
                         }
 
-                        sourceRasterMap.put(targetBand, srcBand);
-                        targetProduct.addBand(targetBand);
+                        fixDependencies(targetBand, slaveBandList, suffix);
                     }
                 }
             }
@@ -323,6 +327,19 @@ public class CreateStackOp extends Operator {
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
+    }
+
+    private static void fixDependencies(final Band targetBand, final Band[] srcBandList, final String suffix) {
+//        String validPixelExpression = targetBand.getValidPixelExpression();
+//        if(validPixelExpression == null || validPixelExpression.isEmpty())
+//            return;
+//
+//        for(Band srcBand : srcBandList) {
+//            if(!validPixelExpression.contains(srcBand.getName() + suffix)) {
+//                validPixelExpression = validPixelExpression.replaceAll(srcBand.getName(), srcBand.getName() + suffix);
+//            }
+//        }
+//        targetBand.setValidPixelExpression(validPixelExpression);
     }
 
     private void updateMetadata() {
