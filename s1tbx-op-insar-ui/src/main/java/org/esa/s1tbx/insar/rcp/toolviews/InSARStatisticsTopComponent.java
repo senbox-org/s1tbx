@@ -24,8 +24,11 @@ import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.StatResiduals;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductManager;
 import org.esa.snap.core.datamodel.ProductNode;
+import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.util.SelectionSupport;
+import org.esa.snap.tango.TangoIcons;
+import org.esa.snap.ui.GridLayout2;
 import org.netbeans.api.annotations.common.NullAllowed;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -35,6 +38,8 @@ import org.openide.windows.TopComponent;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,13 +72,18 @@ public class InSARStatisticsTopComponent extends TopComponent {
     public static final String EmptyMsg = "This tool window requires a coregistered stack product to be selected";
 
     private final List<InSARStatistic> statisticList = new ArrayList<>();
+    private final JTabbedPane tabbedPane = new JTabbedPane();
     private ProductNode oldNode = null;
+
+    private static final ImageIcon copyIcon = TangoIcons.actions_edit_copy(TangoIcons.Res.R22);
+    private static final ImageIcon saveIcon = TangoIcons.actions_document_save_as(TangoIcons.Res.R22);
 
     public InSARStatisticsTopComponent() {
         setLayout(new BorderLayout());
         setDisplayName(Bundle.CTL_InSARStatisticsTopComponentName());
         setToolTipText(Bundle.CTL_InSARStatisticsTopComponentDescription());
         add(createPanel(), BorderLayout.CENTER);
+        add(createButtonPanel(), BorderLayout.EAST);
 
         final SnapApp snapApp = SnapApp.getDefault();
         snapApp.getProductManager().addListener(new ProductManagerListener());
@@ -98,7 +108,7 @@ public class InSARStatisticsTopComponent extends TopComponent {
         }
     }
 
-    public JPanel createPanel() {
+    public JTabbedPane createPanel() {
 
         statisticList.add(new StatInSARInfo());
         statisticList.add(new StatResiduals());
@@ -106,16 +116,41 @@ public class InSARStatisticsTopComponent extends TopComponent {
         statisticList.add(new StatESDHistogram());
         statisticList.add(new StatBaselines());
 
-        final JTabbedPane tabbedPane = new JTabbedPane();
         for (InSARStatistic statistic : statisticList) {
             tabbedPane.add(statistic.getName(), statistic.createPanel());
         }
         tabbedPane.setSelectedIndex(0);
 
-        final JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.add(tabbedPane, BorderLayout.CENTER);
+        return tabbedPane;
+    }
 
-        return mainPanel;
+    private JPanel createButtonPanel() {
+
+        final JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+
+        final JButton copyBtn = DialogUtils.createButton("copyBtn", "Copy", copyIcon, buttonPanel, DialogUtils.ButtonStyle.Icon);
+        copyBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final InSARStatistic stat = statisticList.get(tabbedPane.getSelectedIndex());
+                stat.copyToClipboard();
+            }
+        });
+        final JButton saveBtn = DialogUtils.createButton("saveBtn", "Save", saveIcon, buttonPanel, DialogUtils.ButtonStyle.Icon);
+        saveBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final InSARStatistic stat = statisticList.get(tabbedPane.getSelectedIndex());
+                stat.saveToFile();
+            }
+        });
+
+        buttonPanel.add(Box.createRigidArea(new Dimension(10,25)));
+        buttonPanel.add(copyBtn);
+        buttonPanel.add(saveBtn);
+
+        return buttonPanel;
     }
 
     public class ProductManagerListener implements ProductManager.Listener {

@@ -19,6 +19,7 @@ import org.esa.s1tbx.insar.rcp.toolviews.InSARStatisticsTopComponent;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.util.ResourceUtils;
 import org.esa.snap.rcp.SnapApp;
@@ -71,6 +72,14 @@ public class StatResiduals implements InSARStatistic {
         } catch (Exception e) {
             SnapApp.getDefault().handleError("Unable to update product", e);
         }
+    }
+
+    public void copyToClipboard() {
+        SystemUtils.copyToClipboard(textarea.getText());
+    }
+
+    public void saveToFile() {
+        saveToFile(textarea.getText());
     }
 
     private static File getResidualFile(final MetadataElement absRoot) {

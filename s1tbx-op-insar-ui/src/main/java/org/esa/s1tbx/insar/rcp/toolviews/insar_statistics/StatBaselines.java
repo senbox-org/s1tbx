@@ -18,8 +18,10 @@ package org.esa.s1tbx.insar.rcp.toolviews.insar_statistics;
 import org.esa.s1tbx.insar.gpf.InSARStackOverview;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
+import org.esa.snap.rcp.SnapApp;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -37,6 +39,7 @@ public class StatBaselines implements InSARStatistic {
     private TileCacheTableModel tableModel;
     private JTable table;
     private final static DecimalFormat df = new DecimalFormat("0.00");
+    private final static String sep = ", ";
 
     public String getName() {
         return "Baselines";
@@ -69,6 +72,31 @@ public class StatBaselines implements InSARStatistic {
             tableModel.clear();
             table.repaint();
         }
+    }
+
+    public void copyToClipboard() {
+        SystemUtils.copyToClipboard(getText());
+    }
+
+    public void saveToFile() {
+        saveToFile(getText());
+    }
+
+    private String getText() {
+        final StringBuilder str = new StringBuilder();
+
+        for(int i=0; i < tableModel.getColumnCount(); ++i) {
+            str.append(tableModel.getColumnName(i));
+            str.append(sep);
+        }
+        str.append('\n');
+
+        for(CachedBaseline baseline : tableModel.data) {
+            str.append(baseline.toString());
+            str.append('\n');
+        }
+
+        return str.toString();
     }
 
     private static class TileCacheTableModel extends AbstractTableModel {
@@ -117,7 +145,7 @@ public class StatBaselines implements InSARStatistic {
                 case 3:
                     return baseline.coherence;
                 case 4:
-                    return baseline.hao;
+                    return baseline.hoa;
                 case 5:
                     return baseline.dopplerDifference;
             }
@@ -138,19 +166,33 @@ public class StatBaselines implements InSARStatistic {
         private final String perpendicularBaseline;
         private final String temporalBaseline;
         private final String coherence;
-        private final String hao;
+        private final String hoa;
         private final String dopplerDifference;
 
         public CachedBaseline(InSARStackOverview.IfgPair slave) {
             this.perpendicularBaseline = df.format(slave.getPerpendicularBaseline());
             this.temporalBaseline = df.format(slave.getTemporalBaseline());
             this.coherence = df.format(slave.getCoherence());
-            this.hao = df.format(slave.getHeightAmb());
+            this.hoa = df.format(slave.getHeightAmb());
             this.dopplerDifference = df.format(slave.getDopplerDifference());
 
             final MetadataElement absRoot = slave.getSlaveMetadata().getAbstractedMetadata();
 
             productName = absRoot.getAttributeString(AbstractMetadata.PRODUCT);
+        }
+
+        public String toString() {
+            return productName +
+                    sep +
+                    perpendicularBaseline +
+                    sep +
+                    temporalBaseline +
+                    sep +
+                    coherence +
+                    sep +
+                    hoa +
+                    sep +
+                    dopplerDifference;
         }
     }
 }
