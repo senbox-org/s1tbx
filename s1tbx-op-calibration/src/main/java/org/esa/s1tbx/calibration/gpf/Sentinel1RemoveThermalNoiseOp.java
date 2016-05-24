@@ -497,7 +497,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
                     double value = dn2 - lut[xx];
                     if(value < 0) {
-                        value = 1000;       // small intensity value; if too small, calibration will make it nodatavalue
+                        value = dn2;       // small intensity value; if too small, calibration will make it nodatavalue
                     }
                     trgData.setElemDoubleAt(tgtIdx, value);
                 }
