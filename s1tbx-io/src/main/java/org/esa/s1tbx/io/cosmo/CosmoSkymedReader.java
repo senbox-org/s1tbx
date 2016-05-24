@@ -650,17 +650,17 @@ public class CosmoSkymedReader extends SARReader {
     }
 
     private void addTiePointGridsToProduct(final Variable[] variables) throws IOException {
-        for (Variable variable : variables) {
-            final int rank = variable.getRank();
-            final int gridWidth = variable.getDimension(rank - 1).getLength();
-            int gridHeight = variable.getDimension(rank - 2).getLength();
-            if (rank >= 3 && gridHeight <= 1)
-                gridHeight = variable.getDimension(rank - 3).getLength();
-            final TiePointGrid tpg = NetCDFUtils.createTiePointGrid(variable, gridWidth, gridHeight,
-                    product.getSceneRasterWidth(), product.getSceneRasterHeight());
-
-            product.addTiePointGrid(tpg);
-        }
+//        for (Variable variable : variables) {
+//            final int rank = variable.getRank();
+//            final int gridWidth = variable.getDimension(rank - 1).getLength();
+//            int gridHeight = variable.getDimension(rank - 2).getLength();
+//            if (rank >= 3 && gridHeight <= 1)
+//                gridHeight = variable.getDimension(rank - 3).getLength();
+//            final TiePointGrid tpg = NetCDFUtils.createTiePointGrid(variable, gridWidth, gridHeight,
+//                    product.getSceneRasterWidth(), product.getSceneRasterHeight());
+//
+//            product.addTiePointGrid(tpg);
+//        }
 
         final MetadataElement bandElem = getBandElement(product.getBandAt(0));
         addIncidenceAnglesSlantRangeTime(product, bandElem);
