@@ -1,0 +1,46 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement"/>
+  </node>
+  <node id="Read(2)">
+    <operator>Read</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement"/>
+  </node>
+  <node id="IntegerInterferogram">
+    <operator>IntegerInterferogram</operator>
+    <sources>
+      <sourceProduct refid="Read"/>
+      <sourceProduct.1 refid="Read(2)"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement"/>
+  </node>
+  <node id="Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="IntegerInterferogram"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <file>C:\output\target.dim</file>
+      <formatName>BEAM-DIMAP</formatName>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="Read">
+            <displayPosition x="54.0" y="46.0"/>
+    </node>
+    <node id="Read(2)">
+      <displayPosition x="52.0" y="180.0"/>
+    </node>
+    <node id="IntegerInterferogram">
+      <displayPosition x="167.0" y="105.0"/>
+    </node>
+    <node id="Write">
+      <displayPosition x="380.0" y="104.0"/>
+    </node>
+  </applicationData>
+</graph>
