@@ -16,9 +16,23 @@
 package org.esa.s1tbx.insar.rcp.toolviews.insar_statistics;
 
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.util.io.FileUtils;
+import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
+import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.statistics.output.CsvStatisticsWriter;
+import org.esa.snap.statistics.output.MetadataWriter;
+import org.esa.snap.statistics.output.StatisticsOutputContext;
+import org.esa.snap.ui.SnapFileChooser;
 
+import javax.media.jai.Histogram;
+import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * tab interface for InSARStatistic TopComponent
@@ -33,5 +47,29 @@ public interface InSARStatistic {
 
     static boolean isValidProduct(final Product product) {
         return product != null && StackUtils.isCoregisteredStack(product);
+    }
+
+    void copyToClipboard();
+
+    void saveToFile();
+
+    default void saveToFile(final String content) {
+        final SnapFileChooser fileChooser = new SnapFileChooser();
+        fileChooser.setFileFilter(new SnapFileFilter("TXT", new String[]{".txt"}, "TXT files"));
+        File outputAsciiFile;
+        int result = fileChooser.showSaveDialog(SnapApp.getDefault().getMainFrame());
+        if (result == JFileChooser.APPROVE_OPTION) {
+            outputAsciiFile = fileChooser.getSelectedFile();
+        } else {
+            return;
+        }
+
+        try(PrintStream outputStream = new PrintStream(new FileOutputStream(outputAsciiFile))) {
+
+            outputStream.print(content);
+
+        } catch (Exception e) {
+            SnapApp.getDefault().handleError("Unable to write insar statistics", e);
+        }
     }
 }

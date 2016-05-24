@@ -151,5 +151,17 @@ public class StatESDMeasure implements InSARStatistic {
         }
         return !esdData.isEmpty();
     }
+
+    public void copyToClipboard() {
+        chartPanel.doCopy();
+    }
+
+    public void saveToFile() {
+        try {
+            chartPanel.doSaveAs();
+        } catch (Exception e) {
+            SnapApp.getDefault().handleError("Unable to save to file", e);
+        }
+    }
 }
 
