@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.csa.rstb</groupId>
         <artifactId>rstb</artifactId>
-        <version>7.1.2</version>
+        <version>7.1.3</version>
     </parent>
 
     <name>RSTB Classification Tools UI</name>

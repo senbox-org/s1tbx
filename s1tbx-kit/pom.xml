@@ -5,7 +5,7 @@
     <parent>
         <artifactId>s1tbx</artifactId>
         <groupId>org.esa.s1tbx</groupId>
-        <version>3.0.2</version>
+        <version>3.0.3</version>
     </parent>
 
     <artifactId>s1tbx-kit</artifactId>
