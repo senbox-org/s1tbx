@@ -67,11 +67,11 @@ public class OffsetTrackingOp2 extends Operator {
     private int numGCPs = 200;
 
     @Parameter(valueSet = {"32", "64", "128", "256", "512", "1024", "2048"}, defaultValue = "128",
-            label = "Coarse Registration Window Width")
+            label = "Registration Window Width")
     private String coarseRegistrationWindowWidth = "128";
 
     @Parameter(valueSet = {"32", "64", "128", "256", "512", "1024", "2048"}, defaultValue = "128",
-            label = "Coarse Registration Window Height")
+            label = "Registration Window Height")
     private String coarseRegistrationWindowHeight = "128";
 
     @Parameter(valueSet = {"2", "4", "8", "16", "32", "64", "128", "256"},
@@ -86,13 +86,13 @@ public class OffsetTrackingOp2 extends Operator {
             label = "Window oversampling factor")
     private String coarseRegistrationOversampling = "16";
     /*
-    @Parameter(valueSet = {"8", "16", "32", "64", "128", "256", "512"}, defaultValue = "32",
+    @Parameter(valueSet = {"8", "16", "32", "64", "128", "256", "512"}, defaultValue = "64",
             label = "Fine Registration Window Width")
-    private String fineRegistrationWindowWidth = "32";
+    private String fineRegistrationWindowWidth = "64";
 
-    @Parameter(valueSet = {"8", "16", "32", "64", "128", "256", "512"}, defaultValue = "32",
+    @Parameter(valueSet = {"8", "16", "32", "64", "128", "256", "512"}, defaultValue = "64",
             label = "Fine Registration Window Height")
-    private String fineRegistrationWindowHeight = "32";
+    private String fineRegistrationWindowHeight = "64";
 
     @Parameter(valueSet = {"2", "4", "8", "16", "32", "64"}, defaultValue = "16",
             label = "Search Window Accuracy in Azimuth Direction")
@@ -804,6 +804,9 @@ public class OffsetTrackingOp2 extends Operator {
             double coherence = CoregistrationUtils.crossCorrelateFFT(
                     coarseOffset, mI, sI, coarseWin.ovsFactor, coarseWin.accY, coarseWin.accX);
 
+//            double coherence = CoregistrationUtils.normalizedCrossCorrelation(
+//                    coarseOffset, mI, sI, coarseWin.ovsFactor, coarseWin.accY, coarseWin.accX);
+
             if (coherence < coherenceThreshold) {
                 return false;
             } else {
@@ -828,6 +831,9 @@ public class OffsetTrackingOp2 extends Operator {
 
             final double coherence = CoregistrationUtils.crossCorrelateFFT(
                     fineOffset, mI, sI, fineWin.ovsFactor, fineWin.accY, fineWin.accX);
+
+//            final double coherence = CoregistrationUtils.normalizedCrossCorrelation(
+//                    fineOffset, mI, sI, fineWin.ovsFactor, fineWin.accY, fineWin.accX);
 
             if (coherence < coherenceThreshold) {
                 return false;
