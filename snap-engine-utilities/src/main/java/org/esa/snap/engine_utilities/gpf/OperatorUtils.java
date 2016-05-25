@@ -39,8 +39,10 @@ import org.esa.snap.engine_utilities.util.ExceptionLog;
 import java.awt.*;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Helper methods for working with Operators
@@ -97,6 +99,14 @@ public final class OperatorUtils {
         return sourceProduct.getTiePointGrid(TPG_LONGITUDE);
     }
 
+    public static String[] getPolarisations(final Product product) {
+        final Set<String> polarisationSet = new HashSet<>();
+        for(Band band : product.getBands()) {
+            polarisationSet.add(OperatorUtils.getPolarizationFromBandName(band.getName()));
+        }
+        return polarisationSet.toArray(new String[polarisationSet.size()]);
+    }
+
     public static String getBandPolarization(final String bandName, final MetadataElement absRoot) {
         final String pol = getPolarizationFromBandName(bandName);
         if (pol != null) {
@@ -115,21 +125,40 @@ public final class OperatorUtils {
         // multiple polarizations
         String pol = "";
         final String bandNameLower = bandName.toLowerCase();
-        if (bandNameLower.contains("_hh"))
+        if (bandNameLower.contains("_hh")) {
             pol += "hh";
-        if (bandNameLower.contains("_vv"))
+        }
+        if (bandNameLower.contains("_vv")) {
             pol += "vv";
-        if (bandNameLower.contains("_hv"))
+        }
+        if (bandNameLower.contains("_hv")) {
             pol += "hv";
-        if (bandNameLower.contains("_vh"))
+        }
+        if (bandNameLower.contains("_vh")) {
             pol += "vh";
+        }
 
-        if (pol.length() == 2)
+        if (pol.length() == 2) {
             return pol;
-        else if (pol.length() > 2)
+        } else if (pol.length() > 2) {
             throw new OperatorException("Band name contains multiple polarziations: " + pol);
-
+        }
         return null;
+    }
+
+    public static String getSubswathFromBandName(final String bandName) {
+
+        String ss = "";
+        final String bandNameU = bandName.toUpperCase();
+        if (bandNameU.contains("_IW")) {
+            int idx = bandNameU.indexOf("_IW")+1;
+            return bandNameU.substring(idx, idx + 3);
+        } else if (bandNameU.contains("_EW")) {
+            int idx = bandNameU.indexOf("_EW")+1;
+            return bandNameU.substring(idx, idx + 3);
+        }
+
+        return "";
     }
 
     public static String getPolarizationType(final MetadataElement absRoot) {
