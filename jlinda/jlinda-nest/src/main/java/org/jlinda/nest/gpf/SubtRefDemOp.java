@@ -38,14 +38,13 @@ import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
 import org.jlinda.core.geom.DemTile;
 import org.jlinda.core.geom.TopoPhase;
-import org.jlinda.core.utils.GeoUtils;
 import org.jlinda.core.utils.MathUtils;
 import org.jlinda.nest.utils.BandUtilsDoris;
 import org.jlinda.nest.utils.CplxContainer;
 import org.jlinda.nest.utils.ProductContainer;
 import org.jlinda.nest.utils.TileUtilsDoris;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -102,11 +101,13 @@ public final class SubtRefDemOp extends Operator {
     private double demSamplingLon;
 
     // source maps
-    private HashMap<Integer, CplxContainer> masterMap = new HashMap<>();
-    private HashMap<Integer, CplxContainer> slaveMap = new HashMap<>();
+    private Map<String, CplxContainer> masterMap = new HashMap<>();
+    private Map<String, CplxContainer> slaveMap = new HashMap<>();
 
     // target maps
-    private HashMap<String, ProductContainer> targetMap = new HashMap<>();
+    private Map<String, ProductContainer> targetMap = new HashMap<>();
+
+    private String[] polarisations;
 
     // operator tags
     public String productTag;
@@ -155,9 +156,10 @@ public final class SubtRefDemOp extends Operator {
         validator.checkIfTOPSARBurstProduct(false);
 
         productTag = "_ifg_srd";
-        if (validator.isSentinel1Product()) {
-            final String topsarTag = getTOPSARTag(sourceProduct);
-            productTag = productTag + '_' + topsarTag;
+
+        polarisations = OperatorUtils.getPolarisations(sourceProduct);
+        if (polarisations.length == 0) {
+            polarisations = new String[]{""};
         }
     }
 
@@ -225,12 +227,12 @@ public final class SubtRefDemOp extends Operator {
         final MetadataElement masterMeta = AbstractMetadata.getAbstractedMetadata(sourceProduct);
         final String slaveMetadataRoot = AbstractMetadata.SLAVE_METADATA_ROOT;
 
-        /* organize metadata */
+        // organize metadata
 
         // put sourceMaster metadata into the masterMap
         metaMapPut(masterTag, masterMeta, sourceProduct, masterMap);
 
-        // pug sourceSlave metadata into slaveMap
+        // plug sourceSlave metadata into slaveMap
         MetadataElement[] slaveRoot = sourceProduct.getMetadataRoot().getElement(slaveMetadataRoot).getElements();
         for (MetadataElement meta : slaveRoot) {
             metaMapPut(slaveTag, meta, sourceProduct, slaveMap);
@@ -240,68 +242,61 @@ public final class SubtRefDemOp extends Operator {
     private void metaMapPut(final String tag,
                             final MetadataElement root,
                             final Product product,
-                            final HashMap<Integer, CplxContainer> map) throws Exception {
+                            final Map<String, CplxContainer> map) throws Exception {
 
-        // TODO: include polarization flags/checks!
-        // pull out band names for this product
-        final String[] bandNames = product.getBandNames();
-        final int numOfBands = bandNames.length;
+        for (String polarisation : polarisations) {
+            final String pol = polarisation.isEmpty() ? "" : '_' + polarisation.toUpperCase();
 
-        // map key: ORBIT NUMBER
-        int mapKey = root.getAttributeInt(AbstractMetadata.ABS_ORBIT);
+            // map key: ORBIT NUMBER
+            String mapKey = root.getAttributeInt(AbstractMetadata.ABS_ORBIT) + pol;
 
-        // metadata: construct classes and define bands
-        final String date = OperatorUtils.getAcquisitionDate(root);
-        final SLCImage meta = new SLCImage(root, product);
-        final Orbit orbit = new Orbit(root, orbitDegree);
+            // metadata: construct classes and define bands
+            final String date = OperatorUtils.getAcquisitionDate(root);
+            final SLCImage meta = new SLCImage(root, product);
+            final Orbit orbit = new Orbit(root, orbitDegree);
 
-        // TODO: resolve multilook factors
-        meta.setMlAz(1);
-        meta.setMlRg(1);
+            // TODO: resolve multilook factors
+            meta.setMlAz(1);
+            meta.setMlRg(1);
 
-        Band bandReal = null;
-        Band bandImag = null;
+            Band bandReal = null;
+            Band bandImag = null;
 
-        for (int i = 0; i < numOfBands; i++) {
-            String bandName = bandNames[i];
-            if (bandName.contains(tag) && bandName.contains(date)) {
-                final Band band = product.getBandAt(i);
-                if (BandUtilsDoris.isBandReal(band)) {
-                    bandReal = band;
-                } else if (BandUtilsDoris.isBandImag(band)) {
-                    bandImag = band;
+            for (String bandName : product.getBandNames()) {
+                if (bandName.contains(tag) && bandName.contains(date)) {
+                    if (pol.isEmpty() || bandName.contains(pol)) {
+                        final Band band = product.getBand(bandName);
+                        if (BandUtilsDoris.isBandReal(band)) {
+                            bandReal = band;
+                        } else if (BandUtilsDoris.isBandImag(band)) {
+                            bandImag = band;
+                        }
+                    }
                 }
             }
-        }
-        try {
+
             map.put(mapKey, new CplxContainer(date, meta, orbit, bandReal, bandImag));
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
     private void constructTargetMetadata() {
 
-        for (Integer keyMaster : masterMap.keySet()) {
+        for (String keyMaster : masterMap.keySet()) {
 
             CplxContainer master = masterMap.get(keyMaster);
 
-            for (Integer keySlave : slaveMap.keySet()) {
-
-                // generate name for product bands
-                String productName = keyMaster.toString() + '_' + keySlave.toString();
-
+            for (String keySlave : slaveMap.keySet()) {
                 final CplxContainer slave = slaveMap.get(keySlave);
-                final ProductContainer product = new ProductContainer(productName, master, slave, true);
 
-                product.targetBandName_I = 'i' + productTag + '_' + master.date + '_' + slave.date;
-                product.targetBandName_Q = 'q' + productTag + '_' + master.date + '_' + slave.date;
+                if (master.polarisation.equals(slave.polarisation)) {
+                    // generate name for product bands
+                    String productName = keyMaster + '_' + keySlave;
 
-                product.masterSubProduct.name = topoPhaseBandName;
-                product.masterSubProduct.targetBandName_I = topoPhaseBandName + '_' + master.date + '_' + slave.date;
+                    final ProductContainer product = new ProductContainer(productName, master, slave, true);
 
-                // put ifg-product bands into map
-                targetMap.put(productName, product);
+                    // put ifg-product bands into map
+                    targetMap.put(productName, product);
+                }
             }
         }
     }
@@ -318,20 +313,26 @@ public final class SubtRefDemOp extends Operator {
         for (String key : targetMap.keySet()) {
             final List<String> targetBandNames = new ArrayList<>();
             final ProductContainer container = targetMap.get(key);
+            final CplxContainer master = container.sourceMaster;
+            final CplxContainer slave = container.sourceSlave;
 
-            String targetBandName_I = container.targetBandName_I;
-            String targetBandName_Q = container.targetBandName_Q;
+            final String pol = master.polarisation.isEmpty() ? "" : '_' + master.polarisation.toUpperCase();
+            final String tag = pol + '_' + master.date + '_' + slave.date;
+
+            String targetBandName_I = 'i' + tag;
             Band iBand = targetProduct.addBand(targetBandName_I, ProductData.TYPE_FLOAT32);
+            container.addBand(Unit.REAL, iBand.getName());
             iBand.setUnit(Unit.REAL);
             targetBandNames.add(iBand.getName());
+
+            String targetBandName_Q = 'q' + tag;
             Band qBand = targetProduct.addBand(targetBandName_Q, ProductData.TYPE_FLOAT32);
+            container.addBand(Unit.IMAGINARY, qBand.getName());
             qBand.setUnit(Unit.IMAGINARY);
             targetBandNames.add(qBand.getName());
 
-            final String tag0 = container.sourceMaster.date;
-            final String tag1 = container.sourceSlave.date;
             if (CREATE_VIRTUAL_BAND) {
-                String countStr = productTag + '_' + tag0 + '_' + tag1;
+                String countStr = productTag + tag;
 
                 Band intensityBand = ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBand(targetBandName_I),
                         targetProduct.getBand(targetBandName_Q), countStr);
@@ -345,8 +346,9 @@ public final class SubtRefDemOp extends Operator {
             }
 
             if (container.subProductsFlag) {
-                String topoBandName = container.masterSubProduct.targetBandName_I;
+                String topoBandName = topoPhaseBandName + tag;
                 Band topoBand = targetProduct.addBand(topoBandName, ProductData.TYPE_FLOAT32);
+                container.addBand(Unit.PHASE, topoBand.getName());
                 topoBand.setNoDataValue(demNoDataValue);
                 topoBand.setUnit(Unit.PHASE);
                 topoBand.setDescription("topographic_phase");
@@ -362,15 +364,14 @@ public final class SubtRefDemOp extends Operator {
             }
 
             // copy other bands through
-            String tagStr = tag0 + '_' + tag1;
             for(Band srcBand : sourceProduct.getBands()) {
                 if(srcBand instanceof VirtualBand) {
                     continue;
                 }
 
                 String srcBandName = srcBand.getName();
-                if(srcBandName.endsWith(tagStr)) {
-                    if (srcBandName.startsWith("coh")|| srcBandName.startsWith("elev")) {
+                if(srcBandName.endsWith(tag)) {
+                    if (srcBandName.startsWith("coh") || srcBandName.startsWith("elev")) {
                         Band band = ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, true);
                         targetBandNames.add(band.getName());
                     }
@@ -429,15 +430,15 @@ public final class SubtRefDemOp extends Operator {
                 complexIfg.muli(cplxTopoPhase.conji());
 
                 /// commit to target ///
-                targetBand_I = targetProduct.getBand(product.targetBandName_I);
+                targetBand_I = targetProduct.getBand(product.getBandName(Unit.REAL));
                 Tile tileOutReal = targetTileMap.get(targetBand_I);
                 TileUtilsDoris.pushDoubleMatrix(complexIfg.real(), tileOutReal, targetRectangle);
 
-                targetBand_Q = targetProduct.getBand(product.targetBandName_Q);
+                targetBand_Q = targetProduct.getBand(product.getBandName(Unit.IMAGINARY));
                 Tile tileOutImag = targetTileMap.get(targetBand_Q);
                 TileUtilsDoris.pushDoubleMatrix(complexIfg.imag(), tileOutImag, targetRectangle);
 
-                topoPhaseBand = targetProduct.getBand(product.masterSubProduct.targetBandName_I);
+                topoPhaseBand = targetProduct.getBand(product.getBandName(Unit.PHASE));
                 Tile tileOutTopoPhase = targetTileMap.get(topoPhaseBand);
                 TileUtilsDoris.pushDoubleArray2D(topoPhase.demPhase, tileOutTopoPhase, targetRectangle);
 
@@ -454,7 +455,7 @@ public final class SubtRefDemOp extends Operator {
     }
 
     public static DemTile getDEMTile(final org.jlinda.core.Window tileWindow,
-                                     final HashMap<String, ProductContainer> targetMap,
+                                     final Map<String, ProductContainer> targetMap,
                                      final ElevationModel dem,
                                      final double demNoDataValue,
                                      final double demSamplingLat,

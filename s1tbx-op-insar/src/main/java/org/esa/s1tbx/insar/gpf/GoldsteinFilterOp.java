@@ -37,6 +37,7 @@ import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
 import java.awt.Rectangle;
+import java.util.HashMap;
 import java.util.Map;
 
 @OperatorMetadata(alias = "GoldsteinPhaseFiltering",
@@ -78,6 +79,7 @@ public class GoldsteinFilterOp extends Operator {
     private int halfWindowSize;
     private double noDataValue = 0;
     private Band cohBand = null;
+    private final Map<Band, Band> targetIQPair = new HashMap<>();
 
     private static final String PRODUCT_SUFFIX = "_Flt";
 
@@ -163,7 +165,7 @@ public class GoldsteinFilterOp extends Operator {
             if (unit == null) {
                 throw new OperatorException("band " + srcBandI.getName() + " requires a unit");
             } else if (unit.contains(Unit.DB)) {
-                throw new OperatorException("bands in dB is not supported");
+                throw new OperatorException("bands in dB are not supported");
             } else if (unit.contains(Unit.IMAGINARY)) {
                 throw new OperatorException("I and Q bands should be selected in pairs");
             } else if (unit.contains(Unit.REAL)) {
@@ -188,7 +190,9 @@ public class GoldsteinFilterOp extends Operator {
             final Band targetBandQ = targetProduct.addBand(srcBandQ.getName(), ProductData.TYPE_FLOAT32);
             targetBandQ.setUnit(nextUnit);
 
-            final String suffix = targetBandI.getName().substring(targetBandI.getName().indexOf("_"));
+            targetIQPair.put(targetBandI, targetBandQ);
+
+            final String suffix = targetBandI.getName().substring(targetBandI.getName().indexOf('_'));
             ReaderUtils.createVirtualIntensityBand(targetProduct, targetBandI, targetBandQ, suffix);
             ReaderUtils.createVirtualPhaseBand(targetProduct, targetBandI, targetBandQ, suffix);
 
@@ -215,21 +219,6 @@ public class GoldsteinFilterOp extends Operator {
             final int h = targetRectangle.height;
             if (w < FFTSize || h < FFTSize) {
                 return;
-                //throw new OperatorException("Tile size must be power of 2 and no less than 256");
-            }
-            //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
-
-            // get the first pair of I/Q bands
-            Band iBand = null;
-            Band qBand = null;
-            for (Band band : sourceProduct.getBands()) {
-                if(band.getUnit() != null) {
-                    if (band.getUnit().equals(Unit.REAL) && qBand == null) {
-                        qBand = band;
-                    } else if (band.getUnit().equals(Unit.IMAGINARY) && iBand == null) {
-                        iBand = band;
-                    }
-                }
             }
 
             final Rectangle sourceTileRectangle = getSourceRectangle(x0, y0, w, h);
@@ -237,103 +226,94 @@ public class GoldsteinFilterOp extends Operator {
             final int sy0 = sourceTileRectangle.y;
             final int sw = sourceTileRectangle.width;
             final int sh = sourceTileRectangle.height;
-            final Tile iBandRaster = getSourceTile(iBand, sourceTileRectangle);
-            final Tile qBandRaster = getSourceTile(qBand, sourceTileRectangle);
 
-            // arrays saving filtered I/Q data for the tile, note tile size could be different from 512x512 on boundary
-            final float[] iBandFiltered = new float[w * h];
-            final float[] qBandFiltered = new float[w * h];
+            for (Band iBand : targetIQPair.keySet()) {
+                final Band qBand = targetIQPair.get(iBand);
 
-            // get target tiles
-            final Band[] targetBands = targetProduct.getBands();
-            Tile iTargetTile = null;
-            Tile qTargetTile = null;
-            for (Band targetBand : targetBands) {
-                if (targetBand.getName().equals(iBand.getName())) {
-                    iTargetTile = targetTileMap.get(targetBand);
-                } else if (targetBand.getName().equals(qBand.getName())) {
-                    qTargetTile = targetTileMap.get(targetBand);
-                }
+                final Tile iTargetTile = targetTileMap.get(iBand);
+                final Tile qTargetTile = targetTileMap.get(qBand);
 
-                if (iTargetTile != null && qTargetTile != null) {
-                    break;
-                }
-            }
+                final Tile iBandRaster = getSourceTile(sourceProduct.getBand(iBand.getName()), sourceTileRectangle);
+                final Tile qBandRaster = getSourceTile(sourceProduct.getBand(qBand.getName()), sourceTileRectangle);
 
-            final ProductData iBandData = iBandRaster.getDataBuffer();
-            final ProductData qBandData = qBandRaster.getDataBuffer();
-            final TileIndex srcIndex = new TileIndex(iBandRaster);
-            noDataValue = iBand.getNoDataValue();
+                final ProductData iBandData = iBandRaster.getDataBuffer();
+                final ProductData qBandData = qBandRaster.getDataBuffer();
+                final TileIndex srcIndex = new TileIndex(iBandRaster);
+                noDataValue = iBand.getNoDataValue();
 
-            // perform filtering with a sliding window
-            final boolean[][] mask = new boolean[FFTSize][FFTSize];
-            final double[][] I = new double[FFTSize][FFTSize];
-            final double[][] Q = new double[FFTSize][FFTSize];
-            final double[][] specI = new double[FFTSize][FFTSize];
-            final double[][] specQ = new double[FFTSize][FFTSize];
-            final double[][] pwrSpec = new double[FFTSize][FFTSize];
-            final double[][] fltSpec = new double[FFTSize][FFTSize];
-            final int colMax = I[0].length;
+                // perform filtering with a sliding window
+                final boolean[][] mask = new boolean[FFTSize][FFTSize];
+                final double[][] I = new double[FFTSize][FFTSize];
+                final double[][] Q = new double[FFTSize][FFTSize];
+                final double[][] specI = new double[FFTSize][FFTSize];
+                final double[][] specQ = new double[FFTSize][FFTSize];
+                final double[][] pwrSpec = new double[FFTSize][FFTSize];
+                final double[][] fltSpec = new double[FFTSize][FFTSize];
+                final int colMax = I[0].length;
 
-            final int stepSize = FFTSize / 4;
-            final int syMax = FastMath.min(sy0 + sh - FFTSize, sourceImageHeight - FFTSize);
-            final int sxMax = FastMath.min(sx0 + sw - FFTSize, sourceImageWidth - FFTSize);
-            for (int y = sy0; y <= syMax; y += stepSize) {
-                for (int x = sx0; x <= sxMax; x += stepSize) {
+                // arrays saving filtered I/Q data for the tile, note tile size could be different from 512x512 on boundary
+                final float[] iBandFiltered = new float[w * h];
+                final float[] qBandFiltered = new float[w * h];
 
-                    getComplexImagettes(x, y, iBandData, qBandData, srcIndex, I, Q, mask);
+                final int stepSize = FFTSize / 4;
+                final int syMax = FastMath.min(sy0 + sh - FFTSize, sourceImageHeight - FFTSize);
+                final int sxMax = FastMath.min(sx0 + sw - FFTSize, sourceImageWidth - FFTSize);
+                for (int y = sy0; y <= syMax; y += stepSize) {
+                    for (int x = sx0; x <= sxMax; x += stepSize) {
 
-                    // check for no data value
-                    boolean allNoData = true;
-                    for (double[] aI : I) {
-                        for (int c = 0; c < colMax; ++c) {
-                            if (aI[c] != noDataValue) {
-                                allNoData = false;
+                        getComplexImagettes(x, y, iBandData, qBandData, srcIndex, I, Q, mask);
+
+                        // check for no data value
+                        boolean allNoData = true;
+                        for (double[] aI : I) {
+                            for (int c = 0; c < colMax; ++c) {
+                                if (aI[c] != noDataValue) {
+                                    allNoData = false;
+                                    break;
+                                }
+                            }
+                            if (!allNoData)
                                 break;
+                        }
+                        if (allNoData) {
+                            continue;
+                        }
+
+                        perform2DFFT(I, Q, specI, specQ);
+
+                        getPowerSpectrum(specI, specQ, pwrSpec);
+
+                        getFilteredPowerSpectrum(pwrSpec, fltSpec, alpha, halfWindowSize);
+
+                        performInverse2DFFT(specI, specQ, fltSpec, I, Q);
+
+                        updateFilteredBands(x0, y0, w, h, x, y, I, Q, mask, iBandFiltered, qBandFiltered);
+                    }
+                }
+
+                // mask out pixels with low coherence
+                if (cohBand != null) {
+                    Tile cohBandRaster = getSourceTile(cohBand, targetRectangle);
+                    final ProductData cohBandData = cohBandRaster.getDataBuffer();
+                    final TileIndex cohIndex = new TileIndex(cohBandRaster);
+                    final int yMax = y0 + h;
+                    final int xMax = x0 + w;
+                    for (int y = y0; y < yMax; y++) {
+                        cohIndex.calculateStride(y);
+                        for (int x = x0; x < xMax; x++) {
+                            final int k = (y - y0) * w + x - x0;
+                            if (cohBandData.getElemFloatAt(cohIndex.getIndex(x)) < coherenceThreshold) {
+                                final int idx = iBandRaster.getDataBufferIndex(x, y);
+                                iBandFiltered[k] = iBandData.getElemFloatAt(idx);
+                                qBandFiltered[k] = qBandData.getElemFloatAt(idx);
                             }
                         }
-                        if(!allNoData)
-                            break;
-                    }
-                    if(allNoData) {
-                        continue;
-                    }
-
-                    perform2DFFT(I, Q, specI, specQ);
-
-                    getPowerSpectrum(specI, specQ, pwrSpec);
-
-                    getFilteredPowerSpectrum(pwrSpec, fltSpec, alpha, halfWindowSize);
-
-                    performInverse2DFFT(specI, specQ, fltSpec, I, Q);
-
-                    updateFilteredBands(x0, y0, w, h, x, y, I, Q, mask, iBandFiltered, qBandFiltered);
-                }
-            }
-
-            // mask out pixels with low coherence
-            if(cohBand != null) {
-                Tile cohBandRaster = getSourceTile(cohBand, targetRectangle);
-                final ProductData cohBandData = cohBandRaster.getDataBuffer();
-                final TileIndex cohIndex = new TileIndex(cohBandRaster);
-                final int yMax = y0 + h;
-                final int xMax = x0 + w;
-                for (int y = y0; y < yMax; y++) {
-                    cohIndex.calculateStride(y);
-                    for (int x = x0; x < xMax; x++) {
-                        final int k = (y - y0)*w + x - x0;
-                        if (cohBandData.getElemFloatAt(cohIndex.getIndex(x)) < coherenceThreshold) {
-                            final int idx = iBandRaster.getDataBufferIndex(x, y);
-                            iBandFiltered[k] = iBandData.getElemFloatAt(idx);
-                            qBandFiltered[k] = qBandData.getElemFloatAt(idx);
-                        }
                     }
                 }
+
+                iTargetTile.setRawSamples(new ProductData.Float(iBandFiltered));
+                qTargetTile.setRawSamples(new ProductData.Float(qBandFiltered));
             }
-
-            iTargetTile.setRawSamples(new ProductData.Float(iBandFiltered));
-            qTargetTile.setRawSamples(new ProductData.Float(qBandFiltered));
-
         } catch (Exception e) {
             throw new OperatorException(e);
         }

@@ -24,13 +24,6 @@ public class ProductContainer {
     // TODO: put baselines in the structure
     // Baseline baseline = new Baseline();
 
-    public ProductContainer(String name, CplxContainer sourceMaster, CplxContainer sourceSlave) {
-        this.name = name;
-        this.sourceMaster = sourceMaster;
-        this.sourceSlave = sourceSlave;
-        this.subProductsFlag = false;
-    }
-
     public ProductContainer(String name, CplxContainer sourceMaster, CplxContainer sourceSlave, boolean subProductsFlag) {
 
         this.name = name;
@@ -53,7 +46,7 @@ public class ProductContainer {
     }
 
     // helper sub-class
-    public class SubProduct {
+    public static class SubProduct {
         public String name;
         public String targetBandName_I;
         public String targetBandName_Q;

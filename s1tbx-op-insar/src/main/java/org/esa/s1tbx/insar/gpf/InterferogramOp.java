@@ -31,6 +31,7 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.PosVector;
 import org.esa.snap.engine_utilities.datamodel.Unit;
@@ -78,7 +79,7 @@ public class InterferogramOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(defaultValue="true", label="Subtract flat-earth phase")
+    @Parameter(defaultValue = "true", label = "Subtract flat-earth phase")
     private boolean subtractFlatEarthPhase = true;
 
     @Parameter(valueSet = {"1", "2", "3", "4", "5", "6", "7", "8"},
@@ -99,7 +100,7 @@ public class InterferogramOp extends Operator {
             label = "Orbit interpolation degree")
     private int orbitDegree = 3;
 
-    @Parameter(defaultValue="true", label="Include coherence estimation")
+    @Parameter(defaultValue = "true", label = "Include coherence estimation")
     private boolean includeCoherence = true;
 
     @Parameter(description = "Size of coherence estimation window in Azimuth direction",
@@ -116,17 +117,20 @@ public class InterferogramOp extends Operator {
     private Boolean squarePixel = true;
 
     // flat_earth_polynomial container
-    private HashMap<String, DoubleMatrix> flatEarthPolyMap = new HashMap<>();
+    private Map<String, DoubleMatrix> flatEarthPolyMap = new HashMap<>();
 
     // source
-    private HashMap<Integer, CplxContainer> masterMap = new HashMap<>();
-    private HashMap<Integer, CplxContainer> slaveMap = new HashMap<>();
+    private Map<String, CplxContainer> masterMap = new HashMap<>();
+    private Map<String, CplxContainer> slaveMap = new HashMap<>();
+
+    private String[] polarisations;
+    private String[] subswaths = new String[]{""};
 
     // target
-    private HashMap<String, ProductContainer> targetMap = new HashMap<>();
+    private Map<String, ProductContainer> targetMap = new HashMap<>();
 
     // operator tags
-    private String productTag;
+    private String productTag = "ifg";
     private int sourceImageWidth;
     private int sourceImageHeight;
 
@@ -153,24 +157,16 @@ public class InterferogramOp extends Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.snap.core.gpf.OperatorException
-     *          If an error occurs during operator initialisation.
+     * @throws org.esa.snap.core.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
     public void initialize() throws OperatorException {
 
         try {
-            // rename product if no subtraction of the flat-earth phase
-            if (!subtractFlatEarthPhase) {
-                productTag = "ifg";
-            } else {
-                productTag = "ifg_srp";
-            }
-
             mstRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
             final MetadataElement slaveElem = sourceProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT);
-            if(slaveElem != null) {
+            if (slaveElem != null) {
                 slvRoot = slaveElem.getElements()[0];
             }
 
@@ -213,16 +209,19 @@ public class InterferogramOp extends Operator {
                 if ((mVersion < 2.43 && sVersion >= 2.43 && mstRoot.getAttribute("EAP Correction") == null) ||
                         (sVersion < 2.43 && mVersion >= 2.43 && slvRoot.getAttribute("EAP Correction") == null)) {
                     throw new OperatorException("Source products cannot be InSAR pairs: one is EAP phase corrected" +
-                            " and the other is not. Apply EAP Correction.");
+                                                        " and the other is not. Apply EAP Correction.");
                 }
 
                 su = new Sentinel1Utils(sourceProduct);
+                subswaths = su.getSubSwathNames();
                 subSwath = su.getSubSwath();
                 numSubSwaths = su.getNumOfSubSwath();
                 subSwathIndex = 1; // subSwathIndex is always 1 because of split product
+            }
 
-                final String topsarTag = getTOPSARTag(sourceProduct);
-                productTag = productTag + '_' + topsarTag;
+            polarisations = OperatorUtils.getPolarisations(sourceProduct);
+            if (polarisations.length == 0) {
+                polarisations = new String[]{""};
             }
 
             sourceImageWidth = sourceProduct.getSceneRasterWidth();
@@ -230,18 +229,6 @@ public class InterferogramOp extends Operator {
         } catch (Exception e) {
             throw new OperatorException(e);
         }
-    }
-
-    public static String getTOPSARTag(final Product sourceProduct) {
-
-        final Band[] bands = sourceProduct.getBands();
-        for (Band band:bands) {
-            final String bandName = band.getName();
-            if (bandName.contains("i_") && bandName.contains(StackUtils.MST)) {
-                return bandName.substring(bandName.indexOf("i_")+2, bandName.indexOf(StackUtils.MST));
-            }
-        }
-        return "";
     }
 
     private void getMstApproxSceneCentreXYZ() throws Exception {
@@ -271,44 +258,25 @@ public class InterferogramOp extends Operator {
             GeoUtils.geo2xyzWGS84(lat, lon, 0.0, mstSceneCenter);
             mstSceneCentreXYZ[b] = new Point(mstSceneCenter.toArray());
         }
-
-        /*
-        final double firstNearLat = AbstractMetadata.getAttributeDouble(mstRoot, AbstractMetadata.first_near_lat);
-        final double firstFarLat = AbstractMetadata.getAttributeDouble(mstRoot, AbstractMetadata.first_far_lat);
-        final double lastNearLat = AbstractMetadata.getAttributeDouble(mstRoot, AbstractMetadata.last_near_lat);
-        final double lastFarLat = AbstractMetadata.getAttributeDouble(mstRoot, AbstractMetadata.last_far_lat);
-
-        final double firstNearLon = AbstractMetadata.getAttributeDouble(mstRoot, AbstractMetadata.first_near_long);
-        final double firstFarLon = AbstractMetadata.getAttributeDouble(mstRoot, AbstractMetadata.first_far_long);
-        final double lastNearLon = AbstractMetadata.getAttributeDouble(mstRoot, AbstractMetadata.last_near_long);
-        final double lastFarLon = AbstractMetadata.getAttributeDouble(mstRoot, AbstractMetadata.last_far_long);
-
-        final double lat = (firstNearLat + firstFarLat + lastNearLat + lastFarLat) / 4.0;
-        final double lon = (firstNearLon + firstFarLon + lastNearLon + lastFarLon) / 4.0;
-
-        final PosVector mstSceneCenter = new PosVector();
-        GeoUtils.geo2xyzWGS84(lat, lon, 0.0, mstSceneCenter);
-        org.jlinda.core.Point mstSceneCentreXYZ1 = new Point(mstSceneCenter.toArray());
-        */
     }
 
     private void getSlvApproxSceneCentreAzimuthTime() throws Exception {
 
         final double firstLineTimeInDays = slvRoot.getAttributeUTC(AbstractMetadata.first_line_time).getMJD();
-        final double firstLineTime = (firstLineTimeInDays - (int)firstLineTimeInDays) * Constants.secondsInDay;
+        final double firstLineTime = (firstLineTimeInDays - (int) firstLineTimeInDays) * Constants.secondsInDay;
         final double lastLineTimeInDays = slvRoot.getAttributeUTC(AbstractMetadata.last_line_time).getMJD();
-        final double lastLineTime = (lastLineTimeInDays - (int)lastLineTimeInDays) * Constants.secondsInDay;
+        final double lastLineTime = (lastLineTimeInDays - (int) lastLineTimeInDays) * Constants.secondsInDay;
 
-        slvSceneCentreAzimuthTime = 0.5*(firstLineTime + lastLineTime);
+        slvSceneCentreAzimuthTime = 0.5 * (firstLineTime + lastLineTime);
     }
 
     private void constructFlatEarthPolynomials() throws Exception {
 
-        for (Integer keyMaster : masterMap.keySet()) {
+        for (String keyMaster : masterMap.keySet()) {
 
             CplxContainer master = masterMap.get(keyMaster);
 
-            for (Integer keySlave : slaveMap.keySet()) {
+            for (String keySlave : slaveMap.keySet()) {
 
                 CplxContainer slave = slaveMap.get(keySlave);
 
@@ -321,11 +289,11 @@ public class InterferogramOp extends Operator {
 
     private void constructFlatEarthPolynomialsForTOPSARProduct() throws Exception {
 
-        for (Integer keyMaster : masterMap.keySet()) {
+        for (String keyMaster : masterMap.keySet()) {
 
             CplxContainer master = masterMap.get(keyMaster);
 
-            for (Integer keySlave : slaveMap.keySet()) {
+            for (String keySlave : slaveMap.keySet()) {
 
                 CplxContainer slave = slaveMap.get(keySlave);
 
@@ -338,7 +306,7 @@ public class InterferogramOp extends Operator {
                         final String polynomialName = slave.name + '_' + s + '_' + b;
 
                         flatEarthPolyMap.put(polynomialName, estimateFlatEarthPolynomial(
-                                master, slave, s+1, b, mstSceneCentreXYZ, orbitDegree, srpPolynomialDegree,
+                                master, slave, s + 1, b, mstSceneCentreXYZ, orbitDegree, srpPolynomialDegree,
                                 srpNumberPoints, slvSceneCentreAzimuthTime, subSwath, su));
                     }
                 }
@@ -348,41 +316,22 @@ public class InterferogramOp extends Operator {
 
     private void constructTargetMetadata() {
 
-        for (Integer keyMaster : masterMap.keySet()) {
+        for (String keyMaster : masterMap.keySet()) {
 
             CplxContainer master = masterMap.get(keyMaster);
 
-            for (Integer keySlave : slaveMap.keySet()) {
-
-                // generate name for product bands
-                final String productName = keyMaster.toString() + '_' + keySlave.toString();
-
+            for (String keySlave : slaveMap.keySet()) {
                 final CplxContainer slave = slaveMap.get(keySlave);
-                final ProductContainer product = new ProductContainer(productName, master, slave, true);
 
-                product.addBand(Unit.REAL, "i_" + productTag + '_' + master.date + '_' + slave.date);
-                product.addBand(Unit.IMAGINARY, "q_" + productTag + '_' + master.date + '_' + slave.date);
+                if (master.polarisation.equals(slave.polarisation)) {
+                    // generate name for product bands
+                    final String productName = keyMaster + '_' + keySlave;
 
-                if(includeCoherence) {
-                    String cohTag = "coh";
-                    if (isTOPSARBurstProduct) {
-                        final String topsarTag = getTOPSARTag(sourceProduct);
-                        cohTag += '_' + topsarTag;
-                    }
-                    product.addBand(Unit.COHERENCE, cohTag + '_' + master.date + '_' + slave.date);
+                    final ProductContainer product = new ProductContainer(productName, master, slave, true);
+
+                    // put ifg-product bands into map
+                    targetMap.put(productName, product);
                 }
-
-                if(subtractFlatEarthPhase && OUTPUT_FLAT_EARTH_PHASE) {
-                    String fepTag = "fep";
-                    if (isTOPSARBurstProduct) {
-                        final String topsarTag = getTOPSARTag(sourceProduct);
-                        fepTag += '_' + topsarTag;
-                    }
-                    product.addBand(Unit.PHASE, fepTag + '_' + master.date + '_' + slave.date);
-                }
-
-                // put ifg-product bands into map
-                targetMap.put(productName, product);
             }
         }
     }
@@ -396,13 +345,13 @@ public class InterferogramOp extends Operator {
         // get sourceMaster & sourceSlave MetadataElement
         final String slaveMetadataRoot = AbstractMetadata.SLAVE_METADATA_ROOT;
 
-        /* organize metadata */
+        // organize metadata
         // put sourceMaster metadata into the masterMap
         metaMapPut(masterTag, mstRoot, sourceProduct, masterMap);
 
         // put sourceSlave metadata into slaveMap
         MetadataElement slaveElem = sourceProduct.getMetadataRoot().getElement(slaveMetadataRoot);
-        if(slaveElem == null) {
+        if (slaveElem == null) {
             slaveElem = sourceProduct.getMetadataRoot().getElement("Slave Metadata");
         }
         MetadataElement[] slaveRoot = slaveElem.getElements();
@@ -414,43 +363,46 @@ public class InterferogramOp extends Operator {
     private void metaMapPut(final String tag,
                             final MetadataElement root,
                             final Product product,
-                            final HashMap<Integer, CplxContainer> map) throws Exception {
+                            final Map<String, CplxContainer> map) throws Exception {
 
-        // TODO: include polarization flags/checks!
-        // pull out band names for this product
-        final String[] bandNames = product.getBandNames();
-        final int numOfBands = bandNames.length;
+        for (String swath : subswaths) {
+            final String subswath = swath.isEmpty() ? "" : '_' + swath.toUpperCase();
 
-        // map key: ORBIT NUMBER
-        int mapKey = root.getAttributeInt(AbstractMetadata.ABS_ORBIT);
+            for (String polarisation : polarisations) {
+                final String pol = polarisation.isEmpty() ? "" : '_' + polarisation.toUpperCase();
 
-        // metadata: construct classes and define bands
-        final String date = OperatorUtils.getAcquisitionDate(root);
-        final SLCImage meta = new SLCImage(root, product);
-        final Orbit orbit = new Orbit(root, orbitDegree);
+                // map key: ORBIT NUMBER
+                String mapKey = root.getAttributeInt(AbstractMetadata.ABS_ORBIT) + subswath + pol;
 
-        // TODO: resolve multilook factors
-        meta.setMlAz(1);
-        meta.setMlRg(1);
+                // metadata: construct classes and define bands
+                final String date = OperatorUtils.getAcquisitionDate(root);
+                final SLCImage meta = new SLCImage(root, product);
+                final Orbit orbit = new Orbit(root, orbitDegree);
 
-        Band bandReal = null;
-        Band bandImag = null;
+                // TODO: resolve multilook factors
+                meta.setMlAz(1);
+                meta.setMlRg(1);
 
-        for (int i = 0; i < numOfBands; i++) {
-            String bandName = bandNames[i];
-            if (bandName.contains(tag) && bandName.contains(date)) {
-                final Band band = product.getBandAt(i);
-                if (BandUtilsDoris.isBandReal(band)) {
-                    bandReal = band;
-                } else if (BandUtilsDoris.isBandImag(band)) {
-                    bandImag = band;
+                Band bandReal = null;
+                Band bandImag = null;
+
+                for (String bandName : product.getBandNames()) {
+                    if (bandName.contains(tag) && bandName.contains(date)) {
+                        if (subswath.isEmpty() || bandName.contains(subswath)) {
+                            if (pol.isEmpty() || bandName.contains(pol)) {
+                                final Band band = product.getBand(bandName);
+                                if (BandUtilsDoris.isBandReal(band)) {
+                                    bandReal = band;
+                                } else if (BandUtilsDoris.isBandImag(band)) {
+                                    bandImag = band;
+                                }
+                            }
+                        }
+                    }
                 }
+
+                map.put(mapKey, new CplxContainer(date, meta, orbit, bandReal, bandImag));
             }
-        }
-        try {
-            map.put(mapKey, new CplxContainer(date, meta, orbit, bandReal, bandImag));
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
@@ -458,9 +410,9 @@ public class InterferogramOp extends Operator {
 
         // construct target product
         targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
-                sourceProduct.getProductType(),
-                sourceProduct.getSceneRasterWidth(),
-                sourceProduct.getSceneRasterHeight());
+                                    sourceProduct.getProductType(),
+                                    sourceProduct.getSceneRasterWidth(),
+                                    sourceProduct.getSceneRasterHeight());
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
@@ -468,37 +420,45 @@ public class InterferogramOp extends Operator {
             final List<String> targetBandNames = new ArrayList<>();
 
             final ProductContainer container = targetMap.get(key);
-            final String targetBandName_I = container.getBandName(Unit.REAL);
+            final CplxContainer master = container.sourceMaster;
+            final CplxContainer slave = container.sourceSlave;
+
+            final String subswath = master.subswath.isEmpty() ? "" : '_' + master.subswath.toUpperCase();
+            final String pol = master.polarisation.isEmpty() ? "" : '_' + master.polarisation.toUpperCase();
+            final String tag = subswath + pol + '_' + master.date + '_' + slave.date;
+            final String targetBandName_I = "i_" + productTag + tag;
             final Band iBand = targetProduct.addBand(targetBandName_I, ProductData.TYPE_FLOAT32);
+            container.addBand(Unit.REAL, iBand.getName());
             iBand.setUnit(Unit.REAL);
             targetBandNames.add(iBand.getName());
 
-            final String targetBandName_Q = container.getBandName(Unit.IMAGINARY);
+            final String targetBandName_Q = "q_" + productTag + tag;
             final Band qBand = targetProduct.addBand(targetBandName_Q, ProductData.TYPE_FLOAT32);
+            container.addBand(Unit.IMAGINARY, qBand.getName());
             qBand.setUnit(Unit.IMAGINARY);
             targetBandNames.add(qBand.getName());
 
-            final String tag0 = container.sourceMaster.date;
-            final String tag1 = container.sourceSlave.date;
             if (CREATE_VIRTUAL_BAND) {
-                final String countStr = '_' + productTag + '_' + tag0 + '_' + tag1;
+                final String countStr = '_' + productTag + tag;
                 ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBand(targetBandName_I), targetProduct.getBand(targetBandName_Q), countStr);
                 Band phaseBand = ReaderUtils.createVirtualPhaseBand(targetProduct, targetProduct.getBand(targetBandName_I), targetProduct.getBand(targetBandName_Q), countStr);
-                
+
                 targetProduct.setQuicklookBandName(phaseBand.getName());
                 targetBandNames.add(phaseBand.getName());
             }
 
-            if(includeCoherence) {
-                final String targetBandCoh = container.getBandName(Unit.COHERENCE);
+            if (includeCoherence) {
+                final String targetBandCoh = "coh" + tag;
                 final Band cohBand = targetProduct.addBand(targetBandCoh, ProductData.TYPE_FLOAT32);
+                container.addBand(Unit.COHERENCE, cohBand.getName());
                 cohBand.setUnit(Unit.COHERENCE);
                 targetBandNames.add(cohBand.getName());
             }
 
-            if(subtractFlatEarthPhase && OUTPUT_FLAT_EARTH_PHASE) {
-                final String targetBandFep = container.getBandName(Unit.PHASE);
+            if (subtractFlatEarthPhase && OUTPUT_FLAT_EARTH_PHASE) {
+                final String targetBandFep = "fep" + tag;
                 final Band fepBand = targetProduct.addBand(targetBandFep, ProductData.TYPE_FLOAT32);
+                container.addBand(Unit.PHASE, fepBand.getName());
                 fepBand.setUnit(Unit.PHASE);
                 targetBandNames.add(fepBand.getName());
             }
@@ -522,7 +482,7 @@ public class InterferogramOp extends Operator {
 
         int numberOfCoefficients = PolyUtils.numberOfCoefficients(srpPolynomialDegree);
 
-        int[][] position = MathUtils.distributePoints(srpNumberPoints, new Window(minLine,maxLine,minPixel,maxPixel));
+        int[][] position = MathUtils.distributePoints(srpNumberPoints, new Window(minLine, maxLine, minPixel, maxPixel));
 
         // setup observation and design matrix
         DoubleMatrix y = new DoubleMatrix(srpNumberPoints);
@@ -547,7 +507,7 @@ public class InterferogramOp extends Operator {
 
             double slaveTimeRange;
             if (isBiStaticStack) {
-                slaveTimeRange = 0.5*(slaveTimeVector.x + masterTimeRange);
+                slaveTimeRange = 0.5 * (slaveTimeVector.x + masterTimeRange);
             } else {
                 slaveTimeRange = slaveTimeVector.x;
             }
@@ -593,14 +553,14 @@ public class InterferogramOp extends Operator {
         final Orbit masterOrbit = new Orbit(masterOSV, orbitDegree);
         final Orbit slaveOrbit = new Orbit(slaveOSV, orbitDegree);
 
-        long minLine = burstIndex*subSwath[subSwathIndex - 1].linesPerBurst;
+        long minLine = burstIndex * subSwath[subSwathIndex - 1].linesPerBurst;
         long maxLine = minLine + subSwath[subSwathIndex - 1].linesPerBurst - 1;
         long minPixel = 0;
         long maxPixel = subSwath[subSwathIndex - 1].samplesPerBurst - 1;
 
         int numberOfCoefficients = PolyUtils.numberOfCoefficients(srpPolynomialDegree);
 
-        int[][] position = MathUtils.distributePoints(srpNumberPoints, new Window(minLine,maxLine,minPixel,maxPixel));
+        int[][] position = MathUtils.distributePoints(srpNumberPoints, new Window(minLine, maxLine, minPixel, maxPixel));
 
         // setup observation and design matrix
         DoubleMatrix y = new DoubleMatrix(srpNumberPoints);
@@ -617,7 +577,7 @@ public class InterferogramOp extends Operator {
 
             // compute azimuth/range time for this pixel
             final double mstRgTime = subSwath[subSwathIndex - 1].slrTimeToFirstPixel +
-                    pixel*su.rangeSpacing/Constants.lightSpeed;
+                    pixel * su.rangeSpacing / Constants.lightSpeed;
 
             final double mstAzTime = line2AzimuthTime(line, subSwathIndex, burstIndex, subSwath);
 
@@ -671,7 +631,7 @@ public class InterferogramOp extends Operator {
                 final double dx = dataX[i] - sceneCentreXYZ.x;
                 final double dy = dataY[i] - sceneCentreXYZ.y;
                 final double dz = dataZ[i] - sceneCentreXYZ.z;
-                final double distance = Math.sqrt(dx*dx + dy*dy + dz*dz)/1000.0;
+                final double distance = Math.sqrt(dx * dx + dy * dy + dz * dz) / 1000.0;
                 if (i == 0) {
                     minDistance = distance;
                     minIdx = i;
@@ -708,7 +668,7 @@ public class InterferogramOp extends Operator {
 
             return adjacentOSV;
         } catch (Throwable e) {
-            e.printStackTrace();
+            SystemUtils.LOG.warning("Unable to getAdjacentOrbitStateVectors " + e.getMessage());
         }
         return null;
     }
@@ -719,10 +679,10 @@ public class InterferogramOp extends Operator {
         final double firstLineTimeInDays = subSwath[subSwathIndex - 1].burstFirstLineTime[burstIndex] /
                 Constants.secondsInDay;
 
-        final double firstLineTime = (firstLineTimeInDays - (int)firstLineTimeInDays)*Constants.secondsInDay;
+        final double firstLineTime = (firstLineTimeInDays - (int) firstLineTimeInDays) * Constants.secondsInDay;
 
         return firstLineTime + (line - burstIndex * subSwath[subSwathIndex - 1].linesPerBurst) *
-                        subSwath[subSwathIndex - 1].azimuthTimeInterval;
+                subSwath[subSwathIndex - 1].azimuthTimeInterval;
     }
 
     /**
@@ -732,8 +692,7 @@ public class InterferogramOp extends Operator {
      * @param targetTileMap   The target tiles associated with all target bands to be computed.
      * @param targetRectangle The rectangle of target tile.
      * @param pm              A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.snap.core.gpf.OperatorException
-     *          If an error occurs during computation of the target raster.
+     * @throws org.esa.snap.core.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
@@ -816,11 +775,11 @@ public class InterferogramOp extends Operator {
                     // estimate the phase on the grid
                     final DoubleMatrix realReferencePhase =
                             PolyUtils.polyval(azimuthAxisNormalized, rangeAxisNormalized,
-                                    polyCoeffs, PolyUtils.degreeFromCoefficients(polyCoeffs.length));
+                                              polyCoeffs, PolyUtils.degreeFromCoefficients(polyCoeffs.length));
 
                     // compute the reference phase
                     complexReferencePhase = new ComplexDoubleMatrix(MatrixFunctions.cos(realReferencePhase),
-                                    MatrixFunctions.sin(realReferencePhase));
+                                                                    MatrixFunctions.sin(realReferencePhase));
 
                     dataSlave.muli(complexReferencePhase); // no conjugate here!
                 }
@@ -829,7 +788,7 @@ public class InterferogramOp extends Operator {
                 // coherence
                 DoubleMatrix cohDataReal = null, cohDataImag = null;
                 ProductData tgtCohData = null, tgtCohPhaseData = null;
-                if(includeCoherence) {
+                if (includeCoherence) {
                     if (subtractFlatEarthPhase) {
                         cohMatrix.muli(complexReferencePhase.conji());
                     }
@@ -867,19 +826,19 @@ public class InterferogramOp extends Operator {
                         final int trgIndex = tgtIndex.getIndex(x);
                         final int xx = x - x0;
                         if (srcSlvData.getElemDoubleAt(srcSlvIndex.getIndex(x)) == srcNoDataValue) {
-                            samplesReal.setElemFloatAt(trgIndex, (float)srcNoDataValue);
-                            samplesImag.setElemFloatAt(trgIndex, (float)srcNoDataValue);
-                            if(includeCoherence) {
-                                tgtCohData.setElemFloatAt(trgIndex, (float)srcNoDataValue);
+                            samplesReal.setElemFloatAt(trgIndex, (float) srcNoDataValue);
+                            samplesImag.setElemFloatAt(trgIndex, (float) srcNoDataValue);
+                            if (includeCoherence) {
+                                tgtCohData.setElemFloatAt(trgIndex, (float) srcNoDataValue);
                             }
                         } else {
-                            samplesReal.setElemFloatAt(trgIndex, (float)dataReal.get(yy, xx));
-                            samplesImag.setElemFloatAt(trgIndex, (float)dataImag.get(yy, xx));
-                            if(includeCoherence) {
+                            samplesReal.setElemFloatAt(trgIndex, (float) dataReal.get(yy, xx));
+                            samplesImag.setElemFloatAt(trgIndex, (float) dataImag.get(yy, xx));
+                            if (includeCoherence) {
                                 final double cohI = cohDataReal.get(yy, xx);
                                 final double cohQ = cohDataImag.get(yy, xx);
                                 final double coh = Math.sqrt(cohI * cohI + cohQ * cohQ);
-                                tgtCohData.setElemFloatAt(trgIndex, (float)coh);
+                                tgtCohData.setElemFloatAt(trgIndex, (float) coh);
                             }
                         }
                     }
@@ -894,7 +853,7 @@ public class InterferogramOp extends Operator {
     }
 
     private static double norm(final ComplexDouble number) {
-        return number.real()*number.real() + number.imag()*number.imag();
+        return number.real() * number.real() + number.imag() * number.imag();
     }
 
     private void computeTileStackForTOPSARProduct(
@@ -911,7 +870,7 @@ public class InterferogramOp extends Operator {
             //System.out.println("tx0 = " + tx0 + ", ty0 = " + ty0 + ", tw = " + tw + ", th = " + th);
 
             for (int burstIndex = 0; burstIndex < subSwath[subSwathIndex - 1].numOfBursts; burstIndex++) {
-                final int firstLineIdx = burstIndex*subSwath[subSwathIndex - 1].linesPerBurst;
+                final int firstLineIdx = burstIndex * subSwath[subSwathIndex - 1].linesPerBurst;
                 final int lastLineIdx = firstLineIdx + subSwath[subSwathIndex - 1].linesPerBurst - 1;
 
                 if (tyMax <= firstLineIdx || ty0 > lastLineIdx) {
@@ -952,7 +911,7 @@ public class InterferogramOp extends Operator {
             final int x0 = targetRectangle.x;
             final int xN = x0 + targetRectangle.width - 1;
 
-            final long minLine = burstIndex*subSwath[subSwathIndex - 1].linesPerBurst;
+            final long minLine = burstIndex * subSwath[subSwathIndex - 1].linesPerBurst;
             final long maxLine = minLine + subSwath[subSwathIndex - 1].linesPerBurst - 1;
             final long minPixel = 0;
             final long maxPixel = subSwath[subSwathIndex - 1].samplesPerBurst - 1;
@@ -977,7 +936,7 @@ public class InterferogramOp extends Operator {
                 final double srcNoDataValue = product.sourceMaster.realBand.getNoDataValue();
 
                 ComplexDoubleMatrix cohMatrix = null;
-                if(includeCoherence) {
+                if (includeCoherence) {
                     final Tile mstTileReal2 = getSourceTile(product.sourceMaster.realBand, rect, border);
                     final Tile mstTileImag2 = getSourceTile(product.sourceMaster.imagBand, rect, border);
                     final Tile slvTileReal2 = getSourceTile(product.sourceSlave.realBand, rect, border);
@@ -996,7 +955,7 @@ public class InterferogramOp extends Operator {
                             if (y < minLine || y > maxLine) {
                                 dataMaster2.put(r, c, 0.0);
                             } else {
-                                dataMaster2.put(r, c, dataMaster2.get(r, c).mul(dataSlave2.get(r,c).conj()));
+                                dataMaster2.put(r, c, dataMaster2.get(r, c).mul(dataSlave2.get(r, c).conj()));
                             }
                             dataSlave2.put(r, c, new ComplexDouble(norm(dataSlave2.get(r, c)), tmp));
                         }
@@ -1018,10 +977,10 @@ public class InterferogramOp extends Operator {
                     final DoubleMatrix polyCoeffs = flatEarthPolyMap.get(polynomialName);
 
                     realReferencePhase = PolyUtils.polyval(azimuthAxisNormalized, rangeAxisNormalized,
-                                    polyCoeffs, PolyUtils.degreeFromCoefficients(polyCoeffs.length));
+                                                           polyCoeffs, PolyUtils.degreeFromCoefficients(polyCoeffs.length));
 
                     complexReferencePhase = new ComplexDoubleMatrix(MatrixFunctions.cos(realReferencePhase),
-                                    MatrixFunctions.sin(realReferencePhase));
+                                                                    MatrixFunctions.sin(realReferencePhase));
 
                     dataSlave.muli(complexReferencePhase); // no conjugate here!
                 }
@@ -1038,7 +997,7 @@ public class InterferogramOp extends Operator {
                 // coherence
                 DoubleMatrix cohDataReal = null, cohDataImag = null;
                 ProductData tgtCohData = null, tgtCohPhaseData = null;
-                if(includeCoherence) {
+                if (includeCoherence) {
                     if (subtractFlatEarthPhase) {
                         cohMatrix.muli(complexReferencePhase.conji());
                     }
@@ -1077,25 +1036,25 @@ public class InterferogramOp extends Operator {
                         final int xx = x - x0;
 
                         if (srcSlvData.getElemDoubleAt(srcSlvIndex.getIndex(x)) == srcNoDataValue) {
-                            samplesReal.setElemFloatAt(tgtIdx, (float)srcNoDataValue);
-                            samplesImag.setElemFloatAt(tgtIdx, (float)srcNoDataValue);
-                            if(includeCoherence) {
-                                tgtCohData.setElemFloatAt(tgtIdx, (float)srcNoDataValue);
+                            samplesReal.setElemFloatAt(tgtIdx, (float) srcNoDataValue);
+                            samplesImag.setElemFloatAt(tgtIdx, (float) srcNoDataValue);
+                            if (includeCoherence) {
+                                tgtCohData.setElemFloatAt(tgtIdx, (float) srcNoDataValue);
                             }
                             if (samplesFep != null) {
-                                samplesFep.setElemFloatAt(tgtIdx, (float)srcNoDataValue);
+                                samplesFep.setElemFloatAt(tgtIdx, (float) srcNoDataValue);
                             }
                         } else {
-                            samplesReal.setElemFloatAt(tgtIdx, (float)dataReal.get(yy, xx));
-                            samplesImag.setElemFloatAt(tgtIdx, (float)dataImag.get(yy, xx));
-                            if(includeCoherence) {
+                            samplesReal.setElemFloatAt(tgtIdx, (float) dataReal.get(yy, xx));
+                            samplesImag.setElemFloatAt(tgtIdx, (float) dataImag.get(yy, xx));
+                            if (includeCoherence) {
                                 final double cohI = cohDataReal.get(yy, xx);
                                 final double cohQ = cohDataImag.get(yy, xx);
                                 final double coh = Math.sqrt(cohI * cohI + cohQ * cohQ);
-                                tgtCohData.setElemFloatAt(tgtIdx, (float)coh);
+                                tgtCohData.setElemFloatAt(tgtIdx, (float) coh);
                             }
                             if (samplesFep != null && realReferencePhase != null) {
-                                samplesFep.setElemFloatAt(tgtIdx, (float)realReferencePhase.get(yy, xx));
+                                samplesFep.setElemFloatAt(tgtIdx, (float) realReferencePhase.get(yy, xx));
                             }
                         }
                     }

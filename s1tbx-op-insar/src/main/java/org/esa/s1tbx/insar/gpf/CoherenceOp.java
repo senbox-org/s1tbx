@@ -56,7 +56,9 @@ import org.jlinda.nest.utils.TileUtilsDoris;
 
 import javax.media.jai.BorderExtender;
 import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 @OperatorMetadata(alias = "Coherence",
         category = "Radar/Interferometric/Products",
@@ -109,12 +111,15 @@ public class CoherenceOp extends Operator {
     private Boolean squarePixel = true;
 
     // source
-    private HashMap<Integer, CplxContainer> masterMap = new HashMap<>();
-    private HashMap<Integer, CplxContainer> slaveMap = new HashMap<>();
+    private Map<String, CplxContainer> masterMap = new HashMap<>();
+    private Map<String, CplxContainer> slaveMap = new HashMap<>();
+
+    private String[] polarisations;
+    private String[] subswaths = new String[]{""};
 
     // target
-    private HashMap<String, ProductContainer> targetMap = new HashMap<>();
-    private HashMap<Band, Band> detectedSlaveMap = new HashMap<>();
+    private Map<String, ProductContainer> targetMap = new HashMap<>();
+    private Map<Band, Band> detectedSlaveMap = new HashMap<>();
 
     private boolean isComplex;
     private boolean isTOPSARBurstProduct = false;
@@ -196,12 +201,15 @@ public class CoherenceOp extends Operator {
 
             if (isTOPSARBurstProduct) {
                 su = new Sentinel1Utils(sourceProduct);
+                subswaths = su.getSubSwathNames();
                 subSwath = su.getSubSwath();
                 numSubSwaths = su.getNumOfSubSwath();
                 subSwathIndex = 1; // subSwathIndex is always 1 because of split product
+            }
 
-                final String topsarTag = InterferogramOp.getTOPSARTag(sourceProduct);
-                productTag = productTag + '_' + topsarTag;
+            polarisations = OperatorUtils.getPolarisations(sourceProduct);
+            if (polarisations.length == 0) {
+                polarisations = new String[]{""};
             }
 
             sourceImageWidth = sourceProduct.getSceneRasterWidth();
@@ -233,43 +241,45 @@ public class CoherenceOp extends Operator {
         }
     }
 
-    private static void metaMapPut(final String tag,
-                                   final MetadataElement root,
-                                   final Product product,
-                                   final HashMap<Integer, CplxContainer> map) throws Exception {
+    private void metaMapPut(final String tag,
+                            final MetadataElement root,
+                            final Product product,
+                            final Map<String, CplxContainer> map) throws Exception {
 
-        // TODO: include polarization flags/checks!
-        // pull out band names for this product
-        final String[] bandNames = product.getBandNames();
-        final int numOfBands = bandNames.length;
+        for (String swath : subswaths) {
+            final String subswath = swath.isEmpty() ? "" : '_' + swath.toUpperCase();
 
-        // map key: ORBIT NUMBER
-        int mapKey = root.getAttributeInt(AbstractMetadata.ABS_ORBIT);
+            for (String polarisation : polarisations) {
+                final String pol = polarisation.isEmpty() ? "" : '_' + polarisation.toUpperCase();
 
-        // metadata: construct classes and define bands
-        final String date = OperatorUtils.getAcquisitionDate(root);
-        final SLCImage meta = new SLCImage(root, product);
-        final Orbit orbit = new Orbit(root, ORBIT_DEGREE);
-        Band bandReal = null;
-        Band bandImag = null;
+                // map key: ORBIT NUMBER
+                String mapKey = root.getAttributeInt(AbstractMetadata.ABS_ORBIT) + subswath + pol;
 
-        // loop through all band names(!) : and pull out only one that matches criteria
-        for (int i = 0; i < numOfBands; i++) {
-            String bandName = bandNames[i];
-            if (bandName.contains(tag) && bandName.contains(date)) {
-                final Band band = product.getBandAt(i);
-                if (BandUtilsDoris.isBandReal(band)) {
-                    bandReal = band;
-                } else if (BandUtilsDoris.isBandImag(band)) {
-                    bandImag = band;
+                // metadata: construct classes and define bands
+                final String date = OperatorUtils.getAcquisitionDate(root);
+                final SLCImage meta = new SLCImage(root, product);
+                final Orbit orbit = new Orbit(root, ORBIT_DEGREE);
+                Band bandReal = null;
+                Band bandImag = null;
+
+                // loop through all band names(!) : and pull out only one that matches criteria
+                for (String bandName : product.getBandNames()) {
+                    if (bandName.contains(tag) && bandName.contains(date)) {
+                        if (subswath.isEmpty() || bandName.contains(subswath)) {
+                            if (pol.isEmpty() || bandName.contains(pol)) {
+                                final Band band = product.getBand(bandName);
+                                if (BandUtilsDoris.isBandReal(band)) {
+                                    bandReal = band;
+                                } else if (BandUtilsDoris.isBandImag(band)) {
+                                    bandImag = band;
+                                }
+                            }
+                        }
+                    }
                 }
-            }
-        }
 
-        try {
-            map.put(mapKey, new CplxContainer(date, meta, orbit, bandReal, bandImag));
-        } catch (Exception e) {
-            e.printStackTrace();
+                map.put(mapKey, new CplxContainer(date, meta, orbit, bandReal, bandImag));
+            }
         }
     }
 
@@ -277,23 +287,22 @@ public class CoherenceOp extends Operator {
 
         // this means there is only one slave! but still do it in the loop
         // loop through masters
-        for (Integer keyMaster : masterMap.keySet()) {
+        for (String keyMaster : masterMap.keySet()) {
 
             CplxContainer master = masterMap.get(keyMaster);
 
-            for (Integer keySlave : slaveMap.keySet()) {
-
-                // generate name for product bands
-                String productName = keyMaster.toString() + '_' + keySlave.toString();
-
+            for (String keySlave : slaveMap.keySet()) {
                 final CplxContainer slave = slaveMap.get(keySlave);
-                final ProductContainer product = new ProductContainer(productName, master, slave, false);
 
-                product.addBand(Unit.COHERENCE, productTag + '_' + master.date + '_' + slave.date);
-                product.addBand(COHERENCE_PHASE, "Phase_" + productTag + '_' + master.date + '_' + slave.date);
+                if (master.polarisation.equals(slave.polarisation)) {
+                    // generate name for product bands
+                    String productName = keyMaster + '_' + keySlave;
 
-                // put ifg-product bands into map
-                targetMap.put(productName, product);
+                    final ProductContainer product = new ProductContainer(productName, master, slave, false);
+
+                    // put ifg-product bands into map
+                    targetMap.put(productName, product);
+                }
             }
         }
     }
@@ -312,17 +321,26 @@ public class CoherenceOp extends Operator {
                 final java.util.List<String> targetBandNames = new ArrayList<>();
 
                 final ProductContainer container = targetMap.get(key);
-                final String coherenceBandName = container.getBandName(Unit.COHERENCE);
+                final CplxContainer master = container.sourceMaster;
+                final CplxContainer slave = container.sourceSlave;
+
+                final String subswath = master.subswath.isEmpty() ? "" : '_' + master.subswath.toUpperCase();
+                final String pol = master.polarisation.isEmpty() ? "" : '_' + master.polarisation.toUpperCase();
+                final String tag = subswath + pol + '_' + master.date + '_' + slave.date;
+
+                final String coherenceBandName = productTag + tag;
                 final Band coherenceBand = targetProduct.addBand(coherenceBandName, ProductData.TYPE_FLOAT32);
+                container.addBand(Unit.COHERENCE, coherenceBand.getName());
                 coherenceBand.setUnit(Unit.COHERENCE);
                 targetBandNames.add(coherenceBand.getName());
 
-                /*if (subtractFlatEarthPhase) {
-                    final String coherencePhaseBandName = container.getBandName(COHERENCE_PHASE);
-                    final Band coherencePhaseBand = targetProduct.addBand(coherencePhaseBandName, ProductData.TYPE_FLOAT32);
-                    coherencePhaseBand.setUnit(Unit.PHASE);
-                    targetBandNames.add(coherencePhaseBand.getName());
-                }*/
+//                if (subtractFlatEarthPhase) {
+//                    final String coherencePhaseBandName = "Phase_" + coherenceBandName;
+//                    final Band coherencePhaseBand = targetProduct.addBand(coherencePhaseBandName, ProductData.TYPE_FLOAT32);
+//                    container.addBand(Unit.PHASE, coherencePhaseBand.getName());
+//                    coherencePhaseBand.setUnit(Unit.PHASE);
+//                    targetBandNames.add(coherencePhaseBand.getName());
+//                }
 
                 String slvProductName = StackUtils.findOriginalSlaveProductName(sourceProduct, container.sourceSlave.realBand);
                 StackUtils.saveSlaveProductBandNames(targetProduct, slvProductName,
@@ -407,11 +425,11 @@ public class CoherenceOp extends Operator {
 
     private void constructFlatEarthPolynomialsForTOPSARProduct() throws Exception {
 
-        for (Integer keyMaster : masterMap.keySet()) {
+        for (String keyMaster : masterMap.keySet()) {
 
             CplxContainer master = masterMap.get(keyMaster);
 
-            for (Integer keySlave : slaveMap.keySet()) {
+            for (String keySlave : slaveMap.keySet()) {
 
                 CplxContainer slave = slaveMap.get(keySlave);
 
@@ -434,11 +452,11 @@ public class CoherenceOp extends Operator {
 
     private void constructFlatEarthPolynomials() throws Exception {
 
-        for (Integer keyMaster : masterMap.keySet()) {
+        for (String keyMaster : masterMap.keySet()) {
 
             CplxContainer master = masterMap.get(keyMaster);
 
-            for (Integer keySlave : slaveMap.keySet()) {
+            for (String keySlave : slaveMap.keySet()) {
 
                 CplxContainer slave = slaveMap.get(keySlave);
 
