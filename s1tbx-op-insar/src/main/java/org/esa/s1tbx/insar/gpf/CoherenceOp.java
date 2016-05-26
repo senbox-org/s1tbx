@@ -277,8 +277,9 @@ public class CoherenceOp extends Operator {
                         }
                     }
                 }
-
-                map.put(mapKey, new CplxContainer(date, meta, orbit, bandReal, bandImag));
+                if(bandReal != null && bandImag != null) {
+                    map.put(mapKey, new CplxContainer(date, meta, orbit, bandReal, bandImag));
+                }
             }
         }
     }

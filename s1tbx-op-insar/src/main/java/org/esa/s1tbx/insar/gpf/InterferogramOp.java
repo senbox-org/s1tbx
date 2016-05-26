@@ -385,7 +385,6 @@ public class InterferogramOp extends Operator {
 
                 Band bandReal = null;
                 Band bandImag = null;
-
                 for (String bandName : product.getBandNames()) {
                     if (bandName.contains(tag) && bandName.contains(date)) {
                         if (subswath.isEmpty() || bandName.contains(subswath)) {
@@ -400,8 +399,9 @@ public class InterferogramOp extends Operator {
                         }
                     }
                 }
-
-                map.put(mapKey, new CplxContainer(date, meta, orbit, bandReal, bandImag));
+                if(bandReal != null && bandImag != null) {
+                    map.put(mapKey, new CplxContainer(date, meta, orbit, bandReal, bandImag));
+                }
             }
         }
     }
