@@ -569,7 +569,7 @@ public final class TOPSARDeburstOp extends Operator {
 
         updateSwathTiming();
 
-        if (su.getSubSwathNames().length > 1) {
+        if (su.getNumOfSubSwath() > 1) {
             updateCalibrationVector();
             //updateNoiseVector(); //todo: not implemented yet
         }
