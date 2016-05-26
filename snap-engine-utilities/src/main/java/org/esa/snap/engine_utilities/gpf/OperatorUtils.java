@@ -102,7 +102,10 @@ public final class OperatorUtils {
     public static String[] getPolarisations(final Product product) {
         final Set<String> polarisationSet = new HashSet<>();
         for(Band band : product.getBands()) {
-            polarisationSet.add(OperatorUtils.getPolarizationFromBandName(band.getName()));
+            String pol = OperatorUtils.getPolarizationFromBandName(band.getName());
+            if(pol != null) {
+                polarisationSet.add(pol);
+            }
         }
         return polarisationSet.toArray(new String[polarisationSet.size()]);
     }
