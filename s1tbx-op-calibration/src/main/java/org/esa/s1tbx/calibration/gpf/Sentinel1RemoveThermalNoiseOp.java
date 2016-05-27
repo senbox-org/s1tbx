@@ -41,6 +41,7 @@ import org.esa.snap.engine_utilities.util.Maths;
 import java.awt.*;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Apply thermal noise correction to Sentinel-1 Level-1 products.
@@ -122,7 +123,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
             setSelectedPolarisations();
 
-            getThermalNoiseVectors();
+            noise = getThermalNoiseVectors(origMetadataRoot, selectedPolList, numOfSubSwath);
 
             getCalibrationFlag();
 
@@ -191,9 +192,11 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     /**
      * Get thermal noise vectors from the original product metadata.
      */
-    private void getThermalNoiseVectors() {
+    public static ThermalNoiseInfo[] getThermalNoiseVectors(final MetadataElement origMetadataRoot,
+                                                            final List<String> selectedPolList,
+                                                            final int numOfSubSwath) {
 
-        noise = new ThermalNoiseInfo[numOfSubSwath * selectedPolList.size()];
+        final ThermalNoiseInfo[] noise = new ThermalNoiseInfo[numOfSubSwath * selectedPolList.size()];
         final MetadataElement noiseElem = origMetadataRoot.getElement("noise");
         final MetadataElement[] noiseDataSetListElem = noiseElem.getElements();
 
@@ -219,6 +222,8 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
             dataSetIndex++;
         }
+
+        return noise;
     }
 
     /**
