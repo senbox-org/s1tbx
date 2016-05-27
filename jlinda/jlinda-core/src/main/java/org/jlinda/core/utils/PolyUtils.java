@@ -19,7 +19,7 @@ public class PolyUtils {
     private static final Logger logger = SystemUtils.LOG;
 
     private static void setLoggerLevel() {
-        logger.setLevel(Level.WARNING);
+        //logger.setLevel(Level.WARNING);
     }
 
     public static double normalize2(double data, final int min, final int max) {
@@ -185,11 +185,11 @@ public class PolyUtils {
         DoubleMatrix e_hat = y.sub(y_hat);
 
         // 0.05 is already 1 wavelength! (?)
-        if (e_hat.normmax() > 0.02) {
-            logger.warning("WARNING: Max. approximation error at datapoints (x,y,or z?): {"+e_hat.normmax()+"}");
-        } else {
-            logger.fine("Max. approximation error at datapoints (x,y,or z?): {"+ e_hat.normmax()+"}");
-        }
+//        if (e_hat.normmax() > 0.02) {
+//            logger.warning("WARNING: Max. approximation error at datapoints (x,y,or z?): {"+e_hat.normmax()+"}");
+//        } else {
+//            logger.fine("Max. approximation error at datapoints (x,y,or z?): {"+ e_hat.normmax()+"}");
+//        }
 
         if (logger.isLoggable(Level.FINE)) {
             logger.fine("REPORTING POLYFIT LEAST SQUARES ERRORS");
