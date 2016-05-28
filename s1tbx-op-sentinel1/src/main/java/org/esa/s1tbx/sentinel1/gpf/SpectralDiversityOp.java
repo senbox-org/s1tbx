@@ -79,42 +79,25 @@ public class SpectralDiversityOp extends Operator {
     @TargetProduct(description = "The target product which will use the master's grid.")
     private Product targetProduct = null;
 
-
-    @Parameter(valueSet = {"32", "64", "128", "256", "512", "1024", "2048"}, defaultValue = "512",
+    @Parameter(valueSet = {"32", "64", "128","256", "512", "1024", "2048"}, defaultValue = "512",
             label = "Registration Window Width")
-    private String coarseRegistrationWindowWidth = "512";
+    private String fineWinWidthStr = "512";
 
-    @Parameter(valueSet = {"32", "64", "128", "256", "512", "1024", "2048"}, defaultValue = "512",
-            label = "Registration Window Height")
-    private String coarseRegistrationWindowHeight = "512";
-
-    @Parameter(valueSet = {"2", "4", "8", "16", "32", "64", "128", "256"},
-            defaultValue = "16", label = "Search Window Accuracy in Azimuth Direction")
-    private String coarseRegistrationWindowAccAzimuth = "16";
-
-    @Parameter(valueSet = {"2", "4", "8", "16", "32", "64", "128", "256"},
-            defaultValue = "16", label = "Search Window Accuracy in Range Direction")
-    private String coarseRegistrationWindowAccRange = "16";
-
-    @Parameter(valueSet = {"8", "16", "32", "64", "128", "256", "512"}, defaultValue = "64",
-            label = "Fine Registration Window Width")
-    private String fineRegistrationWindowWidth = "64";
-
-    @Parameter(valueSet = {"8", "16", "32", "64", "128", "256", "512"}, defaultValue = "64",
-            label = "Fine Registration Window Height")
-    private String fineRegistrationWindowHeight = "64";
+    @Parameter(valueSet = {"32", "64", "128","256", "512", "1024", "2048"}, defaultValue = "512",
+            label = "Registration Window Width")
+    private String fineWinHeightStr = "512";
 
     @Parameter(valueSet = {"2", "4", "8", "16", "32", "64"}, defaultValue = "16",
             label = "Search Window Accuracy in Azimuth Direction")
-    private String fineRegistrationWindowAccAzimuth = "16";
+    private String fineWinAccAzimuth = "16";
 
     @Parameter(valueSet = {"2", "4", "8", "16", "32", "64"}, defaultValue = "16",
             label = "Search Window Accuracy in Range Direction")
-    private String fineRegistrationWindowAccRange = "16";
+    private String fineWinAccRange = "16";
 
-    @Parameter(valueSet = {"2", "4", "8", "16", "32", "64"}, defaultValue = "16",
+    @Parameter(valueSet = {"32", "64", "128", "256"}, defaultValue = "128",
             label = "Window oversampling factor")
-    private String fineRegistrationOversampling = "16";
+    private String fineWinOversampling = "128";
 
     @Parameter(description = "The peak cross-correlation threshold", interval = "(0, *)", defaultValue = "0.1",
             label = "Cross-Correlation Threshold")
@@ -140,8 +123,12 @@ public class SpectralDiversityOp extends Operator {
             label = "The overall range shift")
     private double overallRangeShift = 0.0;
 
-    private int cWindowWidth = 0;
-    private int cWindowHeight = 0;
+    private int fineWinWidth = 0;
+    private int fineWinHeight = 0;
+    private int fineWinAccY = 0;
+    private int fineWinAccX = 0;
+    private int fineWinOvsFactor = 0;
+
     private boolean isRangeOffsetAvailable = false;
     private boolean isAzimuthOffsetAvailable = false;
     private double azOffset = 0.0;
@@ -150,10 +137,10 @@ public class SpectralDiversityOp extends Operator {
     private Sentinel1Utils su;
     private Sentinel1Utils.SubSwathInfo[] subSwath = null;
     private int subSwathIndex = 0;
-    private Band mstBand = null;
-    private Band slvBand = null;
-    private CrossCorrelationOp.CorrelationWindow fineWin = null;
-    private CrossCorrelationOp.CorrelationWindow coarseWin = null;
+    private Band mstBandI = null;
+    private Band mstBandQ = null;
+    private Band slvBandI = null;
+    private Band slvBandQ = null;
 
     private String swathIndexStr = null;
     private String[] subSwathNames = null;
@@ -213,35 +200,26 @@ public class SpectralDiversityOp extends Operator {
 
             } else {
 
-                cWindowWidth = Integer.parseInt(coarseRegistrationWindowWidth);
-                cWindowHeight = Integer.parseInt(coarseRegistrationWindowHeight);
+                fineWinWidth = Integer.parseInt(fineWinWidthStr);
+                fineWinHeight = Integer.parseInt(fineWinHeightStr);
+                fineWinAccY = Integer.parseInt(fineWinAccAzimuth);
+                fineWinAccX = Integer.parseInt(fineWinAccRange);
+                fineWinOvsFactor = Integer.parseInt(fineWinOversampling);
 
-                if (subSwath[subSwathIndex - 1].samplesPerBurst < cWindowWidth) {
+                if (subSwath[subSwathIndex - 1].samplesPerBurst < fineWinWidth) {
                     throw new OperatorException("Registration window width should not be grater than burst width " +
                             subSwath[subSwathIndex - 1].samplesPerBurst);
                 }
 
-                if (subSwath[subSwathIndex - 1].linesPerBurst < cWindowHeight) {
+                if (subSwath[subSwathIndex - 1].linesPerBurst < fineWinHeight) {
                     throw new OperatorException("Registration window height should not be grater than burst height " +
                             subSwath[subSwathIndex - 1].linesPerBurst);
                 }
 
-                coarseWin = new CrossCorrelationOp.CorrelationWindow(
-                        cWindowWidth,
-                        cWindowHeight,
-                        Integer.parseInt(coarseRegistrationWindowAccAzimuth),
-                        Integer.parseInt(coarseRegistrationWindowAccRange),
-                        1);
-
-                fineWin = new CrossCorrelationOp.CorrelationWindow(
-                        Integer.parseInt(fineRegistrationWindowWidth),
-                        Integer.parseInt(fineRegistrationWindowHeight),
-                        Integer.parseInt(fineRegistrationWindowAccRange),
-                        Integer.parseInt(fineRegistrationWindowAccAzimuth),
-                        Integer.parseInt(fineRegistrationOversampling));
-
-                mstBand = getAmplitudeOrIntensityBand(StackUtils.MST);
-                slvBand = getAmplitudeOrIntensityBand(StackUtils.SLV);
+                mstBandI = getSourceBand(StackUtils.MST, Unit.REAL);
+                mstBandQ = getSourceBand(StackUtils.MST, Unit.IMAGINARY);
+                slvBandI = getSourceBand(StackUtils.SLV, Unit.REAL);
+                slvBandQ = getSourceBand(StackUtils.SLV, Unit.IMAGINARY);
             }
 
             createTargetProduct();
@@ -526,19 +504,16 @@ public class SpectralDiversityOp extends Operator {
                         try {
                             final double[] offset = new double[2]; // az/rg offset
 
-                            final boolean getOffset = estimateAzRgOffsets(burstIndex, offset);
+                            estimateAzRgOffsets(burstIndex, offset);
 
                             /*System.out.println("x0 = " + rectangle.x + ", y0 = " + rectangle.y +
                                     ", w = " + rectangle.width + ", h = " + rectangle.height +
                                     ", azOffset = " + offset[0] + ", rgOffset = " + offset[1]);*/
 
-                            if (getOffset && Math.abs(offset[0]) < maxRangeShift &&
-                                    Math.abs(offset[1]) < maxRangeShift) {
-                                synchronized(azOffsetArray) {
-                                    azOffsetArray.add(offset[0]);
-                                    rgOffsetArray.add(offset[1]);
-                                    burstIndexArray.add(burstIndex);
-                                }
+                            synchronized(azOffsetArray) {
+                                azOffsetArray.add(offset[0]);
+                                rgOffsetArray.add(offset[1]);
+                                burstIndexArray.add(burstIndex);
                             }
                         } catch (Throwable e) {
                             OperatorUtils.catchOperatorException("estimateOffset", e);
@@ -560,6 +535,14 @@ public class SpectralDiversityOp extends Operator {
 
                 //SystemUtils.LOG.info("RangeShiftOp: burst = " + burstIndexArray.get(i) + ", azimuth offset = " + azShift);
                 //SystemUtils.LOG.info("RangeShiftOp: burst = " + burstIndexArray.get(i) + ", range offset = " + rgShift);
+
+                if (azShift == noDataValue || rgShift == noDataValue) {
+                    continue;
+                }
+
+                if (Math.abs(rgShift) > maxRangeShift) {
+                    continue;
+                }
 
                 sumAzOffset += azShift;
                 sumRgOffset += rgShift;
@@ -584,7 +567,7 @@ public class SpectralDiversityOp extends Operator {
         SystemUtils.LOG.info("RangeShiftOp: Overall range shift = " + rgOffset);
     }
 
-    private boolean estimateAzRgOffsets(final int burstIndex, final double[] offset) {
+    private void estimateAzRgOffsets(final int burstIndex, final double[] offset) {
 
         final int burstHeight = subSwath[subSwathIndex - 1].linesPerBurst;
         final int burstWidth = subSwath[subSwathIndex - 1].samplesPerBurst;
@@ -593,91 +576,56 @@ public class SpectralDiversityOp extends Operator {
         final PixelPos mGCP = new PixelPos(x0, y0);
         final PixelPos sGCP = new PixelPos(x0, y0);
 
-        boolean getSlaveGCP = getCoarseOffsets(mGCP, sGCP);
-        if (getSlaveGCP) {
-            getSlaveGCP = getFineOffsets(mGCP, sGCP);
-        }
-
-        if (getSlaveGCP) {
-            offset[0] = mGCP.getY() - sGCP.getY();
-            offset[1] = mGCP.getX() - sGCP.getX();
-        } else {
-            offset[0] = noDataValue;
-            offset[1] = noDataValue;
-        }
-
-        return getSlaveGCP;
+        getFineOffsets(mGCP, sGCP, offset);
     }
 
-    private boolean getCoarseOffsets(final PixelPos mGCPPixelPos, final PixelPos sGCPPixelPos) {
+    private void getFineOffsets(final PixelPos mGCPPixelPos, final PixelPos sGCPPixelPos, final double[] offset) {
 
         try {
-            final ComplexDoubleMatrix mI = getComplexDoubleMatrix(mstBand, null, mGCPPixelPos, coarseWin);
-            final ComplexDoubleMatrix sI = getComplexDoubleMatrix(slvBand, null, sGCPPixelPos, coarseWin);
+            ComplexDoubleMatrix mI = getComplexDoubleMatrix(
+                    mstBandI, mstBandQ, mGCPPixelPos, fineWinWidth, fineWinHeight);
 
-            final double[] coarseOffset = {0, 0};
-
-            double coherence = CoregistrationUtils.crossCorrelateFFT(
-                    coarseOffset, mI, sI, coarseWin.ovsFactor, coarseWin.accY, coarseWin.accX);
-
-//            double coherence = CoregistrationUtils.normalizedCrossCorrelation(
-//                    coarseOffset, mI, sI, coarseWin.ovsFactor, coarseWin.accY, coarseWin.accX);
-
-            if (coherence < xCorrThreshold) {
-                return false;
-            } else {
-                sGCPPixelPos.x += coarseOffset[1];
-                sGCPPixelPos.y += coarseOffset[0];
-                return true;
-            }
-
-        } catch (Throwable e) {
-            OperatorUtils.catchOperatorException(getId() + " getCoarseOffsets ", e);
-        }
-        return false;
-    }
-
-    private boolean getFineOffsets(final PixelPos mGCPPixelPos, final PixelPos sGCPPixelPos) {
-
-        try {
-            ComplexDoubleMatrix mI = getComplexDoubleMatrix(mstBand, null, mGCPPixelPos, fineWin);
-            ComplexDoubleMatrix sI = getComplexDoubleMatrix(slvBand, null, sGCPPixelPos, fineWin);
+            ComplexDoubleMatrix sI = getComplexDoubleMatrix(
+                    slvBandI, slvBandQ, sGCPPixelPos, fineWinWidth, fineWinHeight);
 
             final double[] fineOffset = {0, 0};
 
             final double coherence = CoregistrationUtils.crossCorrelateFFT(
-                    fineOffset, mI, sI, fineWin.ovsFactor, fineWin.accY, fineWin.accX);
+                    fineOffset, mI, sI, fineWinOvsFactor, fineWinAccY, fineWinAccX);
 
 //            final double coherence = CoregistrationUtils.normalizedCrossCorrelation(
-//                    fineOffset, mI, sI, fineWin.ovsFactor, fineWin.accY, fineWin.accX);
+//                    fineOffset, mI, sI, fineWinOvsFactor, fineWinAccY, fineWinAccX);
 
             if (coherence < xCorrThreshold) {
-                return false;
+                offset[0] = noDataValue;
+                offset[1] = noDataValue;
             } else {
-                sGCPPixelPos.x += fineOffset[1];
-                sGCPPixelPos.y += fineOffset[0];
-                return true;
+                offset[0] = -fineOffset[0];
+                offset[1] = -fineOffset[1];
             }
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId() + " getFineOffsets ", e);
         }
-        return false;
     }
 
-    private ComplexDoubleMatrix getComplexDoubleMatrix(final Band band1, final Band band2, final PixelPos pixelPos,
-                                                       final CrossCorrelationOp.CorrelationWindow corrWindow) {
+    private ComplexDoubleMatrix getComplexDoubleMatrix(
+            final Band band1, final Band band2, final PixelPos pixelPos, final int fineWinWidth, final int fineWinHeight) {
 
-        Rectangle rectangle = corrWindow.defineRectangleMask(pixelPos);
+        Rectangle rectangle = defineRectangleMask(pixelPos, fineWinWidth, fineWinHeight);
         Tile tileReal = getSourceTile(band1, rectangle);
-
-        Tile tileImag = null;
-        if (band2 != null) {
-            tileImag = getSourceTile(band2, rectangle);
-        }
+        Tile tileImag = getSourceTile(band2, rectangle);
         return TileUtilsDoris.pullComplexDoubleMatrix(tileReal, tileImag);
     }
 
-    private Band getAmplitudeOrIntensityBand(final String suffix) {
+    private Rectangle defineRectangleMask(final PixelPos pixelPos, final int fineWinWidth, final int fineWinHeight) {
+        int l0 = (int) (pixelPos.y - fineWinHeight/2);
+        int lN = (int) (pixelPos.y + fineWinHeight/2 - 1);
+        int p0 = (int) (pixelPos.x - fineWinWidth/2);
+        int pN = (int) (pixelPos.x + fineWinWidth/2 - 1);
+        return new Rectangle(p0, l0, pN - p0 + 1, lN - l0 + 1);
+    }
+
+    private Band getSourceBand(final String suffix, final String bandUnit) {
 
         final String[] bandNames = sourceProduct.getBandNames();
         for (String bandName : bandNames) {
@@ -685,7 +633,7 @@ public class SpectralDiversityOp extends Operator {
                 continue;
             }
             final Band band = sourceProduct.getBand(bandName);
-            if (band.getUnit().contains(Unit.AMPLITUDE) || band.getUnit().contains(Unit.INTENSITY)) {
+            if (band.getUnit().contains(bandUnit)) {
                 return band;
             }
         }
