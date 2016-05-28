@@ -160,7 +160,7 @@ public class SpectralDiversityOp extends Operator {
     private String[] polarizations = null;
 
     private static final int cohWin = 5; // window size for coherence calculation
-    private static final int maxRangeShift = 32;
+    private static final int maxRangeShift = 1;
     private static final String DerampDemodPhase = "derampDemodPhase";
 
     /**
@@ -231,7 +231,7 @@ public class SpectralDiversityOp extends Operator {
                         cWindowHeight,
                         Integer.parseInt(coarseRegistrationWindowAccAzimuth),
                         Integer.parseInt(coarseRegistrationWindowAccRange),
-                        2);
+                        1);
 
                 fineWin = new CrossCorrelationOp.CorrelationWindow(
                         Integer.parseInt(fineRegistrationWindowWidth),
@@ -532,7 +532,8 @@ public class SpectralDiversityOp extends Operator {
                                     ", w = " + rectangle.width + ", h = " + rectangle.height +
                                     ", azOffset = " + offset[0] + ", rgOffset = " + offset[1]);*/
 
-                            if (getOffset && offset[0] < maxRangeShift && offset[1] < maxRangeShift) {
+                            if (getOffset && Math.abs(offset[0]) < maxRangeShift &&
+                                    Math.abs(offset[1]) < maxRangeShift) {
                                 synchronized(azOffsetArray) {
                                     azOffsetArray.add(offset[0]);
                                     rgOffsetArray.add(offset[1]);
@@ -895,7 +896,7 @@ public class SpectralDiversityOp extends Operator {
         final MetadataAttribute rangeShiftAttr = new MetadataAttribute("rangeShift", ProductData.TYPE_FLOAT32);
         rangeShiftAttr.setUnit("pixel");
         swathElem.addAttribute(rangeShiftAttr);
-        swathElem.setAttributeDouble("azimuthShift", rangeShift);
+        swathElem.setAttributeDouble("rangeShift", rangeShift);
     }
 
     private void saveOverallAzimuthShift(final double azimuthShift) {
