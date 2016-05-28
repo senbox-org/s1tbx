@@ -229,6 +229,11 @@
             <artifactId>snap-unmix</artifactId>
             <version>${project.version}</version>
         </dependency>
+		<dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-watermask</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>blue-marble-worldmap</artifactId>

@@ -57,7 +57,7 @@ import java.util.regex.Pattern;
                   description = "Allows copying raster data from any number of source products to a specified 'master'" +
                           " product.",
                   authors = "BEAM team",
-                  version = "1.0",
+                  version = "1.1",
                   copyright = "(c) 2012 by Brockmann Consult",
                   internal = false)
 public class MergeOp extends Operator {
@@ -77,11 +77,12 @@ public class MergeOp extends Operator {
     private NodeDescriptor[] includes;
 
     @Parameter(itemAlias = "exclude",
-               description = "Defines nodes to be excluded from the target product (not supported in version 1.0).")
+               description = "Defines nodes to be excluded from the target product (not supported yet).")
     private NodeDescriptor[] excludes;
 
     @Parameter(defaultValue = "1.0E-5f",
-               description = "Defines the maximum lat/lon error in degree between the products.")
+               description = "Defines the maximum lat/lon error in degree between the products. If set to NaN no check " +
+                             "for compatible geographic boundary is performed")
     private float geographicError;
 
     @Override
@@ -172,7 +173,7 @@ public class MergeOp extends Operator {
 
     private void validateSourceProducts() {
         for (Product sourceProduct : getSourceProducts()) {
-            if (!targetProduct.isCompatibleProduct(sourceProduct, geographicError)) {
+            if (!Float.isNaN(geographicError) && !targetProduct.isCompatibleProduct(sourceProduct, geographicError)) {
                 throw new OperatorException(String.format("Product [%s] is not compatible to master product.",
                                                           getSourceProductId(sourceProduct)));
             }

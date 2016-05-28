@@ -1,0 +1,7 @@
+#macro( optional $label $value)
+#if (!$!value || $!value == "")
+#else
+$label
+$value
+#end
+#end
