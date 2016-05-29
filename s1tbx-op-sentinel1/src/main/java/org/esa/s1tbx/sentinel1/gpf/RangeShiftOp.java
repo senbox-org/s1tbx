@@ -82,25 +82,15 @@ public class RangeShiftOp extends Operator {
     private static final double maxCorrThreshold = 0.25;
     private static final int fineWinAccY = 16;
     private static final int fineWinAccX = 16;
-    private static final int fineWinOvsFactor = 16;
+    private static final int fineWinOvsFactor = 128;//16;
 
-    // parameters for fine coregistration using coherence optimization
-    private static final boolean useSlidingWindow = true;
-    private static final int coherenceWindowSize = 3;
-    private static final int fWindowWidth = 32;
-    private static final int fWindowHeight = 32;
-    private static final double coherenceFuncToler = 1.e-5;
-    private static final double coherenceValueToler = 1.e-2;
-    private static final double coherenceThreshold = 0.4;
-
-    private boolean isOffsetAvailable = false;
+    private boolean isRangeOffsetAvailable = false;
     private double azOffset = 0.0;
     private double rgOffset = 0.0;
-    private double azSpacing = 0.0;
-    private double rgSpacing = 0.0;
     private double noDataValue = -9999.0;
     private Sentinel1Utils.SubSwathInfo[] subSwath = null;
     private int subSwathIndex = 0;
+    private String[] subSwathNames = null;
 
 
     /**
@@ -136,7 +126,7 @@ public class RangeShiftOp extends Operator {
             final Sentinel1Utils su = new Sentinel1Utils(sourceProduct);
             subSwath = su.getSubSwath();
 
-            final String[] subSwathNames = su.getSubSwathNames();
+            subSwathNames = su.getSubSwathNames();
             if (subSwathNames.length != 1) {
                 throw new OperatorException("Split product is expected.");
             } else {
@@ -154,8 +144,6 @@ public class RangeShiftOp extends Operator {
             }
 
             createTargetProduct();
-
-            getPixelSpacings();
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -203,12 +191,22 @@ public class RangeShiftOp extends Operator {
         }
 
         targetProduct.setPreferredTileSize(sourceProduct.getSceneRasterWidth(), 10);
+        updateTargetMetadata();
     }
 
-    private void getPixelSpacings() {
-        MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-        rgSpacing = absRoot.getAttributeDouble(AbstractMetadata.range_spacing, 1);
-        azSpacing = absRoot.getAttributeDouble(AbstractMetadata.azimuth_spacing, 1);
+    private void updateTargetMetadata() {
+
+        final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
+        if (absTgt == null) {
+            return;
+        }
+
+        MetadataElement ESDMeasurement = new MetadataElement("ESD Measurement");
+
+        final MetadataElement OverallRgAzShiftElem = new MetadataElement("Overall_Range_Azimuth_Shift");
+        OverallRgAzShiftElem.addElement(new MetadataElement(subSwathNames[0]));
+        ESDMeasurement.addElement(OverallRgAzShiftElem);
+        absTgt.addElement(ESDMeasurement);
     }
 
     /**
@@ -230,7 +228,7 @@ public class RangeShiftOp extends Operator {
 
         try {
 
-            if (!isOffsetAvailable) {
+            if (!isRangeOffsetAvailable) {
                 estimateOffset();
             }
 
@@ -259,7 +257,7 @@ public class RangeShiftOp extends Operator {
 
             /*
             //========== test data generation
-            rgOffset = 3.0;
+            rgOffset = 1.0;//0.009;
             Band slaveBandI = null, slaveBandQ = null;
             Band targetBandI = null, targetBandQ = null;
             final String[] bandNames = sourceProduct.getBandNames();
@@ -330,7 +328,7 @@ public class RangeShiftOp extends Operator {
      */
     private synchronized void estimateOffset() throws Exception {
 
-        if (isOffsetAvailable) {
+        if (isRangeOffsetAvailable) {
             return;
         }
 
@@ -377,38 +375,40 @@ public class RangeShiftOp extends Operator {
             status.done();
             threadManager.finish();
 
+            double sumAzOffset = 0.0;
+            double sumRgOffset = 0.0;
+            int count = 0;
+            for (int i = 0; i < azOffsetArray.size(); i++) {
+                final double azShift = azOffsetArray.get(i);
+                final double rgShift = rgOffsetArray.get(i);
+                final int b = getBurstIndex(y0Array.get(i), rectangleArray);
+                if (b != -1) {
+                    SystemUtils.LOG.info("RangeShiftOp: burst = " + b + ", azimuth offset = " + azShift);
+                    SystemUtils.LOG.info("RangeShiftOp: burst = " + b + ", range offset = " + rgShift);
+                }
+
+                if (azShift == noDataValue || rgShift == noDataValue) {
+                    continue;
+                }
+                sumAzOffset += azShift;
+                sumRgOffset += rgShift;
+                count++;
+            }
+
+            if (count > 0) {
+                azOffset = sumAzOffset / count;
+                rgOffset = sumRgOffset / count;
+            } else {
+                throw new OperatorException("estimateOffset failed.");
+            }
+
+            saveOverallRangeShift(rgOffset);
+
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("estimateOffset", e);
         }
 
-        double sumAzOffset = 0.0;
-        double sumRgOffset = 0.0;
-        int count = 0;
-        for (int i = 0; i < azOffsetArray.size(); i++) {
-            final double azShift = azOffsetArray.get(i);
-            final double rgShift = rgOffsetArray.get(i);
-            final int b = getBurstIndex(y0Array.get(i), rectangleArray);
-            if (b != -1) {
-                SystemUtils.LOG.info("RangeShiftOp: burst = " + b + ", azimuth offset = " + azShift);
-                SystemUtils.LOG.info("RangeShiftOp: burst = " + b + ", range offset = " + rgShift);
-            }
-
-            if (azShift == noDataValue || rgShift == noDataValue) {
-                continue;
-            }
-            sumAzOffset += azShift;
-            sumRgOffset += rgShift;
-            count++;
-        }
-
-        if (count > 0) {
-            azOffset = sumAzOffset / count;
-            rgOffset = sumRgOffset / count;
-        } else {
-            throw new OperatorException("estimateOffset failed.");
-        }
-
-        isOffsetAvailable = true;
+        isRangeOffsetAvailable = true;
         SystemUtils.LOG.info("RangeShiftOp: whole image azimuth offset = " + azOffset);
         SystemUtils.LOG.info("RangeShiftOp: whole image range offset = " + rgOffset);
     }
@@ -462,12 +462,6 @@ public class RangeShiftOp extends Operator {
         // fine coregistration
         getFineOffsetsByCrossCorrelation(
                 mstBandI, mstBandQ, slvBandI, slvBandQ, mGCPPixelPos, sGCPPixelPos, offset);
-
-        sGCPPixelPos.y = mGCPPixelPos.getY() - offset[0];
-        sGCPPixelPos.x = mGCPPixelPos.getX() - offset[1];
-
-        getFineOffsetsByCoherenceOptimization(
-                mstBandI, mstBandQ, slvBandI, slvBandQ, mGCPPixelPos, sGCPPixelPos, offset);
     }
 
     private void getFineOffsetsByCrossCorrelation(
@@ -495,118 +489,21 @@ public class RangeShiftOp extends Operator {
         //System.out.println("coherence = " + coherence + ", offset[0] = " + offset[0] + ", offset[1] = " + offset[1]);
     }
 
-    private void getFineOffsetsByCoherenceOptimization(
-            final Band mstBandI, final Band mstBandQ, final Band slvBandI, final Band slvBandQ,
-            final PixelPos mGCPPixelPos, final PixelPos sGCPPixelPos, final double[] offset) {
+    private void saveOverallRangeShift(final double rangeShift) {
 
-        final FineRegistration fineRegistration = new FineRegistration();
-
-        final FineRegistration.ComplexCoregData complexData =
-                new FineRegistration.ComplexCoregData(coherenceWindowSize,
-                        coherenceFuncToler, coherenceValueToler,
-                        fWindowWidth, fWindowHeight, useSlidingWindow);
-
-        getComplexMasterImagette(mstBandI, mstBandQ, complexData, mGCPPixelPos);
-
-        getInitialComplexSlaveImagette(fineRegistration, complexData, slvBandI, slvBandQ, sGCPPixelPos);
-
-        final double[] p = {sGCPPixelPos.x, sGCPPixelPos.y};
-
-        final double coherence = 1 - fineRegistration.powell(complexData, p);
-
-        complexData.dispose();
-
-        if (coherence < coherenceThreshold) {
-            offset[0] = noDataValue;
-            offset[1] = noDataValue;
-        } else {
-            offset[0] = mGCPPixelPos.getY() - p[1];
-            offset[1] = mGCPPixelPos.getX() - p[0];
+        final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
+        if (absTgt == null) {
+            return;
         }
-        final double rgShiftInMeters = offset[1] * rgSpacing;
-        final double azShiftInMeters = offset[0] * azSpacing;
-        System.out.println("mGCPPixelPos.y = " + mGCPPixelPos.y + ", coherence = " + coherence +
-                ", azShift(m) = " + azShiftInMeters + ", rgShift(m) = " + rgShiftInMeters);
-    }
 
-    private void getInitialComplexSlaveImagette(final FineRegistration fineRegistration,
-                                                final FineRegistration.ComplexCoregData complexData,
-                                                final Band slaveBand1, final Band slaveBand2,
-                                                final PixelPos sGCPPixelPos) {
+        final MetadataElement ESDMeasurement = absTgt.getElement("ESD Measurement");
+        final MetadataElement OverallRgAzShiftElem = ESDMeasurement.getElement("Overall_Range_Azimuth_Shift");
+        final MetadataElement swathElem = OverallRgAzShiftElem.getElement(subSwathNames[0]);
 
-        complexData.sII0 = new double[complexData.fWindowHeight][complexData.fWindowWidth];
-        complexData.sIQ0 = new double[complexData.fWindowHeight][complexData.fWindowWidth];
-
-        complexData.point0[0] = sGCPPixelPos.x;
-        complexData.point0[1] = sGCPPixelPos.y;
-
-        final double[][] sII0data = complexData.sII0;
-        final double[][] sIQ0data = complexData.sIQ0;
-
-        final double[][] tmpI = new double[complexData.fWindowHeight][complexData.fWindowWidth];
-        final double[][] tmpQ = new double[complexData.fWindowHeight][complexData.fWindowWidth];
-
-        final int x0 = (int) (sGCPPixelPos.x + 0.5);
-        final int y0 = (int) (sGCPPixelPos.y + 0.5);
-
-        final int xul = x0 - complexData.fHalfWindowWidth + 1;
-        final int yul = y0 - complexData.fHalfWindowHeight + 1;
-        final Rectangle slaveImagetteRectangle = new Rectangle(xul, yul, complexData.fWindowWidth, complexData.fWindowHeight);
-
-        final Tile slaveImagetteRaster1 = getSourceTile(slaveBand1, slaveImagetteRectangle);
-        final Tile slaveImagetteRaster2 = getSourceTile(slaveBand2, slaveImagetteRectangle);
-
-        final ProductData slaveData1 = slaveImagetteRaster1.getDataBuffer();
-        final ProductData slaveData2 = slaveImagetteRaster2.getDataBuffer();
-        final TileIndex index = new TileIndex(slaveImagetteRaster1);
-        for (int j = 0; j < complexData.fWindowHeight; j++) {
-            index.calculateStride(yul + j);
-            for (int i = 0; i < complexData.fWindowWidth; i++) {
-                final int idx = index.getIndex(xul + i);
-                tmpI[j][i] = slaveData1.getElemDoubleAt(idx);
-                tmpQ[j][i] = slaveData2.getElemDoubleAt(idx);
-            }
-        }
-        slaveData1.dispose();
-        slaveData2.dispose();
-
-        final double xShift = sGCPPixelPos.x - x0;
-        final double yShift = sGCPPixelPos.y - y0;
-        fineRegistration.getShiftedData(complexData, tmpI, tmpQ, xShift, yShift, sII0data, sIQ0data);
-    }
-
-    private void getComplexMasterImagette(final Band mstBandI, final Band mstBandQ,
-                                          final FineRegistration.ComplexCoregData complexData,
-                                          final PixelPos gcpPixelPos) {
-
-        complexData.mII = new double[complexData.fWindowHeight][complexData.fWindowWidth];
-        complexData.mIQ = new double[complexData.fWindowHeight][complexData.fWindowWidth];
-        final int x0 = (int) gcpPixelPos.x;
-        final int y0 = (int) gcpPixelPos.y;
-        final int xul = x0 - complexData.fHalfWindowWidth + 1;
-        final int yul = y0 - complexData.fHalfWindowHeight + 1;
-        final Rectangle masterImagetteRectangle = new Rectangle(xul, yul, complexData.fWindowWidth, complexData.fWindowHeight);
-
-        final Tile masterImagetteRaster1 = getSourceTile(mstBandI, masterImagetteRectangle);
-        final Tile masterImagetteRaster2 = getSourceTile(mstBandQ, masterImagetteRectangle);
-
-        final ProductData masterDataI = masterImagetteRaster1.getDataBuffer();
-        final ProductData masterDataQ = masterImagetteRaster2.getDataBuffer();
-
-        final TileIndex index = new TileIndex(masterImagetteRaster1);
-
-        final double[][] mIIdata = complexData.mII;
-        final double[][] mIQdata = complexData.mIQ;
-        for (int j = 0; j < complexData.fWindowHeight; j++) {
-            index.calculateStride(yul + j);
-            for (int i = 0; i < complexData.fWindowWidth; i++) {
-                final int idx = index.getIndex(xul + i);
-                mIIdata[j][i] = masterDataI.getElemDoubleAt(idx);
-                mIQdata[j][i] = masterDataQ.getElemDoubleAt(idx);
-            }
-        }
-        masterDataI.dispose();
-        masterDataQ.dispose();
+        final MetadataAttribute rangeShiftAttr = new MetadataAttribute("rangeShift", ProductData.TYPE_FLOAT32);
+        rangeShiftAttr.setUnit("pixel");
+        swathElem.addAttribute(rangeShiftAttr);
+        swathElem.setAttributeDouble("rangeShift", rangeShift);
     }
 
     private ComplexDoubleMatrix getComplexDoubleMatrix(
