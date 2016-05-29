@@ -23,7 +23,6 @@ import org.jlinda.core.unwrapping.mcf.utils.SimulateData;
 import org.jlinda.core.unwrapping.mcf.utils.UnwrapUtils;
 import org.perf4j.StopWatch;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static cern.jet.math.Functions.bindArg2;
@@ -56,7 +55,6 @@ public class Unwrapper {
     private boolean roundK = true;
 
     public Unwrapper(DoubleMatrix wrappedPhase) {
-        logger.setLevel(Level.INFO);
 
         this.wrappedPhase = wrappedPhase;
 

@@ -13,7 +13,6 @@ import org.jlinda.core.utils.PolyUtils;
 import org.perf4j.StopWatch;
 
 import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.jblas.MatrixFunctions.abs;
@@ -29,7 +28,6 @@ public class TestEstimation_DoubleMatrix {
         StopWatch clockFull = new StopWatch();
         clockFull.start();
 
-        logger.setLevel(Level.INFO);
         logger.info("Start Estimation");
 
         /** estimation without Data Snooping -- only AdjustA */

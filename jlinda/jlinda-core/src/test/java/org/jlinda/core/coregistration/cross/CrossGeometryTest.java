@@ -11,7 +11,6 @@ import org.junit.Test;
 import javax.media.jai.WarpGeneralPolynomial;
 import javax.media.jai.WarpPolynomial;
 import java.awt.geom.Point2D;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.jlinda.core.utils.PolyUtils.normalize2;
@@ -49,10 +48,6 @@ public class CrossGeometryTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-
-        // define logger level
-        logger.setLevel(Level.INFO);
-
     }
 
     @Test

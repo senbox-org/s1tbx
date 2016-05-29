@@ -24,7 +24,6 @@ import org.perf4j.StopWatch;
 import javax.media.jai.WarpPolynomial;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.jlinda.core.coregistration.utils.CPMUtils.absArgmax;
@@ -106,8 +105,6 @@ public class CPM implements PolynomialModel {
 
     public CPM(final int cpmDegree, final int maxIterations, final float criticalValue, final Window normalWindow,
                final ProductNodeGroup<Placemark> masterGCPGroup, ProductNodeGroup<Placemark> slaveGCPGroup) {
-
-        logger.setLevel(Level.WARNING);
 
         this.numObservations = slaveGCPGroup.getNodeCount();
         this.cpmDegree = cpmDegree;

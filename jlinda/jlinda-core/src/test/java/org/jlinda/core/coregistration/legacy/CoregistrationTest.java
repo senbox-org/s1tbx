@@ -26,7 +26,6 @@ import org.perf4j.StopWatch;
 
 import java.io.File;
 import java.nio.ByteOrder;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -75,10 +74,6 @@ public class CoregistrationTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-
-        // setup logger
-        logger.setLevel(Level.INFO);
-
     }
 
     @Test

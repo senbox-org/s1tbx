@@ -10,7 +10,6 @@ import org.jblas.FloatMatrix;
 import org.jblas.MatrixFunctions;
 import org.jlinda.core.utils.PolyUtils;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.jblas.MatrixFunctions.pow;
@@ -214,8 +213,6 @@ public class SystemOfEquations {
      * @return Design Matrix
      */
     public static double[][] constructDesignMatrix_loop(final double[] line, final double[] pixel, final int degree) {
-
-        logger.setLevel(Level.WARNING);
 
         final int nObs = line.length;
         final int nUnkn = PolyUtils.numberOfCoefficients(degree);

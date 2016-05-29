@@ -20,7 +20,6 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class DInSARTest {
@@ -56,7 +55,6 @@ public class DInSARTest {
 
     @Before
     public void setUp() throws Exception {
-        logger.setLevel(Level.INFO);
     }
 
     @BeforeClass

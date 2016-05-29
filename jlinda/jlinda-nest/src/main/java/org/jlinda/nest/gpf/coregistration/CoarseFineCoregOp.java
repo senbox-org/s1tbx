@@ -54,10 +54,9 @@ import org.jlinda.core.coregistration.utils.CoregistrationUtils;
 import org.jlinda.core.utils.MathUtils;
 import org.jlinda.nest.utils.TileUtilsDoris;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @OperatorMetadata(alias = "CoarseFine-Coregistration",
@@ -158,7 +157,7 @@ public class CoarseFineCoregOp extends Operator {
      * requires that an operator has a default constructor.
      */
     public CoarseFineCoregOp() {
-        logger.setLevel(Level.WARNING);
+
     }
 
     /**
