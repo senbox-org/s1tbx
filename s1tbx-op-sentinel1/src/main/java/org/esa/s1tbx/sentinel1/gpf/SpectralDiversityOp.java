@@ -18,8 +18,6 @@ package org.esa.s1tbx.sentinel1.gpf;
 import com.bc.ceres.core.ProgressMonitor;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 import org.apache.commons.math3.util.FastMath;
-import org.esa.s1tbx.insar.gpf.coregistration.CoarseRegistration;
-import org.esa.s1tbx.insar.gpf.coregistration.CrossCorrelationOp;
 import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataAttribute;
@@ -266,7 +264,7 @@ public class SpectralDiversityOp extends Operator {
             }
 
             Band targetBand;
-            if (srcBandName.contains(StackUtils.MST) || srcBandName.contains("derampDemod")) {
+            if (srcBandName.contains(StackUtils.MST)) { //|| srcBandName.contains("derampDemod")) {
                 targetBand = ProductUtils.copyBand(srcBandName, sourceProduct, srcBandName, targetProduct, true);
             } else if (srcBandName.contains("azOffset") || srcBandName.contains("rgOffset")) {
                 continue;
@@ -506,10 +504,6 @@ public class SpectralDiversityOp extends Operator {
 
                             estimateAzRgOffsets(burstIndex, offset);
 
-                            /*System.out.println("x0 = " + rectangle.x + ", y0 = " + rectangle.y +
-                                    ", w = " + rectangle.width + ", h = " + rectangle.height +
-                                    ", azOffset = " + offset[0] + ", rgOffset = " + offset[1]);*/
-
                             synchronized(azOffsetArray) {
                                 azOffsetArray.add(offset[0]);
                                 rgOffsetArray.add(offset[1]);
@@ -534,7 +528,7 @@ public class SpectralDiversityOp extends Operator {
                 final double rgShift = rgOffsetArray.get(i);
 
                 //SystemUtils.LOG.info("RangeShiftOp: burst = " + burstIndexArray.get(i) + ", azimuth offset = " + azShift);
-                //SystemUtils.LOG.info("RangeShiftOp: burst = " + burstIndexArray.get(i) + ", range offset = " + rgShift);
+                SystemUtils.LOG.info("RangeShiftOp: burst = " + burstIndexArray.get(i) + ", range offset = " + rgShift);
 
                 if (azShift == noDataValue || rgShift == noDataValue) {
                     continue;
@@ -550,21 +544,22 @@ public class SpectralDiversityOp extends Operator {
             }
 
             if (count > 0) {
-                azOffset = sumAzOffset / count;
-                rgOffset = sumRgOffset / count;
+                azOffset = sumAzOffset / (double)count;
+                rgOffset = sumRgOffset / (double)count;
             } else {
                 throw new OperatorException("estimateOffset failed.");
             }
 
             saveOverallRangeShift(rgOffset);
 
+            //SystemUtils.LOG.info("RangeShiftOp: whole image azimuth offset = " + azOffset);
+            SystemUtils.LOG.info("RangeShiftOp: Overall range shift = " + rgOffset);
+
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("estimateOffset", e);
         }
 
         isRangeOffsetAvailable = true;
-        //SystemUtils.LOG.info("RangeShiftOp: whole image azimuth offset = " + azOffset);
-        SystemUtils.LOG.info("RangeShiftOp: Overall range shift = " + rgOffset);
     }
 
     private void estimateAzRgOffsets(final int burstIndex, final double[] offset) {
@@ -617,7 +612,7 @@ public class SpectralDiversityOp extends Operator {
         return TileUtilsDoris.pullComplexDoubleMatrix(tileReal, tileImag);
     }
 
-    private Rectangle defineRectangleMask(final PixelPos pixelPos, final int fineWinWidth, final int fineWinHeight) {
+    private static Rectangle defineRectangleMask(final PixelPos pixelPos, final int fineWinWidth, final int fineWinHeight) {
         int l0 = (int) (pixelPos.y - fineWinHeight/2);
         int lN = (int) (pixelPos.y + fineWinHeight/2 - 1);
         int p0 = (int) (pixelPos.x - fineWinWidth/2);
@@ -729,9 +724,10 @@ public class SpectralDiversityOp extends Operator {
                     }
                 }
                 averagedAzShiftArray[i] = sumAzOffset / numBlocksPerOverlap;
-                //SystemUtils.LOG.info(
-                //        "AzimuthShiftOp: overlap area = " + i + ", azimuth offset = " + averagedAzShiftArray[i]);
                 totalOffset += sumAzOffset;
+
+                SystemUtils.LOG.info(
+                        "AzimuthShiftOp: overlap area = " + i + ", azimuth offset = " + averagedAzShiftArray[i]);
             }
 
             azOffset = totalOffset / numShifts;
@@ -817,7 +813,7 @@ public class SpectralDiversityOp extends Operator {
         return -1;
     }
 
-    private double[] getBlockCoherence(
+    private static double[] getBlockCoherence(
             final int blockIndex, final int blockWidth, final int blockHeight, final double[][] coherence) {
 
         final double[] blockCoherence = new double[blockWidth*blockHeight];
@@ -1166,10 +1162,10 @@ public class SpectralDiversityOp extends Operator {
                 }
 
                 if (count > 0 && mstPowerSum != 0.0 && slvPowerSum != 0.0) {
-                    final double cohRealMean = cohRealSum / count;
-                    final double cohImagMean = cohImagSum / count;
-                    final double mstPowerMean = mstPowerSum / count;
-                    final double slvPowerMean = slvPowerSum / count;
+                    final double cohRealMean = cohRealSum / (double)count;
+                    final double cohImagMean = cohImagSum / (double)count;
+                    final double mstPowerMean = mstPowerSum / (double)count;
+                    final double slvPowerMean = slvPowerSum / (double)count;
                     coherence[yy][xx] = Math.sqrt((cohRealMean * cohRealMean + cohImagMean * cohImagMean) /
                             (mstPowerMean * slvPowerMean));
                 }
