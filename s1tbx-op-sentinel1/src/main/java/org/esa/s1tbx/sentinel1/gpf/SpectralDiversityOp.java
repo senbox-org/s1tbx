@@ -734,7 +734,7 @@ public class SpectralDiversityOp extends Operator {
                 totalOffset += sumAzOffset;
             }
 
-            azOffset = totalOffset / numShifts;
+            azOffset = -totalOffset / numShifts;
             SystemUtils.LOG.info("AzimuthShiftOp: Overall azimuth shift = " + azOffset);
 
             saveOverallAzimuthShift(azOffset);
@@ -956,6 +956,22 @@ public class SpectralDiversityOp extends Operator {
             mQBackArray = (double[]) mTileQBack.getDataBuffer().getElems();
         }
 
+        // handle test data
+        /*if (mDataType == ProductData.TYPE_FLOAT32) {
+            final float[] mIBackArrayFloat = (float[])mTileIBack.getDataBuffer().getElems();
+            final float[] mQBackArrayFloat = (float[])mTileQBack.getDataBuffer().getElems();
+            mIBackArray = new double[mIBackArrayFloat.length];
+            mQBackArray = new double[mQBackArrayFloat.length];
+            for (int i = 0; i < mIBackArrayFloat.length; i++) {
+                mIBackArray[i] = (double)mIBackArrayFloat[i];
+                mQBackArray[i] = (double)mQBackArrayFloat[i];
+            }
+        } else {
+            mIBackArray = (double[]) mTileIBack.getDataBuffer().getElems();
+            mQBackArray = (double[]) mTileQBack.getDataBuffer().getElems();
+        }*/
+
+
         double[] sIBackArray, sQBackArray;
         if (sDataType == ProductData.TYPE_FLOAT32) {
             final float[] sIBackArrayFloat = (float[])sTileIBack.getDataBuffer().getElems();
@@ -990,6 +1006,21 @@ public class SpectralDiversityOp extends Operator {
             mIForArray = (double[]) mTileIFor.getDataBuffer().getElems();
             mQForArray = (double[]) mTileQFor.getDataBuffer().getElems();
         }
+
+        // handle test data
+        /*if (mDataType == ProductData.TYPE_FLOAT32) {
+            final float[] mIForArrayFloat = (float[])mTileIFor.getDataBuffer().getElems();
+            final float[] mQForArrayFloat = (float[])mTileQFor.getDataBuffer().getElems();
+            mIForArray = new double[mIForArrayFloat.length];
+            mQForArray = new double[mQForArrayFloat.length];
+            for (int i = 0; i < mIForArrayFloat.length; i++) {
+                mIForArray[i] = (double)mIForArrayFloat[i];
+                mQForArray[i] = (double)mQForArrayFloat[i];
+            }
+        } else {
+            mIForArray = (double[]) mTileIFor.getDataBuffer().getElems();
+            mQForArray = (double[]) mTileQFor.getDataBuffer().getElems();
+        }*/
 
         double[] sIForArray, sQForArray;
         if (sDataType == ProductData.TYPE_FLOAT32) {
