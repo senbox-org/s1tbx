@@ -76,13 +76,28 @@ public class RangeShiftOp extends Operator {
             label = "Registration Window Width")
     private String fineWinHeightStr = "512";
 
+    @Parameter(valueSet = {"2", "4", "8", "16", "32", "64"}, defaultValue = "16",
+            label = "Search Window Accuracy in Azimuth Direction")
+    private String fineWinAccAzimuth = "16";
+
+    @Parameter(valueSet = {"2", "4", "8", "16", "32", "64"}, defaultValue = "16",
+            label = "Search Window Accuracy in Range Direction")
+    private String fineWinAccRange = "16";
+
+    @Parameter(valueSet = {"32", "64", "128", "256"}, defaultValue = "128",
+            label = "Window oversampling factor")
+    private String fineWinOversampling = "128";
+
+    @Parameter(description = "The peak cross-correlation threshold", interval = "(0, *)", defaultValue = "0.1",
+            label = "Cross-Correlation Threshold")
+    private double xCorrThreshold = 0.1;
+
     // parameters for fine coregistration using cross-correlation
     private int fineWinWidth = 0;
     private int fineWinHeight = 0;
-    private static final double maxCorrThreshold = 0.25;
-    private static final int fineWinAccY = 16;
-    private static final int fineWinAccX = 16;
-    private static final int fineWinOvsFactor = 128;//16;
+    private int fineWinAccY = 0;
+    private int fineWinAccX = 0;
+    private int fineWinOvsFactor = 0;
 
     private boolean isRangeOffsetAvailable = false;
     private double azOffset = 0.0;
@@ -91,7 +106,12 @@ public class RangeShiftOp extends Operator {
     private Sentinel1Utils.SubSwathInfo[] subSwath = null;
     private int subSwathIndex = 0;
     private String[] subSwathNames = null;
+    private Band mstBandI = null;
+    private Band mstBandQ = null;
+    private Band slvBandI = null;
+    private Band slvBandQ = null;
 
+    private static final int maxRangeShift = 1;
 
     /**
      * Default constructor. The graph processing framework
@@ -122,6 +142,9 @@ public class RangeShiftOp extends Operator {
 
             fineWinWidth = Integer.parseInt(fineWinWidthStr);
             fineWinHeight = Integer.parseInt(fineWinHeightStr);
+            fineWinAccY = Integer.parseInt(fineWinAccAzimuth);
+            fineWinAccX = Integer.parseInt(fineWinAccRange);
+            fineWinOvsFactor = Integer.parseInt(fineWinOversampling);
 
             final Sentinel1Utils su = new Sentinel1Utils(sourceProduct);
             subSwath = su.getSubSwath();
@@ -142,6 +165,11 @@ public class RangeShiftOp extends Operator {
                 throw new OperatorException("Registration window height should not be grater than burst height " +
                         subSwath[subSwathIndex - 1].linesPerBurst);
             }
+
+            mstBandI = getSourceBand(StackUtils.MST, Unit.REAL);
+            mstBandQ = getSourceBand(StackUtils.MST, Unit.IMAGINARY);
+            slvBandI = getSourceBand(StackUtils.SLV, Unit.REAL);
+            slvBandQ = getSourceBand(StackUtils.SLV, Unit.IMAGINARY);
 
             createTargetProduct();
 
@@ -229,7 +257,7 @@ public class RangeShiftOp extends Operator {
         try {
 
             if (!isRangeOffsetAvailable) {
-                estimateOffset();
+                estimateRangeOffset();
             }
 
             // perform range shift using FFT
@@ -326,25 +354,25 @@ public class RangeShiftOp extends Operator {
      * Estimate range and azimuth offset using cross-correlation.
      * @throws Exception The exception.
      */
-    private synchronized void estimateOffset() throws Exception {
+    private synchronized void estimateRangeOffset() {
 
         if (isRangeOffsetAvailable) {
             return;
         }
 
-        final Rectangle[] rectangleArray = getRectanglesForAllBursts();
-        final int numBursts = rectangleArray.length;
+        final int numBursts = subSwath[subSwathIndex - 1].numOfBursts;
         final List<Double> azOffsetArray = new ArrayList<>(numBursts);
         final List<Double> rgOffsetArray = new ArrayList<>(numBursts);
-        final List<Integer> y0Array = new ArrayList<>(numBursts);
+        final List<Integer> burstIndexArray = new ArrayList<>(numBursts);
 
         final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
-        status.beginTask("Estimating azimuth and range offsets... ", numBursts);
+        status.beginTask("Estimating range offsets... ", numBursts);
 
         final ThreadManager threadManager = new ThreadManager();
         try {
-            for (final Rectangle rectangle:rectangleArray) {
+            for (int i = 0; i < numBursts; i++) {
                 checkForCancellation();
+                final int burstIndex = i;
 
                 final Thread worker = new Thread() {
                     @Override
@@ -352,7 +380,7 @@ public class RangeShiftOp extends Operator {
                         try {
                             final double[] offset = new double[2]; // az/rg offset
 
-                            estimateAzRgOffsets(rectangle, offset);
+                            estimateAzRgOffsets(burstIndex, offset);
 
                             /*System.out.println("x0 = " + rectangle.x + ", y0 = " + rectangle.y +
                                     ", w = " + rectangle.width + ", h = " + rectangle.height +
@@ -361,7 +389,7 @@ public class RangeShiftOp extends Operator {
                             synchronized(azOffsetArray) {
                                 azOffsetArray.add(offset[0]);
                                 rgOffsetArray.add(offset[1]);
-                                y0Array.add(rectangle.y);
+                                burstIndexArray.add(burstIndex);
                             }
                         } catch (Throwable e) {
                             OperatorUtils.catchOperatorException("estimateOffset", e);
@@ -369,7 +397,6 @@ public class RangeShiftOp extends Operator {
                     }
                 };
                 threadManager.add(worker);
-
                 status.worked(1);
             }
             status.done();
@@ -381,15 +408,18 @@ public class RangeShiftOp extends Operator {
             for (int i = 0; i < azOffsetArray.size(); i++) {
                 final double azShift = azOffsetArray.get(i);
                 final double rgShift = rgOffsetArray.get(i);
-                final int b = getBurstIndex(y0Array.get(i), rectangleArray);
-                if (b != -1) {
-                    SystemUtils.LOG.info("RangeShiftOp: burst = " + b + ", azimuth offset = " + azShift);
-                    SystemUtils.LOG.info("RangeShiftOp: burst = " + b + ", range offset = " + rgShift);
-                }
+
+                //SystemUtils.LOG.info("RangeShiftOp: burst = " + burstIndexArray.get(i) + ", azimuth offset = " + azShift);
+                //SystemUtils.LOG.info("RangeShiftOp: burst = " + burstIndexArray.get(i) + ", range offset = " + rgShift);
 
                 if (azShift == noDataValue || rgShift == noDataValue) {
                     continue;
                 }
+
+                if (Math.abs(rgShift) > maxRangeShift) {
+                    continue;
+                }
+
                 sumAzOffset += azShift;
                 sumRgOffset += rgShift;
                 count++;
@@ -409,84 +439,49 @@ public class RangeShiftOp extends Operator {
         }
 
         isRangeOffsetAvailable = true;
-        SystemUtils.LOG.info("RangeShiftOp: whole image azimuth offset = " + azOffset);
-        SystemUtils.LOG.info("RangeShiftOp: whole image range offset = " + rgOffset);
+        //SystemUtils.LOG.info("RangeShiftOp: whole image azimuth offset = " + azOffset);
+        SystemUtils.LOG.info("RangeShiftOp: Overall range shift = " + rgOffset);
     }
 
-    private int getBurstIndex(final int y0, final Rectangle[] rectangleArray) {
+    private void estimateAzRgOffsets(final int burstIndex, final double[] offset) {
 
-        for (int i = 0; i < rectangleArray.length; i++) {
-            if (y0 == rectangleArray[i].y) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    /**
-     * Get rectangles for all bursts for given sub-swath.
-     * @return The rectangle array.
-     */
-    private Rectangle[] getRectanglesForAllBursts() {
-
-        final int margin = 10;
-        final int numBursts = subSwath[subSwathIndex - 1].numOfBursts;
         final int burstHeight = subSwath[subSwathIndex - 1].linesPerBurst;
         final int burstWidth = subSwath[subSwathIndex - 1].samplesPerBurst;
-        final Rectangle[] rectangleArray = new Rectangle[numBursts];
+        final int x0 = burstWidth / 2;
+        final int y0 = burstHeight / 2 + burstIndex * burstHeight;
+        final PixelPos mGCP = new PixelPos(x0, y0);
+        final PixelPos sGCP = new PixelPos(x0, y0);
 
-        final int x0 = Math.max((burstWidth - fineWinWidth) / 2 - margin, 0);
-        for (int i = 0; i < numBursts; i++) {
-            final int y0 = Math.max((burstHeight - fineWinHeight) / 2 + i * burstHeight - margin, 0);
-            rectangleArray[i] = new Rectangle(x0, y0, fineWinWidth + 2*margin, fineWinHeight + 2*margin);
-        }
-
-        return rectangleArray;
+        getFineOffsets(mGCP, sGCP, offset);
     }
 
-    private void estimateAzRgOffsets(final Rectangle rectangle, final double[] offset) {
+    private void getFineOffsets(final PixelPos mGCPPixelPos, final PixelPos sGCPPixelPos, final double[] offset) {
 
-        final int x0 = rectangle.x;
-        final int y0 = rectangle.y;
-        final int w = rectangle.width;
-        final int h = rectangle.height;
+        try {
+            ComplexDoubleMatrix mI = getComplexDoubleMatrix(
+                    mstBandI, mstBandQ, mGCPPixelPos, fineWinWidth, fineWinHeight);
 
-        final PixelPos mGCPPixelPos = new PixelPos(x0 + w/2, y0 + h/2);
-        final PixelPos sGCPPixelPos = new PixelPos(x0 + w/2, y0 + h/2);
+            ComplexDoubleMatrix sI = getComplexDoubleMatrix(
+                    slvBandI, slvBandQ, sGCPPixelPos, fineWinWidth, fineWinHeight);
 
-        final Band mstBandI = getSourceBand("_mst", Unit.REAL);
-        final Band mstBandQ = getSourceBand("_mst", Unit.IMAGINARY);
-        final Band slvBandI = getSourceBand("_slv", Unit.REAL);
-        final Band slvBandQ = getSourceBand("_slv", Unit.IMAGINARY);
+            final double[] fineOffset = {0, 0};
 
-        // fine coregistration
-        getFineOffsetsByCrossCorrelation(
-                mstBandI, mstBandQ, slvBandI, slvBandQ, mGCPPixelPos, sGCPPixelPos, offset);
-    }
+            final double coherence = CoregistrationUtils.crossCorrelateFFT(
+                    fineOffset, mI, sI, fineWinOvsFactor, fineWinAccY, fineWinAccX);
 
-    private void getFineOffsetsByCrossCorrelation(
-            final Band mstBandI, final Band mstBandQ, final Band slvBandI, final Band slvBandQ,
-            final PixelPos mGCPPixelPos, final PixelPos sGCPPixelPos, final double[] offset) {
+//            final double coherence = CoregistrationUtils.normalizedCrossCorrelation(
+//                    fineOffset, mI, sI, fineWinOvsFactor, fineWinAccY, fineWinAccX);
 
-        ComplexDoubleMatrix mI = getComplexDoubleMatrix(
-                mstBandI, mstBandQ, mGCPPixelPos, fineWinWidth, fineWinHeight);
-
-        ComplexDoubleMatrix sI = getComplexDoubleMatrix(
-                slvBandI, slvBandQ, sGCPPixelPos, fineWinWidth, fineWinHeight);
-
-        final double[] fineOffset = {sGCPPixelPos.y, sGCPPixelPos.x};
-
-        final double maxCorr = CoregistrationUtils.crossCorrelateFFT(
-                fineOffset, mI, sI, fineWinOvsFactor, fineWinAccY, fineWinAccX);
-
-        if (maxCorr < maxCorrThreshold) {
-            offset[0] = noDataValue;
-            offset[1] = noDataValue;
-        } else {
-            offset[0] = -fineOffset[0];
-            offset[1] = -fineOffset[1];
+            if (coherence < xCorrThreshold) {
+                offset[0] = noDataValue;
+                offset[1] = noDataValue;
+            } else {
+                offset[0] = -fineOffset[0];
+                offset[1] = -fineOffset[1];
+            }
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException(getId() + " getFineOffsets ", e);
         }
-        //System.out.println("coherence = " + coherence + ", offset[0] = " + offset[0] + ", offset[1] = " + offset[1]);
     }
 
     private void saveOverallRangeShift(final double rangeShift) {
