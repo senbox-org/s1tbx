@@ -234,6 +234,11 @@ public class RangeShiftOp extends Operator {
         final MetadataElement OverallRgAzShiftElem = new MetadataElement("Overall_Range_Azimuth_Shift");
         OverallRgAzShiftElem.addElement(new MetadataElement(subSwathNames[0]));
         ESDMeasurement.addElement(OverallRgAzShiftElem);
+
+        final MetadataElement RgShiftPerBurstElem = new MetadataElement("Range_Shift_Per_Burst");
+        RgShiftPerBurstElem.addElement(new MetadataElement(subSwathNames[0]));
+        ESDMeasurement.addElement(RgShiftPerBurstElem);
+
         absTgt.addElement(ESDMeasurement);
     }
 
@@ -434,6 +439,8 @@ public class RangeShiftOp extends Operator {
 
             saveOverallRangeShift(rgOffset);
 
+            saveRangeShiftPerBurst(rgOffsetArray, burstIndexArray);
+
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("estimateOffset", e);
         }
@@ -499,6 +506,32 @@ public class RangeShiftOp extends Operator {
         rangeShiftAttr.setUnit("pixel");
         swathElem.addAttribute(rangeShiftAttr);
         swathElem.setAttributeDouble("rangeShift", rangeShift);
+    }
+
+    private void saveRangeShiftPerBurst(final List<Double> rangeShiftArray, final List<Integer> burstIndexArray) {
+
+        final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
+        if (absTgt == null) {
+            return;
+        }
+
+        final MetadataElement ESDMeasurement = absTgt.getElement("ESD Measurement");
+        final MetadataElement RangeShiftPerBurstElem = ESDMeasurement.getElement("Range_Shift_Per_Burst");
+        final MetadataElement swathElem = RangeShiftPerBurstElem.getElement(subSwathNames[0]);
+
+        swathElem.addAttribute(new MetadataAttribute("count", ProductData.TYPE_INT16));
+        swathElem.setAttributeInt("count", rangeShiftArray.size());
+
+        for (int i = 0; i < rangeShiftArray.size(); i++) {
+            final MetadataElement burstListElem = new MetadataElement("RangeShiftList." + i);
+            final MetadataAttribute rangeShiftAttr = new MetadataAttribute("rangeShift", ProductData.TYPE_FLOAT32);
+            rangeShiftAttr.setUnit("pixel");
+            burstListElem.addAttribute(rangeShiftAttr);
+            burstListElem.setAttributeDouble("rangeShift", rangeShiftArray.get(i));
+            burstListElem.addAttribute(new MetadataAttribute("burstIndex", ProductData.TYPE_INT16));
+            burstListElem.setAttributeInt("burstIndex", burstIndexArray.get(i));
+            swathElem.addElement(burstListElem);
+        }
     }
 
     private ComplexDoubleMatrix getComplexDoubleMatrix(
