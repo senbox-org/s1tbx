@@ -15,7 +15,6 @@
  */
 package org.esa.s1tbx.insar.rcp.toolviews.insar_statistics;
 
-import org.esa.s1tbx.insar.rcp.toolviews.InSARStatisticsTopComponent;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
@@ -61,7 +60,7 @@ public class StatResiduals implements InSARStatistic {
                 final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
 
                 final File residualFile = getResidualFile(absRoot);
-                if(residualFile.exists()) {
+                if (residualFile.exists()) {
                     content = readFile(residualFile);
                 } else {
                     content = readFromMetadata(product, absRoot);
@@ -87,7 +86,7 @@ public class StatResiduals implements InSARStatistic {
         return new File(ResourceUtils.getReportFolder(), mstName + "_residual.txt");
     }
 
-    private String readFile(final File file) {
+    private static String readFile(final File file) {
         final StringBuilder str = new StringBuilder();
         try (FileInputStream fis = new FileInputStream(file)) {
             int content;
@@ -101,22 +100,22 @@ public class StatResiduals implements InSARStatistic {
         return str.toString();
     }
 
-    private String readFromMetadata(final Product product, final MetadataElement absRoot) {
+    private static String readFromMetadata(final Product product, final MetadataElement absRoot) {
         final StringBuilder str = new StringBuilder();
         final Formatter formatter = new Formatter(str, Locale.US);
 
         final Band[] bands = product.getBands();
-        for(Band band : bands) {
+        for (Band band : bands) {
             final MetadataElement bandElem = AbstractMetadata.getBandAbsMetadata(absRoot, band.getName(), false);
-            if(bandElem != null) {
+            if (bandElem != null) {
                 MetadataElement warpDataElem = bandElem.getElement("WarpData");
-                if(warpDataElem != null) {
+                if (warpDataElem != null) {
                     final MetadataElement[] GCPElems = warpDataElem.getElements();
                     formatter.format("%15s %15s %15s %15s %15s %20s\n", "GCP", "mst_x", "mst_y", "slv_x", "slv_y", "rms");
 
-                    for(MetadataElement GCPElem : GCPElems) {
+                    for (MetadataElement GCPElem : GCPElems) {
                         formatter.format("%15s", GCPElem.getName());
-                        for(String attrib : GCPElem.getAttributeNames()) {
+                        for (String attrib : GCPElem.getAttributeNames()) {
                             double value = GCPElem.getAttributeDouble(attrib);
                             formatter.format("%15.4f", value);
                         }

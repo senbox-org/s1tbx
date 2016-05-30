@@ -20,15 +20,12 @@ import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
-import org.esa.snap.engine_utilities.gpf.OperatorUtils;
-import org.esa.snap.rcp.SnapApp;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.awt.*;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -53,13 +50,13 @@ public class StatBaselines implements InSARStatistic {
 
     public void update(final Product product) {
 
-        if(InSARStatistic.isValidProduct(product)) {
+        if (InSARStatistic.isValidProduct(product)) {
             try {
                 final InSARStackOverview.IfgStack[] stackOverview = InSARStackOverview.calculateInSAROverview(product);
                 final InSARStackOverview.IfgPair[] slaves = stackOverview[0].getMasterSlave();
 
                 tableModel.clear();
-                for(InSARStackOverview.IfgPair slave : slaves) {
+                for (InSARStackOverview.IfgPair slave : slaves) {
                     CachedBaseline baseline = new CachedBaseline(slave);
                     tableModel.addRow(baseline);
                 }
@@ -85,13 +82,13 @@ public class StatBaselines implements InSARStatistic {
     private String getText() {
         final StringBuilder str = new StringBuilder();
 
-        for(int i=0; i < tableModel.getColumnCount(); ++i) {
+        for (int i = 0; i < tableModel.getColumnCount(); ++i) {
             str.append(tableModel.getColumnName(i));
             str.append(sep);
         }
         str.append('\n');
 
-        for(CachedBaseline baseline : tableModel.data) {
+        for (CachedBaseline baseline : tableModel.data) {
             str.append(baseline.toString());
             str.append('\n');
         }
