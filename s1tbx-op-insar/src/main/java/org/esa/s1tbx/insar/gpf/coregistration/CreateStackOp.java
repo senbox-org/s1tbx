@@ -232,7 +232,7 @@ public class CreateStackOp extends Operator {
             // add master bands first
             if (!appendToMaster) {
                 for (final Band srcBand : slaveBandList) {
-                    if (srcBand == masterBands[0] || (masterBands.length > 1 && srcBand == masterBands[1])) {
+                    if (srcBand.getProduct() == masterProduct) {
                         suffix = StackUtils.MST + StackUtils.createBandTimeStamp(srcBand.getProduct());
 
                         final Band targetBand = new Band(srcBand.getName() + suffix,
@@ -262,7 +262,7 @@ public class CreateStackOp extends Operator {
                 }
             }
             for (final Band srcBand : slaveBandList) {
-                if (!(srcBand == masterBands[0] || (masterBands.length > 1 && srcBand == masterBands[1]))) {
+                if (srcBand.getProduct() != masterProduct) {
                     if (srcBand.getUnit() != null && srcBand.getUnit().equals(Unit.IMAGINARY)) {
                     } else {
                         suffix = StackUtils.SLV + cnt++ + StackUtils.createBandTimeStamp(srcBand.getProduct());
@@ -279,13 +279,8 @@ public class CreateStackOp extends Operator {
                         targetProduct.addBand(targetBand);
 
                         ProductUtils.copyRasterDataNodeProperties(srcBand, targetBand);
-                        if (extent.equals(MASTER_EXTENT) &&
-                                (srcProduct == masterProduct || srcProduct.isCompatibleProduct(targetProduct, 1.0e-3f))) {
+                        if (extent.equals(MASTER_EXTENT) && srcProduct.isCompatibleProduct(targetProduct, 1.0e-3f)) {
                             targetBand.setSourceImage(srcBand.getSourceImage());
-                        }
-
-                        if (srcBand.getProduct() == masterProduct) {
-                            masterProductBands.add(tgtBandName);
                         }
 
                         fixDependencies(targetBand, slaveBandList, suffix);
@@ -298,8 +293,7 @@ public class CreateStackOp extends Operator {
 
             StackUtils.saveMasterProductBandNames(targetProduct,
                                                   masterProductBands.toArray(new String[masterProductBands.size()]));
-            StackUtils.saveSlaveProductNames(sourceProduct, targetProduct,
-                    masterProduct, sourceRasterMap);
+            StackUtils.saveSlaveProductNames(sourceProduct, targetProduct, masterProduct, sourceRasterMap);
 
             updateMetadata();
 

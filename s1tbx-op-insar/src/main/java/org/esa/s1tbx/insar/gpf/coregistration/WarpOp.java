@@ -144,7 +144,6 @@ public class WarpOp extends Operator {
     private Boolean openResidualsFile;
 
     private Band masterBand;
-    private Band masterBand2;
     private boolean complexCoregistration;
     private boolean warpDataAvailable;
 
@@ -281,7 +280,6 @@ public class WarpOp extends Operator {
         if (masterBand.getUnit() != null && masterBand.getUnit().equals(Unit.REAL)) {
             int mstIdx = sourceProduct.getBandIndex(mstBandName);
             if (sourceProduct.getNumBands() > mstIdx + 1) {
-                masterBand2 = sourceProduct.getBandAt(mstIdx + 1);
                 complexCoregistration = true;
             }
         }
@@ -339,8 +337,7 @@ public class WarpOp extends Operator {
         for (int i = 0; i < numSrcBands; i += inc) {
             final Band srcBand = sourceProduct.getBandAt(i);
             Band targetBand;
-            if (srcBand == masterBand || srcBand == masterBand2 ||
-                    StringUtils.contains(masterBandNames, srcBand.getName())) {
+            if (StringUtils.contains(masterBandNames, srcBand.getName())) {
                 if (excludeMaster) {
                     continue;
                 }
@@ -355,8 +352,7 @@ public class WarpOp extends Operator {
             if (complexCoregistration) {
                 final Band srcBandQ = sourceProduct.getBandAt(i + 1);
                 Band targetBandQ;
-                if (srcBand == masterBand || srcBand == masterBand2 ||
-                        StringUtils.contains(masterBandNames, srcBand.getName())) {
+                if (StringUtils.contains(masterBandNames, srcBand.getName())) {
                     targetBandQ = ProductUtils.copyBand(srcBandQ.getName(), sourceProduct, targetProduct, false);
                     targetBandQ.setSourceImage(srcBandQ.getSourceImage());
                 } else {
@@ -525,8 +521,7 @@ public class WarpOp extends Operator {
         for (int i = 0; i < numSrcBands; i += inc) {
 
             final Band srcBand = sourceProduct.getBandAt(i);
-            if (srcBand == masterBand || srcBand == masterBand2 ||
-                    StringUtils.contains(masterBandNames, srcBand.getName()))
+            if (StringUtils.contains(masterBandNames, srcBand.getName()))
                 continue;
 
             ProductNodeGroup<Placemark> slaveGCPGroup = GCPManager.instance().getGcpGroup(srcBand);
