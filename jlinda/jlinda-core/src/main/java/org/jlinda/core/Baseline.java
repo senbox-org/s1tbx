@@ -237,8 +237,8 @@ public class Baseline {
                     final Point velOnSlaveOrb = slaveOrbit.getXYZDot(sTazi);
                     final double angleOrbits = velOnMasterOrb.angle(velOnSlaveOrb);
 
-                    logger.info("Angle between orbits master-slave (at l,p= " + line + ',' + pixel + ") = " +
-                            rad2deg(angleOrbits) + " [deg]");
+                    //logger.info("Angle between orbits master-slave (at l,p= " + line + ',' + pixel + ") = " +
+                    //        rad2deg(angleOrbits) + " [deg]");
 
                     // Note: convergence assumed constant!
                     orbitConvergence = angleOrbits;
@@ -383,12 +383,8 @@ public class Baseline {
 //        logger.info("Bperp_a002 = " + rhsBperp.get(9, 0));
         double maxerr = (abs(eHatBperp)).max();
 
-        if (maxerr > 2.00)//
-        {
+        if (maxerr > 2.00) {
             logger.warning("Max. error bperp modeling at 3D datapoints: " + maxerr + "m");
-
-        } else {
-            logger.info("Max. error bperp modeling at 3D datapoints: " + maxerr + "m");
         }
 //        logger.info("--------------------");
 //        logger.info("Range: r(p) = r0 + dr*p");

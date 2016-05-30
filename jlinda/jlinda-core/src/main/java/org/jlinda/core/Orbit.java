@@ -260,7 +260,7 @@ public final class Orbit {
             if (Math.abs(ellipsoidPositionSolution[0]) < CRITERPOS &&
                     Math.abs(ellipsoidPositionSolution[1]) < CRITERPOS &&
                     Math.abs(ellipsoidPositionSolution[2]) < CRITERPOS) {
-                logger.info("INFO: ellipsoidPosition (converged): {"+ellipsoidPosition+"} ");
+                //logger.info("INFO: ellipsoidPosition (converged): {"+ellipsoidPosition+"} ");
                 break;
 
             } else if (iter >= MAXITER) {
