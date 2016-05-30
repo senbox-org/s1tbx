@@ -108,8 +108,8 @@ public class StatInSARInfo implements InSARStatistic {
             if (overallShiftElem != null) {
                 final MetadataElement burstElem = overallShiftElem.getElementAt(0);
                 if(burstElem != null) {
-                    double rangeShift = burstElem.getAttributeDouble("rangeShift");
-                    double azimuthShift = burstElem.getAttributeDouble("azimuthShift");
+                    double rangeShift = burstElem.getAttributeDouble("rangeShift", 0);
+                    double azimuthShift = burstElem.getAttributeDouble("azimuthShift", 0);
 
                     esdStat = "<br><b>ESD Range Shift: </b>" + rangeShift + "<br>";
                     esdStat += "<b>ESD Azimuth Shift: </b>" + azimuthShift + "<br>";
