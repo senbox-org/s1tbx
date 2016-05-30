@@ -302,6 +302,10 @@ public class SpectralDiversityOp extends Operator {
         OverallRgAzShiftElem.addElement(new MetadataElement(subSwathNames[0]));
         ESDMeasurement.addElement(OverallRgAzShiftElem);
 
+        final MetadataElement RgShiftPerBurstElem = new MetadataElement("Range_Shift_Per_Burst");
+        RgShiftPerBurstElem.addElement(new MetadataElement(subSwathNames[0]));
+        ESDMeasurement.addElement(RgShiftPerBurstElem);
+
         final MetadataElement AzShiftPerOverlapElem = new MetadataElement("Azimuth_Shift_Per_Overlap");
         AzShiftPerOverlapElem.addElement(new MetadataElement(subSwathNames[0]));
         ESDMeasurement.addElement(AzShiftPerOverlapElem);
@@ -551,6 +555,8 @@ public class SpectralDiversityOp extends Operator {
             }
 
             saveOverallRangeShift(rgOffset);
+
+            saveRangeShiftPerBurst(rgOffsetArray, burstIndexArray);
 
             //SystemUtils.LOG.info("RangeShiftOp: whole image azimuth offset = " + azOffset);
             SystemUtils.LOG.info("RangeShiftOp: Overall range shift = " + rgOffset);
@@ -858,6 +864,32 @@ public class SpectralDiversityOp extends Operator {
         azimuthShiftAttr.setUnit("pixel");
         swathElem.addAttribute(azimuthShiftAttr);
         swathElem.setAttributeDouble("azimuthShift", azimuthShift);
+    }
+
+    private void saveRangeShiftPerBurst(final List<Double> rangeShiftArray, final List<Integer> burstIndexArray) {
+
+        final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
+        if (absTgt == null) {
+            return;
+        }
+
+        final MetadataElement ESDMeasurement = absTgt.getElement("ESD Measurement");
+        final MetadataElement RangeShiftPerBurstElem = ESDMeasurement.getElement("Range_Shift_Per_Burst");
+        final MetadataElement swathElem = RangeShiftPerBurstElem.getElement(subSwathNames[0]);
+
+        swathElem.addAttribute(new MetadataAttribute("count", ProductData.TYPE_INT16));
+        swathElem.setAttributeInt("count", rangeShiftArray.size());
+
+        for (int i = 0; i < rangeShiftArray.size(); i++) {
+            final MetadataElement burstListElem = new MetadataElement("RangeShiftList." + i);
+            final MetadataAttribute rangeShiftAttr = new MetadataAttribute("rangeShift", ProductData.TYPE_FLOAT32);
+            rangeShiftAttr.setUnit("pixel");
+            burstListElem.addAttribute(rangeShiftAttr);
+            burstListElem.setAttributeDouble("rangeShift", rangeShiftArray.get(i));
+            burstListElem.addAttribute(new MetadataAttribute("burstIndex", ProductData.TYPE_INT16));
+            burstListElem.setAttributeInt("burstIndex", burstIndexArray.get(i));
+            swathElem.addElement(burstListElem);
+        }
     }
 
     private void saveAzimuthShiftPerOverlap(final double[] averagedAzShiftArray) {
