@@ -113,11 +113,11 @@ public class SpectralDiversityOp extends Operator {
             label = "Use user supplied shifts")
     private boolean useSuppliedShifts = false;
 
-    @Parameter(description = "The overall azimuth shift", interval = "(0, 1)", defaultValue = "0.0",
+    @Parameter(description = "The overall azimuth shift", defaultValue = "0.0",
             label = "The overall azimuth shift")
     private double overallAzimuthShift = 0.0;
 
-    @Parameter(description = "The overall range shift", interval = "(0, 1)", defaultValue = "0.0",
+    @Parameter(description = "The overall range shift", defaultValue = "0.0",
             label = "The overall range shift")
     private double overallRangeShift = 0.0;
 
