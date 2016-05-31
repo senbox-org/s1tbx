@@ -14,7 +14,6 @@ import org.jlinda.core.utils.PolyUtils;
 import org.perf4j.StopWatch;
 
 import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -24,7 +23,6 @@ public class TestEstimation_JAMA {
 
     public static void main(String[] args) throws IOException {
 
-        logger.setLevel(Level.INFO);
         logger.info("Start Estimation");
 
         /** estimation without Data Snooping -- only AdjustA */

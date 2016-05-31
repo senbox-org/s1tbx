@@ -20,7 +20,6 @@ import org.perf4j.StopWatch;
 import javax.media.jai.WarpPolynomial;
 import java.io.IOException;
 import java.util.concurrent.RecursiveAction;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class CPMUtils {
@@ -30,7 +29,6 @@ public class CPMUtils {
 
     public static void main(String[] args) throws IOException {
 
-        logger.setLevel(Level.WARNING);
         logger.info("Start Estimation");
 
         /** estimation without Data Snooping -- only AdjustA */
@@ -93,8 +91,6 @@ public class CPMUtils {
                                          TDoubleArrayList lines, TDoubleArrayList pixels,
                                          TDoubleArrayList yL, TDoubleArrayList yP,
                                          TDoubleArrayList coherence) {
-
-        logger.setLevel(Level.WARNING);
         logger.info("Start EJML Estimation");
 
         int iterationCnt = 0;

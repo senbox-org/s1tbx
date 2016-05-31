@@ -13,7 +13,6 @@ import org.jlinda.core.utils.LinearAlgebraUtils;
 import org.jlinda.core.utils.PolyUtils;
 
 import java.io.File;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class Orbit {
@@ -51,12 +50,9 @@ public final class Orbit {
     private final static double SOL = Constants.SOL;
 
     public Orbit() {
-        logger.setLevel(Level.OFF);
     }
 
     public Orbit(double[] timeVector, double[] xVector, double[] yVector, double[] zVector, int degree) throws Exception {
-
-        logger.setLevel(Level.OFF);
 
         numStateVectors = time.length;
 
@@ -72,8 +68,6 @@ public final class Orbit {
     }
 
     public Orbit(double[][] stateVectors, int degree) throws Exception {
-
-        logger.setLevel(Level.OFF);
 
         setOrbit(stateVectors);
 
@@ -149,8 +143,6 @@ public final class Orbit {
     // TODO: make generic so it can work with arrays of lines as well: see matlab implementation
     public Point lph2xyz(final double line, final double pixel, final double height, final SLCImage slcimage) throws Exception {
 
-        logger.setLevel(Level.OFF);
-
         Point satellitePosition;
         Point satelliteVelocity;
         Point ellipsoidPosition; // returned
@@ -199,10 +191,6 @@ public final class Orbit {
             ellipsoidPosition.y += ellipsoidPositionSolution[1];
             ellipsoidPosition.z += ellipsoidPositionSolution[2];
 
-            //logger.fine("ellipsoidPosition.x = " + ellipsoidPosition.x);
-            //logger.fine("ellipsoidPosition.y = " + ellipsoidPosition.y);
-            //logger.fine("ellipsoidPosition.z = " + ellipsoidPosition.z);
-
             // check convergence
             if (Math.abs(ellipsoidPositionSolution[0]) < CRITERPOS &&
                     Math.abs(ellipsoidPositionSolution[1]) < CRITERPOS &&
@@ -228,8 +216,6 @@ public final class Orbit {
 
     public Point lph2xyz(final double azTime, final double rgTime, final double height, final Point approxXYZCentre)
             throws Exception {
-
-        logger.setLevel(Level.OFF);
 
         Point satellitePosition;
         Point satelliteVelocity;
@@ -270,15 +256,11 @@ public final class Orbit {
             ellipsoidPosition.y += ellipsoidPositionSolution[1];
             ellipsoidPosition.z += ellipsoidPositionSolution[2];
 
-            logger.fine("ellipsoidPosition.x = " + ellipsoidPosition.x);
-            logger.fine("ellipsoidPosition.y = " + ellipsoidPosition.y);
-            logger.fine("ellipsoidPosition.z = " + ellipsoidPosition.z);
-
             // check convergence
             if (Math.abs(ellipsoidPositionSolution[0]) < CRITERPOS &&
                     Math.abs(ellipsoidPositionSolution[1]) < CRITERPOS &&
                     Math.abs(ellipsoidPositionSolution[2]) < CRITERPOS) {
-                logger.info("INFO: ellipsoidPosition (converged): {"+ellipsoidPosition+"} ");
+                //logger.info("INFO: ellipsoidPosition (converged): {"+ellipsoidPosition+"} ");
                 break;
 
             } else if (iter >= MAXITER) {

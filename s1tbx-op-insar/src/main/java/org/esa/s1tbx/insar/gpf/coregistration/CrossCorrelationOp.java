@@ -1481,24 +1481,21 @@ public class CrossCorrelationOp extends Operator {
 
     public static class CorrelationWindow {
 
-        final int height;
-        final int width;
-        final int halfWidth;
-        final int halfHeight;
-        final int accY;
-        final int accX;
-
-        final int ovsFactor;
+        final public int height;
+        final public int width;
+        final public int halfWidth;
+        final public int halfHeight;
+        final public int accY;
+        final public int accX;
+        final public int ovsFactor;
 
         public CorrelationWindow(int winWidth, int winHeight, int accX, int accY, int ovsFactor) {
             this.accX = accX;
             this.accY = accY;
             this.width = winWidth;
             this.height = winHeight;
-
             this.halfWidth = winWidth / 2;
             this.halfHeight = winHeight / 2;
-
             this.ovsFactor = ovsFactor;
         }
 

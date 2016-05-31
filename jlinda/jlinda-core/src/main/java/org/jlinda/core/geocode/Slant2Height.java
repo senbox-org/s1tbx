@@ -11,7 +11,6 @@ import org.jlinda.core.Window;
 import org.jlinda.core.utils.MathUtils;
 import org.jlinda.core.utils.PolyUtils;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.jlinda.core.Constants.PI;
@@ -62,8 +61,6 @@ public class Slant2Height {
     * */
     public Slant2Height(int nPoints, int nHeights, int degree1d, int degree2d,
                         SLCImage master, Orbit masterOrbit, SLCImage slave, Orbit slaveOrbit) {
-
-        logger.setLevel(Level.FINE);
 
         this.nPoints = nPoints;
         this.nHeights = nHeights;

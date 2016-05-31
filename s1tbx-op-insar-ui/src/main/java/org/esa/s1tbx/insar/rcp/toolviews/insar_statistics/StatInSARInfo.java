@@ -63,34 +63,60 @@ public class StatInSARInfo implements InSARStatistic {
                 final ProductData.UTC[] times = StackUtils.getProductTimes(product);
                 final String mstTime = times[0].format();
 
-                final StringBuilder slaveNames = new StringBuilder();
+                final StringBuilder slaveNames = new StringBuilder(255);
                 int i = 1;
                 for (String slaveName : slaveProductNames) {
                     slaveNames.append("<b>Slave Product " + i + ": </b>");
-                    slaveNames.append(slaveName.substring(0, slaveName.lastIndexOf("_")));
-                    slaveNames.append(" [" + times[i].format() + "]");
+                    slaveNames.append(slaveName.substring(0, slaveName.lastIndexOf('_')));
+                    slaveNames.append(" [" + times[i].format() + ']');
                     slaveNames.append("<br>");
                     ++i;
                 }
 
                 String track = "";
-                if(relOrbit != AbstractMetadata.NO_METADATA) {
-                    track = "<b>Track: </b>" + relOrbit + "<br";
+                if (relOrbit != AbstractMetadata.NO_METADATA) {
+                    track = "<b>Track: </b>" + relOrbit + "<br>";
                 }
 
-                textarea.setText("<html>" +
-                                         "<b>Product: </b>" + product.getProductRefString() +" "+ product.getName() + "<br" +
-                                         "<b>Master Product: </b>" + mstName + " [" + mstTime + "]" + "<br>" +
-                                         slaveNames.toString() + "<br>" +
-                                         "<b>Mode: </b>" + mode + "<br" +
-                                         "<b>Orbit: </b>" + orbitFile + "<br" +
-                                         track +
-                                         "</html>"
-                );
+                String esdStats = getESDStats(absRoot);
+
+                final StringBuilder content = new StringBuilder(255);
+                content.append("<html>");
+                content.append("<b>Product: </b>" + product.getProductRefString() + ' ' + product.getName() + "<br>");
+                content.append("<b>Master Product: </b>" + mstName + " [" + mstTime + ']' + "<br>");
+                content.append(slaveNames.toString() + "<br>");
+                content.append("<b>Mode: </b>" + mode + "<br>");
+                content.append("<b>Orbit: </b>" + orbitFile + "<br>");
+                content.append(track);
+                if(!esdStats.isEmpty()) {
+                    content.append(esdStats);
+                }
+                content.append("</html>");
+
+                textarea.setText(content.toString());
             }
         } catch (Exception e) {
             SnapApp.getDefault().handleError("Unable to update product", e);
         }
+    }
+
+    private static String getESDStats(final MetadataElement absRoot) {
+        String esdStat = "";
+        final MetadataElement esdElem = absRoot.getElement(StatESDMeasure.ESD_MEASURE_ELEM);
+        if (esdElem != null) {
+            final MetadataElement overallShiftElem = esdElem.getElement("Overall_Range_Azimuth_Shift");
+            if (overallShiftElem != null) {
+                final MetadataElement burstElem = overallShiftElem.getElementAt(0);
+                if(burstElem != null) {
+                    double rangeShift = burstElem.getAttributeDouble("rangeShift", 0);
+                    double azimuthShift = burstElem.getAttributeDouble("azimuthShift", 0);
+
+                    esdStat = "<br><b>ESD Range Shift: </b>" + rangeShift + "<br>";
+                    esdStat += "<b>ESD Azimuth Shift: </b>" + azimuthShift + "<br>";
+                }
+            }
+        }
+        return esdStat;
     }
 
     public void copyToClipboard() {

@@ -14,7 +14,6 @@ import scpsolver.lpsolver.LinearProgramSolver;
 import scpsolver.lpsolver.SolverFactory;
 import scpsolver.problems.LinearProgram;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.jblas.DoubleMatrix.concatHorizontally;
@@ -43,7 +42,6 @@ public class UnwrapperGLPK {
     }
 
     public UnwrapperGLPK(DoubleMatrix wrappedPhase) {
-        logger.setLevel(Level.INFO);
         this.wrappedPhase = wrappedPhase;
     }
 

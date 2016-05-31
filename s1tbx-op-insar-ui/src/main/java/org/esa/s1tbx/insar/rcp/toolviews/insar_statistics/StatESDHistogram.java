@@ -91,17 +91,17 @@ public class StatESDHistogram implements InSARStatistic {
                 dataset.removeAllSeries();
 
                 int i = 0;
-                for(String subswath : esdData.keySet()) {
+                for (Map.Entry<String, Map<Integer, Double>> stringMapEntry : esdData.entrySet()) {
 
-                    final XYSeries series = new XYSeries(subswath);
-                    final Map<Integer, Double> values = esdData.get(subswath);
-                    for(Integer burst : values.keySet()) {
-                        series.add(burst+1, values.get(burst));
+                    final XYSeries series = new XYSeries(stringMapEntry.getKey());
+                    final Map<Integer, Double> values = stringMapEntry.getValue();
+                    for (Map.Entry<Integer, Double> integerDoubleEntry : values.entrySet()) {
+                        series.add(integerDoubleEntry.getKey() + 1, integerDoubleEntry.getValue());
                     }
 
                     dataset.addSeries(series);
 
-                    XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer)chart.getXYPlot().getRenderer();
+                    XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) chart.getXYPlot().getRenderer();
                     renderer.setSeriesLinesVisible(i, true);
                     renderer.setSeriesShapesVisible(i, true);
 
@@ -125,23 +125,26 @@ public class StatESDHistogram implements InSARStatistic {
         esdData.clear();
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        if(absRoot != null) {
-            final MetadataElement esdElem = absRoot.getElement("Azimuth_Shift_Per_Block");
+        if (absRoot != null) {
+            final MetadataElement esdElem = absRoot.getElement(StatESDMeasure.ESD_MEASURE_ELEM);
             if (esdElem != null) {
-                final MetadataElement[] subSwathElems = esdElem.getElements();
-                if (subSwathElems != null) {
+                final MetadataElement azimuthShiftElem = esdElem.getElement("Azimuth_Shift_Per_Block");
+                if (azimuthShiftElem != null) {
+                    final MetadataElement[] subSwathElems = azimuthShiftElem.getElements();
+                    if (subSwathElems != null) {
 
-                    for (MetadataElement subSwathElem : subSwathElems) {
-                        final Map<Integer, Double> shiftMap = new HashMap<>(9);
-                        esdData.put(subSwathElem.getName(), shiftMap);
+                        for (MetadataElement subSwathElem : subSwathElems) {
+                            final Map<Integer, Double> shiftMap = new HashMap<>(9);
+                            esdData.put(subSwathElem.getName(), shiftMap);
 
-                        final MetadataElement[] overlapElems = subSwathElem.getElements();
-                        if (overlapElems != null) {
-                            for (MetadataElement overlapElem : overlapElems) {
-                                int overlapIndex = overlapElem.getAttributeInt("overlapIndex");
-                                double azimuthShift = overlapElem.getAttributeDouble("azimuthShift");
+                            final MetadataElement[] overlapElems = subSwathElem.getElements();
+                            if (overlapElems != null) {
+                                for (MetadataElement overlapElem : overlapElems) {
+                                    int overlapIndex = overlapElem.getAttributeInt("overlapIndex");
+                                    double azimuthShift = overlapElem.getAttributeDouble("azimuthShift");
 
-                                shiftMap.put(overlapIndex, azimuthShift);
+                                    shiftMap.put(overlapIndex, azimuthShift);
+                                }
                             }
                         }
                     }

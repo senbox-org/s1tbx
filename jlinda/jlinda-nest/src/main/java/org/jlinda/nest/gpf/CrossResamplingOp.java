@@ -37,14 +37,13 @@ import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.WarpGeneralPolynomial;
 import javax.media.jai.WarpPolynomial;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -130,7 +129,7 @@ public class CrossResamplingOp extends Operator {
      * requires that an operator has a default constructor.
      */
     public CrossResamplingOp() {
-        logger.setLevel(Level.INFO);
+
     }
 
     /**

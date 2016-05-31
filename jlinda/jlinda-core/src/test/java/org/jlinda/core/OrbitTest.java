@@ -7,7 +7,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class OrbitTest {
@@ -86,8 +85,6 @@ public class OrbitTest {
 
     @BeforeClass
     public static void setUpTestData() throws Exception {
-
-        logger.setLevel(Level.FINE);
 
         slcimage.parseResFile(resFile);
 
