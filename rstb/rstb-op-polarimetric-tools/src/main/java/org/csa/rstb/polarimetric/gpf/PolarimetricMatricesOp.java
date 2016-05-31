@@ -205,7 +205,7 @@ public final class PolarimetricMatricesOp extends Operator {
             case T3:
             case T4:
                 if (PolBandUtils.isDualPol(sourceProductType)) {
-                    throw new OperatorException("C3 or C4 or T3 or T4 cannot be generated for this product");
+                    throw new OperatorException("Only C2 can be generated for dual pol");
                 }
                 break;
             default:
