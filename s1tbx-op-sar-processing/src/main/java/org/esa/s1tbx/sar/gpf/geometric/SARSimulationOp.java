@@ -55,11 +55,9 @@ import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;
 import org.jlinda.core.SLCImage;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -355,15 +353,7 @@ public final class SARSimulationOp extends Operator {
 
         // add selected slave bands
         if (sourceBandNames == null || sourceBandNames.length == 0) {
-            final Band[] bands = sourceProduct.getBands();
-            final List<String> bandNameList = new ArrayList<>(sourceProduct.getNumBands());
-            for (Band band : bands) {
-                String unit = band.getUnit();
-                if (unit == null || unit.contains(Unit.INTENSITY)) {
-                    bandNameList.add(band.getName());
-                }
-            }
-            sourceBandNames = bandNameList.toArray(new String[bandNameList.size()]);
+            sourceBandNames = sourceProduct.getBandNames();
         }
 
         final Band[] sourceBands = new Band[sourceBandNames.length];
