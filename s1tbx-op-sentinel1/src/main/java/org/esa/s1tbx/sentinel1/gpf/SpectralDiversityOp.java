@@ -402,27 +402,15 @@ public class SpectralDiversityOp extends Operator {
 
             // Perform azimuth Shift
 
-            // get deramp/demodulation phase
-            final Tile derampDemodPhaseTile = getSourceTile(derampDemodPhaseBand, targetRectangle);
-            final ProductData derampDemodPhaseData = derampDemodPhaseTile.getDataBuffer();
-            final TileIndex index = new TileIndex(derampDemodPhaseTile);
-            final double[][] derampDemodPhase = new double[h][w];
-            for (int y = y0; y < yMax; y++) {
-                index.calculateStride(y);
-                final int yy = y - y0;
-                for (int x = x0; x < xMax; x++) {
-                    final int idx = index.getIndex(x);
-                    derampDemodPhase[yy][x - x0] = derampDemodPhaseData.getElemDoubleAt(idx);
-                }
-            }
-
-            // perform deramp and demodulation
+            // get deramp/demodulation phase and perform deramp and demodulation
+            final double[] derampDemodPhase = getSourceData(derampDemodPhaseBand, targetRectangle);
             final double[][] derampDemodI = new double[h][w];
             final double[][] derampDemodQ = new double[h][w];
             for (int r = 0; r < h; r++) {
+                final int rw = r * w;
                 for (int c = 0; c < w; c++) {
-                    final double cosPhase = FastMath.cos(derampDemodPhase[r][c]);
-                    final double sinPhase = FastMath.sin(derampDemodPhase[r][c]);
+                    final double cosPhase = FastMath.cos(derampDemodPhase[rw + c]);
+                    final double sinPhase = FastMath.sin(derampDemodPhase[rw + c]);
                     derampDemodI[r][c] = rangeShiftedI[r][c]*cosPhase - rangeShiftedQ[r][c]*sinPhase;
                     derampDemodQ[r][c] = rangeShiftedI[r][c]*sinPhase + rangeShiftedQ[r][c]*cosPhase;
                 }
@@ -448,7 +436,7 @@ public class SpectralDiversityOp extends Operator {
                     col1[r2] = derampDemodI[r][c];
                     col1[r2 + 1] = derampDemodQ[r][c];
 
-                    col2[r2] = derampDemodPhase[r][c];
+                    col2[r2] = derampDemodPhase[r*w + c];
                     col2[r2 + 1] = 0.0;
                 }
 
