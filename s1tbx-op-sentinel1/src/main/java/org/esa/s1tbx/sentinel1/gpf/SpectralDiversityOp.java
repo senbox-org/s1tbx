@@ -82,7 +82,7 @@ public class SpectralDiversityOp extends Operator {
     private String fineWinWidthStr = "512";
 
     @Parameter(valueSet = {"32", "64", "128","256", "512", "1024", "2048"}, defaultValue = "512",
-            label = "Registration Window Width")
+            label = "Registration Window Height")
     private String fineWinHeightStr = "512";
 
     @Parameter(valueSet = {"2", "4", "8", "16", "32", "64"}, defaultValue = "16",
@@ -264,7 +264,7 @@ public class SpectralDiversityOp extends Operator {
             }
 
             Band targetBand;
-            if (srcBandName.contains(StackUtils.MST)) { //|| srcBandName.contains("derampDemod")) {
+            if (srcBandName.contains(StackUtils.MST) || srcBandName.contains("derampDemod")) {
                 targetBand = ProductUtils.copyBand(srcBandName, sourceProduct, srcBandName, targetProduct, true);
             } else if (srcBandName.contains("azOffset") || srcBandName.contains("rgOffset")) {
                 continue;
@@ -280,7 +280,7 @@ public class SpectralDiversityOp extends Operator {
 
             if(targetBand != null && srcBandName.startsWith("q_")) {
                 final String suffix = srcBandName.substring(1);
-                ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBand("i"+suffix), targetBand, suffix);
+                ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBand('i'+suffix), targetBand, suffix);
             }
         }
 
@@ -395,8 +395,8 @@ public class SpectralDiversityOp extends Operator {
 
                 for (int c = 0; c < w; c++) {
                     int c2 = c * 2;
-                    rangeShiftedI[r][c] = (float)line[c2];
-                    rangeShiftedQ[r][c] = (float)line[c2 + 1];
+                    rangeShiftedI[r][c] = line[c2];
+                    rangeShiftedQ[r][c] = line[c2 + 1];
                 }
             }
 
@@ -467,8 +467,8 @@ public class SpectralDiversityOp extends Operator {
                     final double cosPhase = FastMath.cos(col2[r2]);
                     final double sinPhase = FastMath.sin(col2[r2]);
                     final int idx = tgtTileI.getDataBufferIndex(x, y);
-                    tgtDataI.setElemDoubleAt(idx, (float)(col1[r2] * cosPhase + col1[r2 + 1] * sinPhase));
-                    tgtDataQ.setElemDoubleAt(idx, (float)(-col1[r2] * sinPhase + col1[r2 + 1] * cosPhase));
+                    tgtDataI.setElemDoubleAt(idx, col1[r2] * cosPhase + col1[r2 + 1] * sinPhase);
+                    tgtDataQ.setElemDoubleAt(idx, -col1[r2] * sinPhase + col1[r2 + 1] * cosPhase);
                 }
             }
 
@@ -531,8 +531,8 @@ public class SpectralDiversityOp extends Operator {
                 final double azShift = azOffsetArray.get(i);
                 final double rgShift = rgOffsetArray.get(i);
 
-                //SystemUtils.LOG.info("RangeShiftOp: burst = " + burstIndexArray.get(i) + ", azimuth offset = " + azShift);
-                SystemUtils.LOG.info("RangeShiftOp: burst = " + burstIndexArray.get(i) + ", range offset = " + rgShift);
+                SystemUtils.LOG.info("RangeShiftOp: burst = " + burstIndexArray.get(i) + ", range offset = " + rgShift
+                                             + ", azimuth offset = " + azShift);
 
                 if (azShift == noDataValue || rgShift == noDataValue) {
                     continue;
@@ -558,7 +558,7 @@ public class SpectralDiversityOp extends Operator {
 
             saveRangeShiftPerBurst(rgOffsetArray, burstIndexArray);
 
-            //SystemUtils.LOG.info("RangeShiftOp: whole image azimuth offset = " + azOffset);
+            SystemUtils.LOG.info("RangeShiftOp: whole image azimuth offset = " + azOffset);
             SystemUtils.LOG.info("RangeShiftOp: Overall range shift = " + rgOffset);
 
         } catch (Throwable e) {
@@ -1054,7 +1054,7 @@ public class SpectralDiversityOp extends Operator {
 
         int k2;
         double phaseK;
-        final double phase = -2.0 * Math.PI * shift / signalLength;
+        final double phase = -2.0 * Math.PI * shift / (double)signalLength;
         final int halfSignalLength = (int) (signalLength * 0.5 + 0.5);
 
         for (int k = 0; k < signalLength; ++k) {
@@ -1143,7 +1143,7 @@ public class SpectralDiversityOp extends Operator {
                 final int colSt = Math.max(xx - halfWindowSize, 0);
                 final int colEd = Math.min(xx + halfWindowSize, w - 1);
 
-                float cohRealSum = 0.0f, cohImagSum = 0.0f, mstPowerSum = 0.0f, slvPowerSum = 0.0f;
+                double cohRealSum = 0.0f, cohImagSum = 0.0f, mstPowerSum = 0.0f, slvPowerSum = 0.0f;
                 int count = 0;
                 for (int r = rowSt; r <= rowEd; r++) {
                     for (int c = colSt; c <= colEd; c++) {

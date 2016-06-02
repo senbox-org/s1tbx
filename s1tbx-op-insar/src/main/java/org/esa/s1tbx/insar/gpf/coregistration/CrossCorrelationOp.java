@@ -911,8 +911,8 @@ public class CrossCorrelationOp extends Operator {
                                    final PixelPos mGCPPixelPos,
                                    final PixelPos sGCPPixelPos) {
         try {
-            SystemUtils.LOG.info("mGCP = ({}, {})" + mGCPPixelPos.x + mGCPPixelPos.y);
-            SystemUtils.LOG.info("Initial sGCP = ({}, {})" + sGCPPixelPos.x + sGCPPixelPos.y);
+            //SystemUtils.LOG.info("mGCP = ({}, {})" + mGCPPixelPos.x + mGCPPixelPos.y);
+            //SystemUtils.LOG.info("Initial sGCP = ({}, {})" + sGCPPixelPos.x + sGCPPixelPos.y);
 
             ComplexDoubleMatrix mI = getComplexDoubleMatrix(masterBand1, masterBand2, mGCPPixelPos, fineWin);
             ComplexDoubleMatrix sI = getComplexDoubleMatrix(slaveBand1, slaveBand2, sGCPPixelPos, fineWin);
@@ -921,8 +921,8 @@ public class CrossCorrelationOp extends Operator {
 
             final double coherence = CoregistrationUtils.crossCorrelateFFT(fineOffset, mI, sI, fineWin.ovsFactor, fineWin.accY, fineWin.accX);
 
-            SystemUtils.LOG.info("Final sGCP = ({},{})" + fineOffset[1] + fineOffset[0]);
-            SystemUtils.LOG.info("Final sGCP coherence = {}" + coherence);
+            //SystemUtils.LOG.info("Final sGCP = ({},{})" + fineOffset[1] + fineOffset[0]);
+            //SystemUtils.LOG.info("Final sGCP coherence = {}" + coherence);
 
             if (coherence < coherenceThreshold) {
                 //System.out.println("Invalid GCP");
