@@ -961,109 +961,15 @@ public class SpectralDiversityOp extends Operator {
                                      final double[] blockCoherence, final Rectangle backwardRectangle,
                                      final Rectangle forwardRectangle, final double spectralSeparation) {
 
-        final int mDataType = mBandI.getDataType();
-        final int sDataType = sBandI.getDataType();
+        final double[] mIBackArray = getSourceData(mBandI, backwardRectangle);
+        final double[] mQBackArray = getSourceData(mBandQ, backwardRectangle);
+        final double[] sIBackArray = getSourceData(sBandI, backwardRectangle);
+        final double[] sQBackArray = getSourceData(sBandQ, backwardRectangle);
 
-        final Tile mTileIBack = getSourceTile(mBandI, backwardRectangle);
-        final Tile mTileQBack = getSourceTile(mBandQ, backwardRectangle);
-        final Tile sTileIBack = getSourceTile(sBandI, backwardRectangle);
-        final Tile sTileQBack = getSourceTile(sBandQ, backwardRectangle);
-
-        double[] mIBackArray, mQBackArray;
-        if (mDataType == ProductData.TYPE_INT16) {
-            final short[] mIBackArrayShort = (short[]) mTileIBack.getDataBuffer().getElems();
-            final short[] mQBackArrayShort = (short[]) mTileQBack.getDataBuffer().getElems();
-            mIBackArray = new double[mIBackArrayShort.length];
-            mQBackArray = new double[mQBackArrayShort.length];
-            for (int i = 0; i < mIBackArrayShort.length; i++) {
-                mIBackArray[i] = (double)mIBackArrayShort[i];
-                mQBackArray[i] = (double)mQBackArrayShort[i];
-            }
-        } else {
-            mIBackArray = (double[]) mTileIBack.getDataBuffer().getElems();
-            mQBackArray = (double[]) mTileQBack.getDataBuffer().getElems();
-        }
-
-        // handle test data
-        /*if (mDataType == ProductData.TYPE_FLOAT32) {
-            final float[] mIBackArrayFloat = (float[])mTileIBack.getDataBuffer().getElems();
-            final float[] mQBackArrayFloat = (float[])mTileQBack.getDataBuffer().getElems();
-            mIBackArray = new double[mIBackArrayFloat.length];
-            mQBackArray = new double[mQBackArrayFloat.length];
-            for (int i = 0; i < mIBackArrayFloat.length; i++) {
-                mIBackArray[i] = (double)mIBackArrayFloat[i];
-                mQBackArray[i] = (double)mQBackArrayFloat[i];
-            }
-        } else {
-            mIBackArray = (double[]) mTileIBack.getDataBuffer().getElems();
-            mQBackArray = (double[]) mTileQBack.getDataBuffer().getElems();
-        }*/
-
-
-        double[] sIBackArray, sQBackArray;
-        if (sDataType == ProductData.TYPE_FLOAT32) {
-            final float[] sIBackArrayFloat = (float[])sTileIBack.getDataBuffer().getElems();
-            final float[] sQBackArrayFloat = (float[])sTileQBack.getDataBuffer().getElems();
-            sIBackArray = new double[sIBackArrayFloat.length];
-            sQBackArray = new double[sQBackArrayFloat.length];
-            for (int i = 0; i < sIBackArrayFloat.length; i++) {
-                sIBackArray[i] = (double)sIBackArrayFloat[i];
-                sQBackArray[i] = (double)sQBackArrayFloat[i];
-            }
-        } else {
-            sIBackArray = (double[]) sTileIBack.getDataBuffer().getElems();
-            sQBackArray = (double[]) sTileQBack.getDataBuffer().getElems();
-        }
-
-        final Tile mTileIFor = getSourceTile(mBandI, forwardRectangle);
-        final Tile mTileQFor = getSourceTile(mBandQ, forwardRectangle);
-        final Tile sTileIFor = getSourceTile(sBandI, forwardRectangle);
-        final Tile sTileQFor = getSourceTile(sBandQ, forwardRectangle);
-
-        double[] mIForArray, mQForArray;
-        if (mDataType == ProductData.TYPE_INT16) {
-            final short[] mIForArrayShort = (short[]) mTileIFor.getDataBuffer().getElems();
-            final short[] mQForArrayShort = (short[]) mTileQFor.getDataBuffer().getElems();
-            mIForArray = new double[mIForArrayShort.length];
-            mQForArray = new double[mQForArrayShort.length];
-            for (int i = 0; i < mIForArrayShort.length; i++) {
-                mIForArray[i] = (double)mIForArrayShort[i];
-                mQForArray[i] = (double)mQForArrayShort[i];
-            }
-        } else {
-            mIForArray = (double[]) mTileIFor.getDataBuffer().getElems();
-            mQForArray = (double[]) mTileQFor.getDataBuffer().getElems();
-        }
-
-        // handle test data
-        /*if (mDataType == ProductData.TYPE_FLOAT32) {
-            final float[] mIForArrayFloat = (float[])mTileIFor.getDataBuffer().getElems();
-            final float[] mQForArrayFloat = (float[])mTileQFor.getDataBuffer().getElems();
-            mIForArray = new double[mIForArrayFloat.length];
-            mQForArray = new double[mQForArrayFloat.length];
-            for (int i = 0; i < mIForArrayFloat.length; i++) {
-                mIForArray[i] = (double)mIForArrayFloat[i];
-                mQForArray[i] = (double)mQForArrayFloat[i];
-            }
-        } else {
-            mIForArray = (double[]) mTileIFor.getDataBuffer().getElems();
-            mQForArray = (double[]) mTileQFor.getDataBuffer().getElems();
-        }*/
-
-        double[] sIForArray, sQForArray;
-        if (sDataType == ProductData.TYPE_FLOAT32) {
-            final float[] sIForArrayFloat = (float[])sTileIFor.getDataBuffer().getElems();
-            final float[] sQForArrayFloat = (float[])sTileQFor.getDataBuffer().getElems();
-            sIForArray = new double[sIForArrayFloat.length];
-            sQForArray = new double[sQForArrayFloat.length];
-            for (int i = 0; i < sIForArrayFloat.length; i++) {
-                sIForArray[i] = (double)sIForArrayFloat[i];
-                sQForArray[i] = (double)sQForArrayFloat[i];
-            }
-        } else {
-            sIForArray = (double[]) sTileIFor.getDataBuffer().getElems();
-            sQForArray = (double[]) sTileQFor.getDataBuffer().getElems();
-        }
+        final double[] mIForArray = getSourceData(mBandI, forwardRectangle);
+        final double[] mQForArray = getSourceData(mBandQ, forwardRectangle);
+        final double[] sIForArray = getSourceData(sBandI, forwardRectangle);
+        final double[] sQForArray = getSourceData(sBandQ, forwardRectangle);
 
         final int arrayLength = mIBackArray.length;
         final double[] backIntReal = new double[arrayLength];
@@ -1089,6 +995,31 @@ public class SpectralDiversityOp extends Operator {
 
         final double phase = Math.atan2(sumImag, sumReal);
         return phase / (2 * Math.PI * spectralSeparation * subSwath[subSwathIndex - 1].azimuthTimeInterval);
+    }
+
+    private double[] getSourceData(final Band srcBand, final Rectangle rectangle) {
+
+        final int dataType = srcBand.getDataType();
+        final Tile srcTile = getSourceTile(srcBand, rectangle);
+
+        double[] dataArray;
+        if (dataType == ProductData.TYPE_INT16) {
+            final short[] dataArrayShort = (short[]) srcTile.getDataBuffer().getElems();
+            dataArray = new double[dataArrayShort.length];
+            for (int i = 0; i < dataArrayShort.length; i++) {
+                dataArray[i] = (double)dataArrayShort[i];
+            }
+        } else if (dataType == ProductData.TYPE_FLOAT32) {
+            final float[] dataArrayFloat = (float[])srcTile.getDataBuffer().getElems();
+            dataArray = new double[dataArrayFloat.length];
+            for (int i = 0; i < dataArrayFloat.length; i++) {
+                dataArray[i] = (double)dataArrayFloat[i];
+            }
+        } else {
+            dataArray = (double[]) srcTile.getDataBuffer().getElems();
+        }
+
+        return dataArray;
     }
 
     private static void complexArrayMultiplication(final double[] realArray1, final double[] imagArray1,
