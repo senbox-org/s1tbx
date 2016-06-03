@@ -131,7 +131,7 @@ public class StatBaselinesChart implements InSARStatistic {
             dataset.addSeries(series);
 
             XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) chart.getXYPlot().getRenderer();
-            renderer.setSeriesLinesVisible(0, true);
+            renderer.setSeriesLinesVisible(0, false);
             renderer.setSeriesShapesVisible(0, true);
 
             chart.getXYPlot().getDomainAxis().setStandardTickUnits(NumberAxis.createIntegerTickUnits());
