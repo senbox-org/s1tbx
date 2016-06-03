@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.insar.rcp.toolviews.insar_statistics;
 
+import org.esa.s1tbx.insar.rcp.toolviews.InSARStatisticsTopComponent;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
@@ -42,12 +43,17 @@ public class StatESDHistogram implements InSARStatistic {
     private JFreeChart chart;
     private XYSeriesCollection dataset;
     private Map<String, Map<Integer, Double>> esdData = new HashMap<>();
+    private final InSARStatisticsTopComponent parent;
 
     private static final String TITLE = "Estimated Shifts per Burst Overlap";
     private static final String XAXIS_LABEL = "Burst Overlap #";
     private static final String YAXIS_LABEL = "ESD Measurement [cm]";
 
     public static final String EmptyMsg = "This tool window requires a coregistered TOPSAR stack product to be selected with ESD applied to it.";
+
+    public StatESDHistogram(final InSARStatisticsTopComponent parent) {
+        this.parent = parent;
+    }
 
     public String getName() {
         return "ESD Histogram";

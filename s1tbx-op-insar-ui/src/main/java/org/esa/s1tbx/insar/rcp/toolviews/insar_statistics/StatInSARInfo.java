@@ -33,9 +33,10 @@ import java.awt.*;
 public class StatInSARInfo implements InSARStatistic {
 
     private JTextPane textarea;
+    private final InSARStatisticsTopComponent parent;
 
-    public StatInSARInfo() {
-
+    public StatInSARInfo(final InSARStatisticsTopComponent parent) {
+        this.parent = parent;
     }
 
     public String getName() {

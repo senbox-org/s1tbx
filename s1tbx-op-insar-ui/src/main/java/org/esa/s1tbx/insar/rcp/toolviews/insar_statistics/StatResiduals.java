@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.insar.rcp.toolviews.insar_statistics;
 
+import org.esa.s1tbx.insar.rcp.toolviews.InSARStatisticsTopComponent;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
@@ -37,9 +38,12 @@ import java.util.Locale;
 public class StatResiduals implements InSARStatistic {
 
     private JTextArea textarea;
+    private final InSARStatisticsTopComponent parent;
+
     private static final String EmptyMsg = "This tool window requires a coregistered Stripmap stack product to be selected";
 
-    public StatResiduals() {
+    public StatResiduals(final InSARStatisticsTopComponent parent) {
+        this.parent = parent;
     }
 
     public String getName() {

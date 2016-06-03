@@ -17,6 +17,7 @@ package org.esa.s1tbx.insar.rcp.toolviews;
 
 import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.InSARStatistic;
 import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.StatBaselines;
+import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.StatBaselinesChart;
 import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.StatESDHistogram;
 import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.StatESDMeasure;
 import org.esa.s1tbx.insar.rcp.toolviews.insar_statistics.StatInSARInfo;
@@ -28,7 +29,6 @@ import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.util.SelectionSupport;
 import org.esa.snap.tango.TangoIcons;
-import org.esa.snap.ui.GridLayout2;
 import org.netbeans.api.annotations.common.NullAllowed;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -110,11 +110,12 @@ public class InSARStatisticsTopComponent extends TopComponent {
 
     public JTabbedPane createPanel() {
 
-        statisticList.add(new StatInSARInfo());
-        statisticList.add(new StatResiduals());
-        statisticList.add(new StatESDMeasure());
-        statisticList.add(new StatESDHistogram());
-        statisticList.add(new StatBaselines());
+        statisticList.add(new StatInSARInfo(this));
+        statisticList.add(new StatResiduals(this));
+        statisticList.add(new StatESDMeasure(this));
+        statisticList.add(new StatESDHistogram(this));
+        statisticList.add(new StatBaselines(this));
+        statisticList.add(new StatBaselinesChart(this));
 
         for (InSARStatistic statistic : statisticList) {
             tabbedPane.add(statistic.getName(), statistic.createPanel());
@@ -151,6 +152,10 @@ public class InSARStatisticsTopComponent extends TopComponent {
         buttonPanel.add(saveBtn);
 
         return buttonPanel;
+    }
+
+    public List<InSARStatistic> getStatisticComponents() {
+        return statisticList;
     }
 
     public class ProductManagerListener implements ProductManager.Listener {

@@ -16,6 +16,7 @@
 package org.esa.s1tbx.insar.rcp.toolviews.insar_statistics;
 
 import org.esa.s1tbx.insar.gpf.InSARStackOverview;
+import org.esa.s1tbx.insar.rcp.toolviews.InSARStatisticsTopComponent;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.util.SystemUtils;
@@ -35,8 +36,16 @@ public class StatBaselines implements InSARStatistic {
 
     private TileCacheTableModel tableModel;
     private JTable table;
+    private final InSARStatisticsTopComponent parent;
+    private CachedBaseline[] cachedBaselines;
+    private Product cachedProduct;
+
     private final static DecimalFormat df = new DecimalFormat("0.00");
     private final static String sep = ", ";
+
+    public StatBaselines(final InSARStatisticsTopComponent parent) {
+        this.parent = parent;
+    }
 
     public String getName() {
         return "Baselines";
@@ -48,23 +57,36 @@ public class StatBaselines implements InSARStatistic {
         return new JScrollPane(table);
     }
 
-    public void update(final Product product) {
-
-        if (InSARStatistic.isValidProduct(product)) {
+    public CachedBaseline[] getBaselines(final Product product) {
+        if (cachedBaselines == null || cachedProduct != product) {
             try {
+                final List<CachedBaseline> baselines = new ArrayList<>(50);
+
                 final InSARStackOverview.IfgStack[] stackOverview = InSARStackOverview.calculateInSAROverview(product);
                 final InSARStackOverview.IfgPair[] slaves = stackOverview[0].getMasterSlave();
 
-                tableModel.clear();
                 for (InSARStackOverview.IfgPair slave : slaves) {
-                    CachedBaseline baseline = new CachedBaseline(slave);
-                    tableModel.addRow(baseline);
+                    baselines.add(new CachedBaseline(slave));
                 }
-                table.repaint();
-
+                cachedProduct = product;
+                cachedBaselines = baselines.toArray(new CachedBaseline[baselines.size()]);
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+        return cachedBaselines;
+    }
+
+    public void update(final Product product) {
+
+        if (InSARStatistic.isValidProduct(product)) {
+            CachedBaseline[] baselines = getBaselines(product);
+
+            tableModel.clear();
+            for (CachedBaseline baseline : baselines) {
+                tableModel.addRow(baseline);
+            }
+            table.repaint();
         } else {
             tableModel.clear();
             table.repaint();
@@ -80,7 +102,7 @@ public class StatBaselines implements InSARStatistic {
     }
 
     private String getText() {
-        final StringBuilder str = new StringBuilder();
+        final StringBuilder str = new StringBuilder(300);
 
         for (int i = 0; i < tableModel.getColumnCount(); ++i) {
             str.append(tableModel.getColumnName(i));
@@ -158,15 +180,17 @@ public class StatBaselines implements InSARStatistic {
         }
     }
 
-    private static class CachedBaseline {
+    public static class CachedBaseline {
         private final String productName;
         private final String perpendicularBaseline;
         private final String temporalBaseline;
         private final String coherence;
         private final String hoa;
         private final String dopplerDifference;
+        private final InSARStackOverview.IfgPair slave;
 
         public CachedBaseline(InSARStackOverview.IfgPair slave) {
+            this.slave = slave;
             this.perpendicularBaseline = df.format(slave.getPerpendicularBaseline());
             this.temporalBaseline = df.format(slave.getTemporalBaseline());
             this.coherence = df.format(slave.getCoherence());
@@ -190,6 +214,10 @@ public class StatBaselines implements InSARStatistic {
                     hoa +
                     sep +
                     dopplerDifference;
+        }
+
+        public InSARStackOverview.IfgPair getIfgPair() {
+            return slave;
         }
     }
 }
