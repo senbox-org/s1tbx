@@ -20,12 +20,7 @@ import org.esa.s1tbx.io.orbits.DorisOrbitFile;
 import org.esa.s1tbx.io.orbits.OrbitFile;
 import org.esa.s1tbx.io.orbits.PrareOrbitFile;
 import org.esa.s1tbx.io.orbits.SentinelPODOrbitFile;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.TiePointGeoCoding;
-import org.esa.snap.core.datamodel.TiePointGrid;
-import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -302,24 +297,36 @@ public final class ApplyOrbitFileOp extends Operator {
      */
     private void updateOrbitStateVectors() throws Exception {
 
-        final MetadataElement tgtAbsRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
+        final double firstLineUTC = AbstractMetadata.parseUTC(
+                absRoot.getAttributeString(AbstractMetadata.first_line_time)).getMJD(); // in days
 
-        // get original orbit state vectors
-        final OrbitStateVector[] orbitStateVectors = AbstractMetadata.getOrbitStateVectors(tgtAbsRoot);
+        final double lastLineUTC = AbstractMetadata.parseUTC(
+                absRoot.getAttributeString(AbstractMetadata.last_line_time)).getMJD(); // in days
+
+        final double delta = 1.0 / Constants.secondsInDay ; // time interval = 1s
+
+        final int numExtraVectors = 10; // # of vectors before and after acquisition period
+
+        final double firstVectorTime = firstLineUTC - numExtraVectors*delta; // in days
+
+        final double lastVectorTime = lastLineUTC + numExtraVectors*delta; // in days
+
+        final int numVectors = (int)((lastVectorTime - firstVectorTime) / delta);
+
+        OrbitStateVector[] orbitStateVectors = new OrbitStateVector[numVectors];
 
         // compute new orbit state vectors
-        for (OrbitStateVector orbitStateVector : orbitStateVectors) {
-            final double time = orbitStateVector.time_mjd;
+        for (int i = 0; i < numVectors; ++i) {
+            final double time = firstVectorTime + i*delta;
             final Orbits.OrbitVector orbitData = orbitProvider.getOrbitData(time);
-            orbitStateVector.x_pos = orbitData.xPos; // m
-            orbitStateVector.y_pos = orbitData.yPos; // m
-            orbitStateVector.z_pos = orbitData.zPos; // m
-            orbitStateVector.x_vel = orbitData.xVel; // m/s
-            orbitStateVector.y_vel = orbitData.yVel; // m/s
-            orbitStateVector.z_vel = orbitData.zVel; // m/s
+            final ProductData.UTC utc = new ProductData.UTC(time);
+
+            orbitStateVectors[i] = new OrbitStateVector(utc, orbitData.xPos, orbitData.yPos, orbitData.zPos,
+                    orbitData.xVel, orbitData.yVel, orbitData.zVel);
         }
 
         // save new orbit state vectors
+        final MetadataElement tgtAbsRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
         AbstractMetadata.setOrbitStateVectors(tgtAbsRoot, orbitStateVectors);
 
         // save orbit file name
