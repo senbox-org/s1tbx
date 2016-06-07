@@ -15,8 +15,8 @@
  */
 package org.esa.s1tbx.sar.rcp.wizards.CoregisterWizard;
 
-import org.esa.s1tbx.dat.wizards.AbstractInstructPanel;
-import org.esa.s1tbx.dat.wizards.WizardPanel;
+import org.esa.snap.graphbuilder.rcp.wizards.AbstractInstructPanel;
+import org.esa.snap.graphbuilder.rcp.wizards.WizardPanel;
 import org.esa.snap.engine_utilities.util.ResourceUtils;
 
 import javax.imageio.ImageIO;

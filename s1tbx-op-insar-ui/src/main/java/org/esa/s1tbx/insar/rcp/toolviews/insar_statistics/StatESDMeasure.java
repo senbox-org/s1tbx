@@ -173,5 +173,9 @@ public class StatESDMeasure implements InSARStatistic {
             SnapApp.getDefault().handleError("Unable to save to file", e);
         }
     }
+
+    public String getHelpId() {
+        return "StatESDMeasure";
+    }
 }
 

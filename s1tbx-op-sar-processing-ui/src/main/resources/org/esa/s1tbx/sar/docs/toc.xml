@@ -37,8 +37,14 @@
                 <tocitem text="WSS Deburst" target="WSSDeburstOp"/>
                 <tocitem text="WSS Mosaic" target="WSSMosaic"/>
             </tocitem>
-            <tocitem text="Multilook" target="MultilookOp"/>
+             <tocitem text="Feature Extraction">
+            </tocitem>
+            <tocitem text="SAR Utilities">
+            </tocitem>
+            <tocitem text="Radar Tool Windows">
+            </tocitem>
             <tocitem text="Complex to Detected GR" target="SLCtoPRI"/>
+            <tocitem text="Multilook" target="MultilookOp"/>
         </tocitem>
     </tocitem>
 </toc>

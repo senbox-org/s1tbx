@@ -6,9 +6,6 @@
 
     <tocitem text="Sentinel Toolbox Application">
         <tocitem text="Radar">
-            <tocitem text="Analysis">
-                <tocitem text="Principle Component Analysis" target="PCA"/>
-            </tocitem>
             <tocitem text="Coregistration">
                 <tocitem text="Coregistration" target="Coregistration">
                     <tocitem text="Create Stack" target="CreateStackOp"/>
@@ -32,6 +29,16 @@
                     <tocitem text="Goldstein Phase Filtering" target="GoldsteinFilterOp"/>
                 </tocitem>
                 <tocitem text="InSAR Stack Overview" target="InSARStackOverview"/>
+            </tocitem>
+            <tocitem text="Radar Tool Windows">
+                <tocitem text="InSAR Stack">
+                    <tocitem text="InSAR Stack Information" target="StatInSARInfo"/>
+                    <tocitem text="Coregistration Residuals" target="StatResiduals"/>
+                    <tocitem text="ESD Measure" target="StatESDMeasure"/>
+                    <tocitem text="ESD Histogram" target="StatESDHistogram"/>
+                    <tocitem text="Baselines" target="StatBaselines"/>
+                    <tocitem text="Baselines Chart" target="StatBaselinesChart"/>
+                </tocitem>
             </tocitem>
         </tocitem>
     </tocitem>

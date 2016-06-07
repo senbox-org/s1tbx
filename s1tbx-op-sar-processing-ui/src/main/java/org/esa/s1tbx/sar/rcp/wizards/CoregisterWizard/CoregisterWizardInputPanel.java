@@ -15,8 +15,8 @@
  */
 package org.esa.s1tbx.sar.rcp.wizards.CoregisterWizard;
 
-import org.esa.s1tbx.dat.wizards.AbstractMultipleInputPanel;
-import org.esa.s1tbx.dat.wizards.WizardPanel;
+import org.esa.snap.graphbuilder.rcp.wizards.AbstractMultipleInputPanel;
+import org.esa.snap.graphbuilder.rcp.wizards.WizardPanel;
 
 /**
  * Input Panel

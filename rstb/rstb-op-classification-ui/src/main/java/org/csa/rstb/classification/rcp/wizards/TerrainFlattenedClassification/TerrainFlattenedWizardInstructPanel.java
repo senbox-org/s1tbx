@@ -15,8 +15,8 @@
  */
 package org.csa.rstb.classification.rcp.wizards.TerrainFlattenedClassification;
 
-import org.esa.s1tbx.dat.wizards.AbstractInstructPanel;
-import org.esa.s1tbx.dat.wizards.WizardPanel;
+import org.esa.snap.graphbuilder.rcp.wizards.AbstractInstructPanel;
+import org.esa.snap.graphbuilder.rcp.wizards.WizardPanel;
 
 /**
  * Instructions Panel

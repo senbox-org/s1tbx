@@ -25,4 +25,11 @@
     <mapID target="PhaseToDisplacementOp" url="operators/PhaseToDisplacementOp.html"/>
     <mapID target="InSARStackOverview" url="operators/InSARStackOverview.html"/>
 
+    <mapID target="StatBaselines" url="desktop/StatBaselines.html"/>
+    <mapID target="StatBaselinesChart" url="desktop/StatBaselinesChart.html"/>
+    <mapID target="StatESDHistogram" url="desktop/StatESDHistogram.html"/>
+    <mapID target="StatESDMeasure" url="desktop/StatESDMeasure.html"/>
+    <mapID target="StatInSARInfo" url="desktop/StatInSARInfo.html"/>
+    <mapID target="StatResiduals" url="desktop/StatResiduals.html"/>
+    
 </map>

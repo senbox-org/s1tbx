@@ -33,6 +33,7 @@ import org.netbeans.api.annotations.common.NullAllowed;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
+import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 
@@ -77,6 +78,7 @@ public class InSARStatisticsTopComponent extends TopComponent {
 
     private static final ImageIcon copyIcon = TangoIcons.actions_edit_copy(TangoIcons.Res.R22);
     private static final ImageIcon saveIcon = TangoIcons.actions_document_save_as(TangoIcons.Res.R22);
+    private static final ImageIcon helpIcon = TangoIcons.apps_help_browser(TangoIcons.Res.R22);
 
     public InSARStatisticsTopComponent() {
         setLayout(new BorderLayout());
@@ -146,10 +148,20 @@ public class InSARStatisticsTopComponent extends TopComponent {
                 stat.saveToFile();
             }
         });
+        final JButton helpBtn = DialogUtils.createButton("helpBtn", "Help", helpIcon, buttonPanel, DialogUtils.ButtonStyle.Icon);
+        helpBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final InSARStatistic stat = statisticList.get(tabbedPane.getSelectedIndex());
+
+                new HelpCtx(stat.getHelpId()).display();
+            }
+        });
 
         buttonPanel.add(Box.createRigidArea(new Dimension(10,25)));
         buttonPanel.add(copyBtn);
         buttonPanel.add(saveBtn);
+        buttonPanel.add(helpBtn);
 
         return buttonPanel;
     }

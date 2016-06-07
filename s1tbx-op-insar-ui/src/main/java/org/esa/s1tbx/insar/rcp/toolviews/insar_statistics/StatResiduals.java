@@ -85,6 +85,10 @@ public class StatResiduals implements InSARStatistic {
         saveToFile(textarea.getText());
     }
 
+    public String getHelpId() {
+        return "StatResiduals";
+    }
+
     private static File getResidualFile(final MetadataElement absRoot) {
         final String mstName = absRoot.getAttributeString(AbstractMetadata.PRODUCT);
         return new File(ResourceUtils.getReportFolder(), mstName + "_residual.txt");
