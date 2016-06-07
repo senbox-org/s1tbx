@@ -44,6 +44,7 @@ public interface ToolAdapterConstants {
     String TEMPLATE_BEFORE_MASK = "TemplateBeforeExecution";
     String TEMPLATE_AFTER_MASK = "TemplateAfterExecution";
     String REGULAR_PARAM_MASK = "RegularParameter";
+    String FOLDER_PARAM_MASK = "FolderParameter";
 
     String DEFAULT_PARAM_NAME = "DefaultParameter";
     String MAIN_TOOL_FILE_LOCATION = "mainToolFileLocation";
