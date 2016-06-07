@@ -46,6 +46,7 @@ import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.dem.dataio.DEMFactory;
+import org.esa.snap.dem.dataio.EarthGravitationalModel96;
 import org.esa.snap.dem.dataio.FileElevationModel;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.OrbitStateVector;
@@ -484,6 +485,8 @@ public final class DEMAssistedCoregistrationOp extends Operator {
             final int lonMinIdx = (int)Math.floor(upperLeft.getX());
             final int lonMaxIdx = (int)Math.ceil(lowerRight.getX());
 
+            final EarthGravitationalModel96 egm = EarthGravitationalModel96.instance();
+
             // Loop through all DEM points bounded by the indices computed above. For each point,
             // get its lat/lon and its azimuth/range indices in target image;
             final int numLines = latMinIdx - latMaxIdx;
@@ -505,21 +508,23 @@ public final class DEMAssistedCoregistrationOp extends Operator {
                     GeoPos gp = dem.getGeoPos(pix);
                     lat[l][p] = gp.lat;
                     lon[l][p] = gp.lon;
-                    final double alt = dem.getElevation(gp);
+                    double alt = dem.getElevation(gp);
 
-                    if (alt != demNoDataValue) {
-                        GeoUtils.geo2xyzWGS84(gp.lat, gp.lon, alt, posData.earthPoint);
-                        if(getPosition(gp.lat, gp.lon, alt, mstMetadata, posData)) {
+                    if (alt == demNoDataValue) { // get corrected elevation for 0
+                        alt = egm.getEGM(gp.lat, gp.lon);
+                    }
 
-                            masterAz[l][p] = posData.azimuthIndex;
-                            masterRg[l][p] = posData.rangeIndex;
-                            if (getPosition(gp.lat, gp.lon, alt, slvMetadata, posData)) {
+                    GeoUtils.geo2xyzWGS84(gp.lat, gp.lon, alt, posData.earthPoint);
+                    if(getPosition(gp.lat, gp.lon, alt, mstMetadata, posData)) {
 
-                                slaveAz[l][p] = posData.azimuthIndex;
-                                slaveRg[l][p] = posData.rangeIndex;
-                                noValidSlavePixPos = false;
-                                continue;
-                            }
+                        masterAz[l][p] = posData.azimuthIndex;
+                        masterRg[l][p] = posData.rangeIndex;
+                        if (getPosition(gp.lat, gp.lon, alt, slvMetadata, posData)) {
+
+                            slaveAz[l][p] = posData.azimuthIndex;
+                            slaveRg[l][p] = posData.rangeIndex;
+                            noValidSlavePixPos = false;
+                            continue;
                         }
                     }
 

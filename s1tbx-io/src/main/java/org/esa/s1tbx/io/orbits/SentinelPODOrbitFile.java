@@ -352,21 +352,22 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         final double t0 = osvList.get(0).utcMJD;
         final double tN = osvList.get(numVectors - 1).utcMJD;
 
-        final int numVecPolyFit = 4;
+        final int numVecPolyFit = polyDegree + 1; //4;
+        final int halfNumVecPolyFit = numVecPolyFit / 2;
         final int[] vectorIndices = new int[numVecPolyFit];
 
         final int vecIdx = (int) ((utc - t0) / (tN - t0) * (numVectors - 1));
-        if (vecIdx <= 0) {
+        if (vecIdx <= halfNumVecPolyFit - 1) {
             for (int i = 0; i < numVecPolyFit; i++) {
                 vectorIndices[i] = i;
             }
-        } else if (vecIdx >= numVectors - 2) {
+        } else if (vecIdx >= numVectors - halfNumVecPolyFit) {
             for (int i = 0; i < numVecPolyFit; i++) {
-                vectorIndices[i] = numVectors - 4 + i;
+                vectorIndices[i] = numVectors - numVecPolyFit + i;
             }
         } else {
             for (int i = 0; i < numVecPolyFit; i++) {
-                vectorIndices[i] = vecIdx - 1 + i;
+                vectorIndices[i] = vecIdx - halfNumVecPolyFit + 1 + i;
             }
         }
 

@@ -15,7 +15,7 @@
  */
 package org.csa.rstb.classification.rcp.wizards.PolarimetryWizard;
 
-import org.esa.s1tbx.dat.wizards.WizardDialog;
+import org.esa.snap.graphbuilder.rcp.wizards.WizardDialog;
 import org.esa.snap.rcp.SnapApp;
 
 import javax.swing.*;

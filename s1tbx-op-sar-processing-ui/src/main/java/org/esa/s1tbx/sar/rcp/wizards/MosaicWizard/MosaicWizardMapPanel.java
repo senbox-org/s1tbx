@@ -15,8 +15,8 @@
  */
 package org.esa.s1tbx.sar.rcp.wizards.MosaicWizard;
 
-import org.esa.s1tbx.dat.wizards.AbstractMapPanel;
-import org.esa.s1tbx.dat.wizards.WizardPanel;
+import org.esa.snap.graphbuilder.rcp.wizards.AbstractMapPanel;
+import org.esa.snap.graphbuilder.rcp.wizards.WizardPanel;
 
 import java.io.File;
 
