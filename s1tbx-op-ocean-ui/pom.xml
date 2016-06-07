@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.esa.s1tbx</groupId>
         <artifactId>s1tbx</artifactId>
-        <version>3.0.4</version>
+        <version>3.0.3</version>
     </parent>
 
     <name>S1TBX Ocean UI</name>
