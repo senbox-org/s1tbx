@@ -101,6 +101,10 @@ public class StatBaselines implements InSARStatistic {
         saveToFile(getText());
     }
 
+    public String getHelpId() {
+        return "StatBaselines";
+    }
+
     private String getText() {
         final StringBuilder str = new StringBuilder(300);
 

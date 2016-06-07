@@ -46,6 +46,8 @@ public interface InSARStatistic {
 
     void saveToFile();
 
+    String getHelpId();
+
     default void saveToFile(final String content) {
         final SnapFileChooser fileChooser = new SnapFileChooser();
         fileChooser.setFileFilter(new SnapFileFilter("TXT", new String[]{".txt"}, "TXT files"));

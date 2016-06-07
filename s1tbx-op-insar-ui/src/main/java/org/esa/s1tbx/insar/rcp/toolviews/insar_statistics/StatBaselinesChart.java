@@ -133,6 +133,7 @@ public class StatBaselinesChart implements InSARStatistic {
             XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) chart.getXYPlot().getRenderer();
             renderer.setSeriesLinesVisible(0, false);
             renderer.setSeriesShapesVisible(0, true);
+            renderer.setSeriesItemLabelsVisible(0, true);
 
             chart.getXYPlot().getDomainAxis().setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
@@ -156,6 +157,10 @@ public class StatBaselinesChart implements InSARStatistic {
         } catch (Exception e) {
             SnapApp.getDefault().handleError("Unable to save to file", e);
         }
+    }
+
+    public String getHelpId() {
+        return "StatBaselinesChart";
     }
 }
 

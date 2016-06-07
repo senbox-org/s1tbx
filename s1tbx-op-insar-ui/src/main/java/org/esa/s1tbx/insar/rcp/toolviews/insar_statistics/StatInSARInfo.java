@@ -127,6 +127,10 @@ public class StatInSARInfo implements InSARStatistic {
     public void saveToFile() {
         saveToFile(textarea.getText());
     }
+
+    public String getHelpId() {
+        return "StatInSARInfo";
+    }
 }
 
 
