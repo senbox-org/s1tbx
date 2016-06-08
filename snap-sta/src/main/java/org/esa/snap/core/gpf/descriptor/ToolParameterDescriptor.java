@@ -109,7 +109,8 @@ public class ToolParameterDescriptor extends DefaultParameterDescriptor {
     }
 
     public boolean isParameter() {
-        return getParameterType().equals(ToolAdapterConstants.REGULAR_PARAM_MASK);
+        return getParameterType().equals(ToolAdapterConstants.REGULAR_PARAM_MASK) ||
+                getParameterType().equals(ToolAdapterConstants.FOLDER_PARAM_MASK);
     }
 
     public void setParameterType(String type) {
