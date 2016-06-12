@@ -203,7 +203,7 @@ public abstract class XMLProductDirectory {
         return root;
     }
 
-    protected String[] listFiles(final String path) throws IOException {
+    public String[] listFiles(final String path) throws IOException {
         try {
             final String[] listing = productDir.list(path);
             final List<String> files = new ArrayList<>(listing.length);
