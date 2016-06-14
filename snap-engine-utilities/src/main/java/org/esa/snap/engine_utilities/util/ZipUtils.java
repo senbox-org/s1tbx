@@ -91,14 +91,17 @@ public class ZipUtils {
                 .filter(ze -> !ze.isDirectory())
                 .filter(ze -> ze.getName().toLowerCase().endsWith(headerFileName))
                 .findFirst();
-        ZipEntry ze = (ZipEntry) result.get();
-        String path = ze.toString();
-        int sepIndex = path.lastIndexOf('/');
-        if (sepIndex > 0) {
-            return path.substring(0, sepIndex) + '/';
-        } else {
-            return "";
+        if(result.isPresent()) {
+            ZipEntry ze = (ZipEntry) result.get();
+            String path = ze.toString();
+            int sepIndex = path.lastIndexOf('/');
+            if (sepIndex > 0) {
+                return path.substring(0, sepIndex) + '/';
+            } else {
+                return "";
+            }
         }
+        return "";
     }
 
     public static boolean isValid(final File file) {
