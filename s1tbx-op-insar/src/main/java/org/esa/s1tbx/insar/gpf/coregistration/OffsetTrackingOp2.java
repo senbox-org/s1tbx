@@ -160,8 +160,7 @@ public class OffsetTrackingOp2 extends Operator {
     private VelocityData velocityData = null;
     private Resampling selectedResampling = null;
 
-    private final static double invalid = -9999.0;
-    private final static double outlier = -8888.0;
+    private final static double invalidIndex = -9999.0;
     private final static String PRODUCT_SUFFIX = "_Vel";
     private final static String VELOCITY = "Velocity";
     private final static String POINTS = "Points";
@@ -341,8 +340,8 @@ public class OffsetTrackingOp2 extends Operator {
                 final int x = halfSpacingX + j*spacingX;
                 velocityData.mstGCPx[i][j] = x;
                 velocityData.mstGCPy[i][j] = y;
-                velocityData.slvGCPx[i][j] = invalid;
-                velocityData.slvGCPy[i][j] = invalid;
+                velocityData.slvGCPx[i][j] = invalidIndex;
+                velocityData.slvGCPy[i][j] = invalidIndex;
             }
         }
     }
@@ -457,7 +456,7 @@ public class OffsetTrackingOp2 extends Operator {
                     for (int j = 0; j < numGCPsPerRgLine; j++) {
                         final int x = (int) velocityData.mstGCPx[i][j];
                         final int y = (int) velocityData.mstGCPy[i][j];
-                        if (velocityData.slvGCPx[i][j] != invalid && velocityData.slvGCPy[i][j] != invalid
+                        if (velocityData.slvGCPx[i][j] != invalidIndex && velocityData.slvGCPy[i][j] != invalidIndex
                                 && x >= x0 && x < xMax && y >= y0 && y < yMax) {
                             tgtGCPPositionBuffer.setElemFloatAt(
                                     tgtGCPPositionTile.getDataBufferIndex(x, y), (float) velocityData.velocity[i][j]);
@@ -562,8 +561,7 @@ public class OffsetTrackingOp2 extends Operator {
                     final int iIdx = i;
                     final int jIdx = j;
 
-                    if (velocityData.slvGCPx[i][j] == invalid || velocityData.slvGCPy[i][j] == invalid) {
-                        velocityData.velocity[iIdx][jIdx] = Double.NaN;
+                    if (velocityData.slvGCPx[i][j] == invalidIndex || velocityData.slvGCPy[i][j] == invalidIndex) {
                         continue;
                     }
 
@@ -593,9 +591,8 @@ public class OffsetTrackingOp2 extends Operator {
                                 }
                             } else { // outliers
                                 synchronized(velocityData.slvGCPx) {
-                                    velocityData.slvGCPx[iIdx][jIdx] = outlier;
-                                    velocityData.slvGCPy[iIdx][jIdx] = outlier;
-                                    velocityData.velocity[iIdx][jIdx] = Double.NaN;
+                                    velocityData.slvGCPx[iIdx][jIdx] = invalidIndex;
+                                    velocityData.slvGCPy[iIdx][jIdx] = invalidIndex;
                                 }
                             }
                         }
@@ -625,8 +622,7 @@ public class OffsetTrackingOp2 extends Operator {
                     final int iIdx = i;
                     final int jIdx = j;
 
-                    if (velocityData.slvGCPx[i][j] == invalid || velocityData.slvGCPy[i][j] == invalid ||
-                            velocityData.slvGCPx[i][j] == outlier || velocityData.slvGCPy[i][j] == outlier) {
+                    if (velocityData.slvGCPx[i][j] == invalidIndex || velocityData.slvGCPy[i][j] == invalidIndex) {
                         continue;
                     }
 
@@ -643,10 +639,8 @@ public class OffsetTrackingOp2 extends Operator {
                             double rangeShiftSum = 0.0, azimuthShiftSum = 0.0;
                             for (int ii = i0; ii <= iN; ii++) {
                                 for (int jj = j0; jj <= jN; jj++) {
-                                    if (velocityData.slvGCPx[ii][jj] != invalid &&
-                                            velocityData.slvGCPy[ii][jj] != invalid &&
-                                            velocityData.slvGCPx[ii][jj] != outlier &&
-                                            velocityData.slvGCPy[ii][jj] != outlier) {
+                                    if (velocityData.slvGCPx[ii][jj] != invalidIndex &&
+                                            velocityData.slvGCPy[ii][jj] != invalidIndex) {
 
                                         rangeShiftSum += rangeSpacing *
                                                 (velocityData.mstGCPx[ii][jj] - velocityData.slvGCPx[ii][jj]);
@@ -717,7 +711,7 @@ public class OffsetTrackingOp2 extends Operator {
                     final int iIdx = i;
                     final int jIdx = j;
 
-                    if (velocityData.slvGCPx[i][j] != outlier && velocityData.slvGCPy[i][j] != outlier) {
+                    if (velocityData.slvGCPx[i][j] != invalidIndex && velocityData.slvGCPy[i][j] != invalidIndex) {
                         continue;
                     }
 
@@ -733,10 +727,8 @@ public class OffsetTrackingOp2 extends Operator {
                             double xShiftMean = 0.0, yShiftMean = 0.0, totalWeight = 0.0;
                             for (int ii = i0; ii <= iN; ii++) {
                                 for (int jj = j0; jj <= jN; jj++) {
-                                    if (velocityData.slvGCPx[ii][jj] != invalid &&
-                                            velocityData.slvGCPy[ii][jj] != invalid &&
-                                            velocityData.slvGCPx[ii][jj] != outlier &&
-                                            velocityData.slvGCPy[ii][jj] != outlier) {
+                                    if (velocityData.slvGCPx[ii][jj] != invalidIndex &&
+                                            velocityData.slvGCPy[ii][jj] != invalidIndex) {
 
                                         final double w = 1.0 / Math.max(Math.abs(ii - iIdx), Math.abs(jj - jIdx));
 
@@ -908,7 +900,7 @@ public class OffsetTrackingOp2 extends Operator {
         int k = 0;
         for (int i = 0; i < numGCPsPerAzLine; i++) {
             for (int j = 0; j < numGCPsPerRgLine; j++) {
-                if (velocityData.slvGCPx[i][j] != invalid && velocityData.slvGCPx[i][j] != invalid) {
+                if (velocityData.slvGCPx[i][j] != invalidIndex && velocityData.slvGCPx[i][j] != invalidIndex) {
                     final MetadataElement gcpElem = new MetadataElement("GCP" + k);
                     warpDataElem.addElement(gcpElem);
 
@@ -973,14 +965,20 @@ public class OffsetTrackingOp2 extends Operator {
             boolean allValid = true;
 
             try {
+                double val;
                 int i = 0;
                 while (i < y.length) {
                     int j = 0;
                     while (j < x.length) {
-                        if (data[y[i]][x[j]] == Double.NaN) {
-                            allValid = false;
+                        val = data[y[i]][x[j]];
+
+                        if (usesNoData) {
+                            if (scalingApplied && geophysicalNoDataValue == val || noDataValue == val) {
+                                val = Double.NaN;
+                                allValid = false;
+                            }
                         }
-                        samples[i][j] = data[y[i]][x[j]];
+                        samples[i][j] = val;
                         ++j;
                     }
                     ++i;
