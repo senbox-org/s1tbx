@@ -196,7 +196,7 @@
                     </file>
                 </folder>
             </folder>
-            <folder name="Feature Extraction">
+            <folder name="SAR Applications">
                 <attr name="position" intvalue="900"/>
                 <file name="org-esa-s1tbx-insar-gpf-coregistration-OffsetTrackingOp2-Action.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-coregistration-OffsetTrackingOp2-Action.instance"/>

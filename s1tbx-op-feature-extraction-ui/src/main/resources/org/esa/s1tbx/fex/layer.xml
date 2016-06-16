@@ -78,7 +78,7 @@
         </folder>
         <folder name="Radar">
             <attr name="position" intvalue="510"/>
-            <folder name="Feature Extraction">
+            <folder name="SAR Applications">
                 <attr name="position" intvalue="900"/>
                 <folder name="Ocean Applications">
                     <attr name="position" intvalue="100"/>

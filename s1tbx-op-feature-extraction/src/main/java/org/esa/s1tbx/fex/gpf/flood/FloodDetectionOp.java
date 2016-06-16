@@ -38,7 +38,7 @@ import java.util.List;
  */
 
 @OperatorMetadata(alias = "Flood-Detection",
-        category = "Radar/Feature Extraction",
+        category = "Radar/SAR Applications",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
         version = "1.0",

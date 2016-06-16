@@ -16,9 +16,6 @@
 package org.esa.s1tbx.insar.gpf.coregistration;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataAttribute;
 import org.esa.snap.core.datamodel.MetadataElement;
@@ -43,18 +40,14 @@ import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
-import org.jlinda.core.delaunay.TriangleInterpolator;
 import org.jlinda.core.delaunay.FastDelaunayTriangulator;
-import org.jlinda.core.delaunay.Triangle;
-import org.jlinda.core.delaunay.TriangulationException;
+import org.jlinda.core.delaunay.TriangleInterpolator;
 import org.jlinda.nest.gpf.coregistration.GCPManager;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * This operator computes velocities for master-slave GCP pairs. Than velocities for all pixels are computed
@@ -62,7 +55,7 @@ import java.util.Set;
  */
 
 @OperatorMetadata(alias = "Offset-Tracking",
-        category = "Radar/Feature Extraction",
+        category = "Radar/SAR Applications",
         authors = "Jun Lu, Luis Veci",
         version = "1.0",
         copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
