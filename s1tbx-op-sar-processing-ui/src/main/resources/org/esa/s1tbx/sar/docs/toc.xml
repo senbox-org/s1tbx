@@ -33,11 +33,11 @@
             </tocitem>
             <tocitem text="Sentinel-1 TOPS">
             </tocitem>
-            <tocitem text="ASAR WSS">
+            <tocitem text="ENVISAT ASAR">
                 <tocitem text="WSS Deburst" target="WSSDeburstOp"/>
                 <tocitem text="WSS Mosaic" target="WSSMosaic"/>
             </tocitem>
-             <tocitem text="Feature Extraction">
+             <tocitem text="SAR Applications">
             </tocitem>
             <tocitem text="SAR Utilities">
             </tocitem>
