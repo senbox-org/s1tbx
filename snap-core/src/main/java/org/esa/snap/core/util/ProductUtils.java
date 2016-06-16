@@ -1136,6 +1136,7 @@ public class ProductUtils {
         targetProduct.setStartTime(sourceProduct.getStartTime());
         targetProduct.setEndTime(sourceProduct.getEndTime());
         targetProduct.setDescription(sourceProduct.getDescription());
+        targetProduct.setAutoGrouping(sourceProduct.getAutoGrouping());
     }
 
     /**
