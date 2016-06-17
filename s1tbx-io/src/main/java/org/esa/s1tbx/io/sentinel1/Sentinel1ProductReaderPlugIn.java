@@ -50,6 +50,13 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
                     ZipUtils.findInZip(file, "rs2", Sentinel1Constants.PRODUCT_HEADER_NAME))) {
                 return DecodeQualification.INTENDED;
             }
+            if(filename.startsWith("s1") && filename.endsWith(".safe") && file.isDirectory()) {
+                File manifest = new File(file, "manifest.safe");
+                if(manifest.exists()) {
+                    if (isLevel1(manifest) || isLevel2(manifest) || isLevel0(manifest))
+                        return DecodeQualification.INTENDED;
+                }
+            }
         }
         //todo zip stream
 
