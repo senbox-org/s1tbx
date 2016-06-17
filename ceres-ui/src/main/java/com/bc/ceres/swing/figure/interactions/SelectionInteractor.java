@@ -131,12 +131,14 @@ public class SelectionInteractor extends FigureEditorInteractor {
     public void keyPressed(KeyEvent event) {
         if (event.getKeyCode() == KeyEvent.VK_SPACE) {
             cursorDrag = true;
+            getFigureEditor(event).getEditorComponent().setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
     }
 
     @Override
     public void keyReleased(KeyEvent event) {
         cursorDrag = false;
+        getFigureEditor(event).getEditorComponent().setCursor(Cursor.getDefaultCursor());
     }
 
     private void setCursor(MouseEvent event) {
