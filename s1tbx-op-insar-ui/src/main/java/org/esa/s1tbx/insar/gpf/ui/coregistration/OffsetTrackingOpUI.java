@@ -34,9 +34,9 @@ import java.awt.event.ItemListener;
 import java.util.Map;
 
 /**
- * User interface for OffsetTrackingOp2
+ * User interface for OffsetTrackingOp
  */
-public class OffsetTrackingOp2UI extends BaseOperatorUI {
+public class OffsetTrackingOpUI extends BaseOperatorUI {
 
     // Output grid parameters
     private final JTextField gridAzimuthSpacing = new JTextField("");

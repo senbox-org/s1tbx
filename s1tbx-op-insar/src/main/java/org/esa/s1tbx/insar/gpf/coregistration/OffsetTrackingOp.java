@@ -16,14 +16,10 @@
 package org.esa.s1tbx.insar.gpf.coregistration;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.MetadataAttribute;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.PixelPos;
-import org.esa.snap.core.datamodel.Placemark;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.ProductNodeGroup;
+import org.esa.snap.core.datamodel.*;
+import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;
+import org.esa.snap.core.dataop.resamp.Resampling;
+import org.esa.snap.core.dataop.resamp.ResamplingFactory;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -33,29 +29,28 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
-import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
-import org.esa.snap.engine_utilities.gpf.InputProductValidator;
-import org.esa.snap.engine_utilities.gpf.OperatorUtils;
-import org.esa.snap.engine_utilities.gpf.StackUtils;
-import org.esa.snap.engine_utilities.gpf.TileIndex;
-import org.jlinda.core.delaunay.FastDelaunayTriangulator;
-import org.jlinda.core.delaunay.TriangleInterpolator;
-import org.jlinda.nest.gpf.coregistration.GCPManager;
+import org.esa.snap.engine_utilities.gpf.*;
+import org.esa.snap.engine_utilities.util.Maths;
+import org.jblas.ComplexDouble;
+import org.jblas.ComplexDoubleMatrix;
+import org.jlinda.core.coregistration.utils.CoregistrationUtils;
+import org.jlinda.nest.utils.TileUtilsDoris;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 /**
- * This operator computes velocities for master-slave GCP pairs. Than velocities for all pixels are computed
- * through interpolation.
+ * This operator performs cross-correlation on selected GCP-patches in master and slave images, and computes
+ * glacier velocities based on the shift computed for each GCP. Then velocities for the whole image is computed
+ * through interpolation of the velocities computed for GCPs.
  */
 
 @OperatorMetadata(alias = "Offset-Tracking",
-        category = "Radar/SAR Applications",
+        category = "Radar/Feature Extraction",
         authors = "Jun Lu, Luis Veci",
         version = "1.0",
         copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
@@ -64,32 +59,88 @@ public class OffsetTrackingOp extends Operator {
 
     @SourceProduct
     private Product sourceProduct;
+
     @TargetProduct
     private Product targetProduct;
 
+    @Parameter(description = "The output grid azimuth spacing in pixels", interval = "(1, *)", defaultValue = "40",
+            label = "Grid Azimuth Spacing in Pixels")
+    private int gridAzimuthSpacing = 40;
+
+    @Parameter(description = "The output grid range spacing in pixels", interval = "(1, *)", defaultValue = "40",
+            label = "Grid Range Spacing in Pixels")
+    private int gridRangeSpacing = 40;
+
+    @Parameter(valueSet = {"32", "64", "128", "256", "512", "1024", "2048"}, defaultValue = "128",
+            label = "Registration Window Width")
+    private String registrationWindowWidth = "128";
+
+    @Parameter(valueSet = {"32", "64", "128", "256", "512", "1024", "2048"}, defaultValue = "128",
+            label = "Registration Window Height")
+    private String registrationWindowHeight = "128";
+
+    @Parameter(description = "The cross-correlation threshold", interval = "(0, *)", defaultValue = "0.1",
+            label = "Cross-Correlation Threshold")
+    private double xCorrThreshold = 0.1;
+
+//    @Parameter(valueSet = {"2", "4", "8", "16", "32", "64", "128", "256"},
+//            defaultValue = "16", label = "Search Window Accuracy in Azimuth Direction")
+    private String registrationWindowAccAzimuth = "16";
+
+//    @Parameter(valueSet = {"2", "4", "8", "16", "32", "64", "128", "256"},
+//            defaultValue = "16", label = "Search Window Accuracy in Range Direction")
+    private String registrationWindowAccRange = "16";
+
+//    @Parameter(valueSet = {"2", "4", "8", "16", "32", "64"}, defaultValue = "16",
+//            label = "Window oversampling factor")
+    private String registrationOversampling = "16";
+
+    @Parameter(valueSet = {"3", "5", "9", "11"}, defaultValue = "5",
+            label = "Averaging Box Size")
+    private String averageBoxSize = "5";
+
     @Parameter(description = "The threshold for eliminating invalid GCPs", interval = "(0, *)", defaultValue = "5.0",
             label = "Max Velocity (m/day)")
-    private float maxVelocity = 5.0f;
+    private double maxVelocity = 5.0;
 
-    @Parameter(description = "Output range and azimuth shifts", defaultValue = "false",
-            label = "Output range and azimuth shifts")
-    private boolean outputRangeAzimuthOffset = false;
+    @Parameter(description = "Radius for Hole-Filling", interval = "(0, *)", defaultValue = "4",
+            label = "Radius for Hole-Filling")
+    private int radius = 4;
+
+    @Parameter(valueSet = {ResamplingFactory.NEAREST_NEIGHBOUR_NAME, ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
+            ResamplingFactory.BICUBIC_INTERPOLATION_NAME, ResamplingFactory.BISINC_5_POINT_INTERPOLATION_NAME,
+            ResamplingFactory.CUBIC_CONVOLUTION_NAME}, defaultValue = ResamplingFactory.BICUBIC_INTERPOLATION_NAME,
+            description = "Methods for velocity interpolation.", label = "Resampling Type")
+    private String resamplingType = ResamplingFactory.BICUBIC_INTERPOLATION_NAME;
+
+    private boolean outputDebuggingBands = false;
+
+    private int cWindowWidth = 0;
+    private int cWindowHeight = 0;
+    private int cHalfWindowWidth = 0;
+    private int cHalfWindowHeight = 0;
+    private int avgWindowSize = 0;
+    private int halfAvgWindowSize = 0;
+    private CrossCorrelationOp.CorrelationWindow corrWin = null;
 
     private Band masterBand = null;
-    private boolean GCPVelocityAvailable = false;
-    private MetadataElement mstAbsRoot = null;
-    private MetadataElement slvAbsRoot = null;
+    private Band slaveBand = null;
+    private int sourceImageWidth = 0;
+    private int sourceImageHeight = 0;
+    private int numGCPsPerAzLine = 0;
+    private int numGCPsPerRgLine = 0;
+    private int spacingX = 0;
+    private int spacingY = 0;
+    private int halfSpacingX = 0;
+    private int halfSpacingY = 0;
     private double mstFirstLineTime = 0.0;
     private double slvFirstLineTime = 0.0;
     private double acquisitionTimeInterval = 0.0;
     private double rangeSpacing = 0.0;
     private double azimuthSpacing = 0.0;
-    private double rgAzRatio = 0.0;
-
-    private String processedSlaveBand;
-    private String[] masterBandNames = null;
+    private boolean velocityAvailable = false;
     private VelocityData velocityData = null;
-    private FastDelaunayTriangulator FDT = null;
+    private Resampling selectedResampling = null;
 
     private final static double invalidIndex = -9999.0;
     private final static String PRODUCT_SUFFIX = "_Vel";
@@ -121,20 +172,19 @@ public class OffsetTrackingOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
-            final InputProductValidator validator = new InputProductValidator(sourceProduct);
-            validator.checkIfCoregisteredStack();
+            selectedResampling = ResamplingFactory.createResampling(resamplingType);
+            avgWindowSize = Integer.parseInt(averageBoxSize);
+            halfAvgWindowSize = avgWindowSize / 2;
 
-            getMasterMetadata();
+            setRegistrationWindows();
 
-            getSlaveMetadata();
+            getMetadata();
 
-            acquisitionTimeInterval = slvFirstLineTime - mstFirstLineTime; // in days
-
-            rgAzRatio = rangeSpacing / azimuthSpacing;
-
-            getMasterBands();
+            getMasterSlaveBands();
 
             createTargetProduct();
+
+            createGCPGrid();
 
             updateTargetProductMetadata();
 
@@ -143,59 +193,58 @@ public class OffsetTrackingOp extends Operator {
         }
     }
 
-    private void getMasterMetadata() throws Exception {
+    private void setRegistrationWindows() {
 
-        mstAbsRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+        cWindowWidth = Integer.parseInt(registrationWindowWidth);
+        cWindowHeight = Integer.parseInt(registrationWindowHeight);
+        cHalfWindowWidth = cWindowWidth / 2;
+        cHalfWindowHeight = cWindowHeight / 2;
+
+        corrWin = new CrossCorrelationOp.CorrelationWindow(
+                Integer.parseInt(registrationWindowWidth),
+                Integer.parseInt(registrationWindowHeight),
+                Integer.parseInt(registrationWindowAccAzimuth),
+                Integer.parseInt(registrationWindowAccRange),
+                Integer.parseInt(registrationOversampling));
+    }
+
+    private void getMetadata() throws Exception {
+
+        final MetadataElement mstAbsRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+
+        final MetadataElement slvAbsRoot = AbstractMetadata.getSlaveMetadata(sourceProduct.getMetadataRoot()).getElementAt(0);
 
         mstFirstLineTime = AbstractMetadata.parseUTC(
                 mstAbsRoot.getAttributeString(AbstractMetadata.first_line_time)).getMJD(); // in days
 
-        processedSlaveBand = mstAbsRoot.getAttributeString("processed_slave");
-        if (processedSlaveBand == null) {
-            throw new OperatorException("processed_slave not found in metadata");
-        }
-
         rangeSpacing = AbstractMetadata.getAttributeDouble(mstAbsRoot, AbstractMetadata.range_spacing);
 
         azimuthSpacing = AbstractMetadata.getAttributeDouble(mstAbsRoot, AbstractMetadata.azimuth_spacing);
-    }
-
-    private void getSlaveMetadata() {
-
-        slvAbsRoot = AbstractMetadata.getSlaveMetadata(sourceProduct.getMetadataRoot()).getElementAt(0);
 
         slvFirstLineTime = AbstractMetadata.parseUTC(
                 slvAbsRoot.getAttributeString(AbstractMetadata.first_line_time)).getMJD(); // in days
+
+        acquisitionTimeInterval = slvFirstLineTime - mstFirstLineTime; // in days
     }
 
-    private void getMasterBands() {
+    private void getMasterSlaveBands() {
 
-        String mstBandName = sourceProduct.getBandAt(0).getName();
-
-        // find co-pol bands
-        masterBandNames = getMasterBandNames(sourceProduct);
-        for (String bandName : masterBandNames) {
-            final String mstPol = OperatorUtils.getPolarizationFromBandName(bandName);
-            if (mstPol != null && (mstPol.equals("hh") || mstPol.equals("vv"))) {
-                mstBandName = bandName;
-                break;
-            }
-        }
-        masterBand = sourceProduct.getBand(mstBandName);
-        if(masterBand == null) {
-            masterBand = sourceProduct.getBand(sourceProduct.getBandAt(0).getName());
+        masterBand = getSourceBand(sourceProduct, StackUtils.MST);
+        slaveBand = getSourceBand(sourceProduct, StackUtils.SLV);
+        if(masterBand == null || slaveBand == null) {
+            throw new OperatorException("Cannot find master or slave amplitude or intensity band");
         }
     }
 
-    private static String[] getMasterBandNames(final Product sourceProduct) {
+    private static Band getSourceBand(final Product sourceProduct, final String tag) {
 
-        final List<String> bandNames = new ArrayList<>();
-        for(String bandName : sourceProduct.getBandNames()) {
-            if(bandName.toLowerCase().contains("_mst")) {
-                bandNames.add(bandName);
+        for(Band band : sourceProduct.getBands()) {
+            if(band.getName().toLowerCase().contains(tag) &&
+                    (band.getUnit().contains(Unit.AMPLITUDE) || band.getUnit().contains(Unit.INTENSITY))) {
+                return band;
             }
         }
-        return bandNames.toArray(new String[bandNames.size()]);
+        return null;
     }
 
     /**
@@ -203,13 +252,16 @@ public class OffsetTrackingOp extends Operator {
      */
     private void createTargetProduct() {
 
+        sourceImageWidth = sourceProduct.getSceneRasterWidth();
+        sourceImageHeight = sourceProduct.getSceneRasterHeight();
+
         targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                 sourceProduct.getProductType(),
-                sourceProduct.getSceneRasterWidth(),
-                sourceProduct.getSceneRasterHeight());
+                sourceImageWidth,
+                sourceImageHeight);
 
         Band targetBand;
-        final String suffix = StackUtils.getBandSuffix(processedSlaveBand);
+        final String suffix = StackUtils.getBandSuffix(slaveBand.getName());
         final String velocityBandName = VELOCITY + suffix;
         if (targetProduct.getBand(velocityBandName) == null) {
             targetBand = targetProduct.addBand(velocityBandName, ProductData.TYPE_FLOAT32);
@@ -218,14 +270,14 @@ public class OffsetTrackingOp extends Operator {
             targetProduct.setQuicklookBandName(targetBand.getName());
         }
 
-        final String gcpPositionBandName = POINTS + suffix;
-        if (targetProduct.getBand(gcpPositionBandName) == null) {
-            targetBand = targetProduct.addBand(gcpPositionBandName, ProductData.TYPE_FLOAT32);
-            targetBand.setUnit(Unit.METERS_PER_DAY);
-            targetBand.setDescription("Velocity Points");
-        }
+        if (outputDebuggingBands) {
+            final String gcpPositionBandName = POINTS + suffix;
+            if (targetProduct.getBand(gcpPositionBandName) == null) {
+                targetBand = targetProduct.addBand(gcpPositionBandName, ProductData.TYPE_FLOAT32);
+                targetBand.setUnit(Unit.METERS_PER_DAY);
+                targetBand.setDescription("Velocity Points");
+            }
 
-        if (outputRangeAzimuthOffset) {
             final String rangeShiftBandName = RANGE_SHIFT + suffix;
             if (targetProduct.getBand(rangeShiftBandName) == null) {
                 targetBand = targetProduct.addBand(rangeShiftBandName, ProductData.TYPE_FLOAT32);
@@ -243,6 +295,28 @@ public class OffsetTrackingOp extends Operator {
 
         // co-registered image should have the same geo-coding as the master image
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
+    }
+
+    private void createGCPGrid() {
+
+        numGCPsPerAzLine = sourceImageHeight / gridAzimuthSpacing;
+        numGCPsPerRgLine = sourceImageWidth / gridRangeSpacing;
+        spacingX = gridRangeSpacing;
+        spacingY = gridAzimuthSpacing;
+        halfSpacingX = spacingX / 2;
+        halfSpacingY = spacingY / 2;
+        velocityData = new VelocityData(numGCPsPerAzLine, numGCPsPerRgLine);
+
+        for (int i = 0; i < numGCPsPerAzLine; i++) {
+            final int y = halfSpacingY + i*spacingY;
+            for (int j = 0; j < numGCPsPerRgLine; j++) {
+                final int x = halfSpacingX + j*spacingX;
+                velocityData.mstGCPx[i][j] = x;
+                velocityData.mstGCPy[i][j] = y;
+                velocityData.slvGCPx[i][j] = invalidIndex;
+                velocityData.slvGCPy[i][j] = invalidIndex;
+            }
+        }
     }
 
     /**
@@ -280,10 +354,14 @@ public class OffsetTrackingOp extends Operator {
             if (pm.isCanceled())
                 return;
 
-            Band tgtRangeShiftBand = null;
-            Band tgtAzimuthShiftBand = null;
-            Band tgtVelocityBand = null;
-            Band tgtGCPPositionBand = null;
+            if (!velocityAvailable) {
+                computeVelocity();
+            }
+
+            Tile tgtRangeShiftTile = null;
+            Tile tgtAzimuthShiftTile = null;
+            Tile tgtVelocityTile = null;
+            Tile tgtGCPPositionTile = null;
             ProductData tgtRangeShiftBuffer = null;
             ProductData tgtAzimuthShiftBuffer = null;
             ProductData tgtVelocityBuffer = null;
@@ -292,87 +370,81 @@ public class OffsetTrackingOp extends Operator {
             for (Band tgtBand:targetBands) {
                 final String tgtBandName = tgtBand.getName();
                 if (tgtBandName.contains(RANGE_SHIFT)) {
-                    tgtRangeShiftBand = tgtBand;
-                    tgtRangeShiftBuffer = targetTileMap.get(tgtRangeShiftBand).getDataBuffer();
+                    tgtRangeShiftTile = targetTileMap.get(tgtBand);
+                    tgtRangeShiftBuffer = tgtRangeShiftTile.getDataBuffer();
                 } else if (tgtBandName.contains(AZIMUTH_SHIFT)) {
-                    tgtAzimuthShiftBand = tgtBand;
-                    tgtAzimuthShiftBuffer = targetTileMap.get(tgtAzimuthShiftBand).getDataBuffer();
+                    tgtAzimuthShiftTile = targetTileMap.get(tgtBand);
+                    tgtAzimuthShiftBuffer = tgtAzimuthShiftTile.getDataBuffer();
                 } else if (tgtBandName.contains(VELOCITY)) {
-                    tgtVelocityBand = tgtBand;
-                    tgtVelocityBuffer = targetTileMap.get(tgtVelocityBand).getDataBuffer();
+                    tgtVelocityTile = targetTileMap.get(tgtBand);
+                    tgtVelocityBuffer = tgtVelocityTile.getDataBuffer();
                 } else if (tgtBandName.contains(POINTS)) {
-                    tgtGCPPositionBand = tgtBand;
-                    tgtGCPPositionBuffer = targetTileMap.get(tgtGCPPositionBand).getDataBuffer();
+                    tgtGCPPositionTile = targetTileMap.get(tgtBand);
+                    tgtGCPPositionBuffer = tgtGCPPositionTile.getDataBuffer();
                 }
             }
 
-            if (!GCPVelocityAvailable) {
-                getGCPVelocity(targetRectangle);
+            if (tgtVelocityBuffer == null || outputDebuggingBands &&
+                    (tgtGCPPositionBuffer == null || tgtRangeShiftBuffer == null || tgtAzimuthShiftBuffer == null)) {
+                throw new OperatorException("Cannot find desired target bands");
             }
 
-            // output velocity, range shift and azimuth shift
-            final org.jlinda.core.Window tileWindow = new org.jlinda.core.Window(y0, yMax - 1, x0, xMax - 1);
-            final double[][] rangeShiftArray = new double[h][w];
-            final double[][] azimuthShiftArray = new double[h][w];
-            final double[][] velocityArray = new double[h][w];
+            final TileIndex tgtIndex = new TileIndex(tgtVelocityTile);
 
-            TriangleInterpolator.ZData[] dataList = new TriangleInterpolator.ZData[] {
-                    new TriangleInterpolator.ZData(velocityData.rangeShift, rangeShiftArray),
-                    new TriangleInterpolator.ZData(velocityData.azimuthShift, azimuthShiftArray),
-                    new TriangleInterpolator.ZData(velocityData.velocity, velocityArray)
-            };
-
-            TriangleInterpolator.interpolate(rgAzRatio, tileWindow, 1, 1, 0, invalidIndex, FDT, dataList);
-
-            final Tile tgtTile = targetTileMap.get(tgtVelocityBand);
-            final TileIndex tgtIndex = new TileIndex(tgtTile);
-            if (tgtVelocityBuffer != null) {
-                for (int y = y0; y < yMax; y++) {
-                    tgtIndex.calculateStride(y);
-                    final int yy = y - y0;
-                    for (int x = x0; x < xMax; x++) {
-                        tgtVelocityBuffer.setElemFloatAt(tgtIndex.getIndex(x), (float) velocityArray[yy][x - x0]);
-                    }
-                }
+            final ResamplingRaster resamplingRasterVelocity = new ResamplingRaster(tgtVelocityTile, velocityData.velocity);
+            ResamplingRaster resamplingRasterRangeShift = null;
+            ResamplingRaster resamplingRasterAzimuthShift = null;
+            if (outputDebuggingBands) {
+                resamplingRasterRangeShift = new ResamplingRaster(tgtRangeShiftTile, velocityData.rangeShift);
+                resamplingRasterAzimuthShift = new ResamplingRaster(tgtAzimuthShiftTile, velocityData.azimuthShift);
             }
 
-            if (outputRangeAzimuthOffset && tgtRangeShiftBuffer!= null && tgtAzimuthShiftBuffer != null) {
-                for (int y = y0; y < yMax; y++) {
-                    tgtIndex.calculateStride(y);
-                    final int yy = y - y0;
-                    for (int x = x0; x < xMax; x++) {
-                        tgtRangeShiftBuffer.setElemFloatAt(tgtIndex.getIndex(x), (float) rangeShiftArray[yy][x - x0]);
-                    }
-                }
+            final Resampling.Index resamplingIndex = selectedResampling.createIndex();
 
-                for (int y = y0; y < yMax; y++) {
-                    tgtIndex.calculateStride(y);
-                    final int yy = y - y0;
-                    for (int x = x0; x < xMax; x++) {
-                        tgtAzimuthShiftBuffer.setElemFloatAt(tgtIndex.getIndex(x), (float) azimuthShiftArray[yy][x - x0]);
+            for (int y = y0; y < yMax; y++) {
+                tgtIndex.calculateStride(y);
+                final double i = (double)(y - halfSpacingY) / (double)spacingY;
+                for (int x = x0; x < xMax; x++) {
+                    final int tgtIdx = tgtIndex.getIndex(x);
+                    final double j = (double)(x - halfSpacingX) / (double)spacingX;
+
+                    selectedResampling.computeCornerBasedIndex(j, i, numGCPsPerRgLine, numGCPsPerAzLine, resamplingIndex);
+
+                    tgtVelocityBuffer.setElemFloatAt(tgtIdx,
+                            (float)selectedResampling.resample(resamplingRasterVelocity, resamplingIndex));
+
+                    if (outputDebuggingBands) {
+                        tgtRangeShiftBuffer.setElemFloatAt(tgtIdx,
+                                (float)selectedResampling.resample(resamplingRasterRangeShift, resamplingIndex));
+
+                        tgtAzimuthShiftBuffer.setElemFloatAt(tgtIdx,
+                                (float)selectedResampling.resample(resamplingRasterAzimuthShift, resamplingIndex));
                     }
                 }
             }
 
             // output GCP positions
-            if (tgtGCPPositionBuffer != null) {
-                for (int i = 0; i < velocityData.mstGCPx.length; i++) {
-                    final int x = (int) velocityData.mstGCPx[i];
-                    final int y = (int) velocityData.mstGCPy[i];
-                    if (x != invalidIndex && y != invalidIndex && x >= x0 && x < xMax && y >= y0 && y < yMax) {
-                        tgtGCPPositionBuffer.setElemFloatAt(
-                                tgtTile.getDataBufferIndex(x, y), (float) velocityData.velocity[i]);
+            if (outputDebuggingBands && tgtGCPPositionBuffer != null) {
+                for (int i = 0; i < numGCPsPerAzLine; i++) {
+                    for (int j = 0; j < numGCPsPerRgLine; j++) {
+                        final int x = (int) velocityData.mstGCPx[i][j];
+                        final int y = (int) velocityData.mstGCPy[i][j];
+                        if (velocityData.slvGCPx[i][j] != invalidIndex && velocityData.slvGCPy[i][j] != invalidIndex
+                                && x >= x0 && x < xMax && y >= y0 && y < yMax) {
+                            tgtGCPPositionBuffer.setElemFloatAt(
+                                    tgtGCPPositionTile.getDataBufferIndex(x, y), (float) velocityData.velocity[i][j]);
                         /*
-                        tgtGCPPositionBuffer.setElemFloatAt(tgtTile.getDataBufferIndex(x, y), 100.0f);
-                        tgtGCPPositionBuffer.setElemFloatAt(tgtTile.getDataBufferIndex(x-2, y), 100.0f);
-                        tgtGCPPositionBuffer.setElemFloatAt(tgtTile.getDataBufferIndex(x-1, y), 100.0f);
-                        tgtGCPPositionBuffer.setElemFloatAt(tgtTile.getDataBufferIndex(x+1, y), 100.0f);
-                        tgtGCPPositionBuffer.setElemFloatAt(tgtTile.getDataBufferIndex(x+2, y), 100.0f);
-                        tgtGCPPositionBuffer.setElemFloatAt(tgtTile.getDataBufferIndex(x, y-2), 100.0f);
-                        tgtGCPPositionBuffer.setElemFloatAt(tgtTile.getDataBufferIndex(x, y-1), 100.0f);
-                        tgtGCPPositionBuffer.setElemFloatAt(tgtTile.getDataBufferIndex(x, y+1), 100.0f);
-                        tgtGCPPositionBuffer.setElemFloatAt(tgtTile.getDataBufferIndex(x, y+2), 100.0f);
+                        tgtGCPPositionBuffer.setElemFloatAt(tgtGCPPositionTile.getDataBufferIndex(x, y), 100.0f);
+                        tgtGCPPositionBuffer.setElemFloatAt(tgtGCPPositionTile.getDataBufferIndex(x-2, y), 100.0f);
+                        tgtGCPPositionBuffer.setElemFloatAt(tgtGCPPositionTile.getDataBufferIndex(x-1, y), 100.0f);
+                        tgtGCPPositionBuffer.setElemFloatAt(tgtGCPPositionTile.getDataBufferIndex(x+1, y), 100.0f);
+                        tgtGCPPositionBuffer.setElemFloatAt(tgtGCPPositionTile.getDataBufferIndex(x+2, y), 100.0f);
+                        tgtGCPPositionBuffer.setElemFloatAt(tgtGCPPositionTile.getDataBufferIndex(x, y-2), 100.0f);
+                        tgtGCPPositionBuffer.setElemFloatAt(tgtGCPPositionTile.getDataBufferIndex(x, y-1), 100.0f);
+                        tgtGCPPositionBuffer.setElemFloatAt(tgtGCPPositionTile.getDataBufferIndex(x, y+1), 100.0f);
+                        tgtGCPPositionBuffer.setElemFloatAt(tgtGCPPositionTile.getDataBufferIndex(x, y+2), 100.0f);
                         */
+                        }
                     }
                 }
             }
@@ -384,85 +456,354 @@ public class OffsetTrackingOp extends Operator {
         }
     }
 
-    private synchronized void getGCPVelocity(final Rectangle targetRectangle) throws Exception {
+    private synchronized void computeVelocity() {
 
-        if (GCPVelocityAvailable) {
-            return;
-        }
+        if (velocityAvailable) return;
 
-        // force getSourceTile to computeTiles on GCPSelection
-        final Tile sourceRaster = getSourceTile(sourceProduct.getBand(processedSlaveBand), targetRectangle);
+        computeSlaveGCPs();
 
-        final ProductNodeGroup<Placemark> masterGCPGroup = GCPManager.instance().getGcpGroup(masterBand);
+        computeGCPVelocities();
 
-        final Band[] sourceBands = sourceProduct.getBands();
-        for (Band srcBand : sourceBands) {
-            if (StringUtils.contains(masterBandNames, srcBand.getName()))
-                continue;
+        averageOffsets();
 
-            ProductNodeGroup<Placemark> slaveGCPGroup = GCPManager.instance().getGcpGroup(srcBand);
-
-            if (slaveGCPGroup.getNodeCount() > 0) {
-                velocityData = computeGCPVelocity(masterGCPGroup, slaveGCPGroup);
-
-                FDT = TriangleInterpolator.triangulate(
-                        velocityData.mstGCPy, velocityData.mstGCPx, rgAzRatio, invalidIndex);
-
-                break;
-            }
-        }
-
-        if(velocityData == null) {
-            throw new OperatorException("No velocity GCPs found");
-        }
-
-        if (FDT == null) {
-            throw new OperatorException("Not enough GCPs for interpolation");
-        }
-
-        GCPManager.instance().removeAllGcpGroups();
+        fillHoles();
 
         writeGCPsToMetadata();
 
-        GCPVelocityAvailable = true;
+        velocityAvailable = true;
     }
 
-    private VelocityData computeGCPVelocity(final ProductNodeGroup<Placemark> masterGCPGroup,
-                                            final ProductNodeGroup<Placemark> slaveGCPGroup) {
-        final int numGCPs = slaveGCPGroup.getNodeCount();
-        final VelocityData velocityData = new VelocityData(numGCPs);
-        for (int i = 0; i < numGCPs; i++) {
-            final Placemark sPin = slaveGCPGroup.get(i);
-            final PixelPos sGCPPos = sPin.getPixelPos();
+    private void computeSlaveGCPs() {
 
-            final Placemark mPin = masterGCPGroup.get(masterGCPGroup.indexOf(sPin.getName()));
-            final PixelPos mGCPPos = mPin.getPixelPos();
+        final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
+        status.beginTask("Compute slave GCP... ", numGCPsPerAzLine * numGCPsPerRgLine);
 
-            final double rangeShift = (mGCPPos.x - sGCPPos.x) * rangeSpacing;
-            final double azimuthShift = (mGCPPos.y - sGCPPos.y) * azimuthSpacing;
-            final double v = Math.sqrt(rangeShift * rangeShift + azimuthShift * azimuthShift) / acquisitionTimeInterval;
+        final ThreadManager threadManager = new ThreadManager();
+        try {
+            for (int i = 0; i < numGCPsPerAzLine; i++) {
+                checkForCancellation();
+                for (int j = 0; j < numGCPsPerRgLine; j++) {
+                    final int iIdx = i;
+                    final int jIdx = j;
 
-            if (v < maxVelocity) {
-                velocityData.velocity[i] = v;
-                velocityData.azimuthShift[i] = azimuthShift;
-                velocityData.rangeShift[i] = rangeShift;
-                velocityData.mstGCPx[i] = mGCPPos.x;
-                velocityData.mstGCPy[i] = mGCPPos.y;
-                velocityData.slvGCPx[i] = sGCPPos.x;
-                velocityData.slvGCPy[i] = sGCPPos.y;
-            } else { // outliers
-                velocityData.mstGCPx[i] = invalidIndex;
-                velocityData.mstGCPy[i] = invalidIndex;
+                    final PixelPos mGCP = new PixelPos(velocityData.mstGCPx[i][j], velocityData.mstGCPy[i][j]);
+                    if (!checkGCPValidity(mGCP)) {
+                        continue;
+                    }
+
+                    final Thread worker = new Thread() {
+                        @Override
+                        public void run() {
+                            final PixelPos sGCP = new PixelPos(mGCP.x, mGCP.y);
+                            boolean getSlaveGCP = getOffsets(mGCP, sGCP);
+                            if (getSlaveGCP) {
+                                saveSlaveGCP(sGCP);
+                            }
+                        }
+
+                        private synchronized void saveSlaveGCP(final PixelPos sGCP) {
+                            velocityData.slvGCPx[iIdx][jIdx] = sGCP.x;
+                            velocityData.slvGCPy[iIdx][jIdx] = sGCP.y;
+                        }
+                    };
+                    threadManager.add(worker);
+                    status.worked(1);
+                }
             }
-        }
+            status.done();
+            threadManager.finish();
 
-        return velocityData;
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException("computeGCPsByXCorrelation", e);
+        }
+    }
+
+    private void computeGCPVelocities() {
+
+        final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
+        status.beginTask("Compute Velocities... ", numGCPsPerAzLine * numGCPsPerRgLine);
+
+        final ThreadManager threadManager = new ThreadManager();
+        try {
+            for (int i = 0; i < numGCPsPerAzLine; i++) {
+                for (int j = 0; j < numGCPsPerRgLine; j++) {
+                    checkForCancellation();
+                    final int iIdx = i;
+                    final int jIdx = j;
+
+                    if (velocityData.slvGCPx[i][j] == invalidIndex || velocityData.slvGCPy[i][j] == invalidIndex) {
+                        continue;
+                    }
+
+                    final Thread worker = new Thread() {
+                        @Override
+                        public void run() {
+
+                            final double xShift =
+                                    (velocityData.mstGCPx[iIdx][jIdx] - velocityData.slvGCPx[iIdx][jIdx])*rangeSpacing;
+
+                            final double yShift =
+                                    (velocityData.mstGCPy[iIdx][jIdx] - velocityData.slvGCPy[iIdx][jIdx])*azimuthSpacing;
+
+                            final double v = Math.sqrt(xShift * xShift + yShift * yShift) / acquisitionTimeInterval;
+
+                            if (v <= maxVelocity) {
+                                saveVelocity(v, xShift, yShift);
+                            } else { // outliers
+                                synchronized(velocityData.slvGCPx) {
+                                    velocityData.slvGCPx[iIdx][jIdx] = invalidIndex;
+                                    velocityData.slvGCPy[iIdx][jIdx] = invalidIndex;
+                                }
+                            }
+                        }
+
+                        private synchronized void saveVelocity(final double v, final double xShift, final double yShift) {
+                            velocityData.velocity[iIdx][jIdx] = v;
+                            velocityData.rangeShift[iIdx][jIdx] = xShift;
+                            velocityData.azimuthShift[iIdx][jIdx] = yShift;
+                        }
+                    };
+                    threadManager.add(worker);
+                    status.worked(1);
+                }
+            }
+            status.done();
+            threadManager.finish();
+
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException("computeGCPVelocities", e);
+        }
+    }
+
+    private void averageOffsets() {
+
+        final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
+        status.beginTask("Average Offsets... ", numGCPsPerAzLine * numGCPsPerRgLine);
+
+        final ThreadManager threadManager = new ThreadManager();
+        try {
+            for (int i = 0; i < numGCPsPerAzLine; i++) {
+                for (int j = 0; j < numGCPsPerRgLine; j++) {
+                    checkForCancellation();
+                    final int iIdx = i;
+                    final int jIdx = j;
+
+                    if (velocityData.slvGCPx[i][j] == invalidIndex || velocityData.slvGCPy[i][j] == invalidIndex) {
+                        continue;
+                    }
+
+                    final Thread worker = new Thread() {
+                        @Override
+                        public void run() {
+
+                            final int i0 = Math.max(iIdx - halfAvgWindowSize, 0);
+                            final int iN = Math.min(iIdx + halfAvgWindowSize, numGCPsPerAzLine - 1);
+                            final int j0 = Math.max(jIdx - halfAvgWindowSize, 0);
+                            final int jN = Math.min(jIdx + halfAvgWindowSize, numGCPsPerRgLine - 1);
+
+                            int count = 0;
+                            double rangeShiftSum = 0.0, azimuthShiftSum = 0.0;
+                            for (int ii = i0; ii <= iN; ii++) {
+                                for (int jj = j0; jj <= jN; jj++) {
+                                    if (velocityData.slvGCPx[ii][jj] != invalidIndex &&
+                                            velocityData.slvGCPy[ii][jj] != invalidIndex) {
+
+                                        rangeShiftSum += velocityData.rangeShift[ii][jj];
+                                        azimuthShiftSum += velocityData.azimuthShift[ii][jj];
+                                        count++;
+                                    }
+                                }
+                            }
+
+                            if (count > 0) {
+                                final double xShift = rangeShiftSum / count;
+
+                                final double yShift = azimuthShiftSum / count;
+
+                                final double v = Math.sqrt(xShift * xShift + yShift * yShift) / acquisitionTimeInterval;
+
+                                final double slvGCPx = velocityData.mstGCPx[iIdx][jIdx] - xShift / rangeSpacing;
+
+                                final double slvGCPy = velocityData.mstGCPy[iIdx][jIdx] - yShift / azimuthSpacing;
+
+                                saveVelocity(v, slvGCPx, slvGCPy);
+                            }
+                        }
+
+                        private synchronized void saveVelocity(final double v, final double slvGCPx, final double slvGCPy) {
+                            velocityData.velocity[iIdx][jIdx] = v;
+                            velocityData.slvGCPx[iIdx][jIdx] = slvGCPx;
+                            velocityData.slvGCPy[iIdx][jIdx] = slvGCPy;
+                        }
+                    };
+                    threadManager.add(worker);
+                    status.worked(1);
+                }
+            }
+            status.done();
+            threadManager.finish();
+
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException("averageOffsets", e);
+        }
+    }
+
+    private void fillHoles() {
+
+        final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
+        status.beginTask("Fill Holes... ", numGCPsPerAzLine * numGCPsPerRgLine);
+
+        final ThreadManager threadManager = new ThreadManager();
+        try {
+            final java.util.List<int[]> holeList = new ArrayList<>();
+            for (int i = 0; i < numGCPsPerAzLine; i++) {
+                for (int j = 0; j < numGCPsPerRgLine; j++) {
+                    if (velocityData.slvGCPx[i][j] == invalidIndex || velocityData.slvGCPy[i][j] == invalidIndex) {
+                        holeList.add(new int[]{i, j});
+                    }
+                }
+            }
+
+            for (int k = 0; k < holeList.size(); k++) {
+                checkForCancellation();
+                final int iIdx = holeList.get(k)[0];
+                final int jIdx = holeList.get(k)[1];
+
+                final Thread worker = new Thread() {
+                    @Override
+                    public void run() {
+
+                        final int i0 = Math.max(iIdx - radius, 0);
+                        final int iN = Math.min(iIdx + radius, numGCPsPerAzLine - 1);
+                        final int j0 = Math.max(jIdx - radius, 0);
+                        final int jN = Math.min(jIdx + radius, numGCPsPerRgLine - 1);
+
+                        double xShiftMean = 0.0, yShiftMean = 0.0, totalWeight = 0.0;
+                        for (int ii = i0; ii <= iN; ii++) {
+                            for (int jj = j0; jj <= jN; jj++) {
+                                if (!inList(ii, jj)) {
+
+                                    final double w = 1.0 / Math.max(Math.abs(ii - iIdx), Math.abs(jj - jIdx));
+
+                                    xShiftMean += w * rangeSpacing *
+                                            (velocityData.mstGCPx[ii][jj] - velocityData.slvGCPx[ii][jj]);
+
+                                    yShiftMean += w * azimuthSpacing *
+                                            (velocityData.mstGCPy[ii][jj] - velocityData.slvGCPy[ii][jj]);
+
+                                    totalWeight += w;
+                                }
+                            }
+                        }
+
+                        if (totalWeight != 0.0) {
+                            xShiftMean /= totalWeight;
+                            yShiftMean /= totalWeight;
+
+                            final double slvGCPx = velocityData.mstGCPx[iIdx][jIdx] - xShiftMean / rangeSpacing;
+                            final double slvGCPy = velocityData.mstGCPy[iIdx][jIdx] - yShiftMean / azimuthSpacing;
+
+                            final double v = Math.sqrt(xShiftMean * xShiftMean + yShiftMean * yShiftMean) /
+                                    acquisitionTimeInterval;
+
+                            saveVelocity(v, slvGCPx, slvGCPy);
+                        }
+                    }
+
+                    private boolean inList(final int ii, final int jj) {
+
+                        for (int k = 0; k < holeList.size(); k++) {
+                            if (holeList.get(k)[0] == ii && holeList.get(k)[1] == jj) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+
+                    private synchronized void saveVelocity(final double v, final double slvGCPx, final double slvGCPy) {
+                        velocityData.velocity[iIdx][jIdx] = v;
+                        velocityData.slvGCPx[iIdx][jIdx] = slvGCPx;
+                        velocityData.slvGCPy[iIdx][jIdx] = slvGCPy;
+                    }
+                };
+                threadManager.add(worker);
+                status.worked(1);
+            }
+            status.done();
+            threadManager.finish();
+
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException("fillHoles", e);
+        }
+    }
+
+    private boolean checkGCPValidity(final PixelPos pixelPos) {
+
+        return (pixelPos.x - cHalfWindowWidth + 1 >= 0 && pixelPos.x + cHalfWindowWidth <= sourceImageWidth - 1) &&
+               (pixelPos.y - cHalfWindowHeight + 1 >= 0 && pixelPos.y + cHalfWindowHeight <= sourceImageHeight - 1);
+    }
+
+    private boolean getOffsets(final PixelPos mGCPPixelPos, final PixelPos sGCPPixelPos) {
+
+        try {
+            final ComplexDoubleMatrix mI = getComplexDoubleMatrix(masterBand, null, mGCPPixelPos, corrWin);
+            final ComplexDoubleMatrix sI = getComplexDoubleMatrix(slaveBand, null, sGCPPixelPos, corrWin);
+
+            final double[] coarseOffset = {0, 0};
+
+            double coherence = CoregistrationUtils.crossCorrelateFFT(
+                    coarseOffset, mI, sI, corrWin.ovsFactor, corrWin.accY, corrWin.accX);
+
+//            double coherence = CoregistrationUtils.normalizedCrossCorrelation(
+//                    coarseOffset, mI, sI, corrWin.ovsFactor, corrWin.accY, corrWin.accX);
+
+            if (coherence < xCorrThreshold) {
+                return false;
+            } else {
+                sGCPPixelPos.x += coarseOffset[1];
+                sGCPPixelPos.y += coarseOffset[0];
+                return true;
+            }
+
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException(getId() + " getOffsets ", e);
+        }
+        return false;
+    }
+
+    private void dumpComplexMatrix(ComplexDoubleMatrix I, final String title) {
+
+        System.out.println(title);
+        final int numRows = I.rows;
+        final int numCols = I.columns;
+        for (int r = 0; r < numRows; r++) {
+            for (int c = 0; c < numCols; c++) {
+                ComplexDouble v = I.get(r,c);
+//                System.out.print(v.real() + " + j*" + v.imag() + ", ");
+                System.out.print(v.real() + ", ");
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
+
+    private ComplexDoubleMatrix getComplexDoubleMatrix(
+            final Band band1, final Band band2, final PixelPos pixelPos, final CrossCorrelationOp.CorrelationWindow corrWindow) {
+
+        Rectangle rectangle = corrWindow.defineRectangleMask(pixelPos);
+        Tile tileReal = getSourceTile(band1, rectangle);
+
+        Tile tileImag = null;
+        if (band2 != null) {
+            tileImag = getSourceTile(band2, rectangle);
+        }
+        return TileUtilsDoris.pullComplexDoubleMatrix(tileReal, tileImag);
     }
 
     private void writeGCPsToMetadata() {
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
-        final String suffix = StackUtils.getBandSuffix(processedSlaveBand);
+        final String suffix = StackUtils.getBandSuffix(slaveBand.getName());
         final String velocityBandName = VELOCITY + suffix;
 
         final MetadataElement bandElem = AbstractMetadata.getBandAbsMetadata(absRoot, velocityBandName, true);
@@ -480,39 +821,100 @@ public class OffsetTrackingOp extends Operator {
         }
 
         int k = 0;
-        for (int i = 0; i < velocityData.mstGCPx.length; i++) {
-            if (velocityData.mstGCPx[i] != invalidIndex && velocityData.mstGCPy[i] != invalidIndex) {
-                final MetadataElement gcpElem = new MetadataElement("GCP" + k);
-                warpDataElem.addElement(gcpElem);
+        for (int i = 0; i < numGCPsPerAzLine; i++) {
+            for (int j = 0; j < numGCPsPerRgLine; j++) {
+                if (velocityData.slvGCPx[i][j] != invalidIndex && velocityData.slvGCPx[i][j] != invalidIndex) {
+                    final MetadataElement gcpElem = new MetadataElement("GCP" + k);
+                    warpDataElem.addElement(gcpElem);
 
-                gcpElem.setAttributeDouble("mst_x", velocityData.mstGCPx[i]);
-                gcpElem.setAttributeDouble("mst_y", velocityData.mstGCPy[i]);
-                gcpElem.setAttributeDouble("slv_x", velocityData.slvGCPx[i]);
-                gcpElem.setAttributeDouble("slv_y", velocityData.slvGCPy[i]);
-                k++;
+                    gcpElem.setAttributeDouble("mst_x", velocityData.mstGCPx[i][j]);
+                    gcpElem.setAttributeDouble("mst_y", velocityData.mstGCPy[i][j]);
+                    gcpElem.setAttributeDouble("slv_x", velocityData.slvGCPx[i][j]);
+                    gcpElem.setAttributeDouble("slv_y", velocityData.slvGCPy[i][j]);
+                    k++;
+                }
             }
         }
     }
 
     public static class VelocityData {
-        public double[] mstGCPx;
-        public double[] mstGCPy;
-        public double[] slvGCPx;
-        public double[] slvGCPy;
-        public double[] velocity;
-        public double[] rangeShift;
-        public double[] azimuthShift;
+        public final double[][] mstGCPx;
+        public final double[][] mstGCPy;
+        public final double[][] slvGCPx;
+        public final double[][] slvGCPy;
+        public final double[][] velocity;
+        public final double[][] rangeShift;
+        public final double[][] azimuthShift;
 
-        public VelocityData(final int numGCPs) {
-            this.mstGCPx = new double[numGCPs];
-            this.mstGCPy = new double[numGCPs];
-            this.slvGCPx = new double[numGCPs];
-            this.slvGCPy = new double[numGCPs];
-            this.rangeShift = new double[numGCPs];
-            this.azimuthShift = new double[numGCPs];
-            this.velocity = new double[numGCPs];
+        public VelocityData(final int numGCPsPerAzimuthLine, final int numGCPsPerRangeLine) {
+            this.mstGCPx = new double[numGCPsPerAzimuthLine][numGCPsPerRangeLine];
+            this.mstGCPy = new double[numGCPsPerAzimuthLine][numGCPsPerRangeLine];
+            this.slvGCPx = new double[numGCPsPerAzimuthLine][numGCPsPerRangeLine];
+            this.slvGCPy = new double[numGCPsPerAzimuthLine][numGCPsPerRangeLine];
+            this.rangeShift = new double[numGCPsPerAzimuthLine][numGCPsPerRangeLine];
+            this.azimuthShift = new double[numGCPsPerAzimuthLine][numGCPsPerRangeLine];
+            this.velocity = new double[numGCPsPerAzimuthLine][numGCPsPerRangeLine];
         }
     }
+
+    private static class ResamplingRaster implements Resampling.Raster {
+
+        private final Tile tile;
+        private final double[][] data;
+        private final boolean usesNoData;
+        private final boolean scalingApplied;
+        private final double noDataValue;
+        private final double geophysicalNoDataValue;
+
+        public ResamplingRaster(final Tile tile, final double[][] data) {
+            this.tile = tile;
+            this.data = data;
+            final RasterDataNode rasterDataNode = tile.getRasterDataNode();
+            this.usesNoData = rasterDataNode.isNoDataValueUsed();
+            this.noDataValue = rasterDataNode.getNoDataValue();
+            this.geophysicalNoDataValue = rasterDataNode.getGeophysicalNoDataValue();
+            this.scalingApplied = rasterDataNode.isScalingApplied();
+        }
+
+        public final int getWidth() {
+            return tile.getWidth();
+        }
+
+        public final int getHeight() {
+            return tile.getHeight();
+        }
+
+        public boolean getSamples(final int[] x, final int[] y, final double[][] samples) throws Exception {
+            boolean allValid = true;
+
+            try {
+                double val;
+                int i = 0;
+                while (i < y.length) {
+                    int j = 0;
+                    while (j < x.length) {
+                        val = data[y[i]][x[j]];
+
+                        if (usesNoData) {
+                            if (scalingApplied && geophysicalNoDataValue == val || noDataValue == val) {
+                                val = Double.NaN;
+                                allValid = false;
+                            }
+                        }
+                        samples[i][j] = val;
+                        ++j;
+                    }
+                    ++i;
+                }
+            } catch (Exception e) {
+                SystemUtils.LOG.severe(e.getMessage());
+                allValid = false;
+            }
+
+            return allValid;
+        }
+    }
+
 
     /**
      * The SPI is used to register this operator in the graph processing framework
