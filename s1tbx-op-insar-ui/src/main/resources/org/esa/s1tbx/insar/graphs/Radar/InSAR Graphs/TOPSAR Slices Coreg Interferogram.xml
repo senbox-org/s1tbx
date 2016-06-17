@@ -109,21 +109,30 @@
       <maxIteration>10</maxIteration>
     </parameters>
   </node>
+  <node id="Interferogram">
+    <operator>Interferogram</operator>
+    <sources>
+      <sourceProduct refid="Enhanced-Spectral-Diversity"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <subtractFlatEarthPhase>true</subtractFlatEarthPhase>
+      <srpPolynomialDegree>5</srpPolynomialDegree>
+      <srpNumberPoints>501</srpNumberPoints>
+      <orbitDegree>3</orbitDegree>
+      <includeCoherence>true</includeCoherence>
+	  <squarePixel>true</squarePixel>
+      <cohWinAz>2</cohWinAz>
+      <cohWinRg>10</cohWinRg>
+    </parameters>
+  </node>
   <node id="TOPSAR-Deburst">
     <operator>TOPSAR-Deburst</operator>
     <sources>
-      <sourceProduct refid="IntegerInterferogram"/>
+      <sourceProduct refid="Interferogram"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <selectedPolarisations/>
     </parameters>
-  </node>
-  <node id="IntegerInterferogram">
-    <operator>IntegerInterferogram</operator>
-    <sources>
-      <sourceProduct refid="Enhanced-Spectral-Diversity"/>
-    </sources>
-    <parameters class="com.bc.ceres.binding.dom.XppDomElement"/>
   </node>
   <node id="Write">
     <operator>Write</operator>
@@ -170,7 +179,7 @@
     <node id="TOPSAR-Deburst">
       <displayPosition x="689.0" y="163.0"/>
     </node>
-    <node id="IntegerInterferogram">
+    <node id="Interferogram">
       <displayPosition x="535.0" y="163.0"/>
     </node>
     <node id="Write">

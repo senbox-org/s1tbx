@@ -62,8 +62,23 @@ public class TestSentinel1ProductReader {
     }
 
     @Test
-    public void testOpeningFolder() throws Exception {
+    public void testOpeningFile() throws Exception {
         final File inputFile = new File(inputS1_AnnotGRD, "manifest.safe");
+        if(!inputFile.exists()) {
+            TestUtils.skipTest(this, inputFile +" not found");
+            return;
+        }
+
+        final DecodeQualification canRead = readerPlugin.getDecodeQualification(inputFile);
+        Assert.assertTrue(canRead == DecodeQualification.INTENDED);
+
+        final Product product = reader.readProductNodes(inputFile, null);
+        Assert.assertTrue(product != null);
+    }
+
+    @Test
+    public void testOpeningFolder() throws Exception {
+        final File inputFile = inputS1_AnnotGRD;
         if(!inputFile.exists()) {
             TestUtils.skipTest(this, inputFile +" not found");
             return;

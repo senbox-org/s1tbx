@@ -58,7 +58,7 @@ import java.util.ArrayList;
  */
 
 @OperatorMetadata(alias = "Forest-Area-Classification",
-        category = "Radar/Feature Extraction",
+        category = "Radar/SAR Applications",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
         version = "1.0",

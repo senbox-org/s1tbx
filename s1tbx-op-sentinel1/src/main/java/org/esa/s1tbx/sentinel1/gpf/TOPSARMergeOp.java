@@ -514,7 +514,7 @@ public final class TOPSARMergeOp extends Operator {
         for (int p = 0; p < numOfSubSwath; p++) {
             MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct[p]);
             final MetadataElement burstBoundarySrc = absRoot.getElement("BurstBoundary");
-            if (burstBoundarySrc != null) {
+            if (burstBoundarySrc != null && burstBoundarySrc.getNumElements() > 0) {
                 final MetadataElement element = burstBoundarySrc.getElementAt(0);
                 if (element != null) {
                     burstBoundaryTgt.addElement(element.createDeepClone());

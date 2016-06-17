@@ -85,7 +85,10 @@ public class Sentinel1ProductReader extends SARReader {
     protected Product readProductNodesImpl() throws IOException {
 
         try {
-            final File fileFromInput = ReaderUtils.getFileFromInput(getInput());
+            File fileFromInput = ReaderUtils.getFileFromInput(getInput());
+            if(fileFromInput.isDirectory()) {
+                fileFromInput = new File(fileFromInput, "manifest.safe");
+            }
             if (Sentinel1ProductReaderPlugIn.isLevel1(fileFromInput)) {
                 dataDir = new Sentinel1Level1Directory(fileFromInput);
             } else if (Sentinel1ProductReaderPlugIn.isLevel2(fileFromInput)) {

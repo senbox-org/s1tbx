@@ -6,7 +6,7 @@
 
     <tocitem text="Sentinel Toolbox Application">
         <tocitem text="Radar">
-            <tocitem text="Feature Extraction">
+            <tocitem text="SAR Applications">
                 <tocitem text="Ocean Tools">
                     <tocitem text="Object Detection" target="ObjectDetection"/>
                     <tocitem text="Oil Spill Detection" target="OilSpillDetection"/>

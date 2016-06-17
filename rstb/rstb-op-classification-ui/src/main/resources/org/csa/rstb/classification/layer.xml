@@ -26,6 +26,18 @@
                 <attr name="icon" stringvalue="rstbIcon"/>
             </file>
         </folder>
+        <folder name="Wizards">
+            <file name="org-csa-rstb-classification-wizards-PolSARWizard-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.wizards.WizardAction.create"/>
+                <attr name="displayName" stringvalue="Polarimetric Classification Wizard"/>
+                <attr name="wizardPanelClass" stringvalue="org.csa.rstb.classification.rcp.wizards.PolarimetryWizard.PolSARWizardInstructPanel"/>
+                <attr name="dialogTitle" stringvalue="Polarimetric Classification Wizard"/>
+                <attr name="ShortDescription" stringvalue="Polarimetric Classification"/>
+                <attr name="helpId" stringvalue="PolarimetricClassificationOp"/>
+                <attr name="icon" stringvalue="rstbIcon"/>
+            </file>
+        </folder>
     </folder>
 
     <folder name="Menu">
@@ -39,6 +51,13 @@
                 <file name="org-csa-rstb-classification-gpf-SupervisedWishartClassificationOp-Action.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-csa-rstb-classification-gpf-SupervisedWishartClassificationOp-Action.instance"/>
                     <attr name="position" intvalue="700"/>
+                </file>
+            </folder>
+            <folder name="SAR Wizards">
+                <attr name="position" intvalue="1100"/>
+                <file name="org-csa-rstb-classification-wizards-PolSARWizard-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Wizards/org-csa-rstb-classification-wizards-PolSARWizard-Action.instance"/>
+                    <attr name="position" intvalue="200"/>
                 </file>
             </folder>
         </folder>

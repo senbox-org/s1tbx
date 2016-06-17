@@ -274,7 +274,7 @@
                     <attr name="position" intvalue="550"/>
                 </file>
             </folder>
-            <folder name="ASAR WSS">
+            <folder name="ENVISAT ASAR">
                 <attr name="position" intvalue="800"/>
                 <file name="org-esa-s1tbx-sar-gpf-wss-WSSDeburstOp-Action.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-wss-WSSDeburstOp-Action.instance"/>

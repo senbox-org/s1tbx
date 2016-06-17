@@ -76,6 +76,15 @@
                 <attr name="helpId" stringvalue="importRadarsat2Product"/>
                 <attr name="ShortDescription" stringvalue="Open RADARSAT-2 data product."/>
             </file>
+            <file name="org-esa-s1tbx-io-importSeaSatProduct.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="SeaSat"/>
+                <attr name="formatName" stringvalue="SeaSat"/>
+                <attr name="useAllFileFilter" boolvalue="false"/>
+                <attr name="helpId" stringvalue="importSeaSatProduct"/>
+                <attr name="ShortDescription" stringvalue="Open SeaSat data product."/>
+            </file>
             <file name="org-esa-s1tbx-io-importS1Product.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
@@ -194,6 +203,10 @@
                     <file name="org-esa-s1tbx-io-importRadarsat2Product.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importRadarsat2Product.instance"/>
                         <attr name="position" intvalue="800"/>
+                    </file>
+                    <file name="org-esa-s1tbx-io-importSeaSatProduct.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importSeaSatProduct.instance"/>
+                        <attr name="position" intvalue="850"/>
                     </file>
                     <file name="org-esa-s1tbx-io-importS1Product.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importS1Product.instance"/>

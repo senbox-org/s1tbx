@@ -1,0 +1,96 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="ProductSet-Reader">
+    <operator>ProductSet-Reader</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <fileList/>
+    </parameters>
+  </node>
+  <node id="DEM-Assisted-Coregistration">
+    <operator>DEM-Assisted-Coregistration</operator>
+    <sources>
+      <sourceProduct refid="ProductSet-Reader"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <demName>SRTM 3Sec</demName>
+      <demResamplingMethod>BILINEAR_INTERPOLATION</demResamplingMethod>
+      <externalDEMFile/>
+      <externalDEMNoDataValue>0.0</externalDEMNoDataValue>
+      <resamplingType>BILINEAR_INTERPOLATION</resamplingType>
+      <tileExtensionPercent>100</tileExtensionPercent>
+      <maskOutAreaWithoutElevation>true</maskOutAreaWithoutElevation>
+      <outputRangeAzimuthOffset>false</outputRangeAzimuthOffset>
+    </parameters>
+  </node>
+  <node id="Cross-Correlation">
+    <operator>Cross-Correlation</operator>
+    <sources>
+      <sourceProduct refid="DEM-Assisted-Coregistration"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <numGCPtoGenerate>200</numGCPtoGenerate>
+      <coarseRegistrationWindowWidth>128</coarseRegistrationWindowWidth>
+      <coarseRegistrationWindowHeight>128</coarseRegistrationWindowHeight>
+      <rowInterpFactor>4</rowInterpFactor>
+      <columnInterpFactor>4</columnInterpFactor>
+      <maxIteration>2</maxIteration>
+      <gcpTolerance>0.25</gcpTolerance>
+      <applyFineRegistration>false</applyFineRegistration>
+      <inSAROptimized>false</inSAROptimized>
+      <fineRegistrationWindowWidth>64</fineRegistrationWindowWidth>
+      <fineRegistrationWindowHeight>64</fineRegistrationWindowHeight>
+      <fineRegistrationWindowAccAzimuth>16</fineRegistrationWindowAccAzimuth>
+      <fineRegistrationWindowAccRange>16</fineRegistrationWindowAccRange>
+      <fineRegistrationOversampling>16</fineRegistrationOversampling>
+      <coherenceWindowSize>3</coherenceWindowSize>
+      <coherenceThreshold>0.1</coherenceThreshold>
+      <useSlidingWindow>false</useSlidingWindow>
+      <computeOffset>false</computeOffset>
+      <onlyGCPsOnLand>false</onlyGCPsOnLand>
+    </parameters>
+  </node>
+  <node id="Warp">
+    <operator>Warp</operator>
+    <sources>
+      <sourceProduct refid="Cross-Correlation"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <rmsThreshold>1.0</rmsThreshold>
+      <warpPolynomialOrder>1</warpPolynomialOrder>
+      <interpolationMethod>Bilinear interpolation</interpolationMethod>
+      <demRefinement>false</demRefinement>
+      <demName/>
+      <excludeMaster>false</excludeMaster>
+      <openResidualsFile>false</openResidualsFile>
+    </parameters>
+  </node>
+  <node id="Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="Warp"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <file>target.dim</file>
+      <formatName>BEAM-DIMAP</formatName>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="DEM-Assisted-Coregistration">
+      <displayPosition x="21.0" y="112.0"/>
+    </node>
+    <node id="Cross-Correlation">
+      <displayPosition x="219.0" y="112.0"/>
+    </node>
+    <node id="Warp">
+      <displayPosition x="371.0" y="112.0"/>
+    </node>
+    <node id="ProductSet-Reader">
+      <displayPosition x="49.0" y="36.0"/>
+    </node>
+    <node id="Write">
+      <displayPosition x="474.0" y="112.0"/>
+    </node>
+  </applicationData>
+</graph>
