@@ -423,8 +423,8 @@ public class CalibrationOpUI extends BaseOperatorUI {
         contentPane.add(createBeta0VirtualBandCheckBox, gbc);
         contentPane.add(outputBetaBandCheckBox, gbc);
 
-        gbc.gridy++;
-        contentPane.add(outputDNBandCheckBox, gbc);
+//        gbc.gridy++;
+//        contentPane.add(outputDNBandCheckBox, gbc);
 
         DialogUtils.fillPanel(contentPane, gbc);
 
