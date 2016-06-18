@@ -93,7 +93,7 @@ public class CalibrationOp extends Operator {
     @Parameter(description = "Output beta0 band", defaultValue = "false", label = "Output beta0 band")
     private Boolean outputBetaBand = false;
 
-    @Parameter(description = "Output DN band", defaultValue = "false", label = "Output DN band")
+//    @Parameter(description = "Output DN band", defaultValue = "false", label = "Output DN band")
     private Boolean outputDNBand = false;
 
     private Calibrator calibrator = null;
