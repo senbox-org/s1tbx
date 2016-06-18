@@ -38,7 +38,7 @@ public class NorthArrowComponent implements MapToolsComponent {
     public NorthArrowComponent(final RasterDataNode raster) {
         final int rasterWidth = raster.getRasterWidth();
         final int rasterHeight = raster.getRasterHeight();
-        final int margin = (int) (0.02 * FastMath.hypot(rasterWidth, rasterHeight));
+        final int margin = (int) (0.05 * FastMath.hypot(rasterWidth, rasterHeight));
         PixelPos point1 = new PixelPos(margin, margin);
 
         final GeoCoding geoCoding = raster.getGeoCoding();

@@ -44,7 +44,7 @@ public class MapToolsLayer extends Layer implements LayerSelection {
 
     private final Product product;
     private final RasterDataNode raster;
-    private final MapToolsOptions options;
+    private MapToolsOptions options;
 
     private final ArrayList<MapToolsComponent> components = new ArrayList<>(5);
 
@@ -53,6 +53,9 @@ public class MapToolsLayer extends Layer implements LayerSelection {
         setName("Mapping Tools");
         raster = (RasterDataNode) configuration.getValue("raster");
         options = (MapToolsOptions) configuration.getValue("options");
+        if(options == null) {
+            options = new MapToolsOptions();
+        }
         options.setLayer(this);
         product = raster.getProduct();
         regenerate();

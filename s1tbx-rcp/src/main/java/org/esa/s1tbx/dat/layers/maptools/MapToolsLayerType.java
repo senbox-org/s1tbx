@@ -34,7 +34,7 @@ import org.esa.snap.core.datamodel.RasterDataNode;
         aliasNames = {"org.esa.s1tbx.dat.layers.maptools.MapToolsLayerType"})
 public class MapToolsLayerType extends LayerType {
 
-    private static final String TYPE_NAME = "GeoTagLayerType";
+    private static final String TYPE_NAME = "MapToolsLayerType";
     private static final String[] ALIASES = {"org.esa.s1tbx.dat.layers.maptools.MapToolsLayerType"};
 
     public static MapToolsLayer createLayer(final RasterDataNode raster, final MapToolsOptions options) {
