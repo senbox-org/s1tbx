@@ -22,6 +22,7 @@
       <maskOutAreaWithoutElevation>true</maskOutAreaWithoutElevation>
       <outputRangeAzimuthOffset>false</outputRangeAzimuthOffset>
     </parameters>
+  </node>
   <node id="Write">
     <operator>Write</operator>
     <sources>
