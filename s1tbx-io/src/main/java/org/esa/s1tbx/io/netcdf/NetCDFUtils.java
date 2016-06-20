@@ -307,10 +307,16 @@ public class NetCDFUtils {
                     }
                 } else if (attribute.isArray()) {
                     productData = ProductData.createInstance(productDataType, attribute.getLength());
-                    productData.setElems(attribute.getValues().getStorage());
+                    long size = attribute.getValues().getSize();
+                    if(size > 0) {
+                        productData.setElems(attribute.getValues().getStorage());
+                    }
                 } else {
                     productData = ProductData.createInstance(productDataType, 1);
-                    productData.setElems(attribute.getValues().getStorage());
+                    long size = attribute.getValues().getSize();
+                    if(size > 0) {
+                        productData.setElems(attribute.getValues().getStorage());
+                    }
                 }
                 final MetadataAttribute metadataAttribute = new MetadataAttribute(name, productData, true);
                 parentElem.addAttribute(metadataAttribute);
@@ -321,9 +327,12 @@ public class NetCDFUtils {
     public static String getProductType(final NcAttributeMap attMap, final String defaultType) {
         String productType = attMap.getStringValue("Product Type");
         if (productType == null) {
-            productType = attMap.getStringValue("Conventions");
+            productType = attMap.getStringValue("Product_Type");
             if (productType == null) {
-                productType = defaultType;
+                productType = attMap.getStringValue("Conventions");
+                if (productType == null) {
+                    productType = defaultType;
+                }
             }
         }
         return productType;
