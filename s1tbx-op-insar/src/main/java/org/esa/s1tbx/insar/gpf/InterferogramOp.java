@@ -323,7 +323,7 @@ public class InterferogramOp extends Operator {
             for (String keySlave : slaveMap.keySet()) {
                 final CplxContainer slave = slaveMap.get(keySlave);
 
-                if (master.polarisation.equals(slave.polarisation)) {
+                if (master.polarisation == null || master.polarisation.equals(slave.polarisation)) {
                     // generate name for product bands
                     final String productName = keyMaster + '_' + keySlave;
 
@@ -424,7 +424,7 @@ public class InterferogramOp extends Operator {
             final CplxContainer slave = container.sourceSlave;
 
             final String subswath = master.subswath.isEmpty() ? "" : '_' + master.subswath.toUpperCase();
-            final String pol = master.polarisation.isEmpty() ? "" : '_' + master.polarisation.toUpperCase();
+            final String pol = getPolarisationTag(master);
             final String tag = subswath + pol + '_' + master.date + '_' + slave.date;
             final String targetBandName_I = "i_" + productTag + tag;
             final Band iBand = targetProduct.addBand(targetBandName_I, ProductData.TYPE_FLOAT32);
@@ -467,6 +467,10 @@ public class InterferogramOp extends Operator {
             StackUtils.saveSlaveProductBandNames(targetProduct, slvProductName,
                                                  targetBandNames.toArray(new String[targetBandNames.size()]));
         }
+    }
+
+    public static String getPolarisationTag(final CplxContainer master) {
+        return (master.polarisation == null || master.polarisation.isEmpty()) ? "" : '_' + master.polarisation.toUpperCase();
     }
 
     public static DoubleMatrix estimateFlatEarthPolynomial(
