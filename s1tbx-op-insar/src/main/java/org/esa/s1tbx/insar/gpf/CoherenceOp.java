@@ -295,7 +295,8 @@ public class CoherenceOp extends Operator {
             for (String keySlave : slaveMap.keySet()) {
                 final CplxContainer slave = slaveMap.get(keySlave);
 
-                if (master.polarisation.equals(slave.polarisation)) {
+                if ((master.polarisation == null && slave.polarisation == null) ||
+                        (master.polarisation != null && master.polarisation.equals(slave.polarisation))) {
                     // generate name for product bands
                     String productName = keyMaster + '_' + keySlave;
 
@@ -326,7 +327,7 @@ public class CoherenceOp extends Operator {
                 final CplxContainer slave = container.sourceSlave;
 
                 final String subswath = master.subswath.isEmpty() ? "" : '_' + master.subswath.toUpperCase();
-                final String pol = master.polarisation.isEmpty() ? "" : '_' + master.polarisation.toUpperCase();
+                final String pol = InterferogramOp.getPolarisationTag(master);
                 final String tag = subswath + pol + '_' + master.date + '_' + slave.date;
 
                 final String coherenceBandName = productTag + tag;
