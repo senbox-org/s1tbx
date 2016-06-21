@@ -32,8 +32,7 @@ import org.esa.snap.core.gpf.annotations.TargetProperty;
 import org.esa.snap.core.gpf.internal.OperatorContext;
 
 import javax.media.jai.BorderExtender;
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.text.MessageFormat;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -462,7 +461,7 @@ public abstract class Operator {
 
     /**
      * Gets a {@link Tile} for a given band and image region. The region can overlap the bounds of source image.
-     * This method is particulary useful if you need to compute target pixels from an n x m region around a corresponding source pixel.
+     * This method is particularly useful if you need to compute target pixels from an n x m region around a corresponding source pixel.
      * In this case an extended tile will need to be read from the source.
      *
      * @param rasterDataNode the raster data node of a data product,
