@@ -55,6 +55,8 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
     private int subsetOffsetX = 0;
     private int subsetOffsetY = 0;
 
+    private boolean isSLC = false;
+
     /**
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
@@ -95,7 +97,7 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
 
             getCalibrationFlag();
 
-            getSampleType();
+            isSLC = sourceProduct.getProductType().toLowerCase().contains("slc");
 
             getSubsetOffset();
 
@@ -254,7 +256,7 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
                     throw new OperatorException("RadarSat2 Calibration: unhandled unit");
                 }
 
-                if (isComplex) {
+                if (isSLC) {
                     if (gains != null) {
                         sigma = dn2 / (gains[x + subsetOffsetX] * gains[x + subsetOffsetX]);
                         if (outputImageInComplex) {
@@ -297,7 +299,7 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
             throw new OperatorException("Unknown band unit");
         }
 
-        if (isComplex) {
+        if (isSLC) {
             if (gains != null) {
                 sigma /= (gains[(int) rangeIndex] * gains[(int) rangeIndex]);
             }
