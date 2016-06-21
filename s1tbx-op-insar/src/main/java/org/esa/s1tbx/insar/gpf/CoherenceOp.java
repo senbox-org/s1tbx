@@ -74,13 +74,13 @@ public class CoherenceOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(interval = "(1, 40]",
+    @Parameter(interval = "(1, 90]",
             description = "Size of coherence estimation window in Azimuth direction",
             defaultValue = "10",
             label = "Coherence Azimuth Window Size")
     private int cohWinAz = 10;
 
-    @Parameter(interval = "(1, 40]",
+    @Parameter(interval = "(1, 90]",
             description = "Size of coherence estimation window in Range direction",
             defaultValue = "10",
             label = "Coherence Range Window Size")
