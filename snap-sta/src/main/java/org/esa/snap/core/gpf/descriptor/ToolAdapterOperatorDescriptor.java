@@ -17,11 +17,19 @@ package org.esa.snap.core.gpf.descriptor;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import com.thoughtworks.xstream.io.StreamException;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.descriptor.template.TemplateEngine;
+import org.esa.snap.core.gpf.descriptor.template.TemplateException;
+import org.esa.snap.core.gpf.descriptor.template.TemplateFile;
+import org.esa.snap.core.gpf.descriptor.template.TemplateType;
 import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterConstants;
+import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterIO;
 import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.utils.PrivilegedAccessor;
 
 import java.io.*;
@@ -43,7 +51,8 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
     public static final String SOURCE_PACKAGE = "package";
     public static final String SOURCE_USER = "user";
     public static final Class[] annotatedClasses = new Class[] {
-            ToolAdapterOperatorDescriptor.class, TemplateParameterDescriptor.class, SystemVariable.class, SystemDependentVariable.class
+            ToolAdapterOperatorDescriptor.class, TemplateParameterDescriptor.class,
+            SystemVariable.class, SystemDependentVariable.class, TemplateFile.class
     };
 
     private String name;
@@ -63,14 +72,15 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
     private String processingWriter;
     private File mainToolFileLocation;
     private File workingDir;
-    private String templateFileLocation;
+    //private String template;
+    private TemplateFile template;
     private String progressPattern;
     private String errorPattern;
     private String stepPattern;
     @XStreamAlias("variables")
     private List<SystemVariable> variables;
     @XStreamAlias("parameters")
-    private List<TemplateParameterDescriptor> toolParameterDescriptors = new ArrayList<>();
+    private List<ToolParameterDescriptor> toolParameterDescriptors = new ArrayList<>();
     private String source;
     private boolean isSystem;
     private boolean isHandlingOutputName;
@@ -81,6 +91,11 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
     private DefaultTargetPropertyDescriptor[] targetPropertyDescriptors;
 
     private int numSourceProducts;
+
+    private TemplateType templateType;
+
+    @XStreamOmitField
+    private TemplateEngine templateEngine;
 
     ToolAdapterOperatorDescriptor() {
         this.sourceProductDescriptors = new DefaultSourceProductDescriptor[] { new DefaultSourceProductDescriptor() };
@@ -125,8 +140,23 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
         this.processingWriter = obj.processingWriter;
         this.mainToolFileLocation = obj.mainToolFileLocation;
         this.workingDir = obj.workingDir;
-        this.templateFileLocation = obj.templateFileLocation;
-
+        this.templateType = obj.templateType;
+        if (obj.template != null) {
+            try {
+                this.template = obj.template.copy();
+                this.template.associateWith(getTemplateEngine());
+            } catch (IOException ioex) {
+                this.template = new TemplateFile();
+                try {
+                    this.template.associateWith(getTemplateEngine());
+                    this.template.setContents("Error: " + ioex.getMessage(), false);
+                } catch (TemplateException e) {
+                    SystemUtils.LOG.warning(e.getMessage());
+                }
+            } catch (TemplateException e) {
+                SystemUtils.LOG.warning(e.getMessage());
+            }
+        }
         this.progressPattern = obj.progressPattern;
         this.errorPattern = obj.errorPattern;
         this.stepPattern = obj.stepPattern;
@@ -145,9 +175,9 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
 
         this.sourceProductsDescriptor = (DefaultSourceProductsDescriptor) obj.getSourceProductsDescriptor();
 
-        for (TemplateParameterDescriptor parameter : obj.getToolParameterDescriptors()) {
-            this.toolParameterDescriptors.add(new TemplateParameterDescriptor(parameter));
-        }
+        this.toolParameterDescriptors.addAll(obj.getToolParameterDescriptors().stream().map(parameter -> !parameter.isTemplateParameter() ?
+                new ToolParameterDescriptor(parameter) :
+                new TemplateParameterDescriptor((TemplateParameterDescriptor) parameter)).collect(Collectors.toList()));
 
         this.targetProductDescriptor = (DefaultTargetProductDescriptor) obj.getTargetProductDescriptor();
 
@@ -175,7 +205,7 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
      * Removes the given parameter descriptor from the internal parameter descriptor list
      * @param descriptor    The descriptor to be removed
      */
-    public void removeParamDescriptor(TemplateParameterDescriptor descriptor) {
+    public void removeParamDescriptor(ToolParameterDescriptor descriptor) {
         this.toolParameterDescriptors.remove(descriptor);
     }
 
@@ -183,7 +213,7 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
      * Removes the given descriptors from the internal parameter descriptor list
      * @param descriptors    The list of descriptors to be removed
      */
-    public void removeParamDescriptors(List<TemplateParameterDescriptor> descriptors) {
+    public void removeParamDescriptors(List<ToolParameterDescriptor> descriptors) {
         if(descriptors != null && descriptors.size() > 0) {
             descriptors.forEach(this.toolParameterDescriptors::remove);
         }
@@ -193,11 +223,25 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
      * Gets all the parameter descriptors
      * @return  The list of parameter descriptors
      */
-    public List<TemplateParameterDescriptor> getToolParameterDescriptors() {
+    public List<ToolParameterDescriptor> getToolParameterDescriptors() {
         if(this.toolParameterDescriptors == null){
             this.toolParameterDescriptors = new ArrayList<>();
         }
         return this.toolParameterDescriptors;
+    }
+
+    public TemplateEngine getTemplateEngine() {
+        if (templateEngine == null) {
+            templateEngine = TemplateEngine.createInstance(this, getTemplateType());
+        }
+        return templateEngine;
+    }
+
+    TemplateType getTemplateType() {
+        if (templateType == null) {
+            templateType = TemplateType.VELOCITY;
+        }
+        return templateType;
     }
 
     /**
@@ -365,14 +409,21 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
     /**
      * Getter for the Template File Location field
      */
-    public String getTemplateFileLocation() {
-        return templateFileLocation;
+    public TemplateFile getTemplate() {
+        //return this.template;
+        return template;
     }
     /**
      * Setter for the Template File Location field
      */
-    public void setTemplateFileLocation(String templateFileLocation) {
-        this.templateFileLocation = templateFileLocation;
+    public void setTemplate(TemplateFile value) throws TemplateException {
+        if (value != null) {
+            if (!getTemplateType().equals(value.getType())) {
+                throw new TemplateException("Incompatible template type");
+            }
+            this.template = value;
+            this.template.associateWith(getTemplateEngine());
+        }
     }
     /**
      * Getter for the Working Directory field
@@ -583,8 +634,19 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
             try (FileReader reader = new FileReader(file)) {
                 return ToolAdapterOperatorDescriptor.fromXml(reader, resourceName, classLoader);
             }
-        } catch (IOException e) {
-            throw new OperatorException(formatReadExceptionText(resourceName, e), e);
+        } catch (Exception e) {
+            try {
+                ToolAdapterIO.convertAdapter(file.toPath());
+                String name = FileUtils.getFilenameWithoutExtension(file.getParentFile() != null ? file.getParentFile() : file);
+                SystemUtils.LOG.info(String.format("Adapter %s has been automatically converted to the new format", name));
+            } catch (IOException e1) {
+                throw new OperatorException(formatReadExceptionText(resourceName, e), e);
+            }
+            try (FileReader reader = new FileReader(file)) {
+                return ToolAdapterOperatorDescriptor.fromXml(reader, resourceName, classLoader);
+            } catch (IOException e1) {
+                throw new OperatorException(formatReadExceptionText(resourceName, e1), e1);
+            }
         }
     }
 
@@ -607,8 +669,24 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
             if (StringUtils.isNullOrEmpty(descriptor.getAlias())) {
                 throw new OperatorException(formatInvalidExceptionMessage(resourceName, "missing 'alias' element"));
             }
+            if (descriptor.template != null) {
+                descriptor.template.associateWith(descriptor.getTemplateEngine());
+            }
+            descriptor.getToolParameterDescriptors().stream().filter(ToolParameterDescriptor::isTemplateParameter).forEach(t -> {
+                try {
+                    TemplateParameterDescriptor param = (TemplateParameterDescriptor) t;
+                    if (param.getTemplate() != null) {
+                        param.getTemplate().setType(descriptor.getTemplateType());
+                    }
+                    param.setTemplateEngine(descriptor.getTemplateEngine());
+                } catch (TemplateException e) {
+                    SystemUtils.LOG.severe(e.getMessage());
+                }
+            });
         } catch (StreamException e) {
             throw new OperatorException(formatReadExceptionText(resourceName, e), e);
+        } catch (TemplateException e) {
+            throw new OperatorException(e.getMessage());
         }
         return descriptor;
     }

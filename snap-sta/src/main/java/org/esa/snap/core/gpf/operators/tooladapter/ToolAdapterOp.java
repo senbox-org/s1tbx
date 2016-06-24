@@ -18,14 +18,8 @@ package org.esa.snap.core.gpf.operators.tooladapter;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
-import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.runtime.RuntimeServices;
-import org.apache.velocity.runtime.RuntimeSingleton;
-import org.apache.velocity.runtime.parser.ParseException;
-import org.apache.velocity.runtime.parser.node.SimpleNode;
 import org.esa.snap.core.dataio.*;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
@@ -33,6 +27,8 @@ import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.descriptor.*;
+import org.esa.snap.core.gpf.descriptor.template.TemplateException;
+import org.esa.snap.core.gpf.descriptor.template.TemplateFile;
 import org.esa.snap.core.gpf.internal.OperatorContext;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.StringUtils;
@@ -64,7 +60,7 @@ public class ToolAdapterOp extends Operator {
 
     private static final String INTERMEDIATE_PRODUCT_NAME = "interimProduct";
     private static final String[] DEFAULT_EXTENSIONS = { ".tif", ".tiff", ".nc", ".hdf", ".pgx", ".png", ".gif", ".jpg", ".bmp", ".pnm", ".pbm", ".pgm", ".ppm", ".jp2" };
-    public static final String VELOCITY_LINE_SEPARATOR = "\r\n|\n";
+
     /**
      * Consume the output created by a tool.
      */
@@ -93,8 +89,6 @@ public class ToolAdapterOp extends Operator {
 
     private VelocityContext lastPostContext;
 
-    private String macroTemplateContents;
-
     /**
      * Constructor.
      */
@@ -109,13 +103,6 @@ public class ToolAdapterOp extends Operator {
             logger.severe(e.getMessage());
         }
         Velocity.init();
-        try {
-            this.macroTemplateContents = new String(Files.readAllBytes(Paths.get(getClass().getResource("macros.vm").toURI())));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        //this.progressMonitor = ProgressMonitor.NULL;
-        //this.descriptor = ((ToolAdapterOperatorDescriptor) accessibleContext.getOperatorSpi().getOperatorDescriptor());
         intermediateProductFiles = new ArrayList<>();
         logger.addHandler(new Handler() {
             @Override
@@ -292,8 +279,8 @@ public class ToolAdapterOp extends Operator {
         descriptor.getToolParameterDescriptors().stream().filter(parameter -> parameter.getParameterType().equals(ToolAdapterConstants.TEMPLATE_BEFORE_MASK))
                 .forEach(parameter -> {
                     try {
-                        transformTemplateParameter(parameter);
-                    } catch (IOException e) {
+                        transformTemplateParameter((TemplateParameterDescriptor) parameter);
+                    } catch (IOException | TemplateException e) {
                         getLogger().severe(String.format("Error processing template before execution for parameter [%s]", parameter.getName()));
                     }
                 });
@@ -307,39 +294,40 @@ public class ToolAdapterOp extends Operator {
                 final Product[] selectedProducts = getSourceProducts();
                 String sourceDefaultExtension = writerPlugIn.getDefaultFileExtensions()[0];
                 for (Product selectedProduct : selectedProducts) {
-                    File outFile = new File(descriptor.resolveVariables(descriptor.getWorkingDir()), INTERMEDIATE_PRODUCT_NAME + sourceDefaultExtension);
-                    boolean hasDeleted = false;
-                    while (outFile.exists() && !hasDeleted) {
-                        hasDeleted = outFile.canWrite() && outFile.delete();
-                        if (!hasDeleted) {
-                            getLogger().warning(String.format("Could not delete previous temporary image %s", outFile.getName()));
-                            outFile = new File(descriptor.resolveVariables(descriptor.getWorkingDir()), INTERMEDIATE_PRODUCT_NAME + "_" + new Date().getTime() + sourceDefaultExtension);
+                    if (!sourceDefaultExtension.equalsIgnoreCase(selectedProduct.getProductReader().getReaderPlugIn().getDefaultFileExtensions()[0])) {
+                        File outFile = new File(descriptor.resolveVariables(descriptor.getWorkingDir()), INTERMEDIATE_PRODUCT_NAME + sourceDefaultExtension);
+                        boolean hasDeleted = false;
+                        while (outFile.exists() && !hasDeleted) {
+                            hasDeleted = outFile.canWrite() && outFile.delete();
+                            if (!hasDeleted) {
+                                getLogger().warning(String.format("Could not delete previous temporary image %s", outFile.getName()));
+                                outFile = new File(descriptor.resolveVariables(descriptor.getWorkingDir()), INTERMEDIATE_PRODUCT_NAME + "_" + new Date().getTime() + sourceDefaultExtension);
+                            }
                         }
-                    }
-                    Product interimProduct = new Product(outFile.getName(), selectedProduct.getProductType(),
-                            selectedProduct.getSceneRasterWidth(), selectedProduct.getSceneRasterHeight());
-                    try {
-                        ProductUtils.copyProductNodes(selectedProduct, interimProduct);
-                        for (Band sourceBand : selectedProduct.getBands()) {
-                            ProductUtils.copyBand(sourceBand.getName(), selectedProduct, interimProduct, true);
-                        }
-                        ProductIO.writeProduct(interimProduct, outFile, sourceFormatName, true, SubProgressMonitor.create(progressMonitor, 50));
-                    } catch (IOException e) {
-                        getLogger().severe(String.format("Cannot write to %s format", sourceFormatName));
-                        stop();
-                    } finally {
+                        Product interimProduct = new Product(outFile.getName(), selectedProduct.getProductType(),
+                                selectedProduct.getSceneRasterWidth(), selectedProduct.getSceneRasterHeight());
                         try {
-                            interimProduct.closeIO();
-                            interimProduct.dispose();
-                        } catch (IOException ignored) {
+                            ProductUtils.copyProductNodes(selectedProduct, interimProduct);
+                            for (Band sourceBand : selectedProduct.getBands()) {
+                                ProductUtils.copyBand(sourceBand.getName(), selectedProduct, interimProduct, true);
+                            }
+                            ProductIO.writeProduct(interimProduct, outFile, sourceFormatName, true, SubProgressMonitor.create(progressMonitor, 50));
+                        } catch (IOException e) {
+                            getLogger().severe(String.format("Cannot write to %s format", sourceFormatName));
+                            stop();
+                        } finally {
+                            try {
+                                interimProduct.closeIO();
+                                interimProduct.dispose();
+                            } catch (IOException ignored) {
+                            }
+                            reportProgress("Product conversion finished");
                         }
-                        interimProduct = null;
-                        reportProgress("Product conversion finished");
-                    }
-                    if (outFile.exists()) {
-                        intermediateProductFiles.add(outFile);
-                    } else {
-                        stop();
+                        if (outFile.exists()) {
+                            intermediateProductFiles.add(outFile);
+                        } else {
+                            stop();
+                        }
                     }
                 }
             }
@@ -432,11 +420,11 @@ public class ToolAdapterOp extends Operator {
      * @throws OperatorException in case of an error
      */
     private void postExecute() throws OperatorException {
-        for(TemplateParameterDescriptor parameter : descriptor.getToolParameterDescriptors()){
+        for(ToolParameterDescriptor parameter : descriptor.getToolParameterDescriptors()){
             if(parameter.getParameterType().equals(ToolAdapterConstants.TEMPLATE_AFTER_MASK)){
                 try {
-                    transformTemplateParameter(parameter);
-                } catch (IOException e) {
+                    transformTemplateParameter((TemplateParameterDescriptor) parameter);
+                } catch (IOException | TemplateException e) {
                     throw new OperatorException("Error processing template after execution for parameter: '" + parameter.getName() + "'");
                 }
             }
@@ -516,32 +504,34 @@ public class ToolAdapterOp extends Operator {
      */
     private List<String> getCommandLineTokens() throws OperatorException {
         final List<String> tokens = new ArrayList<>();
-        String templateFile = ((ToolAdapterOperatorDescriptor) (getSpi().getOperatorDescriptor())).getTemplateFileLocation();
-        if (templateFile != null) {
+        TemplateFile template = ((ToolAdapterOperatorDescriptor) (getSpi().getOperatorDescriptor())).getTemplate();
+        if (template != null) {
             tokens.add(descriptor.resolveVariables(descriptor.getMainToolFileLocation()).getAbsolutePath());
-            if (templateFile.endsWith(ToolAdapterConstants.TOOL_VELO_TEMPLATE_SUFIX)) {
-                tokens.addAll(transformTemplate(new File(this.adapterFolder, templateFile)));
-            } else {
-                throw new OperatorException("Invalid Velocity template");
+            try {
+                tokens.addAll(descriptor.getTemplateEngine().getLines(template, extractParameters()));
+            } catch (TemplateException e) {
+                throw new OperatorException(e);
             }
+        } else {
+            throw new OperatorException("Invalid template [null]");
         }
         return tokens;
     }
 
-    private void putParametersToVeloContext(VelocityContext context, boolean transformTemplates){
+    private Map<String, Object> extractParameters(){
+        Map<String, Object> parameters = new HashMap<>();
         Property[] params = accessibleContext.getParameterSet().getProperties();
         for (Property param : params) {
-            Optional<TemplateParameterDescriptor> descriptor = this.descriptor.getToolParameterDescriptors().stream().filter(d -> d.getName().equals(param.getName())).findFirst();
+            Optional<ToolParameterDescriptor> descriptor = this.descriptor.getToolParameterDescriptors().stream().filter(d -> d.getName().equals(param.getName())).findFirst();
             if (!descriptor.isPresent()) {
                 throw new OperatorException("Unexpected parameter: " + param.getName());
             }
-            TemplateParameterDescriptor paramDescriptor = descriptor.get();
-            if (transformTemplates && paramDescriptor.isTemplateParameter()) {
+            ToolParameterDescriptor paramDescriptor = descriptor.get();
+            if (paramDescriptor.isTemplateParameter()) {
                 try {
-                    String transformedFile = transformTemplateParameter(paramDescriptor);
-                    context.put(param.getName(), transformedFile);
-                    break;
-                } catch (IOException ex) {
+                    String transformedFile = transformTemplateParameter((TemplateParameterDescriptor) paramDescriptor);
+                    parameters.put(param.getName(), transformedFile);
+                } catch (IOException | TemplateException ex) {
                     throw new OperatorException("Error on transforming template for parameter '" + paramDescriptor.getName());
                 }
             } else {
@@ -553,14 +543,14 @@ public class ToolAdapterOp extends Operator {
                 if (param.getType().isArray()) {
                     paramValue = StringUtils.arrayToString(paramValue, "\n");
                 }
-                if (paramDescriptor.isNotEmpty() || paramDescriptor.isNotNull() || !paramValue.toString().isEmpty()) {
-                    context.put(paramName, paramValue);
+                if (paramDescriptor.isNotEmpty() || paramDescriptor.isNotNull() || (paramValue != null && !paramValue.toString().isEmpty())) {
+                    parameters.put(paramName, paramValue);
                 }
             }
         }
 
         Product[] sourceProducts = getSourceProducts();
-        context.put(ToolAdapterConstants.TOOL_SOURCE_PRODUCT_ID,
+        parameters.put(ToolAdapterConstants.TOOL_SOURCE_PRODUCT_ID,
                 sourceProducts.length == 1 ? sourceProducts[0] : sourceProducts);
         File[] rasterFiles = new File[sourceProducts.length];
         for (int i = 0; i < sourceProducts.length; i++) {
@@ -569,12 +559,13 @@ public class ToolAdapterOp extends Operator {
                                     sourceProducts[i].getFileLocation();
             rasterFiles[i] = productFile.isFile() ? productFile : selectCandidateRasterFile(productFile);
         }
-        context.put(ToolAdapterConstants.TOOL_SOURCE_PRODUCT_FILE,
+        parameters.put(ToolAdapterConstants.TOOL_SOURCE_PRODUCT_FILE,
                 rasterFiles.length == 1 ? rasterFiles[0] : rasterFiles);
+        return parameters;
     }
 
-    private String transformTemplateParameter(TemplateParameterDescriptor parameter) throws IOException{
-        File templateFile = accessibleContext.getParameterSet().getProperty(parameter.getName()).getValue();
+    private String transformTemplateParameter(TemplateParameterDescriptor parameter) throws IOException, TemplateException {
+        /*File templateFile = accessibleContext.getParameterSet().getProperty(parameter.getName()).getValue();
         // make sure for now the template is loaded from adapter's folder
         templateFile = ToolAdapterIO.ensureLocalCopy(templateFile, descriptor.getAlias());
         VelocityEngine veloEngine = new VelocityEngine();
@@ -585,14 +576,15 @@ public class ToolAdapterOp extends Operator {
         veloEngine.init();
         Template veloTemplate = veloEngine.getTemplate(templateFile.getName());
         VelocityContext veloContext = new VelocityContext();
-        for (ToolParameterDescriptor param : parameter.getToolParameterDescriptors()) {
+        for (ToolParameterDescriptor param : parameter.getParameterDescriptors()) {
             veloContext.put(param.getName(), param.getDefaultValue());
         }
-        putParametersToVeloContext(veloContext, false);
+        //extractParameters(veloContext, false);
 
         StringWriter writer = new StringWriter();
         veloTemplate.merge(veloContext, writer);
-        String result = writer.toString();
+        String result = writer.toString();*/
+        String result = parameter.executeTemplate();
         String separatorChar = ToolAdapterConstants.OPERATOR_TEMP_FILES_SEPARATOR;
         String dateFormatted = DateFormat.getDateInstance(
                 DateFormat.SHORT,
@@ -601,15 +593,15 @@ public class ToolAdapterOp extends Operator {
                 DateFormat.DEFAULT,
                 Locale.ENGLISH).format(new Date()).replace(":", separatorChar);
         dateFormatted = dateFormatted.replace("/", separatorChar).replace(" ", separatorChar);
-        String newFileName = templateFile.getName() + "_result_" + dateFormatted;
+        String newFileName = parameter.getTemplate().getFileName() + "_result_" + dateFormatted;
         ToolAdapterIO.saveFileContent(new File(descriptor.resolveVariables(descriptor.getWorkingDir()), newFileName), result);
-        this.lastPostContext = veloContext;
+        //this.lastPostContext = veloContext;
         return newFileName;
     }
 
-    private List<String> transformTemplate(File templateFile) throws OperatorException {
+    /*private List<String> transformTemplate(File templateFile) throws OperatorException {
         VelocityEngine veloEngine = new VelocityEngine();
-        veloEngine.setProperty("file.resource.loader.path", templateFile.getParent());
+        veloEngine.setProperty("file.resource.loader.path", templateFile.getOperatorDescriptor());
         List<SystemVariable> variables = descriptor.getVariables();
         for(SystemVariable variable : variables) {
             veloEngine.addProperty(variable.getKey(), variable.getValue());
@@ -618,7 +610,7 @@ public class ToolAdapterOp extends Operator {
         try {
             Template veloTemplate = createTemplate(veloEngine, templateFile); //veloEngine.getTemplate(templateFile.getName());
             VelocityContext veloContext = new VelocityContext();
-            putParametersToVeloContext(veloContext, true);
+            extractParameters(veloContext, true);
             for (SystemVariable variable : variables) {
                 veloContext.put(variable.getKey(), variable.getValue());
             }
@@ -629,9 +621,9 @@ public class ToolAdapterOp extends Operator {
         } catch (Exception e) {
             throw new OperatorException(e);
         }
-    }
+    }*/
 
-    private Template createTemplate(VelocityEngine engine, File templateFile) throws ParseException, IOException {
+    /*private Template createTemplate(VelocityEngine engine, File templateFile) throws ParseException, IOException {
         Template template = null;
         if (this.macroTemplateContents != null && !this.macroTemplateContents.isEmpty()) {
             RuntimeServices runtimeServices = RuntimeSingleton.getRuntimeServices();
@@ -647,7 +639,7 @@ public class ToolAdapterOp extends Operator {
             template = engine.getTemplate(templateFile.getName());
         }
         return template;
-    }
+    }*/
 
     private File selectCandidateRasterFile(File folder) {
         File rasterFile = null;
