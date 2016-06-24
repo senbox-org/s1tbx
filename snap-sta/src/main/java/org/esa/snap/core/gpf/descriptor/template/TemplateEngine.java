@@ -70,15 +70,19 @@ public abstract class TemplateEngine {
      * @return  An instance of a template engine
      */
     public static TemplateEngine createInstance(ToolAdapterOperatorDescriptor descriptor, TemplateType templateType) {
+        return createInstance(descriptor, templateType, true);
+    }
+
+    public static TemplateEngine createInstance(ToolAdapterOperatorDescriptor descriptor, TemplateType templateType, boolean stateful) {
         if (templateType == null) {
             throw new IllegalArgumentException("null template");
         }
         switch (templateType) {
             case JAVASCRIPT:
-                return new JavascriptEngine(descriptor);
+                return new JavascriptEngine(descriptor, stateful);
             case VELOCITY:
             default:
-                return new VelocityEngine(descriptor);
+                return new VelocityEngine(descriptor, stateful);
         }
     }
 
@@ -115,9 +119,13 @@ public abstract class TemplateEngine {
     static class VelocityEngine extends TemplateEngine {
 
         private String macroTemplateContents;
+        private VelocityContext singleContext;
 
-        VelocityEngine(ToolAdapterOperatorDescriptor descriptor) {
+        VelocityEngine(ToolAdapterOperatorDescriptor descriptor, boolean stateful) {
             super(descriptor);
+            if (stateful) {
+                singleContext = new VelocityContext();
+            }
             try {
                 this.macroTemplateContents = new String(Files.readAllBytes(Paths.get(getClass().getResource("macros.vm").toURI())));
             } catch (Exception e) {
@@ -135,7 +143,7 @@ public abstract class TemplateEngine {
                 veloEngine.addProperty(variable.getKey(), variable.getValue());
             }
             veloEngine.init();
-            boolean evalResult = false;
+            boolean evalResult;
             try {
                 String contents = template.getContents();
                 evalResult = veloEngine.evaluate(new VelocityContext(), new StringWriter(), templateFile.getName(), contents);
@@ -151,7 +159,7 @@ public abstract class TemplateEngine {
         public String execute(TemplateFile template, Map<String, Object> parameters) throws TemplateException {
             try {
                 org.apache.velocity.app.VelocityEngine veloEngine = new org.apache.velocity.app.VelocityEngine();
-                VelocityContext veloContext = new VelocityContext();
+                VelocityContext veloContext = singleContext != null ? singleContext : new VelocityContext();
                 File templateFile = template.getTemplatePath();
                 veloEngine.setProperty("file.resource.loader.path", templateFile.getParent());
                 List<SystemVariable> variables = operatorDescriptor.getVariables();
@@ -204,7 +212,7 @@ public abstract class TemplateEngine {
 
         private ScriptEngine scriptEngine;
 
-        JavascriptEngine(ToolAdapterOperatorDescriptor descriptor) {
+        JavascriptEngine(ToolAdapterOperatorDescriptor descriptor, boolean stateful) {
             super(descriptor);
             scriptEngine = new ScriptEngineManager().getEngineByName("nashorn");
         }

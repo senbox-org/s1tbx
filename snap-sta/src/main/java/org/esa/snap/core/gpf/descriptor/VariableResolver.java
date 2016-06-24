@@ -76,9 +76,12 @@ public abstract class VariableResolver {
             File resolved = input;
             if (input != null && !input.exists()) {
                 String expandedValue = input.getPath();
-                Map<String, String> lookupVars = this.descriptor.getVariables().stream().collect(Collectors.toMap(SystemVariable::getKey, v -> v.getValue()));
+                Map<String, String> lookupVars = this.descriptor.getVariables().stream().collect(Collectors.toMap(SystemVariable::getKey, SystemVariable::getValue));
                 for (String key : lookupVars.keySet()) {
-                    expandedValue = expandedValue.replace("$" + key, lookupVars.get(key));
+                    String value = lookupVars.get(key);
+                    if (value != null && !value.isEmpty()) {
+                        expandedValue = expandedValue.replace("$" + key, value);
+                    }
                 }
                 resolved = new File(expandedValue);
                 if (nextResolver != null && !resolved.exists()) {

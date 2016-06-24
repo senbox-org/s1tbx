@@ -19,7 +19,9 @@ import org.esa.snap.core.dataio.ProductIOPlugInManager;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.descriptor.TemplateParameterDescriptor;
 import org.esa.snap.core.gpf.descriptor.ToolAdapterOperatorDescriptor;
+import org.esa.snap.core.gpf.descriptor.ToolParameterDescriptor;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.runtime.Config;
 
@@ -239,6 +241,16 @@ public class ToolAdapterIO {
         String xmlContent = operator.toXml(ToolAdapterIO.class.getClassLoader());
         Files.write(descriptorFile, xmlContent.getBytes(), StandardOpenOption.CREATE);
         operator.getTemplate().save();
+        operator.getToolParameterDescriptors().stream()
+                .filter(ToolParameterDescriptor::isTemplateParameter)
+                .map(p -> (TemplateParameterDescriptor)p)
+                .forEach(p -> {
+                    try {
+                        p.getTemplate().save();
+                    } catch (IOException e) {
+                        SystemUtils.LOG.severe(String.format("Failed to save template for parameter %s [%s]", p.getName(), e.getMessage()));
+                    }
+                });
         ToolAdapterRegistry.INSTANCE.registerOperator(operatorSpi);
     }
 

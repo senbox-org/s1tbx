@@ -164,7 +164,7 @@ public class TemplateFile {
         File path = getTemplatePath();
         if (path != null) {
             try (FileWriter writer = new FileWriter(path)) {
-                writer.write(contents);
+                writer.write(getContents());
                 writer.flush();
                 writer.close();
             }
