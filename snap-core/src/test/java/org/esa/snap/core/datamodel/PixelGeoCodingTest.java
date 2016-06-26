@@ -29,11 +29,7 @@ import java.awt.image.Raster;
 import java.io.IOException;
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class PixelGeoCodingTest {
 
@@ -52,7 +48,7 @@ public class PixelGeoCodingTest {
         Product product;
         Band b1, b2;
 
-        product = createProduct();
+        product = createProduct(ProductData.TYPE_FLOAT32);
         b1 = product.getBand("latBand");
         b2 = product.getBand("lonBand");
 
@@ -117,7 +113,7 @@ public class PixelGeoCodingTest {
 
     @Test
     public void testEquals() throws Exception {
-        Product product = createProduct();
+        Product product = createProduct(ProductData.TYPE_FLOAT32);
         GeoCoding geoCoding1 = new PixelGeoCoding(product.getBand("latBand"),
                                                   product.getBand("lonBand"), null, 5);
         GeoCoding geoCoding2 = new PixelGeoCoding(product.getBand("latBand"),
@@ -131,7 +127,7 @@ public class PixelGeoCodingTest {
 
     @Test
     public void testGetPixelPos() throws IOException {
-        Product product = createProduct();
+        Product product = createProduct(ProductData.TYPE_FLOAT32);
         TiePointGeoCoding tiePointGeoCoding = (TiePointGeoCoding) product.getSceneGeoCoding();
         GeoCoding pixelGeoCoding = GeoCodingFactory.createPixelGeoCoding(product.getBand("latBand"),
                                                                          product.getBand("lonBand"),
@@ -152,22 +148,47 @@ public class PixelGeoCodingTest {
     }
 
     @Test
-    public void testGetGeoPos() throws IOException {
-        doTestGetGeoPos();
+    public void testGetGeoPos_Float() throws IOException {
+        doTestGetGeoPos(ProductData.TYPE_FLOAT32);
+    }
+
+    @Test
+    public void testGetGeoPos_Double() throws IOException {
+        doTestGetGeoPos(ProductData.TYPE_FLOAT64);
+    }
+
+    @Test
+    public void testGetGeoPos__AlternatGC_Float() throws IOException {
+        try {
+            Config.instance().preferences().putBoolean("snap.useAlternatePixelGeoCoding", true);
+            doTestGetGeoPos(ProductData.TYPE_FLOAT32);
+        } finally {
+            Config.instance().preferences().remove("snap.useAlternatePixelGeoCoding");
+        }
+    }
+
+    @Test
+    public void testGetGeoPos__AlternatGC_Double() throws IOException {
+        try {
+            Config.instance().preferences().putBoolean("snap.useAlternatePixelGeoCoding", true);
+            doTestGetGeoPos(ProductData.TYPE_FLOAT64);
+        } finally {
+            Config.instance().preferences().remove("snap.useAlternatePixelGeoCoding");
+        }
     }
 
     @Test
     public void testGetGeoPos_useNoTiling() throws IOException {
         try {
             Config.instance().preferences().putBoolean("snap.pixelGeoCoding.useTiling", false);
-            doTestGetGeoPos();
+            doTestGetGeoPos(ProductData.TYPE_FLOAT32);
         } finally {
             Config.instance().preferences().remove("snap.pixelGeoCoding.useTiling");
         }
     }
 
-    private void doTestGetGeoPos() throws IOException {
-        Product product = createProduct();
+    private void doTestGetGeoPos(int latLonBandDataType) throws IOException {
+        Product product = createProduct(latLonBandDataType);
         TiePointGeoCoding tiePointGeoCoding = (TiePointGeoCoding) product.getSceneGeoCoding();
         GeoCoding pixelGeoCoding = GeoCodingFactory.createPixelGeoCoding(product.getBand("latBand"),
                                                                          product.getBand("lonBand"), null, 5,
@@ -199,7 +220,7 @@ public class PixelGeoCodingTest {
 
     @Test
     public void testGetGeoPos_withFractionAccuracy() throws IOException {
-        Product product = createProduct();
+        Product product = createProduct(ProductData.TYPE_FLOAT32);
         TiePointGeoCoding tiePointGeoCoding = (TiePointGeoCoding) product.getSceneGeoCoding();
         GeoCoding pixelGeoCoding = GeoCodingFactory.createPixelGeoCoding(product.getBand("latBand"),
                                                                          product.getBand("lonBand"), null, 5,
@@ -212,7 +233,7 @@ public class PixelGeoCodingTest {
         try {
             Config.instance().preferences().putBoolean("snap.pixelGeoCoding.fractionAccuracy", true);
             Config.instance().preferences().putBoolean("snap.pixelGeoCoding.useTiling", true);
-            product = createProduct();
+            product = createProduct(ProductData.TYPE_FLOAT32);
             tiePointGeoCoding = (TiePointGeoCoding) product.getSceneGeoCoding();
             pixelGeoCoding = GeoCodingFactory.createPixelGeoCoding(product.getBand("latBand"),
                                                                    product.getBand("lonBand"), null, 5,
@@ -284,13 +305,13 @@ public class PixelGeoCodingTest {
     }
 
     private void doTestTransferGeoCoding() throws IOException {
-        Product sourceProduct = createProduct();
+        Product sourceProduct = createProduct(ProductData.TYPE_FLOAT32);
         GeoCoding newGeoCoding = new PixelGeoCoding(sourceProduct.getBand("latBand"),
                                                     sourceProduct.getBand("lonBand"), null, 5,
                                                     ProgressMonitor.NULL);
         sourceProduct.setSceneGeoCoding(newGeoCoding);
 
-        Product targetProduct = createProduct();
+        Product targetProduct = createProduct(ProductData.TYPE_FLOAT32);
         targetProduct.setSceneGeoCoding(null);   // remove geo-coding of target product
 
         sourceProduct.transferGeoCodingTo(targetProduct, null);
@@ -315,7 +336,7 @@ public class PixelGeoCodingTest {
     }
 
     private void doTestTransferGeoCoding_WithSpatialSubset() throws IOException {
-        Product sourceProduct = createProduct();
+        Product sourceProduct = createProduct(ProductData.TYPE_FLOAT32);
         GeoCoding pixelGeoCoding = GeoCodingFactory.createPixelGeoCoding(sourceProduct.getBand("latBand"),
                                                                          sourceProduct.getBand("lonBand"),
                                                                          "flagomat.valid", 5,
@@ -369,7 +390,7 @@ public class PixelGeoCodingTest {
         assertEquals(7, data.getHeight());
     }
 
-    private Product createProduct() {
+    private Product createProduct(int latLonBandDataType) {
         Product product = new Product("test", "test", PW, PH);
 
         TiePointGrid latGrid = new TiePointGrid("latGrid", GW, GH, 0.5, 0.5, S, S, createLatGridData());
@@ -378,11 +399,11 @@ public class PixelGeoCodingTest {
         product.addTiePointGrid(latGrid);
         product.addTiePointGrid(lonGrid);
 
-        Band latBand = product.addBand("latBand", ProductData.TYPE_FLOAT32);
-        Band lonBand = product.addBand("lonBand", ProductData.TYPE_FLOAT32);
+        Band latBand = product.addBand("latBand", latLonBandDataType);
+        Band lonBand = product.addBand("lonBand", latLonBandDataType);
 
-        latBand.setRasterData(ProductData.createInstance(createBandData(latGrid)));
-        lonBand.setRasterData(ProductData.createInstance(createBandData(lonGrid)));
+        latBand.setRasterData(createBandData(latGrid, latLonBandDataType));
+        lonBand.setRasterData(createBandData(lonGrid, latLonBandDataType));
         final FlagCoding flagCoding = new FlagCoding("flags");
         flagCoding.addFlag("valid", 0x01, "valid pixel");
 
@@ -407,14 +428,14 @@ public class PixelGeoCodingTest {
         return createGridData(LON_1, LON_2);
     }
 
-    private static float[] createBandData(TiePointGrid grid) {
-        float[] floats = new float[PW * PH];
+    private static ProductData createBandData(TiePointGrid grid, int latLonBandDataType) {
+        ProductData bandData = ProductData.createInstance(latLonBandDataType, PW * PH);
         for (int y = 0; y < PH; y++) {
             for (int x = 0; x < PW; x++) {
-                floats[y * PW + x] = grid.getPixelFloat(x, y);
+                bandData.setElemFloatAt(y * PW + x, grid.getPixelFloat(x, y));
             }
         }
-        return floats;
+        return bandData;
     }
 
     private static float[] createGridData(float lon0, float lon1) {
