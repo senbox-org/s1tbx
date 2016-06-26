@@ -18,7 +18,6 @@ package org.esa.snap.core.gpf.operators.tooladapter;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.esa.snap.core.dataio.*;
 import org.esa.snap.core.datamodel.Band;
@@ -27,9 +26,11 @@ import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.descriptor.*;
+import org.esa.snap.core.gpf.descriptor.template.TemplateContext;
 import org.esa.snap.core.gpf.descriptor.template.TemplateException;
 import org.esa.snap.core.gpf.descriptor.template.TemplateFile;
 import org.esa.snap.core.gpf.internal.OperatorContext;
+import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.io.FileUtils;
@@ -79,15 +80,11 @@ public class ToolAdapterOp extends Operator {
 
     private List<File> intermediateProductFiles;
 
-    /**
-     * The folder where the tool descriptors reside.
-     */
-    private File adapterFolder;
     private OperatorContext accessibleContext;
 
     private List<String> errorMessages;
 
-    private VelocityContext lastPostContext;
+    private TemplateContext lastPostContext;
 
     /**
      * Constructor.
@@ -157,7 +154,10 @@ public class ToolAdapterOp extends Operator {
     }
 
     public void setAdapterFolder(File folder) {
-        this.adapterFolder = folder;
+        /*
+      The folder where the tool descriptors reside.
+     */
+        File adapterFolder = folder;
     }
 
     /**
@@ -199,7 +199,10 @@ public class ToolAdapterOp extends Operator {
                 beforeExecute();
             }
             if (!isStopped) {
-                execute();
+                int ret = execute();
+                if (ret != 0) {
+                    this.consumer.consumeOutput(String.format("Process exited with value %d", ret));
+                }
             }
             if (this.consumer != null) {
                 Date finalDate = new Date();
@@ -381,9 +384,7 @@ public class ToolAdapterOp extends Operator {
                     Thread.yield();
                 }
             }
-            if (process.exitValue() != 0) {
-                throw new IOException(String.format("Process exited with value %d", process.exitValue()));
-            }
+            ret = process.exitValue();
         } catch (IOException e) {
             wasCancelled = true;
             throw new OperatorException(String.format("%s execution was interrupted [%s]",descriptor.getName(), e));
@@ -432,7 +433,7 @@ public class ToolAdapterOp extends Operator {
         reportProgress("Trying to open the new product");
         File input = descriptor.resolveVariables((File) getParameter(ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE));
         if (input == null) {
-            input = descriptor.resolveVariables((File) this.lastPostContext.get(ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE));
+            input = descriptor.resolveVariables((File) this.lastPostContext.getValue(ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE));
         }
         this.lastPostContext = null;
         if (input != null) {
@@ -444,13 +445,22 @@ public class ToolAdapterOp extends Operator {
                     input = selectCandidateRasterFile(input);
                 }
                 getLogger().info(String.format("Trying to open %s", input.getAbsolutePath()));
-                Product target;// = ProductIO.readProduct(input);
-                List<ProductReaderPlugIn> plugInsByExtension = ToolAdapterIO.getReaderPlugInsByExtension(FileUtils.getExtension(input));
-                ProductReaderPlugIn readerPlugIn;
-                if (plugInsByExtension.size() > 0 && (readerPlugIn = plugInsByExtension.get(0)) != null) {
-                    ProductReader productReader = readerPlugIn.createReaderInstance();
-                    target = productReader.readProductNodes(input, null);
+                Product target;
+                try {
+                    target = ProductIO.readProduct(input);
+                    for (Band band : target.getBands()) {
+                        ImageManager.getInstance().getSourceImage(band, 0);
+                    }
                     setTargetProduct(target);
+                } catch (Exception inner) {
+                    getLogger().warning(String.format("Opening target product by guessing the plugin failed [%s]. Trying by extension.", inner.getMessage()));
+                    List<ProductReaderPlugIn> plugInsByExtension = ToolAdapterIO.getReaderPlugInsByExtension(FileUtils.getExtension(input));
+                    ProductReaderPlugIn readerPlugIn;
+                    if (plugInsByExtension.size() > 0 && (readerPlugIn = plugInsByExtension.get(0)) != null) {
+                        ProductReader productReader = readerPlugIn.createReaderInstance();
+                        target = productReader.readProductNodes(input, null);
+                        setTargetProduct(target);
+                    }
                 }
             } catch (IOException e) {
                 throw new OperatorException("Error reading product '" + input.getPath() + "'");
@@ -565,26 +575,34 @@ public class ToolAdapterOp extends Operator {
     }
 
     private String transformTemplateParameter(TemplateParameterDescriptor parameter) throws IOException, TemplateException {
-        /*File templateFile = accessibleContext.getParameterSet().getProperty(parameter.getName()).getValue();
-        // make sure for now the template is loaded from adapter's folder
-        templateFile = ToolAdapterIO.ensureLocalCopy(templateFile, descriptor.getAlias());
-        VelocityEngine veloEngine = new VelocityEngine();
-        veloEngine.setProperty("file.resource.loader.path", templateFile.getParent());
-        for(SystemVariable variable : descriptor.getVariables()) {
-            veloEngine.addProperty(variable.getKey(), variable.getValue());
+        Map<String, Object> parameters = new HashMap<>();
+        Property[] params = accessibleContext.getParameterSet().getProperties();
+        for (Property param : params) {
+            String paramName = param.getName();
+            Object paramValue = param.getValue();
+            if (ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE.equals(paramName)) {
+                paramValue = getNextFileName(this.descriptor.resolveVariables((File) paramValue));
+            }
+            if (param.getType().isArray()) {
+                paramValue = StringUtils.arrayToString(paramValue, "\n");
+            }
+            parameters.put(paramName, paramValue);
         }
-        veloEngine.init();
-        Template veloTemplate = veloEngine.getTemplate(templateFile.getName());
-        VelocityContext veloContext = new VelocityContext();
-        for (ToolParameterDescriptor param : parameter.getParameterDescriptors()) {
-            veloContext.put(param.getName(), param.getDefaultValue());
-        }
-        //extractParameters(veloContext, false);
 
-        StringWriter writer = new StringWriter();
-        veloTemplate.merge(veloContext, writer);
-        String result = writer.toString();*/
-        String result = parameter.executeTemplate();
+        Product[] sourceProducts = getSourceProducts();
+        parameters.put(ToolAdapterConstants.TOOL_SOURCE_PRODUCT_ID,
+                sourceProducts.length == 1 ? sourceProducts[0] : sourceProducts);
+        File[] rasterFiles = new File[sourceProducts.length];
+        for (int i = 0; i < sourceProducts.length; i++) {
+            File productFile = intermediateProductFiles.size() == sourceProducts.length ?
+                    intermediateProductFiles.get(i) :
+                    sourceProducts[i].getFileLocation();
+            rasterFiles[i] = productFile.isFile() ? productFile : selectCandidateRasterFile(productFile);
+        }
+        parameters.put(ToolAdapterConstants.TOOL_SOURCE_PRODUCT_FILE,
+                rasterFiles.length == 1 ? rasterFiles[0] : rasterFiles);
+
+        String result = parameter.executeTemplate(parameters);
         String separatorChar = ToolAdapterConstants.OPERATOR_TEMP_FILES_SEPARATOR;
         String dateFormatted = DateFormat.getDateInstance(
                 DateFormat.SHORT,
@@ -595,51 +613,9 @@ public class ToolAdapterOp extends Operator {
         dateFormatted = dateFormatted.replace("/", separatorChar).replace(" ", separatorChar);
         String newFileName = parameter.getTemplate().getFileName() + "_result_" + dateFormatted;
         ToolAdapterIO.saveFileContent(new File(descriptor.resolveVariables(descriptor.getWorkingDir()), newFileName), result);
-        //this.lastPostContext = veloContext;
+        this.lastPostContext = parameter.getLastContext();
         return newFileName;
     }
-
-    /*private List<String> transformTemplate(File templateFile) throws OperatorException {
-        VelocityEngine veloEngine = new VelocityEngine();
-        veloEngine.setProperty("file.resource.loader.path", templateFile.getOperatorDescriptor());
-        List<SystemVariable> variables = descriptor.getVariables();
-        for(SystemVariable variable : variables) {
-            veloEngine.addProperty(variable.getKey(), variable.getValue());
-        }
-        veloEngine.init();
-        try {
-            Template veloTemplate = createTemplate(veloEngine, templateFile); //veloEngine.getTemplate(templateFile.getName());
-            VelocityContext veloContext = new VelocityContext();
-            extractParameters(veloContext, true);
-            for (SystemVariable variable : variables) {
-                veloContext.put(variable.getKey(), variable.getValue());
-            }
-            StringWriter writer = new StringWriter();
-            veloTemplate.merge(veloContext, writer);
-            String result = writer.toString();
-            return Arrays.asList(result.split(VELOCITY_LINE_SEPARATOR));
-        } catch (Exception e) {
-            throw new OperatorException(e);
-        }
-    }*/
-
-    /*private Template createTemplate(VelocityEngine engine, File templateFile) throws ParseException, IOException {
-        Template template = null;
-        if (this.macroTemplateContents != null && !this.macroTemplateContents.isEmpty()) {
-            RuntimeServices runtimeServices = RuntimeSingleton.getRuntimeServices();
-            String veloTemplate = this.macroTemplateContents + "\n" +
-                    new String(Files.readAllBytes(templateFile.toPath()));
-            StringReader reader = new StringReader(veloTemplate);
-            SimpleNode node = runtimeServices.parse(reader, templateFile.getName());
-            template = new Template();
-            template.setRuntimeServices(runtimeServices);
-            template.setData(node);
-            template.initDocument();
-        } else {
-            template = engine.getTemplate(templateFile.getName());
-        }
-        return template;
-    }*/
 
     private File selectCandidateRasterFile(File folder) {
         File rasterFile = null;

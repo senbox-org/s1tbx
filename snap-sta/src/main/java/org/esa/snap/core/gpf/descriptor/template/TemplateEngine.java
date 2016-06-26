@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2014-2016 CS ROMANIA
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ *  with this program; if not, see http://www.gnu.org/licenses/
+ */
 package org.esa.snap.core.gpf.descriptor.template;
 
 import org.apache.velocity.Template;
@@ -28,11 +43,13 @@ import java.util.Map;
  *
  * @author Cosmin Cara
  */
-public abstract class TemplateEngine {
+public abstract class TemplateEngine<C> {
 
     private static final String LINE_SEPARATOR = "\r\n|\n";
 
     protected ToolAdapterOperatorDescriptor operatorDescriptor;
+    protected TemplateContext<C> context;
+    protected TemplateContext<C> lastContext;
 
     protected TemplateEngine(ToolAdapterOperatorDescriptor descriptor) {
         this.operatorDescriptor = descriptor;
@@ -63,6 +80,13 @@ public abstract class TemplateEngine {
     public abstract TemplateType getType();
 
     /**
+     * Returns the last execution context. The execution context would contain transformed parameter values.
+     */
+    public TemplateContext<C> getContext() {
+        return this.context != null ? this.context : this.lastContext;
+    }
+
+    /**
      * Creates an instance of a template engine, of the given type, for the given descriptor.
      *
      * @param descriptor    The descriptor for which to create the engine
@@ -70,9 +94,17 @@ public abstract class TemplateEngine {
      * @return  An instance of a template engine
      */
     public static TemplateEngine createInstance(ToolAdapterOperatorDescriptor descriptor, TemplateType templateType) {
-        return createInstance(descriptor, templateType, true);
+        return createInstance(descriptor, templateType, false);
     }
 
+    /**
+     * Creates an instance of a template engine.
+     *
+     * @param descriptor        The operator descriptor
+     * @param templateType      The template type
+     * @param stateful          If <code>true</code>, the scripting engine will be singleton-like.
+     * @return
+     */
     public static TemplateEngine createInstance(ToolAdapterOperatorDescriptor descriptor, TemplateType templateType, boolean stateful) {
         if (templateType == null) {
             throw new IllegalArgumentException("null template");
@@ -116,15 +148,29 @@ public abstract class TemplateEngine {
     /**
      * Implementation for Apache Velocity engine.
      */
-    static class VelocityEngine extends TemplateEngine {
+    static class VelocityEngine extends TemplateEngine<VelocityContext> {
+
+        /**
+         * Implementation wrapper for org.apache.velocity.VelocityContext
+         */
+        static class VelocityCtx extends TemplateContext<VelocityContext> {
+
+            public VelocityCtx(VelocityContext wrappedContext) {
+                super(wrappedContext);
+            }
+
+            @Override
+            public Object getValue(String name) {
+                return this.context != null ? this.context.get(name) : null;
+            }
+        }
 
         private String macroTemplateContents;
-        private VelocityContext singleContext;
 
         VelocityEngine(ToolAdapterOperatorDescriptor descriptor, boolean stateful) {
             super(descriptor);
             if (stateful) {
-                singleContext = new VelocityContext();
+                context = new VelocityCtx(new VelocityContext());
             }
             try {
                 this.macroTemplateContents = new String(Files.readAllBytes(Paths.get(getClass().getResource("macros.vm").toURI())));
@@ -159,7 +205,7 @@ public abstract class TemplateEngine {
         public String execute(TemplateFile template, Map<String, Object> parameters) throws TemplateException {
             try {
                 org.apache.velocity.app.VelocityEngine veloEngine = new org.apache.velocity.app.VelocityEngine();
-                VelocityContext veloContext = singleContext != null ? singleContext : new VelocityContext();
+                VelocityContext veloContext = context != null ? context.getContext() : new VelocityContext();
                 File templateFile = template.getTemplatePath();
                 veloEngine.setProperty("file.resource.loader.path", templateFile.getParent());
                 List<SystemVariable> variables = operatorDescriptor.getVariables();
@@ -175,6 +221,7 @@ public abstract class TemplateEngine {
                 }
                 StringWriter writer = new StringWriter();
                 veloTemplate.merge(veloContext, writer);
+                lastContext = new VelocityCtx(veloContext);
                 return writer.toString();
             } catch (Exception inner) {
                 throw new TemplateException(inner);
@@ -208,7 +255,22 @@ public abstract class TemplateEngine {
     /**
      * Implementation for the Nashorn Javascript engine.
      */
-    static class JavascriptEngine extends TemplateEngine {
+    static class JavascriptEngine extends TemplateEngine<ScriptContext> {
+
+        /**
+         * Implementation wrapper for javax.script.ScriptContext
+         */
+        static class JavaScriptCtx extends TemplateContext<ScriptContext> {
+
+            public JavaScriptCtx(ScriptContext wrappedContext) {
+                super(wrappedContext);
+            }
+
+            @Override
+            public Object getValue(String name) {
+                return this.context != null ? this.context.getAttribute(name) : null;
+            }
+        }
 
         private ScriptEngine scriptEngine;
 
@@ -236,10 +298,12 @@ public abstract class TemplateEngine {
             Bindings bindings = new SimpleBindings(parameters);
             scriptEngine.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
             StringWriter writer = new StringWriter();
-            scriptEngine.getContext().setWriter(writer);
+            ScriptContext context = scriptEngine.getContext();
+            context.setWriter(writer);
             try {
                 String contents = template.getContents();
                 scriptEngine.eval(contents);
+                lastContext = new JavaScriptCtx(scriptEngine.getContext());
                 result = writer.toString();
             } catch (ScriptException | IOException e) {
                 throw new TemplateException(e);

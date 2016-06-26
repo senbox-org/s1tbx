@@ -17,10 +17,7 @@ package org.esa.snap.core.gpf.descriptor;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
-import org.esa.snap.core.gpf.descriptor.template.TemplateEngine;
-import org.esa.snap.core.gpf.descriptor.template.TemplateException;
-import org.esa.snap.core.gpf.descriptor.template.TemplateFile;
-import org.esa.snap.core.gpf.descriptor.template.TemplateType;
+import org.esa.snap.core.gpf.descriptor.template.*;
 import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterConstants;
 import org.esa.snap.core.util.SystemUtils;
 
@@ -32,6 +29,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
+ * Specialization class for parameters based on a template, with their own parameters.
+ *
  * @author Ramona Manda
  */
 @XStreamAlias("templateparameter")
@@ -54,6 +53,11 @@ public class TemplateParameterDescriptor extends ToolParameterDescriptor {
         this.parameterDescriptors = new ArrayList<>();
     }
 
+    /**
+     * Conversion constructor from a regular parameter
+     *
+     * @param object    The source parameter
+     */
     public TemplateParameterDescriptor(ToolParameterDescriptor object) {
         super(object);
         setParameterType(ToolAdapterConstants.TEMPLATE_PARAM_MASK);
@@ -61,6 +65,11 @@ public class TemplateParameterDescriptor extends ToolParameterDescriptor {
         this.template = new TemplateFile(TemplateType.VELOCITY);
     }
 
+    /**
+     * Copy constructor
+     *
+     * @param object    The template parameter to be copied.
+     */
     public TemplateParameterDescriptor(TemplateParameterDescriptor object) {
         super(object, object.getParameterType());
         this.parameterDescriptors = new ArrayList<>();
@@ -86,14 +95,23 @@ public class TemplateParameterDescriptor extends ToolParameterDescriptor {
         }
     }
 
+    /**
+     * Adds a parameter descriptor to this template parameter
+     */
     public void addParameterDescriptor(ToolParameterDescriptor descriptor){
         this.parameterDescriptors.add(descriptor);
     }
 
+    /**
+     * Removes a parameter descriptor from this template parameter
+     */
     public void removeParameterDescriptor(ToolParameterDescriptor descriptor){
         this.parameterDescriptors.remove(descriptor);
     }
 
+    /**
+     * Returns the list of the parameter descriptors of this instance
+     */
     public List<ToolParameterDescriptor> getParameterDescriptors(){
         if(this.parameterDescriptors == null){
             this.parameterDescriptors = new ArrayList<>();
@@ -101,6 +119,13 @@ public class TemplateParameterDescriptor extends ToolParameterDescriptor {
         return this.parameterDescriptors;
     }
 
+    /**
+     * Sets the scripting engine for this parameter and associates its template, if any,
+     * with the engine.
+     *
+     * @param engine                The scripting engine
+     * @throws TemplateException
+     */
     public void setTemplateEngine(TemplateEngine engine) throws TemplateException {
         this.engine = engine;
         if (this.template != null) {
@@ -108,11 +133,28 @@ public class TemplateParameterDescriptor extends ToolParameterDescriptor {
         }
     }
 
+    /**
+     * Returns the last scripting context resulted from the execution of the scripting engine
+     */
+    public TemplateContext getLastContext() {
+        return (this.engine != null ? this.engine.getContext() : null);
+    }
+
+    /**
+     * Sets the template of this parameter
+     *
+     * @param template              The template object
+     * @throws TemplateException
+     */
     public void setTemplate(TemplateFile template) throws TemplateException {
         this.template = template;
         this.template.associateWith(engine);
     }
 
+    /**
+     * Returns the template of this object. If it has none, a new template will be created
+     * and returned.
+     */
     public TemplateFile getTemplate() {
         if (this.template == null) {
             if (engine != null) {
@@ -130,10 +172,13 @@ public class TemplateParameterDescriptor extends ToolParameterDescriptor {
         return this.template;
     }
 
-    public String executeTemplate() throws TemplateException {
-        return executeTemplate(null);
-    }
-
+    /**
+     * Transforms (or executes) the template of this instance given a set of parameters.
+     *
+     * @param params                A collection of parameter values
+     * @return                      The transformed template
+     * @throws TemplateException
+     */
     public String executeTemplate(Map<String, Object> params) throws TemplateException {
         if (params == null) {
             params = new HashMap<>();
