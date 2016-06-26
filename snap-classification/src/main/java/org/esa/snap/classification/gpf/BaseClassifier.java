@@ -204,9 +204,6 @@ public abstract class BaseClassifier implements SupervisedClassifier {
     }
 
     public void initialize() throws OperatorException, IOException {
-        // If the file exists, we will load it as the classifier,
-        // else we will train and save the classifier to that filename.
-        doLoadClassifier = getClassifierFilePath().toFile().exists();
 
         checkSourceProductsValidity();
 
@@ -528,8 +525,21 @@ public abstract class BaseClassifier implements SupervisedClassifier {
             final int listLen = list.size();
             //SystemUtils.LOG.info("classVal = " + i + " has " + listLen + " samples");
 
-            trainList.addAll(list.subList(0, listLen / 2));
-            testList.addAll(list.subList(listLen / 2, listLen));
+            // add every other to train or test list
+            boolean addToTrainList = true;
+            for(Instance instance : list) {
+                if(addToTrainList) {
+                    trainList.add(instance);
+                    addToTrainList = false;
+                } else {
+                    testList.add(instance);
+                    addToTrainList = true;
+                }
+            }
+
+            // add first to train and then to test lists
+            //trainList.addAll(list.subList(0, listLen / 2));
+            //testList.addAll(list.subList(listLen / 2, listLen));
         }
     }
 
