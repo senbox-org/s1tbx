@@ -49,6 +49,7 @@ public interface ToolAdapterConstants {
     String DEFAULT_PARAM_NAME = "DefaultParameter";
     String MAIN_TOOL_FILE_LOCATION = "mainToolFileLocation";
     String WORKING_DIR = "workingDir";
+    String TEMPLATE_TYPE = "templateType";
     String PROGRESS_PATTERN = "progressPattern";
     String ERROR_PATTERN = "errorPattern";
     String STEP_PATTERN = "stepPattern";
@@ -66,26 +67,4 @@ public interface ToolAdapterConstants {
     String PROCESSING_WRITER = "processingWriter";
     String PREPROCESSOR_EXTERNAL_TOOL = "preprocessorExternalTool";
     String USER_MODULE_PATH = "user.module.path";
-    String TAG_PARAMETER_START = "<parameter>";
-    String TAG_PARAMETER_END = "</parameter>";
-    String TAG_TOOL_PARAMETER_DESCRIPTORS_EMPTY = "<toolParameterDescriptors/>";
-    String TAG_TOOL_PARAMETER_DESCRIPTORS_START = "<toolParameterDescriptors>";
-    String TAG_TOOL_PARAMETER_DESCRIPTORS_END = "</toolParameterDescriptors>";
-    String TAG_PARAMETERS_START = "<parameters>";
-    String TAG_PARAMETERS_END = "</parameters>";
-    String TAG_TEMPLATE_START = "<template>";
-    String TAG_TEMPLATE_END = "</template>";
-    String TAG_FILE_START = "<file>";
-    String TAG_FILE_END = "</file>";
-    String TAG_DEFAULT_VALUE_START = "<defaultValue>";
-    String TAG_DEFAULT_VALUE_END = "</defaultValue>";
-    String INDENT_1 = "  ";
-    String INDENT_2 = "    ";
-    String INDENT_3 = "      ";
-    String INDENT_4 = "        ";
-    String TAG_TEMPLATEPARAMETER_START = "<templateparameter>";
-    String TAG_TEMPLATEPARAMETER_END = "</templateparameter>";
-    String TAG_TEMPLATE_FILE_LOCATION_START = "<templateFileLocation>";
-    String TAG_TEMPLATE_TYPE_START = "<templateType>";
-    String TAG_TEMPLATE_TYPE_END = "</templateType>";
 }
