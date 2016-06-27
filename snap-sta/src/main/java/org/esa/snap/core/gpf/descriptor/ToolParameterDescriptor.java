@@ -58,7 +58,11 @@ public class ToolParameterDescriptor extends DefaultParameterDescriptor {
         super.setConverterClass(object.getConverterClass());
         super.setDomConverterClass(object.getDomConverterClass());
         super.setItemAlias(object.getItemAlias());
-        parameterType = ToolAdapterConstants.REGULAR_PARAM_MASK;
+        if (object instanceof ToolParameterDescriptor) {
+            parameterType = ((ToolParameterDescriptor) object).getParameterType();
+        } else {
+            parameterType =  ToolAdapterConstants.REGULAR_PARAM_MASK;
+        }
     }
 
     public ToolParameterDescriptor(DefaultParameterDescriptor object, String parameterTypeMask) {
