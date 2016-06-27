@@ -184,7 +184,12 @@ public class TemplateParameterDescriptor extends ToolParameterDescriptor {
             params = new HashMap<>();
         }
         for (ToolParameterDescriptor param : getParameterDescriptors()) {
-            params.put(param.getName(), param.getDefaultValue());
+            //if the parameter is already in the map paraemter,
+            // the new value gets ignored, since the one from the parameter is supposed to be the user one,
+            // while the parameter one is the default value
+            if(!params.containsKey(param.getName())) {
+                params.put(param.getName(), param.getDefaultValue());
+            }
         }
 
         return this.engine.execute(this.template, params);
