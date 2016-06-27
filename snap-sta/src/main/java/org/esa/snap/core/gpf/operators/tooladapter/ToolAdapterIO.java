@@ -35,12 +35,15 @@ import java.net.URISyntaxException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
+import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+import java.util.stream.Collectors;
 
 /**
  * Utility class for performing various operations needed by ToolAdapterOp.
@@ -53,6 +56,8 @@ public class ToolAdapterIO {
     private static final Logger logger;
     private static final Map<String, String> shellExtensions;
     private static final String osFamily;
+    private static final Attributes.Name typeKey;
+    private static final String[] excludedClusters;
 
     static {
         logger = Logger.getLogger(ToolAdapterIO.class.getName());
@@ -72,6 +77,8 @@ public class ToolAdapterIO {
         } else {
             osFamily = "unsupported";
         }
+        typeKey = new Attributes.Name("OpenIDE-Module-Type");
+        excludedClusters = new String[] { "bin", "etc", "platform", "ide" };
     }
 
     public static void setAdaptersPath(Path path) {
@@ -279,9 +286,13 @@ public class ToolAdapterIO {
     public static List<File> scanForAdapters() throws IOException {
         logger.log(Level.INFO, "Loading external tools...");
         List<File> modules = new ArrayList<>();
-        Path userModulesPath = getAdaptersPath();
-        logger.info("Scanning for external tools adapters: " + userModulesPath.toAbsolutePath().toString());
-        modules.addAll(scanForAdapters(userModulesPath));
+        Set<Path> modulesPath = getClusterModulesPaths();
+        modulesPath.add(getAdaptersPath());
+        for (Path path : modulesPath) {
+            logger.info("Scanning for external tools adapters: " + path.toAbsolutePath().toString());
+            modules.addAll(scanForAdapters(path));
+        }
+
         return modules;
     }
 
@@ -441,35 +452,39 @@ public class ToolAdapterIO {
 
     private static void unpackAdapterJar(File jarFile, File unpackFolder) throws IOException {
         JarFile jar = new JarFile(jarFile);
-        Enumeration enumEntries = jar.entries();
-        if (unpackFolder == null) {
-            unpackFolder = getAdaptersPath().resolve(jarFile.getName().replace(".jar", "")).toFile();
-        }
-        if (!unpackFolder.exists())
-            if (!unpackFolder.mkdir()) {
-                logger.warning(String.format("Cannot create folder %s", unpackFolder.getAbsolutePath()));
+        Manifest manifest = jar.getManifest();
+        Attributes manifestEntries = manifest.getMainAttributes();
+        if (manifestEntries.containsKey(typeKey) && "STA".equals(manifestEntries.getValue(typeKey.toString()))) {
+            Enumeration enumEntries = jar.entries();
+            if (unpackFolder == null) {
+                unpackFolder = getAdaptersPath().resolve(jarFile.getName().replace(".jar", "")).toFile();
             }
-        while (enumEntries.hasMoreElements()) {
-            JarEntry file = (JarEntry) enumEntries.nextElement();
-            File f = new File(unpackFolder, file.getName());
-            if (file.isDirectory()) {
-                if (!f.mkdir()) {
-                    logger.warning(String.format("Cannot create folder %s", f.getAbsolutePath()));
+            if (!unpackFolder.exists())
+                if (!unpackFolder.mkdir()) {
+                    logger.warning(String.format("Cannot create folder %s", unpackFolder.getAbsolutePath()));
                 }
-                continue;
-            } else {
-                if (!f.getParentFile().mkdirs()) {
-                    logger.warning(String.format("Cannot create folder %s", f.getParentFile().getAbsolutePath()));
-                }
-            }
-            try (InputStream is = jar.getInputStream(file)) {
-                try (FileOutputStream fos = new FileOutputStream(f)) {
-                    while (is.available() > 0) {
-                        fos.write(is.read());
+            while (enumEntries.hasMoreElements()) {
+                JarEntry file = (JarEntry) enumEntries.nextElement();
+                File f = new File(unpackFolder, file.getName());
+                if (file.isDirectory()) {
+                    if (!f.mkdir()) {
+                        logger.warning(String.format("Cannot create folder %s", f.getAbsolutePath()));
                     }
-                    fos.close();
+                    continue;
+                } else {
+                    if (!f.getParentFile().mkdirs()) {
+                        logger.warning(String.format("Cannot create folder %s", f.getParentFile().getAbsolutePath()));
+                    }
                 }
-                is.close();
+                try (InputStream is = jar.getInputStream(file)) {
+                    try (FileOutputStream fos = new FileOutputStream(f)) {
+                        while (is.available() > 0) {
+                            fos.write(is.read());
+                        }
+                        fos.close();
+                    }
+                    is.close();
+                }
             }
         }
     }
@@ -534,5 +549,26 @@ public class ToolAdapterIO {
             }
         }
         return plugIns;
+    }
+
+    private static Set<Path> getClusterModulesPaths() {
+        Set<Path> clusterNames = Collections.emptySet();
+        Path installDir = Config.instance().installDir();
+        Path clustersFile = installDir.resolve("etc").resolve("snap.clusters");
+        if (Files.isRegularFile(clustersFile)) {
+            try {
+                clusterNames = Files.readAllLines(clustersFile).stream()
+                        .filter(name -> !name.trim().isEmpty())
+                        .map(installDir::resolve)
+                        .collect(Collectors.toSet());
+            } catch (IOException e) {
+                SystemUtils.LOG.severe(String.format("Failed to load clusters file from '%s'", clustersFile));
+            }
+        }
+        for (String clusterName : excludedClusters) {
+            clusterNames.remove(installDir.resolve(clusterName));
+        }
+        clusterNames.remove(installDir.resolve("snap"));
+        return clusterNames;
     }
 }
