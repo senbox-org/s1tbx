@@ -125,6 +125,7 @@ public class SpeckleFilterOp extends Operator {
     public static final String LEE_REFINED_FILTER = "Refined Lee";
     public static final String LEE_SIGMA_FILTER = "Lee Sigma";
     public static final String IDAN_FILTER = "IDAN";
+    public static final String MEAN_SPECKLE_FILTER = "Mean";
 
     public static final String NUM_LOOKS_1 = "1";
     public static final String NUM_LOOKS_2 = "2";
@@ -186,6 +187,10 @@ public class SpeckleFilterOp extends Operator {
         try {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
             validator.checkIfTOPSARBurstProduct(false);
+
+            if (filter.equals(MEAN_SPECKLE_FILTER)) {
+                filter = BOXCAR_SPECKLE_FILTER;
+            }
 
             createTargetProduct();
 
