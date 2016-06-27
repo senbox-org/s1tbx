@@ -104,7 +104,7 @@ public class TemplateFile {
         if (fileName == null) {
             if (engine != null) {
                 Path adapterPath = engine.getTemplateBasePath();
-                fileName = adapterPath.getName(adapterPath.getNameCount() - 1) + getExtension();
+                fileName = adapterPath.getName(adapterPath.getNameCount() - 1) + "." + getExtension();
             } else {
                 fileName = String.format(defaultNamePattern, 1, getExtension());
             }
