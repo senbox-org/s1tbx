@@ -62,9 +62,11 @@ public enum ToolAdapterRegistry {
         OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
         String operatorName = operatorDescriptor.getName() != null ? operatorDescriptor.getName() : operatorDescriptor.getAlias();
         OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
-        if (operatorSpiRegistry.getOperatorSpi(operatorName) == null) {
-            operatorSpiRegistry.addOperatorSpi(operatorName, operatorSpi);
+        OperatorSpi gpfOp = operatorSpiRegistry.getOperatorSpi(operatorName);
+        if (gpfOp != null) {
+            operatorSpiRegistry.removeOperatorSpi(gpfOp);
         }
+        operatorSpiRegistry.addOperatorSpi(operatorName, operatorSpi);
         if (registeredAdapters.containsKey(operatorName)) {
             registeredAdapters.remove(operatorName);
             registeredAdapters.put(operatorName, operatorSpi);
