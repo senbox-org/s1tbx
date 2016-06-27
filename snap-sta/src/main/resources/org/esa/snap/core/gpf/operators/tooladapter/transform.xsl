@@ -46,6 +46,7 @@
                             <xsl:value-of select="defaultValue"/>
                         </xsl:element>
                     </xsl:element>
+                    <xsl:copy-of select="outputFile"/>
                     <xsl:element name="parameters">
                         <xsl:copy-of select="toolParameterDescriptors/*"/>
                     </xsl:element>
