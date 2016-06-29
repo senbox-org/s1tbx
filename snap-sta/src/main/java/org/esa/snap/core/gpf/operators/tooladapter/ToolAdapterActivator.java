@@ -23,6 +23,7 @@ import java.util.jar.Manifest;
  * TODO: 3. Look for nbm modules that have not been uncompressed
  */
 public class ToolAdapterActivator implements Activator {
+
     @Override
     public void start() {
         OperatorSpiRegistry spiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
@@ -66,4 +67,6 @@ public class ToolAdapterActivator implements Activator {
         }
         return output;
     }
+
+
 }

@@ -49,6 +49,7 @@ public interface ToolAdapterConstants {
     String DEFAULT_PARAM_NAME = "DefaultParameter";
     String MAIN_TOOL_FILE_LOCATION = "mainToolFileLocation";
     String WORKING_DIR = "workingDir";
+    String TEMPLATE_TYPE = "templateType";
     String PROGRESS_PATTERN = "progressPattern";
     String ERROR_PATTERN = "errorPattern";
     String STEP_PATTERN = "stepPattern";

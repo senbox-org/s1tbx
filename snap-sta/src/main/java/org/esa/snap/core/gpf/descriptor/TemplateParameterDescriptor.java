@@ -15,153 +15,202 @@
  */
 package org.esa.snap.core.gpf.descriptor;
 
-import com.bc.ceres.core.Assert;
-import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.io.StreamException;
-import org.esa.snap.core.gpf.OperatorException;
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
+import org.esa.snap.core.gpf.descriptor.template.*;
 import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterConstants;
-import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.SystemUtils;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
+ * Specialization class for parameters based on a template, with their own parameters.
+ *
  * @author Ramona Manda
  */
-@XStreamAlias("parameter")
+@XStreamAlias("templateparameter")
 public class TemplateParameterDescriptor extends ToolParameterDescriptor {
-    @XStreamAlias("toolParameterDescriptors")
-    private List<ToolParameterDescriptor> toolParameterDescriptors = new ArrayList<>();
+    @XStreamAlias("parameters")
+    private List<ToolParameterDescriptor> parameterDescriptors = new ArrayList<>();
+    private TemplateFile template;
+    private File outputFile;
+    @XStreamOmitField
+    private TemplateEngine engine;
 
     public TemplateParameterDescriptor(){
         super();
-        this.toolParameterDescriptors = new ArrayList<>();
+        setParameterType(ToolAdapterConstants.TEMPLATE_PARAM_MASK);
+        this.parameterDescriptors = new ArrayList<>();
     }
 
     public TemplateParameterDescriptor(String name, Class<?> type){
         super(name, type);
-        super.setParameterType(ToolAdapterConstants.REGULAR_PARAM_MASK);
-        this.toolParameterDescriptors = new ArrayList<>();
+        setParameterType(ToolAdapterConstants.REGULAR_PARAM_MASK);
+        this.parameterDescriptors = new ArrayList<>();
     }
 
-    public TemplateParameterDescriptor(String name, Class<?> type, String parameterType){
-        this(name, type);
-        super.setParameterType(parameterType);
-    }
-
-    public TemplateParameterDescriptor(DefaultParameterDescriptor object, String parameterType) {
-        super(object, parameterType);
-        this.toolParameterDescriptors = new ArrayList<>();
-    }
-
+    /**
+     * Conversion constructor from a regular parameter
+     *
+     * @param object    The source parameter
+     */
     public TemplateParameterDescriptor(ToolParameterDescriptor object) {
-        super(object, object.getParameterType());
-        this.toolParameterDescriptors = new ArrayList<>();
+        super(object);
+        setParameterType(ToolAdapterConstants.TEMPLATE_PARAM_MASK);
+        this.parameterDescriptors = new ArrayList<>();
+        this.template = new TemplateFile(TemplateType.VELOCITY);
     }
 
+    /**
+     * Copy constructor
+     *
+     * @param object    The template parameter to be copied.
+     */
     public TemplateParameterDescriptor(TemplateParameterDescriptor object) {
         super(object, object.getParameterType());
-        this.toolParameterDescriptors = new ArrayList<>();
-        this.toolParameterDescriptors.addAll(object.getToolParameterDescriptors().stream().map(TemplateParameterDescriptor::new).collect(Collectors.toList()));
+        this.parameterDescriptors = new ArrayList<>();
+        this.parameterDescriptors.addAll(object.getParameterDescriptors().stream().map(ToolParameterDescriptor::new).collect(Collectors.toList()));
+        this.engine = object.engine;
+        if (object.template != null) {
+            try {
+                this.template = object.template.copy();
+                if (this.engine != null) {
+                    this.template.associateWith(this.engine);
+                }
+            } catch (IOException | TemplateException ex) {
+                this.template = new TemplateFile();
+                try {
+                    this.template.setContents("Error: " + ex.getMessage(), false);
+                    if (this.engine != null) {
+                        this.template.associateWith(this.engine);
+                    }
+                } catch (TemplateException e) {
+                    SystemUtils.LOG.warning(e.getMessage());
+                }
+            }
+        }
     }
 
+    /**
+     * Adds a parameter descriptor to this template parameter
+     */
     public void addParameterDescriptor(ToolParameterDescriptor descriptor){
-        this.toolParameterDescriptors.add(descriptor);
+        this.parameterDescriptors.add(descriptor);
     }
 
+    /**
+     * Removes a parameter descriptor from this template parameter
+     */
     public void removeParameterDescriptor(ToolParameterDescriptor descriptor){
-        this.toolParameterDescriptors.remove(descriptor);
-    }
-
-    public List<ToolParameterDescriptor> getToolParameterDescriptors(){
-        if(this.toolParameterDescriptors == null){
-            this.toolParameterDescriptors = new ArrayList<>();
-        }
-        return this.toolParameterDescriptors;
-    }
-
-    public String toXml(ClassLoader classLoader) {
-        return createXStream(classLoader).toXML(this);
+        this.parameterDescriptors.remove(descriptor);
     }
 
     /**
-     * Loads an operator descriptor from an XML document.
-     *
-     * @param url         The URL pointing to a valid operator descriptor XML document.
-     * @param classLoader The class loader is used to load classed specified in the xml. For example the
-     *                    class defined by the {@code operatorClass} tag.
-     * @return A new operator descriptor.
+     * Returns the list of the parameter descriptors of this instance
      */
-    public static TemplateParameterDescriptor fromXml(URL url, ClassLoader classLoader) {
-        String resourceName = url.toExternalForm();
-        try {
-            try (InputStreamReader streamReader = new InputStreamReader(url.openStream())) {
-                TemplateParameterDescriptor operatorDescriptor;
-                operatorDescriptor = fromXml(streamReader, resourceName, classLoader);
-                return operatorDescriptor;
-            }
-        } catch (IOException e) {
-            throw new OperatorException(formatReadExceptionText(resourceName, e), e);
+    public List<ToolParameterDescriptor> getParameterDescriptors(){
+        if(this.parameterDescriptors == null){
+            this.parameterDescriptors = new ArrayList<>();
+        }
+        return this.parameterDescriptors;
+    }
+
+    /**
+     * Sets the scripting engine for this parameter and associates its template, if any,
+     * with the engine.
+     *
+     * @param engine                The scripting engine
+     * @throws TemplateException
+     */
+    public void setTemplateEngine(TemplateEngine engine) throws TemplateException {
+        this.engine = engine;
+        if (this.template != null) {
+            this.template.associateWith(this.engine);
         }
     }
 
     /**
-     * Loads an operator descriptor from an XML document.
-     *
-     * @param file        The file containing a valid operator descriptor XML document.
-     * @param classLoader The class loader is used to load classed specified in the xml. For example the
-     *                    class defined by the {@code operatorClass} tag.
-     * @return A new operator descriptor.
+     * Returns the last scripting context resulted from the execution of the scripting engine
      */
-    public static TemplateParameterDescriptor fromXml(File file, ClassLoader classLoader) throws OperatorException {
-        String resourceName = file.getPath();
-        try {
-            try (FileReader reader = new FileReader(file)) {
-                return TemplateParameterDescriptor.fromXml(reader, resourceName, classLoader);
+    public TemplateContext getLastContext() {
+        return (this.engine != null ? this.engine.getContext() : null);
+    }
+
+    /**
+     * Sets the template of this parameter
+     *
+     * @param template              The template object
+     * @throws TemplateException
+     */
+    public void setTemplate(TemplateFile template) throws TemplateException {
+        this.template = template;
+        this.template.associateWith(engine);
+    }
+
+    /**
+     * Returns the template of this object. If it has none, a new template will be created
+     * and returned.
+     */
+    public TemplateFile getTemplate() {
+        if (this.template == null) {
+            if (engine != null) {
+                this.template = new TemplateFile(engine.getType());
+                try {
+                    this.template.associateWith(engine);
+                } catch (TemplateException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                this.template = new TemplateFile(TemplateType.VELOCITY);
             }
-        } catch (IOException e) {
-            throw new OperatorException(formatReadExceptionText(resourceName, e), e);
+
         }
+        return this.template;
     }
 
-    public static TemplateParameterDescriptor fromXml(Reader reader, String resourceName, ClassLoader classLoader) throws OperatorException {
-        Assert.notNull(reader, "reader");
-        Assert.notNull(resourceName, "resourceName");
-        TemplateParameterDescriptor descriptor = new TemplateParameterDescriptor(ToolAdapterConstants.DEFAULT_PARAM_NAME, String.class);
-        try {
-            createXStream(classLoader).fromXML(reader, descriptor);
-            if (StringUtils.isNullOrEmpty(descriptor.getName())) {
-                throw new OperatorException(formatInvalidExceptionMessage(resourceName, "missing 'name' element"));
+    /**
+     * Transforms (or executes) the template of this instance given a set of parameters.
+     *
+     * @param params                A collection of parameter values
+     * @return                      The transformed template
+     * @throws TemplateException
+     */
+    public String executeTemplate(Map<String, Object> params) throws TemplateException {
+        if (params == null) {
+            params = new HashMap<>();
+        }
+        for (ToolParameterDescriptor param : getParameterDescriptors()) {
+            //if the parameter is already in the map paraemter,
+            // the new value gets ignored, since the one from the parameter is supposed to be the user one,
+            // while the parameter one is the default value
+            if(!params.containsKey(param.getName())) {
+                params.put(param.getName(), param.getDefaultValue());
             }
-        } catch (StreamException e) {
-            throw new OperatorException(formatReadExceptionText(resourceName, e), e);
         }
-        return descriptor;
+
+        return this.engine.execute(this.template, params);
     }
 
-    private static XStream createXStream(ClassLoader classLoader) {
-        XStream xStream = new XStream();
-        xStream.setClassLoader(classLoader);
-        xStream.processAnnotations(TemplateParameterDescriptor.class);
-        //xStream.alias("parameter", TemplateParameterDescriptor.class);
-        //xStream.alias("parameter", TemplateParameterDescriptor.class);
-        //xStream.aliasField("toolParameterDescriptors", TemplateParameterDescriptor.class, "toolParameterDescriptors");
-        return xStream;
+    /**
+     *
+     * @return the output file of this template parameter, after the template is parsed
+     */
+    public File getOutputFile() {
+        return outputFile;
     }
 
-    private static String formatReadExceptionText(String resourceName, Exception e) {
-        return String.format("Failed to read operator descriptor from '%s':\nError: %s", resourceName, e.getMessage());
-    }
-
-    private static String formatInvalidExceptionMessage(String resourceName, String message) {
-        return String.format("Invalid operator descriptor in '%s': %s", resourceName, message);
+    /**
+     * Sets the output file of this template parameter, after the template is parsed.
+     * The output file path may be a relative one or an absolute one
+     * @param outputFile output file of this template parameter
+     */
+    public void setOutputFile(File outputFile) {
+        this.outputFile = outputFile;
     }
 }
