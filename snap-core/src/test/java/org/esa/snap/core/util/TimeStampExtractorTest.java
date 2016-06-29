@@ -127,6 +127,15 @@ public class TimeStampExtractorTest {
         assertEquals(dateRange[0].getAsDate().getTime(), dateRange[1].getAsDate().getTime());
     }
 
+    @Test
+    public void testExtractTimeStamps_withDoyAndNumbersToSkip() throws ParseException, ValidationException {
+        final TimeStampExtractor extractor = new TimeStampExtractor("yyyyDDD", "LC8......${startDate}*.nc");
+        final ProductData.UTC[] timeStamps = extractor.extractTimeStamps("LC81070352013132LGN01_L2.nc");
+        assertEquals(timeStamps.length, 2);
+        assertEquals(ProductData.UTC.parse("2013-05-12", "yyyy-MM-dd").getAsDate().getTime(), timeStamps[0].getAsDate().getTime());
+        assertEquals(timeStamps[0].getAsDate().getTime(), timeStamps[1].getAsDate().getTime());
+    }
+
     @Test(expected = ValidationException.class)
     public void testExtractTimeStamps_badFilename() throws ParseException, ValidationException {
         final TimeStampExtractor extractor = new TimeStampExtractor("yyyyMMdd", "${startDate}*.dim");
