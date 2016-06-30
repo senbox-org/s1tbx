@@ -3,7 +3,6 @@ org.esa.s1tbx.insar.gpf.coregistration.CrossCorrelationOp$Spi
 org.esa.s1tbx.insar.gpf.coregistration.WarpOp$Spi
 org.esa.s1tbx.insar.gpf.coregistration.DEMAssistedCoregistrationOp$Spi
 org.esa.s1tbx.insar.gpf.coregistration.OffsetTrackingOp$Spi
-org.esa.s1tbx.insar.gpf.coregistration.OffsetTrackingOp2$Spi
 org.esa.s1tbx.insar.gpf.GoldsteinFilterOp$Spi
 org.esa.s1tbx.insar.gpf.PhaseToElevationOp$Spi
 org.esa.s1tbx.insar.gpf.StackAveragingOp$Spi
