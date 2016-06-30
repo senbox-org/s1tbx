@@ -7,11 +7,6 @@
     <tocitem text="Sentinel Toolbox Application">
         <tocitem text="Radar">
             <tocitem text="Coregistration">
-                <tocitem text="InSAR Coregistration">
-                    <tocitem text="InSAR Coregistration Overview" target="insar_coregistration"/>
-                    <tocitem text="Coarse and Fine Coregistration" target="CoarseFineCoregOp"/>
-                    <tocitem text="CPM Estimation and Resampling" target="ResampleOp"/>
-                </tocitem>
                 <tocitem text="Cross Interferometry" target="CrossResamplingOp"/>
             </tocitem>
             <tocitem text="Interferometric">
@@ -19,7 +14,7 @@
                     <tocitem text="Interferogram Formation" target="InterferogramOp"/>
                     <tocitem text="Coherence Estimation" target="CoherenceOp"/>
                     <tocitem text="Three-Pass DInSAR" target="DInSAROp"/>
-                    <tocitem text="Subtraction of Topography" target="SubtRefDemOp"/>
+                    <tocitem text="Topographic Phase Removal" target="SubtRefDemOp"/>
                     <tocitem text="Slant to Height" target="Slant2HeightOp"/>
                 </tocitem>
                 <tocitem text="Filtering">
@@ -29,8 +24,8 @@
                 </tocitem>
                 <tocitem text="Unwrapping">
                     <tocitem text="Unwrapping" target="Unwrap"/>
-                    <tocitem text="Unwrapping Operator" target="UnwrapOp"/>
-                    <tocitem text="Stitching of unwrapped results" target="StitchOp"/>
+                    <!--tocitem text="Unwrapping Operator" target="UnwrapOp"/-->
+                    <!--tocitem text="Stitching of unwrapped results" target="StitchOp"/-->
                     <tocitem text="Snaphu Data Export" target="SnaphuExportOp"/>
                     <tocitem text="Snaphu Data Import" target="SnaphuImportOp"/>
                 </tocitem>

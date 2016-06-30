@@ -104,11 +104,12 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH) + 1; // zero based
         final int day = calendar.get(Calendar.DAY_OF_MONTH);
+        final String missionPrefix = getMissionPrefix(absRoot);
 
-        orbitFile = findOrbitFile(orbitType, stateVectorTime, year);
+        orbitFile = findOrbitFile(missionPrefix, orbitType, stateVectorTime, year);
 
         if (orbitFile == null) {
-            orbitFile = downloadArchive(orbitType, year, month, day, stateVectorTime);
+            orbitFile = downloadArchive(missionPrefix, orbitType, year, month, day, stateVectorTime);
         }
         if (orbitFile == null) {
             //orbitFile = downloadFromQCWebsite(orbitType, year, month, day, stateVectorTime);
@@ -133,10 +134,16 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         return orbitFile;
     }
 
-    private static File downloadArchive(final String orbitType, int year, int month, final int day,
-                                 final double stateVectorTime) throws Exception {
+    private static String getMissionPrefix(final MetadataElement absRoot) {
+        final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
+        return "S1"+mission.substring(mission.length()-1, mission.length());
+    }
+
+    private static File downloadArchive(final String missionPrefix, final String orbitType,
+                                        int year, int month, final int day,
+                                        final double stateVectorTime) throws Exception {
         getRemoteFiles(orbitType, year, month);
-        File orbitFile = findOrbitFile(orbitType, stateVectorTime, year);
+        File orbitFile = findOrbitFile(missionPrefix, orbitType, stateVectorTime, year);
         if (orbitFile == null) {
             if (day < 15) {
                 month--;
@@ -152,15 +159,16 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
                 }
             }
             getRemoteFiles(orbitType, year, month);
-            orbitFile = findOrbitFile(orbitType, stateVectorTime, year);
+            orbitFile = findOrbitFile(missionPrefix, orbitType, stateVectorTime, year);
         }
         return orbitFile;
     }
 
-    private static File downloadFromQCWebsite(final String orbitType, int year, int month, final int day,
-                                        final double stateVectorTime) throws Exception {
+    private static File downloadFromQCWebsite(final String missionPrefix, final String orbitType,
+                                              int year, int month, final int day,
+                                              final double stateVectorTime) throws Exception {
         getQCFiles(orbitType, year, month);
-        File orbitFile = findOrbitFile(orbitType, stateVectorTime, year);
+        File orbitFile = findOrbitFile(missionPrefix, orbitType, stateVectorTime, year);
         if (orbitFile == null) {
             if (day < 15) {
                 month--;
@@ -176,7 +184,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
                 }
             }
             getQCFiles(orbitType, year, month);
-            orbitFile = findOrbitFile(orbitType, stateVectorTime, year);
+            orbitFile = findOrbitFile(missionPrefix, orbitType, stateVectorTime, year);
         }
         return orbitFile;
     }
@@ -191,15 +199,16 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         return orbitFileFolder;
     }
 
-    private static File findOrbitFile(final String orbitType, final double stateVectorTime, final int year) {
+    private static File findOrbitFile(final String missionPrefix, final String orbitType,
+                                      final double stateVectorTime, final int year) {
 
         final String prefix;
         final File orbitFileFolder;
         if (orbitType.startsWith(RESTITUTED)) {
-            prefix = "S1A_OPER_AUX_RESORB_OPOD_";
+            prefix = missionPrefix + "_OPER_AUX_RESORB_OPOD_";
             orbitFileFolder = new File(Settings.getPath("OrbitFiles.sentinel1RESOrbitPath") + File.separator + year);
         } else {
-            prefix = "S1A_OPER_AUX_POEORB_OPOD_";
+            prefix = missionPrefix + "_OPER_AUX_POEORB_OPOD_";
             orbitFileFolder = new File(Settings.getPath("OrbitFiles.sentinel1POEOrbitPath") + File.separator + year);
         }
 
