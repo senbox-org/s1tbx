@@ -4,6 +4,8 @@
 
 
 
+
+
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <link rel="stylesheet" href="../style.css"></head><body>
 <table class="header">
@@ -65,17 +67,31 @@ range direction. <br>
 
 
 <ul>
-<li>Registration Window Size: Dimension of the sub-set of image used
+  <li>Registration Window Width: Width of the sub-set of image used
+for cross-correlation. <br>
+  </li>
+  <li>Registration Window Height: Height of the sub-set of image used
 for cross-correlation. Larger window generally implies accurate
 estimation of the range shift and also means larger memory and longer
-processing time.<br>
-</li>
-  <li>Interpolation Factor: The factor for up sampling the sub-set of image before applying cross-correlation. The larger the factor, the better the achievable accuracy, and the larger the computation cost.<br>
+processing time.</li>
+  <li>Search Window Accuracy in Azimuth Direction: The search accuracy
+in azimuth direction for the maximum correlation. The search window
+height is 2*Acc.</li>
+  <li>Search
+Window Accuracy in Range Direction: The search accuracy in range
+direction for the maximum correlation. The search window width is
+2*Acc. .</li>
+
+  <li>Window Oversampling Factor: The oversampling factor for the
+search window. The larger the factor, the better the achievable
+accuracy, and the larger the computation cost.<br>
   </li>
-  <li>Max Iterations: The maximum number of iterations for performing
-the cross-correlation in computing the range shift. Again larger number
-means better result and longer processing time.<br>
+  <li>Cross-Correlation Threshold: Threshold
+for normalized cross-correlation value. If the cross-correlation value
+is greater than the threshold, then the estimated range offset is
+considered valid, otherwise invalid.<br>
   </li>
 </ul>
-<img src="file:///C:/Users/junlu/AppData/Local/Temp/moz-screenshot-16.jpg" alt="">
+<img style="width: 450px; height: 450px;" alt="" src="images/RangeShiftUI.jpg"><br>
+
 <hr></body></html>
