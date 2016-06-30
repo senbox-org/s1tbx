@@ -140,9 +140,11 @@ public final class AddElevationOp extends Operator {
                 targetProduct.addBand(targetBand);
                 sourceRasterMap.put(targetBand, band);
             } else {
-                final Band targetBand = ProductUtils.copyBand(band.getName(), sourceProduct, targetProduct, false);
-                targetBand.setSourceImage(band.getSourceImage());
-                sourceRasterMap.put(targetBand, band);
+                if (!targetProduct.containsBand((band.getName()))) {
+                    final Band targetBand = ProductUtils.copyBand(band.getName(), sourceProduct, targetProduct, false);
+                    targetBand.setSourceImage(band.getSourceImage());
+                    sourceRasterMap.put(targetBand, band);
+                }
             }
         }
 
