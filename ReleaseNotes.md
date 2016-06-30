@@ -1,3 +1,18 @@
+#New since SNAP 4.0
+
+###Bugs fixed 
+
+https://senbox.atlassian.net/issues/?filter=11600
+
+###New Features and Important Changes
+* Support for S1B
+* Supervised Classification - Random Forest, KNN, Maximum Likelihood, Minimum Distance
+* Correction to precise orbits which caused phase jumps
+* Integer interferogram combination
+* Double different interferogram within the burst overlap
+* Improved offset tracking interpolation
+
+
 #New in S1TBX 3.0
 
 ###Bugs fixed 

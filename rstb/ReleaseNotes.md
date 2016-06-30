@@ -1,3 +1,9 @@
+#New since SNAP 4.0
+
+###Bugs fixed 
+
+https://senbox.atlassian.net/issues/?filter=11600
+
 #New since SNAP 3.0
 
 ###Bugs fixed 
