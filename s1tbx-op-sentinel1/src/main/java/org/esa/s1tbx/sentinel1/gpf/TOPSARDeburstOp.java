@@ -314,7 +314,7 @@ public final class TOPSARDeburstOp extends Operator {
         }
 
         final int firstSeparationIdx = srcBandName.indexOf(acquisitionMode);
-        final int secondSeparationIdx = srcBandName.indexOf("_", firstSeparationIdx + 1);
+        final int secondSeparationIdx = srcBandName.indexOf('_', firstSeparationIdx + 1);
         return srcBandName.substring(0, firstSeparationIdx) + srcBandName.substring(secondSeparationIdx + 1);
     }
 
@@ -337,7 +337,7 @@ public final class TOPSARDeburstOp extends Operator {
 
     private static String getPrefix(final String tgtBandName) {
 
-        final int firstSeparationIdx = tgtBandName.indexOf("_");
+        final int firstSeparationIdx = tgtBandName.indexOf('_');
         return tgtBandName.substring(firstSeparationIdx+1);
     }
 
@@ -593,10 +593,15 @@ public final class TOPSARDeburstOp extends Operator {
             final MetadataElement burstList = swathTiming.getElement("burstList");
             burstList.setAttributeString("count", "0");
             final MetadataElement[] burstListElem = burstList.getElements();
-            for (int i = 0; i < burstListElem.length; i++) {
-                burstList.removeElement(burstListElem[i]);
+            for (MetadataElement aBurstListElem : burstListElem) {
+                burstList.removeElement(aBurstListElem);
             }
         }
+    }
+
+    private static String getMissionPrefix(final MetadataElement absRoot) {
+        final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
+        return "S1"+mission.substring(mission.length()-1, mission.length());
     }
 
     private void updateCalibrationVector() {
@@ -606,11 +611,13 @@ public final class TOPSARDeburstOp extends Operator {
                 getElement("calibration");
         final MetadataElement bandCalibration = srcCalibration.getElementAt(0).getElement("calibration");
 
+        final String missionPrefix = getMissionPrefix(absRoot).toLowerCase();
+
         final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(targetProduct);
         origProdRoot.removeElement(origProdRoot.getElement("calibration"));
         final MetadataElement calibration = new MetadataElement("calibration");
         for (String pol : selectedPols) {
-            final String elemName = "s1a-" + acquisitionMode + "-" + productType + "-" + pol;
+            final String elemName = missionPrefix + '-' + acquisitionMode + '-' + productType + '-' + pol;
             final MetadataElement elem = new MetadataElement(elemName);
             final MetadataElement calElem = bandCalibration.createDeepClone();
             final MetadataElement calibrationVectorListElem = calElem.getElement("calibrationVectorList");
@@ -654,7 +661,7 @@ public final class TOPSARDeburstOp extends Operator {
 
     private String getMergedPixels(final String pol) {
 
-        String mergedPixelStr = "";
+        final StringBuilder mergedPixelStr = new StringBuilder("");
         for (int s = 0; s < numOfSubSwath; s++) {
             final int[] pixelArray = su.getCalibrationPixel(s+1, pol, 0);
             for (int p:pixelArray) {
@@ -664,16 +671,16 @@ public final class TOPSARDeburstOp extends Operator {
                     final int targetPixelIdx = (int)Math.round((slrt - targetSlantRangeTimeToFirstPixel) /
                             targetDeltaSlantRangeTime);
 
-                    mergedPixelStr += targetPixelIdx + " ";
+                    mergedPixelStr.append(targetPixelIdx + " ");
                 }
             }
         }
-        return mergedPixelStr;
+        return mergedPixelStr.toString();
     }
 
     private String getMergedVector(final String vectorName, final String pol, final int vectorIndex) {
 
-        final StringBuilder mergedVectorStr = new StringBuilder();
+        final StringBuilder mergedVectorStr = new StringBuilder("");
         for (int s = 0; s < numOfSubSwath; s++) {
             final int[] pixelArray = su.getCalibrationPixel(s+1, pol, vectorIndex);
             final float[] vectorArray = su.getCalibrationVector(s+1, pol, vectorIndex, vectorName);
@@ -681,7 +688,7 @@ public final class TOPSARDeburstOp extends Operator {
                 if (pixelArray[i] >= subSwathEffectStartEndPixels[s].xMin &&
                         pixelArray[i] < subSwathEffectStartEndPixels[s].xMax) {
 
-                    mergedVectorStr.append(vectorArray[i]).append(" ");
+                    mergedVectorStr.append(vectorArray[i]).append(' ');
                 }
             }
         }
