@@ -19,6 +19,7 @@ public class PixExMeasurementFactoryTest {
     private RasterNamesFactory rasterNamesFactory;
     private Band band1;
     private Band band2;
+    private Band band3;
     private ProductRegistry productRegistry;
 
     @Before
@@ -30,6 +31,9 @@ public class PixExMeasurementFactoryTest {
 
         band2 = product.addBand("val2", ProductData.TYPE_FLOAT32);
         fillValues(band2, 20);
+
+        band3 = product.addBand("val3", ProductData.TYPE_UINT32);
+        fillValues(band3, 231450709);
 
         rasterNamesFactory = newRasterNamesFactory();
         productRegistry = newProductRegistry();
@@ -80,7 +84,8 @@ public class PixExMeasurementFactoryTest {
 
         final Integer intValue = band1.getPixelInt(pixX, pixY);
         final Double floatValue = band2.getPixelDouble(pixX, pixY);
-        final Number[] values = {intValue, floatValue};
+        final Long uintValue = band3.getPixelInt(pixX, pixY) & 0xFFFFFFFFL;
+        final Number[] values = {intValue, floatValue, uintValue};
 
         final long productId = productRegistry.getProductId(product);
 
