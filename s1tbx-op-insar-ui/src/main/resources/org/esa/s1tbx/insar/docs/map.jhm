@@ -23,6 +23,7 @@
     <mapID target="GoldsteinFilterOp" url="operators/GoldsteinFilterOp.html"/>
     <mapID target="PhaseToElevationOp" url="operators/PhaseToElevationOp.html"/>
     <mapID target="PhaseToDisplacementOp" url="operators/PhaseToDisplacementOp.html"/>
+    <mapID target="IntegerInterferogramOp" url="operators/IntegerInterferogramOp.html"/>
     <mapID target="InSARStackOverview" url="operators/InSARStackOverview.html"/>
 
     <mapID target="StatBaselines" url="desktop/StatBaselines.html"/>

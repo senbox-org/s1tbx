@@ -125,8 +125,8 @@
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
                 <attr name="displayName" stringvalue="Integer Interferogram"/>
                 <attr name="graphFile" stringvalue="coregistration/IntegerInterferogramGraph.xml"/>
-                <attr name="dialogTitle" stringvalue="Integer Interferogram"/>
-                <attr name="ShortDescription" stringvalue="Integer Interferogram"/>
+                <attr name="dialogTitle" stringvalue="Integer Interferogram Combination"/>
+                <attr name="ShortDescription" stringvalue="Integer Interferogram Combination"/>
                 <attr name="targetProductNameSuffix" stringvalue="_iifg"/>
                 <attr name="icon" stringvalue="csaIcon"/>
                 <attr name="helpId" stringvalue="IntegerInterferogramOp"/>

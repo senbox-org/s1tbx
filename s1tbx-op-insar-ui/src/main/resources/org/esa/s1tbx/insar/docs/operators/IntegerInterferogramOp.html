@@ -1,0 +1,155 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+  <title>Help - IntegerInterferogramOp</title>
+
+  
+  
+  <link rel="stylesheet" href="../style.css">
+
+</head><body>
+<table class="header">
+
+  <tbody>
+    <tr class="header">
+      <td class="header">&nbsp; Integer Interferogram Combination<br>
+      </td>
+      <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg" border="0"></a></td>
+    </tr>
+  </tbody>
+</table>
+
+<br>
+
+
+<p class="MsoNormal">It is possible to stack several interferograms of the same
+site to increase their clarity or reduce the number of fringes, thus creating
+an integer interferogram combination (IIC)<span style="" lang="EN-GB"> [R13]</span>. The combined interferogram can
+have a better altitude of ambiguity <i style="">h<sub>a</sub></i>
+than any of the source interferograms.<o:p></o:p></p>
+
+
+<p class="MsoNormal">After correction for topographic and orbital contributions,
+the interferogram contains three kinds of information: <o:p></o:p></p>
+
+
+<ul style="margin-top: 0cm;" type="disc">
+<li class="MsoNormal" style="">The number of fringes <i style="">&#957;</i> representing noise due to thermal
+     noise or to partial incoherence<o:p></o:p></li><li class="MsoNormal" style="">The number of fringes <i style="">&#949;</i>/<i style="">h<sub>a</sub></i> due to the errors <i style="">&#949;</i> in the DEM, where <i style="">h<sub>a</sub></i>
+     is the altitude of ambiguity<o:p></o:p></li><li class="MsoNormal" style="">The number of fringes <i style="">&#956;</i> caused by any differential effects,
+     including local variations in the atmospheric thickness, as well as local
+     ground motion between the acquisition times.<o:p></o:p></li>
+</ul>
+
+
+<p class="MsoNormal">The interferogram in which the effects of topography and the
+'orbital fringes' have been retrieved gives us the fractional part of:<o:p></o:p></p>
+
+
+<p class="MsoNormal" style="text-align: center;" align="center"><span style="position: relative; top: 15pt;"><v:shapetype id="_x0000_t75" coordsize="21600,21600" o:spt="75" o:preferrelative="t" path="m@4@5l@4@11@9@11@9@5xe" filled="f" stroked="f">
+ <v:stroke joinstyle="miter">
+ <v:formulas>
+  <v:f eqn="if lineDrawn pixelLineWidth 0">
+  <v:f eqn="sum @0 1 0">
+  <v:f eqn="sum 0 0 @1">
+  <v:f eqn="prod @2 1 2">
+  <v:f eqn="prod @3 21600 pixelWidth">
+  <v:f eqn="prod @3 21600 pixelHeight">
+  <v:f eqn="sum @0 0 1">
+  <v:f eqn="prod @6 1 2">
+  <v:f eqn="prod @7 21600 pixelWidth">
+  <v:f eqn="sum @8 21600 0">
+  <v:f eqn="prod @7 21600 pixelHeight">
+  <v:f eqn="sum @10 21600 0">
+ </v:f>
+ <v:path o:extrusionok="f" gradientshapeok="t" o:connecttype="rect">
+ <o:lock v:ext="edit" aspectratio="t">
+</o:lock><v:shape id="_x0000_i1025" type="#_x0000_t75" style="width: 53.4pt; height: 33.6pt;" o:ole="">
+ <v:imagedata src="file:///C:%5CUsers%5Cluis%5CAppData%5CLocal%5CTemp%5Cmsohtmlclip1%5C01%5Cclip_image001.wmz" o:title="">
+</v:imagedata></v:shape></v:path></v:f></v:f></v:f></v:f></v:f></v:f></v:f></v:f></v:f></v:f></v:f></v:formulas></v:stroke></v:shapetype></span><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.3" ShapeID="_x0000_i1025"
+  DrawAspect="Content" ObjectID="_1528746671">
+ </o:OLEObject>
+</xml><![endif]--><img style="width: 104px; height: 58px;" alt="" src="images/iic_eq1.png"><br>
+<o:p></o:p></p>
+
+
+<p class="MsoNormal">If we multiply the interferogram by an integer <i style="">q<sub>1</sub></i>, we will likewise multiply
+the number of phase transitions and the initial integer values. Note that the
+integer values remain unknown unless unwrapping has been performed. We obtain the
+fractional part of:<o:p></o:p></p>
+
+
+<p class="MsoNormal" style="text-align: center;" align="center"><span style="position: relative; top: 15pt;"><v:shape id="_x0000_i1026" type="#_x0000_t75" style="width: 75pt; height: 33.6pt;" o:ole="">
+ <v:imagedata src="file:///C:%5CUsers%5Cluis%5CAppData%5CLocal%5CTemp%5Cmsohtmlclip1%5C01%5Cclip_image002.wmz" o:title="">
+</v:imagedata></v:shape></span><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.3" ShapeID="_x0000_i1026"
+  DrawAspect="Content" ObjectID="_1528746672">
+ </o:OLEObject>
+</xml><![endif]--><img style="width: 148px; height: 63px;" alt="" src="images/iic_eq2.png"><br>
+<o:p></o:p></p>
+
+
+<p class="MsoNormal">If we combine the first interferogram with a second,
+characterised by another independent noise distribution, another altitude of
+ambiguity, other differential effects and another multiplication factor <i style="">q<sub>2</sub></i>, but the same local DEM
+error <i style="">&#949;</i> , we obtain the fractional
+part of:<o:p></o:p></p>
+
+
+<p class="MsoNormal" style="text-align: center;" align="center"><span style="position: relative; top: 16pt;"><v:shape id="_x0000_i1027" type="#_x0000_t75" style="width: 204pt; height: 38.4pt;" o:ole="">
+ <v:imagedata src="file:///C:%5CUsers%5Cluis%5CAppData%5CLocal%5CTemp%5Cmsohtmlclip1%5C01%5Cclip_image003.wmz" o:title="">
+</v:imagedata></v:shape></span><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.3" ShapeID="_x0000_i1027"
+  DrawAspect="Content" ObjectID="_1528746673">
+ </o:OLEObject>
+</xml><![endif]--><img style="width: 357px; height: 60px;" alt="" src="images/iic_eq3.png"><br>
+<o:p></o:p></p>
+
+
+<p class="MsoNormal">As a consequence of the multiplications, the RMS amplitude
+of the noise becomes:<o:p></o:p></p>
+
+
+<p class="MsoNormal" style="text-align: center;" align="center"><span style="position: relative; top: 6pt;"><v:shape id="_x0000_i1028" type="#_x0000_t75" style="width: 69pt; height: 21.6pt;" o:ole="">
+ <v:imagedata src="file:///C:%5CUsers%5Cluis%5CAppData%5CLocal%5CTemp%5Cmsohtmlclip1%5C01%5Cclip_image004.wmz" o:title="">
+</v:imagedata></v:shape></span><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.3" ShapeID="_x0000_i1028"
+  DrawAspect="Content" ObjectID="_1528746674">
+ </o:OLEObject>
+</xml><![endif]--><img style="width: 128px; height: 43px;" alt="" src="images/iic_eq4.png"><br>
+<o:p></o:p></p>
+
+
+<p class="MsoNormal">This resulting increase of the noise in practice limits the
+choice of the absolute value of <i style="">q<sub>1</sub></i>
+or <i style="">q<sub>2</sub></i> to less than 3.<o:p></o:p></p>
+
+
+<p class="MsoNormal">The interferogram resulting from this kind of combination
+exhibits an equivalent altitude of ambiguity <i style="">h<sub>ae</sub></i>, written as:<o:p></o:p></p>
+
+
+<p class="MsoNormal" style="text-align: center;" align="center"><span style="position: relative; top: 15pt;"><v:shape id="_x0000_i1029" type="#_x0000_t75" style="width: 74.4pt; height: 33.6pt;" o:ole="">
+ <v:imagedata src="file:///C:%5CUsers%5Cluis%5CAppData%5CLocal%5CTemp%5Cmsohtmlclip1%5C01%5Cclip_image005.wmz" o:title="">
+</v:imagedata></v:shape></span><!--[if gte mso 9]><xml>
+ <o:OLEObject Type="Embed" ProgID="Equation.3" ShapeID="_x0000_i1029"
+  DrawAspect="Content" ObjectID="_1528746675">
+ </o:OLEObject>
+</xml><![endif]--><img style="width: 135px; height: 59px;" alt="" src="images/iic_eq5.png"><br>
+<o:p></o:p></p>
+
+
+<p class="MsoNormal">Phase unwrapping applies to altitudes of ambiguity lower
+than 100&#8211;200 m and greater than 10 m
+in interferometric conditions. Even choosing <i style="">q<sub>1</sub></i> and <i style="">q<sub>2</sub></i>
+to be ±1, ±2, or ±3 allows us to reach an equivalent altitude of ambiguity of
+more than 100 m most of the time. Using this method, we create more interferometric
+combinations with a high altitude of ambiguity, as if we had a small orbital
+separation.<o:p></o:p></p>
+
+
+<br>
+
+
+<hr>
+</body></html>
