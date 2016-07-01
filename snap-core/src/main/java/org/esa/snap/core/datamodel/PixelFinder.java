@@ -27,12 +27,12 @@ class PixelFinder {
     private final int searchRadius;
 
     PixelFinder(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage, double halfPixelDiagonal,
-                boolean fractionAccuracy) {
+                boolean fractionAccuracy, int searchRadius) {
         this.lonImage = lonImage;
         this.latImage = latImage;
         this.maskImage = maskImage;
         this.halfPixelDiagonal = halfPixelDiagonal;
-        this.searchRadius = 2;
+        this.searchRadius = searchRadius;
         if (fractionAccuracy) {
             pixelFindingStrategy = new FractionPixelPosCreator();
         } else {
