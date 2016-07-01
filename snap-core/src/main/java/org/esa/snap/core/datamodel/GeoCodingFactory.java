@@ -56,7 +56,7 @@ public class GeoCodingFactory {
         if (useAlternatePixelGeoCoding()) {
             return new PixelGeoCoding(latBand, lonBand, validMask, searchRadius);
         }
-        return new PixelGeoCoding2(latBand, lonBand, validMask);
+        return new PixelGeoCoding2(latBand, lonBand, validMask, searchRadius);
     }
 
     public static BasicPixelGeoCoding createPixelGeoCoding(final Band latBand,
@@ -67,7 +67,7 @@ public class GeoCodingFactory {
         if (useAlternatePixelGeoCoding()) {
             return new PixelGeoCoding(latBand, lonBand, validMask, searchRadius, pm); // this is a special constructor
         }
-        return new PixelGeoCoding2(latBand, lonBand, validMask);
+        return new PixelGeoCoding2(latBand, lonBand, validMask, searchRadius);
     }
 
     private static boolean useAlternatePixelGeoCoding() {
