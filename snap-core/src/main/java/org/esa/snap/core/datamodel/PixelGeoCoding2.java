@@ -66,7 +66,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
      * @param lonBand        the band providing the longitudes
      * @param maskExpression the expression defining a valid-pixel mask, may be {@code null}
      */
-    public PixelGeoCoding2(final Band latBand, final Band lonBand, String maskExpression) {
+    PixelGeoCoding2(final Band latBand, final Band lonBand, String maskExpression) {
         Guardian.assertNotNull("latBand", latBand);
         Guardian.assertNotNull("lonBand", lonBand);
         final Product product = latBand.getProduct();
@@ -141,9 +141,10 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
         final double pixelSizeX = pixelDimension.getWidth();
         final double pixelSizeY = pixelDimension.getHeight();
         final double pixelDiagonalSquared = pixelSizeX * pixelSizeX + pixelSizeY * pixelSizeY;
+        final double halfPixelDiagonal = Math.sqrt(pixelDiagonalSquared) / 2;
 
         pixelPosEstimator = new PixelPosEstimator(lonImage, latImage, maskImage, 0.5);
-        pixelFinder = new PixelFinder(lonImage, latImage, maskImage, pixelDiagonalSquared, fractionAccuracy);
+        pixelFinder = new PixelFinder(lonImage, latImage, maskImage, halfPixelDiagonal, fractionAccuracy);
 
         boolean useTiling = Config.instance().preferences().getBoolean(SYSPROP_PIXEL_GEO_CODING_USE_TILING, true);
         boolean disableTiling = !useTiling;
