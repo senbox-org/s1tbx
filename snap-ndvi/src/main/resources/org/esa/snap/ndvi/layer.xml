@@ -18,10 +18,14 @@
     <folder name="Menu">
         <folder name="Optical">
             <folder name="Thematic Land Processing">
-                <file name="org-esa-snap-ndvi-NdviOpAction.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-snap-ndvi-NdviOpAction.instance"/>
-                    <attr name="position" intvalue="0"/>
-                </file>
+                <folder name="Radiometric Indices">
+                    <folder name="Vegetation Indices">
+                        <file name="org-esa-snap-ndvi-NdviOpAction.shadow">
+                            <attr name="originalFile" stringvalue="Actions/Operators/org-esa-snap-ndvi-NdviOpAction.instance"/>
+                            <attr name="position" intvalue="0"/>
+                        </file>
+                    </folder>
+                </folder>
             </folder>
         </folder>
     </folder>

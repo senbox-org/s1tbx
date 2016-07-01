@@ -44,7 +44,7 @@ import java.util.Map;
 @OperatorMetadata(
         alias = "NdviOp",
         version="1.3",
-        category = "Optical/Thematic Land Processing",
+        category = "Optical/Thematic Land Processing/Radiometric Indices/Vegetation Indices",
         description = "The retrieves the Normalized Difference Vegetation Index (NDVI).",
         authors = "Maximilian Aulinger, Thomas Storm",
         copyright = "Copyright (C) 2016 by Brockmann Consult (info@brockmann-consult.de)")

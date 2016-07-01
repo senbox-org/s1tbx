@@ -10,9 +10,12 @@
     <tocitem text="Sentinel Toolbox Application">
         <tocitem text="Optical">
             <tocitem text="Thematic Land Processing">
-                <tocitem text="NDVI Operator" target="NDVIOperator">
-                    <tocitem text="Algorithm Specification" target="algorithm"/>
-                </tocitem>
+                <tocitem text="Radiometric Indices">
+                    <tocitem text="Vegetation Indices">
+                        <tocitem text="NDVI Operator" target="NDVIOperator">
+                            <tocitem text="Algorithm Specification" target="algorithm"/>
+                        </tocitem>
+                    </tocitem>
             </tocitem>
         </tocitem>
     </tocitem>
