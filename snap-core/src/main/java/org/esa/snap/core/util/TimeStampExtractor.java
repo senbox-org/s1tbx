@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
  * <li>year, given as <i>yyyy</i></li>
  * <li>month, given as <i>MM</i></li>
  * <li>days in month, given as <i>dd</i></li>
+ * <li>day in year, given as <i>DDD</i></li>
  * <li>hour of day, given as <i>hh</i></li>
  * <li>minute of hour, given as <i>mm</i></li>
  * <li>second of minute, given as <i>ss</i></li>
