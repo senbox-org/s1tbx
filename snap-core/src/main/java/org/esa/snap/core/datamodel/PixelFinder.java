@@ -13,28 +13,30 @@ import java.awt.image.Raster;
  * @author Ralf Quast
  * @author Tonio Fincke
  */
-public class PixelFinder {
+class PixelFinder {
 
     private static final int MAX_SEARCH_CYCLE_COUNT = 30; // enough for MERIS FSG where we have duplicated pixels
 
     private final PlanarImage lonImage;
     private final PlanarImage latImage;
     private final PlanarImage maskImage;
-    private final double pixelDiagonalSquared;
+    private final double halfPixelDiagonal;
     private final int imageW;
     private final int imageH;
-    private final PixelFindingStrategy pixelFindingStrategy;
+    private final PixelPosCreator pixelFindingStrategy;
+    private final int searchRadius;
 
-    PixelFinder(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage, double pixelDiagonalSquared,
+    PixelFinder(PlanarImage lonImage, PlanarImage latImage, PlanarImage maskImage, double halfPixelDiagonal,
                 boolean fractionAccuracy) {
         this.lonImage = lonImage;
         this.latImage = latImage;
         this.maskImage = maskImage;
-        this.pixelDiagonalSquared = pixelDiagonalSquared;
+        this.halfPixelDiagonal = halfPixelDiagonal;
+        this.searchRadius = 2;
         if (fractionAccuracy) {
-            pixelFindingStrategy = new FractionPixelFindingStrategy();
+            pixelFindingStrategy = new FractionPixelPosCreator();
         } else {
-            pixelFindingStrategy = new DefaultPixelFindingStrategy();
+            pixelFindingStrategy = new DefaultPixelPosCreator();
         }
 
         imageW = lonImage.getWidth();
@@ -48,12 +50,13 @@ public class PixelFinder {
      * @param pixelPos the pixel position.
      */
     void findPixelPos(GeoPos geoPos, PixelPos pixelPos) {
-        final int searchRadius = 2 * MAX_SEARCH_CYCLE_COUNT;
+        final int searchableExtent = 2 * MAX_SEARCH_CYCLE_COUNT;
 
         int x0 = (int) Math.floor(pixelPos.x);
         int y0 = (int) Math.floor(pixelPos.y);
 
-        if (x0 + searchRadius >= 0 && x0 - searchRadius < imageW && y0 + searchRadius >= 0 && y0 - searchRadius < imageH) {
+        if (x0 + searchableExtent >= 0 && x0 - searchableExtent < imageW && y0 +
+                searchableExtent >= 0 && y0 - searchableExtent < imageH) {
             if (x0 < 0) {
                 x0 = 0;
             } else if (x0 >= imageW) {
@@ -65,10 +68,10 @@ public class PixelFinder {
                 y0 = imageH - 1;
             }
 
-            int x1 = Math.max(x0 - searchRadius, 0);
-            int y1 = Math.max(y0 - searchRadius, 0);
-            int x2 = Math.min(x0 + searchRadius, imageW - 1);
-            int y2 = Math.min(y0 + searchRadius, imageH - 1);
+            int x1 = Math.max(x0 - searchableExtent, 0);
+            int y1 = Math.max(y0 - searchableExtent, 0);
+            int x2 = Math.min(x0 + searchableExtent, imageW - 1);
+            int y2 = Math.min(y0 + searchableExtent, imageH - 1);
 
             final int rasterMinX = x1;
             final int rasterMinY = y1;
@@ -98,10 +101,10 @@ public class PixelFinder {
                 x1 = x0;
                 y1 = y0;
 
-                int minX = Math.max(x1 - 2, rasterMinX);
-                int minY = Math.max(y1 - 2, rasterMinY);
-                int maxX = Math.min(x1 + 2, rasterMaxX);
-                int maxY = Math.min(y1 + 2, rasterMaxY);
+                int minX = Math.max(x1 - searchRadius, rasterMinX);
+                int minY = Math.max(y1 - searchRadius, rasterMinY);
+                int maxX = Math.min(x1 + searchRadius, rasterMaxX);
+                int maxY = Math.min(y1 + searchRadius, rasterMaxY);
 
                 if (maskImage != null) {
                     // enlarge the search region in across-track direction (useful for e.g. MERIS FSG where we have duplicated pixels)
@@ -146,7 +149,7 @@ public class PixelFinder {
                 y0 = y1;
                 knownRectangle = new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1);
             }
-            pixelPos.setLocation(pixelFindingStrategy.findPixel(lat0, lon0, minDistance, x0, y0, bestGeoPos));
+            pixelPos.setLocation(pixelFindingStrategy.createPixelPos(lat0, lon0, minDistance, x0, y0, bestGeoPos));
         } else {
             pixelPos.setInvalid();
         }
@@ -172,18 +175,18 @@ public class PixelFinder {
         return data.getSample(x, y, 0);
     }
 
-    interface PixelFindingStrategy {
+    interface PixelPosCreator {
 
-        PixelPos findPixel(double lat0, double lon0, double minDistance, int bestX, int bestY, GeoPos bestGeoPos);
+        PixelPos createPixelPos(double lat0, double lon0, double minDistance, int bestX, int bestY, GeoPos bestGeoPos);
 
     }
 
-    class DefaultPixelFindingStrategy implements PixelFindingStrategy {
+    private class DefaultPixelPosCreator implements PixelPosCreator {
 
         @Override
-        public PixelPos findPixel(double lat0, double lon0, double minDistance, int bestX, int bestY, GeoPos bestGeoPos) {
+        public PixelPos createPixelPos(double lat0, double lon0, double minDistance, int bestX, int bestY, GeoPos bestGeoPos) {
             final PixelPos pixelPos = new PixelPos();
-            if (minDistance < pixelDiagonalSquared) {
+            if (minDistance < halfPixelDiagonal) {
                 pixelPos.setLocation(bestX + 0.5, bestY + 0.5);
             } else {
                 pixelPos.setInvalid();
@@ -192,7 +195,7 @@ public class PixelFinder {
         }
     }
 
-    class FractionPixelFindingStrategy implements PixelFindingStrategy {
+    private class FractionPixelPosCreator implements PixelPosCreator {
 
         private final static int upper_left_quadrant = 0;
         private final static int upper_right_quadrant = 1;
@@ -208,7 +211,7 @@ public class PixelFinder {
         private GeoPos lowerGeoPos;
 
         @Override
-        public PixelPos findPixel(double lat0, double lon0, double minDistance, int x, int y, GeoPos geoPos) {
+        public PixelPos createPixelPos(double lat0, double lon0, double minDistance, int x, int y, GeoPos geoPos) {
             this.centerX = x;
             this.centerY = y;
             this.centerGeoPos = geoPos;
@@ -406,7 +409,6 @@ public class PixelFinder {
             try {
                 mY = decomp.solve(mB);
             } catch (Exception e) {
-                e.printStackTrace();
                 pixelPos.setInvalid();
                 return pixelPos;
             }
@@ -418,7 +420,6 @@ public class PixelFinder {
             try {
                 mX = decomp.solve(mB);
             } catch (Exception e) {
-                e.printStackTrace();
                 pixelPos.setInvalid();
                 return pixelPos;
             }
