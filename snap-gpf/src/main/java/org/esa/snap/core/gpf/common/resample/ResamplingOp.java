@@ -59,6 +59,7 @@ import java.awt.image.RenderedImage;
  * @author Tonio Fincke
  */
 @OperatorMetadata(alias = "Resample",
+        category = "Raster/Geometric",
         version = "2.0",
         authors = "Tonio Fincke",
         copyright = "(c) 2016 by Brockmann Consult",
