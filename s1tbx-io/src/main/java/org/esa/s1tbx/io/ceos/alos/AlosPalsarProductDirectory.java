@@ -204,14 +204,21 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
         final int numCoefficients = 50;
         double[] a = new double[numCoefficients / 2];       // pixel to lat coefficients
         double[] b = new double[numCoefficients / 2];       // pixel to lon coefficients
+        boolean coeffNonZero = false;
         for (int i = 0; i < numCoefficients; i++) {
             final double c = facilityRecord.getAttributeDouble("Pixel to Lat Lon coefficients " + (i + 1));
+            if(!coeffNonZero && c != 0) {
+                coeffNonZero = true;
+            }
             if (i < numCoefficients / 2) {
                 a[i] = c;
             } else {
                 b[i - numCoefficients / 2] = c;
             }
         }
+
+        if(!coeffNonZero)
+            return;
 
         //a[24] = facilityRecord.getAttributeDouble("Origin Latitude");
         //b[24] = facilityRecord.getAttributeDouble("Origin Longitude");
