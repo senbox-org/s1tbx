@@ -7,7 +7,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class ImageGeometryTest {
 
@@ -89,7 +89,7 @@ public class ImageGeometryTest {
         // these are the outer bounds
         latBand.setRasterData(ProductData.createInstance(new float[]{49.5f, 49.5f, 45.5f, 45.5f}));
         lonBand.setRasterData(ProductData.createInstance(new float[]{10.5f, 14.5f, 10.5f, 14.5f}));
-        product.setSceneGeoCoding(new PixelGeoCoding2(latBand, lonBand, null));
+        product.setSceneGeoCoding(new PixelGeoCoding2(latBand, lonBand, null, 2));
 
         ImageGeometry imageGeometry = ImageGeometry.createTargetGeometry(product, product.getSceneGeoCoding().getMapCRS(),
                                                                          null, null, null, null, null, null, null, null, null);
@@ -107,7 +107,7 @@ public class ImageGeometryTest {
         // these are the outer bounds
         latBand.setRasterData(ProductData.createInstance(new float[]{49.5f, 49.5f, 45.5f, 45.5f}));
         lonBand.setRasterData(ProductData.createInstance(new float[]{10.5f, 14.5f, 10.5f, 14.5f}));
-        product.setSceneGeoCoding(new PixelGeoCoding2(latBand, lonBand, null));
+        product.setSceneGeoCoding(new PixelGeoCoding2(latBand, lonBand, null, 2));
 
         Rectangle2D mapBoundary = ImageGeometry.createMapBoundary(product, product.getSceneGeoCoding().getMapCRS());
 
@@ -158,19 +158,14 @@ public class ImageGeometryTest {
     private static AffineTransform i2m(double referencePixelX,
                                        double easting,
                                        double pixelSize) {
-        double referencePixelY = 0;
-        double pixelSizeX = pixelSize;
-        double pixelSizeY = pixelSize;
-        double orientation = 0.0;
-        double northing = 0.0;
 
         return ImageGeometry.createImageToMapTransform(referencePixelX,
-                                                       referencePixelY,
+                                                       0.0,
                                                        easting,
-                                                       northing,
-                                                       pixelSizeX,
-                                                       pixelSizeY,
-                                                       orientation);
+                                                       0.0,
+                                                       pixelSize,
+                                                       pixelSize,
+                                                       0.0);
     }
 
 }

@@ -159,8 +159,8 @@ public class TiePointGeoCodingTest extends TestCase {
 
         final GeoPos srcGeoPos = srcScene.getGeoCoding().getGeoPos(new PixelPos(4.5f, 6.5f), null);
         final PixelPos destPixelPos = destScene.getGeoCoding().getPixelPos(srcGeoPos, null);
-        assertEquals(2.5, destPixelPos.getX(), 1.0e-1);
-        assertEquals(1.5, destPixelPos.getY(), 1.0e-1);
+        assertEquals(2.06, destPixelPos.getX(), 1.0e-2);
+        assertEquals(4.42, destPixelPos.getY(), 1.0e-1);
     }
 
     private Product createProduct() {

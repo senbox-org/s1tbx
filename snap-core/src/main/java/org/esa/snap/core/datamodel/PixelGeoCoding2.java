@@ -49,6 +49,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
 
     private final int rasterW;
     private final int rasterH;
+    private final int searchRadius;
     private final boolean fractionAccuracy;
     private final DataProvider dataProvider;
     private final GeoCoding formerGeocoding;
@@ -66,7 +67,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
      * @param lonBand        the band providing the longitudes
      * @param maskExpression the expression defining a valid-pixel mask, may be {@code null}
      */
-    public PixelGeoCoding2(final Band latBand, final Band lonBand, String maskExpression) {
+    PixelGeoCoding2(final Band latBand, final Band lonBand, String maskExpression, int searchRadius) {
         Guardian.assertNotNull("latBand", latBand);
         Guardian.assertNotNull("lonBand", lonBand);
         final Product product = latBand.getProduct();
@@ -86,6 +87,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
                     "latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2");
         }
 
+        this.searchRadius = searchRadius;
         fractionAccuracy = Config.instance().preferences().getBoolean(SYSPROP_PIXEL_GEO_CODING_FRACTION_ACCURACY, false);
         this.latBand = latBand;
         this.lonBand = lonBand;
@@ -141,9 +143,10 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
         final double pixelSizeX = pixelDimension.getWidth();
         final double pixelSizeY = pixelDimension.getHeight();
         final double pixelDiagonalSquared = pixelSizeX * pixelSizeX + pixelSizeY * pixelSizeY;
+        final double halfPixelDiagonal = Math.sqrt(pixelDiagonalSquared) / 2;
 
         pixelPosEstimator = new PixelPosEstimator(lonImage, latImage, maskImage, 0.5);
-        pixelFinder = new PixelFinder(lonImage, latImage, maskImage, pixelDiagonalSquared, fractionAccuracy);
+        pixelFinder = new PixelFinder(lonImage, latImage, maskImage, halfPixelDiagonal, fractionAccuracy, searchRadius);
 
         boolean useTiling = Config.instance().preferences().getBoolean(SYSPROP_PIXEL_GEO_CODING_USE_TILING, true);
         boolean disableTiling = !useTiling;
@@ -176,7 +179,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
 
     @Override
     public int getSearchRadius() {
-        return 0;
+        return searchRadius;
     }
 
     /**
@@ -364,7 +367,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
         } catch (ParseException ignored) {
             validMaskExpression = null;
         }
-        destScene.setGeoCoding(new PixelGeoCoding2(latBand, lonBand, validMaskExpression));
+        destScene.setGeoCoding(new PixelGeoCoding2(latBand, lonBand, validMaskExpression, searchRadius));
 
         return true;
     }

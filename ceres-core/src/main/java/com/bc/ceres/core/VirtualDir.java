@@ -26,8 +26,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.URI;
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
+import java.util.function.Function;
+import java.util.function.IntFunction;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -95,14 +110,30 @@ public abstract class VirtualDir {
      * @param path The relative directory path.
      *
      * @return An array of strings naming the files and directories in the
-     *         directory denoted by the given relative directory path.
-     *         The array will be empty if the directory is empty.
+     * directory denoted by the given relative directory path.
+     * The array will be empty if the directory is empty.
      *
      * @throws IOException If the directory given by the relative path does not exists.
      */
     public abstract String[] list(String path) throws IOException;
 
     public abstract boolean exists(String path);
+
+    /**
+     * Returns an array of strings naming the relative directory path
+     * of all file names.
+     * <p>
+     * There is no guarantee that the name strings in the resulting array
+     * will appear in any specific order; they are not, in particular,
+     * guaranteed to appear in alphabetical order.
+     *
+     * @return An array of strings naming the relative directory path
+     * and filename to all files.
+     * The array will be empty if the directory is empty.
+     *
+     * @throws IOException If an I/O error is thrown when accessing the virtual dir.
+     */
+    public abstract String[] listAllFiles() throws IOException;
 
     /**
      * Closes access to this virtual directory.
@@ -115,16 +146,50 @@ public abstract class VirtualDir {
      * @param file A directory or a ZIP-file.
      *
      * @return The virtual directory instance, or {@code null} if {@code file} is not a directory or a ZIP-file or
-     *         the ZIP-file could not be opened for read access..
+     * the ZIP-file could not be opened for read access..
      */
     public static VirtualDir create(File file) {
-        if (file.isDirectory()) {
-            return new Dir(file);
-        }
+        String basePath = file.getPath();
+        boolean isZip;
+        URI vdURI;
         try {
-            return new Zip(new ZipFile(file));
-        } catch (IOException ignored) {
+            URI uri = file.toURI();
+            if (file.isDirectory()) {
+                isZip = false;
+                vdURI = uri;
+            } else if (file.getName().toLowerCase().endsWith(".zip")) {
+                vdURI = ensureZipURI(uri);
+                isZip = true;
+            } else {
+                return null;
+            }
+            Path virtualDirPath = getPathFromURI(vdURI);
+            return new NIO(virtualDirPath, basePath, isZip, isZip, isZip);
+        } catch (IOException e) {
+            e.printStackTrace();
             return null;
+        }
+    }
+
+    static URI ensureZipURI(URI uri) throws IOException {
+        Path basePath = getPathFromURI(uri);
+        String baseUri = uri.toString();
+        if (baseUri.startsWith("file:") && basePath.toFile().isFile()) {
+            uri = URI.create("jar:" + baseUri + "!/");
+        }
+        return uri;
+    }
+
+    static Path getPathFromURI(URI uri) throws IOException {
+        // Must synchronize, because otherwise FS could have been created by concurrent thread
+        synchronized (VirtualDir.class) {
+            try {
+                return Paths.get(uri);
+            } catch (FileSystemNotFoundException exp) {
+                Map<String, String> env = Collections.emptyMap();
+                FileSystems.newFileSystem(uri, env, null);
+                return Paths.get(uri);
+            }
         }
     }
 
@@ -141,7 +206,7 @@ public abstract class VirtualDir {
         super.finalize();
     }
 
-
+    @Deprecated
     private static class Dir extends VirtualDir {
 
         private final File dir;
@@ -185,6 +250,11 @@ public abstract class VirtualDir {
         }
 
         @Override
+        public String[] listAllFiles() {
+            return new String[0]; // TODO
+        }
+
+        @Override
         public void close() {
         }
 
@@ -199,6 +269,7 @@ public abstract class VirtualDir {
         }
     }
 
+    @Deprecated
     private static class Zip extends VirtualDir {
 
         private static final int BUFFER_SIZE = 4 * 1024 * 1024;
@@ -289,6 +360,11 @@ public abstract class VirtualDir {
         }
 
         @Override
+        public String[] listAllFiles() {
+            return new String[0]; // TODO
+        }
+
+        @Override
         public void close() {
             cleanup();
         }
@@ -356,6 +432,149 @@ public abstract class VirtualDir {
                         throw new IOException("Failed to unzip '" + zipEntry.getName() + "'to '" + tempFile.getAbsolutePath() + "'", ioe);
                     }
                 }
+            }
+        }
+    }
+
+    private static class NIO extends VirtualDir {
+
+        private final Path virtualDirPath;
+        private final String basePath;
+        private final boolean isCompressed;
+        private final boolean isArchive;
+        private final boolean localCopyRequired;
+        private Path tempZipFilePathStore;
+
+        private NIO(Path virtualDirPath, String basePath, boolean isCompressed, boolean isArchive, boolean localCopyRequired) {
+            this.virtualDirPath = virtualDirPath;
+            this.basePath = basePath;
+            this.isCompressed = isCompressed;
+            this.isArchive = isArchive;
+            this.localCopyRequired = localCopyRequired;
+        }
+
+        @Override
+        public String getBasePath() {
+            return basePath;
+        }
+
+        @Override
+        public InputStream getInputStream(String path) throws IOException {
+            Path resolve = virtualDirPath.resolve(path);
+            if (Files.exists(resolve)) {
+                InputStream inputStream = Files.newInputStream(resolve);
+                if (path.endsWith(".gz")) {
+                    return new GZIPInputStream(new BufferedInputStream(inputStream));
+                }
+                return new BufferedInputStream(inputStream);
+            } else {
+                throw new FileNotFoundException(resolve.toString());
+            }
+        }
+
+        @Override
+        public synchronized File getFile(String path) throws IOException {
+            Path resolve = virtualDirPath.resolve   (path);
+            if (!Files.exists(resolve)) {
+                throw new FileNotFoundException(resolve.toString());
+            }
+
+            if (localCopyRequired) {
+                if (tempZipFilePathStore == null) {
+                    tempZipFilePathStore = VirtualDir.createUniqueTempDir().toPath();
+                }
+                Path tempFilePath = tempZipFilePathStore.resolve(path);
+                if (Files.notExists(tempFilePath)) {
+                    if(Files.notExists(tempFilePath.getParent())){
+                        Files.createDirectories(tempFilePath.getParent());
+                    }
+                    Files.copy(resolve, tempFilePath);
+                }
+                return tempFilePath.toFile();
+            } else {
+                return resolve.toFile();
+            }
+        }
+
+
+        @Override
+        public String[] list(String path) throws IOException {
+            Path startingPath = virtualDirPath.resolve(path);
+            if (!Files.exists(startingPath)) {
+                throw new FileNotFoundException(startingPath.toString());
+            }
+            List<String> fileNames = new ArrayList<>();
+            try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(startingPath)) {
+                for (Path child : directoryStream) {
+                    String filename = child.getFileName().toString();
+                    if (filename.endsWith("/") && filename.length() > 0) {
+                        filename = filename.substring(0, filename.length() - 1);
+                    }
+                    fileNames.add(filename);
+                }
+            }
+            return fileNames.toArray(new String[fileNames.size()]);
+        }
+
+        @Override
+        public String[] listAllFiles() throws IOException {
+            try (Stream<Path> pathStream = Files.walk(virtualDirPath)) {
+                Stream<Path> filteredstream = pathStream.filter(new Predicate<Path>() {
+                    @Override
+                    public boolean test(Path path) {
+                        return Files.isRegularFile(path);
+                    }
+                });
+                final int baseLength = virtualDirPath.toUri().toString().length();
+                Stream<String> fileStream = filteredstream.map(new Function<Path, String>() {
+                    @Override
+                    public String apply(Path path) {
+                        return path.toUri().toString().substring(baseLength);
+                    }
+                });
+                return fileStream.toArray(new IntFunction<String[]>() {
+                    @Override
+                    public String[] apply(int value) {
+                        return new String[value];
+                    }
+                });
+            }
+        }
+
+        @Override
+        public boolean exists(String path) {
+            return Files.exists(virtualDirPath.resolve(path));
+        }
+
+        @Override
+        public void close() {
+
+        }
+
+        @Override
+        public boolean isCompressed() {
+            return isCompressed;
+        }
+
+        @Override
+        public boolean isArchive() {
+            return isArchive;
+        }
+
+        @Override
+        public File getTempDir() throws IOException {
+            return tempZipFilePathStore.toFile();
+        }
+
+        @Override
+        protected void finalize() throws Throwable {
+            super.finalize();
+            cleanup();
+        }
+
+        private void cleanup() {
+            if (tempZipFilePathStore != null) {
+                deleteFileTree(tempZipFilePathStore.toFile());
             }
         }
     }

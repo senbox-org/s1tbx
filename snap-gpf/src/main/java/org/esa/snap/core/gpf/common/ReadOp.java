@@ -72,60 +72,58 @@ public class ReadOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    private transient ProductReader productReader;
-
     @Override
     public void initialize() throws OperatorException {
         if (file == null) {
             throw new OperatorException("'file' parameter must be set");
         }
         try {
-            ProductReader productReader;
-            if (formatName != null && !formatName.trim().isEmpty()) {
-                productReader = ProductIO.getProductReader(formatName);
-                if (productReader == null) {
-                    throw new OperatorException("No product reader found for format '" + formatName + "'");
-                }
-            } else {
-                // check if product is already opened
-                final Product[] openedProducts = getProductManager().getProducts();
-                for (Product openedProduct : openedProducts) {
-                    if (file.equals(openedProduct.getFileLocation())) {
-                        //targetProduct = openedProduct;    // won't work. Product must be copied and use copySourceImage
+            Product openedProduct = getOpenedProduct();
+            if (openedProduct != null) {
+                //targetProduct = openedProduct;    // won't work. Product must be copied and use copySourceImage
+                targetProduct = new Product(openedProduct.getName(), openedProduct.getProductType(),
+                                            openedProduct.getSceneRasterWidth(), openedProduct.getSceneRasterHeight());
+                ProductUtils.copyProductNodes(openedProduct, targetProduct);
 
-                        targetProduct = new Product(openedProduct.getName(), openedProduct.getProductType(),
-                                                    openedProduct.getSceneRasterWidth(), openedProduct.getSceneRasterHeight(),
-                                                    openedProduct.getProductReader());
-                        ProductUtils.copyProductNodes(openedProduct, targetProduct);
-                        this.productReader = openedProduct.getProductReader();
-                        targetProduct.setFileLocation(file);
-                        targetProduct.setProductReader(this.productReader);
-
-                        for (Band srcband : openedProduct.getBands()) {
-                            if(targetProduct.getBand(srcband.getName()) != null) {
-                                continue;
-                            }
-                            if (srcband instanceof VirtualBand) {
-                                ProductUtils.copyVirtualBand(targetProduct, (VirtualBand) srcband, srcband.getName());
-                            } else {
-                                ProductUtils.copyBand(srcband.getName(), openedProduct, targetProduct, true);
-                            }
-                        }
-                        return;
+                for (Band srcband : openedProduct.getBands()) {
+                    if (targetProduct.getBand(srcband.getName()) != null) {
+                        continue;
+                    }
+                    if (srcband instanceof VirtualBand) {
+                        ProductUtils.copyVirtualBand(targetProduct, (VirtualBand) srcband, srcband.getName());
+                    } else {
+                        ProductUtils.copyBand(srcband.getName(), openedProduct, targetProduct, true);
                     }
                 }
-
-                productReader = ProductIO.getProductReaderForInput(file);
-                if (productReader == null) {
-                    throw new OperatorException("No product reader found for file " + file);
+            }else {
+                ProductReader productReader;
+                if (formatName != null && !formatName.trim().isEmpty()) {
+                    productReader = ProductIO.getProductReader(formatName);
+                    if (productReader == null) {
+                        throw new OperatorException("No product reader found for format '" + this.formatName + "'");
+                    }
+                } else {
+                    productReader = ProductIO.getProductReaderForInput(file);
+                    if (productReader == null) {
+                        throw new OperatorException("No product reader found for file " + file);
+                    }
                 }
+                targetProduct = productReader.readProductNodes(file, null);
+                targetProduct.setFileLocation(file);
             }
-            targetProduct = productReader.readProductNodes(file, null);
-            targetProduct.setFileLocation(file);
-            this.productReader = productReader;
         } catch (IOException e) {
             throw new OperatorException(e);
         }
+    }
+
+    private Product getOpenedProduct() {
+        final Product[] openedProducts = getProductManager().getProducts();
+        for (Product openedProduct : openedProducts) {
+            if (file.equals(openedProduct.getFileLocation())) {
+                return openedProduct;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -134,8 +132,8 @@ public class ReadOp extends Operator {
         ProductData dataBuffer = targetTile.getRawSamples();
         Rectangle rectangle = targetTile.getRectangle();
         try {
-            productReader.readBandRasterData(band, rectangle.x, rectangle.y, rectangle.width,
-                                             rectangle.height, dataBuffer, pm);
+            targetProduct.getProductReader().readBandRasterData(band, rectangle.x, rectangle.y, rectangle.width,
+                                                                rectangle.height, dataBuffer, pm);
             targetTile.setRawSamples(dataBuffer);
         } catch (IOException e) {
             throw new OperatorException(e);
@@ -143,6 +141,7 @@ public class ReadOp extends Operator {
     }
 
     public static class Spi extends OperatorSpi {
+
         public Spi() {
             super(ReadOp.class);
         }

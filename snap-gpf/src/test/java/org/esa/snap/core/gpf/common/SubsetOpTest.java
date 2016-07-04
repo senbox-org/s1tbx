@@ -79,8 +79,8 @@ public class SubsetOpTest {
 
         Product targetProduct = op.getTargetProduct();
         assertNotNull(targetProduct);
-        assertEquals(0, targetProduct.getSceneRasterWidth());
-        assertEquals(0, targetProduct.getSceneRasterHeight());
+        assertEquals(100, targetProduct.getSceneRasterWidth());
+        assertEquals(100, targetProduct.getSceneRasterHeight());
     }
 
     @Test

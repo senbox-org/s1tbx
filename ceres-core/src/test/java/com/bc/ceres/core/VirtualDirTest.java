@@ -16,7 +16,9 @@
 
 package com.bc.ceres.core;
 
-import org.junit.Test;
+import static org.junit.Assert.*;
+
+import org.junit.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -25,9 +27,40 @@ import java.io.LineNumberReader;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
-
 public class VirtualDirTest {
+
+    @Test
+    public void testNestedZip() throws Exception {
+        File zipFile = getTestDataDir("VirtualDirTestNested.zip");
+        final VirtualDir virtualDir = VirtualDir.create(zipFile);
+        assertNotNull(virtualDir);
+        try {
+            String[] allFileArray = virtualDir.listAllFiles();
+            assertNotNull(allFileArray);
+            List<String> allFiles = Arrays.asList(allFileArray);
+
+            assertEquals(6, allFiles.size());
+            assertTrue(allFiles.contains("dir1/File3"));
+            assertTrue(allFiles.contains("dir1/File4"));
+            assertTrue(allFiles.contains("dir1/dir3/File6"));
+            assertTrue(allFiles.contains("File1"));
+            assertTrue(allFiles.contains("File2"));
+            assertTrue(allFiles.contains("File5.gz"));
+
+            assertNotNull(virtualDir.getFile("File1"));
+            assertNotNull(virtualDir.getFile("File2"));
+            assertNotNull(virtualDir.getFile("File5.gz"));
+            assertNotNull(virtualDir.getFile("dir1"));
+            assertNotNull(virtualDir.getFile("dir1/"));
+            assertNotNull(virtualDir.getFile("dir1/dir3"));
+            assertNotNull(virtualDir.getFile("dir2"));
+            assertNotNull(virtualDir.getFile("dir1/File3"));
+            assertNotNull(virtualDir.getFile("dir1/File4"));
+            assertNotNull(virtualDir.getFile("dir1/dir3/File6"));
+        } finally {
+            virtualDir.close();
+        }
+    }
 
     @Test
     public void testZip() throws IOException {
@@ -139,11 +172,8 @@ public class VirtualDirTest {
             assertFalse(virtualDir.exists("nonExistentFile"));
 
             assertEquals(36, virtualDir.getFile("File5.gz").length());
-            LineNumberReader reader = new LineNumberReader(virtualDir.getReader("File5.gz"));
-            try {
+            try (LineNumberReader reader = new LineNumberReader(virtualDir.getReader("File5.gz"))) {
                 assertEquals("Norman was was was here!", reader.readLine());
-            } finally {
-                reader.close();
             }
 
             List<String> dirNames = Arrays.asList(virtualDir.list("."));
@@ -196,6 +226,16 @@ public class VirtualDirTest {
             } catch (FileNotFoundException ignored) {
                 // ok
             }
+
+            String[] allFileArray = virtualDir.listAllFiles();
+            assertNotNull(allFileArray);
+            List<String> allFiles = Arrays.asList(allFileArray);
+            assertEquals(5, allFiles.size());
+            assertTrue(allFiles.contains("dir1/File3"));
+            assertTrue(allFiles.contains("dir1/File4"));
+            assertTrue(allFiles.contains("File1"));
+            assertTrue(allFiles.contains("File2"));
+            assertTrue(allFiles.contains("File5.gz"));
         } finally {
             virtualDir.close();
         }
