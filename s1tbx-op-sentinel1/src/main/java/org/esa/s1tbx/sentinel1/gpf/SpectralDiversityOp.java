@@ -335,8 +335,6 @@ public class SpectralDiversityOp extends Operator {
         final int y0 = targetRectangle.y;
         final int w = targetRectangle.width;
         final int h = targetRectangle.height;
-        final int xMax = x0 + w;
-        final int yMax = y0 + h;
 
         try {
             if (!isRangeOffsetAvailable) {
@@ -366,6 +364,7 @@ public class SpectralDiversityOp extends Operator {
 
             // Perform range shift
 
+            final float noDataValue = (float)slvBandI.getNoDataValue();
             final Tile slvTileI = getSourceTile(slvBandI, targetRectangle);
             final Tile slvTileQ = getSourceTile(slvBandQ, targetRectangle);
             final float[] slvArrayI = (float[]) slvTileI.getDataBuffer().getElems();
@@ -450,13 +449,15 @@ public class SpectralDiversityOp extends Operator {
                 col_fft.complexInverse(col2, true);
 
                 for (int r = 0; r < h; r++) {
-                    int r2 = r * 2;
-                    final int y = y0 + r;
-                    final double cosPhase = FastMath.cos(col2[r2]);
-                    final double sinPhase = FastMath.sin(col2[r2]);
-                    final int idx = tgtTileI.getDataBufferIndex(x, y);
-                    tgtDataI.setElemDoubleAt(idx, col1[r2] * cosPhase + col1[r2 + 1] * sinPhase);
-                    tgtDataQ.setElemDoubleAt(idx, -col1[r2] * sinPhase + col1[r2 + 1] * cosPhase);
+                    if (slvArrayI[r*w + c] != noDataValue) {
+                        int r2 = r * 2;
+                        final int y = y0 + r;
+                        final double cosPhase = FastMath.cos(col2[r2]);
+                        final double sinPhase = FastMath.sin(col2[r2]);
+                        final int idx = tgtTileI.getDataBufferIndex(x, y);
+                        tgtDataI.setElemDoubleAt(idx, col1[r2] * cosPhase + col1[r2 + 1] * sinPhase);
+                        tgtDataQ.setElemDoubleAt(idx, -col1[r2] * sinPhase + col1[r2 + 1] * cosPhase);
+                    }
                 }
             }
 
