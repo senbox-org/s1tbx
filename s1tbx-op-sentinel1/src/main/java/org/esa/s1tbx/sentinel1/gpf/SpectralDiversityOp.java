@@ -38,7 +38,6 @@ import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
-import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
@@ -411,7 +410,7 @@ public class SpectralDiversityOp extends Operator {
                 final double azShift = azOffsetArray.get(i);
                 final double rgShift = rgOffsetArray.get(i);
 
-                SystemUtils.LOG.info("RangeShiftOp: burst = " + burstIndexArray.get(i) + ", range offset = " + rgShift
+                SystemUtils.LOG.fine("RangeShiftOp: burst = " + burstIndexArray.get(i) + ", range offset = " + rgShift
                                              + ", azimuth offset = " + azShift);
 
                 if (azShift == noDataValue || rgShift == noDataValue) {
@@ -438,8 +437,8 @@ public class SpectralDiversityOp extends Operator {
 
             saveRangeShiftPerBurst(rgOffsetArray, burstIndexArray);
 
-            SystemUtils.LOG.info("RangeShiftOp: whole image azimuth offset = " + azOffset);
-            SystemUtils.LOG.info("RangeShiftOp: Overall range shift = " + rgOffset);
+            SystemUtils.LOG.fine("RangeShiftOp: whole image azimuth offset = " + azOffset);
+            SystemUtils.LOG.fine("RangeShiftOp: Overall range shift = " + rgOffset);
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("estimateOffset", e);
@@ -599,12 +598,12 @@ public class SpectralDiversityOp extends Operator {
                 averagedAzShiftArray[i] = sumAzOffset / numBlocksPerOverlap;
                 totalOffset += sumAzOffset;
 
-                SystemUtils.LOG.info(
+                SystemUtils.LOG.fine(
                         "AzimuthShiftOp: overlap area = " + i + ", azimuth offset = " + averagedAzShiftArray[i]);
             }
 
             azOffset = -totalOffset / numShifts;
-            SystemUtils.LOG.info("AzimuthShiftOp: Overall azimuth shift = " + azOffset);
+            SystemUtils.LOG.fine("AzimuthShiftOp: Overall azimuth shift = " + azOffset);
 
             saveOverallAzimuthShift(azOffset);
 
