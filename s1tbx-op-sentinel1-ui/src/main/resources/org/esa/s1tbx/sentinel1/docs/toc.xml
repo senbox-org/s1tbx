@@ -12,6 +12,10 @@
                     <tocitem text="Range Shift" target="RangeShiftOp"/>
                     <tocitem text="Azimuth Shift" target="AzimuthShiftOp"/>
                     <tocitem text="Spectral Diversity" target="SpectralDiversityOp"/>
+                </tocitem>
+            </tocitem>
+            <tocitem text="Interferometric" mergetype="javax.help.SortMerge">
+                <tocitem text="Products">
                     <tocitem text="Double Difference Interferogram" target="DoubleDifferenceInterferogramOp"/>
                 </tocitem>
             </tocitem>

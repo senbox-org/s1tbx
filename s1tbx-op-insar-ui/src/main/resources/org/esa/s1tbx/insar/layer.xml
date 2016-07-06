@@ -123,7 +123,7 @@
             <file name="org-esa-s1tbx-insar-gpf-IntegerInterferogram-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
-                <attr name="displayName" stringvalue="Integer Interferogram"/>
+                <attr name="displayName" stringvalue="Integer Interferogram Combination"/>
                 <attr name="graphFile" stringvalue="coregistration/IntegerInterferogramGraph.xml"/>
                 <attr name="dialogTitle" stringvalue="Integer Interferogram Combination"/>
                 <attr name="ShortDescription" stringvalue="Integer Interferogram Combination"/>
