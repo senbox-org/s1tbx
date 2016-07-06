@@ -2,7 +2,7 @@
 
 ###Bugs fixed 
 
-https://senbox.atlassian.net/issues/?filter=11600
+https://senbox.atlassian.net/secure/ReleaseNote.jspa?projectId=10202&version=11504
 
 ###New Features and Important Changes
 * Support for S1B
