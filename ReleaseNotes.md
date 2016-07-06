@@ -1,4 +1,4 @@
-#New since S1TBX 4.0
+#New in S1TBX 4.0
 
 ###Bugs fixed 
 
@@ -11,6 +11,7 @@ https://senbox.atlassian.net/secure/ReleaseNote.jspa?projectId=10202&version=115
 * Integer interferogram combination
 * Double different interferogram within the burst overlap
 * Improved offset tracking interpolation
+* SeaSat reader
 
 
 #New in S1TBX 3.0
