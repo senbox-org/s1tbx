@@ -1,4 +1,4 @@
-#New since SNAP 4.0
+#New since S1TBX 4.0
 
 ###Bugs fixed 
 
