@@ -36,6 +36,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -128,7 +130,10 @@ public abstract class XMLProductDirectory {
             listing = null;
         }
         if (listing != null) {
-            for (String fileName : listing) {
+            final List<String> sortedList = Arrays.asList(listing);
+            Collections.sort(sortedList);
+
+            for (String fileName : sortedList) {
                 addImageFile(parentPath + fileName, newRoot);
             }
         }
@@ -206,8 +211,11 @@ public abstract class XMLProductDirectory {
     public String[] listFiles(final String path) throws IOException {
         try {
             final String[] listing = productDir.list(path);
+            final List<String> sortedList = Arrays.asList(listing);
+            Collections.sort(sortedList);
+
             final List<String> files = new ArrayList<>(listing.length);
-            for (String listEntry : listing) {
+            for (String listEntry : sortedList) {
                 if (!isDirectory(path + '/' + listEntry)) {
                     files.add(listEntry);
                 }
