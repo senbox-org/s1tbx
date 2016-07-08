@@ -19,6 +19,8 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.runtime.ConfigurableExtension;
 import com.bc.ceres.core.runtime.ConfigurationElement;
+import org.esa.snap.core.dataop.barithm.BandArithmetic;
+import org.esa.snap.core.jexp.ParseException;
 import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.io.FileUtils;
 
@@ -257,6 +259,16 @@ public class RGBImageProfile implements ConfigurableExtension {
                 }
             }
         }
+
+        //check if raster size is the same in all the expressions
+        try {
+            if(!BandArithmetic.areRastersEqualInSize(product, expressions)) {
+                return false;
+            }
+        } catch (ParseException e) {
+            return false;
+        }
+
         return true;
     }
 
