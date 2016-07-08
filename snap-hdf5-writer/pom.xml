@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.esa.snap</groupId>
         <artifactId>snap-engine</artifactId>
-        <version>4.0.0</version>
+        <version>5.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>snap-hdf5-writer</artifactId>
