@@ -49,17 +49,18 @@ import java.util.Map;
  */
 public class SARSimulationOpUI extends BaseOperatorUI {
 
-    private final JList bandList = new JList();
+    private final JList<String> bandList = new JList();
     private final JComboBox<String> demName = new JComboBox<>(DEMFactory.getDEMNameList());
     private static final String externalDEMStr = "External DEM";
 
-    private final JComboBox demResamplingMethod = new JComboBox<>(ResamplingFactory.resamplingNames);
+    private final JComboBox<String> demResamplingMethod = new JComboBox<>(ResamplingFactory.resamplingNames);
 
     private final JTextField externalDEMFile = new JTextField("");
     private final JTextField externalDEMNoDataValue = new JTextField("");
     private final JButton externalDEMBrowseButton = new JButton("...");
     private final JLabel externalDEMFileLabel = new JLabel("External DEM:");
     private final JLabel externalDEMNoDataValueLabel = new JLabel("DEM No Data Value:");
+    private final JCheckBox externalDEMApplyEGMCheckBox = new JCheckBox("Apply Earth Gravitational Model");
     private final JCheckBox reGridMethodCheckBox = new JCheckBox("Re-grid method (slower)");
     private final JCheckBox orbitMethodCheckBox = new JCheckBox("Orbit method");
     private final JCheckBox saveDEMCheckBox = new JCheckBox("Save DEM band");
@@ -74,6 +75,7 @@ public class SARSimulationOpUI extends BaseOperatorUI {
     private Boolean saveZeroHeightSimulation = false;
     private Boolean saveLocalIncidenceAngle = false;
     private Boolean saveLayoverShadowMask = false;
+    private Boolean externalDEMApplyEGM = true;
     private Double extNoDataValue = 0.0;
 
     private final DialogUtils.TextAreaKeyListener textAreaKeyListener = new DialogUtils.TextAreaKeyListener();
@@ -107,6 +109,11 @@ public class SARSimulationOpUI extends BaseOperatorUI {
                 externalDEMFile.setText(file.getAbsolutePath());
                 extNoDataValue = OperatorUIUtils.getNoDataValue(file);
                 externalDEMNoDataValue.setText(String.valueOf(extNoDataValue));
+            }
+        });
+        externalDEMApplyEGMCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                externalDEMApplyEGM = (e.getStateChange() == ItemEvent.SELECTED);
             }
         });
 
@@ -169,6 +176,11 @@ public class SARSimulationOpUI extends BaseOperatorUI {
             if (extNoDataValue != null && !textAreaKeyListener.isChangedByUser()) {
                 externalDEMNoDataValue.setText(String.valueOf(extNoDataValue));
             }
+            Boolean paramVal = (Boolean) paramMap.get("externalDEMApplyEGM");
+            if (paramVal != null) {
+                externalDEMApplyEGM = paramVal;
+                externalDEMApplyEGMCheckBox.setSelected(externalDEMApplyEGM);
+            }
         }
 
         isSARSimTC = (Boolean) paramMap.get("isSARSimTC");
@@ -217,6 +229,7 @@ public class SARSimulationOpUI extends BaseOperatorUI {
         if (!extFileStr.isEmpty()) {
             paramMap.put("externalDEMFile", new File(extFileStr));
             paramMap.put("externalDEMNoDataValue", Double.parseDouble(externalDEMNoDataValue.getText()));
+            paramMap.put("externalDEMApplyEGM", externalDEMApplyEGM);
         }
 
         if (!isSARSimTC) {
@@ -248,6 +261,10 @@ public class SARSimulationOpUI extends BaseOperatorUI {
         contentPane.add(externalDEMBrowseButton, gbc);
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, externalDEMNoDataValueLabel, externalDEMNoDataValue);
+        gbc.gridy++;
+        gbc.gridx = 1;
+        contentPane.add(externalDEMApplyEGMCheckBox, gbc);
+        gbc.gridx = 0;
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, "DEM Resampling Method:", demResamplingMethod);
 
@@ -283,5 +300,6 @@ public class SARSimulationOpUI extends BaseOperatorUI {
         DialogUtils.enableComponents(externalDEMFileLabel, externalDEMFile, flag);
         DialogUtils.enableComponents(externalDEMNoDataValueLabel, externalDEMNoDataValue, flag);
         externalDEMBrowseButton.setVisible(flag);
+        externalDEMApplyEGMCheckBox.setVisible(flag);
     }
 }
