@@ -160,7 +160,7 @@ public class FreemanDurden extends DecompositionBase implements Decomposition {
         c33 = Cr[2][2] - fv * 3.0 / 8.0;
         final double a1 = c11 * c33;
 
-        if (Math.abs(c11) <= Constants.EPS || Math.abs(c33) <= Constants.EPS) {
+        if (c11 <= Constants.EPS || c33 <= Constants.EPS) {
             fs = 0.0;
             fd = 0.0;
             alphaRe = 0.0;
