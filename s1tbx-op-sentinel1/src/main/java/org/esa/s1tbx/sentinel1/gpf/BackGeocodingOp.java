@@ -603,6 +603,8 @@ public final class BackGeocodingOp extends Operator {
                                        final double[] extendedAmount)
             throws Exception {
 
+        final EarthGravitationalModel96 egm = EarthGravitationalModel96.instance();
+
         final GeoPos geoPos = new GeoPos();
         final PositionData posData = new PositionData();
         double azExtendedAmountMax = -Double.MAX_VALUE;
@@ -619,9 +621,9 @@ public final class BackGeocodingOp extends Operator {
                 final double lat = mSU.getLatitude(azTime, rgTime, subSwathIndex);
                 final double lon = mSU.getLongitude(azTime, rgTime, subSwathIndex);
                 geoPos.setLocation(lat, lon);
-                final double alt = dem.getElevation(geoPos);
+                double alt = dem.getElevation(geoPos);
                 if (alt == demNoDataValue) {
-                    continue;
+                    alt = egm.getEGM(lat, lon);
                 }
 
                 GeoUtils.geo2xyzWGS84(geoPos.getLat(), geoPos.getLon(), alt, posData.earthPoint);

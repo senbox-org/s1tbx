@@ -48,13 +48,11 @@ import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.dem.dataio.DEMFactory;
 import org.esa.snap.dem.dataio.EarthGravitationalModel96;
 import org.esa.snap.dem.dataio.FileElevationModel;
-import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
-import org.esa.snap.engine_utilities.datamodel.OrbitStateVector;
-import org.esa.snap.engine_utilities.datamodel.PosVector;
-import org.esa.snap.engine_utilities.datamodel.ProductInformation;
+import org.esa.snap.engine_utilities.datamodel.*;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.eo.GeoUtils;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
+import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.jlinda.core.delaunay.FastDelaunayTriangulator;
@@ -268,6 +266,11 @@ public final class DEMAssistedCoregistrationOp extends Operator {
 
             final Band targetBand = ProductUtils.copyBand(
                     bandName, masterProduct, bandName + mstSuffix, targetProduct, true);
+
+            if(targetBand.getUnit().equals(Unit.IMAGINARY)) {
+                int idx = targetProduct.getBandIndex(targetBand.getName());
+                ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBandAt(idx - 1), targetBand, mstSuffix);
+            }
         }
 
         final Band masterBand = masterProduct.getBand(masterBandNames[0]);
@@ -297,6 +300,11 @@ public final class DEMAssistedCoregistrationOp extends Operator {
                 targetBand.setDescription(srcBand.getDescription());
                 targetProduct.addBand(targetBand);
                 targetBandToSlaveBandMap.put(targetBand, srcBand);
+
+                if(targetBand.getUnit().equals(Unit.IMAGINARY)) {
+                    int idx = targetProduct.getBandIndex(targetBand.getName());
+                    ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBandAt(idx-1), targetBand, slvSuffix);
+                }
             }
 
             copySlaveMetadata(slaveProduct);

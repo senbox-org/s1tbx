@@ -480,13 +480,18 @@ public abstract class CEOSProductDirectory {
             name = name.toUpperCase();
             for (String prefix : prefixList) {
                 if (name.startsWith(prefix) || name.endsWith('.' + prefix)) {
-                    ImageInputStream stream;
-                    if(productDir.isCompressed()) {
-                        stream = new MemoryCacheImageInputStream(productDir.getInputStream(folder + name));
-                    } else {
-                        stream = new FileImageInputStreamExtImpl(productDir.getFile(folder + name));
+                    try {
+                        ImageInputStream stream;
+                        if (productDir.isCompressed()) {
+                            stream = new MemoryCacheImageInputStream(productDir.getInputStream(folder + name));
+                        } else {
+                            stream = new FileImageInputStreamExtImpl(productDir.getFile(folder + name));
+                        }
+                        list.add(new CeosFile(stream, name));
+                    } catch (Exception e) {
+                        SystemUtils.LOG.info(folder + name + " not found");
+                        return null;
                     }
-                    list.add(new CeosFile(stream, name));
                 }
             }
         }

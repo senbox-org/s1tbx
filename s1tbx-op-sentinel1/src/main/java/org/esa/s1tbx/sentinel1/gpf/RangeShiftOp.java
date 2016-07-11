@@ -73,7 +73,7 @@ public class RangeShiftOp extends Operator {
     private String fineWinWidthStr = "512";
 
     @Parameter(valueSet = {"32", "64", "128","256", "512", "1024", "2048"}, defaultValue = "512",
-            label = "Registration Window Width")
+            label = "Registration Window Height")
     private String fineWinHeightStr = "512";
 
     @Parameter(valueSet = {"2", "4", "8", "16", "32", "64"}, defaultValue = "16",

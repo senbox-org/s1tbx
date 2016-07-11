@@ -128,6 +128,9 @@ public final class SARSimulationOp extends Operator {
     @Parameter(label = "DEM No Data Value", defaultValue = "0")
     private double externalDEMNoDataValue = 0;
 
+    @Parameter(label = "External DEM Apply EGM", defaultValue = "true")
+    private Boolean externalDEMApplyEGM = true;
+
     //@Parameter(defaultValue="false", label="Simulate for SARSimTC")
     boolean isSARSimTC = true;                                    // disable extra options int the UI for SARSimTC
 
@@ -295,6 +298,7 @@ public final class SARSimulationOp extends Operator {
             if (externalDEMFile != null) { // if external DEM file is specified by user
 
                 dem = new FileElevationModel(externalDEMFile, demResamplingMethod, externalDEMNoDataValue);
+                ((FileElevationModel)dem).applyEarthGravitionalModel(externalDEMApplyEGM);
                 demNoDataValue = externalDEMNoDataValue;
                 demName = externalDEMFile.getPath();
 

@@ -18,12 +18,12 @@
                     <tocitem text="Stack Averaging" target="StackAveragingOp"/>
                     <tocitem text="Stack Split" target="StackSplitOp"/>
                 </tocitem>
-                <tocitem text="Offset/Speckle Tracking" target="OffsetTrackingOp"/>
             </tocitem>
             <tocitem text="Interferometric">
                 <tocitem text="Products">
                     <tocitem text="Phase to Displacement" target="PhaseToDisplacementOp"/>
                     <tocitem text="Phase to Elevation" target="PhaseToElevationOp"/>
+                    <tocitem text="Integer Interferogram Combination" target="IntegerInterferogramOp"/>
                 </tocitem>
                 <tocitem text="Filtering">
                     <tocitem text="Goldstein Phase Filtering" target="GoldsteinFilterOp"/>
@@ -39,6 +39,9 @@
                     <tocitem text="Baselines" target="StatBaselines"/>
                     <tocitem text="Baselines Chart" target="StatBaselinesChart"/>
                 </tocitem>
+            </tocitem>
+            <tocitem text="SAR Applications">
+                <tocitem text="Offset/Speckle Tracking" target="OffsetTrackingOp"/>
             </tocitem>
         </tocitem>
     </tocitem>

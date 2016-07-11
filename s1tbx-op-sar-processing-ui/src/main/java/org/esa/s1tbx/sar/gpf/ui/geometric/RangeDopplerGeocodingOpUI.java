@@ -61,7 +61,7 @@ import java.util.Map;
  */
 public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
 
-    private final JList bandList = new JList();
+    private final JList<String> bandList = new JList();
     private final JComboBox<String> demName = new JComboBox<>(DEMFactory.getDEMNameList());
 
     private static final String externalDEMStr = "External DEM";
@@ -70,15 +70,15 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
 
     final JComboBox<String> imgResamplingMethod = new JComboBox<>(ResamplingFactory.resamplingNames);
 
-    final JComboBox incidenceAngleForGamma0 = new JComboBox<>(new String[]{Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM,
+    final JComboBox<String> incidenceAngleForGamma0 = new JComboBox<>(new String[]{Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM,
             Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM,
             Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID});
 
-    final JComboBox incidenceAngleForSigma0 = new JComboBox<>(new String[]{Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM,
+    final JComboBox<String> incidenceAngleForSigma0 = new JComboBox<>(new String[]{Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM,
             Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM,
             Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID});
 
-    final JComboBox auxFile = new JComboBox<>(new String[]{CalibrationOp.LATEST_AUX,
+    final JComboBox<String> auxFile = new JComboBox<>(new String[]{CalibrationOp.LATEST_AUX,
             CalibrationOp.PRODUCT_AUX,
             CalibrationOp.EXTERNAL_AUX});
 
@@ -89,6 +89,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
     private final JButton externalDEMBrowseButton = new JButton("...");
     private final JLabel externalDEMFileLabel = new JLabel("External DEM:");
     private final JLabel externalDEMNoDataValueLabel = new JLabel("External DEM No Data Value:");
+    private final JCheckBox externalDEMApplyEGMCheckBox = new JCheckBox("Apply Earth Gravitational Model");
     final JLabel sourcePixelSpacingsLabelPart1 = new JLabel("Source GR Pixel Spacings (az x rg):");
     final JLabel sourcePixelSpacingsLabelPart2 = new JLabel("0.0(m) x 0.0(m)");
 
@@ -122,6 +123,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
     private Boolean saveBetaNought = false;
     private Boolean saveGammaNought = false;
     private Boolean saveSigmaNought = false;
+    private Boolean externalDEMApplyEGM = true;
     private Double extNoDataValue = 0.0;
     private Double azimuthPixelSpacing = 0.0;
     private Double rangePixelSpacing = 0.0;
@@ -182,6 +184,11 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
                 externalDEMFile.setText(file.getAbsolutePath());
                 extNoDataValue = OperatorUIUtils.getNoDataValue(file);
                 externalDEMNoDataValue.setText(String.valueOf(extNoDataValue));
+            }
+        });
+        externalDEMApplyEGMCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                externalDEMApplyEGM = (e.getStateChange() == ItemEvent.SELECTED);
             }
         });
 
@@ -395,8 +402,14 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
         if (extDEMFile != null) {
             externalDEMFile.setText(extDEMFile.getAbsolutePath());
             extNoDataValue = (Double) paramMap.get("externalDEMNoDataValue");
-            if (extNoDataValue != null)
+            if (extNoDataValue != null) {
                 externalDEMNoDataValue.setText(String.valueOf(extNoDataValue));
+            }
+            Boolean paramVal = (Boolean) paramMap.get("externalDEMApplyEGM");
+            if (paramVal != null) {
+                externalDEMApplyEGM = paramVal;
+                externalDEMApplyEGMCheckBox.setSelected(externalDEMApplyEGM);
+            }
         }
 
         Boolean paramVal;
@@ -573,6 +586,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
             String extFileStr = externalDEMFile.getText();
             paramMap.put("externalDEMFile", new File(extFileStr));
             paramMap.put("externalDEMNoDataValue", Double.parseDouble(externalDEMNoDataValue.getText()));
+            paramMap.put("externalDEMApplyEGM", externalDEMApplyEGM);
         }
 
         if (mapProjHandler.getCRS() != null) {
@@ -624,6 +638,10 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
 
             gbc.gridy++;
             DialogUtils.addComponent(contentPane, gbc, externalDEMNoDataValueLabel, externalDEMNoDataValue);
+            gbc.gridy++;
+            gbc.gridx = 1;
+            contentPane.add(externalDEMApplyEGMCheckBox, gbc);
+            gbc.gridx = 0;
             gbc.gridy++;
             DialogUtils.addComponent(contentPane, gbc, "DEM Resampling Method:", demResamplingMethod);
             gbc.gridy++;
@@ -718,6 +736,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
             externalDEMFile.setText("");
         }
         externalDEMBrowseButton.setVisible(flag);
+        externalDEMApplyEGMCheckBox.setVisible(flag);
     }
 
     private void enableExternalAuxFile(boolean flag) {

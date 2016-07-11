@@ -1,3 +1,19 @@
+#New in S1TBX 4.0
+
+###Bugs fixed 
+
+https://senbox.atlassian.net/secure/ReleaseNote.jspa?projectId=10202&version=11504
+
+###New Features and Important Changes
+* Support for S1B
+* Supervised Classification - Random Forest, KNN, Maximum Likelihood, Minimum Distance
+* Correction to precise orbits which caused phase jumps
+* Integer interferogram combination
+* Double different interferogram within the burst overlap
+* Improved offset tracking interpolation
+* SeaSat reader
+
+
 #New in S1TBX 3.0
 
 ###Bugs fixed 

@@ -4,6 +4,7 @@
 
 
 
+
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <link rel="stylesheet" href="../style.css"></head><body>
 <table class="header">
@@ -15,7 +16,8 @@
 </tr>
 </tbody>
 </table>
-<h3>Sentinel-1 Range Shift</h3>
+<h3>Sentinel-1 Enhanced Spectral Diversity<br>
+</h3>
 <p class="MsoNormal"><span>This opaerator follows the Backgeocoding
 operator in the TOPS InSAR processing chain. It first estimates a
 constant range offset for the whole sub-swath of the split S-1 SLC
@@ -24,11 +26,18 @@ each burst using a small block of data in the center of the burst. The
 estimates from all bursts are then averaged to get the final constant
 offset for the whole image.<br>
 </span></p>
-<p class="MsoNormal"><span>The operator then performs shift in range
-direction for every burst using the offset computed above with a phase
+<p class="MsoNormal"><span>The operator then estimates a constant
+azimuth offset for the whole sub-swath using a Enhanced Spectral
+Diversity (ESD) method. The ESD
+approach exploits the data at the overlapped area of the adjacent
+bursts. The estimation is done for every overlapped area and the final
+azimuth offset is obtained by averaging all the estimations.<br>
+</span>
+</p>
+<p class="MsoNormal"><span>Finally, the operator then performs range and azimuth
+shift for every burst using the range and azimuth offsets computed above with a phase
 ramp method in frequency domain</span>.<br>
 <span style=""><o:p></o:p></span></p>
- 
 <h4>Input <br>
 </h4>
 
@@ -65,17 +74,39 @@ range direction. <br>
 
 
 <ul>
-<li>Registration Window Size: Dimension of the sub-set of image used
+  <li>Registration Window Width: Width of the sub-set of image used
+for cross-correlation. <br>
+  </li>
+  <li>Registration Window Height: Height of the sub-set of image used
 for cross-correlation. Larger window generally implies accurate
 estimation of the range shift and also means larger memory and longer
-processing time.<br>
-</li>
-  <li>Interpolation Factor: The factor for up sampling the sub-set of image before applying cross-correlation. The larger the factor, the better the achievable accuracy, and the larger the computation cost.<br>
+processing time.</li>
+  <li>Search Window Accuracy in Azimuth Direction: The search accuracy
+in azimuth direction for the maximum correlation. The search window
+height is 2*Acc.</li>
+  <li>Search
+Window Accuracy in Range Direction: The search accuracy in range
+direction for the maximum correlation. The search window width is
+2*Acc. .</li>
+  <li>Window Oversampling Factor: The oversampling factor for the
+search window. The larger the factor, the better the achievable
+accuracy, and the larger the computation cost.<br>
   </li>
-  <li>Max Iterations: The maximum number of iterations for performing
-the cross-correlation in computing the range shift. Again larger number
-means better result and longer processing time.<br>
+  <li>Cross-Correlation Threshold: Threshold
+for normalized cross-correlation value. If the cross-correlation value
+is greater than the threshold, then the estimated range offset is
+considered valid, otherwise invalid.</li>
+  <li>Coherence Threshold for Outlier Removal: <br>
+  </li>
+  <li>Number of Windows Per Overlap for ESD: The number of windows for azimuth offset estimation using ESD for each overlap area.</li>
+  <li>Use User supplied shifts: If the checkbox is selected, then user
+supplied azimuth and range offsets will be used in shifting the image.
+No cross-correlation or ESD will be performed to estimate the offsets.</li>
+  <li>The overall azimuth shift: The user provided azimuth offset. <br>
+  </li>
+  <li>The overall range shift: The user provided range offset. <br>
   </li>
 </ul>
-<img src="file:///C:/Users/junlu/AppData/Local/Temp/moz-screenshot-16.jpg" alt="">
+<img style="width: 450px; height: 450px;" alt="" src="images/ESD.jpg"><br>
+
 <hr></body></html>

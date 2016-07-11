@@ -38,7 +38,6 @@ import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
-import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
@@ -135,10 +134,7 @@ public class SpectralDiversityOp extends Operator {
     private Sentinel1Utils su;
     private Sentinel1Utils.SubSwathInfo[] subSwath = null;
     private int subSwathIndex = 0;
-    private Band mstBandI = null;
-    private Band mstBandQ = null;
-    private Band slvBandI = null;
-    private Band slvBandQ = null;
+    private Band derampDemodPhaseBand = null;
 
     private String swathIndexStr = null;
     private String[] subSwathNames = null;
@@ -213,11 +209,6 @@ public class SpectralDiversityOp extends Operator {
                     throw new OperatorException("Registration window height should not be grater than burst height " +
                             subSwath[subSwathIndex - 1].linesPerBurst);
                 }
-
-                mstBandI = getSourceBand(StackUtils.MST, Unit.REAL);
-                mstBandQ = getSourceBand(StackUtils.MST, Unit.IMAGINARY);
-                slvBandI = getSourceBand(StackUtils.SLV, Unit.REAL);
-                slvBandQ = getSourceBand(StackUtils.SLV, Unit.IMAGINARY);
             }
 
             createTargetProduct();
@@ -266,6 +257,9 @@ public class SpectralDiversityOp extends Operator {
             Band targetBand;
             if (srcBandName.contains(StackUtils.MST) || srcBandName.contains("derampDemod")) {
                 targetBand = ProductUtils.copyBand(srcBandName, sourceProduct, srcBandName, targetProduct, true);
+                if (srcBandName.contains("derampDemod")) {
+                    derampDemodPhaseBand = sourceProduct.getBand(srcBandName);
+                }
             } else if (srcBandName.contains("azOffset") || srcBandName.contains("rgOffset")) {
                 continue;
             } else {
@@ -335,8 +329,6 @@ public class SpectralDiversityOp extends Operator {
         final int y0 = targetRectangle.y;
         final int w = targetRectangle.width;
         final int h = targetRectangle.height;
-        final int xMax = x0 + w;
-        final int yMax = y0 + h;
 
         try {
             if (!isRangeOffsetAvailable) {
@@ -347,117 +339,11 @@ public class SpectralDiversityOp extends Operator {
             }
 
             // perform range and azimuth shift using FFT
-            Band slvBandI = null, slvBandQ = null;
-            Band tgtBandI = null, tgtBandQ = null;
-            Band derampDemodPhaseBand = null;
-            final String[] bandNames = sourceProduct.getBandNames();
-            for (String bandName : bandNames) {
-                if (bandName.contains("i_") && bandName.contains(StackUtils.SLV)) {
-                    slvBandI = sourceProduct.getBand(bandName);
-                    tgtBandI = targetProduct.getBand(bandName);
-                } else if (bandName.contains("q_") && bandName.contains(StackUtils.SLV)) {
-                    slvBandQ = sourceProduct.getBand(bandName);
-                    tgtBandQ = targetProduct.getBand(bandName);
-                }
-                if (bandName.contains(DerampDemodPhase)) {
-                    derampDemodPhaseBand = sourceProduct.getBand(bandName);
-                }
-            }
+            for(String polarization : polarizations) {
+                final Band sBandI = getBand(StackUtils.SLV, "i_", swathIndexStr, polarization);
+                final Band sBandQ = getBand(StackUtils.SLV, "q_", swathIndexStr, polarization);
 
-            // Perform range shift
-
-            final Tile slvTileI = getSourceTile(slvBandI, targetRectangle);
-            final Tile slvTileQ = getSourceTile(slvBandQ, targetRectangle);
-            final float[] slvArrayI = (float[]) slvTileI.getDataBuffer().getElems();
-            final float[] slvArrayQ = (float[]) slvTileQ.getDataBuffer().getElems();
-
-            final double[] line = new double[2*w];
-            final double[] phaseRg = new double[2*w];
-            final DoubleFFT_1D row_fft = new DoubleFFT_1D(w);
-            final double[][] rangeShiftedI = new double[h][w];
-            final double[][] rangeShiftedQ = new double[h][w];
-
-            computeShiftPhaseArray(rgOffset, w, phaseRg);
-
-            for (int r = 0; r < h; r++) {
-                final int rw = r * w;
-                for (int c = 0; c < w; c++) {
-                    int c2 = c * 2;
-                    line[c2] = slvArrayI[rw + c];
-                    line[c2 + 1] = slvArrayQ[rw + c];
-                }
-
-                row_fft.complexForward(line);
-
-                multiplySpectrumByShiftFactor(line, phaseRg);
-
-                row_fft.complexInverse(line, true);
-
-                for (int c = 0; c < w; c++) {
-                    int c2 = c * 2;
-                    rangeShiftedI[r][c] = line[c2];
-                    rangeShiftedQ[r][c] = line[c2 + 1];
-                }
-            }
-
-            // Perform azimuth Shift
-
-            // get deramp/demodulation phase and perform deramp and demodulation
-            final double[] derampDemodPhase = getSourceData(derampDemodPhaseBand, targetRectangle);
-            final double[][] derampDemodI = new double[h][w];
-            final double[][] derampDemodQ = new double[h][w];
-            for (int r = 0; r < h; r++) {
-                final int rw = r * w;
-                for (int c = 0; c < w; c++) {
-                    final double cosPhase = FastMath.cos(derampDemodPhase[rw + c]);
-                    final double sinPhase = FastMath.sin(derampDemodPhase[rw + c]);
-                    derampDemodI[r][c] = rangeShiftedI[r][c]*cosPhase - rangeShiftedQ[r][c]*sinPhase;
-                    derampDemodQ[r][c] = rangeShiftedI[r][c]*sinPhase + rangeShiftedQ[r][c]*cosPhase;
-                }
-            }
-
-            // compute shift phase
-            final double[] phaseAz = new double[2*h];
-            computeShiftPhaseArray(azOffset, h, phaseAz);
-
-            // perform azimuth shift using FFT, and perform reramp and remodulation
-            final Tile tgtTileI = targetTileMap.get(tgtBandI);
-            final Tile tgtTileQ = targetTileMap.get(tgtBandQ);
-            final ProductData tgtDataI = tgtTileI.getDataBuffer();
-            final ProductData tgtDataQ = tgtTileQ.getDataBuffer();
-
-            final double[] col1 = new double[2 * h];
-            final double[] col2 = new double[2 * h];
-            final DoubleFFT_1D col_fft = new DoubleFFT_1D(h);
-            for (int c = 0; c < w; c++) {
-                final int x = x0 + c;
-                for (int r = 0; r < h; r++) {
-                    int r2 = r * 2;
-                    col1[r2] = derampDemodI[r][c];
-                    col1[r2 + 1] = derampDemodQ[r][c];
-
-                    col2[r2] = derampDemodPhase[r*w + c];
-                    col2[r2 + 1] = 0.0;
-                }
-
-                col_fft.complexForward(col1);
-                col_fft.complexForward(col2);
-
-                multiplySpectrumByShiftFactor(col1, phaseAz);
-                multiplySpectrumByShiftFactor(col2, phaseAz);
-
-                col_fft.complexInverse(col1, true);
-                col_fft.complexInverse(col2, true);
-
-                for (int r = 0; r < h; r++) {
-                    int r2 = r * 2;
-                    final int y = y0 + r;
-                    final double cosPhase = FastMath.cos(col2[r2]);
-                    final double sinPhase = FastMath.sin(col2[r2]);
-                    final int idx = tgtTileI.getDataBufferIndex(x, y);
-                    tgtDataI.setElemDoubleAt(idx, col1[r2] * cosPhase + col1[r2 + 1] * sinPhase);
-                    tgtDataQ.setElemDoubleAt(idx, -col1[r2] * sinPhase + col1[r2 + 1] * cosPhase);
-                }
+                performRangeAzimuthShift(x0, y0, w, h, sBandI, sBandQ, targetRectangle, targetTileMap);
             }
 
         } catch (Throwable e) {
@@ -484,6 +370,11 @@ public class SpectralDiversityOp extends Operator {
 
         final ThreadManager threadManager = new ThreadManager();
         try {
+            final Band mBandI = getBand(StackUtils.MST, "i_", swathIndexStr, polarizations[0]);
+            final Band mBandQ = getBand(StackUtils.MST, "q_", swathIndexStr, polarizations[0]);
+            final Band sBandI = getBand(StackUtils.SLV, "i_", swathIndexStr, polarizations[0]);
+            final Band sBandQ = getBand(StackUtils.SLV, "q_", swathIndexStr, polarizations[0]);
+
             for (int i = 0; i < numBursts; i++) {
                 checkForCancellation();
                 final int burstIndex = i;
@@ -494,7 +385,7 @@ public class SpectralDiversityOp extends Operator {
                         try {
                             final double[] offset = new double[2]; // az/rg offset
 
-                            estimateAzRgOffsets(burstIndex, offset);
+                            estimateAzRgOffsets(mBandI, mBandQ, sBandI, sBandQ, burstIndex, offset);
 
                             synchronized(azOffsetArray) {
                                 azOffsetArray.add(offset[0]);
@@ -519,7 +410,7 @@ public class SpectralDiversityOp extends Operator {
                 final double azShift = azOffsetArray.get(i);
                 final double rgShift = rgOffsetArray.get(i);
 
-                SystemUtils.LOG.info("RangeShiftOp: burst = " + burstIndexArray.get(i) + ", range offset = " + rgShift
+                SystemUtils.LOG.fine("RangeShiftOp: burst = " + burstIndexArray.get(i) + ", range offset = " + rgShift
                                              + ", azimuth offset = " + azShift);
 
                 if (azShift == noDataValue || rgShift == noDataValue) {
@@ -546,8 +437,8 @@ public class SpectralDiversityOp extends Operator {
 
             saveRangeShiftPerBurst(rgOffsetArray, burstIndexArray);
 
-            SystemUtils.LOG.info("RangeShiftOp: whole image azimuth offset = " + azOffset);
-            SystemUtils.LOG.info("RangeShiftOp: Overall range shift = " + rgOffset);
+            SystemUtils.LOG.fine("RangeShiftOp: whole image azimuth offset = " + azOffset);
+            SystemUtils.LOG.fine("RangeShiftOp: Overall range shift = " + rgOffset);
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("estimateOffset", e);
@@ -556,7 +447,8 @@ public class SpectralDiversityOp extends Operator {
         isRangeOffsetAvailable = true;
     }
 
-    private void estimateAzRgOffsets(final int burstIndex, final double[] offset) {
+    private void estimateAzRgOffsets(final Band mBandI, final Band mBandQ, final Band sBandI, final Band sBandQ,
+                                     final int burstIndex, final double[] offset) {
 
         final int burstHeight = subSwath[subSwathIndex - 1].linesPerBurst;
         final int burstWidth = subSwath[subSwathIndex - 1].samplesPerBurst;
@@ -565,17 +457,18 @@ public class SpectralDiversityOp extends Operator {
         final PixelPos mGCP = new PixelPos(x0, y0);
         final PixelPos sGCP = new PixelPos(x0, y0);
 
-        getFineOffsets(mGCP, sGCP, offset);
+        getFineOffsets(mBandI, mBandQ, sBandI, sBandQ, mGCP, sGCP, offset);
     }
 
-    private void getFineOffsets(final PixelPos mGCPPixelPos, final PixelPos sGCPPixelPos, final double[] offset) {
+    private void getFineOffsets(final Band mBandI, final Band mBandQ, final Band sBandI, final Band sBandQ,
+                                final PixelPos mGCPPixelPos, final PixelPos sGCPPixelPos, final double[] offset) {
 
         try {
             ComplexDoubleMatrix mI = getComplexDoubleMatrix(
-                    mstBandI, mstBandQ, mGCPPixelPos, fineWinWidth, fineWinHeight);
+                    mBandI, mBandQ, mGCPPixelPos, fineWinWidth, fineWinHeight);
 
             ComplexDoubleMatrix sI = getComplexDoubleMatrix(
-                    slvBandI, slvBandQ, sGCPPixelPos, fineWinWidth, fineWinHeight);
+                    sBandI, sBandQ, sGCPPixelPos, fineWinWidth, fineWinHeight);
 
             final double[] fineOffset = {0, 0};
 
@@ -612,21 +505,6 @@ public class SpectralDiversityOp extends Operator {
         int p0 = (int) (pixelPos.x - fineWinWidth/2);
         int pN = (int) (pixelPos.x + fineWinWidth/2 - 1);
         return new Rectangle(p0, l0, pN - p0 + 1, lN - l0 + 1);
-    }
-
-    private Band getSourceBand(final String suffix, final String bandUnit) {
-
-        final String[] bandNames = sourceProduct.getBandNames();
-        for (String bandName : bandNames) {
-            if (!bandName.contains(suffix)) {
-                continue;
-            }
-            final Band band = sourceProduct.getBand(bandName);
-            if (band.getUnit().contains(bandUnit)) {
-                return band;
-            }
-        }
-        return null;
     }
 
     /**
@@ -720,12 +598,12 @@ public class SpectralDiversityOp extends Operator {
                 averagedAzShiftArray[i] = sumAzOffset / numBlocksPerOverlap;
                 totalOffset += sumAzOffset;
 
-                SystemUtils.LOG.info(
+                SystemUtils.LOG.fine(
                         "AzimuthShiftOp: overlap area = " + i + ", azimuth offset = " + averagedAzShiftArray[i]);
             }
 
             azOffset = -totalOffset / numShifts;
-            SystemUtils.LOG.info("AzimuthShiftOp: Overall azimuth shift = " + azOffset);
+            SystemUtils.LOG.fine("AzimuthShiftOp: Overall azimuth shift = " + azOffset);
 
             saveOverallAzimuthShift(azOffset);
 
@@ -1155,6 +1033,114 @@ public class SpectralDiversityOp extends Operator {
         }
         return coherence;
     }
+
+    private void performRangeAzimuthShift(final int x0, final int y0, final int w, final int h,
+                                          final Band slvBandI, final Band slvBandQ, final Rectangle targetRectangle,
+                                          Map<Band, Tile> targetTileMap) {
+
+
+        final float noDataValue = (float)slvBandI.getNoDataValue();
+        final Tile slvTileI = getSourceTile(slvBandI, targetRectangle);
+        final Tile slvTileQ = getSourceTile(slvBandQ, targetRectangle);
+        final float[] slvArrayI = (float[]) slvTileI.getDataBuffer().getElems();
+        final float[] slvArrayQ = (float[]) slvTileQ.getDataBuffer().getElems();
+
+        // Perform range shift
+
+        final double[] line = new double[2*w];
+        final double[] phaseRg = new double[2*w];
+        final DoubleFFT_1D row_fft = new DoubleFFT_1D(w);
+        final double[][] rangeShiftedI = new double[h][w];
+        final double[][] rangeShiftedQ = new double[h][w];
+
+        computeShiftPhaseArray(rgOffset, w, phaseRg);
+
+        for (int r = 0; r < h; r++) {
+            final int rw = r * w;
+            for (int c = 0; c < w; c++) {
+                int c2 = c * 2;
+                line[c2] = slvArrayI[rw + c];
+                line[c2 + 1] = slvArrayQ[rw + c];
+            }
+
+            row_fft.complexForward(line);
+
+            multiplySpectrumByShiftFactor(line, phaseRg);
+
+            row_fft.complexInverse(line, true);
+
+            for (int c = 0; c < w; c++) {
+                int c2 = c * 2;
+                rangeShiftedI[r][c] = line[c2];
+                rangeShiftedQ[r][c] = line[c2 + 1];
+            }
+        }
+
+        // Perform azimuth Shift
+
+        // get deramp/demodulation phase and perform deramp and demodulation
+        final double[] derampDemodPhase = getSourceData(derampDemodPhaseBand, targetRectangle);
+        final double[][] derampDemodI = new double[h][w];
+        final double[][] derampDemodQ = new double[h][w];
+        for (int r = 0; r < h; r++) {
+            final int rw = r * w;
+            for (int c = 0; c < w; c++) {
+                final double cosPhase = FastMath.cos(derampDemodPhase[rw + c]);
+                final double sinPhase = FastMath.sin(derampDemodPhase[rw + c]);
+                derampDemodI[r][c] = rangeShiftedI[r][c]*cosPhase - rangeShiftedQ[r][c]*sinPhase;
+                derampDemodQ[r][c] = rangeShiftedI[r][c]*sinPhase + rangeShiftedQ[r][c]*cosPhase;
+            }
+        }
+
+        // compute shift phase
+        final double[] phaseAz = new double[2*h];
+        computeShiftPhaseArray(azOffset, h, phaseAz);
+
+        // perform azimuth shift using FFT, and perform reramp and remodulation
+        final Band tgtBandI = targetProduct.getBand(slvBandI.getName());
+        final Band tgtBandQ = targetProduct.getBand(slvBandQ.getName());
+        final Tile tgtTileI = targetTileMap.get(tgtBandI);
+        final Tile tgtTileQ = targetTileMap.get(tgtBandQ);
+        final ProductData tgtDataI = tgtTileI.getDataBuffer();
+        final ProductData tgtDataQ = tgtTileQ.getDataBuffer();
+
+        final double[] col1 = new double[2 * h];
+        final double[] col2 = new double[2 * h];
+        final DoubleFFT_1D col_fft = new DoubleFFT_1D(h);
+        for (int c = 0; c < w; c++) {
+            final int x = x0 + c;
+            for (int r = 0; r < h; r++) {
+                int r2 = r * 2;
+                col1[r2] = derampDemodI[r][c];
+                col1[r2 + 1] = derampDemodQ[r][c];
+
+                col2[r2] = derampDemodPhase[r*w + c];
+                col2[r2 + 1] = 0.0;
+            }
+
+            col_fft.complexForward(col1);
+            col_fft.complexForward(col2);
+
+            multiplySpectrumByShiftFactor(col1, phaseAz);
+            multiplySpectrumByShiftFactor(col2, phaseAz);
+
+            col_fft.complexInverse(col1, true);
+            col_fft.complexInverse(col2, true);
+
+            for (int r = 0; r < h; r++) {
+                if (slvArrayI[r*w + c] != noDataValue) {
+                    int r2 = r * 2;
+                    final int y = y0 + r;
+                    final double cosPhase = FastMath.cos(col2[r2]);
+                    final double sinPhase = FastMath.sin(col2[r2]);
+                    final int idx = tgtTileI.getDataBufferIndex(x, y);
+                    tgtDataI.setElemDoubleAt(idx, col1[r2] * cosPhase + col1[r2 + 1] * sinPhase);
+                    tgtDataQ.setElemDoubleAt(idx, -col1[r2] * sinPhase + col1[r2 + 1] * cosPhase);
+                }
+            }
+        }
+    }
+
 
     private static class AzimuthShiftData {
         int overlapIndex;

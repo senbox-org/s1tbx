@@ -21,6 +21,7 @@ import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.OperatorUIUtils;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
+import org.esa.snap.rcp.util.Dialogs;
 import org.esa.snap.ui.AppContext;
 
 import javax.swing.*;
@@ -120,7 +121,13 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
 
         OperatorUIUtils.initParamList(bandList, getBandNames());
 
-        filter.setSelectedItem(paramMap.get("filter"));
+        final String value = (String)paramMap.get("filter");
+        if (value.equals(SpeckleFilterOp.MEAN_SPECKLE_FILTER)) {
+            filter.setSelectedItem(SpeckleFilterOp.BOXCAR_SPECKLE_FILTER);
+        } else {
+            filter.setSelectedItem(paramMap.get("filter"));
+        }
+
         filterSizeX.setText(String.valueOf(paramMap.get("filterSizeX")));
         filterSizeY.setText(String.valueOf(paramMap.get("filterSizeY")));
         dampingFactor.setText(String.valueOf(paramMap.get("dampingFactor")));

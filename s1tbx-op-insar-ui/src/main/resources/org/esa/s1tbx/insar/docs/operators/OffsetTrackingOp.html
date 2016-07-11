@@ -1,23 +1,56 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head><title>Help - Offset/Speckle Tracking</title>
+<html><head><title>Help - Cross Correlation Operator</title>
 
+  
 
-    <link rel="stylesheet" href="../style.css">
-</head>
-<body>
+  
+  
+  <link rel="stylesheet" href="../style.css"></head><body>
 <table class="header">
-    <tbody>
+
+  <tbody>
     <tr class="header">
-        <td class="header">&nbsp; Offset/Speckle Tracking<br>
-        </td>
-        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg"
-                                                                                 border="0"></a></td>
+      <td class="header">&nbsp; Offset Tracking<br>
+      </td>
+      <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg" border="0"></a></td>
     </tr>
-    </tbody>
+  </tbody>
 </table>
 
+<h3>Offset Tracking Operator</h3>
+<div style="text-align: left;">The Offset Tracking operator estimates
+the movement of glacier surfaces between two SAR images in both
+slant-range and azimuth direction. It performs cross-correlation on
+selected GCP-patches in master and slave images, and computes glacier
+velocities based on the shift computed for each GCP. Finally the
+glacier velocity map is computed through interpolation of the
+velocities computed for the GCP grid.<br>
+</div>
+<h4>Parameters Used</h4>
+
+&nbsp;&nbsp;&nbsp;The parameters used by the operator are as follows:
+<ol>
+
+  <li>Grid Azimuth Spacing: The GCP grid azimuth spacing in pixels.</li>
+  <li>Grid Range Spacing: The GCP grid range spacing in pixels. </li>
+  
+  <li>Registration Window Width: The window width for
+cross-correlation. </li>
+<li>Registration Window Height: The window height for
+cross-correlation. </li>
+  <li>Cross-Correlation Threshold: Threshold
+for normalized cross-correlation value. If the cross-correlation value
+is greater than the threshold, then the estimated offset is
+considered valid, otherwise invalid. <br>
+</li>
+  <li>Average Box Size: Size of sliding window for averaging offsets computed for GCPs. </li>
+  <li>Max Velocity: The maximum allowed glacier velocity in meters per day. It is used in eliminating outliers.<br>
+</li>
+  <li>Radius for Hole Filling: It defines the size of the window
+for hole filling. For GCP that has no valid offset, a window with given
+radius centered at the GCP is defined. Offsets from valid GCPs within
+the window are used in interpolating the offset for the current GCP.<br>
+</li></ol><br>
 
 <hr>
-</body>
-</html>
+</body></html>

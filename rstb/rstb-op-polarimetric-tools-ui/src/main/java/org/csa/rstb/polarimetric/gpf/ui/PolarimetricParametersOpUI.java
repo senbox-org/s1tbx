@@ -145,8 +145,8 @@ public class PolarimetricParametersOpUI extends BaseOperatorUI {
         contentPane.add(outputVSICheckBox, gbc);
         gbc.gridy++;
         contentPane.add(outputBMICheckBox, gbc);
-        gbc.gridy++;
-        contentPane.add(outputITICheckBox, gbc);
+        //gbc.gridy++;
+        //contentPane.add(outputITICheckBox, gbc);
 
         gbc.gridy++;
         contentPane.add(outputHHVVRatioCheckBox, gbc);

@@ -27,11 +27,7 @@ import org.esa.snap.engine_utilities.datamodel.OrbitStateVector;
 import org.esa.snap.engine_utilities.eo.Constants;
 
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public final class Sentinel1Utils {
 
@@ -162,6 +158,7 @@ public final class Sentinel1Utils {
 
         if (polList.size() > 0) {
             polarizations =  polList.toArray(new String[polList.size()]);
+            Arrays.sort(polarizations);
             return;
         }
 
@@ -186,6 +183,7 @@ public final class Sentinel1Utils {
             }
         }
         polarizations = polList.toArray(new String[polList.size()]);
+        Arrays.sort(polarizations);
     }
 
     /**
@@ -217,6 +215,7 @@ public final class Sentinel1Utils {
             }
         }
         subSwathNames =  subSwathNameList.toArray(new String[subSwathNameList.size()]);
+        Arrays.sort(subSwathNames);
         numOfSubSwath = subSwathNames.length;
     }
 
@@ -949,7 +948,9 @@ public final class Sentinel1Utils {
         }
 
         if (polList.size() > 0) {
-            return  polList.toArray(new String[polList.size()]);
+            final String[] polArray = polList.toArray(new String[polList.size()]);
+            Arrays.sort(polArray);
+            return polArray;
         }
 
         final Product sourceProduct = absRoot.getProduct();
@@ -974,7 +975,9 @@ public final class Sentinel1Utils {
             }
         }
 
-        return polList.toArray(new String[polList.size()]);
+        final String[] polArray = polList.toArray(new String[polList.size()]);
+        Arrays.sort(polArray);
+        return polArray;
     }
 
     public static String[] getProductSubswaths(final MetadataElement absRoot) {
