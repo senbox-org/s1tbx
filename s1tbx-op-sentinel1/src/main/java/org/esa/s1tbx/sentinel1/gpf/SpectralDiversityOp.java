@@ -427,17 +427,18 @@ public class SpectralDiversityOp extends Operator {
             }
 
             if (count > 0) {
-                azOffset = sumAzOffset / (double)count;
+                //azOffset = sumAzOffset / (double)count;
                 rgOffset = sumRgOffset / (double)count;
             } else {
-                throw new OperatorException("estimateOffset failed.");
+                rgOffset = 0.0;
+                SystemUtils.LOG.warning("RangeShiftOp: Cross-correlation failed for all bursts, set range shift to 0");
             }
 
             saveOverallRangeShift(rgOffset);
 
             saveRangeShiftPerBurst(rgOffsetArray, burstIndexArray);
 
-            SystemUtils.LOG.fine("RangeShiftOp: whole image azimuth offset = " + azOffset);
+            //SystemUtils.LOG.fine("RangeShiftOp: whole image azimuth offset = " + azOffset);
             SystemUtils.LOG.fine("RangeShiftOp: Overall range shift = " + rgOffset);
 
         } catch (Throwable e) {
