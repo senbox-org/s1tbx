@@ -24,6 +24,12 @@ import java.util.jar.Manifest;
  */
 public class ToolAdapterActivator implements Activator {
 
+    private static volatile boolean initialized;
+
+    public static boolean isInitialized() {
+        return initialized;
+    }
+
     @Override
     public void start() {
         OperatorSpiRegistry spiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
@@ -37,6 +43,7 @@ public class ToolAdapterActivator implements Activator {
                 }
             }
         }
+        initialized = true;
     }
 
     @Override

@@ -637,7 +637,11 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
         } catch (Exception e) {
             try {
                 ToolAdapterIO.convertAdapter(file.toPath());
-                String name = FileUtils.getFilenameWithoutExtension(file.getParentFile() != null ? file.getParentFile() : file);
+                File parentFile = file.getParentFile();
+                if (parentFile != null) {
+                    parentFile = parentFile.getParentFile();
+                }
+                String name = FileUtils.getFilenameWithoutExtension(parentFile != null ? parentFile : file);
                 SystemUtils.LOG.info(String.format("Adapter %s has been automatically converted to the new format", name));
             } catch (IOException e1) {
                 throw new OperatorException(formatReadExceptionText(resourceName, e), e);

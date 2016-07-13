@@ -97,7 +97,9 @@ public enum ToolAdapterRegistry {
     public ToolAdapterOperatorDescriptor findByAlias(String alias) {
         ToolAdapterOperatorDescriptor result = null;
         if (alias != null) {
-            List<ToolAdapterOpSpi> filtered = registeredAdapters.values().stream().filter(d -> alias.equals(d.getOperatorAlias())).collect(Collectors.toList());
+            List<ToolAdapterOpSpi> filtered = registeredAdapters.values().stream()
+                    .filter(d -> alias.equals(d.getOperatorAlias()) || alias.equals(d.getOperatorDescriptor().getName()))
+                    .collect(Collectors.toList());
             if (filtered.size() > 0) {
                 OperatorDescriptor operatorDescriptor = filtered.get(0).getOperatorDescriptor();
                 if (operatorDescriptor instanceof ToolAdapterOperatorDescriptor) {

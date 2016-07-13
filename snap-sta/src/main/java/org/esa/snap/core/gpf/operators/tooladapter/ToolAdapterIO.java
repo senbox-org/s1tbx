@@ -52,6 +52,9 @@ import java.util.stream.Collectors;
  */
 public class ToolAdapterIO {
 
+    private static final Attributes.Name ATTR_MODULE_NAME;
+    private static final Attributes.Name ATTR_MODULE_ALIAS;
+
     private static final String[] userSubfolders;
     private static final Logger logger;
     private static final Map<String, String> shellExtensions;
@@ -78,6 +81,8 @@ public class ToolAdapterIO {
             osFamily = "unsupported";
         }
         typeKey = new Attributes.Name("OpenIDE-Module-Type");
+        ATTR_MODULE_NAME = new Attributes.Name("OpenIDE-Module-Name");
+        ATTR_MODULE_ALIAS = new Attributes.Name("OpenIDE-Module-Alias");
         excludedClusters = new String[] { "bin", "etc", "platform", "ide" };
     }
 
@@ -428,16 +433,18 @@ public class ToolAdapterIO {
             throw new FileNotFoundException(path.toAbsolutePath().toString());
         }
         File[] jarFiles = path.toFile().listFiles(f -> f.getName().endsWith(".jar"));
+        Path adaptersPath = getAdaptersPath();
         if (jarFiles != null) {
             for (File jarFile : jarFiles) {
                 try {
+                    //File destinationFolder = adaptersPath.resolve(jarFile.getName().replace(".jar", "")).toFile();
                     unpackAdapterJar(jarFile, null);
                 } catch (IOException ioEx) {
                     logger.warning(ioEx.getMessage());
                 }
             }
         }
-        File[] moduleFolders = path.toFile().listFiles();
+        File[] moduleFolders = adaptersPath.toFile().listFiles();
         List<File> modules = new ArrayList<>();
         if (moduleFolders != null) {
             for (File moduleFolder : moduleFolders) {
@@ -450,19 +457,27 @@ public class ToolAdapterIO {
         return modules;
     }
 
-    private static void unpackAdapterJar(File jarFile, File unpackFolder) throws IOException {
+    public static void unpackAdapterJar(File jarFile, File unpackFolder) throws IOException {
         JarFile jar = new JarFile(jarFile);
         Manifest manifest = jar.getManifest();
         Attributes manifestEntries = manifest.getMainAttributes();
         if (manifestEntries.containsKey(typeKey) && "STA".equals(manifestEntries.getValue(typeKey.toString()))) {
             Enumeration enumEntries = jar.entries();
+            Path basePath = getAdaptersPath();
             if (unpackFolder == null) {
-                unpackFolder = getAdaptersPath().resolve(jarFile.getName().replace(".jar", "")).toFile();
+                if (manifestEntries.containsKey(ATTR_MODULE_ALIAS)) {
+                    unpackFolder = basePath.resolve(manifestEntries.getValue(ATTR_MODULE_ALIAS)).toFile();
+                } else if (manifestEntries.containsKey(ATTR_MODULE_NAME)) {
+                    unpackFolder = basePath.resolve(manifestEntries.getValue(ATTR_MODULE_NAME)).toFile();
+                } else {
+                    unpackFolder = getAdaptersPath().resolve(jarFile.getName().replace(".jar", "")).toFile();
+                }
             }
-            if (!unpackFolder.exists())
+            if (!unpackFolder.exists()) {
                 if (!unpackFolder.mkdir()) {
                     logger.warning(String.format("Cannot create folder %s", unpackFolder.getAbsolutePath()));
                 }
+            }
             while (enumEntries.hasMoreElements()) {
                 JarEntry file = (JarEntry) enumEntries.nextElement();
                 File f = new File(unpackFolder, file.getName());
@@ -491,12 +506,13 @@ public class ToolAdapterIO {
 
     private static Preferences getPreferences() {
         Path storagePath = Config.instance().storagePath();
-        File file = storagePath.toFile();
-        if (!file.exists()) {
+        //File file = storagePath.toFile();
+        if (!Files.exists(storagePath)) {
             try {
-                if (!(file.getParentFile().mkdirs() && file.createNewFile())) {
+                storagePath = Files.createDirectories(storagePath);
+                /*if (!(file.getParentFile().mkdirs() && file.createNewFile())) {
                     logger.warning("Cannot create module preferences");
-                }
+                }*/
             } catch (IOException e) {
                 logger.severe("Error while creating module preferences: " + e.getMessage());
             }
