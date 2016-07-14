@@ -1,6 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html><head><title>Help - Cross Correlation Operator</title>
 
+
   
 
   
@@ -19,20 +20,71 @@
 
 <h3>Offset Tracking Operator</h3>
 <div style="text-align: left;">The Offset Tracking operator estimates
-the movement of glacier surfaces between two SAR images in both
+the movement of glacier surfaces between two SAR images (master and slave) in both
 slant-range and azimuth direction. It performs cross-correlation on
 selected GCP-patches in master and slave images, and computes glacier
 velocities based on the shift computed for each GCP. Finally the
 glacier velocity map is computed through interpolation of the
 velocities computed for the GCP grid.<br>
 </div>
+<h4>Brief Implementation Details</h4>
+
+
+<p>The offset tracking is performed by the following sub-steps:<br>
+
+</p>
+
+
+<ol>
+  <li>For user specified GCP grid in master image, compute corresponding slave pixel positions using normalized cross-correlation.</li>
+  <li>For each point on the GCP grid, compute offset between master and
+slave images, and movement velocity. Point with velocity exceeding the
+user specified maximum velocity will be marked as outlier.<br>
+  </li>
+  <li>Perform local average for offset on valid GCP points. <br>
+  </li>
+  <li>Fill holes caused by the outliers. Offset and velocity will be calculated using weighted average. <br>
+  </li>
+  <li>Finally, compute the velocity for all pixels in the master image from the velocity on GCP grid by interpolation.<br>
+  </li>
+</ol>
+<h4>Offset Tracking with SNAP</h4>
+
+
+<p>The master and slave images used in offset tracking should be
+coregistered first by DEM assisted coregistration. The following steps
+should be followed: <br>
+</p>
+<ol>
+  <li>Run Apply Orbit File operator respectively with master and slave
+images as input to update the orbit state vectors in the metadata of
+the product with the precise orbit file. <br>
+  </li>
+  <li>Run DEM Assisted Coregistration operator with both master and
+slave output from step 1 as input to coregister master and slave images.</li>
+  <li>Run Offset Tracking operator with the coregistered stack as input to produce the glacier velocity map. <br>
+  </li>
+  <li>To display the glacier velocity map, double click on the velocity
+band name. To show the glacier velocity vectors, click on "Layer
+Manager" and add "Coregistered GCP Movement Vector" layer. The velocity
+vectors on the user specified GCP grid will be displayed.<br>
+  </li>
+</ol>
+
+
 <h4>Parameters Used</h4>
 
 &nbsp;&nbsp;&nbsp;The parameters used by the operator are as follows:
 <ol>
 
-  <li>Grid Azimuth Spacing: The GCP grid azimuth spacing in pixels.</li>
-  <li>Grid Range Spacing: The GCP grid range spacing in pixels. </li>
+  <li>Grid Azimuth Spacing (in pixels): The GCP grid azimuth spacing in pixels.</li>
+  <li>Grid Range Spacing (in pixels): The GCP grid range spacing in pixels.</li>
+  <li>Grid Azimuth Spacing (in meters): The GCP grid azimuth spacing in meters. It is updated automatically based on user input in 1.</li>
+  <li>Grid Range Spacing (in meters): The GCP grid range spacing in meters. It is updated automatically based on user input in 2.</li>
+  <li>Grid Azimuth Dimension: The number of lines of the GCP grid. It is updated automatically based on user input in 1.</li>
+  <li>Grid Range Dimension: The number of columns of the GCP grid. It is updated automatically based on user input in 2.</li>
+  <li>Total GCP Points: The total number of points in the GCP grid. It is updated automatically based on user input in 1 and 2.</li>
+
   
   <li>Registration Window Width: The window width for
 cross-correlation. </li>
@@ -43,8 +95,8 @@ for normalized cross-correlation value. If the cross-correlation value
 is greater than the threshold, then the estimated offset is
 considered valid, otherwise invalid. <br>
 </li>
-  <li>Average Box Size: Size of sliding window for averaging offsets computed for GCPs. </li>
-  <li>Max Velocity: The maximum allowed glacier velocity in meters per day. It is used in eliminating outliers.<br>
+  <li>&nbsp;Average Box Size: Size of sliding window for averaging offsets computed for GCPs. </li>
+  <li>&nbsp;Max Velocity: The maximum allowed glacier velocity in meters per day. It is used in eliminating outliers.<br>
 </li>
   <li>Radius for Hole Filling: It defines the size of the window
 for hole filling. For GCP that has no valid offset, a window with given
