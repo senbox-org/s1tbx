@@ -506,10 +506,13 @@ public class ToolAdapterIO {
 
     private static Preferences getPreferences() {
         Path storagePath = Config.instance().storagePath();
-        //File file = storagePath.toFile();
         if (!Files.exists(storagePath)) {
             try {
-                storagePath = Files.createDirectories(storagePath);
+                Path parent = storagePath.getParent();
+                if (!Files.exists(parent)) {
+                    Files.createDirectories(parent);
+                }
+                storagePath = Files.createFile(storagePath);
                 /*if (!(file.getParentFile().mkdirs() && file.createNewFile())) {
                     logger.warning("Cannot create module preferences");
                 }*/
