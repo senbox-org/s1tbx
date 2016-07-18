@@ -61,10 +61,10 @@ import java.util.Map;
  * <p>
  * To reference a band of one of the source products within an expression use the following syntax:<br>
  * <br>
- * <code>$sourceProducts<b>#</b>.bandName</code><br>
+ * <code>$sourceProduct.<b>#</b>.bandName</code><br>
  * <br>
  * Where <b>#</b> means the index of the source product. The index is zero based.<br>
- * The bands of the first source product (<code>$sourceProducts<b>0</b></code>) can be referenced without this
+ * The bands of the first source product (<code>$sourceProduct.<b>0</b></code>) can be referenced without this
  * product identifier. The band name is sufficient.
  * <p>
  * <p>
