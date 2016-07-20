@@ -18,10 +18,7 @@ package org.esa.s1tbx.calibration.gpf;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.calibration.gpf.calibrators.Sentinel1Calibrator;
 import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -72,6 +69,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     private MetadataElement origMetadataRoot = null;
     private boolean thermalNoiseCorrectionPerformed = false;
     private boolean absoluteCalibrationPerformed = false;
+    private boolean isComplex = false;
     private boolean inputSigmaBand = false;
     private boolean inputBetaBand = false;
     private boolean inputGammaBand = false;
@@ -124,6 +122,8 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             setSelectedPolarisations();
 
             noise = getThermalNoiseVectors(origMetadataRoot, selectedPolList, numOfSubSwath);
+
+            getSampleType();
 
             getCalibrationFlag();
 
@@ -226,6 +226,13 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         return noise;
     }
 
+    private void getSampleType() {
+        final String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE);
+        if (sampleType.equals("COMPLEX")) {
+            isComplex = true;
+        }
+    }
+
     /**
      * Get absolute calibration flag from the abstracted metadata.
      */
@@ -234,21 +241,27 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                 absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().getElemBoolean();
 
         if (absoluteCalibrationPerformed) {
-            final String[] sourceBandNames = sourceProduct.getBandNames();
-            for (String bandName : sourceBandNames) {
-                if (bandName.contains("Sigma0")) {
-                    inputSigmaBand = true;
-                } else if (bandName.contains("Gamma0")) {
-                    inputGammaBand = true;
-                } else if (bandName.contains("Beta0")) {
-                    inputBetaBand = true;
-                } else if (bandName.contains("DN")) {
-                    inputDNBand = true;
+            if (isComplex) {
+                // Currently the calibrated complex product can only be sigma0, this should be changed later if
+                // complex beta0 and gamma0 are available
+                inputSigmaBand = true;
+            } else {
+                final String[] sourceBandNames = sourceProduct.getBandNames();
+                for (String bandName : sourceBandNames) {
+                    if (bandName.contains("Sigma0")) {
+                        inputSigmaBand = true;
+                    } else if (bandName.contains("Gamma0")) {
+                        inputGammaBand = true;
+                    } else if (bandName.contains("Beta0")) {
+                        inputBetaBand = true;
+                    } else if (bandName.contains("DN")) {
+                        inputDNBand = true;
+                    }
                 }
-            }
 
-            if (!inputSigmaBand && !inputGammaBand && !inputBetaBand && !inputDNBand) {
-                throw new OperatorException("For calibrated product, Sigma0 or Gamma0 or Beta0 or DN band is expected");
+                if (!inputSigmaBand && !inputGammaBand && !inputBetaBand && !inputDNBand) {
+                    throw new OperatorException("For calibrated product, Sigma0 or Gamma0 or Beta0 or DN band is expected");
+                }
             }
         }
     }
@@ -303,6 +316,10 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         for (int i = 0; i < sourceBands.length; i++) {
 
             final Band srcBand = sourceBands[i];
+            if (srcBand instanceof VirtualBand) {
+                continue;
+            }
+
             final String unit = srcBand.getUnit();
             if (unit == null) {
                 throw new OperatorException("band " + srcBand.getName() + " requires a unit");
@@ -368,11 +385,16 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
      */
     private String createTargetBandName(final String sourceBandName) {
 
+        final String pol = sourceBandName.substring(sourceBandName.indexOf('_'));
+
         if (absoluteCalibrationPerformed) {
-            return sourceBandName;
+            if (isComplex) {
+                return "Sigma0" + pol;
+            } else {
+                return sourceBandName;
+            }
         }
 
-        final String pol = sourceBandName.substring(sourceBandName.indexOf('_'));
         return "Intensity" + pol;
     }
 
