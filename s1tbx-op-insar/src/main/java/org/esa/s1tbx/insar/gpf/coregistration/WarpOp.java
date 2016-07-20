@@ -16,17 +16,7 @@
 package org.esa.s1tbx.insar.gpf.coregistration;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.GcpDescriptor;
-import org.esa.snap.core.datamodel.GeoCoding;
-import org.esa.snap.core.datamodel.GeoPos;
-import org.esa.snap.core.datamodel.MetadataAttribute;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.PixelPos;
-import org.esa.snap.core.datamodel.Placemark;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.ProductNodeGroup;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.dataop.dem.ElevationModel;
 import org.esa.snap.core.dataop.dem.ElevationModelDescriptor;
 import org.esa.snap.core.dataop.dem.ElevationModelRegistry;
@@ -330,21 +320,24 @@ public class WarpOp extends Operator {
 
         masterBandNames = StackUtils.getMasterBandNames(sourceProduct);
 
-        final int numSrcBands = sourceProduct.getNumBands();
-        int inc = 1;
-        if (complexCoregistration)
-            inc = 2;
-        for (int i = 0; i < numSrcBands; i += inc) {
-            final Band srcBand = sourceProduct.getBandAt(i);
+        final Band[] sourceBands = sourceProduct.getBands();
+        for (int i = 0; i < sourceBands.length; i++) {
+            final Band srcBand = sourceBands[i];
+            final String srcBandName = srcBand.getName();
+
             Band targetBand;
-            if (StringUtils.contains(masterBandNames, srcBand.getName())) {
-                if (excludeMaster) {
+            if (StringUtils.contains(masterBandNames, srcBandName)) {
+                if (excludeMaster || targetProduct.getBand(srcBandName) != null) {
                     continue;
                 }
-                targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, false);
+                targetBand = ProductUtils.copyBand(srcBandName, sourceProduct, targetProduct, false);
                 targetBand.setSourceImage(srcBand.getSourceImage());
             } else {
-                targetBand = targetProduct.addBand(formatName(srcBand), ProductData.TYPE_FLOAT32);
+                final String targetBandName = formatName(srcBand);
+                if (targetProduct.getBand(targetBandName) != null) {
+                    continue;
+                }
+                targetBand = targetProduct.addBand(targetBandName, ProductData.TYPE_FLOAT32);
                 ProductUtils.copyRasterDataNodeProperties(srcBand, targetBand);
             }
             sourceRasterMap.put(targetBand, srcBand);
@@ -352,11 +345,18 @@ public class WarpOp extends Operator {
             if (complexCoregistration) {
                 final Band srcBandQ = sourceProduct.getBandAt(i + 1);
                 Band targetBandQ;
-                if (StringUtils.contains(masterBandNames, srcBand.getName())) {
+                if (StringUtils.contains(masterBandNames, srcBandName)) {
+                    if (targetProduct.getBand(srcBandQ.getName()) != null) {
+                        continue;
+                    }
                     targetBandQ = ProductUtils.copyBand(srcBandQ.getName(), sourceProduct, targetProduct, false);
                     targetBandQ.setSourceImage(srcBandQ.getSourceImage());
                 } else {
-                    targetBandQ = targetProduct.addBand(formatName(srcBandQ), ProductData.TYPE_FLOAT32);
+                    final String targetBandName = formatName(srcBandQ);
+                    if (targetProduct.getBand(targetBandName) != null) {
+                        continue;
+                    }
+                    targetBandQ = targetProduct.addBand(targetBandName, ProductData.TYPE_FLOAT32);
                     ProductUtils.copyRasterDataNodeProperties(srcBandQ, targetBandQ);
                 }
                 sourceRasterMap.put(targetBandQ, srcBandQ);
@@ -372,6 +372,7 @@ public class WarpOp extends Operator {
                     suffix = '_' + OperatorUtils.getSuffixFromBandName(srcBand.getName());
                 }
                 ReaderUtils.createVirtualIntensityBand(targetProduct, targetBand, targetBandQ, suffix);
+                i++;
             }
         }
 
@@ -498,12 +499,6 @@ public class WarpOp extends Operator {
         // force getSourceTile to computeTiles on GCPSelection
         final Tile sourceRaster = getSourceTile(sourceRasterMap.get(targetBand), targetRectangle);
 
-        // for all slave bands or band pairs compute a warp
-        final int numSrcBands = sourceProduct.getNumBands();
-        int inc = 1;
-        if (complexCoregistration)
-            inc = 2;
-
         final ProductNodeGroup<Placemark> masterGCPGroup = GCPManager.instance().getGcpGroup(masterBand);
         final org.jlinda.core.Window masterWindow = new org.jlinda.core.Window(0, sourceProduct.getSceneRasterHeight(), 0, sourceProduct.getSceneRasterWidth());
 
@@ -516,12 +511,17 @@ public class WarpOp extends Operator {
             masterOrbit = new Orbit(absRoot, ORBIT_INTERP_DEGREE);
         }
 
+        // for all slave bands or band pairs compute a warp
         boolean appendFlag = false;
         int slaveMetaCnt = 0;
-        for (int i = 0; i < numSrcBands; i += inc) {
+        final Band[] sourceBands = sourceProduct.getBands();
+        for (int i = 0; i < sourceBands.length; i++) {
 
             final Band srcBand = sourceProduct.getBandAt(i);
             if (StringUtils.contains(masterBandNames, srcBand.getName()))
+                continue;
+
+            if (complexCoregistration && !srcBand.getUnit().equals(Unit.REAL))
                 continue;
 
             ProductNodeGroup<Placemark> slaveGCPGroup = GCPManager.instance().getGcpGroup(srcBand);
