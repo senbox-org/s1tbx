@@ -568,7 +568,6 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         return index >= 0 ? potentialPolynomials[index] : null;
     }
 
-
     private double[][] createWarpPoints(TiePointGrid lonGrid, Rectangle subsetRect) {
         final TiePointGrid latGrid = getLatGrid();
         final int w = latGrid.getGridWidth();
@@ -584,40 +583,11 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         Debug.trace("  index i: " + i1 + " to " + i2);
         Debug.trace("  index j: " + j1 + " to " + j2);
 
-        // Determine stepI and stepJ so that maximum number of warp points is not exceeded,
-        // numU * numV shall be less than _MAX_NUM_POINTS_PER_TILE.
-        //
-        int numU = sw;
-        int numV = sh;
-        int stepI = 1;
-        int stepJ = 1;
-
-        // Adjust number of hor/ver (numU,numV) tie-points to be considered
-        // so that a maximum of circa numPointsMax points is not exceeded
-        boolean adjustStepI = true;
-        while (numU * numV > MAX_NUM_POINTS_PER_TILE) {
-            if (adjustStepI) {
-                stepI++;
-                numU = sw / stepI;
-            } else {
-                stepJ++;
-                numV = sh / stepJ;
-            }
-            adjustStepI = !adjustStepI;
-        }
-        numU = Math.max(1, numU);
-        numV = Math.max(1, numV);
-
-        // Make sure we include the right border tie-points
-        // if sw/stepI not divisible without remainder
-        if (sw % stepI != 0) {
-            numU++;
-        }
-        // Make sure we include the bottom border tie-points
-        // if sh/stepJ not divisible without remainder
-        if (sh % stepJ != 0) {
-            numV++;
-        }
+        final int[] warpParameters = determineWarpParameters(sw, sh);
+        int numU = warpParameters[0];
+        int numV = warpParameters[1];
+        int stepI = warpParameters[2];
+        int stepJ = warpParameters[3];
 
         // Collect numU * numV warp points
         //
@@ -654,6 +624,39 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         Debug.trace("TiePointGeoCoding: numV=" + numV + ", stepJ=" + stepJ);
 
         return data;
+    }
+
+    //package local for testing
+    //maybe use this method later
+    static int[] determineWarpParameters(int sw, int sh) {
+        // Determine stepI and stepJ so that maximum number of warp points is not exceeded,
+        // numU * numV shall be less than _MAX_NUM_POINTS_PER_TILE.
+        //
+        int numU = sw;
+        int numV = sh;
+        int stepI = 1;
+        int stepJ = 1;
+
+        // Adjust number of hor/ver (numU,numV) tie-points to be considered
+        // so that a maximum of circa numPointsMax points is not exceeded
+        boolean adjustStepI = numU >= numV;
+        while (numU * numV > MAX_NUM_POINTS_PER_TILE) {
+            if (adjustStepI) {
+                stepI++;
+                numU = sw / stepI;
+                while (numU * stepI < sw) {
+                    numU++;
+                }
+            } else {
+                stepJ++;
+                numV = sh / stepJ;
+                while (numV * stepJ < sh) {
+                    numV++;
+                }
+            }
+            adjustStepI = numU >= numV;
+        }
+        return new int[]{numU, numV, stepI, stepJ};
     }
 
     private Approximation createApproximation(TiePointGrid normalizedLonGrid, Rectangle subsetRect) {
