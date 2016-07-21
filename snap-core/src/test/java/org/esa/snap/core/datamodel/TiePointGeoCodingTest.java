@@ -174,6 +174,21 @@ public class TiePointGeoCodingTest {
         assertEquals(4.42, destPixelPos.getY(), 1.0e-1);
     }
 
+    @Test
+    public void testDetermineWarpParameters() {
+        int[] warpParameters = TiePointGeoCoding.determineWarpParameters(100, 100);
+        assertEquals(25, warpParameters[0]);
+        assertEquals(34, warpParameters[1]);
+        assertEquals(4, warpParameters[2]);
+        assertEquals(3, warpParameters[3]);
+
+        warpParameters = TiePointGeoCoding.determineWarpParameters(39, 2728);
+        assertEquals(20, warpParameters[0]);
+        assertEquals(39, warpParameters[1]);
+        assertEquals(2, warpParameters[2]);
+        assertEquals(70, warpParameters[3]);
+    }
+
     private Product createProduct() {
         Product product = new Product("test", "test", PW, PH);
 
