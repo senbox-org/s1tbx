@@ -113,6 +113,12 @@ public class OffsetTrackingOp extends Operator {
             description = "Methods for velocity interpolation.", label = "Resampling Type")
     private String resamplingType = ResamplingFactory.BICUBIC_INTERPOLATION_NAME;
 
+    @Parameter(defaultValue = "false", label = "Turn Off Spacial Average")
+    private boolean turnOffSpacialAverage = false;
+
+    @Parameter(defaultValue = "false", label = "Turn Off Fill Hole")
+    private boolean turnOffFillHole = false;
+
     private boolean outputDebuggingBands = false;
 
     private int cWindowWidth = 0;
@@ -138,6 +144,7 @@ public class OffsetTrackingOp extends Operator {
     private double acquisitionTimeInterval = 0.0;
     private double rangeSpacing = 0.0;
     private double azimuthSpacing = 0.0;
+    private double maxOffset = 0.0;
     private boolean velocityAvailable = false;
     private VelocityData velocityData = null;
     private Resampling selectedResampling = null;
@@ -225,6 +232,8 @@ public class OffsetTrackingOp extends Operator {
                 slvAbsRoot.getAttributeString(AbstractMetadata.first_line_time)).getMJD(); // in days
 
         acquisitionTimeInterval = slvFirstLineTime - mstFirstLineTime; // in days
+
+        maxOffset = maxVelocity * acquisitionTimeInterval; // in m
     }
 
     private void getMasterSlaveBands() {
@@ -462,11 +471,17 @@ public class OffsetTrackingOp extends Operator {
 
         computeSlaveGCPs();
 
+        computeGCPOffsets();
+
+        if (!turnOffSpacialAverage) {
+            averageOffsets();
+        }
+
+        if (!turnOffFillHole) {
+            fillHoles();
+        }
+
         computeGCPVelocities();
-
-        averageOffsets();
-
-        fillHoles();
 
         writeGCPsToMetadata();
 
@@ -518,10 +533,10 @@ public class OffsetTrackingOp extends Operator {
         }
     }
 
-    private void computeGCPVelocities() {
+    private void computeGCPOffsets() {
 
         final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
-        status.beginTask("Compute Velocities... ", numGCPsPerAzLine * numGCPsPerRgLine);
+        status.beginTask("Compute Offsets... ", numGCPsPerAzLine * numGCPsPerRgLine);
 
         final ThreadManager threadManager = new ThreadManager();
         try {
@@ -545,10 +560,10 @@ public class OffsetTrackingOp extends Operator {
                             final double yShift =
                                     (velocityData.mstGCPy[iIdx][jIdx] - velocityData.slvGCPy[iIdx][jIdx])*azimuthSpacing;
 
-                            final double v = Math.sqrt(xShift * xShift + yShift * yShift) / acquisitionTimeInterval;
+                            final double offset = Math.sqrt(xShift * xShift + yShift * yShift);
 
-                            if (v <= maxVelocity) {
-                                saveVelocity(v, xShift, yShift);
+                            if (offset <= maxOffset) {
+                                saveOffset(xShift, yShift);
                             } else { // outliers
                                 synchronized(velocityData.slvGCPx) {
                                     velocityData.slvGCPx[iIdx][jIdx] = invalidIndex;
@@ -557,8 +572,7 @@ public class OffsetTrackingOp extends Operator {
                             }
                         }
 
-                        private synchronized void saveVelocity(final double v, final double xShift, final double yShift) {
-                            velocityData.velocity[iIdx][jIdx] = v;
+                        private synchronized void saveOffset(final double xShift, final double yShift) {
                             velocityData.rangeShift[iIdx][jIdx] = xShift;
                             velocityData.azimuthShift[iIdx][jIdx] = yShift;
                         }
@@ -571,7 +585,7 @@ public class OffsetTrackingOp extends Operator {
             threadManager.finish();
 
         } catch (Throwable e) {
-            OperatorUtils.catchOperatorException("computeGCPVelocities", e);
+            OperatorUtils.catchOperatorException("computeGCPOffsets", e);
         }
     }
 
@@ -620,18 +634,18 @@ public class OffsetTrackingOp extends Operator {
 
                                 final double yShift = azimuthShiftSum / count;
 
-                                final double v = Math.sqrt(xShift * xShift + yShift * yShift) / acquisitionTimeInterval;
-
                                 final double slvGCPx = velocityData.mstGCPx[iIdx][jIdx] - xShift / rangeSpacing;
 
                                 final double slvGCPy = velocityData.mstGCPy[iIdx][jIdx] - yShift / azimuthSpacing;
 
-                                saveVelocity(v, slvGCPx, slvGCPy);
+                                saveOffset(xShift, yShift, slvGCPx, slvGCPy);
                             }
                         }
 
-                        private synchronized void saveVelocity(final double v, final double slvGCPx, final double slvGCPy) {
-                            velocityData.velocity[iIdx][jIdx] = v;
+                        private synchronized void saveOffset(
+                                final double xShift, final double yShift, final double slvGCPx, final double slvGCPy) {
+                            velocityData.rangeShift[iIdx][jIdx] = xShift;
+                            velocityData.azimuthShift[iIdx][jIdx] = yShift;
                             velocityData.slvGCPx[iIdx][jIdx] = slvGCPx;
                             velocityData.slvGCPy[iIdx][jIdx] = slvGCPy;
                         }
@@ -685,11 +699,9 @@ public class OffsetTrackingOp extends Operator {
 
                                     final double w = 1.0 / Math.max(Math.abs(ii - iIdx), Math.abs(jj - jIdx));
 
-                                    xShiftMean += w * rangeSpacing *
-                                            (velocityData.mstGCPx[ii][jj] - velocityData.slvGCPx[ii][jj]);
+                                    xShiftMean += w * velocityData.rangeShift[ii][jj];
 
-                                    yShiftMean += w * azimuthSpacing *
-                                            (velocityData.mstGCPy[ii][jj] - velocityData.slvGCPy[ii][jj]);
+                                    yShiftMean += w * velocityData.azimuthShift[ii][jj];
 
                                     totalWeight += w;
                                 }
@@ -703,10 +715,7 @@ public class OffsetTrackingOp extends Operator {
                             final double slvGCPx = velocityData.mstGCPx[iIdx][jIdx] - xShiftMean / rangeSpacing;
                             final double slvGCPy = velocityData.mstGCPy[iIdx][jIdx] - yShiftMean / azimuthSpacing;
 
-                            final double v = Math.sqrt(xShiftMean * xShiftMean + yShiftMean * yShiftMean) /
-                                    acquisitionTimeInterval;
-
-                            saveVelocity(v, slvGCPx, slvGCPy);
+                            saveOffset(xShiftMean, yShiftMean, slvGCPx, slvGCPy);
                         }
                     }
 
@@ -720,8 +729,10 @@ public class OffsetTrackingOp extends Operator {
                         return false;
                     }
 
-                    private synchronized void saveVelocity(final double v, final double slvGCPx, final double slvGCPy) {
-                        velocityData.velocity[iIdx][jIdx] = v;
+                    private synchronized void saveOffset(
+                            final double xShift, final double yShift, final double slvGCPx, final double slvGCPy) {
+                        velocityData.rangeShift[iIdx][jIdx] = xShift;
+                        velocityData.azimuthShift[iIdx][jIdx] = yShift;
                         velocityData.slvGCPx[iIdx][jIdx] = slvGCPx;
                         velocityData.slvGCPy[iIdx][jIdx] = slvGCPy;
                     }
@@ -734,6 +745,49 @@ public class OffsetTrackingOp extends Operator {
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("fillHoles", e);
+        }
+    }
+
+    private void computeGCPVelocities() {
+
+        final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
+        status.beginTask("Compute Velocities... ", numGCPsPerAzLine * numGCPsPerRgLine);
+
+        final ThreadManager threadManager = new ThreadManager();
+        try {
+            for (int i = 0; i < numGCPsPerAzLine; i++) {
+                for (int j = 0; j < numGCPsPerRgLine; j++) {
+                    checkForCancellation();
+                    final int iIdx = i;
+                    final int jIdx = j;
+
+                    if (velocityData.slvGCPx[i][j] == invalidIndex || velocityData.slvGCPy[i][j] == invalidIndex) {
+                        continue;
+                    }
+
+                    final Thread worker = new Thread() {
+                        @Override
+                        public void run() {
+
+                            final double xShift = velocityData.rangeShift[iIdx][jIdx];
+                            final double yShift = velocityData.azimuthShift[iIdx][jIdx];
+                            final double v = Math.sqrt(xShift * xShift + yShift * yShift) / acquisitionTimeInterval;
+                            saveVelocity(v);
+                        }
+
+                        private synchronized void saveVelocity(final double v) {
+                            velocityData.velocity[iIdx][jIdx] = v;
+                        }
+                    };
+                    threadManager.add(worker);
+                    status.worked(1);
+                }
+            }
+            status.done();
+            threadManager.finish();
+
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException("computeGCPVelocities", e);
         }
     }
 
