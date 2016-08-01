@@ -61,6 +61,16 @@ public class TokenizerTest {
     }
 
     @Test
+    public void testTokenizerWithBandNames() throws Exception {
+        Tokenizer tokenizer = new Tokenizer("algal");
+        assertEquals(Tokenizer.TT_NAME, tokenizer.next());
+        assertEquals("algal", tokenizer.getToken());
+        tokenizer = new Tokenizer("'250m_16_days_EVI'");
+        assertEquals(Tokenizer.TT_ESCAPED_NAME, tokenizer.next());
+        assertEquals("250m_16_days_EVI", tokenizer.getToken());
+    }
+
+    @Test
     public void testParseInt() {
         assertEquals(4, Integer.parseInt("4"));
         assertEquals(-4, Integer.parseInt("-4"));
