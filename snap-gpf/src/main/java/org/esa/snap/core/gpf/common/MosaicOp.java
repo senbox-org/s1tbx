@@ -39,6 +39,7 @@ import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.image.ResolutionLevel;
 import org.esa.snap.core.image.VirtualBandOpImage;
 import org.esa.snap.core.jexp.ParseException;
+import org.esa.snap.core.jexp.impl.Tokenizer;
 import org.esa.snap.core.util.jai.JAIUtils;
 import org.esa.snap.core.util.math.MathUtils;
 import org.geotools.factory.Hints;
@@ -423,7 +424,7 @@ public class MosaicOp extends Operator {
             Band band = product.addBand(outputVariable.getName(), ProductData.TYPE_FLOAT32);
             band.setDescription(outputVariable.getExpression());
             final String countBandName = getCountBandName(outputVariable);
-            band.setValidPixelExpression(String.format("%s > 0", countBandName));
+            band.setValidPixelExpression(String.format("%s > 0", Tokenizer.createExternalName(countBandName)));
 
             Band countBand = product.addBand(countBandName, ProductData.TYPE_INT32);
             countBand.setDescription(String.format("Count of %s", outputVariable.getName()));
