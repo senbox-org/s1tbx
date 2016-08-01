@@ -299,22 +299,26 @@ public class ParserImplTest {
 
     private void testConditional(String code) throws ParseException {
         final Variable x = SymbolFactory.createVariable("x", 0.0);
-        ((WritableNamespace) parser.getDefaultNamespace()).registerSymbol(x);
-        Term term = parser.parse(code);
+        try {
+            ((WritableNamespace) parser.getDefaultNamespace()).registerSymbol(x);
+            Term term = parser.parse(code);
 
-        assertNotNull(term);
-        assertNotNull(term.getChildren());
-        int i = term.getChildren().length;
-        assertEquals(3, i);
+            assertNotNull(term);
+            assertNotNull(term.getChildren());
+            int i = term.getChildren().length;
+            assertEquals(3, i);
 
-        x.assignI(null, -10);
-        assertEquals(0, term.evalI(env));
+            x.assignI(null, -10);
+            assertEquals(0, term.evalI(env));
 
-        x.assignI(null, 0);
-        assertEquals(0, term.evalI(env));
+            x.assignI(null, 0);
+            assertEquals(0, term.evalI(env));
 
-        x.assignI(null, 10);
-        assertEquals(1, term.evalI(env));
+            x.assignI(null, 10);
+            assertEquals(1, term.evalI(env));
+        } finally {
+            ((WritableNamespace) parser.getDefaultNamespace()).deregisterSymbol(x);
+        }
     }
 
     @Test
@@ -379,22 +383,26 @@ public class ParserImplTest {
 
     private void testNestedConditional(String code) throws ParseException {
         final Variable x = SymbolFactory.createVariable("x", 0.0);
-        ((WritableNamespace) parser.getDefaultNamespace()).registerSymbol(x);
+        try {
+            ((WritableNamespace) parser.getDefaultNamespace()).registerSymbol(x);
 
-        Term term = parser.parse(code);
-        assertNotNull(term);
-        assertNotNull(term.getChildren());
-        int i = term.getChildren().length;
-        assertEquals(3, i);
+            Term term = parser.parse(code);
+            assertNotNull(term);
+            assertNotNull(term.getChildren());
+            int i = term.getChildren().length;
+            assertEquals(3, i);
 
-        x.assignI(null, -10);
-        assertEquals(-1, term.evalI(env));
+            x.assignI(null, -10);
+            assertEquals(-1, term.evalI(env));
 
-        x.assignI(null, 0);
-        assertEquals(0, term.evalI(env));
+            x.assignI(null, 0);
+            assertEquals(0, term.evalI(env));
 
-        x.assignI(null, 10);
-        assertEquals(1, term.evalI(env));
+            x.assignI(null, 10);
+            assertEquals(1, term.evalI(env));
+        } finally {
+            ((WritableNamespace) parser.getDefaultNamespace()).deregisterSymbol(x);
+        }
     }
 
     @Test
