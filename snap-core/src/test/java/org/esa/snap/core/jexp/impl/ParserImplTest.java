@@ -322,6 +322,17 @@ public class ParserImplTest {
     }
 
     @Test
+    public void testSymbolStartingWithNumber() throws ParseException {
+        final Variable band = SymbolFactory.createVariable("250m_16_days_EVI", 0.0);
+        try {
+            ((WritableNamespace) parser.getDefaultNamespace()).registerSymbol(band);
+            parser.parse("'250m_16_days_EVI'");
+        } finally {
+            ((WritableNamespace) parser.getDefaultNamespace()).deregisterSymbol(band);
+        }
+    }
+
+    @Test
     public void testValidVariableDExpression() throws ParseException {
         Term term;
 
