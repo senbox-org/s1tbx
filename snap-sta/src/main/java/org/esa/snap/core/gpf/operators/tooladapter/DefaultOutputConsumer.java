@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
  */
 public class DefaultOutputConsumer implements ProcessOutputConsumer {
 
-    private Pattern error;
+    protected Pattern error;
     private Pattern progress;
     private Pattern step;
     private Logger logger;

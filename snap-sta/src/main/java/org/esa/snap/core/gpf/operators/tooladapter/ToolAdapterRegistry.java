@@ -60,19 +60,14 @@ public enum ToolAdapterRegistry {
      */
     public void registerOperator(ToolAdapterOpSpi operatorSpi) {
         OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
-        String operatorName = operatorDescriptor.getName() != null ? operatorDescriptor.getName() : operatorDescriptor.getAlias();
+        String operatorAlias = operatorDescriptor.getAlias() != null ? operatorDescriptor.getAlias() : operatorDescriptor.getName();
         OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
-        OperatorSpi gpfOp = operatorSpiRegistry.getOperatorSpi(operatorName);
+        OperatorSpi gpfOp = operatorSpiRegistry.getOperatorSpi(operatorAlias);
         if (gpfOp != null) {
             operatorSpiRegistry.removeOperatorSpi(gpfOp);
         }
-        operatorSpiRegistry.addOperatorSpi(operatorName, operatorSpi);
-        if (registeredAdapters.containsKey(operatorName)) {
-            registeredAdapters.remove(operatorName);
-            registeredAdapters.put(operatorName, operatorSpi);
-            //Logger.getGlobal().warning(String.format("An operator with the name %s was already registered", operatorName));
-        }
-        registeredAdapters.put(operatorName, operatorSpi);
+        operatorSpiRegistry.addOperatorSpi(operatorAlias, operatorSpi);
+        registeredAdapters.put(operatorAlias, operatorSpi);
         notifyAdapterAdded((ToolAdapterOperatorDescriptor) operatorSpi.getOperatorDescriptor());
     }
 
@@ -87,7 +82,10 @@ public enum ToolAdapterRegistry {
             registeredAdapters.remove(operatorDescriptorName);
         }
         OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
-        OperatorSpi spi = operatorSpiRegistry.getOperatorSpi(operatorDescriptor.getName());
+        OperatorSpi spi = operatorSpiRegistry.getOperatorSpi(operatorDescriptor.getAlias());
+        if (spi == null) {
+            spi = operatorSpiRegistry.getOperatorSpi(operatorDescriptorName);
+        }
         if (spi != null) {
             operatorSpiRegistry.removeOperatorSpi(spi);
             notifyAdapterRemoved(operatorDescriptor);
@@ -97,7 +95,9 @@ public enum ToolAdapterRegistry {
     public ToolAdapterOperatorDescriptor findByAlias(String alias) {
         ToolAdapterOperatorDescriptor result = null;
         if (alias != null) {
-            List<ToolAdapterOpSpi> filtered = registeredAdapters.values().stream().filter(d -> alias.equals(d.getOperatorAlias())).collect(Collectors.toList());
+            List<ToolAdapterOpSpi> filtered = registeredAdapters.values().stream()
+                    .filter(d -> alias.equals(d.getOperatorAlias()) || alias.equals(d.getOperatorDescriptor().getName()))
+                    .collect(Collectors.toList());
             if (filtered.size() > 0) {
                 OperatorDescriptor operatorDescriptor = filtered.get(0).getOperatorDescriptor();
                 if (operatorDescriptor instanceof ToolAdapterOperatorDescriptor) {
