@@ -46,6 +46,11 @@ public class DefaultMultiLevelImage extends MultiLevelImage {
         this.source = source;
     }
 
+    public DefaultMultiLevelImage(MultiLevelSource source, ImageLayout layout) {
+        super(layout, null, null);
+        this.source = source;
+    }
+
     /**
      * @return The multi-level image source.
      */
