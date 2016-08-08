@@ -212,19 +212,11 @@ public class NetCDFUtils {
     }
 
     private static int getRasterDataType(final Variable variable) {
-        //NetcdfDataTypeWorkarounds workarounds = NetcdfDataTypeWorkarounds.getInstance();
-        //if (workarounds.hasWorkaroud(variable.getName(), variable.getDataType())) {
-        //    return workarounds.getRasterDataType(variable.getName(), variable.getDataType());
-        //}
-        return getRasterDataType(variable.getDataType(), variable.isUnsigned());
+        return getProductDataType(variable.getDataType(), variable.isUnsigned(), true);
     }
 
     private static boolean isValidRasterDataType(final DataType dataType) {
-        return getRasterDataType(dataType, false) != -1;
-    }
-
-    private static int getRasterDataType(final DataType dataType, final boolean unsigned) {
-        return getProductDataType(dataType, unsigned, true);
+        return getProductDataType(dataType, false, true) != -1;
     }
 
     private static int getProductDataType(final DataType dataType, final boolean unsigned, final boolean rasterDataOnly) {

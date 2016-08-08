@@ -15,10 +15,12 @@
  */
 package org.esa.s1tbx.io.netcdf;
 
+import org.esa.snap.dataio.netcdf.util.Constants;
+
 /**
  * Provides most of the constants used in this package.
  */
-public interface NetcdfConstants {
+public interface NetcdfConstants extends Constants {
 
     final static String[] NETCDF_FORMAT_NAMES = {"NetCDF"};
     final static String[] NETCDF_FORMAT_FILE_EXTENSIONS = {"nc", "nc3"};
@@ -28,19 +30,6 @@ public interface NetcdfConstants {
 
     final static String DESCRIPTION = "description";
     final static String UNIT = "unit";
-    final static String SCALE_FACTOR_ATT_NAME = "scale_factor";
-    final static String SLOPE_ATT_NAME = "slope";
-    final static String ADD_OFFSET_ATT_NAME = "add_offset";
-    final static String INTERCEPT_ATT_NAME = "intercept";
-    final static String FILL_VALUE_ATT_NAME = "_FillValue";
-    final static String MISSING_VALUE_ATT_NAME = "missing_value";
-    final static String VALID_MIN_ATT_NAME = "valid_min";
-    final static String VALID_MAX_ATT_NAME = "valid_max";
-    final static String STEP_ATT_NAME = "step";
-    final static String START_DATE_ATT_NAME = "start_date";
-    final static String START_TIME_ATT_NAME = "start_time";
-    final static String STOP_DATE_ATT_NAME = "stop_date";
-    final static String STOP_TIME_ATT_NAME = "stop_time";
 
     final static String UTC_TYPE = "utc:";
 

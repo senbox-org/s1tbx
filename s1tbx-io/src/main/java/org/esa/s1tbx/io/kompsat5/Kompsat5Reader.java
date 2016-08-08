@@ -34,6 +34,7 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.dataop.downloadable.XMLSupport;
 import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.datamodel.metadata.AbstractMetadataIO;
@@ -228,7 +229,7 @@ public class Kompsat5Reader extends SARReader {
 
             addAbstractedMetadataHeader(product, product.getMetadataRoot());
         } catch (Exception e) {
-            e.printStackTrace();
+            SystemUtils.LOG.severe("Error reading metadata for "+product.getName() + ": " + e.getMessage());
         }
     }
 
@@ -253,7 +254,7 @@ public class Kompsat5Reader extends SARReader {
                 AbstractMetadataIO.AddXMLMetadata(rootElement, AbstractMetadata.getOriginalProductMetadata(product));
             }
         } catch (IOException e) {
-            //System.out.println("Unable to read Delivery Note for "+product.getName());
+            SystemUtils.LOG.warning("Unable to read aux file for "+product.getName());
         }
     }
 
@@ -274,12 +275,7 @@ public class Kompsat5Reader extends SARReader {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR, mode);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ACQUISITION_MODE, mode);
 
-        if (mode.contains("HUGE") && productType.contains("SCS")) {
-            throw new IOException("Complex " + mode + " products are not supported for Cosmo-Skymed");
-        }
-
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, "CSK");
-        //AbstractMetadata.setAttribute(absRoot, AbstractMetadata.satellite, globalElem.getAttributeString("Satellite_Id", "CSK"));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, "Kompsat5");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME,
                 ReaderUtils.getTime(globalElem, "Product_Generation_UTC", standardDateFormat));
 
@@ -594,7 +590,7 @@ public class Kompsat5Reader extends SARReader {
             if (variables.length > 1) {
                 final String polStr = getPolarization(product, cnt);
                 if (polStr != null) {
-                    cntStr = "_" + polStr;
+                    cntStr = '_' + polStr;
                 } else {
                     cntStr = "_" + cnt;
                 }
@@ -603,13 +599,13 @@ public class Kompsat5Reader extends SARReader {
 
             if (isComplex) {     // add i and q
                 final Band bandI = NetCDFUtils.createBand(variable, width, height);
-                createUniqueBandName(product, bandI, "i" + cntStr);
+                createUniqueBandName(product, bandI, 'i' + cntStr);
                 bandI.setUnit(Unit.REAL);
                 product.addBand(bandI);
                 bandMap.put(bandI, variable);
 
                 final Band bandQ = NetCDFUtils.createBand(variable, width, height);
-                createUniqueBandName(product, bandQ, "q" + cntStr);
+                createUniqueBandName(product, bandQ, 'q' + cntStr);
                 bandQ.setUnit(Unit.IMAGINARY);
                 product.addBand(bandQ);
                 bandMap.put(bandQ, variable);
