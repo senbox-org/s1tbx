@@ -31,19 +31,22 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -112,7 +115,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
             orbitFile = downloadArchive(missionPrefix, orbitType, year, month, day, stateVectorTime);
         }
         if (orbitFile == null) {
-            //orbitFile = downloadFromQCWebsite(orbitType, year, month, day, stateVectorTime);
+            orbitFile = downloadFromQCWebsite(missionPrefix, orbitType, year, month, day, stateVectorTime);
         }
 
         if (orbitFile == null) {
@@ -167,7 +170,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
     private static File downloadFromQCWebsite(final String missionPrefix, final String orbitType,
                                               int year, int month, final int day,
                                               final double stateVectorTime) throws Exception {
-        getQCFiles(orbitType, year, month);
+        getQCFiles(orbitType, year, month, stateVectorTime);
         File orbitFile = findOrbitFile(missionPrefix, orbitType, stateVectorTime, year);
         if (orbitFile == null) {
             if (day < 15) {
@@ -183,7 +186,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
                     year++;
                 }
             }
-            getQCFiles(orbitType, year, month);
+            getQCFiles(orbitType, year, month, stateVectorTime);
             orbitFile = findOrbitFile(missionPrefix, orbitType, stateVectorTime, year);
         }
         return orbitFile;
@@ -201,7 +204,6 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
     private static File findOrbitFile(final String missionPrefix, final String orbitType,
                                       final double stateVectorTime, final int year) {
-
         final String prefix;
         final File orbitFileFolder;
         if (orbitType.startsWith(RESTITUTED)) {
@@ -211,22 +213,15 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
             prefix = missionPrefix + "_OPER_AUX_POEORB_OPOD_";
             orbitFileFolder = new File(Settings.getPath("OrbitFiles.sentinel1POEOrbitPath") + File.separator + year);
         }
-
+        if (!orbitFileFolder.exists())
+            return null;
         final File[] files = orbitFileFolder.listFiles(new MyFilenameFilter(prefix));
         if (files == null || files.length == 0)
             return null;
 
         for (File file : files) {
-            try {
-                final String filename = file.getName();
-                final ProductData.UTC utcStart = SentinelPODOrbitFile.getValidityStartFromFilenameUTC(filename);
-                final ProductData.UTC utcEnd = SentinelPODOrbitFile.getValidityStopFromFilenameUTC(filename);
-                if (utcStart != null && utcEnd != null) {
-                    if (stateVectorTime >= utcStart.getMJD() && stateVectorTime < utcEnd.getMJD()) {
-                        return file;
-                    }
-                }
-            } catch (ParseException ignored) {
+            if (isWithinRange(file.getName(), stateVectorTime)) {
+                return file;
             }
         }
         return null;
@@ -257,7 +252,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         }
     }
 
-    private static void getQCFiles(final String orbitType, int year, int month) throws Exception {
+    private static void getQCFiles(final String orbitType, int year, int month, final double stateVectorTime) throws Exception {
 
         final String type;
         final File localFolder;
@@ -275,15 +270,21 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
         final String[] orbitFiles = qc.getFileURLs(year, month);
 
+        disableSSLCertificateCheck();
+
         for(String file : orbitFiles) {
             final File localFile = new File(localFolder, file);
-            DownloadableContentImpl.getRemoteHttpFile(remotePath, localFile);
-
-            final File localZipFile = FileUtils.exchangeExtension(localFile, ".zip");
-            ZipUtils.zipFile(localFile, localZipFile);
-
+            if (isWithinRange(localFile.getName(), stateVectorTime)) {
+                DownloadableContentImpl.getRemoteHttpFile(remotePath, localFile);
+                if (localFile.exists()) {
+                    final File localZipFile = FileUtils.exchangeExtension(localFile, ".zip");
+                    ZipUtils.zipFile(localFile, localZipFile);
+                }
+            }
             localFile.delete();
         }
+
+        enableSSLCertificateCheck();
     }
 
     /**
@@ -787,4 +788,54 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
             return (name.endsWith(".ZIP") || name.endsWith(".EOF")) && name.startsWith(prefix);
         }
     }
+
+    private static void disableSSLCertificateCheck() {
+        final TrustManager[] trustManager = new TrustManager[]{
+                new X509TrustManager() {
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
+
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                    }
+
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                    }
+                }
+        };
+
+        try {
+            final SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustManager, null);
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+        } catch (NoSuchAlgorithmException|KeyManagementException e) {
+            System.out.println("disableSSLCertificateCheck failed: " + e);
+        }
+    }
+
+    private static void enableSSLCertificateCheck() {
+        try {
+            final SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, null, null);
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+        } catch (NoSuchAlgorithmException|KeyManagementException e) {
+            System.out.println("enableSSLCertificateCheck failed: " + e);
+        }
+    }
+
+    private static boolean isWithinRange(final String filename, final double stateVectorTime) {
+        try {
+            final ProductData.UTC utcStart = SentinelPODOrbitFile.getValidityStartFromFilenameUTC(filename);
+            final ProductData.UTC utcEnd = SentinelPODOrbitFile.getValidityStopFromFilenameUTC(filename);
+            if (utcStart != null && utcEnd != null) {
+                if (stateVectorTime >= utcStart.getMJD() && stateVectorTime < utcEnd.getMJD()) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 }
