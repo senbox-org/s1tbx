@@ -259,7 +259,11 @@ public final class ApplyOrbitFileOp extends Operator {
             // try other orbit file types
             for(String type : orbitProvider.getAvailableOrbitTypes()) {
                 if(!orbitType.startsWith(type)) {
-                    orbitProvider.retrieveOrbitFile(type);
+                    try {
+                        orbitProvider.retrieveOrbitFile(type);
+                    } catch (Exception e2) {
+                        throw e;
+                    }
                     SystemUtils.LOG.warning("Using "+type+" "+orbitProvider.getOrbitFile()+" instead");
                 }
             }
