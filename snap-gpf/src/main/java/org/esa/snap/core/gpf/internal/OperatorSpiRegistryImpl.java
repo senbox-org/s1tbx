@@ -229,10 +229,13 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
     }
 
     private void unregisterAlias(OperatorSpi operatorSpi) {
-        String spiClassName = operatorSpi.getClass().getName();
-        for (String key : new HashSet<>(classNames.keySet())) {
-            if (classNames.get(key).equals(spiClassName)) {
-                classNames.remove(key);
+        String alias = operatorSpi.getOperatorAlias();
+        if (classNames.remove(alias) == null) {
+            String spiClassName = operatorSpi.getClass().getName();
+            for (String key : new HashSet<>(classNames.keySet())) {
+                if (classNames.get(key).equals(spiClassName)) {
+                    classNames.remove(key);
+                }
             }
         }
     }
