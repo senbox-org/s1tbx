@@ -59,13 +59,15 @@ public class OffsetTrackingOpUI extends BaseOperatorUI {
     private final JTextField maxVelocity = new JTextField("");
     private final JTextField radius = new JTextField("");
 
-    // Other option
+    // Other options
     private final JComboBox resamplingType = new JComboBox(ResamplingFactory.resamplingNames);
-    final JCheckBox turnOffSpacialAverageCheckBox = new JCheckBox("Turn Off Spacial Average");
-    final JCheckBox turnOffFillHoleCheckBox = new JCheckBox("Turn Off Fill Hole");
+    final JCheckBox spacialAverageCheckBox = new JCheckBox("Spacial Average");
+    final JCheckBox fillHoleCheckBox = new JCheckBox("Fill Holes");
 
-    private Boolean turnOffSpacialAverage = false;
-    private Boolean turnOffFillHole = false;
+    private Boolean spacialAverage = true;
+    private Boolean fillHoles = true;
+
+    private final JComboBox vectorsCombo = new JComboBox();
 
     @Override
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {
@@ -74,15 +76,15 @@ public class OffsetTrackingOpUI extends BaseOperatorUI {
         final JComponent panel = createPanel();
         initParameters();
 
-        turnOffSpacialAverageCheckBox.addItemListener(new ItemListener() {
+        spacialAverageCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
-                turnOffSpacialAverage = (e.getStateChange() == ItemEvent.SELECTED);
+                spacialAverage = (e.getStateChange() == ItemEvent.SELECTED);
             }
         });
 
-        turnOffFillHoleCheckBox.addItemListener(new ItemListener() {
+        fillHoleCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
-                turnOffFillHole = (e.getStateChange() == ItemEvent.SELECTED);
+                fillHoles = (e.getStateChange() == ItemEvent.SELECTED);
             }
         });
 
@@ -120,14 +122,24 @@ public class OffsetTrackingOpUI extends BaseOperatorUI {
             setDerivedRangeParameters();
         }
 
-        turnOffSpacialAverage = (Boolean)paramMap.get("turnOffSpacialAverage");
-        if(turnOffSpacialAverage != null) {
-            turnOffSpacialAverageCheckBox.setSelected(turnOffSpacialAverage);
+        spacialAverage = (Boolean)paramMap.get("turnOffSpacialAverage");
+        if(spacialAverage != null) {
+            spacialAverageCheckBox.setSelected(spacialAverage);
         }
 
-        turnOffFillHole = (Boolean)paramMap.get("turnOffFillHole");
-        if(turnOffFillHole != null) {
-            turnOffFillHoleCheckBox.setSelected(turnOffFillHole);
+        fillHoles = (Boolean)paramMap.get("turnOffFillHole");
+        if(fillHoles != null) {
+            fillHoleCheckBox.setSelected(fillHoles);
+        }
+
+        vectorsCombo.removeAllItems();
+        final String[] geometryNames = getGeometries();
+        for (String g : geometryNames) {
+            vectorsCombo.addItem(g);
+        }
+        final String selectedGeometry = (String) paramMap.get("roiVector");
+        if (selectedGeometry != null) {
+            vectorsCombo.setSelectedItem(selectedGeometry);
         }
     }
 
@@ -155,8 +167,10 @@ public class OffsetTrackingOpUI extends BaseOperatorUI {
         setDerivedAzimuthParameters();
         setDerivedRangeParameters();
 
-        paramMap.put("turnOffSpacialAverage", turnOffSpacialAverage);
-        paramMap.put("turnOffFillHole", turnOffFillHole);
+        paramMap.put("spacialAverage", spacialAverage);
+        paramMap.put("fillHoles", fillHoles);
+
+        paramMap.put("roiVector", vectorsCombo.getSelectedItem());
     }
 
     private JComponent createPanel() {
@@ -172,6 +186,7 @@ public class OffsetTrackingOpUI extends BaseOperatorUI {
         final GridBagConstraints gbc2 = DialogUtils.createGridBagConstraints();
         gridPanel.setBorder(BorderFactory.createTitledBorder("Output Grid"));
 
+        gridAzimuthSpacing.setColumns(3);
         DialogUtils.addComponent(gridPanel, gbc2, "Grid Azimuth Spacing (in pixels):", gridAzimuthSpacing);
         gbc2.gridy++;
         DialogUtils.addComponent(gridPanel, gbc2, "Grid Range Spacing (in pixels):", gridRangeSpacing);
@@ -214,9 +229,14 @@ public class OffsetTrackingOpUI extends BaseOperatorUI {
 
         DialogUtils.addComponent(contentPane, gbc, "Resampling Type:", resamplingType);
         gbc.gridy++;
-        contentPane.add(turnOffSpacialAverageCheckBox, gbc);
+        gbc.gridx = 1;
+        contentPane.add(spacialAverageCheckBox, gbc);
         gbc.gridy++;
-        contentPane.add(turnOffFillHoleCheckBox, gbc);
+        contentPane.add(fillHoleCheckBox, gbc);
+        gbc.gridx = 0;
+        gbc.gridy++;
+
+        DialogUtils.addComponent(contentPane, gbc, "ROI Vector Mask:", vectorsCombo);
         gbc.gridy++;
 
         DialogUtils.fillPanel(contentPane, gbc);
