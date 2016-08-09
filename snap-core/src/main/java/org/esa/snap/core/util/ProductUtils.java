@@ -1591,6 +1591,23 @@ public class ProductUtils {
     }
 
     /**
+     * Copies the time information of the source product to the target product.
+     *
+     * @param source the source product.
+     * @param target the target product.
+     * @throws NullPointerException if the source or the target product is {@code null}.
+     *
+     * @see Product#getStartTime()
+     * @see Product#getEndTime()
+     * @see Product#getSceneTimeCoding()
+     */
+    public static void copyTimeCoding(Product source, Product target) {
+        target.setStartTime(source.getStartTime());
+        target.setEndTime(source.getEndTime());
+        target.setSceneTimeCoding(source.getSceneTimeCoding());
+    }
+
+    /**
      * Copies all metadata elements and attributes of the source element to the target element.
      * The copied elements and attributes are deeply cloned.
      *
