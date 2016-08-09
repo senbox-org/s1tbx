@@ -74,9 +74,10 @@ public class ReadOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        if (file == null) {
-            throw new OperatorException("'file' parameter must be set");
+        if (!file.getName().contains(".testdata") && !file.exists()) {
+            throw new OperatorException("'file' parameter must exist");
         }
+
         try {
             Product openedProduct = getOpenedProduct();
             if (openedProduct != null) {

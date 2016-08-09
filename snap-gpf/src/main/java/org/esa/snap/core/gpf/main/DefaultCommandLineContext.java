@@ -47,6 +47,9 @@ class DefaultCommandLineContext implements CommandLineContext {
     @Override
     public Product readProduct(String productFilepath) throws IOException {
         final File input = new File(productFilepath);
+        if (!input.exists()) {
+            throw new OperatorException("'" + productFilepath + "' file didn't exist");
+        }
         final ProductReader productReader = ProductIO.getProductReaderForInput(input);
         if (productReader == null) {
             throw new OperatorException("No product reader found for '" + productFilepath + "'");
