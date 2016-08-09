@@ -43,22 +43,47 @@ public class BenchmarkSingleCalculus implements Comparable<BenchmarkSingleCalcul
      */
     private Long executionTime;
 
+    /**
+     * hide in output or not
+     */
+    private boolean hideOutput;
+
+    /**
+     * execution order
+     */
+    private int executionOrder;
+
     public BenchmarkSingleCalculus(int tileSize, int cacheSize, int nbThreads){
+        this(tileSize, cacheSize, nbThreads, false);
+    }
+
+    public BenchmarkSingleCalculus(int tileSize, int cacheSize, int nbThreads, boolean hideOutput){
         this.tileSize = tileSize;
         this.cacheSize = cacheSize;
         this.nbThreads = nbThreads;
+        this.hideOutput = hideOutput;
         this.executionTime = null;
     }
 
-   public String toString(){
-       String toDiaplay = "("+this.getTileSize()+", "+this.getCacheSize()+", "+this.nbThreads+") = ";
-       if(this.executionTime != null) {
-           toDiaplay += this.executionTime+" ms";
-       } else {
-           toDiaplay += "not computed";
-       }
-       return toDiaplay;
-   }
+    public String toString() {
+        String toDiaplay = "(" + this.getTileSize() + ", " + this.getCacheSize() + ", " + this.nbThreads + ") = ";
+        if (this.executionTime != null) {
+            toDiaplay += this.executionTime + " ms";
+        } else {
+            toDiaplay += "not computed";
+        }
+        return toDiaplay;
+    }
+
+    public static String[] getColumnNames(){
+        String[] columnsNames = {"Execution Order", "Tile size", "Cache size", "Nb threads", "Execution time"};
+        return columnsNames;
+    }
+
+    public int[] getData() {
+        int[] calculus = {this.executionOrder, this.tileSize, this.cacheSize, this.nbThreads, this.executionTime.intValue()};
+        return calculus;
+    }
 
     @Override
     public int compareTo(BenchmarkSingleCalculus compareBenchmarkSingleCalcul) {
@@ -94,5 +119,37 @@ public class BenchmarkSingleCalculus implements Comparable<BenchmarkSingleCalcul
 
     public void setExecutionTime(long executionTime) {
         this.executionTime = executionTime;
+    }
+
+    public void setHideOutput(boolean hide) {
+        this.hideOutput = hide;
+    }
+
+    public boolean isHidden() {
+        return this.hideOutput;
+    }
+
+    public boolean hasIdenticalParameters(BenchmarkSingleCalculus benchmarkSingleCalculus) {
+        if(this.nbThreads != benchmarkSingleCalculus.getNbThreads()) {
+            return false;
+        }
+
+        if(this.cacheSize != benchmarkSingleCalculus.getCacheSize()) {
+            return false;
+        }
+
+        if(this.tileSize != benchmarkSingleCalculus.getTileSize()) {
+            return false;
+        }
+
+        if(this.hideOutput != benchmarkSingleCalculus.isHidden()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public void setExecutionOrder(int executionOrder) {
+        this.executionOrder = executionOrder;
     }
 }

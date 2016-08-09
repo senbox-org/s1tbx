@@ -44,8 +44,8 @@ public class Benchmark {
 
         benchmarkCalculus = new ArrayList<>();
 
-        // duplicate the first values, as the first run is allways slower
-        benchmarkCalculus.add(new BenchmarkSingleCalculus(tileSizes.get(0), cacheSizes.get(0), nbThreads.get(0)));
+        // duplicate the first values, as the first run is allways slower, but do not show the output
+        benchmarkCalculus.add(new BenchmarkSingleCalculus(tileSizes.get(0), cacheSizes.get(0), nbThreads.get(0), true));
 
         //generate possible calculs list
         for(Integer tileSize : tileSizes){
@@ -90,9 +90,52 @@ public class Benchmark {
         String benchmarksPrint = "Benchmark results sorted by execution time\n";
         benchmarksPrint += "(Tile size, Cache size, Nb threads) = Execution time \n\n";
         for(BenchmarkSingleCalculus benchmarkSingleCalcul : this.benchmarkCalculus){
+            if(benchmarkSingleCalcul.isHidden()) {
+                continue;
+            }
             benchmarksPrint += benchmarkSingleCalcul.toString() + "\n";
         }
         return benchmarksPrint;
+    }
+
+    public String[] getColumnsNames(){
+        return BenchmarkSingleCalculus.getColumnNames();
+    }
+
+    public int[][] getRows(){
+        int numRows = this.benchmarkCalculus.size();
+        int numColumns = getColumnsNames().length;
+        if (numRows == 0 || numColumns == 0) {
+            return null;
+        }
+        int[][] rows = new int[numRows][numColumns];
+        for(int i = 0 ; i < numRows ; i++) {
+            rows[i] = this.benchmarkCalculus.get(i).getData();
+        }
+
+        return rows;
+    }
+
+    public int[][] getRowsToShow(){
+        int numRows = 0;
+        int numColumns = getColumnsNames().length;
+
+        for(int i = 0; i < this.benchmarkCalculus.size();i++) {
+            if (!this.benchmarkCalculus.get(i).isHidden()) {
+                numRows++;
+            }
+        }
+        if (numRows == 0 || numColumns == 0) {
+            return null;
+        }
+        int[][] rows = new int[numRows][numColumns];
+        for(int i = 0 ; i < this.benchmarkCalculus.size() ; i++) {
+            if (!this.benchmarkCalculus.get(i).isHidden()) {
+                rows[i] = this.benchmarkCalculus.get(i).getData();
+            }
+        }
+
+        return rows;
     }
 
     public List<BenchmarkSingleCalculus> getBenchmarkCalculus() {
@@ -101,5 +144,14 @@ public class Benchmark {
 
     public void addBenchmarkCalcul(BenchmarkSingleCalculus benchmarkSingleCalcul){
         this.benchmarkCalculus.add(benchmarkSingleCalcul);
+    }
+
+    public boolean isAlreadyInList(BenchmarkSingleCalculus benchmarkSingleCalculNew) {
+        for(BenchmarkSingleCalculus benchmarkSingleCalcul : this.benchmarkCalculus){
+            if(benchmarkSingleCalcul.hasIdenticalParameters(benchmarkSingleCalculNew)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
