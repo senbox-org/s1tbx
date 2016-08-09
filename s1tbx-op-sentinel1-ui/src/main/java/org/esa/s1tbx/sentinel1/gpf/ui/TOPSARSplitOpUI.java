@@ -15,7 +15,6 @@
  */
 package org.esa.s1tbx.sentinel1.gpf.ui;
 
-import com.jidesoft.swing.RangeSlider;
 import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.MetadataElement;
@@ -27,6 +26,7 @@ import org.esa.snap.graphbuilder.gpf.ui.worldmap.NestWorldMapPane;
 import org.esa.snap.graphbuilder.gpf.ui.worldmap.WorldMapUI;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.ui.AppContext;
+import prefuse.util.ui.JRangeSlider;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -46,7 +46,7 @@ public class TOPSARSplitOpUI extends BaseOperatorUI {
     private final JList<String> polList = new JList<>();
 
     private final JLabel burstLabel = new JLabel("");
-    private final RangeSlider burstRange = new RangeSlider(RangeSlider.HORIZONTAL);
+    private final JRangeSlider burstRange = new JRangeSlider(0,0,0,0, JRangeSlider.HORIZONTAL);
     private final Map<String, Integer> swathBurstsMap = new HashMap<>();
 
     private final WorldMapUI worldMapUI = new WorldMapUI();
@@ -73,7 +73,6 @@ public class TOPSARSplitOpUI extends BaseOperatorUI {
 
         burstRange.setMinimum(1);
         burstRange.setMaximum(9999);
-        burstRange.setMajorTickSpacing(1);
 
         burstRange.addChangeListener(new ChangeListener() {
             @Override

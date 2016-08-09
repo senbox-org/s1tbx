@@ -84,6 +84,13 @@
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-modules-javahelp</artifactId>
         </dependency>
+
+
+        <dependency>
+            <groupId>de.sciss</groupId>
+            <artifactId>prefuse-core</artifactId>
+            <version>1.0.1</version>
+        </dependency>
     </dependencies>
     
     <build>
