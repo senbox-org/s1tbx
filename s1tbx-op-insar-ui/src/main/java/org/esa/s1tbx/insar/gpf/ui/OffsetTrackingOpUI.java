@@ -61,10 +61,10 @@ public class OffsetTrackingOpUI extends BaseOperatorUI {
 
     // Other options
     private final JComboBox resamplingType = new JComboBox(ResamplingFactory.resamplingNames);
-    final JCheckBox spacialAverageCheckBox = new JCheckBox("Spacial Average");
+    final JCheckBox spatialAverageCheckBox = new JCheckBox("Spatial Average");
     final JCheckBox fillHoleCheckBox = new JCheckBox("Fill Holes");
 
-    private Boolean spacialAverage = true;
+    private Boolean spatialAverage = true;
     private Boolean fillHoles = true;
 
     private final JComboBox vectorsCombo = new JComboBox();
@@ -76,9 +76,9 @@ public class OffsetTrackingOpUI extends BaseOperatorUI {
         final JComponent panel = createPanel();
         initParameters();
 
-        spacialAverageCheckBox.addItemListener(new ItemListener() {
+        spatialAverageCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
-                spacialAverage = (e.getStateChange() == ItemEvent.SELECTED);
+                spatialAverage = (e.getStateChange() == ItemEvent.SELECTED);
             }
         });
 
@@ -122,9 +122,9 @@ public class OffsetTrackingOpUI extends BaseOperatorUI {
             setDerivedRangeParameters();
         }
 
-        spacialAverage = (Boolean)paramMap.get("turnOffSpacialAverage");
-        if(spacialAverage != null) {
-            spacialAverageCheckBox.setSelected(spacialAverage);
+        spatialAverage = (Boolean)paramMap.get("spatialAverage");
+        if(spatialAverage != null) {
+            spatialAverageCheckBox.setSelected(spatialAverage);
         }
 
         fillHoles = (Boolean)paramMap.get("turnOffFillHole");
@@ -167,7 +167,7 @@ public class OffsetTrackingOpUI extends BaseOperatorUI {
         setDerivedAzimuthParameters();
         setDerivedRangeParameters();
 
-        paramMap.put("spacialAverage", spacialAverage);
+        paramMap.put("spatialAverage", spatialAverage);
         paramMap.put("fillHoles", fillHoles);
 
         paramMap.put("roiVector", vectorsCombo.getSelectedItem());
@@ -230,7 +230,7 @@ public class OffsetTrackingOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(contentPane, gbc, "Resampling Type:", resamplingType);
         gbc.gridy++;
         gbc.gridx = 1;
-        contentPane.add(spacialAverageCheckBox, gbc);
+        contentPane.add(spatialAverageCheckBox, gbc);
         gbc.gridy++;
         contentPane.add(fillHoleCheckBox, gbc);
         gbc.gridx = 0;

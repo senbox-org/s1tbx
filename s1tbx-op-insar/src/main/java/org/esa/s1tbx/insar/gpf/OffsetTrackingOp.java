@@ -125,8 +125,8 @@ public class OffsetTrackingOp extends Operator {
             description = "Methods for velocity interpolation.", label = "Resampling Type")
     private String resamplingType = ResamplingFactory.BICUBIC_INTERPOLATION_NAME;
 
-    @Parameter(defaultValue = "true", label = "Spacial Average")
-    private boolean spacialAverage = true;
+    @Parameter(defaultValue = "true", label = "Spatial Average")
+    private boolean spatialAverage = true;
 
     @Parameter(defaultValue = "true", label = "Fill Holes")
     private boolean fillHoles = true;
@@ -482,7 +482,7 @@ public class OffsetTrackingOp extends Operator {
 
         computeGCPOffsets();
 
-        if (spacialAverage) {
+        if (spatialAverage) {
             averageOffsets();
         }
 
