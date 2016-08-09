@@ -17,7 +17,15 @@ package org.esa.s1tbx.insar.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.insar.gpf.coregistration.CrossCorrelationOp;
-import org.esa.snap.core.datamodel.*;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.Mask;
+import org.esa.snap.core.datamodel.MetadataAttribute;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.core.dataop.resamp.Resampling;
 import org.esa.snap.core.dataop.resamp.ResamplingFactory;
@@ -33,7 +41,10 @@ import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
-import org.esa.snap.engine_utilities.gpf.*;
+import org.esa.snap.engine_utilities.gpf.OperatorUtils;
+import org.esa.snap.engine_utilities.gpf.StackUtils;
+import org.esa.snap.engine_utilities.gpf.ThreadManager;
+import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;
 import org.jlinda.core.coregistration.utils.CoregistrationUtils;
@@ -41,6 +52,7 @@ import org.jlinda.nest.utils.TileUtilsDoris;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -83,15 +95,15 @@ public class OffsetTrackingOp extends Operator {
             label = "Cross-Correlation Threshold")
     private double xCorrThreshold = 0.1;
 
-//    @Parameter(valueSet = {"2", "4", "8", "16", "32", "64", "128", "256"},
+    //    @Parameter(valueSet = {"2", "4", "8", "16", "32", "64", "128", "256"},
 //            defaultValue = "16", label = "Search Window Accuracy in Azimuth Direction")
     private String registrationWindowAccAzimuth = "16";
 
-//    @Parameter(valueSet = {"2", "4", "8", "16", "32", "64", "128", "256"},
+    //    @Parameter(valueSet = {"2", "4", "8", "16", "32", "64", "128", "256"},
 //            defaultValue = "16", label = "Search Window Accuracy in Range Direction")
     private String registrationWindowAccRange = "16";
 
-//    @Parameter(valueSet = {"2", "4", "8", "16", "32", "64"}, defaultValue = "16",
+    //    @Parameter(valueSet = {"2", "4", "8", "16", "32", "64"}, defaultValue = "16",
 //            label = "Window oversampling factor")
     private String registrationOversampling = "16";
 
@@ -113,19 +125,19 @@ public class OffsetTrackingOp extends Operator {
             description = "Methods for velocity interpolation.", label = "Resampling Type")
     private String resamplingType = ResamplingFactory.BICUBIC_INTERPOLATION_NAME;
 
-    @Parameter(defaultValue = "false", label = "Turn Off Spacial Average")
-    private boolean turnOffSpacialAverage = false;
+    @Parameter(defaultValue = "true", label = "Spacial Average")
+    private boolean spacialAverage = true;
 
-    @Parameter(defaultValue = "false", label = "Turn Off Fill Hole")
-    private boolean turnOffFillHole = false;
+    @Parameter(defaultValue = "true", label = "Fill Holes")
+    private boolean fillHoles = true;
+
+    @Parameter(label = "ROI Vector", defaultValue = "")
+    private String roiVector = "";
 
     private boolean outputDebuggingBands = false;
 
-    private int cWindowWidth = 0;
-    private int cWindowHeight = 0;
     private int cHalfWindowWidth = 0;
     private int cHalfWindowHeight = 0;
-    private int avgWindowSize = 0;
     private int halfAvgWindowSize = 0;
     private CrossCorrelationOp.CorrelationWindow corrWin = null;
 
@@ -139,8 +151,6 @@ public class OffsetTrackingOp extends Operator {
     private int spacingY = 0;
     private int halfSpacingX = 0;
     private int halfSpacingY = 0;
-    private double mstFirstLineTime = 0.0;
-    private double slvFirstLineTime = 0.0;
     private double acquisitionTimeInterval = 0.0;
     private double rangeSpacing = 0.0;
     private double azimuthSpacing = 0.0;
@@ -180,7 +190,7 @@ public class OffsetTrackingOp extends Operator {
 
         try {
             selectedResampling = ResamplingFactory.createResampling(resamplingType);
-            avgWindowSize = Integer.parseInt(averageBoxSize);
+            int avgWindowSize = Integer.parseInt(averageBoxSize);
             halfAvgWindowSize = avgWindowSize / 2;
 
             setRegistrationWindows();
@@ -202,8 +212,8 @@ public class OffsetTrackingOp extends Operator {
 
     private void setRegistrationWindows() {
 
-        cWindowWidth = Integer.parseInt(registrationWindowWidth);
-        cWindowHeight = Integer.parseInt(registrationWindowHeight);
+        int cWindowWidth = Integer.parseInt(registrationWindowWidth);
+        int cWindowHeight = Integer.parseInt(registrationWindowHeight);
         cHalfWindowWidth = cWindowWidth / 2;
         cHalfWindowHeight = cWindowHeight / 2;
 
@@ -221,14 +231,14 @@ public class OffsetTrackingOp extends Operator {
 
         final MetadataElement slvAbsRoot = AbstractMetadata.getSlaveMetadata(sourceProduct.getMetadataRoot()).getElementAt(0);
 
-        mstFirstLineTime = AbstractMetadata.parseUTC(
+        final double mstFirstLineTime = AbstractMetadata.parseUTC(
                 mstAbsRoot.getAttributeString(AbstractMetadata.first_line_time)).getMJD(); // in days
 
         rangeSpacing = AbstractMetadata.getAttributeDouble(mstAbsRoot, AbstractMetadata.range_spacing);
 
         azimuthSpacing = AbstractMetadata.getAttributeDouble(mstAbsRoot, AbstractMetadata.azimuth_spacing);
 
-        slvFirstLineTime = AbstractMetadata.parseUTC(
+        final double slvFirstLineTime = AbstractMetadata.parseUTC(
                 slvAbsRoot.getAttributeString(AbstractMetadata.first_line_time)).getMJD(); // in days
 
         acquisitionTimeInterval = slvFirstLineTime - mstFirstLineTime; // in days
@@ -240,15 +250,15 @@ public class OffsetTrackingOp extends Operator {
 
         masterBand = getSourceBand(sourceProduct, StackUtils.MST);
         slaveBand = getSourceBand(sourceProduct, StackUtils.SLV);
-        if(masterBand == null || slaveBand == null) {
+        if (masterBand == null || slaveBand == null) {
             throw new OperatorException("Cannot find master or slave amplitude or intensity band");
         }
     }
 
     private static Band getSourceBand(final Product sourceProduct, final String tag) {
 
-        for(Band band : sourceProduct.getBands()) {
-            if(band.getName().toLowerCase().contains(tag) &&
+        for (Band band : sourceProduct.getBands()) {
+            if (band.getName().toLowerCase().contains(tag) &&
                     (band.getUnit().contains(Unit.AMPLITUDE) || band.getUnit().contains(Unit.INTENSITY))) {
                 return band;
             }
@@ -317,9 +327,9 @@ public class OffsetTrackingOp extends Operator {
         velocityData = new VelocityData(numGCPsPerAzLine, numGCPsPerRgLine);
 
         for (int i = 0; i < numGCPsPerAzLine; i++) {
-            final int y = halfSpacingY + i*spacingY;
+            final int y = halfSpacingY + i * spacingY;
             for (int j = 0; j < numGCPsPerRgLine; j++) {
-                final int x = halfSpacingX + j*spacingX;
+                final int x = halfSpacingX + j * spacingX;
                 velocityData.mstGCPx[i][j] = x;
                 velocityData.mstGCPy[i][j] = y;
                 velocityData.slvGCPx[i][j] = invalidIndex;
@@ -344,8 +354,7 @@ public class OffsetTrackingOp extends Operator {
      * @param targetTileMap   The target tiles associated with all target bands to be computed.
      * @param targetRectangle The rectangle of target tile.
      * @param pm              A progress monitor which should be used to determine computation cancelation requests.
-     * @throws OperatorException
-     *          If an error occurs during computation of the target raster.
+     * @throws OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
@@ -376,7 +385,7 @@ public class OffsetTrackingOp extends Operator {
             ProductData tgtVelocityBuffer = null;
             ProductData tgtGCPPositionBuffer = null;
             final Band[] targetBands = targetProduct.getBands();
-            for (Band tgtBand:targetBands) {
+            for (Band tgtBand : targetBands) {
                 final String tgtBandName = tgtBand.getName();
                 if (tgtBandName.contains(RANGE_SHIFT)) {
                     tgtRangeShiftTile = targetTileMap.get(tgtBand);
@@ -412,22 +421,22 @@ public class OffsetTrackingOp extends Operator {
 
             for (int y = y0; y < yMax; y++) {
                 tgtIndex.calculateStride(y);
-                final double i = (double)(y - halfSpacingY) / (double)spacingY;
+                final double i = (double) (y - halfSpacingY) / (double) spacingY;
                 for (int x = x0; x < xMax; x++) {
                     final int tgtIdx = tgtIndex.getIndex(x);
-                    final double j = (double)(x - halfSpacingX) / (double)spacingX;
+                    final double j = (double) (x - halfSpacingX) / (double) spacingX;
 
                     selectedResampling.computeCornerBasedIndex(j, i, numGCPsPerRgLine, numGCPsPerAzLine, resamplingIndex);
 
                     tgtVelocityBuffer.setElemFloatAt(tgtIdx,
-                            (float)selectedResampling.resample(resamplingRasterVelocity, resamplingIndex));
+                            (float) selectedResampling.resample(resamplingRasterVelocity, resamplingIndex));
 
                     if (outputDebuggingBands) {
                         tgtRangeShiftBuffer.setElemFloatAt(tgtIdx,
-                                (float)selectedResampling.resample(resamplingRasterRangeShift, resamplingIndex));
+                                (float) selectedResampling.resample(resamplingRasterRangeShift, resamplingIndex));
 
                         tgtAzimuthShiftBuffer.setElemFloatAt(tgtIdx,
-                                (float)selectedResampling.resample(resamplingRasterAzimuthShift, resamplingIndex));
+                                (float) selectedResampling.resample(resamplingRasterAzimuthShift, resamplingIndex));
                     }
                 }
             }
@@ -473,11 +482,11 @@ public class OffsetTrackingOp extends Operator {
 
         computeGCPOffsets();
 
-        if (!turnOffSpacialAverage) {
+        if (spacialAverage) {
             averageOffsets();
         }
 
-        if (!turnOffFillHole) {
+        if (fillHoles) {
             fillHoles();
         }
 
@@ -488,42 +497,58 @@ public class OffsetTrackingOp extends Operator {
         velocityAvailable = true;
     }
 
+    private static class GCPData {
+        final PixelPos mGCP;
+        final int i, j;
+
+        GCPData(PixelPos gcp, int i, int j) {
+            this.mGCP = gcp;
+            this.i = i;
+            this.j = j;
+        }
+    }
+
     private void computeSlaveGCPs() {
 
-        final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
-        status.beginTask("Compute slave GCP... ", numGCPsPerAzLine * numGCPsPerRgLine);
-
-        final ThreadManager threadManager = new ThreadManager();
         try {
+            final List<GCPData> gcpList = new ArrayList<>();
             for (int i = 0; i < numGCPsPerAzLine; i++) {
-                checkForCancellation();
                 for (int j = 0; j < numGCPsPerRgLine; j++) {
-                    final int iIdx = i;
-                    final int jIdx = j;
 
                     final PixelPos mGCP = new PixelPos(velocityData.mstGCPx[i][j], velocityData.mstGCPy[i][j]);
                     if (!checkGCPValidity(mGCP)) {
                         continue;
                     }
 
-                    final Thread worker = new Thread() {
-                        @Override
-                        public void run() {
-                            final PixelPos sGCP = new PixelPos(mGCP.x, mGCP.y);
-                            boolean getSlaveGCP = getOffsets(mGCP, sGCP);
-                            if (getSlaveGCP) {
-                                saveSlaveGCP(sGCP);
-                            }
-                        }
-
-                        private synchronized void saveSlaveGCP(final PixelPos sGCP) {
-                            velocityData.slvGCPx[iIdx][jIdx] = sGCP.x;
-                            velocityData.slvGCPy[iIdx][jIdx] = sGCP.y;
-                        }
-                    };
-                    threadManager.add(worker);
-                    status.worked(1);
+                    gcpList.add(new GCPData(mGCP, i, j));
                 }
+            }
+
+            final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
+            status.beginTask("Computing slave GCPs... ", gcpList.size());
+
+            final ThreadManager threadManager = new ThreadManager();
+
+            for (GCPData gcpData : gcpList) {
+                checkForCancellation();
+
+                final Thread worker = new Thread() {
+                    @Override
+                    public void run() {
+                        final PixelPos sGCP = new PixelPos(gcpData.mGCP.x, gcpData.mGCP.y);
+                        boolean getSlaveGCP = getOffsets(gcpData.mGCP, sGCP);
+                        if (getSlaveGCP) {
+                            saveSlaveGCP(sGCP);
+                        }
+                    }
+
+                    private synchronized void saveSlaveGCP(final PixelPos sGCP) {
+                        velocityData.slvGCPx[gcpData.i][gcpData.j] = sGCP.x;
+                        velocityData.slvGCPy[gcpData.i][gcpData.j] = sGCP.y;
+                    }
+                };
+                threadManager.add(worker);
+                status.worked(1);
             }
             status.done();
             threadManager.finish();
@@ -555,17 +580,17 @@ public class OffsetTrackingOp extends Operator {
                         public void run() {
 
                             final double xShift =
-                                    (velocityData.mstGCPx[iIdx][jIdx] - velocityData.slvGCPx[iIdx][jIdx])*rangeSpacing;
+                                    (velocityData.mstGCPx[iIdx][jIdx] - velocityData.slvGCPx[iIdx][jIdx]) * rangeSpacing;
 
                             final double yShift =
-                                    (velocityData.mstGCPy[iIdx][jIdx] - velocityData.slvGCPy[iIdx][jIdx])*azimuthSpacing;
+                                    (velocityData.mstGCPy[iIdx][jIdx] - velocityData.slvGCPy[iIdx][jIdx]) * azimuthSpacing;
 
                             final double offset = Math.sqrt(xShift * xShift + yShift * yShift);
 
                             if (offset <= maxOffset) {
                                 saveOffset(xShift, yShift);
                             } else { // outliers
-                                synchronized(velocityData.slvGCPx) {
+                                synchronized (velocityData.slvGCPx) {
                                     velocityData.slvGCPx[iIdx][jIdx] = invalidIndex;
                                     velocityData.slvGCPy[iIdx][jIdx] = invalidIndex;
                                 }
@@ -721,8 +746,8 @@ public class OffsetTrackingOp extends Operator {
 
                     private boolean inList(final int ii, final int jj) {
 
-                        for (int k = 0; k < holeList.size(); k++) {
-                            if (holeList.get(k)[0] == ii && holeList.get(k)[1] == jj) {
+                        for (int[] aHoleList : holeList) {
+                            if (aHoleList[0] == ii && aHoleList[1] == jj) {
                                 return true;
                             }
                         }
@@ -793,8 +818,13 @@ public class OffsetTrackingOp extends Operator {
 
     private boolean checkGCPValidity(final PixelPos pixelPos) {
 
-        return (pixelPos.x - cHalfWindowWidth + 1 >= 0 && pixelPos.x + cHalfWindowWidth <= sourceImageWidth - 1) &&
-               (pixelPos.y - cHalfWindowHeight + 1 >= 0 && pixelPos.y + cHalfWindowHeight <= sourceImageHeight - 1);
+        boolean valid = (pixelPos.x - cHalfWindowWidth + 1 >= 0 && pixelPos.x + cHalfWindowWidth <= sourceImageWidth - 1) &&
+                (pixelPos.y - cHalfWindowHeight + 1 >= 0 && pixelPos.y + cHalfWindowHeight <= sourceImageHeight - 1);
+        if (valid && roiVector != null && !roiVector.isEmpty()) {
+            Mask mask = sourceProduct.getMaskGroup().get(roiVector);
+            valid = mask.getSampleInt((int) pixelPos.x, (int) pixelPos.y) != 0;
+        }
+        return valid;
     }
 
     private boolean getOffsets(final PixelPos mGCPPixelPos, final PixelPos sGCPPixelPos) {
@@ -832,7 +862,7 @@ public class OffsetTrackingOp extends Operator {
         final int numCols = I.columns;
         for (int r = 0; r < numRows; r++) {
             for (int c = 0; c < numCols; c++) {
-                ComplexDouble v = I.get(r,c);
+                ComplexDouble v = I.get(r, c);
 //                System.out.print(v.real() + " + j*" + v.imag() + ", ");
                 System.out.print(v.real() + ", ");
             }
