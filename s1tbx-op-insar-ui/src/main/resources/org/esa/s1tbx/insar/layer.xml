@@ -250,8 +250,8 @@
             <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.IntegerInterferogramOpUI"/>
             <attr name="operatorName" stringvalue="IntegerInterferogram"/>
         </file>
-        <file name="org.esa.s1tbx.insar.gpf.ui.coregistration.OffsetTrackingOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.coregistration.OffsetTrackingOpUI"/>
+        <file name="org.esa.s1tbx.insar.gpf.ui.OffsetTrackingOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.OffsetTrackingOpUI"/>
             <attr name="operatorName" stringvalue="Offset-Tracking"/>
         </file>
     </folder>
