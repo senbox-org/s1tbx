@@ -483,8 +483,6 @@ public class PConvertMain {
         // Convert all input products
 
         for (File inputFile : _inputFiles) {
-            File outputFile = new File(_outputDir, inputFile.getName());
-            outputFile = FileUtils.exchangeExtension(outputFile, "." + _formatExt);
 
             Product product = null;
             try {
@@ -497,6 +495,9 @@ public class PConvertMain {
 
             if (product != null) {
                 try {
+                    String filename = FileUtils.createValidFilename(product.getName());
+                    File outputFile = new File(_outputDir, filename);
+                    outputFile = FileUtils.exchangeExtension(outputFile, "." + _formatExt);
                     if (_imageFormat) {
                         convertToImage(product, outputFile);
                     } else {
