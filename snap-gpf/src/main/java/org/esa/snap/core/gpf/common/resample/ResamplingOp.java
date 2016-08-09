@@ -149,6 +149,9 @@ public class ResamplingOp extends Operator {
         ProductUtils.copyFlagCodings(sourceProduct, targetProduct);
         ProductUtils.copyIndexCodings(sourceProduct, targetProduct);
         ProductUtils.copyMetadata(sourceProduct, targetProduct);
+        targetProduct.setStartTime(sourceProduct.getStartTime());
+        targetProduct.setEndTime(sourceProduct.getEndTime());
+        targetProduct.setSceneTimeCoding(sourceProduct.getSceneTimeCoding());
         transferGeoCoding(targetProduct);
         copyMasks(sourceProduct, targetProduct);
         ProductUtils.copyVectorData(sourceProduct, targetProduct);

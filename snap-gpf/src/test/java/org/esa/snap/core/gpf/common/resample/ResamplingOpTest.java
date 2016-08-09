@@ -1,17 +1,26 @@
 package org.esa.snap.core.gpf.common.resample;
 
 import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.LineTimeCoding;
+import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.transform.MathTransform2D;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.fail;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -19,22 +28,56 @@ import static org.junit.Assert.assertTrue;
  */
 public class ResamplingOpTest {
 
+    private static ResamplingOp.Spi resamplingSpi;
+
+    @BeforeClass
+    public static void setUpTest() throws Exception {
+        resamplingSpi = new ResamplingOp.Spi();
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(resamplingSpi);
+    }
+
+    @AfterClass
+    public static void tearDown() throws Exception {
+        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(resamplingSpi);
+    }
+
+    @Test
+    public void testTimeInformationIsPreserved() throws IOException {
+        final Product product = new Product("name", "test", 2, 2);
+        Date date = new Date();
+        ProductData.UTC startTime = ProductData.UTC.create(new Date(date.getTime() - 5000), 0);
+        ProductData.UTC endTime = ProductData.UTC.create(new Date(date.getTime()), 0);
+        product.setSceneTimeCoding(new LineTimeCoding(2, startTime.getMJD(), endTime.getMJD()));
+
+        product.setStartTime(startTime);
+        product.setEndTime(endTime);
+        product.addBand("band_1", "X + Y");
+        product.addBand("band_2", "X + 1 + Y");
+
+        HashMap<String, Object> parameters = new HashMap<>();
+        parameters.put("referenceBandName", "band_1");
+        Product resampledProduct = GPF.createProduct("Resample", parameters, product);
+        assertEquals(startTime.getAsDate().getTime(), resampledProduct.getStartTime().getAsDate().getTime());
+        assertEquals(endTime.getAsDate().getTime(), resampledProduct.getEndTime().getAsDate().getTime());
+        assertNotNull(resampledProduct.getSceneTimeCoding());
+        assertEquals(endTime.getMJD(), resampledProduct.getSceneTimeCoding().getMJD(new PixelPos(0, 1)));
+    }
+
     @Test
     public void testAllNodesHaveIdentitySceneTransform() {
         final Product product = new Product("name", "tapce", 2, 2);
         product.addBand("band_1", "X + Y");
         final Band band2 = product.addBand("band_2", "X + 1 + Y");
 
-        assertTrue(ResamplingOp_Old.allNodesHaveIdentitySceneTransform(product));
+        assertTrue(ResamplingOp.allNodesHaveIdentitySceneTransform(product));
 
         band2.setModelToSceneTransform(MathTransform2D.NULL);
 
-        assertFalse(ResamplingOp_Old.allNodesHaveIdentitySceneTransform(product));
+        assertFalse(ResamplingOp.allNodesHaveIdentitySceneTransform(product));
     }
 
     @Test
     public void testOnlyReferenceBandIsSet() {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new ResamplingOp.Spi());
         Product product = new Product("dummy", "dummy", 2, 2);
         product.addBand("dummy", ProductData.TYPE_INT8);
         final Map<String, Object> parameterMap = new HashMap<>();
@@ -69,7 +112,6 @@ public class ResamplingOpTest {
 
     @Test
     public void testOnlyTargetWidthAndHeightAreSet() {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new ResamplingOp.Spi());
         Product product = new Product("dummy", "dummy", 2, 2);
         product.addBand("dummy", ProductData.TYPE_INT8);
         final Map<String, Object> parameterMap = new HashMap<>();
@@ -96,7 +138,6 @@ public class ResamplingOpTest {
 
     @Test
     public void testBothTargetWidthAndHeightAreSet() {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new ResamplingOp.Spi());
         Product product = new Product("dummy", "dummy", 2, 2);
         product.addBand("dummy", ProductData.TYPE_INT8);
         final Map<String, Object> parameterMap = new HashMap<>();
