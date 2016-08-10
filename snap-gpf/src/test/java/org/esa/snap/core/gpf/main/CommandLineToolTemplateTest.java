@@ -1,26 +1,22 @@
 package org.esa.snap.core.gpf.main;
 
-import java.io.File;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Map;
 import org.esa.snap.core.datamodel.CrsGeoCoding;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.GPF;
-import org.esa.snap.core.gpf.OperatorException;
-import org.esa.snap.core.gpf.graph.GraphException;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
+import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 
 /**
@@ -31,12 +27,18 @@ public class CommandLineToolTemplateTest {
     private CommandLineTool tool;
     private TestCommandLineContext context;
 
-    private File sourceFile = new File("test.testdata");
-    private File targetFile = new File("20120607-CHL-1D.testdata");
+    private static File sourceFile;
+    private static File targetFile;
 
     @BeforeClass
     public static void initClass() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
+        String tempDir = System.getProperty("java.io.tmpdir");
+        sourceFile = new File(tempDir, "test.testdata");
+        // only run this test if the file could be created or it already exists
+        Assume.assumeTrue(sourceFile.createNewFile() || sourceFile.exists());
+        sourceFile.deleteOnExit();
+        targetFile = new File("20120607-CHL-1D.testdata");
     }
 
     @Before
@@ -168,10 +170,10 @@ public class CommandLineToolTemplateTest {
 
         context.textFiles.put("test-metadata.xml",
                 "<metadata>\n" +
-                        "    <product>\n" +
-                        "        <name>test-product</name>\n" +
-                        "    </product>\n" +
-                        "</metadata>");
+                "    <product>\n" +
+                "        <name>test-product</name>\n" +
+                "    </product>\n" +
+                "</metadata>");
 
         context.textFiles.put(metadataPath, "" +
                 "processingCenter = BC\n" +
@@ -325,7 +327,7 @@ public class CommandLineToolTemplateTest {
                     "-Ssrc=" + sourceFilePath);
 
             fail("'file' parameter must exist");
-        } catch (OperatorException | GraphException e) {
+        } catch (Exception ignore) {
 
         }
 

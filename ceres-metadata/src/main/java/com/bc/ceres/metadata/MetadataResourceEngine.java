@@ -109,7 +109,7 @@ public class MetadataResourceEngine {
      */
     public void readRelatedResource(String sourceId, String sourcePath) throws IOException {
         SortedMap<String, String> sourceNames = metadataResourceResolver.getSourceMetadataPaths(sourcePath);
-        HashMap<String, Resource> resourceMap = new HashMap<String, Resource>();
+        HashMap<String, Resource> resourceMap = new HashMap<>();
 
         for (Map.Entry<String, String> sourceEntries : sourceNames.entrySet()) {
             String metadataBaseName = sourceEntries.getKey();
@@ -130,7 +130,7 @@ public class MetadataResourceEngine {
         if (mapObject instanceof Map) {
             map = (Map<String, Map>) mapObject;
         } else {
-            map = new HashMap<String, Map>();
+            map = new HashMap<>();
             resourceEngine.getVelocityContext().put(name, map);
         }
         return map;

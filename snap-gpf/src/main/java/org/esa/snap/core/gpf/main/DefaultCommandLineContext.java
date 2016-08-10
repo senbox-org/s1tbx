@@ -47,7 +47,7 @@ class DefaultCommandLineContext implements CommandLineContext {
     @Override
     public Product readProduct(String productFilepath) throws IOException {
         final File input = new File(productFilepath);
-        if (!input.getName().contains(".testdata") && !input.exists()) {
+        if (!input.exists()) {
             throw new OperatorException("'" + productFilepath + "' file didn't exist");
         }
         final ProductReader productReader = ProductIO.getProductReaderForInput(input);
@@ -68,12 +68,9 @@ class DefaultCommandLineContext implements CommandLineContext {
 
     @Override
     public Graph readGraph(String filePath, Map<String, String> templateVariables) throws GraphException, IOException {
-        Reader fileReader = createReader(filePath);
         Graph graph;
-        try {
+        try (Reader fileReader = createReader(filePath)) {
             graph = GraphIO.read(fileReader, templateVariables);
-        } finally {
-            fileReader.close();
         }
         return graph;
     }

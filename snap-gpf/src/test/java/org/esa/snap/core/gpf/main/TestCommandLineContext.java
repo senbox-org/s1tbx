@@ -24,18 +24,19 @@ import java.util.logging.Logger;
 public class TestCommandLineContext extends DefaultCommandLineContext {
 
     final StringBuffer printBuffer = new StringBuffer();
-    final Map<String, String> textFiles = new HashMap<String, String>();
-    final List<StringReader> readers = new ArrayList<StringReader>();
-    final Map<String, StringWriter> writers = new HashMap<String, StringWriter>();
+    final Map<String, String> textFiles = new HashMap<>();
+    final List<StringReader> readers = new ArrayList<>();
+    final Map<String, StringWriter> writers = new HashMap<>();
 
     @Override
-    public Reader createReader(String fileName) throws FileNotFoundException {
+    public Reader createReader(String filePath) throws FileNotFoundException {
+        File file = new File(filePath);
+        String fileName = file.getName();
         if (!textFiles.containsKey(fileName)) {
-            File file = new File(fileName);
             if (file.exists()) {
                 return new FileReader(file);
             } else {
-                throw new FileNotFoundException(fileName);
+                throw new FileNotFoundException(filePath);
             }
         }
         StringReader stringReader = new StringReader(textFiles.get(fileName));
