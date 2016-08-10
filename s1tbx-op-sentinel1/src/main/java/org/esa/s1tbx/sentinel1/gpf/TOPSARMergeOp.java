@@ -40,12 +40,15 @@ import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
+import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.esa.snap.engine_utilities.util.Maths;
 
 import java.awt.Rectangle;
 import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -536,6 +539,28 @@ public final class TOPSARMergeOp extends Operator {
             }
         }
         absTgt.addElement(ESDMeasurementTgt);
+
+        if (StackUtils.isCoregisteredStack(targetProduct)) {
+            List<String> masterProductBands = new ArrayList<>();
+            List<String> slaveProductBands = new ArrayList<>();
+            for (String bandName : targetProduct.getBandNames()) {
+                if (targetProduct.getBand(bandName) instanceof VirtualBand) {
+                    continue;
+                }
+                if (bandName.contains(StackUtils.MST)) {
+                    masterProductBands.add(bandName);
+                }
+                if (bandName.contains(StackUtils.SLV)) {
+                    slaveProductBands.add(bandName);
+                }
+            }
+            MetadataElement targetSlaveMetadataRoot = AbstractMetadata.getSlaveMetadata(targetProduct.getMetadataRoot());
+            targetSlaveMetadataRoot.setAttributeString(AbstractMetadata.MASTER_BANDS,
+                    String.join(" ", masterProductBands.toArray(new String[masterProductBands.size()])));
+            targetSlaveMetadataRoot.getElementAt(0).setAttributeString(AbstractMetadata.SLAVE_BANDS,
+                    String.join(" ", slaveProductBands.toArray(new String[slaveProductBands.size()])));
+
+        }
     }
 
     private void updateOriginalMetadata() {

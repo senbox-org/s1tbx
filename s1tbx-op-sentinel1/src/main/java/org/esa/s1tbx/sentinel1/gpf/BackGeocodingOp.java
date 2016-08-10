@@ -65,6 +65,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -225,7 +227,17 @@ public final class BackGeocodingOp extends Operator {
 
             createTargetProduct();
 
-            StackUtils.saveMasterProductBandNames(targetProduct, masterProduct.getBandNames());
+            List<String> masterProductBands = new ArrayList<>();
+            String mstSuffix = StackUtils.MST + StackUtils.createBandTimeStamp(masterProduct);
+            for (String bandName : masterProduct.getBandNames()) {
+                if (masterProduct.getBand(bandName) instanceof VirtualBand) {
+                    continue;
+                }
+                masterProductBands.add(bandName + mstSuffix);
+            }
+
+            StackUtils.saveMasterProductBandNames(targetProduct,
+                    masterProductBands.toArray(new String[masterProductBands.size()]));
             StackUtils.saveSlaveProductNames(sourceProduct, targetProduct,
                     masterProduct, targetBandToSlaveBandMap);
 
