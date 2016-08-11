@@ -1243,7 +1243,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
     public abstract int[] getPixels(int x, int y, int w, int h, int[] pixels, ProgressMonitor pm);
 
     /**
-     * @see {@link #getPixels(int, int, int, int, float[], ProgressMonitor)}
+     * @see #getPixels(int, int, int, int, float[], ProgressMonitor)
      */
     public float[] getPixels(int x, int y, int w, int h, float[] pixels) {
         return getPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
