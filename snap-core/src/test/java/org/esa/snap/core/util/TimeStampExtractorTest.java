@@ -4,6 +4,7 @@ import com.bc.ceres.binding.ValidationException;
 import org.esa.snap.core.datamodel.ProductData;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.text.ParseException;
@@ -113,6 +114,18 @@ public class TimeStampExtractorTest {
                 "MER_RR__2CNACR20070123_101652_000000072055_00008_25613_0000.nc");
         assertEquals(2, dateRange.length);
         assertEquals(ProductData.UTC.parse("2007-01-23:10:16:52", "yyyy-MM-dd:HH:mm:ss").getAsDate().getTime(),
+                     dateRange[0].getAsDate().getTime());
+        assertEquals(dateRange[0].getAsDate().getTime(), dateRange[1].getAsDate().getTime());
+    }
+
+    @Test
+    @Ignore("Implementation should be changed. see [SNAP-533]")
+    public void testExtractTimeStamps_WithMonthAbreviation() throws ParseException, ValidationException {
+        final TimeStampExtractor extractor = new TimeStampExtractor("yyyy-MMM-dd_hhmmss", "*${endDate}*");
+        ProductData.UTC[] dateRange = extractor.extractTimeStamps(
+                "MER_RR__2CNACR2012-Oct-23_101652_blahblah.nc");
+        assertEquals(2, dateRange.length);
+        assertEquals(ProductData.UTC.parse("2012-10-23:10:16:52", "yyyy-MM-dd:HH:mm:ss").getAsDate().getTime(),
                      dateRange[0].getAsDate().getTime());
         assertEquals(dateRange[0].getAsDate().getTime(), dateRange[1].getAsDate().getTime());
     }
