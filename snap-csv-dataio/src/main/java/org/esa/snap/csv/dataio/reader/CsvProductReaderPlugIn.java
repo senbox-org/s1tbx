@@ -52,7 +52,8 @@ public class CsvProductReaderPlugIn implements ProductReaderPlugIn {
             csvFile.parseMetadata();
             csvFile.checkReadingFirstRecord();
         } catch (Exception e) {
-            SystemUtils.LOG.log(Level.WARNING, "Not able to decode CSV file", e);
+            String msg = String.format("Not able to decode CSV file, reason is '%s'", e.getMessage());
+            SystemUtils.LOG.log(Level.WARNING, msg);
             return DecodeQualification.UNABLE;
         } finally {
             if (csvFile != null) {
