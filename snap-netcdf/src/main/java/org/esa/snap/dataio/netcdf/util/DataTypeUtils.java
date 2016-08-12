@@ -47,6 +47,8 @@ public class DataTypeUtils {
             return unsigned ? ProductData.TYPE_UINT16 : ProductData.TYPE_INT16;
         } else if (dataType == DataType.INT) {
             return unsigned ? ProductData.TYPE_UINT32 : ProductData.TYPE_INT32;
+        } else if (dataType == DataType.LONG) {
+            return ProductData.TYPE_INT64;
         } else if (dataType == DataType.FLOAT) {
             return ProductData.TYPE_FLOAT32;
         } else if (dataType == DataType.DOUBLE) {
@@ -72,22 +74,28 @@ public class DataTypeUtils {
      * @see ProductData
      */
     public static DataType getNetcdfDataType(int dataType) {
-        if (dataType == ProductData.TYPE_INT8 || dataType == ProductData.TYPE_UINT8) {
-            return DataType.BYTE;
-        } else if (dataType == ProductData.TYPE_INT16 || dataType == ProductData.TYPE_UINT16) {
-            return DataType.SHORT;
-        } else if (dataType == ProductData.TYPE_INT32 || dataType == ProductData.TYPE_UINT32) {
-            return DataType.INT;
-        } else if (dataType == ProductData.TYPE_FLOAT32) {
-            return DataType.FLOAT;
-        } else if (dataType == ProductData.TYPE_FLOAT64) {
-            return DataType.DOUBLE;
-        } else if (dataType == ProductData.TYPE_ASCII) {
-            return DataType.STRING;
-        } else if (dataType == ProductData.TYPE_UTC) {
-            return DataType.STRING;
-        } else {
-            return null;
+        switch (dataType) {
+            case ProductData.TYPE_INT8:
+            case ProductData.TYPE_UINT8:
+                return DataType.BYTE;
+            case ProductData.TYPE_INT16:
+            case ProductData.TYPE_UINT16:
+                return DataType.SHORT;
+            case ProductData.TYPE_INT32:
+            case ProductData.TYPE_UINT32:
+                return DataType.INT;
+            case ProductData.TYPE_INT64:
+                return DataType.LONG;
+            case ProductData.TYPE_FLOAT32:
+                return DataType.FLOAT;
+            case ProductData.TYPE_FLOAT64:
+                return DataType.DOUBLE;
+            case ProductData.TYPE_ASCII:
+                return DataType.STRING;
+            case ProductData.TYPE_UTC:
+                return DataType.STRING;
+            default:
+                return null;
         }
     }
 
