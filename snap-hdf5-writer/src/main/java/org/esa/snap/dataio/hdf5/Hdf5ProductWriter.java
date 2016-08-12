@@ -344,6 +344,8 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
             jh5DataType = HDF5Constants.H5T_NATIVE_INT32;
         } else if (productDataType == ProductData.TYPE_UINT32) {
             jh5DataType = HDF5Constants.H5T_NATIVE_UINT32;
+        } else if (productDataType == ProductData.TYPE_INT64) {
+            jh5DataType = HDF5Constants.H5T_NATIVE_INT64;
         } else if (productDataType == ProductData.TYPE_FLOAT32) {
             jh5DataType = HDF5Constants.H5T_NATIVE_FLOAT;
         } else if (productDataType == ProductData.TYPE_FLOAT64) {

@@ -268,16 +268,18 @@ public class ConvertDataTypeOp extends Operator {
         switch (dataType) {
             case ProductData.TYPE_INT8:
                 return Byte.MIN_VALUE;
-            case ProductData.TYPE_INT16:
-                return Short.MIN_VALUE;
-            case ProductData.TYPE_INT32:
-                return Integer.MIN_VALUE;
             case ProductData.TYPE_UINT8:
                 return 0;
+            case ProductData.TYPE_INT16:
+                return Short.MIN_VALUE;
             case ProductData.TYPE_UINT16:
                 return 0;
+            case ProductData.TYPE_INT32:
+                return Integer.MIN_VALUE;
             case ProductData.TYPE_UINT32:
                 return 0;
+            case ProductData.TYPE_INT64:
+                return Long.MIN_VALUE;
             case ProductData.TYPE_FLOAT32:
                 return Float.MIN_VALUE;
             default:
@@ -289,15 +291,17 @@ public class ConvertDataTypeOp extends Operator {
         switch (dataType) {
             case ProductData.TYPE_INT8:
                 return Byte.MAX_VALUE;
-            case ProductData.TYPE_INT16:
-                return Short.MAX_VALUE;
-            case ProductData.TYPE_INT32:
-                return Integer.MAX_VALUE;
             case ProductData.TYPE_UINT8:
                 return Byte.MAX_VALUE + Byte.MAX_VALUE + 1;
+            case ProductData.TYPE_INT16:
+                return Short.MAX_VALUE;
             case ProductData.TYPE_UINT16:
                 return Short.MAX_VALUE + Short.MAX_VALUE + 1;
+            case ProductData.TYPE_INT32:
+                return Integer.MAX_VALUE;
             case ProductData.TYPE_UINT32:
+                return Long.MAX_VALUE;
+            case ProductData.TYPE_INT64:
                 return Long.MAX_VALUE;
             case ProductData.TYPE_FLOAT32:
                 return Float.MAX_VALUE;
