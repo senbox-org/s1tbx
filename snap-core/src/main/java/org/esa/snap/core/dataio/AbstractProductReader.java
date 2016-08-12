@@ -144,7 +144,7 @@ public abstract class AbstractProductReader implements ProductReader {
 
     /**
      * Reads the nodes of a data product and returns an in-memory representation of it.
-     * <p> The given subset info can be used to specify spatial and spectral portions of the original proudct. If the
+     * <p> The given subset info can be used to specify spatial and spectral portions of the original product. If the
      * subset is omitted, the complete product is read in.
      * <p> Whether the band data - the actual pixel values - is read in immediately or later when pixels are requested,
      * is up to the implementation.
@@ -265,7 +265,7 @@ public abstract class AbstractProductReader implements ProductReader {
      * The template method which is called by the method after an optional spatial subset has been applied to the input
      * parameters.
      * <p>The destination band, buffer and region parameters are exactly the ones passed to the original  call. Since
-     * the <code>destOffsetX</code> and <code>destOffsetY</code> parameters are already taken into acount in the
+     * the <code>destOffsetX</code> and <code>destOffsetY</code> parameters are already taken into account in the
      * <code>sourceOffsetX</code> and <code>sourceOffsetY</code> parameters, an implementor of this method is free to
      * ignore them.
      *
@@ -317,7 +317,7 @@ public abstract class AbstractProductReader implements ProductReader {
 
     /**
      * Retrieves a set of TreeNode objects that represent the physical product structure as stored on the harddrive.
-     * The tree consisty of:
+     * The tree consists of:
      * - a root node (the one returned) pointing to the directory that CONTAINS the product
      * - any number of nested children that compose the product.
      * Each TreeNod is configured as follows:
