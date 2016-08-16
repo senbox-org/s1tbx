@@ -38,7 +38,7 @@ public class RectangleConverterTest extends TestCase {
         assertEquals(4, rect.height);
     }
 
-    public void testFailure()  {
+    public void testFailure() {
         final RectangleConverter rectConverter = new RectangleConverter();
 
         try {
@@ -61,5 +61,15 @@ public class RectangleConverterTest extends TestCase {
         } catch (ConversionException e) {
             // ok
         }
+    }
+
+    public void testRectangleString() throws Exception {
+        final RectangleConverter rectConverter = new RectangleConverter();
+        Rectangle rect = rectConverter.parse("java.awt.Rectangle[x=768,y=34,width=-10,height=30]");
+        assertNotNull(rect);
+        assertEquals(768, rect.x);
+        assertEquals(34, rect.y);
+        assertEquals(-10, rect.width);
+        assertEquals(30, rect.height);
     }
 }
