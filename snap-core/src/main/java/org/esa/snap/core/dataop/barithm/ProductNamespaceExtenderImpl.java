@@ -113,8 +113,7 @@ class ProductNamespaceExtenderImpl implements ProductNamespaceExtender {
                         flagMask = flagData.getElemIntAt(0);
                         flagValue = flagData.getElemIntAt(1);
                     } else {
-                        flagMask =
-                                flagValue = flagData.getElemInt();
+                        flagMask = flagValue = flagData.getElemInt();
                     }
                     final String symbolName = namePrefix + band.getName() + "." + attribute.getName();
                     final Symbol symbol = new SingleFlagSymbol(symbolName, band, flagMask, flagValue);
