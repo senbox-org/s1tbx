@@ -1600,8 +1600,10 @@ public class ProductUtils {
      * @see Product#getStartTime()
      * @see Product#getEndTime()
      * @see Product#getSceneTimeCoding()
+     *
+     * @since SNAP 5.0
      */
-    public static void copyTimeCoding(Product source, Product target) {
+    public static void copyTimeInformation(Product source, Product target) {
         target.setStartTime(source.getStartTime());
         target.setEndTime(source.getEndTime());
         target.setSceneTimeCoding(source.getSceneTimeCoding());
