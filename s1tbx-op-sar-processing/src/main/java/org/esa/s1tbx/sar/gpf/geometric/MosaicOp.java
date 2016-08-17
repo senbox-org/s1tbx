@@ -127,6 +127,7 @@ public class MosaicOp extends Operator {
                         " domain mosaic, please select other method");
             }
 
+            Product srcGeoCodingProduct = null;
             GeoCoding srcGeocoding = null;
             for (final Product prod : sourceProduct) {
                 if (prod.getSceneGeoCoding() == null) {
@@ -135,6 +136,7 @@ public class MosaicOp extends Operator {
                 }
                 if (srcGeocoding == null) {
                     srcGeocoding = prod.getSceneGeoCoding();
+                    srcGeoCodingProduct = prod;
                 }
                 // todo check that all source products have same geocoding
 
@@ -167,7 +169,7 @@ public class MosaicOp extends Operator {
             }
 
             targetProduct = new Product("mosaic", "mosaic", sceneWidth, sceneHeight);
-            targetProduct.setSceneGeoCoding(createCRSGeoCoding(srcGeocoding));
+            targetProduct.setSceneGeoCoding(createCRSGeoCoding(srcGeoCodingProduct, srcGeocoding));
 
             // add all bands
             for (Map.Entry<Integer, Band> integerBandEntry : bandIndexSet.entrySet()) {
@@ -219,7 +221,7 @@ public class MosaicOp extends Operator {
         }
     }
 
-    private CrsGeoCoding createCRSGeoCoding(GeoCoding srcGeocoding) throws Exception {
+    private CrsGeoCoding createCRSGeoCoding(final Product srcGeoCodingProduct, final GeoCoding srcGeocoding) throws Exception {
         final CoordinateReferenceSystem srcCRS = srcGeocoding.getMapCRS();
         String wkt;
         try {
@@ -228,7 +230,7 @@ public class MosaicOp extends Operator {
             wkt = srcCRS.toString();
         }
 
-        final CoordinateReferenceSystem targetCRS = CRSGeoCodingHandler.getCRS(wkt);
+        final CoordinateReferenceSystem targetCRS = CRSGeoCodingHandler.getCRS(srcGeoCodingProduct, wkt);
         final double pixelSpacingInDegree = pixelSize / Constants.semiMajorAxis * Constants.RTOD;
 
         double pixelSizeX = pixelSize;

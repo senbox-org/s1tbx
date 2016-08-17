@@ -16,7 +16,9 @@
 package org.esa.s1tbx.sar.gpf.geometric;
 
 import org.esa.snap.core.datamodel.CrsGeoCoding;
+import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
@@ -34,14 +36,13 @@ public class CRSGeoCodingHandler {
     private final CrsGeoCoding geoCoding;
     private final int targetWidth;
     private final int targetHeight;
-    private final OperatorUtils.ImageGeoBoundary srcImageBoundary;
 
     public CRSGeoCodingHandler(final Product sourceProduct, final String mapProjection,
                                final double pixelSpacingInDegree, final double pixelSpacingInMeter) throws Exception {
 
-        targetCRS = getCRS(mapProjection);
+        targetCRS = getCRS(sourceProduct, mapProjection);
 
-        srcImageBoundary = OperatorUtils.computeImageGeoBoundary(sourceProduct);
+        final OperatorUtils.ImageGeoBoundary srcImageBoundary = OperatorUtils.computeImageGeoBoundary(sourceProduct);
 
         double pixelSizeX = pixelSpacingInMeter;
         double pixelSizeY = pixelSpacingInMeter;
@@ -72,14 +73,24 @@ public class CRSGeoCodingHandler {
                 pixelSizeX, pixelSizeY);
     }
 
-    public static CoordinateReferenceSystem getCRS(String mapProjection) throws Exception {
+    public static CoordinateReferenceSystem getCRS(final Product sourceProduct, String crs) throws Exception {
         try {
-            if (mapProjection == null || mapProjection.isEmpty() || mapProjection.equals("WGS84(DD)")) {
+            if (crs == null || crs.isEmpty() || crs.equals("WGS84(DD)")) {
                 return DefaultGeographicCRS.WGS84;
             }
-            return CRS.parseWKT(mapProjection);
+            return CRS.parseWKT(crs);
         } catch (Exception e) {
-            return CRS.decode(mapProjection, true);
+            // prefix with EPSG, if there are only numbers
+            if (crs.matches("[0-9]*")) {
+                crs = "EPSG:" + crs;
+            }
+            // append center coordinates for AUTO code
+            if (crs.matches("AUTO:[0-9]*")) {
+                final GeoPos centerGeoPos = ProductUtils.getCenterGeoPos(sourceProduct);
+                crs = String.format("%s,%s,%s", crs, centerGeoPos.lon, centerGeoPos.lat);
+            }
+            // force longitude==x-axis and latitude==y-axis
+            return CRS.decode(crs, true);
         }
     }
 
