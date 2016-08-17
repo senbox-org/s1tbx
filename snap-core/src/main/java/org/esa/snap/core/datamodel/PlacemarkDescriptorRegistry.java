@@ -41,9 +41,7 @@ public class PlacemarkDescriptorRegistry {
     private PlacemarkDescriptorRegistry() {
         ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
         serviceRegistry = serviceRegistryManager.getServiceRegistry(PlacemarkDescriptor.class);
-        if (!SnapCoreActivator.isStarted()) {
-            SnapCoreActivator.loadServices(serviceRegistry);
-        }
+        SnapCoreActivator.loadServices(serviceRegistry);
     }
 
     public static PlacemarkDescriptorRegistry getInstance() {

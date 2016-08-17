@@ -35,9 +35,7 @@ public final class DimapPersistableSpiRegistry {
 
     private DimapPersistableSpiRegistry() {
         providers = ServiceRegistryManager.getInstance().getServiceRegistry(DimapPersistableSpi.class);
-        if (!SnapCoreActivator.isStarted()) {
-            SnapCoreActivator.loadServices(providers);
-        }
+        SnapCoreActivator.loadServices(providers);
     }
 
     /**

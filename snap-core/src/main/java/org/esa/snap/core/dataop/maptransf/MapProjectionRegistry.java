@@ -37,12 +37,10 @@ public class MapProjectionRegistry {
     private static final List<MapProjection> projectionList;
 
     static {
-        projectionList = new LinkedList<MapProjection>();
+        projectionList = new LinkedList<>();
         ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
         descriptors = serviceRegistryManager.getServiceRegistry(MapTransformDescriptor.class);
-        if (!SnapCoreActivator.isStarted()) {
-            SnapCoreActivator.loadServices(descriptors);
-        }
+        SnapCoreActivator.loadServices(descriptors);
         Set<MapTransformDescriptor> services = descriptors.getServices();
         for (MapTransformDescriptor descriptor : services) {
             descriptor.registerProjections();               

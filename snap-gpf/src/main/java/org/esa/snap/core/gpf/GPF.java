@@ -104,6 +104,7 @@ public class GPF {
      */
     protected GPF() {
         spiRegistry = new OperatorSpiRegistryImpl();
+        spiRegistry.loadOperatorSpis();
     }
 
     /**

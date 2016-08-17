@@ -23,7 +23,7 @@ import org.esa.snap.core.util.Guardian;
 import java.util.Set;
 
 /**
- * An <code>LandCoverModelRegistry</code> provides access to multiple different
+ * An {@code LandCoverModelRegistry} provides access to multiple different
  * land cover models as described by their LandCoverModelDescriptors.
  */
 public class LandCoverModelRegistry {
@@ -32,9 +32,7 @@ public class LandCoverModelRegistry {
 
     private LandCoverModelRegistry() {
         descriptors = ServiceRegistryManager.getInstance().getServiceRegistry(LandCoverModelDescriptor.class);
-        if (!SnapCoreActivator.isStarted()) {
-            SnapCoreActivator.loadServices(descriptors);
-        }
+        SnapCoreActivator.loadServices(descriptors);
     }
 
     public static LandCoverModelRegistry getInstance() {

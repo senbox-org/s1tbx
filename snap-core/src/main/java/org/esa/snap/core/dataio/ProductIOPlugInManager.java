@@ -190,10 +190,8 @@ public class ProductIOPlugInManager {
         readerPlugIns = serviceRegistryManager.getServiceRegistry(ProductReaderPlugIn.class);
         writerPlugIns = serviceRegistryManager.getServiceRegistry(ProductWriterPlugIn.class);
 
-        if (!SnapCoreActivator.isStarted()) {
-            SnapCoreActivator.loadServices(readerPlugIns);
-            SnapCoreActivator.loadServices(writerPlugIns);
-        }
+        SnapCoreActivator.loadServices(readerPlugIns);
+        SnapCoreActivator.loadServices(writerPlugIns);
     }
     
     // Initialization on demand holder idiom

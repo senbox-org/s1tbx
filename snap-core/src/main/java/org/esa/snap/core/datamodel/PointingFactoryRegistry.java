@@ -29,9 +29,7 @@ public class PointingFactoryRegistry {
     private PointingFactoryRegistry() {
         ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
         typeToFactoryMap = serviceRegistryManager.getServiceRegistry(PointingFactory.class);
-        if (!SnapCoreActivator.isStarted()) {
-            SnapCoreActivator.loadServices(typeToFactoryMap);
-        }
+        SnapCoreActivator.loadServices(typeToFactoryMap);
     }
 
     public static PointingFactoryRegistry getInstance() {

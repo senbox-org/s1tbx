@@ -35,9 +35,7 @@ public class ElevationModelRegistry {
 
     private ElevationModelRegistry() {
         descriptors = ServiceRegistryManager.getInstance().getServiceRegistry(ElevationModelDescriptor.class);
-        if (!SnapCoreActivator.isStarted()) {
-            SnapCoreActivator.loadServices(descriptors);
-        }
+        SnapCoreActivator.loadServices(descriptors);
     }
 
     public static ElevationModelRegistry getInstance() {

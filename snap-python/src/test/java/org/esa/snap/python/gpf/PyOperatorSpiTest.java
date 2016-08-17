@@ -19,7 +19,6 @@ import static org.junit.Assume.*;
 
 /**
  * @author Norman Fomferra
- * @see org.esa.snap.jython.PluginActivatorTest
  */
 public class PyOperatorSpiTest {
 

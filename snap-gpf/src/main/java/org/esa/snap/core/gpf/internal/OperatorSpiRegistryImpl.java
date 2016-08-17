@@ -73,9 +73,7 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
      */
     @Override
     public void loadOperatorSpis() {
-        if (!SnapCoreActivator.isStarted()) {
-            SnapCoreActivator.loadServices(getServiceRegistry());
-        }
+        SnapCoreActivator.loadServices(getServiceRegistry());
     }
 
     /**
