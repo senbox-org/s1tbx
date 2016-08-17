@@ -33,6 +33,7 @@ import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -98,6 +99,8 @@ public class GPF {
     static {
         defaultInstance = new GPF();
         defaultInstance.spiRegistry.loadOperatorSpis();
+        Set<OperatorSpi> operatorSpis = defaultInstance.spiRegistry.getOperatorSpis();
+        System.out.println("Number of Ops = " + operatorSpis.size());
     }
 
     private OperatorSpiRegistry spiRegistry;

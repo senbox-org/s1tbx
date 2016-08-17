@@ -176,6 +176,7 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
     @Override
     public boolean removeOperatorSpi(OperatorSpi operatorSpi) {
         if (!serviceRegistry.removeService(operatorSpi)) {
+            System.out.println("Removing Operator SPI: " + operatorSpi.getOperatorAlias());
             Stream<Map.Entry<String, OperatorSpi>> extraSpiStream = extraOperatorSpis.entrySet().stream();
             Optional<Map.Entry<String, OperatorSpi>> spiEntry = extraSpiStream.filter(entry -> entry.getValue() == operatorSpi).findFirst();
             if(spiEntry.isPresent() && extraOperatorSpis.remove(spiEntry.get().getKey(), spiEntry.get().getValue())) {
