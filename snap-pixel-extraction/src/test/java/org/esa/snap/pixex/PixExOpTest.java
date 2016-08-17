@@ -13,8 +13,6 @@ import org.esa.snap.core.gpf.graph.GraphIO;
 import org.esa.snap.core.gpf.graph.GraphProcessor;
 import org.esa.snap.measurement.Measurement;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
@@ -37,20 +35,6 @@ import java.util.logging.Logger;
 import static org.junit.Assert.*;
 
 public class PixExOpTest {
-
-    private static PixExOp.Spi pixExOpSpi;
-
-
-    @BeforeClass
-    public static void beforeClass() {
-        pixExOpSpi = new PixExOp.Spi();
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(pixExOpSpi);
-    }
-
-    @AfterClass
-    public static void afterClass() {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(pixExOpSpi);
-    }
 
     @Test
     public void testUsingGraph() throws GraphException, IOException {
@@ -93,8 +77,6 @@ public class PixExOpTest {
                         "    </node>\n" +
                         "  </graph>";
         Graph graph = GraphIO.read(new StringReader(graphOpXml));
-
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new PixExOp.Spi());
 
         GraphProcessor processor = new GraphProcessor();
         processor.executeGraph(graph, ProgressMonitor.NULL);

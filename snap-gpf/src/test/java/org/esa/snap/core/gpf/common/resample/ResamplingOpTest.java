@@ -8,8 +8,6 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.transform.MathTransform2D;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.Date;
@@ -26,19 +24,6 @@ import static org.junit.Assert.assertTrue;
  * @author Tonio Fincke
  */
 public class ResamplingOpTest {
-
-    private static ResamplingOp.Spi resamplingSpi;
-
-    @BeforeClass
-    public static void setUpTest() throws Exception {
-        resamplingSpi = new ResamplingOp.Spi();
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(resamplingSpi);
-    }
-
-    @AfterClass
-    public static void tearDown() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(resamplingSpi);
-    }
 
     @Test
     public void testTimeInformationIsPreserved() {

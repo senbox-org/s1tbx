@@ -28,7 +28,6 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.SourceProducts;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
-import org.esa.snap.core.gpf.common.SubsetOp;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -112,9 +111,6 @@ public class OperatorContextTest {
     public void testProcessingGraphInMetadata() {
         // using the SubsetOp here, because when using a TestOperator the module.xml is not found
         OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
-        if (operatorSpiRegistry.getOperatorSpi("Subset") == null) {
-            operatorSpiRegistry.addOperatorSpi(new SubsetOp.Spi());
-        }
 
         final Operator testOp = operatorSpiRegistry.getOperatorSpi("Subset").createOperator();
 

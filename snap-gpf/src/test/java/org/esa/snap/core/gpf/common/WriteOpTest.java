@@ -58,14 +58,12 @@ public class WriteOpTest {
     private static final int RASTER_HEIGHT = 40;
 
     private AlgoOp.Spi algoSpi = new AlgoOp.Spi();
-    private WriteOp.Spi writeSpi = new WriteOp.Spi();
     private File outputFile;
     private int oldParallelism;
 
     @Before
     public void setUp() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(algoSpi);
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(writeSpi);
         outputFile = GlobalTestConfig.getBeamTestDataOutputFile("WriteOpTest/writtenProduct.dim");
         outputFile.getParentFile().mkdirs();
 
@@ -77,7 +75,6 @@ public class WriteOpTest {
     @After
     public void tearDown() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(algoSpi);
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(writeSpi);
         File parentFile = outputFile.getParentFile();
         FileUtils.deleteTree(parentFile);
 

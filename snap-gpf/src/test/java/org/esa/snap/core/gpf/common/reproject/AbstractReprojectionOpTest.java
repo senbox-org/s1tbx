@@ -25,8 +25,6 @@ import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.gpf.OperatorSpi;
-import org.esa.snap.core.gpf.OperatorSpiRegistry;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
@@ -80,18 +78,12 @@ public abstract class AbstractReprojectionOpTest {
     protected static final String FLOAT_BAND_NAME = "floatData";
     protected static final String INT_BAND_NAME = "intData";
 
-    private static OperatorSpi spi;
-
     protected Product sourceProduct;
     protected Map<String, Object> parameterMap;
     protected static final double EPS = 1.0e-6;
 
     @BeforeClass
     public static void setup() throws URISyntaxException {
-        spi = new ReprojectionOp.Spi();
-        final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
-        registry.addOperatorSpi(spi);
-
         wktFile = new File(AbstractReprojectionOpTest.class.getResource("test.wkt").toURI());
     }
 
@@ -110,12 +102,6 @@ public abstract class AbstractReprojectionOpTest {
         Band intDataBand = sourceProduct.addBand(INT_BAND_NAME, ProductData.TYPE_INT16);
         intDataBand.setRasterData(createDataFor(intDataBand));
         intDataBand.setSynthetic(true);
-    }
-
-    @AfterClass
-    public static void tearDown() {
-        final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
-        registry.removeOperatorSpi(spi);
     }
 
     @Before

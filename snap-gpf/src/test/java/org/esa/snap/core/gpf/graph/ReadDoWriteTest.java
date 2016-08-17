@@ -32,8 +32,6 @@ import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
-import org.esa.snap.core.gpf.common.ReadOp;
-import org.esa.snap.core.gpf.common.WriteOp;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.io.FileUtils;
 import org.junit.After;
@@ -53,18 +51,14 @@ import static org.junit.Assert.*;
 
 public class ReadDoWriteTest {
 
-    private ReadOp.Spi readSpi = new ReadOp.Spi();
     private DoOp.Spi doSpi = new DoOp.Spi();
-    private WriteOp.Spi writeSpi = new WriteOp.Spi();
     private File outputFile;
     private File inputFile;
     private int oldParallelism;
 
     @Before
     public void setUp() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(readSpi);
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(doSpi);
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(writeSpi);
         URI inputURI = GPFFacadeTest.class.getResource("test-product.dim").toURI();
         inputFile = new File(inputURI);
         outputFile = GlobalTestConfig.getBeamTestDataOutputFile("ReadDoWriteTest/writtenProduct.dim");
@@ -78,9 +72,7 @@ public class ReadDoWriteTest {
 
     @After
     public void tearDown() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(readSpi);
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(doSpi);
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(writeSpi);
         File parentFile = outputFile.getParentFile();
         FileUtils.deleteTree(parentFile);
 

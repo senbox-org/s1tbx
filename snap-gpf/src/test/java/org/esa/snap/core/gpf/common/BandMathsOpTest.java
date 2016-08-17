@@ -29,15 +29,12 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.gpf.OperatorException;
-import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.snap.core.gpf.graph.Graph;
 import org.esa.snap.core.gpf.graph.GraphIO;
 import org.esa.snap.core.gpf.graph.Node;
 import org.esa.snap.core.util.io.FileUtils;
 import org.geotools.referencing.CRS;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -52,23 +49,6 @@ import java.util.Map;
 import static org.junit.Assert.*;
 
 public class BandMathsOpTest {
-
-    private OperatorSpi bandMathsSpi;
-    private ReadOp.Spi readSpi;
-
-    @Before
-    public void setUp() throws Exception {
-        readSpi = new ReadOp.Spi();
-        bandMathsSpi = new BandMathsOp.Spi();
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(readSpi);
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(bandMathsSpi);
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(bandMathsSpi);
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(readSpi);
-    }
 
     @Test
     public void testSimplestCase() throws Exception {
