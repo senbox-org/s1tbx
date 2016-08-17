@@ -4,7 +4,6 @@ import com.bc.ceres.binding.dom.DefaultDomElement;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.GlobalTestConfig;
-import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.graph.Graph;
 import org.esa.snap.core.gpf.graph.GraphException;
@@ -32,8 +31,6 @@ public class ProductSetReaderOpTest {
     public static void setup() {
         outputFile = GlobalTestConfig.getBeamTestDataOutputFile("ProductSetReaderOpTest/writtenProduct.dim");
         outputFile.getParentFile().mkdirs();
-
-        GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
     }
 
     @AfterClass

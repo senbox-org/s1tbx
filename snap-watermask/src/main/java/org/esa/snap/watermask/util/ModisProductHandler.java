@@ -45,7 +45,6 @@ public class ModisProductHandler {
 
     ModisProductHandler(String[] args) {
         this.args = args;
-        GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
     }
 
     public static void main(String[] args) throws IOException {

@@ -115,7 +115,6 @@ public class OperatorDoclet extends Doclet {
 
     private static Set<String> getPackagesToConsider() {
         OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
-        operatorSpiRegistry.loadOperatorSpis();
         Set<OperatorSpi> operatorSpis = operatorSpiRegistry.getOperatorSpis();
 
         Set<String> packageNameSet = new TreeSet<>();
@@ -151,7 +150,6 @@ public class OperatorDoclet extends Doclet {
             throw new RuntimeException(t);
         }
         OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
-        operatorSpiRegistry.loadOperatorSpis();
 
         ClassDoc[] classDocs = root.classes();
         for (ClassDoc classDoc : classDocs) {

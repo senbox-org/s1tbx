@@ -26,8 +26,6 @@ import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.gpf.GPF;
-import org.esa.snap.core.gpf.OperatorSpiRegistry;
 import org.geotools.referencing.CRS;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -65,9 +63,6 @@ public class MosaicOpTest {
         product1 = createProduct("P1", 0, 0, 2.0f);
         product2 = createProduct("P2", 4, -4, 3.0f);
         product3 = createProduct("P3", -5, 5, 5.0f);
-        // We have to load SPIs manually, otherwise SPI for Reproject is not available
-        final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
-        registry.loadOperatorSpis();
     }
 
     @AfterClass
@@ -82,7 +77,7 @@ public class MosaicOpTest {
         final MosaicOp op = new MosaicOp();
         op.setParameterDefaultValues();
 
-        op.setSourceProducts(new Product[]{product1, product2, product3});
+        op.setSourceProducts(product1, product2, product3);
         op.variables = new MosaicOp.Variable[]{
                 new MosaicOp.Variable("b1", "b1"),
 
@@ -111,7 +106,7 @@ public class MosaicOpTest {
     public void testMosaickingWithConditions() {
         final MosaicOp op = new MosaicOp();
         op.setParameterDefaultValues();
-        op.setSourceProducts(new Product[]{product1, product2, product3});
+        op.setSourceProducts(product1, product2, product3);
         op.variables = new MosaicOp.Variable[]{
                 new MosaicOp.Variable("b1", "b1")
         };
@@ -155,7 +150,7 @@ public class MosaicOpTest {
 
         final MosaicOp op = new MosaicOp();
         op.setParameterDefaultValues();
-        op.setSourceProducts(new Product[]{product1Copy, product2, product3});
+        op.setSourceProducts(product1Copy, product2, product3);
         op.variables = new MosaicOp.Variable[]{
                 new MosaicOp.Variable("b1", "b1")
         };
@@ -189,7 +184,7 @@ public class MosaicOpTest {
     public void testMosaickingUpdate() throws IOException {
         final MosaicOp mosaicOp = new MosaicOp();
         mosaicOp.setParameterDefaultValues();
-        mosaicOp.setSourceProducts(new Product[]{product1, product2});
+        mosaicOp.setSourceProducts(product1, product2);
         mosaicOp.variables = new MosaicOp.Variable[]{
                 new MosaicOp.Variable("b1", "b1"),
         };
@@ -235,7 +230,7 @@ public class MosaicOpTest {
 
         final MosaicOp mosaicUpdateOp = new MosaicOp();
         mosaicUpdateOp.setParameterDefaultValues();
-        mosaicUpdateOp.setSourceProducts(new Product[]{product3});
+        mosaicUpdateOp.setSourceProducts(product3);
         mosaicUpdateOp.updateProduct = mosaicOp.getTargetProduct();
 
         final Product product = mosaicUpdateOp.getTargetProduct();

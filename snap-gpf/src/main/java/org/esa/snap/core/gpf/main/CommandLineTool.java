@@ -90,10 +90,6 @@ class CommandLineTool implements GraphProcessingObserver {
     private final MetadataResourceEngine metadataResourceEngine;
     private CommandLineArgs commandLineArgs;
 
-    static {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
-    }
-
     /**
      * Constructs a new tool.
      */

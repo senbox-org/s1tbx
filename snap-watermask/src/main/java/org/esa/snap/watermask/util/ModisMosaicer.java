@@ -20,7 +20,6 @@ import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.image.ImageHeader;
 
 import java.io.File;
@@ -41,7 +40,6 @@ public class ModisMosaicer {
     static final int NORTH_MODE = 0;
 
     public static void main(String[] args) throws IOException {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
         final String pathname;
         int mode = Integer.parseInt(args[0]);
         if (mode == NORTH_MODE) {

@@ -122,7 +122,6 @@ public class SubsetOpTest {
 
     @Test
     public void testInstantiationWithGPF() throws GraphException {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
         GeometryFactory gf = new GeometryFactory();
         Polygon polygon = gf.createPolygon(gf.createLinearRing(new Coordinate[]{
                 new Coordinate(-5, 5),

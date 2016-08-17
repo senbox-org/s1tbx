@@ -62,10 +62,6 @@ public class BinningOpTest {
 
     static final File TESTDATA_DIR = new File("target/binning-test-io");
 
-    static {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
-    }
-
     @Before
     public void setUp() throws Exception {
         TESTDATA_DIR.mkdirs();

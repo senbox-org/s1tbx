@@ -2,7 +2,6 @@ package org.esa.snap.core.gpf.main;
 
 import org.esa.snap.core.datamodel.CrsGeoCoding;
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.gpf.GPF;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.Assume;
 import org.junit.Before;
@@ -32,7 +31,6 @@ public class CommandLineToolTemplateTest {
 
     @BeforeClass
     public static void initClass() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
         String tempDir = System.getProperty("java.io.tmpdir");
         sourceFile = new File(tempDir, "test.testdata");
         // only run this test if the file could be created or it already exists

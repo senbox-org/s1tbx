@@ -93,7 +93,12 @@ public class GPF {
      */
     public static final Map<String, Product> NO_SOURCES = Collections.unmodifiableMap(new TreeMap<String, Product>());
 
-    private static GPF defaultInstance = new GPF();
+    private static GPF defaultInstance;
+
+    static {
+        defaultInstance = new GPF();
+        defaultInstance.spiRegistry.loadOperatorSpis();
+    }
 
     private OperatorSpiRegistry spiRegistry;
 

@@ -36,7 +36,6 @@ public class PyOperatorSpiTest {
     @Test
     public void testOperatorSpiIsLoaded() throws Exception {
         OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
-        registry.loadOperatorSpis();
         OperatorSpi ndviOpSpi = registry.getOperatorSpi("py_ndvi_op");
         assertNotNull(ndviOpSpi);
         assertEquals("py_ndvi_op", ndviOpSpi.getOperatorAlias());

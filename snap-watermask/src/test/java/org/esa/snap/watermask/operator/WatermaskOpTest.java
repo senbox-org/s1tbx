@@ -49,7 +49,6 @@ public class WatermaskOpTest {
         sourceProduct = new Product("dummy", "type", 1, 1);
         sourceProduct.setSceneGeoCoding(new MyGeoCoding());
         parameters = new HashMap<>();
-        GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
     }
 
     @Test
