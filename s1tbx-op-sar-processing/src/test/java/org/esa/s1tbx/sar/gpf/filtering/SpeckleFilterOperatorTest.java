@@ -305,7 +305,7 @@ public class SpeckleFilterOperatorTest {
         final Product targetProduct = op.getTargetProduct();
         TestUtils.verifyProduct(targetProduct, true, true, true);
 
-        final float[] expected = new float[] { 658.8125f,649.8499755859375f,642.2994384765625f };
+        final float[] expected = new float[] { 658.8125f,649.8499755859375f,650.0417f };
         TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), expected);
     }
 
