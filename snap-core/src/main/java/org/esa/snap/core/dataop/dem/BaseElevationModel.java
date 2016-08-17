@@ -88,7 +88,7 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
             geoPos.lon -= 360;
         }
         final double pixelY = getIndexY(geoPos);
-        if (pixelY < 0) {
+        if (pixelY < 0 || Double.isNaN(pixelY)) {
             return NO_DATA_VALUE;
         }
 
