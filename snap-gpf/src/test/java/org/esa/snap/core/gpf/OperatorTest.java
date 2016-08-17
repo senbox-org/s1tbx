@@ -137,7 +137,7 @@ public class OperatorTest {
         assertSame(sp1, products[0]);
         assertSame(sp2, products[1]);
 
-        operator.setSourceProducts(new Product[]{sp3, sp2, sp1});
+        operator.setSourceProducts(sp3, sp2, sp1);
         assertNull(operator.getSourceProduct("sourceProduct"));
         assertNull(operator.getSourceProduct("sp1"));
         assertNull(operator.getSourceProduct("sp2"));
@@ -158,7 +158,7 @@ public class OperatorTest {
         assertEquals("sourceProduct.1", operator.getSourceProductId(sp3));
 
 
-        operator.setSourceProducts(new Product[]{sp1, sp2, sp1});
+        operator.setSourceProducts(sp1, sp2, sp1);
         products = operator.getSourceProducts();
         assertNotNull(products);
         assertEquals(2, products.length);
