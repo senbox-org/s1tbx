@@ -28,6 +28,7 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.dataop.downloadable.XMLSupport;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
@@ -75,19 +76,23 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
     protected void addImageFile(final String imgPath, final MetadataElement newRoot) throws IOException {
         final String name = getBandFileNameFromImage(imgPath);
         if ((name.endsWith("tiff"))) {
-            final Dimension bandDimensions = getBandDimensions(newRoot, imgBandMetadataMap.get(name));
-            final InputStream inStream = getInputStream(imgPath);
-            final ImageInputStream imgStream = ImageIOFile.createImageInputStream(inStream, bandDimensions);
+            try {
+                final Dimension bandDimensions = getBandDimensions(newRoot, imgBandMetadataMap.get(name));
+                final InputStream inStream = getInputStream(imgPath);
+                final ImageInputStream imgStream = ImageIOFile.createImageInputStream(inStream, bandDimensions);
 
-            final ImageIOFile img;
-            if (isSLC()) {
-                img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream),
-                                      1, 1, ProductData.TYPE_INT32, productInputFile);
-            } else {
-                img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream),
-                                      1, 1, ProductData.TYPE_INT32, productInputFile);
+                final ImageIOFile img;
+                if (isSLC()) {
+                    img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream),
+                            1, 1, ProductData.TYPE_INT32, productInputFile);
+                } else {
+                    img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream),
+                            1, 1, ProductData.TYPE_INT32, productInputFile);
+                }
+                bandImageFileMap.put(img.getName(), img);
+            } catch (Exception e) {
+                SystemUtils.LOG.severe(imgPath +" not found");
             }
-            bandImageFileMap.put(img.getName(), img);
         }
     }
 
