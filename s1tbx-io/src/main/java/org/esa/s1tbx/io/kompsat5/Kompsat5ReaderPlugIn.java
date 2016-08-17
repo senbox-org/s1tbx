@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2016 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,7 +15,6 @@
  */
 package org.esa.s1tbx.io.kompsat5;
 
-import org.esa.s1tbx.io.cosmo.CosmoSkymedReader;
 import org.esa.s1tbx.io.netcdf.NetCDFReaderPlugIn;
 import org.esa.snap.core.dataio.DecodeQualification;
 import org.esa.snap.core.dataio.ProductReader;
@@ -28,7 +27,7 @@ import java.io.File;
 public class Kompsat5ReaderPlugIn extends NetCDFReaderPlugIn {
 
     private final static String[] KOMPSAT5_FORMAT_NAMES = {"Kompsat5"};
-    private final static String[] KOMPSAT5_FORMAT_FILE_EXTENSIONS = {"h5"};
+    private final static String[] KOMPSAT5_FORMAT_FILE_EXTENSIONS = {"h5", "tif"};
     private final static String KOMPSAT5_PLUGIN_DESCRIPTION = "Kompsat-5 Products";
     private final static String KOMPSAT5_FILE_PREFIX = "k5";
 
@@ -41,8 +40,13 @@ public class Kompsat5ReaderPlugIn extends NetCDFReaderPlugIn {
     @Override
     protected DecodeQualification checkProductQualification(final File file) {
         final String fileName = file.getName().toLowerCase();
-        if (fileName.endsWith(".h5") && fileName.startsWith(KOMPSAT5_FILE_PREFIX))
-            return DecodeQualification.INTENDED;
+        if (fileName.startsWith(KOMPSAT5_FILE_PREFIX)) {
+            for(String ext : KOMPSAT5_FORMAT_FILE_EXTENSIONS) {
+                if(fileName.endsWith(ext)) {
+                    return DecodeQualification.INTENDED;
+                }
+            }
+        }
 
         return DecodeQualification.UNABLE;
     }
