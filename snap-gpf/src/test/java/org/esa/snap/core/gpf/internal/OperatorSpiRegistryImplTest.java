@@ -23,14 +23,12 @@ import org.esa.snap.core.gpf.OperatorSpiRegistry;
 import org.esa.snap.core.gpf.TestOps;
 import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Set;
 
 import static org.junit.Assert.*;
 
-@Ignore
 public class OperatorSpiRegistryImplTest {
 
     private OperatorSpiRegistry registry;
