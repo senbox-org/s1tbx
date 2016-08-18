@@ -18,10 +18,9 @@ package org.esa.snap.core.util.converters;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
-import java.awt.Rectangle;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.esa.snap.core.util.StringUtils;
+
+import java.awt.Rectangle;
 
 /**
  * A converter for Rectangle
@@ -47,27 +46,12 @@ public class RectangleConverter implements Converter<Rectangle> {
         if (text == null || text.isEmpty() || !text.contains(",")) {
             throw new ConversionException(String.format(EXCEPTION_FORMAT_PATTERN, text));
         }
-        if (text.contains("Rectangle")) {
-            text = getRecBounds(text);
-        }
         final String[] s = StringUtils.csvToArray(text);
         if (s.length != 4) {
             throw new ConversionException(String.format(EXCEPTION_FORMAT_PATTERN, text));
         }
         return new Rectangle(Integer.parseInt(s[0].trim()), Integer.parseInt(s[1].trim()),
-                Integer.parseInt(s[2].trim()), Integer.parseInt(s[3].trim()));
-    }
-
-    private String getRecBounds(String text) {
-        Pattern compile = Pattern.compile("\\w*=(-?\\d*),y=(-?\\d*),width=(-?\\d*),height=(-?\\d*)");
-        Matcher matcher = compile.matcher(text);
-        matcher.find();
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 1; i <= matcher.groupCount(); i++) {
-            stringBuilder.append(matcher.group(i));
-            stringBuilder.append(",");
-        }
-        return stringBuilder.toString();
+                             Integer.parseInt(s[2].trim()), Integer.parseInt(s[3].trim()));
     }
 
     @Override
