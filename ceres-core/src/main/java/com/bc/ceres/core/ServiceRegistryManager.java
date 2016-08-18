@@ -29,7 +29,7 @@ public class ServiceRegistryManager {
     private final HashMap<Class, ServiceRegistry> serviceRegistries;
 
     public ServiceRegistryManager() {
-        serviceRegistries = new HashMap<Class, ServiceRegistry>(10);
+        serviceRegistries = new HashMap<>(10);
     }
 
     public static ServiceRegistryManager getInstance() {
@@ -57,6 +57,6 @@ public class ServiceRegistryManager {
 
     protected <T> ServiceRegistry<T> createServiceRegistry(Class<T> serviceType) {
         Assert.notNull(serviceType, "serviceType");
-        return new DefaultServiceRegistry<T>(serviceType);
+        return new DefaultServiceRegistry<>(serviceType);
     }
 }

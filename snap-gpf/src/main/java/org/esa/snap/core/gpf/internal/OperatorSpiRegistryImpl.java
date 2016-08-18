@@ -18,7 +18,6 @@ package org.esa.snap.core.gpf.internal;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryListener;
-import com.bc.ceres.core.ServiceRegistryManager;
 import org.esa.snap.SnapCoreActivator;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.OperatorSpiRegistry;
@@ -46,11 +45,12 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
 
     /**
      * The constructor.
+     * @param serviceRegistry The underlying service registry used by this instance.
      */
-    public OperatorSpiRegistryImpl() {
-        serviceRegistry = ServiceRegistryManager.getInstance().getServiceRegistry(OperatorSpi.class);
+    public OperatorSpiRegistryImpl(ServiceRegistry<OperatorSpi> serviceRegistry) {
+        this.serviceRegistry = serviceRegistry;
         classNames = new ConcurrentHashMap<>(20);
-        serviceRegistry.addListener(new ServiceRegistryListener<OperatorSpi>() {
+        this.serviceRegistry.addListener(new ServiceRegistryListener<OperatorSpi>() {
             @Override
             public void serviceAdded(ServiceRegistry<OperatorSpi> registry, OperatorSpi service) {
                 registerAlias(service);
@@ -61,7 +61,7 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
                 unregisterAlias(service);
             }
         });
-        Set<OperatorSpi> services = serviceRegistry.getServices();
+        Set<OperatorSpi> services = this.serviceRegistry.getServices();
         for (OperatorSpi operatorSpi : services) {
             registerAlias(operatorSpi);
         }
@@ -99,12 +99,12 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
     }
 
     /**
-     * Gets a registered operator SPI. The given <code>operatorName</code> can be
+     * Gets a registered operator SPI. The given {@code operatorName} can be
      * either the fully qualified class name of the {@link OperatorSpi}
      * or an alias name.
      *
      * @param operatorName A name identifying the operator SPI.
-     * @return the operator SPI, or <code>null</code>
+     * @return the operator SPI, or {@code null}
      */
     @Override
     public OperatorSpi getOperatorSpi(String operatorName) {
@@ -176,7 +176,6 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
     @Override
     public boolean removeOperatorSpi(OperatorSpi operatorSpi) {
         if (!serviceRegistry.removeService(operatorSpi)) {
-            System.out.println("Removing Operator SPI: " + operatorSpi.getOperatorAlias());
             Stream<Map.Entry<String, OperatorSpi>> extraSpiStream = extraOperatorSpis.entrySet().stream();
             Optional<Map.Entry<String, OperatorSpi>> spiEntry = extraSpiStream.filter(entry -> entry.getValue() == operatorSpi).findFirst();
             if(spiEntry.isPresent() && extraOperatorSpis.remove(spiEntry.get().getKey(), spiEntry.get().getValue())) {
@@ -231,11 +230,8 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
         String alias = operatorSpi.getOperatorAlias();
         if (classNames.remove(alias) == null) {
             String spiClassName = operatorSpi.getClass().getName();
-            for (String key : new HashSet<>(classNames.keySet())) {
-                if (classNames.get(key).equals(spiClassName)) {
-                    classNames.remove(key);
-                }
-            }
+            Stream<String> stream = new HashSet<>(classNames.keySet()).stream();
+            stream.filter(key -> classNames.get(key).equals(spiClassName)).forEach(classNames::remove);
         }
     }
 

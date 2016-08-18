@@ -16,6 +16,7 @@
 
 package org.esa.snap.core.gpf.internal;
 
+import com.bc.ceres.core.DefaultServiceRegistry;
 import com.bc.ceres.core.ServiceRegistry;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.OperatorSpiRegistry;
@@ -36,11 +37,7 @@ public class OperatorSpiRegistryImplTest {
 
     @Before
     public void setUp() throws Exception {
-        registry = new OperatorSpiRegistryImpl();
-        Set<OperatorSpi> alreadyRegisteredSpis = registry.getOperatorSpis();
-        for (OperatorSpi alreadyRegisteredSpi : alreadyRegisteredSpis) {
-            registry.removeOperatorSpi(alreadyRegisteredSpi);
-        }
+        registry = new OperatorSpiRegistryImpl(new DefaultServiceRegistry<>(OperatorSpi.class));
     }
 
     @Test

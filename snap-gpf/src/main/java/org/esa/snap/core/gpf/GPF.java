@@ -18,6 +18,7 @@ package org.esa.snap.core.gpf;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.ServiceRegistryManager;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductManager;
 import org.esa.snap.core.gpf.common.WriteOp;
@@ -33,7 +34,6 @@ import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -65,12 +65,7 @@ public class GPF {
      * both width and height positive.
      */
     public static final RenderingHints.Key KEY_TILE_SIZE =
-            new RenderingKey<>(1, Dimension.class, new RenderingKey.Validator<Dimension>() {
-                @Override
-                public boolean isValid(Dimension val) {
-                    return val.width > 0 && val.height > 0;
-                }
-            });
+            new RenderingKey<>(1, Dimension.class, val -> val.width > 0 && val.height > 0);
 
     /**
      * An unmodifiable empty {@link Map Map}.
@@ -99,8 +94,6 @@ public class GPF {
     static {
         defaultInstance = new GPF();
         defaultInstance.spiRegistry.loadOperatorSpis();
-        Set<OperatorSpi> operatorSpis = defaultInstance.spiRegistry.getOperatorSpis();
-        System.out.println("Number of Ops = " + operatorSpis.size());
     }
 
     private OperatorSpiRegistry spiRegistry;
@@ -111,7 +104,8 @@ public class GPF {
      * Constructor.
      */
     protected GPF() {
-        spiRegistry = new OperatorSpiRegistryImpl();
+        ServiceRegistryManager registryManager = ServiceRegistryManager.getInstance();
+        spiRegistry = new OperatorSpiRegistryImpl(registryManager.getServiceRegistry(OperatorSpi.class));
     }
 
     /**
@@ -387,7 +381,7 @@ public class GPF {
      *
      * @param product     the product
      * @param file        the product file
-     * @param formatName  the name of a supported product format, e.g. "HDF5". If <code>null</code>, the default format
+     * @param formatName  the name of a supported product format, e.g. "HDF5". If {@code null}, the default format
      *                    "BEAM-DIMAP" will be used
      * @param incremental switch the product writer in incremental mode or not.
      * @param pm          a monitor to inform the user about progress
@@ -401,7 +395,7 @@ public class GPF {
       *
       * @param product     the product
       * @param file        the product file
-      * @param formatName  the name of a supported product format, e.g. "HDF5". If <code>null</code>, the default format
+      * @param formatName  the name of a supported product format, e.g. "HDF5". If {@code null}, the default format
       *                    "BEAM-DIMAP" will be used
       * @param clearCacheAfterRowWrite if true, the internal tile cache is cleared after a tile row has been written.
       * @param incremental switch the product writer in incremental mode or not.
