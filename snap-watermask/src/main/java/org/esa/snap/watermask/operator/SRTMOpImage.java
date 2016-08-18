@@ -158,6 +158,10 @@ public class SRTMOpImage extends SourcelessOpImage {
 
     private InputStream createInputStream(String imgFileName) throws IOException {
         final ZipEntry entry = zipFile.getEntry(imgFileName);
-        return zipFile.getInputStream(entry);
+        if (entry != null) {
+            return zipFile.getInputStream(entry);
+        }else {
+            throw new IllegalArgumentException(String.format("Can not find '%s' entry in zip file '%s'", imgFileName, zipFile.getName()));
+        }
     }
 }
