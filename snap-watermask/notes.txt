@@ -1,0 +1,2 @@
+The auxdata and the sources for generating it are located on the server at projects\ongoing\Senbox\SNAP\snap-watermask.
+On the step server the auxdata is located at /var/www/auxdata/watermask.
