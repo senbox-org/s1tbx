@@ -45,6 +45,8 @@ import org.jdom2.Element;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
 import java.io.File;
+import java.io.FileFilter;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
@@ -145,14 +147,17 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             throw new IOException("Cannot locate secondary annotation component (slave product) in main annotation of TDM product");
         }
 
-        final String masterHeader = masterAnnotationComponent.getChild("file").getChild("location").getChildText("name");
+        String masterHeader = masterAnnotationComponent.getChild("file").getChild("location").getChildText("name");
         masterProductName = masterHeader.substring(0, masterHeader.indexOf('/'));
 
+        masterHeader = findHeaderFile(masterHeader, masterProductName);
 
         // Build the slave metadata
 
-        final String slaveHeader = slaveAnnotationComponent.getChild("file").getChild("location").getChildText("name");
+        String slaveHeader = slaveAnnotationComponent.getChild("file").getChild("location").getChildText("name");
         slaveProductName = slaveHeader.substring(0, slaveHeader.indexOf('/'));
+
+        slaveHeader = findHeaderFile(slaveHeader, slaveProductName);
 
         final Document slaveDoc = XMLSupport.LoadXML(getInputStream(slaveHeader));
         final Element slaveRootElement = slaveDoc.getRootElement();
@@ -220,6 +225,25 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         metadataRoot.addElement(slaveRoot);
 
         return metadataRoot;
+    }
+
+    private String findHeaderFile(final String slaveHeader, final String slaveProductName) throws IOException {
+        try {
+            // test file
+            File slaveHeaderFile = getFile(slaveHeader);
+        } catch (FileNotFoundException e) {
+            File slaveProductFolder = getFile(slaveProductName);
+            File[] files = slaveProductFolder.listFiles(new FileFilter() {
+                @Override
+                public boolean accept(File pathname) {
+                    return pathname.getName().toLowerCase().endsWith(".xml");
+                }
+            });
+            if(files != null && files.length > 0) {
+                return slaveProductName + '/' + files[0].getName();
+            }
+        }
+        return slaveHeader;
     }
 
     public boolean isTanDEMX() {
