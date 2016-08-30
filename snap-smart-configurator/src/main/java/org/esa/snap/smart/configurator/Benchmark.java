@@ -116,11 +116,11 @@ public class Benchmark {
         return rows;
     }
 
-    public int[][] getRowsToShow(){
+    public int[][] getRowsToShow() {
         int numRows = 0;
         int numColumns = getColumnsNames().length;
 
-        for(int i = 0; i < this.benchmarkCalculus.size();i++) {
+        for (int i = 0; i < this.benchmarkCalculus.size(); i++) {
             if (!this.benchmarkCalculus.get(i).isHidden()) {
                 numRows++;
             }
@@ -129,9 +129,11 @@ public class Benchmark {
             return null;
         }
         int[][] rows = new int[numRows][numColumns];
-        for(int i = 0 ; i < this.benchmarkCalculus.size() ; i++) {
+        int index = 0;
+        for (int i = 0; i < this.benchmarkCalculus.size(); i++) {
             if (!this.benchmarkCalculus.get(i).isHidden()) {
-                rows[i] = this.benchmarkCalculus.get(i).getData();
+                rows[index] = this.benchmarkCalculus.get(i).getData();
+                index++;
             }
         }
 
