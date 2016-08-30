@@ -21,6 +21,7 @@ package org.esa.snap.smart.configurator;
 
 
 import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.jai.JAIUtils;
 import org.esa.snap.runtime.Config;
 import org.esa.snap.runtime.EngineConfig;
 
@@ -212,8 +213,7 @@ public class PerformanceParameters {
         preferences.flush();
 
         // effective change of jai parameters
-        TileCache thisTileCache = JAI.createTileCache();
-        JAI.getDefaultInstance().setTileCache(thisTileCache);
+        JAIUtils.setDefaultTileCacheCapacity(jaiCacheSize);
         JAI.getDefaultInstance().getTileScheduler().setParallelism(parallelism);
         JAI.setDefaultTileSize(new Dimension(defaultTileSize, defaultTileSize));
     }
