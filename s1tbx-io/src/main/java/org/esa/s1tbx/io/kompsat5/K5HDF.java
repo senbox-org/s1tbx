@@ -545,8 +545,12 @@ public class K5HDF implements K5Format {
                 ++cnt;
             }
 
+            final boolean floatBand = product.getProductType().equals("SCS_A");
+
             if (isComplex) {     // add i and q
-                final Band bandI = NetCDFUtils.createBand(variable, width, height);
+                final Band bandI = floatBand ?
+                        NetCDFUtils.createBand(variable, width, height, ProductData.TYPE_FLOAT32) :
+                        NetCDFUtils.createBand(variable, width, height);
                 createUniqueBandName(product, bandI, 'i' + cntStr);
                 bandI.setUnit(Unit.REAL);
                 bandI.setNoDataValue(0);
@@ -554,7 +558,9 @@ public class K5HDF implements K5Format {
                 product.addBand(bandI);
                 bandMap.put(bandI, variable);
 
-                final Band bandQ = NetCDFUtils.createBand(variable, width, height);
+                final Band bandQ = floatBand ?
+                        NetCDFUtils.createBand(variable, width, height, ProductData.TYPE_FLOAT32) :
+                        NetCDFUtils.createBand(variable, width, height);
                 createUniqueBandName(product, bandQ, 'q' + cntStr);
                 bandQ.setUnit(Unit.IMAGINARY);
                 bandQ.setNoDataValue(0);
@@ -564,7 +570,9 @@ public class K5HDF implements K5Format {
 
                 ReaderUtils.createVirtualIntensityBand(product, bandI, bandQ, cntStr);
             } else {
-                final Band band = NetCDFUtils.createBand(variable, width, height);
+                final Band band = floatBand ?
+                        NetCDFUtils.createBand(variable, width, height, ProductData.TYPE_FLOAT32) :
+                        NetCDFUtils.createBand(variable, width, height);
                 createUniqueBandName(product, band, "Amplitude" + cntStr);
                 band.setUnit(Unit.AMPLITUDE);
                 band.setNoDataValue(0);
@@ -749,7 +757,15 @@ public class K5HDF implements K5Format {
                 synchronized (netcdfFile) {
                     array = variable.read(origin, shape);
                 }
-                System.arraycopy(array.getStorage(), 0, destBuffer.getElems(), y * destWidth, destWidth);
+
+                if (destBand.getDataType() == ProductData.TYPE_FLOAT32) {
+                    for (int x = 0; x < destWidth; x++) {
+                        destBuffer.setElemFloatAt(y * destWidth + x, toFloat(array.getShort(x)));
+                    }
+                } else {
+                    System.arraycopy(array.getStorage(), 0, destBuffer.getElems(), y * destWidth, destWidth);
+                }
+
                 pm.worked(1);
                 if (pm.isCanceled()) {
                     throw new IOException("Process terminated by user."); /*I18N*/
@@ -762,5 +778,42 @@ public class K5HDF implements K5Format {
         } finally {
             pm.done();
         }
+    }
+
+    private static float toFloat(final short s) {
+
+        // FAB16 FLOATING-POINT ARITHMETIC FORMAT
+        //
+        // Based on c code...
+        //
+        // #define FLT16_ZERO     0
+        //
+        // typedef unsigned short Real2;
+        // typedef float Real4;
+        //
+        // Real4 f32r_(Real2 *a)
+        // {
+        //    register unsigned int i32a;
+        //    if ( !(i32a = (unsigned int)*a) )
+        //    return (Real4)FLT16_ZERO;
+        //    register unsigned int e_o = ((i32a & 0x00007800) + 0x0001D000) << 13;
+        //    unsigned int f32r = ((i32a & 0x00008000) << 16) | e_o | (i32a & 0x000007FF) << 13;
+        //    return *(Real4*)&f32r;
+        // }
+
+        if (s == 0) return 0;
+
+        final int i32a = s & 0xffff; // unsigned short
+
+        final int e_o = ((i32a & 0x00007800) + 0x0001D000) << 13;
+
+        final int a1 = ((i32a & 0x00008000) << 16);
+        final int a2 = (i32a & 0x000007FF) << 13;
+
+        final int f32r = a1 | e_o | a2;
+
+        final float f = Float.intBitsToFloat(f32r);
+
+        return f;
     }
 }

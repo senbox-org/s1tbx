@@ -49,9 +49,13 @@ import java.util.Set;
 public class NetCDFUtils {
 
     public static Band createBand(final Variable variable, final int rasterWidth, final int rasterHeight) {
+        return createBand(variable, rasterWidth, rasterHeight, ProductData.TYPE_UNDEFINED);
+    }
+
+    public static Band createBand(final Variable variable, final int rasterWidth, final int rasterHeight, int dataType) {
         final NcAttributeMap attMap = NcAttributeMap.create(variable);
         final Band band = new Band(variable.getShortName(),
-                getRasterDataType(variable),
+                (dataType == ProductData.TYPE_UNDEFINED) ? getRasterDataType(variable) : dataType,
                 rasterWidth,
                 rasterHeight);
         band.setDescription(getDescription(variable, attMap));
