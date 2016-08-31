@@ -20,7 +20,6 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.thoughtworks.xstream.XStream;
-import com.vividsolutions.jts.geom.Envelope;
 import net.sf.javaml.classification.Classifier;
 import net.sf.javaml.core.Dataset;
 import net.sf.javaml.core.DefaultDataset;
@@ -38,17 +37,11 @@ import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.core.util.ProductUtils;
-import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.engine_utilities.gpf.ThreadManager;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.geometry.BoundingBox;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.*;
@@ -256,7 +249,8 @@ public abstract class BaseClassifier implements SupervisedClassifier {
 
             if (params.trainingVectors == null || params.trainingVectors.length == 0) {
                 final List<String> geometryNames = new ArrayList<>();
-                for (String name : maskProduct.getMaskGroup().getNodeNames()) {
+                final String[] nodeNames = maskProduct.getMaskGroup().getNodeNames();
+                for (String name : nodeNames) {
                     geometryNames.add(name + "::" + maskProduct.getName());
                 }
                 if (geometryNames.size() < 2) {
@@ -298,7 +292,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
                         classIndex = i;
                         classLabelMap.put(classIndex, polygonVectorDataNodes[i].getName());
                     } else {
-                        String classLabel = getAttribValue(polygonVectorDataNodes[i], params.labelSource);
+                        String classLabel = VectorUtils.getAttribStringValue(polygonVectorDataNodes[i], params.labelSource);
 
                         if (!classLabelMap.values().contains(classLabel)) {
                             classLabelMap.put(classIndex, classLabel);
@@ -314,20 +308,6 @@ public abstract class BaseClassifier implements SupervisedClassifier {
         //SystemUtils.LOG.info("doClassValQuantization = " + doClassValQuantization);
         //SystemUtils.LOG.info("Min class value = " + minClassValue + "; class value step size = " + classValStepSize
         //        + "; class levels = " + classLevels + "; max class value = " + maxClassValue);
-    }
-
-    public static String getAttribValue(final VectorDataNode node, final String attribName) {
-        final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection =
-                node.getFeatureCollection();
-        final SimpleFeature simpleFeature = featureCollection.features().next();
-        String valStr = String.valueOf(simpleFeature.getAttribute(attribName)).trim();
-        if(StringUtils.isIntegerString(valStr)) {
-            valStr = StringUtils.padNum(Integer.parseInt(valStr), 5, ' ');
-        } else if(StringUtils.isNumeric(valStr, Double.class)) {
-            Integer valInt = (int) quantize(Double.parseDouble(valStr), 0, 200, 10);
-            valStr = StringUtils.padNum(valInt, 5, '0');
-        }
-        return valStr;
     }
 
     public static double getMaxValue(final double minVal, final double stepSize, final int levels) {
@@ -381,7 +361,10 @@ public abstract class BaseClassifier implements SupervisedClassifier {
             final IndexCoding indexCoding = new IndexCoding("Classes");
             indexCoding.addIndex("no data", INT_NO_DATA_VALUE, "no data");
             for (Integer i : classLabelMap.keySet()) {
-                indexCoding.addIndex(classLabelMap.get(i), i, "");
+                String label = classLabelMap.get(i);
+                if(label == null || label.isEmpty())
+                    label = "null";
+                indexCoding.addIndex(label, i, "");
             }
             targetProduct.getIndexCodingGroup().add(indexCoding);
             labelBand.setSampleCoding(indexCoding);
@@ -775,9 +758,12 @@ public abstract class BaseClassifier implements SupervisedClassifier {
                 Classifier setClassifier = createMLClassifier(featureInfos);
 
                 // create subset of labeledInstances
-                LabeledInstances subsetLabeledInstances = createSubsetLabeledInstances(featureInfos, allLabeledInstances);
+               // LabeledInstances subsetLabeledInstances = createSubsetLabeledInstances(featureInfos, allLabeledInstances);
 
-                trainClassifier(setClassifier, getClassifierName() + '.' + cnt, subsetLabeledInstances,
+                final LabeledInstances allLabeledInstances2 = getLabeledInstances(operator, params.numTrainSamples * 2,
+                                                                                  featureInfoList);
+
+                trainClassifier(setClassifier, getClassifierName() + '.' + cnt, allLabeledInstances2,
                                 featureInfos, true);
                 ++cnt;
                 pm.worked(1);
@@ -792,9 +778,12 @@ public abstract class BaseClassifier implements SupervisedClassifier {
                 mlClassifier = createMLClassifier(featureInfoList);
 
                 // create subset of labeledInstances
-                LabeledInstances subsetLabeledInstances = createSubsetLabeledInstances(featureInfoList, allLabeledInstances);
+                //LabeledInstances subsetLabeledInstances = createSubsetLabeledInstances(featureInfoList, allLabeledInstances);
 
-                Dataset trainDataset = trainClassifier(mlClassifier, getClassifierName(), subsetLabeledInstances,
+                final LabeledInstances allLabeledInstances2 = getLabeledInstances(operator, params.numTrainSamples * 2,
+                                                                                 featureInfoList);
+
+                Dataset trainDataset = trainClassifier(mlClassifier, getClassifierName(), allLabeledInstances2,
                                                        featureInfoList, false);
 
                 saveClassifier(trainDataset);
@@ -960,36 +949,6 @@ public abstract class BaseClassifier implements SupervisedClassifier {
         classifierTrained = true;
     }
 
-    private static VectorDataNode[] getPolygonsForOneRectangle(final Rectangle rectangle,
-                                                               final CoordinateReferenceSystem crs,
-                                                               final VectorDataNode[] polygonVectorDataNodes) {
-
-        final ArrayList<VectorDataNode> list = new ArrayList<>();
-        final ReferencedEnvelope recEnv = new ReferencedEnvelope(rectangle, crs);
-
-        for (VectorDataNode node : polygonVectorDataNodes) {
-            final ReferencedEnvelope nodeEnv = node.getEnvelope();
-            if (nodeEnv == null) {
-                continue;
-            }
-            try {
-                final BoundingBox bbox = recEnv.toBounds(nodeEnv.getCoordinateReferenceSystem());
-                /*
-                SystemUtils.LOG.info("rec transformed bounds " + bbox);
-                SystemUtils.LOG.info("polygon " + node.getName() + " env minX = " + nodeEnv.getMinX() + " maxX = " + nodeEnv.getMaxX() +
-                        " minY = " + nodeEnv.getMinY() + " maxY = " + nodeEnv.getMinY());
-                        */
-                if (((Envelope) recEnv).intersects(new ReferencedEnvelope(bbox))) {
-                    list.add(node);
-                }
-            } catch (Throwable e) {
-                SystemUtils.LOG.info("getPolygonsForOneRectangle: caught exception: " + e.getMessage());
-            }
-        }
-
-        return list.toArray(new VectorDataNode[list.size()]);
-    }
-
     private static String getFirstPartOfExpression(final String polygonName, final int polygonIdx) {
         return '\'' + polygonName + "' ? " + polygonIdx + " : ";
     }
@@ -1044,7 +1003,9 @@ public abstract class BaseClassifier implements SupervisedClassifier {
                 final Rectangle rectangle = tileRectangles[i];
 
                 // Get the class polygons that intersect this rectangle
-                final VectorDataNode[] polygons = getPolygonsForOneRectangle(rectangle, srcCRS, polygonVectorDataNodes);
+                final VectorDataNode[] polygons = VectorUtils.getPolygonsForOneRectangle(rectangle,
+                                                                                         params.sourceProducts[0].getSceneGeoCoding(),
+                                                                                         polygonVectorDataNodes);
                 if (polygons.length == 0) {
                     continue;
                 }
@@ -1102,7 +1063,8 @@ public abstract class BaseClassifier implements SupervisedClassifier {
                                         instance.setClassValue((double) classVal);
                                     } else {
                                         int vectorIndex = classVal;
-                                        String val = getAttribValue(polygonVectorDataNodes[vectorIndex], params.labelSource);
+                                        String val = VectorUtils.getAttribStringValue(polygonVectorDataNodes[vectorIndex],
+                                                                                params.labelSource);
                                         classVal = labelClassMap.get(val);
                                         instance.setClassValue((double) classVal);
                                     }
@@ -1238,19 +1200,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
         if (!params.doClassValQuantization) {
             return val;
         }
-        return quantize(val, params.minClassValue, maxClassValue, params.classValStepSize);
-    }
-
-    private static double quantize(double val, double min, double max, double stepSize) {
-        double quantizedVal = val;
-        if (quantizedVal < min) {
-            quantizedVal = min;
-        } else if (quantizedVal > max) {
-            quantizedVal = max;
-        } else {
-            quantizedVal = ((double) Math.round(val / stepSize)) * stepSize;
-        }
-        return quantizedVal;
+        return VectorUtils.quantize(val, params.minClassValue, maxClassValue, params.classValStepSize);
     }
 
     private void getData(final int xMin, final int xMax, final int yMin, final int yMax,
