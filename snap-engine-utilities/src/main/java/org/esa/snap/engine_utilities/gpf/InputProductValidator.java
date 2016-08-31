@@ -111,8 +111,17 @@ public class InputProductValidator {
         }
     }
 
+    public void checkMission(final String[] validMissions) throws OperatorException {
+        final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION, "");
+        for (String validMission : validMissions) {
+            if (mission.equals(validMission))
+                return;
+        }
+        throw new OperatorException(mission + " is not a valid mission from: " + StringUtils.arrayToString(validMissions, ","));
+    }
+
     public void checkProductType(final String[] validProductTypes) throws OperatorException {
-        final String productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
+        final String productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE, "");
         for (String validProductType : validProductTypes) {
             if (productType.equals(validProductType))
                 return;
