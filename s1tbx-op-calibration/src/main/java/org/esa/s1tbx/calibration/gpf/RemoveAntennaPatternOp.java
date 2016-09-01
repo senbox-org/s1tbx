@@ -33,6 +33,7 @@ import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 
 import java.util.ArrayList;
@@ -76,6 +77,10 @@ public class RemoveAntennaPatternOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfSARProduct();
+            validator.checkMission(new String[] {"ENVISAT", "ERS-1", "ERS-2"});
+
             getProductType();
 
             getMultilookFlag();
