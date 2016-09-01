@@ -139,17 +139,20 @@ public class ProductIO {
         final ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
 
         for (String formatName : formatNames) {
-            final Iterator<ProductReaderPlugIn> it = registry.getReaderPlugIns(formatName);
-
             ProductReaderPlugIn selectedPlugIn = null;
-            while (it.hasNext()) {
-                ProductReaderPlugIn plugIn = it.next();
-                DecodeQualification decodeQualification = plugIn.getDecodeQualification(file);
-                if (decodeQualification == DecodeQualification.INTENDED) {
-                    selectedPlugIn = plugIn;
-                    break;
-                } else if (decodeQualification == DecodeQualification.SUITABLE) {
-                    selectedPlugIn = plugIn;
+            if (formatName != null) {
+                final Iterator<ProductReaderPlugIn> it = registry.getReaderPlugIns(formatName);
+
+                selectedPlugIn = null;
+                while (it.hasNext()) {
+                    ProductReaderPlugIn plugIn = it.next();
+                    DecodeQualification decodeQualification = plugIn.getDecodeQualification(file);
+                    if (decodeQualification == DecodeQualification.INTENDED) {
+                        selectedPlugIn = plugIn;
+                        break;
+                    } else if (decodeQualification == DecodeQualification.SUITABLE) {
+                        selectedPlugIn = plugIn;
+                    }
                 }
             }
             if (selectedPlugIn != null) {
