@@ -81,7 +81,11 @@ public class BenchmarkSingleCalculus implements Comparable<BenchmarkSingleCalcul
     }
 
     public int[] getData() {
-        int[] calculus = {this.executionOrder, this.tileSize, this.cacheSize, this.nbThreads, this.executionTime.intValue()};
+        int execution = -1;
+        if (this.executionTime != null) {
+            execution = this.executionTime.intValue();
+        }
+        int[] calculus = {this.executionOrder, this.tileSize, this.cacheSize, this.nbThreads, execution};
         return calculus;
     }
 
