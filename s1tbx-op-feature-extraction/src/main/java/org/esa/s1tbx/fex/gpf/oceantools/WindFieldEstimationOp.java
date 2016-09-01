@@ -248,6 +248,8 @@ public class WindFieldEstimationOp extends Operator {
                     sourceImageWidth,
                     sourceImageHeight);
 
+            targetBand.setNoDataValueUsed(true);
+            targetBand.setNoDataValue(srcBand.getNoDataValue());
             targetBand.setUnit(unit);
             targetProduct.addBand(targetBand);
             bandWindFieldRecord.put(srcBandName, new ArrayList<>());
