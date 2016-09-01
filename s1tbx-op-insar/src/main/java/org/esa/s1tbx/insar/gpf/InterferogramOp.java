@@ -449,10 +449,12 @@ public class InterferogramOp extends Operator {
 
             if (includeCoherence) {
                 final String targetBandCoh = "coh" + tag;
-                final Band cohBand = targetProduct.addBand(targetBandCoh, ProductData.TYPE_FLOAT32);
-                container.addBand(Unit.COHERENCE, cohBand.getName());
-                cohBand.setUnit(Unit.COHERENCE);
-                targetBandNames.add(cohBand.getName());
+                final Band coherenceBand = targetProduct.addBand(targetBandCoh, ProductData.TYPE_FLOAT32);
+                coherenceBand.setNoDataValueUsed(true);
+                coherenceBand.setNoDataValue(master.realBand.getNoDataValue());
+                container.addBand(Unit.COHERENCE, coherenceBand.getName());
+                coherenceBand.setUnit(Unit.COHERENCE);
+                targetBandNames.add(coherenceBand.getName());
             }
 
             if (subtractFlatEarthPhase && OUTPUT_FLAT_EARTH_PHASE) {
