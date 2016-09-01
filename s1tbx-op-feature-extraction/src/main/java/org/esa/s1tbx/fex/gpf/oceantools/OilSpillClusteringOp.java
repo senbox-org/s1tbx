@@ -138,8 +138,7 @@ public class OilSpillClusteringOp extends Operator {
             final String srcBandName = srcBand.getName();
             if (!srcBandName.contains(OilSpillDetectionOp.OILSPILLMASK_NAME)) {
 
-                final Band targetBand = ProductUtils.copyBand(srcBandName, sourceProduct, targetProduct, false);
-                targetBand.setSourceImage(srcBand.getSourceImage());
+                final Band targetBand = ProductUtils.copyBand(srcBandName, sourceProduct, targetProduct, true);
 
             } else {
                 ProductUtils.copyBand(srcBandName, sourceProduct, targetProduct, false);
