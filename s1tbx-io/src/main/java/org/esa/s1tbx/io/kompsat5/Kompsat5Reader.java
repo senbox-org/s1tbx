@@ -21,6 +21,7 @@ import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.quicklooks.Quicklook;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import java.io.File;
@@ -78,6 +79,7 @@ public class Kompsat5Reader extends SARReader {
 
             Product product = k5Reader.open(inputFile);
             setQuicklookBandName(product);
+            addQuicklook(product, Quicklook.DEFAULT_QUICKLOOK_NAME, getQuicklookFile(product));
 
             product.getGcpGroup();
             product.setModified(false);
@@ -93,6 +95,18 @@ public class Kompsat5Reader extends SARReader {
     public void close() throws IOException {
         k5Reader.close();
         super.close();
+    }
+
+    private static File getQuicklookFile(final Product product) {
+        final File folder = product.getFileLocation().getParentFile();
+        final File[] files = folder.listFiles();
+        for (File file : files) {
+            String name = file.getName().toLowerCase();
+            if (name.startsWith("k5_") && name.endsWith("ql.png")) {
+                return file;
+            }
+        }
+        return null;
     }
 
     /**
