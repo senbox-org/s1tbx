@@ -261,6 +261,8 @@ public abstract class ProductData implements Cloneable {
                 return new ProductData.Short((short[]) data);
             case TYPE_INT32:
                 return new ProductData.Int((int[]) data);
+            case TYPE_INT64:
+                return new ProductData.Long((long[]) data);
             case TYPE_UINT8:
                 return new ProductData.UByte((byte[]) data);
             case TYPE_UINT16:
