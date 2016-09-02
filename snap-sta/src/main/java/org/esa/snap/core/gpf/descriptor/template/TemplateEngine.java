@@ -26,13 +26,9 @@ import org.esa.snap.core.gpf.descriptor.ToolAdapterOperatorDescriptor;
 import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterIO;
 
 import javax.script.*;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -172,8 +168,13 @@ public abstract class TemplateEngine<C> {
             if (stateful) {
                 context = new VelocityCtx(new VelocityContext());
             }
-            try {
-                this.macroTemplateContents = new String(Files.readAllBytes(Paths.get(getClass().getResource("macros.vm").toURI())));
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("macros.vm")))) {
+                String line;
+                StringBuilder builder = new StringBuilder();
+                while ((line = reader.readLine()) != null) {
+                    builder.append(line).append("\n");
+                }
+                this.macroTemplateContents = builder.length() > 0 ? builder.toString() : null;
             } catch (Exception e) {
                 e.printStackTrace();
             }
