@@ -32,9 +32,9 @@ public class ToolAdapterActivator implements Activator {
         if (spiRegistry != null) {
             Collection<OperatorSpi> operatorSpis = spiRegistry.getOperatorSpis();
             if (operatorSpis != null) {
-                if (operatorSpis.size() == 0) {
+                //if (operatorSpis.size() == 0) {
                     operatorSpis.addAll(ToolAdapterIO.searchAndRegisterAdapters());
-                }
+                //}
             }
         }
     }
