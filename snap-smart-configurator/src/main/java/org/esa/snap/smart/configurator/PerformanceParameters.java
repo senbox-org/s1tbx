@@ -20,6 +20,7 @@
 package org.esa.snap.smart.configurator;
 
 
+import org.apache.commons.lang.StringUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.jai.JAIUtils;
 import org.esa.snap.runtime.Config;
@@ -34,6 +35,7 @@ import java.nio.file.Path;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+
 /**
  * Storage for performance parameters
  *
@@ -46,12 +48,22 @@ public class PerformanceParameters {
     /**
      * Preferences key for the default tile size in pixels
      */
-    public static final String PROPERTY_DEFAULT_TILE_SIZE = "snap.jai.defaultTileSize";
+    //private static final String PROPERTY_DEFAULT_TILE_SIZE = "snap.jai.defaultTileSize";
+
+    /**
+     * Preferences key for the default reader tile width
+     */
+    private static final String SYSPROP_READER_TILE_WIDTH = "snap.dataio.reader.tileWidth";
+
+    /**
+     * Preferences key for the default reader tile height
+     */
+    private static final String SYSPROP_READER_TILE_HEIGHT = "snap.dataio.reader.tileHeight";
 
     /**
      * Preferences key for the cache size in Mb
      */
-    public static final String PROPERTY_JAI_CACHE_SIZE = "snap.jai.tileCacheSize";
+    private static final String PROPERTY_JAI_CACHE_SIZE = "snap.jai.tileCacheSize";
 
 
 
@@ -59,7 +71,10 @@ public class PerformanceParameters {
     private Path cachePath;
     private int nbThreads;
 
-    private int defaultTileSize;
+    //private int defaultTileSize;
+    private String tileWidth;
+    private String tileHeight;
+
     private int cacheSize;
 
     /**
@@ -79,7 +94,9 @@ public class PerformanceParameters {
         this.setCachePath(clone.getCachePath());
 
         this.setNbThreads(clone.getNbThreads());
-        this.setDefaultTileSize(clone.getDefaultTileSize());
+        //this.setDefaultTileSize(clone.getDefaultTileSize());
+        this.setTileHeight(clone.getTileHeight());
+        this.setTileWidth(clone.getTileWidth());
         this.setCacheSize(clone.getCacheSize());
     }
 
@@ -133,13 +150,50 @@ public class PerformanceParameters {
 
 
 
-    public int getDefaultTileSize() {
+    /*public int getDefaultTileSize() {
         return defaultTileSize;
+    }*/
+
+    /*public void setDefaultTileSize(int defaultTileSize) {
+        this.defaultTileSize = defaultTileSize;
+    }*/
+
+    public String getTileWidth() {
+        return tileWidth;
     }
 
-    public void setDefaultTileSize(int defaultTileSize) {
-        this.defaultTileSize = defaultTileSize;
+    public void setTileWidth(String tileWidth) {
+        this.tileWidth = tileWidth;
     }
+
+    public String getTileHeight() {
+        return tileHeight;
+    }
+
+    public void setTileHeight(String tileHeight) {
+        this.tileHeight = tileHeight;
+    }
+
+    public String getTileDimension() {
+
+        if (tileHeight == null || tileWidth == null) {
+            return null;
+        }
+        String dimension = tileWidth;
+
+        if(tileHeight.compareTo(tileWidth) != 0) {
+            dimension = dimension + "," + tileHeight;
+        }
+        return dimension;
+    }
+
+    public void setTileDimension(String dimension) {
+
+        this.tileWidth = getWidthFromTileDimensionString(dimension);
+        this.tileHeight = getHeightFromTileDimensionString(dimension);
+    }
+
+
     public int getCacheSize() {
         return cacheSize;
     }
@@ -151,7 +205,7 @@ public class PerformanceParameters {
 
     /**
      *
-     * Reads the parameters files and system settings to retreive the actual performance parameters.
+     * Reads the parameters files and system settings to retrieve the actual performance parameters.
      * It updates the "actualParameters" according to the configuration loaded.
      *
      * @return the actual performance parameters, loaded by this method
@@ -169,8 +223,10 @@ public class PerformanceParameters {
 
         final int defaultNbThreads = JavaSystemInfos.getInstance().getNbCPUs();
         actualParameters.setNbThreads(preferences.getInt(SystemUtils.SNAP_PARALLELISM_PROPERTY_NAME, defaultNbThreads));
-        actualParameters.setDefaultTileSize(preferences.getInt(PROPERTY_DEFAULT_TILE_SIZE, 0));
-        actualParameters.setCacheSize(preferences.getInt(PROPERTY_JAI_CACHE_SIZE, 0));
+        //actualParameters.setDefaultTileSize(preferences.getInt(PROPERTY_DEFAULT_TILE_SIZE, 0));
+        actualParameters.setTileWidth(preferences.get(SYSPROP_READER_TILE_WIDTH, null));
+        actualParameters.setTileHeight(preferences.get(SYSPROP_READER_TILE_HEIGHT, null));
+        actualParameters.setCacheSize(preferences.getInt(PROPERTY_JAI_CACHE_SIZE, 1024));
 
         return actualParameters;
     }
@@ -203,11 +259,28 @@ public class PerformanceParameters {
             SystemUtils.LOG.severe("Directory for cache path does not exist");
         }
 
+        JAI ff = JAI.getDefaultInstance();
+
+
         int parallelism = confToSave.getNbThreads();
-        int defaultTileSize = confToSave.getDefaultTileSize();
+        //int defaultTileSize = confToSave.getDefaultTileSize();
         int jaiCacheSize = confToSave.getCacheSize();
+        String tileWidth = confToSave.getTileWidth();
+        String tileHeight = confToSave.getTileHeight();
+
         preferences.putInt(SystemUtils.SNAP_PARALLELISM_PROPERTY_NAME, parallelism);
-        preferences.putInt(PROPERTY_DEFAULT_TILE_SIZE, defaultTileSize);
+
+        /*if(tileWidth == null) {
+            preferences.remove(SYSPROP_READER_TILE_WIDTH);
+        } else {
+            preferences.put(SYSPROP_READER_TILE_WIDTH,tileWidth);
+        }
+        if(tileHeight == null) {
+            preferences.remove(SYSPROP_READER_TILE_HEIGHT);
+        } else {
+            preferences.put(SYSPROP_READER_TILE_HEIGHT,tileHeight);
+        }*/
+
         preferences.putInt(PROPERTY_JAI_CACHE_SIZE, jaiCacheSize);
 
         preferences.flush();
@@ -215,6 +288,79 @@ public class PerformanceParameters {
         // effective change of jai parameters
         JAIUtils.setDefaultTileCacheCapacity(jaiCacheSize);
         JAI.getDefaultInstance().getTileScheduler().setParallelism(parallelism);
-        JAI.setDefaultTileSize(new Dimension(defaultTileSize, defaultTileSize));
+
     }
+
+    //dimension: width,height
+    public static String getWidthFromTileDimensionString (String dimension) {
+        if(dimension == null) {
+            return null;
+        }
+        String[] splitted = StringUtils.split(dimension, ',');
+        if(splitted.length <= 0) {
+            return null;
+        }
+        return splitted[0];
+    }
+
+    public static String getHeightFromTileDimensionString (String dimension) {
+        if(dimension == null) {
+            return null;
+        }
+        String[] splitted = StringUtils.split(dimension, ',');
+        if(splitted.length <= 0) {
+            return null;
+        }
+        if(splitted.length>1) {
+            return splitted[1];
+        }
+        return splitted[0];
+    }
+
+    public static String getDimensionStringFromWidthAndHeight(String width, String height) {
+        if (height == null || width == null) {
+            return null;
+        }
+        if (height.compareTo(width) == 0) {
+            return height;
+        }
+        return (width + "," + height);
+    }
+
+    public static boolean isValidDimension(String dimension) {
+        if (dimension == null) {
+            return false;
+        }
+
+        String[] splitted = StringUtils.split(dimension, ',');
+        if(splitted.length>2 || splitted.length <= 0) {
+            return false;
+        }
+
+        for (String dimensionSubstring : splitted) {
+            if(!isValidDimensionSubstring(dimensionSubstring)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static boolean isValidDimensionSubstring(String dimensionSubstring) {
+        if (dimensionSubstring == null) {
+            return false;
+        }
+        try{
+            int width = Integer.parseInt(dimensionSubstring);
+            if(width<=0) {
+                return false;
+            }
+        } catch (NumberFormatException ex) {
+            if(dimensionSubstring.compareTo("*") != 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }
