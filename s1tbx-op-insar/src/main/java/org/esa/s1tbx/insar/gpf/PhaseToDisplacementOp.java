@@ -179,7 +179,7 @@ public final class PhaseToDisplacementOp extends Operator {
                 for (int x = x0; x < x0 + w; x++) {
 
                     final double phase = sourceData.getElemDoubleAt(srcIndex.getIndex(x));
-                    final double displacement = wavelengthOver4PI*phase;
+                    final double displacement = -wavelengthOver4PI*phase;
                     targetData.setElemDoubleAt(trgIndex.getIndex(x), displacement);
                 }
             }
