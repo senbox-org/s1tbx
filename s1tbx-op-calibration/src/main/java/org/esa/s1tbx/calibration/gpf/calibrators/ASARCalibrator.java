@@ -370,6 +370,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
     static int getNumOfRecordsInMainProcParam(Product sourceProduct) throws OperatorException {
 
         final MetadataElement origRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
+
         final MetadataElement dsdElem = origRoot.getElement("DSD");
         if (dsdElem == null) {
             throw new OperatorException("DSD not found");
