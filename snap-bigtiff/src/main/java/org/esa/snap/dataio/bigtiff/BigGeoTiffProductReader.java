@@ -749,22 +749,13 @@ class BigGeoTiffProductReader extends AbstractProductReader {
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(model) {
             @Override
             protected RenderedImage createImage(int level) {
-                final ImageReadParam readParam = new ImageReadParam(); //imageReader.getDefaultReadParam();
+                final ImageReadParam readParam = new ImageReadParam();
                 readParam.setSourceBands(new int[]{bandIndex});
                 readParam.setDestinationBands(new int[]{bandIndex});
-//double scale = this.getModel().getScale(level);
-//System.out.println("level = " + level + ", scale = " + scale);
                 if (level > 0) {
                     int sourceSubsampling = 1 << level;
                     readParam.setSourceSubsampling(sourceSubsampling, sourceSubsampling, 0, 0);
                 }
-//readParam.setDestination(new BufferedImage());
-//ImageTypeSpecifier imageType = imageReader.getRawImageType(FIRST_IMAGE);
-//SampleModel destSampleModel = imageType.getSampleModel().createSubsetSampleModel(new int[]{bandIndex});
-//ColorModel destColorModel = PlanarImage.createColorModel(destSampleModel);
-//ColorModel destColorModel = imageType.getColorModel();
-//readParam.setDestinationType(new ImageTypeSpecifier(destColorModel, destSampleModel));
-//readParam.setDestinationType(imageType);
                 TIFFRenderedImage tiffImage;
                 try {
                     tiffImage = (TIFFRenderedImage) imageReader.readAsRenderedImage(FIRST_IMAGE, readParam);
@@ -777,20 +768,15 @@ class BigGeoTiffProductReader extends AbstractProductReader {
                 if (numBands == 1) {
                     bandImage = tiffImage;
                 } else {
-//System.out.println(">>>>>>>>>>>>>>>>>>>>>>> GeoTIFF: getBandSourceImage(" + bandIndex + "): " + numBands);
                     bandImage = BandSelectDescriptor.create(tiffImage, new int[]{bandIndex}, null);
                 }
 
-//System.out.println(">>>>>>>>>>>>>>>>>>>>>> dataType = " + dataType + ", tiling: " + bandImage.getTileWidth() + ", " + bandImage.getTileHeight());
-// If the following line doesn't compile, use the following (because MultiLevelModel.getImageBounds() is new):
-// Rectangle expectedImageBounds = getModel().getModelToImageTransform(level).createTransformedShape(getModel().getModelBounds()).getBounds();
                 Rectangle expectedImageBounds = getModel().getModelToImageTransform(level).createTransformedShape(getModel().getModelBounds()).getBounds();
                 if (bandImage.getWidth() < expectedImageBounds.width
                         || bandImage.getHeight() < expectedImageBounds.height) {
                     final int rightBorder = expectedImageBounds.width - bandImage.getWidth();
                     final int bottomBorder = expectedImageBounds.height - bandImage.getHeight();
 
-//                    System.out.println("right: " + rightBorder + "   bottom: " + bottomBorder);
                     bandImage = BorderDescriptor.create(bandImage,
                             0,
                             rightBorder,
@@ -804,11 +790,8 @@ class BigGeoTiffProductReader extends AbstractProductReader {
                         || bandImage.getTileHeight() != expectedTileSize.height) {
                     ImageLayout imageLayout = new ImageLayout();
                     SampleModel sampleModel = bandImage.getSampleModel();
-//imageLayout.setSampleModel(sampleModel);
                     imageLayout.setTileWidth(expectedTileSize.width);
                     imageLayout.setTileHeight(expectedTileSize.height);
-//imageLayout.setTileWidth(bandImage.getWidth());
-//imageLayout.setTileHeight(Math.min(64, bandImage.getHeight()));
                     RenderingHints renderingHints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, imageLayout);
                     bandImage = FormatDescriptor.create(bandImage, sampleModel.getDataType(), renderingHints);
                 }
