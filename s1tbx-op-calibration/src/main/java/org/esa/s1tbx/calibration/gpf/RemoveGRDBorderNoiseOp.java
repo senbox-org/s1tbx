@@ -44,6 +44,7 @@ import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.esa.snap.engine_utilities.util.Maths;
 
 import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -287,7 +288,7 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
     /**
      * Compute noise scaling factor.
      */
-    private void computeNoiseScalingFactor() {
+    private void computeNoiseScalingFactor() throws IOException {
 
         if (version < 2.50) {
             final String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
@@ -316,7 +317,7 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
     /**
      * Get the first element in DN vector from the original product metadata.
      */
-    private double getDN0() {
+    private double getDN0() throws IOException {
 
         String[] selectedPols = {coPolarization};
         Sentinel1Calibrator.CalibrationInfo[] calibration = Sentinel1Calibrator.getCalibrationVectors(
