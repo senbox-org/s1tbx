@@ -167,9 +167,9 @@ public class GammaProductWriter extends AbstractProductWriter {
     private Band getComplexSrcBand(final Band iBand) {
         String name = iBand.getName();
         if (name.startsWith("i_")) {
-            name.replace("i_", "q_");
+            name = name.replace("i_", "q_");
         } else if (name.startsWith("q_")) {
-            name.replace("q_", "i_");
+            name = name.replace("q_", "i_");
         }
         return srcProduct.getBand(name);
     }
