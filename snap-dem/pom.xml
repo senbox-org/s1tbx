@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.esa.snap</groupId>
         <artifactId>snap-engine</artifactId>
-        <version>4.0.2-SNAPSHOT</version>
+        <version>4.0.2</version>
     </parent>
 
     <artifactId>snap-dem</artifactId>
