@@ -46,7 +46,11 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -64,6 +68,9 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
     public final static String RESTITUTED = "Sentinel Restituted";
     public final static String PRECISE = "Sentinel Precise";
+
+    public static final String POEORB = "POEORB";
+    public static final String RESORB = "RESORB";
 
     private final int polyDegree;
 
@@ -109,10 +116,11 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         final int day = calendar.get(Calendar.DAY_OF_MONTH);
         final String missionPrefix = getMissionPrefix(absRoot);
 
-        orbitFile = findOrbitFile(missionPrefix, orbitType, stateVectorTime, year);
+        orbitFile = findOrbitFile(missionPrefix, orbitType, stateVectorTime, year, month);
 
         if (orbitFile == null) {
-            orbitFile = downloadArchive(missionPrefix, orbitType, year, month, day, stateVectorTime);
+            //orbitFile = downloadArchive(missionPrefix, orbitType, year, month, day, stateVectorTime);
+            orbitFile = downloadFromStepAuxdata(missionPrefix, orbitType, year, month, day, stateVectorTime);
         }
         if (orbitFile == null) {
             orbitFile = downloadFromQCWebsite(missionPrefix, orbitType, year, month, day, stateVectorTime);
@@ -120,9 +128,9 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
         if (orbitFile == null) {
             String timeStr = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).format();
-            final File destFolder = getDestFolder(orbitType, year);
+            final File destFolder = getDestFolder(missionPrefix, orbitType, year, month);
             throw new OperatorException("No valid orbit file found for " + timeStr + "\nOrbit files may be downloaded from https://qc.sentinel1.eo.esa.int/"
-                                                + "\nand placed in " + destFolder.getAbsolutePath());
+                    + "\nand placed in " + destFolder.getAbsolutePath());
         }
 
         if (!orbitFile.exists()) {
@@ -139,30 +147,31 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
     private static String getMissionPrefix(final MetadataElement absRoot) {
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        return "S1"+mission.substring(mission.length()-1, mission.length());
+        return "S1" + mission.substring(mission.length() - 1, mission.length());
     }
 
     private static File downloadArchive(final String missionPrefix, final String orbitType,
                                         int year, int month, final int day,
                                         final double stateVectorTime) throws Exception {
-        getRemoteFiles(orbitType, year, month);
-        File orbitFile = findOrbitFile(missionPrefix, orbitType, stateVectorTime, year);
+        getRemoteFiles(missionPrefix, orbitType, year, month);
+        File orbitFile = findOrbitFile(missionPrefix, orbitType, stateVectorTime, year, month);
         if (orbitFile == null) {
-            if (day < 15) {
-                month--;
-                if(month < 1) {
-                    month = 12;
-                    year--;
-                }
-            } else {
-                month++;
-                if(month > 12) {
-                    month = 1;
-                    year++;
-                }
-            }
-            getRemoteFiles(orbitType, year, month);
-            orbitFile = findOrbitFile(missionPrefix, orbitType, stateVectorTime, year);
+            NewDate newDate = getNeighouringMonth(year, month, day);
+            getRemoteFiles(missionPrefix, orbitType, newDate.year, newDate.month);
+            orbitFile = findOrbitFile(missionPrefix, orbitType, stateVectorTime, newDate.year, newDate.month);
+        }
+        return orbitFile;
+    }
+
+    private static File downloadFromStepAuxdata(final String missionPrefix, final String orbitType,
+                                              int year, int month, final int day,
+                                              final double stateVectorTime) throws Exception {
+        getStepAuxdataFiles(missionPrefix, orbitType, year, month, stateVectorTime);
+        File orbitFile = findOrbitFile(missionPrefix, orbitType, stateVectorTime, year, month);
+        if (orbitFile == null) {
+            NewDate newDate = getNeighouringMonth(year, month, day);
+            getStepAuxdataFiles(missionPrefix, orbitType, newDate.year, newDate.month, stateVectorTime);
+            orbitFile = findOrbitFile(missionPrefix, orbitType, stateVectorTime, newDate.year, newDate.month);
         }
         return orbitFile;
     }
@@ -170,52 +179,68 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
     private static File downloadFromQCWebsite(final String missionPrefix, final String orbitType,
                                               int year, int month, final int day,
                                               final double stateVectorTime) throws Exception {
-        getQCFiles(orbitType, year, month, stateVectorTime);
-        File orbitFile = findOrbitFile(missionPrefix, orbitType, stateVectorTime, year);
+        getQCFiles(missionPrefix, orbitType, year, month, stateVectorTime);
+        File orbitFile = findOrbitFile(missionPrefix, orbitType, stateVectorTime, year, month);
         if (orbitFile == null) {
-            if (day < 15) {
-                month--;
-                if(month < 1) {
-                    month = 12;
-                    year--;
-                }
-            } else {
-                month++;
-                if(month > 12) {
-                    month = 1;
-                    year++;
-                }
-            }
-            getQCFiles(orbitType, year, month, stateVectorTime);
-            orbitFile = findOrbitFile(missionPrefix, orbitType, stateVectorTime, year);
+            NewDate newDate = getNeighouringMonth(year, month, day);
+            getQCFiles(missionPrefix, orbitType, newDate.year, newDate.month, stateVectorTime);
+            orbitFile = findOrbitFile(missionPrefix, orbitType, stateVectorTime, newDate.year, newDate.month);
         }
         return orbitFile;
     }
 
-    private static File getDestFolder(final String orbitType, final int year) {
-        final File orbitFileFolder;
-        if (orbitType.startsWith(RESTITUTED)) {
-            orbitFileFolder = new File(Settings.getPath("OrbitFiles.sentinel1RESOrbitPath") + File.separator + year);
-        } else {
-            orbitFileFolder = new File(Settings.getPath("OrbitFiles.sentinel1POEOrbitPath") + File.separator + year);
+    private static class NewDate {
+        final int month;
+        final int year;
+        public NewDate(int year, int month) {
+            this.year = year;
+            this.month = month;
         }
-        return orbitFileFolder;
+    }
+
+    private static NewDate getNeighouringMonth(int year, int month, final int day) {
+        if (day < 15) {
+            month--;
+            if (month < 1) {
+                month = 12;
+                year--;
+            }
+        } else {
+            month++;
+            if (month > 12) {
+                month = 1;
+                year++;
+            }
+        }
+        return new NewDate(year, month);
+    }
+
+    private static File getDestFolder(final String missionPrefix, final String orbitType, final int year, final int month) {
+        final String prefOrbitPath;
+        if (orbitType.startsWith(RESTITUTED)) {
+            prefOrbitPath = Settings.getPath("OrbitFiles.sentinel1RESOrbitPath");
+        } else {
+            prefOrbitPath = Settings.getPath("OrbitFiles.sentinel1POEOrbitPath");
+        }
+        return new File(prefOrbitPath +
+                File.separator + missionPrefix +
+                File.separator + year +
+                File.separator + month);
     }
 
     private static File findOrbitFile(final String missionPrefix, final String orbitType,
-                                      final double stateVectorTime, final int year) {
+                                      final double stateVectorTime, final int year, final int month) {
         final String prefix;
-        final File orbitFileFolder;
         if (orbitType.startsWith(RESTITUTED)) {
             prefix = missionPrefix + "_OPER_AUX_RESORB_OPOD_";
-            orbitFileFolder = new File(Settings.getPath("OrbitFiles.sentinel1RESOrbitPath") + File.separator + year);
         } else {
             prefix = missionPrefix + "_OPER_AUX_POEORB_OPOD_";
-            orbitFileFolder = new File(Settings.getPath("OrbitFiles.sentinel1POEOrbitPath") + File.separator + year);
         }
+        final File orbitFileFolder = getDestFolder(missionPrefix, orbitType, year, month);
+
         if (!orbitFileFolder.exists())
             return null;
-        final File[] files = orbitFileFolder.listFiles(new MyFilenameFilter(prefix));
+        final File[] files = orbitFileFolder.listFiles(new S1OrbitFileFilter(prefix));
         if (files == null || files.length == 0)
             return null;
 
@@ -227,18 +252,16 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         return null;
     }
 
-    private static void getRemoteFiles(final String orbitType, final int year, final int month) throws Exception {
-
-        final File localFolder;
+    private static void getRemoteFiles(final String missionPrefix, final String orbitType,
+                                       final int year, final int month) throws Exception {
         final URL remotePath;
         if (orbitType.startsWith(RESTITUTED)) {
-            localFolder = new File(Settings.getPath("OrbitFiles.sentinel1RESOrbitPath"), String.valueOf(year));
             remotePath = new URL(Settings.instance().getPath("OrbitFiles.sentinel1RESOrbit_remotePath"));
         } else {
-            localFolder = new File(Settings.getPath("OrbitFiles.sentinel1POEOrbitPath"), String.valueOf(year));
             remotePath = new URL(Settings.instance().getPath("OrbitFiles.sentinel1POEOrbit_remotePath"));
         }
-        final File localFile = new File(localFolder, year + "-" + month + ".zip");
+        final File orbitFileFolder = getDestFolder(missionPrefix, orbitType, year, month);
+        final File localFile = new File(orbitFileFolder, year + "-" + month + ".zip");
 
         try {
             final DownloadableArchive archive = new DownloadableArchive(localFile, remotePath);
@@ -252,36 +275,63 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         }
     }
 
-    private static void getQCFiles(final String orbitType, int year, int month, final double stateVectorTime) throws Exception {
+    private static void getStepAuxdataFiles(final String missionPrefix, final String orbitType, int year, int month,
+                                   final double stateVectorTime) throws Exception {
 
         final String type;
-        final File localFolder;
-
-        if(orbitType.startsWith(RESTITUTED)) {
-            type = QCScraper.RESORB;
-            localFolder = new File(Settings.getPath("OrbitFiles.sentinel1RESOrbitPath"), String.valueOf(year));
+        if (orbitType.startsWith(RESTITUTED)) {
+            type = RESORB;
         } else {
-            type = QCScraper.POEORB;
-            localFolder = new File(Settings.getPath("OrbitFiles.sentinel1POEOrbitPath"), String.valueOf(year));
+            type = POEORB;
         }
+        final File localFolder = getDestFolder(missionPrefix, orbitType, year, month);
 
-        final QCScraper qc = new QCScraper(type);
-        final URL remotePath = new URL(qc.getQCURL());
+        final StepAuxdataScraper step = new StepAuxdataScraper(type);
 
-        final String[] orbitFiles = qc.getFileURLs(year, month);
+        final String[] orbitFiles = step.getFileURLs(missionPrefix, year, month);
+        final URL remotePath = new URL(step.getRemoteURL());
 
         disableSSLCertificateCheck();
 
-        for(String file : orbitFiles) {
-            final File localFile = new File(localFolder, file);
-            if (isWithinRange(localFile.getName(), stateVectorTime)) {
+        for (String file : orbitFiles) {
+            if (isWithinRange(file, stateVectorTime)) {
+                final File localFile = new File(localFolder, file);
+                DownloadableContentImpl.getRemoteHttpFile(remotePath, localFile);
+                break;
+            }
+        }
+
+        enableSSLCertificateCheck();
+    }
+
+    private static void getQCFiles(final String missionPrefix, final String orbitType, int year, int month,
+                                   final double stateVectorTime) throws Exception {
+
+        final String type;
+        if (orbitType.startsWith(RESTITUTED)) {
+            type = QCScraper.RESORB;
+        } else {
+            type = QCScraper.POEORB;
+        }
+        final File localFolder = getDestFolder(missionPrefix, orbitType, year, month);
+
+        final QCScraper qc = new QCScraper(type);
+
+        final String[] orbitFiles = qc.getFileURLs(missionPrefix, year, month);
+        final URL remotePath = new URL(qc.getRemoteURL());
+
+        disableSSLCertificateCheck();
+
+        for (String file : orbitFiles) {
+            if (isWithinRange(file, stateVectorTime)) {
+                final File localFile = new File(localFolder, file);
                 DownloadableContentImpl.getRemoteHttpFile(remotePath, localFile);
                 if (localFile.exists()) {
-                    final File localZipFile = FileUtils.exchangeExtension(localFile, ".zip");
+                    final File localZipFile = FileUtils.exchangeExtension(localFile, ".EOF.zip");
                     ZipUtils.zipFile(localFile, localZipFile);
+                    localFile.delete();
                 }
             }
-            localFile.delete();
         }
 
         enableSSLCertificateCheck();
@@ -410,12 +460,12 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         final double normalizedTime = utc - t0;
 
         return new Orbits.OrbitVector(utc,
-                                      Maths.polyVal(normalizedTime, xPosCoeff),
-                                      Maths.polyVal(normalizedTime, yPosCoeff),
-                                      Maths.polyVal(normalizedTime, zPosCoeff),
-                                      Maths.polyVal(normalizedTime, xVelCoeff),
-                                      Maths.polyVal(normalizedTime, yVelCoeff),
-                                      Maths.polyVal(normalizedTime, zVelCoeff));
+                Maths.polyVal(normalizedTime, xPosCoeff),
+                Maths.polyVal(normalizedTime, yPosCoeff),
+                Maths.polyVal(normalizedTime, zPosCoeff),
+                Maths.polyVal(normalizedTime, xVelCoeff),
+                Maths.polyVal(normalizedTime, yVelCoeff),
+                Maths.polyVal(normalizedTime, zVelCoeff));
     }
 
     private void readOrbitFile() throws Exception {
@@ -775,10 +825,10 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         return ProductData.UTC.parse(convertUTC(str), orbitDateFormat);
     }
 
-    private static class MyFilenameFilter implements FilenameFilter {
+    private static class S1OrbitFileFilter implements FilenameFilter {
         private final String prefix;
 
-        public MyFilenameFilter(String prefix) {
+        public S1OrbitFileFilter(String prefix) {
             this.prefix = prefix;
         }
 
@@ -808,7 +858,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
             final SSLContext sc = SSLContext.getInstance("SSL");
             sc.init(null, trustManager, null);
             HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-        } catch (NoSuchAlgorithmException|KeyManagementException e) {
+        } catch (NoSuchAlgorithmException | KeyManagementException e) {
             System.out.println("disableSSLCertificateCheck failed: " + e);
         }
     }
@@ -818,7 +868,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
             final SSLContext sc = SSLContext.getInstance("SSL");
             sc.init(null, null, null);
             HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-        } catch (NoSuchAlgorithmException|KeyManagementException e) {
+        } catch (NoSuchAlgorithmException | KeyManagementException e) {
             System.out.println("enableSSLCertificateCheck failed: " + e);
         }
     }
