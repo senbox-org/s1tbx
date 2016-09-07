@@ -30,49 +30,33 @@ import java.util.Set;
 /**
  * Download orbit files directly from QC website
  */
-public class QCScraper {
+public class StepAuxdataScraper {
 
-    public static final String POEORB = "aux_poeorb";
-    public static final String RESORB = "aux_resorb";
-
-    private static final String qcUrl = "https://qc.sentinel1.eo.esa.int/";
-    private static final String pageVar = "/?page=";
-    private static final String missionVar = "&mission=";
-    private static final String validityStartYearVar = "&validity_start_time=";
-    private static final String validityStartMonthVar = "&validity_start_time=";
+    private static final String stepS1OrbitsUrl = "http://step.esa.int/auxdata/orbits/Sentinel-1/";
 
     private final String orbitType;
+    private String remotePath;
 
-    public QCScraper(final String orbitType) {
+    public StepAuxdataScraper(final String orbitType) {
         this.orbitType = orbitType;
         System.setProperty("jsse.enableSNIExtension", "false");
     }
 
     public String getRemoteURL() {
-        return qcUrl + orbitType + '/';
+        return remotePath;
     }
 
     public String[] getFileURLs(final String mission, final int year, final int month) {
-        final Set<String> fileList = new HashSet<>();
-        String monthStr = StringUtils.padNum(month, 2, '0');
+        final String monthStr = StringUtils.padNum(month, 2, '0');
 
-        // for each day of the month
-        final int maxPage = orbitType.equals(RESORB) ? 70 : 6;
-        for (int day = 1; day <= maxPage; ++day) {
-            final String path = qcUrl + orbitType + pageVar + day + missionVar + mission;
-            final String validity = validityStartYearVar + year + validityStartMonthVar + year + '-' + monthStr;
+        remotePath = stepS1OrbitsUrl + orbitType + '/' + mission + '/' + year + '/' + monthStr + '/';
 
-            final List<String> newLinks = getFileURLs(path + validity, fileList);
-            if(newLinks.isEmpty()) {
-                break;
-            }
-            fileList.addAll(newLinks);
-        }
+        final List<String> newLinks = getFileURLs(remotePath);
 
-        return fileList.toArray(new String[fileList.size()]);
+        return newLinks.toArray(new String[newLinks.size()]);
     }
 
-    private List<String> getFileURLs(String path, final Set<String> currentList) {
+    private List<String> getFileURLs(String path) {
         final List<String> fileList = new ArrayList<>();
         try {
             final Document doc = Jsoup.connect(path).timeout(10*1000).validateTLSCertificates(false).get();
@@ -86,7 +70,7 @@ public class QCScraper {
                     Elements elems = col.getElementsByTag("a");
                     for(Element elem : elems) {
                         String link = elem.text();
-                        if(!currentList.contains(link)) {
+                        if(link.endsWith(".zip")) {
                             fileList.add(elem.text());
                         }
                     }
