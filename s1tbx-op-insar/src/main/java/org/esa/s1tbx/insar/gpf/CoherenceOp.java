@@ -332,6 +332,8 @@ public class CoherenceOp extends Operator {
 
                 final String coherenceBandName = productTag + tag;
                 final Band coherenceBand = targetProduct.addBand(coherenceBandName, ProductData.TYPE_FLOAT32);
+                coherenceBand.setNoDataValueUsed(true);
+                coherenceBand.setNoDataValue(master.realBand.getNoDataValue());
                 container.addBand(Unit.COHERENCE, coherenceBand.getName());
                 coherenceBand.setUnit(Unit.COHERENCE);
                 targetBandNames.add(coherenceBand.getName());

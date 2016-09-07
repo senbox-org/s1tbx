@@ -47,6 +47,7 @@ import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.esa.snap.engine_utilities.util.Maths;
 
 import java.awt.Rectangle;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -412,7 +413,7 @@ public final class TOPSARDeburstOp extends Operator {
     /**
      * Update target product metadata.
      */
-    private void updateTargetProductMetadata() {
+    private void updateTargetProductMetadata() throws IOException {
 
         updateAbstractMetadata();
         updateOriginalMetadata();
@@ -565,7 +566,7 @@ public final class TOPSARDeburstOp extends Operator {
         return pointElem;
     }
 
-    private void updateOriginalMetadata() {
+    private void updateOriginalMetadata() throws IOException {
 
         updateSwathTiming();
 
@@ -604,11 +605,17 @@ public final class TOPSARDeburstOp extends Operator {
         return "S1"+mission.substring(mission.length()-1, mission.length());
     }
 
-    private void updateCalibrationVector() {
+    private void updateCalibrationVector() throws IOException {
 
         final String[] selectedPols = Sentinel1Utils.getProductPolarizations(absRoot);
-        final MetadataElement srcCalibration = AbstractMetadata.getOriginalProductMetadata(sourceProduct).
-                getElement("calibration");
+        final MetadataElement origMeta = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
+        if(origMeta == null) {
+            throw new IOException("Original product metadata not found");
+        }
+        final MetadataElement srcCalibration = origMeta.getElement("calibration");
+        if(srcCalibration == null) {
+            throw new IOException("Calibration element not found in Original product metadata");
+        }
         final MetadataElement bandCalibration = srcCalibration.getElementAt(0).getElement("calibration");
 
         final String missionPrefix = getMissionPrefix(absRoot).toLowerCase();

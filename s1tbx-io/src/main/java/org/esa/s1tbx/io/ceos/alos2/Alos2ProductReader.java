@@ -71,11 +71,13 @@ public class Alos2ProductReader extends CEOSProductReader {
     @Override
     protected void addQuicklooks(final Product product, final VirtualDir productDir) throws IOException {
         final String[] files = productDir.list("");
-        for(String file : files) {
-            String name = file.toLowerCase();
-            if(name.startsWith("brs") && name.endsWith(".jpg")) {
-                addQuicklook(product, Quicklook.DEFAULT_QUICKLOOK_NAME, productDir.getFile(file));
-                return;
+        if(files != null) {
+            for (String file : files) {
+                String name = file.toLowerCase();
+                if (name.startsWith("brs") && name.endsWith(".jpg")) {
+                    addQuicklook(product, Quicklook.DEFAULT_QUICKLOOK_NAME, productDir.getFile(file));
+                    return;
+                }
             }
         }
     }

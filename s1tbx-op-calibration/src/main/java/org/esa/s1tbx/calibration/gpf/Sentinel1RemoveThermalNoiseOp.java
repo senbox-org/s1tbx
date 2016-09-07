@@ -36,6 +36,7 @@ import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.esa.snap.engine_utilities.util.Maths;
 
 import java.awt.*;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -194,10 +195,16 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
      */
     public static ThermalNoiseInfo[] getThermalNoiseVectors(final MetadataElement origMetadataRoot,
                                                             final List<String> selectedPolList,
-                                                            final int numOfSubSwath) {
+                                                            final int numOfSubSwath) throws IOException {
 
         final ThermalNoiseInfo[] noise = new ThermalNoiseInfo[numOfSubSwath * selectedPolList.size()];
+        if(origMetadataRoot == null) {
+            throw new IOException("Unable to find original product metadata");
+        }
         final MetadataElement noiseElem = origMetadataRoot.getElement("noise");
+        if(noiseElem == null) {
+            throw new IOException("Unable to find noise element in original product metadata");
+        }
         final MetadataElement[] noiseDataSetListElem = noiseElem.getElements();
 
         int dataSetIndex = 0;
@@ -269,7 +276,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     /**
      * Get calibration vectors from the original product metadata.
      */
-    private void getCalibrationVectors() {
+    private void getCalibrationVectors() throws IOException {
 
         calibration = Sentinel1Calibrator.getCalibrationVectors(
                 sourceProduct,

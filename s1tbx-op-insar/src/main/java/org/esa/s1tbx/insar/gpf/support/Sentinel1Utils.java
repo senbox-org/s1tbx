@@ -389,7 +389,14 @@ public final class Sentinel1Utils {
             }
         }
 
-        final int numOfGeoLines = numOfGeoLocationGridPoints / numOfGeoPointsPerLine;
+        int numOfGeoLines = numOfGeoLocationGridPoints / numOfGeoPointsPerLine;
+        boolean missingTiePoints = false;
+        int firstMissingLineIdx = -1;
+        if (numOfGeoLines <= subSwath.numOfBursts) {
+            missingTiePoints = true;
+            firstMissingLineIdx = numOfGeoLines;
+            numOfGeoLines = subSwath.numOfBursts + 1;
+        }
         subSwath.numOfGeoLines = numOfGeoLines;
         subSwath.numOfGeoPointsPerLine = numOfGeoPointsPerLine;
         subSwath.azimuthTime = new double[numOfGeoLines][numOfGeoPointsPerLine];
@@ -407,6 +414,25 @@ public final class Sentinel1Utils {
             subSwath.longitude[i][j] = Double.parseDouble(listElem.getAttributeString("longitude"));
             subSwath.incidenceAngle[i][j] = Double.parseDouble(listElem.getAttributeString("incidenceAngle"));
             k++;
+        }
+
+        // compute the missing tie points by extrapolation assuming the missing lines are at the bottom
+        if (missingTiePoints && firstMissingLineIdx >= 2) {
+            for (int lineIdx = firstMissingLineIdx; lineIdx < numOfGeoLines; lineIdx++) {
+                final double mu = lineIdx - firstMissingLineIdx + 2.0;
+                for (int pixelIdx = 0; pixelIdx < numOfGeoPointsPerLine; pixelIdx++) {
+                    subSwath.azimuthTime[lineIdx][pixelIdx] = mu*subSwath.azimuthTime[firstMissingLineIdx - 1][pixelIdx]
+                                    + (1 - mu)*subSwath.azimuthTime[firstMissingLineIdx - 2][pixelIdx];
+                    subSwath.slantRangeTime[lineIdx][pixelIdx] = mu*subSwath.slantRangeTime[firstMissingLineIdx - 1][pixelIdx]
+                            + (1 - mu)*subSwath.slantRangeTime[firstMissingLineIdx - 2][pixelIdx];
+                    subSwath.latitude[lineIdx][pixelIdx] = mu*subSwath.latitude[firstMissingLineIdx - 1][pixelIdx]
+                            + (1 - mu)*subSwath.latitude[firstMissingLineIdx - 2][pixelIdx];
+                    subSwath.longitude[lineIdx][pixelIdx] = mu*subSwath.longitude[firstMissingLineIdx - 1][pixelIdx]
+                            + (1 - mu)*subSwath.longitude[firstMissingLineIdx - 2][pixelIdx];
+                    subSwath.incidenceAngle[lineIdx][pixelIdx] = mu*subSwath.incidenceAngle[firstMissingLineIdx - 1][pixelIdx]
+                            + (1 - mu)*subSwath.incidenceAngle[firstMissingLineIdx - 2][pixelIdx];
+                }
+            }
         }
 
         final int numAPRecords = Integer.parseInt(antennaPatternList.getAttributeString("count"));

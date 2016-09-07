@@ -38,6 +38,7 @@ import org.esa.snap.engine_utilities.gpf.TileIndex;
 
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -167,7 +168,7 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
         return (version < 2.34f);
     }
 
-    private void getVectors() {
+    private void getVectors() throws IOException {
 
         boolean getSigmaLUT = outputSigmaBand;
         boolean getBetaLUT = outputBetaBand;
@@ -196,11 +197,17 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
     public static CalibrationInfo[] getCalibrationVectors(
             final Product sourceProduct, final java.util.List<String> selectedPolList,
             final boolean getSigmaLUT, final boolean getBetaLUT, final boolean getGammaLUT,
-            final boolean getDNLUT) {
+            final boolean getDNLUT) throws IOException {
 
         final List<CalibrationInfo> calibrationInfoList = new ArrayList<>();
         final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
+        if(origProdRoot == null) {
+            throw new IOException("Unable to find original product metadata");
+        }
         final MetadataElement calibrationElem = origProdRoot.getElement("calibration");
+        if(calibrationElem == null) {
+            throw new IOException("Unable to find calibration element in original product metadata");
+        }
         final MetadataElement[] calibrationDataSetListElem = calibrationElem.getElements();
 
         for (MetadataElement dataSetListElem : calibrationDataSetListElem) {

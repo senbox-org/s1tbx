@@ -191,6 +191,8 @@ public class ObjectDiscriminationOp extends Operator {
                         sourceImageWidth,
                         sourceImageHeight);
 
+                targetBand.setNoDataValueUsed(true);
+                targetBand.setNoDataValue(srcBand.getNoDataValue());
                 targetBand.setUnit(srcBand.getUnit());
                 targetProduct.addBand(targetBand);
 
