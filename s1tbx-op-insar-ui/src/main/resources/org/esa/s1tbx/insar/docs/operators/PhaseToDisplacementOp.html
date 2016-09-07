@@ -1,23 +1,68 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head><title>Help - Phase to Displacement</title>
+<html><head><title>Help - Phase to Displacement</title>
 
 
-    <link rel="stylesheet" href="../style.css">
-</head>
-<body>
+
+
+    <link rel="stylesheet" href="../style.css"></head><body>
 <table class="header">
     <tbody>
     <tr class="header">
         <td class="header">&nbsp; Phase to Displacement<br>
         </td>
-        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg"
-                                                                                 border="0"></a></td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg" border="0"></a></td>
     </tr>
     </tbody>
 </table>
 
 
 <hr>
-</body>
-</html>
+<h3>Phase to Displacement Operator</h3>
+In case that some of the point scatterers on the ground slightly change
+their relative position in the time interval between two SAR
+observations (as, for example, in the event of subsidence, landslide,
+earthquake, etc.), then the following additive phase term, independent
+of the baseline, appears in the interferometric phase:<br>
+<div style="text-align: center;"><img style="width: 148px; height: 74px;" alt="" src="images/phase_to_dosplacement_eq1.jpg"><br>
+</div>
+where &#955; is the transmitted wavelength and d is the relative scatterer
+displacement projected on the slant range direction. The
+interferometric phase variation can be split into three contributions:<br>
+<ol>
+  <li>A phase variation proportional to the relative terrain altitude, referred to a horizontal reference plane;</li>
+  <li>A phase variation proportional to the slant range difference of the point targets; and<br>
+  </li>
+  <li>A phase variation proportional to  the relative scatterer displacement.</li>
+</ol>
+If a digital elevation model (DEM) is available, the first phase term
+(i.e. the altitude contribution) can be subtracted from the
+interferometric phase. This operation is known as topographic phase
+removal.<br>
+If precise orbital data is available, the second phase term can also be
+computed and subtracted from the interferometric phase. This operation
+is called interferogram flattening or flat-Earth phase removal.<br>
+As a result of the above two operations, it generates a phase map
+proportional only to the relative terrain displacement which can be
+computed by <br>
+<div style="text-align: center;"><img style="width: 150px; height: 72px;" alt="" src="images/phase_to_dosplacement_eq2.jpg"><br>
+</div>
+<br>
+This operator converts interferometric phase to displacement map. 
+<h4>Input and
+    Output</h4>
+
+<ul>
+<li>The
+        input to this operator should be interferogram with flat-Earth phase and topographic phase removed.&nbsp;
+    </li>
+  <li>The output of this operator is the displacement map.</li>
+</ul>
+<br>
+<p> Reference:&nbsp;</p>
+
+
+[1] Ferretti A., Massonet D., Monti Guarnieri A., Prati C., Rocca F.,
+2007, InSAR Principles: Guidelines for SAR Interferometry Processing
+and Interpretation, ESA TM-19<br>
+
+    </body></html>
