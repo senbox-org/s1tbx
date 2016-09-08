@@ -193,7 +193,6 @@ public class KMeansClusterOp extends Operator {
                 for (int i = 0; (i < iterationCount && !endIteration); ++i) {
                     clusterer.startIteration();
                     for (Rectangle rectangle : tileRectangles) {
-                        checkForCancellation();
                         PixelIter pixelIterr = createPixelIter(rectangle, SubProgressMonitor.create(pm, 1));
                         clusterer.iterateTile(pixelIterr);
                         pm.worked(1);

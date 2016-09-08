@@ -285,21 +285,6 @@ public class OperatorContext {
         return targetPropertyMap.get(name);
     }
 
-
-    public boolean isCancelled() {
-        return cancelled;
-    }
-
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
-    }
-
-    public void checkForCancellation() throws OperatorException {
-        if (isCancelled()) {
-            throw new OperatorException("Operation canceled.");
-        }
-    }
-
     public OperatorSpi getOperatorSpi() {
         if (operatorSpi == null) {
             // create anonymous SPI

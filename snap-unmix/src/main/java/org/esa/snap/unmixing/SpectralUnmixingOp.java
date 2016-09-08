@@ -282,7 +282,6 @@ public class SpectralUnmixingOp extends Operator {
             double[][] ia = getLineSpectra(sourceRaster, rectangle, y);
             double[][] oa = unmix(ia);
             setAbundances(rectangle, targetTile, y, oa[i]);
-            checkForCancellation();
         }
     }
 
@@ -307,7 +306,6 @@ public class SpectralUnmixingOp extends Operator {
             double[][] oa = unmix(ia);
             for (int i = 0; i < abundanceBands.length; i++) {
                 setAbundances(targetTileRectangle, abundanceTiles[i], y, oa[i]);
-                checkForCancellation();
             }
             if (computeErrorBands) {
                 final double[][] ia2 = mix(oa);

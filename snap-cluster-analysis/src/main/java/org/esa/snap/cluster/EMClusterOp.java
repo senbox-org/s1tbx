@@ -221,7 +221,6 @@ public class EMClusterOp extends Operator {
             final double[] posteriors = new double[clusterCount];
 
             for (int y = targetRectangle.y; y < targetRectangle.y + targetRectangle.height; y++) {
-                checkForCancellation();
 
                 for (int x = targetRectangle.x; x < targetRectangle.x + targetRectangle.width; x++) {
                     if (roi == null || roi.contains(x, y)) {
@@ -277,7 +276,6 @@ public class EMClusterOp extends Operator {
             final EMClusterer clusterer = createClusterer(SubProgressMonitor.create(pm, 100));
 
             for (int i = 0; i < iterationCount; ++i) {
-                checkForCancellation();
                 clusterer.iterate();
                 pm.worked(1);
             }
@@ -344,7 +342,6 @@ public class EMClusterOp extends Operator {
             for (int i = 0; i < sourceBands.length; i++) {
                 int index = 0;
                 for (int y = 0; y < sceneHeight; y++) {
-                    checkForCancellation();
 
                     final Tile sourceTile = getSourceTile(sourceBands[i], new Rectangle(0, y, sceneWidth, 1));
                     for (int x = 0; x < sceneWidth; x++) {

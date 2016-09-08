@@ -217,7 +217,6 @@ public class PrincipalComponentAnalysisOp extends Operator {
             }
             double[] point = new double[sourceTiles.length];
             for (int y = targetRectangle.y; y < targetRectangle.y + targetRectangle.height; y++) {
-                this.checkForCancellation();
                 for (int x = targetRectangle.x; x < targetRectangle.x + targetRectangle.width; x++) {
                     for (int i = 0; i < sourceTiles.length; i++) {
                         point[i] = sourceTiles[i].getSampleDouble(x, y);

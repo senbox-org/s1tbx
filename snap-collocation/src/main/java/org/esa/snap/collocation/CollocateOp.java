@@ -341,7 +341,6 @@ public class CollocateOp extends Operator {
             pm.worked(1);
 
             for (final Band targetBand : targetProduct.getBands()) {
-                checkForCancellation();
                 final Tile targetTile = targetTileMap.get(targetBand);
                 ProgressMonitor subPM = SubProgressMonitor.create(pm, 1);
                 if (targetBand == collocationFlagBand) {
@@ -437,7 +436,6 @@ public class CollocateOp extends Operator {
                             targetTile.setSample(x, y, noDataValue);
                         }
                     }
-                    checkForCancellation();
                     pm.worked(1);
                 }
             } else {
@@ -445,7 +443,6 @@ public class CollocateOp extends Operator {
                     for (int x = targetRectangle.x; x < targetRectangle.x + targetRectangle.width; ++x, ++index) {
                         targetTile.setSample(x, y, noDataValue);
                     }
-                    checkForCancellation();
                     pm.worked(1);
                 }
             }
@@ -465,7 +462,6 @@ public class CollocateOp extends Operator {
                             targetTile.setSample(x, y, 1);
                         }
                     }
-                    checkForCancellation();
                     pm.worked(1);
                 }
             }
