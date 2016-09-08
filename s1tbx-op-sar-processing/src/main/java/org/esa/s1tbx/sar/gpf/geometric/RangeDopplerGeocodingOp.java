@@ -22,15 +22,7 @@ import org.esa.s1tbx.calibration.gpf.support.CalibrationFactory;
 import org.esa.s1tbx.calibration.gpf.support.Calibrator;
 import org.esa.s1tbx.insar.gpf.support.SARGeocoding;
 import org.esa.s1tbx.insar.gpf.support.SARUtils;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.GeoCoding;
-import org.esa.snap.core.datamodel.GeoPos;
-import org.esa.snap.core.datamodel.MetadataAttribute;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.PixelPos;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.dataop.dem.ElevationModel;
 import org.esa.snap.core.dataop.resamp.Resampling;
 import org.esa.snap.core.dataop.resamp.ResamplingFactory;
@@ -556,6 +548,26 @@ public class RangeDopplerGeocodingOp extends Operator {
 
             addSelectedBands();
 
+            boolean noBandsSelected = sourceBandNames == null || sourceBandNames.length == 0;
+            if (outputComplex && noBandsSelected) { // add virtual bands
+
+                final Band[] bands = sourceProduct.getBands();
+                for (Band band : bands) {
+                    if (band instanceof VirtualBand) {
+                        VirtualBand srcBand = (VirtualBand) band;
+
+                        final VirtualBand virtBand = new VirtualBand(srcBand.getName(), srcBand.getDataType(),
+                                targetImageWidth, targetImageHeight, srcBand.getExpression());
+                        virtBand.setUnit(srcBand.getUnit());
+                        virtBand.setDescription(srcBand.getDescription());
+                        virtBand.setNoDataValue(srcBand.getNoDataValue());
+                        virtBand.setNoDataValueUsed(srcBand.isNoDataValueUsed());
+                        virtBand.setOwner(targetProduct);
+                        targetProduct.addBand(virtBand);
+                    }
+                }
+            }
+
             targetGeoCoding = targetProduct.getSceneGeoCoding();
 
             ProductUtils.copyMetadata(sourceProduct, targetProduct);
@@ -700,13 +712,6 @@ public class RangeDopplerGeocodingOp extends Operator {
                         targetBandNameToSourceBand.put(targetBandName, srcBands);
                         targetBandApplyRadiometricNormalizationFlag.put(targetBandName, false);
                         targetBandApplyRetroCalibrationFlag.put(targetBandName, false);
-                    }
-
-                    // add virtual intensity
-                    if(outputComplex && unit != null && unit.contains(Unit.IMAGINARY)) {
-                        Band iBand = targetProduct.getBand(targetBandName.replaceFirst("q_", "i_"));
-                        Band qBand = targetProduct.getBand(targetBandName);
-                        ReaderUtils.createVirtualIntensityBand(targetProduct, iBand, qBand, "");
                     }
                 }
             }
