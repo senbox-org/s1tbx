@@ -42,12 +42,8 @@ import java.util.List;
  */
 public class PlateCarreeGrid implements PlanetaryGrid {
 
-    private static final int TILE_SIZE = 250; // TODO compute from numRows
-
     private final int numRows;
     private final int numCols;
-    private final int numTileX;
-    private final int numTileY;
     private final double pixelSize;
     private final double[] latBin;
     private GeometryFactory geometryFactory;
@@ -66,8 +62,6 @@ public class PlateCarreeGrid implements PlanetaryGrid {
 
         this.numRows = numRows;
         this.numCols = numRows * 2;
-        this.numTileX = (numCols + TILE_SIZE - 1) / TILE_SIZE;
-        this.numTileY = (numRows + TILE_SIZE - 1) / TILE_SIZE;
         this.pixelSize = 360.0 / numCols;
 
         this.latBin = new double[numRows];
@@ -123,12 +117,12 @@ public class PlateCarreeGrid implements PlanetaryGrid {
         };
     }
 
-    public double getCenterLon(int col) {
+    private double getCenterLon(int col) {
         return 360.0 * (col + 0.5) / numCols - 180.0;
     }
 
 
-    public int getColIndex(double lon) {
+    private int getColIndex(double lon) {
         if (lon <= -180.0) {
             return 0;
         }
@@ -156,8 +150,6 @@ public class PlateCarreeGrid implements PlanetaryGrid {
         repro.setParameter("orientation", 0.0);
         repro.setParameter("pixelSizeX", pixelSize);
         repro.setParameter("pixelSizeY", pixelSize);
-        repro.setParameter("tileSizeX", TILE_SIZE);
-        repro.setParameter("tileSizeY", TILE_SIZE);
         repro.setParameter("crs", DefaultGeographicCRS.WGS84.toString());
 
         int width = numCols;
@@ -192,7 +184,7 @@ public class PlateCarreeGrid implements PlanetaryGrid {
 
         for (int y = yStart; y < yStart + height; y++) {
             for (int x = xStart; x < xStart + width; x++) {
-                Geometry tileGeometry = getTileGeometry(x, y);
+                Geometry tileGeometry = getTileGeometry(x, y, tileSize);
                 Geometry intersection = productGeometry.intersection(tileGeometry);
                 if (!intersection.isEmpty() && intersection.getDimension() == 2) {
                     Rectangle tileRect = new Rectangle(x * tileSize.width, y * tileSize.height, tileSize.width,
@@ -204,7 +196,7 @@ public class PlateCarreeGrid implements PlanetaryGrid {
         return rectangles.toArray(new Rectangle[rectangles.size()]);
     }
 
-    public Rectangle computeBounds(Geometry roiGeometry) {
+    private Rectangle computeBounds(Geometry roiGeometry) {
         Rectangle region = new Rectangle(numCols, numRows);
         if (roiGeometry != null) {
             final Coordinate[] coordinates = roiGeometry.getBoundary().getCoordinates();
@@ -228,7 +220,7 @@ public class PlateCarreeGrid implements PlanetaryGrid {
         return region;
     }
 
-    public Rectangle alignToTileGrid(Rectangle rectangle, Dimension tileSize) {
+    private Rectangle alignToTileGrid(Rectangle rectangle, Dimension tileSize) {
         int minX = rectangle.x / tileSize.width * tileSize.width;
         int maxX = (rectangle.x + rectangle.width + tileSize.width - 1) / tileSize.width * tileSize.width;
         int minY = (rectangle.y / tileSize.height) * tileSize.height;
@@ -237,21 +229,23 @@ public class PlateCarreeGrid implements PlanetaryGrid {
         return new Rectangle(minX, minY, maxX - minX, maxY - minY);
     }
 
-    Geometry getTileGeometry(int tileX, int tileY) {
-        double x1 = tileXToDegree(tileX);
-        double x2 = tileXToDegree(tileX + 1);
-        double y1 = tileYToDegree(tileY);
-        double y2 = tileYToDegree(tileY + 1);
+    private Geometry getTileGeometry(int tileX, int tileY, Dimension tileSize) {
+        int tileWidth = tileSize.width;
+        int tileHeight = tileSize.height;
+        double x1 = tileXToDegree(tileX, tileWidth);
+        double x2 = tileXToDegree(tileX + 1, tileWidth);
+        double y1 = tileYToDegree(tileY, tileHeight);
+        double y2 = tileYToDegree(tileY + 1, tileHeight);
 
         return geometryFactory.toGeometry(new Envelope(x1, x2, y1, y2));
     }
 
-    double tileXToDegree(int tileX) {
-        return (tileX * TILE_SIZE * 360.0 / numCols) - 180.0;
+    private double tileXToDegree(int tileX, int tileWidth) {
+        return (tileX * tileWidth * 360.0 / numCols) - 180.0;
     }
 
-    double tileYToDegree(int tileY) {
-        return  90.0 - (tileY * TILE_SIZE * 180.0 / numRows);
+    private double tileYToDegree(int tileY, int tileHeight) {
+        return  90.0 - (tileY * tileHeight * 180.0 / numRows);
     }
 
     // TODO Compare with implementation in SubsetOp
