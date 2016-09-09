@@ -16,12 +16,17 @@
 package org.esa.s1tbx.fex.gpf.oceantools;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.PlainFeatureFactory;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.VectorDataNode;
 import org.esa.snap.core.dataop.downloadable.XMLSupport;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
@@ -36,8 +41,17 @@ import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.esa.snap.engine_utilities.util.ResourceUtils;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.NameImpl;
+import org.geotools.feature.simple.SimpleFeatureTypeImpl;
+import org.geotools.feature.type.AttributeDescriptorImpl;
+import org.geotools.feature.type.AttributeTypeImpl;
 import org.jdom2.Document;
 import org.jdom2.Element;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.*;
 import java.io.File;
@@ -88,17 +102,26 @@ public class ObjectDiscriminationOp extends Operator {
     private final HashMap<String, List<ShipRecord>> bandClusterLists = new HashMap<>();
     private File targetReportFile = null;
 
+    private static final String VECTOR_NODE_NAME = "ShipDetections";
+    private static final String SHIP_STYLE_FORMAT = "fill:#ff0000; fill-opacity:0.2; stroke:#ff0000; stroke-opacity:1.0; stroke-width:1.0; symbol:circle";
+
+    private static final String ATTRIB_WIDTH = "width";
+    private static final String ATTRIB_LENGTH= "length";
+    private static final String ATTRIB_INTENSITY = "intensity";
 
     @Override
     public void initialize() throws OperatorException {
         try {
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
-            getPixelSpacings();
+            rangeSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
+            azimuthSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.azimuth_spacing);
 
-            getSourceImageDimension();
+            sourceImageWidth = sourceProduct.getSceneRasterWidth();
+            sourceImageHeight = sourceProduct.getSceneRasterHeight();
 
-            getTiePointGrid();
+            latitude = OperatorUtils.getLatitude(sourceProduct);
+            longitude = OperatorUtils.getLongitude(sourceProduct);
 
             setTargetReportFilePath();
 
@@ -107,37 +130,6 @@ public class ObjectDiscriminationOp extends Operator {
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
-    }
-
-    /**
-     * Get the range and azimuth spacings (in meter).
-     *
-     * @throws Exception when metadata is missing or equal to default no data value
-     */
-    private void getPixelSpacings() throws Exception {
-
-        rangeSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
-        azimuthSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.azimuth_spacing);
-        //System.out.println("Range spacing is " + rangeSpacing);
-        //System.out.println("Azimuth spacing is " + azimuthSpacing);
-    }
-
-    /**
-     * Get source image dimension.
-     */
-    private void getSourceImageDimension() {
-        sourceImageWidth = sourceProduct.getSceneRasterWidth();
-        sourceImageHeight = sourceProduct.getSceneRasterHeight();
-        //System.out.println("Source image width = " + sourceImageWidth);
-        //System.out.println("Source image height = " + sourceImageHeight);
-    }
-
-    /**
-     * Get latitude anf longitude tie point grid.
-     */
-    private void getTiePointGrid() {
-        latitude = OperatorUtils.getLatitude(sourceProduct);
-        longitude = OperatorUtils.getLongitude(sourceProduct);
     }
 
     /**
@@ -205,7 +197,6 @@ public class ObjectDiscriminationOp extends Operator {
                 } else {
                     throw new OperatorException("No bit mask band found for band: " + srcBandName);
                 }
-
             }
         }
     }
@@ -284,6 +275,8 @@ public class ObjectDiscriminationOp extends Operator {
                     trgData.setElemDoubleAt(trgIndex.getIndex(tx), srcData.getElemDoubleAt(srcIdx));
                 }
             }
+
+            AddShipRecordsAsVectors(clusterList);
 
             clusteringPerformed = true;
         } catch (Throwable e) {
@@ -369,7 +362,7 @@ public class ObjectDiscriminationOp extends Operator {
         final double width = (xMax - xMin + 1) * rangeSpacing;
         final double length = (yMax - yMin + 1) * azimuthSpacing;
 
-        return new ShipRecord(lat, lon, width, length, 0.0);
+        return new ShipRecord((int)xMid, (int)yMid, lat, lon, width, length, 0.0);
     }
 
     /**
@@ -420,11 +413,13 @@ public class ObjectDiscriminationOp extends Operator {
             final List<ShipRecord> clusterList = bandClusterLists.get(bandName);
             for (ShipRecord rec : clusterList) {
                 final Element subElem = new Element("target");
+                subElem.setAttribute("x", String.valueOf(rec.x));
+                subElem.setAttribute("y", String.valueOf(rec.y));
                 subElem.setAttribute("lat", String.valueOf(rec.lat));
                 subElem.setAttribute("lon", String.valueOf(rec.lon));
-                subElem.setAttribute("width", String.valueOf(rec.width));
-                subElem.setAttribute("length", String.valueOf(rec.length));
-                subElem.setAttribute("intensity", String.valueOf(rec.intensity));
+                subElem.setAttribute(ATTRIB_WIDTH, String.valueOf(rec.width));
+                subElem.setAttribute(ATTRIB_LENGTH, String.valueOf(rec.length));
+                subElem.setAttribute(ATTRIB_INTENSITY, String.valueOf(rec.intensity));
                 elem.addContent(subElem);
             }
             root.addContent(elem);
@@ -432,16 +427,78 @@ public class ObjectDiscriminationOp extends Operator {
         XMLSupport.SaveXML(doc, targetReportFile.getAbsolutePath());
     }
 
+    private synchronized void AddShipRecordsAsVectors(final List<ShipRecord> clusterList) {
+
+
+        final CoordinateReferenceSystem modelCrs = Product.findModelCRS(targetProduct.getSceneGeoCoding());
+        final SimpleFeatureType type = PlainFeatureFactory.createDefaultFeatureType(modelCrs);
+
+        final List<AttributeDescriptor> attributeDescriptors = new ArrayList<>();
+        //copy original descriptors
+        for (AttributeDescriptor attributeDescriptor : type.getAttributeDescriptors()) {
+            attributeDescriptors.add(attributeDescriptor);
+        }
+        attributeDescriptors.add(createAttribute(ATTRIB_WIDTH, Double.class));
+        attributeDescriptors.add(createAttribute(ATTRIB_LENGTH, Double.class));
+        attributeDescriptors.add(createAttribute(ATTRIB_INTENSITY, Double.class));
+
+        final SimpleFeatureTypeImpl newSimpleFeatureType = new SimpleFeatureTypeImpl(
+                new NameImpl(VECTOR_NODE_NAME),
+                attributeDescriptors,
+                type.getGeometryDescriptor(),
+                type.isAbstract(),
+                type.getRestrictions(),
+                type.getSuper(),
+                type.getDescription());
+
+        VectorDataNode vectorDataNode = targetProduct.getVectorDataGroup().get(VECTOR_NODE_NAME);
+        if(vectorDataNode == null) {
+            vectorDataNode = new VectorDataNode(VECTOR_NODE_NAME, newSimpleFeatureType);
+        }
+        final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = vectorDataNode.getFeatureCollection();
+        final String style = SHIP_STYLE_FORMAT;
+
+        final GeometryFactory geometryFactory = new GeometryFactory();
+
+        int c = 0;
+        for (ShipRecord rec : clusterList) {
+
+            final String name = "target_" + c;
+
+            Point p = geometryFactory.createPoint(new Coordinate(rec.x, rec.y));
+
+            final SimpleFeature feature = PlainFeatureFactory.createPlainFeature(newSimpleFeatureType, name, p, style);
+            feature.setAttribute(ATTRIB_WIDTH, rec.width);
+            feature.setAttribute(ATTRIB_LENGTH, rec.length);
+            feature.setAttribute(ATTRIB_INTENSITY, rec.intensity);
+
+            collection.add(feature);
+            c++;
+        }
+
+        targetProduct.getVectorDataGroup().add(vectorDataNode);
+    }
+
+    private static AttributeDescriptorImpl createAttribute(final String name, final Class<?> binding) {
+        final NameImpl newAttrName = new NameImpl(name);
+        final AttributeTypeImpl newAttrType = new AttributeTypeImpl(newAttrName, String.class, false, false, null, null, null);
+        return new AttributeDescriptorImpl(newAttrType, newAttrName, 0, 1, true, " ");
+    }
 
     public static class ShipRecord {
-        public double lat;
-        public double lon;
-        public double width;
-        public double length;
+        public final int x;
+        public final int y;
+        public final double lat;
+        public final double lon;
+        public final double width;
+        public final double length;
         public double intensity;
 
-        public ShipRecord(final double lat, final double lon, final double width,
+        public ShipRecord(final int x, final int y,
+                          final double lat, final double lon, final double width,
                           final double length, final double intensity) {
+            this.x = x;
+            this.y = y;
             this.lat = lat;
             this.lon = lon;
             this.width = width;
