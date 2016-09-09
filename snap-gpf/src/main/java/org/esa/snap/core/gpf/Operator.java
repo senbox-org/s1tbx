@@ -480,6 +480,16 @@ public abstract class Operator {
     }
 
     /**
+     * Checks for cancellation of the current processing request. Throws an exception, if the
+     * request has been canceled (e.g. by the user).
+     *
+     * @throws OperatorException if the current processing request has been canceled (e.g. by the user).
+     */
+    protected final void checkForCancellation() throws CancellationOperatorException {
+        context.checkForCancellation();
+    }
+
+    /**
      * Ensures that the given source products all have a scene geo-coding.
      * Operator implementations may use this method in their {@link #initialize()} method to ensure that their
      * sources are geo-coded.

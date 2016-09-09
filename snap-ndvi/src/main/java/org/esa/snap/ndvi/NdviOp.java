@@ -164,6 +164,7 @@ public class NdviOp extends Operator {
                     ndvi.setSample(x, y, ndviValue);
                     ndviFlags.setSample(x, y, ndviFlagsValue);
                 }
+                checkForCancellation();
                 pm.worked(1);
             }
         } finally {

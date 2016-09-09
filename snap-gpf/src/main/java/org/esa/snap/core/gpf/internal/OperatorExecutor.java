@@ -18,6 +18,7 @@ package org.esa.snap.core.gpf.internal;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.gpf.CancellationOperatorException;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.util.SystemUtils;
@@ -214,6 +215,7 @@ public class OperatorExecutor {
         SystemUtils.LOG.finest(String.format("Scheduling tile x=%d/%d y=%d/%d for %s",
                                              tileX + 1, tileCountX, tileY + 1, tileCountY, image));
 
+        checkForCancelation(pm);
         acquirePermits(semaphore, 1);
         if (error != null) {
             semaphore.release(parallelism);
@@ -260,12 +262,19 @@ public class OperatorExecutor {
         return images.toArray(new PlanarImage[images.size()]);
     }
 
+    private static void checkForCancelation(ProgressMonitor pm) {
+        if (pm.isCanceled()) {
+            throw new CancellationOperatorException("Operation canceled.");
+        }
+    }
+
     // unused (mz) left for debugging purpose
     // does not schedule tile but instead calls getTile blocking
     private void executeRowBandColumn(ProgressMonitor pm) {
         for (int tileY = 0; tileY < tileCountY; tileY++) {
             for (final PlanarImage image : images) {
                 for (int tileX = 0; tileX < tileCountX; tileX++) {
+                    checkForCancelation(pm);
                     /////////////////////////////////////////////////////////////////////
                     //
                     // Note: GPF pull-processing is triggered here!!!
