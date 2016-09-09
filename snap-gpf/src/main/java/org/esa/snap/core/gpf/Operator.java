@@ -32,7 +32,8 @@ import org.esa.snap.core.gpf.annotations.TargetProperty;
 import org.esa.snap.core.gpf.internal.OperatorContext;
 
 import javax.media.jai.BorderExtender;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.text.MessageFormat;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -485,7 +486,7 @@ public abstract class Operator {
      *
      * @throws OperatorException if the current processing request has been canceled (e.g. by the user).
      */
-    protected final void checkForCancellation() throws CancellationOperatorException {
+    protected final void checkForCancellation() throws OperatorException {
         context.checkForCancellation();
     }
 

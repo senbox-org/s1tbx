@@ -40,9 +40,9 @@ import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.RasterDataNode;
-import org.esa.snap.core.gpf.CancellationOperatorException;
 import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.gpf.Operator;
+import org.esa.snap.core.gpf.OperatorCancelException;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.OperatorSpiRegistry;
@@ -295,9 +295,9 @@ public class OperatorContext {
         this.cancelled = cancelled;
     }
 
-    public void checkForCancellation() throws CancellationOperatorException {
+    public void checkForCancellation() throws OperatorException {
         if (isCancelled()) {
-            throw new CancellationOperatorException("Operation canceled.vv");
+            throw new OperatorCancelException("Operation canceled.");
         }
     }
 

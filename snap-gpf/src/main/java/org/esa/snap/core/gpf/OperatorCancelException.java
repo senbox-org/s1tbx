@@ -21,8 +21,8 @@ package org.esa.snap.core.gpf;
 /**
  * @author muhammad.bc.
  */
-public class CancellationOperatorException extends OperatorException {
-    public CancellationOperatorException(String message) {
+public class OperatorCancelException extends OperatorException {
+    public OperatorCancelException(String message) {
         super(message);
     }
 }
