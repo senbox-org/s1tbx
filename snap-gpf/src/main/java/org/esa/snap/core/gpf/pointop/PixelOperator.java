@@ -44,8 +44,8 @@ public abstract class PixelOperator extends PointOperator {
      *
      * @param targetTileStack The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed (same for all rasters in <code>targetRasters</code>).
-     * @param pm              A progress monitor which should be used to determine computation cancelation requests.
-     * @throws OperatorException
+     * @param pm              A progress monitor which should be used to determine computation cancellation requests.
+     * @throws OperatorException If an error occurs during computation of the target rasters
      */
     @Override
     public final void computeTileStack(Map<Band, Tile> targetTileStack, Rectangle targetRectangle,

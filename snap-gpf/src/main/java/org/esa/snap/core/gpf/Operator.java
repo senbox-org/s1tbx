@@ -107,7 +107,7 @@ public abstract class Operator {
     /**
      * Overridden in order to force a call to {@link #dispose()}, if not already done.
      *
-     * @throws Throwable The <code>Exception</code> raised by this method
+     * @throws Throwable The {@code Exception} raised by this method
      */
     @Override
     protected final void finalize() throws Throwable {
@@ -183,7 +183,7 @@ public abstract class Operator {
      *
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
-     * @param pm         A progress monitor which should be used to determine computation cancelation requests.
+     * @param pm         A progress monitor which should be used to determine computation cancellation requests.
      * @throws OperatorException If an error occurs during computation of the target raster.
      */
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
@@ -199,9 +199,9 @@ public abstract class Operator {
      * <p>This method shall never be called directly.
      *
      * @param targetTiles     The current tiles to be computed for each target band.
-     * @param targetRectangle The area in pixel coordinates to be computed (same for all rasters in <code>targetRasters</code>).
-     * @param pm              A progress monitor which should be used to determine computation cancelation requests.
-     * @throws OperatorException if an error occurs during computation of the target rasters.
+     * @param targetRectangle The area in pixel coordinates to be computed (same for all rasters in {@code targetRasters}).
+     * @param pm              A progress monitor which should be used to determine computation cancellation requests.
+     * @throws OperatorException If an error occurs during computation of the target rasters.
      */
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws
             OperatorException {
