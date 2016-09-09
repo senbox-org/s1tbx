@@ -51,7 +51,7 @@ import static org.esa.snap.rcp.SnapApp.SelectionSourceHint.AUTO;
  */
 @TopComponent.Description(
         preferredID = "InSARStatisticsTopComponent",
-        iconBase = "org/esa/s1tbx/insar/icons/stack24.png",
+        iconBase = "org/esa/s1tbx/insar/icons/stack.png",
         persistenceType = TopComponent.PERSISTENCE_NEVER
 )
 @TopComponent.Registration(mode = "rightSlidingSide", openAtStartup = false, position = 200)
