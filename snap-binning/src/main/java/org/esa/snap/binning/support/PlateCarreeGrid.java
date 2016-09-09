@@ -25,6 +25,7 @@ import com.vividsolutions.jts.simplify.DouglasPeuckerSimplifier;
 import org.esa.snap.binning.PlanetaryGrid;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.common.reproject.ReprojectionOp;
+import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.util.ProductUtils;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 
@@ -151,6 +152,10 @@ public class PlateCarreeGrid implements PlanetaryGrid {
         repro.setParameter("pixelSizeX", pixelSize);
         repro.setParameter("pixelSizeY", pixelSize);
         repro.setParameter("crs", DefaultGeographicCRS.WGS84.toString());
+
+        Dimension tileSize = ImageManager.getPreferredTileSize(sourceProduct);
+        repro.setParameter("tileSizeX", tileSize.width);
+        repro.setParameter("tileSizeY", tileSize.height);
 
         int width = numCols;
         int height = numRows;
