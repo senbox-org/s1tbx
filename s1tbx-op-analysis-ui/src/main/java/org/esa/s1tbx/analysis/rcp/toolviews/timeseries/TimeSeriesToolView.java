@@ -69,7 +69,7 @@ import java.util.Set;
 
 @TopComponent.Description(
         preferredID = "TimeSeriesToolView",
-        iconBase = "org/esa/s1tbx/analysis/icons/timeseries24.png",
+        iconBase = "org/esa/s1tbx/analysis/icons/timeseries.png",
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(
