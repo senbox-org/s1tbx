@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.snap.classification.gpf;
+package org.esa.snap.engine_utilities.util;
 
 import com.vividsolutions.jts.geom.Envelope;
 import org.esa.snap.core.datamodel.CrsGeoCoding;
@@ -26,6 +26,9 @@ import org.esa.snap.core.datamodel.VectorDataNode;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.NameImpl;
+import org.geotools.feature.type.AttributeDescriptorImpl;
+import org.geotools.feature.type.AttributeTypeImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -41,6 +44,12 @@ import java.util.ArrayList;
  * Created by luis on 03/05/2016.
  */
 public class VectorUtils {
+
+    public static AttributeDescriptorImpl createAttribute(final String name, final Class<?> binding) {
+        final NameImpl newAttrName = new NameImpl(name);
+        final AttributeTypeImpl newAttrType = new AttributeTypeImpl(newAttrName, binding, false, false, null, null, null);
+        return new AttributeDescriptorImpl(newAttrType, newAttrName, 0, 1, true, " ");
+    }
 
     public static boolean hasFeatures(final VectorDataNode node) {
 

@@ -42,6 +42,7 @@ import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.engine_utilities.gpf.ThreadManager;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
+import org.esa.snap.engine_utilities.util.VectorUtils;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.*;
