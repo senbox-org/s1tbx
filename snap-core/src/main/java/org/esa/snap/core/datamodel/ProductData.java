@@ -392,6 +392,8 @@ public abstract class ProductData implements Cloneable {
                 return TYPESTRING_INT16;
             case TYPE_INT32:
                 return TYPESTRING_INT32;
+            case TYPE_INT64:
+                return TYPESTRING_INT64;
             case TYPE_UINT8:
                 return TYPESTRING_UINT8;
             case TYPE_UINT16:
@@ -837,6 +839,7 @@ public abstract class ProductData implements Cloneable {
      * Returns the internal value. The actual type of the returned object should only be one of <ol>
      * <li>{@code byte[]} - for signed/unsigned 8-bit integer fields</li> <li>{@code short[]} - for
      * signed/unsigned 16-bit integer fields</li> <li>{@code int[]} - for signed/unsigned 32-bit integer
+     * fields</li> <li>{@code long[]} - for signed/unsigned 64-bit integer
      * fields</li> <li>{@code float[]} - for signed 32-bit floating point fields</li> <li>{@code double[]} -
      * for signed 64-bit floating point fields</li> </ol>
      *
@@ -848,6 +851,7 @@ public abstract class ProductData implements Cloneable {
      * Sets the internal value. The actual type of the given data object should only be one of <ol>
      * <li>{@code byte[]} - for signed/unsigned 8-bit integer fields</li> <li>{@code short[]} - for
      * signed/unsigned 16-bit integer fields</li> <li>{@code int[]} - for signed/unsigned 32-bit integer
+     * fields</li> <li>{@code long[]} - for signed/unsigned 64-bit integer
      * fields</li> <li>{@code float[]} - for signed 32-bit floating point fields</li> <li>{@code double[]} -
      * for signed 64-bit floating point fields</li> <li>{@code String[]} - for all field types</li> </ol>
      *
