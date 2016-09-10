@@ -41,11 +41,10 @@ import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.esa.snap.engine_utilities.util.ResourceUtils;
+import org.esa.snap.engine_utilities.util.VectorUtils;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.simple.SimpleFeatureTypeImpl;
-import org.geotools.feature.type.AttributeDescriptorImpl;
-import org.geotools.feature.type.AttributeTypeImpl;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.opengis.feature.simple.SimpleFeature;
@@ -444,9 +443,9 @@ public class ObjectDiscriminationOp extends Operator {
         for (AttributeDescriptor attributeDescriptor : type.getAttributeDescriptors()) {
             attributeDescriptors.add(attributeDescriptor);
         }
-        attributeDescriptors.add(createAttribute(ATTRIB_WIDTH, Double.class));
-        attributeDescriptors.add(createAttribute(ATTRIB_LENGTH, Double.class));
-        attributeDescriptors.add(createAttribute(ATTRIB_INTENSITY, Double.class));
+        attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_WIDTH, Double.class));
+        attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_LENGTH, Double.class));
+        attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_INTENSITY, Double.class));
 
         return new SimpleFeatureTypeImpl(
                 new NameImpl(VECTOR_NODE_NAME),
@@ -483,12 +482,6 @@ public class ObjectDiscriminationOp extends Operator {
             collection.add(feature);
             c++;
         }
-    }
-
-    private static AttributeDescriptorImpl createAttribute(final String name, final Class<?> binding) {
-        final NameImpl newAttrName = new NameImpl(name);
-        final AttributeTypeImpl newAttrType = new AttributeTypeImpl(newAttrName, String.class, false, false, null, null, null);
-        return new AttributeDescriptorImpl(newAttrType, newAttrName, 0, 1, true, " ");
     }
 
     public static class ShipRecord {
