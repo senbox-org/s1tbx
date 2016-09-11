@@ -15,10 +15,10 @@
  */
 package org.esa.s1tbx.sar.gpf.ui.orbits;
 
-import org.esa.s1tbx.io.orbits.DelftOrbitFile;
-import org.esa.s1tbx.io.orbits.DorisOrbitFile;
-import org.esa.s1tbx.io.orbits.PrareOrbitFile;
-import org.esa.s1tbx.io.orbits.SentinelPODOrbitFile;
+import org.esa.s1tbx.io.orbits.delft.DelftOrbitFile;
+import org.esa.s1tbx.io.orbits.doris.DorisOrbitFile;
+import org.esa.s1tbx.io.orbits.prare.PrareOrbitFile;
+import org.esa.s1tbx.io.orbits.sentinel1.SentinelPODOrbitFile;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;

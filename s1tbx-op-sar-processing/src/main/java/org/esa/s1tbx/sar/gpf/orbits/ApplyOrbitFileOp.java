@@ -15,11 +15,11 @@
  */
 package org.esa.s1tbx.sar.gpf.orbits;
 
-import org.esa.s1tbx.io.orbits.DelftOrbitFile;
-import org.esa.s1tbx.io.orbits.DorisOrbitFile;
+import org.esa.s1tbx.io.orbits.delft.DelftOrbitFile;
+import org.esa.s1tbx.io.orbits.doris.DorisOrbitFile;
 import org.esa.s1tbx.io.orbits.OrbitFile;
-import org.esa.s1tbx.io.orbits.PrareOrbitFile;
-import org.esa.s1tbx.io.orbits.SentinelPODOrbitFile;
+import org.esa.s1tbx.io.orbits.prare.PrareOrbitFile;
+import org.esa.s1tbx.io.orbits.sentinel1.SentinelPODOrbitFile;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;

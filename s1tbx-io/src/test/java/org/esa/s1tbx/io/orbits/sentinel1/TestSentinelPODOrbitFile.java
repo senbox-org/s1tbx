@@ -1,6 +1,7 @@
-package org.esa.s1tbx.io.orbits;
+package org.esa.s1tbx.io.orbits.sentinel1;
 
 import org.esa.s1tbx.commons.TestData;
+import org.esa.s1tbx.io.orbits.sentinel1.SentinelPODOrbitFile;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
