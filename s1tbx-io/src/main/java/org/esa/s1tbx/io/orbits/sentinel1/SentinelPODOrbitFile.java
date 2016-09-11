@@ -13,9 +13,11 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.io.orbits;
+package org.esa.s1tbx.io.orbits.sentinel1;
 
 import Jama.Matrix;
+import org.esa.s1tbx.io.orbits.BaseOrbitFile;
+import org.esa.s1tbx.io.orbits.OrbitFile;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.OperatorException;

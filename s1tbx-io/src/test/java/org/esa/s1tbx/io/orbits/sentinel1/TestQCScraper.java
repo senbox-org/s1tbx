@@ -13,47 +13,46 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.io.orbits;
+package org.esa.s1tbx.io.orbits.sentinel1;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
 
 /**
- * find files on step
+ * Test Sentinel-1 QC Scrapping of orbit files
  */
-public class TestStepAuxdataScraper {
+public class TestQCScraper {
 
     @Test
     public void testDownloadPreciseOrbitFileS1A() {
-        final StepAuxdataScraper step = new StepAuxdataScraper(SentinelPODOrbitFile.POEORB);
+        final QCScraper qc = new QCScraper(QCScraper.POEORB);
 
-        String[] orbitFiles = step.getFileURLs("S1A", 2016, 2);
+        String[] orbitFiles = qc.getFileURLs("S1A", 2016, 2);
         assertEquals(29, orbitFiles.length);
     }
 
     @Test
     public void testDownloadPreciseOrbitFileS1B() {
-        final StepAuxdataScraper step = new StepAuxdataScraper(SentinelPODOrbitFile.POEORB);
+        final QCScraper qc = new QCScraper(QCScraper.POEORB);
 
-        String[] orbitFiles = step.getFileURLs("S1B", 2016, 7);
+        String[] orbitFiles = qc.getFileURLs("S1B", 2016, 7);
         assertEquals(31, orbitFiles.length);
     }
 
     @Test
     public void testDownloadRestituteOrbitFileS1A() {
-        final StepAuxdataScraper step = new StepAuxdataScraper(SentinelPODOrbitFile.RESORB);
+        final QCScraper qc = new QCScraper(QCScraper.RESORB);
 
-        String[] orbitFiles = step.getFileURLs("S1A", 2016, 2);
-        assertEquals(591, orbitFiles.length);
+        String[] orbitFiles = qc.getFileURLs("S1A", 2016, 3);
+        assertEquals(636, orbitFiles.length);
     }
 
     @Test
     public void testDownloadRestituteOrbitFileS1B() {
-        final StepAuxdataScraper step = new StepAuxdataScraper(SentinelPODOrbitFile.RESORB);
+        final QCScraper qc = new QCScraper(QCScraper.RESORB);
 
-        String[] orbitFiles = step.getFileURLs("S1B", 2016, 7);
+        String[] orbitFiles = qc.getFileURLs("S1B", 2016, 7);
         assertEquals(592, orbitFiles.length);
     }
 }
