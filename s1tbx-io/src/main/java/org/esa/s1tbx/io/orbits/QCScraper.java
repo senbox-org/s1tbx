@@ -17,6 +17,7 @@ package org.esa.s1tbx.io.orbits;
 
 
 import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -72,7 +73,7 @@ public class QCScraper {
         return fileList.toArray(new String[fileList.size()]);
     }
 
-    private List<String> getFileURLs(String path, final Set<String> currentList) {
+    private static List<String> getFileURLs(String path, final Set<String> currentList) {
         final List<String> fileList = new ArrayList<>();
         try {
             final Document doc = Jsoup.connect(path).timeout(10*1000).validateTLSCertificates(false).get();
@@ -93,7 +94,7 @@ public class QCScraper {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            SystemUtils.LOG.warning("Unable to connect to "+path+ ": "+e.getMessage());
         }
         return fileList;
     }
