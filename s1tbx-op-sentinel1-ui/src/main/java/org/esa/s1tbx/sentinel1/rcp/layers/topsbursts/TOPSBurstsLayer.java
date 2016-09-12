@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.dat.layers.topsbursts;
+package org.esa.s1tbx.sentinel1.rcp.layers.topsbursts;
 
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
