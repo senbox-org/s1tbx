@@ -27,9 +27,9 @@ import java.io.File;
 public class Kompsat5ReaderPlugIn extends NetCDFReaderPlugIn {
 
     private final static String[] KOMPSAT5_FORMAT_NAMES = {"Kompsat5"};
-    private final static String[] KOMPSAT5_FORMAT_FILE_EXTENSIONS = {"h5", "tif"};
+    private final static String[] KOMPSAT5_FORMAT_FILE_EXTENSIONS = {"h5", "tif", "aux.xml"};
     private final static String KOMPSAT5_PLUGIN_DESCRIPTION = "Kompsat-5 Products";
-    private final static String KOMPSAT5_FILE_PREFIX = "k5";
+    private final static String KOMPSAT5_FILE_PREFIX = "k5_";
 
     public Kompsat5ReaderPlugIn() {
         FORMAT_NAMES = KOMPSAT5_FORMAT_NAMES;

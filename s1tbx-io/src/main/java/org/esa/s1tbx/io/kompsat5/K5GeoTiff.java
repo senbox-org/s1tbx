@@ -33,8 +33,7 @@ public class K5GeoTiff implements K5Format {
 
     private final ProductReaderPlugIn readerPlugIn;
     private final Kompsat5Reader reader;
-    private Product product = null;
-
+    private Product product;
     private final ProductReader geoTiffReader;
 
     public K5GeoTiff(final ProductReaderPlugIn readerPlugIn, final Kompsat5Reader reader) {
@@ -64,7 +63,7 @@ public class K5GeoTiff implements K5Format {
                     final String fname = inputFile.getName().toLowerCase();
                     if(fname.endsWith(".tif") && !fname.equals(name)) {
                         Product product2 = geoTiffReader.readProductNodes(file, null);
-
+                        //todo
                     }
                 }
             }
