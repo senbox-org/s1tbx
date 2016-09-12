@@ -1,61 +1,81 @@
 <graph id="Graph">
   <version>1.0</version>
-  <node id="1-Read">
+  <node id="Read">
     <operator>Read</operator>
     <sources/>
-    <parameters>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <file></file>
     </parameters>
   </node>
-  <node id="2-Land-Sea-Mask">
+  <node id="Land-Sea-Mask">
     <operator>Land-Sea-Mask</operator>
     <sources>
-      <sourceProduct refid="1-Read"/>
+      <sourceProduct refid="Read"/>
     </sources>
-    <parameters>
-      <sourceBands>
-      </sourceBands>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
       <landMask>true</landMask>
-	  <useSRTM>true</useSRTM>
-	  <geometry></geometry>
-	  <invertGeometry>false</invertGeometry>
-	  <byPass>false</byPass>
+      <useSRTM>true</useSRTM>
+      <geometry/>
+      <invertGeometry>false</invertGeometry>
+      <byPass>false</byPass>
     </parameters>
   </node>
-  <node id="3-Wind-Field-Estimation">
+    <node id="Calibration">
+    <operator>Calibration</operator>
+    <sources>
+      <sourceProduct refid="Land-Sea-Mask"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+      <auxFile>Product Auxiliary File</auxFile>
+      <externalAuxFile/>
+      <outputImageInComplex>false</outputImageInComplex>
+      <outputImageScaleInDb>false</outputImageScaleInDb>
+      <createGammaBand>false</createGammaBand>
+      <createBetaBand>false</createBetaBand>
+      <selectedPolarisations/>
+      <outputSigmaBand>true</outputSigmaBand>
+      <outputGammaBand>false</outputGammaBand>
+      <outputBetaBand>false</outputBetaBand>
+    </parameters>
+  </node>
+  <node id="Wind-Field-Estimation">
     <operator>Wind-Field-Estimation</operator>
     <sources>
-      <sourceProduct refid="2-Land-Sea-Mask"/>
+      <sourceProduct refid="Calibration"/>
     </sources>
-    <parameters>
-      <sourceBands>
-      </sourceBands>
-      <windowSizeInKm>20</windowSizeInKm>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands></sourceBands>
+      <windowSizeInKm>20.0</windowSizeInKm>
     </parameters>
   </node>
-  <node id="4-Write">
+  <node id="Write">
     <operator>Write</operator>
     <sources>
       <sourceProduct refid="3-Wind-Field-Estimation"/>
     </sources>
-    <parameters>
-      <formatName>BEAM-DIMAP</formatName>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <file>wind_field_estimation.dim</file>
+      <formatName>BEAM-DIMAP</formatName>
     </parameters>
   </node>
   <applicationData id="Presentation">
     <Description/>
-    <node id="1-Read">
-      <displayPosition y="93.0" x="30.0"/>
+    <node id="Read">
+      <displayPosition x="30.0" y="93.0"/>
     </node>
-    <node id="2-Land-Sea-Mask">
-      <displayPosition y="93.0" x="225.0"/>
+    <node id="Land-Sea-Mask">
+      <displayPosition x="116.0" y="94.0"/>
     </node>
-    <node id="3-Wind-Field-Estimation">
-      <displayPosition y="167.0" x="232.0"/>
+	<node id="Calibration">
+      <displayPosition x="249.0" y="95.0"/>
     </node>
-    <node id="4-Write">
-      <displayPosition y="230.0" x="199.0"/>
+    <node id="Wind-Field-Estimation">
+      <displayPosition x="214.0" y="149.0"/>
+    </node>
+    <node id="Write">
+      <displayPosition x="386.0" y="149.0"/>
     </node>
   </applicationData>
 </graph>
