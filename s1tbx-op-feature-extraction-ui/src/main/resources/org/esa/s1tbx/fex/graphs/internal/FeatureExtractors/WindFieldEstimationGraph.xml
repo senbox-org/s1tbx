@@ -53,7 +53,7 @@
   <node id="Write">
     <operator>Write</operator>
     <sources>
-      <sourceProduct refid="3-Wind-Field-Estimation"/>
+      <sourceProduct refid="Wind-Field-Estimation"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <file>wind_field_estimation.dim</file>
