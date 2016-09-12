@@ -132,6 +132,8 @@ public final class BackGeocodingOp extends Operator {
     private ElevationModel dem = null;
     private boolean isElevationModelAvailable = false;
     private double demNoDataValue = 0; // no data value for DEM
+    private double demSamplingLat = 0.0;
+    private double demSamplingLon = 0.0;
     private double noDataValue = 0.0;
 
 	private int subSwathIndex = 0;
@@ -512,9 +514,21 @@ public final class BackGeocodingOp extends Operator {
                 dem = new FileElevationModel(externalDEMFile, demResamplingMethod, externalDEMNoDataValue);
                 demNoDataValue = externalDEMNoDataValue;
                 demName = externalDEMFile.getPath();
+                try {
+                    demSamplingLat = Math.abs(dem.getGeoPos(new PixelPos(1, 0)).getLat() -
+                            dem.getGeoPos(new PixelPos(0, 0)).getLat());
+                    demSamplingLon = Math.abs(dem.getGeoPos(new PixelPos(0, 1)).getLat() -
+                            dem.getGeoPos(new PixelPos(0, 0)).getLat());
+                } catch (Exception e) {
+                    throw new OperatorException("The DEM '" + demName + "' cannot be properly interpreted.");
+                }
+
             } else {
                 dem = DEMFactory.createElevationModel(demName, demResamplingMethod);
                 demNoDataValue = dem.getDescriptor().getNoDataValue();
+                demSamplingLat = (double)dem.getDescriptor().getTileWidthInDegrees() /
+                        (double)dem.getDescriptor().getTileWidth();
+                demSamplingLon = demSamplingLat;
             }
         } catch (Throwable t) {
             t.printStackTrace();
@@ -788,7 +802,7 @@ public final class BackGeocodingOp extends Operator {
 
             computeImageGeoBoundary(subSwathIndex, mBurstIndex, xmin, xmax, ymin, ymax, latLonMinMax);
 
-            final double delta = (double)dem.getDescriptor().getTileWidthInDegrees() / (double)dem.getDescriptor().getTileWidth();
+            final double delta = Math.max(demSamplingLat, demSamplingLon);
 //            final double extralat = 1.5*delta + 4.0/25.0;
 //            final double extralon = 1.5*delta + 4.0/25.0;
             final double extralat = 20*delta;
