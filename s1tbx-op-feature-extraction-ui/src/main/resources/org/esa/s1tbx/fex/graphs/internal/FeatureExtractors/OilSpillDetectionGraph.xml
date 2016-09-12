@@ -1,74 +1,94 @@
 <graph id="Graph">
   <version>1.0</version>
-  <node id="1-Read">
+  <node id="Read">
     <operator>Read</operator>
     <sources/>
-    <parameters>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <file></file>
     </parameters>
   </node>
-  <node id="2-Land-Sea-Mask">
+  <node id="Land-Sea-Mask">
     <operator>Land-Sea-Mask</operator>
     <sources>
-      <sourceProduct refid="1-Read"/>
+      <sourceProduct refid="Read"/>
     </sources>
-    <parameters>
-      <sourceBands>
-      </sourceBands>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
       <landMask>true</landMask>
-	  <useSRTM>true</useSRTM>
-	  <geometry></geometry>
-	  <invertGeometry>false</invertGeometry>
-	  <byPass>false</byPass>
+      <useSRTM>true</useSRTM>
+      <geometry/>
+      <invertGeometry>false</invertGeometry>
+      <byPass>false</byPass>
     </parameters>
   </node>
-  <node id="3-Oil-Spill-Detection">
+    <node id="Calibration">
+    <operator>Calibration</operator>
+    <sources>
+      <sourceProduct refid="Land-Sea-Mask"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+      <auxFile>Latest Auxiliary File</auxFile>
+      <externalAuxFile/>
+      <outputImageInComplex>false</outputImageInComplex>
+      <outputImageScaleInDb>false</outputImageScaleInDb>
+      <createGammaBand>false</createGammaBand>
+      <createBetaBand>false</createBetaBand>
+      <selectedPolarisations/>
+      <outputSigmaBand>true</outputSigmaBand>
+      <outputGammaBand>false</outputGammaBand>
+      <outputBetaBand>false</outputBetaBand>
+    </parameters>
+  </node>
+  <node id="Oil-Spill-Detection">
     <operator>Oil-Spill-Detection</operator>
     <sources>
-      <sourceProduct refid="2-Land-Sea-Mask"/>
+      <sourceProduct refid="Calibration"/>
     </sources>
-    <parameters>
-      <sourceBands>
-      </sourceBands>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands></sourceBands>
       <backgroundWindowSize>61</backgroundWindowSize>
-      <k>2</k>
+      <k>2.0</k>
     </parameters>
   </node>
-    <node id="4-Oil-Spill-Clustering">
+  <node id="Oil-Spill-Clustering">
     <operator>Oil-Spill-Clustering</operator>
     <sources>
-      <sourceProduct refid="3-Oil-Spill-Detection"/>
+      <sourceProduct refid="Oil-Spill-Detection"/>
     </sources>
-    <parameters>
-	  <minClusterSizeInKm2>0.1</minClusterSizeInKm2>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <minClusterSizeInKm2>0.1</minClusterSizeInKm2>
     </parameters>
   </node>
-  <node id="5-Write">
+  <node id="Write">
     <operator>Write</operator>
     <sources>
-      <sourceProduct refid="4-Oil-Spill-Clustering"/>
+      <sourceProduct refid="Oil-Spill-Clustering"/>
     </sources>
-    <parameters>
-      <formatName>BEAM-DIMAP</formatName>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <file>oil_spill_detection.dim</file>
+      <formatName>BEAM-DIMAP</formatName>
     </parameters>
   </node>
   <applicationData id="Presentation">
     <Description/>
-    <node id="1-Read">
-      <displayPosition y="93.0" x="30.0"/>
+    <node id="Read">
+      <displayPosition x="30.0" y="93.0"/>
     </node>
-    <node id="2-Land-Sea-Mask">
-      <displayPosition y="93.0" x="225.0"/>
+    <node id="Land-Sea-Mask">
+      <displayPosition x="134.0" y="94.0"/>
     </node>
-    <node id="3-Oil-Spill-Detection">
-      <displayPosition y="167.0" x="232.0"/>
+    <node id="Calibration">
+      <displayPosition x="261.0" y="93.0"/>
     </node>
-    <node id="4-Oil-Spill-Clustering">
-      <displayPosition y="230.0" x="199.0"/>
+    <node id="Oil-Spill-Detection">
+      <displayPosition x="237.0" y="139.0"/>
     </node>
-    <node id="5-Write">
-      <displayPosition y="230.0" x="418.0"/>
+    <node id="Oil-Spill-Clustering">
+      <displayPosition x="239.0" y="184.0"/>
+    </node>
+    <node id="Write">
+      <displayPosition x="402.0" y="184.0"/>
     </node>
   </applicationData>
 </graph>

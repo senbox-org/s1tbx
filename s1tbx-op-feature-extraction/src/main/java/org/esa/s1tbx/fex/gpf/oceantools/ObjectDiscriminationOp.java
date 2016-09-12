@@ -103,7 +103,7 @@ public class ObjectDiscriminationOp extends Operator {
     private SimpleFeatureType shipFeatureType;
 
     private static final String VECTOR_NODE_NAME = "ShipDetections";
-    private static final String SHIP_STYLE_FORMAT = "fill:#ff0000; fill-opacity:0.2; stroke:#ff0000; stroke-opacity:1.0; stroke-width:1.0; symbol:circle";
+    private static final String STYLE_FORMAT = "fill:#ff0000; fill-opacity:0.2; stroke:#ff0000; stroke-opacity:1.0; stroke-width:1.0; symbol:circle";
 
     private static final String ATTRIB_WIDTH = "width";
     private static final String ATTRIB_LENGTH= "length";
@@ -127,7 +127,7 @@ public class ObjectDiscriminationOp extends Operator {
 
             createTargetProduct();
 
-            shipFeatureType = createShipFeatureType();
+            shipFeatureType = createFeatureType();
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -434,27 +434,14 @@ public class ObjectDiscriminationOp extends Operator {
         XMLSupport.SaveXML(doc, targetReportFile.getAbsolutePath());
     }
 
-    private SimpleFeatureType createShipFeatureType() {
-        final CoordinateReferenceSystem modelCrs = Product.findModelCRS(targetProduct.getSceneGeoCoding());
-        final SimpleFeatureType type = PlainFeatureFactory.createDefaultFeatureType(modelCrs);
+    private SimpleFeatureType createFeatureType() {
 
         final List<AttributeDescriptor> attributeDescriptors = new ArrayList<>();
-        //copy original descriptors
-        for (AttributeDescriptor attributeDescriptor : type.getAttributeDescriptors()) {
-            attributeDescriptors.add(attributeDescriptor);
-        }
         attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_WIDTH, Double.class));
         attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_LENGTH, Double.class));
         attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_INTENSITY, Double.class));
 
-        return new SimpleFeatureTypeImpl(
-                new NameImpl(VECTOR_NODE_NAME),
-                attributeDescriptors,
-                type.getGeometryDescriptor(),
-                type.isAbstract(),
-                type.getRestrictions(),
-                type.getSuper(),
-                type.getDescription());
+        return VectorUtils.createFeatureType(targetProduct, VECTOR_NODE_NAME, attributeDescriptors);
     }
 
     private synchronized void AddShipRecordsAsVectors(final List<ShipRecord> clusterList) {
@@ -474,7 +461,7 @@ public class ObjectDiscriminationOp extends Operator {
 
             Point p = geometryFactory.createPoint(new Coordinate(rec.x, rec.y));
 
-            final SimpleFeature feature = PlainFeatureFactory.createPlainFeature(shipFeatureType, name, p, SHIP_STYLE_FORMAT);
+            final SimpleFeature feature = PlainFeatureFactory.createPlainFeature(shipFeatureType, name, p, STYLE_FORMAT);
             feature.setAttribute(ATTRIB_WIDTH, rec.width);
             feature.setAttribute(ATTRIB_LENGTH, rec.length);
             feature.setAttribute(ATTRIB_INTENSITY, rec.intensity);

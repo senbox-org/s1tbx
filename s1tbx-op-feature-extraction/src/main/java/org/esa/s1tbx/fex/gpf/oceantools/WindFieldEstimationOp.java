@@ -19,11 +19,15 @@ import Jama.Matrix;
 import com.bc.ceres.core.ProgressMonitor;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 import org.apache.commons.collections.list.SynchronizedList;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.PlainFeatureFactory;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.TiePointGrid;
@@ -41,19 +45,17 @@ import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
+import org.esa.snap.engine_utilities.eo.GeoUtils;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.util.ResourceUtils;
 import org.esa.snap.engine_utilities.util.VectorUtils;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.NameImpl;
-import org.geotools.feature.simple.SimpleFeatureTypeImpl;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
@@ -132,9 +134,10 @@ public class WindFieldEstimationOp extends Operator {
     private SimpleFeatureType windFeatureType;
 
     private static final String VECTOR_NODE_NAME = "WindField";
-    private static final String WIND_STYLE_FORMAT = "fill:#0000ff; fill-opacity:0.2; stroke:#ff0000; stroke-opacity:1.0; stroke-width:1.0; symbol:star";
+    private static final String STYLE_FORMAT = "fill:#0000ff; fill-opacity:0.2; stroke:#ff0000; stroke-opacity:1.0; stroke-width:1.0; symbol:star";
 
     private static final String ATTRIB_SPEED = "speed";
+    private static final String ATTRIB_HEADING = "heading";
     private static final String ATTRIB_DX = "dx";
     private static final String ATTRIB_DY = "dy";
     private static final String ATTRIB_RATIO = "ratio";
@@ -167,7 +170,7 @@ public class WindFieldEstimationOp extends Operator {
 
             createTargetProduct();
 
-            windFeatureType = createWindFeatureType();
+            windFeatureType = createFeatureType();
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -204,9 +207,9 @@ public class WindFieldEstimationOp extends Operator {
     void createTargetProduct() {
 
         targetProduct = new Product(sourceProduct.getName(),
-                                    sourceProduct.getProductType(),
-                                    sourceProduct.getSceneRasterWidth(),
-                                    sourceProduct.getSceneRasterHeight());
+                sourceProduct.getProductType(),
+                sourceProduct.getSceneRasterWidth(),
+                sourceProduct.getSceneRasterHeight());
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
@@ -232,9 +235,9 @@ public class WindFieldEstimationOp extends Operator {
             }
 
             final Band targetBand = new Band(srcBandName,
-                                             srcBand.getDataType(),
-                                             sourceImageWidth,
-                                             sourceImageHeight);
+                    srcBand.getDataType(),
+                    sourceImageWidth,
+                    sourceImageHeight);
 
             targetBand.setNoDataValueUsed(true);
             targetBand.setNoDataValue(srcBand.getNoDataValue());
@@ -343,7 +346,7 @@ public class WindFieldEstimationOp extends Operator {
                 // save wind field info
                 final WindFieldRecord record =
                         new WindFieldRecord(x, y, lat, lon, speed,
-                                            arrowSize * direction[0], arrowSize * direction[1], ratio);
+                                arrowSize * direction[0], arrowSize * direction[1], ratio);
 
                 windFieldRecordList.add(record);
             }
@@ -677,11 +680,11 @@ public class WindFieldEstimationOp extends Operator {
 
     private static RenderedImage createRenderedImage(double[] array, int width, int height) {
 
-        // create rendered image with demension being width by height
+        // create rendered image with dimension being width by height
         final SampleModel sampleModel = RasterFactory.createBandedSampleModel(DataBuffer.TYPE_DOUBLE, width, height, 1);
         final ColorModel colourModel = PlanarImage.createColorModel(sampleModel);
         final DataBufferDouble dataBuffer = new DataBufferDouble(array, array.length);
-        final WritableRaster raster = RasterFactory.createWritableRaster(sampleModel, dataBuffer, new Point(0, 0));
+        final WritableRaster raster = RasterFactory.createWritableRaster(sampleModel, dataBuffer, new java.awt.Point(0, 0));
         return new BufferedImage(colourModel, raster, false, new Hashtable());
     }
 
@@ -964,28 +967,16 @@ public class WindFieldEstimationOp extends Operator {
         XMLSupport.SaveXML(doc, windFieldReportFile.getAbsolutePath());
     }
 
-    private SimpleFeatureType createWindFeatureType() {
-        final CoordinateReferenceSystem modelCrs = Product.findModelCRS(targetProduct.getSceneGeoCoding());
-        final SimpleFeatureType type = PlainFeatureFactory.createDefaultFeatureType(modelCrs);
+    private SimpleFeatureType createFeatureType() {
 
         final List<AttributeDescriptor> attributeDescriptors = new ArrayList<>();
-        //copy original descriptors
-        for (AttributeDescriptor attributeDescriptor : type.getAttributeDescriptors()) {
-            attributeDescriptors.add(attributeDescriptor);
-        }
         attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_SPEED, Double.class));
+        attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_HEADING, Double.class));
         attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_DX, Double.class));
         attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_DY, Double.class));
         attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_RATIO, Double.class));
 
-        return new SimpleFeatureTypeImpl(
-                new NameImpl(VECTOR_NODE_NAME),
-                attributeDescriptors,
-                type.getGeometryDescriptor(),
-                type.isAbstract(),
-                type.getRestrictions(),
-                type.getSuper(),
-                type.getDescription());
+        return VectorUtils.createFeatureType(targetProduct, VECTOR_NODE_NAME, attributeDescriptors);
     }
 
     private synchronized void AddWindRecordsAsVectors(final List<WindFieldRecord> recordList) {
@@ -997,16 +988,27 @@ public class WindFieldEstimationOp extends Operator {
         }
         final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = vectorDataNode.getFeatureCollection();
         final GeometryFactory geometryFactory = new GeometryFactory();
+        final GeoCoding geoCoding = targetProduct.getSceneGeoCoding();
+        final GeoPos geoPos1 = new GeoPos();
+        final GeoPos geoPos2 = new GeoPos();
 
         int c = collection.size();
         for (WindFieldRecord rec : recordList) {
 
             final String name = "wind_" + c;
 
-            com.vividsolutions.jts.geom.Point p = geometryFactory.createPoint(new Coordinate(rec.x, rec.y));
+            Point p = geometryFactory.createPoint(new Coordinate(rec.x, rec.y));
 
-            final SimpleFeature feature = PlainFeatureFactory.createPlainFeature(windFeatureType, name, p, WIND_STYLE_FORMAT);
+            final SimpleFeature feature = PlainFeatureFactory.createPlainFeature(windFeatureType, name, p, STYLE_FORMAT);
+
+            geoCoding.getGeoPos(new PixelPos(rec.x, rec.y), geoPos1);
+            geoCoding.getGeoPos(new PixelPos(rec.x + rec.dx, rec.y + rec.dy), geoPos2);
+
+            GeoUtils.DistanceHeading heading = GeoUtils.vincenty_inverse(geoPos1.lat, geoPos1.lon,
+                    geoPos2.lat, geoPos2.lon);
+
             feature.setAttribute(ATTRIB_SPEED, rec.speed);
+            feature.setAttribute(ATTRIB_HEADING, heading.heading1);
             feature.setAttribute(ATTRIB_DX, rec.dx);
             feature.setAttribute(ATTRIB_DY, rec.dy);
             feature.setAttribute(ATTRIB_RATIO, rec.ratio);
