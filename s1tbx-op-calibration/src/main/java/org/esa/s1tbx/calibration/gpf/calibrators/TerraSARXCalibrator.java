@@ -398,8 +398,9 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
         final int maxY = y0 + h;
         final int maxX = x0 + w;
 
-        double sigma, dn, dn2, i, q, phaseTerm = 0.0;
+        double sigma, dn, i, q, phaseTerm = 0.0;
         int srcIdx, tgtIdx;
+        final double nodatavalue = targetBand.getNoDataValue();
 
         for (int y = y0; y < maxY; ++y) {
             srcIndex.calculateStride(y);
@@ -409,22 +410,27 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
                 srcIdx = srcIndex.getIndex(x);
                 tgtIdx = tgtIndex.getIndex(x);
 
+                dn = srcData1.getElemDoubleAt(srcIdx);
+                if(dn == nodatavalue) {
+                    trgData.setElemDoubleAt(tgtIdx, nodatavalue);
+                    continue;
+                }
+
                 if (srcBandUnit == Unit.UnitType.AMPLITUDE) {
-                    dn = srcData1.getElemDoubleAt(srcIdx);
-                    dn2 = dn * dn;
+                    dn *= dn;
                 } else if (srcBandUnit == Unit.UnitType.INTENSITY) {
-                    dn2 = srcData1.getElemDoubleAt(srcIdx);
+
                 } else if (srcBandUnit == Unit.UnitType.REAL) {
-                    i = srcData1.getElemDoubleAt(srcIdx);
+                    i = dn;
                     q = srcData2.getElemDoubleAt(srcIdx);
-                    dn2 = i * i + q * q;
+                    dn = i * i + q * q;
                     if (tgtBandUnit == Unit.UnitType.REAL) {
-                        phaseTerm = i / Math.sqrt(dn2);
+                        phaseTerm = i / Math.sqrt(dn);
                     } else if (tgtBandUnit == Unit.UnitType.IMAGINARY) {
-                        phaseTerm = q / Math.sqrt(dn2);
+                        phaseTerm = q / Math.sqrt(dn);
                     }
                 } else if (srcBandUnit == Unit.UnitType.INTENSITY_DB) {
-                    dn2 = FastMath.pow(10, srcData1.getElemDoubleAt(srcIdx) / 10.0); // convert dB to linear scale
+                    dn = FastMath.pow(10, dn / 10.0); // convert dB to linear scale
                 } else {
                     throw new OperatorException("TerraSAR-X Calibration: unhandled unit");
                 }
@@ -438,9 +444,9 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
                 }
 
                 if (noiseCorrectedFlag) {
-                    sigma = Ks * dn2 * FastMath.sin(inciAng);
+                    sigma = Ks * dn * FastMath.sin(inciAng);
                 } else {
-                    sigma = Ks * Math.abs(dn2 - tileNoise[y - y0][x - x0]) * FastMath.sin(inciAng);
+                    sigma = Ks * Math.abs(dn - tileNoise[y - y0][x - x0]) * FastMath.sin(inciAng);
                 }
 
                 if (isComplex && outputImageInComplex) {

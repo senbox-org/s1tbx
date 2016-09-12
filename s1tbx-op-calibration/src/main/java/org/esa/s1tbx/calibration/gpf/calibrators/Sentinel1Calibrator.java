@@ -548,8 +548,10 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
             final CalibrationInfo calInfo = targetBandToCalInfo.get(targetBandName);
             final CALTYPE calType = getCalibrationType(targetBandName);
 
-            double dn = 0.0, dn2, i, q, muX, lutVal, retroLutVal = 1.0, calValue, calibrationFactor, phaseTerm = 0.0;
+            double dn = 0.0, i, q, muX, lutVal, retroLutVal = 1.0, calValue, calibrationFactor, phaseTerm = 0.0;
             int srcIdx;
+            final double nodatavalue = targetBand.getNoDataValue();
+
             for (int y = y0; y < maxY; ++y) {
                 srcIndex.calculateStride(y);
                 trgIndex.calculateStride(y);
@@ -573,6 +575,12 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
                 for (int x = x0; x < maxX; ++x) {
                     srcIdx = srcIndex.getIndex(x);
 
+                    dn = srcData1.getElemDoubleAt(srcIdx);
+                    if(dn == nodatavalue) {
+                        tgtData.setElemDoubleAt(trgIndex.getIndex(x), nodatavalue);
+                        continue;
+                    }
+
                     final int pixelIdx = calVec.getPixelIndex(x);
                     muX = (x - vec0Pixels[pixelIdx]) / (double)(vec0Pixels[pixelIdx + 1] - vec0Pixels[pixelIdx]);
 
@@ -582,36 +590,29 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
                     calibrationFactor = 1.0 / (lutVal*lutVal);
 
                     if (srcBandUnit == Unit.UnitType.AMPLITUDE) {
-                        dn = srcData1.getElemDoubleAt(srcIdx);
-                        if (dn == noDataValue) continue;
-                        dn2 = dn * dn;
+                        dn *= dn;
                     } else if (srcBandUnit == Unit.UnitType.INTENSITY) {
-                        dn2 = srcData1.getElemDoubleAt(srcIdx);
-                        if (dn2 == noDataValue) continue;
                         if (dataType != null) {
                             retroLutVal = (1 - muY) * ((1 - muX) * retroVec0LUT[pixelIdx] + muX * retroVec0LUT[pixelIdx + 1]) +
                                     muY * ((1 - muX) * retroVec1LUT[pixelIdx] + muX * retroVec1LUT[pixelIdx + 1]);
                         }
                         calibrationFactor *= retroLutVal;
                     } else if (srcBandUnit == Unit.UnitType.REAL) {
-                        i = srcData1.getElemDoubleAt(srcIdx);
+                        i = dn;
                         q = srcData2.getElemDoubleAt(srcIdx);
-                        if (i == noDataValue && q == noDataValue) continue;
-                        dn2 = i * i + q * q;
+                        dn = i * i + q * q;
                         if (tgtBandUnit == Unit.UnitType.REAL) {
-                            phaseTerm = i / Math.sqrt(dn2);
+                            phaseTerm = i / Math.sqrt(dn);
                         } else if (tgtBandUnit == Unit.UnitType.IMAGINARY) {
-                            phaseTerm = q / Math.sqrt(dn2);
+                            phaseTerm = q / Math.sqrt(dn);
                         }
                     } else if (srcBandUnit == Unit.UnitType.INTENSITY_DB) {
-                        dn = srcData1.getElemDoubleAt(srcIdx);
-                        if (dn == noDataValue) continue;
-                        dn2 = FastMath.pow(10, dn / 10.0); // convert dB to linear scale
+                        dn = FastMath.pow(10, dn / 10.0); // convert dB to linear scale
                     } else {
                         throw new OperatorException("Sentinel-1 Calibration: unhandled unit");
                     }
 
-                    calValue = dn2 * calibrationFactor;
+                    calValue = dn * calibrationFactor;
 
                     if (isComplex && outputImageInComplex) {
                         calValue = Math.sqrt(calValue)*phaseTerm;

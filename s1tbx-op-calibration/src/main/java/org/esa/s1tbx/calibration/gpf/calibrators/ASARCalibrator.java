@@ -931,8 +931,9 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
             }
         }
 
-        double sigma, dn, dn2, i, q, phaseTerm = 0.0;
+        double sigma, dn, i, q, phaseTerm = 0.0;
         final double theCalibrationFactor = newCalibrationConstant[prodBand];
+        final double nodatavalue = targetBand.getNoDataValue();
 
         int srcIdx, tgtIdx;
         for (int y = y0, yy = 0; y < maxY; ++y, ++yy) {
@@ -949,22 +950,27 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
                 srcIdx = srcIndex.getIndex(x);
                 tgtIdx = tgtIndex.getIndex(x);
 
+                dn = srcData1.getElemDoubleAt(srcIdx);
+                if(dn == nodatavalue) {
+                    trgData.setElemDoubleAt(tgtIdx, nodatavalue);
+                    continue;
+                }
+
                 if (srcBandUnit == Unit.UnitType.AMPLITUDE) {
-                    dn = srcData1.getElemDoubleAt(srcIdx);
-                    dn2 = dn * dn;
+                    dn *= dn;
                 } else if (srcBandUnit == Unit.UnitType.INTENSITY) {
-                    dn2 = srcData1.getElemDoubleAt(srcIdx);
+
                 } else if (srcBandUnit == Unit.UnitType.REAL) {
-                    i = srcData1.getElemDoubleAt(srcIdx);
+                    i = dn;
                     q = srcData2.getElemDoubleAt(srcIdx);
-                    dn2 = i * i + q * q;
+                    dn = i * i + q * q;
                     if (tgtBandUnit == Unit.UnitType.REAL) {
-                        phaseTerm = i / Math.sqrt(dn2);
+                        phaseTerm = i / Math.sqrt(dn);
                     } else if (tgtBandUnit == Unit.UnitType.IMAGINARY) {
-                        phaseTerm = q / Math.sqrt(dn2);
+                        phaseTerm = q / Math.sqrt(dn);
                     }
                 } else if (srcBandUnit == Unit.UnitType.INTENSITY_DB) {
-                    dn2 = FastMath.pow(10, srcData1.getElemDoubleAt(srcIdx) / 10.0); // convert dB to linear scale
+                    dn = FastMath.pow(10, dn / 10.0); // convert dB to linear scale
                 } else {
                     throw new OperatorException("ASAR Calibration: unhandled unit");
                 }
@@ -985,7 +991,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
                     calFactor /= targetTileNewAntPat[yy][xx];  // see Andrea's email dated Nov. 11, 2008
                 }
 
-                sigma = dn2*calFactor;
+                sigma = dn*calFactor;
 
                 if (isComplex && outputImageInComplex) {
                     sigma = Math.sqrt(sigma)*phaseTerm;
