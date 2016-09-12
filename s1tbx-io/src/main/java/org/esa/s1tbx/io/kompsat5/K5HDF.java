@@ -214,8 +214,9 @@ public class K5HDF implements K5Format {
         final String defStr = AbstractMetadata.NO_METADATA_STRING;
         final int defInt = AbstractMetadata.NO_METADATA;
 
-        final MetadataElement globalElem = AbstractMetadata.addOriginalProductMetadata(product.getMetadataRoot()).
-                getElement(NetcdfConstants.GLOBAL_ATTRIBUTES_NAME);
+        final MetadataElement origRoot = AbstractMetadata.addOriginalProductMetadata(product.getMetadataRoot());
+        final MetadataElement globalElem = origRoot.getElement(NetcdfConstants.GLOBAL_ATTRIBUTES_NAME);
+        final MetadataElement auxElem = origRoot.getElement("Auxiliary").getElement("Root");
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, globalElem.getAttributeString("Product_Filename", defStr));
         final String productType = globalElem.getAttributeString("Product_Type", defStr);
@@ -376,6 +377,8 @@ public class K5HDF implements K5Format {
         final MetadataElement orbitVectorListElem = absRoot.getElement(AbstractMetadata.orbit_state_vectors);
         final ProductData.UTC referenceUTC = ReaderUtils.getTime(globalElem, "Reference_UTC", standardDateFormat);
         final int numPoints = globalElem.getAttributeInt("Number_of_State_Vectors");
+
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME, referenceUTC);
 
         for (int i = 0; i < numPoints; i++) {
             final double stateVectorTime = globalElem.getAttribute("State_Vectors_Times").getData().getElemDoubleAt(i);
