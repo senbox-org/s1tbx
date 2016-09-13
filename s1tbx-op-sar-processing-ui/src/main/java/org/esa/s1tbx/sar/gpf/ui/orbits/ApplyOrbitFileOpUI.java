@@ -17,6 +17,7 @@ package org.esa.s1tbx.sar.gpf.ui.orbits;
 
 import org.esa.s1tbx.io.orbits.delft.DelftOrbitFile;
 import org.esa.s1tbx.io.orbits.doris.DorisOrbitFile;
+import org.esa.s1tbx.io.orbits.k5.K5OrbitFile;
 import org.esa.s1tbx.io.orbits.prare.PrareOrbitFile;
 import org.esa.s1tbx.io.orbits.sentinel1.SentinelPODOrbitFile;
 import org.esa.snap.core.datamodel.MetadataElement;
@@ -49,7 +50,8 @@ public class ApplyOrbitFileOpUI extends BaseOperatorUI {
             DorisOrbitFile.DORIS_POR + " (ENVISAT)",
             DorisOrbitFile.DORIS_VOR + " (ENVISAT)" + " (Auto Download)",
             DelftOrbitFile.DELFT_PRECISE + " (ENVISAT, ERS1&2)" + " (Auto Download)",
-            PrareOrbitFile.PRARE_PRECISE + " (ERS1&2)" + " (Auto Download)"
+            PrareOrbitFile.PRARE_PRECISE + " (ERS1&2)" + " (Auto Download)",
+            K5OrbitFile.PRECISE
     };
 
     @Override
@@ -95,6 +97,9 @@ public class ApplyOrbitFileOpUI extends BaseOperatorUI {
             } else if (mission.startsWith("SENTINEL")) {
                 populateOrbitTypes("Sentinel");
                 setSelectedOrbitType(SentinelPODOrbitFile.PRECISE);
+            } else if (mission.startsWith("Kompsat5")) {
+                populateOrbitTypes("Kompsat5");
+                setSelectedOrbitType(K5OrbitFile.PRECISE);
             }
         }
     }
