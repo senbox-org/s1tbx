@@ -15,12 +15,19 @@
  */
 package org.esa.s1tbx.sar.gpf.orbits;
 
+import org.esa.s1tbx.io.orbits.OrbitFile;
 import org.esa.s1tbx.io.orbits.delft.DelftOrbitFile;
 import org.esa.s1tbx.io.orbits.doris.DorisOrbitFile;
-import org.esa.s1tbx.io.orbits.OrbitFile;
+import org.esa.s1tbx.io.orbits.k5.K5OrbitFile;
 import org.esa.s1tbx.io.orbits.prare.PrareOrbitFile;
 import org.esa.s1tbx.io.orbits.sentinel1.SentinelPODOrbitFile;
-import org.esa.snap.core.datamodel.*;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.TiePointGeoCoding;
+import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -87,7 +94,9 @@ public final class ApplyOrbitFileOp extends Operator {
 
     @Parameter(valueSet = {SentinelPODOrbitFile.PRECISE + " (Auto Download)", SentinelPODOrbitFile.RESTITUTED + " (Auto Download)",
             DorisOrbitFile.DORIS_POR + " (ENVISAT)", DorisOrbitFile.DORIS_VOR + " (ENVISAT)" + " (Auto Download)",
-            DelftOrbitFile.DELFT_PRECISE + " (ENVISAT, ERS1&2)" + " (Auto Download)", PrareOrbitFile.PRARE_PRECISE + " (ERS1&2)" + " (Auto Download)"},
+            DelftOrbitFile.DELFT_PRECISE + " (ENVISAT, ERS1&2)" + " (Auto Download)",
+            PrareOrbitFile.PRARE_PRECISE + " (ERS1&2)" + " (Auto Download)",
+            K5OrbitFile.PRECISE },
             defaultValue = SentinelPODOrbitFile.PRECISE + " (Auto Download)", label = "Orbit State Vectors")
     private String orbitType = null;
 
@@ -150,6 +159,8 @@ public final class ApplyOrbitFileOp extends Operator {
                     orbitType = PrareOrbitFile.PRARE_PRECISE;
                 } else if (mission.startsWith("SENTINEL")) {
                     orbitType = SentinelPODOrbitFile.PRECISE;
+                } else if (mission.startsWith("Kompsat5")) {
+                    orbitType = K5OrbitFile.PRECISE;
                 } else {
                     throw new OperatorException("Please select an orbit file type");
                 }
@@ -167,6 +178,10 @@ public final class ApplyOrbitFileOp extends Operator {
                 if (!orbitType.startsWith("Sentinel")) {
                     orbitType = SentinelPODOrbitFile.PRECISE;
                 }
+            } else if (mission.startsWith("Kompsat5")) {
+                if (!orbitType.startsWith(K5OrbitFile.PRECISE)) {
+                    orbitType = K5OrbitFile.PRECISE;
+                }
             } else {
                 throw new OperatorException(orbitType + " is not suitable for a " + mission + " product");
             }
@@ -179,6 +194,8 @@ public final class ApplyOrbitFileOp extends Operator {
                 orbitProvider = new PrareOrbitFile(absRoot, sourceProduct);
             } else if (orbitType.contains("Sentinel")) {
                 orbitProvider = new SentinelPODOrbitFile(absRoot, polyDegree);
+            } else if (orbitType.contains("Kompsat5")) {
+                orbitProvider = new K5OrbitFile(absRoot, polyDegree);
             }
 
             getTiePointGrid();
@@ -257,6 +274,7 @@ public final class ApplyOrbitFileOp extends Operator {
         } catch (Exception e) {
             SystemUtils.LOG.warning(e.getMessage());
             // try other orbit file types
+            boolean tryAnotherType = false;
             for(String type : orbitProvider.getAvailableOrbitTypes()) {
                 if(!orbitType.startsWith(type)) {
                     try {
@@ -264,14 +282,19 @@ public final class ApplyOrbitFileOp extends Operator {
                     } catch (Exception e2) {
                         throw e;
                     }
-                    SystemUtils.LOG.warning("Using "+type+" "+orbitProvider.getOrbitFile()+" instead");
+                    SystemUtils.LOG.warning("Using "+type+' '+orbitProvider.getOrbitFile()+" instead");
+                    tryAnotherType = true;
                 }
+            }
+            if(!tryAnotherType) {
+                throw e;
             }
         }
 
         updateOrbitStateVectors();
 
-        if (!(orbitProvider instanceof SentinelPODOrbitFile)) {
+        if (orbitProvider instanceof PrareOrbitFile || orbitProvider instanceof DorisOrbitFile ||
+                orbitProvider instanceof DelftOrbitFile) {
             updateTargetProductGEOCodingJLinda();
         }
 

@@ -238,14 +238,16 @@ public class K5HDF implements K5Format {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT, globalElem.getAttributeInt("Orbit_Number", defInt));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, globalElem.getAttributeString("Orbit_Direction", defStr));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, getSampleType(globalElem));
-        /*
-        final ProductData.UTC startTime = ReaderUtils.getTime(globalElem, "Scene_Sensing_Start_UTC", timeFormat);
-        final ProductData.UTC stopTime = ReaderUtils.getTime(globalElem, "Scene_Sensing_Stop_UTC", timeFormat);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
-        product.setStartTime(startTime);
-        product.setEndTime(stopTime);
-        */
+
+//        final ProductData.UTC startTime = ReaderUtils.getTime(globalElem, "Scene_Sensing_Start_UTC", standardDateFormat);
+//        final ProductData.UTC stopTime = ReaderUtils.getTime(globalElem, "Scene_Sensing_Stop_UTC", standardDateFormat);
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
+//        product.setStartTime(startTime);
+//        product.setEndTime(stopTime);
+        //AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
+        //                              ReaderUtils.getLineTimeInterval(startTime, stopTime, product.getSceneRasterHeight()));
+
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
                                       product.getSceneRasterHeight());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line,
@@ -254,8 +256,6 @@ public class K5HDF implements K5Format {
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency,
                                       globalElem.getAttributeDouble("Radar_Frequency", defInt) / Constants.oneMillion);
-//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
-//                ReaderUtils.getLineTimeInterval(startTime, stopTime, product.getSceneRasterHeight()));
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.algorithm,
                                       globalElem.getAttributeString("Focusing_Algorithm_ID", defStr));
@@ -471,9 +471,10 @@ public class K5HDF implements K5Format {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
             product.setStartTime(startTime);
             product.setEndTime(stopTime);
-            if (lineTimeInterval == 0) {
+            if (lineTimeInterval == 0 || lastLineTime == AbstractMetadata.NO_METADATA) {
                 lineTimeInterval = ReaderUtils.getLineTimeInterval(startTime, stopTime, rasterHeight);
             }
+            double lineTimeInterval2 = ReaderUtils.getLineTimeInterval(startTime, stopTime, rasterHeight);
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval, lineTimeInterval);
         }
     }
