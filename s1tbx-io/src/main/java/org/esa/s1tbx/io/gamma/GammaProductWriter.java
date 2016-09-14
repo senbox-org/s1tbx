@@ -30,6 +30,7 @@ import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.core.gpf.internal.TileImpl;
 import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 
 import javax.imageio.stream.ImageOutputStream;
@@ -80,6 +81,8 @@ public class GammaProductWriter extends AbstractProductWriter {
 
         srcProduct = getSourceProduct();
         srcProduct.setProductWriter(this);
+
+        //System.out.println("outputFile = " + outputFile.getName());
 
         headerWriter = new HeaderWriter(this, srcProduct, outputFile);
         headerWriter.writeParFile();
@@ -273,7 +276,17 @@ public class GammaProductWriter extends AbstractProductWriter {
     }
 
     private File getImageFile(final Band band) {
-        return new File(outputDir, createImageFilename(band));
+        //return new File(outputDir, createImageFilename(band));
+        String filename = band.getName();
+        if (!filename.contains(".")) {
+            //System.out.println("baseFileName = " + headerWriter.getBaseFileName());
+            filename = filename + GammaConstants.SLC_EXTENSION;
+        }
+        if (filename.startsWith("i_") || filename.startsWith("q_")) {
+            filename = filename.substring(2);
+        }
+        //System.out.println("getImageFile: band = " + band.getName() + " outputDir = " + outputDir.getName() + " filename = " + filename);
+        return new File(outputDir, filename);
     }
 
     /**
