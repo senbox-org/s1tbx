@@ -1,0 +1,28 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="StampsExport">
+    <operator>StampsExport</operator>
+    <sources>
+      <sourceProduct refid="ProductSet-Reader"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <targetFolder/>
+    </parameters>
+  </node>
+  <node id="ProductSet-Reader">
+    <operator>ProductSet-Reader</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <fileList/>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="StampsExport">
+      <displayPosition x="272.0" y="202.0"/>
+    </node>
+    <node id="ProductSet-Reader">
+      <displayPosition x="103.0" y="200.0"/>
+    </node>
+  </applicationData>
+</graph>
