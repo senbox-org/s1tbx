@@ -116,6 +116,11 @@ public class ObjectDetectionLayer extends Layer {
                             if (det instanceof Element) {
                                 final Element targetElem = (Element) det;
                                 if (targetElem.getName().equals("target")) {
+                                    Attribute x = targetElem.getAttribute("x");
+                                    if (x == null) x = new Attribute("x", "0");
+                                    Attribute y = targetElem.getAttribute("y");
+                                    if (y == null) y = new Attribute("y", "0");
+
                                     final Attribute lat = targetElem.getAttribute("lat");
                                     if (lat == null) continue;
                                     final Attribute lon = targetElem.getAttribute("lon");
@@ -128,6 +133,8 @@ public class ObjectDetectionLayer extends Layer {
                                     if (intensity == null) continue;
 
                                     targetList.add(new ObjectDiscriminationOp.ShipRecord(
+                                            Integer.parseInt(x.getValue()),
+                                            Integer.parseInt(y.getValue()),
                                             Double.parseDouble(lat.getValue()),
                                             Double.parseDouble(lon.getValue()),
                                             (Double.parseDouble(width.getValue()) / rangeSpacing) + border,

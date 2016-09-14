@@ -22,6 +22,7 @@ import org.esa.s1tbx.calibration.gpf.calibrators.ERSCalibrator;
 import org.esa.s1tbx.calibration.gpf.calibrators.Radarsat2Calibrator;
 import org.esa.s1tbx.calibration.gpf.calibrators.Sentinel1Calibrator;
 import org.esa.s1tbx.calibration.gpf.calibrators.TerraSARXCalibrator;
+import org.esa.s1tbx.calibration.gpf.calibrators.Kompsat5Calibrator;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
@@ -33,7 +34,7 @@ import org.esa.snap.engine_utilities.eo.Constants;
 
 /**
  * The abstract base class for all calibration operators intended to be extended by clients.
- * The following methods are intended to be implemented or overidden:
+ * The following methods are intended to be implemented or overridden:
  */
 public class CalibrationFactory {
 
@@ -60,6 +61,8 @@ public class CalibrationFactory {
             return new CosmoSkymedCalibrator();
         } else if (mission.contains("SENTINEL-1")) {
             return new Sentinel1Calibrator();
+        } else if (mission.contains("Kompsat5")) {
+            return new Kompsat5Calibrator();
         } else {
             throw new OperatorException("Mission " + mission + " is currently not supported for calibration.");
         }

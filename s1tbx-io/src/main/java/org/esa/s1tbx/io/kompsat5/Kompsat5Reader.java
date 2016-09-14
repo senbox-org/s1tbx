@@ -54,7 +54,40 @@ public class Kompsat5Reader extends SARReader {
         final String name = inputFile.getName().toLowerCase();
         if (name.endsWith(".h5"))
             return Formats.HDF;
+        if(name.endsWith(".tif"))
+            return Formats.GEOTIFF;
+
+        final File[] files = inputFile.getParentFile().listFiles();
+        if(files != null) {
+            for(File file : files) {
+                String filename = file.getName().toLowerCase();
+                if(filename.endsWith(".h5"))
+                    return Formats.HDF;
+                if(filename.endsWith(".tif"))
+                    return Formats.GEOTIFF;
+            }
+        }
         return Formats.GEOTIFF;
+    }
+
+    private static File findProductFile(final Formats format, final File inputFile) {
+        final String name = inputFile.getName().toLowerCase();
+        if (format.equals(Formats.HDF) && name.endsWith(".h5"))
+            return inputFile;
+        if(format.equals(Formats.GEOTIFF) && name.endsWith(".tif"))
+            return inputFile;
+
+        final File[] files = inputFile.getParentFile().listFiles();
+        if(files != null) {
+            for(File file : files) {
+                String filename = file.getName().toLowerCase();
+                if(format.equals(Formats.HDF) && filename.endsWith(".h5"))
+                    return file;
+                if(format.equals(Formats.GEOTIFF) && filename.endsWith(".tif"))
+                    return file;
+            }
+        }
+        return inputFile;
     }
 
     /**
@@ -68,8 +101,9 @@ public class Kompsat5Reader extends SARReader {
     @Override
     protected Product readProductNodesImpl() throws IOException {
         try {
-            final File inputFile = ReaderUtils.getFileFromInput(getInput());
+            File inputFile = ReaderUtils.getFileFromInput(getInput());
             format = determineFormat(inputFile);
+            inputFile = findProductFile(format, inputFile);
 
             if (format.equals(Formats.HDF)) {
                 k5Reader = new K5HDF(readerPlugIn, this);

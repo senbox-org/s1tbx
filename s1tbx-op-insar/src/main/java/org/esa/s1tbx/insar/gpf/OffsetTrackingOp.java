@@ -16,16 +16,22 @@
 package org.esa.s1tbx.insar.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
 import org.esa.s1tbx.insar.gpf.coregistration.CrossCorrelationOp;
 import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.Mask;
 import org.esa.snap.core.datamodel.MetadataAttribute;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.PlainFeatureFactory;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.RasterDataNode;
-import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.datamodel.VectorDataNode;
 import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.core.dataop.resamp.Resampling;
 import org.esa.snap.core.dataop.resamp.ResamplingFactory;
@@ -41,14 +47,20 @@ import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.eo.GeoUtils;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.engine_utilities.gpf.ThreadManager;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
+import org.esa.snap.engine_utilities.util.VectorUtils;
+import org.geotools.feature.FeatureCollection;
 import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;
 import org.jlinda.core.coregistration.utils.CoregistrationUtils;
 import org.jlinda.nest.utils.TileUtilsDoris;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -166,6 +178,20 @@ public class OffsetTrackingOp extends Operator {
     private final static String RANGE_SHIFT = "Range_Shift";
     private final static String AZIMUTH_SHIFT = "Azimuth_Shift";
 
+    private SimpleFeatureType windFeatureType;
+    private static final String VECTOR_NODE_NAME = VELOCITY;
+    private static final String STYLE_FORMAT = "fill:#0000ff; fill-opacity:0.2; stroke:#ff0000; stroke-opacity:1.0; stroke-width:1.0; symbol:plus";
+
+    private static final String ATTRIB_MST_LAT = "mst_lat";
+    private static final String ATTRIB_MST_LON = "mst_lon";
+    private static final String ATTRIB_SLV_LAT = "slv_lat";
+    private static final String ATTRIB_SLV_LON = "slv_lon";
+    private static final String ATTRIB_DISTANCE = "distance";
+    private static final String ATTRIB_VELOCITY = "velocity";
+    private static final String ATTRIB_HEADING = "heading";
+    private static final String ATTRIB_RANGE_SHIFT = "range_shift";
+    private static final String ATTRIB_AZIMUTH_SHIFT = "azimuth_shift";
+
     /**
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
@@ -204,6 +230,8 @@ public class OffsetTrackingOp extends Operator {
             createGCPGrid();
 
             updateTargetProductMetadata();
+
+            windFeatureType = createFeatureType();
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -491,6 +519,8 @@ public class OffsetTrackingOp extends Operator {
         }
 
         computeGCPVelocities();
+
+        AddVelocitiesAsVectors();
 
         writeGCPsToMetadata();
 
@@ -916,6 +946,69 @@ public class OffsetTrackingOp extends Operator {
                     gcpElem.setAttributeDouble("slv_x", velocityData.slvGCPx[i][j]);
                     gcpElem.setAttributeDouble("slv_y", velocityData.slvGCPy[i][j]);
                     k++;
+                }
+            }
+        }
+    }
+
+    private SimpleFeatureType createFeatureType() {
+
+        final List<AttributeDescriptor> attributeDescriptors = new ArrayList<>();
+        attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_MST_LAT, Double.class));
+        attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_MST_LON, Double.class));
+        attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_SLV_LAT, Double.class));
+        attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_SLV_LON, Double.class));
+        attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_DISTANCE, Double.class));
+        attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_VELOCITY, Double.class));
+        attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_HEADING, Double.class));
+        attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_RANGE_SHIFT, Double.class));
+        attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_AZIMUTH_SHIFT, Double.class));
+
+        return VectorUtils.createFeatureType(targetProduct, VECTOR_NODE_NAME, attributeDescriptors);
+    }
+
+    private synchronized void AddVelocitiesAsVectors() {
+
+        VectorDataNode vectorDataNode = targetProduct.getVectorDataGroup().get(VECTOR_NODE_NAME);
+        if (vectorDataNode == null) {
+            vectorDataNode = new VectorDataNode(VECTOR_NODE_NAME, windFeatureType);
+            targetProduct.getVectorDataGroup().add(vectorDataNode);
+        }
+        final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = vectorDataNode.getFeatureCollection();
+        final GeometryFactory geometryFactory = new GeometryFactory();
+        final GeoCoding geoCoding = targetProduct.getSceneGeoCoding();
+        final GeoPos mstGeoPos = new GeoPos();
+        final GeoPos slvGeoPos = new GeoPos();
+
+        int c = collection.size();
+        for (int i = 0; i < numGCPsPerAzLine; i++) {
+            for (int j = 0; j < numGCPsPerRgLine; j++) {
+                if (velocityData.slvGCPx[i][j] != invalidIndex && velocityData.slvGCPx[i][j] != invalidIndex) {
+
+                    final String name = "post_" + c;
+
+                    Point p = geometryFactory.createPoint(new Coordinate(velocityData.mstGCPx[i][j], velocityData.mstGCPy[i][j]));
+
+                    final SimpleFeature feature = PlainFeatureFactory.createPlainFeature(windFeatureType, name, p, STYLE_FORMAT);
+
+                    geoCoding.getGeoPos(new PixelPos(velocityData.mstGCPx[i][j], velocityData.mstGCPy[i][j]), mstGeoPos);
+                    geoCoding.getGeoPos(new PixelPos(velocityData.slvGCPx[i][j], velocityData.slvGCPy[i][j]), slvGeoPos);
+
+                    GeoUtils.DistanceHeading heading = GeoUtils.vincenty_inverse(mstGeoPos.lat, mstGeoPos.lon,
+                            slvGeoPos.lat, slvGeoPos.lon);
+
+                    feature.setAttribute(ATTRIB_MST_LAT, mstGeoPos.lat);
+                    feature.setAttribute(ATTRIB_MST_LON, mstGeoPos.lon);
+                    feature.setAttribute(ATTRIB_SLV_LAT, slvGeoPos.lat);
+                    feature.setAttribute(ATTRIB_SLV_LON, slvGeoPos.lon);
+                    feature.setAttribute(ATTRIB_DISTANCE, heading.distance);
+                    feature.setAttribute(ATTRIB_HEADING, heading.heading1);
+                    feature.setAttribute(ATTRIB_VELOCITY, velocityData.velocity[i][j]);
+                    feature.setAttribute(ATTRIB_RANGE_SHIFT, velocityData.rangeShift[i][j]);
+                    feature.setAttribute(ATTRIB_AZIMUTH_SHIFT, velocityData.azimuthShift[i][j]);
+
+                    collection.add(feature);
+                    c++;
                 }
             }
         }

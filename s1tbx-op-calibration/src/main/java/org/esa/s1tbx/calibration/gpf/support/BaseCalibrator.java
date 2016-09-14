@@ -241,6 +241,7 @@ public class BaseCalibrator {
                 }
                 targetBand.setUnit(targetUnit);
                 targetBand.setNoDataValueUsed(true);
+                targetBand.setNoDataValue(srcBand.getNoDataValue());
                 targetProduct.addBand(targetBand);
             }
         }

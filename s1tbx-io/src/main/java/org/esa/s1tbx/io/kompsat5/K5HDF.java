@@ -17,6 +17,7 @@ package org.esa.s1tbx.io.kompsat5;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
+import org.esa.s1tbx.io.binary.ArrayCopy;
 import org.esa.s1tbx.io.netcdf.NcAttributeMap;
 import org.esa.s1tbx.io.netcdf.NcRasterDim;
 import org.esa.s1tbx.io.netcdf.NcVariableMap;
@@ -213,8 +214,9 @@ public class K5HDF implements K5Format {
         final String defStr = AbstractMetadata.NO_METADATA_STRING;
         final int defInt = AbstractMetadata.NO_METADATA;
 
-        final MetadataElement globalElem = AbstractMetadata.addOriginalProductMetadata(product.getMetadataRoot()).
-                getElement(NetcdfConstants.GLOBAL_ATTRIBUTES_NAME);
+        final MetadataElement origRoot = AbstractMetadata.addOriginalProductMetadata(product.getMetadataRoot());
+        final MetadataElement globalElem = origRoot.getElement(NetcdfConstants.GLOBAL_ATTRIBUTES_NAME);
+        final MetadataElement auxElem = origRoot.getElement("Auxiliary").getElement("Root");
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, globalElem.getAttributeString("Product_Filename", defStr));
         final String productType = globalElem.getAttributeString("Product_Type", defStr);
@@ -236,14 +238,16 @@ public class K5HDF implements K5Format {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT, globalElem.getAttributeInt("Orbit_Number", defInt));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, globalElem.getAttributeString("Orbit_Direction", defStr));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, getSampleType(globalElem));
-        /*
-        final ProductData.UTC startTime = ReaderUtils.getTime(globalElem, "Scene_Sensing_Start_UTC", timeFormat);
-        final ProductData.UTC stopTime = ReaderUtils.getTime(globalElem, "Scene_Sensing_Stop_UTC", timeFormat);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
-        product.setStartTime(startTime);
-        product.setEndTime(stopTime);
-        */
+
+//        final ProductData.UTC startTime = ReaderUtils.getTime(globalElem, "Scene_Sensing_Start_UTC", standardDateFormat);
+//        final ProductData.UTC stopTime = ReaderUtils.getTime(globalElem, "Scene_Sensing_Stop_UTC", standardDateFormat);
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
+//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
+//        product.setStartTime(startTime);
+//        product.setEndTime(stopTime);
+        //AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
+        //                              ReaderUtils.getLineTimeInterval(startTime, stopTime, product.getSceneRasterHeight()));
+
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
                                       product.getSceneRasterHeight());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line,
@@ -252,8 +256,6 @@ public class K5HDF implements K5Format {
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency,
                                       globalElem.getAttributeDouble("Radar_Frequency", defInt) / Constants.oneMillion);
-//        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
-//                ReaderUtils.getLineTimeInterval(startTime, stopTime, product.getSceneRasterHeight()));
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.algorithm,
                                       globalElem.getAttributeString("Focusing_Algorithm_ID", defStr));
@@ -376,6 +378,8 @@ public class K5HDF implements K5Format {
         final ProductData.UTC referenceUTC = ReaderUtils.getTime(globalElem, "Reference_UTC", standardDateFormat);
         final int numPoints = globalElem.getAttributeInt("Number_of_State_Vectors");
 
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME, referenceUTC);
+
         for (int i = 0; i < numPoints; i++) {
             final double stateVectorTime = globalElem.getAttribute("State_Vectors_Times").getData().getElemDoubleAt(i);
             final ProductData.UTC orbitTime =
@@ -467,9 +471,10 @@ public class K5HDF implements K5Format {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
             product.setStartTime(startTime);
             product.setEndTime(stopTime);
-            if (lineTimeInterval == 0) {
+            if (lineTimeInterval == 0 || lastLineTime == AbstractMetadata.NO_METADATA) {
                 lineTimeInterval = ReaderUtils.getLineTimeInterval(startTime, stopTime, rasterHeight);
             }
+            double lineTimeInterval2 = ReaderUtils.getLineTimeInterval(startTime, stopTime, rasterHeight);
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval, lineTimeInterval);
         }
     }
@@ -760,7 +765,7 @@ public class K5HDF implements K5Format {
 
                 if (destBand.getDataType() == ProductData.TYPE_FLOAT32) {
                     for (int x = 0; x < destWidth; x++) {
-                        destBuffer.setElemFloatAt(y * destWidth + x, toFloat(array.getShort(x)));
+                        destBuffer.setElemFloatAt(y * destWidth + x, ArrayCopy.toFloat(array.getShort(x)));
                     }
                 } else {
                     System.arraycopy(array.getStorage(), 0, destBuffer.getElems(), y * destWidth, destWidth);
@@ -778,42 +783,5 @@ public class K5HDF implements K5Format {
         } finally {
             pm.done();
         }
-    }
-
-    private static float toFloat(final short s) {
-
-        // FAB16 FLOATING-POINT ARITHMETIC FORMAT
-        //
-        // Based on c code...
-        //
-        // #define FLT16_ZERO     0
-        //
-        // typedef unsigned short Real2;
-        // typedef float Real4;
-        //
-        // Real4 f32r_(Real2 *a)
-        // {
-        //    register unsigned int i32a;
-        //    if ( !(i32a = (unsigned int)*a) )
-        //    return (Real4)FLT16_ZERO;
-        //    register unsigned int e_o = ((i32a & 0x00007800) + 0x0001D000) << 13;
-        //    unsigned int f32r = ((i32a & 0x00008000) << 16) | e_o | (i32a & 0x000007FF) << 13;
-        //    return *(Real4*)&f32r;
-        // }
-
-        if (s == 0) return 0;
-
-        final int i32a = s & 0xffff; // unsigned short
-
-        final int e_o = ((i32a & 0x00007800) + 0x0001D000) << 13;
-
-        final int a1 = ((i32a & 0x00008000) << 16);
-        final int a2 = (i32a & 0x000007FF) << 13;
-
-        final int f32r = a1 | e_o | a2;
-
-        final float f = Float.intBitsToFloat(f32r);
-
-        return f;
     }
 }

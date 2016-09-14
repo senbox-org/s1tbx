@@ -40,7 +40,7 @@ import static org.esa.snap.rcp.SnapApp.SelectionSourceHint.*;
 
 @TopComponent.Description(
         preferredID = "OceanSwellTopComponent",
-        iconBase = "org/esa/s1tbx/ocean/icons/ocean-swell22.png",
+        iconBase = "org/esa/s1tbx/ocean/icons/ocean-swell.png",
         persistenceType = TopComponent.PERSISTENCE_NEVER
 )
 @TopComponent.Registration(

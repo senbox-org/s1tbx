@@ -17,12 +17,21 @@ package org.esa.s1tbx.fex.gpf.oceantools;
 
 import Jama.Matrix;
 import com.bc.ceres.core.ProgressMonitor;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
+import org.apache.commons.collections.list.SynchronizedList;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.PlainFeatureFactory;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.VectorDataNode;
 import org.esa.snap.core.dataop.downloadable.XMLSupport;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
@@ -36,11 +45,17 @@ import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
+import org.esa.snap.engine_utilities.eo.GeoUtils;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.util.ResourceUtils;
+import org.esa.snap.engine_utilities.util.VectorUtils;
+import org.geotools.feature.FeatureCollection;
 import org.jdom2.Document;
 import org.jdom2.Element;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
 
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
@@ -65,17 +80,17 @@ import java.util.List;
 
 /**
  * The wind field retrieval operator.
- * <p/>
+ * <p>
  * The operator retrieves wind speed and direction from C-band SAR imagery. The wind direction is estimated
  * from the wind roll using a frequency domain method and the wind speed is estimated by using CMOD5 model
  * for the Normalized Radar Cross Section (NRCS).
- * <p/>
+ * <p>
  * This operator supports only ERS and ENVISAT products. It is asssumed that the product has been calibrated
  * before applying this operator.
- * <p/>
+ * <p>
  * [1] H. Hersbach, CMOD5, "An Improved Geophysical Model Function for ERS C-Band Scatterometry", Report of
  * the European Centre Medium-Range Weather Forecasts (ECMWF), 2003.
- * <p/>
+ * <p>
  * [2] C. C. Wackerman, W. G. Pichel, P. Clemente-Colon, "Automated Estimation of Wind Vectors from SAR",
  * 12th Conference on Interactions of the Sea and Atmosphere, 2003.
  */
@@ -100,7 +115,6 @@ public class WindFieldEstimationOp extends Operator {
     @Parameter(description = "Window size", defaultValue = "20.0", label = "Window Size (km)")
     private double windowSizeInKm = 20.0;
 
-    private String mission = null;
     private int windowSize = 0;
     private int halfWindowSize = 0;
     private int sourceImageWidth = 0;
@@ -117,6 +131,16 @@ public class WindFieldEstimationOp extends Operator {
     private File windFieldReportFile = null;
     private boolean windFieldEstimated = false;
     private final HashMap<String, List<WindFieldRecord>> bandWindFieldRecord = new HashMap<>();
+    private SimpleFeatureType windFeatureType;
+
+    private static final String VECTOR_NODE_NAME = "WindField";
+    private static final String STYLE_FORMAT = "fill:#0000ff; fill-opacity:0.2; stroke:#ff0000; stroke-opacity:1.0; stroke-width:1.0; symbol:star";
+
+    private static final String ATTRIB_SPEED = "speed";
+    private static final String ATTRIB_HEADING = "heading";
+    private static final String ATTRIB_DX = "dx";
+    private static final String ATTRIB_DY = "dy";
+    private static final String ATTRIB_RATIO = "ratio";
 
     @Override
     public void initialize() throws OperatorException {
@@ -124,38 +148,32 @@ public class WindFieldEstimationOp extends Operator {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
             validator.checkIfCalibrated(true);
             validator.checkIfTOPSARBurstProduct(false);
+            validator.checkMission(new String[]{"ERS1", "ERS2", "ENVISAT", "SENTINEL-1", "RS2"});
 
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
-            getMission();
+            sourceImageWidth = sourceProduct.getSceneRasterWidth();
+            sourceImageHeight = sourceProduct.getSceneRasterHeight();
+
+            rangeSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
+            azimuthSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.azimuth_spacing);
+
+            latitudeTPG = OperatorUtils.getLatitude(sourceProduct);
+            longitudeTPG = OperatorUtils.getLongitude(sourceProduct);
+            incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
 
             checkCalibrationFlag();
 
-            getPixelSpacing();
-
             computeWindowSize();
-
-            getSourceImageDimension();
-
-            getTiePointGrid();
 
             setTargetReportFilePath();
 
             createTargetProduct();
 
+            windFeatureType = createFeatureType();
+
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
-        }
-    }
-
-    /**
-     * Get mission from the metadata of the product.
-     */
-    private void getMission() {
-        mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        if (!mission.equals("ERS") && !mission.equals("ENVISAT") && !mission.equals("ERS1") && !mission.equals("ERS2")
-                && !mission.contains("SENTINEL-1") && !mission.contains("RS2")) {
-            throw new OperatorException("Currently only C-Band SAR products are supported");
         }
     }
 
@@ -170,36 +188,9 @@ public class WindFieldEstimationOp extends Operator {
         }
     }
 
-    /**
-     * Get the range and azimuth spacings (in meter).
-     *
-     * @throws Exception when metadata is missing or equal to default no data value
-     */
-    private void getPixelSpacing() throws Exception {
-
-        rangeSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
-        azimuthSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.azimuth_spacing);
-        //System.out.println("Range spacing is " + rangeSpacing);
-        //System.out.println("Azimuth spacing is " + azimuthSpacing);
-    }
-
     private void computeWindowSize() {
         windowSize = (int) (windowSizeInKm * 1000 / Math.min(rangeSpacing, azimuthSpacing));
         halfWindowSize = windowSize / 2;
-    }
-
-    private void getSourceImageDimension() {
-        sourceImageWidth = sourceProduct.getSceneRasterWidth();
-        sourceImageHeight = sourceProduct.getSceneRasterHeight();
-    }
-
-    /**
-     * Get latitude anf longitude tie point grid.
-     */
-    private void getTiePointGrid() {
-        latitudeTPG = OperatorUtils.getLatitude(sourceProduct);
-        longitudeTPG = OperatorUtils.getLongitude(sourceProduct);
-        incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
     }
 
     /**
@@ -252,7 +243,7 @@ public class WindFieldEstimationOp extends Operator {
             targetBand.setNoDataValue(srcBand.getNoDataValue());
             targetBand.setUnit(unit);
             targetProduct.addBand(targetBand);
-            bandWindFieldRecord.put(srcBandName, new ArrayList<>());
+            bandWindFieldRecord.put(srcBandName, SynchronizedList.decorate(new ArrayList<>()));
         }
     }
 
@@ -284,18 +275,17 @@ public class WindFieldEstimationOp extends Operator {
         //System.out.println("tx0 = " + tx0 + ", ty0 = " + ty0 + ", tw = " + tw + ", th = " + th);
 
         final String targetBandName = targetBand.getName();
-        final List<WindFieldRecord> windFieldRecordList = bandWindFieldRecord.get(targetBandName);
+        final List<WindFieldRecord> windFieldRecordList = new ArrayList<>();
 
         final Band sourceBand = sourceProduct.getBand(targetBandName);
         final double noDataValue = sourceBand.getNoDataValue();
         final String pol = OperatorUtils.getBandPolarization(targetBandName, absRoot);
         Tile sourceTile;
 
-        if (mission.equals("ENVISAT")) {
-            if (pol != null && !pol.contains("hh") && !pol.contains("vv")) {
-                throw new OperatorException("Polarization " + pol + " is not supported. Please select HH or VV.");
-            }
+        if (pol != null && !pol.contains("hh") && !pol.contains("vv")) {
+            throw new OperatorException("Polarization " + pol + " is not supported. Please select HH or VV.");
         }
+
         final Unit.UnitType bandUnit = Unit.getUnitType(sourceBand);
         if (bandUnit != Unit.UnitType.INTENSITY && bandUnit != Unit.UnitType.INTENSITY_DB) {
             throw new OperatorException("Please select calibrated amplitude or intensity band for wind field estimation");
@@ -304,7 +294,7 @@ public class WindFieldEstimationOp extends Operator {
         // copy the original band data
         targetTile.setRawSamples(getSourceTile(sourceBand, targetTile.getRectangle()).getRawSamples());
 
-        final boolean normlizeSigma = (mission.equals("ENVISAT") && pol.contains("hh"));
+        final boolean normlizeSigma = pol.contains("hh");
 
         // loop through the center pixel of each frame in the target tile
         int xStart = halfWindowSize;
@@ -355,11 +345,17 @@ public class WindFieldEstimationOp extends Operator {
 
                 // save wind field info
                 final WindFieldRecord record =
-                        new WindFieldRecord(lat, lon, speed, arrowSize * direction[0], arrowSize * direction[1], ratio);
+                        new WindFieldRecord(x, y, lat, lon, speed,
+                                arrowSize * direction[0], arrowSize * direction[1], ratio);
 
                 windFieldRecordList.add(record);
             }
         }
+
+        if (!windFieldRecordList.isEmpty()) {
+            AddWindRecordsAsVectors(windFieldRecordList);
+        }
+        bandWindFieldRecord.get(targetBandName).addAll(windFieldRecordList);
 
         windFieldEstimated = true;
     }
@@ -684,11 +680,11 @@ public class WindFieldEstimationOp extends Operator {
 
     private static RenderedImage createRenderedImage(double[] array, int width, int height) {
 
-        // create rendered image with demension being width by height
+        // create rendered image with dimension being width by height
         final SampleModel sampleModel = RasterFactory.createBandedSampleModel(DataBuffer.TYPE_DOUBLE, width, height, 1);
         final ColorModel colourModel = PlanarImage.createColorModel(sampleModel);
         final DataBufferDouble dataBuffer = new DataBufferDouble(array, array.length);
-        final WritableRaster raster = RasterFactory.createWritableRaster(sampleModel, dataBuffer, new Point(0, 0));
+        final WritableRaster raster = RasterFactory.createWritableRaster(sampleModel, dataBuffer, new java.awt.Point(0, 0));
         return new BufferedImage(colourModel, raster, false, new Hashtable());
     }
 
@@ -868,7 +864,7 @@ public class WindFieldEstimationOp extends Operator {
      */
     private synchronized static void dumpData(final String title, final double[][] data) {
         System.out.println();
-        System.out.println(title + ";");
+        System.out.println(title + ';');
         final int h = data.length;
         final int w = data[0].length;
         for (double[] aData : data) {
@@ -908,6 +904,118 @@ public class WindFieldEstimationOp extends Operator {
         }
 
         return (errMinIndex + 1) * 0.1;
+    }
+
+    /**
+     * Output cluster information to file.
+     */
+    @Override
+    public void dispose() {
+
+        if (!windFieldEstimated) {
+            return;
+        }
+
+        outputWindFieldInfoToFile();
+    }
+
+    /**
+     * Output wind fielld information to file.
+     *
+     * @throws OperatorException when can't save metadata
+     */
+    private void outputWindFieldInfoToFile() throws OperatorException {
+        /*
+        double dxMean = 0.0;
+        double dyMean = 0.0;
+        int counter = 0;
+        for (String bandName : bandWindFieldRecord.keySet())  {
+            final java.util.List<WindFieldRecord> recordList = bandWindFieldRecord.get(bandName);
+            for (WindFieldRecord rec : recordList) {
+                dxMean += rec.dx;
+                dyMean += rec.dy;
+                counter++;
+            }
+        }
+        dxMean /= counter;
+        dyMean /= counter;
+        */
+        final Element root = new Element("Detection");
+        final Document doc = new Document(root);
+
+        for (String bandName : bandWindFieldRecord.keySet()) {
+            final Element elem = new Element("windFieldEstimated");
+            elem.setAttribute("bandName", bandName);
+            final java.util.List<WindFieldRecord> recordList = bandWindFieldRecord.get(bandName);
+            for (WindFieldRecord rec : recordList) {
+                /*
+                if (rec.dx*dxMean + rec.dy*dyMean <= 0.707) {
+                    continue;
+                }
+                */
+                final Element subElem = new Element("windFieldInfo");
+                subElem.setAttribute("lat", String.valueOf(rec.lat));
+                subElem.setAttribute("lon", String.valueOf(rec.lon));
+                subElem.setAttribute(ATTRIB_SPEED, String.valueOf(rec.speed));
+                subElem.setAttribute(ATTRIB_DX, String.valueOf(rec.dx));
+                subElem.setAttribute(ATTRIB_DY, String.valueOf(rec.dy));
+                subElem.setAttribute(ATTRIB_RATIO, String.valueOf(rec.ratio));
+                elem.addContent(subElem);
+            }
+            root.addContent(elem);
+        }
+        XMLSupport.SaveXML(doc, windFieldReportFile.getAbsolutePath());
+    }
+
+    private SimpleFeatureType createFeatureType() {
+
+        final List<AttributeDescriptor> attributeDescriptors = new ArrayList<>();
+        attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_SPEED, Double.class));
+        attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_HEADING, Double.class));
+        attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_DX, Double.class));
+        attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_DY, Double.class));
+        attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_RATIO, Double.class));
+
+        return VectorUtils.createFeatureType(targetProduct, VECTOR_NODE_NAME, attributeDescriptors);
+    }
+
+    private synchronized void AddWindRecordsAsVectors(final List<WindFieldRecord> recordList) {
+
+        VectorDataNode vectorDataNode = targetProduct.getVectorDataGroup().get(VECTOR_NODE_NAME);
+        if (vectorDataNode == null) {
+            vectorDataNode = new VectorDataNode(VECTOR_NODE_NAME, windFeatureType);
+            targetProduct.getVectorDataGroup().add(vectorDataNode);
+        }
+        final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = vectorDataNode.getFeatureCollection();
+        final GeometryFactory geometryFactory = new GeometryFactory();
+        final GeoCoding geoCoding = targetProduct.getSceneGeoCoding();
+        final GeoPos geoPos1 = new GeoPos();
+        final GeoPos geoPos2 = new GeoPos();
+
+        int c = collection.size();
+        for (WindFieldRecord rec : recordList) {
+
+            final String name = "wind_" + c;
+
+            Point p = geometryFactory.createPoint(new Coordinate(rec.x, rec.y));
+
+            final SimpleFeature feature = PlainFeatureFactory.createPlainFeature(windFeatureType, name, p, STYLE_FORMAT);
+
+            geoCoding.getGeoPos(new PixelPos(rec.x, rec.y), geoPos1);
+            geoCoding.getGeoPos(new PixelPos(rec.x + rec.dx, rec.y + rec.dy), geoPos2);
+
+            GeoUtils.DistanceHeading heading = GeoUtils.vincenty_inverse(geoPos1.lat, geoPos1.lon,
+                    geoPos2.lat, geoPos2.lon);
+
+            feature.setAttribute(ATTRIB_SPEED, rec.speed);
+            feature.setAttribute(ATTRIB_HEADING, heading.heading1);
+            feature.setAttribute(ATTRIB_DX, rec.dx);
+            feature.setAttribute(ATTRIB_DY, rec.dy);
+            feature.setAttribute(ATTRIB_RATIO, rec.ratio);
+
+            collection.add(feature);
+            c++;
+        }
     }
 
     private static class CMOD5 {
@@ -989,68 +1097,9 @@ public class WindFieldEstimationOp extends Operator {
         }
     }
 
-    /**
-     * Output cluster information to file.
-     */
-    @Override
-    public void dispose() {
-
-        if (!windFieldEstimated) {
-            return;
-        }
-
-        outputWindFieldInfoToFile();
-    }
-
-    /**
-     * Output wind fielld information to file.
-     *
-     * @throws OperatorException when can't save metadata
-     */
-    private void outputWindFieldInfoToFile() throws OperatorException {
-        /*
-        double dxMean = 0.0;
-        double dyMean = 0.0;
-        int counter = 0;
-        for (String bandName : bandWindFieldRecord.keySet())  {
-            final java.util.List<WindFieldRecord> recordList = bandWindFieldRecord.get(bandName);
-            for (WindFieldRecord rec : recordList) {
-                dxMean += rec.dx;
-                dyMean += rec.dy;
-                counter++;
-            }
-        }
-        dxMean /= counter;
-        dyMean /= counter;
-        */
-        final Element root = new Element("Detection");
-        final Document doc = new Document(root);
-
-        for (String bandName : bandWindFieldRecord.keySet()) {
-            final Element elem = new Element("windFieldEstimated");
-            elem.setAttribute("bandName", bandName);
-            final java.util.List<WindFieldRecord> recordList = bandWindFieldRecord.get(bandName);
-            for (WindFieldRecord rec : recordList) {
-                /*
-                if (rec.dx*dxMean + rec.dy*dyMean <= 0.707) {
-                    continue;
-                }
-                */
-                final Element subElem = new Element("windFieldInfo");
-                subElem.setAttribute("lat", String.valueOf(rec.lat));
-                subElem.setAttribute("lon", String.valueOf(rec.lon));
-                subElem.setAttribute("speed", String.valueOf(rec.speed));
-                subElem.setAttribute("dx", String.valueOf(rec.dx));
-                subElem.setAttribute("dy", String.valueOf(rec.dy));
-                subElem.setAttribute("ratio", String.valueOf(rec.ratio));
-                elem.addContent(subElem);
-            }
-            root.addContent(elem);
-        }
-        XMLSupport.SaveXML(doc, windFieldReportFile.getAbsolutePath());
-    }
-
     public static class WindFieldRecord {
+        public final int x;
+        public final int y;
         public final double lat;
         public final double lon;
         public final double speed;
@@ -1058,8 +1107,12 @@ public class WindFieldEstimationOp extends Operator {
         public final double dy;
         public final double ratio;
 
-        public WindFieldRecord(final double lat, final double lon, final double speed, final double dx, final double dy,
+        public WindFieldRecord(final int x, final int y,
+                               final double lat, final double lon,
+                               final double speed, final double dx, final double dy,
                                final double ratio) {
+            this.x = x;
+            this.y = y;
             this.lat = Math.round(lat * 100.0) / 100.0;
             this.lon = Math.round(lon * 100.0) / 100.0;
             this.speed = Math.round(speed * 100.0) / 100.0;

@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.io.orbits;
+package org.esa.s1tbx.io.orbits.sentinel1;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -21,24 +21,40 @@ import org.junit.Test;
 import static junit.framework.TestCase.assertEquals;
 
 /**
- * Created by luis on 02/04/2016.
+ * Test Sentinel-1 QC Scrapping of orbit files
  */
+@Ignore("Takes too long")
 public class TestQCScraper {
 
     @Test
-    public void testDownloadPreciseOrbitFile() {
+    public void testDownloadPreciseOrbitFileS1A() {
         final QCScraper qc = new QCScraper(QCScraper.POEORB);
 
-        String[] orbitFiles = qc.getFileURLs(2016, 2);
-        assertEquals(60, orbitFiles.length);
+        String[] orbitFiles = qc.getFileURLs("S1A", 2016, 2);
+        assertEquals(29, orbitFiles.length);
     }
 
     @Test
-    @Ignore
-    public void testDownloadRestituteOrbitFile() {
+    public void testDownloadPreciseOrbitFileS1B() {
+        final QCScraper qc = new QCScraper(QCScraper.POEORB);
+
+        String[] orbitFiles = qc.getFileURLs("S1B", 2016, 7);
+        assertEquals(31, orbitFiles.length);
+    }
+
+    @Test
+    public void testDownloadRestituteOrbitFileS1A() {
         final QCScraper qc = new QCScraper(QCScraper.RESORB);
 
-        String[] orbitFiles = qc.getFileURLs(2016, 2);
-        assertEquals(639, orbitFiles.length);
+        String[] orbitFiles = qc.getFileURLs("S1A", 2016, 3);
+        assertEquals(636, orbitFiles.length);
+    }
+
+    @Test
+    public void testDownloadRestituteOrbitFileS1B() {
+        final QCScraper qc = new QCScraper(QCScraper.RESORB);
+
+        String[] orbitFiles = qc.getFileURLs("S1B", 2016, 7);
+        assertEquals(592, orbitFiles.length);
     }
 }

@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.dat.layers.topsbursts;
+package org.esa.s1tbx.sentinel1.rcp.layers.topsbursts;
 
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
@@ -31,11 +31,11 @@ import org.esa.snap.core.datamodel.RasterDataNode;
 
  */
 @LayerTypeMetadata(name = "TOPSBurstLayerType",
-        aliasNames = {"org.esa.s1tbx.dat.layers.topsbursts.TOPSBurstLayerType"})
+        aliasNames = {"TOPSBurstLayerType"})
 public class TOPSBurstLayerType extends LayerType {
 
     private static final String TYPE_NAME = "TOPSBurstLayerType";
-    private static final String[] ALIASES = {"org.esa.s1tbx.dat.layers.topsbursts.TOPSBurstLayerType"};
+    private static final String[] ALIASES = {"TOPSBurstLayerType"};
 
     public static TOPSBurstsLayer createLayer(final RasterDataNode raster) {
         final LayerType type = LayerTypeRegistry.getLayerType(TOPSBurstLayerType.class);

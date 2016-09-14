@@ -37,10 +37,10 @@ import java.io.File;
 import java.util.HashMap;
 
 /**
- * Calibration for Cosmo-Skymed data products.
+ * Calibration for Kompsat-5 data products.
  */
 
-public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator {
+public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
 
     private double referenceSlantRange = 0.;
     private double referenceSlantRangeExp = 0.;
@@ -56,7 +56,7 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
      */
-    public CosmoSkymedCalibrator() {
+    public Kompsat5Calibrator() {
     }
 
     /**
@@ -64,7 +64,7 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
      */
     public void setExternalAuxFile(File file) throws OperatorException {
         if (file != null) {
-            throw new OperatorException("No external auxiliary file should be selected for Cosmo-Skymed product");
+            throw new OperatorException("No external auxiliary file should be selected for Kompsat-5 product");
         }
     }
 
@@ -87,8 +87,8 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
             origMetadataRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
 
             final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-            if (!mission.startsWith("CSK"))
-                throw new OperatorException(mission + " is not a valid mission for Cosmo-Skymed Calibration");
+            if (!mission.startsWith("Kompsat5"))
+                throw new OperatorException(mission + " is not a valid mission for Kompsat-5 Calibration");
 
             final String productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
             if (productType.equals("SCS_U"))
@@ -344,7 +344,7 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
                 } else if (srcBandUnit == Unit.UnitType.INTENSITY_DB) {
                     dn = FastMath.pow(10, dn / 10.0); // convert dB to linear scale
                 } else {
-                    throw new OperatorException("CosmoSkymed Calibration: unhandled unit");
+                    throw new OperatorException("Kompsat5 Calibration: unhandled unit");
                 }
 
                 double calFactor = 1.0;

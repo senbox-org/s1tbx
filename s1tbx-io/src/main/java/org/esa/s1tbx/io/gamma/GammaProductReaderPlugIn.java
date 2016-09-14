@@ -31,7 +31,7 @@ public class GammaProductReaderPlugIn implements ProductReaderPlugIn {
 
     public final static String DESCRIPTION = "Gamma File Format";
     public final static String[] FORMATS = new String[]{"Gamma"};
-    public final static String EXT = ".par";
+    public final static String[] EXTs = new String[] {".par",".diff_par"};
 
     /**
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
@@ -44,8 +44,10 @@ public class GammaProductReaderPlugIn implements ProductReaderPlugIn {
         final File file = ReaderUtils.getFileFromInput(input);
         if (file != null) {
             final String filename = file.getName().toLowerCase();
-            if (filename.endsWith(EXT)) {
-                return DecodeQualification.INTENDED;
+            for(String ext : EXTs) {
+                if (filename.endsWith(ext)) {
+                    return DecodeQualification.INTENDED;
+                }
             }
         }
 
@@ -96,7 +98,7 @@ public class GammaProductReaderPlugIn implements ProductReaderPlugIn {
      * @return the default file extensions for this product I/O plug-in, never <code>null</code>
      */
     public String[] getDefaultFileExtensions() {
-        return new String[]{EXT};
+        return EXTs;
     }
 
     /**
@@ -118,7 +120,7 @@ public class GammaProductReaderPlugIn implements ProductReaderPlugIn {
             super();
             setFormatName(FORMATS[0]);
             setDescription(DESCRIPTION);
-            setExtensions(new String[]{EXT});
+            setExtensions(EXTs);
         }
 
         /**
@@ -131,9 +133,14 @@ public class GammaProductReaderPlugIn implements ProductReaderPlugIn {
          */
         public boolean accept(final File file) {
             if (super.accept(file)) {
-                final String name = file.getName().toLowerCase();
-                if (file.isDirectory() || name.endsWith(EXT)) {
+                if (file.isDirectory()) {
                     return true;
+                }
+                final String name = file.getName().toLowerCase();
+                for(String ext : EXTs) {
+                    if (name.endsWith(ext)) {
+                        return true;
+                    }
                 }
             }
             return false;

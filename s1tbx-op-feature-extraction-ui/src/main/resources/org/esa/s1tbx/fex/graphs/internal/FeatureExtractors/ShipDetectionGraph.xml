@@ -1,73 +1,96 @@
 <graph id="Graph">
   <version>1.0</version>
-  <node id="1-Read">
+  <node id="Read">
     <operator>Read</operator>
     <sources/>
-    <parameters>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <file></file>
     </parameters>
   </node>
-  <node id="2-Land-Sea-Mask">
+  <node id="Land-Sea-Mask">
     <operator>Land-Sea-Mask</operator>
     <sources>
-      <sourceProduct refid="1-Read"/>
+      <sourceProduct refid="Read"/>
     </sources>
-    <parameters>
-      <sourceBands>
-      </sourceBands>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
       <landMask>true</landMask>
-	  <useSRTM>true</useSRTM>
-	  <geometry></geometry>
-	  <invertGeometry>false</invertGeometry>
-	  <byPass>false</byPass>
+      <useSRTM>true</useSRTM>
+      <geometry/>
+      <invertGeometry>false</invertGeometry>
+      <byPass>false</byPass>
     </parameters>
   </node>
-  <node id="3-AdaptiveThresholding">
+    <node id="Calibration">
+    <operator>Calibration</operator>
+    <sources>
+      <sourceProduct refid="Land-Sea-Mask"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+      <auxFile>Product Auxiliary File</auxFile>
+      <externalAuxFile/>
+      <outputImageInComplex>false</outputImageInComplex>
+      <outputImageScaleInDb>false</outputImageScaleInDb>
+      <createGammaBand>false</createGammaBand>
+      <createBetaBand>false</createBetaBand>
+      <selectedPolarisations/>
+      <outputSigmaBand>true</outputSigmaBand>
+      <outputGammaBand>false</outputGammaBand>
+      <outputBetaBand>false</outputBetaBand>
+    </parameters>
+  </node>
+  <node id="AdaptiveThresholding">
     <operator>AdaptiveThresholding</operator>
     <sources>
-      <sourceProduct refid="2-Land-Sea-Mask"/>
+      <sourceProduct refid="Calibration"/>
     </sources>
-    <parameters>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <targetWindowSizeInMeter>80</targetWindowSizeInMeter>
-      <guardWindowSizeInMeter>400</guardWindowSizeInMeter>
-      <backgroundWindowSizeInMeter>1000</backgroundWindowSizeInMeter>
+      <guardWindowSizeInMeter>400.0</guardWindowSizeInMeter>
+      <backgroundWindowSizeInMeter>1000.0</backgroundWindowSizeInMeter>
       <pfa>12.5</pfa>
     </parameters>
   </node>
-  <node id="4-Object-Discrimination">
+  <node id="Object-Discrimination">
     <operator>Object-Discrimination</operator>
     <sources>
-      <sourceProduct refid="3-AdaptiveThresholding"/>
+      <sourceProduct refid="AdaptiveThresholding"/>
     </sources>
-    <parameters>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <minTargetSizeInMeter>120.0</minTargetSizeInMeter>
+      <maxTargetSizeInMeter>600.0</maxTargetSizeInMeter>
     </parameters>
   </node>
-  <node id="5-Write">
+  <node id="Write">
     <operator>Write</operator>
     <sources>
-      <sourceProduct refid="4-Object-Discrimination"/>
+      <sourceProduct refid="Object-Discrimination"/>
     </sources>
-    <parameters>
-      <formatName>BEAM-DIMAP</formatName>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <file>ship_detection.dim</file>
+      <formatName>BEAM-DIMAP</formatName>
     </parameters>
   </node>
   <applicationData id="Presentation">
     <Description/>
-    <node id="1-Read">
-      <displayPosition y="93.0" x="30.0"/>
+    <node id="Read">
+      <displayPosition x="30.0" y="93.0"/>
     </node>
-    <node id="2-Land-Sea-Mask">
-      <displayPosition y="93.0" x="225.0"/>
+    <node id="Land-Sea-Mask">
+      <displayPosition x="107.0" y="93.0"/>
     </node>
-    <node id="3-AdaptiveThresholding">
-      <displayPosition y="167.0" x="232.0"/>
+	<node id="Calibration">
+      <displayPosition x="227.0" y="94.0"/>
     </node>
-    <node id="4-Object-Discrimination">
-      <displayPosition y="230.0" x="199.0"/>
+    <node id="AdaptiveThresholding">
+      <displayPosition x="192.0" y="145.0"/>
     </node>
-    <node id="5-Write">
-      <displayPosition y="230.0" x="418.0"/>
+    <node id="Object-Discrimination">
+      <displayPosition x="196.0" y="187.0"/>
+    </node>
+    <node id="Write">
+      <displayPosition x="382.0" y="187.0"/>
     </node>
   </applicationData>
 </graph>
