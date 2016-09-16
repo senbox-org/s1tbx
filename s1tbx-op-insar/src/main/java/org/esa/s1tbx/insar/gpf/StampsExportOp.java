@@ -16,20 +16,16 @@ import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProducts;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
-import org.esa.snap.core.jexp.ParseException;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
-import org.esa.snap.engine_utilities.gpf.StackUtils;
 
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,9 +33,9 @@ import java.util.Map;
  * Export products into format suitable for import to StaMPS.
  */
 @OperatorMetadata(alias = "StampsExport",
-        category = "Radar/Interferometric/Products",
+        category = "Radar/Interferometric/PSI\\SBAS",
         authors = "Cecilia Wong, Luis Veci",
-        //version = "1.0",
+        version = "1.0",
         copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
         autoWriteDisabled = true,
         description = "Export data for StaMPS processing")

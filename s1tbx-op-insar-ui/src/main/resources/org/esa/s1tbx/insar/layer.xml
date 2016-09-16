@@ -64,7 +64,7 @@
                 <attr name="dialogTitle" stringvalue="Goldstein Phase Filtering"/>
                 <attr name="ShortDescription" stringvalue="Goldstein Phase Filtering"/>
                 <attr name="targetProductNameSuffix" stringvalue="_flt"/>
-                <attr name="icon" stringvalue="csaIcon"/>
+                <attr name="icon" stringvalue="esaIcon"/>
                 <attr name="helpId" stringvalue="GoldsteinFilterOp"/>
             </file>
             <file name="org-esa-s1tbx-insar-gpf-PhaseToElevationOp-Action.instance">
@@ -75,7 +75,7 @@
                 <attr name="dialogTitle" stringvalue="PhaseToElevation DEM Generation"/>
                 <attr name="ShortDescription" stringvalue="Generate a DEM from unwrapped phase"/>
                 <attr name="targetProductNameSuffix" stringvalue="_dem"/>
-                <attr name="icon" stringvalue="csaIcon"/>
+                <attr name="icon" stringvalue="esaIcon"/>
                 <attr name="helpId" stringvalue="PhaseToElevationOp"/>
             </file>
             <file name="org-esa-s1tbx-insar-gpf-PhaseToDisplacement-Action.instance">
@@ -86,7 +86,7 @@
                 <attr name="dialogTitle" stringvalue="Phase to Displacement"/>
                 <attr name="ShortDescription" stringvalue="Phase to Displacement"/>
                 <attr name="targetProductNameSuffix" stringvalue="_dsp"/>
-                <attr name="icon" stringvalue="csaIcon"/>
+                <attr name="icon" stringvalue="esaIcon"/>
                 <attr name="helpId" stringvalue="PhaseToDisplacementOp"/>
             </file>
             <file name="org-esa-s1tbx-insar-gpf-coregistration-DEMAssistedCoregistrationOp-Action.instance">
@@ -128,8 +128,18 @@
                 <attr name="dialogTitle" stringvalue="Integer Interferogram Combination"/>
                 <attr name="ShortDescription" stringvalue="Integer Interferogram Combination"/>
                 <attr name="targetProductNameSuffix" stringvalue="_iifg"/>
-                <attr name="icon" stringvalue="csaIcon"/>
+                <attr name="icon" stringvalue="esaIcon"/>
                 <attr name="helpId" stringvalue="IntegerInterferogramOp"/>
+            </file>
+            <file name="org-esa-s1tbx-insar-gpf-StampsExport-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="StaMPS Export"/>
+                <attr name="graphFile" stringvalue="insar/stampsExportGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="StaMPS Export"/>
+                <attr name="ShortDescription" stringvalue="Export interferograms to StaMPS for PSI or SBAS"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="StampsExport"/>
             </file>
         </folder>
     </folder>
@@ -200,6 +210,13 @@
                     <file name="org-esa-s1tbx-insar-gpf-GoldsteinPhaseFiltering-Action.shadow">
                         <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-GoldsteinPhaseFiltering-Action.instance"/>
                         <attr name="position" intvalue="300"/>
+                    </file>
+                </folder>
+                <folder name="PSI\SBAS">
+                    <attr name="position" intvalue="400"/>
+                    <file name="org-esa-s1tbx-insar-gpf-StampsExport-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-StampsExport-Action.instance"/>
+                        <attr name="position" intvalue="100"/>
                     </file>
                 </folder>
             </folder>
