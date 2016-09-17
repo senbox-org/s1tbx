@@ -16,11 +16,15 @@
 package org.esa.s1tbx.io.orbits.sentinel1;
 
 import Jama.Matrix;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import org.esa.s1tbx.io.orbits.BaseOrbitFile;
 import org.esa.s1tbx.io.orbits.OrbitFile;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.DownloadableArchive;
@@ -53,6 +57,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -79,27 +84,11 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
     private final static DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyyMMdd-HHmmss");
     private final static DateFormat orbitDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    private static final class FixedHeader {
-
-        // We can add more members as needed
-
-        private final String mission;
-        private final String fileType;
-        private final String validityStart;
-        private final String validityStop;
-
-        FixedHeader(final String mission, final String fileType, final String validityStart, final String validityStop) {
-
-            this.mission = mission;
-            this.fileType = fileType;
-            this.validityStart = validityStart;
-            this.validityStop = validityStop;
-        }
-    }
-
     private FixedHeader fixedHeader = null;
 
-    private final List<Orbits.OrbitVector> osvList = new ArrayList<>();
+    private List<Orbits.OrbitVector> osvList = new ArrayList<>();
+
+    private static LoadingCache<File, List<Orbits.OrbitVector>> cache;
 
     public SentinelPODOrbitFile(final MetadataElement absRoot, final int polyDegree) throws Exception {
         super(absRoot);
@@ -141,8 +130,6 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
         // read content of the orbit file
         readOrbitFile();
-
-        checkOrbitFileValidity();
 
         return orbitFile;
     }
@@ -472,6 +459,12 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
     private void readOrbitFile() throws Exception {
 
+        List<Orbits.OrbitVector> cachedOSVList = getCache().get(orbitFile);
+        if(cachedOSVList != null && !cachedOSVList.isEmpty()) {
+            osvList = cachedOSVList;
+            return;
+        }
+
         final DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
         final DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
 
@@ -550,8 +543,12 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
         if (listOfOSVsNode != null) {
 
-            readOSVList(listOfOSVsNode);
+            osvList = readOSVList(listOfOSVsNode);
         }
+
+        checkOrbitFileValidity();
+
+        getCache().put(orbitFile, osvList);
     }
 
     private void readFixedHeader(final org.w3c.dom.Node fixedHeaderNode) {
@@ -602,17 +599,11 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         }
     }
 
-    private void readOSVList(final org.w3c.dom.Node listOfOSVsNode) throws Exception {
+    private static List<Orbits.OrbitVector> readOSVList(final org.w3c.dom.Node listOfOSVsNode) throws Exception {
 
         final org.w3c.dom.Node attrCount = getAttributeFromNode(listOfOSVsNode, "count");
-
-        if (attrCount == null) {
-            return;
-        }
-
         final int count = Integer.parseInt(attrCount.getTextContent());
-
-        //System.out.println("SentinelPODOrbitFile.readOSVList: List_of_OSVs count = " + count);
+        final List<Orbits.OrbitVector> osvList = new ArrayList<>();
 
         org.w3c.dom.Node childNode = listOfOSVsNode.getFirstChild();
         int osvCnt = 0;
@@ -622,7 +613,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
             if (childNode.getNodeName().equals("OSV")) {
 
                 osvCnt++;
-                readOneOSV(childNode);
+                osvList.add(readOneOSV(childNode));
             }
 
             childNode = childNode.getNextSibling();
@@ -630,15 +621,14 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
         Collections.sort(osvList, new Orbits.OrbitComparator());
 
-        //System.out.println("SentinelPODOrbitFile.readOSVList: osvCnt = " + osvCnt);
-
         if (count != osvCnt) {
-
-            System.out.println("SentinelPODOrbitFile.readOSVList: WARNING List_of_OSVs count = " + count + " but found only " + osvCnt + " OSV");
+            SystemUtils.LOG.warning("SentinelPODOrbitFile.readOSVList: WARNING List_of_OSVs count = " + count + " but found only " + osvCnt + " OSV");
         }
+
+        return osvList;
     }
 
-    private void readOneOSV(final org.w3c.dom.Node osvNode) throws Exception {
+    private static Orbits.OrbitVector readOneOSV(final org.w3c.dom.Node osvNode) throws Exception {
 
         String utc = "";
         double x = 0.0;
@@ -690,7 +680,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
         final double utcTime = toUTC(utc).getMJD();
 
-        osvList.add(new Orbits.OrbitVector(utcTime, x, y, z, vx, vy, vz));
+        return new Orbits.OrbitVector(utcTime, x, y, z, vx, vy, vz);
     }
 
     // TODO This is copied from Sentinel1Level0Reader.java; may be we should put in in some utilities class.
@@ -709,13 +699,13 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
                     attrNode = attr.item(j);
                 } else {
                     // Should not be possible
-                    System.out.println("SentinelPODOrbitFile.getAttributeFromNode: WARNING more than one " + attrName + " in " + node.getNodeName());
+                    SystemUtils.LOG.warning("SentinelPODOrbitFile.getAttributeFromNode: WARNING more than one " + attrName + " in " + node.getNodeName());
                 }
             }
         }
 
         if (attrNode == null) {
-            System.out.println("SentinelPODOrbitFile.getAttributeFromNode: Failed to find " + attrName + " in " + node.getNodeName());
+            SystemUtils.LOG.warning("SentinelPODOrbitFile.getAttributeFromNode: Failed to find " + attrName + " in " + node.getNodeName());
         }
 
         return attrNode;
@@ -861,7 +851,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
             sc.init(null, trustManager, null);
             HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
         } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            System.out.println("disableSSLCertificateCheck failed: " + e);
+            SystemUtils.LOG.warning("disableSSLCertificateCheck failed: " + e);
         }
     }
 
@@ -871,7 +861,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
             sc.init(null, null, null);
             HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
         } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            System.out.println("enableSSLCertificateCheck failed: " + e);
+            SystemUtils.LOG.warning("enableSSLCertificateCheck failed: " + e);
         }
     }
 
@@ -890,4 +880,39 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         }
     }
 
+    private LoadingCache<File, List<Orbits.OrbitVector>> getCache() {
+        if(cache == null) {
+            cache = createCache();
+        }
+        return cache;
+    }
+
+    private static LoadingCache<File, List<Orbits.OrbitVector>> createCache() {
+        LoadingCache<File, List<Orbits.OrbitVector>> cache = CacheBuilder.newBuilder().maximumSize(6).initialCapacity(6)
+                .expireAfterAccess(5, TimeUnit.MINUTES)
+                .build(new CacheLoader<File, List<Orbits.OrbitVector>>() {
+                           @Override
+                           public List<Orbits.OrbitVector> load(File key) throws Exception {
+                               return new ArrayList<>();
+                           }
+                       }
+                );
+        return cache;
+    }
+
+    private static final class FixedHeader {
+
+        private final String mission;
+        private final String fileType;
+        private final String validityStart;
+        private final String validityStop;
+
+        FixedHeader(final String mission, final String fileType, final String validityStart, final String validityStop) {
+
+            this.mission = mission;
+            this.fileType = fileType;
+            this.validityStart = validityStart;
+            this.validityStop = validityStop;
+        }
+    }
 }
