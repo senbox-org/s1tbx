@@ -33,7 +33,7 @@ import java.util.Map;
  * Export products into format suitable for import to StaMPS.
  */
 @OperatorMetadata(alias = "StampsExport",
-        category = "Radar/Interferometric/PSI\\SBAS",
+        category = "Radar/Interferometric/PSI \\ SBAS",
         authors = "Cecilia Wong, Luis Veci",
         version = "1.0",
         copyright = "Copyright (C) 2016 by Array Systems Computing Inc.",
