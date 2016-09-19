@@ -37,20 +37,18 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.esa.snap.engine_utilities.util.ResourceUtils;
 import org.esa.snap.engine_utilities.util.VectorUtils;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.NameImpl;
-import org.geotools.feature.simple.SimpleFeatureTypeImpl;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.*;
 import java.io.File;
@@ -109,6 +107,8 @@ public class ObjectDiscriminationOp extends Operator {
     private static final String ATTRIB_LENGTH= "length";
     private static final String ATTRIB_INTENSITY = "intensity";
 
+    private static final String PRODUCT_SUFFIX = "_SHP";
+
     @Override
     public void initialize() throws OperatorException {
         try {
@@ -147,7 +147,7 @@ public class ObjectDiscriminationOp extends Operator {
      */
     private void createTargetProduct() {
 
-        targetProduct = new Product(sourceProduct.getName(),
+        targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                 sourceProduct.getProductType(),
                 sourceImageWidth,
                 sourceImageHeight);
@@ -242,48 +242,48 @@ public class ObjectDiscriminationOp extends Operator {
             final Tile sourceTile = getSourceTile(sourceBand, sourceTileRectangle);
             final ProductData srcData = sourceTile.getDataBuffer();
             final int[][] pixelsScanned = new int[h][w];
-            final List<ShipRecord> clusterList = bandClusterLists.get(targetBand.getName());
+            final List<ShipRecord> clusterList = new ArrayList<>();
 
             final Band bitMaskBand = bandMap.get(sourceBand);
             final Tile bitMaskTile = getSourceTile(bitMaskBand, sourceTileRectangle);
             final ProductData bitMaskData = bitMaskTile.getDataBuffer();
 
-            final TileIndex trgIndex = new TileIndex(targetTile);
             final TileIndex srcIndex = new TileIndex(sourceTile);    // src and trg tile are different size
 
             final int maxy = ty0 + th;
             final int maxx = tx0 + tw;
             for (int ty = ty0; ty < maxy; ty++) {
-                trgIndex.calculateStride(ty);
                 srcIndex.calculateStride(ty);
                 for (int tx = tx0; tx < maxx; tx++) {
 
-                    final int srcIdx = srcIndex.getIndex(tx);
+                    if (pixelsScanned[ty - y0][tx - x0] == 0) {
 
-                    if (pixelsScanned[ty - y0][tx - x0] == 0 &&
-                            bitMaskData.getElemIntAt(srcIdx) == 1) {
+                        if (bitMaskData.getElemIntAt(srcIndex.getIndex(tx)) == 1) {
 
-                        final List<PixelPos> clusterPixels = new ArrayList<>();
-                        clustering(tx, ty, x0, y0, w, h, bitMaskData, bitMaskTile, pixelsScanned, clusterPixels);
+                            final List<PixelPos> clusterPixels = new ArrayList<>();
+                            clustering(tx, ty, x0, y0, w, h, bitMaskData, bitMaskTile, pixelsScanned, clusterPixels);
 
-                        final ShipRecord record = generateRecord(x0, y0, w, h, clusterPixels);
+                            final ShipRecord record = generateRecord(x0, y0, w, h, clusterPixels);
 
-                        final double size = Math.sqrt(record.length * record.length + record.width * record.width);
-                        if (size >= minTargetSizeInMeter && size <= maxTargetSizeInMeter) {
-                            getClusterIntensity(clusterPixels, srcData, sourceTile, record);
+                            final double size = Math.sqrt(record.length * record.length + record.width * record.width);
+                            if (size >= minTargetSizeInMeter && size <= maxTargetSizeInMeter) {
+                                getClusterIntensity(clusterPixels, srcData, sourceTile, record);
 
-                            synchronized (clusterList) {
-                                clusterList.add(record);
+                                synchronized (clusterList) {
+                                    clusterList.add(record);
+                                }
                             }
                         }
                     }
-                    trgData.setElemDoubleAt(trgIndex.getIndex(tx), srcData.getElemDoubleAt(srcIdx));
                 }
             }
+
+            targetTile.setRawSamples(sourceTile.getRawSamples());
 
             if(!clusterList.isEmpty()) {
                 AddShipRecordsAsVectors(clusterList);
             }
+            bandClusterLists.get(targetBand.getName()).addAll(clusterList);
 
             clusteringPerformed = true;
         } catch (Throwable e) {
@@ -454,10 +454,10 @@ public class ObjectDiscriminationOp extends Operator {
         final FeatureCollection<SimpleFeatureType, SimpleFeature> collection = vectorDataNode.getFeatureCollection();
         final GeometryFactory geometryFactory = new GeometryFactory();
 
-        int c = 0;
+        int c = collection.size();
         for (ShipRecord rec : clusterList) {
 
-            final String name = "target_" + c;
+            final String name = "target_" + StringUtils.padNum(c, 3, '0');
 
             Point p = geometryFactory.createPoint(new Coordinate(rec.x, rec.y));
 

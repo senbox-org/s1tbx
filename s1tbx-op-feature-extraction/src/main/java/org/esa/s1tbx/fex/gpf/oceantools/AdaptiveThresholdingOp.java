@@ -88,18 +88,19 @@ public class AdaptiveThresholdingOp extends Operator {
     @Parameter(description = "Probability of false alarm", defaultValue = "6.5", label = "PFA (10^(-x))")
     private double pfa = 6.5;
 
-    private int sourceImageWidth = 0;
-    private int sourceImageHeight = 0;
-    private int targetWindowSize = 0;
-    private int halfGuardWindowSize = 0;
-    private int halfBackgroundWindowSize = 0;
+    private int sourceImageWidth;
+    private int sourceImageHeight;
+    private int targetWindowSize;
+    private int halfGuardWindowSize;
+    private int halfBackgroundWindowSize;
 
-    private double t = 0.0; // detector design parameter
-    private double meanPixelSpacing = 0.0; // in m
+    private double t; // detector design parameter
+    private double meanPixelSpacing; // in m
 
     private final HashMap<String, String> targetBandNameToSourceBandName = new HashMap<>(2);
 
-    public final static String SHIPMASK_NAME = "_ship_bit_msk";
+    public static final String SHIPMASK_NAME = "_ship_bit_msk";
+    private static final String PRODUCT_SUFFIX = "_THR";
 
     @Override
     public void initialize() throws OperatorException {
@@ -120,7 +121,7 @@ public class AdaptiveThresholdingOp extends Operator {
             halfGuardWindowSize = guardWindowSize / 2;
             halfBackgroundWindowSize = (backgroundWindowSize - 1) / 2;
 
-            targetProduct = new Product(sourceProduct.getName(),
+            targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                     sourceProduct.getProductType(),
                     sourceImageWidth,
                     sourceImageHeight);
@@ -206,6 +207,8 @@ public class AdaptiveThresholdingOp extends Operator {
                         sourceImageHeight);
 
                 targetBandMask.setUnit(Unit.AMPLITUDE);
+                targetBandMask.setNoDataValue(0);
+                targetBandMask.setNoDataValueUsed(true);
                 targetProduct.addBand(targetBandMask);
             }
         }
@@ -353,10 +356,12 @@ public class AdaptiveThresholdingOp extends Operator {
 
         final double[] dataArray = new double[w * h];
         for (int y = y0; y < maxy; y++) {
-            final boolean yGtrHalfGuard = Math.abs(y - ty) > halfGuardWindowSize;
+            final int yy = y - ty;
+            final boolean yGtrHalfGuard = ((yy < 0) ? -yy : yy) > halfGuardWindowSize;
             final int stride = ((y - tileMinY) * tileStride) + tileOffset;
             for (int x = x0; x < maxx; x++) {
-                if (yGtrHalfGuard || Math.abs(x - tx) > halfGuardWindowSize) {
+                final int xx = x - tx;
+                if (yGtrHalfGuard || ((xx < 0) ? -xx : xx) > halfGuardWindowSize) {
                     val = srcData.getElemDoubleAt((x - tileMinX) + stride);
                     if (val == noDataValue) {
                         return Double.MAX_VALUE;
