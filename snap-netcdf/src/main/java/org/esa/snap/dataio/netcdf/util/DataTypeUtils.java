@@ -41,22 +41,22 @@ public class DataTypeUtils {
     }
 
     public static int getEquivalentProductDataType(DataType dataType, boolean unsigned, boolean rasterDataOnly) {
-        if (dataType == DataType.BYTE) {
+        if (DataType.BYTE.equals(dataType)) {
             return unsigned ? ProductData.TYPE_UINT8 : ProductData.TYPE_INT8;
-        } else if (dataType == DataType.SHORT) {
+        } else if (DataType.SHORT.equals(dataType)) {
             return unsigned ? ProductData.TYPE_UINT16 : ProductData.TYPE_INT16;
-        } else if (dataType == DataType.INT) {
+        } else if (DataType.INT.equals(dataType)) {
             return unsigned ? ProductData.TYPE_UINT32 : ProductData.TYPE_INT32;
-        } else if (dataType == DataType.LONG) {
+        } else if (DataType.LONG.equals(dataType)) {
             return ProductData.TYPE_INT64;
-        } else if (dataType == DataType.FLOAT) {
+        } else if (DataType.FLOAT.equals(dataType)) {
             return ProductData.TYPE_FLOAT32;
-        } else if (dataType == DataType.DOUBLE) {
+        } else if (DataType.DOUBLE.equals(dataType)) {
             return ProductData.TYPE_FLOAT64;
         } else if (!rasterDataOnly) {
-            if (dataType == DataType.CHAR) {
+            if (DataType.CHAR.equals(dataType)) {
                 return ProductData.TYPE_ASCII;
-            } else if (dataType == DataType.STRING) {
+            } else if (DataType.STRING.equals(dataType)) {
                 return ProductData.TYPE_ASCII;
             }
         }
