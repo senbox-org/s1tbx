@@ -22,6 +22,7 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.dataop.downloadable.XMLSupport;
+import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.jdom2.Attribute;
@@ -51,8 +52,7 @@ public final class AbstractMetadataIO {
     public static boolean loadExternalMetadata(final Product product, final MetadataElement absRoot,
                                                final File productFile) throws IOException {
         // load metadata xml file if found
-        final String inputStr = productFile.getAbsolutePath();
-        final String metadataStr = inputStr.substring(0, inputStr.lastIndexOf('.')) + ".xml";
+        final String metadataStr = FileUtils.exchangeExtension(productFile.getAbsolutePath(), ".xml");
         File metadataFile = new File(metadataStr);
         if (metadataFile.exists() && AbstractMetadataIO.Load(product, absRoot, metadataFile)) {
             return true;
@@ -63,11 +63,7 @@ public final class AbstractMetadataIO {
     }
 
     public static void saveExternalMetadata(final Product product, final MetadataElement absRoot, final File productFile) {
-        final String inputStr = productFile.getAbsolutePath();
-        int dotPos = inputStr.lastIndexOf('.');
-        if (dotPos < 0)
-            dotPos = inputStr.length();
-        final String metadataStr = inputStr.substring(0, dotPos) + ".xml";
+        final String metadataStr = FileUtils.exchangeExtension(productFile.getAbsolutePath(), ".xml");
         final File metadataFile = new File(metadataStr);
         AbstractMetadataIO.Save(product, absRoot, metadataFile);
     }
