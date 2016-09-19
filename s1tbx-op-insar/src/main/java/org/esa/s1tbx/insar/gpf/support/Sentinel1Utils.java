@@ -26,8 +26,10 @@ import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.OrbitStateVector;
 import org.esa.snap.engine_utilities.eo.Constants;
 
+import java.awt.*;
 import java.text.DateFormat;
 import java.util.*;
+import java.util.List;
 
 public final class Sentinel1Utils {
 
@@ -834,6 +836,88 @@ public final class Sentinel1Utils {
         return dcPolynomial;
     }
 
+    public double[][] computeDerampDemodPhase(
+            Sentinel1Utils.SubSwathInfo[] subSwath, final int subSwathIndex, final int sBurstIndex,
+            final Rectangle rectangle) {
+
+        final int x0 = rectangle.x;
+        final int y0 = rectangle.y;
+        final int w = rectangle.width;
+        final int h = rectangle.height;
+        final int xMax = x0 + w;
+        final int yMax = y0 + h;
+        final int s = subSwathIndex - 1;
+
+        final double[][] phase = new double[h][w];
+        final int firstLineInBurst = sBurstIndex*subSwath[s].linesPerBurst;
+        for (int y = y0; y < yMax; y++) {
+            final int yy = y - y0;
+            final double ta = (y - firstLineInBurst)*subSwath[s].azimuthTimeInterval;
+            for (int x = x0; x < xMax; x++) {
+                final int xx = x - x0;
+                final double kt = subSwath[s].dopplerRate[sBurstIndex][x];
+                final double deramp = -Constants.PI * kt * FastMath.pow(ta - subSwath[s].referenceTime[sBurstIndex][x], 2);
+                final double demod = -Constants.TWO_PI * subSwath[s].dopplerCentroid[sBurstIndex][x] * ta;
+                phase[yy][xx] = deramp + demod;
+            }
+        }
+
+        return phase;
+    }
+
+    public double[][] computeDerampPhase(
+            Sentinel1Utils.SubSwathInfo[] subSwath, final int subSwathIndex, final int burstIndex,
+            final Rectangle rectangle) {
+
+        final int x0 = rectangle.x;
+        final int y0 = rectangle.y;
+        final int w = rectangle.width;
+        final int h = rectangle.height;
+        final int xMax = x0 + w;
+        final int yMax = y0 + h;
+        final int s = subSwathIndex - 1;
+
+        final double[][] phase = new double[h][w];
+        final int firstLineInBurst = burstIndex*subSwath[s].linesPerBurst;
+        for (int y = y0; y < yMax; y++) {
+            final int yy = y - y0;
+            final double ta = (y - firstLineInBurst)*subSwath[s].azimuthTimeInterval;
+            for (int x = x0; x < xMax; x++) {
+                final int xx = x - x0;
+                final double kt = subSwath[s].dopplerRate[burstIndex][x];
+                phase[yy][xx] = -Constants.PI * kt * FastMath.pow(ta - subSwath[s].referenceTime[burstIndex][x], 2);
+            }
+        }
+
+        return phase;
+    }
+
+    public double[][] computeDemodPhase(
+            Sentinel1Utils.SubSwathInfo[] subSwath, final int subSwathIndex, final int sBurstIndex,
+            final Rectangle rectangle) {
+
+        final int x0 = rectangle.x;
+        final int y0 = rectangle.y;
+        final int w = rectangle.width;
+        final int h = rectangle.height;
+        final int xMax = x0 + w;
+        final int yMax = y0 + h;
+        final int s = subSwathIndex - 1;
+
+        final double[][] phase = new double[h][w];
+        final int firstLineInBurst = sBurstIndex*subSwath[s].linesPerBurst;
+        for (int y = y0; y < yMax; y++) {
+            final int yy = y - y0;
+            final double ta = (y - firstLineInBurst)*subSwath[s].azimuthTimeInterval;
+            for (int x = x0; x < xMax; x++) {
+                final int xx = x - x0;
+                final double kt = subSwath[s].dopplerRate[sBurstIndex][x];
+                phase[yy][xx] = -Constants.TWO_PI * subSwath[s].dopplerCentroid[sBurstIndex][x] * ta;
+            }
+        }
+
+        return phase;
+    }
 
     // =================================================================================
     private MetadataElement getCalibrationVectorList(final int subSwathIndex, final String polarization) {
