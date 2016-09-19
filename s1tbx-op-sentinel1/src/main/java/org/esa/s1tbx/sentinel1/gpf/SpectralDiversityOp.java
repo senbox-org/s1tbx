@@ -38,6 +38,7 @@ import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
@@ -134,7 +135,6 @@ public class SpectralDiversityOp extends Operator {
     private Sentinel1Utils su;
     private Sentinel1Utils.SubSwathInfo[] subSwath = null;
     private int subSwathIndex = 0;
-    private Band derampDemodPhaseBand = null;
 
     private String swathIndexStr = null;
     private String[] subSwathNames = null;
@@ -170,10 +170,10 @@ public class SpectralDiversityOp extends Operator {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
             validator.checkIfSARProduct();
             validator.checkIfSentinel1Product();
-            checkDerampDemodPhaseBand();
 
             su = new Sentinel1Utils(sourceProduct);
             su.computeDopplerRate();
+            su.computeReferenceTime();
             subSwath = su.getSubSwath();
             polarizations = su.getPolarizations();
 
@@ -218,23 +218,6 @@ public class SpectralDiversityOp extends Operator {
         }
     }
 
-    private void checkDerampDemodPhaseBand() {
-
-        boolean hasDerampDemodPhaseBand = false;
-        final Band[] sourceBands = sourceProduct.getBands();
-        for (Band band:sourceBands) {
-            if (band.getName().contains(DerampDemodPhase)) {
-                hasDerampDemodPhaseBand = true;
-                break;
-            }
-        }
-
-        if (!hasDerampDemodPhaseBand) {
-            throw new OperatorException("Cannot find derampDemodPhase band in source product. " +
-                                                "Please run Backgeocoding and select \"Output Deramp and Demod Phase\".");
-        }
-    }
-
     /**
      * Create target product.
      */
@@ -255,12 +238,10 @@ public class SpectralDiversityOp extends Operator {
             }
 
             Band targetBand;
-            if (srcBandName.contains(StackUtils.MST) || srcBandName.contains("derampDemod")) {
+            if (srcBandName.contains(StackUtils.MST)) {
                 targetBand = ProductUtils.copyBand(srcBandName, sourceProduct, srcBandName, targetProduct, true);
-                if (srcBandName.contains("derampDemod")) {
-                    derampDemodPhaseBand = sourceProduct.getBand(srcBandName);
-                }
-            } else if (srcBandName.contains("azOffset") || srcBandName.contains("rgOffset")) {
+            } else if (srcBandName.contains("azOffset") || srcBandName.contains("rgOffset") ||
+                    srcBandName.contains("derampDemod")) {
                 continue;
             } else {
                 targetBand = new Band(srcBandName,
@@ -279,7 +260,6 @@ public class SpectralDiversityOp extends Operator {
         }
 
         targetProduct.setPreferredTileSize(512, subSwath[subSwathIndex - 1].linesPerBurst);
-        //targetProduct.setPreferredTileSize(sourceProduct.getSceneRasterWidth(), subSwath[subSwathIndex - 1].linesPerBurst);
         updateTargetMetadata();
     }
 
@@ -325,11 +305,6 @@ public class SpectralDiversityOp extends Operator {
      public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
              throws OperatorException {
 
-        final int x0 = targetRectangle.x;
-        final int y0 = targetRectangle.y;
-        final int w = targetRectangle.width;
-        final int h = targetRectangle.height;
-
         try {
             if (!isRangeOffsetAvailable) {
                 estimateRangeOffset();
@@ -343,7 +318,7 @@ public class SpectralDiversityOp extends Operator {
                 final Band sBandI = getBand(StackUtils.SLV, "i_", swathIndexStr, polarization);
                 final Band sBandQ = getBand(StackUtils.SLV, "q_", swathIndexStr, polarization);
 
-                performRangeAzimuthShift(x0, y0, w, h, sBandI, sBandQ, targetRectangle, targetTileMap);
+                performRangeAzimuthShift(sBandI, sBandQ, targetRectangle, targetTileMap);
             }
 
         } catch (Throwable e) {
@@ -1035,10 +1010,14 @@ public class SpectralDiversityOp extends Operator {
         return coherence;
     }
 
-    private void performRangeAzimuthShift(final int x0, final int y0, final int w, final int h,
-                                          final Band slvBandI, final Band slvBandQ, final Rectangle targetRectangle,
+    private void performRangeAzimuthShift(final Band slvBandI, final Band slvBandQ, final Rectangle targetRectangle,
                                           Map<Band, Tile> targetTileMap) {
 
+        final int x0 = targetRectangle.x;
+        final int y0 = targetRectangle.y;
+        final int w = targetRectangle.width;
+        final int h = targetRectangle.height;
+        final int burstIndex = y0 / subSwath[subSwathIndex - 1].linesPerBurst;
 
         final float noDataValue = (float)slvBandI.getNoDataValue();
         final Tile slvTileI = getSourceTile(slvBandI, targetRectangle);
@@ -1080,14 +1059,13 @@ public class SpectralDiversityOp extends Operator {
         // Perform azimuth Shift
 
         // get deramp/demodulation phase and perform deramp and demodulation
-        final double[] derampDemodPhase = getSourceData(derampDemodPhaseBand, targetRectangle);
+        final double[][] derampDemodPhase = su.computeDerampDemodPhase(subSwath, subSwathIndex, burstIndex, targetRectangle);
         final double[][] derampDemodI = new double[h][w];
         final double[][] derampDemodQ = new double[h][w];
         for (int r = 0; r < h; r++) {
-            final int rw = r * w;
             for (int c = 0; c < w; c++) {
-                final double cosPhase = FastMath.cos(derampDemodPhase[rw + c]);
-                final double sinPhase = FastMath.sin(derampDemodPhase[rw + c]);
+                final double cosPhase = FastMath.cos(derampDemodPhase[r][c]);
+                final double sinPhase = FastMath.sin(derampDemodPhase[r][c]);
                 derampDemodI[r][c] = rangeShiftedI[r][c]*cosPhase - rangeShiftedQ[r][c]*sinPhase;
                 derampDemodQ[r][c] = rangeShiftedI[r][c]*sinPhase + rangeShiftedQ[r][c]*cosPhase;
             }
@@ -1115,7 +1093,7 @@ public class SpectralDiversityOp extends Operator {
                 col1[r2] = derampDemodI[r][c];
                 col1[r2 + 1] = derampDemodQ[r][c];
 
-                col2[r2] = derampDemodPhase[r*w + c];
+                col2[r2] = derampDemodPhase[r][c];
                 col2[r2 + 1] = 0.0;
             }
 
@@ -1132,9 +1110,10 @@ public class SpectralDiversityOp extends Operator {
                 if (slvArrayI[r*w + c] != noDataValue) {
                     int r2 = r * 2;
                     final int y = y0 + r;
+                    final int idx = tgtTileI.getDataBufferIndex(x, y);
+
                     final double cosPhase = FastMath.cos(col2[r2]);
                     final double sinPhase = FastMath.sin(col2[r2]);
-                    final int idx = tgtTileI.getDataBufferIndex(x, y);
                     tgtDataI.setElemDoubleAt(idx, col1[r2] * cosPhase + col1[r2 + 1] * sinPhase);
                     tgtDataQ.setElemDoubleAt(idx, -col1[r2] * sinPhase + col1[r2 + 1] * cosPhase);
                 }

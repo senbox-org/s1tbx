@@ -759,7 +759,7 @@ public final class BackGeocodingOp extends Operator {
             return;
         }
 
-        final double[][] derampDemodPhase = computeDerampDemodPhase(subSwathIndex, sBurstIndex, sourceRectangle);
+        final double[][] derampDemodPhase = sSU.computeDerampDemodPhase(sSubSwath, subSwathIndex, sBurstIndex, sourceRectangle);
 
         if (derampDemodPhase == null) {
             return;
@@ -1089,47 +1089,6 @@ public final class BackGeocodingOp extends Operator {
         }
 
         return new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1);
-    }
-
-    /**
-     * Compute combined deramp and demodulation phase for area in slave image defined by rectangle.
-     * @param subSwathIndex Sub-swath index
-     * @param sBurstIndex Burst index
-     * @param rectangle Rectangle that defines the area in slave image
-     * @return The combined deramp and demodulation phase
-     */
-    private double[][] computeDerampDemodPhase(
-            final int subSwathIndex, final int sBurstIndex, final Rectangle rectangle) {
-
-        try {
-            final int x0 = rectangle.x;
-            final int y0 = rectangle.y;
-            final int w = rectangle.width;
-            final int h = rectangle.height;
-            final int xMax = x0 + w;
-            final int yMax = y0 + h;
-            final int s = subSwathIndex - 1;
-
-            final double[][] phase = new double[h][w];
-            final int firstLineInBurst = sBurstIndex*sSubSwath[s].linesPerBurst;
-            for (int y = y0; y < yMax; y++) {
-                final int yy = y - y0;
-                final double ta = (y - firstLineInBurst)*sSubSwath[s].azimuthTimeInterval;
-                for (int x = x0; x < xMax; x++) {
-                    final int xx = x - x0;
-                    final double kt = sSubSwath[s].dopplerRate[sBurstIndex][x];
-                    final double deramp = -Constants.PI * kt * FastMath.pow(ta - sSubSwath[s].referenceTime[sBurstIndex][x], 2);
-                    final double demod = -Constants.TWO_PI * sSubSwath[s].dopplerCentroid[sBurstIndex][x] * ta;
-                    phase[yy][xx] = deramp + demod;
-                }
-            }
-
-            return phase;
-        } catch (Throwable e) {
-            OperatorUtils.catchOperatorException("computeDerampDemodPhase", e);
-        }
-
-        return null;
     }
 
     public static void performDerampDemod(final Tile slaveTileI, final Tile slaveTileQ,

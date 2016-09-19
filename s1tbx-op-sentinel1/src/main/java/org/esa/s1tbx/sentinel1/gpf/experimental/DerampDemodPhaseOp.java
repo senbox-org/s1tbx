@@ -232,10 +232,11 @@ public final class DerampDemodPhaseOp extends Operator {
                 final int nty0 = Math.max(ty0, firstLineIdx);
                 final int ntyMax = Math.min(tyMax, lastLineIdx + 1);
                 final int nth = ntyMax - nty0;
-                System.out.println("burstIndex = " + burstIndex + ": ntx0 = " + ntx0 + ", nty0 = " + nty0 + ", ntw = " + ntw + ", nth = " + nth);
+                final Rectangle subTargetRectangle = new Rectangle(ntx0, nty0, ntw, nth);
+                //System.out.println("burstIndex = " + burstIndex + ": ntx0 = " + ntx0 + ", nty0 = " + nty0 + ", ntw = " + ntw + ", nth = " + nth);
 
                 computeDerampDemodPhase(
-                        subSwathIndex, burstIndex, ntx0, nty0, ntw, nth, targetTileMap, pm);
+                        subSwathIndex, burstIndex, subTargetRectangle, targetTileMap, pm);
             }
 
         } catch (Throwable e) {
@@ -243,16 +244,20 @@ public final class DerampDemodPhaseOp extends Operator {
         }
     }
 
-    private void computeDerampDemodPhase(final int subSwathIndex, final int burstIndex,
-                                    final int x0, final int y0, final int w, final int h,
-                                    final Map<Band, Tile> targetTileMap,
-                                    ProgressMonitor pm)
+    private void computeDerampDemodPhase(final int subSwathIndex, final int burstIndex, final Rectangle rectangle,
+                                         final Map<Band, Tile> targetTileMap, ProgressMonitor pm)
             throws Exception {
 
         try {
+            final int x0 = rectangle.x;
+            final int y0 = rectangle.y;
+            final int w = rectangle.width;
+            final int h = rectangle.height;
             final int xMax = x0 + w;
             final int yMax = y0 + h;
-            final int s = subSwathIndex - 1;
+
+            final double[][] derampPhase = su.computeDerampPhase(subSwath, subSwathIndex, burstIndex, rectangle);
+            final double[][] demodPhase = su.computeDemodPhase(subSwath, subSwathIndex, burstIndex, rectangle);
 
             final Band derampPhaseBand = targetProduct.getBand("derampPhase");
             final Band demodPhaseBand = targetProduct.getBand("demodPhase");
@@ -262,17 +267,14 @@ public final class DerampDemodPhaseOp extends Operator {
             final ProductData tgtBufferDemodPhase = tgtTileDemodPhase.getDataBuffer();
             final TileIndex tgtIndex = new TileIndex(tgtTileDerampPhase);
 
-            final int firstLineInBurst = burstIndex*subSwath[s].linesPerBurst;
             for (int y = y0; y < yMax; y++) {
+                final int yy = y - y0;
                 tgtIndex.calculateStride(y);
-                final double ta = (y - firstLineInBurst)*subSwath[s].azimuthTimeInterval;
                 for (int x = x0; x < xMax; x++) {
+                    final int xx = x - x0;
                     final int idx = tgtIndex.getIndex(x);
-                    final double kt = subSwath[s].dopplerRate[burstIndex][x];
-                    final double deramp = -Constants.PI * kt * FastMath.pow(ta - subSwath[s].referenceTime[burstIndex][x], 2);
-                    final double demod = -Constants.TWO_PI * subSwath[s].dopplerCentroid[burstIndex][x] * ta;
-                    tgtBufferDerampPhase.setElemFloatAt(idx, (float)deramp);
-                    tgtBufferDemodPhase.setElemFloatAt(idx, (float)demod);
+                    tgtBufferDerampPhase.setElemFloatAt(idx, (float)derampPhase[yy][xx]);
+                    tgtBufferDemodPhase.setElemFloatAt(idx, (float)demodPhase[yy][xx]);
                 }
             }
         } catch (Throwable e) {
