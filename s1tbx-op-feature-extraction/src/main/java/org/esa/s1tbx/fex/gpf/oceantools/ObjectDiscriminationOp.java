@@ -244,6 +244,8 @@ public class ObjectDiscriminationOp extends Operator {
             final int[][] pixelsScanned = new int[h][w];
             final List<ShipRecord> clusterList = new ArrayList<>();
 
+            targetTile.setRawSamples(getSourceTile(sourceBand, targetTileRectangle).getRawSamples());
+
             final Band bitMaskBand = bandMap.get(sourceBand);
             final Tile bitMaskTile = getSourceTile(bitMaskBand, sourceTileRectangle);
             final ProductData bitMaskData = bitMaskTile.getDataBuffer();
@@ -269,16 +271,12 @@ public class ObjectDiscriminationOp extends Operator {
                             if (size >= minTargetSizeInMeter && size <= maxTargetSizeInMeter) {
                                 getClusterIntensity(clusterPixels, srcData, sourceTile, record);
 
-                                synchronized (clusterList) {
-                                    clusterList.add(record);
-                                }
+                                clusterList.add(record);
                             }
                         }
                     }
                 }
             }
-
-            targetTile.setRawSamples(sourceTile.getRawSamples());
 
             if(!clusterList.isEmpty()) {
                 AddShipRecordsAsVectors(clusterList);
