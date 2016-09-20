@@ -88,6 +88,7 @@ public class GPF {
      * @see #createProduct(String, Map, Map)
      */
     public static final Map<String, Product> NO_SOURCES = Collections.unmodifiableMap(new TreeMap<String, Product>());
+    public static final String GPF_BEEP_AFTER_PROCESSING = "snap.gpf.beepAfterProcessing";
 
     private static GPF defaultInstance;
 
