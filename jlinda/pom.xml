@@ -44,10 +44,6 @@
         <module>jlinda-nest-ui</module>
     </modules>
 
-    <prerequisites>
-        <maven>3.0.0</maven>
-    </prerequisites>
-
     <repositories>
         <repository>
             <id>array-mvn-repo</id>
@@ -66,7 +62,6 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.5.1</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -83,7 +78,6 @@
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.18.1</version>
                 <configuration>
                     <!-- <parallel>methods</parallel> -->
                     <!--<threadCount>4</threadCount>-->
@@ -93,7 +87,6 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <version>2.4</version>
                 <artifactId>maven-source-plugin</artifactId>
                 <executions>
                     <execution>
@@ -108,7 +101,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.2</version>
                 <!--<configuration>-->
                 <!--<tagNameFormat>v@{project.version}</tagNameFormat>-->
                 <!--</configuration>-->
@@ -117,7 +109,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
-                <version>3.14</version>
                 <extensions>true</extensions>
                 <dependencies>
                     <dependency>
@@ -143,7 +134,6 @@
             <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>1.10</version>
                     <executions>
                         <execution>
                             <id>regex-property</id>
@@ -163,7 +153,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.6</version>
                 <configuration>
                     <!-- to have the jar plugin pickup the nbm generated manifest -->
                     <useDefaultManifestFile>true</useDefaultManifestFile>
@@ -171,7 +160,6 @@
             </plugin>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>2.7</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
                 </configuration>

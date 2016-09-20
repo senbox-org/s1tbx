@@ -77,7 +77,7 @@
     <inceptionYear>2007</inceptionYear>
 
     <prerequisites>
-       <maven>3.0.0</maven>
+       <maven>3.0.5</maven>
     </prerequisites>
     
     <licenses>
@@ -620,13 +620,30 @@
                 </plugin>
             
 				<plugin>
-                    <artifactId>maven-assembly-plugin</artifactId>
-                    <version>2.4.1</version>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>2.8.2</version>
                 </plugin>
+				<plugin>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>2.5.2</version>
+                </plugin>
+				<plugin>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.5.1</version>
+                </plugin>
+				<plugin>
+                    <artifactId>maven-clean-plugin</artifactId>
+					<version>3.0.0</version>
+                </plugin>
+				<plugin>
+			        <groupId>org.codehaus.mojo</groupId>
+			        <artifactId>versions-maven-plugin</artifactId>
+			        <version>2.3</version>
+			     </plugin>
 
                 <plugin>
                     <artifactId>maven-source-plugin</artifactId>
-                    <version>2.4</version>
+                    <version>3.0.1</version>
                     <executions>
                         <execution>
                             <phase>verify</phase>
@@ -644,7 +661,7 @@
 				<plugin>
 	                <groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>2.10.3</version>
+					<version>2.10.4</version>
 					<configuration>
 						<aggregate>true</aggregate>
 						<maxmemory>600m</maxmemory>
@@ -660,7 +677,7 @@
 				
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
-					<version>2.18.1</version>
+					<version>2.19.1</version>
                     <configuration>
 						<!--  to test from the command line mvn test -DskipTests=false -->
                         <skipTests>${skipTests}</skipTests>
@@ -681,17 +698,6 @@
                     </configuration>
                     
                 </plugin>
-
-				<plugin>
-                    <artifactId>maven-clean-plugin</artifactId>
-					<version>2.6.1</version>
-                </plugin>
-				
-				<plugin>
-			        <groupId>org.codehaus.mojo</groupId>
-			        <artifactId>versions-maven-plugin</artifactId>
-			        <version>2.2</version>
-			     </plugin>
 
 				<plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -722,7 +728,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>1.10</version>
+                    <version>1.12</version>
                     <executions>
                         <execution>
                             <id>regex-property</id>
