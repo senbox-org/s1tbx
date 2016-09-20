@@ -271,6 +271,10 @@
             <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.OffsetTrackingOpUI"/>
             <attr name="operatorName" stringvalue="Offset-Tracking"/>
         </file>
+        <file name="org.esa.s1tbx.insar.gpf.ui.StampsExportOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.StampsExportOpUI"/>
+            <attr name="operatorName" stringvalue="StampsExport"/>
+        </file>
     </folder>
 
     <folder name="LayerSources">

@@ -1,11 +1,24 @@
-
+/*
+ * Copyright (C) 2016 by Array Systems Computing Inc. http://www.array.ca
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
 package org.esa.s1tbx.insar.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.ProductWriter;
 import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.Operator;
@@ -18,9 +31,7 @@ import org.esa.snap.core.gpf.annotations.SourceProducts;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
-import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
-import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 
 import java.awt.*;
 import java.io.File;
@@ -47,14 +58,12 @@ public class StampsExportOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    // TODO not working
     @Parameter(description = "The output folder to which the data product is written.")
     private File targetFolder;
 
     final static private String formatName = "Gamma";
     final static private String[] folder = {"rslc", "diff0", "geo"};
 
-    //private HashMap<String, String> folderToSuffixExtensionMap = new HashMap<>();
     private static final HashMap<String, String> folderToSuffixExtensionMap;
     static
     {
@@ -63,7 +72,6 @@ public class StampsExportOp extends Operator {
         folderToSuffixExtensionMap.put("diff0", ".diff");
         folderToSuffixExtensionMap.put("geo", "_dem.rdc");
     }
-
 
     private HashMap<Band, Info> tgtBandToInfoMap = new HashMap<>();
 
@@ -75,7 +83,7 @@ public class StampsExportOp extends Operator {
     public void initialize() throws OperatorException {
         try {
             if (sourceProduct.length != 2) {
-                throw new OperatorException("Require two source products");
+                throw new OperatorException("Input requires coregistered stack and interferogram");
             }
 
             //SystemUtils.LOG.info("StampsExportOp: SLC product: " + sourceProduct[0]);
@@ -85,9 +93,7 @@ public class StampsExportOp extends Operator {
             final InputProductValidator validator = new InputProductValidator(sourceProduct[0]);
             validator.checkIfCoregisteredStack();
             validator.checkIfSLC();
-
-            // TODO 2nd source product should ne interferogram generated from 1st source product
-            // TODO check that the two products have the same raster size
+            validator.checkIfCompatibleProducts(sourceProduct);
 
             if(targetFolder == null) {
                 //throw new OperatorException("Please add a target folder");
@@ -104,15 +110,7 @@ public class StampsExportOp extends Operator {
                     sourceProduct[1].getSceneRasterWidth(),
                     sourceProduct[1].getSceneRasterHeight());
 
-            ProductUtils.copyProductNodes(sourceProduct[1], targetProduct); // TODO is this needed?
-
-            // TODO update metadata with TBD
-            try {
-                final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
-                // TODO
-            } catch (Throwable e){
-                OperatorUtils.catchOperatorException(getId() + "Metadata of input product is not in the format compatible for StaMPS export.", e);
-            }
+            ProductUtils.copyProductNodes(sourceProduct[1], targetProduct);
 
             for (int i = 0; i < sourceProduct.length; i++) {
                 // Each "folder" has its own baseInfo. "rslc" and "diff0" correspond to the SLC and IFG product
@@ -130,7 +128,7 @@ public class StampsExportOp extends Operator {
                         final String targetBandName = "q_" + extractDate(srcBand.getName(), i) + folderToSuffixExtensionMap.get(folder[i]);
                         ProductUtils.copyBand(srcBand.getName(), sourceProduct[i], targetBandName, targetProduct, true);
                         System.out.println("copy " + srcBand.getName() + " to " + targetBandName);
-                    } else if (srcBand.getName().equals("elevation")) {
+                    } else if (srcBand.getName().startsWith("elevation")) {
                         final String targetBandName = srcBand.getName() + folderToSuffixExtensionMap.get(folder[folder.length - 1]);
                         final Band targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct[i], targetBandName, targetProduct, true);
                         tgtBandToInfoMap.put(targetBand, createInfo(createBaseInfo(folder[folder.length - 1])));
@@ -144,7 +142,7 @@ public class StampsExportOp extends Operator {
         }
     }
 
-    private String convertFormat(String rawDate) {
+    private static String convertFormat(String rawDate) {
         try {
             final DateFormat rawDateFormat = ProductData.UTC.createDateFormat("ddMMMyyyy");
             final ProductData.UTC utc = ProductData.UTC.parse(rawDate, rawDateFormat);
@@ -158,15 +156,15 @@ public class StampsExportOp extends Operator {
         }
     }
 
-    private String extractDate(final String bandName, int i) {
+    private static String extractDate(final String bandName, int i) {
         int idx = bandName.length();
         for (int j = 0; j < i+1; j++) {
-            idx =  bandName.substring(0, idx).lastIndexOf("_");
+            idx =  bandName.substring(0, idx).lastIndexOf('_');
         }
         final String rawDate = bandName.substring(idx+1);
         if (rawDate.contains("_")) {
-            final int idx1 = rawDate.lastIndexOf("_");
-            return convertFormat(rawDate.substring(0, idx1)) + "_" + convertFormat(rawDate.substring(idx1+1));
+            final int idx1 = rawDate.lastIndexOf('_');
+            return convertFormat(rawDate.substring(0, idx1)) + '_' + convertFormat(rawDate.substring(idx1+1));
         } else {
             return convertFormat(rawDate);
         }
@@ -188,7 +186,7 @@ public class StampsExportOp extends Operator {
         return baseInfo;
     }
 
-    private Info createInfo(final BaseInfo baseInfo) {
+    private static Info createInfo(final BaseInfo baseInfo) {
         final Info info = new Info();
         info.baseInfo = baseInfo;
         return info;
