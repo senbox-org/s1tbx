@@ -61,19 +61,13 @@ public class StampsExportOp extends Operator {
     @Parameter(description = "The output folder to which the data product is written.")
     private File targetFolder;
 
-    final static private String formatName = "Gamma";
-    final static private String[] folder = {"rslc", "diff0", "geo"};
+    private static final String formatName = "Gamma";
 
-    private static final HashMap<String, String> folderToSuffixExtensionMap;
-    static
-    {
-        folderToSuffixExtensionMap = new HashMap<>();
-        folderToSuffixExtensionMap.put("rslc", ".rslc");
-        folderToSuffixExtensionMap.put("diff0", ".diff");
-        folderToSuffixExtensionMap.put("geo", "_dem.rdc");
-    }
+    private static final String[] folder = {"rslc", "diff0", "geo"};
+    private static final String[] ext = {".rslc", ".diff", "_dem.rdc"};
+    private static enum FOLDERS { RSLC, DIFF, GEO}
 
-    private HashMap<Band, Info> tgtBandToInfoMap = new HashMap<>();
+    private final HashMap<Band, WriterInfo> tgtBandToInfoMap = new HashMap<>();
 
     public StampsExportOp() {
         setRequiresAllBands(true);
@@ -113,26 +107,30 @@ public class StampsExportOp extends Operator {
             ProductUtils.copyProductNodes(sourceProduct[1], targetProduct);
 
             for (int i = 0; i < sourceProduct.length; i++) {
-                // Each "folder" has its own baseInfo. "rslc" and "diff0" correspond to the SLC and IFG product
-                // respectively, so create the baseInfo here for the product.
-                final BaseInfo baseInfo = createBaseInfo(folder[i]);
+
                 for (Band srcBand : sourceProduct[i].getBands()) {
-                    if (srcBand.getName().startsWith("i_")) {
-                        final String targetBandName = "i_" + extractDate(srcBand.getName(), i) + folderToSuffixExtensionMap.get(folder[i]);
-                        final Band targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct[i], targetBandName, targetProduct, true);
-                        tgtBandToInfoMap.put(targetBand, createInfo(baseInfo));
-                        System.out.println("copy/add " + srcBand.getName() + " to " + targetBand.getName());
-                    } else if (srcBand.getName().startsWith("q_")) {
+                    final String srcBandName = srcBand.getName();
+                    if (srcBandName.startsWith("i_")) {
+                        final FOLDERS folderType = srcBandName.startsWith("i_ifg") ? FOLDERS.DIFF : FOLDERS.RSLC;
+                        final String targetBandName = "i_" + extractDate(srcBandName, i) + ext[folderType.ordinal()];
+                        final Band targetBand = ProductUtils.copyBand(srcBandName, sourceProduct[i], targetBandName, targetProduct, true);
+                        tgtBandToInfoMap.put(targetBand, new WriterInfo(folder[folderType.ordinal()], targetBandName));
+
+                        System.out.println("copy/add " + srcBandName + " to " + targetBand.getName());
+                    } else if (srcBandName.startsWith("q_")) {
                         // It is necessary to copy the q bands to target product because the product writer will look
                         // for them in the target product
-                        final String targetBandName = "q_" + extractDate(srcBand.getName(), i) + folderToSuffixExtensionMap.get(folder[i]);
-                        ProductUtils.copyBand(srcBand.getName(), sourceProduct[i], targetBandName, targetProduct, true);
-                        System.out.println("copy " + srcBand.getName() + " to " + targetBandName);
-                    } else if (srcBand.getName().startsWith("elevation")) {
-                        final String targetBandName = srcBand.getName() + folderToSuffixExtensionMap.get(folder[folder.length - 1]);
-                        final Band targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct[i], targetBandName, targetProduct, true);
-                        tgtBandToInfoMap.put(targetBand, createInfo(createBaseInfo(folder[folder.length - 1])));
-                        System.out.println("copy/add " + srcBand.getName() + " to " + targetBand.getName());
+                        final FOLDERS folderType = srcBandName.startsWith("q_ifg") ? FOLDERS.DIFF : FOLDERS.RSLC;
+                        final String targetBandName = "q_" + extractDate(srcBandName, i) + ext[folderType.ordinal()];
+                        ProductUtils.copyBand(srcBandName, sourceProduct[i], targetBandName, targetProduct, true);
+
+                        System.out.println("copy " + srcBandName + " to " + targetBandName);
+                    } else if (srcBandName.startsWith("elevation")) {
+                        final String targetBandName = srcBandName + ext[FOLDERS.GEO.ordinal()];
+                        final Band targetBand = ProductUtils.copyBand(srcBandName, sourceProduct[i], targetBandName, targetProduct, true);
+                        tgtBandToInfoMap.put(targetBand, new WriterInfo(folder[FOLDERS.GEO.ordinal()], targetBandName));
+
+                        System.out.println("copy/add " + srcBandName + " to " + targetBand.getName());
                     }
                 }
             }
@@ -170,41 +168,21 @@ public class StampsExportOp extends Operator {
         }
     }
 
-    private BaseInfo createBaseInfo(final String folderName) {
-        final BaseInfo baseInfo = new BaseInfo();
-        baseInfo.file = new File(targetFolder + "/" + folderName, targetProduct.getName()); // TODO pass in binary file name with extension
-        baseInfo.productWriter = ProductIO.getProductWriter(formatName);
-        if (baseInfo.productWriter == null) {
-            throw new OperatorException("No data product writer for the '" + formatName + "' format available");
-        }
-        baseInfo.productWriter.setFormatName(formatName);
-
-        // TODO need these...???
-        baseInfo.productWriter.setIncrementalMode(false); // TODO
-        targetProduct.setProductWriter(baseInfo.productWriter); /// TODO
-
-        return baseInfo;
-    }
-
-    private static Info createInfo(final BaseInfo baseInfo) {
-        final Info info = new Info();
-        info.baseInfo = baseInfo;
-        return info;
-    }
-
     @Override
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm)
             throws OperatorException {
 
         for (Band targetBand : tgtBandToInfoMap.keySet()) {
-            final Info info = tgtBandToInfoMap.get(targetBand);
-            final Tile targetTile = targetTiles.get(targetBand);
+
             try {
+                final WriterInfo info = tgtBandToInfoMap.get(targetBand);
+                final Tile targetTile = targetTiles.get(targetBand);
+
                 writeHeader(info);
                 final Rectangle trgRect = targetTile.getRectangle();
                 final Tile sourceTile = getSourceTile(targetBand, trgRect);
                 final ProductData rawSamples = sourceTile.getRawSamples();
-                info.baseInfo.productWriter.writeBandRasterData(targetBand,
+                info.productWriter.writeBandRasterData(targetBand,
                         trgRect.x, trgRect.y, trgRect.width, trgRect.height, rawSamples, ProgressMonitor.NULL);
             } catch (Exception e) {
                 if (e instanceof OperatorException) {
@@ -216,22 +194,23 @@ public class StampsExportOp extends Operator {
         }
     }
 
-    private synchronized void writeHeader(final Info info) throws Exception {
-        if (info.baseInfo.written) return;
+    private synchronized void writeHeader(final WriterInfo info) throws Exception {
+        if (info.written) return;
 
-        info.baseInfo.productWriter.writeProductNodes(targetProduct, info.baseInfo.file);
+        final File outputFile = targetFolder.toPath().resolve(info.folderName).resolve(info.targetBandName+".par").toFile();
+        info.productWriter.writeProductNodes(targetProduct, outputFile);
 
-        info.baseInfo.written = true;
+        info.written = true;
     }
 
     @Override
     public void dispose() {
         try {
-            for (Info info : tgtBandToInfoMap.values()) {
+            for (WriterInfo info : tgtBandToInfoMap.values()) {
                 if (info != null) {
-                    if (info.baseInfo.productWriter != null) {
-                        info.baseInfo.productWriter.close();
-                        info.baseInfo.productWriter = null;
+                    if (info.productWriter != null) {
+                        info.productWriter.close();
+                        info.productWriter = null;
                     }
                 }
             }
@@ -240,17 +219,25 @@ public class StampsExportOp extends Operator {
         super.dispose();
     }
 
-    private static class Info {
-        BaseInfo baseInfo;
-        // This is for future needs
-        // Add anything that pertains to the band
-    }
-
-    private static class BaseInfo {
+    private static class WriterInfo {
         // different bands can share same BaseInfo
-        File file;
         ProductWriter productWriter;
         boolean written = false;
+
+        final String folderName;
+        final String targetBandName;
+
+        public WriterInfo(final String folderName, final String targetBandName) {
+            this.folderName = folderName;
+            this.targetBandName = targetBandName.startsWith("i_") ?
+                    targetBandName.substring(2, targetBandName.length()) : targetBandName;
+
+            productWriter = ProductIO.getProductWriter(formatName);
+            if (productWriter == null) {
+                throw new OperatorException("No data product writer for the '" + formatName + "' format available");
+            }
+            productWriter.setIncrementalMode(false);
+        }
     }
 
     public static class Spi extends OperatorSpi {

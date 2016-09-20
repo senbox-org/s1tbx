@@ -114,7 +114,7 @@ public class HeaderWriter {
         String name = FileUtils.getFilenameWithoutExtension(file);
         String ext = FileUtils.getExtension(name);
         String newExt = GammaConstants.PAR_EXTENSION;
-        if (ext == null || !ext.endsWith("slc")) {
+        if (ext == null) {
             if (isComplex) {
                 if (isCoregistered) {
                     newExt = ".rslc" + newExt;

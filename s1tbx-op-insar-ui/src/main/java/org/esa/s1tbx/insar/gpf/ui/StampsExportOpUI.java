@@ -18,6 +18,7 @@ package org.esa.s1tbx.insar.gpf.ui;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
+import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.util.Dialogs;
 import org.esa.snap.ui.AppContext;
 
@@ -48,7 +49,7 @@ public class StampsExportOpUI extends BaseOperatorUI {
 
         targetFolderBrowseButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                final File file = Dialogs.requestFileForOpen("Target Folder", true, null, STAMPS_TARGET_DIR_KEY);
+                final File file = Dialogs.requestFileForSave("Target Folder", true, null, null, null, null, STAMPS_TARGET_DIR_KEY);
                 if(file != null) {
                     targetFolder.setText(file.getAbsolutePath());
                 }
@@ -64,6 +65,8 @@ public class StampsExportOpUI extends BaseOperatorUI {
         final File targetFolderFile = (File) paramMap.get("targetFolder");
         if(targetFolderFile != null) {
             targetFolder.setText(targetFolderFile.getAbsolutePath());
+        } else {
+            targetFolder.setText(SnapApp.getDefault().getPreferences().get(STAMPS_TARGET_DIR_KEY, ""));
         }
     }
 
