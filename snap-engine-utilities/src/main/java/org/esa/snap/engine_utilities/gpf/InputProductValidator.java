@@ -46,6 +46,9 @@ public class InputProductValidator {
     private final static String SHOULD_NOT_BE_CALIBRATED = "Source product has already been calibrated.";
     private final static String SHOULD_BE_MAP_PROJECTED = "Source product should be map projected.";
     private final static String SHOULD_NOT_BE_MAP_PROJECTED = "Source product should not be map projected.";
+    private final static String SHOULD_BE_COMPATIBLE = "Source products do not have compatible dimensions and geocoding.";
+
+    private final static float geographicError = 1.0e-3f;
 
     public InputProductValidator(final Product product) throws OperatorException {
         this.product = product;
@@ -268,4 +271,11 @@ public class InputProductValidator {
         }
     }
 
+    public void checkIfCompatibleProducts(final Product[] sourceProducts) {
+        for(Product srcProduct : sourceProducts) {
+            if(!product.isCompatibleProduct(srcProduct, geographicError)) {
+                throw new OperatorException(SHOULD_BE_COMPATIBLE);
+            }
+        }
+    }
 }
