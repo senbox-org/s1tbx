@@ -25,7 +25,10 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.annotations.OperatorMetadata;
-import org.esa.snap.core.gpf.descriptor.*;
+import org.esa.snap.core.gpf.descriptor.SystemVariable;
+import org.esa.snap.core.gpf.descriptor.TemplateParameterDescriptor;
+import org.esa.snap.core.gpf.descriptor.ToolAdapterOperatorDescriptor;
+import org.esa.snap.core.gpf.descriptor.ToolParameterDescriptor;
 import org.esa.snap.core.gpf.descriptor.template.TemplateContext;
 import org.esa.snap.core.gpf.descriptor.template.TemplateException;
 import org.esa.snap.core.gpf.descriptor.template.TemplateFile;
@@ -37,8 +40,6 @@ import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.utils.PrivilegedAccessor;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.util.*;
 import java.util.logging.Handler;
@@ -246,30 +247,6 @@ public class ToolAdapterOp extends Operator {
         if (!toolFile.exists() || !toolFile.isFile()) {
             throw new OperatorException(String.format("Invalid tool file: '%s'!", toolFile.getAbsolutePath()));
         }
-
-        //Get the tool's working directory
-        /*File toolWorkingDirectory = descriptor.resolveVariables(descriptor.getWorkingDir());
-        if (toolWorkingDirectory == null) {
-            throw new OperatorException("Tool working directory not defined!");
-        }
-        if (!toolWorkingDirectory.exists() || !toolWorkingDirectory.isDirectory()) {
-            throw new OperatorException(String.format("Invalid tool working directory: '%s'!", toolWorkingDirectory.getAbsolutePath()));
-        }*/
-
-        ParameterDescriptor[] parameterDescriptors = descriptor.getParameterDescriptors();
-        if (parameterDescriptors != null && parameterDescriptors.length > 0) {
-            for (ParameterDescriptor parameterDescriptor : parameterDescriptors) {
-                Class<?> dataType = parameterDescriptor.getDataType();
-                String defaultValue = parameterDescriptor.getDefaultValue();
-                if (File.class.isAssignableFrom(dataType) &&
-                        (parameterDescriptor.isNotNull() || parameterDescriptor.isNotEmpty()) &&
-                        (defaultValue == null || defaultValue.isEmpty() || !Files.exists(Paths.get(defaultValue)))) {
-                    throw new OperatorException(String.format("Parameter %s is marked as %s, but the value is missing",
-                            parameterDescriptor.getName(), parameterDescriptor.isNotNull() ? "NotNull" : "NotEmpty"));
-                }
-            }
-        }
-
     }
 
     /**
@@ -638,10 +615,12 @@ public class ToolAdapterOp extends Operator {
             }
         }
         File[] subFolders = folder.listFiles(File::isDirectory);
-        for(File subFolder : subFolders) {
-            List<File> subCandidates = getRasterFiles(subFolder);
-            if (subCandidates != null) {
-                rasters.addAll(subCandidates);
+        if (subFolders != null) {
+            for (File subFolder : subFolders) {
+                List<File> subCandidates = getRasterFiles(subFolder);
+                if (subCandidates != null) {
+                    rasters.addAll(subCandidates);
+                }
             }
         }
         return rasters;
