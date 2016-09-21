@@ -257,6 +257,7 @@ public final class ApplyOrbitFileOp extends Operator {
         } catch (Exception e) {
             SystemUtils.LOG.warning(e.getMessage());
             // try other orbit file types
+            boolean tryAnotherType = false;
             for(String type : orbitProvider.getAvailableOrbitTypes()) {
                 if(!orbitType.startsWith(type)) {
                     try {
@@ -264,8 +265,12 @@ public final class ApplyOrbitFileOp extends Operator {
                     } catch (Exception e2) {
                         throw e;
                     }
-                    SystemUtils.LOG.warning("Using "+type+" "+orbitProvider.getOrbitFile()+" instead");
+                    SystemUtils.LOG.warning("Using "+type+' '+orbitProvider.getOrbitFile()+" instead");
+                    tryAnotherType = true;
                 }
+            }
+            if(!tryAnotherType) {
+                throw e;
             }
         }
 
