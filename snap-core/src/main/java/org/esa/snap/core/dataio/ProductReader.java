@@ -71,7 +71,6 @@ public interface ProductReader {
      */
     Product readProductNodes(Object input, ProductSubsetDef subsetDef) throws IOException, IllegalFileFormatException;
 
-    // todo, see BEAM-680
     default void readTiePointGridRasterData(TiePointGrid tpg,
                                              int destOffsetX, int destOffsetY,
                                              int destWidth, int destHeight,
