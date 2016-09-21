@@ -35,7 +35,7 @@ import java.io.IOException;
 
 /**
  * A tie-point grid contains the data for geophysical parameter in remote sensing data products. Tie-point grid are
- * two-dimensional images which hold their pixel values (samples) in a <code>float</code> array. <p>
+ * two-dimensional images which hold their pixel values (samples) in a {@code float} array. <p>
  * <p>
  * Usually, tie-point grids are a sub-sampling of a data product's scene resolution.
  *
@@ -74,7 +74,7 @@ public class TiePointGrid extends RasterDataNode {
     private volatile ProductData rasterData;
 
     /**
-     * Constructs a new <code>TiePointGrid</code> with the given tie point grid properties.
+     * Constructs a new {@code TiePointGrid} with the given tie point grid properties.
      *
      * @param name         the name of the new object
      * @param gridWidth    the width of the tie-point grid in pixels
@@ -85,7 +85,7 @@ public class TiePointGrid extends RasterDataNode {
      *                     this tie-pint grid belongs to. Must not be less than one.
      * @param subSamplingY the sub-sampling in X-direction given in the pixel co-ordinates of the data product to which
      *                     this tie-pint grid belongs to. Must not be less than one.
-     * @param tiePoints    the tie-point data values, must be an array of the size <code>gridWidth * gridHeight</code>
+     * @param tiePoints    the tie-point data values, must be an array of the size {@code gridWidth * gridHeight}
      */
     public TiePointGrid(String name,
                         int gridWidth,
@@ -99,7 +99,7 @@ public class TiePointGrid extends RasterDataNode {
     }
 
     /**
-     * Constructs a new <code>TiePointGrid</code> with the given tie point grid properties.
+     * Constructs a new {@code TiePointGrid} with the given tie point grid properties.
      *
      * @param name           the name of the new object
      * @param gridWidth      the width of the tie-point grid in pixels
@@ -110,7 +110,7 @@ public class TiePointGrid extends RasterDataNode {
      *                       this tie-pint grid belongs to. Must not be less than one.
      * @param subSamplingY   the sub-sampling in X-direction given in the pixel co-ordinates of the data product to which
      *                       this tie-pint grid belongs to. Must not be less than one.
-     * @param tiePoints      the tie-point data values, must be an array of the size <code>gridWidth * gridHeight</code>
+     * @param tiePoints      the tie-point data values, must be an array of the size {@code gridWidth * gridHeight}
      * @param containsAngles if true, the {@link #getDiscontinuity() angular discontinuity} is derived from the provided tie-point data values
      */
     public TiePointGrid(String name,
@@ -127,7 +127,7 @@ public class TiePointGrid extends RasterDataNode {
     }
 
     /**
-     * Constructs a new <code>TiePointGrid</code> with the given tie point grid properties.
+     * Constructs a new {@code TiePointGrid} with the given tie point grid properties.
      *
      * @param name          the name of the new object
      * @param gridWidth     the width of the tie-point grid in pixels
@@ -138,7 +138,7 @@ public class TiePointGrid extends RasterDataNode {
      *                      this tie-pint grid belongs to. Must not be less than one.
      * @param subSamplingY  the sub-sampling in X-direction given in the pixel co-ordinates of the data product to which
      *                      this tie-pint grid belongs to. Must not be less than one.
-     * @param tiePoints     the tie-point data values, must be an array of the size <code>gridWidth * gridHeight</code>
+     * @param tiePoints     the tie-point data values, must be an array of the size {@code gridWidth * gridHeight}
      * @param discontinuity the discontinuity mode, can be either {@link #DISCONT_NONE} or {@link #DISCONT_AT_180}
      *                      {@link #DISCONT_AT_360}
      */
@@ -298,7 +298,7 @@ public class TiePointGrid extends RasterDataNode {
     }
 
     /**
-     * Returns <code>true</code>
+     * Returns {@code true}
      *
      * @return true
      */
@@ -308,8 +308,8 @@ public class TiePointGrid extends RasterDataNode {
     }
 
     /**
-     * Returns the geophysical data type of this <code>RasterDataNode</code>. The value retuned is always one of the
-     * <code>ProductData.TYPE_XXX</code> constants.
+     * Returns the geophysical data type of this {@code RasterDataNode}. The value returned is always one of the
+     * {@code ProductData.TYPE_XXX} constants.
      *
      * @return the geophysical data type
      * @see ProductData
@@ -327,7 +327,7 @@ public class TiePointGrid extends RasterDataNode {
     }
 
     /**
-     * Gets the linearily interpolated raster data containing
+     * Gets the linear interpolated raster data containing
      * {@link #getRasterWidth() rasterWidth} x {@link #getRasterHeight() rasterHeight} samples.
      *
      * @return The raster data for this tie-point grid.
@@ -369,7 +369,7 @@ public class TiePointGrid extends RasterDataNode {
     /**
      * Gets the interpolated sample for the pixel located at (x,y) as an integer value. <p>
      * <p>
-     * If the pixel co-odinates given by (x,y) are not covered by this tie-point grid, the method extrapolates.
+     * If the pixel co-ordinates given by (x,y) are not covered by this tie-point grid, the method extrapolates.
      *
      * @param x The X co-ordinate of the pixel location
      * @param y The Y co-ordinate of the pixel location
@@ -396,7 +396,7 @@ public class TiePointGrid extends RasterDataNode {
     /**
      * Computes the interpolated sample for the pixel located at (x,y). <p>
      * <p>
-     * If the pixel co-odinates given by (x,y) are not covered by this tie-point grid, the method extrapolates.
+     * If the pixel co-ordinates given by (x,y) are not covered by this tie-point grid, the method extrapolates.
      *
      * @param x The X co-ordinate of the pixel location, given in the pixel co-ordinates of the data product to which
      *          this tie-pint grid belongs to.
@@ -412,7 +412,7 @@ public class TiePointGrid extends RasterDataNode {
     /**
      * Computes the interpolated sample for the pixel located at (x,y) given as floating point co-ordinates. <p>
      * <p>
-     * If the pixel co-odinates given by (x,y) are not covered by this tie-point grid, the method extrapolates.
+     * If the pixel co-ordinates given by (x,y) are not covered by this tie-point grid, the method extrapolates.
      *
      * @param x The X co-ordinate of the pixel location, given in the pixel co-ordinates of the data product to which
      *          this tie-pint grid belongs to.
@@ -497,7 +497,7 @@ public class TiePointGrid extends RasterDataNode {
 
     /**
      * Retrieves an array of tie point data interpolated to the product with and height as integer array. If the given
-     * array is <code>null</code> a new one was created and returned.
+     * array is {@code null} a new one was created and returned.
      *
      * @param x      the x coordinate of the array to be read
      * @param y      the y coordinate of the array to be read
@@ -505,7 +505,7 @@ public class TiePointGrid extends RasterDataNode {
      * @param h      the height of the array to be read
      * @param pixels the integer array to be filled with data
      * @param pm     a monitor to inform the user about progress
-     * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
+     * @throws IllegalArgumentException if the length of the given array is less than {@code w*h}.
      */
     @Override
     public int[] getPixels(int x, int y, int w, int h, int[] pixels, ProgressMonitor pm) {
@@ -519,7 +519,7 @@ public class TiePointGrid extends RasterDataNode {
 
     /**
      * Retrieves an array of tie point data interpolated to the product width and height as float array. If the given
-     * array is <code>null</code> a new one is created and returned.
+     * array is {@code null} a new one is created and returned.
      *
      * @param x      the x coordinate of the array to be read
      * @param y      the y coordinate of the array to be read
@@ -527,7 +527,7 @@ public class TiePointGrid extends RasterDataNode {
      * @param h      the height of the array to be read
      * @param pixels the float array to be filled with data
      * @param pm     a monitor to inform the user about progress
-     * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
+     * @throws IllegalArgumentException if the length of the given array is less than {@code w*h}.
      */
     @Override
     public double[] getPixels(int x, int y, int w, int h, double[] pixels, ProgressMonitor pm) {
@@ -573,14 +573,14 @@ public class TiePointGrid extends RasterDataNode {
 
     /**
      * Retrieves an array of tie point data interpolated to the product with and height as double array. If the given
-     * array is <code>null</code> a new one was created and returned.
+     * array is {@code null} a new one was created and returned.
      *
      * @param x      the x coordinate of the array to be read
      * @param y      the y coordinate of the array to be read
      * @param w      the width of the array to be read
      * @param h      the height of the array to be read
      * @param pixels the double array to be filled with data
-     * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
+     * @throws IllegalArgumentException if the length of the given array is less than {@code w*h}.
      */
     @Override
     public float[] getPixels(int x, int y, int w, int h, float[] pixels, ProgressMonitor pm) {
@@ -618,14 +618,14 @@ public class TiePointGrid extends RasterDataNode {
 
     /**
      * Retrieves an array of tie point data interpolated to the product with and height as float array. If the given
-     * array is <code>null</code> a new one was created and returned.
+     * array is {@code null} a new one was created and returned.
      *
      * @param x      the x coordinate of the array to be read
      * @param y      the y coordinate of the array to be read
      * @param w      the width of the array to be read
      * @param h      the height of the array to be read
      * @param pixels the integer array to be filled with data
-     * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
+     * @throws IllegalArgumentException if the length of the given array is less than {@code w*h}.
      */
     @Override
     public int[] readPixels(int x, int y, int w, int h, int[] pixels, ProgressMonitor pm) throws IOException {
@@ -634,7 +634,7 @@ public class TiePointGrid extends RasterDataNode {
 
     /**
      * Retrieves an array of tie point data interpolated to the product with and height as float array. If the given
-     * array is <code>null</code> a new one was created and returned. *
+     * array is {@code null} a new one was created and returned. *
      *
      * @param x      the x coordinate of the array to be read
      * @param y      the y coordinate of the array to be read
@@ -642,7 +642,7 @@ public class TiePointGrid extends RasterDataNode {
      * @param h      the height of the array to be read
      * @param pixels the float array to be filled with data
      * @param pm     a monitor to inform the user about progress
-     * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
+     * @throws IllegalArgumentException if the length of the given array is less than {@code w*h}.
      */
     @Override
     public float[] readPixels(int x, int y, int w, int h, float[] pixels, ProgressMonitor pm) throws IOException {
@@ -651,7 +651,7 @@ public class TiePointGrid extends RasterDataNode {
 
     /**
      * Retrieves an array of tie point data interpolated to the product with and height as double array. If the given
-     * array is <code>null</code> a new one was created and returned.
+     * array is {@code null} a new one was created and returned.
      *
      * @param x      the x coordinate of the array to be read
      * @param y      the y coordinate of the array to be read
@@ -659,7 +659,7 @@ public class TiePointGrid extends RasterDataNode {
      * @param h      the height of the array to be read
      * @param pixels the double array to be filled with data
      * @param pm     a monitor to inform the user about progress
-     * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
+     * @throws IllegalArgumentException if the length of the given array is less than {@code w*h}.
      */
     @Override
     public double[] readPixels(int x, int y, int w, int h, double[] pixels, ProgressMonitor pm) throws IOException {
@@ -776,7 +776,7 @@ public class TiePointGrid extends RasterDataNode {
      * The visitor pattern allows to define new operations on the product data model without the need to add more code
      * to it. The new operation is implemented by the visitor. <p>
      * <p>
-     * The method simply calls <code>visitor.visit(this)</code>.
+     * The method simply calls {@code visitor.visit(this)}.
      *
      * @param visitor the visitor
      */
