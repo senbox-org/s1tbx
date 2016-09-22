@@ -14,7 +14,7 @@
     
 	<properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>		
-        <netbeans.version>RELEASE802</netbeans.version>
+        <netbeans.version>RELEASE81</netbeans.version>
         <doc-windows.version>1.0</doc-windows.version>
         <javahelp.version>2.0.05</javahelp.version>
         <brandingToken>s1tbx</brandingToken>		
@@ -329,6 +329,11 @@
             <dependency>
                 <groupId>org.netbeans.api</groupId>
                 <artifactId>org-openide-util</artifactId>
+                <version>${netbeans.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.netbeans.api</groupId>
+                <artifactId>org-openide-util-ui</artifactId>
                 <version>${netbeans.version}</version>
             </dependency>
             <dependency>
