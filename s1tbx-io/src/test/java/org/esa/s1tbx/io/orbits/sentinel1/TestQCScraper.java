@@ -28,7 +28,7 @@ public class TestQCScraper {
 
     @Test
     public void testDownloadPreciseOrbitFileS1A() {
-        final QCScraper qc = new QCScraper(QCScraper.POEORB);
+        final QCScraper qc = new QCScraper(SentinelPODOrbitFile.PRECISE);
 
         String[] orbitFiles = qc.getFileURLs("S1A", 2016, 2);
         assertEquals(29, orbitFiles.length);
@@ -36,7 +36,7 @@ public class TestQCScraper {
 
     @Test
     public void testDownloadPreciseOrbitFileS1B() {
-        final QCScraper qc = new QCScraper(QCScraper.POEORB);
+        final QCScraper qc = new QCScraper(SentinelPODOrbitFile.PRECISE);
 
         String[] orbitFiles = qc.getFileURLs("S1B", 2016, 7);
         assertEquals(31, orbitFiles.length);
@@ -44,7 +44,7 @@ public class TestQCScraper {
 
     @Test
     public void testDownloadRestituteOrbitFileS1A() {
-        final QCScraper qc = new QCScraper(QCScraper.RESORB);
+        final QCScraper qc = new QCScraper(SentinelPODOrbitFile.RESTITUTED);
 
         String[] orbitFiles = qc.getFileURLs("S1A", 2016, 3);
         assertEquals(636, orbitFiles.length);
@@ -52,7 +52,7 @@ public class TestQCScraper {
 
     @Test
     public void testDownloadRestituteOrbitFileS1B() {
-        final QCScraper qc = new QCScraper(QCScraper.RESORB);
+        final QCScraper qc = new QCScraper(SentinelPODOrbitFile.RESTITUTED);
 
         String[] orbitFiles = qc.getFileURLs("S1B", 2016, 7);
         assertEquals(592, orbitFiles.length);

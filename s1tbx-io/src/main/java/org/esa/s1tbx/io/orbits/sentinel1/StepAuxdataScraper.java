@@ -17,6 +17,7 @@ package org.esa.s1tbx.io.orbits.sentinel1;
 
 
 import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -30,23 +31,30 @@ import java.util.Set;
 /**
  * Download orbit files directly from QC website
  */
-public class StepAuxdataScraper {
+class StepAuxdataScraper {
 
     private static final String stepS1OrbitsUrl = "http://step.esa.int/auxdata/orbits/Sentinel-1/";
+
+    private static final String POEORB = "POEORB";
+    private static final String RESORB = "RESORB";
 
     private final String orbitType;
     private String remotePath;
 
-    public StepAuxdataScraper(final String orbitType) {
-        this.orbitType = orbitType;
+    StepAuxdataScraper(final String orbitType) {
+        if(orbitType.contains("Restituted")) {
+            this.orbitType = RESORB;
+        } else {
+            this.orbitType = POEORB;
+        }
         System.setProperty("jsse.enableSNIExtension", "false");
     }
 
-    public String getRemoteURL() {
+    String getRemoteURL() {
         return remotePath;
     }
 
-    public String[] getFileURLs(final String mission, final int year, final int month) {
+    String[] getFileURLs(final String mission, final int year, final int month) {
         final String monthStr = StringUtils.padNum(month, 2, '0');
 
         remotePath = stepS1OrbitsUrl + orbitType + '/' + mission + '/' + year + '/' + monthStr + '/';
@@ -77,7 +85,7 @@ public class StepAuxdataScraper {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            SystemUtils.LOG.warning("Unable to connect to "+path+ ": "+e.getMessage());
         }
         return fileList;
     }
