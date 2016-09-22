@@ -242,10 +242,10 @@ public class TiePointGrid extends RasterDataNode {
      * @return The data buffer representing the single tie-points.
      */
     public ProductData getGridData() {
-        ProductData data = super.getData();
-        if (data == null) {
+        if (getData() != null) {
             try {
-                data = readGridData();
+                ProductData data = readGridData();
+                setData(data);
                 if (containsAngles) {
                     setDiscontinuity(getDiscontinuity((float[]) data.getElems()));
                 }
@@ -254,7 +254,7 @@ public class TiePointGrid extends RasterDataNode {
             }
         }
 
-        return data;
+        return getData();
     }
 
     private ProductData readGridData() throws IOException {
