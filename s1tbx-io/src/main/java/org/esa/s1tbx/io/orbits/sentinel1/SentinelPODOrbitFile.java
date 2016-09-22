@@ -24,6 +24,7 @@ import org.esa.s1tbx.io.orbits.OrbitFile;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
@@ -75,9 +76,6 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
     public final static String RESTITUTED = "Sentinel Restituted";
     public final static String PRECISE = "Sentinel Precise";
-
-    public static final String POEORB = "POEORB";
-    public static final String RESORB = "RESORB";
 
     private final int polyDegree;
 
@@ -204,17 +202,30 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         return new NewDate(year, month);
     }
 
-    private static File getDestFolder(final String missionPrefix, final String orbitType, final int year, final int month) {
+    static File getDestFolder(final String missionPrefix, final String orbitType, final int year, final int month) {
         final String prefOrbitPath;
         if (orbitType.startsWith(RESTITUTED)) {
             prefOrbitPath = Settings.getPath("OrbitFiles.sentinel1RESOrbitPath");
         } else {
             prefOrbitPath = Settings.getPath("OrbitFiles.sentinel1POEOrbitPath");
         }
-        return new File(prefOrbitPath +
+        final File destFolder = new File(prefOrbitPath +
                 File.separator + missionPrefix +
                 File.separator + year +
-                File.separator + month);
+                File.separator + StringUtils.padNum(month, 2, '0'));
+
+        if(month < 10) {
+            File oldFolder = new File(prefOrbitPath +
+                    File.separator + missionPrefix +
+                    File.separator + year +
+                    File.separator + month);
+            if(oldFolder.exists()) {
+                // rename
+                oldFolder.renameTo(destFolder);
+            }
+        }
+
+        return destFolder;
     }
 
     private static File findOrbitFile(final String missionPrefix, final String orbitType,
@@ -267,15 +278,9 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
     private static void getStepAuxdataFiles(final String missionPrefix, final String orbitType, int year, int month,
                                    final double stateVectorTime) throws Exception {
 
-        final String type;
-        if (orbitType.startsWith(RESTITUTED)) {
-            type = RESORB;
-        } else {
-            type = POEORB;
-        }
         final File localFolder = getDestFolder(missionPrefix, orbitType, year, month);
 
-        final StepAuxdataScraper step = new StepAuxdataScraper(type);
+        final StepAuxdataScraper step = new StepAuxdataScraper(orbitType);
 
         final String[] orbitFiles = step.getFileURLs(missionPrefix, year, month);
         final URL remotePath = new URL(step.getRemoteURL());
@@ -296,15 +301,9 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
     private static void getQCFiles(final String missionPrefix, final String orbitType, int year, int month,
                                    final double stateVectorTime) throws Exception {
 
-        final String type;
-        if (orbitType.startsWith(RESTITUTED)) {
-            type = QCScraper.RESORB;
-        } else {
-            type = QCScraper.POEORB;
-        }
         final File localFolder = getDestFolder(missionPrefix, orbitType, year, month);
 
-        final QCScraper qc = new QCScraper(type);
+        final QCScraper qc = new QCScraper(orbitType);
 
         final String[] orbitFiles = qc.getFileURLs(missionPrefix, year, month);
         final URL remotePath = new URL(qc.getRemoteURL());
@@ -831,7 +830,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         }
     }
 
-    private static void disableSSLCertificateCheck() {
+    public static void disableSSLCertificateCheck() {
         final TrustManager[] trustManager = new TrustManager[]{
                 new X509TrustManager() {
                     public java.security.cert.X509Certificate[] getAcceptedIssuers() {
@@ -855,7 +854,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         }
     }
 
-    private static void enableSSLCertificateCheck() {
+    public static void enableSSLCertificateCheck() {
         try {
             final SSLContext sc = SSLContext.getInstance("SSL");
             sc.init(null, null, null);

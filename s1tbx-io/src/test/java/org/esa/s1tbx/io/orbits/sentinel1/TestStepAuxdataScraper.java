@@ -15,8 +15,6 @@
  */
 package org.esa.s1tbx.io.orbits.sentinel1;
 
-import org.esa.s1tbx.io.orbits.sentinel1.SentinelPODOrbitFile;
-import org.esa.s1tbx.io.orbits.sentinel1.StepAuxdataScraper;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
@@ -28,7 +26,7 @@ public class TestStepAuxdataScraper {
 
     @Test
     public void testDownloadPreciseOrbitFileS1A() {
-        final StepAuxdataScraper step = new StepAuxdataScraper(SentinelPODOrbitFile.POEORB);
+        final StepAuxdataScraper step = new StepAuxdataScraper(SentinelPODOrbitFile.PRECISE);
 
         String[] orbitFiles = step.getFileURLs("S1A", 2016, 2);
         assertEquals(29, orbitFiles.length);
@@ -36,7 +34,7 @@ public class TestStepAuxdataScraper {
 
     @Test
     public void testDownloadPreciseOrbitFileS1B() {
-        final StepAuxdataScraper step = new StepAuxdataScraper(SentinelPODOrbitFile.POEORB);
+        final StepAuxdataScraper step = new StepAuxdataScraper(SentinelPODOrbitFile.PRECISE);
 
         String[] orbitFiles = step.getFileURLs("S1B", 2016, 7);
         assertEquals(31, orbitFiles.length);
@@ -44,7 +42,7 @@ public class TestStepAuxdataScraper {
 
     @Test
     public void testDownloadRestituteOrbitFileS1A() {
-        final StepAuxdataScraper step = new StepAuxdataScraper(SentinelPODOrbitFile.RESORB);
+        final StepAuxdataScraper step = new StepAuxdataScraper(SentinelPODOrbitFile.RESTITUTED);
 
         String[] orbitFiles = step.getFileURLs("S1A", 2016, 2);
         assertEquals(591, orbitFiles.length);
@@ -52,7 +50,7 @@ public class TestStepAuxdataScraper {
 
     @Test
     public void testDownloadRestituteOrbitFileS1B() {
-        final StepAuxdataScraper step = new StepAuxdataScraper(SentinelPODOrbitFile.RESORB);
+        final StepAuxdataScraper step = new StepAuxdataScraper(SentinelPODOrbitFile.RESTITUTED);
 
         String[] orbitFiles = step.getFileURLs("S1B", 2016, 7);
         assertEquals(592, orbitFiles.length);
