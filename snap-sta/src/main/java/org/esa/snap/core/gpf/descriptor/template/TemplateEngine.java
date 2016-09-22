@@ -174,7 +174,10 @@ public abstract class TemplateEngine<C> {
                 while ((line = reader.readLine()) != null) {
                     builder.append(line).append("\n");
                 }
-                this.macroTemplateContents = builder.length() > 0 ? builder.toString() : null;
+                if (builder.length() > 0) {
+                    builder.setLength(builder.length() - 1);
+                    this.macroTemplateContents = builder.toString();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
