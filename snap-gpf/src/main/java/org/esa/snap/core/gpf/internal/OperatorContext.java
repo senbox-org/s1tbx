@@ -1240,7 +1240,7 @@ public class OperatorContext {
 
     public synchronized void executeOperator(ProgressMonitor pm) {
         if (!executed) {
-            getOperator().doExecute(ProgressMonitor.NULL);
+            getOperator().doExecute(pm);
             executed = true;
         }
     }
