@@ -26,6 +26,7 @@ import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.image.ResolutionLevel;
 import org.esa.snap.core.image.TiePointGridOpImage;
 import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.math.IndexValidator;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.core.util.math.Range;
@@ -67,6 +68,7 @@ public class TiePointGrid extends RasterDataNode {
     private final double offsetY;
     private final double subSamplingX;
     private final double subSamplingY;
+    private boolean containsAngles;
     private int discontinuity;
 
     private volatile TiePointGrid sinGrid;
@@ -122,8 +124,11 @@ public class TiePointGrid extends RasterDataNode {
                         double subSamplingY,
                         float[] tiePoints,
                         boolean containsAngles) {
-        this(name, gridWidth, gridHeight, offsetX, offsetY, subSamplingX, subSamplingY, tiePoints,
-             containsAngles ? getDiscontinuity(tiePoints) : DISCONT_NONE);
+        this(name, gridWidth, gridHeight, offsetX, offsetY, subSamplingX, subSamplingY, tiePoints);
+        this.containsAngles = containsAngles;
+        if (tiePoints != null && containsAngles) {
+            setDiscontinuity(getDiscontinuity(tiePoints));
+        }
     }
 
     /**
@@ -138,7 +143,7 @@ public class TiePointGrid extends RasterDataNode {
      *                      this tie-pint grid belongs to. Must not be less than one.
      * @param subSamplingY  the sub-sampling in X-direction given in the pixel co-ordinates of the data product to which
      *                      this tie-pint grid belongs to. Must not be less than one.
-     * @param tiePoints     the tie-point data values, must be an array of the size {@code gridWidth * gridHeight}
+     * @param tiePoints     the tie-point data values, can be {@code null} or must be an array of the size {@code gridWidth * gridHeight}
      * @param discontinuity the discontinuity mode, can be either {@link #DISCONT_NONE} or {@link #DISCONT_AT_180}
      *                      {@link #DISCONT_AT_360}
      */
@@ -152,15 +157,17 @@ public class TiePointGrid extends RasterDataNode {
                         float[] tiePoints,
                         int discontinuity) {
         super(name, ProductData.TYPE_FLOAT32, gridWidth * gridHeight);
-        Assert.notNull(tiePoints, "tiePoints");
         Assert.argument(gridWidth >= 2, "gridWidth >= 2");
         Assert.argument(gridHeight >= 2, "gridHeight >= 2");
         Assert.argument(subSamplingX > 0.0F, "subSamplingX > 0.0");
         Assert.argument(subSamplingY > 0.0F, "subSamplingY > 0.0");
-        Assert.argument(tiePoints.length == gridWidth * gridHeight, "tiePoints.length == gridWidth * gridHeight");
+        if(tiePoints != null) {
+            Assert.argument(tiePoints.length == gridWidth * gridHeight, "tiePoints.length == gridWidth * gridHeight");
+        }
+
         Assert.argument(discontinuity == DISCONT_NONE
-                                || discontinuity == DISCONT_AT_180
-                                || discontinuity == DISCONT_AT_360, "discontinuity");
+                        || discontinuity == DISCONT_AT_180
+                        || discontinuity == DISCONT_AT_360, "discontinuity");
 
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;
@@ -169,8 +176,11 @@ public class TiePointGrid extends RasterDataNode {
         this.subSamplingX = subSamplingX;
         this.subSamplingY = subSamplingY;
         this.discontinuity = discontinuity;
+        this.containsAngles = discontinuity == DISCONT_AT_180 || discontinuity == DISCONT_AT_360;
 
-        setData(ProductData.createInstance(tiePoints));
+        if(tiePoints != null) {
+            setData(ProductData.createInstance(tiePoints));
+        }
     }
 
     /**
@@ -232,7 +242,26 @@ public class TiePointGrid extends RasterDataNode {
      * @return The data buffer representing the single tie-points.
      */
     public ProductData getGridData() {
-        return super.getData();
+        ProductData data = super.getData();
+        if (data == null) {
+            try {
+                data = readGridData();
+                if (containsAngles) {
+                    setDiscontinuity(getDiscontinuity((float[]) data.getElems()));
+                }
+            } catch (IOException e) {
+                SystemUtils.LOG.severe("Unable to load TPG: " + e.getMessage());
+            }
+        }
+
+        return data;
+    }
+
+    private ProductData readGridData() throws IOException {
+        ProductData productData = createCompatibleRasterData(getGridWidth(), getGridHeight());
+        getProductReader().readTiePointGridRasterData(this, 0, 0, getGridWidth(), getGridHeight(), productData,
+                                                      ProgressMonitor.NULL);
+        return productData;
     }
 
     /**
@@ -693,7 +722,7 @@ public class TiePointGrid extends RasterDataNode {
     /**
      * Reads raster data from this dataset into the user-supplied raster data buffer. <p>
      * <p>
-     * This method always directly (re-)reads this band's data from its associated data source into the given data
+     * This method always directly (re-)reads this tie-point grid's data from its associated data source into the given data
      * buffer.
      *
      * @param offsetX    the X-offset in the raster co-ordinates where reading starts
@@ -734,7 +763,7 @@ public class TiePointGrid extends RasterDataNode {
      */
     @Override
     public void readRasterDataFully(ProgressMonitor pm) throws IOException {
-        // ok, raster data is already loaded in tie-point grids
+        getGridData(); // trigger reading the grid points
     }
 
     /**
