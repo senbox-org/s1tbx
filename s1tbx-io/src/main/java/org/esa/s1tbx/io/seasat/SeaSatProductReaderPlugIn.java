@@ -20,11 +20,10 @@ import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
+import org.esa.snap.engine_utilities.util.ZipUtils;
 
 import java.io.File;
 import java.util.Locale;
-import java.util.Optional;
-import java.util.zip.ZipFile;
 
 /**
  * The ReaderPlugIn for SeaSat products.
@@ -46,7 +45,8 @@ public class SeaSatProductReaderPlugIn implements ProductReaderPlugIn {
                 if (filename.endsWith(SeaSatConstants.getIndicationKey()) && !filename.endsWith(".ISO.XML")) {
                     return DecodeQualification.INTENDED;
                 }
-                if (filename.endsWith(".ZIP") && isZippedSeaSat(file)) {
+                if (filename.endsWith(".ZIP") &&
+                        ZipUtils.findInZip(file, SeaSatConstants.PRODUCT_HEADER_PREFIX, SeaSatConstants.getIndicationKey())) {
                     return DecodeQualification.INTENDED;
                 }
             }
@@ -54,22 +54,6 @@ public class SeaSatProductReaderPlugIn implements ProductReaderPlugIn {
         //todo zip stream
 
         return DecodeQualification.UNABLE;
-    }
-
-    static boolean isZippedSeaSat(final File file) {
-        try {
-            final ZipFile productZip = new ZipFile(file, ZipFile.OPEN_READ);
-
-            final Optional result = productZip.stream()
-                    .filter(ze -> !ze.isDirectory())
-                    .filter(ze -> ze.getName().toUpperCase().startsWith(SeaSatConstants.PRODUCT_HEADER_PREFIX))
-                    .filter(ze -> ze.getName().toUpperCase().endsWith(SeaSatConstants.getIndicationKey()))
-                    .findFirst();
-            return result.isPresent();
-        } catch (Exception e) {
-            //e.printStackTrace();
-        }
-        return false;
     }
 
     /**

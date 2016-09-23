@@ -20,11 +20,10 @@ import org.esa.snap.core.dataio.ProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
+import org.esa.snap.engine_utilities.util.ZipUtils;
 
 import java.io.File;
 import java.util.Locale;
-import java.util.Optional;
-import java.util.zip.ZipFile;
 
 /**
  * The ReaderPlugIn for Radarsat2 products.
@@ -55,28 +54,14 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
                 }
                 return DecodeQualification.INTENDED;
             }
-            if (filename.endsWith(".zip") && filename.startsWith("rs2") && isZippedRS2(file)) {
+            if (filename.endsWith(".zip") && filename.startsWith("rs2") &&
+                    ZipUtils.findInZip(file, "", Radarsat2Constants.PRODUCT_HEADER_NAME)) {
                 return DecodeQualification.INTENDED;
             }
         }
         //todo zip stream
 
         return DecodeQualification.UNABLE;
-    }
-
-    static boolean isZippedRS2(final File file) {
-        try {
-            final ZipFile productZip = new ZipFile(file, ZipFile.OPEN_READ);
-
-            final Optional result = productZip.stream()
-                    .filter(ze -> !ze.isDirectory())
-                    .filter(ze -> ze.getName().toLowerCase().endsWith(Radarsat2Constants.PRODUCT_HEADER_NAME))
-                    .findFirst();
-            return result.isPresent();
-        } catch (Exception e) {
-            //e.printStackTrace();
-        }
-        return false;
     }
 
     /**
