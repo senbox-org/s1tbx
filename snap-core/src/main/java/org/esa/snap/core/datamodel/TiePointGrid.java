@@ -45,22 +45,23 @@ import java.io.IOException;
  */
 public class TiePointGrid extends RasterDataNode {
 
+    public static final int DISCONT_AUTO = -1;
     /**
      * Tie point values are assumed to have none discontinuities.
      */
-    public static int DISCONT_NONE = 0;
+    public static final int DISCONT_NONE = 0;
 
     /**
      * Tie point values have angles in the range -180...+180 degrees and may comprise a discontinuity at 180 (resp.
      * -180) degrees.
      */
-    public static int DISCONT_AT_180 = 180;
+    public static final int DISCONT_AT_180 = 180;
 
     /**
      * Tie point values have are angles in the range 0...+360 degrees and may comprise a discontinuity at 360 (resp. 0)
      * degrees.
      */
-    public static int DISCONT_AT_360 = 360;
+    public static final int DISCONT_AT_360 = 360;
 
     private final int gridWidth;
     private final int gridHeight;
@@ -68,12 +69,47 @@ public class TiePointGrid extends RasterDataNode {
     private final double offsetY;
     private final double subSamplingX;
     private final double subSamplingY;
-    private boolean containsAngles;
     private int discontinuity;
 
     private volatile TiePointGrid sinGrid;
     private volatile TiePointGrid cosGrid;
     private volatile ProductData rasterData;
+
+
+    /**
+     * Constructs a new {@code TiePointGrid} with the given tie point grid properties.
+     *
+     * @param name         the name of the new object
+     * @param gridWidth    the width of the tie-point grid in pixels
+     * @param gridHeight   the height of the tie-point grid in pixels
+     * @param offsetX      the X co-ordinate of the first (upper-left) tie-point in pixels
+     * @param offsetY      the Y co-ordinate of the first (upper-left) tie-point in pixels
+     * @param subSamplingX the sub-sampling in X-direction given in the pixel co-ordinates of the data product to which
+     *                     this tie-pint grid belongs to. Must not be less than one.
+     * @param subSamplingY the sub-sampling in X-direction given in the pixel co-ordinates of the data product to which
+     *                     this tie-pint grid belongs to. Must not be less than one.
+     */
+    public TiePointGrid(String name,
+                        int gridWidth,
+                        int gridHeight,
+                        double offsetX,
+                        double offsetY,
+                        double subSamplingX,
+                        double subSamplingY) {
+        super(name, ProductData.TYPE_FLOAT32, gridWidth * gridHeight);
+        Assert.argument(gridWidth >= 2, "gridWidth >= 2");
+        Assert.argument(gridHeight >= 2, "gridHeight >= 2");
+        Assert.argument(subSamplingX > 0.0F, "subSamplingX > 0.0");
+        Assert.argument(subSamplingY > 0.0F, "subSamplingY > 0.0");
+
+        this.gridWidth = gridWidth;
+        this.gridHeight = gridHeight;
+        this.offsetX = offsetX;
+        this.offsetY = offsetY;
+        this.subSamplingX = subSamplingX;
+        this.subSamplingY = subSamplingY;
+        this.discontinuity = DISCONT_NONE;
+    }
 
     /**
      * Constructs a new {@code TiePointGrid} with the given tie point grid properties.
@@ -125,8 +161,8 @@ public class TiePointGrid extends RasterDataNode {
                         float[] tiePoints,
                         boolean containsAngles) {
         this(name, gridWidth, gridHeight, offsetX, offsetY, subSamplingX, subSamplingY, tiePoints);
-        this.containsAngles = containsAngles;
-        if (tiePoints != null && containsAngles) {
+        Assert.argument(tiePoints.length == gridWidth * gridHeight, "tiePoints.length == gridWidth * gridHeight");
+        if (containsAngles) {
             setDiscontinuity(getDiscontinuity(tiePoints));
         }
     }
@@ -143,7 +179,7 @@ public class TiePointGrid extends RasterDataNode {
      *                      this tie-pint grid belongs to. Must not be less than one.
      * @param subSamplingY  the sub-sampling in X-direction given in the pixel co-ordinates of the data product to which
      *                      this tie-pint grid belongs to. Must not be less than one.
-     * @param tiePoints     the tie-point data values, can be {@code null} or must be an array of the size {@code gridWidth * gridHeight}
+     * @param tiePoints     the tie-point data values, must be an array of the size {@code gridWidth * gridHeight}
      * @param discontinuity the discontinuity mode, can be either {@link #DISCONT_NONE} or {@link #DISCONT_AT_180}
      *                      {@link #DISCONT_AT_360}
      */
@@ -156,31 +192,13 @@ public class TiePointGrid extends RasterDataNode {
                         double subSamplingY,
                         float[] tiePoints,
                         int discontinuity) {
-        super(name, ProductData.TYPE_FLOAT32, gridWidth * gridHeight);
-        Assert.argument(gridWidth >= 2, "gridWidth >= 2");
-        Assert.argument(gridHeight >= 2, "gridHeight >= 2");
-        Assert.argument(subSamplingX > 0.0F, "subSamplingX > 0.0");
-        Assert.argument(subSamplingY > 0.0F, "subSamplingY > 0.0");
-        if(tiePoints != null) {
-            Assert.argument(tiePoints.length == gridWidth * gridHeight, "tiePoints.length == gridWidth * gridHeight");
-        }
-
-        Assert.argument(discontinuity == DISCONT_NONE
-                        || discontinuity == DISCONT_AT_180
-                        || discontinuity == DISCONT_AT_360, "discontinuity");
-
-        this.gridWidth = gridWidth;
-        this.gridHeight = gridHeight;
-        this.offsetX = offsetX;
-        this.offsetY = offsetY;
-        this.subSamplingX = subSamplingX;
-        this.subSamplingY = subSamplingY;
+        this(name, gridWidth, gridHeight, offsetX, offsetY, subSamplingX, subSamplingY);
+        Assert.argument(tiePoints.length == gridWidth * gridHeight, "tiePoints.length == gridWidth * gridHeight");
+        Assert.argument(discontinuity == DISCONT_NONE||
+                        discontinuity == DISCONT_AT_180 || discontinuity == DISCONT_AT_360,
+                        "discontinuity");
         this.discontinuity = discontinuity;
-        this.containsAngles = discontinuity == DISCONT_AT_180 || discontinuity == DISCONT_AT_360;
-
-        if(tiePoints != null) {
-            setData(ProductData.createInstance(tiePoints));
-        }
+        setData(ProductData.createInstance(tiePoints));
     }
 
     /**
@@ -242,13 +260,9 @@ public class TiePointGrid extends RasterDataNode {
      * @return The data buffer representing the single tie-points.
      */
     public ProductData getGridData() {
-        if (getData() != null) {
+        if (getData() == null) {
             try {
-                ProductData data = readGridData();
-                setData(data);
-                if (containsAngles) {
-                    setDiscontinuity(getDiscontinuity((float[]) data.getElems()));
-                }
+                setData(readGridData());
             } catch (IOException e) {
                 SystemUtils.LOG.severe("Unable to load TPG: " + e.getMessage());
             }
@@ -320,7 +334,8 @@ public class TiePointGrid extends RasterDataNode {
      *                      {@link #DISCONT_AT_360}
      */
     public void setDiscontinuity(final int discontinuity) {
-        if (discontinuity != DISCONT_NONE && discontinuity != DISCONT_AT_180 && discontinuity != DISCONT_AT_360) {
+        if (discontinuity != DISCONT_NONE && discontinuity != DISCONT_AUTO &&
+            discontinuity != DISCONT_AT_180 && discontinuity != DISCONT_AT_360) {
             throw new IllegalArgumentException("unsupported discontinuity mode");
         }
         this.discontinuity = discontinuity;
@@ -348,11 +363,13 @@ public class TiePointGrid extends RasterDataNode {
         return ProductData.TYPE_FLOAT32;
     }
 
-    /**
-     * @return true.
-     */
-    public boolean hasRasterData() {
-        return true;
+
+    @Override
+    public void setData(ProductData data) {
+        super.setData(data);
+        if (getDiscontinuity() == DISCONT_AUTO) {
+            setDiscontinuity(getDiscontinuity((float[]) data.getElems()));
+        }
     }
 
     /**

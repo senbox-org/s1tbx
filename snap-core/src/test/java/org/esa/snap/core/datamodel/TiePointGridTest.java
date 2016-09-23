@@ -42,6 +42,11 @@ public class TiePointGridTest extends AbstractRasterDataNodeTest {
 
     public void testConstructors() {
         try {
+            new TiePointGrid("x", gridWidth, gridHeight, 0, 0, 4, 2);
+        } catch (IllegalArgumentException e) {
+            fail("IllegalArgumentException not expected");
+        }
+        try {
             new TiePointGrid("x", gridWidth, gridHeight, 0, 0, 4, 2, tiePoints);
         } catch (IllegalArgumentException e) {
             fail("IllegalArgumentException not expected");
@@ -90,6 +95,7 @@ public class TiePointGridTest extends AbstractRasterDataNodeTest {
         assertEquals(0, grid.getOffsetY(), 1e-6F);
         assertEquals(4, grid.getSubSamplingX(), 1e-6F);
         assertEquals(2, grid.getSubSamplingY(), 1e-6F);
+        assertEquals(TiePointGrid.DISCONT_NONE, grid.getDiscontinuity());
 
         assertNotNull(grid.getData());
         assertEquals(3 * 5, grid.getData().getNumElems());
@@ -120,6 +126,8 @@ public class TiePointGridTest extends AbstractRasterDataNodeTest {
         assertEquals(0, grid.getOffsetY(), 1e-6F);
         assertEquals(1, grid.getSubSamplingX(), 1e-6F);
         assertEquals(1, grid.getSubSamplingY(), 1e-6F);
+        assertEquals(TiePointGrid.DISCONT_NONE, grid.getDiscontinuity());
+
 
         assertNotNull(grid.getData());
         assertEquals(3 * 5, grid.getData().getNumElems());
@@ -574,6 +582,16 @@ public class TiePointGridTest extends AbstractRasterDataNodeTest {
 
 
     public static void testDiscontinuity() {
+        final TiePointGrid tp0 = new TiePointGrid("tp0", 2, 2, 0, 0, 1, 1);
+        assertEquals(TiePointGrid.DISCONT_NONE, tp0.getDiscontinuity());
+
+        final TiePointGrid tp0_auto = new TiePointGrid("tp0", 2, 2, 0, 0, 1, 1);
+        tp0_auto.setDiscontinuity(TiePointGrid.DISCONT_AUTO);
+        ProductData data = tp0_auto.createCompatibleRasterData();
+        data.setElems(new float[]{0, 20, 180, 150});
+        tp0_auto.setData(data);
+        assertEquals(TiePointGrid.DISCONT_AT_180, tp0_auto.getDiscontinuity());
+
         final TiePointGrid tp1 = new TiePointGrid("tp1", 2, 2, 0, 0, 1, 1, new float[]{0, 20, 180, 150}, true);
         assertEquals(TiePointGrid.DISCONT_AT_180, tp1.getDiscontinuity());
 
