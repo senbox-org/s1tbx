@@ -31,10 +31,10 @@ import java.util.Set;
 /**
  * Download orbit files directly from QC website
  */
-public class QCScraper {
+class QCScraper {
 
-    public static final String POEORB = "aux_poeorb";
-    public static final String RESORB = "aux_resorb";
+    private static final String POEORB = "aux_poeorb";
+    private static final String RESORB = "aux_resorb";
 
     private static final String qcUrl = "https://qc.sentinel1.eo.esa.int/";
     private static final String pageVar = "/?page=";
@@ -44,16 +44,20 @@ public class QCScraper {
 
     private final String orbitType;
 
-    public QCScraper(final String orbitType) {
-        this.orbitType = orbitType;
+    QCScraper(final String orbitType) {
+        if (orbitType.contains("Restituted")) {
+            this.orbitType = RESORB;
+        } else {
+            this.orbitType = POEORB;
+        }
         System.setProperty("jsse.enableSNIExtension", "false");
     }
 
-    public String getRemoteURL() {
+    String getRemoteURL() {
         return qcUrl + orbitType + '/';
     }
 
-    public String[] getFileURLs(final String mission, final int year, final int month) {
+    String[] getFileURLs(final String mission, final int year, final int month) {
         final Set<String> fileList = new HashSet<>();
         String monthStr = StringUtils.padNum(month, 2, '0');
 
