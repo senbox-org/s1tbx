@@ -41,11 +41,14 @@ import java.io.IOException;
  * Usually, tie-point grids are a sub-sampling of a data product's scene resolution.
  *
  * @author Norman Fomferra
- * @version $Revision$ $Date$
  */
 public class TiePointGrid extends RasterDataNode {
 
+    /**
+     * The discontinuity of the tie point values shall be detected automatically.
+     */
     public static final int DISCONT_AUTO = -1;
+
     /**
      * Tie point values are assumed to have none discontinuities.
      */
@@ -180,7 +183,7 @@ public class TiePointGrid extends RasterDataNode {
      * @param subSamplingY  the sub-sampling in X-direction given in the pixel co-ordinates of the data product to which
      *                      this tie-pint grid belongs to. Must not be less than one.
      * @param tiePoints     the tie-point data values, must be an array of the size {@code gridWidth * gridHeight}
-     * @param discontinuity the discontinuity mode, can be either {@link #DISCONT_NONE} or {@link #DISCONT_AT_180}
+     * @param discontinuity the discontinuity mode, can be either {@link #DISCONT_NONE}, {@link #DISCONT_AUTO}, {@link #DISCONT_AT_180} or
      *                      {@link #DISCONT_AT_360}
      */
     public TiePointGrid(String name,
@@ -194,7 +197,7 @@ public class TiePointGrid extends RasterDataNode {
                         int discontinuity) {
         this(name, gridWidth, gridHeight, offsetX, offsetY, subSamplingX, subSamplingY);
         Assert.argument(tiePoints.length == gridWidth * gridHeight, "tiePoints.length == gridWidth * gridHeight");
-        Assert.argument(discontinuity == DISCONT_NONE||
+        Assert.argument(discontinuity == DISCONT_NONE ||
                         discontinuity == DISCONT_AT_180 || discontinuity == DISCONT_AT_360,
                         "discontinuity");
         this.discontinuity = discontinuity;
@@ -320,7 +323,7 @@ public class TiePointGrid extends RasterDataNode {
     /**
      * Gets the angular discontinuity.
      *
-     * @return the angular discontinuity, will always be either {@link #DISCONT_NONE} or {@link #DISCONT_AT_180} or
+     * @return the angular discontinuity, will always be either {@link #DISCONT_NONE}, {@link #DISCONT_AUTO}, {@link #DISCONT_AT_180} or
      * {@link #DISCONT_AT_360}
      */
     public int getDiscontinuity() {
@@ -330,7 +333,7 @@ public class TiePointGrid extends RasterDataNode {
     /**
      * Sets the angular discontinuity.
      *
-     * @param discontinuity angular discontinuity, can be either {@link #DISCONT_NONE} or {@link #DISCONT_AT_180} or
+     * @param discontinuity angular discontinuity, can be either {@link #DISCONT_NONE}, {@link #DISCONT_AUTO}, {@link #DISCONT_AT_180} or
      *                      {@link #DISCONT_AT_360}
      */
     public void setDiscontinuity(final int discontinuity) {
@@ -356,6 +359,7 @@ public class TiePointGrid extends RasterDataNode {
      * {@code ProductData.TYPE_XXX} constants.
      *
      * @return the geophysical data type
+     *
      * @see ProductData
      */
     @Override
