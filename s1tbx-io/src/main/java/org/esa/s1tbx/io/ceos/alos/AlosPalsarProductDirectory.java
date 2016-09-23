@@ -314,21 +314,20 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
         final int gridHeight = 11;
         final int subSamplingX = product.getSceneRasterWidth() / (gridWidth - 1);
         final int subSamplingY = product.getSceneRasterHeight() / (gridHeight - 1);
-        final float[] rangeTime = new float[gridWidth * gridHeight];
 
         final BinaryRecord sceneRec = leaderFile.getSceneRecord();
 
-        final TiePointGrid slantRangeGrid = new TiePointGridLazy(OperatorUtils.TPG_SLANT_RANGE_TIME,
-                gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY, rangeTime);
+        final TiePointGrid slantRangeGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME,
+                gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY);
         slantRangeGrid.setUnit(Unit.NANOSECONDS);
         product.addTiePointGrid(slantRangeGrid);
 
         // incidence angle
         if (sceneRec != null) {
 
-            final float[] angles = new float[gridWidth * gridHeight];
-            final TiePointGrid incidentAngleGrid = new TiePointGridLazy(OperatorUtils.TPG_INCIDENT_ANGLE,
-                    gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY, angles);
+            final TiePointGrid incidentAngleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE,
+                    gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY);
+            incidentAngleGrid.setDiscontinuity(TiePointGrid.DISCONT_AUTO);
 
             incidentAngleGrid.setUnit(Unit.DEGREES);
             product.addTiePointGrid(incidentAngleGrid);
