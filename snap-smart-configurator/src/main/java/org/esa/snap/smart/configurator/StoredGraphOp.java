@@ -55,7 +55,7 @@ public class StoredGraphOp extends Operator {
 
     @Override
     public void doExecute(ProgressMonitor pm) {
-        processor.executeGraph(graphContext, ProgressMonitor.NULL);
+        processor.executeGraph(graphContext, pm);
     }
 
     @Override
