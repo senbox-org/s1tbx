@@ -42,6 +42,7 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
@@ -73,6 +74,7 @@ import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -964,7 +966,12 @@ public class WindFieldEstimationOp extends Operator {
             }
             root.addContent(elem);
         }
-        XMLSupport.SaveXML(doc, windFieldReportFile.getAbsolutePath());
+
+        try {
+            XMLSupport.SaveXML(doc, windFieldReportFile.getAbsolutePath());
+        } catch (IOException e) {
+            SystemUtils.LOG.warning("Unable to save wind field report " + e.getMessage());
+        }
     }
 
     private SimpleFeatureType createFeatureType() {

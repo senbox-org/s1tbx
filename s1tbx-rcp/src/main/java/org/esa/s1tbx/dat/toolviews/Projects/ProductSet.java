@@ -20,6 +20,7 @@ import org.esa.snap.core.dataop.downloadable.XMLSupport;
 import org.esa.snap.engine_utilities.util.ProductFunctions;
 import org.esa.snap.rcp.util.Dialogs;
 import org.jdom2.Attribute;
+import org.jdom2.Content;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
@@ -28,6 +29,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Defines a list of Products
@@ -36,7 +38,7 @@ import java.util.List;
  */
 public final class ProductSet {
 
-    private List<File> fileList = new ArrayList<File>(10);
+    private List<File> fileList = new ArrayList<>(10);
     private File productSetFile = null;
     private final File productSetFolder;
     private String name = null;
@@ -70,7 +72,7 @@ public final class ProductSet {
     }
 
     public void setName(String newName) {
-        if (name == null || !name.equals(newName)) {
+        if (!Objects.equals(name, newName)) {
             if (productSetFile != null && productSetFile.exists())
                 productSetFile.delete();
             if (!newName.toLowerCase().endsWith(".xml"))
@@ -84,7 +86,7 @@ public final class ProductSet {
         return name;
     }
 
-    public void Save() {
+    public void Save() throws IOException {
 
         final Element root = new Element("ProjectSet");
         final Document doc = new Document(root);
@@ -110,10 +112,10 @@ public final class ProductSet {
             return false;
         }
 
-        fileList = new ArrayList<File>(10);
+        fileList = new ArrayList<>(10);
         Element root = doc.getRootElement();
 
-        final List children = root.getContent();
+        final List<Content> children = root.getContent();
         for (Object aChild : children) {
             if (aChild instanceof Element) {
                 final Element child = (Element) aChild;

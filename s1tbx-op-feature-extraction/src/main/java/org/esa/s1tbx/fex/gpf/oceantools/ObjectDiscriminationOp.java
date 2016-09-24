@@ -38,6 +38,7 @@ import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
@@ -52,6 +53,7 @@ import org.opengis.feature.type.AttributeDescriptor;
 
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -429,7 +431,12 @@ public class ObjectDiscriminationOp extends Operator {
             }
             root.addContent(elem);
         }
-        XMLSupport.SaveXML(doc, targetReportFile.getAbsolutePath());
+
+        try {
+            XMLSupport.SaveXML(doc, targetReportFile.getAbsolutePath());
+        } catch (IOException e) {
+            SystemUtils.LOG.warning("Unable to save target report " + e.getMessage());
+        }
     }
 
     private SimpleFeatureType createFeatureType() {

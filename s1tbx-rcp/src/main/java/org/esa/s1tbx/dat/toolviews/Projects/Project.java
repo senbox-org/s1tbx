@@ -40,12 +40,11 @@ import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
-import javax.swing.SwingWorker;
-import java.awt.Frame;
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Observable;
 import java.util.StringTokenizer;
@@ -252,7 +251,7 @@ public class Project extends Observable {
             defaultProjectFolders = "Calibrated Products, Coregistered Products, Orthorectified Products";
         }
 
-        final List<String> folderNames = new ArrayList<String>(5);
+        final List<String> folderNames = new ArrayList<>(5);
         final StringTokenizer st = new StringTokenizer(defaultProjectFolders, ",");
         int length = st.countTokens();
         for (int i = 0; i < length; i++) {
@@ -410,7 +409,7 @@ public class Project extends Observable {
             final Frame mainFrame = SnapApp.getDefault().getMainFrame();
             final ProductSubsetDialog productSubsetDialog = new ProductSubsetDialog(mainFrame, product);
             if (productSubsetDialog.show() == ProductSubsetDialog.ID_OK) {
-                final ProductNodeList<Product> products = new ProductNodeList<Product>();
+                final ProductNodeList<Product> products = new ProductNodeList<>();
                 products.add(product);
                 final NewProductDialog newProductDialog = new NewProductDialog(mainFrame, products, 0, true);
                 newProductDialog.setSubsetDef(productSubsetDialog.getProductSubsetDef());
@@ -570,13 +569,17 @@ public class Project extends Observable {
         final Document doc = new Document(root);
 
         final Vector subFolders = projectSubFolders.getSubFolders();
-        for (Enumeration e = subFolders.elements(); e.hasMoreElements(); ) {
-            final ProjectSubFolder folder = (ProjectSubFolder) e.nextElement();
+        for (Object subFolder : subFolders) {
+            final ProjectSubFolder folder = (ProjectSubFolder) subFolder;
             final Element elem = folder.toXML();
             root.addContent(elem);
         }
 
-        XMLSupport.SaveXML(doc, projectFile.getAbsolutePath());
+        try {
+            XMLSupport.SaveXML(doc, projectFile.getAbsolutePath());
+        } catch (IOException e) {
+            Dialogs.showError("Unable to save project: " + e.getMessage());
+        }
     }
 
     public void LoadProject() {
@@ -599,8 +602,8 @@ public class Project extends Observable {
             return;
         }
 
-        final Vector<ProjectSubFolder> folderList = new Vector<ProjectSubFolder>(30);
-        final Vector<ProjectFile> prodList = new Vector<ProjectFile>(50);
+        final Vector<ProjectSubFolder> folderList = new Vector<>(30);
+        final Vector<ProjectFile> prodList = new Vector<>(50);
 
         final Element root = doc.getRootElement();
 

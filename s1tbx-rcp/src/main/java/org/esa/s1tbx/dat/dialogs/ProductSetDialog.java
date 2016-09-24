@@ -19,11 +19,13 @@ import org.esa.s1tbx.dat.toolviews.Projects.ProductSet;
 import org.esa.snap.graphbuilder.rcp.dialogs.ProductSetPanel;
 import org.esa.snap.graphbuilder.rcp.dialogs.support.FileTable;
 import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.rcp.util.Dialogs;
 import org.esa.snap.ui.ModalDialog;
 import org.esa.snap.ui.ModelessDialog;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 
 /**
  * Created by IntelliJ IDEA.
@@ -60,12 +62,16 @@ public class ProductSetDialog extends ModelessDialog {
 
     @Override
     protected void onOK() {
-        productSet.setName(nameField.getText());
-        productSet.setFileList(productSetTable.getFileList());
-        productSet.Save();
+        try {
+            productSet.setName(nameField.getText());
+            productSet.setFileList(productSetTable.getFileList());
+            productSet.Save();
 
-        ok = true;
-        hide();
+            ok = true;
+            hide();
+        } catch (IOException e) {
+            Dialogs.showError("Unable to save ProductSet " + e.getMessage());
+        }
     }
 
     public boolean IsOK() {
