@@ -22,6 +22,7 @@ import org.apache.commons.net.ftp.FTPReply;
 import org.esa.snap.core.datamodel.ProgressListenerList;
 import org.esa.snap.core.util.SystemUtils;
 import org.jdom2.Attribute;
+import org.jdom2.Content;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
@@ -136,7 +137,7 @@ public final class FtpDownloader {
                     fos.close();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                SystemUtils.LOG.severe("Unable to close input stream " + e.getMessage());
             }
         }
     }
@@ -191,14 +192,14 @@ public final class FtpDownloader {
                 final Element root = doc.getRootElement();
                 boolean listingFound = false;
 
-                final List children1 = root.getContent();
+                final List<Content> children1 = root.getContent();
                 for (Object c1 : children1) {
                     if (!(c1 instanceof Element)) continue;
                     final Element remotePathElem = (Element) c1;
                     final Attribute pathAttrib = remotePathElem.getAttribute("path");
                     if (pathAttrib != null && pathAttrib.getValue().equalsIgnoreCase(remotePath)) {
                         listingFound = true;
-                        final List children2 = remotePathElem.getContent();
+                        final List<Content> children2 = remotePathElem.getContent();
                         for (Object c2 : children2) {
                             if (!(c2 instanceof Element)) continue;
                             final Element fileElem = (Element) c2;
@@ -259,7 +260,11 @@ public final class FtpDownloader {
             fileElem.setAttribute("size", String.valueOf(ftpFile.getSize()));
             remotePathElem.addContent(fileElem);
         }
-        XMLSupport.SaveXML(doc, file.getAbsolutePath());
+        try {
+            XMLSupport.SaveXML(doc, file.getAbsolutePath());
+        } catch (IOException e) {
+            SystemUtils.LOG.warning("Unable to save " + file.getAbsolutePath());
+        }
     }
 
     public static boolean testFTP(final String remoteFTP, final String remotePath) throws IOException {
