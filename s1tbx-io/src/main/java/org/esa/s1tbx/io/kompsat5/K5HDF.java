@@ -540,15 +540,13 @@ public class K5HDF implements K5Format {
             final int height = variable.getDimension(0).getLength();
             final int width = variable.getDimension(1).getLength();
             String cntStr = "";
-            if (variables.length > 1) {
-                final String polStr = getPolarization(product, cnt);
-                if (polStr != null) {
-                    cntStr = '_' + polStr;
-                } else {
-                    cntStr = "_" + cnt;
-                }
-                ++cnt;
+            final String polStr = getPolarization(product, cnt);
+            if (polStr != null) {
+                cntStr = '_' + polStr;
+            } else {
+                cntStr = "_" + cnt;
             }
+            ++cnt;
 
             final boolean floatBand = product.getProductType().equals("SCS_A");
 
