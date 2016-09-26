@@ -155,17 +155,8 @@ public class StampsExportOp extends Operator {
     }
 
     private static String extractDate(final String bandName, int i) {
-        int idx = bandName.length();
-        for (int j = 0; j < i+1; j++) {
-            idx =  bandName.substring(0, idx).lastIndexOf('_');
-        }
-        final String rawDate = bandName.substring(idx+1);
-        if (rawDate.contains("_")) {
-            final int idx1 = rawDate.lastIndexOf('_');
-            return convertFormat(rawDate.substring(0, idx1)) + '_' + convertFormat(rawDate.substring(idx1+1));
-        } else {
-            return convertFormat(rawDate);
-        }
+        final String rawDate = bandName.substring(bandName.lastIndexOf('_')+1, bandName.length());
+        return convertFormat(rawDate);
     }
 
     @Override
