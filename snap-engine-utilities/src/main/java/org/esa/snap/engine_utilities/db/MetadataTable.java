@@ -18,6 +18,7 @@ package org.esa.snap.engine_utilities.db;
 import org.esa.snap.core.datamodel.MetadataAttribute;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 
 import java.sql.Connection;
@@ -56,16 +57,16 @@ public class MetadataTable implements TableInterface {
                     "    ID          INTEGER NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1)";
 
     private static final String strSaveProduct =
-            "INSERT INTO " + TABLE + " ";
+            "INSERT INTO " + TABLE + ' ';
 
     private static final String strDeleteProduct =
             "DELETE FROM " + TABLE + " WHERE ID = ?";
 
     private static final String strGetMetadata =
-            "SELECT * FROM " + TABLE + " " +
+            "SELECT * FROM " + TABLE + ' ' +
                     "WHERE ID = ?";
 
-    public MetadataTable(final Connection dbConnection) {
+    public MetadataTable(final Connection dbConnection) throws SQLException {
         this.dbConnection = dbConnection;
     }
 
@@ -102,7 +103,7 @@ public class MetadataTable implements TableInterface {
                 }
                 if (!found) {
                     final int dataType = attrib.getDataType();
-                    final String alterStr = "ALTER TABLE " + TABLE + " ADD COLUMN " + name + " " + getDataType(dataType) +
+                    final String alterStr = "ALTER TABLE " + TABLE + " ADD COLUMN " + name + ' ' + getDataType(dataType) +
                             " DEFAULT " + getDefault(dataType) + " NOT NULL";
                     alterStatement.execute(alterStr);
                 }
@@ -119,15 +120,15 @@ public class MetadataTable implements TableInterface {
         for (MetadataAttribute attrib : attribList) {
             final String name = attrib.getName();
             metadataNamesList.add(name);
-            createTableStr += ", " + name + " " + getDataType(attrib.getDataType());
-            namesStr += name + ",";
+            createTableStr += ", " + name + ' ' + getDataType(attrib.getDataType());
+            namesStr += name + ',';
             valueStr += "?,";
         }
         createTableStr += ")";
         namesStr = namesStr.substring(0, namesStr.length() - 1);
         valueStr = valueStr.substring(0, valueStr.length() - 1);
 
-        saveProductStr = strSaveProduct + "(" + namesStr + ")" + "VALUES (" + valueStr + ")";
+        saveProductStr = strSaveProduct + '(' + namesStr + ')' + "VALUES (" + valueStr + ')';
     }
 
     private static String getDataType(final int dataType) {
@@ -225,7 +226,7 @@ public class MetadataTable implements TableInterface {
                     AbstractMetadata.setAttribute(absRoot, name, results.getString(name));
                 }
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+                SystemUtils.LOG.severe(e.getMessage());
             }
         }
         return absRoot;

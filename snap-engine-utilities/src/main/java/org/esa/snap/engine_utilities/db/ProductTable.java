@@ -15,6 +15,7 @@
  */
 package org.esa.snap.engine_utilities.db;
 
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 
 import java.io.File;
@@ -40,7 +41,7 @@ public class ProductTable implements TableInterface {
     private PreparedStatement stmtAllProductTypes;
     private PreparedStatement stmtAllAcquisitionModes;
 
-    private static String[] colNames = {
+    private static final String[] colNames = {
             AbstractMetadata.PATH,
             AbstractMetadata.PRODUCT,
             AbstractMetadata.MISSION,
@@ -64,7 +65,7 @@ public class ProductTable implements TableInterface {
             ProductEntry.GEO_BOUNDARY
     };
 
-    private static String[] colTypes = {
+    private static final String[] colTypes = {
             "VARCHAR(255)",
             "VARCHAR(255)",
             "VARCHAR(30)",
@@ -88,36 +89,12 @@ public class ProductTable implements TableInterface {
             "VARCHAR(1200)"
     };
 
-    private static final String strCreateProductTable = createTableString();
-
-    private static String createTableString() {
-        int i = 0;
-        String s = "create table " + TABLE + " (" +
-                "    ID          INTEGER NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),";
-        for (String n : colNames) {
-            s += n + " " + colTypes[i++] + ", ";
-        }
-        return s.substring(0, s.length() - 2) + ')';
-    }
+    private static final String strCreateProductTable = TableInterface.createTableString(TABLE, colNames, colTypes);
 
     private static final String strGetProduct =
-            "SELECT * FROM " + TABLE + ' ' +
-                    "WHERE ID = ?";
+            "SELECT * FROM " + TABLE + " WHERE ID = ?";
 
-    private static final String strSaveProduct = createSaveString();
-
-    private static String createSaveString() {
-        String s = "INSERT INTO " + TABLE + " ( ";
-        for (String n : colNames) {
-            s += n + ", ";
-        }
-        s = s.substring(0, s.length() - 2) + ')';
-        s += " VALUES (";
-        for (String n : colNames) {
-            s += "?, ";
-        }
-        return s.substring(0, s.length() - 2) + ')';
-    }
+    private static final String strSaveProduct = TableInterface.createSaveString(TABLE, colNames);
 
     private static final String strGetListEntries =
             "SELECT * FROM " + TABLE + " ORDER BY " + AbstractMetadata.MISSION + " ASC";
@@ -139,7 +116,7 @@ public class ProductTable implements TableInterface {
     private static final String strAllProductTypes = "SELECT DISTINCT " + AbstractMetadata.PRODUCT_TYPE + " FROM " + TABLE;
     private static final String strAllAcquisitionModes = "SELECT DISTINCT " + AbstractMetadata.ACQUISITION_MODE + " FROM " + TABLE;
 
-    public ProductTable(final Connection dbConnection) {
+    public ProductTable(final Connection dbConnection) throws SQLException {
         this.dbConnection = dbConnection;
     }
 
@@ -150,24 +127,7 @@ public class ProductTable implements TableInterface {
     }
 
     public void validateTable() throws SQLException {
-        // alter table if columns are missing
-        try (final Statement alterStatement = dbConnection.createStatement()) {
-
-            // add missing columns to the table
-            int i = 0;
-            for (String n : colNames) {
-                final String testStr = "SELECT '" + n + "' FROM " + TABLE;
-                try {
-                    alterStatement.executeQuery(testStr);
-                } catch (SQLException e) {
-                    if (e.getSQLState().equals("42X04")) {
-                        final String alterStr = "ALTER TABLE " + TABLE + " ADD '" + n + "' " + colTypes[i];
-                        alterStatement.execute(alterStr);
-                    }
-                }
-                ++i;
-            }
-        }
+        validateTable(dbConnection, TABLE, colNames, colTypes);
     }
 
     public void prepareStatements() throws SQLException {
@@ -208,7 +168,7 @@ public class ProductTable implements TableInterface {
         stmtSaveNewRecord.setString(i++, record.getFileFormat());
         final String geoStr = record.formatGeoBoundayString();
         if (geoStr.length() > 1200) {
-            System.out.println("Geoboundary string exceeds 1200");
+            SystemUtils.LOG.warning("Geoboundary string exceeds 1200");
             stmtSaveNewRecord.setString(i++, "");
         } else {
             stmtSaveNewRecord.setString(i++, geoStr);

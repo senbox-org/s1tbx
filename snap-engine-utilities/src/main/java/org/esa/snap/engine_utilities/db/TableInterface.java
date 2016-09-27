@@ -15,8 +15,9 @@
  */
 package org.esa.snap.engine_utilities.db;
 
-import java.sql.ResultSet;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
 
@@ -29,5 +30,56 @@ public interface TableInterface {
 
     public void prepareStatements() throws SQLException;
 
-    public ResultSet addRecord(final ProductEntry record) throws SQLException;
+    static String createTableString(final String table, final String[] colNames, final String[] colTypes) {
+        int i = 0;
+        final StringBuilder s = new StringBuilder(255);
+        s.append("create table " + table + " (" +
+                         "    ID          INTEGER NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),");
+        for (String n : colNames) {
+            s.append(n);
+            s.append(' ');
+            s.append(colTypes[i++]);
+            s.append(", ");
+        }
+        return s.substring(0, s.length() - 2) + ')';
+    }
+
+    static String createSaveString(final String table, final String[] colNames) {
+        final StringBuilder s = new StringBuilder(255);
+        s.append("INSERT INTO " + table + " (");
+        for (String n : colNames) {
+            s.append(n);
+            s.append(", ");
+        }
+        s.delete(s.length() - 2, s.length());
+        s.append(") VALUES (");
+        for (String n : colNames) {
+            s.append("?, ");
+        }
+        s.delete(s.length() - 2, s.length());
+        s.append(')');
+        return s.toString();
+    }
+
+    default void validateTable(final Connection dbConnection, final String table,
+                               final String[] colNames, final String[] colTypes) throws SQLException {
+        // alter table if columns are missing
+        try (final Statement alterStatement = dbConnection.createStatement()) {
+
+            // add missing columns to the table
+            int i = 0;
+            for (String n : colNames) {
+                final String testStr = "SELECT '" + n + "' FROM " + table;
+                try {
+                    alterStatement.executeQuery(testStr);
+                } catch (SQLException e) {
+                    if (e.getSQLState().equals("42X04")) {
+                        final String alterStr = "ALTER TABLE " + table + " ADD '" + n + "' " + colTypes[i];
+                        alterStatement.execute(alterStr);
+                    }
+                }
+                ++i;
+            }
+        }
+    }
 }
