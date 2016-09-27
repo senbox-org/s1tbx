@@ -45,6 +45,7 @@ public class SpeckleFilterOperatorTest {
     private final static TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
 
     private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
+    private String[] exceptionExemptions = {"first be deburst"};
 
     /**
      * Tests Mean speckle filter with a 4-by-4 test product.
@@ -341,6 +342,6 @@ public class SpeckleFilterOperatorTest {
 
     @Test
     public void testProcessAllSentinel1() throws Exception {
-        testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsSentinel1, null, null);
+        testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsSentinel1, null, exceptionExemptions);
     }
 }
