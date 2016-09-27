@@ -79,11 +79,11 @@ public class HAlphaWishartC2 extends PolClassifierBase implements PolClassifier 
         return 9;
     }
 
-    private boolean noData(final double noDataValue, final ProductData[] dataBuffers, final int index) {
+    private boolean noData(final Double noDataValue, final ProductData[] dataBuffers, final int index) {
         // It is assumed that all the data buffers have the same no data value.
         int numNoDataBuf = 0;
         for (ProductData buf : dataBuffers) {
-            if (buf.getElemDoubleAt(index) == noDataValue) {
+            if (noDataValue.equals(buf.getElemDoubleAt(index))) {
                 numNoDataBuf++;
             }
         }

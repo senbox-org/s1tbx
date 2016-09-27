@@ -516,10 +516,10 @@ public final class DEMAssistedCoregistrationOp extends Operator {
                     GeoPos gp = dem.getGeoPos(pix);
                     lat[l][p] = gp.lat;
                     lon[l][p] = gp.lon;
-                    double alt = dem.getElevation(gp);
+                    Double alt = dem.getElevation(gp);
 
-                    if (alt == demNoDataValue) { // get corrected elevation for 0
-                        alt = egm.getEGM(gp.lat, gp.lon);
+                    if (alt.equals(demNoDataValue)) { // get corrected elevation for 0
+                        alt = (double)egm.getEGM(gp.lat, gp.lon);
                     }
 
                     GeoUtils.geo2xyzWGS84(gp.lat, gp.lon, alt, posData.earthPoint);
@@ -574,7 +574,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
             boolean allElementsAreNull = true;
             final PixelPos[][] slavePixelPos = new PixelPos[h][w];
 
-            double alt = 0;
+            Double alt = 0.0;
             for(int yy = 0; yy < h; yy++) {
                 for (int xx = 0; xx < w; xx++) {
                     if (rgArray[yy][xx] == invalidIndex || azArray[yy][xx] == invalidIndex ||
@@ -584,7 +584,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
                     } else {
                         if (maskOutAreaWithoutElevation) {
                             alt = dem.getElevation(new GeoPos(latArray[yy][xx], lonArray[yy][xx]));
-                            if (alt != demNoDataValue) {
+                            if (!alt.equals(demNoDataValue)) {
                                 slavePixelPos[yy][xx] = new PixelPos(rgArray[yy][xx], azArray[yy][xx]);
                                 allElementsAreNull = false;
                             } else {

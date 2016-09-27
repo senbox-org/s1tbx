@@ -126,7 +126,7 @@ public final class TerrainFlatteningOp extends Operator {
     private double demNoDataValue = 0; // no data value for DEM
     private SARGeocoding.Orbit orbit = null;
 
-    private double noDataValue = 0;
+    private Double noDataValue = 0.0;
     private double beta0 = 0;
 
     private OrbitStateVector[] orbitStateVectors = null;
@@ -531,8 +531,8 @@ public final class TerrainFlatteningOp extends Operator {
                         final double pixelY = latMaxIdx + i;
                         pix.setLocation(pixelX, pixelY);
                         final GeoPos gp = dem.getGeoPos(pix);
-                        final double alt = dem.getSample(pixelX, pixelY);
-                        if (Double.isNaN(alt) || alt == demNoDataValue)
+                        final Double alt = dem.getSample(pixelX, pixelY);
+                        if (Double.isNaN(alt) || alt.equals(demNoDataValue))
                             continue;
 
                         if (!getPosition(gp.lat, gp.lon, alt, x0, y0, w, h, posData))
@@ -542,7 +542,7 @@ public final class TerrainFlatteningOp extends Operator {
                                 posData.earthPoint, posData.sensorPos);
 
                         gamma0Area[j] = computeGamma0Area(localGeometry, demNoDataValue, noDataValue);
-                        if (gamma0Area[j] == noDataValue)
+                        if (noDataValue.equals(gamma0Area[j]))
                             continue;
 
                         if (outputSigma0) {
@@ -625,8 +625,8 @@ public final class TerrainFlatteningOp extends Operator {
                     for (int x = xmin; x < xmax; x++) {
                         final int xx = x - xmin;
 
-                        double alt = localDEM[yy + 1][xx + 1];
-                        if (alt == demNoDataValue)
+                        Double alt = localDEM[yy + 1][xx + 1];
+                        if (alt.equals(demNoDataValue))
                             continue;
 
                         tileGeoRef.getGeoPos(x, y, geoPos);
@@ -646,7 +646,7 @@ public final class TerrainFlatteningOp extends Operator {
                                 xmin, ymin, x, y, tileGeoRef, localDEM, posData.earthPoint, posData.sensorPos);
 
                         gamma0Area[xx] = computeGamma0Area(localGeometry, demNoDataValue, noDataValue);
-                        if (gamma0Area[xx] == noDataValue)
+                        if (noDataValue.equals(gamma0Area[xx]))
                             continue;
 
                         if (outputSigma0) {
@@ -949,7 +949,7 @@ public final class TerrainFlatteningOp extends Operator {
                 pixPos.setLocation(x, y);
                 targetGeoCoding.getGeoPos(pixPos, geoPos);
                 final double alt = dem.getElevation(geoPos);
-                if (alt == noDataValue)
+                if (noDataValue.equals(alt))
                     continue;
 
                 if (!getPosition(geoPos.lat, geoPos.lon, alt, x0, y0, w, h, posData))
@@ -1081,10 +1081,10 @@ public final class TerrainFlatteningOp extends Operator {
      * @return The computed local illuminated area.
      */
     private static double computeGamma0Area(
-            final LocalGeometry lg, final double demNoDataValue, final double noDataValue) {
+            final LocalGeometry lg, final Double demNoDataValue, final double noDataValue) {
 
-        if (lg.t00Height == demNoDataValue || lg.t01Height == demNoDataValue ||
-                lg.t10Height == demNoDataValue || lg.t11Height == demNoDataValue) {
+        if (demNoDataValue.equals(lg.t00Height) || demNoDataValue.equals(lg.t01Height) ||
+                demNoDataValue.equals(lg.t10Height) || demNoDataValue.equals(lg.t11Height)) {
             return noDataValue;
         }
 
@@ -1134,10 +1134,10 @@ public final class TerrainFlatteningOp extends Operator {
     }
 
     private static double computeSigma0Area(
-            final LocalGeometry lg, final double demNoDataValue, final double noDataValue) {
+            final LocalGeometry lg, final Double demNoDataValue, final double noDataValue) {
 
-        if (lg.t00Height == demNoDataValue || lg.t01Height == demNoDataValue ||
-                lg.t10Height == demNoDataValue || lg.t11Height == demNoDataValue) {
+        if (demNoDataValue.equals(lg.t00Height) || demNoDataValue.equals(lg.t01Height) ||
+                demNoDataValue.equals(lg.t10Height) || demNoDataValue.equals(lg.t11Height)) {
             return noDataValue;
         }
 

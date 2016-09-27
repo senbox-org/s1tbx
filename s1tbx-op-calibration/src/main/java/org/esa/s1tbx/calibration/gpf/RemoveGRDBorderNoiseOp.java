@@ -86,7 +86,7 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
     private int sourceImageHeight = 0;
     private double version = 0.0f;
     private double scalingFactor = 0.0;
-    private double noDataValue = 0;
+    private Double noDataValue = 0.0;
     private String coPolarization = null;
     private Sentinel1Utils.NoiseVector noiseVector = null;
     private double[] noiseLUT = null;
@@ -479,7 +479,7 @@ public final class RemoveGRDBorderNoiseOp extends Operator {
 
                     if (testPixel) {
                         coPolDataValue = coPolData.getElemDoubleAt(srcIdx);
-                        if (coPolDataValue == noDataValue) {
+                        if (noDataValue.equals(coPolDataValue)) {
                             continue;
                         }
 

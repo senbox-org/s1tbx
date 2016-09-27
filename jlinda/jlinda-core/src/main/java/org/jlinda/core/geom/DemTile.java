@@ -29,7 +29,7 @@ public class DemTile {
     double longitudeDelta;
 
     // no data value
-    double noDataValue;
+    Double noDataValue;
 
     //// actual demTileData
     double[][] data;
@@ -66,7 +66,7 @@ public class DemTile {
     }
 
     public DemTile(double lat0, double lon0, long nLatPixels, long nLonPixels,
-                   double latitudeDelta, double longitudeDelta, long noDataValue) {
+                   double latitudeDelta, double longitudeDelta, double noDataValue) {
         this.lat0 = lat0;
         this.lon0 = lon0;
         this.nLatPixels = nLatPixels;
@@ -77,7 +77,7 @@ public class DemTile {
     }
 
     public DemTile(double lat0_ABS, double lon0_ABS, long nLatPixels_ABS, long nLonPixels_ABS,
-                   double delta, long noDataValue) {
+                   double delta, double noDataValue) {
 
         this.lat0_ABS = lat0_ABS;
         this.lon0_ABS = lon0_ABS;
@@ -117,10 +117,10 @@ public class DemTile {
         double min_dem_buffer = data[0][0];
         double max_dem_buffer = data[0][0];
 
-        if (max_dem_buffer == noDataValue) {
+        if (noDataValue.equals(max_dem_buffer)) {
             max_dem_buffer = 0;
         }
-        if (min_dem_buffer == noDataValue) {
+        if (noDataValue.equals(min_dem_buffer)) {
             min_dem_buffer = 0;
         }
 
@@ -128,7 +128,7 @@ public class DemTile {
             totalNumPoints = data.length * data[0].length;
             for (double[] aData : data) {
                 for (int j = 0; j < data[0].length; j++) {
-                    if (aData[j] != noDataValue) {
+                    if (!noDataValue.equals(aData[j])) {
                         numValid++;
                         meanValue += aData[j];           // divide by numValid later
                         if (aData[j] < min_dem_buffer)

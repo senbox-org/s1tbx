@@ -207,7 +207,6 @@ public class RangeDopplerGeocodingOp extends Operator {
     private double avgSceneHeight = 0.0; // in m
     private double wavelength = 0.0; // in m
     private double rangeSpacing = 0.0;
-    private double azimuthSpacing = 0.0;
     private double firstLineUTC = 0.0; // in days
     private double lastLineUTC = 0.0; // in days
     private double lineTimeInterval = 0.0; // in days
@@ -407,11 +406,6 @@ public class RangeDopplerGeocodingOp extends Operator {
             throw new OperatorException("Invalid input for range pixel spacing: " + rangeSpacing);
         }
 
-        azimuthSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.azimuth_spacing);
-        if (azimuthSpacing <= 0.0) {
-            throw new OperatorException("Invalid input for azimuth pixel spacing: " + azimuthSpacing);
-        }
-
         firstLineUTC = AbstractMetadata.parseUTC(absRoot.getAttributeString(AbstractMetadata.first_line_time)).getMJD(); // in days
         lastLineUTC = AbstractMetadata.parseUTC(absRoot.getAttributeString(AbstractMetadata.last_line_time)).getMJD(); // in days
         lineTimeInterval = (lastLineUTC - firstLineUTC) / (sourceImageHeight - 1); // in days
@@ -469,9 +463,6 @@ public class RangeDopplerGeocodingOp extends Operator {
             final String productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE).toUpperCase();
             if (!productType.contains("1.1"))
                 throw new OperatorException("Detected ALOS PALSAR products are currently not supported");
-        }
-        if (mission.equals("RS1")) {
-            //throw new OperatorException("RadarSAT-1 product is currently not supported");
         }
 
         return mission;
@@ -607,7 +598,7 @@ public class RangeDopplerGeocodingOp extends Operator {
      *
      * @throws OperatorException The exceptions.
      */
-    void addSelectedBands() throws OperatorException {
+    private void addSelectedBands() throws OperatorException {
 
         final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
 
@@ -756,7 +747,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                 bandName, bandUnit, sourceBand, ProductData.TYPE_FLOAT32);
     }
 
-    public static Band addTargetBand(final Product targetProduct, final int targetImageWidth, final int targetImageHeight,
+    static Band addTargetBand(final Product targetProduct, final int targetImageWidth, final int targetImageHeight,
                                      final String bandName, final String bandUnit, final Band sourceBand,
                                      final int dataType) {
 
@@ -958,8 +949,8 @@ public class RangeDopplerGeocodingOp extends Operator {
                 for (int x = x0; x < maxX; x++) {
                     final int index = tgtTiles[0].targetTile.getDataBufferIndex(x, y);
 
-                    double alt = localDEM[yy][x - x0 + 1];
-                    if (alt == demNoDataValue && !useAvgSceneHeight) {
+                    Double alt = localDEM[yy][x - x0 + 1];
+                    if (alt.equals(demNoDataValue) && !useAvgSceneHeight) {
                         if (nodataValueAtSea) {
                             saveNoDataValueToTarget(index, tgtTiles);
                             continue;
@@ -973,8 +964,8 @@ public class RangeDopplerGeocodingOp extends Operator {
                         lon -= 360.0;
                     }
 
-                    if (alt == demNoDataValue && !nodataValueAtSea) { // get corrected elevation for 0
-                        alt = egm.getEGM(lat, lon);
+                    if (alt.equals(demNoDataValue) && !nodataValueAtSea) { // get corrected elevation for 0
+                        alt = (double)egm.getEGM(lat, lon);
                     }
 
                     if (!getPosition(lat, lon, alt, posData)) {
@@ -1092,8 +1083,8 @@ public class RangeDopplerGeocodingOp extends Operator {
         for (int i = 0; i < 4; i++) {
 
             tileGeoRef.getGeoPos(tgtCorners[i], geoPos);
-            final double alt = tgtCornerElevations[i];
-            if (alt == demNoDataValue) {
+            final Double alt = tgtCornerElevations[i];
+            if (alt.equals(demNoDataValue)) {
                 return null;
             }
 
@@ -1279,7 +1270,7 @@ public class RangeDopplerGeocodingOp extends Operator {
         final ResamplingRaster imgResamplingRaster;
         final Resampling.Index imgResamplingIndex;
 
-        public TileData(final Tile tile, final Band[] srcBands, final boolean isPolsar, final boolean outputComplex,
+        TileData(final Tile tile, final Band[] srcBands, final boolean isPolsar, final boolean outputComplex,
                         final String name,
                         final Unit.UnitType unit, final MetadataElement absRoot, final Calibrator calibrator,
                         final Resampling imgResampling) {
@@ -1312,16 +1303,16 @@ public class RangeDopplerGeocodingOp extends Operator {
         private ProductData dataBufferQ = null;
         private int subSwathIndex = -1;
 
-        public ResamplingRaster(final TileData tileData) {
+        ResamplingRaster(final TileData tileData) {
             this.tileData = tileData;
         }
 
-        public void setRangeAzimuthIndices(final double rangeIndex, final double azimuthIndex) {
+        void setRangeAzimuthIndices(final double rangeIndex, final double azimuthIndex) {
             this.rangeIndex = rangeIndex;
             this.azimuthIndex = azimuthIndex;
         }
 
-        public void setSourceTiles(final Tile sourceTileI, final Tile sourceTileQ) {
+        void setSourceTiles(final Tile sourceTileI, final Tile sourceTileQ) {
 
             if (sourceTileI != null) {
                 this.sourceTileI = sourceTileI;
@@ -1422,7 +1413,7 @@ public class RangeDopplerGeocodingOp extends Operator {
             return allValid;
         }
 
-        public int getSubSwathIndex() {
+        int getSubSwathIndex() {
             return this.subSwathIndex;
         }
     }

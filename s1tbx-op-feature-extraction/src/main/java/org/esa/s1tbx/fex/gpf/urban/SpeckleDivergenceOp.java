@@ -250,7 +250,7 @@ public class SpeckleDivergenceOp extends Operator {
             final Band sourceBand = sourceProduct.getBand(srcBandName);
             final Tile sourceTile = getSourceTile(sourceBand, sourceTileRectangle);
             final ProductData srcData = sourceTile.getDataBuffer();
-            final double noDataValue = sourceBand.getNoDataValue();
+            final Double noDataValue = sourceBand.getNoDataValue();
             final Unit.UnitType bandUnit = Unit.getUnitType(sourceBand);
 
             final Band maskBand = sourceProduct.getBand(TerrainMaskOp.TERRAIN_MASK_NAME);
@@ -275,8 +275,8 @@ public class SpeckleDivergenceOp extends Operator {
                     final int idx = trgIndex.getIndex(tx);
 
                     final double v = srcData.getElemDoubleAt(srcIndex.getIndex(tx));
-                    if (v == noDataValue || (maskBand != null && maskData.getElemIntAt(idx) == 1)) {
-                        trgData.setElemFloatAt(idx, (float) noDataValue);
+                    if (noDataValue.equals(v) || (maskBand != null && maskData.getElemIntAt(idx) == 1)) {
+                        trgData.setElemFloatAt(idx, noDataValue.floatValue());
                         continue;
                     }
 

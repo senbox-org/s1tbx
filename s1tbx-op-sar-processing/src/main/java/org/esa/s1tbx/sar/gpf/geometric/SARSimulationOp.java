@@ -557,7 +557,7 @@ public final class SARSimulationOp extends Operator {
 
                 final double[][] tileDEM = new double[nLat + 1][nLon + 1];
                 final double[][] neighbourDEM = new double[3][3];
-                double alt;
+                Double alt;
 
                 if (saveLayoverShadowMask) {
                     slrs = new double[nLon];
@@ -582,11 +582,11 @@ public final class SARSimulationOp extends Operator {
                             lon -= 360.0;
                         }
                         if (saveZeroHeightSimulation) {
-                            alt = 1;
+                            alt = 1.0;
                         } else {
                             geoPos.setLocation(lat, lon);
                             alt = dem.getElevation(geoPos);
-                            if (alt == demNoDataValue)
+                            if (alt.equals(demNoDataValue))
                                 continue;
                         }
                         tileDEM[i][j] = alt;
@@ -711,9 +711,9 @@ public final class SARSimulationOp extends Operator {
 
                     for (int x = xmin; x < xmax; x++) {
                         final int xx = x - xmin;
-                        double alt = localDEM[yy + 1][xx + 1];
+                        Double alt = localDEM[yy + 1][xx + 1];
 
-                        if (alt == demNoDataValue)
+                        if (alt.equals(demNoDataValue))
                             continue;
 
                         tileGeoRef.getGeoPos(x, y, geoPos);

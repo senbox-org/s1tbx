@@ -131,7 +131,7 @@ public class SpectralDiversityOp extends Operator {
     private boolean isAzimuthOffsetAvailable = false;
     private double azOffset = 0.0;
     private double rgOffset = 0.0;
-    private double noDataValue = -9999.0;
+    private Double noDataValue = -9999.0;
     private Sentinel1Utils su;
     private Sentinel1Utils.SubSwathInfo[] subSwath = null;
     private int subSwathIndex = 0;
@@ -388,7 +388,7 @@ public class SpectralDiversityOp extends Operator {
                 SystemUtils.LOG.fine("RangeShiftOp: burst = " + burstIndexArray.get(i) + ", range offset = " + rgShift
                                              + ", azimuth offset = " + azShift);
 
-                if (azShift == noDataValue || rgShift == noDataValue) {
+                if (noDataValue.equals(azShift) || noDataValue.equals(rgShift)) {
                     continue;
                 }
 

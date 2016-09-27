@@ -185,15 +185,15 @@ public class RefinedLee implements SpeckleFilter {
      * @return The filtered pixel value.
      */
     private double computePixelValueUsingLocalStatistics(
-            final double[][] neighborPixelValues, final double noDataValue) {
+            final double[][] neighborPixelValues, final Double noDataValue) {
 
-        if (neighborPixelValues[neighborPixelValues.length/2][neighborPixelValues[0].length/2] == noDataValue) {
+        if (noDataValue.equals(neighborPixelValues[neighborPixelValues.length/2][neighborPixelValues[0].length/2])) {
             return noDataValue;
         }
 
         // y is the pixel amplitude or intensity and x is the pixel reflectance before degradation
         final double meanY = getLocalMeanValue(neighborPixelValues, noDataValue);
-        if (meanY == noDataValue) {
+        if (noDataValue.equals(meanY)) {
             return noDataValue;
         }
 
@@ -202,7 +202,7 @@ public class RefinedLee implements SpeckleFilter {
             return meanY;
         }
 
-        if (varY == noDataValue) {
+        if (noDataValue.equals(varY)) {
             return noDataValue;
         }
 

@@ -222,8 +222,8 @@ public class ForestAreaDetectionOp extends Operator {
             final ProductData denominatorData = denominatorTile.getDataBuffer();
             final String nominatorBandUnit = nominatorBand.getUnit();
             final String denominatorBandUnit = denominatorBand.getUnit();
-            final double noDataValueN = nominatorBand.getNoDataValue();
-            final double noDataValueD = denominatorBand.getNoDataValue();
+            final Double noDataValueN = nominatorBand.getNoDataValue();
+            final Double noDataValueD = denominatorBand.getNoDataValue();
 
             final Band targetRatioBand = targetProduct.getBand(RATIO_BAND_NAME);
             final Tile targetRatioTile = targetTiles.get(targetRatioBand);
@@ -249,7 +249,7 @@ public class ForestAreaDetectionOp extends Operator {
 
                     final double vN = nominatorData.getElemDoubleAt(srcIdx);
                     final double vD = denominatorData.getElemDoubleAt(srcIdx);
-                    if (vN == noDataValueN || vD == noDataValueD) {
+                    if (noDataValueN.equals(vN) || noDataValueD.equals(vD)) {
                         //maskData.setElemIntAt(trgIdx, -1);
                         ratioData.setElemFloatAt(trgIdx, 0.0f);
                         continue;
@@ -258,7 +258,7 @@ public class ForestAreaDetectionOp extends Operator {
                     final double vRatio = computeRatio(tx, ty, windowSize, nominatorTile, nominatorData, denominatorTile,
                             denominatorData, nominatorBandUnit, denominatorBandUnit, noDataValueN, noDataValueD);
 
-                    if (vRatio == noDataValueN || vRatio == noDataValueD) {
+                    if (noDataValueN.equals(vRatio) || noDataValueD.equals(vRatio)) {
                         //maskData.setElemIntAt(trgIdx, -1);
                         ratioData.setElemFloatAt(trgIdx, 0.0f);
                         continue;

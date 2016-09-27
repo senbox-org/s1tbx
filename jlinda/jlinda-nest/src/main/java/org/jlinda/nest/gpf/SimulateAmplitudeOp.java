@@ -449,8 +449,8 @@ public final class SimulateAmplitudeOp extends Operator {
 
         // then for number of extra points
         for (int[] point : points) {
-            double height = dem.getSample(point[1], point[0]);
-            if (!Double.isNaN(height) && height != demNoDataValue) {
+            Double height = dem.getSample(point[1], point[0]);
+            if (!Double.isNaN(height) && !height.equals(demNoDataValue)) {
                 heights.add(height);
             }
         }

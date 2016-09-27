@@ -392,8 +392,8 @@ public final class PhaseToElevationOp extends Operator {
             final int y = r * seedGridResY + slopeCalRadius;
             for (int c = 0; c < seedGridSize; c++) {
                 final int x = c * seedGridResX + slopeCalRadius;
-                final double h = getElevation(x, y);
-                if (h != demNoDataValue && h > 0.0) {
+                final Double h = getElevation(x, y);
+                if (!h.equals(demNoDataValue) && h > 0.0) {
                     SeedRecord seed = new SeedRecord(x, y, h, computeSlope(x, y, slopeCalRadius));
                     seedList.add(seed);
                 }
@@ -518,14 +518,14 @@ public final class PhaseToElevationOp extends Operator {
     private double computeSlope(final int xc, final int yc, final int slopeCalRadius) throws Exception {
 
         double slope = 0.0;
-        double h = 0.0;
+        Double h = 0.0;
         int numPoints = 0;
         final double hc = getElevation(xc, yc);
         final int halfSlopeCalRadius = slopeCalRadius / 2;
         for (int y = yc - slopeCalRadius; y <= yc + slopeCalRadius; y += slopeCalRadius) {
             for (int x = xc - slopeCalRadius; x <= xc + slopeCalRadius; x += halfSlopeCalRadius) {
                 h = getElevation(x, y);
-                if (h != demNoDataValue) {
+                if (!h.equals(demNoDataValue)) {
                     slope += Math.abs(h - hc);
                     numPoints++;
                 }
@@ -534,13 +534,13 @@ public final class PhaseToElevationOp extends Operator {
         return slope / numPoints;
     }
 
-    public static class SeedRecord implements Comparable<SeedRecord> {
+    static class SeedRecord implements Comparable<SeedRecord> {
         public int x;
         public int y;
         public double height;
         public double slope;
 
-        public SeedRecord(final int x, final int y, final double h, final double slope) {
+        SeedRecord(final int x, final int y, final double h, final double slope) {
             this.x = x;
             this.y = y;
             this.height = h;

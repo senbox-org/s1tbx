@@ -506,7 +506,7 @@ public class ResampleOp extends Operator {
                     
                     double height = dem.getSample(demIndexPoint.x, demIndexPoint.y);
 
-                    if (Double.isNaN(height) || height == demNoDataValue) {
+                    if (Double.isNaN(height)) {
                         height = demNoDataValue;
                     }
 
