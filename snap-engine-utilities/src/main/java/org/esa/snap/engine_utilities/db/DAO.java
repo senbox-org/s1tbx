@@ -74,7 +74,7 @@ public abstract class DAO {
         try {
             Class.forName(driverName);
         } catch (ClassNotFoundException ex) {
-            ex.printStackTrace();
+            SystemUtils.LOG.severe("Unable to load database: " + ex.getMessage());
         }
     }
 
@@ -92,7 +92,7 @@ public abstract class DAO {
             dbConnect = DriverManager.getConnection(getDatabaseUrl(), dbProperties);
             bCreated = createTables(dbConnect);
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            SystemUtils.LOG.severe("Unable to create database: " + ex.getMessage());
             lastSQLException = ex;
         }
         dbProperties.remove("create");
@@ -105,7 +105,7 @@ public abstract class DAO {
         try {
             validateTables(dbConnection);
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            SystemUtils.LOG.severe("Database validation error: " + ex.getMessage());
             lastSQLException = ex;
         }
         dbProperties.remove("create");
@@ -123,7 +123,7 @@ public abstract class DAO {
 
             isConnected = dbConnect != null;
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            SystemUtils.LOG.severe("Unable to connect to database: " + ex.getMessage());
             isConnected = false;
             lastSQLException = ex;
         }
