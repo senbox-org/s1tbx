@@ -42,7 +42,6 @@ public class WindFieldEstimationLayerType extends LayerType {
 
     @Override
     public boolean isValidFor(LayerContext ctx) {
-        // todo - need to check for availability of windu, windv  (nf)
         return true;
     }
 
@@ -51,11 +50,9 @@ public class WindFieldEstimationLayerType extends LayerType {
         return new WindFieldEstimationLayer(configuration);
     }
 
-    // todo - rename getDefaultConfiguration  ? (nf)
     @Override
     public PropertyContainer createLayerConfig(LayerContext ctx) {
         final PropertyContainer valueContainer = new PropertyContainer();
-        // todo - how do I know whether my value model type can be serialized or not? (nf)
         valueContainer.addProperty(new Property(new PropertyDescriptor("product", Product.class), new DefaultPropertyAccessor()));
         valueContainer.addProperty(new Property(new PropertyDescriptor("band", Band.class), new DefaultPropertyAccessor()));
         return valueContainer;
