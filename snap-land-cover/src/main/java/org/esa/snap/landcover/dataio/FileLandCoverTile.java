@@ -40,7 +40,7 @@ class FileLandCoverTile extends DownloadableContentImpl implements Resampling.Ra
     private final GeoCoding tileGeocoding;
     private final int width;
     private final int height;
-    private double noDataValue;
+    private Double noDataValue;
 
     private final LandCoverModel model;
     private final ProductReader reader;
@@ -143,7 +143,7 @@ class FileLandCoverTile extends DownloadableContentImpl implements Resampling.Ra
             final float[] line = (float[]) linesCache.getObject(y[i]);
             for (int j = 0; j < x.length; j++) {
                 samples[i][j] = line[x[j]];
-                if (samples[i][j] == noDataValue) {
+                if (noDataValue.equals(samples[i][j])) {
                     samples[i][j] = Double.NaN;
                     allValid = false;
                 }

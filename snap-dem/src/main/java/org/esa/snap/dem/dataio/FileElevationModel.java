@@ -39,7 +39,7 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
 
     private int RASTER_WIDTH;
     private int RASTER_HEIGHT;
-    private double noDataValue = 0;
+    private Double noDataValue = 0.0;
 
     public FileElevationModel(final File file, final String resamplingMethodName, final Double demNoDataValue) throws IOException {
 
@@ -118,7 +118,7 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
     public double getSample(double pixelX, double pixelY) throws IOException {
 
         final double sample = fileElevationTile.getSample((int) pixelX, (int) pixelY);
-        if (sample == noDataValue) {
+        if (noDataValue.equals(sample)) {
             return Double.NaN;
         }
         return sample;
@@ -137,7 +137,7 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
         for (int i = 0; i < y.length; i++) {
             for (int j = 0; j < x.length; j++) {
                 samples[i][j] = fileElevationTile.getSample(x[j], y[i]);
-                if (samples[i][j] == noDataValue) {
+                if (noDataValue.equals(samples[i][j])) {
                     samples[i][j] = Double.NaN;
                     allValid = false;
                 }

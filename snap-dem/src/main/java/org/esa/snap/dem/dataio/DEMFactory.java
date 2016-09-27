@@ -156,7 +156,7 @@ public class DEMFactory {
         final int maxX = x0 + tileWidth + 1;
         final GeoPos geoPos = new GeoPos();
 
-        double alt;
+        Double alt;
         boolean valid = false;
         final double[][] v = new double[4][4];
         for (int y = y0 - 1; y < maxY; y++) {
@@ -176,11 +176,11 @@ public class DEMFactory {
 
                 alt = dem.getElevation(geoPos);
 
-                if (alt == demNoDataValue && !nodataValueAtSea) {
-                    alt = EarthGravitationalModel96.instance().getEGM(geoPos.lat, geoPos.lon, v);
+                if (alt.equals(demNoDataValue) && !nodataValueAtSea) {
+                    alt = (double)EarthGravitationalModel96.instance().getEGM(geoPos.lat, geoPos.lon, v);
                 }
 
-                if (!valid && alt != demNoDataValue) {
+                if (!valid && !alt.equals(demNoDataValue)) {
                     valid = true;
                 }
 
