@@ -389,7 +389,7 @@ public class WindFieldEstimationOp extends Operator {
      * @param noDataValue The NoDataValue for the source band.
      * @return The number of land pixels.
      */
-    private int getNumLandPixels(final Tile sourceTile, final double noDataValue) {
+    private int getNumLandPixels(final Tile sourceTile, final Double noDataValue) {
 
         final Rectangle sourceTileRectangle = sourceTile.getRectangle();
         final int x0 = sourceTileRectangle.x;
@@ -405,7 +405,7 @@ public class WindFieldEstimationOp extends Operator {
         int numberOfLandPixels = 0;
         for (int y = y0; y < maxY; y++) {
             for (int x = x0; x < maxX; x++) {
-                if (sourceTile.getDataBuffer().getElemDoubleAt(sourceTile.getDataBufferIndex(x, y)) == noDataValue) {
+                if (noDataValue.equals(sourceTile.getDataBuffer().getElemDoubleAt(sourceTile.getDataBufferIndex(x, y)))) {
                     numberOfLandPixels++;
                 }
             }
@@ -498,7 +498,7 @@ public class WindFieldEstimationOp extends Operator {
     }
 
     private void getImagette(final Tile sourceTile, final int numLandPixels,
-                             final double noDataValue, final double[][] imagette) {
+                             final Double noDataValue, final double[][] imagette) {
 
         final Rectangle sourceTileRectangle = sourceTile.getRectangle();
         final int x0 = sourceTileRectangle.x;
@@ -517,7 +517,7 @@ public class WindFieldEstimationOp extends Operator {
             for (int y = y0; y < maxY; y++) {
                 for (int x = x0; x < maxX; x++) {
                     final double v = sourceTile.getDataBuffer().getElemDoubleAt(sourceTile.getDataBufferIndex(x, y));
-                    if (v != noDataValue) {
+                    if (!noDataValue.equals(v)) {
                         mean += v;
                     }
                 }
@@ -527,7 +527,7 @@ public class WindFieldEstimationOp extends Operator {
             for (int y = y0; y < maxY; y++) {
                 for (int x = x0; x < maxX; x++) {
                     final double v = sourceTile.getDataBuffer().getElemDoubleAt(sourceTile.getDataBufferIndex(x, y));
-                    if (v == noDataValue) {
+                    if (noDataValue.equals(v)) {
                         imagette[y - y0][x - x0] = mean;
                     } else {
                         imagette[y - y0][x - x0] = v;

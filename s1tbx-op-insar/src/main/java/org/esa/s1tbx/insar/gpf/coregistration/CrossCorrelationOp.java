@@ -1018,10 +1018,10 @@ public class CrossCorrelationOp extends Operator {
         try {
             final Tile masterImagetteRaster1 = getSourceTile(masterBand1, masterImagetteRectangle);
             final ProductData masterData1 = masterImagetteRaster1.getDataBuffer();
-            final double noDataValue1 = masterBand1.getNoDataValue();
+            final Double noDataValue1 = masterBand1.getNoDataValue();
 
             ProductData masterData2 = null;
-            double noDataValue2 = 0.0;
+            Double noDataValue2 = 0.0;
             if (complexCoregistration) {
                 final Tile masterImagetteRaster2 = getSourceTile(masterBand2, masterImagetteRectangle);
                 masterData2 = masterImagetteRaster2.getDataBuffer();
@@ -1039,13 +1039,13 @@ public class CrossCorrelationOp extends Operator {
                     if (complexCoregistration) {
                         final double v1 = masterData1.getElemDoubleAt(index);
                         final double v2 = masterData2.getElemDoubleAt(index);
-                        if (v1 == noDataValue1 && v2 == noDataValue2) {
+                        if (noDataValue1.equals(v1) && noDataValue2.equals(v2)) {
                             numInvalidPixels++;
                         }
                         mI[k++] = v1 * v1 + v2 * v2;
                     } else {
                         final double v = masterData1.getElemDoubleAt(index);
-                        if (v == noDataValue1) {
+                        if (noDataValue1.equals(v)) {
                             numInvalidPixels++;
                         }
                         mI[k++] = v;
@@ -1079,11 +1079,11 @@ public class CrossCorrelationOp extends Operator {
         try {
             final Tile slaveImagetteRaster1 = getSourceTile(slaveBand1, slaveImagetteRectangle);
             final ProductData slaveData1 = slaveImagetteRaster1.getDataBuffer();
-            final double noDataValue1 = slaveBand1.getNoDataValue();
+            final Double noDataValue1 = slaveBand1.getNoDataValue();
 
             Tile slaveImagetteRaster2 = null;
             ProductData slaveData2 = null;
-            double noDataValue2 = 0.0;
+            Double noDataValue2 = 0.0;
             if (complexCoregistration) {
                 slaveImagetteRaster2 = getSourceTile(slaveBand2, slaveImagetteRectangle);
                 slaveData2 = slaveImagetteRaster2.getDataBuffer();
@@ -1124,7 +1124,7 @@ public class CrossCorrelationOp extends Operator {
                                                                   slaveData2.getElemDoubleAt(x10),
                                                                   slaveData2.getElemDoubleAt(x11));
 
-                        if (v1 == noDataValue1 && v2 == noDataValue2) {
+                        if (noDataValue1.equals(v1) && noDataValue2.equals(v2)) {
                             numInvalidPixels++;
                         }
                         sI[k] = v1 * v1 + v2 * v2;
@@ -1135,7 +1135,7 @@ public class CrossCorrelationOp extends Operator {
                                                                  slaveData1.getElemDoubleAt(x10),
                                                                  slaveData1.getElemDoubleAt(x11));
 
-                        if (v == noDataValue1) {
+                        if (noDataValue1.equals(v)) {
                             numInvalidPixels++;
                         }
                         sI[k] = v;

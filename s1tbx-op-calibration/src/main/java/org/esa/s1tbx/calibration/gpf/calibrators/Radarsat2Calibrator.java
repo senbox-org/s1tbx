@@ -227,7 +227,7 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
 
         double sigma = 0.0, dn, i, q, phaseTerm = 0.0;
         int srcIdx, tgtIdx;
-        final double nodatavalue = targetBand.getNoDataValue();
+        final Double nodatavalue = targetBand.getNoDataValue();
 
         for (int y = y0; y < maxY; ++y) {
             srcIndex.calculateStride(y);
@@ -238,7 +238,7 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
                 tgtIdx = tgtIndex.getIndex(x);
 
                 dn = srcData1.getElemDoubleAt(srcIdx);
-                if(dn == nodatavalue) {
+                if(nodatavalue.equals(dn)) {
                     trgData.setElemDoubleAt(tgtIdx, nodatavalue);
                     continue;
                 }

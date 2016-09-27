@@ -102,7 +102,7 @@ public class RangeShiftOp extends Operator {
     private boolean isRangeOffsetAvailable = false;
     private double azOffset = 0.0;
     private double rgOffset = 0.0;
-    private double noDataValue = -9999.0;
+    private Double noDataValue = -9999.0;
     private Sentinel1Utils.SubSwathInfo[] subSwath = null;
     private int subSwathIndex = 0;
     private String[] subSwathNames = null;
@@ -417,7 +417,7 @@ public class RangeShiftOp extends Operator {
                 //SystemUtils.LOG.info("RangeShiftOp: burst = " + burstIndexArray.get(i) + ", azimuth offset = " + azShift);
                 //SystemUtils.LOG.info("RangeShiftOp: burst = " + burstIndexArray.get(i) + ", range offset = " + rgShift);
 
-                if (azShift == noDataValue || rgShift == noDataValue) {
+                if (noDataValue.equals(azShift) || noDataValue.equals(rgShift)) {
                     continue;
                 }
 

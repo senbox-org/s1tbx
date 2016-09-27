@@ -933,7 +933,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
 
         double sigma, dn, i, q, phaseTerm = 0.0;
         final double theCalibrationFactor = newCalibrationConstant[prodBand];
-        final double nodatavalue = targetBand.getNoDataValue();
+        final Double nodatavalue = targetBand.getNoDataValue();
 
         int srcIdx, tgtIdx;
         for (int y = y0, yy = 0; y < maxY; ++y, ++yy) {
@@ -951,7 +951,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
                 tgtIdx = tgtIndex.getIndex(x);
 
                 dn = srcData1.getElemDoubleAt(srcIdx);
-                if(dn == nodatavalue) {
+                if(nodatavalue.equals(dn)) {
                     trgData.setElemDoubleAt(tgtIdx, nodatavalue);
                     continue;
                 }

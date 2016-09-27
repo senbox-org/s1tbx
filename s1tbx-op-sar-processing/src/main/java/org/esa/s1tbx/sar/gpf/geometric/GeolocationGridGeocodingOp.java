@@ -548,7 +548,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
     public static class ResamplingRaster implements Resampling.Raster {
 
         private final Tile sourceTileI, sourceTileQ;
-        private final double noDataValue;
+        private final Double noDataValue;
         private final ProductData dataBufferI, dataBufferQ;
 
         public ResamplingRaster(final Tile sourceTileI, final Tile sourceTileQ) {
@@ -580,7 +580,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
                 for (int j = 0; j < x.length; j++) {
 
                     double v = dataBufferI.getElemDoubleAt(sourceTileI.getDataBufferIndex(x[j], y[i]));
-                    if (noDataValue != 0 && (v == noDataValue)) {
+                    if (noDataValue != 0 && (noDataValue.equals(v))) {
                         samples[i][j] = noDataValue;
                         allValid = false;
                         continue;
@@ -590,7 +590,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
 
                     if (dataBufferQ != null) {
                         final double vq = dataBufferQ.getElemDoubleAt(sourceTileQ.getDataBufferIndex(x[j], y[i]));
-                        if (noDataValue != 0 && vq == noDataValue) {
+                        if (noDataValue != 0 && noDataValue.equals(vq)) {
                             samples[i][j] = noDataValue;
                             allValid = false;
                             continue;

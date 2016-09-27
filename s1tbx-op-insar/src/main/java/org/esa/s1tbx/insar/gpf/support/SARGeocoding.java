@@ -496,7 +496,7 @@ public final class SARGeocoding {
      * @param localIncidenceAngles             The local incidence angle and projected local incidence angle.
      */
     public static void computeLocalIncidenceAngle(
-            final LocalGeometry lg, final double demNoDataValue, final boolean saveLocalIncidenceAngle,
+            final LocalGeometry lg, final Double demNoDataValue, final boolean saveLocalIncidenceAngle,
             final boolean saveProjectedLocalIncidenceAngle, final boolean saveSigmaNought, final int x0,
             final int y0, final int x, final int y, final double[][] localDEM, final double[] localIncidenceAngles) {
 
@@ -509,7 +509,7 @@ public final class SARGeocoding {
         for (int i = 0; i < 3; i++) {
             final int yy = y - y0 + i;
             for (int j = 0; j < 3; j++) {
-                if (localDEM[yy][x - x0 + j] == demNoDataValue) {
+                if (demNoDataValue.equals(localDEM[yy][x - x0 + j])) {
                     return;
                 }
             }
@@ -599,7 +599,7 @@ public final class SARGeocoding {
             final int maxY = localDEM.length - 1;
             final int numN = 3;
             final GeoPos geo = new GeoPos();
-            double alt;
+            Double alt;
 
             double rightPointHeight = 0, leftPointHeight = 0, upPointHeight = 0, downPointHeight = 0;
 
@@ -611,7 +611,7 @@ public final class SARGeocoding {
                 } else {
                     alt = localDEM[yy][xx + n];
                 }
-                if (alt != demNoDataValue) {
+                if (!alt.equals(demNoDataValue)) {
                     rightPointHeight += alt;
                     ++cnt;
                 }
@@ -627,7 +627,7 @@ public final class SARGeocoding {
                 } else {
                     alt = localDEM[yy][xx - n];
                 }
-                if (alt != demNoDataValue) {
+                if (!alt.equals(demNoDataValue)) {
                     leftPointHeight += alt;
                     ++cnt;
                 }
@@ -643,7 +643,7 @@ public final class SARGeocoding {
                 } else {
                     alt = localDEM[yy - n][xx];
                 }
-                if (alt != demNoDataValue) {
+                if (!alt.equals(demNoDataValue)) {
                     upPointHeight += alt;
                     ++cnt;
                 }
@@ -659,7 +659,7 @@ public final class SARGeocoding {
                 } else {
                     alt = localDEM[yy + n][xx];
                 }
-                if (alt != demNoDataValue) {
+                if (!alt.equals(demNoDataValue)) {
                     downPointHeight += alt;
                     ++cnt;
                 }

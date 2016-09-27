@@ -244,7 +244,7 @@ public class AdaptiveThresholdingOp extends Operator {
             final String srcBandName = targetBandNameToSourceBandName.get(targetBand.getName());
             final Band sourceBand = sourceProduct.getBand(srcBandName);
             final Tile sourceTile = getSourceTile(sourceBand, sourceTileRectangle);
-            final double noDataValue = sourceBand.getNoDataValue();
+            final Double noDataValue = sourceBand.getNoDataValue();
 
             final TileIndex trgIndex = new TileIndex(targetTile);
             final TileIndex srcIndex = new TileIndex(sourceTile);    // src and trg tile are different size
@@ -257,7 +257,7 @@ public class AdaptiveThresholdingOp extends Operator {
                 for (int tx = tx0; tx < maxx; tx++) {
 
                     final double targetMean = computeTargetMean(tx, ty, sourceTile, noDataValue);
-                    if (targetMean == noDataValue) {
+                    if (noDataValue.equals(targetMean)) {
                         trgData.setElemIntAt(trgIndex.getIndex(tx), 0);
                         continue;
                     }
@@ -284,11 +284,11 @@ public class AdaptiveThresholdingOp extends Operator {
      * @param noDataValue
      * @return The mena value.
      */
-    private double computeTargetMean(final int tx, final int ty, final Tile sourceTile, final double noDataValue) {
+    private double computeTargetMean(final int tx, final int ty, final Tile sourceTile, final Double noDataValue) {
 
         final ProductData srcData = sourceTile.getDataBuffer();
         final double v = srcData.getElemDoubleAt(sourceTile.getDataBufferIndex(tx, ty));
-        if (v == noDataValue) {
+        if (noDataValue.equals(v)) {
             return noDataValue;
         }
 
@@ -314,7 +314,7 @@ public class AdaptiveThresholdingOp extends Operator {
             final int stride = ((y - tileMinY) * tileStride) + tileOffset;
             for (int x = x0; x < maxx; x++) {
                 final double val = srcData.getElemDoubleAt((x - tileMinX) + stride);
-                if (val == noDataValue) {
+                if (noDataValue.equals(val)) {
                     return noDataValue;
                 } else {
                     mean += val;
@@ -331,10 +331,10 @@ public class AdaptiveThresholdingOp extends Operator {
      * @param tx          The x coordinate of the central point of the background window.
      * @param ty          The y coordinate of the central point of the background window.
      * @param sourceTile  The source image tile.
-     * @param noDataValue
+     * @param noDataValue no data value
      * @return The std value.
      */
-    private double computeBackgroundThreshold(final int tx, final int ty, final Tile sourceTile, final double noDataValue) {
+    private double computeBackgroundThreshold(final int tx, final int ty, final Tile sourceTile, final Double noDataValue) {
 
         final int x0 = Math.max(tx - halfBackgroundWindowSize, 0);
         final int y0 = Math.max(ty - halfBackgroundWindowSize, 0);
@@ -363,7 +363,7 @@ public class AdaptiveThresholdingOp extends Operator {
                 final int xx = x - tx;
                 if (yGtrHalfGuard || ((xx < 0) ? -xx : xx) > halfGuardWindowSize) {
                     val = srcData.getElemDoubleAt((x - tileMinX) + stride);
-                    if (val == noDataValue) {
+                    if (noDataValue.equals(val)) {
                         return Double.MAX_VALUE;
                     } else {
                         sum += val;

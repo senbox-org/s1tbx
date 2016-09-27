@@ -133,7 +133,7 @@ public final class UpdateGeoRefOp extends Operator {
     private OrbitStateVector[] orbitStateVectors = null;
     private AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
 
-    private static double noDataValue = -999.0;
+    private static Double noDataValue = -999.0;
     public static String LATITUDE_BAND_NAME = "lat_band";
     public static String LONGITUDE_BAND_NAME = "lon_band";
 
@@ -442,7 +442,7 @@ public final class UpdateGeoRefOp extends Operator {
                 final int nLon = (int) ((lonMax - lonMin) / delLon) + 1;
 
                 final double[][] tileDEM = new double[nLat + 1][nLon + 1];
-                double alt;
+                Double alt;
 
                 for (int i = 0; i < nLat; i++) {
                     final double lat = latMin + i * delLat;
@@ -453,7 +453,7 @@ public final class UpdateGeoRefOp extends Operator {
                         }
                         geoPos.setLocation(lat, lon);
                         alt = dem.getElevation(geoPos);
-                        if (alt == demNoDataValue) {
+                        if (alt.equals(demNoDataValue)) {
                             continue;
                         }
 
@@ -491,9 +491,9 @@ public final class UpdateGeoRefOp extends Operator {
 
                     for (int x = x0; x < xmax; x++) {
                         final int xx = x - x0;
-                        double alt = localDEM[yy + 1][xx + 1];
+                        Double alt = localDEM[yy + 1][xx + 1];
 
-                        if (alt == demNoDataValue) {
+                        if (alt.equals(demNoDataValue)) {
                             continue;
                         }
 
@@ -540,13 +540,13 @@ public final class UpdateGeoRefOp extends Operator {
                     final int xx = x - x0;
                     final int index = trgIndex.getIndex(x);
 
-                    if (latArray[yy][xx] == noDataValue) {
+                    if (noDataValue.equals(latArray[yy][xx])) {
                         latData.setElemDoubleAt(index, fillHole(xx, yy, latArray));
                     } else {
                         latData.setElemDoubleAt(index, latArray[yy][xx]);
                     }
 
-                    if (lonArray[yy][xx] == noDataValue) {
+                    if (noDataValue.equals(lonArray[yy][xx])) {
                         lonData.setElemDoubleAt(index, fillHole(xx, yy, lonArray));
                     } else {
                         lonData.setElemDoubleAt(index, lonArray[yy][xx]);

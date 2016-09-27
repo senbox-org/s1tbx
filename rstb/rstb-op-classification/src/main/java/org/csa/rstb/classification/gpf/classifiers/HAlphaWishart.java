@@ -112,7 +112,7 @@ public class HAlphaWishart extends PolClassifierBase implements PolClassifier {
         final TileIndex trgIndex = new TileIndex(targetTile);
         final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
 
-        final double noDataValue = srcBandList.srcBands[0].getNoDataValue();
+        final Double noDataValue = srcBandList.srcBands[0].getNoDataValue();
 
         final double[][] Tr = new double[3][3];
         final double[][] Ti = new double[3][3];
@@ -122,7 +122,7 @@ public class HAlphaWishart extends PolClassifierBase implements PolClassifier {
             srcIndex.calculateStride(y);
             for (int x = x0; x < maxX; ++x) {
                 final int index = trgIndex.getIndex(x);
-                if (dataBuffers[0].getElemDoubleAt(srcIndex.getIndex(x)) == noDataValue) {
+                if (noDataValue.equals(dataBuffers[0].getElemDoubleAt(srcIndex.getIndex(x)))) {
                     targetData.setElemIntAt(index, NODATACLASS);
                 } else {
                     PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, srcWidth, srcHeight,
@@ -184,7 +184,7 @@ public class HAlphaWishart extends PolClassifierBase implements PolClassifier {
         final double[][][] centerRe = new double[9][3][3];
         final double[][][] centerIm = new double[9][3][3];
         final int[] counter = new int[9];
-        final double noDataValue = srcBandList.srcBands[0].getNoDataValue();
+        final Double noDataValue = srcBandList.srcBands[0].getNoDataValue();
 
         final ThreadManager threadManager = new ThreadManager();
 
@@ -220,7 +220,7 @@ public class HAlphaWishart extends PolClassifierBase implements PolClassifier {
                         for (int y = y0; y < yMax; ++y) {
                             srcIndex.calculateStride(y);
                             for (int x = x0; x < xMax; ++x) {
-                                if (dataBuffers[0].getElemDoubleAt(srcIndex.getIndex(x)) == noDataValue)
+                                if (noDataValue.equals(dataBuffers[0].getElemDoubleAt(srcIndex.getIndex(x))))
                                     continue;
 
                                 PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, srcWidth, srcHeight,
@@ -283,7 +283,7 @@ public class HAlphaWishart extends PolClassifierBase implements PolClassifier {
         final double[][][] centerRe = new double[9][3][3];
         final double[][][] centerIm = new double[9][3][3];
         boolean endIteration = false;
-        final double noDataValue = srcBandList.srcBands[0].getNoDataValue();
+        final Double noDataValue = srcBandList.srcBands[0].getNoDataValue();
 
         final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
         status.beginTask("Computing Final Cluster Centres... ", tileRectangles.length * maxIterations);
@@ -329,7 +329,7 @@ public class HAlphaWishart extends PolClassifierBase implements PolClassifier {
                             for (int y = y0; y < yMax; ++y) {
                                 srcIndex.calculateStride(y);
                                 for (int x = x0; x < xMax; ++x) {
-                                    if (dataBuffers[0].getElemDoubleAt(srcIndex.getIndex(x)) == noDataValue)
+                                    if (noDataValue.equals(dataBuffers[0].getElemDoubleAt(srcIndex.getIndex(x))))
                                         continue;
 
                                     PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, srcWidth, srcHeight,

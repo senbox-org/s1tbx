@@ -550,7 +550,7 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
 
             double dn = 0.0, i, q, muX, lutVal, retroLutVal = 1.0, calValue, calibrationFactor, phaseTerm = 0.0;
             int srcIdx;
-            final double nodatavalue = targetBand.getNoDataValue();
+            final Double nodatavalue = targetBand.getNoDataValue();
 
             for (int y = y0; y < maxY; ++y) {
                 srcIndex.calculateStride(y);
@@ -576,7 +576,7 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
                     srcIdx = srcIndex.getIndex(x);
 
                     dn = srcData1.getElemDoubleAt(srcIdx);
-                    if(dn == nodatavalue) {
+                    if(nodatavalue.equals(dn)) {
                         tgtData.setElemDoubleAt(trgIndex.getIndex(x), nodatavalue);
                         continue;
                     }

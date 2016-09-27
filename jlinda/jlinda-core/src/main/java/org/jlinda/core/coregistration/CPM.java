@@ -275,10 +275,10 @@ public class CPM implements PolynomialModel {
 
         for (int i = 0; i < numObservations; i++) {
 
-            double height = heightMaster.getQuick(i);
+            Double height = heightMaster.getQuick(i);
 
             Point delta;
-            if (height == demNoDataValue) {
+            if (height.equals(demNoDataValue)) {
 
                 // skip this offset if corresponding height is no-data-value
                 delta = new Point(0, 0);

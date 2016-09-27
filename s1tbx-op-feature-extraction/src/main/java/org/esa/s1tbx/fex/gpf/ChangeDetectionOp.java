@@ -224,8 +224,8 @@ public class ChangeDetectionOp extends Operator {
             final Tile denominatorTile = getSourceTile(denominatorBand, targetRectangle);
             final ProductData nominatorData = nominatorTile.getDataBuffer();
             final ProductData denominatorData = denominatorTile.getDataBuffer();
-            final double noDataValueN = nominatorBand.getNoDataValue();
-            final double noDataValueD = denominatorBand.getNoDataValue();
+            final Double noDataValueN = nominatorBand.getNoDataValue();
+            final Double noDataValueD = denominatorBand.getNoDataValue();
 
             final Band targetRatioBand = targetProduct.getBand(ratioBandName);
             final Tile targetRatioTile = targetTiles.get(targetRatioBand);
@@ -247,7 +247,7 @@ public class ChangeDetectionOp extends Operator {
 
                     final double vN = nominatorData.getElemDoubleAt(srcIdx);
                     final double vD = denominatorData.getElemDoubleAt(srcIdx);
-                    if (vN == noDataValueN || vD == noDataValueD || vN <= 0.0 || vD <= 0.0) {
+                    if (noDataValueN.equals(vN) || noDataValueD.equals(vD) || vN <= 0.0 || vD <= 0.0) {
                         ratioData.setElemFloatAt(trgIdx, 0.0f);
                         continue;
                     }

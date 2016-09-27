@@ -358,7 +358,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
             double sigma, dn, i, q, phaseTerm = 0.0;
             int index;
             int adcJ = 0;
-            final double nodatavalue = targetBand.getNoDataValue();
+            final Double nodatavalue = targetBand.getNoDataValue();
 
             for (int x = x0; x < maxX; x++) {
 
@@ -371,7 +371,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
                     index = sourceRaster1.getDataBufferIndex(x, y);
 
                     dn = srcData1.getElemDoubleAt(index);
-                    if(dn == nodatavalue) {
+                    if(nodatavalue.equals(dn)) {
                         trgData.setElemDoubleAt(targetTile.getDataBufferIndex(x, y), nodatavalue);
                         continue;
                     }

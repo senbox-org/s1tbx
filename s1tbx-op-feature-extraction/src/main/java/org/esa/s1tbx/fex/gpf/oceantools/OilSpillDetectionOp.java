@@ -245,7 +245,7 @@ public class OilSpillDetectionOp extends Operator {
             final Band sourceBand = sourceProduct.getBand(srcBandName);
             final Tile sourceTile = getSourceTile(sourceBand, sourceTileRectangle);
             final ProductData srcBuffer = sourceTile.getDataBuffer();
-            final double noDataValue = sourceBand.getNoDataValue();
+            final Double noDataValue = sourceBand.getNoDataValue();
 
             final TileIndex trgIndex = new TileIndex(targetTile);
             final TileIndex srcIndex = new TileIndex(sourceTile);    // src and trg tile are different size
@@ -257,7 +257,7 @@ public class OilSpillDetectionOp extends Operator {
                 srcIndex.calculateStride(ty);
                 for (int tx = tx0; tx < maxx; tx++) {
                     final double v = srcBuffer.getElemDoubleAt(srcIndex.getIndex(tx));
-                    if (v == noDataValue) {
+                    if (noDataValue.equals(v)) {
                         trgData.setElemIntAt(trgIndex.getIndex(tx), 0);
                         continue;
                     }

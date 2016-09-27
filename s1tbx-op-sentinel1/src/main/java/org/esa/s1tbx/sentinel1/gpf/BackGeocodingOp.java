@@ -547,8 +547,8 @@ public final class BackGeocodingOp extends Operator {
                 for (int j = 0; j < w; j++) {
                     final double lat = mSubSwath[subSwathIndex - 1].latitude[i][j];
                     final double lon = mSubSwath[subSwathIndex - 1].longitude[i][j];
-                    final double alt = dem.getElevation(new GeoPos(lat, lon));
-                    if (alt == demNoDataValue) {
+                    final Double alt = dem.getElevation(new GeoPos(lat, lon));
+                    if (alt.equals(demNoDataValue)) {
                         continue;
                     }
                     GeoUtils.geo2xyzWGS84(lat, lon, alt, earthPoint);
@@ -647,9 +647,9 @@ public final class BackGeocodingOp extends Operator {
                 final double lat = mSU.getLatitude(azTime, rgTime, subSwathIndex);
                 final double lon = mSU.getLongitude(azTime, rgTime, subSwathIndex);
                 geoPos.setLocation(lat, lon);
-                double alt = dem.getElevation(geoPos);
-                if (alt == demNoDataValue) {
-                    alt = egm.getEGM(lat, lon);
+                Double alt = dem.getElevation(geoPos);
+                if (alt.equals(demNoDataValue)) {
+                    alt = (double)egm.getEGM(lat, lon);
                 }
 
                 GeoUtils.geo2xyzWGS84(geoPos.getLat(), geoPos.getLon(), alt, posData.earthPoint);
@@ -845,12 +845,12 @@ public final class BackGeocodingOp extends Operator {
                     lat[l][p] = gp.lat;
                     lon[l][p] = gp.lon;
 
-                    double alt = dem.getElevation(gp);
-                    if (alt == demNoDataValue && !maskOutAreaWithoutElevation) { // get corrected elevation for 0
-                        alt = egm.getEGM(gp.lat, gp.lon);
+                    Double alt = dem.getElevation(gp);
+                    if (alt.equals(demNoDataValue) && !maskOutAreaWithoutElevation) { // get corrected elevation for 0
+                        alt = (double)egm.getEGM(gp.lat, gp.lon);
                     }
 
-                    if (alt != demNoDataValue) {
+                    if (!alt.equals(demNoDataValue)) {
                         GeoUtils.geo2xyzWGS84(gp.lat, gp.lon, alt, posData.earthPoint);
                         if(getPosition(subSwathIndex, mBurstIndex, mSU, mOrbit, posData)) {
 
@@ -903,7 +903,7 @@ public final class BackGeocodingOp extends Operator {
                     tileWindow, rgAzRatio, 1, 1, invalidIndex, 0);
 
             boolean allElementsAreNull = true;
-            double alt = 0;
+            Double alt;
             for(int yy = 0; yy < h; yy++) {
                 for (int xx = 0; xx < w; xx++) {
                     if (rgArray[yy][xx] == invalidIndex || azArray[yy][xx] == invalidIndex) {
@@ -914,7 +914,7 @@ public final class BackGeocodingOp extends Operator {
                             if(elevation != null) {
                                 elevation[yy][xx] = alt;
                             }
-                            if (alt != demNoDataValue) {
+                            if (!alt.equals(demNoDataValue)) {
                                 slavePixelPos[yy][xx] = new PixelPos(rgArray[yy][xx], azArray[yy][xx]);
                                 allElementsAreNull = false;
                             } else {

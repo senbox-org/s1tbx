@@ -973,9 +973,9 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
                     final int index = trgTiles[0].targetTile.getDataBufferIndex(x, y);
 
-                    final double alt = localDEM[yy][x - x0 + 1];
+                    final Double alt = localDEM[yy][x - x0 + 1];
 
-                    if (!useAvgSceneHeight && alt == demNoDataValue) {
+                    if (!useAvgSceneHeight && alt.equals(demNoDataValue)) {
                         if (saveDEM) {
                             demBuffer.setElemDoubleAt(index, demNoDataValue);
                         }
