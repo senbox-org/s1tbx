@@ -302,8 +302,8 @@ public final class TerrainMaskOp extends Operator {
         for (int yy = y; yy < maxY; yy++) {
             final int yIdx = yy - y0 + 1;
             for (int xx = x; xx < maxX; xx++) {
-                final double h = localDEM[yIdx][xx - x0 + 1];
-                if (h == demNoDataValue)
+                final Double h = localDEM[yIdx][xx - x0 + 1];
+                if (h.equals(demNoDataValue))
                     continue;
 
                 if (min > h) {
@@ -338,8 +338,8 @@ public final class TerrainMaskOp extends Operator {
                 targetIndex.calculateStride(yy);
                 final int yIdx = yy - y0 + 1;
                 for (int xx = x; xx < maxX; xx++) {
-                    final double h = localDEM[yIdx][xx - x0 + 1];
-                    if (h != demNoDataValue) {
+                    final Double h = localDEM[yIdx][xx - x0 + 1];
+                    if (!h.equals(demNoDataValue)) {
                         targetData.setElemIntAt(targetIndex.getIndex(xx), 1);
                     } else {
                         targetData.setElemIntAt(targetIndex.getIndex(xx), 0);

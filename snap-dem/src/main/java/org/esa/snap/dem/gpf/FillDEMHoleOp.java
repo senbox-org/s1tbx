@@ -57,7 +57,7 @@ public final class FillDEMHoleOp extends Operator {
     private String[] sourceBandNames;
 
     @Parameter(label = "No Data Value", defaultValue = "0.0")
-    private double NoDataValue = 0.0;
+    private Double NoDataValue = 0.0;
 
     private int sourceImageWidth;
     private int sourceImageHeight;
@@ -172,7 +172,7 @@ public final class FillDEMHoleOp extends Operator {
             for (int y = y0; y < maxY; ++y) {
                 for (int x = x0; x < maxX; ++x) {
                     v = srcData.getElemDoubleAt(sourceTile.getDataBufferIndex(x, y));
-                    if (v == NoDataValue) {
+                    if (NoDataValue.equals(v)) {
                         v = getPixelValueByInterpolation(x, y, srcData, sourceTile);
                     }
                     trgData.setElemDoubleAt(targetTile.getDataBufferIndex(x, y), v);

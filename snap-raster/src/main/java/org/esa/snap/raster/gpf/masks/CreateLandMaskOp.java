@@ -175,7 +175,7 @@ public class CreateLandMaskOp extends Operator {
             final TileIndex trgTileIndex = new TileIndex(trgTiles[0].targetTile);
             final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, minX, minY, maxX - minX, maxY - minY);
 
-            final float demNoDataValue = dem.getDescriptor().getNoDataValue();
+            final double demNoDataValue = dem.getDescriptor().getNoDataValue();
             final double[][] localDEM = new double[maxY - minY + 2][maxX - minX + 2];
             DEMFactory.getLocalDEM(
                     dem, demNoDataValue, null, tileGeoRef, minX, minY, maxX - minX, maxY - minY, null, true, localDEM);
@@ -186,16 +186,16 @@ public class CreateLandMaskOp extends Operator {
                 final int yy = y - minY;
                 for (int x = minX; x < maxX; ++x) {
                     final int trgIndex = trgTileIndex.getIndex(x);
-                    final double elev = localDEM[yy][x - minX];
+                    final Double elev = localDEM[yy][x - minX];
 
                     if (landMask) {
                         if (useSRTM)
-                            valid = elev == demNoDataValue;
+                            valid = elev.equals(demNoDataValue);
                         else
                             valid = elev < seaThreshold;
                     } else {
                         if (useSRTM)
-                            valid = elev != demNoDataValue;
+                            valid = !elev.equals(demNoDataValue);
                         else
                             valid = elev > landThreshold;
                     }

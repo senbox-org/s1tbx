@@ -128,7 +128,7 @@ public final class LinearTodBOp extends Operator {
             }
 
             final boolean linearTodB = !sourceBand1.getUnit().endsWith(Unit.DB);
-            final double nodatavalue = sourceBand1.getNoDataValue();
+            final Double nodatavalue = sourceBand1.getNoDataValue();
 
             final ProductData trgData = targetTile.getDataBuffer();
 
@@ -153,7 +153,7 @@ public final class LinearTodBOp extends Operator {
                     } else {
                         value = srcData1.getElemDoubleAt(index);
                     }
-                    if (value == nodatavalue) {
+                    if (nodatavalue.equals(value)) {
                         trgData.setElemDoubleAt(index, value);
                         continue;
                     }
