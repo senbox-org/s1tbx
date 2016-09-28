@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.io.orbits.sentinel1;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
@@ -22,6 +23,7 @@ import static junit.framework.TestCase.assertEquals;
 /**
  * Test Sentinel-1 QC Scrapping of orbit files
  */
+@Ignore("Takes too long")
 public class TestQCScraper {
 
     @Test
