@@ -22,7 +22,6 @@ import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.dataop.downloadable.XMLSupport;
-import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
@@ -66,14 +65,10 @@ public final class AbstractMetadataIO {
     public static void saveExternalMetadata(final Product product, final MetadataElement absRoot, final File productFile) {
         final String metadataStr = FileUtils.exchangeExtension(productFile.getAbsolutePath(), ".xml");
         final File metadataFile = new File(metadataStr);
-        try {
-            AbstractMetadataIO.Save(product, absRoot, metadataFile);
-        } catch (IOException e) {
-            SystemUtils.LOG.warning("Unable to save metadata file " + metadataFile +": "+ e.getMessage());
-        }
+        AbstractMetadataIO.Save(product, absRoot, metadataFile);
     }
 
-    public static void Save(final Product product, final MetadataElement metadataElem, final File metadataFile) throws IOException {
+    public static void Save(final Product product, final MetadataElement metadataElem, final File metadataFile) {
 
         final Element root = new Element("Metadata");
         final Document doc = new Document(root);
