@@ -214,6 +214,14 @@
         </folder>
     </folder>
 
+    <folder name="LayerSources">
+        <file name="topsBurstLayer">
+            <attr name="displayName" stringvalue="TOPS Burst Boundaries"/>
+            <attr name="description" stringvalue="Shows TOPSAR burst and subswath boundaries"/>
+            <attr name="layerSourceClass" stringvalue="org.esa.s1tbx.sentinel1.rcp.layers.topsbursts.TOPSBurstLayerSource"/>
+        </file>
+    </folder>
+
     <folder name="OperatorUIs">
         <file name="org.esa.s1tbx.sentinel1.gpf.ui.TOPSARDeburstOpUI">
             <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.sentinel1.gpf.ui.TOPSARDeburstOpUI"/>
