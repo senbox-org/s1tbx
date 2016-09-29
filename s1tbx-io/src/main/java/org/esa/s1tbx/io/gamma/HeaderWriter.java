@@ -44,7 +44,7 @@ class HeaderWriter {
     private boolean isComplex;
     private boolean isCoregistered;
     private final GammaProductWriter writer;
-    private final ProductData.UTC dateDay;  // start date to the day
+    private ProductData.UTC dateDay;  // start date to the day
 
     private final static String sep = ":\t";
     private final static double daysToSeconds = 12 * 60 * 60;
@@ -68,7 +68,12 @@ class HeaderWriter {
         this.baseFileName = FileUtils.getFilenameWithoutExtension(this.outputFile);
 
         Calendar cal = srcProduct.getStartTime().getAsCalendar();
-        dateDay = new ProductData.UTC(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
+        String dateStr = ""+ cal.get(Calendar.DAY_OF_MONTH) +'-'+ (cal.get(Calendar.MONTH)+1) +'-'+ cal.get(Calendar.YEAR);
+        try {
+            dateDay = ProductData.UTC.parse(dateStr, "dd-MM-yyyy");
+        } catch (Exception e) {
+            dateDay = srcProduct.getStartTime();
+        }
     }
 
     String getBaseFileName() {
@@ -111,7 +116,7 @@ class HeaderWriter {
 
     private String writeDate() {
         Calendar cal = srcProduct.getStartTime().getAsCalendar();
-        return cal.get(Calendar.YEAR) + "  " + cal.get(Calendar.MONTH) + "  " + cal.get(Calendar.DAY_OF_MONTH);
+        return cal.get(Calendar.YEAR) + "  " + (cal.get(Calendar.MONTH)+1) + "  " + cal.get(Calendar.DAY_OF_MONTH);
     }
 
     private String writeStartTime() {
