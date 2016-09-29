@@ -31,7 +31,7 @@ import java.io.PrintStream;
 /**
  * Writer par header
  */
-public class HeaderWriter {
+class HeaderWriter {
 
     private final File outputFile;
     private final Product srcProduct;
@@ -43,7 +43,7 @@ public class HeaderWriter {
 
     private final static String sep = ":\t";
 
-    public HeaderWriter(final GammaProductWriter writer, final Product srcProduct, final File userOutputFile) {
+    HeaderWriter(final GammaProductWriter writer, final Product srcProduct, final File userOutputFile) {
         this.writer = writer;
         this.srcProduct = srcProduct;
         this.isComplex = false;
@@ -62,11 +62,13 @@ public class HeaderWriter {
         this.baseFileName = FileUtils.getFilenameWithoutExtension(this.outputFile);
     }
 
-    public String getBaseFileName() {
+    String getBaseFileName() {
         return baseFileName;
     }
 
-    public void writeParFile() throws IOException {
+    void writeParFile() throws IOException {
+        final String oldEOL = System.getProperty("line.separator");
+        System.setProperty("line.separator", "\n");
         final FileOutputStream out = new FileOutputStream(outputFile);
         try(PrintStream p = new PrintStream(out)) {
 
@@ -84,10 +86,12 @@ public class HeaderWriter {
             p.flush();
         } catch (Exception e) {
             throw new IOException("GammaWriter unable to write par file " + e.getMessage());
+        } finally {
+            System.setProperty("line.separator", oldEOL);
         }
     }
 
-    public int getHighestElemSize() {
+    int getHighestElemSize() {
         int highestElemSize = 0;
         for(Band band : srcProduct.getBands()) {
             if(writer.shouldWrite(band)) {
