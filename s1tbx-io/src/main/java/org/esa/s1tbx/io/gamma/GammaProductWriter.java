@@ -123,7 +123,7 @@ public class GammaProductWriter extends AbstractProductWriter {
 
                 if(elemSize >= 4) {
                     final float[] destBuffer = new float[sourceWidth * numInterleaved];
-                    for (int y = sourceOffsetY; y < sourceOffsetY + sourceHeight; ++y) {
+                    for (long y = sourceOffsetY; y < sourceOffsetY + sourceHeight; ++y) {
                         int dstCnt = 0;
                         for (int x = sourceOffsetX; x < sourceOffsetX + sourceWidth; ++x) {
 
@@ -137,7 +137,7 @@ public class GammaProductWriter extends AbstractProductWriter {
                     }
                 } else {
                     final short[] destBuffer = new short[sourceWidth * numInterleaved];
-                    for (int y = sourceOffsetY; y < sourceOffsetY + sourceHeight; ++y) {
+                    for (long y = sourceOffsetY; y < sourceOffsetY + sourceHeight; ++y) {
                         int dstCnt = 0;
                         for (int x = sourceOffsetX; x < sourceOffsetX + sourceWidth; ++x) {
 
