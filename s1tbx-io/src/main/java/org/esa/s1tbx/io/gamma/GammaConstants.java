@@ -5,8 +5,12 @@ public class GammaConstants {
     public static final String HEADER_KEY_NAME = "title";
     public static final String HEADER_KEY_SAMPLES = "range_samples";
     public static final String HEADER_KEY_SAMPLES1 = "range_samp_1";
+    public static final String HEADER_KEY_WIDTH = "width";
+    public static final String HEADER_KEY_NCOLUMNS = "ncolumns";
     public static final String HEADER_KEY_LINES = "azimuth_lines";
     public static final String HEADER_KEY_LINES1 = "az_samp_1";
+    public static final String HEADER_KEY_HEIGHT = "height";
+    public static final String HEADER_KEY_NLINES = "nlines";
     public static final String HEADER_KEY_BANDS = "bands";
     public static final String HEADER_KEY_HEADER_OFFSET = "line_header_size";
     public static final String HEADER_KEY_DATA_TYPE = "image_format";

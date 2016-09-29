@@ -37,7 +37,13 @@ public class Header {
     public int getNumSamples() {
         int val = headerParser.getInt(GammaConstants.HEADER_KEY_SAMPLES, 0);
         if(val == 0) {
-            val = headerParser.getInt(GammaConstants.HEADER_KEY_SAMPLES1);
+            val = headerParser.getInt(GammaConstants.HEADER_KEY_SAMPLES1, 0);
+        }
+        if(val == 0) {
+            val = headerParser.getInt(GammaConstants.HEADER_KEY_WIDTH, 0);
+        }
+        if(val == 0) {
+            val = headerParser.getInt(GammaConstants.HEADER_KEY_NCOLUMNS);
         }
         return val;
     }
@@ -45,7 +51,13 @@ public class Header {
     public int getNumLines() {
         int val = headerParser.getInt(GammaConstants.HEADER_KEY_LINES, 0);
         if(val == 0) {
-            val = headerParser.getInt(GammaConstants.HEADER_KEY_LINES1);
+            val = headerParser.getInt(GammaConstants.HEADER_KEY_LINES1, 0);
+        }
+        if(val == 0) {
+            val = headerParser.getInt(GammaConstants.HEADER_KEY_HEIGHT, 0);
+        }
+        if(val == 0) {
+            val = headerParser.getInt(GammaConstants.HEADER_KEY_NLINES);
         }
         return val;
     }
@@ -87,11 +99,11 @@ public class Header {
     }
 
     public int getRangeLooks() {
-        return headerParser.getInt(GammaConstants.HEADER_KEY_RANGE_LOOKS);
+        return headerParser.getInt(GammaConstants.HEADER_KEY_RANGE_LOOKS, 1);
     }
 
     public int getAzimuthLooks() {
-        return headerParser.getInt(GammaConstants.HEADER_KEY_AZIMUTH_LOOKS);
+        return headerParser.getInt(GammaConstants.HEADER_KEY_AZIMUTH_LOOKS, 1);
     }
 
     public double getLineTimeInterval() {

@@ -59,7 +59,7 @@ public class GammaProductWriterPlugIn implements ProductWriterPlugIn {
      * @return the default file extensions for this product I/O plug-in, never <code>null</code>
      */
     public String[] getDefaultFileExtensions() {
-        return new String[]{GammaProductReaderPlugIn.EXT};
+        return GammaProductReaderPlugIn.EXTs;
     }
 
     /**
