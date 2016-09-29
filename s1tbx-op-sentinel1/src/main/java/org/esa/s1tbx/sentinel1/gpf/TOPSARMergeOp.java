@@ -555,11 +555,14 @@ public final class TOPSARMergeOp extends Operator {
                 }
             }
             MetadataElement targetSlaveMetadataRoot = AbstractMetadata.getSlaveMetadata(targetProduct.getMetadataRoot());
-            targetSlaveMetadataRoot.setAttributeString(AbstractMetadata.MASTER_BANDS,
-                    String.join(" ", masterProductBands.toArray(new String[masterProductBands.size()])));
-            targetSlaveMetadataRoot.getElementAt(0).setAttributeString(AbstractMetadata.SLAVE_BANDS,
-                    String.join(" ", slaveProductBands.toArray(new String[slaveProductBands.size()])));
-
+            if(!masterProductBands.isEmpty()) {
+                targetSlaveMetadataRoot.setAttributeString(AbstractMetadata.MASTER_BANDS,
+                        String.join(" ", masterProductBands.toArray(new String[masterProductBands.size()])));
+            }
+            if(!slaveProductBands.isEmpty()) {
+                targetSlaveMetadataRoot.getElementAt(0).setAttributeString(AbstractMetadata.SLAVE_BANDS,
+                        String.join(" ", slaveProductBands.toArray(new String[slaveProductBands.size()])));
+            }
         }
     }
 
