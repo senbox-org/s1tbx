@@ -87,7 +87,13 @@ public class StampsExportOp extends Operator {
             final InputProductValidator validator = new InputProductValidator(sourceProduct[0]);
             validator.checkIfCoregisteredStack();
             validator.checkIfSLC();
+            validator.checkIfTOPSARBurstProduct(false);
             validator.checkIfCompatibleProducts(sourceProduct);
+
+            final InputProductValidator validator2 = new InputProductValidator(sourceProduct[1]);
+            validator2.checkIfCoregisteredStack();
+            validator2.checkIfSLC();
+            validator2.checkIfTOPSARBurstProduct(false);
 
             if(targetFolder == null) {
                 //throw new OperatorException("Please add a target folder");
@@ -116,7 +122,7 @@ public class StampsExportOp extends Operator {
                         final Band targetBand = ProductUtils.copyBand(srcBandName, sourceProduct[i], targetBandName, targetProduct, true);
                         tgtBandToInfoMap.put(targetBand, new WriterInfo(folder[folderType.ordinal()], targetBandName));
 
-                        System.out.println("copy/add " + srcBandName + " to " + targetBand.getName());
+                        //System.out.println("copy/add " + srcBandName + " to " + targetBand.getName());
                     } else if (srcBandName.startsWith("q_")) {
                         // It is necessary to copy the q bands to target product because the product writer will look
                         // for them in the target product
@@ -124,13 +130,13 @@ public class StampsExportOp extends Operator {
                         final String targetBandName = "q_" + extractDate(srcBandName, i) + ext[folderType.ordinal()];
                         ProductUtils.copyBand(srcBandName, sourceProduct[i], targetBandName, targetProduct, true);
 
-                        System.out.println("copy " + srcBandName + " to " + targetBandName);
+                        //System.out.println("copy " + srcBandName + " to " + targetBandName);
                     } else if (srcBandName.startsWith("elevation")) {
                         final String targetBandName = srcBandName + ext[FOLDERS.GEO.ordinal()];
                         final Band targetBand = ProductUtils.copyBand(srcBandName, sourceProduct[i], targetBandName, targetProduct, true);
                         tgtBandToInfoMap.put(targetBand, new WriterInfo(folder[FOLDERS.GEO.ordinal()], targetBandName));
 
-                        System.out.println("copy/add " + srcBandName + " to " + targetBand.getName());
+                        //System.out.println("copy/add " + srcBandName + " to " + targetBand.getName());
                     }
                 }
             }
