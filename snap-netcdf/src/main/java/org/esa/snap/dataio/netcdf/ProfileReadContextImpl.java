@@ -31,7 +31,7 @@ class ProfileReadContextImpl implements ProfileReadContext {
 
     public ProfileReadContextImpl(NetcdfFile netcdfFile) {
         this.netcdfFile = netcdfFile;
-        this.propertyMap = new HashMap<String, Object>();
+        this.propertyMap = new HashMap<>();
     }
 
 
