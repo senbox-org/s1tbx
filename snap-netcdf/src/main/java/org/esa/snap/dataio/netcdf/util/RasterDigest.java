@@ -60,7 +60,7 @@ public class RasterDigest {
     }
 
     public static RasterDigest createRasterDigest(final Group ...groups) {
-        Map<DimKey, List<Variable>> variableListMap = new HashMap<DimKey, List<Variable>>();
+        Map<DimKey, List<Variable>> variableListMap = new HashMap<>();
         for (Group group : groups) {
             collectVariableLists(group, variableListMap);
         }
@@ -74,7 +74,7 @@ public class RasterDigest {
     }
 
     private static ScaledVariable[] getScaledVariables(Map<DimKey, List<Variable>> variableListMap, DimKey rasterDim) {
-        List<ScaledVariable> scaledVariableList = new ArrayList<ScaledVariable>();
+        List<ScaledVariable> scaledVariableList = new ArrayList<>();
         for (DimKey dimKey : variableListMap.keySet()) {
             if (!dimKey.equals(rasterDim)){
                 double scaleX = getScale(dimKey.getDimensionX(), rasterDim.getDimensionX());
@@ -136,7 +136,7 @@ public class RasterDigest {
                 if (dimX.getLength() > 1 && dimY.getLength() > 1) {
                     List<Variable> list = variableLists.get(rasterDim);
                     if (list == null) {
-                        list = new ArrayList<Variable>();
+                        list = new ArrayList<>();
                         variableLists.put(rasterDim, list);
                     }
                     list.add(variable);
