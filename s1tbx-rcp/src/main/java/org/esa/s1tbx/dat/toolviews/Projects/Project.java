@@ -39,6 +39,8 @@ import org.esa.snap.ui.product.ProductSubsetDialog;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
+import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -60,6 +62,7 @@ import java.util.Vector;
 public class Project extends Observable {
 
     private final static Project _instance = new Project();
+    private final List<Listener> listeners = new ArrayList<>();
 
     private File projectFolder = null;
     private File projectFile = null;
@@ -87,12 +90,23 @@ public class Project extends Observable {
         clearChanged();
         if (saveProject)
             SaveProject();
+
+        for (Listener listener : listeners) {
+            listener.projectChanged();
+        }
     }
 
     private static void showProjectsView() {
-//        final ExecCommand command = VisatApp.getApp().getCommandManager().
-//                getExecCommand("org.esa.s1tbx.dat.toolviews.Projects.ProjectsToolView.showCmd");
-//        command.execute();
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                final TopComponent window = WindowManager.getDefault().findTopComponent(
+                        "org.esa.s1tbx.dat.toolviews.Projects.ProjectsToolView");
+                if(window != null) {
+                    window.open();
+                    window.requestActive();
+                }
+            }
+        });
     }
 
     public void CreateNewProject() {
@@ -651,5 +665,13 @@ public class Project extends Observable {
             }
         };
         worker.executeWithBlocking();
+    }
+
+    public void addListener(Listener listener) {
+        listeners.add(listener);
+    }
+
+    public interface Listener {
+        void projectChanged();
     }
 }

@@ -13,8 +13,10 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.dat.toolviews.Projects;
+package org.esa.s1tbx.dat.toolviews.Projects.actions;
 
+import org.esa.s1tbx.dat.toolviews.Projects.Project;
+import org.esa.snap.rcp.actions.AbstractSnapAction;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -30,26 +32,26 @@ import java.awt.event.ActionEvent;
  * @author lveci
  * @version $Revision: 1.3 $ $Date: 2011-04-08 18:23:59 $
  */
-@ActionID(category = "Projects", id = "LoadProjectAction" )
+@ActionID(category = "Projects", id = "NewProjectAction" )
 @ActionRegistration(
-        displayName = "#CTL_LoadProjectAction_MenuText",
-        popupText = "#CTL_LoadProjectAction_MenuText",
-        iconBase = "org/esa/s1tbx/dat/icons/project.png",
+        displayName = "#CTL_NewProjectAction_MenuText",
+        popupText = "#CTL_NewProjectAction_MenuText",
+        iconBase = "org/esa/s1tbx/dat/icons/project-new.png",
         lazy = true
 )
 @ActionReferences({
-      //  @ActionReference(path = "Menu/File/Projects", position = 30),
-        @ActionReference(path = "Toolbars/Projects", position = 30)
+        @ActionReference(path = "Menu/File/Projects", position = 20),
+        @ActionReference(path = "Toolbars/Projects", position = 20)
 })
 @NbBundle.Messages({
-        "CTL_LoadProjectAction_MenuText=Load Project",
-        "CTL_LoadProjectAction_ShortDescription=Load an existing project"
+        "CTL_NewProjectAction_MenuText=New Project",
+        "CTL_NewProjectAction_ShortDescription=Create a new project"
 })
-public class LoadProjectAction extends AbstractAction {
+public class NewProjectAction extends AbstractSnapAction {
 
     @Override
-    public void actionPerformed(final ActionEvent event) {
+    public void actionPerformed(ActionEvent event) {
 
-        Project.instance().LoadProject();
+        Project.instance().CreateNewProject();
     }
 }

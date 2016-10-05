@@ -13,14 +13,16 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.dat.toolviews.Projects;
+package org.esa.s1tbx.dat.toolviews.Projects.actions;
 
+import org.esa.s1tbx.dat.toolviews.Projects.Project;
+import org.esa.snap.rcp.actions.AbstractSnapAction;
 import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.NbBundle;
 
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 /**
@@ -29,30 +31,37 @@ import java.awt.event.ActionEvent;
  * @author lveci
  * @version $Revision: 1.3 $ $Date: 2011-04-08 18:23:59 $
  */
-@ActionID(category = "Projects", id = "SaveProjectAsAction" )
+@ActionID(category = "Projects", id = "SaveProjectAsAction")
 @ActionRegistration(
         displayName = "#CTL_SaveProjectAsAction_MenuText",
         popupText = "#CTL_SaveProjectAsAction_MenuText",
-        iconBase = "org/esa/s1tbx/dat/icons/project.png",
-        lazy = true
+        lazy = false
 )
 @ActionReferences({
-       // @ActionReference(path = "Menu/File/Projects", position = 50),
-       // @ActionReference(path = "Toolbars/Projects", position = 50)
+        @ActionReference(path = "Menu/File/Projects", position = 50),
+        // @ActionReference(path = "Toolbars/Projects", position = 50)
 })
 @NbBundle.Messages({
         "CTL_SaveProjectAsAction_MenuText=Save Project As",
         "CTL_SaveProjectAsAction_ShortDescription=Save current project with new name and location"
 })
-public class SaveProjectAsAction extends AbstractAction {
+public class SaveProjectAsAction extends AbstractSnapAction implements Project.Listener {
+
+    public SaveProjectAsAction() {
+        Project.instance().addListener(this);
+        setEnableState();
+    }
+
+    private void setEnableState() {
+        setEnabled(Project.instance().IsProjectOpen());
+    }
+
+    public void projectChanged() {
+        setEnableState();
+    }
 
     @Override
     public void actionPerformed(final ActionEvent event) {
-
         Project.instance().SaveProjectAs();
-    }
-
-    public void updateState() {
-        setEnabled(Project.instance().IsProjectOpen());
     }
 }

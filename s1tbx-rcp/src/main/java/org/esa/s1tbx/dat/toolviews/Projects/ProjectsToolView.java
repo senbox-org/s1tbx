@@ -36,7 +36,7 @@ import java.util.Vector;
  */
 @TopComponent.Description(
         preferredID = "ProjectsToolView",
-        iconBase = "org/esa/s1tbx/dat/icons/project.png",
+        iconBase = "org/esa/s1tbx/dat/icons/project-view.png",
         persistenceType = TopComponent.PERSISTENCE_ALWAYS //todo define
 )
 @TopComponent.Registration(
@@ -54,7 +54,7 @@ import java.util.Vector;
         preferredID = "ProjectsToolView"
 )
 @NbBundle.Messages({
-        "CTL_ProjectsToolView_Name=Projects",
+        "CTL_ProjectsToolView_Name=View Projects",
         "CTL_ProjectsToolView_HelpId=projects"
 })
 public class ProjectsToolView extends TopComponent implements Observer {

@@ -26,6 +26,9 @@
 
     <folder name="Menu">
         <folder name="File">
+            <folder name="Projects">
+                <attr name="position" intvalue="110"/>
+            </folder>
             <folder name="Import">
                 <folder name="SAR Formats">
                     <file name="org-esa-s1tbx-io-importGenericComplex.shadow">

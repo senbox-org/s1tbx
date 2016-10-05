@@ -13,12 +13,20 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.dat.toolviews.Projects;
+package org.esa.s1tbx.dat.toolviews.Projects.actions;
 
+import org.esa.s1tbx.dat.toolviews.Projects.Project;
+import org.esa.snap.rcp.actions.AbstractSnapAction;
 import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
+import org.openide.util.ContextAwareAction;
+import org.openide.util.Lookup;
+import org.openide.util.LookupEvent;
+import org.openide.util.LookupListener;
 import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -34,25 +42,33 @@ import java.awt.event.ActionEvent;
         displayName = "#CTL_CloseProjectAction_MenuText",
         popupText = "#CTL_CloseProjectAction_MenuText",
         iconBase = "org/esa/s1tbx/dat/icons/project.png",
-        lazy = true
+        lazy = false
 )
 @ActionReferences({
-        //@ActionReference(path = "Menu/File/Projects", position = 60),
+        @ActionReference(path = "Menu/File/Projects", position = 60),
         //@ActionReference(path = "Toolbars/Projects", position = 60)
 })
 @NbBundle.Messages({
         "CTL_CloseProjectAction_MenuText=Close Project",
         "CTL_CloseProjectAction_ShortDescription=Close current project"
 })
-public class CloseProjectAction extends AbstractAction {
+public class CloseProjectAction extends AbstractSnapAction implements Project.Listener {
 
+    public CloseProjectAction() {
+        Project.instance().addListener(this);
+        setEnableState();
+    }
+
+    private void setEnableState() {
+        setEnabled(Project.instance().IsProjectOpen());
+    }
+
+    public void projectChanged() {
+        setEnableState();
+    }
     @Override
     public void actionPerformed(final ActionEvent event) {
 
         Project.instance().CloseProject();
-    }
-
-    public void updateState() {
-        setEnabled(Project.instance().IsProjectOpen());
     }
 }
