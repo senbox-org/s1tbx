@@ -25,15 +25,20 @@ class GammaConstants {
     static final String HEADER_KEY_END_TIME = "end_time";
     static final String HEADER_KEY_LINE_TIME_INTERVAL = "azimuth_line_time";
 
-    static final String HEADER_KEY_RADAR_FREQUENCY = "radar_frequency";
-    static final String HEADER_KEY_PRF = "prf";
     static final String HEADER_KEY_RANGE_LOOKS = "range_looks";
     static final String HEADER_KEY_AZIMUTH_LOOKS = "azimuth_looks";
     static final String HEADER_KEY_IMAGE_GEOMETRY = "image_geometry";
     static final String HEADER_KEY_CENTER_LATITUDE = "center_latitude";
     static final String HEADER_KEY_CENTER_LONGITUDE = "center_longitude";
+    static final String HEADER_KEY_HEADING = "heading";
     static final String HEADER_KEY_RANGE_PIXEL_SPACING = "range_pixel_spacing";
     static final String HEADER_KEY_AZIMUTH_PIXEL_SPACING = "azimuth_pixel_spacing";
+    static final String HEADER_KEY_RADAR_FREQUENCY = "radar_frequency";
+    static final String HEADER_KEY_PRF = "prf";
+    static final String HEADER_KEY_AZIMUTH_PROC_BANDWIDTH = "azimuth_proc_bandwidth";
+    static final String HEADER_KEY_NEAR_RANGE_SLC = "near_range_slc";
+    static final String HEADER_KEY_CENTER_RANGE_SLC = "center_range_slc";
+    static final String HEADER_KEY_FAR_RANGE_SLC= "far_range_slc";
 
     static final String HEADER_KEY_NUM_STATE_VECTORS = "number_of_state_vectors";
     static final String HEADER_KEY_TIME_FIRST_STATE_VECTORS = "time_of_first_state_vector";

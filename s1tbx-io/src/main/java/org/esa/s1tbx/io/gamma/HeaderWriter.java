@@ -25,6 +25,7 @@ import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.OrbitStateVector;
+import org.esa.snap.engine_utilities.eo.GeoUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -100,10 +101,16 @@ class HeaderWriter {
             p.println(GammaConstants.HEADER_KEY_DATA_TYPE + sep + getDataType());
             p.println(GammaConstants.HEADER_KEY_IMAGE_GEOMETRY + sep + writeImageGeometry());
             writeCenterLatLon(p);
-            p.println(GammaConstants.HEADER_KEY_RANGE_PIXEL_SPACING + sep + absRoot.getAttributeInt(AbstractMetadata.range_spacing));
-            p.println(GammaConstants.HEADER_KEY_AZIMUTH_PIXEL_SPACING + sep + absRoot.getAttributeInt(AbstractMetadata.azimuth_spacing));
-            p.println(GammaConstants.HEADER_KEY_RADAR_FREQUENCY + sep + absRoot.getAttributeString(AbstractMetadata.radar_frequency));
-            p.println(GammaConstants.HEADER_KEY_PRF + sep + absRoot.getAttributeString(AbstractMetadata.pulse_repetition_frequency));
+            p.println(GammaConstants.HEADER_KEY_RANGE_PIXEL_SPACING + sep + absRoot.getAttributeInt(AbstractMetadata.range_spacing) + sep + "m");
+            p.println(GammaConstants.HEADER_KEY_AZIMUTH_PIXEL_SPACING + sep + absRoot.getAttributeInt(AbstractMetadata.azimuth_spacing) + sep + "m");
+            p.println(GammaConstants.HEADER_KEY_RADAR_FREQUENCY + sep + absRoot.getAttributeString(AbstractMetadata.radar_frequency)  + sep + "Hz");
+            p.println(GammaConstants.HEADER_KEY_PRF + sep + absRoot.getAttributeString(AbstractMetadata.pulse_repetition_frequency)  + sep + "Hz");
+            p.println(GammaConstants.HEADER_KEY_AZIMUTH_PROC_BANDWIDTH + sep + absRoot.getAttributeString(AbstractMetadata.azimuth_bandwidth)  + sep + "Hz");
+
+            p.println(GammaConstants.HEADER_KEY_NEAR_RANGE_SLC + sep + absRoot.getAttributeString(AbstractMetadata.slant_range_to_first_pixel)  + sep + "m");
+            p.println(GammaConstants.HEADER_KEY_CENTER_RANGE_SLC + sep + absRoot.getAttributeString(AbstractMetadata.slant_range_to_first_pixel)  + sep + "m");
+            p.println(GammaConstants.HEADER_KEY_FAR_RANGE_SLC + sep + absRoot.getAttributeString(AbstractMetadata.slant_range_to_first_pixel)  + sep + "m");
+
             writeOrbitStateVectors(p);
 
             p.flush();
@@ -152,6 +159,12 @@ class HeaderWriter {
 
         p.println(GammaConstants.HEADER_KEY_CENTER_LATITUDE + sep + geoPos.getLat() + sep + "degrees");
         p.println(GammaConstants.HEADER_KEY_CENTER_LONGITUDE + sep + geoPos.getLon() + sep + "degrees");
+
+        GeoPos geoPos2 = srcProduct.getSceneGeoCoding().getGeoPos(
+                new PixelPos(srcProduct.getSceneRasterWidth()/2, (srcProduct.getSceneRasterHeight()/2) + 100), null);
+        GeoUtils.DistanceHeading heading = GeoUtils.vincenty_inverse(geoPos.lat, geoPos.lon,
+                geoPos2.lat, geoPos2.lon);
+        p.println(GammaConstants.HEADER_KEY_HEADING + sep + heading.heading1 + sep + "degrees");
     }
 
     private void writeOrbitStateVectors(final PrintStream p) {

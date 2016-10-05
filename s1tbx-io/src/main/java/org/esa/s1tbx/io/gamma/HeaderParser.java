@@ -16,7 +16,7 @@ class HeaderParser {
 
     private final Map<String, String> header;
 
-    public HeaderParser(Map<String, String> header) {
+    private HeaderParser(Map<String, String> header) {
         this.header = header;
     }
 
@@ -44,18 +44,18 @@ class HeaderParser {
         return new HeaderParser(header);
     }
 
-    boolean contains(String key) {
+    private boolean contains(String key) {
         return header.containsKey(key);
     }
 
-    String getString(String key) {
+    private String getString(String key) {
         if (!contains(key)) {
             throw new IllegalArgumentException("Missing mandatory header key: " + key);
         }
         return header.get(key);
     }
 
-    String getNumericString(String key) {
+    private String getNumericString(String key) {
         if (!contains(key)) {
             throw new IllegalArgumentException("Missing mandatory header key: " + key);
         }
