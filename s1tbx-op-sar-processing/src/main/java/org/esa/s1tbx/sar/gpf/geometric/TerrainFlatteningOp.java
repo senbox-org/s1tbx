@@ -19,6 +19,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.insar.gpf.support.SARGeocoding;
 import org.esa.s1tbx.insar.gpf.support.SARUtils;
+import org.esa.s1tbx.io.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.GeoPos;
@@ -100,8 +101,8 @@ public final class TerrainFlatteningOp extends Operator {
     @Parameter(defaultValue = "false", label = "Output Simulated Image")
     private Boolean outputSimulatedImage = false;
 
-    @Parameter(defaultValue="false", label="Re-grid method (slower)")
-    private Boolean reGridMethod = false;
+    @Parameter(defaultValue="true", label="Re-grid method (slower)")
+    private Boolean reGridMethod = true;
 
     private ElevationModel dem = null;
     private FileElevationModel fileElevationModel = null;
@@ -115,6 +116,7 @@ public final class TerrainFlatteningOp extends Operator {
     private boolean srgrFlag = false;
     private boolean isElevationModelAvailable = false;
     private boolean isGRD = false;
+    private boolean isPolSar = false;
 
     private double rangeSpacing = 0.0;
     private double azimuthSpacing = 0.0;
@@ -167,7 +169,11 @@ public final class TerrainFlatteningOp extends Operator {
             validator.checkIfMapProjected(false);
 
             if (!validator.isCalibrated(sourceProduct)) {
-                throw new OperatorException("Source product should be calibrated to beta0");
+                PolBandUtils.MATRIX sourceProductType = PolBandUtils.getSourceProductType(sourceProduct);
+                if (sourceProductType != PolBandUtils.MATRIX.T3) {
+                    throw new OperatorException("Source product should be calibrated to beta0 or polarimetric product in T3 format");
+                }
+                isPolSar = true;
             }
 
             getMetadata();
@@ -351,7 +357,10 @@ public final class TerrainFlatteningOp extends Operator {
         for (final Band srcBand : sourceBands) {
             final String srcBandName = srcBand.getName();
 
-            if(!srcBandName.startsWith("Beta0")) {      //beta0 or polsar product
+            if(!srcBandName.startsWith("Beta0") && !srcBandName.startsWith("T11") &&
+                    !srcBandName.startsWith("T12") && !srcBandName.startsWith("T13") &&
+                    !srcBandName.startsWith("T22") && !srcBandName.startsWith("T23") &&
+                    !srcBandName.startsWith("T33")) {      //beta0 or polsar product
                 continue;
             }
 
@@ -360,37 +369,46 @@ public final class TerrainFlatteningOp extends Operator {
                 throw new OperatorException("band " + srcBandName + " requires a unit");
             }
 
-            if (unit.contains(Unit.DB)) {
-                throw new OperatorException("Terrain flattening of bands in dB is not supported");
-            } else if (unit.contains(Unit.PHASE)) {
-                continue;
-            } else if (unit.contains(Unit.REAL) || unit.contains(Unit.IMAGINARY)) {
-                gamma0BandName = "Gamma0_" + srcBandName;
-                tgtUnit = unit;
-                if (outputSigma0) {
-                    sigma0BandName = "Sigma0_" + srcBandName;
+            if (isPolSar) {
+                if (targetProduct.getBand(srcBandName) == null) {
+                    Band tgtBand = targetProduct.addBand(srcBandName, ProductData.TYPE_FLOAT32);
+                    tgtBand.setUnit(unit);
+                    targetBandToSourceBandMap.put(tgtBand, srcBand);
                 }
-            } else { // amplitude or intensity
-                final String pol = OperatorUtils.getBandPolarization(srcBandName, absRoot);
-                gamma0BandName = "Gamma0";
-                sigma0BandName = "Sigma0";
-                if (pol != null && !pol.isEmpty()) {
-                    gamma0BandName = "Gamma0_" + pol.toUpperCase();
-                    sigma0BandName = "Sigma0_" + pol.toUpperCase();
+            } else {
+
+                if (unit.contains(Unit.DB)) {
+                    throw new OperatorException("Terrain flattening of bands in dB is not supported");
+                } else if (unit.contains(Unit.PHASE)) {
+                    continue;
+                } else if (unit.contains(Unit.REAL) || unit.contains(Unit.IMAGINARY)) {
+                    gamma0BandName = "Gamma0_" + srcBandName;
+                    tgtUnit = unit;
+                    if (outputSigma0) {
+                        sigma0BandName = "Sigma0_" + srcBandName;
+                    }
+                } else { // amplitude or intensity
+                    final String pol = OperatorUtils.getBandPolarization(srcBandName, absRoot);
+                    gamma0BandName = "Gamma0";
+                    sigma0BandName = "Sigma0";
+                    if (pol != null && !pol.isEmpty()) {
+                        gamma0BandName = "Gamma0_" + pol.toUpperCase();
+                        sigma0BandName = "Sigma0_" + pol.toUpperCase();
+                    }
+                    tgtUnit = Unit.INTENSITY;
                 }
-                tgtUnit = Unit.INTENSITY;
-            }
 
-            if (targetProduct.getBand(gamma0BandName) == null) {
-                Band tgtBand = targetProduct.addBand(gamma0BandName, ProductData.TYPE_FLOAT32);
-                tgtBand.setUnit(tgtUnit);
-                targetBandToSourceBandMap.put(tgtBand, srcBand);
-            }
+                if (targetProduct.getBand(gamma0BandName) == null) {
+                    Band tgtBand = targetProduct.addBand(gamma0BandName, ProductData.TYPE_FLOAT32);
+                    tgtBand.setUnit(tgtUnit);
+                    targetBandToSourceBandMap.put(tgtBand, srcBand);
+                }
 
-            if (outputSigma0 && targetProduct.getBand(sigma0BandName) == null) {
-                Band tgtBand = targetProduct.addBand(sigma0BandName, ProductData.TYPE_FLOAT32);
-                tgtBand.setUnit(tgtUnit);
-                targetBandToSourceBandMap.put(tgtBand, srcBand);
+                if (outputSigma0 && targetProduct.getBand(sigma0BandName) == null) {
+                    Band tgtBand = targetProduct.addBand(sigma0BandName, ProductData.TYPE_FLOAT32);
+                    tgtBand.setUnit(tgtUnit);
+                    targetBandToSourceBandMap.put(tgtBand, srcBand);
+                }
             }
         }
 
@@ -404,16 +422,18 @@ public final class TerrainFlatteningOp extends Operator {
         }
 
         targetBands = targetProduct.getBands();
-        for(int i=0; i < targetBands.length; ++i) {
-            if(targetBands[i].getUnit().equals(Unit.REAL)) {
-                final String trgBandName = targetBands[i].getName();
-                final int idx = trgBandName.indexOf("_");
-                String suffix = "";
-                if (idx != -1) {
-                    suffix = trgBandName.substring(trgBandName.indexOf("_"));
+        if (!isPolSar) {
+            for(int i=0; i < targetBands.length; ++i) {
+                if(targetBands[i].getUnit().equals(Unit.REAL)) {
+                    final String trgBandName = targetBands[i].getName();
+                    final int idx = trgBandName.indexOf("_");
+                    String suffix = "";
+                    if (idx != -1) {
+                        suffix = trgBandName.substring(trgBandName.indexOf("_"));
+                    }
+                    ReaderUtils.createVirtualIntensityBand(
+                            targetProduct, targetBands[i], targetBands[i + 1], "Gamma0", suffix);
                 }
-                ReaderUtils.createVirtualIntensityBand(
-                        targetProduct, targetBands[i], targetBands[i + 1], "Gamma0", suffix);
             }
         }
     }
@@ -458,7 +478,11 @@ public final class TerrainFlatteningOp extends Operator {
                 return;
             }
 
-            outputNormalizedImage(x0, y0, w, h, gamma0ReferenceArea, sigma0ReferenceArea, targetTiles, targetRectangle);
+            if (isPolSar) {
+                outputNormalizedImageT3(x0, y0, w, h, gamma0ReferenceArea, targetTiles, targetRectangle);
+            } else {
+                outputNormalizedImageGamma0(x0, y0, w, h, gamma0ReferenceArea, sigma0ReferenceArea, targetTiles, targetRectangle);
+            }
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -802,9 +826,9 @@ public final class TerrainFlatteningOp extends Operator {
      * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed.
      */
-    private void outputNormalizedImage(final int x0, final int y0, final int w, final int h,
-                                       final double[][] gamma0ReferenceArea, final double[][] sigma0ReferenceArea,
-                                       final Map<Band, Tile> targetTiles, final Rectangle targetRectangle) {
+    private void outputNormalizedImageGamma0(final int x0, final int y0, final int w, final int h,
+                                             final double[][] gamma0ReferenceArea, final double[][] sigma0ReferenceArea,
+                                             final Map<Band, Tile> targetTiles, final Rectangle targetRectangle) {
 
         try {
             for (Band tgtBand:targetBands) {
@@ -898,6 +922,75 @@ public final class TerrainFlatteningOp extends Operator {
                                             targetData.setElemDoubleAt(tgtIdx, v / Math.sqrt(simVal));
                                             break;
                                     }
+                                }
+                            } else {
+                                targetData.setElemDoubleAt(tgtIdx, noDataValue);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException(getId(), e);
+        }
+    }
+
+    private void outputNormalizedImageT3(final int x0, final int y0, final int w, final int h,
+                                         final double[][] gamma0ReferenceArea,
+                                         final Map<Band, Tile> targetTiles, final Rectangle targetRectangle) {
+
+        try {
+            for (Band tgtBand:targetBands) {
+                final Tile targetTile = targetTiles.get(tgtBand);
+                final ProductData targetData = targetTile.getDataBuffer();
+                final TileIndex tgtIndex = new TileIndex(targetTile);
+                final String unit = tgtBand.getUnit();
+                final double[][] simulatedImage = gamma0ReferenceArea.clone();
+
+                if (unit.contains("Ratio")) {
+                    for (int y = y0; y < y0 + h; y++) {
+                        final int yy = y - y0;
+                        tgtIndex.calculateStride(y);
+                        for (int x = x0; x < x0 + w; x++) {
+                            final int xx = x - x0;
+                            final int tgtIdx = tgtIndex.getIndex(x);
+                            double simVal = simulatedImage[yy][xx];
+                            if (simVal != noDataValue && simVal != 0.0) {
+                                simVal /= beta0;
+                                if (isGRD) {
+                                    simVal /= Math.sin(incidenceAngleTPG.getPixelDouble(x, y)*Constants.DTOR);
+                                }
+                                targetData.setElemDoubleAt(tgtIdx, simVal);
+                            } else {
+                                targetData.setElemDoubleAt(tgtIdx, noDataValue);
+                            }
+                        }
+                    }
+
+                } else {
+
+                    final Band srcBand = targetBandToSourceBandMap.get(tgtBand);
+                    final Tile sourceTile = getSourceTile(srcBand, targetRectangle);
+                    final ProductData sourceData = sourceTile.getDataBuffer();
+                    final TileIndex srcIndex = new TileIndex(sourceTile);
+
+                    double v, simVal;
+                    int tgtIdx, srcIdx;
+                    for (int y = y0; y < y0 + h; y++) {
+                        final int yy = y - y0;
+                        tgtIndex.calculateStride(y);
+                        srcIndex.calculateStride(y);
+                        for (int x = x0; x < x0 + w; x++) {
+                            final int xx = x - x0;
+                            tgtIdx = tgtIndex.getIndex(x);
+                            srcIdx = srcIndex.getIndex(x);
+                            simVal = simulatedImage[yy][xx];
+
+                            if (simVal != noDataValue) {
+                                simVal /= beta0;
+                                if (simVal > threshold) {
+                                    v = sourceData.getElemDoubleAt(srcIdx);
+                                    targetData.setElemDoubleAt(tgtIdx, v / simVal);
                                 }
                             } else {
                                 targetData.setElemDoubleAt(tgtIdx, noDataValue);
