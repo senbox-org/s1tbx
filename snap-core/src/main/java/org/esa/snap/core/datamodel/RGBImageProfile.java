@@ -113,6 +113,17 @@ public class RGBImageProfile implements ConfigurableExtension {
         this(name, rgbaExpressions, null);
     }
 
+    /**
+     * Creates a new RGB profile.
+     *
+     * @param name The name of the profile
+     * @param rgbaExpressions the expressions for the RGBA channels. Only RGB expressions are mandatory, the one for the alpha
+     *                        channel can be missing
+     * @param pattern Pattern to check if this profile can be applied to a certain product. Three patterns need to be provided.
+     *                1. Will be matched against the product tpye
+     *                2. Will be matched against the product name
+     *                3. Will be matched against the description of the product
+     */
     public RGBImageProfile(final String name, String[] rgbaExpressions, String pattern[]) {
         Assert.argument(name != null, "name != null");
         Assert.argument(rgbaExpressions != null, "rgbaExpressions != null");
