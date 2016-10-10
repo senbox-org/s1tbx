@@ -118,7 +118,7 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
             return service;
         }
 
-        String className = getName(classNames, operatorName);
+        String className = classNames.get(operatorName);
         if (className != null) {
             service = serviceRegistry.getService(className);
             if (service != null) {
@@ -129,8 +129,9 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
         return null;
     }
 
-    private <T> T getName(Map<String, T> tMap, String operatorName) {
-        Optional<String> optional = tMap.keySet().stream().filter(p -> p.toLowerCase().equals(operatorName.toLowerCase())).findFirst();
+    private OperatorSpi getName(Map<String, OperatorSpi> tMap, String operatorName) {
+        Stream<String> nameStream = tMap.keySet().stream();
+        Optional<String> optional = nameStream.filter(p -> p.equalsIgnoreCase(operatorName)).findFirst();
         return optional.isPresent() ? tMap.get(optional.get()) : null;
     }
 
