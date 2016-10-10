@@ -45,6 +45,7 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
 
     /**
      * The constructor.
+     *
      * @param serviceRegistry The underlying service registry used by this instance.
      */
     public OperatorSpiRegistryImpl(ServiceRegistry<OperatorSpi> serviceRegistry) {
@@ -78,7 +79,6 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
 
     /**
      * @return The set of all registered operator SPIs.
-     *
      * @since BEAM 5
      */
     @Override
@@ -113,12 +113,12 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
             return service;
         }
 
-        service = extraOperatorSpis.get(operatorName);
+        service = getName(extraOperatorSpis, operatorName);
         if (service != null) {
             return service;
         }
 
-        String className = classNames.get(operatorName);
+        String className = getName(classNames, operatorName);
         if (className != null) {
             service = serviceRegistry.getService(className);
             if (service != null) {
@@ -127,6 +127,11 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
         }
 
         return null;
+    }
+
+    private <T> T getName(Map<String, T> tMap, String operatorName) {
+        Optional<String> optional = tMap.keySet().stream().filter(p -> p.toLowerCase().equals(operatorName.toLowerCase())).findFirst();
+        return optional.isPresent() ? tMap.get(optional.get()) : null;
     }
 
     /**
@@ -151,7 +156,6 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
      * @param operatorName an (alias) name used as key for the registration.
      * @param operatorSpi  the SPI to add
      * @return {@code true}, if the {@link OperatorSpi} could be successfully added, otherwise {@code false}
-     *
      * @since BEAM 5
      */
     @Override
@@ -178,9 +182,9 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
         if (!serviceRegistry.removeService(operatorSpi)) {
             Stream<Map.Entry<String, OperatorSpi>> extraSpiStream = extraOperatorSpis.entrySet().stream();
             Optional<Map.Entry<String, OperatorSpi>> spiEntry = extraSpiStream.filter(entry -> entry.getValue() == operatorSpi).findFirst();
-            if(spiEntry.isPresent() && extraOperatorSpis.remove(spiEntry.get().getKey(), spiEntry.get().getValue())) {
+            if (spiEntry.isPresent() && extraOperatorSpis.remove(spiEntry.get().getKey(), spiEntry.get().getValue())) {
                 unregisterAlias(spiEntry.get().getValue());
-            }else {
+            } else {
                 return false;
             }
         }

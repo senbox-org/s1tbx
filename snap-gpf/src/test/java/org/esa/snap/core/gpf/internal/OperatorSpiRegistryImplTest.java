@@ -91,6 +91,22 @@ public class OperatorSpiRegistryImplTest {
         assertTrue(operatorSpis.contains(heino3));
     }
 
+
+    @Test
+    public void testInSensentiveOperator() {
+        DummyOp.Spi heino1 = new DummyOp.Spi();
+        DummyOp.Spi heino2 = new DummyOp.Spi();
+        DummyOp.Spi heino3 = new DummyOp.Spi();
+
+        assertTrue(registry.addOperatorSpi("heino1", heino1));
+        assertTrue(registry.addOperatorSpi("HEino2", heino2));
+        assertTrue(registry.addOperatorSpi("HeINo3", heino3));
+
+        assertSame(heino1, registry.getOperatorSpi("HEINO1"));
+        assertSame(heino2, registry.getOperatorSpi("HeinO2"));
+        assertSame(heino3, registry.getOperatorSpi("HEinO3"));
+    }
+
     @Test
     public void testRemovalWhenSpiRegisteredWithAlias() throws InterruptedException {
 
