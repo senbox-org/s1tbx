@@ -14,7 +14,7 @@
     
 	<properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>		
-        <netbeans.version>RELEASE81</netbeans.version>
+        <netbeans.version>RELEASE82</netbeans.version>
         <doc-windows.version>1.0</doc-windows.version>
         <javahelp.version>2.0.05</javahelp.version>
         <brandingToken>s1tbx</brandingToken>		
