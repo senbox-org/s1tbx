@@ -49,7 +49,7 @@ import java.util.zip.ZipFile;
 @ActionID(category = "File", id = "ViewS1AuxFileAction")
 @ActionRegistration(displayName = "#CTL_ViewS1AuxFileActionText", lazy = false)
 @ActionReferences({
-        @ActionReference(path = "Menu/Radar/SAR Utilities/Auxiliary Files")
+        @ActionReference(path = "Menu/Radar/SAR Utilities/Auxiliary Files", position = 200)
 })
 
 @NbBundle.Messages({

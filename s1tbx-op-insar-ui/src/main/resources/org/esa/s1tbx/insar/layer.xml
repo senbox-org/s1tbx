@@ -224,7 +224,7 @@
                 <attr name="position" intvalue="900"/>
                 <file name="org-esa-s1tbx-insar-gpf-coregistration-OffsetTrackingOp-Action.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-coregistration-OffsetTrackingOp-Action.instance"/>
-                    <attr name="position" intvalue="200"/>
+                    <attr name="position" intvalue="300"/>
                 </file>
             </folder>
         </folder>

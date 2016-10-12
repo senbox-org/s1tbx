@@ -46,7 +46,7 @@ import java.util.Vector;
 )
 @ActionID(category = "Window", id = "org.esa.s1tbx.dat.toolviews.Projects.ProjectsToolView")
 @ActionReferences({
-        @ActionReference(path = "Menu/View/Tool Windows"),
+        @ActionReference(path = "Menu/View/Tool Windows", position = 10),
         @ActionReference(path = "Toolbars/Projects", position = 10)
 })
 @TopComponent.OpenActionRegistration(
