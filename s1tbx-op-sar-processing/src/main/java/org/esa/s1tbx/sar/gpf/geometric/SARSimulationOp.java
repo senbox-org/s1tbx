@@ -18,6 +18,7 @@ package org.esa.s1tbx.sar.gpf.geometric;
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.insar.gpf.support.SARGeocoding;
+import org.esa.s1tbx.insar.gpf.support.SARPosition;
 import org.esa.s1tbx.insar.gpf.support.SARUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.GeoCoding;
@@ -535,7 +536,21 @@ public final class SARSimulationOp extends Operator {
         final int xmin = Math.max(x0 - (int) (w * tileOverlapPercentage.tileOverlapLeft), 0);
         final int xmax = Math.min(x0 + w + (int) (w * tileOverlapPercentage.tileOverlapRight), sourceImageWidth);
 
-        final PositionData posData = new PositionData();
+        final SARPosition sarPosition = new SARPosition(
+                firstLineUTC,
+                lastLineUTC,
+                lineTimeInterval,
+                wavelength,
+                rangeSpacing,
+                sourceImageWidth,
+                srgrFlag,
+                nearEdgeSlantRange,
+                nearRangeOnLeft,
+                orbit,
+                srgrConvParams
+        );
+        sarPosition.setTileConstraints(x0, y0, w, h);
+        final SARPosition.PositionData posData = new SARPosition.PositionData();
         final GeoPos geoPos = new GeoPos();
 
         double[] slrs = null;
@@ -591,7 +606,8 @@ public final class SARSimulationOp extends Operator {
                         }
                         tileDEM[i][j] = alt;
 
-                        if (!getPosition(lat, lon, alt, x0, y0, w, h, posData))
+                        GeoUtils.geo2xyzWGS84(lat, lon, alt, posData.earthPoint);
+                        if (!sarPosition.getPosition(posData))
                             continue;
 
                         final LocalGeometry localGeometry = new LocalGeometry(
@@ -733,7 +749,8 @@ public final class SARSimulationOp extends Operator {
                             alt = dem.getElevation(new GeoPos(lat, lon));
                         }
 
-                        if (!getPosition(lat, lon, alt, x0, y0, w, h, posData))
+                        GeoUtils.geo2xyzWGS84(lat, lon, alt, posData.earthPoint);
+                        if (!sarPosition.getPosition(posData))
                             continue;
 
                         final LocalGeometry localGeometry = new LocalGeometry(
@@ -795,17 +812,9 @@ public final class SARSimulationOp extends Operator {
         }
     }
 
-    private static class PositionData {
-        final PosVector earthPoint = new PosVector();
-        final PosVector sensorPos = new PosVector();
-        double azimuthIndex;
-        double rangeIndex;
-        double slantRange;
-    }
-
     private boolean getPositionFromOrbit(final double lat, final double lon, final double alt,
                                          final int x0, final int y0, final int w, final int h,
-                                         final PositionData data) {
+                                         final SARPosition.PositionData data) {
 
         double[] phi_lam_height = {lat * Constants.DTOR, lon * Constants.DTOR, alt};
         Point pointOnDem = Ellipsoid.ell2xyz(phi_lam_height);
@@ -832,49 +841,6 @@ public final class SARSimulationOp extends Operator {
         }
 
         return data.rangeIndex >= x0 && data.rangeIndex < x0 + w;
-    }
-
-    private boolean getPosition(final double lat, final double lon, final double alt,
-                                final int x0, final int y0, final int w, final int h,
-                                final PositionData data) {
-
-        GeoUtils.geo2xyzWGS84(lat, lon, alt, data.earthPoint);
-
-        final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
-                firstLineUTC, lineTimeInterval, wavelength, data.earthPoint,
-                orbit.sensorPosition, orbit.sensorVelocity);
-
-        if (zeroDopplerTime == SARGeocoding.NonValidZeroDopplerTime) {
-            return false;
-        }
-
-        data.slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, data.earthPoint, data.sensorPos);
-
-//        final double zeroDopplerTimeWithoutBias =
-//                zeroDopplerTime + data.slantRange / Constants.lightSpeedInMetersPerDay;
-
-        data.azimuthIndex = (zeroDopplerTime - firstLineUTC) / lineTimeInterval;
-
-        if (!(data.azimuthIndex >= y0 - 1 && data.azimuthIndex <= y0 + h)) {
-            return false;
-        }
-
-//        data.slantRange = SARGeocoding.computeSlantRange(
-//                zeroDopplerTimeWithoutBias, orbit, data.earthPoint, data.sensorPos);
-
-        if (!srgrFlag) {
-            data.rangeIndex = (data.slantRange - nearEdgeSlantRange) / rangeSpacing;
-        } else {
-            data.rangeIndex = SARGeocoding.computeRangeIndex(
-                    srgrFlag, sourceImageWidth, firstLineUTC, lastLineUTC, rangeSpacing,
-                    zeroDopplerTime, data.slantRange, nearEdgeSlantRange, srgrConvParams);
-        }
-
-        if (!nearRangeOnLeft) {
-            data.rangeIndex = sourceImageWidth - 1 - data.rangeIndex;
-        }
-
-        return data.rangeIndex >= x0 - 1 && data.rangeIndex <= x0 + w;
     }
 
     private static void saveSimulatedData(final double azimuthIndex, final double rangeIndex, double v,
@@ -1112,7 +1078,7 @@ public final class SARSimulationOp extends Operator {
         final double tileOverlapLeft;
         final double tileOverlapRight;
 
-        public OverlapPercentage(final double tileOverlapUp, final double tileOverlapDown,
+        OverlapPercentage(final double tileOverlapUp, final double tileOverlapDown,
                                  final double tileOverlapLeft, final double tileOverlapRight) {
             this.tileOverlapUp = tileOverlapUp;
             this.tileOverlapDown = tileOverlapDown;
@@ -1120,7 +1086,6 @@ public final class SARSimulationOp extends Operator {
             this.tileOverlapRight = tileOverlapRight;
         }
     }
-
 
     /**
      * The SPI is used to register this operator in the graph processing framework

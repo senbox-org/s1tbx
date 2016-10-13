@@ -584,7 +584,7 @@ public final class TerrainFlatteningOp extends Operator {
                         // traverse from near range to far range to detect shadowing area
                         double maxElevAngle = 0.0;
                         for (int jj = 0; jj < nLon; jj++) {
-                            if (savePixel[jj] && (detectShadow && elevationAngle[jj] >= maxElevAngle || !detectShadow)) {
+                            if (savePixel[jj] && (!detectShadow || elevationAngle[jj] >= maxElevAngle)) {
                                 maxElevAngle = elevationAngle[jj];
                                 saveGamma0Area(x0, y0, w, h, gamma0Area[jj], azimuthIndex[jj], rangeIndex[jj],
                                         gamma0ReferenceArea);
@@ -600,7 +600,7 @@ public final class TerrainFlatteningOp extends Operator {
                         // traverse from near range to far range to detect shadowing area
                         double maxElevAngle = 0.0;
                         for (int jj = nLon - 1; jj >= 0; --jj) {
-                            if (savePixel[jj] && (detectShadow && elevationAngle[jj] >= maxElevAngle || !detectShadow)) {
+                            if (savePixel[jj] && (!detectShadow || elevationAngle[jj] >= maxElevAngle)) {
                                 maxElevAngle = elevationAngle[jj];
                                 saveGamma0Area(x0, y0, w, h, gamma0Area[jj], azimuthIndex[jj], rangeIndex[jj],
                                         gamma0ReferenceArea);
@@ -690,7 +690,7 @@ public final class TerrainFlatteningOp extends Operator {
                         // traverse from near range to far range to detect shadowing area
                         double maxElevAngle = 0.0;
                         for (int i = 0; i < widthExt; i++) {
-                            if (savePixel[i] && (detectShadow && elevationAngle[i] > maxElevAngle || !detectShadow)) {
+                            if (savePixel[i] && (!detectShadow || elevationAngle[i] > maxElevAngle)) {
                                 maxElevAngle = elevationAngle[i];
                                 saveGamma0Area(x0, y0, w, h, gamma0Area[i], azimuthIndex[i], rangeIndex[i],
                                         gamma0ReferenceArea);
@@ -706,7 +706,7 @@ public final class TerrainFlatteningOp extends Operator {
                         // traverse from near range to far range to detect shadowing area
                         double maxElevAngle = 0.0;
                         for (int i = widthExt - 1; i >= 0; --i) {
-                            if (savePixel[i] && (detectShadow && elevationAngle[i] > maxElevAngle || !detectShadow)) {
+                            if (savePixel[i] && (!detectShadow || elevationAngle[i] > maxElevAngle)) {
                                 maxElevAngle = elevationAngle[i];
                                 saveGamma0Area(x0, y0, w, h, gamma0Area[i], azimuthIndex[i], rangeIndex[i],
                                         gamma0ReferenceArea);
@@ -776,12 +776,8 @@ public final class TerrainFlatteningOp extends Operator {
 
         GeoUtils.geo2xyzWGS84(lat, lon, alt, data.earthPoint);
 
-//        final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
-//                firstLineUTC, lineTimeInterval, wavelength, data.earthPoint,
-//                orbit.sensorPosition, orbit.sensorVelocity);
-
-        final double zeroDopplerTime = SARGeocoding.getZeroDopplerTime(
-                firstLineUTC, lineTimeInterval, wavelength, data.earthPoint, orbit);
+        final Double zeroDopplerTime = SARGeocoding.getZeroDopplerTime(
+                lineTimeInterval, wavelength, data.earthPoint, orbit);
 
         if (zeroDopplerTime == SARGeocoding.NonValidZeroDopplerTime) {
             return false;
@@ -807,10 +803,7 @@ public final class TerrainFlatteningOp extends Operator {
             data.rangeIndex = sourceImageWidth - 1 - data.rangeIndex;
         }
 
-        if (!(data.rangeIndex >= x0 - 1 && data.rangeIndex <= x0 + w)) {
-            return false;
-        }
-        return true;
+        return data.rangeIndex >= x0 - 1 && data.rangeIndex <= x0 + w;
     }
 
 

@@ -17,6 +17,7 @@ package org.esa.s1tbx.insar.gpf.coregistration;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.insar.gpf.support.SARGeocoding;
+import org.esa.s1tbx.insar.gpf.support.SARPosition;
 import org.esa.s1tbx.insar.gpf.support.SARUtils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.GeoCoding;
@@ -498,13 +499,40 @@ public final class DEMAssistedCoregistrationOp extends Operator {
             // get its lat/lon and its azimuth/range indices in target image;
             final int numLines = latMinIdx - latMaxIdx;
             final int numPixels = lonMaxIdx - lonMinIdx;
-            double[][] masterAz = new double[numLines][numPixels];
-            double[][] masterRg = new double[numLines][numPixels];
-            double[][] slaveAz = new double[numLines][numPixels];
-            double[][] slaveRg = new double[numLines][numPixels];
-            double[][] lat = new double[numLines][numPixels];
-            double[][] lon = new double[numLines][numPixels];
-            final PositionData posData = new PositionData();
+            final double[][] masterAz = new double[numLines][numPixels];
+            final double[][] masterRg = new double[numLines][numPixels];
+            final double[][] slaveAz = new double[numLines][numPixels];
+            final double[][] slaveRg = new double[numLines][numPixels];
+            final double[][] lat = new double[numLines][numPixels];
+            final double[][] lon = new double[numLines][numPixels];
+
+            final SARPosition mstSARPosition = new SARPosition(
+                    mstMetadata.firstLineTime,
+                    mstMetadata.lastLineTime,
+                    mstMetadata.lineTimeInterval,
+                    mstMetadata.wavelength,
+                    mstMetadata.rangeSpacing,
+                    mstMetadata.sourceImageWidth,
+                    mstMetadata.srgrFlag,
+                    mstMetadata.nearEdgeSlantRange,
+                    mstMetadata.nearRangeOnLeft,
+                    mstMetadata.orbit,
+                    mstMetadata.srgrConvParams
+            );
+            final SARPosition slvSARPosition = new SARPosition(
+                    slvMetadata.firstLineTime,
+                    slvMetadata.lastLineTime,
+                    slvMetadata.lineTimeInterval,
+                    slvMetadata.wavelength,
+                    slvMetadata.rangeSpacing,
+                    slvMetadata.sourceImageWidth,
+                    slvMetadata.srgrFlag,
+                    slvMetadata.nearEdgeSlantRange,
+                    slvMetadata.nearRangeOnLeft,
+                    slvMetadata.orbit,
+                    slvMetadata.srgrConvParams
+            );
+            final SARPosition.PositionData posData = new SARPosition.PositionData();
             final PixelPos pix = new PixelPos();
 
             boolean noValidSlavePixPos = true;
@@ -522,11 +550,11 @@ public final class DEMAssistedCoregistrationOp extends Operator {
                     }
 
                     GeoUtils.geo2xyzWGS84(gp.lat, gp.lon, alt, posData.earthPoint);
-                    if(getPosition(gp.lat, gp.lon, alt, mstMetadata, posData)) {
+                    if(mstSARPosition.getPosition(posData)) {
 
                         masterAz[l][p] = posData.azimuthIndex;
                         masterRg[l][p] = posData.rangeIndex;
-                        if (getPosition(gp.lat, gp.lon, alt, slvMetadata, posData)) {
+                        if (slvSARPosition.getPosition(posData)) {
 
                             slaveAz[l][p] = posData.azimuthIndex;
                             slaveRg[l][p] = posData.rangeIndex;
@@ -652,43 +680,6 @@ public final class DEMAssistedCoregistrationOp extends Operator {
         latLonMinMax[1] = latMax;
         latLonMinMax[2] = lonMin;
         latLonMinMax[3] = lonMax;
-    }
-
-    /**
-     * Compute azimuth and range indices in SAR image for a given target point on the Earth's surface.
-     */
-    private static boolean getPosition(final double lat, final double lon, final double alt,
-                                       final Metadata metadata, final PositionData data) {
-
-        GeoUtils.geo2xyzWGS84(lat, lon, alt, data.earthPoint);
-
-        final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
-                metadata.firstLineTime, metadata.lineTimeInterval, metadata.wavelength, data.earthPoint,
-                metadata.orbit.sensorPosition, metadata.orbit.sensorVelocity);
-
-        if (zeroDopplerTime == SARGeocoding.NonValidZeroDopplerTime) {
-            return false;
-        }
-
-        data.slantRange = SARGeocoding.computeSlantRange(
-                zeroDopplerTime, metadata.orbit, data.earthPoint, data.sensorPos);
-
-        data.azimuthIndex = (zeroDopplerTime - metadata.firstLineTime) / metadata.lineTimeInterval;
-
-        if (!metadata.srgrFlag) {
-            data.rangeIndex = (data.slantRange - metadata.nearEdgeSlantRange) / metadata.rangeSpacing;
-        } else {
-            data.rangeIndex = SARGeocoding.computeRangeIndex(
-                    metadata.srgrFlag, metadata.sourceImageWidth, metadata.firstLineTime, metadata.lastLineTime,
-                    metadata.rangeSpacing, zeroDopplerTime, data.slantRange, metadata.nearEdgeSlantRange,
-                    metadata.srgrConvParams);
-        }
-
-        if (!metadata.nearRangeOnLeft) {
-            data.rangeIndex = metadata.sourceImageWidth - 1 - data.rangeIndex;
-        }
-
-        return !(data.azimuthIndex < 0 || data.rangeIndex < 0);
     }
 
     /**
@@ -831,14 +822,6 @@ public final class DEMAssistedCoregistrationOp extends Operator {
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("outputRangeAzimuthOffsets", e);
         }
-    }
-
-    private static class PositionData {
-        final PosVector earthPoint = new PosVector();
-        final PosVector sensorPos = new PosVector();
-        double azimuthIndex;
-        double rangeIndex;
-        double slantRange;
     }
 
     private static class ResamplingRaster implements Resampling.Raster {
