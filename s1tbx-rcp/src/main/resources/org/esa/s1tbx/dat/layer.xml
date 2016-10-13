@@ -37,7 +37,7 @@
                     </file>
                     <file name="org-esa-s1tbx-io-importGenericBinary.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importGenericBinary.instance"/>
-                        <attr name="position" intvalue="400"/>
+                        <attr name="position" intvalue="410"/>
                     </file>
                 </folder>
             </folder>
