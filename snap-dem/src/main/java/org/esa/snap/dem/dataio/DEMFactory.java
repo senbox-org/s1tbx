@@ -24,6 +24,7 @@ import org.esa.snap.core.dataop.dem.ElevationModelDescriptor;
 import org.esa.snap.core.dataop.dem.ElevationModelRegistry;
 import org.esa.snap.core.dataop.resamp.Resampling;
 import org.esa.snap.core.dataop.resamp.ResamplingFactory;
+import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.engine_utilities.gpf.TileGeoreferencing;
 
 import java.io.IOException;
@@ -76,8 +77,12 @@ public class DEMFactory {
         final ElevationModelDescriptor demDescriptor = getDemDescriptor(demName);
 
         Resampling resampleMethod = null;
-        if (!demResamplingMethod.equals(DELAUNAY_INTERPOLATION))               // resampling not actual used for Delaunay
+        if (!demResamplingMethod.equals(DELAUNAY_INTERPOLATION)) {              // resampling not actual used for Delaunay
             resampleMethod = ResamplingFactory.createResampling(demResamplingMethod);
+            if(resampleMethod == null) {
+                throw new OperatorException("Resampling method "+ demResamplingMethod + " is invalid");
+            }
+        }
 
         final ElevationModel dem = demDescriptor.createDem(resampleMethod);
         if (dem == null) {

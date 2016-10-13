@@ -157,6 +157,9 @@ public final class AddLandCoverOp extends Operator {
         Resampling resampling = Resampling.NEAREST_NEIGHBOUR;
         if (param.resamplingMethod != null) {
             resampling = ResamplingFactory.createResampling(param.resamplingMethod);
+            if(resampling == null) {
+                throw new OperatorException("Resampling method "+ param.resamplingMethod + " is invalid");
+            }
         }
 
         final LandCoverModel landcover = descriptor.createLandCoverModel(resampling);
