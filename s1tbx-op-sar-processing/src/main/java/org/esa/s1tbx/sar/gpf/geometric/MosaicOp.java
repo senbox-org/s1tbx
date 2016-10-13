@@ -475,6 +475,9 @@ public class MosaicOp extends Operator {
             }
 
             final Resampling resampling = ResamplingFactory.createResampling(resamplingMethod);
+            if(resampling == null) {
+                throw new OperatorException("Resampling method "+ resamplingMethod + " is invalid");
+            }
 
             if (gradientDomainMosaic) {
                 performGradientDomainMosaic(targetTiles, targetRectangle, srcPixelCoords, validProducts, resampling, pm);

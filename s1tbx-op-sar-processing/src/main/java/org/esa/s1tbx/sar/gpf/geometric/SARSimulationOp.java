@@ -831,23 +831,14 @@ public final class SARSimulationOp extends Operator {
             data.rangeIndex = sourceImageWidth - 1 - data.rangeIndex;
         }
 
-        if (!(data.rangeIndex >= x0 && data.rangeIndex < x0 + w)) {
-            return false;
-        }
-        return true;
+        return data.rangeIndex >= x0 && data.rangeIndex < x0 + w;
     }
 
     private boolean getPosition(final double lat, final double lon, final double alt,
                                 final int x0, final int y0, final int w, final int h,
                                 final PositionData data) {
-        //if(orbitMethod)
-        //    return getPositionFromOrbit(lat, lon, alt, x0, y0, w, h, data);
 
         GeoUtils.geo2xyzWGS84(lat, lon, alt, data.earthPoint);
-
-        //final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTimeNewton(
-        //        firstLineUTC, lineTimeInterval, wavelength, data.earthPoint,
-        //        orbit.sensorPosition, orbit.sensorVelocity);
 
         final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
                 firstLineUTC, lineTimeInterval, wavelength, data.earthPoint,
@@ -883,10 +874,7 @@ public final class SARSimulationOp extends Operator {
             data.rangeIndex = sourceImageWidth - 1 - data.rangeIndex;
         }
 
-        if (!(data.rangeIndex >= x0 - 1 && data.rangeIndex <= x0 + w)) {
-            return false;
-        }
-        return true;
+        return data.rangeIndex >= x0 - 1 && data.rangeIndex <= x0 + w;
     }
 
     private static void saveSimulatedData(final double azimuthIndex, final double rangeIndex, double v,

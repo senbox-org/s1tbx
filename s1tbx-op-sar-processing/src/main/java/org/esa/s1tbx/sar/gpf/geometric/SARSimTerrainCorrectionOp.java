@@ -303,6 +303,9 @@ public class SARSimTerrainCorrectionOp extends Operator {
             }
 
             imgResampling = ResamplingFactory.createResampling(imgResamplingMethod);
+            if(imgResampling == null) {
+                throw new OperatorException("Resampling method "+ imgResamplingMethod + " is invalid");
+            }
 
             createTargetProduct();
 

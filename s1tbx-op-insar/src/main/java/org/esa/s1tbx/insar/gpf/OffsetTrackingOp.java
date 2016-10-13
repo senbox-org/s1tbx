@@ -216,6 +216,10 @@ public class OffsetTrackingOp extends Operator {
 
         try {
             selectedResampling = ResamplingFactory.createResampling(resamplingType);
+            if(selectedResampling == null) {
+                throw new OperatorException("Resampling method "+ resamplingType + " is invalid");
+            }
+
             int avgWindowSize = Integer.parseInt(averageBoxSize);
             halfAvgWindowSize = avgWindowSize / 2;
 

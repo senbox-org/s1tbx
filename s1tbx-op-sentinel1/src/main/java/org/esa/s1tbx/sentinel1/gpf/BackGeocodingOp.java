@@ -226,6 +226,9 @@ public final class BackGeocodingOp extends Operator {
             DEMFactory.validateDEM(demName, masterProduct);
 
             selectedResampling = ResamplingFactory.createResampling(resamplingType);
+            if(selectedResampling == null) {
+                throw new OperatorException("Resampling method "+ resamplingType + " is invalid");
+            }
 
             createTargetProduct();
 

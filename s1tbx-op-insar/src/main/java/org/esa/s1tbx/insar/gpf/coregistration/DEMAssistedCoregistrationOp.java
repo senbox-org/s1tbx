@@ -16,9 +16,6 @@
 package org.esa.s1tbx.insar.gpf.coregistration;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
 import org.esa.s1tbx.insar.gpf.support.SARGeocoding;
 import org.esa.s1tbx.insar.gpf.support.SARUtils;
 import org.esa.snap.core.datamodel.Band;
@@ -29,7 +26,6 @@ import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.dataop.dem.ElevationModel;
@@ -48,21 +44,21 @@ import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.dem.dataio.DEMFactory;
 import org.esa.snap.dem.dataio.EarthGravitationalModel96;
 import org.esa.snap.dem.dataio.FileElevationModel;
-import org.esa.snap.engine_utilities.datamodel.*;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.datamodel.OrbitStateVector;
+import org.esa.snap.engine_utilities.datamodel.PosVector;
+import org.esa.snap.engine_utilities.datamodel.ProductInformation;
+import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.eo.GeoUtils;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
-import org.jlinda.core.delaunay.FastDelaunayTriangulator;
-import org.jlinda.core.delaunay.Triangle;
-import org.jlinda.core.delaunay.TriangulationException;
 import org.jlinda.core.delaunay.TriangleInterpolator;
 
 import java.awt.*;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -180,6 +176,9 @@ public final class DEMAssistedCoregistrationOp extends Operator {
             DEMFactory.validateDEM(demName, masterProduct);
 
             selectedResampling = ResamplingFactory.createResampling(resamplingType);
+            if(selectedResampling == null) {
+                throw new OperatorException("Resampling method "+ resamplingType + " is invalid");
+            }
 
             createTargetProduct();
 
@@ -267,7 +266,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
             final Band targetBand = ProductUtils.copyBand(
                     bandName, masterProduct, bandName + mstSuffix, targetProduct, true);
 
-            if(targetBand.getUnit().equals(Unit.IMAGINARY)) {
+            if(targetBand != null && Unit.IMAGINARY.equals(targetBand.getUnit())) {
                 int idx = targetProduct.getBandIndex(targetBand.getName());
                 ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBandAt(idx - 1), targetBand, mstSuffix);
             }
@@ -574,7 +573,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
             boolean allElementsAreNull = true;
             final PixelPos[][] slavePixelPos = new PixelPos[h][w];
 
-            Double alt = 0.0;
+            Double alt;
             for(int yy = 0; yy < h; yy++) {
                 for (int xx = 0; xx < w; xx++) {
                     if (rgArray[yy][xx] == invalidIndex || azArray[yy][xx] == invalidIndex ||
@@ -689,7 +688,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
             data.rangeIndex = metadata.sourceImageWidth - 1 - data.rangeIndex;
         }
 
-        return true;
+        return !(data.azimuthIndex < 0 || data.rangeIndex < 0);
     }
 
     /**
@@ -847,7 +846,7 @@ public final class DEMAssistedCoregistrationOp extends Operator {
         private final Tile tile;
         private final ProductData dataBuffer;
 
-        public ResamplingRaster(final Tile tile, final ProductData dataBuffer) {
+        private ResamplingRaster(final Tile tile, final ProductData dataBuffer) {
             this.tile = tile;
             this.dataBuffer = dataBuffer;
         }
