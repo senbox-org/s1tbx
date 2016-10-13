@@ -277,6 +277,7 @@ public class InSARStackOverview {
         private final double refHeight;
 
         private final CplxContainer master, slave;
+        private Baseline baseline = null;
 
         private float bPerp;            // perpendicular baseline
         private final float bTemp;            // temporal baseline
@@ -295,7 +296,7 @@ public class InSARStackOverview {
             this.refHeight = 0;
 
             try {
-                Baseline baseline = new Baseline();
+                baseline = new Baseline();
                 baseline.model(master.metaData, slave.metaData, master.orbit, slave.orbit);
                 bPerp = (float) baseline.getBperp(refLine, refPixel);
                 heightAmb = (float) baseline.getHamb(refLine, refPixel, refHeight);
@@ -307,6 +308,26 @@ public class InSARStackOverview {
             deltaDoppler = (float) (master.metaData.doppler.getF_DC_a0() - slave.metaData.doppler.getF_DC_a0());
 
             coherence = modelCoherence(bPerp, bTemp, deltaDoppler);
+        }
+
+        public float getPerpendicularBaseline(final double line, final double pixel, final double height) throws Exception {
+            return (float) baseline.getBperp(line, pixel, height);
+        }
+
+        public float getParallelBaseline(final double line, final double pixel, final double height) throws Exception {
+            return (float) baseline.getBpar(line, pixel, height);
+        }
+
+        public float getAlpha(final double line, final double pixel, final double height) throws Exception {
+            return (float) baseline.getAlpha(line, pixel, height);
+        }
+
+        public float getVerticalBaseline(final double line, final double pixel, final double height) throws Exception {
+            return (float) baseline.getBvert(line, pixel, height);
+        }
+
+        public float getHorizontalBaseline(final double line, final double pixel, final double height) throws Exception {
+            return (float) baseline.getBhor(line, pixel, height);
         }
 
         public float getPerpendicularBaseline() {

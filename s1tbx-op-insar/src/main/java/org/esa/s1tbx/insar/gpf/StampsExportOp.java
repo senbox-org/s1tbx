@@ -19,6 +19,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.ProductWriter;
 import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.Operator;
@@ -32,10 +33,13 @@ import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.gpf.InputProductValidator;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 
 import java.awt.*;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.text.DateFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -197,8 +201,58 @@ public class StampsExportOp extends Operator {
         final File outputFile = targetFolder.toPath().resolve(info.folderName).resolve(info.targetBandName+".par").toFile();
         info.productWriter.writeProductNodes(targetProduct, outputFile);
 
+        if (info.folderName.equals("diff0")) {
+            writeBaselineFile(info);
+        }
+
         info.written = true;
     }
+
+    private void writeBaselineFile(final WriterInfo info) throws Exception {
+
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct[0]);
+        final double prf = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.pulse_repetition_frequency);
+
+        final double height = 0.0;
+        final double firstLine = 0.0;
+        final double lastLine = sourceProduct[0].getSceneRasterHeight() - 1;
+        final double refPixel = (sourceProduct[0].getSceneRasterWidth() - 1) / 2.0;
+        final double t0 = firstLine / prf;
+        final double tN = lastLine / prf;
+
+        InSARStackOverview.IfgStack[] stackOverview = InSARStackOverview.calculateInSAROverview(sourceProduct[0]);
+
+        final double bh0 = stackOverview[0].getMasterSlave()[1].getHorizontalBaseline(firstLine, refPixel, height);
+        final double bhN = stackOverview[0].getMasterSlave()[1].getHorizontalBaseline(lastLine, refPixel, height);
+        final double bhm = (bh0 + bhN) * 0.5;
+        final double bhr = (bhN - bh0) / (tN - t0);
+
+        final double bv0 = stackOverview[0].getMasterSlave()[1].getVerticalBaseline(firstLine, refPixel, height);
+        final double bvN = stackOverview[0].getMasterSlave()[1].getVerticalBaseline(lastLine, refPixel, height);
+        final double bvm = (bv0 + bvN) * 0.5;
+        final double bvr = (bvN - bv0) / (tN - t0);
+
+        final File outputBaselineFile =
+                targetFolder.toPath().resolve(info.folderName).resolve(info.targetBandName + ".base").toFile();
+        final String oldEOL = System.getProperty("line.separator");
+        System.setProperty("line.separator", "\n");
+        final FileOutputStream out = new FileOutputStream(outputBaselineFile);
+        try(final PrintStream p = new PrintStream(out)) {
+
+            p.println("initial_baseline(TCN)" + ":\t" + "0.0000000" + "\t" + bhm + "\t" + bvm + "\t" + "m   m   m");
+            p.println("initial_baseline_rate" + ":\t" + "0.0000000" + "\t" + bhr + "\t" + bvr + "\t" + "m/s   m/s   m/s");
+            p.println("precision_baseline(TCN)" + ":\t" + "0.0000000        0.0000000        0.0000000   m   m   m");
+            p.println("precision_baseline_rate" + ":\t" + "0.0000000        0.0000000        0.0000000   m/s m/s m/s");
+            p.println("unwrap_phase_constant" + ":\t" + "0.00000     radians");
+
+            p.flush();
+        } catch (Exception e) {
+            throw new IOException("StampsExportOp unable to write baseline file " + e.getMessage());
+        } finally {
+            System.setProperty("line.separator", oldEOL);
+        }
+    }
+
 
     @Override
     public void dispose() {

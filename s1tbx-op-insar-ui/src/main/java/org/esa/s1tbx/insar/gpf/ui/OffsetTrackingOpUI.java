@@ -128,7 +128,7 @@ public class OffsetTrackingOpUI extends BaseOperatorUI {
             spatialAverageCheckBox.setSelected(spatialAverage);
         }
 
-        fillHoles = (Boolean)paramMap.get("turnOffFillHole");
+        fillHoles = (Boolean)paramMap.get("fillHoles");
         if(fillHoles != null) {
             fillHoleCheckBox.setSelected(fillHoles);
         }
