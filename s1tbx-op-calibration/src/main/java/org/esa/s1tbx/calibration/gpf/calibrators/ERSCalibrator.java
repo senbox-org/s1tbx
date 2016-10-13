@@ -1780,11 +1780,8 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
             sigma = 10.0 * Math.log10(sigma);
         }
 
-        if (isERS1Mission && sigma <= ers1ApplyADCThreshold) {
-            return false;
-        }
+        return !(isERS1Mission && sigma <= ers1ApplyADCThreshold) && !(!isERS1Mission && sigma <= ers2ApplyADCThreshold);
 
-        return !(!isERS1Mission && sigma <= ers2ApplyADCThreshold);
     }
 
     /**
