@@ -388,7 +388,8 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
                 rangeTime[k] = (float) (rangeDist[k] / Constants.halfLightSpeed * Constants.oneBillion); // in ns
             }
 
-            tpg.getData().setElems(rangeTime);
+            tpg.setDataElems(rangeTime);
+            destBuffer.setElems(rangeTime);
         } else if(tpg.getName().equals(OperatorUtils.TPG_INCIDENT_ANGLE)) {
 
             if (sceneRec != null) {
@@ -412,7 +413,8 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
                     }
                 }
 
-                tpg.getData().setElems(angles);
+                tpg.setDataElems(angles);
+                destBuffer.setElems(angles);
             }
         }
     }
