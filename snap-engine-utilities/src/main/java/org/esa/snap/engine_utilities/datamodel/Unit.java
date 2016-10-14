@@ -39,7 +39,9 @@ public final class Unit {
     public static final String METERS = "meters";
     public static final String CENTIMETERS = "centimeters";
     public static final String METERS_PER_DAY = "m/day";
+
     public static final String CLASS = "class";
+    public static final String SOIL_MOISTURE = "m^3water/m^3soil";
 
     // tiepoint grid units
 
@@ -51,7 +53,10 @@ public final class Unit {
 
     public enum UnitType {
         AMPLITUDE, INTENSITY, REAL, IMAGINARY, PHASE, ABS_PHASE, COHERENCE,
-        AMPLITUDE_DB, INTENSITY_DB, METERS, METERS_PER_DAY, CLASS, DEGREES, NANOSECONDS, UNKNOWN
+        AMPLITUDE_DB, INTENSITY_DB,
+        METERS, CENTIMETERS, METERS_PER_DAY,
+        CLASS, SOIL_MOISTURE,
+        DEGREES, NANOSECONDS, UNKNOWN
     }
 
     public static UnitType getUnitType(final Band sourceBand) {
@@ -79,12 +84,16 @@ public final class Unit {
             return UnitType.IMAGINARY;
         } else if (unit.contains(METERS)) {
             return UnitType.METERS;
+        } else if (unit.contains(CENTIMETERS)) {
+            return UnitType.CENTIMETERS;
         } else if (unit.contains(METERS_PER_DAY)) {
             return UnitType.METERS_PER_DAY;
         } else if (unit.contains(COHERENCE)) {
             return UnitType.COHERENCE;
         } else if (unit.contains(CLASS)) {
             return UnitType.CLASS;
+        } else if (unit.contains(SOIL_MOISTURE)) {
+            return UnitType.SOIL_MOISTURE;
         } else if (unit.contains(DEGREES)) {
             return UnitType.DEGREES;
         } else if (unit.contains(NANOSECONDS)) {
