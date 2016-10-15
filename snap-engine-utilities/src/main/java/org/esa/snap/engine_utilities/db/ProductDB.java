@@ -38,7 +38,6 @@ public class ProductDB extends DAO {
 
     private ProductTable productTable;
     private MetadataTable metadataTable;
-    private Connection dbConnection = null;
 
     private static ProductDB _instance = null;
     public static final String DEFAULT_PRODUCT_DATABASE_NAME = "productDB";
@@ -100,21 +99,19 @@ public class ProductDB extends DAO {
 
     @Override
     protected boolean createTables(final Connection connection) throws SQLException {
-        this.dbConnection = connection;
-        productTable = new ProductTable(dbConnection);
+        productTable = new ProductTable(connection);
         productTable.createTable();
-        metadataTable = new MetadataTable(dbConnection);
+        metadataTable = new MetadataTable(connection);
         metadataTable.createTable();
         return true;
     }
 
     @Override
     protected void validateTables(final Connection connection) throws SQLException {
-        this.dbConnection = connection;
         if (productTable == null)
-            productTable = new ProductTable(dbConnection);
+            productTable = new ProductTable(connection);
         if (metadataTable == null)
-            metadataTable = new MetadataTable(dbConnection);
+            metadataTable = new MetadataTable(connection);
         productTable.validateTable();
         metadataTable.validateTable();
     }
@@ -233,7 +230,7 @@ public class ProductDB extends DAO {
     public ProductEntry[] queryProduct(final String queryStr) throws SQLException {
         final List<ProductEntry> listEntries = new ArrayList<>();
 
-        try (final Statement queryStatement = dbConnection.createStatement()) {
+        try (final Statement queryStatement = dbConnect.createStatement()) {
             String whereStr = strGetProductsWhere;
             if (queryStr.isEmpty()) {
                 whereStr = strGetProductsWhere.substring(0, strGetProductsWhere.lastIndexOf(" AND "));

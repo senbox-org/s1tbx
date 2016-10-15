@@ -32,7 +32,7 @@ public abstract class DAO {
     private boolean isConnected;
     private final Properties dbProperties;
     private final String dbName;
-    private Connection dbConnect = null;
+    protected Connection dbConnect = null;
     protected SQLException lastSQLException = null;
 
     public DAO(final String name, final Properties dbProperties) throws IOException {
