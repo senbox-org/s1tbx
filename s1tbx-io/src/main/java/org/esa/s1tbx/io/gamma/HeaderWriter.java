@@ -26,6 +26,7 @@ import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.OrbitStateVector;
 import org.esa.snap.engine_utilities.eo.GeoUtils;
+import org.esa.snap.engine_utilities.eo.Constants;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -108,6 +109,8 @@ class HeaderWriter {
             p.println(GammaConstants.HEADER_KEY_PRF + sep + absRoot.getAttributeString(AbstractMetadata.pulse_repetition_frequency)  + tab + "Hz");
             p.println(GammaConstants.HEADER_KEY_AZIMUTH_PROC_BANDWIDTH + sep + absRoot.getAttributeString(AbstractMetadata.azimuth_bandwidth)  + tab + "Hz");
 
+            writeEarthParams(p);
+
             p.println(GammaConstants.HEADER_KEY_NEAR_RANGE_SLC + sep + absRoot.getAttributeString(AbstractMetadata.slant_range_to_first_pixel)  + tab + "m");
             p.println(GammaConstants.HEADER_KEY_CENTER_RANGE_SLC + sep + absRoot.getAttributeString(AbstractMetadata.slant_range_to_first_pixel)  + tab + "m");
             p.println(GammaConstants.HEADER_KEY_FAR_RANGE_SLC + sep + absRoot.getAttributeString(AbstractMetadata.slant_range_to_first_pixel)  + tab + "m");
@@ -188,6 +191,39 @@ class HeaderWriter {
                 ++num;
             }
         }
+    }
+
+    private void writeEarthParams(final PrintStream p) {
+
+        final double startTime = srcProduct.getStartTime().getMJD();
+        final OrbitStateVector[] osvList = AbstractMetadata.getOrbitStateVectors(absRoot);
+        double sensorToEarth = 0.0;
+        if(osvList != null && osvList.length > 0) {
+            // maybe interpolation should be used here, for now we just pick the nearest orbit state vector
+            double dtMin = Double.MAX_VALUE;
+            int idx = 0;
+            for (int i = 0; i < osvList.length; ++i) {
+                final double dt = Math.abs(startTime - osvList[i].time_mjd);
+                if (dt < dtMin) {
+                    dtMin = dt;
+                    idx = i;
+                }
+            }
+            sensorToEarth = Math.sqrt(osvList[idx].x_pos * osvList[idx].x_pos +
+                    osvList[idx].y_pos * osvList[idx].y_pos + osvList[idx].z_pos * osvList[idx].z_pos);
+        }
+        p.println(GammaConstants.HEADER_KEY_SAR_TO_EARTH_CENTER + sep + String.valueOf(sensorToEarth)  + tab + "m");
+
+        GeoPos geoPos = srcProduct.getSceneGeoCoding().getGeoPos(
+                new PixelPos(srcProduct.getSceneRasterWidth()/2, srcProduct.getSceneRasterHeight()/2), null);
+        final double lat = geoPos.getLat();
+        final double tmp1 = Constants.semiMajorAxis * Constants.semiMajorAxis * Math.cos(lat);
+        final double tmp2 = Constants.semiMinorAxis * Constants.semiMinorAxis * Math.sin(lat);
+        final double r = Math.sqrt((tmp1 * tmp1 + tmp2 * tmp2) / (tmp1 * Math.cos(lat) + tmp2 * Math.sin(lat)));
+
+        p.println(GammaConstants.HEADER_KEY_EARTH_RADIUS_BELOW_SENSOR + sep + String.valueOf(r)  + tab + "m");
+        p.println(GammaConstants.HEADER_KEY_EARTH_SEMI_MAJOR_AXIS + sep + String.valueOf(Constants.semiMajorAxis)  + tab + "m");
+        p.println(GammaConstants.HEADER_KEY_EARTH_SEMI_MINOR_AXIS + sep + String.valueOf(Constants.semiMinorAxis)  + tab + "m");
     }
 
     int getHighestElemSize() {
