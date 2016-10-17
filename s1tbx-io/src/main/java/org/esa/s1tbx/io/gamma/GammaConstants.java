@@ -40,6 +40,11 @@ class GammaConstants {
     static final String HEADER_KEY_CENTER_RANGE_SLC = "center_range_slc";
     static final String HEADER_KEY_FAR_RANGE_SLC= "far_range_slc";
 
+    static final String HEADER_KEY_SAR_TO_EARTH_CENTER = "sar_to_earth_center";
+    static final String HEADER_KEY_EARTH_RADIUS_BELOW_SENSOR = "earth_radius_below_sensor";
+    static final String HEADER_KEY_EARTH_SEMI_MAJOR_AXIS = "earth_semi_major_axis";
+    static final String HEADER_KEY_EARTH_SEMI_MINOR_AXIS = "earth_semi_minor_axis";
+
     static final String HEADER_KEY_NUM_STATE_VECTORS = "number_of_state_vectors";
     static final String HEADER_KEY_TIME_FIRST_STATE_VECTORS = "time_of_first_state_vector";
     static final String HEADER_KEY_STATE_VECTOR_INTERVAL = "state_vector_interval";
