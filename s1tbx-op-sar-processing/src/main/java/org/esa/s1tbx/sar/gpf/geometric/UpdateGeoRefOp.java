@@ -648,12 +648,8 @@ public final class UpdateGeoRefOp extends Operator {
 
         GeoUtils.geo2xyzWGS84(lat, lon, alt, data.earthPoint);
 
-            /*final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTimeNewton(
-                    firstLineUTC, lineTimeInterval, wavelength, data.earthPoint,
-                    orbit.sensorPosition, orbit.sensorVelocity);*/
-
         final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTimeNewton(
-                firstLineUTC, lineTimeInterval, wavelength, data.earthPoint, orbit);
+                lineTimeInterval, wavelength, data.earthPoint, orbit);
 
         if (zeroDopplerTime == SARGeocoding.NonValidZeroDopplerTime) {
             return false;

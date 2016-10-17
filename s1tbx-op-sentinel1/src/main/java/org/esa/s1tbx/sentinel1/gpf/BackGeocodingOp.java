@@ -226,6 +226,9 @@ public final class BackGeocodingOp extends Operator {
             DEMFactory.validateDEM(demName, masterProduct);
 
             selectedResampling = ResamplingFactory.createResampling(resamplingType);
+            if(selectedResampling == null) {
+                throw new OperatorException("Resampling method "+ resamplingType + " is invalid");
+            }
 
             createTargetProduct();
 
@@ -591,7 +594,7 @@ public final class BackGeocodingOp extends Operator {
             Sentinel1Utils.SubSwathInfo subSwath = su.getSubSwath()[subSwathIndex - 1];
 
             final double zeroDopplerTimeInDays = SARGeocoding.getZeroDopplerTime(
-                    su.firstLineUTC, su.lineTimeInterval, su.wavelength, earthPoint, orbit);
+                    su.lineTimeInterval, su.wavelength, earthPoint, orbit);
 
             if (zeroDopplerTimeInDays == SARGeocoding.NonValidZeroDopplerTime) {
                 return null;
@@ -1009,7 +1012,7 @@ public final class BackGeocodingOp extends Operator {
             Sentinel1Utils.SubSwathInfo subSwath = su.getSubSwath()[subSwathIndex - 1];
 
             final double zeroDopplerTimeInDays = SARGeocoding.getZeroDopplerTime(
-                    su.firstLineUTC, su.lineTimeInterval, su.wavelength, data.earthPoint, orbit);
+                    su.lineTimeInterval, su.wavelength, data.earthPoint, orbit);
 
             if (zeroDopplerTimeInDays == SARGeocoding.NonValidZeroDopplerTime) {
                 return false;

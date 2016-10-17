@@ -151,6 +151,9 @@ public final class GeolocationGridGeocodingOp extends Operator {
             getMetadata();
 
             imgResampling = ResamplingFactory.createResampling(imgResamplingMethod);
+            if(imgResampling == null) {
+                throw new OperatorException("Resampling method "+ imgResamplingMethod + " is invalid");
+            }
 
             getTiePointGrids();
 

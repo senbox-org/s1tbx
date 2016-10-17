@@ -15,11 +15,9 @@
  */
 package org.esa.s1tbx.io.orbits.doris;
 
-import com.bc.ceres.core.NullProgressMonitor;
 import org.esa.s1tbx.io.orbits.BaseOrbitFile;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.dataop.downloadable.FtpDownloader;
 import org.esa.snap.dataio.envisat.EnvisatOrbitReader;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.DownloadableArchive;

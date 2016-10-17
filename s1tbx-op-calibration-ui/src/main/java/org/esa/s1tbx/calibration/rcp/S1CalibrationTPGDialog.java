@@ -15,15 +15,12 @@
  */
 package org.esa.s1tbx.calibration.rcp;
 
-import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.ui.GridBagUtils;
 import org.esa.snap.ui.ModalDialog;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
-import javax.swing.text.JTextComponent;
 import java.awt.*;
 
 /**

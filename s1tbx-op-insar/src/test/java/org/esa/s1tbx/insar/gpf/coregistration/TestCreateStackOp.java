@@ -16,14 +16,20 @@
 package org.esa.s1tbx.insar.gpf.coregistration;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 import org.esa.snap.engine_utilities.util.TestUtils;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -36,6 +42,36 @@ public class TestCreateStackOp {
         TestUtils.initTestEnvironment();
     }
     private final static OperatorSpi spi = new CreateStackOp.Spi();
+
+    private final static File inFile1 = new File("E:\\data\\ASAR\\Bam\\ASA_IMS_1PNUPA20031203_061259_000000162022_00120_09192_0099.N1");
+    private final static File inFile2 = new File("E:\\data\\ASAR\\Bam\\ASA_IMS_1PXPDE20040211_061300_000000142024_00120_10194_0013.N1");
+
+    @Test
+    public void testForumIssue() throws IOException {
+        if(!inFile1.exists() || !inFile2.exists()){
+            return;
+        }
+
+        /* Load products */
+        Product[] products = new Product[2];
+        products[0] =   ProductIO.readProduct(inFile1);
+        products[1] =   ProductIO.readProduct(inFile2);
+
+        GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
+
+    /* Operator parameters */
+        HashMap parameters = new HashMap();
+        parameters.put("extent","Master");
+        parameters.put("initialOffsetMethod","Product Geolocation");
+        parameters.put("masterBands",products[0].getBandAt(0).getName()+","+products[0].getBandAt(1).getName());
+        parameters.put("resamplingType","NEAREST_NEIGHBOUR");
+        parameters.put("sourceBands",products[1].getBandAt(0).getName()+","+products[1].getBandAt(1).getName());
+
+        System.out.println("Creating stack...");
+        Product outProduct = GPF.createProduct("CreateStack", parameters, products);
+
+        ProductIO.writeProduct(outProduct, new File("E:\\out\\target.dim"), "BEAM-DIMAP", true);
+    }
 
     @Test
     public void testOperator() throws Exception {

@@ -30,7 +30,6 @@ import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.core.gpf.internal.TileImpl;
 import org.esa.snap.core.util.Guardian;
-import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 
 import javax.imageio.stream.ImageOutputStream;

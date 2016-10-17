@@ -19,8 +19,6 @@ import com.bc.ceres.core.ProgressMonitor;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
-import org.esa.s1tbx.insar.gpf.coregistration.CoarseRegistration;
-import org.esa.s1tbx.insar.gpf.coregistration.FineRegistration;
 import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.core.gpf.Operator;

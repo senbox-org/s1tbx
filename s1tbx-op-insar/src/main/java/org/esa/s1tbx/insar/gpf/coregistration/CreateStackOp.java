@@ -306,6 +306,9 @@ public class CreateStackOp extends Operator {
 
             if (!resamplingType.contains("NONE")) {
                 selectedResampling = ResamplingFactory.createResampling(resamplingType);
+                if(selectedResampling == null) {
+                    throw new OperatorException("Resampling method "+ selectedResampling + " is invalid");
+                }
             } else {
                 if(initialOffsetMethod == null) {
                     initialOffsetMethod = INITIAL_OFFSET_ORBIT;

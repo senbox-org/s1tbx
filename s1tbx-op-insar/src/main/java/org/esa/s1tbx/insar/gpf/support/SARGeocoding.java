@@ -110,68 +110,8 @@ public final class SARGeocoding {
         return firstLineUTC + y0 * lineTimeInterval;
     }
 
-    /**
-     * Compute zero Doppler time for given earth point using Newton's method.
-     *
-     * @param firstLineUTC     The zero Doppler time for the first range line.
-     * @param lineTimeInterval The line time interval.
-     * @param wavelength       The radar wavelength.
-     * @param earthPoint       The earth point in xyz coordinate.
-     * @param sensorPosition   Array of sensor positions for all range lines.
-     * @param sensorVelocity   Array of sensor velocities for all range lines.
-     * @return The zero Doppler time in days if it is found, NonValidZeroDopplerTime otherwise.
-     * @throws OperatorException The operator exception.
-     */
-    public static double getEarthPointZeroDopplerTimeNewton(final double firstLineUTC,
-                                                            final double lineTimeInterval, final double wavelength,
-                                                            final PosVector earthPoint, final PosVector[] sensorPosition,
-                                                            final PosVector[] sensorVelocity) throws OperatorException {
-        final int lowerBound = 0;
-        final int upperBound = sensorPosition.length - 1;
-        final double lowerBoundFreq = getDopplerFrequency(earthPoint, sensorPosition[lowerBound],
-                sensorVelocity[lowerBound], wavelength);
-        final double upperBoundFreq = getDopplerFrequency(earthPoint, sensorPosition[upperBound],
-                sensorVelocity[upperBound], wavelength);
-        if (Double.compare(lowerBoundFreq, 0.0) == 0) {
-            return firstLineUTC + lowerBound * lineTimeInterval;
-        } else if (Double.compare(upperBoundFreq, 0.0) == 0) {
-            return firstLineUTC + upperBound * lineTimeInterval;
-        } else if (lowerBoundFreq * upperBoundFreq > 0.0) {
-            return NonValidZeroDopplerTime;
-        }
-        int yOld = 0, yOld1;
-        int yNew = sensorPosition.length / 2, yNew1 = 0;
-        final int yMax = sensorPosition.length - 1;
-        double fOld = 0, fOld1 = 0, fNew = 0, fNew1 = 0, d = 0, y0;
-        while (Math.abs(yNew - yOld) > 2) {
-            yOld = yNew;
-            yOld1 = yOld + 1;
-            if (yOld1 > yMax) {
-                yOld1 = yOld - 1;
-            }
-            fOld = getDopplerFrequency(earthPoint, sensorPosition[yOld], sensorVelocity[yOld], wavelength);
-            fOld1 = getDopplerFrequency(earthPoint, sensorPosition[yOld1], sensorVelocity[yOld1], wavelength);
-            d = (fOld1 - fOld) / (yOld1 - yOld);
-            yNew = (int) (yOld - fOld / d);
-            if (yNew < 0) {
-                yNew = 0;
-            } else if (yNew > yMax) {
-                yNew = yMax;
-            }
-        }
-        fNew = getDopplerFrequency(earthPoint, sensorPosition[yNew], sensorVelocity[yNew], wavelength);
-        yNew1 = yNew + 1;
-        fNew1 = getDopplerFrequency(earthPoint, sensorPosition[yNew1], sensorVelocity[yNew1], wavelength);
-        if (fNew * fNew1 > 0.0) {
-            yNew1 = yNew - 1;
-            fNew1 = getDopplerFrequency(earthPoint, sensorPosition[yNew1], sensorVelocity[yNew1], wavelength);
-        }
-        y0 = yNew - fNew * (yNew1 - yNew) / (fNew1 - fNew);
-        return firstLineUTC + y0 * lineTimeInterval;
-    }
-
     public static double getEarthPointZeroDopplerTimeNewton(
-            final double firstLineUTC, final double lineTimeInterval, final double wavelength,
+            final double lineTimeInterval, final double wavelength,
             final PosVector earthPoint, final SARGeocoding.Orbit orbit) throws OperatorException {
 
         final int numOrbitVec = orbit.orbitStateVectors.length;
@@ -204,9 +144,8 @@ public final class SARGeocoding {
             return NonValidZeroDopplerTime;
         }
 
-        double oldTime = firstVecTime, oldTimeDel;
-        double oldFreq = firstVecFreq;
-        double newTime = (firstVecTime + lastVecTime) / 2.0, oldFreqDel = 0.0;
+        double oldTime, oldFreq;
+        double newTime = (firstVecTime + lastVecTime) / 2.0, oldFreqDel;
         orbit.getPositionVelocity(newTime, sensorPosition, sensorVelocity);
         double newFreq = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
 
@@ -239,7 +178,6 @@ public final class SARGeocoding {
     /**
      * Compute zero Doppler time for given point with the product orbit state vectors using bisection method.
      *
-     * @param firstLineUTC     The zero Doppler time for the first range line.
      * @param lineTimeInterval The line time interval.
      * @param wavelength       The radar wavelength.
      * @param earthPoint       The earth point in xyz coordinate.
@@ -247,7 +185,7 @@ public final class SARGeocoding {
      * @return The zero Doppler time in days if it is found, NonValidZeroDopplerTime otherwise.
      * @throws OperatorException The operator exception.
      */
-    public static double getZeroDopplerTime(final double firstLineUTC, final double lineTimeInterval,
+    public static double getZeroDopplerTime(final double lineTimeInterval,
                                             final double wavelength, final PosVector earthPoint,
                                             final SARGeocoding.Orbit orbit) throws OperatorException {
 
@@ -285,8 +223,8 @@ public final class SARGeocoding {
         double upperBoundTime = secondVecTime;
         double lowerBoundFreq = firstVecFreq;
         double upperBoundFreq = secondVecFreq;
-        double midTime = 0.0;
-        double midFreq = 0.0;
+        double midTime;
+        double midFreq;
         double diffTime = Math.abs(upperBoundTime - lowerBoundTime);
         final double absLineTimeInterval = Math.abs(lineTimeInterval);
         final int totalIterations = (int)(diffTime/ absLineTimeInterval) + 1;
@@ -391,7 +329,7 @@ public final class SARGeocoding {
 
         if (srgrFlag) { // ground detected image
 
-            double groundRange = 0.0;
+            double groundRange;
 
             if (srgrConvParams.length == 1) {
                 groundRange = computeGroundRange(sourceImageWidth, rangeSpacing, slantRange,
@@ -591,135 +529,131 @@ public final class SARGeocoding {
         //       321 and 323 in "SAR Geocoding - Data and Systems".
         //       The Cartesian coordinate (x, y, z) is represented here by a length-3 array with element[0]
         //       representing x, element[1] representing y and element[2] representing z.
-        try {
 
-            final int yy = y - y0;
-            final int xx = x - x0;
-            final int maxX = localDEM[0].length - 1;
-            final int maxY = localDEM.length - 1;
-            final int numN = 3;
-            final GeoPos geo = new GeoPos();
-            Double alt;
+        final int yy = y - y0;
+        final int xx = x - x0;
+        final int maxX = localDEM[0].length - 1;
+        final int maxY = localDEM.length - 1;
+        final int numN = 3;
+        final GeoPos geo = new GeoPos();
+        Double alt;
 
-            double rightPointHeight = 0, leftPointHeight = 0, upPointHeight = 0, downPointHeight = 0;
+        double rightPointHeight = 0, leftPointHeight = 0, upPointHeight = 0, downPointHeight = 0;
 
-            int cnt = 0;
-            for (int n = 0; n < numN; ++n) {
-                if (xx + n > maxX) {
-                    tileGeoRef.getGeoPos(xx + n, yy, geo);
-                    alt = dem.getElevation(geo);
-                } else {
-                    alt = localDEM[yy][xx + n];
-                }
-                if (!alt.equals(demNoDataValue)) {
-                    rightPointHeight += alt;
-                    ++cnt;
-                }
+        int cnt = 0;
+        for (int n = 0; n < numN; ++n) {
+            if (xx + n > maxX) {
+                tileGeoRef.getGeoPos(xx + n, yy, geo);
+                alt = dem.getElevation(geo);
+            } else {
+                alt = localDEM[yy][xx + n];
             }
-            if (cnt == 0) return;
-            rightPointHeight /= (double) cnt;
-
-            cnt = 0;
-            for (int n = 0; n < numN; ++n) {
-                if (xx - n < 0) {
-                    tileGeoRef.getGeoPos(xx - n, yy, geo);
-                    alt = dem.getElevation(geo);
-                } else {
-                    alt = localDEM[yy][xx - n];
-                }
-                if (!alt.equals(demNoDataValue)) {
-                    leftPointHeight += alt;
-                    ++cnt;
-                }
+            if (!alt.equals(demNoDataValue)) {
+                rightPointHeight += alt;
+                ++cnt;
             }
-            if (cnt == 0) return;
-            leftPointHeight /= (double) cnt;
+        }
+        if (cnt == 0) return;
+        rightPointHeight /= (double) cnt;
 
-            cnt = 0;
-            for (int n = 0; n < numN; ++n) {
-                if (yy - n < 0) {
-                    tileGeoRef.getGeoPos(xx, yy - n, geo);
-                    alt = dem.getElevation(geo);
-                } else {
-                    alt = localDEM[yy - n][xx];
-                }
-                if (!alt.equals(demNoDataValue)) {
-                    upPointHeight += alt;
-                    ++cnt;
-                }
+        cnt = 0;
+        for (int n = 0; n < numN; ++n) {
+            if (xx - n < 0) {
+                tileGeoRef.getGeoPos(xx - n, yy, geo);
+                alt = dem.getElevation(geo);
+            } else {
+                alt = localDEM[yy][xx - n];
             }
-            if (cnt == 0) return;
-            upPointHeight /= (double) cnt;
-
-            cnt = 0;
-            for (int n = 0; n < numN; ++n) {
-                if (yy + n > maxY) {
-                    tileGeoRef.getGeoPos(xx, yy + n, geo);
-                    alt = dem.getElevation(geo);
-                } else {
-                    alt = localDEM[yy + n][xx];
-                }
-                if (!alt.equals(demNoDataValue)) {
-                    downPointHeight += alt;
-                    ++cnt;
-                }
+            if (!alt.equals(demNoDataValue)) {
+                leftPointHeight += alt;
+                ++cnt;
             }
-            if (cnt == 0) return;
-            downPointHeight /= (double) cnt;
+        }
+        if (cnt == 0) return;
+        leftPointHeight /= (double) cnt;
 
-            final PosVector rightPoint = new PosVector();
-            final PosVector leftPoint = new PosVector();
-            final PosVector upPoint = new PosVector();
-            final PosVector downPoint = new PosVector();
-            final PosVector centrePoint = new PosVector();
-
-            GeoUtils.geo2xyzWGS84(lg.rightPointLat, lg.rightPointLon, rightPointHeight, rightPoint);
-            GeoUtils.geo2xyzWGS84(lg.leftPointLat, lg.leftPointLon, leftPointHeight, leftPoint);
-            GeoUtils.geo2xyzWGS84(lg.upPointLat, lg.upPointLon, upPointHeight, upPoint);
-            GeoUtils.geo2xyzWGS84(lg.downPointLat, lg.downPointLon, downPointHeight, downPoint);
-
-            tileGeoRef.getGeoPos(xx, yy, geo);
-            final double centerHeight = localDEM[yy][xx];
-            GeoUtils.geo2xyzWGS84(geo.getLat(), geo.lon, centerHeight, centrePoint);
-
-            final PosVector a = new PosVector(rightPoint.x - leftPoint.x, rightPoint.y - leftPoint.y, rightPoint.z - leftPoint.z);
-            final PosVector b = new PosVector(downPoint.x - upPoint.x, downPoint.y - upPoint.y, downPoint.z - upPoint.z);
-            //final PosVector c = new PosVector(lg.centrePoint.x, lg.centrePoint.y, lg.centrePoint.z);
-            final PosVector c = new PosVector(centrePoint.x, centrePoint.y, centrePoint.z);
-
-            final PosVector n = new PosVector(
-                    a.y * b.z - a.z * b.y,
-                    a.z * b.x - a.x * b.z,
-                    a.x * b.y - a.y * b.x); // ground plane normal
-
-            Maths.normalizeVector(n);
-            if (Maths.innerProduct(n, c) < 0) {
-                n.x = -n.x;
-                n.y = -n.y;
-                n.z = -n.z;
+        cnt = 0;
+        for (int n = 0; n < numN; ++n) {
+            if (yy - n < 0) {
+                tileGeoRef.getGeoPos(xx, yy - n, geo);
+                alt = dem.getElevation(geo);
+            } else {
+                alt = localDEM[yy - n][xx];
             }
-
-            final PosVector s = new PosVector(
-                    lg.sensorPos.x - centrePoint.x,
-                    lg.sensorPos.y - centrePoint.y,
-                    lg.sensorPos.z - centrePoint.z);
-            Maths.normalizeVector(s);
-
-            if (saveLocalIncidenceAngle) { // local incidence angle
-                final double nsInnerProduct = Maths.innerProduct(n, s);
-                localIncidenceAngles[0] = FastMath.acos(nsInnerProduct) * Constants.RTOD;
+            if (!alt.equals(demNoDataValue)) {
+                upPointHeight += alt;
+                ++cnt;
             }
+        }
+        if (cnt == 0) return;
+        upPointHeight /= (double) cnt;
 
-            if (saveProjectedLocalIncidenceAngle || saveSigmaNought) { // projected local incidence angle
-                final PosVector m = new PosVector(s.y * c.z - s.z * c.y, s.z * c.x - s.x * c.z, s.x * c.y - s.y * c.x); // range plane normal
-                Maths.normalizeVector(m);
-                final double mnInnerProduct = Maths.innerProduct(m, n);
-                final PosVector n1 = new PosVector(n.x - m.x * mnInnerProduct, n.y - m.y * mnInnerProduct, n.z - m.z * mnInnerProduct);
-                Maths.normalizeVector(n1);
-                localIncidenceAngles[1] = FastMath.acos(Maths.innerProduct(n1, s)) * Constants.RTOD;
+        cnt = 0;
+        for (int n = 0; n < numN; ++n) {
+            if (yy + n > maxY) {
+                tileGeoRef.getGeoPos(xx, yy + n, geo);
+                alt = dem.getElevation(geo);
+            } else {
+                alt = localDEM[yy + n][xx];
             }
-        } catch (Exception e) {
-            throw e;
+            if (!alt.equals(demNoDataValue)) {
+                downPointHeight += alt;
+                ++cnt;
+            }
+        }
+        if (cnt == 0) return;
+        downPointHeight /= (double) cnt;
+
+        final PosVector rightPoint = new PosVector();
+        final PosVector leftPoint = new PosVector();
+        final PosVector upPoint = new PosVector();
+        final PosVector downPoint = new PosVector();
+        final PosVector centrePoint = new PosVector();
+
+        GeoUtils.geo2xyzWGS84(lg.rightPointLat, lg.rightPointLon, rightPointHeight, rightPoint);
+        GeoUtils.geo2xyzWGS84(lg.leftPointLat, lg.leftPointLon, leftPointHeight, leftPoint);
+        GeoUtils.geo2xyzWGS84(lg.upPointLat, lg.upPointLon, upPointHeight, upPoint);
+        GeoUtils.geo2xyzWGS84(lg.downPointLat, lg.downPointLon, downPointHeight, downPoint);
+
+        tileGeoRef.getGeoPos(xx, yy, geo);
+        final double centerHeight = localDEM[yy][xx];
+        GeoUtils.geo2xyzWGS84(geo.getLat(), geo.lon, centerHeight, centrePoint);
+
+        final PosVector a = new PosVector(rightPoint.x - leftPoint.x, rightPoint.y - leftPoint.y, rightPoint.z - leftPoint.z);
+        final PosVector b = new PosVector(downPoint.x - upPoint.x, downPoint.y - upPoint.y, downPoint.z - upPoint.z);
+        //final PosVector c = new PosVector(lg.centrePoint.x, lg.centrePoint.y, lg.centrePoint.z);
+        final PosVector c = new PosVector(centrePoint.x, centrePoint.y, centrePoint.z);
+
+        final PosVector n = new PosVector(
+                a.y * b.z - a.z * b.y,
+                a.z * b.x - a.x * b.z,
+                a.x * b.y - a.y * b.x); // ground plane normal
+
+        Maths.normalizeVector(n);
+        if (Maths.innerProduct(n, c) < 0) {
+            n.x = -n.x;
+            n.y = -n.y;
+            n.z = -n.z;
+        }
+
+        final PosVector s = new PosVector(
+                lg.sensorPos.x - centrePoint.x,
+                lg.sensorPos.y - centrePoint.y,
+                lg.sensorPos.z - centrePoint.z);
+        Maths.normalizeVector(s);
+
+        if (saveLocalIncidenceAngle) { // local incidence angle
+            final double nsInnerProduct = Maths.innerProduct(n, s);
+            localIncidenceAngles[0] = FastMath.acos(nsInnerProduct) * Constants.RTOD;
+        }
+
+        if (saveProjectedLocalIncidenceAngle || saveSigmaNought) { // projected local incidence angle
+            final PosVector m = new PosVector(s.y * c.z - s.z * c.y, s.z * c.x - s.x * c.z, s.x * c.y - s.y * c.x); // range plane normal
+            Maths.normalizeVector(m);
+            final double mnInnerProduct = Maths.innerProduct(m, n);
+            final PosVector n1 = new PosVector(n.x - m.x * mnInnerProduct, n.y - m.y * mnInnerProduct, n.z - m.z * mnInnerProduct);
+            Maths.normalizeVector(n1);
+            localIncidenceAngles[1] = FastMath.acos(Maths.innerProduct(n1, s)) * Constants.RTOD;
         }
     }
 
@@ -988,7 +922,7 @@ public final class SARGeocoding {
             }
         }
 
-        public double getVelocity(final double time) {
+        double getVelocity(final double time) {
 
             final PosVector velocity = new PosVector();
             getPositionVelocity(time, null, velocity);
@@ -997,7 +931,7 @@ public final class SARGeocoding {
 
         private int[] findAdjacentVectors(final double time) {
 
-            int[] vectorIndices = null;
+            int[] vectorIndices;
             final int nv = 8;
             final int totalVectors = orbitStateVectors.length;
             if (totalVectors <= nv) {

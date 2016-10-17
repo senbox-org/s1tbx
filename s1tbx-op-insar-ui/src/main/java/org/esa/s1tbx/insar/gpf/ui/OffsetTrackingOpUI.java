@@ -107,6 +107,7 @@ public class OffsetTrackingOpUI extends BaseOperatorUI {
         resamplingType.setSelectedItem(paramMap.get("resamplingType"));
 
         gridAzimuthSpacingInMeters.setText("");
+        gridAzimuthSpacingInMeters.setColumns(7);
         gridAzimuthSpacingInMeters.setEditable(false);
         gridRangeSpacingInMeters.setText("");
         gridRangeSpacingInMeters.setEditable(false);
