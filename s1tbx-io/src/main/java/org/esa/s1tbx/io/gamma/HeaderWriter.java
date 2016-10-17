@@ -48,6 +48,7 @@ class HeaderWriter {
     private ProductData.UTC dateDay;  // start date to the day
 
     private final static String sep = ":\t";
+    private final static String tab = "\t";
     private final static double daysToSeconds = 12 * 60 * 60;
 
     HeaderWriter(final GammaProductWriter writer, final Product srcProduct, final File userOutputFile) {
@@ -101,15 +102,15 @@ class HeaderWriter {
             p.println(GammaConstants.HEADER_KEY_DATA_TYPE + sep + getDataType());
             p.println(GammaConstants.HEADER_KEY_IMAGE_GEOMETRY + sep + writeImageGeometry());
             writeCenterLatLon(p);
-            p.println(GammaConstants.HEADER_KEY_RANGE_PIXEL_SPACING + sep + absRoot.getAttributeInt(AbstractMetadata.range_spacing) + sep + "m");
-            p.println(GammaConstants.HEADER_KEY_AZIMUTH_PIXEL_SPACING + sep + absRoot.getAttributeInt(AbstractMetadata.azimuth_spacing) + sep + "m");
-            p.println(GammaConstants.HEADER_KEY_RADAR_FREQUENCY + sep + absRoot.getAttributeString(AbstractMetadata.radar_frequency)  + sep + "Hz");
-            p.println(GammaConstants.HEADER_KEY_PRF + sep + absRoot.getAttributeString(AbstractMetadata.pulse_repetition_frequency)  + sep + "Hz");
-            p.println(GammaConstants.HEADER_KEY_AZIMUTH_PROC_BANDWIDTH + sep + absRoot.getAttributeString(AbstractMetadata.azimuth_bandwidth)  + sep + "Hz");
+            p.println(GammaConstants.HEADER_KEY_RANGE_PIXEL_SPACING + sep + absRoot.getAttributeInt(AbstractMetadata.range_spacing) + tab + "m");
+            p.println(GammaConstants.HEADER_KEY_AZIMUTH_PIXEL_SPACING + sep + absRoot.getAttributeInt(AbstractMetadata.azimuth_spacing) + tab + "m");
+            p.println(GammaConstants.HEADER_KEY_RADAR_FREQUENCY + sep + absRoot.getAttributeString(AbstractMetadata.radar_frequency)  + tab + "Hz");
+            p.println(GammaConstants.HEADER_KEY_PRF + sep + absRoot.getAttributeString(AbstractMetadata.pulse_repetition_frequency)  + tab + "Hz");
+            p.println(GammaConstants.HEADER_KEY_AZIMUTH_PROC_BANDWIDTH + sep + absRoot.getAttributeString(AbstractMetadata.azimuth_bandwidth)  + tab + "Hz");
 
-            p.println(GammaConstants.HEADER_KEY_NEAR_RANGE_SLC + sep + absRoot.getAttributeString(AbstractMetadata.slant_range_to_first_pixel)  + sep + "m");
-            p.println(GammaConstants.HEADER_KEY_CENTER_RANGE_SLC + sep + absRoot.getAttributeString(AbstractMetadata.slant_range_to_first_pixel)  + sep + "m");
-            p.println(GammaConstants.HEADER_KEY_FAR_RANGE_SLC + sep + absRoot.getAttributeString(AbstractMetadata.slant_range_to_first_pixel)  + sep + "m");
+            p.println(GammaConstants.HEADER_KEY_NEAR_RANGE_SLC + sep + absRoot.getAttributeString(AbstractMetadata.slant_range_to_first_pixel)  + tab + "m");
+            p.println(GammaConstants.HEADER_KEY_CENTER_RANGE_SLC + sep + absRoot.getAttributeString(AbstractMetadata.slant_range_to_first_pixel)  + tab + "m");
+            p.println(GammaConstants.HEADER_KEY_FAR_RANGE_SLC + sep + absRoot.getAttributeString(AbstractMetadata.slant_range_to_first_pixel)  + tab + "m");
 
             writeOrbitStateVectors(p);
 
@@ -129,20 +130,20 @@ class HeaderWriter {
     private String writeStartTime() {
         double diff = srcProduct.getStartTime().getMJD() - dateDay.getMJD();
         double seconds = diff * daysToSeconds;
-        return seconds + sep + "s";
+        return seconds + tab + "s";
     }
 
     private String writeCenterTime() {
         double center = (srcProduct.getStartTime().getMJD() +
                 (srcProduct.getEndTime().getMJD() - srcProduct.getStartTime().getMJD())/2.0);
         double seconds = (center - dateDay.getMJD()) * daysToSeconds;
-        return seconds + sep + "s";
+        return seconds + tab + "s";
     }
 
     private String writeEndTime() {
         double diff = srcProduct.getEndTime().getMJD() - dateDay.getMJD();
         double seconds = diff * daysToSeconds;
-        return seconds + sep + "s";
+        return seconds + tab + "s";
     }
 
     private String writeImageGeometry() {
@@ -157,14 +158,14 @@ class HeaderWriter {
         GeoPos geoPos = srcProduct.getSceneGeoCoding().getGeoPos(
                 new PixelPos(srcProduct.getSceneRasterWidth()/2, srcProduct.getSceneRasterHeight()/2), null);
 
-        p.println(GammaConstants.HEADER_KEY_CENTER_LATITUDE + sep + geoPos.getLat() + sep + "degrees");
-        p.println(GammaConstants.HEADER_KEY_CENTER_LONGITUDE + sep + geoPos.getLon() + sep + "degrees");
+        p.println(GammaConstants.HEADER_KEY_CENTER_LATITUDE + sep + geoPos.getLat() + tab + "degrees");
+        p.println(GammaConstants.HEADER_KEY_CENTER_LONGITUDE + sep + geoPos.getLon() + tab + "degrees");
 
         GeoPos geoPos2 = srcProduct.getSceneGeoCoding().getGeoPos(
                 new PixelPos(srcProduct.getSceneRasterWidth()/2, (srcProduct.getSceneRasterHeight()/2) + 100), null);
         GeoUtils.DistanceHeading heading = GeoUtils.vincenty_inverse(geoPos.lat, geoPos.lon,
                 geoPos2.lat, geoPos2.lon);
-        p.println(GammaConstants.HEADER_KEY_HEADING + sep + heading.heading1 + sep + "degrees");
+        p.println(GammaConstants.HEADER_KEY_HEADING + sep + heading.heading1 + tab + "degrees");
     }
 
     private void writeOrbitStateVectors(final PrintStream p) {
@@ -175,15 +176,15 @@ class HeaderWriter {
             double interval = seconds2 - seconds;
 
             p.println(GammaConstants.HEADER_KEY_NUM_STATE_VECTORS + sep + osvList.length);
-            p.println(GammaConstants.HEADER_KEY_TIME_FIRST_STATE_VECTORS + sep + seconds + sep + "s");
-            p.println(GammaConstants.HEADER_KEY_STATE_VECTOR_INTERVAL + sep + interval + sep + "s");
+            p.println(GammaConstants.HEADER_KEY_TIME_FIRST_STATE_VECTORS + sep + seconds + tab + "s");
+            p.println(GammaConstants.HEADER_KEY_STATE_VECTOR_INTERVAL + sep + interval + tab + "s");
 
             int num = 1;
             for(OrbitStateVector osv : osvList) {
                 p.println(GammaConstants.HEADER_KEY_STATE_VECTOR_POSITION +'_' + num + sep +
-                    osv.x_pos +sep+ osv.y_pos +sep+ osv.z_pos +sep+ "m   m   m");
+                    osv.x_pos + tab + osv.y_pos + tab + osv.z_pos + tab + "m   m   m");
                 p.println(GammaConstants.HEADER_KEY_STATE_VECTOR_VELOCITY +'_' + num + sep +
-                        osv.x_vel +sep+ osv.y_vel +sep+ osv.z_vel +sep+ "m/s m/s m/s");
+                        osv.x_vel + tab + osv.y_vel + tab + osv.z_vel + tab + "m/s m/s m/s");
                 ++num;
             }
         }
