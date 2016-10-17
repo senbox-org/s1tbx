@@ -273,7 +273,7 @@ public class OffsetTrackingOp extends Operator {
         final double slvFirstLineTime = AbstractMetadata.parseUTC(
                 slvAbsRoot.getAttributeString(AbstractMetadata.first_line_time)).getMJD(); // in days
 
-        acquisitionTimeInterval = slvFirstLineTime - mstFirstLineTime; // in days
+        acquisitionTimeInterval = Math.abs(slvFirstLineTime - mstFirstLineTime); // in days
 
         maxOffset = maxVelocity * acquisitionTimeInterval; // in m
     }
