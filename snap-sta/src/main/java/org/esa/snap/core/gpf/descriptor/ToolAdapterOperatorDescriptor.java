@@ -106,6 +106,7 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
         }
         this.variables = new ArrayList<>();
         this.toolParameterDescriptors = new ArrayList<>();
+        this.templateType = TemplateType.VELOCITY;
     }
 
     public ToolAdapterOperatorDescriptor(String name, Class<? extends Operator> operatorClass) {
