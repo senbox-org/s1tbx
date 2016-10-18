@@ -69,7 +69,7 @@ public class StampsExportOp extends Operator {
 
     private static final String[] folder = {"rslc", "diff0", "geo"};
     private static final String[] ext = {".rslc", ".diff", "_dem.rdc"};
-    private static enum FOLDERS { RSLC, DIFF, GEO}
+    private enum FOLDERS { RSLC, DIFF, GEO}
 
     private final HashMap<Band, WriterInfo> tgtBandToInfoMap = new HashMap<>();
 
@@ -100,8 +100,8 @@ public class StampsExportOp extends Operator {
             validator2.checkIfTOPSARBurstProduct(false);
 
             if(targetFolder == null) {
-                //throw new OperatorException("Please add a target folder");
-                targetFolder = new File("H:\\PROJECTS\\sentinel\\2016_summer\\stamps\\output_data"); // TODO
+                throw new OperatorException("Please add a target folder");
+                //targetFolder = new File("H:\\PROJECTS\\sentinel\\2016_summer\\stamps\\output_data"); // TODO
             }
             if (!targetFolder.exists()) {
                 if(!targetFolder.mkdirs()) {
@@ -116,13 +116,14 @@ public class StampsExportOp extends Operator {
 
             ProductUtils.copyProductNodes(sourceProduct[1], targetProduct);
 
+            boolean includesElevation = false;
             for (int i = 0; i < sourceProduct.length; i++) {
 
                 for (Band srcBand : sourceProduct[i].getBands()) {
                     final String srcBandName = srcBand.getName();
                     if (srcBandName.startsWith("i_")) {
                         final FOLDERS folderType = srcBandName.startsWith("i_ifg") ? FOLDERS.DIFF : FOLDERS.RSLC;
-                        final String targetBandName = "i_" + extractDate(srcBandName, i) + ext[folderType.ordinal()];
+                        final String targetBandName = "i_" + extractDate(srcBandName, folderType) + ext[folderType.ordinal()];
                         final Band targetBand = ProductUtils.copyBand(srcBandName, sourceProduct[i], targetBandName, targetProduct, true);
                         tgtBandToInfoMap.put(targetBand, new WriterInfo(folder[folderType.ordinal()], targetBandName));
 
@@ -131,7 +132,7 @@ public class StampsExportOp extends Operator {
                         // It is necessary to copy the q bands to target product because the product writer will look
                         // for them in the target product
                         final FOLDERS folderType = srcBandName.startsWith("q_ifg") ? FOLDERS.DIFF : FOLDERS.RSLC;
-                        final String targetBandName = "q_" + extractDate(srcBandName, i) + ext[folderType.ordinal()];
+                        final String targetBandName = "q_" + extractDate(srcBandName, folderType) + ext[folderType.ordinal()];
                         ProductUtils.copyBand(srcBandName, sourceProduct[i], targetBandName, targetProduct, true);
 
                         //System.out.println("copy " + srcBandName + " to " + targetBandName);
@@ -139,10 +140,15 @@ public class StampsExportOp extends Operator {
                         final String targetBandName = srcBandName + ext[FOLDERS.GEO.ordinal()];
                         final Band targetBand = ProductUtils.copyBand(srcBandName, sourceProduct[i], targetBandName, targetProduct, true);
                         tgtBandToInfoMap.put(targetBand, new WriterInfo(folder[FOLDERS.GEO.ordinal()], targetBandName));
+                        includesElevation = true;
 
                         //System.out.println("copy/add " + srcBandName + " to " + targetBand.getName());
                     }
                 }
+            }
+
+            if(!includesElevation) {
+                throw new OperatorException("Elevation band required. Please add an elevation band to the interferogram product.");
             }
 
         } catch (Throwable t) {
@@ -164,9 +170,15 @@ public class StampsExportOp extends Operator {
         }
     }
 
-    private static String extractDate(final String bandName, int i) {
-        final String rawDate = bandName.substring(bandName.lastIndexOf('_')+1, bandName.length());
-        return convertFormat(rawDate);
+    private static String extractDate(final String bandName, final FOLDERS folderType) {
+        String dateStr = bandName.substring(bandName.lastIndexOf('_')+1, bandName.length());
+        if(folderType.equals(FOLDERS.DIFF)) {
+            String mstStr = bandName.substring(0, bandName.lastIndexOf('_'));
+            String mstDate = mstStr.substring(mstStr.lastIndexOf('_')+1, mstStr.length());
+            String str = convertFormat(mstDate) +'_'+ convertFormat(dateStr);
+            return str;
+        }
+        return convertFormat(dateStr);
     }
 
     @Override
@@ -232,8 +244,11 @@ public class StampsExportOp extends Operator {
         final double bvm = (bv0 + bvN) * 0.5;
         final double bvr = (bvN - bv0) / (tN - t0);
 
+        String baselineFilename = info.targetBandName + ".base";
+        baselineFilename = baselineFilename.replace(".diff", "");
+
         final File outputBaselineFile =
-                targetFolder.toPath().resolve(info.folderName).resolve(info.targetBandName + ".base").toFile();
+                targetFolder.toPath().resolve(info.folderName).resolve(baselineFilename).toFile();
         final String oldEOL = System.getProperty("line.separator");
         System.setProperty("line.separator", "\n");
         final FileOutputStream out = new FileOutputStream(outputBaselineFile);
@@ -278,7 +293,7 @@ public class StampsExportOp extends Operator {
         final String folderName;
         final String targetBandName;
 
-        public WriterInfo(final String folderName, final String targetBandName) {
+        WriterInfo(final String folderName, final String targetBandName) {
             this.folderName = folderName;
             this.targetBandName = targetBandName.startsWith("i_") ?
                     targetBandName.substring(2, targetBandName.length()) : targetBandName;
