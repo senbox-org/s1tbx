@@ -106,6 +106,8 @@ public final class SliceAssemblyOp extends Operator {
 
     private Map<String, TiePointGeoCoding> swathGeocodingMap = new HashMap<>();
 
+    private boolean isMultiSwath = false;
+
     private static final String PRODUCT_SUFFIX = "_Asm";
 
     /**
@@ -513,10 +515,14 @@ public final class SliceAssemblyOp extends Operator {
             addGeocoding();
         } else {
             final ArrayList<String> swaths = getSwaths(firstSliceProduct);
+            isMultiSwath = swaths.size() > 1;
             for (String swath : swaths) {
                 createTiePointGrids(swath);
             }
-            createLatLonTiePointGridsForSLC();
+
+            if (isMultiSwath) {
+                createLatLonTiePointGridsForSLC();
+            }
         }
 
         //targetProduct.setPreferredTileSize(targetWidth, 1);
@@ -566,7 +572,7 @@ public final class SliceAssemblyOp extends Operator {
         return geolocationGridPointList.getElements();
     }
 
-    private void createTiePointGrids(final String swath) {
+    /*private void createTiePointGrids(final String swath) {
 
         //System.out.println("SliceAssemblyOp.createTiePointGrids: " + swath);
 
@@ -757,6 +763,137 @@ public final class SliceAssemblyOp extends Operator {
         }
 
         //System.out.println("SliceAssemblyOp.createTiePointGrids: DONE " + swath);
+    }*/
+
+    private void createTiePointGrids(final String swath) {
+
+        // compute new TPG grid width and height for assembled image
+        final ArrayList<MetadataElement[]> geoGrids = new ArrayList<>();
+        for (int i = 0; i < sliceProducts.length; ++i) {
+            MetadataElement[] geoGrid = getGeoGridForSwath(sliceProducts[i], swath);
+            geoGrids.add(i, geoGrid);
+        }
+
+        final int[] gridWidths = new int[sliceProducts.length];
+        final int[] gridHeights = new int[sliceProducts.length];
+        for (int j = 0; j < sliceProducts.length; j++) {
+            gridWidths[j] = 0;
+            gridHeights[j] = 0;
+        }
+
+        int gridHeight = 0;
+
+        int n = 0;
+        int ptsInPrvSlices = 0;
+        for (int i = 0; i < sliceProducts.length; i++) {
+            final MetadataElement[] geoGrid = geoGrids.get(i);
+            for (MetadataElement ggPoint : geoGrid) {
+                final int pixel = (int) ggPoint.getAttributeDouble("pixel", 0);
+                if (pixel == 0) {
+                    if (gridWidths[i] == 0) {
+                        gridWidths[i] = n - ptsInPrvSlices;
+                    }
+                    ++gridHeights[i];
+                }
+                ++n;
+            }
+            ptsInPrvSlices = n;
+            gridHeight += gridHeights[i];
+        }
+
+        final int gridWidth = gridWidths[0];
+        for (int w : gridWidths) {
+            if (w != gridWidth) {
+                throw new OperatorException("geolocation grids have different widths among slice products");
+            }
+        }
+
+        // generate new TPG for assembled image using TPGs of slices
+        final int newGridWidth = gridWidth;
+        final int newGridHeight = gridHeight;
+
+        final float[] latList = new float[newGridWidth * newGridHeight];
+        final float[] lonList = new float[newGridWidth * newGridHeight];
+        final float[] incList = new float[newGridWidth * newGridHeight];
+        final float[] elevList = new float[newGridWidth * newGridHeight];
+        final float[] slrtList = new float[newGridWidth * newGridHeight];
+
+        final int[] dim = swathAssembledImageDimMap.get(swath);
+        final int sceneRasterWidth = dim[1];
+        final int sceneRasterHeight = dim[0];
+        final double subSamplingX = (double) sceneRasterWidth / (newGridWidth - 1);
+        final double subSamplingY = (double) sceneRasterHeight / (newGridHeight - 1);
+
+        final String prefix = isMultiSwath ? swath + '_' : "";
+
+        final TiePointGrid[] latTPG = new TiePointGrid[sliceProducts.length];
+        final TiePointGrid[] lonTPG = new TiePointGrid[sliceProducts.length];
+        final TiePointGrid[] incTPG = new TiePointGrid[sliceProducts.length];
+        final TiePointGrid[] elevTPG = new TiePointGrid[sliceProducts.length];
+        final TiePointGrid[] slrtTPG = new TiePointGrid[sliceProducts.length];
+        for (int i = 0; i < sliceProducts.length; ++i) {
+            latTPG[i] = sliceProducts[i].getTiePointGrid(prefix + OperatorUtils.TPG_LATITUDE);
+            lonTPG[i] = sliceProducts[i].getTiePointGrid(prefix + OperatorUtils.TPG_LONGITUDE);
+            incTPG[i] = sliceProducts[i].getTiePointGrid(prefix + OperatorUtils.TPG_INCIDENT_ANGLE);
+            elevTPG[i] = sliceProducts[i].getTiePointGrid(prefix + OperatorUtils.TPG_ELEVATION_ANGLE);
+            slrtTPG[i] = sliceProducts[i].getTiePointGrid(prefix + OperatorUtils.TPG_SLANT_RANGE_TIME);
+        }
+
+        int k = 0;
+        for (int r = 0; r < newGridHeight; ++r) {
+            final double y = r*subSamplingY;
+
+            double yy = 0.0;
+            int sliceIdx = 0, heightOffset = 0;
+            for (int i = 0; i < sliceProducts.length; ++i) {
+                heightOffset += sliceSwathImageDimMap.get(sliceProducts[i]).get(swath)[0];
+                if (y <= heightOffset) {
+                    yy = y - heightOffset + sliceSwathImageDimMap.get(sliceProducts[i]).get(swath)[0];
+                    sliceIdx = i;
+                    break;
+                }
+            }
+
+            for (int c = 0; c < newGridWidth; ++c) {
+                final double x = c*subSamplingX;
+                latList[k] = (float)latTPG[sliceIdx].getPixelDouble(x, yy);
+                lonList[k] = (float)lonTPG[sliceIdx].getPixelDouble(x, yy);
+                incList[k] = (float)incTPG[sliceIdx].getPixelDouble(x, yy);
+                elevList[k] = (float)elevTPG[sliceIdx].getPixelDouble(x, yy);
+                slrtList[k] = (float)slrtTPG[sliceIdx].getPixelDouble(x, yy);
+                k++;
+            }
+        }
+
+        final TiePointGrid latGrid = new TiePointGrid(prefix + OperatorUtils.TPG_LATITUDE,
+                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, latList);
+        latGrid.setUnit(Unit.DEGREES);
+        targetProduct.addTiePointGrid(latGrid);
+
+        final TiePointGrid lonGrid = new TiePointGrid(prefix + OperatorUtils.TPG_LONGITUDE,
+                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, lonList, TiePointGrid.DISCONT_AT_180);
+        lonGrid.setUnit(Unit.DEGREES);
+        targetProduct.addTiePointGrid(lonGrid);
+
+        final TiePointGrid incidentAngleGrid = new TiePointGrid(prefix + OperatorUtils.TPG_INCIDENT_ANGLE,
+                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, incList);
+        incidentAngleGrid.setUnit(Unit.DEGREES);
+        targetProduct.addTiePointGrid(incidentAngleGrid);
+
+        final TiePointGrid elevAngleGrid = new TiePointGrid(prefix + OperatorUtils.TPG_ELEVATION_ANGLE,
+                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, elevList);
+        elevAngleGrid.setUnit(Unit.DEGREES);
+        targetProduct.addTiePointGrid(elevAngleGrid);
+
+        final TiePointGrid slantRangeGrid = new TiePointGrid(prefix + OperatorUtils.TPG_SLANT_RANGE_TIME,
+                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, slrtList);
+        slantRangeGrid.setUnit(Unit.NANOSECONDS);
+        targetProduct.addTiePointGrid(slantRangeGrid);
+
+        if (isMultiSwath) { // This is for multi-swath SLC
+            final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid);
+            swathGeocodingMap.put(swath, tpGeoCoding);
+        }
     }
 
     private void createLatLonTiePointGridsForSLC() {
