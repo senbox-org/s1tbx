@@ -37,17 +37,13 @@ import java.awt.event.ActionEvent;
  * @author lveci
  * @version $Revision: 1.3 $ $Date: 2011-04-08 18:23:59 $
  */
+
 @ActionID(category = "Projects", id = "CloseProjectAction" )
 @ActionRegistration(
         displayName = "#CTL_CloseProjectAction_MenuText",
-        popupText = "#CTL_CloseProjectAction_MenuText",
-        iconBase = "org/esa/s1tbx/dat/icons/project.png",
-        lazy = false
+        popupText = "#CTL_CloseProjectAction_MenuText"
 )
-@ActionReferences({
-        @ActionReference(path = "Menu/File/Projects", position = 60),
-        //@ActionReference(path = "Toolbars/Projects", position = 60)
-})
+@ActionReference(path = "Menu/File/Projects", position = 60)
 @NbBundle.Messages({
         "CTL_CloseProjectAction_MenuText=Close Project",
         "CTL_CloseProjectAction_ShortDescription=Close current project"
@@ -66,9 +62,9 @@ public class CloseProjectAction extends AbstractSnapAction implements Project.Li
     public void projectChanged() {
         setEnableState();
     }
+
     @Override
     public void actionPerformed(final ActionEvent event) {
-
         Project.instance().CloseProject();
     }
 }

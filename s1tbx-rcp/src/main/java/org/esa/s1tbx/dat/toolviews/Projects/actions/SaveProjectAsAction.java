@@ -31,16 +31,13 @@ import java.awt.event.ActionEvent;
  * @author lveci
  * @version $Revision: 1.3 $ $Date: 2011-04-08 18:23:59 $
  */
+
 @ActionID(category = "Projects", id = "SaveProjectAsAction")
 @ActionRegistration(
         displayName = "#CTL_SaveProjectAsAction_MenuText",
-        popupText = "#CTL_SaveProjectAsAction_MenuText",
-        lazy = false
+        popupText = "#CTL_SaveProjectAsAction_MenuText"
 )
-@ActionReferences({
-        @ActionReference(path = "Menu/File/Projects", position = 50),
-        // @ActionReference(path = "Toolbars/Projects", position = 50)
-})
+@ActionReference(path = "Menu/File/Projects", position = 50)
 @NbBundle.Messages({
         "CTL_SaveProjectAsAction_MenuText=Save Project As",
         "CTL_SaveProjectAsAction_ShortDescription=Save current project with new name and location"

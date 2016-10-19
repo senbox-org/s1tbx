@@ -668,7 +668,9 @@ public class Project extends Observable {
     }
 
     public void addListener(Listener listener) {
-        listeners.add(listener);
+        if(!listeners.contains(listener)) {
+            listeners.add(listener);
+        }
     }
 
     public interface Listener {

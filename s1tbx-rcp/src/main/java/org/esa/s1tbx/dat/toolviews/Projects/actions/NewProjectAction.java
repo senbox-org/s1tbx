@@ -36,8 +36,7 @@ import java.awt.event.ActionEvent;
 @ActionRegistration(
         displayName = "#CTL_NewProjectAction_MenuText",
         popupText = "#CTL_NewProjectAction_MenuText",
-        iconBase = "org/esa/s1tbx/dat/icons/project-new.png",
-        lazy = true
+        iconBase = "org/esa/s1tbx/dat/icons/project-new.png"
 )
 @ActionReferences({
         @ActionReference(path = "Menu/File/Projects", position = 20),

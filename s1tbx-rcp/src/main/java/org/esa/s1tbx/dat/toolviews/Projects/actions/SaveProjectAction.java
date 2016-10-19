@@ -37,42 +37,30 @@ import java.awt.event.ActionEvent;
  * @author lveci
  * @version $Revision: 1.3 $ $Date: 2011-04-08 18:23:59 $
  */
+
 @ActionID(category = "Projects", id = "SaveProjectAction" )
 @ActionRegistration(
         displayName = "#CTL_SaveProjectAction_MenuText",
-        popupText = "#CTL_SaveProjectAction_MenuText",
-        lazy = false
+        popupText = "#CTL_SaveProjectAction_MenuText"
 )
-@ActionReferences({
-        @ActionReference(path = "Menu/File/Projects", position = 40),
-      //  @ActionReference(path = "Toolbars/Projects", position = 40)
-})
+@ActionReference(path = "Menu/File/Projects", position = 40)
 @NbBundle.Messages({
         "CTL_SaveProjectAction_MenuText=Save Project",
         "CTL_SaveProjectAction_ShortDescription=Save current project"
 })
-public class SaveProjectAction extends AbstractSnapAction implements ContextAwareAction, LookupListener {
+public class SaveProjectAction extends AbstractSnapAction implements Project.Listener {
 
     public SaveProjectAction() {
-        this(Utilities.actionsGlobalContext());
-    }
-
-    public SaveProjectAction(Lookup lkp) {
-        setEnableState();
-    }
-
-    @Override
-    public Action createContextAwareInstance(Lookup actionContext) {
-        return new SaveProjectAction(actionContext);
-    }
-
-    @Override
-    public void resultChanged(LookupEvent ev) {
+        Project.instance().addListener(this);
         setEnableState();
     }
 
     private void setEnableState() {
         setEnabled(Project.instance().IsProjectOpen());
+    }
+
+    public void projectChanged() {
+        setEnableState();
     }
 
     @Override
