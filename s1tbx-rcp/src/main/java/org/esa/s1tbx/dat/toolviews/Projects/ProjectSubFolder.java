@@ -16,11 +16,12 @@
 package org.esa.s1tbx.dat.toolviews.Projects;
 
 import org.jdom2.Attribute;
+import org.jdom2.Content;
 import org.jdom2.Element;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 /**
  * Created by IntelliJ IDEA.
@@ -32,8 +33,8 @@ public class ProjectSubFolder {
 
     private String folderName;
     private final File path;
-    private final Vector<ProjectFile> fileList = new Vector<ProjectFile>(20);
-    private final Vector<ProjectSubFolder> subFolders = new Vector<ProjectSubFolder>(10);
+    private final List<ProjectFile> fileList = new ArrayList<>();
+    private final List<ProjectSubFolder> subFolders = new ArrayList<>();
     private boolean removeable = true;
     private boolean physical = false;
     private boolean createdByUser = false;
@@ -154,8 +155,7 @@ public class ProjectSubFolder {
     }
 
     public ProjectSubFolder findFolder(String name) {
-        for (int i = 0; i < subFolders.size(); ++i) {
-            final ProjectSubFolder folder = subFolders.elementAt(i);
+        for (final ProjectSubFolder folder : subFolders) {
             if (folder.getName().equals(name))
                 return folder;
         }
@@ -168,19 +168,18 @@ public class ProjectSubFolder {
                 return true;
             }
         }
-        for (int i = 0; i < subFolders.size(); ++i) {
-            final ProjectSubFolder folder = subFolders.elementAt(i);
+        for (final ProjectSubFolder folder : subFolders) {
             if (folder.containsFile(file))
                 return true;
         }
         return false;
     }
 
-    public Vector<ProjectSubFolder> getSubFolders() {
+    public List<ProjectSubFolder> getSubFolders() {
         return subFolders;
     }
 
-    public Vector<ProjectFile> getFileList() {
+    public List<ProjectFile> getFileList() {
         return fileList;
     }
 
@@ -190,14 +189,12 @@ public class ProjectSubFolder {
         if (createdByUser)
             elem.setAttribute("user", "true");
 
-        for (int i = 0; i < subFolders.size(); ++i) {
-            final ProjectSubFolder sub = subFolders.elementAt(i);
+        for (final ProjectSubFolder sub : subFolders) {
             final Element subElem = sub.toXML();
             elem.addContent(subElem);
         }
 
-        for (int i = 0; i < fileList.size(); ++i) {
-            final ProjectFile projFile = fileList.elementAt(i);
+        for (final ProjectFile projFile : fileList) {
             final Element fileElem = new Element("product");
             fileElem.setAttribute("path", projFile.getFile().getAbsolutePath());
             fileElem.setAttribute("name", projFile.getDisplayName());
@@ -207,8 +204,8 @@ public class ProjectSubFolder {
         return elem;
     }
 
-    public void fromXML(Element elem, Vector<ProjectSubFolder> folderList, Vector<ProjectFile> prodList) {
-        final List children = elem.getContent();
+    public void fromXML(Element elem, List<ProjectSubFolder> folderList, List<ProjectFile> prodList) {
+        final List<Content> children = elem.getContent();
         for (Object aChild : children) {
             if (aChild instanceof Element) {
                 final Element child = (Element) aChild;
@@ -236,6 +233,4 @@ public class ProjectSubFolder {
             }
         }
     }
-
-
 }

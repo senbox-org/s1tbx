@@ -20,7 +20,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -57,7 +58,7 @@ public class TestProjectSubFolders {
         foundFolder = projectSubFolders.findFolder("newFolder");
         assertNull(foundFolder);
 
-        Vector subFoldersList = projectSubFolders.getSubFolders();
+        List<ProjectSubFolder> subFoldersList = projectSubFolders.getSubFolders();
         assertTrue(subFoldersList.isEmpty());
 
     }
@@ -75,8 +76,8 @@ public class TestProjectSubFolders {
         ProjectSubFolder loadedProject = new ProjectSubFolder(new File("."), "Project", false,
                 ProjectSubFolder.FolderType.ROOT);
 
-        Vector folderList = new Vector(30);
-        Vector prodList = new Vector(50);
+        List<ProjectSubFolder> folderList = new ArrayList();
+        List<ProjectFile> prodList = new ArrayList();
 
         loadedProject.fromXML(xmlElement, folderList, prodList);
 

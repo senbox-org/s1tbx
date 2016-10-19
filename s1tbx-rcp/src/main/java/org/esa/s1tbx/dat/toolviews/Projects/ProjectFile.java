@@ -18,6 +18,7 @@ package org.esa.s1tbx.dat.toolviews.Projects;
 import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
 import org.esa.snap.core.gpf.graph.Graph;
 import org.esa.snap.graphbuilder.rcp.dialogs.support.GPFProcessor;
+import org.esa.snap.rcp.util.Dialogs;
 
 import java.io.File;
 import java.io.FileReader;
@@ -54,7 +55,7 @@ public class ProjectFile {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                Dialogs.showError("Unable to read graph "+ file);
             }
         }
     }

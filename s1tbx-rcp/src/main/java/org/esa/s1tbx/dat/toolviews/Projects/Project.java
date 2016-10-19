@@ -31,14 +31,18 @@ import org.esa.snap.graphbuilder.rcp.dialogs.GraphBuilderDialog;
 import org.esa.snap.graphbuilder.rcp.dialogs.PromptDialog;
 import org.esa.snap.graphbuilder.rcp.utils.FileFolderUtils;
 import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.rcp.actions.file.OpenProductAction;
 import org.esa.snap.rcp.actions.file.SaveProductAsAction;
+import org.esa.snap.rcp.actions.file.WriteProductOperation;
 import org.esa.snap.rcp.util.Dialogs;
 import org.esa.snap.ui.ModelessDialog;
 import org.esa.snap.ui.NewProductDialog;
 import org.esa.snap.ui.product.ProductSubsetDialog;
 import org.jdom2.Attribute;
+import org.jdom2.Content;
 import org.jdom2.Document;
 import org.jdom2.Element;
+import org.netbeans.api.progress.ProgressUtils;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
@@ -52,7 +56,6 @@ import java.util.Observable;
 import java.util.StringTokenizer;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Vector;
 
 /**
  * A Project helps to organize your data by storing all your work in one folder.
@@ -99,8 +102,7 @@ public class Project extends Observable {
     private static void showProjectsView() {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                final TopComponent window = WindowManager.getDefault().findTopComponent(
-                        "org.esa.s1tbx.dat.toolviews.Projects.ProjectsToolView");
+                final TopComponent window = WindowManager.getDefault().findTopComponent("ProjectsToolView");
                 if(window != null) {
                     window.open();
                     window.requestActive();
@@ -113,6 +115,8 @@ public class Project extends Observable {
         final File file = FileFolderUtils.GetFilePath("Create Project", "xml", "xml", "myProject", "Project File", true);
 
         if (file != null) {
+            showProjectsView();
+
             final String prjName = file.getName();
             final String folderName = prjName.substring(0, prjName.lastIndexOf('.'));
             final File prjFolder = new File(file.getParentFile(), folderName);
@@ -123,7 +127,6 @@ public class Project extends Observable {
             initProject(newProjectFile);
             addExistingOpenedProducts();
             notifyEvent(SAVE_PROJECT);
-            showProjectsView();
         }
     }
 
@@ -382,7 +385,10 @@ public class Project extends Observable {
             dialog.show();
             dialog.LoadGraph(file);
         } else if (parentFolder.getFolderType() == ProjectSubFolder.FolderType.PRODUCT) {
-            //todo VisatApp.getApp().openProduct(file);
+
+            final OpenProductAction open = new OpenProductAction();
+            open.setFile(file);
+            open.execute();
         }
     }
 
@@ -467,7 +473,15 @@ public class Project extends Observable {
                                 }
                                 final File destFile = new File(importedFolder.getPath(), product.getName());
 
-                                //todo VisatApp.getApp().writeProductImpl(product, destFile, "BEAM-DIMAP", false);
+                                WriteProductOperation operation = new WriteProductOperation(product, destFile, "BEAM-DIMAP", false);
+                                ProgressUtils.runOffEventThreadWithProgressDialog(operation,
+                                                                                  "Writing...",
+                                                                                  operation.getProgressHandle(),
+                                                                                  true,
+                                                                                  50,
+                                                                                  1000);
+
+                                SnapApp.getDefault().setStatusBarMessage("");
                             }
                         } catch (Exception e) {
                             Dialogs.showError(e.getMessage());
@@ -582,7 +596,7 @@ public class Project extends Observable {
         root.setAttribute("name", getProjectName());
         final Document doc = new Document(root);
 
-        final Vector subFolders = projectSubFolders.getSubFolders();
+        final List<ProjectSubFolder> subFolders = projectSubFolders.getSubFolders();
         for (Object subFolder : subFolders) {
             final ProjectSubFolder folder = (ProjectSubFolder) subFolder;
             final Element elem = folder.toXML();
@@ -606,6 +620,8 @@ public class Project extends Observable {
 
     public void LoadProject(final File file) {
 
+        showProjectsView();
+
         initProject(file);
 
         Document doc;
@@ -616,12 +632,12 @@ public class Project extends Observable {
             return;
         }
 
-        final Vector<ProjectSubFolder> folderList = new Vector<>(30);
-        final Vector<ProjectFile> prodList = new Vector<>(50);
+        final List<ProjectSubFolder> folderList = new ArrayList<>();
+        final List<ProjectFile> prodList = new ArrayList<>();
 
         final Element root = doc.getRootElement();
 
-        final List children = root.getContent();
+        final List<Content> children = root.getContent();
         for (Object aChild : children) {
             if (aChild instanceof Element) {
                 final Element child = (Element) aChild;
@@ -636,11 +652,10 @@ public class Project extends Observable {
         loadProducts(folderList, prodList);
 
         notifyEvent(false);
-        showProjectsView();
     }
 
-    private static void loadProducts(final Vector<ProjectSubFolder> folderList,
-                                     final Vector<ProjectFile> prodList) {
+    private static void loadProducts(final List<ProjectSubFolder> folderList,
+                                     final List<ProjectFile> prodList) {
 
         final ProgressMonitorSwingWorker worker = new ProgressMonitorSwingWorker(SnapApp.getDefault().getMainFrame(), "Opening Project") {
             @Override

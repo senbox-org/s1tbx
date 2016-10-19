@@ -27,9 +27,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import java.awt.*;
-import java.util.Enumeration;
+import java.util.List;
 import java.util.Observer;
-import java.util.Vector;
 
 /**
  * The tool window which displays the current project
@@ -100,23 +99,23 @@ public class ProjectsToolView extends TopComponent implements Observer {
         return projectTree;
     }
 
-    private static void PopulateNode(Vector<ProjectSubFolder> subFolders, DefaultMutableTreeNode treeNode) {
+    private static void PopulateNode(List<ProjectSubFolder> subFolders, DefaultMutableTreeNode treeNode) {
 
-        for (Enumeration e = subFolders.elements(); e.hasMoreElements(); ) {
-            final ProjectSubFolder folder = (ProjectSubFolder) e.nextElement();
+        for (ProjectSubFolder folder : subFolders) {
 
             final DefaultMutableTreeNode folderNode = new DefaultMutableTreeNode(folder);
             treeNode.add(folderNode);
 
-            final Vector<ProjectFile> fileList = folder.getFileList();
-            for (Enumeration file = fileList.elements(); file.hasMoreElements(); ) {
-                final DefaultMutableTreeNode fileNode = new DefaultMutableTreeNode(file.nextElement());
+            final List<ProjectFile> fileList = folder.getFileList();
+            for (ProjectFile file : fileList) {
+                final DefaultMutableTreeNode fileNode = new DefaultMutableTreeNode(file);
                 folderNode.add(fileNode);
             }
 
-            final Vector<ProjectSubFolder> moreFolders = folder.getSubFolders();
-            if (!moreFolders.isEmpty())
+            final List<ProjectSubFolder> moreFolders = folder.getSubFolders();
+            if (!moreFolders.isEmpty()) {
                 PopulateNode(moreFolders, folderNode);
+            }
         }
     }
 
@@ -142,7 +141,7 @@ public class ProjectsToolView extends TopComponent implements Observer {
             rootNode.setUserObject(project.getProjectSubFolders());
             projectTree.setRootVisible(true);
 
-            final Vector<ProjectSubFolder> subFolders = project.getProjectSubFolders().getSubFolders();
+            final List<ProjectSubFolder> subFolders = project.getProjectSubFolders().getSubFolders();
             PopulateNode(subFolders, rootNode);
             projectTree.populateTree(rootNode);
         }
