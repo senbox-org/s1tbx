@@ -1,3 +1,16 @@
+#New in S1TBX 5.0
+
+###Bugs fixed 
+
+https://senbox.atlassian.net/secure/ReleaseNote.jspa?projectId=10202&version=11504
+
+###New Features and Important Changes
+* Kompsat-5 reader
+* StaMPS export
+* Fast individual downloads of orbit files from archive and QC website
+* Ship detection, windfields, oilspill detection export as shape vectors
+
+
 #New in S1TBX 4.0
 
 ###Bugs fixed 
