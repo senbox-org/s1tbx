@@ -10,22 +10,26 @@
     <tocitem text="Sentinel Toolbox Application">
             <tocitem text="Import and Export">
                 <tocitem text="Import Raster Data">
+                    <tocitem text="SAR Formats">
+                        <tocitem text="PolsarPro" target="ImportPolSARPro"/>
+                        <tocitem text="Gamma" target="ImportGamma"/>
+                        <tocitem text="RAT" target="ImportRAT"/>
+                        <tocitem text="Generic Binary" target="importGenericBinary"/>
+                        <tocitem text="Complex Generic Binary" target="importComplexGenericBinary"/>
+                    </tocitem>
                     <tocitem text="SAR Sensors">
                         <tocitem text="Sentinel-1" target="importSentinel1Product"/>
                         <tocitem text="ENVISAT" target="importEnvisatProduct"/>
                         <tocitem text="ERS (.E1, .E2)" target="importErsProduct"/>
                         <tocitem text="ERS CEOS" target="ImportERSCeos"/>
                         <tocitem text="JERS CEOS" target="ImportJERSCeos"/>
-                        <tocitem text="ALOS PALSAR" target="ImportAlosPalsar"/>
+                        <tocitem text="ALOS PALSAR 1&2" target="ImportAlosPalsar"/>
                         <tocitem text="Radarsat-1" target="ImportRadarsat1"/>
                         <tocitem text="Radarsat-2" target="ImportRadarsat2"/>
-                        <tocitem text="TerraSarX" target="ImportTerraSarX"/>
+                        <tocitem text="TerraSarX/TanDEM-X" target="ImportTerraSarX"/>
                         <tocitem text="Cosmo-Skymed" target="ImportCosmoSkymed"/>
-                        <tocitem text="PolsarPro" target="ImportPolsarPro"/>
-                    </tocitem>
-                    <tocitem text="Generic Formats">
-                        <tocitem text="Generic Binary" target="importGenericBinary"/>
-                        <tocitem text="Complex Generic Binary" target="importComplexGenericBinary"/>
+                        <tocitem text="Kompsat-5" target="ImportKompsat5"/>
+                        <tocitem text="SeaSat" target="ImportSeaSat"/>
                     </tocitem>
                 </tocitem>
             </tocitem>

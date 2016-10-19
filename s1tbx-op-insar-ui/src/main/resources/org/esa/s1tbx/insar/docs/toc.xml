@@ -28,6 +28,9 @@
                 <tocitem text="Filtering">
                     <tocitem text="Goldstein Phase Filtering" target="GoldsteinFilterOp"/>
                 </tocitem>
+                <tocitem text="PSI/SBAS">
+                    <tocitem text="StaMPS Export" target="StampsExport"/>
+                </tocitem>
                 <tocitem text="InSAR Stack Overview" target="InSARStackOverview"/>
             </tocitem>
             <tocitem text="Radar Tool Windows">

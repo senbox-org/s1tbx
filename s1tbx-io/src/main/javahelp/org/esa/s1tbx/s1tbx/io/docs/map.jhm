@@ -16,9 +16,11 @@
     <mapID target="ImportRadarsat2" url="readers/ImportRadarsat2.html"/>
     <mapID target="ImportTerraSarX" url="readers/ImportTerraSarX.html"/>
     <mapID target="ImportCosmoSkymed" url="readers/ImportCosmoSkymed.html"/>
-    <mapID target="ImportPolsarPro" url="readers/ImportPolsarPro.html"/>
+    <mapID target="ImportSeaSat" url="readers/ImportSeaSat.html"/>
+    <mapID target="ImportKompsat5" url="readers/ImportKompsat-5.html"/>
 
     <!-- Common File Formats -->
+    <mapID target="ImportPolSARPro" url="readers/ImportPolsarPro.html"/>
     <mapID target="importGenericBinary" url="readers/ImportGenericBinary.html"/>
     <mapID target="importComplexGenericBinary" url="readers/ImportComplexGenericBinary.html"/>
 
