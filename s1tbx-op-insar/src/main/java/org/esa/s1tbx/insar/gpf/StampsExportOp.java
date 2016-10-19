@@ -32,8 +32,8 @@ import org.esa.snap.core.gpf.annotations.SourceProducts;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
-import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.gpf.InputProductValidator;
 
 import java.awt.*;
 import java.io.File;
@@ -69,7 +69,8 @@ public class StampsExportOp extends Operator {
 
     private static final String[] folder = {"rslc", "diff0", "geo"};
     private static final String[] ext = {".rslc", ".diff", "_dem.rdc"};
-    private enum FOLDERS { RSLC, DIFF, GEO}
+
+    private enum FOLDERS {RSLC, DIFF, GEO}
 
     private final HashMap<Band, WriterInfo> tgtBandToInfoMap = new HashMap<>();
 
@@ -99,13 +100,13 @@ public class StampsExportOp extends Operator {
             validator2.checkIfSLC();
             validator2.checkIfTOPSARBurstProduct(false);
 
-            if(targetFolder == null) {
+            if (targetFolder == null) {
                 throw new OperatorException("Please add a target folder");
                 //targetFolder = new File("H:\\PROJECTS\\sentinel\\2016_summer\\stamps\\output_data"); // TODO
             }
             if (!targetFolder.exists()) {
-                if(!targetFolder.mkdirs()) {
-                    SystemUtils.LOG.severe("Unable to create folders in "+targetFolder);
+                if (!targetFolder.mkdirs()) {
+                    SystemUtils.LOG.severe("Unable to create folders in " + targetFolder);
                 }
             }
 
@@ -147,7 +148,7 @@ public class StampsExportOp extends Operator {
                 }
             }
 
-            if(!includesElevation) {
+            if (!includesElevation) {
                 throw new OperatorException("Elevation band required. Please add an elevation band to the interferogram product.");
             }
 
@@ -171,12 +172,11 @@ public class StampsExportOp extends Operator {
     }
 
     private static String extractDate(final String bandName, final FOLDERS folderType) {
-        String dateStr = bandName.substring(bandName.lastIndexOf('_')+1, bandName.length());
-        if(folderType.equals(FOLDERS.DIFF)) {
+        String dateStr = bandName.substring(bandName.lastIndexOf('_') + 1, bandName.length());
+        if (folderType.equals(FOLDERS.DIFF)) {
             String mstStr = bandName.substring(0, bandName.lastIndexOf('_'));
-            String mstDate = mstStr.substring(mstStr.lastIndexOf('_')+1, mstStr.length());
-            String str = convertFormat(mstDate) +'_'+ convertFormat(dateStr);
-            return str;
+            String mstDate = mstStr.substring(mstStr.lastIndexOf('_') + 1, mstStr.length());
+            return convertFormat(mstDate) + '_' + convertFormat(dateStr);
         }
         return convertFormat(dateStr);
     }
@@ -210,7 +210,7 @@ public class StampsExportOp extends Operator {
     private synchronized void writeHeader(final WriterInfo info) throws Exception {
         if (info.written) return;
 
-        final File outputFile = targetFolder.toPath().resolve(info.folderName).resolve(info.targetBandName+".par").toFile();
+        final File outputFile = targetFolder.toPath().resolve(info.folderName).resolve(info.targetBandName + ".par").toFile();
         info.productWriter.writeProductNodes(targetProduct, outputFile);
 
         if (info.folderName.equals("diff0")) {
@@ -252,7 +252,7 @@ public class StampsExportOp extends Operator {
         final String oldEOL = System.getProperty("line.separator");
         System.setProperty("line.separator", "\n");
         final FileOutputStream out = new FileOutputStream(outputBaselineFile);
-        try(final PrintStream p = new PrintStream(out)) {
+        try (final PrintStream p = new PrintStream(out)) {
 
             p.println("initial_baseline(TCN)" + ":\t" + "0.0000000" + "\t" + bhm + "\t" + bvm + "\t" + "m   m   m");
             p.println("initial_baseline_rate" + ":\t" + "0.0000000" + "\t" + bhr + "\t" + bvr + "\t" + "m/s   m/s   m/s");
