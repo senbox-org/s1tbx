@@ -70,6 +70,9 @@ public class StampsExportOp extends Operator {
     private static final String[] folder = {"rslc", "diff0", "geo"};
     private static final String[] ext = {".rslc", ".diff", "_dem.rdc"};
 
+    private static final DateFormat rawDateFormat = ProductData.UTC.createDateFormat("ddMMMyyyy");
+    private static final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyyMMdd");
+
     private enum FOLDERS {RSLC, DIFF, GEO}
 
     private final HashMap<Band, WriterInfo> tgtBandToInfoMap = new HashMap<>();
@@ -118,14 +121,14 @@ public class StampsExportOp extends Operator {
             ProductUtils.copyProductNodes(sourceProduct[1], targetProduct);
 
             boolean includesElevation = false;
-            for (int i = 0; i < sourceProduct.length; i++) {
+            for (Product aSourceProduct : sourceProduct) {
 
-                for (Band srcBand : sourceProduct[i].getBands()) {
+                for (Band srcBand : aSourceProduct.getBands()) {
                     final String srcBandName = srcBand.getName();
                     if (srcBandName.startsWith("i_")) {
                         final FOLDERS folderType = srcBandName.startsWith("i_ifg") ? FOLDERS.DIFF : FOLDERS.RSLC;
                         final String targetBandName = "i_" + extractDate(srcBandName, folderType) + ext[folderType.ordinal()];
-                        final Band targetBand = ProductUtils.copyBand(srcBandName, sourceProduct[i], targetBandName, targetProduct, true);
+                        final Band targetBand = ProductUtils.copyBand(srcBandName, aSourceProduct, targetBandName, targetProduct, true);
                         tgtBandToInfoMap.put(targetBand, new WriterInfo(folder[folderType.ordinal()], targetBandName));
 
                         //System.out.println("copy/add " + srcBandName + " to " + targetBand.getName());
@@ -134,12 +137,12 @@ public class StampsExportOp extends Operator {
                         // for them in the target product
                         final FOLDERS folderType = srcBandName.startsWith("q_ifg") ? FOLDERS.DIFF : FOLDERS.RSLC;
                         final String targetBandName = "q_" + extractDate(srcBandName, folderType) + ext[folderType.ordinal()];
-                        ProductUtils.copyBand(srcBandName, sourceProduct[i], targetBandName, targetProduct, true);
+                        ProductUtils.copyBand(srcBandName, aSourceProduct, targetBandName, targetProduct, true);
 
                         //System.out.println("copy " + srcBandName + " to " + targetBandName);
                     } else if (srcBandName.startsWith("elevation")) {
                         final String targetBandName = srcBandName + ext[FOLDERS.GEO.ordinal()];
-                        final Band targetBand = ProductUtils.copyBand(srcBandName, sourceProduct[i], targetBandName, targetProduct, true);
+                        final Band targetBand = ProductUtils.copyBand(srcBandName, aSourceProduct, targetBandName, targetProduct, true);
                         tgtBandToInfoMap.put(targetBand, new WriterInfo(folder[FOLDERS.GEO.ordinal()], targetBandName));
                         includesElevation = true;
 
@@ -159,9 +162,7 @@ public class StampsExportOp extends Operator {
 
     private static String convertFormat(String rawDate) {
         try {
-            final DateFormat rawDateFormat = ProductData.UTC.createDateFormat("ddMMMyyyy");
             final ProductData.UTC utc = ProductData.UTC.parse(rawDate, rawDateFormat);
-            final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyyMMdd");
             final String date = dateFormat.format(utc.getAsDate());
             //System.out.println("rawdate = " + rawDate + " date = " + date);
             return date;
@@ -234,13 +235,37 @@ public class StampsExportOp extends Operator {
 
         InSARStackOverview.IfgStack[] stackOverview = InSARStackOverview.calculateInSAROverview(sourceProduct[0]);
 
-        final double bh0 = stackOverview[0].getMasterSlave()[1].getHorizontalBaseline(firstLine, refPixel, height);
-        final double bhN = stackOverview[0].getMasterSlave()[1].getHorizontalBaseline(lastLine, refPixel, height);
+        String masterDate = info.targetBandName.substring(0, info.targetBandName.indexOf("_"));
+        String slaveDate = info.targetBandName.substring(info.targetBandName.indexOf("_")+1, info.targetBandName.indexOf("."));
+
+        // find correct master slave pair
+        int mstIndex = 0, slvIndex = 0;
+        for(int i=0; i < stackOverview.length; ++i) {
+            double mstMJD = stackOverview[i].getMasterSlave()[0].getMasterMetadata().getMjd();
+            final String mstDate = dateFormat.format(new ProductData.UTC(mstMJD).getAsDate());
+
+            if(masterDate.equals(mstDate)) {
+                mstIndex = i;
+                for(int j=0; j< stackOverview[i].getMasterSlave().length; ++j) {
+                    double slvMJD = stackOverview[i].getMasterSlave()[j].getSlaveMetadata().getMjd();
+                    final String slvDate = dateFormat.format(new ProductData.UTC(slvMJD).getAsDate());
+
+                    if (slaveDate.equals(slvDate)) {
+                        slvIndex = j;
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+
+        final double bh0 = stackOverview[mstIndex].getMasterSlave()[slvIndex].getHorizontalBaseline(firstLine, refPixel, height);
+        final double bhN = stackOverview[mstIndex].getMasterSlave()[slvIndex].getHorizontalBaseline(lastLine, refPixel, height);
         final double bhm = (bh0 + bhN) * 0.5;
         final double bhr = (bhN - bh0) / (tN - t0);
 
-        final double bv0 = stackOverview[0].getMasterSlave()[1].getVerticalBaseline(firstLine, refPixel, height);
-        final double bvN = stackOverview[0].getMasterSlave()[1].getVerticalBaseline(lastLine, refPixel, height);
+        final double bv0 = stackOverview[mstIndex].getMasterSlave()[slvIndex].getVerticalBaseline(firstLine, refPixel, height);
+        final double bvN = stackOverview[mstIndex].getMasterSlave()[slvIndex].getVerticalBaseline(lastLine, refPixel, height);
         final double bvm = (bv0 + bvN) * 0.5;
         final double bvr = (bvN - bv0) / (tN - t0);
 
