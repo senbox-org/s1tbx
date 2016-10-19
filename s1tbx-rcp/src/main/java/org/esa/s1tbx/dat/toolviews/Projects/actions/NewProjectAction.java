@@ -23,7 +23,6 @@ import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.NbBundle;
 
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 /**
@@ -32,7 +31,7 @@ import java.awt.event.ActionEvent;
  * @author lveci
  * @version $Revision: 1.3 $ $Date: 2011-04-08 18:23:59 $
  */
-@ActionID(category = "Projects", id = "NewProjectAction" )
+@ActionID(category = "Projects", id = "NewProjectAction")
 @ActionRegistration(
         displayName = "#CTL_NewProjectAction_MenuText",
         popupText = "#CTL_NewProjectAction_MenuText",

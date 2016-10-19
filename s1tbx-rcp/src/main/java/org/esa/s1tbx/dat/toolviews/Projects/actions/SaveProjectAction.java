@@ -19,16 +19,9 @@ import org.esa.s1tbx.dat.toolviews.Projects.Project;
 import org.esa.snap.rcp.actions.AbstractSnapAction;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
-import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
-import org.openide.util.ContextAwareAction;
-import org.openide.util.Lookup;
-import org.openide.util.LookupEvent;
-import org.openide.util.LookupListener;
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 /**
@@ -38,7 +31,7 @@ import java.awt.event.ActionEvent;
  * @version $Revision: 1.3 $ $Date: 2011-04-08 18:23:59 $
  */
 
-@ActionID(category = "Projects", id = "SaveProjectAction" )
+@ActionID(category = "Projects", id = "SaveProjectAction")
 @ActionRegistration(
         displayName = "#CTL_SaveProjectAction_MenuText",
         popupText = "#CTL_SaveProjectAction_MenuText"

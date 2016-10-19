@@ -24,6 +24,8 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductManager;
 import org.esa.snap.core.datamodel.ProductNodeList;
 import org.esa.snap.core.dataop.downloadable.XMLSupport;
+import org.esa.snap.core.util.io.FileUtils;
+import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.engine_utilities.db.CommonReaders;
 import org.esa.snap.engine_utilities.util.ProductFunctions;
 import org.esa.snap.engine_utilities.util.ResourceUtils;
@@ -34,6 +36,8 @@ import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.actions.file.OpenProductAction;
 import org.esa.snap.rcp.actions.file.SaveProductAsAction;
 import org.esa.snap.rcp.actions.file.WriteProductOperation;
+import org.esa.snap.rcp.session.OpenSessionAction;
+import org.esa.snap.rcp.session.SaveSessionAction;
 import org.esa.snap.rcp.util.Dialogs;
 import org.esa.snap.ui.ModelessDialog;
 import org.esa.snap.ui.NewProductDialog;
@@ -74,6 +78,9 @@ public class Project extends Observable {
     private final static boolean SAVE_PROJECT = true;
     private final Timer timer = new Timer();
 
+    private final static SnapFileFilter projectFileFilter = new SnapFileFilter("Project", new String[]{".xml"}, "SNAP project files");
+    private final static String LAST_PROJECT_DIR_KEY = "snap.lastProjectDir";
+
     /**
      * @return The unique instance of this class.
      */
@@ -103,7 +110,7 @@ public class Project extends Observable {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 final TopComponent window = WindowManager.getDefault().findTopComponent("ProjectsToolView");
-                if(window != null) {
+                if (window != null) {
                     window.open();
                     window.requestActive();
                 }
@@ -206,7 +213,7 @@ public class Project extends Observable {
                 public void productRemoved(ProductManager.Event event) {
                     Product product = event.getProduct();
                     //if (getSelectedProduct() == product) {
-                        //    setSelectedProduct(product);
+                    //    setSelectedProduct(product);
                     //}
                     //setProducts(VisatApp.getApp());
                 }
@@ -218,7 +225,7 @@ public class Project extends Observable {
         projectFolder = file.getParentFile();
 
         projectSubFolders = new ProjectSubFolder(projectFolder, getProjectName(), false,
-                ProjectSubFolder.FolderType.ROOT);
+                                                 ProjectSubFolder.FolderType.ROOT);
         projectSubFolders.setRemoveable(false);
 
         final ProjectSubFolder productSetsFolder = new ProjectSubFolder(
@@ -437,7 +444,7 @@ public class Project extends Observable {
                     final Product subsetProduct = newProductDialog.getResultProduct();
                     if (subsetProduct == null || newProductDialog.getException() != null) {
                         Dialogs.showError("The product subset could not be created:\n" +
-                                          newProductDialog.getException().getMessage());
+                                                  newProductDialog.getException().getMessage());
                     } else {
                         return subsetProduct;
                     }
@@ -500,7 +507,14 @@ public class Project extends Observable {
         final SwingWorker worker = new SwingWorker() {
             @Override
             protected Object doInBackground() throws Exception {
-                //todo VisatApp.getApp().writeProduct(product, destFile, "BEAM-DIMAP");
+
+                WriteProductOperation operation = new WriteProductOperation(product, destFile, "BEAM-DIMAP", false);
+                ProgressUtils.runOffEventThreadWithProgressDialog(operation,
+                                                                  "Writing...",
+                                                                  operation.getProgressHandle(),
+                                                                  true,
+                                                                  50,
+                                                                  1000);
                 return null;
             }
 
@@ -605,6 +619,8 @@ public class Project extends Observable {
 
         try {
             XMLSupport.SaveXML(doc, projectFile.getAbsolutePath());
+
+            saveSession(projectFile);
         } catch (IOException e) {
             Dialogs.showError("Unable to save project: " + e.getMessage());
         }
@@ -612,7 +628,7 @@ public class Project extends Observable {
 
     public void LoadProject() {
 
-        final File file = FileFolderUtils.GetFilePath("Load Project", "XML", "xml", "", "Project File", false);
+        File file = Dialogs.requestFileForOpen("Load Project", false, projectFileFilter, LAST_PROJECT_DIR_KEY);
         if (file == null) return;
 
         LoadProject(file);
@@ -651,6 +667,8 @@ public class Project extends Observable {
 
         loadProducts(folderList, prodList);
 
+        loadSession(file);
+
         notifyEvent(false);
     }
 
@@ -682,8 +700,22 @@ public class Project extends Observable {
         worker.executeWithBlocking();
     }
 
+    private static void saveSession(final File projectFile) {
+        File sessionFile = FileUtils.exchangeExtension(projectFile, ".session.snap");
+        SaveSessionAction sessionAction = new SaveSessionAction();
+        sessionAction.saveSessionAsQuitely(sessionFile);
+    }
+
+    private static void loadSession(final File projectFile) {
+        File sessionFile = FileUtils.exchangeExtension(projectFile, ".session.snap");
+        if (sessionFile.exists()) {
+            OpenSessionAction sessionAction = new OpenSessionAction();
+            sessionAction.openSession(sessionFile);
+        }
+    }
+
     public void addListener(Listener listener) {
-        if(!listeners.contains(listener)) {
+        if (!listeners.contains(listener)) {
             listeners.add(listener);
         }
     }

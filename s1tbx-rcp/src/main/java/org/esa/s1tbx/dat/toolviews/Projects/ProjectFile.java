@@ -55,7 +55,7 @@ public class ProjectFile {
                     }
                 }
             } catch (Exception e) {
-                Dialogs.showError("Unable to read graph "+ file);
+                Dialogs.showError("Unable to read graph " + file);
             }
         }
     }
