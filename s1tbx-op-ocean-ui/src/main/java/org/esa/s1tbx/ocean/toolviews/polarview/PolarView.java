@@ -22,8 +22,8 @@ import org.esa.s1tbx.ocean.toolviews.polarview.polarplot.PolarData;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
-import org.esa.snap.graphbuilder.rcp.utils.FileFolderUtils;
 import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.rcp.util.Dialogs;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
@@ -45,7 +45,7 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
     private Product product;
     private int currentRecord = 0;
 
-    private final String[] unitTypes = new String[]{"Real", "Imaginary", "Amplitude", "Intensity"};
+    private static final String[] unitTypes = new String[]{"Real", "Imaginary", "Amplitude", "Intensity"};
 
     private ControlPanel controlPanel;
     private PolarPanel polarPanel;
@@ -61,6 +61,8 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
     });
     private static final double rings[] = {50.0, 100.0, 200.0};
     private static final String ringTextStrings[] = {"200 m", "100 m", "50 m"};
+
+    private final static String LAST_WAVE_EXPORT_DIR_KEY = "snap.lastWaveExportDir";
 
     public PolarView() {
 
@@ -333,8 +335,8 @@ public final class PolarView extends JPanel implements ActionListener, PopupMenu
     }
 
     private void exportReadouts() {
-        final File file = FileFolderUtils.GetFilePath("Export Wave Mode Readout", "txt", "txt",
-                                                      product.getName() + "_rec" + currentRecord, "Wave mode readout", true);
+        final File file = Dialogs.requestFileForSave("Export Wave Mode Readout", false, null, ".txt",
+                                                        product.getName() + "_rec" + currentRecord, null, LAST_WAVE_EXPORT_DIR_KEY);
         try {
             if (file != null) {
                 polarPanel.exportReadout(file);

@@ -31,7 +31,6 @@ import org.esa.snap.engine_utilities.util.ProductFunctions;
 import org.esa.snap.engine_utilities.util.ResourceUtils;
 import org.esa.snap.graphbuilder.rcp.dialogs.GraphBuilderDialog;
 import org.esa.snap.graphbuilder.rcp.dialogs.PromptDialog;
-import org.esa.snap.graphbuilder.rcp.utils.FileFolderUtils;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.actions.file.OpenProductAction;
 import org.esa.snap.rcp.actions.file.SaveProductAsAction;
@@ -119,7 +118,7 @@ public class Project extends Observable {
     }
 
     public void CreateNewProject() {
-        final File file = FileFolderUtils.GetFilePath("Create Project", "xml", "xml", "myProject", "Project File", true);
+        File file = Dialogs.requestFileForOpen("Create Project", false, projectFileFilter, LAST_PROJECT_DIR_KEY);
 
         if (file != null) {
             showProjectsView();
@@ -593,7 +592,7 @@ public class Project extends Observable {
     }
 
     public void SaveProjectAs() {
-        final File file = FileFolderUtils.GetFilePath("Save Project", "XML", "xml", getProjectName(), "Project File", true);
+        File file = Dialogs.requestFileForSave("Save Project", false, projectFileFilter, ".xml", getProjectName(), null, LAST_PROJECT_DIR_KEY);
         if (file == null) return;
 
         projectFile = file;

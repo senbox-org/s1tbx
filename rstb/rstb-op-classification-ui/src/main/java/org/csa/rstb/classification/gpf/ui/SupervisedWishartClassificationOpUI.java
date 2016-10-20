@@ -41,6 +41,8 @@ public class SupervisedWishartClassificationOpUI extends BaseOperatorUI {
     private final JLabel windowSizeLabel = new JLabel("Window Size:   ");
     private final JTextField windowSize = new JTextField("");
 
+    public static final String LAST_TRAINING_DIR = "rstb.trainingDir";
+
     @Override
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {
 
@@ -51,7 +53,7 @@ public class SupervisedWishartClassificationOpUI extends BaseOperatorUI {
         trainingDataSet.setColumns(30);
         trainingDataSetBrowseButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                final File file = Dialogs.requestFileForOpen("Training Data Set", false, null, "rstb.trainingDir");
+                final File file = Dialogs.requestFileForOpen("Training Data Set", false, null, LAST_TRAINING_DIR);
                 trainingDataSet.setText(file.getAbsolutePath());
             }
         });

@@ -15,11 +15,11 @@
  */
 package org.csa.rstb.classification.rcp.dialogs;
 
+import org.csa.rstb.classification.gpf.ui.SupervisedWishartClassificationOpUI;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.util.Settings;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
-import org.esa.snap.graphbuilder.rcp.utils.FileFolderUtils;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.util.Dialogs;
 import org.esa.snap.ui.ModalDialog;
@@ -78,8 +78,9 @@ public class ProductGeometrySelectorDialog extends ModalDialog {
 
         browseButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                final File file = FileFolderUtils.GetFilePath("Classification Training Dataset",
-                        "Training Datasets", "txt", defaultSavePath, "", true);
+                final File file = Dialogs.requestFileForSave("Classification Training Dataset", false, null, ".txt",
+                                                             defaultSavePath, null,
+                                                             SupervisedWishartClassificationOpUI.LAST_TRAINING_DIR);
                 savePath.setText(file.getAbsolutePath());
             }
         });

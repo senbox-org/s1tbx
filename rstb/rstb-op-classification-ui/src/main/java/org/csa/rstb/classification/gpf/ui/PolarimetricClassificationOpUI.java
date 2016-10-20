@@ -29,7 +29,7 @@ import java.util.Map;
 
 public class PolarimetricClassificationOpUI extends BaseOperatorUI {
 
-    private final JComboBox classification = new JComboBox(new String[]{
+    private final JComboBox<String> classification = new JComboBox(new String[]{
             PolarimetricClassificationOp.UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION,
             PolarimetricClassificationOp.UNSUPERVISED_CLOUDE_POTTIER_DUAL_POL_CLASSIFICATION,
             PolarimetricClassificationOp.UNSUPERVISED_HALPHA_WISHART_CLASSIFICATION,

@@ -15,7 +15,8 @@
  */
 package org.csa.rstb.polarimetric.rcp.actions;
 
-import org.esa.snap.graphbuilder.rcp.utils.FileFolderUtils;
+import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.core.util.io.SnapFileFilter;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.util.Dialogs;
 import org.openide.awt.ActionID;
@@ -23,7 +24,7 @@ import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.NbBundle;
 
-import javax.swing.AbstractAction;
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
 import java.io.File;
@@ -50,6 +51,7 @@ public class LaunchPolsarProAction extends AbstractAction {
 
     private final static String PolsarProPathStr = "external.polsarpro.path";
     private final static String TCLPathStr = "external.TCL.path";
+    private final static String LAST_POLSARPRO_DIR_KEY = "snap.polsarpro.dir";
 
     /**
      * Launches PolSARPro
@@ -78,7 +80,9 @@ public class LaunchPolsarProAction extends AbstractAction {
         }
         if (!polsarProFile.exists()) {
             // ask for location
-            polsarProFile = FileFolderUtils.GetFilePath("PolSARPro Location", "tcl", "tcl", null, "PolSARPro File", false);
+            polsarProFile = Dialogs.requestFileForOpen("PolSARPro Location", false,
+                                                       new SnapFileFilter("PolSARPro TCL", new String[]{".tcl"}, "PolSARPro"),
+                                                       LAST_POLSARPRO_DIR_KEY);
         }
         if (polsarProFile.exists()) {
             externalExecute(polsarProFile, tclFile);
@@ -98,8 +102,8 @@ public class LaunchPolsarProAction extends AbstractAction {
 
                     if (tclWishFile.exists()) {
                         if (prog.exists()) {
-                            String command = tclWishFile.getAbsolutePath() + " " + "\"" + prog.getAbsolutePath() + "\"";
-                            System.out.println("Launching PolSARPro: " + command);
+                            String command = tclWishFile.getAbsolutePath() + ' ' + '"' + prog.getAbsolutePath() + '"';
+                            SystemUtils.LOG.info("Launching PolSARPro: " + command);
                             final Process proc = Runtime.getRuntime().exec(command, null, new File(prog.getParent()));
 
                             outputTextBuffers(new BufferedReader(new InputStreamReader(proc.getInputStream())));
