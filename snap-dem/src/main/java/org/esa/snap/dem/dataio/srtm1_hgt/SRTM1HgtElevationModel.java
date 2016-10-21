@@ -35,12 +35,12 @@ public class SRTM1HgtElevationModel extends BaseElevationModel {
 
     @Override
     public double getIndexX(final GeoPos geoPos) {
-        return ((geoPos.lon + 180.0) * DEGREE_RES_BY_NUM_PIXELS_PER_TILEinv) - 1.0;// - 1.0;
+        return ((geoPos.lon + 180.0) * DEGREE_RES_BY_NUM_PIXELS_PER_TILEinv) + 0.5;
     }
 
     @Override
     public double getIndexY(final GeoPos geoPos) {
-        return ((60.0 - geoPos.lat) * DEGREE_RES_BY_NUM_PIXELS_PER_TILEinv) + 2.5;// + 2.0;
+        return ((60.0 - geoPos.lat) * DEGREE_RES_BY_NUM_PIXELS_PER_TILEinv) + 0.5;
     }
 
     @Override
