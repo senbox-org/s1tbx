@@ -15,7 +15,13 @@
  */
 package org.esa.s1tbx.io.orbits.sentinel1;
 
+import org.junit.Assume;
+import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 
 import static junit.framework.TestCase.assertEquals;
 
@@ -23,6 +29,22 @@ import static junit.framework.TestCase.assertEquals;
  * find files on step
  */
 public class TestStepAuxdataScraper {
+
+    @BeforeClass
+    public static void setUpClass() throws Exception {
+        boolean internetAvailable;
+        try {
+            URLConnection urlConnection = new URL("http://www.google.com").openConnection();
+            urlConnection.setConnectTimeout(5);
+            urlConnection.getContent();
+            internetAvailable = true;
+        } catch (IOException e) {
+            internetAvailable = false;
+        }
+
+        Assume.assumeTrue("Internet connection not available, skipping TestStepAuxdataScraper", internetAvailable);
+    }
+
 
     @Test
     public void testDownloadPreciseOrbitFileS1A() {
