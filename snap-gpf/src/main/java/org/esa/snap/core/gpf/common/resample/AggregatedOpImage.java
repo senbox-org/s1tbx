@@ -1,5 +1,7 @@
 package org.esa.snap.core.gpf.common.resample;
 
+import org.esa.snap.core.gpf.internal.OperatorContext;
+
 import javax.media.jai.BorderExtender;
 import javax.media.jai.BorderExtenderConstant;
 import javax.media.jai.GeometricOpImage;
@@ -43,6 +45,7 @@ class AggregatedOpImage extends GeometricOpImage {
                 (float) (sourceImageToModelTransform.getTranslateY() / sourceImageToModelTransform.getScaleY());
         this.aggregationType = aggregationType;
         this.dataBufferType = dataBufferType;
+        OperatorContext.setTileCache(this);
     }
 
     private static BorderExtender createBorderExtender(double value) {
