@@ -552,7 +552,7 @@ public class ToolAdapterIO {
     }
 
     private static Set<Path> getClusterModulesPaths() {
-        Set<Path> clusterNames = Collections.emptySet();
+        Set<Path> clusterNames = new HashSet<>();
         Path installDir = Config.instance().installDir();
         Path clustersFile = installDir.resolve("etc").resolve("snap.clusters");
         if (Files.isRegularFile(clustersFile)) {
