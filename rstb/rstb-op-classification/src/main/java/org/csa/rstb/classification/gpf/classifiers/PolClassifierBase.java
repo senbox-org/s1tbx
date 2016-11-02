@@ -259,7 +259,37 @@ public abstract class PolClassifierBase {
         final IndexCoding indexCoding = new IndexCoding("Cluster_classes");
         indexCoding.addIndex("no data", HAlphaWishart.NODATACLASS, "no data");
         for (int i = 1; i <= getNumClasses(); i++) {
-            indexCoding.addIndex("class_" + i, i, "Cluster " + i);
+            switch (i) {
+                case 1:
+                    indexCoding.addIndex("class_" + i, i, "Dihedral Reflector");
+                    break;
+                case 2:
+                    indexCoding.addIndex("class_" + i, i, "Dipole");
+                    break;
+                case 3:
+                    indexCoding.addIndex("class_" + i, i, "Bragg Surface");
+                    break;
+                case 4:
+                    indexCoding.addIndex("class_" + i, i, "Double Reflection");
+                    break;
+                case 5:
+                    indexCoding.addIndex("class_" + i, i, "Anisotropic Particles");
+                    break;
+                case 6:
+                    indexCoding.addIndex("class_" + i, i, "Random Surface");
+                    break;
+                case 7:
+                    indexCoding.addIndex("class_" + i, i, "Complex Structures");
+                    break;
+                case 8:
+                    indexCoding.addIndex("class_" + i, i, "Random Anisotropic Scatterers");
+                    break;
+                case 9:
+                    indexCoding.addIndex("class_" + i, i, "Non-feasible");
+                    break;
+                default:
+                    break;
+            }
         }
         return indexCoding;
     }
