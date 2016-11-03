@@ -193,20 +193,25 @@ public class WarpOp extends Operator {
 
             getMasterBands();
 
-            if (demRefinement == null)
-                demRefinement = false;
+            if (complexCoregistration) {
+                if (demRefinement == null)
+                    demRefinement = false;
 
-            if (rmsThreshold == 0.001f) {
-                cpmWtestCriticalValue = 3.2905267314919f;
-                inSAROptimized = true;
-            } else if (rmsThreshold == 0.05f) {
-                cpmWtestCriticalValue = 1.95996398454005f;
-                inSAROptimized = true;
-            } else if (rmsThreshold == 0.1f) {
-                cpmWtestCriticalValue = 1.64485362695147f;
-                inSAROptimized = true;
+                if (rmsThreshold == 0.001f) {
+                    cpmWtestCriticalValue = 3.2905267314919f;
+                    inSAROptimized = true;
+                } else if (rmsThreshold == 0.05f) {
+                    cpmWtestCriticalValue = 1.95996398454005f;
+                    inSAROptimized = true;
+                } else if (rmsThreshold == 0.1f) {
+                    cpmWtestCriticalValue = 1.64485362695147f;
+                    inSAROptimized = true;
+                } else {
+                    cpmWtestCriticalValue = 1.0f;
+                }
             } else {
-                cpmWtestCriticalValue = 1.0f;
+                inSAROptimized = false;
+                demRefinement = false;
             }
 
             switch (interpolationMethod) {
