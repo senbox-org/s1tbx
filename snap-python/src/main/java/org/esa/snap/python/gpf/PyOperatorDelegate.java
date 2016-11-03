@@ -1,5 +1,6 @@
 package org.esa.snap.python.gpf;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.Tile;
@@ -21,6 +22,25 @@ public interface PyOperatorDelegate {
      * @param context The GPF operator that provides the context for the Python implementation.
      */
     void initialize(Operator context);
+
+    /**
+     * Executes the operator.
+     * <p>
+     * For operators that compute raster data tiles, the method is usually a no-op. Other operators might perform their
+     * main work in this method, e.g. perform some image analysis such as extracting statistics and other features from
+     * data products.
+     * <p>
+     * Don't call this method directly. The framework may call this method
+     * <ol>
+     * <li>once before the very first tile is computed, or</li>
+     * <li>as a result of a call to {@link Operator#execute(ProgressMonitor)}.</li>
+     * </ol>
+     * <p>
+     * The default implementation does nothing.
+     *
+     * @param pm A progress monitor to be notified for long-running tasks.
+     */
+    void doExecute(ProgressMonitor pm);
 
     /**
      * Compute the tiles associated with the given bands.
