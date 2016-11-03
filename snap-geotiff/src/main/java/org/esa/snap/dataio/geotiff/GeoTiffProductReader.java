@@ -73,9 +73,7 @@ import javax.imageio.stream.ImageInputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.DataBuffer;
 import java.awt.image.IndexColorModel;
@@ -626,25 +624,23 @@ public class GeoTiffProductReader extends AbstractProductReader {
     private static boolean canCreateGcpGeoCoding(final double[] tiePoints) {
         int numTiePoints = tiePoints.length / 6;
 
-        if(numTiePoints > 4) {
-            // check if positions are valid
-            for (int i = 0; i < numTiePoints; i++) {
-                final int offset = i * 6;
+        // check if positions are valid
+        for (int i = 0; i < numTiePoints; i++) {
+            final int offset = i * 6;
 
-                final float x = (float) tiePoints[offset + 0];
-                final float y = (float) tiePoints[offset + 1];
-                final float lon = (float) tiePoints[offset + 3];
-                final float lat = (float) tiePoints[offset + 4];
+            final float x = (float) tiePoints[offset + 0];
+            final float y = (float) tiePoints[offset + 1];
+            final float lon = (float) tiePoints[offset + 3];
+            final float lat = (float) tiePoints[offset + 4];
 
-                if (Double.isNaN(x) || Double.isNaN(y) || Double.isNaN(lon) || Double.isNaN(lat)) {
-                    return false;
-                }
-                final PixelPos pixelPos = new PixelPos(x, y);
-                final GeoPos geoPos = new GeoPos(lat, lon);
+            if (Double.isNaN(x) || Double.isNaN(y) || Double.isNaN(lon) || Double.isNaN(lat)) {
+                return false;
+            }
+            final PixelPos pixelPos = new PixelPos(x, y);
+            final GeoPos geoPos = new GeoPos(lat, lon);
 
-                if (!pixelPos.isValid() || !geoPos.isValid()) {
-                    return false;
-                }
+            if (!pixelPos.isValid() || !geoPos.isValid()) {
+                return false;
             }
         }
 
