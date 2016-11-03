@@ -33,6 +33,7 @@ public class PyOperator extends Operator {
     private final int COMPUTE_METHOD = 0x01;
     private final int COMPUTE_TILE_METHOD = 0x02;
     private final int COMPUTE_TILE_STACK_METHOD = 0x04;
+    private final int DO_EXECUTE_METHOD = 0x08;
 
     @Parameter(description = "Path to the Python module(s). Can be either an absolute path or relative to the current working directory.", defaultValue = ".")
     private String pythonModulePath;
@@ -113,6 +114,12 @@ public class PyOperator extends Operator {
                 // attribute "compute" not found
             }
             try {
+                pythonProcessorImpl.getAttribute("doExecute");
+                computeMethodFlags |= DO_EXECUTE_METHOD;
+            } catch (RuntimeException e) {
+                // attribute "doExecute" not found
+            }
+            try {
                 pythonProcessorImpl.getAttribute("computeTile");
                 computeMethodFlags |= COMPUTE_TILE_METHOD;
             } catch (RuntimeException e) {
@@ -125,10 +132,22 @@ public class PyOperator extends Operator {
                 // attribute "computeTileStack" not found
             }
             if (computeMethodFlags == 0) {
-                throw new OperatorException("Neither computeTile(self, context, band, tile) nor computeTileStack(self, context, tiles, rectangle) method found.");
+                throw new OperatorException("Neither doExecute(self, pm), computeTile(self, context, band, tile), " +
+                                            "nor computeTileStack(self, context, tiles, rectangle) method found.");
             }
             pythonProcessor = pythonProcessorImpl.createProxy(PyOperatorDelegate.class);
             pythonProcessor.initialize(this);
+        }
+    }
+
+    @Override
+    public void doExecute(ProgressMonitor pm) {
+        synchronized (PyLib.class) {
+            if ((computeMethodFlags & DO_EXECUTE_METHOD) != 0) {
+                pythonProcessor.doExecute(pm);
+            } else {
+                throw new OperatorException("Missing doExecute(self, pm) method.");
+            }
         }
     }
 
