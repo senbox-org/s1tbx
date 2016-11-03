@@ -63,6 +63,7 @@ public class K5HDF implements K5Format {
     private NetcdfFile netcdfFile = null;
     private NcVariableMap variableMap = null;
     private boolean yFlipped = false;
+    private boolean useFloatBands = false;
     private boolean isComplex = false;
     private static final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -238,6 +239,8 @@ public class K5HDF implements K5Format {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ABS_ORBIT, globalElem.getAttributeInt("Orbit_Number", defInt));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, globalElem.getAttributeString("Orbit_Direction", defStr));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, getSampleType(globalElem));
+
+        useFloatBands = globalElem.getAttributeString("Sample_Format", defStr).equals("FLOAT");
 
 //        final ProductData.UTC startTime = ReaderUtils.getTime(globalElem, "Scene_Sensing_Start_UTC", standardDateFormat);
 //        final ProductData.UTC stopTime = ReaderUtils.getTime(globalElem, "Scene_Sensing_Stop_UTC", standardDateFormat);
@@ -548,10 +551,8 @@ public class K5HDF implements K5Format {
             }
             ++cnt;
 
-            final boolean floatBand = product.getProductType().equals("SCS_A");
-
             if (isComplex) {     // add i and q
-                final Band bandI = floatBand ?
+                final Band bandI = useFloatBands ?
                         NetCDFUtils.createBand(variable, width, height, ProductData.TYPE_FLOAT32) :
                         NetCDFUtils.createBand(variable, width, height);
                 createUniqueBandName(product, bandI, 'i' + cntStr);
@@ -561,7 +562,7 @@ public class K5HDF implements K5Format {
                 product.addBand(bandI);
                 bandMap.put(bandI, variable);
 
-                final Band bandQ = floatBand ?
+                final Band bandQ = useFloatBands ?
                         NetCDFUtils.createBand(variable, width, height, ProductData.TYPE_FLOAT32) :
                         NetCDFUtils.createBand(variable, width, height);
                 createUniqueBandName(product, bandQ, 'q' + cntStr);
@@ -573,7 +574,7 @@ public class K5HDF implements K5Format {
 
                 ReaderUtils.createVirtualIntensityBand(product, bandI, bandQ, cntStr);
             } else {
-                final Band band = floatBand ?
+                final Band band = useFloatBands ?
                         NetCDFUtils.createBand(variable, width, height, ProductData.TYPE_FLOAT32) :
                         NetCDFUtils.createBand(variable, width, height);
                 createUniqueBandName(product, band, "Amplitude" + cntStr);
