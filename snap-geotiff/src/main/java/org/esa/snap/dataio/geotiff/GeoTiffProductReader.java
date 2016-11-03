@@ -626,6 +626,28 @@ public class GeoTiffProductReader extends AbstractProductReader {
     private static boolean canCreateGcpGeoCoding(final double[] tiePoints) {
         int numTiePoints = tiePoints.length / 6;
 
+        if(numTiePoints > 4) {
+            // check if positions are valid
+            for (int i = 0; i < numTiePoints; i++) {
+                final int offset = i * 6;
+
+                final float x = (float) tiePoints[offset + 0];
+                final float y = (float) tiePoints[offset + 1];
+                final float lon = (float) tiePoints[offset + 3];
+                final float lat = (float) tiePoints[offset + 4];
+
+                if (Double.isNaN(x) || Double.isNaN(y) || Double.isNaN(lon) || Double.isNaN(lat)) {
+                    return false;
+                }
+                final PixelPos pixelPos = new PixelPos(x, y);
+                final GeoPos geoPos = new GeoPos(lat, lon);
+
+                if (!pixelPos.isValid() || !geoPos.isValid()) {
+                    return false;
+                }
+            }
+        }
+
         if (numTiePoints >= GcpGeoCoding.Method.POLYNOMIAL3.getTermCountP()) {
             return true;
         } else if (numTiePoints >= GcpGeoCoding.Method.POLYNOMIAL2.getTermCountP()) {
