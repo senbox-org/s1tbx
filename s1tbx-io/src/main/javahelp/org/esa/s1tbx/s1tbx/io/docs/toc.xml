@@ -23,7 +23,7 @@
                         <tocitem text="ERS (.E1, .E2)" target="importErsProduct"/>
                         <tocitem text="ERS CEOS" target="ImportERSCeos"/>
                         <tocitem text="JERS CEOS" target="ImportJERSCeos"/>
-                        <tocitem text="ALOS PALSAR 1&2" target="ImportAlosPalsar"/>
+                        <tocitem text="ALOS PALSAR 1/2" target="ImportAlosPalsar"/>
                         <tocitem text="Radarsat-1" target="ImportRadarsat1"/>
                         <tocitem text="Radarsat-2" target="ImportRadarsat2"/>
                         <tocitem text="TerraSarX/TanDEM-X" target="ImportTerraSarX"/>
