@@ -44,6 +44,9 @@ import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Utility class for performing various operations needed by ToolAdapterOp.
@@ -505,7 +508,7 @@ public class ToolAdapterIO {
         return instance.preferences();
     }
 
-    private static void copy(Path source, Path destination) throws IOException{
+    public static void copy(Path source, Path destination) throws IOException{
         Set<FileVisitOption> options = EnumSet.of(FileVisitOption.FOLLOW_LINKS);
         final CopyOption[] copyOptions = new CopyOption[] { StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING };
         Files.walkFileTree(source, options, 3, new FileVisitor<Path>() {
@@ -537,6 +540,79 @@ public class ToolAdapterIO {
                 return FileVisitResult.CONTINUE;
             }
         });
+    }
+
+    public static Path zip(Path source, Path zipFile) throws IOException {
+        if (source == null || zipFile == null) {
+            throw new IllegalArgumentException("One of the arguments is null");
+        }
+        Files.deleteIfExists(zipFile);
+        zipFile = Files.createFile(zipFile);
+        try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipFile))) {
+            if (Files.isRegularFile(source)) {
+                ZipEntry zipEntry = new ZipEntry(source.getFileName().toString());
+                zos.putNextEntry(zipEntry);
+                zos.write(Files.readAllBytes(source));
+                zos.closeEntry();
+            } else {
+                Files.walk(source, 3)
+                        //.filter(path -> !Files.isDirectory(path))
+                        .forEach(path -> {
+                            try {
+                                if (Files.isDirectory(path)) {
+                                    zipFolder(source, path, zos);
+                                } else {
+                                    ZipEntry zipEntry = new ZipEntry(source.relativize(path).toString());
+                                    zos.putNextEntry(zipEntry);
+                                    zos.write(Files.readAllBytes(path));
+                                    zos.closeEntry();
+                                }
+                            } catch (Exception ex) {
+                                SystemUtils.LOG.warning(ex.getMessage());
+                            }
+                        });
+            }
+        }
+        return zipFile;
+    }
+
+    private static void zipFolder(Path root, Path folder, ZipOutputStream zipStream) throws IOException {
+        ZipEntry zipEntry = new ZipEntry(root.relativize(folder).toString() + "/");
+        zipStream.putNextEntry(zipEntry);
+        zipStream.closeEntry();
+    }
+
+    public static void unzip(Path sourceFile, Path destination) throws IOException {
+        if (sourceFile == null || destination == null) {
+            throw new IllegalArgumentException("One of the arguments is null");
+        }
+        if (!Files.exists(destination)) {
+            Files.createDirectory(destination);
+        }
+        byte[] buffer;
+        try (ZipFile zipFile = new ZipFile(sourceFile.toFile())) {
+            ZipEntry entry = null;
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            while ((entry = entries.nextElement()) != null) {
+                Path filePath = destination.resolve(entry.getName());
+                if (entry.isDirectory()) {
+                    Files.createDirectories(filePath);
+                } else {
+                    try (InputStream inputStream = zipFile.getInputStream(entry)) {
+                        try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath.toFile()))) {
+                            buffer = new byte[4096];
+                            int read;
+                            while ((read = inputStream.read(buffer)) > 0) {
+                                bos.write(buffer, 0, read);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     static List<ProductReaderPlugIn> getReaderPlugInsByExtension(String extension) {
