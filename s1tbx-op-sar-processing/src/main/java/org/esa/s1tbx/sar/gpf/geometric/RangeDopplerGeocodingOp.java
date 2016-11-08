@@ -335,10 +335,7 @@ public class RangeDopplerGeocodingOp extends Operator {
 
         if (!orthoDataProduced && processingStarted) {
             final String errMsg = getId() + " error: no valid output was produced. Please verify the DEM";
-            System.out.println(errMsg);
-            //if (VisatApp.getApp() != null) {
-            //    VisatApp.getApp().setStatusBarMessage(errMsg);
-            //}
+            SystemUtils.LOG.warning(errMsg);
         }
     }
 
