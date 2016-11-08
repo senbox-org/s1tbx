@@ -51,7 +51,7 @@ public class ApplyOrbitFileOpUI extends BaseOperatorUI {
             DorisOrbitFile.DORIS_VOR + " (ENVISAT)" + " (Auto Download)",
             DelftOrbitFile.DELFT_PRECISE + " (ENVISAT, ERS1&2)" + " (Auto Download)",
             PrareOrbitFile.PRARE_PRECISE + " (ERS1&2)" + " (Auto Download)",
-            K5OrbitFile.PRECISE
+            //K5OrbitFile.PRECISE
     };
 
     @Override
@@ -97,10 +97,11 @@ public class ApplyOrbitFileOpUI extends BaseOperatorUI {
             } else if (mission.startsWith("SENTINEL")) {
                 populateOrbitTypes("Sentinel");
                 setSelectedOrbitType(SentinelPODOrbitFile.PRECISE);
-            } else if (mission.startsWith("Kompsat5")) {
-                populateOrbitTypes("Kompsat5");
-                setSelectedOrbitType(K5OrbitFile.PRECISE);
             }
+//            } else if (mission.startsWith("Kompsat5")) {
+//                populateOrbitTypes("Kompsat5");
+//                setSelectedOrbitType(K5OrbitFile.PRECISE);
+//            }
         }
     }
 
