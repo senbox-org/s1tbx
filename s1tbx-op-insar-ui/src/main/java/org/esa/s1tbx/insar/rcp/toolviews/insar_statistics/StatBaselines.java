@@ -34,7 +34,7 @@ import java.util.List;
  */
 public class StatBaselines implements InSARStatistic {
 
-    private TileCacheTableModel tableModel;
+    private BaselineTableModel tableModel;
     private JTable table;
     private final InSARStatisticsTopComponent parent;
     private CachedBaseline[] cachedBaselines;
@@ -52,7 +52,7 @@ public class StatBaselines implements InSARStatistic {
     }
 
     public Component createPanel() {
-        tableModel = new TileCacheTableModel();
+        tableModel = new BaselineTableModel();
         table = new JTable(tableModel);
         return new JScrollPane(table);
     }
@@ -71,7 +71,7 @@ public class StatBaselines implements InSARStatistic {
                 cachedProduct = product;
                 cachedBaselines = baselines.toArray(new CachedBaseline[baselines.size()]);
             } catch (Exception e) {
-                e.printStackTrace();
+                SystemUtils.LOG.severe("Error getting baselines: "+ e.getMessage());
             }
         }
         return cachedBaselines;
@@ -122,7 +122,7 @@ public class StatBaselines implements InSARStatistic {
         return str.toString();
     }
 
-    private static class TileCacheTableModel extends AbstractTableModel {
+    private static class BaselineTableModel extends AbstractTableModel {
         private final static String[] COLUMN_NAMES =
                 {"Product", "Perp Baseline [m]", "Temp Baseline [days]", "Coherence", "Height of Ambiguity [m]", "Doppler Diff [Hz]"};
         private final static Class[] COLUMN_CLASSES =
