@@ -245,7 +245,9 @@ public final class BackGeocodingOp extends Operator {
             updateTargetProductMetadata();
 
             final Band masterBandI = getBand(masterProduct, "i_", swathIndexStr, mSU.getPolarizations()[0]);
-            noDataValue = masterBandI.getNoDataValue();
+            if(masterBandI != null) {
+                noDataValue = masterBandI.getNoDataValue();
+            }
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
@@ -276,6 +278,9 @@ public final class BackGeocodingOp extends Operator {
     private void checkSourceProductValidity() throws OperatorException {
 
         final MetadataElement mAbsRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct[0]);
+        if(mAbsRoot == null) {
+            throw new OperatorException("Abstracted Metadata not found");
+        }
         final String mAcquisitionMode = mAbsRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
         for(Product product : sourceProduct) {
             final InputProductValidator validator1 = new InputProductValidator(product);
@@ -284,6 +289,9 @@ public final class BackGeocodingOp extends Operator {
             validator1.checkIfSLC();
 
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+            if(absRoot == null) {
+                throw new OperatorException("Abstracted Metadata not found");
+            }
             final String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
             if (!mAcquisitionMode.equals(acquisitionMode)) {
                 throw new OperatorException("Source products should have the same acquisition modes");
@@ -312,7 +320,7 @@ public final class BackGeocodingOp extends Operator {
             }
             final Band targetBand = ProductUtils.copyBand(bandName, masterProduct, bandName + mstSuffix, targetProduct, true);
 
-            if(targetBand.getUnit().equals(Unit.IMAGINARY)) {
+            if(targetBand != null && targetBand.getUnit() != null && targetBand.getUnit().equals(Unit.IMAGINARY)) {
                 int idx = targetProduct.getBandIndex(targetBand.getName());
                 ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBandAt(idx-1), targetBand, mstSuffix);
             }
@@ -482,6 +490,8 @@ public final class BackGeocodingOp extends Operator {
                 computeExtendedAmount(ntx0, nty0, ntw, nth, extendedAmount);
 
                 for(SlaveData slaveData : slaveDataList) {
+                    //slaveData.print();
+
                     computePartialTile(subSwathIndex, burstIndex, ntx0, nty0, ntw, nth, targetTileMap,
                             slaveData, extendedAmount);
                 }
@@ -494,14 +504,6 @@ public final class BackGeocodingOp extends Operator {
         }
     }
 
-    private static int getSubswathIndex(final String targetBandName) {
-        for (int i = 0; i < 5; i++) {
-            if (targetBandName.contains(String.valueOf(i+1))){
-                return (i+1);
-            }
-        }
-        return -1;
-    }
     /**
      * Get elevation model.
      *
@@ -532,7 +534,7 @@ public final class BackGeocodingOp extends Operator {
                 demSamplingLon = demSamplingLat;
             }
         } catch (Throwable t) {
-            t.printStackTrace();
+            SystemUtils.LOG.severe("Unable to get elevation model: " + t.getMessage());
         }
         isElevationModelAvailable = true;
     }
@@ -1111,7 +1113,7 @@ public final class BackGeocodingOp extends Operator {
         return new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1);
     }
 
-    public static void performDerampDemod(final Tile slaveTileI, final Tile slaveTileQ,
+    static void performDerampDemod(final Tile slaveTileI, final Tile slaveTileQ,
                                           final Rectangle slaveRectangle, final double[][] derampDemodPhase,
                                           final double[][] derampDemodI, final double[][] derampDemodQ) {
 
@@ -1149,7 +1151,7 @@ public final class BackGeocodingOp extends Operator {
                                       final Map<Band, Tile> targetTileMap, final double[][] derampDemodPhase,
                                       final double[][] derampDemodI, final double[][] derampDemodQ,
                                       final PixelPos[][] slavePixPos, final int subswathIndex, final int sBurstIndex,
-                                      final SlaveData slaveData, final String polarization) {
+                                      final SlaveData slaveData, final String polarization) throws OperatorException {
 
         try {
             final ResamplingRaster resamplingRasterI = new ResamplingRaster(slaveTileI, derampDemodI);
@@ -1158,10 +1160,9 @@ public final class BackGeocodingOp extends Operator {
 
             final Band iBand = getTargetBand("i_", slaveData.slvSuffix, polarization);
             final Band qBand = getTargetBand("q_", slaveData.slvSuffix, polarization);
-            final Band phaseBand = getTargetBand("derampDemodPhase", slaveData.slvSuffix, polarization);
 
             if (iBand == null || qBand == null) {
-                return;
+                throw new OperatorException("Unable to find " + iBand.getName() +" or "+ qBand.getName());
             }
 
             final Tile tgtTileI = targetTileMap.get(iBand);
@@ -1173,6 +1174,10 @@ public final class BackGeocodingOp extends Operator {
             Tile tgtTilePhase;
             ProductData tgtBufferPhase = null;
             if (outputDerampDemodPhase) {
+                final Band phaseBand = getTargetBand("derampDemodPhase", slaveData.slvSuffix, null);
+                if(phaseBand == null) {
+                    throw new OperatorException("derampDemodPhase not found");
+                }
                 tgtTilePhase = targetTileMap.get(phaseBand);
                 tgtBufferPhase = tgtTilePhase.getDataBuffer();
             }
@@ -1276,8 +1281,8 @@ public final class BackGeocodingOp extends Operator {
                 return;
             }
 
-            Sentinel1Utils.SubSwathInfo mSubSwath = mSU.getSubSwath()[subSwathIndex - 1];
-            Sentinel1Utils.SubSwathInfo sSubSwath = slaveData.sSU.getSubSwath()[subSwathIndex - 1];
+            //Sentinel1Utils.SubSwathInfo mSubSwath = mSU.getSubSwath()[subSwathIndex - 1];
+            //Sentinel1Utils.SubSwathInfo sSubSwath = slaveData.sSU.getSubSwath()[subSwathIndex - 1];
 
             final Tile tgtTileAzOffset = targetTileMap.get(azOffsetBand);
             final Tile tgtTileRgOffset = targetTileMap.get(rgOffsetBand);
@@ -1356,10 +1361,22 @@ public final class BackGeocodingOp extends Operator {
         final Band[] targetBands = targetProduct.getBands();
         for (Band band : targetBands) {
             final String bandName = band.getName();
-            if (tag != null && bandName.contains(name) && bandName.contains(tag) && pol != null && bandName.contains(pol)) {
-                return band;
-            } else if (tag == null && bandName.contains(name)) {
-                return band;
+            if (bandName.contains(name)) {
+                if (tag != null) {
+                    if(bandName.contains(tag)) {
+                        if (pol == null) {
+                            return band;
+                        } else if (bandName.contains(pol)) {
+                            return band;
+                        }
+                    }
+                } else {
+                    if (pol == null) {
+                        return band;
+                    } else if (bandName.contains(pol)) {
+                        return band;
+                    }
+                }
             }
         }
         return null;
@@ -1377,18 +1394,14 @@ public final class BackGeocodingOp extends Operator {
         private final Tile tile;
         private final double[][] data;
         private final boolean usesNoData;
-        private final boolean scalingApplied;
         private final double noDataValue;
-        private final double geophysicalNoDataValue;
 
-        public ResamplingRaster(final Tile tile, final double[][] data) {
+        ResamplingRaster(final Tile tile, final double[][] data) {
             this.tile = tile;
             this.data = data;
             final RasterDataNode rasterDataNode = tile.getRasterDataNode();
             this.usesNoData = rasterDataNode.isNoDataValueUsed();
             this.noDataValue = rasterDataNode.getNoDataValue();
-            this.geophysicalNoDataValue = rasterDataNode.getGeophysicalNoDataValue();
-            this.scalingApplied = rasterDataNode.isScalingApplied();
         }
 
         public final int getWidth() {
@@ -1411,7 +1424,7 @@ public final class BackGeocodingOp extends Operator {
                         val = data[y[i]][x[j]];
 
                         if (usesNoData) {
-                            if (scalingApplied && geophysicalNoDataValue == val || noDataValue == val) {
+                            if (noDataValue == val) {
                                 val = Double.NaN;
                                 allValid = false;
                             }
@@ -1449,6 +1462,10 @@ public final class BackGeocodingOp extends Operator {
 
             sSU.computeDopplerRate();
             sSU.computeReferenceTime();
+        }
+
+        public void print() {
+            SystemUtils.LOG.info(slvSuffix +" burstOffset="+burstOffset);
         }
     }
 
