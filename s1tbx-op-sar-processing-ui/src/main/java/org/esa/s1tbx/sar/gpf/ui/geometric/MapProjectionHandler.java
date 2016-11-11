@@ -68,18 +68,32 @@ public class MapProjectionHandler {
     }
 
     private CoordinateReferenceSystem getCRS(final String mapProjection, final Product[] sourceProducts) {
-        final CoordinateReferenceSystem theCRS = parseCRS(mapProjection);
+        final CoordinateReferenceSystem theCRS = parseCRS(mapProjection, sourceProducts);
         if (theCRS == null)
             return getCRSFromDialog(sourceProducts);
         return theCRS;
     }
 
-    static CoordinateReferenceSystem parseCRS(final String mapProjection) {
+    static CoordinateReferenceSystem parseCRS(String mapProjection, final Product[] sourceProducts) {
         try {
             if (mapProjection != null && !mapProjection.isEmpty())
                 return CRS.parseWKT(mapProjection);
         } catch (Exception e) {
             try {
+                // prefix with EPSG, if there are only numbers
+                if (mapProjection.matches("[0-9]*")) {
+                    mapProjection = "EPSG:" + mapProjection;
+                }
+                // append center coordinates for AUTO code
+                if (mapProjection.matches("AUTO:[0-9]*")) {
+                    final GeoPos centerGeoPos;
+                    if (sourceProducts == null || sourceProducts[0] == null)
+                        centerGeoPos = new GeoPos(0, 0);
+                    else
+                        centerGeoPos = ProductUtils.getCenterGeoPos(sourceProducts[0]);
+                    mapProjection = String.format("%s,%s,%s", mapProjection, centerGeoPos.lon, centerGeoPos.lat);
+                }
+                // force longitude==x-axis and latitude==y-axis
                 return CRS.decode(mapProjection, true);
             } catch (Exception ex) {
                 System.out.println(ex.getMessage());
