@@ -57,7 +57,7 @@ public class ToolAdapterActivator implements Activator {
                     if (targetLocation != null && entryPoint != null) {
                         Path target = targetLocation.toPath().resolve(entryPoint);
                         String alias = opWithBundle.getOperatorAlias();
-                        if (!Files.exists(target) || dependentInstallations.containsKey(target)) {
+                        if (!Files.exists(target.getParent()) || dependentInstallations.containsKey(target)) {
                             if (!dependentInstallations.containsKey(target)) {
                                 dependentInstallations.put(target, new HashSet<>());
                             }
@@ -213,7 +213,7 @@ public class ToolAdapterActivator implements Activator {
         Bundle bundle = descriptor.getBundle();
         Path target = bundle.getTargetLocation().toPath().resolve(bundle.getEntryPoint());
         String alias = descriptor.getAlias();
-        if (Files.exists(target)) {
+        if (Files.exists(target.getParent())) {
             Set<ToolAdapterOperatorDescriptor> dependants = dependentInstallations.get(target);
             for (ToolAdapterOperatorDescriptor dependant : dependants) {
                 bundleMap.put(dependant.getAlias(), target);

@@ -591,27 +591,28 @@ public class ToolAdapterIO {
         }
         byte[] buffer;
         try (ZipFile zipFile = new ZipFile(sourceFile.toFile())) {
-            ZipEntry entry = null;
+            ZipEntry entry;
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
-            while ((entry = entries.nextElement()) != null) {
+            while (entries.hasMoreElements()) {
+                entry = entries.nextElement();
                 Path filePath = destination.resolve(entry.getName());
-                if (entry.isDirectory()) {
-                    Files.createDirectories(filePath);
-                } else {
-                    try (InputStream inputStream = zipFile.getInputStream(entry)) {
-                        try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath.toFile()))) {
-                            buffer = new byte[4096];
-                            int read;
-                            while ((read = inputStream.read(buffer)) > 0) {
-                                bos.write(buffer, 0, read);
+                if (!Files.exists(filePath)) {
+                    if (entry.isDirectory()) {
+                        Files.createDirectories(filePath);
+                    } else {
+                        try (InputStream inputStream = zipFile.getInputStream(entry)) {
+                            try (BufferedOutputStream bos = new BufferedOutputStream(
+                                    new FileOutputStream(filePath.toFile()))) {
+                                buffer = new byte[4096];
+                                int read;
+                                while ((read = inputStream.read(buffer)) > 0) {
+                                    bos.write(buffer, 0, read);
+                                }
                             }
                         }
                     }
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw e;
         }
     }
 
