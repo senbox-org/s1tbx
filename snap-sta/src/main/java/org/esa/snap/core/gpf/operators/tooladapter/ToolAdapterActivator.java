@@ -5,6 +5,7 @@ import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.OperatorSpiRegistry;
 import org.esa.snap.core.gpf.descriptor.ToolAdapterOperatorDescriptor;
 import org.esa.snap.core.gpf.descriptor.dependency.Bundle;
+import org.esa.snap.core.gpf.descriptor.dependency.BundleType;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.runtime.Activator;
 
@@ -51,22 +52,24 @@ public class ToolAdapterActivator implements Activator {
                 readMap();
                 for (ToolAdapterOpSpi opWithBundle : opWithBundles) {
                     final ToolAdapterOperatorDescriptor operatorDescriptor = (ToolAdapterOperatorDescriptor) opWithBundle.getOperatorDescriptor();
-                    Bundle bundle = (operatorDescriptor).getBundle();
-                    File targetLocation = bundle.getTargetLocation();
-                    String entryPoint = bundle.getEntryPoint();
-                    if (targetLocation != null && entryPoint != null) {
-                        Path target = targetLocation.toPath().resolve(entryPoint);
-                        String alias = opWithBundle.getOperatorAlias();
-                        if (!Files.exists(target.getParent()) || dependentInstallations.containsKey(target)) {
-                            if (!dependentInstallations.containsKey(target)) {
-                                dependentInstallations.put(target, new HashSet<>());
+                    if (!isInstalled(operatorDescriptor)) {
+                        Bundle bundle = (operatorDescriptor).getBundle();
+                        File targetLocation = bundle.getTargetLocation();
+                        String entryPoint = bundle.getEntryPoint();
+                        if (targetLocation != null && entryPoint != null) {
+                            Path target = targetLocation.toPath().resolve(entryPoint);
+                            String alias = opWithBundle.getOperatorAlias();
+                            if (!Files.exists(target.getParent()) || dependentInstallations.containsKey(target)) {
+                                if (!dependentInstallations.containsKey(target)) {
+                                    dependentInstallations.put(target, new HashSet<>());
+                                }
+                                bundleMap.remove(alias);
+                                dependentInstallations.get(target).add(operatorDescriptor);
+                                SystemUtils.LOG.info(String.format("Installing bundle for %s", operatorDescriptor.getAlias()));
+                                installBundle(operatorDescriptor);
+                            } else if (!bundleMap.containsKey(alias)) {
+                                bundleMap.put(alias, target);
                             }
-                            bundleMap.remove(alias);
-                            dependentInstallations.get(target).add(operatorDescriptor);
-                            SystemUtils.LOG.info(String.format("Start installing bundle for %s", operatorDescriptor.getAlias()));
-                            installBundle(operatorDescriptor);
-                        } else if (!bundleMap.containsKey(alias)) {
-                            bundleMap.put(alias, target);
                         }
                     }
                 }
@@ -126,6 +129,21 @@ public class ToolAdapterActivator implements Activator {
                     }
                 });
                 break;
+        }
+    }
+
+    private boolean isInstalled(ToolAdapterOperatorDescriptor descriptor) {
+        Bundle bundle = descriptor.getBundle();
+        Path target = null;
+        if (bundle != null && bundle.getBundleType() != BundleType.NONE) {
+            if (bundle.getTargetLocation() != null) {
+                target = bundle.getTargetLocation().toPath();
+            }
+        }
+        try {
+            return (target != null && Files.exists(target) && Files.list(target).count() > 0);
+        } catch (IOException e) {
+            return false;
         }
     }
 
@@ -210,19 +228,19 @@ public class ToolAdapterActivator implements Activator {
     }
 
     private void installFinished(ToolAdapterOperatorDescriptor descriptor) {
-        Bundle bundle = descriptor.getBundle();
-        Path target = bundle.getTargetLocation().toPath().resolve(bundle.getEntryPoint());
         String alias = descriptor.getAlias();
-        if (Files.exists(target.getParent())) {
-            Set<ToolAdapterOperatorDescriptor> dependants = dependentInstallations.get(target);
+        if (isInstalled(descriptor)) {
+            Bundle bundle = descriptor.getBundle();
+            Path entryPoint = bundle.getTargetLocation().toPath().resolve(bundle.getEntryPoint());
+            Set<ToolAdapterOperatorDescriptor> dependants = dependentInstallations.get(entryPoint);
             for (ToolAdapterOperatorDescriptor dependant : dependants) {
-                bundleMap.put(dependant.getAlias(), target);
+                bundleMap.put(dependant.getAlias(), entryPoint);
             }
             saveMap();
-            dependentInstallations.remove(target);
+            dependentInstallations.remove(entryPoint);
             SystemUtils.LOG.info(String.format("Installation of bundle for %s completed", alias));
         } else {
-            SystemUtils.LOG.severe(String.format("Installation of bundle for %s failed", alias));
+            SystemUtils.LOG.severe(String.format("Bundle for %s has not been installed", alias));
         }
     }
 }
