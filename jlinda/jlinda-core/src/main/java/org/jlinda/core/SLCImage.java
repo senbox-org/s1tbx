@@ -53,6 +53,7 @@ public final class SLCImage {
     private double tAzi_original;
     private String azimuthWeightingWindow;
     private double lineTimeInterval;
+    private double sceneCentreAzimuthTime;
 
     // range annotations
     private double rsr2x;
@@ -244,6 +245,12 @@ public final class SLCImage {
             this.nearRangeOnLeft = isNearRangeOnLeft(product);
             this.isBiStaticStack = isBiStaticStack(product);
         }
+
+        final double firstLineTimeInDays = element.getAttributeUTC(AbstractMetadata.first_line_time).getMJD();
+        final double firstLineTime = (firstLineTimeInDays - (int) firstLineTimeInDays) * 86400.0;
+        final double lastLineTimeInDays = element.getAttributeUTC(AbstractMetadata.last_line_time).getMJD();
+        final double lastLineTime = (lastLineTimeInDays - (int) lastLineTimeInDays) * 86400.0;
+        this.sceneCentreAzimuthTime = 0.5 * (firstLineTime + lastLineTime);
     }
 
     public MetadataElement getAbstractedMetadata() {
@@ -504,6 +511,8 @@ public final class SLCImage {
         this.slaveMasterOffsets = new SlaveWindow(ll00, pp00, ll0N, pp0N, llN0, ppN0, llNN, ppNN);
 
     }
+
+    public double getSceneCentreAzimuthTime() { return this.sceneCentreAzimuthTime; }
 
     public class Doppler {
 
