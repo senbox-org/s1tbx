@@ -139,10 +139,8 @@ public class InterferogramOp extends Operator {
     private Sentinel1Utils.SubSwathInfo[] subSwath = null;
     private int numSubSwaths = 0;
     private org.jlinda.core.Point[] mstSceneCentreXYZ = null;
-    private double slvSceneCentreAzimuthTime = 0.0;
     private int subSwathIndex = 0;
     private MetadataElement mstRoot = null;
-    private MetadataElement slvRoot = null;
 
     private static final boolean CREATE_VIRTUAL_BAND = true;
     private static final boolean OUTPUT_FLAT_EARTH_PHASE = false;
@@ -165,10 +163,6 @@ public class InterferogramOp extends Operator {
 
         try {
             mstRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-            final MetadataElement slaveElem = sourceProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT);
-            if (slaveElem != null) {
-                slvRoot = slaveElem.getElements()[0];
-            }
 
             checkUserInput();
 
@@ -180,7 +174,6 @@ public class InterferogramOp extends Operator {
                 if (isTOPSARBurstProduct) {
 
                     getMstApproxSceneCentreXYZ();
-                    getSlvApproxSceneCentreAzimuthTime();
                     constructFlatEarthPolynomialsForTOPSARProduct();
                 } else {
                     constructFlatEarthPolynomials();
@@ -204,12 +197,20 @@ public class InterferogramOp extends Operator {
             if (isTOPSARBurstProduct) {
                 final String mProcSysId = mstRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
                 final float mVersion = Float.valueOf(mProcSysId.substring(mProcSysId.lastIndexOf(' ')));
-                final String sProcSysId = slvRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
-                final float sVersion = Float.valueOf(sProcSysId.substring(sProcSysId.lastIndexOf(' ')));
-                if ((mVersion < 2.43 && sVersion >= 2.43 && mstRoot.getAttribute("EAP Correction") == null) ||
-                        (sVersion < 2.43 && mVersion >= 2.43 && slvRoot.getAttribute("EAP Correction") == null)) {
-                    throw new OperatorException("Source products cannot be InSAR pairs: one is EAP phase corrected" +
-                                                        " and the other is not. Apply EAP Correction.");
+
+                MetadataElement slaveElem = sourceProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT);
+                if (slaveElem == null) {
+                    slaveElem = sourceProduct.getMetadataRoot().getElement("Slave Metadata");
+                }
+                MetadataElement[] slaveRoot = slaveElem.getElements();
+                for (MetadataElement slvRoot : slaveRoot) {
+                    final String sProcSysId = slvRoot.getAttributeString(AbstractMetadata.ProcessingSystemIdentifier);
+                    final float sVersion = Float.valueOf(sProcSysId.substring(sProcSysId.lastIndexOf(' ')));
+                    if ((mVersion < 2.43 && sVersion >= 2.43 && mstRoot.getAttribute("EAP Correction") == null) ||
+                            (sVersion < 2.43 && mVersion >= 2.43 && slvRoot.getAttribute("EAP Correction") == null)) {
+                        throw new OperatorException("Source products cannot be InSAR pairs: one is EAP phase corrected" +
+                                " and the other is not. Apply EAP Correction.");
+                    }
                 }
 
                 su = new Sentinel1Utils(sourceProduct);
@@ -260,16 +261,6 @@ public class InterferogramOp extends Operator {
         }
     }
 
-    private void getSlvApproxSceneCentreAzimuthTime() throws Exception {
-
-        final double firstLineTimeInDays = slvRoot.getAttributeUTC(AbstractMetadata.first_line_time).getMJD();
-        final double firstLineTime = (firstLineTimeInDays - (int) firstLineTimeInDays) * Constants.secondsInDay;
-        final double lastLineTimeInDays = slvRoot.getAttributeUTC(AbstractMetadata.last_line_time).getMJD();
-        final double lastLineTime = (lastLineTimeInDays - (int) lastLineTimeInDays) * Constants.secondsInDay;
-
-        slvSceneCentreAzimuthTime = 0.5 * (firstLineTime + lastLineTime);
-    }
-
     private void constructFlatEarthPolynomials() throws Exception {
 
         for (String keyMaster : masterMap.keySet()) {
@@ -307,7 +298,7 @@ public class InterferogramOp extends Operator {
 
                         flatEarthPolyMap.put(polynomialName, estimateFlatEarthPolynomial(
                                 master, slave, s + 1, b, mstSceneCentreXYZ, orbitDegree, srpPolynomialDegree,
-                                srpNumberPoints, slvSceneCentreAzimuthTime, subSwath, su));
+                                srpNumberPoints, subSwath, su));
                     }
                 }
             }
@@ -550,8 +541,7 @@ public class InterferogramOp extends Operator {
     public static DoubleMatrix estimateFlatEarthPolynomial(
             final CplxContainer master, final CplxContainer slave, final int subSwathIndex, final int burstIndex,
             final org.jlinda.core.Point[] mstSceneCentreXYZ, final int orbitDegree, final int srpPolynomialDegree,
-            final int srpNumberPoints, final double slvSceneCentreAzimuthTime,
-            final Sentinel1Utils.SubSwathInfo[] subSwath, final Sentinel1Utils su)
+            final int srpNumberPoints, final Sentinel1Utils.SubSwathInfo[] subSwath, final Sentinel1Utils su)
             throws Exception {
 
         final double[][] masterOSV = getAdjacentOrbitStateVectors(master, mstSceneCentreXYZ[burstIndex]);
@@ -591,7 +581,7 @@ public class InterferogramOp extends Operator {
             org.jlinda.core.Point xyzMaster = masterOrbit.lph2xyz(
                     mstAzTime, mstRgTime, 0.0, mstSceneCentreXYZ[burstIndex]);
 
-            org.jlinda.core.Point slaveTimeVector = slaveOrbit.xyz2t(xyzMaster, slvSceneCentreAzimuthTime);
+            org.jlinda.core.Point slaveTimeVector = slaveOrbit.xyz2t(xyzMaster, slave.metaData.getSceneCentreAzimuthTime());
 
             final double slaveTimeRange = slaveTimeVector.x;
 

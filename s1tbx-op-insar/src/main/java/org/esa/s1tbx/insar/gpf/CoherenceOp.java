@@ -447,7 +447,7 @@ public class CoherenceOp extends Operator {
 
                         flatEarthPolyMap.put(polynomialName, InterferogramOp.estimateFlatEarthPolynomial(
                                 master, slave, s + 1, b, mstSceneCentreXYZ, orbitDegree, srpPolynomialDegree,
-                                srpNumberPoints, slvSceneCentreAzimuthTime, subSwath, su));
+                                srpNumberPoints, subSwath, su));
                     }
                 }
             }
