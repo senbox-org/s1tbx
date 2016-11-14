@@ -29,5 +29,6 @@ public class CplxContainer {
         this.imagBand = imagBand;
         this.polarisation = OperatorUtils.getPolarizationFromBandName(realBand.getName());
         this.subswath = OperatorUtils.getSubswathFromBandName(realBand.getName());
+        this.name = realBand.getName();
     }
 }
