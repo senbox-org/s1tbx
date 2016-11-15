@@ -42,15 +42,15 @@ import java.util.HashMap;
 
 public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
 
-    private double referenceSlantRange = 0.;
-    private double referenceSlantRangeExp = 0.;
-    private double referenceIncidenceAngle = 0.;
-    private double rescalingFactor = 0.;
-    private final HashMap<String, Double> calibrationFactor = new HashMap<>(2);
-
-    private boolean applyRangeSpreadingLossCorrection = false;
-    private boolean applyIncidenceAngleCorrection = false;
-    private boolean applyConstantCorrection = false;
+    private String acquisitionMode = null;
+    private double referenceIncidenceAngle = 0.0;
+    private double rescalingFactor = 0.0;
+    private double calibrationConstant = 0.0;
+    private double calibrationFactor = 0.0;
+    private int windowSize = 0;
+    private int halfWindowSize = 0;
+    private int sourceImageWidth = 0;
+    private int sourceImageHeight = 0;
 
     /**
      * Default constructor. The graph processing framework
@@ -75,6 +75,10 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
     public void setAuxFileFlag(String file) {
     }
 
+    public void setUserSelections(final int windowSize) {
+        this.windowSize = windowSize;
+    }
+
     public void initialize(final Operator op, final Product srcProduct, final Product tgtProduct,
                            final boolean mustPerformRetroCalibration, final boolean mustUpdateMetadata)
             throws OperatorException {
@@ -91,16 +95,32 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
                 throw new OperatorException(mission + " is not a valid mission for Kompsat-5 Calibration");
 
             final String productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
-            if (productType.equals("SCS_U"))
-                throw new OperatorException(productType + " calibration is not supported");
+            if (!productType.equals("SCS_B"))
+                throw new OperatorException(productType + " product is currently not supported");
 
             if (absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().getElemBoolean()) {
                 throw new OperatorException("Absolute radiometric calibration has already been applied to the product");
             }
 
-            getCalibrationFlags();
+            // HIGH RESOLUTION / STANDARD / WIDE SWATH
+            acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+            if (!acquisitionMode.equals("STANDARD")) {
+                throw new OperatorException("Only Stripmap mode product is currently supported");
+            }
 
-            getCalibrationFactors();
+            referenceIncidenceAngle = absRoot.getAttributeDouble(
+                    AbstractMetadata.ref_inc_angle) * Constants.PI / 180.0;
+
+            rescalingFactor = absRoot.getAttributeDouble(AbstractMetadata.rescaling_factor);
+
+            getCalibrationConstant();
+
+            calibrationFactor = (rescalingFactor / calibrationConstant) * FastMath.sin(referenceIncidenceAngle);
+
+            windowSize = 9; // hardcoded for now
+            halfWindowSize = windowSize / 2;
+            sourceImageWidth = sourceProduct.getSceneRasterWidth();
+            sourceImageHeight = sourceProduct.getSceneRasterHeight();
 
             getSampleType();
 
@@ -125,79 +145,14 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
     }
 
     /**
-     * Get the antenna pattern correction flag and range spreading loss flag.
-     *
-     * @throws Exception The exceptions.
+     * Get calibration constant from product original metadata.
      */
-    private void getCalibrationFlags() throws Exception {
-
-        if (absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().getElemBoolean()) {
-            throw new OperatorException("The product has already been calibrated");
-        }
-
-        final boolean incAngleCompFlag =
-                AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.inc_angle_comp_flag);
-        if (incAngleCompFlag) {
-            applyIncidenceAngleCorrection = true;
-        }
-
-        final boolean rangeSpreadCompFlag =
-                AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.range_spread_comp_flag);
-        if (rangeSpreadCompFlag) {
-            applyRangeSpreadingLossCorrection = true;
-        }
-
-        final MetadataElement globalElem = origMetadataRoot.getElement("Global_Attributes");
-        final boolean constantCompFlag = AbstractMetadata.getAttributeBoolean(globalElem, "Calibration_Constant_Compensation_Flag");
-        if (!constantCompFlag) {
-            applyConstantCorrection = true;
-        }
-    }
-
-    /**
-     * Get calibration factors from abstracted metadata.
-     */
-    private void getCalibrationFactors() {
-
-        String pol;
-        double factor;
-        final MetadataElement globalElem = origMetadataRoot.getElement("Global_Attributes");
-        final MetadataElement s01Elem = globalElem.getElement("S01");
-        if (s01Elem != null) {
-            pol = s01Elem.getAttributeString("Polarisation").toUpperCase();
-            factor = s01Elem.getAttributeDouble("Calibration_Constant");
-            calibrationFactor.put(pol, factor);
-        } else {
-            pol = globalElem.getAttributeString("S01_" + "Polarisation", "").toUpperCase();
-            if (!pol.isEmpty()) {
-                factor = globalElem.getAttributeDouble("S01_" + "Calibration_Constant");
-                calibrationFactor.put(pol, factor);
-            }
-        }
-
-        final MetadataElement s02Elem = globalElem.getElement("S02");
-        if (s02Elem != null) {
-            pol = s02Elem.getAttributeString("Polarisation").toUpperCase();
-            factor = s02Elem.getAttributeDouble("Calibration_Constant");
-            calibrationFactor.put(pol, factor);
-        } else {
-            pol = globalElem.getAttributeString("S02_" + "Polarisation", "").toUpperCase();
-            if (!pol.isEmpty()) {
-                factor = globalElem.getAttributeDouble("S02_" + "Calibration_Constant");
-                calibrationFactor.put(pol, factor);
-            }
-        }
-
-        referenceSlantRange = absRoot.getAttributeDouble(
-                AbstractMetadata.ref_slant_range);
-        referenceSlantRangeExp = absRoot.getAttributeDouble(
-                AbstractMetadata.ref_slant_range_exp);
-        referenceIncidenceAngle = absRoot.getAttributeDouble(
-                AbstractMetadata.ref_inc_angle) * Constants.PI / 180.0;
-        rescalingFactor = absRoot.getAttributeDouble(
-                AbstractMetadata.rescaling_factor);
-
-        //System.out.println("Calibration factor is " + calibrationFactor);
+    private void getCalibrationConstant() {
+        final MetadataElement auxElem = origMetadataRoot.getElement("Auxiliary");
+        final MetadataElement rootElem = auxElem.getElement("Root");
+        final MetadataElement subSwathsElem = rootElem.getElement("SubSwaths");
+        final MetadataElement subSwathElem = subSwathsElem.getElement("SubSwath");
+        calibrationConstant = subSwathElem.getAttributeDouble("CalibrationConstant");
     }
 
     /**
@@ -219,15 +174,11 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
             final double satelliteHeight, final double sceneToEarthCentre, final double localIncidenceAngle,
             final String bandName, final String bandPolar, final Unit.UnitType bandUnit, int[] subSwathIndex) {
 
-        double Ks = 1.0;
-        if (applyConstantCorrection) {
-            Ks = calibrationFactor.get(bandPolar.toUpperCase());
-        }
-
         double sigma;
         if (bandUnit == Unit.UnitType.AMPLITUDE) {
             sigma = v * v;
-        } else if (bandUnit == Unit.UnitType.INTENSITY || bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
+        } else if (bandUnit == Unit.UnitType.INTENSITY ||
+                bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
             sigma = v;
         } else if (bandUnit == Unit.UnitType.INTENSITY_DB) {
             sigma = FastMath.pow(10, v / 10.0); // convert dB to linear scale
@@ -235,13 +186,7 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
             throw new OperatorException("Unknown band unit");
         }
 
-        if (applyRangeSpreadingLossCorrection)
-            sigma *= FastMath.pow(referenceSlantRange, 2 * referenceSlantRangeExp);
-
-        if (applyIncidenceAngleCorrection)
-            sigma *= FastMath.sin(referenceIncidenceAngle);
-
-        sigma /= (rescalingFactor * rescalingFactor * Ks);
+        sigma *= calibrationFactor;
 
         if (outputImageScaleInDb) { // convert calibration result to dB
             if (sigma < underFlowFloat) {
@@ -265,22 +210,26 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
         final int y0 = targetTileRectangle.y;
         final int w = targetTileRectangle.width;
         final int h = targetTileRectangle.height;
+        final int maxY = y0 + h;
+        final int maxX = x0 + w;
 
-        Tile sourceRaster1;
-        ProductData srcData1;
-        ProductData srcData2 = null;
-        Band sourceBand1;
+        final Rectangle sourceRectangle = getSourceTileRectangle(
+                x0, y0, w, h, halfWindowSize, halfWindowSize, sourceImageWidth, sourceImageHeight);
+
+        Tile sourceRaster1 = null, sourceRaster2 = null;
+        ProductData srcData1 = null, srcData2 = null;
+        Band sourceBand1 = null, sourceBand2 = null;
 
         final String[] srcBandNames = targetBandNameToSourceBandName.get(targetBand.getName());
         if (srcBandNames.length == 1) {
             sourceBand1 = sourceProduct.getBand(srcBandNames[0]);
-            sourceRaster1 = calibrationOp.getSourceTile(sourceBand1, targetTileRectangle);
+            sourceRaster1 = calibrationOp.getSourceTile(sourceBand1, sourceRectangle);
             srcData1 = sourceRaster1.getDataBuffer();
         } else {
             sourceBand1 = sourceProduct.getBand(srcBandNames[0]);
-            final Band sourceBand2 = sourceProduct.getBand(srcBandNames[1]);
-            sourceRaster1 = calibrationOp.getSourceTile(sourceBand1, targetTileRectangle);
-            final Tile sourceRaster2 = calibrationOp.getSourceTile(sourceBand2, targetTileRectangle);
+            sourceBand2 = sourceProduct.getBand(srcBandNames[1]);
+            sourceRaster1 = calibrationOp.getSourceTile(sourceBand1, sourceRectangle);
+            sourceRaster2 = calibrationOp.getSourceTile(sourceBand2, sourceRectangle);
             srcData1 = sourceRaster1.getDataBuffer();
             srcData2 = sourceRaster2.getDataBuffer();
         }
@@ -294,72 +243,40 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
             return;
         }
 
-        final String pol = OperatorUtils.getBandPolarization(srcBandNames[0], absRoot).toUpperCase();
-        double Ks = 1.0;
-        if (pol != null && !pol.isEmpty() && applyConstantCorrection) {
-            Ks = calibrationFactor.get(pol);
-        }
-
-        final ProductData trgData = targetTile.getDataBuffer();
+        final ProductData tgtData = targetTile.getDataBuffer();
         final TileIndex srcIndex = new TileIndex(sourceRaster1);
         final TileIndex tgtIndex = new TileIndex(targetTile);
-
-        final int maxY = y0 + h;
-        final int maxX = x0 + w;
-
-        double sigma, dn, i, q, phaseTerm = 0.0;
-        int srcIdx, tgtIdx;
-        final double powFactor = FastMath.pow(referenceSlantRange, 2 * referenceSlantRangeExp);
-        final double sinRefIncidenceAngle = FastMath.sin(referenceIncidenceAngle);
-        final double rescaleCalFactor = rescalingFactor * rescalingFactor * Ks;
-        final Double nodatavalue = targetBand.getNoDataValue();
+        final Double noDataValue = targetBand.getNoDataValue();
 
         for (int y = y0; y < maxY; ++y) {
             srcIndex.calculateStride(y);
             tgtIndex.calculateStride(y);
 
             for (int x = x0; x < maxX; ++x) {
-                srcIdx = srcIndex.getIndex(x);
-                tgtIdx = tgtIndex.getIndex(x);
+                final int srcIdx = srcIndex.getIndex(x);
+                final int tgtIdx = tgtIndex.getIndex(x);
 
-                dn = srcData1.getElemDoubleAt(srcIdx);
-                if(nodatavalue.equals(dn)) {
-                    trgData.setElemDoubleAt(tgtIdx, nodatavalue);
+                final double dn2Mean = getMeanDN2(x, y, srcData1, srcData2, srcIndex, srcBandUnit, noDataValue);
+                if(noDataValue.equals(dn2Mean)) {
+                    tgtData.setElemDoubleAt(tgtIdx, noDataValue);
                     continue;
                 }
 
-                if (srcBandUnit == Unit.UnitType.AMPLITUDE) {
-                    dn *= dn;
-                } else if (srcBandUnit == Unit.UnitType.INTENSITY) {
-
-                } else if (srcBandUnit == Unit.UnitType.REAL) {
-                    i = dn;
-                    q = srcData2.getElemDoubleAt(srcIdx);
-                    dn = i * i + q * q;
-                    if (tgtBandUnit == Unit.UnitType.REAL) {
-                        phaseTerm = i / Math.sqrt(dn);
-                    } else if (tgtBandUnit == Unit.UnitType.IMAGINARY) {
-                        phaseTerm = q / Math.sqrt(dn);
-                    }
-                } else if (srcBandUnit == Unit.UnitType.INTENSITY_DB) {
-                    dn = FastMath.pow(10, dn / 10.0); // convert dB to linear scale
-                } else {
-                    throw new OperatorException("Kompsat5 Calibration: unhandled unit");
-                }
-
-                double calFactor = 1.0;
-                if (applyRangeSpreadingLossCorrection)
-                    calFactor *= powFactor;
-
-                if (applyIncidenceAngleCorrection)
-                    calFactor *= sinRefIncidenceAngle;
-
-                calFactor /= rescaleCalFactor;
-
-                sigma = dn * calFactor;
+                double sigma = dn2Mean * calibrationFactor;
 
                 if (isComplex && outputImageInComplex) {
-                    sigma = Math.sqrt(sigma) * phaseTerm;
+                    if (srcBandUnit == Unit.UnitType.REAL) {
+                        final double i = srcData1.getElemDoubleAt(srcIdx);
+                        final double q = srcData2.getElemDoubleAt(srcIdx);
+                        final double dn2 = i * i + q * q;
+                        double phaseTerm = 0.0;
+                        if (tgtBandUnit == Unit.UnitType.REAL) {
+                            phaseTerm = i / Math.sqrt(dn2);
+                        } else if (tgtBandUnit == Unit.UnitType.IMAGINARY) {
+                            phaseTerm = q / Math.sqrt(dn2);
+                        }
+                        sigma = Math.sqrt(sigma) * phaseTerm;
+                    }
                 }
 
                 if (outputImageScaleInDb) { // convert calibration result to dB
@@ -370,9 +287,57 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
                     }
                 }
 
-                trgData.setElemDoubleAt(tgtIdx, sigma);
+                tgtData.setElemDoubleAt(tgtIdx, sigma);
             }
         }
+    }
+
+    private Rectangle getSourceTileRectangle(final int x0, final int y0, final int w, final int h,
+                                             final int halfSizeX, final int halfSizeY,
+                                             final int sourceImageWidth, final int sourceImageHeight) {
+        final int sx0 = Math.max(0, x0 - halfSizeX);
+        final int sy0 = Math.max(0, y0 - halfSizeY);
+        final int sw = Math.min(x0 + w + halfSizeX, sourceImageWidth) - sx0;
+        final int sh = Math.min(y0 + h + halfSizeY, sourceImageHeight) - sy0;
+        return new Rectangle(sx0, sy0, sw, sh);
+    }
+
+    private double getMeanDN2(final int x, final int y, final ProductData srcData1, ProductData srcData2,
+                              final TileIndex srcIndex, final Unit.UnitType srcBandUnit, final double noDataValue) {
+
+        final int xMin = Math.max(0, x - halfWindowSize);
+        final int yMin = Math.max(0, y - halfWindowSize);
+        final int xMax = Math.min(x + halfWindowSize, sourceImageWidth - 1);
+        final int yMax = Math.min(y + halfWindowSize, sourceImageHeight - 1);
+
+        int count = 0;
+        double dn = 0.0, dn2 = 0.0, i = 0.0, q = 0.0, dn2Sum = 0.0;
+        for (int yy = yMin; yy <= yMax; ++yy) {
+            srcIndex.calculateStride(yy);
+            for (int xx = xMin; xx <= xMax; ++xx) {
+                final int srcIdx = srcIndex.getIndex(x);
+                if (srcBandUnit == Unit.UnitType.AMPLITUDE) {
+                    dn = srcData1.getElemDoubleAt(srcIdx);
+                    dn2 = dn * dn;
+                } else if (srcBandUnit == Unit.UnitType.INTENSITY) {
+                    dn2 = srcData1.getElemDoubleAt(srcIdx);
+                } else if (srcBandUnit == Unit.UnitType.REAL) {
+                    i = srcData1.getElemDoubleAt(srcIdx);
+                    q = srcData2.getElemDoubleAt(srcIdx);
+                    dn2 = i * i + q * q;
+                } else if (srcBandUnit == Unit.UnitType.INTENSITY_DB) {
+                    dn2 = FastMath.pow(10, srcData1.getElemDoubleAt(srcIdx) / 10.0);
+                }
+
+                dn2Sum += dn2;
+                count++;
+            }
+        }
+
+        if (count > 0) {
+            return dn2Sum / count;
+        }
+        return noDataValue;
     }
 
     public void removeFactorsForCurrentTile(Band targetBand, Tile targetTile,
