@@ -91,27 +91,33 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
             origMetadataRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
 
             final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-            if (!mission.startsWith("Kompsat5"))
+            if (!mission.startsWith("Kompsat5")) {
                 throw new OperatorException(mission + " is not a valid mission for Kompsat-5 Calibration");
+            }
 
             final String productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
-            if (!productType.equals("SCS_B"))
-                throw new OperatorException(productType + " product is currently not supported");
+            if (!productType.equals("SCS_B") && !productType.equals("SCS_U") &&
+                    !productType.equals("SCS_A") && !productType.equals("SCS_W")) {
+                throw new OperatorException(productType + " product is not supported");
+            }
 
             if (absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().getElemBoolean()) {
                 throw new OperatorException("Absolute radiometric calibration has already been applied to the product");
             }
 
             // HIGH RESOLUTION / STANDARD / WIDE SWATH
-            acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+            /*acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
             if (!acquisitionMode.equals("STANDARD")) {
                 throw new OperatorException("Only Stripmap mode product is currently supported");
-            }
+            }*/
 
             referenceIncidenceAngle = absRoot.getAttributeDouble(
                     AbstractMetadata.ref_inc_angle) * Constants.PI / 180.0;
 
             rescalingFactor = absRoot.getAttributeDouble(AbstractMetadata.rescaling_factor);
+            if (rescalingFactor == 0.0) {
+                throw new OperatorException("Cannot calibrate the product because rescaling factor is 0");
+            }
 
             getCalibrationConstant();
 
