@@ -80,8 +80,8 @@ public class ObjectDiscriminationOp extends Operator {
     @TargetProduct
     private Product targetProduct = null;
 
-    @Parameter(description = "Minimum target size", defaultValue = "120.0", label = "Minimum Target Size (m)")
-    private double minTargetSizeInMeter = 120.0;
+    @Parameter(description = "Minimum target size", defaultValue = "50.0", label = "Minimum Target Size (m)")
+    private double minTargetSizeInMeter = 50.0;
 
     @Parameter(description = "Maximum target size", defaultValue = "600.0", label = "Maximum Target Size (m)")
     private double maxTargetSizeInMeter = 600.0;

@@ -46,7 +46,7 @@
       <sourceProduct refid="Calibration"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <targetWindowSizeInMeter>80</targetWindowSizeInMeter>
+      <targetWindowSizeInMeter>100</targetWindowSizeInMeter>
       <guardWindowSizeInMeter>400.0</guardWindowSizeInMeter>
       <backgroundWindowSizeInMeter>1000.0</backgroundWindowSizeInMeter>
       <pfa>12.5</pfa>
@@ -58,7 +58,7 @@
       <sourceProduct refid="AdaptiveThresholding"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <minTargetSizeInMeter>120.0</minTargetSizeInMeter>
+      <minTargetSizeInMeter>30.0</minTargetSizeInMeter>
       <maxTargetSizeInMeter>600.0</maxTargetSizeInMeter>
     </parameters>
   </node>
