@@ -65,6 +65,9 @@ public class StampsExportOp extends Operator {
     @Parameter(description = "The output folder to which the data product is written.")
     private File targetFolder;
 
+    @Parameter(description = "Format for PSI or SBAS", defaultValue = "true")
+    private Boolean psiFormat = true;
+
     private static final String formatName = "Gamma";
 
     private static final String[] folder = {"rslc", "diff0", "geo"};
@@ -86,6 +89,10 @@ public class StampsExportOp extends Operator {
         try {
             if (sourceProduct.length != 2) {
                 throw new OperatorException("Input requires coregistered stack and interferogram");
+            }
+
+            if(!psiFormat) {
+                throw new OperatorException("SBAS format is not yet supported.");
             }
 
             //SystemUtils.LOG.info("StampsExportOp: SLC product: " + sourceProduct[0]);

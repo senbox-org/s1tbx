@@ -36,8 +36,10 @@ public class StampsExportOpUI extends BaseOperatorUI {
 
     private final JTextField targetFolder = new JTextField("");
     private final JButton targetFolderBrowseButton = new JButton("...");
+    private final JRadioButton psiFormatBtn = new JRadioButton("PSI");
+    private final JRadioButton sbasFormatBtn = new JRadioButton("SBAS");
 
-    public static final String STAMPS_TARGET_DIR_KEY = "s1tbx.stampsTargetFolder";
+    private static final String STAMPS_TARGET_DIR_KEY = "s1tbx.stampsTargetFolder";
 
     @Override
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {
@@ -68,6 +70,12 @@ public class StampsExportOpUI extends BaseOperatorUI {
         } else {
             targetFolder.setText(SnapApp.getDefault().getPreferences().get(STAMPS_TARGET_DIR_KEY, ""));
         }
+        final Boolean psiFormat = (Boolean) paramMap.get("psiFormat");
+        if(psiFormat != null && !psiFormat) {
+            sbasFormatBtn.setSelected(true);
+        } else {
+            psiFormatBtn.setSelected(true);
+        }
     }
 
     @Override
@@ -82,6 +90,7 @@ public class StampsExportOpUI extends BaseOperatorUI {
         if(!extFileStr.isEmpty()) {
             paramMap.put("targetFolder", new File(extFileStr));
         }
+        paramMap.put("psiFormat", psiFormatBtn.isSelected());
     }
 
     private JComponent createPanel() {
@@ -91,10 +100,23 @@ public class StampsExportOpUI extends BaseOperatorUI {
         final GridBagConstraints gbc = DialogUtils.createGridBagConstraints();
 
         gbc.gridy++;
-        DialogUtils.addComponent(contentPane, gbc, "Target Folder", targetFolder);
+        DialogUtils.addComponent(contentPane, gbc, "Target Folder: ", targetFolder);
         gbc.gridx = 2;
         contentPane.add(targetFolderBrowseButton, gbc);
         gbc.gridy++;
+
+        final JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        buttonPanel.add(psiFormatBtn);
+        buttonPanel.add(sbasFormatBtn);
+
+        final ButtonGroup group = new ButtonGroup();
+        group.add(psiFormatBtn);
+        group.add(sbasFormatBtn);
+
+        gbc.gridx = 0;
+        contentPane.add(new JLabel("Format: "), gbc);
+        gbc.gridx = 1;
+        contentPane.add(buttonPanel, gbc);
 
         DialogUtils.fillPanel(contentPane, gbc);
 
