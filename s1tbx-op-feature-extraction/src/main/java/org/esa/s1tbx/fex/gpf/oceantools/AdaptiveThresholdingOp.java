@@ -88,6 +88,9 @@ public class AdaptiveThresholdingOp extends Operator {
     @Parameter(description = "Probability of false alarm", defaultValue = "6.5", label = "PFA (10^(-x))")
     private double pfa = 6.5;
 
+    @Parameter(description = "Rough estimation of background threshold for quicker processing", defaultValue = "false", label = "Estimate background")
+    private Boolean estimateBackground = false;
+
     private int sourceImageWidth;
     private int sourceImageHeight;
     private int targetWindowSize;
@@ -122,9 +125,9 @@ public class AdaptiveThresholdingOp extends Operator {
             halfBackgroundWindowSize = (backgroundWindowSize - 1) / 2;
 
             targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
-                    sourceProduct.getProductType(),
-                    sourceImageWidth,
-                    sourceImageHeight);
+                                        sourceProduct.getProductType(),
+                                        sourceImageWidth,
+                                        sourceImageHeight);
 
             ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
@@ -202,9 +205,9 @@ public class AdaptiveThresholdingOp extends Operator {
                 targetBand.setSourceImage(srcBand.getSourceImage());
 
                 final Band targetBandMask = new Band(targetBandName,
-                        ProductData.TYPE_INT8,
-                        sourceImageWidth,
-                        sourceImageHeight);
+                                                     ProductData.TYPE_INT8,
+                                                     sourceImageWidth,
+                                                     sourceImageHeight);
 
                 targetBandMask.setUnit(Unit.AMPLITUDE);
                 targetBandMask.setNoDataValue(0);
@@ -244,25 +247,32 @@ public class AdaptiveThresholdingOp extends Operator {
             final String srcBandName = targetBandNameToSourceBandName.get(targetBand.getName());
             final Band sourceBand = sourceProduct.getBand(srcBandName);
             final Tile sourceTile = getSourceTile(sourceBand, sourceTileRectangle);
-            final Double noDataValue = sourceBand.getNoDataValue();
+            final float[] data = sourceTile.getDataBufferFloat();
+
+            final double noDataValue = sourceBand.getNoDataValue();
+
+            double backgroundThreshold = 0;
+            if(estimateBackground) {
+                backgroundThreshold = computeBackgroundThreshold(data, noDataValue);
+            }
 
             final TileIndex trgIndex = new TileIndex(targetTile);
-            final TileIndex srcIndex = new TileIndex(sourceTile);    // src and trg tile are different size
 
             final int maxy = ty0 + th;
             final int maxx = tx0 + tw;
             for (int ty = ty0; ty < maxy; ty++) {
                 trgIndex.calculateStride(ty);
-                srcIndex.calculateStride(ty);
                 for (int tx = tx0; tx < maxx; tx++) {
 
-                    final double targetMean = computeTargetMean(tx, ty, sourceTile, noDataValue);
-                    if (noDataValue.equals(targetMean)) {
+                    final double targetMean = computeTargetMean(tx, ty, data, x0, y0, w, h, noDataValue);
+                    if (noDataValue == targetMean) {
                         trgData.setElemIntAt(trgIndex.getIndex(tx), 0);
                         continue;
                     }
 
-                    final double backgroundThreshold = computeBackgroundThreshold(tx, ty, sourceTile, noDataValue);
+                    if(!estimateBackground) {
+                        backgroundThreshold = computeBackgroundThreshold(tx, ty, data, x0, y0, w, h, noDataValue);
+                    }
                     if (targetMean > backgroundThreshold) {
                         trgData.setElemIntAt(trgIndex.getIndex(tx), 1);
                     } else {
@@ -280,15 +290,16 @@ public class AdaptiveThresholdingOp extends Operator {
      *
      * @param tx          The x coordinate of the central point of the target window.
      * @param ty          The y coordinate of the central point of the target window.
-     * @param sourceTile  The source image tile.
+     * @param data        The source tile data array.
      * @param noDataValue
-     * @return The mena value.
+     * @return The mean value.
      */
-    private double computeTargetMean(final int tx, final int ty, final Tile sourceTile, final Double noDataValue) {
+    private double computeTargetMean(final int tx, final int ty, final float[] data,
+                                     final int xx0, int yy0, int width, int height, final double noDataValue) {
 
-        final ProductData srcData = sourceTile.getDataBuffer();
-        final double v = srcData.getElemDoubleAt(sourceTile.getDataBufferIndex(tx, ty));
-        if (noDataValue.equals(v)) {
+        int index = ((ty - yy0) * width) + (tx - xx0);
+        final double v = data[index];
+        if (noDataValue == v) {
             return noDataValue;
         }
 
@@ -296,25 +307,21 @@ public class AdaptiveThresholdingOp extends Operator {
             return v;
         }
 
-        final int x0 = Math.max(tx - (targetWindowSize - 1) / 2, 0);
-        final int y0 = Math.max(ty - (targetWindowSize - 1) / 2, 0);
-        final int w = Math.min(tx + (targetWindowSize - 1) / 2, sourceImageWidth - 1) - x0 + 1;
-        final int h = Math.min(ty + (targetWindowSize - 1) / 2, sourceImageHeight - 1) - y0 + 1;
-
-        final int tileOffset = sourceTile.getScanlineOffset();
-        final int tileStride = sourceTile.getScanlineStride();
-        final int tileMinX = sourceTile.getMinX();
-        final int tileMinY = sourceTile.getMinY();
+        final int x0 = Math.max((tx - xx0) - (targetWindowSize - 1) / 2, 0);
+        final int y0 = Math.max((ty - yy0) - (targetWindowSize - 1) / 2, 0);
+        final int w = Math.min((tx - xx0) + (targetWindowSize - 1) / 2, width - 1) - x0 + 1;
+        final int h = Math.min((ty - yy0) + (targetWindowSize - 1) / 2, height - 1) - y0 + 1;
 
         double mean = 0.0;
         int numPixels = 0;
+
         final int maxy = y0 + h;
         final int maxx = x0 + w;
         for (int y = y0; y < maxy; y++) {
-            final int stride = ((y - tileMinY) * tileStride) + tileOffset;
             for (int x = x0; x < maxx; x++) {
-                final double val = srcData.getElemDoubleAt((x - tileMinX) + stride);
-                if (noDataValue.equals(val)) {
+                final double val = data[(y * width) + x];
+
+                if (noDataValue == val) {
                     return noDataValue;
                 } else {
                     mean += val;
@@ -322,6 +329,7 @@ public class AdaptiveThresholdingOp extends Operator {
                 }
             }
         }
+
         return mean / numPixels;
     }
 
@@ -334,18 +342,13 @@ public class AdaptiveThresholdingOp extends Operator {
      * @param noDataValue no data value
      * @return The std value.
      */
-    private double computeBackgroundThreshold(final int tx, final int ty, final Tile sourceTile, final Double noDataValue) {
+    private double computeBackgroundThreshold(final int tx, final int ty, final float[] data,
+                                              final int xx0, int yy0, int width, int height, final double noDataValue) {
 
-        final int x0 = Math.max(tx - halfBackgroundWindowSize, 0);
-        final int y0 = Math.max(ty - halfBackgroundWindowSize, 0);
-        final int w = Math.min(tx + halfBackgroundWindowSize, sourceImageWidth - 1) - x0 + 1;
-        final int h = Math.min(ty + halfBackgroundWindowSize, sourceImageHeight - 1) - y0 + 1;
-        final ProductData srcData = sourceTile.getDataBuffer();
-
-        final int tileOffset = sourceTile.getScanlineOffset();
-        final int tileStride = sourceTile.getScanlineStride();
-        final int tileMinX = sourceTile.getMinX();
-        final int tileMinY = sourceTile.getMinY();
+        final int x0 = Math.max((tx - xx0) - halfBackgroundWindowSize, 0);
+        final int y0 = Math.max((ty - yy0) - halfBackgroundWindowSize, 0);
+        final int w = Math.min((tx - xx0) + halfBackgroundWindowSize, width - 1) - x0 + 1;
+        final int h = Math.min((ty - yy0) + halfBackgroundWindowSize, height - 1) - y0 + 1;
 
         // Compute the mean value for pixels in the background window.
         double sum = 0.0;
@@ -356,14 +359,13 @@ public class AdaptiveThresholdingOp extends Operator {
 
         final double[] dataArray = new double[w * h];
         for (int y = y0; y < maxy; y++) {
-            final int yy = y - ty;
+            final int yy = y - (ty - yy0);
             final boolean yGtrHalfGuard = ((yy < 0) ? -yy : yy) > halfGuardWindowSize;
-            final int stride = ((y - tileMinY) * tileStride) + tileOffset;
             for (int x = x0; x < maxx; x++) {
-                final int xx = x - tx;
+                final int xx = x - (tx - xx0);
                 if (yGtrHalfGuard || ((xx < 0) ? -xx : xx) > halfGuardWindowSize) {
-                    val = srcData.getElemDoubleAt((x - tileMinX) + stride);
-                    if (noDataValue.equals(val)) {
+                    val = data[(y * width) + x];
+                    if (noDataValue == val) {
                         return Double.MAX_VALUE;
                     } else {
                         sum += val;
@@ -378,9 +380,38 @@ public class AdaptiveThresholdingOp extends Operator {
         // Compute the standard deviation value for pixels in the background window.
         double std = 0.0;
         double tmp;
-        for (int i = 0; i < numPixels; ++i) {
-            tmp = dataArray[i] - mean;
+        for (double value : dataArray) {
+            tmp = value - mean;
             std += tmp * tmp;
+        }
+
+        final double backgroundSTD = Math.sqrt(std / numPixels);
+
+        return mean + backgroundSTD * t;
+    }
+
+    private double computeBackgroundThreshold(final float[] data, final double noDataValue) {
+
+        // Compute the mean value for pixels in the background window.
+        double sum = 0.0;
+        int numPixels = 0;
+
+        for(float val : data) {
+            if (noDataValue != val && val < 0.5) {
+                sum += val;
+                ++numPixels;
+            }
+        }
+        final double mean = sum / numPixels;
+
+        // Compute the standard deviation value for pixels in the background window.
+        double std = 0.0;
+        double tmp;
+        for(float val : data) {
+            if (noDataValue != val && val < 0.5) {
+                tmp = val - mean;
+                std += tmp * tmp;
+            }
         }
 
         final double backgroundSTD = Math.sqrt(std / numPixels);
