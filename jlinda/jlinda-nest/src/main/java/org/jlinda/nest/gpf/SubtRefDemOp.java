@@ -99,6 +99,7 @@ public final class SubtRefDemOp extends Operator {
     private double demNoDataValue = 0;
     private double demSamplingLat;
     private double demSamplingLon;
+    private boolean demDefined = false;
 
     // source maps
     private Map<String, CplxContainer> masterMap = new HashMap<>();
@@ -141,8 +142,6 @@ public final class SubtRefDemOp extends Operator {
 
             createTargetProduct();
 
-            defineDEM();
-
         } catch (Exception e) {
             throw new OperatorException(e);
         }
@@ -178,7 +177,9 @@ public final class SubtRefDemOp extends Operator {
         return "";
     }
 
-    private void defineDEM() throws IOException {
+    private synchronized void defineDEM() throws IOException {
+        if(demDefined)
+            return;
 
         Resampling resampling = Resampling.BILINEAR_INTERPOLATION;
         final ElevationModelRegistry elevationModelRegistry;
@@ -215,6 +216,8 @@ public final class SubtRefDemOp extends Operator {
                 throw new OperatorException("The DEM '" + demName + "' cannot be properly interpreted.");
             }
         }
+
+        demDefined = true;
     }
 
     private void constructSourceMetadata() throws Exception {
@@ -404,6 +407,10 @@ public final class SubtRefDemOp extends Operator {
             int x0 = targetRectangle.x;
             int xN = targetRectangle.x + targetRectangle.width - 1;
             final Window tileWindow = new Window(y0, yN, x0, xN);
+
+            if(!demDefined) {
+                defineDEM();
+            }
 
             DemTile demTile = getDEMTile(
                     tileWindow, targetMap, dem, demNoDataValue, demSamplingLat, demSamplingLon, tileExtensionPercent);

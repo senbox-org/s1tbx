@@ -118,6 +118,7 @@ public class InterferogramOp extends Operator {
 
     // flat_earth_polynomial container
     private Map<String, DoubleMatrix> flatEarthPolyMap = new HashMap<>();
+    private boolean flatEarthEstimated = false;
 
     // source
     private Map<String, CplxContainer> masterMap = new HashMap<>();
@@ -169,16 +170,6 @@ public class InterferogramOp extends Operator {
             constructSourceMetadata();
             constructTargetMetadata();
             createTargetProduct();
-
-            if (subtractFlatEarthPhase) {
-                if (isTOPSARBurstProduct) {
-
-                    getMstApproxSceneCentreXYZ();
-                    constructFlatEarthPolynomialsForTOPSARProduct();
-                } else {
-                    constructFlatEarthPolynomials();
-                }
-            }
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -681,6 +672,21 @@ public class InterferogramOp extends Operator {
                 subSwath[subSwathIndex - 1].azimuthTimeInterval;
     }
 
+    private synchronized void estimateFlatEarth() throws Exception {
+        if(flatEarthEstimated)
+            return;
+        if (subtractFlatEarthPhase) {
+            if (isTOPSARBurstProduct) {
+
+                getMstApproxSceneCentreXYZ();
+                constructFlatEarthPolynomialsForTOPSARProduct();
+            } else {
+                constructFlatEarthPolynomials();
+            }
+            flatEarthEstimated = true;
+        }
+    }
+
     /**
      * Called by the framework in order to compute a tile for the given target band.
      * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
@@ -693,11 +699,18 @@ public class InterferogramOp extends Operator {
     @Override
     public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
             throws OperatorException {
+        try {
+            if (subtractFlatEarthPhase && !flatEarthEstimated) {
+                estimateFlatEarth();
+            }
 
-        if (isTOPSARBurstProduct) {
-            computeTileStackForTOPSARProduct(targetTileMap, targetRectangle, pm);
-        } else {
-            computeTileStackForNormalProduct(targetTileMap, targetRectangle, pm);
+            if (isTOPSARBurstProduct) {
+                computeTileStackForTOPSARProduct(targetTileMap, targetRectangle, pm);
+            } else {
+                computeTileStackForNormalProduct(targetTileMap, targetRectangle, pm);
+            }
+        } catch (Exception e) {
+            OperatorUtils.catchOperatorException(this.getId(), e);
         }
     }
 
