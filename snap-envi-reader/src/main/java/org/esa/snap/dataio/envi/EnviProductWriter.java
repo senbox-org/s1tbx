@@ -76,7 +76,7 @@ public class EnviProductWriter extends AbstractProductWriter {
     /**
      * Initializes all the internal file and directory elements from the given output file. This method only must be
      * called if the product writer should write the given data to raw data files without calling of writeProductNodes.
-     * This may be at the time when a dimap product was opened and the data shold be continously changed in the same
+     * This may be at the time when a dimap product was opened and the data should be continuously changed in the same
      * product file without an previous call to the saveProductNodes to this product writer.
      *
      * @param outputFile the dimap header file location.
