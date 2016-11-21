@@ -20,6 +20,7 @@ import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
+import org.esa.s1tbx.dat.graphics.GraphicShape;
 import org.esa.s1tbx.dat.layers.ScreenPixelConverter;
 import org.esa.s1tbx.fex.gpf.oceantools.ObjectDiscriminationOp;
 import org.esa.snap.core.datamodel.Band;
@@ -32,11 +33,11 @@ import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.dataop.downloadable.XMLSupport;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.jdom2.Attribute;
+import org.jdom2.Content;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
 import java.awt.*;
-import java.awt.geom.Ellipse2D;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -56,6 +57,7 @@ public class ObjectDetectionLayer extends Layer {
     private double azimuthSpacing;
     private final static float lineThickness = 2.0f;
     private final static double border = 5.0;
+    private final DecimalFormat frmt = new DecimalFormat("0.00");
 
     public ObjectDetectionLayer(PropertySet configuration) {
         super(LayerTypeRegistry.getLayerType(ObjectDetectionLayerType.class.getName()), configuration);
@@ -104,14 +106,14 @@ public class ObjectDetectionLayer extends Layer {
 
         final Element root = doc.getRootElement();
 
-        final List children = root.getContent();
+        final List<Content> children = root.getContent();
         for (Object aChild : children) {
             if (aChild instanceof Element) {
                 final Element targetsDetectedElem = (Element) aChild;
                 if (targetsDetectedElem.getName().equals("targetsDetected")) {
                     final Attribute attrib = targetsDetectedElem.getAttribute("bandName");
                     if (attrib != null && band.getName().equalsIgnoreCase(attrib.getValue())) {
-                        final List content = targetsDetectedElem.getContent();
+                        final List<Content> content = targetsDetectedElem.getContent();
                         for (Object det : content) {
                             if (det instanceof Element) {
                                 final Element targetElem = (Element) det;
@@ -169,34 +171,19 @@ public class ObjectDetectionLayer extends Layer {
 
         final Graphics2D graphics = rendering.getGraphics();
         graphics.setStroke(new BasicStroke(lineThickness));
-        graphics.setColor(Color.RED);
 
-        final double[] ipts = new double[4];
-        final double[] vpts = new double[4];
-
-        final DecimalFormat frmt = new DecimalFormat("0.00");
         for (ObjectDiscriminationOp.ShipRecord target : targetList) {
             geo.setLocation(target.lat, target.lon);
             geoCoding.getPixelPos(geo, pix);
-            final double halfWidth = target.width / 2.0;
-            final double halfHeight = target.length / 2.0;
+            if(!pix.isValid())
+                continue;
 
-            ipts[0] = pix.getX() - halfWidth;
-            ipts[1] = pix.getY() - halfHeight;
-            ipts[2] = ipts[0] + target.width;
-            ipts[3] = ipts[1] + target.length;
-
-            screenPixel.pixelToScreen(ipts, vpts);
-
-            final double w = vpts[2] - vpts[0];
-            final double h = vpts[3] - vpts[1];
-            final Ellipse2D.Double circle = new Ellipse2D.Double(vpts[0], vpts[1], w, h);
-            graphics.draw(circle);
+            Point.Double p = GraphicShape.drawCircle(graphics, screenPixel, pix.getX(), pix.getY(), (int)target.length, Color.RED);
 
             final double targetWidthInMeter = (target.width - border) * rangeSpacing;
             final double targetlengthInMeter = (target.length - border) * azimuthSpacing;
             final double size = Math.sqrt(targetWidthInMeter * targetWidthInMeter + targetlengthInMeter * targetlengthInMeter);
-            graphics.drawString(frmt.format(size) + "m", (int) vpts[0], (int) vpts[1]);
+            graphics.drawString(frmt.format(size) + 'm', (int) p.x, (int) p.y);
         }
     }
 }

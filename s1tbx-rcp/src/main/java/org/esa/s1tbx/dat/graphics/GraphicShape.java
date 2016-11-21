@@ -18,7 +18,9 @@ package org.esa.s1tbx.dat.graphics;
 import org.esa.s1tbx.dat.layers.ScreenPixelConverter;
 
 import java.awt.*;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
 
 /**
  * Helper for creating shapes
@@ -72,5 +74,55 @@ public class GraphicShape {
         ipts[5] = (int) (d7 + d4);
         ipts[6] = (int) (d6 + d5);
         ipts[7] = (int) (d7 - d4);
+    }
+
+    public static Point.Double drawCircle(final Graphics2D g, final ScreenPixelConverter screenPixel,
+                                   final double x, final double y, final int size, final Color color) {
+
+        final double[] ipts = new double[6];
+        final double[] vpts = new double[6];
+        final int halfSize = size / 2;
+
+        ipts[0] = x;
+        ipts[1] = y;
+        ipts[2] = x - halfSize;
+        ipts[3] = y - halfSize;
+        ipts[4] = ipts[2] + size;
+        ipts[5] = ipts[3] + size;
+
+        screenPixel.pixelToScreen(ipts, vpts);
+
+        final double w = vpts[4] - vpts[2];
+        final double h = vpts[5] - vpts[3];
+        final Ellipse2D.Double circle = new Ellipse2D.Double(vpts[2], vpts[3], w, h);
+        g.setColor(color);
+        g.draw(circle);
+
+        return new Point.Double(vpts[0], vpts[1]);
+    }
+
+    public static Point.Double drawRect(final Graphics2D g, final ScreenPixelConverter screenPixel,
+                                        final double x, final double y, final int size, final Color color) {
+
+        final double[] ipts = new double[6];
+        final double[] vpts = new double[6];
+        final int halfSize = size / 2;
+
+        ipts[0] = x;
+        ipts[1] = y;
+        ipts[2] = x - halfSize;
+        ipts[3] = y - halfSize;
+        ipts[4] = ipts[2] + size;
+        ipts[5] = ipts[3] + size;
+
+        screenPixel.pixelToScreen(ipts, vpts);
+
+        final double w = vpts[4] - vpts[2];
+        final double h = vpts[5] - vpts[3];
+        final Rectangle2D.Double rect = new Rectangle2D.Double(vpts[2], vpts[3], w, h);
+        g.setColor(color);
+        g.draw(rect);
+
+        return new Point.Double(vpts[0], vpts[1]);
     }
 }
