@@ -221,7 +221,7 @@ public class GeoPos {
         if (isLatValid(lat)) {
             return getDegreeString(lat, false);
         } else {
-            return "Inv N";
+            return "Inv N (" + lat + ")";
         }
     }
 
@@ -236,7 +236,7 @@ public class GeoPos {
         if (isLonValid(lon)) {
             return getDegreeString(lon, true);
         } else {
-            return "Inv E";
+            return "Inv E (" + lon + ")";
         }
     }
 

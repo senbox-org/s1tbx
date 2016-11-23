@@ -113,11 +113,12 @@ public class WatermaskUtils {
         for (String remoteFileName: WatermaskConstants.AUXDATA_FILENAMES) {
             final File localZipFile = new File(WatermaskConstants.LOCAL_AUXDATA_PATH.toString(), remoteFileName);
             final String remotePath = baseUrl + localZipFile.getName();
-            SystemUtils.LOG.info("Checking for '" + localZipFile.getName() + "' ...");
+            SystemUtils.LOG.info("Checking for '" + localZipFile.getPath() + "' ...");
             try {
                 final URL fileUrl = new URL(remotePath);
                 final URLConnection urlConnection = fileUrl.openConnection();
                 if (!localZipFile.exists() || localZipFile.length() != urlConnection.getContentLength()) {
+                    SystemUtils.LOG.info(localZipFile.getPath() + " exists " + localZipFile.exists() + " local length " + (localZipFile.exists() ? localZipFile.length() : 0) + " remote length " + urlConnection.getContentLength());
                     SystemUtils.LOG.info("http retrieving " + remotePath);
                     downloadHttpFile(fileUrl, urlConnection, localZipFile);
                 } else {
@@ -125,7 +126,7 @@ public class WatermaskUtils {
                 }
             } catch (Exception e) {
                 final String message = "Mandatory auxdata file '" + localZipFile.getName() +
-                        "' could not be downloaded.";
+                        "' could not be downloaded: " + e.getMessage();
                 throw new OperatorException(message);
             }
         }
