@@ -25,7 +25,7 @@ public class HasValidExtensionTest {
 
     @Test
     public void testNumberOfExtensions() {
-        assertEquals(4, Constants.FILE_EXTENSIONS.length);
+        assertEquals(5, Constants.FILE_EXTENSIONS.length);
     }
 
     @Test
@@ -47,5 +47,6 @@ public class HasValidExtensionTest {
         assertTrue(ReaderUtils.hasValidExtension("AnyPathname.hdf"));
         assertTrue(ReaderUtils.hasValidExtension("AnyPathname.HDF"));
         assertTrue(ReaderUtils.hasValidExtension("AnyPathname.HDF.gz"));
+        assertTrue(ReaderUtils.hasValidExtension("AnyPathname.hdf.bz2"));
     }
 }
