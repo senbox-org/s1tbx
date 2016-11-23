@@ -6,8 +6,10 @@ import com.bc.ceres.jai.GeneralFilterFunction;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Kernel;
 import org.esa.snap.core.datamodel.RasterDataNode;
+import org.geotools.resources.XArray;
 
 import javax.media.jai.BorderExtender;
+import javax.media.jai.BorderExtenderConstant;
 import javax.media.jai.GeometricOpImage;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
@@ -77,15 +79,13 @@ class Resample {
 
     private static RenderingHints getRenderingHints(double noDataValue) {
         RenderingHints hints = new RenderingHints(null);
-
-//        final double[] background = new double[]{noDataValue};
+        final double[] background = new double[]{noDataValue};
         final BorderExtender borderExtender;
-        borderExtender = BorderExtender.createInstance(BorderExtender.BORDER_COPY);
-//        if (XArray.allEquals(background, 0)) {
-//            borderExtender = BorderExtender.createInstance(BorderExtender.BORDER_ZERO);
-//        } else {
-//            borderExtender = new BorderExtenderConstant(background);
-//        }
+        if (XArray.allEquals(background, 0)) {
+            borderExtender = BorderExtender.createInstance(BorderExtender.BORDER_ZERO);
+        } else {
+            borderExtender = new BorderExtenderConstant(background);
+        }
         hints.put(JAI.KEY_BORDER_EXTENDER, borderExtender);
         return hints;
     }
