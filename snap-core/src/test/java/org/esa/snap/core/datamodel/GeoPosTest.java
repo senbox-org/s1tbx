@@ -80,8 +80,8 @@ public class GeoPosTest extends TestCase {
         assertTrue(geoPos.isValid());
         geoPos.setInvalid();
         assertFalse(geoPos.isValid());
-        assertEquals("Inv N", geoPos.getLatString());
-        assertEquals("Inv E", geoPos.getLonString());
+        assertEquals("Inv N (NaN)", geoPos.getLatString());
+        assertEquals("Inv E (NaN)", geoPos.getLonString());
     }
 
     public void testStringConversion() {
