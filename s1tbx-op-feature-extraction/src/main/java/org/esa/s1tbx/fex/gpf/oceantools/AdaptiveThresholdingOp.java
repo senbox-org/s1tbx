@@ -135,6 +135,10 @@ public class AdaptiveThresholdingOp extends Operator {
 
             t = computeDetectorDesignParameter(pfa);
 
+            if(estimateBackground == null) {
+                estimateBackground = false;
+            }
+
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
