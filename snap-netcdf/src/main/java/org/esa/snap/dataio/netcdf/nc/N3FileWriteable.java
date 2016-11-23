@@ -58,6 +58,11 @@ public class N3FileWriteable implements NFileWriteable {
     }
 
     @Override
+    public void addGlobalAttribute(String name, Number value) {
+        netcdfFileWriteable.addGlobalAttribute(name, value);
+    }
+
+    @Override
     public NVariable addScalarVariable(String name, DataType dataType) throws IOException {
         Variable variable = netcdfFileWriteable.addVariable(name, dataType, "");
         return new N3Variable(variable, netcdfFileWriteable);

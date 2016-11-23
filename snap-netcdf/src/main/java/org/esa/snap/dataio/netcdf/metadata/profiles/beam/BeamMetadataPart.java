@@ -34,6 +34,9 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class BeamMetadataPart extends ProfilePartIO {
 
@@ -42,6 +45,7 @@ public class BeamMetadataPart extends ProfilePartIO {
     private static final String METADATA_VARIABLE = "metadata";
     private static final String DESCRIPTION_SUFFIX = "descr";
     private static final String UNIT_SUFFIX = "unit";
+    private static final List<String> SNAP_GLOBAL_ATTRIBUTES = Arrays.asList(new String[] {"Conventions", "TileSize", "product_type", "metadata_profile", "metadata_version", "start_date", "stop_date", "auto_grouping", "quicklook_band_name", "tiepoint_coordinates", "title" });
 
     @Override
     public void decode(ProfileReadContext ctx, Product p) throws IOException {
@@ -132,6 +136,31 @@ public class BeamMetadataPart extends ProfilePartIO {
             final NFileWriteable ncFile = ctx.getNetcdfFileWriteable();
             final NVariable variable = ncFile.addScalarVariable(METADATA_VARIABLE, DataType.BYTE);
             writeMetadataElement(ncFile, root, variable, "");
+        }
+        final MetadataElement globalAttributes = root.getElement(MetadataUtils.GLOBAL_ATTRIBUTES);
+        if (globalAttributes != null) {
+            for (int i = 0; i < globalAttributes.getNumAttributes(); i++) {
+                final MetadataAttribute attribute = globalAttributes.getAttributeAt(i);
+                if (!SNAP_GLOBAL_ATTRIBUTES.contains(attribute.getName())) {
+                    final ProductData productData = attribute.getData();
+                    if (productData.isInt()) {
+                        final Number value = productData.getElemInt();
+                        ctx.getNetcdfFileWriteable().addGlobalAttribute(attribute.getName(), value);
+                    } else if (productData instanceof ProductData.Double) {
+                        final Number value = productData.getElemDouble();
+                        ctx.getNetcdfFileWriteable().addGlobalAttribute(attribute.getName(), value);
+                    } else if (productData instanceof ProductData.Float) {
+                        final Number value = productData.getElemFloat();
+                        ctx.getNetcdfFileWriteable().addGlobalAttribute(attribute.getName(), value);
+                    } else if (productData instanceof ProductData.ASCII || productData instanceof ProductData.UTC) {
+                        final String value = productData.getElemString();
+                        ctx.getNetcdfFileWriteable().addGlobalAttribute(attribute.getName(), value);
+                    } else {
+                        final String value = Arrays.asList(productData.getElems()).stream().map(x -> String.valueOf(x)).collect(Collectors.joining(","));
+                        ctx.getNetcdfFileWriteable().addGlobalAttribute(attribute.getName(), value);
+                    }
+                }
+            }
         }
     }
 

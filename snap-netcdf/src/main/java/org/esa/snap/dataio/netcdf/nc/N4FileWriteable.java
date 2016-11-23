@@ -84,6 +84,23 @@ public class N4FileWriteable implements NFileWriteable {
     }
 
     @Override
+    public void addGlobalAttribute(String name, Number value) throws IOException {
+        try {
+            nhFileWriter.getRootGroup().addAttribute(name,
+                                                     value instanceof Byte ? NhVariable.TP_SBYTE :
+                                                     value instanceof Short ? NhVariable.TP_SHORT :
+                                                     value instanceof Integer ? NhVariable.TP_INT :
+                                                     value instanceof Long ? NhVariable.TP_LONG :
+                                                     value instanceof Float ? NhVariable.TP_FLOAT :
+                                                     value instanceof Double ? NhVariable.TP_DOUBLE :
+                                                             NhVariable.TP_CHAR,
+                                                     value);
+        } catch (NhException e) {
+            throw new IOException(e);
+        }
+    }
+
+    @Override
     public NVariable addScalarVariable(String name, DataType dataType) throws IOException {
         NhGroup rootGroup = nhFileWriter.getRootGroup();
         boolean unsigned = false; // TODO

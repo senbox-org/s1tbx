@@ -34,6 +34,8 @@ public interface NFileWriteable {
 
     void addGlobalAttribute(String name, String value) throws IOException;
 
+    void addGlobalAttribute(String name, Number value) throws IOException;
+
     NVariable addScalarVariable(String name, DataType dataType) throws IOException;
 
     NVariable addVariable(String name, DataType dataType, Dimension tileSize, String dims) throws IOException;
