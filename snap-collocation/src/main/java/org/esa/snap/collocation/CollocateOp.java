@@ -240,7 +240,7 @@ public class CollocateOp extends Operator {
         // Add slave bands
         for (Band sourceBand : slaveProduct.getBands()) {
             String targetBandName = sourceBand.getName();
-            if (renameSlaveComponents) {
+            if (renameSlaveComponents || targetProduct.containsBand(targetBandName) || targetProduct.containsTiePointGrid(targetBandName)) {
                 targetBandName = slaveComponentPattern.replace(SOURCE_NAME_REFERENCE, targetBandName);
             }
             Band targetBand = targetProduct.addBand(targetBandName, sourceBand.getDataType());
@@ -262,7 +262,7 @@ public class CollocateOp extends Operator {
         // Add slave tie-point grids as bands
         for (TiePointGrid sourceGrid : slaveProduct.getTiePointGrids()) {
             String targetBandName = sourceGrid.getName();
-            if (renameSlaveComponents) {
+            if (renameSlaveComponents || targetProduct.containsBand(targetBandName) || targetProduct.containsTiePointGrid(targetBandName)) {
                 targetBandName = slaveComponentPattern.replace(SOURCE_NAME_REFERENCE, targetBandName);
             }
             originalSlaveNames.put(sourceGrid.getName(), targetBandName);
