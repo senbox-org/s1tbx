@@ -124,6 +124,8 @@ public class SRTMOpImage extends SourcelessOpImage {
                 count += inputStream.read(data, count, amount);
             }
             Assert.state(count == data.length, "Not all data have been read.");
+        } catch (NullPointerException e) {
+            throw new RuntimeException(imgFileName, e);
         }
         return targetRaster;
     }
