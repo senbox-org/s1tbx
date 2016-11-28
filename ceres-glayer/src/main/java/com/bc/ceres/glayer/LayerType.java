@@ -94,6 +94,18 @@ public abstract class LayerType extends ExtensibleObject {
     public abstract boolean isValidFor(LayerContext ctx);
 
     /**
+     * Tests if this type should be created by default with a new ProductSceneView.
+     * LayerTypes should check preferences to determine if a user wants this layer type enabled by default when
+     * opening a new ProductSceneView.
+     *
+     * @param ctx An application-dependent layer context.
+     * @return {@code true} if the type should open with the scene view by default
+     */
+    public boolean createWithSceneView(LayerContext ctx) {
+        return false;
+    }
+
+    /**
      * Creates a layer instance for the given application provided context and the given layer configuration.
      * The configuration may contain both, inmutable construction parameters passed to specific layer constructor
      * as well as mutable layer properties.
