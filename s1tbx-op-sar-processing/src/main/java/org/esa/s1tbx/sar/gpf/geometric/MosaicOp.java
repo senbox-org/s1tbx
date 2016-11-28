@@ -176,7 +176,7 @@ public class MosaicOp extends Operator {
                 final Band srcBand = integerBandEntry.getValue();
 
                 int targetBandDataType;
-                if (gradientDomainMosaic) {
+                if (gradientDomainMosaic || normalizeByMean) {
                     targetBandDataType = ProductData.TYPE_FLOAT32;
                 } else {
                     targetBandDataType = srcBand.getDataType();
