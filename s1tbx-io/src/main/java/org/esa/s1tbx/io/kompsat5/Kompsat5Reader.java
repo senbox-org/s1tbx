@@ -109,6 +109,8 @@ public class Kompsat5Reader extends SARReader {
                 k5Reader = new K5HDF(readerPlugIn, this);
             } else {
                 k5Reader = new K5GeoTiff(readerPlugIn, this);
+
+                throw new IOException("Kompsat-5 in GeoTiff format is not supported.");
             }
 
             Product product = k5Reader.open(inputFile);

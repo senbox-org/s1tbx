@@ -5,8 +5,10 @@
 https://senbox.atlassian.net/secure/ReleaseNote.jspa?projectId=10202&version=11504
 
 ###New Features and Important Changes
+* Backgeocoding can handle multiple slave images
 * Kompsat-5 reader
 * StaMPS export
+* S1B orbit files handled
 * Fast individual downloads of orbit files from archive and QC website
 * Ship detection, windfields, oilspill detection export as shape vectors
 

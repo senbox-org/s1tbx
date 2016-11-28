@@ -50,6 +50,7 @@
       <guardWindowSizeInMeter>400.0</guardWindowSizeInMeter>
       <backgroundWindowSizeInMeter>1000.0</backgroundWindowSizeInMeter>
       <pfa>12.5</pfa>
+      <estimateBackground>false</estimateBackground>
     </parameters>
   </node>
   <node id="Object-Discrimination">

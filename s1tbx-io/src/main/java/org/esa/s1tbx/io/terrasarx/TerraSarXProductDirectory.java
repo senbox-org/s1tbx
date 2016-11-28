@@ -16,10 +16,12 @@
 package org.esa.s1tbx.io.terrasarx;
 
 import Jama.Matrix;
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.io.FileImageInputStreamExtImpl;
 import org.esa.s1tbx.io.SARReader;
 import org.esa.s1tbx.io.XMLProductDirectory;
 import org.esa.s1tbx.io.imageio.ImageIOFile;
+import org.esa.s1tbx.io.sunraster.SunRasterReader;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataAttribute;
 import org.esa.snap.core.datamodel.MetadataElement;
@@ -29,6 +31,7 @@ import org.esa.snap.core.datamodel.TiePointGeoCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.dataop.downloadable.XMLSupport;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
@@ -643,6 +646,39 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
     }
 
+    private void addShiftFiles(final Product product) {
+        addShiftFile(product, "slave_shift_az.flt");
+        addShiftFile(product, "slave_shift_rg.flt");
+        addShiftFile(product, "slave_shift_az_geo.flt");
+        addShiftFile(product, "slave_shift_rg_geo.flt");
+    }
+
+    private void addShiftFile(final Product product, final String fileName) {
+        try {
+            final File level1ProductDir = getBaseDir();
+            final File shiftFile = new File(level1ProductDir,
+                    "COMMON_AUXRASTER" + File.separator + fileName);
+            if(shiftFile.exists()) {
+                final SunRasterReader sunRasterReader = new SunRasterReader();
+                final Product shiftProduct = sunRasterReader.readProductNodes(shiftFile, null);
+                final Band band = shiftProduct.getBandAt(0);
+                band.readRasterDataFully(ProgressMonitor.NULL);
+
+                final int gridWidth = band.getRasterWidth();
+                final int gridHeight =  band.getRasterHeight();
+                final float subSamplingX = product.getSceneRasterWidth() / (float) (gridWidth - 1);
+                final float subSamplingY = product.getSceneRasterHeight() / (float) (gridHeight - 1);
+
+                final TiePointGrid azShiftGrid = new TiePointGrid(fileName,
+                        gridWidth, gridHeight, 0.5f, 0.5f,
+                        subSamplingX, subSamplingY, (float[])band.getData().getElems());
+                product.addTiePointGrid(azShiftGrid);
+            }
+        } catch (Exception e) {
+            SystemUtils.LOG.severe("Unable to add "+fileName +" shift file " + e.getMessage());
+        }
+    }
+
     @Override
     protected void addGeoCoding(final Product product) {
         File level1ProductDir = getBaseDir();
@@ -916,6 +952,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                                                              subSamplingX, subSamplingY, fineSlantRange);
         slantRangeGrid.setUnit(Unit.NANOSECONDS);
         product.addTiePointGrid(slantRangeGrid);
+
+        addShiftFiles(product);
     }
 
     private void getFlippedCorners(Product product,
