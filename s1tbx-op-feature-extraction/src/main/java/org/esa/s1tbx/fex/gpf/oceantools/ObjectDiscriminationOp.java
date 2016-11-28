@@ -427,6 +427,9 @@ public class ObjectDiscriminationOp extends Operator {
                 subElem.setAttribute(ATTRIB_WIDTH, String.valueOf(rec.width));
                 subElem.setAttribute(ATTRIB_LENGTH, String.valueOf(rec.length));
                 subElem.setAttribute(ATTRIB_INTENSITY, String.valueOf(rec.intensity));
+
+                writeExtraFeatureAttributes(subElem);
+
                 elem.addContent(subElem);
             }
             root.addContent(elem);
@@ -445,6 +448,12 @@ public class ObjectDiscriminationOp extends Operator {
         attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_WIDTH, Double.class));
         attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_LENGTH, Double.class));
         attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_INTENSITY, Double.class));
+
+        List<AttributeInfo> attributeInfoList = getExtraFeatureAttributes();
+        for (AttributeInfo attributeInfo : attributeInfoList) {
+            attributeDescriptors.add(
+                    VectorUtils.createAttribute(attributeInfo.attributeName, attributeInfo.attributeClass));
+        }
 
         return VectorUtils.createFeatureType(targetProduct, VECTOR_NODE_NAME, attributeDescriptors);
     }
@@ -470,10 +479,23 @@ public class ObjectDiscriminationOp extends Operator {
             feature.setAttribute(ATTRIB_WIDTH, rec.width);
             feature.setAttribute(ATTRIB_LENGTH, rec.length);
             feature.setAttribute(ATTRIB_INTENSITY, rec.intensity);
+            setExtraFeatureAttributes(feature, rec);
 
             collection.add(feature);
             c++;
         }
+    }
+
+    protected List<AttributeInfo> getExtraFeatureAttributes() {
+        return new ArrayList<>();
+    }
+
+    protected void writeExtraFeatureAttributes(final Element subElem) {
+
+    }
+
+    protected void setExtraFeatureAttributes(final SimpleFeature feature, final ShipRecord shipRecord) {
+
     }
 
     public static class ShipRecord {
@@ -495,6 +517,16 @@ public class ObjectDiscriminationOp extends Operator {
             this.width = width;
             this.length = length;
             this.intensity = intensity;
+        }
+    }
+
+    public static class AttributeInfo {
+        public final String attributeName;
+        public final Class attributeClass;
+
+        public AttributeInfo(final String attributeName, final Class attributeClass) {
+            this.attributeName = attributeName;
+            this.attributeClass = attributeClass;
         }
     }
 
