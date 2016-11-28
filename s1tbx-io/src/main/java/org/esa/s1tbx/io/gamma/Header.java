@@ -31,7 +31,7 @@ public class Header {
     static final String UNKNOWN_SENSOR_TYPE = "Unknown Sensor Type";
     private final HeaderParser headerParser;
 
-    private static final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd-SSSSSSSS");
+    private final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd-SSSSSSSS");
 
     public Header(final BufferedReader reader) throws IOException {
         headerParser = HeaderParser.parse(reader);

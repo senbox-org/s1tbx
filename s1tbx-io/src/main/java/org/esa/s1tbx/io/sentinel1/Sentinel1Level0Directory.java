@@ -34,6 +34,7 @@ import org.esa.snap.engine_utilities.gpf.ReaderUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,6 +44,7 @@ import java.util.Map;
  */
 public class Sentinel1Level0Directory extends XMLProductDirectory implements Sentinel1Directory {
 
+    private final DateFormat sentinelDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd_HH:mm:ss");
     private final transient Map<String, String> imgBandMetadataMap = new HashMap<>(4);
     private String acqMode = "";
 
@@ -559,12 +561,12 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
         }
     }
 
-    public static ProductData.UTC getTime(final MetadataElement elem, final String tag) {
+    public ProductData.UTC getTime(final MetadataElement elem, final String tag) {
 
         String start = elem.getAttributeString(tag, AbstractMetadata.NO_METADATA_STRING);
         start = start.replace("T", "_");
 
-        return AbstractMetadata.parseUTC(start, Sentinel1Constants.sentinelDateFormat);
+        return AbstractMetadata.parseUTC(start, sentinelDateFormat);
     }
 
     private void addBinaryDataToProduct(final MetadataElement root) {

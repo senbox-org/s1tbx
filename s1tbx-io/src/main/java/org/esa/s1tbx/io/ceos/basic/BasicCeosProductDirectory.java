@@ -470,7 +470,7 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
         }
     }
 
-    protected static void addOrbitStateVectors(final MetadataElement absRoot, final BinaryRecord platformPosRec) {
+    protected void addOrbitStateVectors(final MetadataElement absRoot, final BinaryRecord platformPosRec) {
         if (platformPosRec == null) return;
 
         try {
@@ -510,7 +510,7 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
         }
     }
 
-    private static void addVector(String name, MetadataElement orbitVectorListElem,
+    private void addVector(String name, MetadataElement orbitVectorListElem,
                                   BinaryRecord platformPosRec, double theta, int num) {
 
         final MetadataElement orbitVectorElem = new MetadataElement(name + num);

@@ -19,6 +19,7 @@ import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerFilter;
 import com.bc.ceres.glayer.LayerType;
+import com.bc.ceres.glayer.support.AbstractLayerListener;
 import com.bc.ceres.glayer.support.LayerUtils;
 import com.bc.ceres.grender.Rendering;
 import org.esa.s1tbx.dat.layers.LayerSelection;
@@ -33,8 +34,11 @@ import org.esa.s1tbx.dat.layers.maptools.components.ScaleComponent;
 import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.rcp.SnapApp;
 
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
+import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 
 /**
@@ -42,11 +46,14 @@ import java.util.ArrayList;
  */
 public class MapToolsLayer extends Layer implements LayerSelection {
 
+    public final static String PREFERENCE_KEY_MAP_TOOLS_LAYER_SHOWN = "layers.maptoolslayer.shown";
+
     private final Product product;
     private final RasterDataNode raster;
     private MapToolsOptions options;
 
     private final ArrayList<MapToolsComponent> components = new ArrayList<>(5);
+    private final LayerListener layerLisenter = new LayerListener();
 
     public MapToolsLayer(LayerType layerType, PropertySet configuration) {
         super(layerType, configuration);
@@ -126,5 +133,36 @@ public class MapToolsLayer extends Layer implements LayerSelection {
 
     public MapToolsOptions getMapToolsOptions() {
         return options;
+    }
+
+    @Override
+    public void setVisible(boolean visible) {
+        super.setVisible(visible);
+        if(visible) {
+            getParent().addListener(layerLisenter);
+            SnapApp.getDefault().getPreferences().putBoolean(PREFERENCE_KEY_MAP_TOOLS_LAYER_SHOWN, true);
+        } else {
+            SnapApp.getDefault().getPreferences().putBoolean(PREFERENCE_KEY_MAP_TOOLS_LAYER_SHOWN, false);
+        }
+    }
+
+    private static class LayerListener extends AbstractLayerListener {
+
+        @Override
+        public void handleLayerPropertyChanged(Layer layer, PropertyChangeEvent event) {
+        }
+
+        @Override
+        public void handleLayerDataChanged(Layer layer, Rectangle2D modelRegion) {
+        }
+
+        @Override
+        public void handleLayersAdded(Layer parentLayer, Layer[] childLayers) {
+        }
+
+        @Override
+        public void handleLayersRemoved(Layer parentLayer, Layer[] childLayers) {
+            SnapApp.getDefault().getPreferences().putBoolean(PREFERENCE_KEY_MAP_TOOLS_LAYER_SHOWN, false);
+        }
     }
 }
