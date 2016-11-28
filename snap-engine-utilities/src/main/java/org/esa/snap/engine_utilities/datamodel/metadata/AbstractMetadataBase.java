@@ -40,7 +40,7 @@ public abstract class AbstractMetadataBase {
     public static final String NO_METADATA_STRING = " ";
     public static final ProductData.UTC NO_METADATA_UTC = new ProductData.UTC(0);
 
-    public static final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
+    public final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
 
     AbstractMetadataBase(final MetadataElement root, final MetadataElement abstractedMetadata) {
         absRoot = abstractedMetadata;

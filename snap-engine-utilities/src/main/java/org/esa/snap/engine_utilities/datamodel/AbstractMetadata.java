@@ -191,8 +191,6 @@ public final class AbstractMetadata {
     public static final String range_bandwidth = "range_bandwidth";
     public static final String azimuth_bandwidth = "azimuth_bandwidth";
 
-    public static final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
-
     public static final String compact_mode = "compact_mode";
 
     /**
