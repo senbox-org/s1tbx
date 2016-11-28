@@ -52,6 +52,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * This class represents a product directory.
@@ -182,8 +184,9 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
                 refLat = leaderFile.getFacilityRecord().getAttributeDouble("Origin Latitude");
                 refLon = leaderFile.getFacilityRecord().getAttributeDouble("Origin Longitude");
             }
-            if (refLat != null && refLon != null)
+            if (refLat != null && refLon != null) {
                 addTPGGeoCoding(product, refLat, refLon);
+            }
         }
 
         updateMetadata(product);
@@ -637,10 +640,15 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.algorithm,
                 sceneRec.getAttributeString("Processing algorithm identifier"));
 
-        for (int i = 0; i < imageFiles.length; ++i) {
-            if (imageFiles[i] != null) {
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.polarTags[i], imageFiles[i].getPolarization());
+        final Set<String> polSet = new TreeSet<>();
+        for (AlosPalsarImageFile imageFile : imageFiles) {
+            if (imageFile != null) {
+                polSet.add(imageFile.getPolarization());
             }
+        }
+        int i = 0;
+        for(String pol : polSet) {
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.polarTags[i++], pol);
         }
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
