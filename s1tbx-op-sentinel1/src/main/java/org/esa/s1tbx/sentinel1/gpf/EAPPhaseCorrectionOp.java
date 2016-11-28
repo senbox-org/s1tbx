@@ -88,7 +88,7 @@ public final class EAPPhaseCorrectionOp extends Operator {
     private final HashMap<String, EAPVector> swathPolToEAPVector = new HashMap<>();
     private boolean isSplitProduct = false;
 
-    private final static DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyyMMdd-HHmmss");
+    private final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyyMMdd-HHmmss");
 
 
     /**
@@ -295,7 +295,7 @@ public final class EAPPhaseCorrectionOp extends Operator {
         return auxFile;
     }
 
-    private static ProductData.UTC getValidityStartFromFilenameUTC(String filename) throws ParseException {
+    private ProductData.UTC getValidityStartFromFilenameUTC(String filename) throws ParseException {
 
         if (filename.substring(12,13).equals("V")) {
 

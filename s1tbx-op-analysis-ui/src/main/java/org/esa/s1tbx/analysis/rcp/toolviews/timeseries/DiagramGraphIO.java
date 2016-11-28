@@ -30,6 +30,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
@@ -38,6 +39,8 @@ public class DiagramGraphIO {
     public static final SnapFileFilter CSV_FILE_FILTER = new SnapFileFilter("CSV", ".csv", "CSV (plain text)");
 
     public static final String DIAGRAM_GRAPH_IO_LAST_DIR_KEY = "diagramGraphIO.lastDir";
+
+    public final DateFormat dateFormat = ProductData.UTC.createDateFormat("ddMMMyy");
 
     public static DiagramGraph[] readGraphs(Reader reader) throws IOException {
 
@@ -69,7 +72,7 @@ public class DiagramGraphIO {
         return graphGroup.toArray(new DiagramGraph[0]);
     }
 
-    public static void writeGraphs(DiagramGraph[] graphs, Writer writer) throws IOException {
+    public void writeGraphs(DiagramGraph[] graphs, Writer writer) throws IOException {
         List<List<DiagramGraph>> graphGroups = computeGraphGroups(graphs);
         for (List<DiagramGraph> graphGroup : graphGroups) {
             writeGraphGroup(graphGroup, writer);
@@ -127,7 +130,7 @@ public class DiagramGraphIO {
         return graphGroups;
     }
 
-    private static void writeGraphGroup(List<DiagramGraph> graphGroup, Writer writer) throws IOException {
+    private void writeGraphGroup(List<DiagramGraph> graphGroup, Writer writer) throws IOException {
         DiagramGraph graph0 = graphGroup.get(0);
 
         writer.write("Date");
@@ -154,9 +157,9 @@ public class DiagramGraphIO {
         }
     }
 
-    private static String toDate(double time) {
+    private String toDate(double time) {
         final ProductData.UTC newTime = new ProductData.UTC(time);
-        return DateAxis.dateFormat.format(newTime.getAsDate());
+        return dateFormat.format(newTime.getAsDate());
     }
 
     public static boolean equalXValues(DiagramGraph g1, DiagramGraph g2) {
@@ -188,7 +191,7 @@ public class DiagramGraphIO {
         return new DiagramGraph[0];
     }
 
-    public static void writeGraphs(Component parentComponent,
+    public void writeGraphs(Component parentComponent,
                                    String title,
                                    SnapFileFilter[] fileFilters,
                                    Preferences preferences,
@@ -207,7 +210,7 @@ public class DiagramGraphIO {
         }
     }
 
-    private static void writeCSV(final File selectedFile, final DiagramGraph[] graphs) throws IOException {
+    private void writeCSV(final File selectedFile, final DiagramGraph[] graphs) throws IOException {
         try (FileWriter fileWriter = new FileWriter(selectedFile)) {
             writeGraphs(graphs, fileWriter);
         }

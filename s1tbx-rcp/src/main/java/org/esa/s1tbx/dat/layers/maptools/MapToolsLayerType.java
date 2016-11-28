@@ -26,6 +26,7 @@ import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.glayer.annotations.LayerTypeMetadata;
 import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.rcp.SnapApp;
 
 /**
 
@@ -58,6 +59,11 @@ public class MapToolsLayerType extends LayerType {
     @Override
     public boolean isValidFor(LayerContext ctx) {
         return true;
+    }
+
+    @Override
+    public boolean createWithSceneView(LayerContext ctx) {
+        return SnapApp.getDefault().getPreferences().getBoolean(MapToolsLayer.PREFERENCE_KEY_MAP_TOOLS_LAYER_SHOWN, false);
     }
 
     @Override

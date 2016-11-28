@@ -38,6 +38,7 @@ import org.esa.snap.engine_utilities.util.Maths;
 
 import java.awt.*;
 import java.io.File;
+import java.text.DateFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -62,6 +63,8 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
     private final HashMap<String, double[][]> rangeLineNoise = new HashMap<>(2);
     private Product sourceGIMProduct = null;
     private boolean noiseCorrectedFlag = false;
+
+    public final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
 
     /**
      * Default constructor. The graph processing framework
@@ -227,7 +230,7 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
             NoiseRecord[] record = new NoiseRecord[numOfNoiseRecords];
             for (int i = 0; i < numOfNoiseRecords; ++i) {
                 record[i] = new NoiseRecord();
-                record[i].timeUTC = ReaderUtils.getTime(imageNoiseElem[i], "timeUTC", AbstractMetadata.dateFormat).getMJD();
+                record[i].timeUTC = ReaderUtils.getTime(imageNoiseElem[i], "timeUTC", dateFormat).getMJD();
                 record[i].noiseEstimateConfidence = Double.parseDouble(imageNoiseElem[i].getAttributeString("noiseEstimateConfidence"));
 
                 final MetadataElement noiseEstimate = imageNoiseElem[i].getElement("noiseEstimate");

@@ -47,7 +47,7 @@ public class K5OrbitFile extends BaseOrbitFile implements OrbitFile {
     private final static String remoteURL = "ftp://aopod-ftp.kasi.re.kr/kompsat5rt/level1b/leoOrb/";
 
     private final int polyDegree;
-    private final static DateFormat orbitDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
+    private final DateFormat orbitDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private List<Orbits.OrbitVector> osvList;
 
@@ -89,7 +89,7 @@ public class K5OrbitFile extends BaseOrbitFile implements OrbitFile {
         return SystemUtils.getAuxDataPath().resolve("Orbits").resolve("K5").resolve("POEORB").toFile();
     }
 
-    private static File findOrbitFile(final String orbitType,
+    private File findOrbitFile(final String orbitType,
                                       final double stateVectorTime, final int year, final int month) throws Exception {
         final String prefix = "LEOORB_" + year;
 
@@ -229,7 +229,7 @@ public class K5OrbitFile extends BaseOrbitFile implements OrbitFile {
                                       Maths.polyVal(normalizedTime, zVelCoeff));
     }
 
-    private static List<Orbits.OrbitVector> readOrbitFile(final File file) throws Exception {
+    private List<Orbits.OrbitVector> readOrbitFile(final File file) throws Exception {
         final List<Orbits.OrbitVector> osvList = new ArrayList<>();
         try (final BufferedReader lineReader = new BufferedReader(new FileReader(file))) {
 
@@ -250,7 +250,7 @@ public class K5OrbitFile extends BaseOrbitFile implements OrbitFile {
         return osvList;
     }
 
-    private static ProductData.UTC parseTime(final String line) throws Exception {
+    private ProductData.UTC parseTime(final String line) throws Exception {
         final StringTokenizer tokenizer = new StringTokenizer(line, " ");
         tokenizer.nextToken();
 

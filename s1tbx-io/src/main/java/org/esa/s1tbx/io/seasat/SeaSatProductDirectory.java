@@ -45,7 +45,7 @@ public class SeaSatProductDirectory extends XMLProductDirectory {
     private String productDescription = "SeaSat Product";
     private File imageFile;
 
-    private static final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
+    private final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public SeaSatProductDirectory(final File headerFile) {
         super(headerFile);
@@ -219,7 +219,7 @@ public class SeaSatProductDirectory extends XMLProductDirectory {
         addOrbitStateVectors(absRoot, orbit);
     }
 
-    private static void addOrbitStateVectors(final MetadataElement absRoot, final MetadataElement orbit) {
+    private void addOrbitStateVectors(final MetadataElement absRoot, final MetadataElement orbit) {
         final MetadataElement orbitHeader = orbit.getElement("orbitHeader");
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME,
@@ -236,7 +236,7 @@ public class SeaSatProductDirectory extends XMLProductDirectory {
         }
     }
 
-    private static void addVector(String name, MetadataElement orbitVectorListElem,
+    private void addVector(String name, MetadataElement orbitVectorListElem,
                                   MetadataElement srcElem, int num) {
         final MetadataElement orbitVectorElem = new MetadataElement(name + num);
 

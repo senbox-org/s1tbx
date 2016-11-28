@@ -59,7 +59,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
     private final transient Map<String, String> imgBandMetadataMap = new HashMap<>(4);
     private String acqMode = "";
 
-    private static final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
+    private final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public Sentinel1Level1Directory(final File inputFile) {
         super(inputFile);
@@ -215,6 +215,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
 
         final MetadataElement metadataSection = XFDU.getElement("metadataSection");
         final MetadataElement[] metadataObjectList = metadataSection.getElements();
+        final DateFormat sentinelDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd_HH:mm:ss");
 
         for (MetadataElement metadataObject : metadataObjectList) {
             final String id = metadataObject.getAttributeString("ID", defStr);
@@ -229,12 +230,12 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 final String version = software.getAttributeString("version");
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier, org + ' ' + name + ' ' + version);
 
-                final ProductData.UTC start = getTime(processing, "start");
+                final ProductData.UTC start = getTime(processing, "start", sentinelDateFormat);
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME, start);
             } else if (id.equals("acquisitionPeriod")) {
                 final MetadataElement acquisitionPeriod = findElement(metadataObject, "acquisitionPeriod");
-                final ProductData.UTC startTime = getTime(acquisitionPeriod, "startTime");
-                final ProductData.UTC stopTime = getTime(acquisitionPeriod, "stopTime");
+                final ProductData.UTC startTime = getTime(acquisitionPeriod, "startTime", sentinelDateFormat);
+                final ProductData.UTC stopTime = getTime(acquisitionPeriod, "stopTime", sentinelDateFormat);
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
 
@@ -344,6 +345,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         double rangeSpacingTotal = 0;
         double azimuthSpacingTotal = 0;
         boolean commonMetadataRetrieved = false;
+        final DateFormat sentinelDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd_HH:mm:ss");
 
         double heightSum = 0.0;
 
@@ -365,8 +367,8 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 final String swath = adsHeader.getAttributeString("swath");
                 final String pol = adsHeader.getAttributeString("polarisation");
 
-                final ProductData.UTC startTime = getTime(adsHeader, "startTime");
-                final ProductData.UTC stopTime = getTime(adsHeader, "stopTime");
+                final ProductData.UTC startTime = getTime(adsHeader, "startTime", sentinelDateFormat);
+                final ProductData.UTC stopTime = getTime(adsHeader, "stopTime", sentinelDateFormat);
 
                 final String bandRootName = AbstractMetadata.BAND_PREFIX + swath + '_' + pol;
                 final MetadataElement bandAbsRoot = AbstractMetadata.addBandAbstractedMetadata(absRoot, bandRootName);
@@ -556,7 +558,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         return null;
     }
 
-    private static void addOrbitStateVectors(final MetadataElement absRoot, final MetadataElement orbitList) {
+    private void addOrbitStateVectors(final MetadataElement absRoot, final MetadataElement orbitList) {
         final MetadataElement orbitVectorListElem = absRoot.getElement(AbstractMetadata.orbit_state_vectors);
 
         final MetadataElement[] stateVectorElems = orbitList.getElements();
@@ -573,7 +575,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         }
     }
 
-    private static void addVector(final String name, final MetadataElement orbitVectorListElem,
+    private void addVector(final String name, final MetadataElement orbitVectorListElem,
                                   final MetadataElement orbitElem, final int num) {
         final MetadataElement orbitVectorElem = new MetadataElement(name + num);
 
@@ -599,7 +601,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         orbitVectorListElem.addElement(orbitVectorElem);
     }
 
-    private static void addSRGRCoefficients(final MetadataElement absRoot, final MetadataElement coordinateConversion) {
+    private void addSRGRCoefficients(final MetadataElement absRoot, final MetadataElement coordinateConversion) {
         if (coordinateConversion == null) return;
         final MetadataElement coordinateConversionList = coordinateConversion.getElement("coordinateConversionList");
         if (coordinateConversionList == null) return;
@@ -638,7 +640,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         }
     }
 
-    private static void addDopplerCentroidCoefficients(
+    private void addDopplerCentroidCoefficients(
             final MetadataElement absRoot, final MetadataElement dopplerCentroid) {
         if (dopplerCentroid == null) return;
         final MetadataElement dcEstimateList = dopplerCentroid.getElement("dcEstimateList");
@@ -1000,12 +1002,12 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         }
     }
 
-    public static ProductData.UTC getTime(final MetadataElement elem, final String tag) {
+    public static ProductData.UTC getTime(final MetadataElement elem, final String tag, final DateFormat sentinelDateFormat) {
 
         String start = elem.getAttributeString(tag, AbstractMetadata.NO_METADATA_STRING);
         start = start.replace("T", "_");
 
-        return AbstractMetadata.parseUTC(start, Sentinel1Constants.sentinelDateFormat);
+        return AbstractMetadata.parseUTC(start, sentinelDateFormat);
     }
 
     @Override

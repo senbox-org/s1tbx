@@ -15,10 +15,7 @@
  */
 package org.esa.s1tbx.io.sentinel1;
 
-import org.esa.snap.core.datamodel.ProductData;
-
 import java.io.File;
-import java.text.DateFormat;
 
 /**
  * Several constants used for reading SENTINEL-1 products.
@@ -35,8 +32,6 @@ public class Sentinel1Constants {
     private final static String INDICATION_KEY = "SAFE";
 
     final static Class[] VALID_INPUT_TYPES = new Class[]{File.class, String.class};
-
-    public final static DateFormat sentinelDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd_HH:mm:ss");
 
     public static String getIndicationKey() {
         return INDICATION_KEY;

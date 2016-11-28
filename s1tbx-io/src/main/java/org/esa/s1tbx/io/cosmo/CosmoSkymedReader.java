@@ -69,7 +69,7 @@ public class CosmoSkymedReader extends SARReader {
 
     private final Map<Band, Variable> bandMap = new HashMap<>(10);
 
-    private static final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
+    private final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
 
     /**
      * Constructs a new abstract product reader.
@@ -422,7 +422,7 @@ public class CosmoSkymedReader extends SARReader {
         }
     }
 
-    private static void addOrbitStateVectors(final MetadataElement absRoot, final MetadataElement globalElem) {
+    private void addOrbitStateVectors(final MetadataElement absRoot, final MetadataElement globalElem) {
 
         final MetadataElement orbitVectorListElem = absRoot.getElement(AbstractMetadata.orbit_state_vectors);
         final ProductData.UTC referenceUTC = ReaderUtils.getTime(globalElem, "Reference_UTC", standardDateFormat);

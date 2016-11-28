@@ -52,6 +52,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * This class represents a product directory.
@@ -66,9 +68,9 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
     protected AlosPalsarTrailerFile trailerFile = null;
 
     protected final transient Map<String, AlosPalsarImageFile> bandImageFileMap = new HashMap<>(1);
-    public static final DateFormat dateFormat1 = ProductData.UTC.createDateFormat("yyyyMMddHHmmssSSS");
-    public static final DateFormat dateFormat2 = ProductData.UTC.createDateFormat("yyyyMMdd HH:mm:ss");
-    public static final DateFormat dateFormat3 = ProductData.UTC.createDateFormat("yyyyDDDSSSSSSSS");
+    public final DateFormat dateFormat1 = ProductData.UTC.createDateFormat("yyyyMMddHHmmssSSS");
+    public final DateFormat dateFormat2 = ProductData.UTC.createDateFormat("yyyyMMdd HH:mm:ss");
+    public final DateFormat dateFormat3 = ProductData.UTC.createDateFormat("yyyyDDDSSSSSSSS");
 
     private float[] rangeDist;
 
@@ -182,8 +184,9 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
                 refLat = leaderFile.getFacilityRecord().getAttributeDouble("Origin Latitude");
                 refLon = leaderFile.getFacilityRecord().getAttributeDouble("Origin Longitude");
             }
-            if (refLat != null && refLon != null)
+            if (refLat != null && refLon != null) {
                 addTPGGeoCoding(product, refLat, refLon);
+            }
         }
 
         updateMetadata(product);
@@ -637,10 +640,15 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.algorithm,
                 sceneRec.getAttributeString("Processing algorithm identifier"));
 
-        for (int i = 0; i < imageFiles.length; ++i) {
-            if (imageFiles[i] != null) {
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.polarTags[i], imageFiles[i].getPolarization());
+        final Set<String> polSet = new TreeSet<>();
+        for (AlosPalsarImageFile imageFile : imageFiles) {
+            if (imageFile != null) {
+                polSet.add(imageFile.getPolarization());
             }
+        }
+        int i = 0;
+        for(String pol : polSet) {
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.polarTags[i++], pol);
         }
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
@@ -707,7 +715,7 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
         return " ";
     }
 
-    private static ProductData.UTC getStartTime(final BinaryRecord sceneRec, final MetadataElement origProductMetadata,
+    private ProductData.UTC getStartTime(final BinaryRecord sceneRec, final MetadataElement origProductMetadata,
                                                 final String tagInSummary) {
         ProductData.UTC time = getUTCScanStartTime(sceneRec, null);
         if (time.equalElems(AbstractMetadata.NO_METADATA_UTC)) {
@@ -777,7 +785,7 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
         return time;
     }
 
-    private static ProductData.UTC getEndTime(final BinaryRecord sceneRec, final MetadataElement origProductMetadata,
+    private ProductData.UTC getEndTime(final BinaryRecord sceneRec, final MetadataElement origProductMetadata,
                                               final String tagInSummary, final ProductData.UTC startTime) {
         ProductData.UTC time = getUTCScanStartTime(sceneRec, null);
         if (time.equalElems(AbstractMetadata.NO_METADATA_UTC)) {
