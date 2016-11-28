@@ -17,10 +17,12 @@ package org.esa.s1tbx.io.ceos.alos2;
 
 import com.bc.ceres.core.VirtualDir;
 import org.esa.s1tbx.io.binary.IllegalBinaryFormatException;
+import org.esa.s1tbx.io.ceos.CEOSImageFile;
 import org.esa.s1tbx.io.ceos.alos.AlosPalsarConstants;
 import org.esa.s1tbx.io.ceos.alos.AlosPalsarImageFile;
 import org.esa.s1tbx.io.ceos.alos.AlosPalsarProductDirectory;
 import org.esa.s1tbx.io.ceos.alos.AlosPalsarTrailerFile;
+import org.esa.snap.core.util.Guardian;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -69,7 +71,11 @@ public class Alos2ProductDirectory extends AlosPalsarProductDirectory {
 
         sceneWidth = imageFiles[0].getRasterWidth();
         sceneHeight = imageFiles[0].getRasterHeight();
-        assertSameWidthAndHeightForAllImages(imageFiles, sceneWidth, sceneHeight);
+        for (final AlosPalsarImageFile imageFile : imageFiles) {
+            if (sceneWidth != imageFile.getRasterWidth() || sceneHeight != imageFile.getRasterHeight()) {
+                throw new IOException("ALOS2 ScanSAR products are not currently supported.");
+            }
+        }
 
         if (leaderFile.getProductLevel() == AlosPalsarConstants.LEVEL1_0 ||
                 leaderFile.getProductLevel() == AlosPalsarConstants.LEVEL1_1) {
