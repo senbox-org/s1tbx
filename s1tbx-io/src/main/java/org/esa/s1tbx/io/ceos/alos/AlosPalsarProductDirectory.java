@@ -68,9 +68,9 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
     protected AlosPalsarTrailerFile trailerFile = null;
 
     protected final transient Map<String, AlosPalsarImageFile> bandImageFileMap = new HashMap<>(1);
-    public static final DateFormat dateFormat1 = ProductData.UTC.createDateFormat("yyyyMMddHHmmssSSS");
-    public static final DateFormat dateFormat2 = ProductData.UTC.createDateFormat("yyyyMMdd HH:mm:ss");
-    public static final DateFormat dateFormat3 = ProductData.UTC.createDateFormat("yyyyDDDSSSSSSSS");
+    public final DateFormat dateFormat1 = ProductData.UTC.createDateFormat("yyyyMMddHHmmssSSS");
+    public final DateFormat dateFormat2 = ProductData.UTC.createDateFormat("yyyyMMdd HH:mm:ss");
+    public final DateFormat dateFormat3 = ProductData.UTC.createDateFormat("yyyyDDDSSSSSSSS");
 
     private float[] rangeDist;
 
@@ -715,7 +715,7 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
         return " ";
     }
 
-    private static ProductData.UTC getStartTime(final BinaryRecord sceneRec, final MetadataElement origProductMetadata,
+    private ProductData.UTC getStartTime(final BinaryRecord sceneRec, final MetadataElement origProductMetadata,
                                                 final String tagInSummary) {
         ProductData.UTC time = getUTCScanStartTime(sceneRec, null);
         if (time.equalElems(AbstractMetadata.NO_METADATA_UTC)) {
@@ -785,7 +785,7 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
         return time;
     }
 
-    private static ProductData.UTC getEndTime(final BinaryRecord sceneRec, final MetadataElement origProductMetadata,
+    private ProductData.UTC getEndTime(final BinaryRecord sceneRec, final MetadataElement origProductMetadata,
                                               final String tagInSummary, final ProductData.UTC startTime) {
         ProductData.UTC time = getUTCScanStartTime(sceneRec, null);
         if (time.equalElems(AbstractMetadata.NO_METADATA_UTC)) {

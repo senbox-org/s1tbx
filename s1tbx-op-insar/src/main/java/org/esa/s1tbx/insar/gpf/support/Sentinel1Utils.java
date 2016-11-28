@@ -27,9 +27,12 @@ import org.esa.snap.engine_utilities.datamodel.OrbitStateVector;
 import org.esa.snap.engine_utilities.eo.Constants;
 
 import java.awt.*;
-import java.text.DateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 public final class Sentinel1Utils {
 
@@ -59,7 +62,6 @@ public final class Sentinel1Utils {
     public boolean nearRangeOnLeft = true;
     public boolean srgrFlag = false;
     public AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
-    public final static DateFormat sentinelDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd_HH:mm:ss");
 
     public Sentinel1Utils(final Product sourceProduct) throws Exception {
 
@@ -1127,7 +1129,7 @@ public final class Sentinel1Utils {
         String start = elem.getAttributeString(tag, AbstractMetadata.NO_METADATA_STRING);
         start = start.replace("T", "_");
 
-        return AbstractMetadata.parseUTC(start, sentinelDateFormat);
+        return AbstractMetadata.parseUTC(start, ProductData.UTC.createDateFormat("yyyy-MM-dd_HH:mm:ss"));
     }
 
     public String getAcquisitionMode() {

@@ -64,8 +64,8 @@ public abstract class CEOSProductDirectory {
     protected int sceneWidth = 0;
     protected int sceneHeight = 0;
 
-    public static final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-DDD-HH:mm:ss");
-    private static final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
+    public final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-DDD-HH:mm:ss");
+    private final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
 
     protected abstract void readProductDirectory() throws IOException, IllegalBinaryFormatException;
 
@@ -247,7 +247,7 @@ public abstract class CEOSProductDirectory {
         return " ";
     }
 
-    protected static ProductData.UTC getUTCScanStartTime(final BinaryRecord sceneRec, final BinaryRecord detailProcRec) {
+    protected ProductData.UTC getUTCScanStartTime(final BinaryRecord sceneRec, final BinaryRecord detailProcRec) {
         if (sceneRec != null) {
             final String startTime = sceneRec.getAttributeString("Zero-doppler azimuth time of first azimuth pixel");
             if (startTime != null)
@@ -261,7 +261,7 @@ public abstract class CEOSProductDirectory {
         return AbstractMetadata.NO_METADATA_UTC;
     }
 
-    protected static ProductData.UTC getUTCScanStopTime(final BinaryRecord sceneRec, final BinaryRecord detailProcRec) {
+    protected ProductData.UTC getUTCScanStopTime(final BinaryRecord sceneRec, final BinaryRecord detailProcRec) {
         if (sceneRec != null) {
             final String endTime = sceneRec.getAttributeString("Zero-doppler azimuth time of last azimuth pixel");
             if (endTime != null)
@@ -331,7 +331,7 @@ public abstract class CEOSProductDirectory {
         return 1;
     }
 
-    protected static void addOrbitStateVectors(final MetadataElement absRoot, final BinaryRecord platformPosRec) {
+    protected void addOrbitStateVectors(final MetadataElement absRoot, final BinaryRecord platformPosRec) {
         if (platformPosRec == null) return;
 
         final MetadataElement orbitVectorListElem = absRoot.getElement(AbstractMetadata.orbit_state_vectors);
@@ -349,7 +349,7 @@ public abstract class CEOSProductDirectory {
         }
     }
 
-    private static void addVector(String name, MetadataElement orbitVectorListElem,
+    private void addVector(String name, MetadataElement orbitVectorListElem,
                                   BinaryRecord platformPosRec, int num) {
         final MetadataElement orbitVectorElem = new MetadataElement(name + num);
 
@@ -370,7 +370,7 @@ public abstract class CEOSProductDirectory {
         orbitVectorListElem.addElement(orbitVectorElem);
     }
 
-    protected static ProductData.UTC getOrbitTime(BinaryRecord platformPosRec, int num) {
+    protected ProductData.UTC getOrbitTime(BinaryRecord platformPosRec, int num) {
         final int year = platformPosRec.getAttributeInt("Year of data point");
         final int month = platformPosRec.getAttributeInt("Month of data point");
         final int day = platformPosRec.getAttributeInt("Day of data point");

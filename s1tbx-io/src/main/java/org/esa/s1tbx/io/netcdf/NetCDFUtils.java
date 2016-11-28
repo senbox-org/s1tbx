@@ -396,7 +396,7 @@ public class NetCDFUtils {
     }
 
     private static ProductData.UTC parseDateTime(String dateTimeStr) throws ParseException {
-        return ProductData.UTC.parse(dateTimeStr, AbstractMetadata.dateFormat);
+        return ProductData.UTC.parse(dateTimeStr, ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss"));
     }
 
     private NetCDFUtils() {

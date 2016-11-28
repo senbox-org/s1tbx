@@ -80,7 +80,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     private final List<File> cosarFileList = new ArrayList<>(1);
     private final Map<String, ImageInputStream> cosarBandMap = new HashMap<>(1);
 
-    private static final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
+    private final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
 
     // For TDM CoSSC products only
     private String masterSatellite = null;
@@ -502,7 +502,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
     }
 
-    private static void setStartStopTime(final MetadataElement absRoot, final MetadataElement elem, final int height) {
+    private void setStartStopTime(final MetadataElement absRoot, final MetadataElement elem, final int height) {
         final ProductData.UTC startTime = ReaderUtils.getTime(elem.getElement("start"), "timeUTC", standardDateFormat);
         final ProductData.UTC stopTime = ReaderUtils.getTime(elem.getElement("stop"), "timeUTC", standardDateFormat);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
@@ -1119,7 +1119,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         return true;
     }
 
-    private static void addOrbitStateVectors(MetadataElement absRoot, MetadataElement orbitInformation) {
+    private void addOrbitStateVectors(MetadataElement absRoot, MetadataElement orbitInformation) {
         final MetadataElement orbitVectorListElem = absRoot.getElement(AbstractMetadata.orbit_state_vectors);
 
         final MetadataElement[] stateVectorElems = orbitInformation.getElements();
@@ -1137,7 +1137,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
     }
 
-    private static void addVector(String name, MetadataElement orbitVectorListElem,
+    private void addVector(String name, MetadataElement orbitVectorListElem,
                                   MetadataElement srcElem, int num) {
         final MetadataElement orbitVectorElem = new MetadataElement(name + num);
 
@@ -1247,7 +1247,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
     }
 
-    private static void addDopplerCentroidCoefficients(
+    private void addDopplerCentroidCoefficients(
             final MetadataElement absRoot, final MetadataElement dopplerCentroid) {
 
         final MetadataElement[] dopplerElems = dopplerCentroid.getElements();
