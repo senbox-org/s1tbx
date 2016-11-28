@@ -1,10 +1,8 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html><head><title>Help - StaMPS Export</title>
 
-<link rel="stylesheet" href="../style.css">
-</head>
 
-<body>
+<link rel="stylesheet" href="../style.css"></head><body>
 <table class="header">
 <tbody>
 <tr class="header">
@@ -15,7 +13,9 @@
 </tbody>
 </table>
 <p>Use the StaMPS Export to produce data that can be used within the
-StaMPS applicaiton for Persistent Scattering Interferometry (PSI).</p><p style="font-weight: bold;">Inputs:&nbsp;</p><ol><li>Coregistered SLC stack with a master iamge and multiple slave images.</li><li>Interferogram for master/slave pairs and an elevation band</li></ol><p>Apply precise orbit correction and coregister a stack of SLC products.</p><p>Generate interferograms for the stack.</p><p>Add an elevation band to the interferogram.</p><br><p>The StaMPS Export will take the coregistered stack and interferogram with elevation and produce an output in Gamm format.</p><p>You must then run the mt_prep_gamma script from StaMPS to prepare the Gamma formatted data.</p><p>Then run stamps in matlab.</p><br>
+StaMPS applicaiton for Persistent Scattering Interferometry (PSI).</p><p style="font-weight: bold;">Inputs:&nbsp;</p><ol><li>Coregistered SLC stack with a master image and at least 4 slave images. <br>
+</li><li>Interferogram for master/slave pairs and an elevation band</li></ol><p>Apply precise orbit correction and coregister a stack of SLC products. For S1 TOPS data, use the TOPS backgeocoding to coregister.</p><p>Generate interferograms for the stack. For S1 TOPS data, deburst the interferogram product and the stack product.<br>
+</p><p>Add an elevation band to the interferogram product.</p><br><p>The StaMPS Export will take the coregistered stack and interferogram with elevation and produce an output in Gamma format.</p><p>You must then run the mt_prep_gamma script from StaMPS to prepare the Gamma formatted data.</p><p>Then run stamps in matlab.</p><br>
 
 <hr>
 </body></html>

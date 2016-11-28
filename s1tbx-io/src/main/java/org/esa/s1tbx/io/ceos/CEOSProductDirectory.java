@@ -182,7 +182,7 @@ public abstract class CEOSProductDirectory {
         }
     }
 
-    protected Band createBand(final Product product, final String name, final String unit, final int bitsPerSample) {
+    protected Band createBand(final Product product, String name, final String unit, final int bitsPerSample) {
 
         int dataType = ProductData.TYPE_UINT16;
         if (bitsPerSample == 16) {
@@ -192,6 +192,16 @@ public abstract class CEOSProductDirectory {
         } else if (bitsPerSample == 8) {
             dataType = isProductSLC ? ProductData.TYPE_INT8 : ProductData.TYPE_UINT8;
         }
+        if(product.getBand(name) != null) {
+            int cnt = 0;
+            for(String bandName : product.getBandNames()) {
+                if(bandName.startsWith(name)) {
+                    ++cnt;
+                }
+            }
+            name += "_" + cnt;
+        }
+
         final Band band = new Band(name, dataType, sceneWidth, sceneHeight);
         band.setDescription(name);
         band.setUnit(unit);
