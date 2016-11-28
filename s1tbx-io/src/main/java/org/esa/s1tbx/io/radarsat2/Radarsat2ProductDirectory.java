@@ -58,7 +58,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
     private final String productDescription = "";
     private boolean compactPolMode = false;
 
-    private static final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
+    private final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private static final boolean flipToSARGeometry = System.getProperty(SystemUtils.getApplicationContextId() +
                                                                                 ".flip.to.sar.geometry", "false").equals("true");
@@ -382,7 +382,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         return "DETECTED";
     }
 
-    private static void addOrbitStateVectors(final MetadataElement absRoot, final MetadataElement orbitInformation) {
+    private void addOrbitStateVectors(final MetadataElement absRoot, final MetadataElement orbitInformation) {
         final MetadataElement orbitVectorListElem = absRoot.getElement(AbstractMetadata.orbit_state_vectors);
 
         final MetadataElement[] stateVectorElems = orbitInformation.getElements();
@@ -399,7 +399,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         }
     }
 
-    private static void addVector(String name, MetadataElement orbitVectorListElem,
+    private void addVector(String name, MetadataElement orbitVectorListElem,
                                   MetadataElement srcElem, int num) {
         final MetadataElement orbitVectorElem = new MetadataElement(name + num);
 
@@ -428,7 +428,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         orbitVectorListElem.addElement(orbitVectorElem);
     }
 
-    private static void addSRGRCoefficients(final MetadataElement absRoot, final MetadataElement imageGenerationParameters) {
+    private void addSRGRCoefficients(final MetadataElement absRoot, final MetadataElement imageGenerationParameters) {
         final MetadataElement srgrCoefficientsElem = absRoot.getElement(AbstractMetadata.srgr_coefficients);
 
         int listCnt = 1;
@@ -465,7 +465,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         }
     }
 
-    private static void addDopplerCentroidCoefficients(
+    private void addDopplerCentroidCoefficients(
             final MetadataElement absRoot, final MetadataElement imageGenerationParameters) {
 
         final MetadataElement dopplerCentroidCoefficientsElem = absRoot.getElement(AbstractMetadata.dop_coefficients);
@@ -721,7 +721,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         addSlantRangeTime(product, imageGenerationParameters);
     }
 
-    private static void addSlantRangeTime(final Product product, final MetadataElement imageGenerationParameters) {
+    private void addSlantRangeTime(final Product product, final MetadataElement imageGenerationParameters) {
 
         class coefList {
             double utcSeconds = 0.0;

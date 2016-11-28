@@ -73,8 +73,8 @@ public class StampsExportOp extends Operator {
     private static final String[] folder = {"rslc", "diff0", "geo"};
     private static final String[] ext = {".rslc", ".diff", "_dem.rdc"};
 
-    private static final DateFormat rawDateFormat = ProductData.UTC.createDateFormat("ddMMMyyyy");
-    private static final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyyMMdd");
+    private final DateFormat rawDateFormat = ProductData.UTC.createDateFormat("ddMMMyyyy");
+    private final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyyMMdd");
 
     private enum FOLDERS {RSLC, DIFF, GEO}
 
@@ -167,7 +167,7 @@ public class StampsExportOp extends Operator {
         }
     }
 
-    private static String convertFormat(String rawDate) {
+    private String convertFormat(String rawDate) {
         try {
             final ProductData.UTC utc = ProductData.UTC.parse(rawDate, rawDateFormat);
             final String date = dateFormat.format(utc.getAsDate());
@@ -179,7 +179,7 @@ public class StampsExportOp extends Operator {
         }
     }
 
-    private static String extractDate(final String bandName, final FOLDERS folderType) {
+    private String extractDate(final String bandName, final FOLDERS folderType) {
         String dateStr = bandName.substring(bandName.lastIndexOf('_') + 1, bandName.length());
         if (folderType.equals(FOLDERS.DIFF)) {
             String mstStr = bandName.substring(0, bandName.lastIndexOf('_'));
