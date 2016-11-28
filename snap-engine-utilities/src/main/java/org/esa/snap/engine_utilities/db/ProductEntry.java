@@ -48,8 +48,8 @@ public class ProductEntry {
     public final static String LAST_MODIFIED = "last_modified";
     public final static String FILE_FORMAT = "file_format";
     public final static String GEO_BOUNDARY = "geo_boundary";
-    public final static DateFormat yyyMMdd_Format = ProductData.UTC.createDateFormat("yyy-MM-dd");
-    private final static DecimalFormat decimalFormat = new DecimalFormat("0.0000");
+    public final DateFormat yyyMMdd_Format = ProductData.UTC.createDateFormat("yyy-MM-dd");
+    private final DecimalFormat decimalFormat = new DecimalFormat("0.0000");
 
     private int id;
     private File file;
