@@ -383,6 +383,7 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
                     srcBandI.getRasterHeight());
             targetBandI.setUnit(unit);
             targetBandI.setNoDataValueUsed(true);
+            targetBandI.setNoDataValue(srcBandI.getNoDataValue());
             targetProduct.addBand(targetBandI);
 
             targetBandNameToSourceBandName.put(srcBandNames[1], srcBandNames);
@@ -392,6 +393,7 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
                     srcBandQ.getRasterHeight());
             targetBandQ.setUnit(nextUnit);
             targetBandQ.setNoDataValueUsed(true);
+            targetBandQ.setNoDataValue(srcBandQ.getNoDataValue());
             targetProduct.addBand(targetBandQ);
 
             final String suffix = "_" + OperatorUtils.getSuffixFromBandName(srcBandI.getName());
@@ -535,7 +537,7 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
                 srcData2 = sourceRaster2.getDataBuffer();
             }
 
-            final double noDataValue = sourceBand1.getNoDataValue();
+            final Double noDataValue = sourceBand1.getNoDataValue();
             final Unit.UnitType tgtBandUnit = Unit.getUnitType(targetBand);
             final Unit.UnitType srcBandUnit = Unit.getUnitType(sourceBand1);
 
@@ -550,7 +552,6 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
 
             double dn = 0.0, i, q, muX, lutVal, retroLutVal = 1.0, calValue, calibrationFactor, phaseTerm = 0.0;
             int srcIdx;
-            final Double nodatavalue = targetBand.getNoDataValue();
 
             for (int y = y0; y < maxY; ++y) {
                 srcIndex.calculateStride(y);
@@ -576,10 +577,10 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
                     srcIdx = srcIndex.getIndex(x);
 
                     dn = srcData1.getElemDoubleAt(srcIdx);
-                    if(nodatavalue.equals(dn)) {
-                        tgtData.setElemDoubleAt(trgIndex.getIndex(x), nodatavalue);
-                        continue;
-                    }
+//                    if(noDataValue.equals(dn)) {
+//                        tgtData.setElemDoubleAt(trgIndex.getIndex(x), noDataValue);
+//                        continue;
+//                    }
 
                     final int pixelIdx = calVec.getPixelIndex(x);
                     muX = (x - vec0Pixels[pixelIdx]) / (double)(vec0Pixels[pixelIdx + 1] - vec0Pixels[pixelIdx]);
