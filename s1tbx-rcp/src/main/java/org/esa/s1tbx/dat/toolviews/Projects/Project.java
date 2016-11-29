@@ -124,7 +124,7 @@ public class Project extends Observable {
             showProjectsView();
 
             final String prjName = file.getName();
-            final String folderName = prjName.substring(0, prjName.lastIndexOf('.'));
+            final String folderName = FileUtils.getFilenameWithoutExtension(prjName);
             final File prjFolder = new File(file.getParentFile(), folderName);
             if (!prjFolder.exists())
                 prjFolder.mkdir();
