@@ -60,6 +60,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
     private String acqMode = "";
 
     private final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
+    private final static Double NoDataValue = 0.0;//-9999.0;
 
     public Sentinel1Level1Directory(final File inputFile) {
         super(inputFile);
@@ -143,6 +144,8 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
 
                         final Band band = new Band(bandName, ProductData.TYPE_INT16, width, height);
                         band.setUnit(unit);
+                        band.setNoDataValueUsed(true);
+                        band.setNoDataValue(NoDataValue);
 
                         product.addBand(band);
                         bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
@@ -167,7 +170,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                         final Band band = new Band(bandName, ProductData.TYPE_INT32, width, height);
                         band.setUnit(Unit.AMPLITUDE);
                         band.setNoDataValueUsed(true);
-                        band.setNoDataValue(0);
+                        band.setNoDataValue(NoDataValue);
 
                         product.addBand(band);
                         bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
