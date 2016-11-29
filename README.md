@@ -1,4 +1,6 @@
 # SeNtinel Application Platform
+[![Build Status](https://travis-ci.org/senbox-org/snap-engine.svg?branch=master)](https://travis-ci.org/senbox-org/snap-engine)
+[![Coverity Scan Status](https://scan.coverity.com/projects/7219/badge.svg)](https://scan.coverity.com/projects/senbox-org-snap-engine)
 
 SNAP is the common software platform for the three Sentinel Toolboxes which are developed 
 by the [European Space Agency (ESA)](www.esa.org) for the scientific exploitation 
