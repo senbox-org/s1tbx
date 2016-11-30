@@ -36,7 +36,7 @@ import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.TileGeoreferencing;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -107,13 +107,36 @@ public class CreateLandMaskOp extends Operator {
      */
     private void addSelectedBands() throws OperatorException {
 
-        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
+        boolean copyVirtualBands = false;
+
+        if (sourceBandNames == null || sourceBandNames.length == 0) {
+            copyVirtualBands = true;
+            final Band[] bands = sourceProduct.getBands();
+            final List<String> bandNameList = new ArrayList<>(sourceProduct.getNumBands());
+            for (Band band : bands) {
+                bandNameList.add(band.getName());
+            }
+            sourceBandNames = bandNameList.toArray(new String[bandNameList.size()]);
+        }
+
+        final List<Band> sourceBandList = new ArrayList<>(sourceBandNames.length);
+        for (final String sourceBandName : sourceBandNames) {
+            final Band sourceBand = sourceProduct.getBand(sourceBandName);
+            if (sourceBand != null) {
+                sourceBandList.add(sourceBand);
+            }
+        }
+        final Band[] sourceBands = sourceBandList.toArray(new Band[sourceBandList.size()]);
+
+
         for (Band srcBand : sourceBands) {
 
-            if (geometry != null && !geometry.isEmpty() && !byPass) {
+            if(srcBand instanceof VirtualBand && copyVirtualBands) {
+                ProductUtils.copyVirtualBand(targetProduct, (VirtualBand)srcBand, srcBand.getName());
+            } else if (geometry != null && !geometry.isEmpty() && !byPass) {
                 String expression = geometry + " ? " + srcBand.getName() + " : " + srcBand.getNoDataValue();
                 if (invertGeometry) {
-                    expression = "!" + expression;
+                    expression = '!' + expression;
                 }
                 final VirtualBand virtBand = new VirtualBand(srcBand.getName() + tmpVirtBandName,
                         srcBand.getDataType(),
@@ -127,10 +150,7 @@ public class CreateLandMaskOp extends Operator {
                 targetBand.setName(srcBand.getName());
                 targetBand.setSourceImage(virtBand.getSourceImage());
             } else {
-                final Band targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, false);
-                if (byPass) {
-                    targetBand.setSourceImage(srcBand.getSourceImage());
-                }
+                ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, byPass);
             }
         }
     }
