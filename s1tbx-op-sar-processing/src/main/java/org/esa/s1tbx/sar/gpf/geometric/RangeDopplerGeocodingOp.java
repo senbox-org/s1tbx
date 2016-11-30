@@ -862,20 +862,25 @@ public class RangeDopplerGeocodingOp extends Operator {
                 final boolean valid = DEMFactory.getLocalDEM(
                         dem, demNoDataValue, demResamplingMethod, tileGeoRef, x0, y0, w, h, sourceProduct,
                         nodataValueAtSea, localDEM);
-                if (!valid && nodataValueAtSea)
+                if (!valid && nodataValueAtSea) {
+                    for (Band targetBand : targetTiles.keySet()) {
+                        ProductData data = targetTiles.get(targetBand).getRawSamples();
+                        double nodatavalue = targetBand.getNoDataValue();
+                        final int length = data.getNumElems();
+                        for (int i = 0; i < length; ++i) {
+                            data.setElemDoubleAt(i, nodatavalue);
+                        }
+                    }
                     return;
+                }
             }
 
             final GeoPos geoPos = new GeoPos();
             final PositionData posData = new PositionData();
             final int srcMaxRange = sourceImageWidth - 1;
             final int srcMaxAzimuth = sourceImageHeight - 1;
-            ProductData demBuffer = null;
-            ProductData latBuffer = null;
-            ProductData lonBuffer = null;
-            ProductData localIncidenceAngleBuffer = null;
-            ProductData projectedLocalIncidenceAngleBuffer = null;
-            ProductData incidenceAngleFromEllipsoidBuffer = null;
+            ProductData demBuffer = null, latBuffer = null, lonBuffer = null, localIncidenceAngleBuffer = null,
+                    projectedLocalIncidenceAngleBuffer = null, incidenceAngleFromEllipsoidBuffer = null;
 
             final List<TileData> tgtTileList = new ArrayList<>();
             final Set<Band> keySet = targetTiles.keySet();
@@ -952,7 +957,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                     Double alt = localDEM[yy][x - x0 + 1];
                     if (alt.equals(demNoDataValue) && !useAvgSceneHeight) {
                         if (nodataValueAtSea) {
-                            saveNoDataValueToTarget(index, tgtTiles);
+                            saveNoDataValueToTarget(index, tgtTiles, demBuffer);
                             continue;
                         }
                     }
@@ -969,19 +974,13 @@ public class RangeDopplerGeocodingOp extends Operator {
                     }
 
                     if (!getPosition(lat, lon, alt, posData)) {
-                        if (saveDEM) {
-                            demBuffer.setElemDoubleAt(index, demNoDataValue);
-                        }
-                        saveNoDataValueToTarget(index, tgtTiles);
+                        saveNoDataValueToTarget(index, tgtTiles, demBuffer);
                         continue;
                     }
 
                     if (!SARGeocoding.isValidCell(posData.rangeIndex, posData.azimuthIndex, lat, lon, diffLat,
                             latitude, longitude, srcMaxRange, srcMaxAzimuth, posData.sensorPos)) {
-                        if (saveDEM) {
-                            demBuffer.setElemDoubleAt(index, demNoDataValue);
-                        }
-                        saveNoDataValueToTarget(index, tgtTiles);
+                        saveNoDataValueToTarget(index, tgtTiles, demBuffer);
                     } else {
 
                         final double[] localIncidenceAngles = {SARGeocoding.NonValidIncidenceAngle,
@@ -1041,7 +1040,9 @@ public class RangeDopplerGeocodingOp extends Operator {
                                             tileData.bandName, tileData.bandPolar, tileData.bandUnit, subSwathIndex);
                                              // use projected incidence angle
                                 } else {
-                                    v = tileData.noDataValue;
+                                    //v = tileData.noDataValue;
+                                    saveNoDataValueToTarget(index, tgtTiles, demBuffer);
+                                    continue;
                                 }
                             }
 
@@ -1059,7 +1060,10 @@ public class RangeDopplerGeocodingOp extends Operator {
         }
     }
 
-    private static void saveNoDataValueToTarget(final int index, final TileData[] tgtTiles) {
+    private void saveNoDataValueToTarget(final int index, final TileData[] tgtTiles, final ProductData demBuffer) {
+        if (saveDEM) {
+            demBuffer.setElemDoubleAt(index, demNoDataValue);
+        }
         for (TileData tileData : tgtTiles) {
             tileData.tileDataBuffer.setElemDoubleAt(index, tileData.noDataValue);
         }
@@ -1233,9 +1237,8 @@ public class RangeDopplerGeocodingOp extends Operator {
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
+            return 0;
         }
-
-        return 0;
     }
 
     /**
