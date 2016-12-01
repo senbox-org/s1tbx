@@ -46,9 +46,9 @@
       <sourceProduct refid="Calibration"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <targetWindowSizeInMeter>100</targetWindowSizeInMeter>
-      <guardWindowSizeInMeter>400.0</guardWindowSizeInMeter>
-      <backgroundWindowSizeInMeter>1000.0</backgroundWindowSizeInMeter>
+      <targetWindowSizeInMeter>50</targetWindowSizeInMeter>
+      <guardWindowSizeInMeter>500.0</guardWindowSizeInMeter>
+      <backgroundWindowSizeInMeter>800.0</backgroundWindowSizeInMeter>
       <pfa>12.5</pfa>
       <estimateBackground>false</estimateBackground>
     </parameters>
