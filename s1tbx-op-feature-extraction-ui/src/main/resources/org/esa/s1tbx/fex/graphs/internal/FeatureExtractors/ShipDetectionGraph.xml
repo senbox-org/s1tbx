@@ -69,7 +69,7 @@
       <sourceProduct refid="Object-Discrimination"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <file>ship_detection.dim</file>
+      <file>target.dim</file>
       <formatName>BEAM-DIMAP</formatName>
     </parameters>
   </node>
