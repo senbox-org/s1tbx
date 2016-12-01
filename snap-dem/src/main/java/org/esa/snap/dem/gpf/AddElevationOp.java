@@ -130,14 +130,7 @@ public final class AddElevationOp extends Operator {
             if (band.getName().equalsIgnoreCase(elevationBandName))
                 throw new OperatorException("Band " + elevationBandName + " already exists. Try another name.");
             if (band instanceof VirtualBand) {
-                final VirtualBand sourceBand = (VirtualBand) band;
-                final VirtualBand targetBand = new VirtualBand(sourceBand.getName(),
-                        sourceBand.getDataType(),
-                        sourceBand.getRasterWidth(),
-                        sourceBand.getRasterHeight(),
-                        sourceBand.getExpression());
-                ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
-                targetProduct.addBand(targetBand);
+                Band targetBand = ProductUtils.copyVirtualBand(targetProduct, (VirtualBand) band, band.getName());
                 sourceRasterMap.put(targetBand, band);
             } else {
                 if (!targetProduct.containsBand((band.getName()))) {

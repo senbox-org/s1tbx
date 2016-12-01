@@ -194,19 +194,11 @@ public final class TerrainMaskOp extends Operator {
 
     private void addSelectedBands() {
 
-        for (Band band : sourceProduct.getBands()) {
-            if (band instanceof VirtualBand) {
-                final VirtualBand sourceBand = (VirtualBand) band;
-                final VirtualBand targetBand = new VirtualBand(sourceBand.getName(),
-                        sourceBand.getDataType(),
-                        sourceBand.getRasterWidth(),
-                        sourceBand.getRasterHeight(),
-                        sourceBand.getExpression());
-                ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
-                targetProduct.addBand(targetBand);
+        for (Band srcBand : sourceProduct.getBands()) {
+            if (srcBand instanceof VirtualBand) {
+                ProductUtils.copyVirtualBand(targetProduct, (VirtualBand) srcBand, srcBand.getName());
             } else {
-                final Band targetBand = ProductUtils.copyBand(band.getName(), sourceProduct, targetProduct, false);
-                targetBand.setSourceImage(band.getSourceImage());
+                final Band targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, true);
             }
         }
 
