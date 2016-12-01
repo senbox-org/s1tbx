@@ -602,10 +602,14 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
                         i = dn;
                         q = srcData2.getElemDoubleAt(srcIdx);
                         dn = i * i + q * q;
-                        if (tgtBandUnit == Unit.UnitType.REAL) {
-                            phaseTerm = i / Math.sqrt(dn);
-                        } else if (tgtBandUnit == Unit.UnitType.IMAGINARY) {
-                            phaseTerm = q / Math.sqrt(dn);
+                        if (dn > 0.0) {
+                            if (tgtBandUnit == Unit.UnitType.REAL) {
+                                phaseTerm = i / Math.sqrt(dn);
+                            } else if (tgtBandUnit == Unit.UnitType.IMAGINARY) {
+                                phaseTerm = q / Math.sqrt(dn);
+                            }
+                        } else {
+                            phaseTerm = 0.0;
                         }
                     } else if (srcBandUnit == Unit.UnitType.INTENSITY_DB) {
                         dn = FastMath.pow(10, dn / 10.0); // convert dB to linear scale
