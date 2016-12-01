@@ -118,14 +118,7 @@ public final class BandSelectOp extends Operator {
             }
 
             if (srcBand instanceof VirtualBand) {
-                final VirtualBand sourceBand = (VirtualBand) srcBand;
-                final VirtualBand targetBand = new VirtualBand(sourceBand.getName(),
-                        sourceBand.getDataType(),
-                        sourceBand.getRasterWidth(),
-                        sourceBand.getRasterHeight(),
-                        sourceBand.getExpression());
-                ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
-                targetProduct.addBand(targetBand);
+                ProductUtils.copyVirtualBand(targetProduct, (VirtualBand) srcBand, srcBand.getName());
             } else {
                 ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, true);
             }
