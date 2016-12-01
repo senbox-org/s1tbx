@@ -22,6 +22,7 @@ import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -42,6 +43,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The Adaptive Thresholding ship detection operator.
@@ -73,17 +75,17 @@ public class AdaptiveThresholdingOp extends Operator {
     private Product targetProduct = null;
 
     //    @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
-//            sourceProductId = "source", label = "Source Bands")
+    //            sourceProductId = "source", label = "Source Bands")
     private String[] sourceBandNames = null;
 
-    @Parameter(description = "Target window size", defaultValue = "75", label = "Target Window Size (m)")
-    private int targetWindowSizeInMeter = 75;
+    @Parameter(description = "Target window size", defaultValue = "50", label = "Target Window Size (m)")
+    private int targetWindowSizeInMeter = 50;
 
-    @Parameter(description = "Guard window size", defaultValue = "400.0", label = "Guard Window Size (m)")
-    private double guardWindowSizeInMeter = 400.0;
+    @Parameter(description = "Guard window size", defaultValue = "500.0", label = "Guard Window Size (m)")
+    private double guardWindowSizeInMeter = 500.0;
 
-    @Parameter(description = "Background window size", defaultValue = "1000.0", label = "Background Window Size (m)")
-    private double backgroundWindowSizeInMeter = 1000.0;
+    @Parameter(description = "Background window size", defaultValue = "800.0", label = "Background Window Size (m)")
+    private double backgroundWindowSizeInMeter = 800.0;
 
     @Parameter(description = "Probability of false alarm", defaultValue = "6.5", label = "PFA (10^(-x))")
     private double pfa = 6.5;
@@ -94,6 +96,7 @@ public class AdaptiveThresholdingOp extends Operator {
     private int sourceImageWidth;
     private int sourceImageHeight;
     private int targetWindowSize;
+    private int halfTargetWindowSize;
     private int halfGuardWindowSize;
     private int halfBackgroundWindowSize;
 
@@ -104,6 +107,8 @@ public class AdaptiveThresholdingOp extends Operator {
 
     public static final String SHIPMASK_NAME = "_ship_bit_msk";
     private static final String PRODUCT_SUFFIX = "_THR";
+
+    private static final double backgroundThreshold = 0.5;
 
     @Override
     public void initialize() throws OperatorException {
@@ -117,10 +122,11 @@ public class AdaptiveThresholdingOp extends Operator {
 
             getMeanPixelSpacing();
 
-            targetWindowSize = (int) (targetWindowSizeInMeter / meanPixelSpacing) + 1;
+            targetWindowSize = Math.max(1, (int) (targetWindowSizeInMeter / meanPixelSpacing) + 1);
             final int guardWindowSize = (int) (guardWindowSizeInMeter / meanPixelSpacing) + 1;
             final int backgroundWindowSize = (int) (backgroundWindowSizeInMeter / meanPixelSpacing) + 1;
 
+            halfTargetWindowSize = targetWindowSize / 2;
             halfGuardWindowSize = guardWindowSize / 2;
             halfBackgroundWindowSize = (backgroundWindowSize - 1) / 2;
 
@@ -135,7 +141,7 @@ public class AdaptiveThresholdingOp extends Operator {
 
             t = computeDetectorDesignParameter(pfa);
 
-            if(estimateBackground == null) {
+            if (estimateBackground == null) {
                 estimateBackground = false;
             }
 
@@ -186,13 +192,35 @@ public class AdaptiveThresholdingOp extends Operator {
 
         if (sourceBandNames == null || sourceBandNames.length == 0) { // if user did not select any band
             final Band[] bands = sourceProduct.getBands();
-            final List<String> bandNameList = new ArrayList<>(sourceProduct.getNumBands());
-            for (Band band : bands) {
-                final String unit = band.getUnit();
-                if (!(unit.contains(Unit.PHASE) || unit.contains(Unit.REAL) || unit.contains(Unit.IMAGINARY)))
-                    bandNameList.add(band.getName());
+            final Map<String, String> bandNameMap = new HashMap<>(sourceProduct.getNumBands());
+            for (Band srcBand : bands) {
+                // copy all bands
+                if (srcBand instanceof VirtualBand) {
+                    ProductUtils.copyVirtualBand(targetProduct, (VirtualBand) srcBand, srcBand.getName());
+                } else {
+                    ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, true);
+                }
+
+                final String unit = srcBand.getUnit();
+                if (!(unit == null || unit.contains(Unit.PHASE) || unit.contains(Unit.REAL) || unit.contains(Unit.IMAGINARY))) {
+
+                    String pol = OperatorUtils.getPolarizationFromBandName(srcBand.getName());
+                    if (pol != null) {
+                        bandNameMap.put(pol, srcBand.getName());
+                    } else {
+                        bandNameMap.put("NoPol", srcBand.getName());
+                    }
+                }
             }
-            sourceBandNames = bandNameList.toArray(new String[bandNameList.size()]);
+            if (bandNameMap.containsKey("hv")) {
+                sourceBandNames = new String[]{bandNameMap.get("hv")};
+            } else if (bandNameMap.containsKey("vh")) {
+                sourceBandNames = new String[]{bandNameMap.get("vh")};
+            } else if (bandNameMap.containsKey("hh")) {
+                sourceBandNames = new String[]{bandNameMap.get("hh")};
+            } else {
+                sourceBandNames = bandNameMap.values().toArray(new String[bandNameMap.size()]);
+            }
         }
 
         for (String srcBandName : sourceBandNames) {
@@ -201,12 +229,12 @@ public class AdaptiveThresholdingOp extends Operator {
             if (unit != null && (unit.contains(Unit.PHASE) || unit.contains(Unit.REAL) || unit.contains(Unit.IMAGINARY))) {
                 throw new OperatorException("Please select amplitude or intensity band for ship detection");
             } else {
-                final String srcBandNames = srcBand.getName();
-                final String targetBandName = srcBandNames + SHIPMASK_NAME;
-                targetBandNameToSourceBandName.put(targetBandName, srcBandNames);
+                final String targetBandName = srcBandName + SHIPMASK_NAME;
+                targetBandNameToSourceBandName.put(targetBandName, srcBandName);
 
-                final Band targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, false);
-                targetBand.setSourceImage(srcBand.getSourceImage());
+                if (!targetProduct.containsBand(srcBandName)) {
+                    final Band targetBand = ProductUtils.copyBand(srcBandName, sourceProduct, targetProduct, true);
+                }
 
                 final Band targetBandMask = new Band(targetBandName,
                                                      ProductData.TYPE_INT8,
@@ -241,26 +269,35 @@ public class AdaptiveThresholdingOp extends Operator {
             final ProductData trgData = targetTile.getDataBuffer();
             //System.out.println("tx0 = " + tx0 + ", ty0 = " + ty0 + ", tw = " + tw + ", th = " + th);
 
-            final int x0 = Math.max(tx0 - halfBackgroundWindowSize, 0);
-            final int y0 = Math.max(ty0 - halfBackgroundWindowSize, 0);
-            final int w = Math.min(tx0 + tw - 1 + halfBackgroundWindowSize, sourceImageWidth - 1) - x0 + 1;
-            final int h = Math.min(ty0 + th - 1 + halfBackgroundWindowSize, sourceImageHeight - 1) - y0 + 1;
-            final Rectangle sourceTileRectangle = new Rectangle(x0, y0, w, h);
+            final int x0, y0, w, h;
+            final Rectangle sourceTileRectangle;
+            if (estimateBackground) {
+                x0 = tx0;
+                y0 = ty0;
+                w = tw;
+                h = th;
+                sourceTileRectangle = targetTileRectangle;
+            } else {
+                x0 = Math.max(tx0 - halfBackgroundWindowSize, 0);
+                y0 = Math.max(ty0 - halfBackgroundWindowSize, 0);
+                w = Math.min(tx0 + tw - 1 + halfBackgroundWindowSize, sourceImageWidth - 1) - x0 + 1;
+                h = Math.min(ty0 + th - 1 + halfBackgroundWindowSize, sourceImageHeight - 1) - y0 + 1;
+                sourceTileRectangle = new Rectangle(x0, y0, w, h);
+            }
             //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
             final String srcBandName = targetBandNameToSourceBandName.get(targetBand.getName());
             final Band sourceBand = sourceProduct.getBand(srcBandName);
             final Tile sourceTile = getSourceTile(sourceBand, sourceTileRectangle);
+            final TileIndex trgIndex = new TileIndex(targetTile);
             final float[] data = sourceTile.getDataBufferFloat();
 
             final double noDataValue = sourceBand.getNoDataValue();
 
             double backgroundThreshold = 0;
-            if(estimateBackground) {
+            if (estimateBackground) {
                 backgroundThreshold = computeBackgroundThreshold(data, noDataValue);
             }
-
-            final TileIndex trgIndex = new TileIndex(targetTile);
 
             final int maxy = ty0 + th;
             final int maxx = tx0 + tw;
@@ -274,7 +311,11 @@ public class AdaptiveThresholdingOp extends Operator {
                         continue;
                     }
 
-                    if(!estimateBackground) {
+                    if (!estimateBackground) {
+                        if(targetMean < 0.005) {
+                            trgData.setElemIntAt(trgIndex.getIndex(tx), 0);
+                            continue;
+                        }
                         backgroundThreshold = computeBackgroundThreshold(tx, ty, data, x0, y0, w, h, noDataValue);
                     }
                     if (targetMean > backgroundThreshold) {
@@ -284,6 +325,7 @@ public class AdaptiveThresholdingOp extends Operator {
                     }
                 }
             }
+
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
@@ -311,22 +353,24 @@ public class AdaptiveThresholdingOp extends Operator {
             return v;
         }
 
-        final int x0 = Math.max((tx - xx0) - (targetWindowSize - 1) / 2, 0);
-        final int y0 = Math.max((ty - yy0) - (targetWindowSize - 1) / 2, 0);
-        final int w = Math.min((tx - xx0) + (targetWindowSize - 1) / 2, width - 1) - x0 + 1;
-        final int h = Math.min((ty - yy0) + (targetWindowSize - 1) / 2, height - 1) - y0 + 1;
+        final int x0 = Math.max((tx - xx0) - halfTargetWindowSize, 0);
+        final int y0 = Math.max((ty - yy0) - halfTargetWindowSize, 0);
+        final int w = Math.min((tx - xx0) + halfTargetWindowSize, width - 1) - x0 + 1;
+        final int h = Math.min((ty - yy0) + halfTargetWindowSize, height - 1) - y0 + 1;
 
         double mean = 0.0;
         int numPixels = 0;
+        int nodataCnt = 0;
 
         final int maxy = y0 + h;
         final int maxx = x0 + w;
         for (int y = y0; y < maxy; y++) {
+            int yWidth = y * width;
             for (int x = x0; x < maxx; x++) {
-                final double val = data[(y * width) + x];
+                final double val = data[yWidth + x];
 
                 if (noDataValue == val) {
-                    return noDataValue;
+                    nodataCnt++;
                 } else {
                     mean += val;
                     ++numPixels;
@@ -334,6 +378,9 @@ public class AdaptiveThresholdingOp extends Operator {
             }
         }
 
+        if(nodataCnt > (0.1 * w*h)) {
+            return noDataValue;
+        }
         return mean / numPixels;
     }
 
@@ -357,29 +404,26 @@ public class AdaptiveThresholdingOp extends Operator {
         // Compute the mean value for pixels in the background window.
         double sum = 0.0;
         double val;
-        int numPixels = 0;
         final int maxy = y0 + h;
         final int maxx = x0 + w;
 
-        final double[] dataArray = new double[w * h];
+        final List<Double> dataArray = new ArrayList<>(w * h);
         for (int y = y0; y < maxy; y++) {
             final int yy = y - (ty - yy0);
+            final int yWidth = y * width;
             final boolean yGtrHalfGuard = ((yy < 0) ? -yy : yy) > halfGuardWindowSize;
             for (int x = x0; x < maxx; x++) {
                 final int xx = x - (tx - xx0);
                 if (yGtrHalfGuard || ((xx < 0) ? -xx : xx) > halfGuardWindowSize) {
-                    val = data[(y * width) + x];
-                    if (noDataValue == val) {
-                        return Double.MAX_VALUE;
-                    } else {
+                    val = data[yWidth + x];
+                    if (noDataValue != val) {// && val < backgroundThreshold) {
                         sum += val;
-                        dataArray[numPixels] = val;
-                        ++numPixels;
+                        dataArray.add(val);
                     }
                 }
             }
         }
-        final double mean = sum / numPixels;
+        final double mean = sum / dataArray.size();
 
         // Compute the standard deviation value for pixels in the background window.
         double std = 0.0;
@@ -389,7 +433,7 @@ public class AdaptiveThresholdingOp extends Operator {
             std += tmp * tmp;
         }
 
-        final double backgroundSTD = Math.sqrt(std / numPixels);
+        final double backgroundSTD = Math.sqrt(std / dataArray.size());
 
         return mean + backgroundSTD * t;
     }
@@ -400,8 +444,8 @@ public class AdaptiveThresholdingOp extends Operator {
         double sum = 0.0;
         int numPixels = 0;
 
-        for(float val : data) {
-            if (noDataValue != val && val < 0.5) {
+        for (float val : data) {
+            if (noDataValue != val && val < backgroundThreshold) {
                 sum += val;
                 ++numPixels;
             }
@@ -411,8 +455,8 @@ public class AdaptiveThresholdingOp extends Operator {
         // Compute the standard deviation value for pixels in the background window.
         double std = 0.0;
         double tmp;
-        for(float val : data) {
-            if (noDataValue != val && val < 0.5) {
+        for (float val : data) {
+            if (noDataValue != val && val < backgroundThreshold) {
                 tmp = val - mean;
                 std += tmp * tmp;
             }

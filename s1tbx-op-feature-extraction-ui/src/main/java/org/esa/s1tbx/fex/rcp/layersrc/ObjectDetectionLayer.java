@@ -140,8 +140,7 @@ public class ObjectDetectionLayer extends Layer {
                                             Double.parseDouble(lat.getValue()),
                                             Double.parseDouble(lon.getValue()),
                                             (Double.parseDouble(width.getValue()) / rangeSpacing) + border,
-                                            (Double.parseDouble(length.getValue()) / azimuthSpacing) + border,
-                                            Double.parseDouble(intensity.getValue())));
+                                            (Double.parseDouble(length.getValue()) / azimuthSpacing) + border));
                                 }
                             }
                         }
