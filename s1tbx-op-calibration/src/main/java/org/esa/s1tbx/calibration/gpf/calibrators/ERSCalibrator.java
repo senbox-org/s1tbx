@@ -358,7 +358,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
             double sigma, dn, i, q, phaseTerm = 0.0;
             int index;
             int adcJ = 0;
-            final Double nodatavalue = targetBand.getNoDataValue();
+            final Double noDataValue = targetBand.getNoDataValue();
 
             for (int x = x0; x < maxX; x++) {
 
@@ -371,10 +371,10 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
                     index = sourceRaster1.getDataBufferIndex(x, y);
 
                     dn = srcData1.getElemDoubleAt(index);
-                    if(nodatavalue.equals(dn)) {
-                        trgData.setElemDoubleAt(targetTile.getDataBufferIndex(x, y), nodatavalue);
-                        continue;
-                    }
+//                    if(noDataValue.equals(dn)) {
+//                        trgData.setElemDoubleAt(targetTile.getDataBufferIndex(x, y), noDataValue);
+//                        continue;
+//                    }
 
                     if (srcBandUnit == Unit.UnitType.AMPLITUDE) {
                         dn *= dn;
@@ -384,10 +384,14 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
                         i = dn;
                         q = srcData2.getElemDoubleAt(index);
                         dn = i * i + q * q;
-                        if (tgtBandUnit == Unit.UnitType.REAL) {
-                            phaseTerm = i / Math.sqrt(dn);
-                        } else if (tgtBandUnit == Unit.UnitType.IMAGINARY) {
-                            phaseTerm = q / Math.sqrt(dn);
+                        if (dn > 0.0) {
+                            if (tgtBandUnit == Unit.UnitType.REAL) {
+                                phaseTerm = i / Math.sqrt(dn);
+                            } else if (tgtBandUnit == Unit.UnitType.IMAGINARY) {
+                                phaseTerm = q / Math.sqrt(dn);
+                            }
+                        } else {
+                            phaseTerm = 0.0;
                         }
                     } else if (srcBandUnit == Unit.UnitType.INTENSITY_DB) {
                         dn = FastMath.pow(10, dn / 10.0); // convert dB to linear scale

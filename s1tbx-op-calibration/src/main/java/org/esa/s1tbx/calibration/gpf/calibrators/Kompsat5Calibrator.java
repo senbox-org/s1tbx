@@ -276,10 +276,12 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
                         final double q = srcData2.getElemDoubleAt(srcIdx);
                         final double dn2 = i * i + q * q;
                         double phaseTerm = 0.0;
-                        if (tgtBandUnit == Unit.UnitType.REAL) {
-                            phaseTerm = i / Math.sqrt(dn2);
-                        } else if (tgtBandUnit == Unit.UnitType.IMAGINARY) {
-                            phaseTerm = q / Math.sqrt(dn2);
+                        if (dn2 > 0.0) {
+                            if (tgtBandUnit == Unit.UnitType.REAL) {
+                                phaseTerm = i / Math.sqrt(dn2);
+                            } else if (tgtBandUnit == Unit.UnitType.IMAGINARY) {
+                                phaseTerm = q / Math.sqrt(dn2);
+                            }
                         }
                         sigma = Math.sqrt(sigma) * phaseTerm;
                     }

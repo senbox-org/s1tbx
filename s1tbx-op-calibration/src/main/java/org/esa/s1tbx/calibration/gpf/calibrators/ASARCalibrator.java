@@ -924,7 +924,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
 
         double sigma, dn, i, q, phaseTerm = 0.0;
         final double theCalibrationFactor = newCalibrationConstant[prodBand];
-        final Double nodatavalue = targetBand.getNoDataValue();
+        final Double noDataValue = targetBand.getNoDataValue();
 
         int srcIdx, tgtIdx;
         for (int y = y0, yy = 0; y < maxY; ++y, ++yy) {
@@ -942,10 +942,10 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
                 tgtIdx = tgtIndex.getIndex(x);
 
                 dn = srcData1.getElemDoubleAt(srcIdx);
-                if(nodatavalue.equals(dn)) {
-                    trgData.setElemDoubleAt(tgtIdx, nodatavalue);
-                    continue;
-                }
+//                if(noDataValue.equals(dn)) {
+//                    trgData.setElemDoubleAt(tgtIdx, noDataValue);
+//                    continue;
+//                }
 
                 if (srcBandUnit == Unit.UnitType.AMPLITUDE) {
                     dn *= dn;
@@ -955,10 +955,14 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
                     i = dn;
                     q = srcData2.getElemDoubleAt(srcIdx);
                     dn = i * i + q * q;
-                    if (tgtBandUnit == Unit.UnitType.REAL) {
-                        phaseTerm = i / Math.sqrt(dn);
-                    } else if (tgtBandUnit == Unit.UnitType.IMAGINARY) {
-                        phaseTerm = q / Math.sqrt(dn);
+                    if (dn > 0.0) {
+                        if (tgtBandUnit == Unit.UnitType.REAL) {
+                            phaseTerm = i / Math.sqrt(dn);
+                        } else if (tgtBandUnit == Unit.UnitType.IMAGINARY) {
+                            phaseTerm = q / Math.sqrt(dn);
+                        }
+                    } else {
+                        phaseTerm = 0.0;
                     }
                 } else if (srcBandUnit == Unit.UnitType.INTENSITY_DB) {
                     dn = FastMath.pow(10, dn / 10.0); // convert dB to linear scale
