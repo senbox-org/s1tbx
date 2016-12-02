@@ -145,8 +145,6 @@ public class PyOperator extends Operator {
         synchronized (PyLib.class) {
             if ((computeMethodFlags & DO_EXECUTE_METHOD) != 0) {
                 pythonProcessor.doExecute(pm);
-            } else {
-                throw new OperatorException("Missing doExecute(self, pm) method.");
             }
         }
     }
