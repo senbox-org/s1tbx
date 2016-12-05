@@ -28,7 +28,7 @@
       <useSRTM>true</useSRTM>
       <geometry/>
       <invertGeometry>false</invertGeometry>
-      <byPass>false</byPass>
+      <shorelineExtension>0</shorelineExtension>
     </parameters>
   </node>
   <node id="Terrain-Mask">
