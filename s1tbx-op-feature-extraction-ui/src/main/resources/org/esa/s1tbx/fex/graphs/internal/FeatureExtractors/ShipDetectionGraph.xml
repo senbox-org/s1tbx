@@ -18,7 +18,7 @@
       <useSRTM>true</useSRTM>
       <geometry/>
       <invertGeometry>false</invertGeometry>
-      <byPass>false</byPass>
+      <shorelineExtension>10</shorelineExtension>
     </parameters>
   </node>
     <node id="Calibration">
