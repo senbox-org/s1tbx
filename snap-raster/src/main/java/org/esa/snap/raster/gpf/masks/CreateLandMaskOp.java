@@ -75,8 +75,8 @@ public class CreateLandMaskOp extends Operator {
     @Parameter(label = "Invert Vector", defaultValue = "false")
     private Boolean invertGeometry = false;
 
-    @Parameter(label = "Bypass", defaultValue = "false")
-    private Boolean byPass = false;
+    @Parameter(label = "Extend shoreline by this many pixels", defaultValue = "0")
+    private Integer shorelineExtension = 0;
 
     private ElevationModel dem = null;
     private final static int landThreshold = -10;
@@ -89,11 +89,15 @@ public class CreateLandMaskOp extends Operator {
         try {
 
             targetProduct = new Product(sourceProduct.getName(), sourceProduct.getProductType(),
-                    sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
+                                        sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
 
             ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
             addSelectedBands();
+
+            if (shorelineExtension == null) {
+                shorelineExtension = 0;
+            }
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -131,17 +135,17 @@ public class CreateLandMaskOp extends Operator {
 
         for (Band srcBand : sourceBands) {
 
-            if(srcBand instanceof VirtualBand && copyVirtualBands) {
-                ProductUtils.copyVirtualBand(targetProduct, (VirtualBand)srcBand, srcBand.getName());
-            } else if (geometry != null && !geometry.isEmpty() && !byPass) {
+            if (srcBand instanceof VirtualBand && copyVirtualBands) {
+                ProductUtils.copyVirtualBand(targetProduct, (VirtualBand) srcBand, srcBand.getName());
+            } else if (geometry != null && !geometry.isEmpty()) {
                 String expression = geometry + " ? " + srcBand.getName() + " : " + srcBand.getNoDataValue();
                 if (invertGeometry) {
                     expression = '!' + expression;
                 }
                 final VirtualBand virtBand = new VirtualBand(srcBand.getName() + tmpVirtBandName,
-                        srcBand.getDataType(),
-                        srcBand.getRasterWidth(), srcBand.getRasterHeight(),
-                        expression);
+                                                             srcBand.getDataType(),
+                                                             srcBand.getRasterWidth(), srcBand.getRasterHeight(),
+                                                             expression);
                 virtBand.setUnit(srcBand.getUnit());
                 virtBand.setDescription(srcBand.getDescription());
                 sourceProduct.addBand(virtBand);
@@ -150,13 +154,13 @@ public class CreateLandMaskOp extends Operator {
                 targetBand.setName(srcBand.getName());
                 targetBand.setSourceImage(virtBand.getSourceImage());
             } else {
-                ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, byPass);
+                ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, false);
             }
         }
     }
 
     public void dispose() {
-        if (geometry != null && !geometry.isEmpty() && !byPass) {
+        if (geometry != null && !geometry.isEmpty()) {
             final Band[] sourceBands = sourceProduct.getBands();
             for (Band srcBand : sourceBands) {
                 if (srcBand.getName().contains(tmpVirtBandName)) {
@@ -184,6 +188,7 @@ public class CreateLandMaskOp extends Operator {
             }
 
             final TileData[] trgTiles = getTargetTiles(targetTiles, targetRectangle, sourceProduct);
+            final Tile targetTile = trgTiles[0].targetTile;
 
             final int minX = targetRectangle.x;
             final int minY = targetRectangle.y;
@@ -204,6 +209,8 @@ public class CreateLandMaskOp extends Operator {
                 srcTileIndex.calculateStride(y);
                 trgTileIndex.calculateStride(y);
                 final int yy = y - minY;
+                final int eMinY = Math.max(minY, y - shorelineExtension);
+                final int eMaxY = Math.min(maxY, y + shorelineExtension);
                 for (int x = minX; x < maxX; ++x) {
                     final int trgIndex = trgTileIndex.getIndex(x);
                     final Double elev = localDEM[yy][x - minX];
@@ -224,11 +231,25 @@ public class CreateLandMaskOp extends Operator {
                         final int srcIndex = srcTileIndex.getIndex(x);
                         for (TileData tileData : trgTiles) {
                             tileData.tileDataBuffer.setElemDoubleAt(trgIndex,
-                                    tileData.srcDataBuffer.getElemDoubleAt(srcIndex));
+                                                                    tileData.srcDataBuffer.getElemDoubleAt(srcIndex));
                         }
                     } else {
-                        for (TileData tileData : trgTiles) {
-                            tileData.tileDataBuffer.setElemDoubleAt(trgIndex, tileData.noDataValue);
+                        if (shorelineExtension > 0) {
+                            final int eMinX = Math.max(minX, x - shorelineExtension);
+                            final int eMaxX = Math.min(maxX, x + shorelineExtension);
+
+                            for (int ey = eMinY; ey < eMaxY; ++ey) {
+                                for (int ex = eMinX; ex < eMaxX; ++ex) {
+                                    int eIndex = targetTile.getDataBufferIndex(ex, ey);
+                                    for (TileData tileData : trgTiles) {
+                                        tileData.tileDataBuffer.setElemDoubleAt(eIndex, tileData.noDataValue);
+                                    }
+                                }
+                            }
+                        } else {
+                            for (TileData tileData : trgTiles) {
+                                tileData.tileDataBuffer.setElemDoubleAt(trgIndex, tileData.noDataValue);
+                            }
                         }
                     }
                 }
