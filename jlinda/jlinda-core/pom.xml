@@ -103,6 +103,7 @@
                         <publicPackage>gnu.trove.*</publicPackage>
                         <publicPackage>edu.emory.mathcs.jtransforms.*</publicPackage>
                         <publicPackage>com.google.common.*</publicPackage>
+                        <publicPackage>org.apache.commons.*</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>
