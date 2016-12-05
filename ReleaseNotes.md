@@ -2,7 +2,7 @@
 
 ###Bugs fixed 
 
-https://senbox.atlassian.net/secure/ReleaseNote.jspa?projectId=10202&version=11504
+https://senbox.atlassian.net/secure/ReleaseNote.jspa?projectId=10202&version=11505
 
 ###New Features and Important Changes
 * Backgeocoding can handle multiple slave images
