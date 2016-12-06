@@ -85,10 +85,9 @@ public class ReadOp extends Operator {
             Product openedProduct = getOpenedProduct();
             if (openedProduct != null) {
                 //targetProduct = openedProduct;    // won't work. Product must be copied and use copySourceImage
+
                 targetProduct = new Product(openedProduct.getName(), openedProduct.getProductType(),
                                             openedProduct.getSceneRasterWidth(), openedProduct.getSceneRasterHeight());
-                ProductUtils.copyProductNodes(openedProduct, targetProduct);
-
                 for (Band srcband : openedProduct.getBands()) {
                     if (targetProduct.getBand(srcband.getName()) != null) {
                         continue;
@@ -99,6 +98,8 @@ public class ReadOp extends Operator {
                         ProductUtils.copyBand(srcband.getName(), openedProduct, targetProduct, true);
                     }
                 }
+                ProductUtils.copyProductNodes(openedProduct, targetProduct);
+
             }else {
                 ProductReader productReader;
                 if (formatName != null && !formatName.trim().isEmpty()) {
