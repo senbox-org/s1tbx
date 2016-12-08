@@ -431,10 +431,10 @@ public class Mask extends Band {
                 final Mask newMask = new Mask(maskName, w, h, this);
                 newMask.setDescription(mask.getDescription());
                 setImageStyle(mask.getImageConfig(), mask.getImageColor(), mask.getImageTransparency());
-                setVectorData(newMask,getVectorData(mask));
-                newMask.setGeoCoding(mask.getGeoCoding());
-
+                setVectorData(newMask, getVectorData(mask));
                 product.getMaskGroup().add(newMask);
+                ProductUtils.copyGeoCoding(mask, newMask);
+
                 return newMask;
             }
             return null;
