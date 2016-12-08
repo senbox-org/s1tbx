@@ -414,6 +414,33 @@ public class Mask extends Band {
             super(TYPE_NAME);
         }
 
+
+
+        @Override
+        public boolean canTransferMask(Mask mask, Product product) {
+            return getVectorData(mask) != null;
+        }
+
+        @Override
+        public Mask transferMask(Mask mask, Product product) {
+            if (canTransferMask(mask, product)) {
+                final String originalMaskName = mask.getName();
+                final String maskName = ProductUtils.getAvailableNodeName(originalMaskName, product.getMaskGroup());
+                final int w = mask.getRasterWidth();
+                final int h = mask.getRasterHeight();
+                final Mask newMask = new Mask(maskName, w, h, this);
+                newMask.setDescription(mask.getDescription());
+                setImageStyle(mask.getImageConfig(), mask.getImageColor(), mask.getImageTransparency());
+                setVectorData(newMask, getVectorData(mask));
+                product.getMaskGroup().add(newMask);
+                ProductUtils.copyGeoCoding(mask, newMask);
+
+                return newMask;
+            }
+            return null;
+        }
+
+
         /**
          * Creates the image.
          *
