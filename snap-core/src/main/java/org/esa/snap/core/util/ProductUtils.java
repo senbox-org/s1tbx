@@ -1119,7 +1119,8 @@ public class ProductUtils {
     }
 
     /**
-     * Copies all properties from source product to the target product.
+     * Copies all properties, except bands, from source product to the target product. only those bands are copied which
+     * are used by copied properties. For example latitude and longitude bands of a pixel-based geo-coding.
      *
      * @param sourceProduct the source product
      * @param targetProduct the target product
