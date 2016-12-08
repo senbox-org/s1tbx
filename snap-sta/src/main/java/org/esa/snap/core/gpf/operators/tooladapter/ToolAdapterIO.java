@@ -39,7 +39,6 @@ import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
@@ -255,7 +254,7 @@ public class ToolAdapterIO {
                     try {
                         p.getTemplate().save();
                     } catch (IOException e) {
-                        SystemUtils.LOG.severe(String.format("Failed to save template for parameter %s [%s]", p.getName(), e.getMessage()));
+                        logger.severe(String.format("Failed to save template for parameter %s [%s]", p.getName(), e.getMessage()));
                     }
                 });
         ToolAdapterRegistry.INSTANCE.registerOperator(operatorSpi);
@@ -284,12 +283,12 @@ public class ToolAdapterIO {
      * @throws IOException
      */
     public static List<File> scanForAdapters() throws IOException {
-        logger.log(Level.INFO, "Loading external tools...");
+        logger.info("Initializing external tool adapters");
         List<File> modules = new ArrayList<>();
         Set<Path> modulesPath = getClusterModulesPaths();
         modulesPath.add(getAdaptersPath());
         for (Path path : modulesPath) {
-            logger.info("Scanning for external tools adapters: " + path.toAbsolutePath().toString());
+            logger.fine("Scanning for external tools adapters: " + path.toAbsolutePath().toString());
             modules.addAll(scanForAdapters(path));
         }
 
@@ -558,11 +557,11 @@ public class ToolAdapterIO {
         if (Files.isRegularFile(clustersFile)) {
             try {
                 clusterNames = Files.readAllLines(clustersFile).stream()
-                        .filter(name -> !name.trim().isEmpty())
+                        .filter(name -> !name.trim().isEmpty() && !"java".equals(name))
                         .map(installDir::resolve)
                         .collect(Collectors.toSet());
             } catch (IOException e) {
-                SystemUtils.LOG.severe(String.format("Failed to load clusters file from '%s'", clustersFile));
+                logger.severe(String.format("Failed to load clusters file from '%s'", clustersFile));
             }
         }
         for (String clusterName : excludedClusters) {

@@ -19,7 +19,6 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import org.esa.snap.core.gpf.descriptor.template.*;
 import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterConstants;
-import org.esa.snap.core.util.SystemUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -42,6 +42,8 @@ public class TemplateParameterDescriptor extends ToolParameterDescriptor {
     private File outputFile;
     @XStreamOmitField
     private TemplateEngine engine;
+    @XStreamOmitField
+    private Logger logger = Logger.getLogger(TemplateParameterDescriptor.class.getName());
 
     public TemplateParameterDescriptor(){
         super();
@@ -91,7 +93,7 @@ public class TemplateParameterDescriptor extends ToolParameterDescriptor {
                         this.template.associateWith(this.engine);
                     }
                 } catch (TemplateException e) {
-                    SystemUtils.LOG.warning(e.getMessage());
+                    logger.warning(e.getMessage());
                 }
             }
         }

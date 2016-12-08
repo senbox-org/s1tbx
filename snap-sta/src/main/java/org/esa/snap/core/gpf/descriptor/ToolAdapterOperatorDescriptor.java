@@ -28,7 +28,6 @@ import org.esa.snap.core.gpf.descriptor.template.TemplateType;
 import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterConstants;
 import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterIO;
 import org.esa.snap.core.util.StringUtils;
-import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.utils.PrivilegedAccessor;
 
@@ -37,6 +36,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -54,6 +54,7 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
             ToolAdapterOperatorDescriptor.class, TemplateParameterDescriptor.class,
             SystemVariable.class, SystemDependentVariable.class, TemplateFile.class
     };
+    private static final Logger logger = Logger.getLogger(ToolAdapterOperatorDescriptor.class.getName());
 
     private String name;
     private Class<? extends Operator> operatorClass;
@@ -102,7 +103,7 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
         try {
             PrivilegedAccessor.setValue(this.sourceProductDescriptors[0], "name", ToolAdapterConstants.TOOL_SOURCE_PRODUCT_ID);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.fine(e.getMessage());
         }
         this.variables = new ArrayList<>();
         this.toolParameterDescriptors = new ArrayList<>();
@@ -152,10 +153,10 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
                     this.template.associateWith(getTemplateEngine());
                     this.template.setContents("Error: " + ioex.getMessage(), false);
                 } catch (TemplateException e) {
-                    SystemUtils.LOG.warning(e.getMessage());
+                    logger.warning(e.getMessage());
                 }
             } catch (TemplateException e) {
-                SystemUtils.LOG.warning(e.getMessage());
+                logger.warning(e.getMessage());
             }
         }
         this.progressPattern = obj.progressPattern;
@@ -639,7 +640,7 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
             try {
                 ToolAdapterIO.convertAdapter(file.toPath());
                 String name = FileUtils.getFilenameWithoutExtension(file.getParentFile() != null ? file.getParentFile() : file);
-                SystemUtils.LOG.info(String.format("Adapter %s has been automatically converted to the new format", name));
+                logger.fine(String.format("Adapter %s has been automatically converted to the new format", name));
             } catch (IOException e1) {
                 throw new OperatorException(formatReadExceptionText(resourceName, e), e);
             }
@@ -681,7 +682,7 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
                     }
                     param.setTemplateEngine(descriptor.getTemplateEngine());
                 } catch (TemplateException e) {
-                    SystemUtils.LOG.severe(e.getMessage());
+                    logger.severe(e.getMessage());
                 }
             });
         } catch (StreamException e) {
