@@ -1,8 +1,8 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html><head><title>Help - Calibration</title>
 
-<link rel="stylesheet" href="../style.css"></head>
-<body>
+
+<link rel="stylesheet" href="../style.css"></head><body>
 <table class="header">
 <tbody>
 <tr class="header">
@@ -319,7 +319,36 @@ TerraSAR-X product calibration algorithm, reader is referred to [5].</p>
 Cosmo-SkyMed products by applying few product factor corrections.</p>
 <p>For detailed Cosmo-SkyMed product calibration algorithm,
 reader is referred to [6].</p>
+<h4>Kompsat-5</h4>
+
+<p>Currently only High Resolution and Standard Modes are supported by the operator. Wide Swath Modes are not supported. <br>
+</p>
+<p>High Resolution modes include the following imaging modes:</p>
+<ul>
+  <li>HR: High Resolution Mode</li>
+  <li>EH: Enhanced High Resolution Mode</li>
+  <li>UH: Ultra High Resolution Mode</li>
+</ul>
+
+<p>Standard Modes include the following imaging modes:</p>
+<ul>
+  <li>ST: Standard Mode</li>
+  <li>ES: Enhanced Standard Mode<br>
+  </li>
+</ul>
+
+<p>For High Resolution modes, the following radiometric calibration is applied: <br>
+</p>
+<p><img style="width: 531px; height: 94px;" alt="" src="images/calibration_eq4.jpg"></p>
+<p>where <span style="font-style: italic;">F</span> is the rescaling factor and <span style="font-style: italic;">K</span> is the calibration constant in HDF attributes, and <span style="font-style: italic;">&#952;</span><small><span style="font-style: italic;">ref</span> </small>is the reference incidence angle.<br>
+</p>
+<p>For Standard Modes, the following equation is applied: <br>
+</p>
+<p><img style="width: 569px; height: 92px;" alt="" src="images/calibration_eq5.jpg"></p>
+<p>where &#916;A is the pixel area given by (azimuth spacing x range spacing).<br>
+</p>
 <h4>Parameters Used</h4>
+
 <p> The parameters used by the operator are as follows:
 </p>
 <ol>
