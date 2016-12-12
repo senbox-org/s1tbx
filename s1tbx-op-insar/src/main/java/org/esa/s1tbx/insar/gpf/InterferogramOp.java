@@ -17,11 +17,9 @@ package org.esa.s1tbx.insar.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
+import org.esa.s1tbx.insar.gpf.support.SARUtils;
 import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -775,6 +773,7 @@ public class InterferogramOp extends Operator {
                     cohMatrix = SarUtils.cplxCoherence(dataMaster2, dataSlave2, cohWinAz, cohWinRg);
                 }
 
+                DoubleMatrix realReferencePhase = null;
                 ComplexDoubleMatrix complexReferencePhase = null;
                 if (subtractFlatEarthPhase) {
                     // normalize range and azimuth axis
@@ -788,8 +787,7 @@ public class InterferogramOp extends Operator {
                     final DoubleMatrix polyCoeffs = flatEarthPolyMap.get(product.sourceSlave.name);
 
                     // estimate the phase on the grid
-                    final DoubleMatrix realReferencePhase =
-                            PolyUtils.polyval(azimuthAxisNormalized, rangeAxisNormalized,
+                    realReferencePhase = PolyUtils.polyval(azimuthAxisNormalized, rangeAxisNormalized,
                                               polyCoeffs, PolyUtils.degreeFromCoefficients(polyCoeffs.length));
 
                     // compute the reference phase
@@ -815,6 +813,13 @@ public class InterferogramOp extends Operator {
                     tgtCohData = tgtCohTile.getDataBuffer();
                 }
 
+                ProductData samplesFep = null;
+                if (subtractFlatEarthPhase && OUTPUT_FLAT_EARTH_PHASE) {
+                    final Band targetBandFep = targetProduct.getBand(product.getBandName(Unit.PHASE));
+                    final Tile tileOutFep = targetTileMap.get(targetBandFep);
+                    samplesFep = tileOutFep.getDataBuffer();
+                }
+
                 /// commit to target ///
                 final Band targetBand_I = targetProduct.getBand(product.getBandName(Unit.REAL));
                 final Tile tileOutReal = targetTileMap.get(targetBand_I);
@@ -823,7 +828,6 @@ public class InterferogramOp extends Operator {
                 final Tile tileOutImag = targetTileMap.get(targetBand_Q);
 
                 // push all
-
                 final ProductData samplesReal = tileOutReal.getDataBuffer();
                 final ProductData samplesImag = tileOutImag.getDataBuffer();
                 final DoubleMatrix dataReal = dataMaster.real();
@@ -838,22 +842,28 @@ public class InterferogramOp extends Operator {
                     srcSlvIndex.calculateStride(y);
                     final int yy = y - y0;
                     for (int x = x0; x <= xN; x++) {
-                        final int trgIndex = tgtIndex.getIndex(x);
+                        final int tgtIdx = tgtIndex.getIndex(x);
                         final int xx = x - x0;
                         if (srcSlvData.getElemDoubleAt(srcSlvIndex.getIndex(x)) == srcNoDataValue) {
-                            samplesReal.setElemFloatAt(trgIndex, (float) srcNoDataValue);
-                            samplesImag.setElemFloatAt(trgIndex, (float) srcNoDataValue);
+                            samplesReal.setElemFloatAt(tgtIdx, (float) srcNoDataValue);
+                            samplesImag.setElemFloatAt(tgtIdx, (float) srcNoDataValue);
                             if (includeCoherence) {
-                                tgtCohData.setElemFloatAt(trgIndex, (float) srcNoDataValue);
+                                tgtCohData.setElemFloatAt(tgtIdx, (float) srcNoDataValue);
+                            }
+                            if (samplesFep != null) {
+                                samplesFep.setElemFloatAt(tgtIdx, (float) srcNoDataValue);
                             }
                         } else {
-                            samplesReal.setElemFloatAt(trgIndex, (float) dataReal.get(yy, xx));
-                            samplesImag.setElemFloatAt(trgIndex, (float) dataImag.get(yy, xx));
+                            samplesReal.setElemFloatAt(tgtIdx, (float) dataReal.get(yy, xx));
+                            samplesImag.setElemFloatAt(tgtIdx, (float) dataImag.get(yy, xx));
                             if (includeCoherence) {
                                 final double cohI = cohDataReal.get(yy, xx);
                                 final double cohQ = cohDataImag.get(yy, xx);
                                 final double coh = Math.sqrt(cohI * cohI + cohQ * cohQ);
-                                tgtCohData.setElemFloatAt(trgIndex, (float) coh);
+                                tgtCohData.setElemFloatAt(tgtIdx, (float) coh);
+                            }
+                            if (samplesFep != null && realReferencePhase != null) {
+                                samplesFep.setElemFloatAt(tgtIdx, (float) realReferencePhase.get(yy, xx));
                             }
                         }
                     }
