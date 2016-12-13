@@ -90,10 +90,11 @@ public final class SubtRefDemOp extends Operator {
             defaultValue = "100")
     private String tileExtensionPercent = "100";
 
-    @Parameter(description = "The topographic phase band name.",
-            defaultValue = "topo_phase",
-            label = "Topo Phase Band Name")
-    private String topoPhaseBandName = "topo_phase";
+    @Parameter(description = "Output topographic phase band.", defaultValue = "false", label = "Output topographic phase band")
+    private Boolean outputTopoPhaseBand = false;
+
+    @Parameter(description = "Output elevation band.", defaultValue = "false", label = "Output elevation band")
+    private Boolean outputElevationBand = false;
 
     private ElevationModel dem = null;
     private double demNoDataValue = 0;
@@ -116,8 +117,6 @@ public final class SubtRefDemOp extends Operator {
     private static final boolean CREATE_VIRTUAL_BAND = true;
     private static final String PRODUCT_SUFFIX = "_DInSAR";
 
-    private boolean outputDEM = false;
-
     /**
      * Initializes this operator and sets the one and only target product.
      * <p>The target product can be either defined by a field of type {@link Product} annotated with the
@@ -136,6 +135,12 @@ public final class SubtRefDemOp extends Operator {
 
         try {
             checkUserInput();
+
+            if(outputTopoPhaseBand == null)
+                outputTopoPhaseBand = false;
+
+            if(outputElevationBand == null)
+                outputElevationBand = false;
 
             constructSourceMetadata();
             constructTargetMetadata();
@@ -322,13 +327,13 @@ public final class SubtRefDemOp extends Operator {
             final String pol = master.polarisation.isEmpty() ? "" : '_' + master.polarisation.toUpperCase();
             final String tag = pol + '_' + master.date + '_' + slave.date;
 
-            String targetBandName_I = 'i' + tag;
+            String targetBandName_I = "i_ifg" + tag;
             Band iBand = targetProduct.addBand(targetBandName_I, ProductData.TYPE_FLOAT32);
             container.addBand(Unit.REAL, iBand.getName());
             iBand.setUnit(Unit.REAL);
             targetBandNames.add(iBand.getName());
 
-            String targetBandName_Q = 'q' + tag;
+            String targetBandName_Q = "q_ifg" + tag;
             Band qBand = targetProduct.addBand(targetBandName_Q, ProductData.TYPE_FLOAT32);
             container.addBand(Unit.IMAGINARY, qBand.getName());
             qBand.setUnit(Unit.IMAGINARY);
@@ -349,20 +354,14 @@ public final class SubtRefDemOp extends Operator {
             }
 
             if (container.subProductsFlag) {
-                String topoBandName = topoPhaseBandName + tag;
-                Band topoBand = targetProduct.addBand(topoBandName, ProductData.TYPE_FLOAT32);
-                container.addBand(Unit.PHASE, topoBand.getName());
-                topoBand.setNoDataValue(demNoDataValue);
-                topoBand.setUnit(Unit.PHASE);
-                topoBand.setDescription("topographic_phase");
-                targetBandNames.add(topoBand.getName());
-
-                if (outputDEM) {
-                    Band elevBand = targetProduct.addBand("elevation", ProductData.TYPE_FLOAT32);
-                    elevBand.setNoDataValue(demNoDataValue);
-                    elevBand.setUnit(Unit.METERS);
-                    elevBand.setDescription("elevation");
-                    targetBandNames.add(elevBand.getName());
+                if(outputTopoPhaseBand) {
+                    String topoBandName = "topo_phase" + tag;
+                    Band topoBand = targetProduct.addBand(topoBandName, ProductData.TYPE_FLOAT32);
+                    container.addBand(Unit.PHASE, topoBand.getName());
+                    topoBand.setNoDataValue(demNoDataValue);
+                    topoBand.setUnit(Unit.PHASE);
+                    topoBand.setDescription("topographic_phase");
+                    targetBandNames.add(topoBand.getName());
                 }
             }
 
@@ -384,6 +383,13 @@ public final class SubtRefDemOp extends Operator {
             String slvProductName = StackUtils.findOriginalSlaveProductName(sourceProduct, container.sourceSlave.realBand);
             StackUtils.saveSlaveProductBandNames(targetProduct, slvProductName,
                                                  targetBandNames.toArray(new String[targetBandNames.size()]));
+        }
+
+        if (outputElevationBand) {
+            Band elevBand = targetProduct.addBand("elevation", ProductData.TYPE_FLOAT32);
+            elevBand.setNoDataValue(demNoDataValue);
+            elevBand.setUnit(Unit.METERS);
+            elevBand.setDescription("elevation");
         }
     }
 
@@ -426,7 +432,7 @@ public final class SubtRefDemOp extends Operator {
 
                 ProductContainer product = targetMap.get(ifgKey);
 
-                TopoPhase topoPhase = computeTopoPhase(product, tileWindow, demTile, outputDEM);
+                TopoPhase topoPhase = computeTopoPhase(product, tileWindow, demTile, outputElevationBand);
 
                 /// check out results from source ///
                 Tile tileReal = getSourceTile(product.sourceMaster.realBand, targetRectangle);
@@ -448,11 +454,13 @@ public final class SubtRefDemOp extends Operator {
                 Tile tileOutImag = targetTileMap.get(targetBand_Q);
                 TileUtilsDoris.pushDoubleMatrix(complexIfg.imag(), tileOutImag, targetRectangle);
 
-                topoPhaseBand = targetProduct.getBand(product.getBandName(Unit.PHASE));
-                Tile tileOutTopoPhase = targetTileMap.get(topoPhaseBand);
-                TileUtilsDoris.pushDoubleArray2D(topoPhase.demPhase, tileOutTopoPhase, targetRectangle);
+                if(outputTopoPhaseBand) {
+                    topoPhaseBand = targetProduct.getBand(product.getBandName(Unit.PHASE));
+                    Tile tileOutTopoPhase = targetTileMap.get(topoPhaseBand);
+                    TileUtilsDoris.pushDoubleArray2D(topoPhase.demPhase, tileOutTopoPhase, targetRectangle);
+                }
 
-                if (outputDEM) {
+                if (outputElevationBand) {
                     elevBand = targetProduct.getBand("elevation");
                     Tile tileElevBand = targetTileMap.get(elevBand);
                     TileUtilsDoris.pushDoubleArray2D(topoPhase.elevation, tileElevBand, targetRectangle);

@@ -10,13 +10,7 @@ import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
 import org.esa.snap.rcp.util.Dialogs;
 import org.esa.snap.ui.AppContext;
 
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
+import javax.swing.*;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -43,7 +37,8 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
     private final JLabel externalDEMFileLabel = new JLabel("External DEM:");
     private final JLabel externalDEMNoDataValueLabel = new JLabel("DEM No Data Value:");
 
-    private final JTextField topoPhaseBandName = new JTextField("");
+    private final JCheckBox outputTopoPhaseBand = new JCheckBox("Output topographic phase band");
+    private final JCheckBox outputElevationBand = new JCheckBox("Output elevation band");
 
     private Double extNoDataValue = 0.0;
     private final DialogUtils.TextAreaKeyListener textAreaKeyListener = new DialogUtils.TextAreaKeyListener();
@@ -111,9 +106,17 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
                 externalDEMNoDataValue.setText(String.valueOf(extNoDataValue));
             }
         }
-        topoPhaseBandName.setText(String.valueOf(paramMap.get("topoPhaseBandName")));
-
         tileExtensionPercent.setSelectedItem(paramMap.get("tileExtensionPercent"));
+
+        Boolean outputTopoPhase = (Boolean)paramMap.get("outputTopoPhaseBand");
+        if(outputTopoPhase != null) {
+            outputTopoPhaseBand.setSelected(outputTopoPhase);
+        }
+
+        Boolean outputElevation = (Boolean)paramMap.get("outputElevationBand");
+        if(outputElevation != null) {
+            outputElevationBand.setSelected(outputElevation);
+        }
     }
 
     @Override
@@ -130,8 +133,10 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
             paramMap.put("externalDEMFile", new File(extFileStr));
             paramMap.put("externalDEMNoDataValue", Double.parseDouble(externalDEMNoDataValue.getText()));
         }
-        paramMap.put("topoPhaseBandName", topoPhaseBandName.getText());
         paramMap.put("tileExtensionPercent", tileExtensionPercent.getSelectedItem());
+
+        paramMap.put("outputTopoPhaseBand", outputTopoPhaseBand.isSelected());
+        paramMap.put("outputElevationBand", outputElevationBand.isSelected());
     }
 
     private JComponent createPanel() {
@@ -151,13 +156,17 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, externalDEMNoDataValueLabel, externalDEMNoDataValue);
         gbc.gridy++;
-        DialogUtils.addComponent(contentPane, gbc, "Topo Phase Band Name:", topoPhaseBandName);
-        gbc.gridy++;
 
         gbc.gridx = 0;
-        gbc.gridy = gbc.gridy + 10;
         DialogUtils.addComponent(contentPane, gbc, "Tile Extension [%]", tileExtensionPercent);
-        
+        gbc.gridy++;
+
+        DialogUtils.addComponent(contentPane, gbc, "", outputTopoPhaseBand);
+        gbc.gridy++;
+
+        DialogUtils.addComponent(contentPane, gbc, "", outputElevationBand);
+        gbc.gridy++;
+
         DialogUtils.fillPanel(contentPane, gbc);
 
         return contentPane;
