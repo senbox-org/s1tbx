@@ -302,19 +302,31 @@ public class ResamplingOp extends Operator {
             }
             final AffineTransform gridTransform = grid.getImageToModelTransform();
             transform.concatenate(gridTransform);
-            if (Math.abs(transform.getScaleX() - 1.0) > 1e-8 || Math.abs(transform.getScaleY() - 1.0) > 1e-8 ||
-                    scaledReferenceOffsetX != 0 || scaledReferenceOffsetY != 0) {
-                double subSamplingX = grid.getSubSamplingX() * transform.getScaleX();
-                double subSamplingY = grid.getSubSamplingY() * transform.getScaleY();
-                double offsetX = (grid.getOffsetX() * transform.getScaleX()) - scaledReferenceOffsetX;
-                double offsetY = (grid.getOffsetY() * transform.getScaleY()) - scaledReferenceOffsetY;
-                final TiePointGrid resampledGrid = new TiePointGrid(grid.getName(), grid.getGridWidth(), grid.getGridHeight(),
-                                                                    offsetX, offsetY, subSamplingX, subSamplingY, grid.getTiePoints());
-                targetProduct.addTiePointGrid(resampledGrid);
-                ProductUtils.copyRasterDataNodeProperties(grid, resampledGrid);
-            } else {
-                ProductUtils.copyTiePointGrid(grid.getName(), sourceProduct, targetProduct);
+            double subSamplingX = grid.getSubSamplingX();
+            if (Math.abs(transform.getScaleX() - 1.0) > 1e-8) {
+                subSamplingX = grid.getSubSamplingX() * transform.getScaleX();
             }
+            double subSamplingY = grid.getSubSamplingY();
+            if (Math.abs(transform.getScaleY() - 1.0) > 1e-8) {
+                subSamplingY = grid.getSubSamplingY() * transform.getScaleY();
+            }
+            double offsetX = grid.getOffsetX();
+            if (Math.abs(transform.getTranslateX()) > 1e-8) {
+                offsetX = (grid.getOffsetX() * transform.getScaleX()) - scaledReferenceOffsetX;
+            }
+            double offsetY = grid.getOffsetY();
+            if (Math.abs(transform.getTranslateY()) > 1e-8) {
+                offsetY = (grid.getOffsetY() * transform.getScaleY()) - scaledReferenceOffsetY;
+            }
+            final float[] srcTiePoints = grid.getTiePoints();
+            final float[] destTiePoints = new float[srcTiePoints.length];
+            System.arraycopy(srcTiePoints, 0, destTiePoints, 0, srcTiePoints.length);
+            final TiePointGrid resampledGrid = new TiePointGrid(grid.getName(), grid.getGridWidth(),
+                                                                grid.getGridHeight(), offsetX, offsetY,
+                                                                subSamplingX, subSamplingY, destTiePoints,
+                                                                grid.getDiscontinuity());
+            ProductUtils.copyRasterDataNodeProperties(grid, resampledGrid);
+            targetProduct.addTiePointGrid(resampledGrid);
         }
     }
 
