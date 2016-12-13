@@ -47,10 +47,12 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
     private double rescalingFactor = 0.0;
     private double calibrationConstant = 0.0;
     private double calibrationFactor = 0.0;
+    private double pixelArea = 0.0;
     private int windowSize = 0;
     private int halfWindowSize = 0;
     private int sourceImageWidth = 0;
     private int sourceImageHeight = 0;
+    private boolean highResolutionMode = false;
 
     /**
      * Default constructor. The graph processing framework
@@ -106,10 +108,17 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
             }
 
             // HIGH RESOLUTION / STANDARD / WIDE SWATH
-            /*acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
-            if (!acquisitionMode.equals("STANDARD")) {
-                throw new OperatorException("Only Stripmap mode product is currently supported");
-            }*/
+            acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+            if (acquisitionMode.equals("HIGH RESOLUTION")) {
+                final double rs = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
+                final double as = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.azimuth_spacing);
+                pixelArea = rs * as;
+                highResolutionMode = true;
+            } else if (acquisitionMode.equals("STANDARD")) {
+                highResolutionMode = false;
+            } else {
+                throw new OperatorException("Only High Resolution and Standard modes are currently supported");
+            }
 
             referenceIncidenceAngle = absRoot.getAttributeDouble(
                     AbstractMetadata.ref_inc_angle) * Constants.PI / 180.0;
@@ -194,6 +203,10 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
 
         sigma *= calibrationFactor;
 
+        if (highResolutionMode) {
+            sigma /= pixelArea;
+        }
+
         if (outputImageScaleInDb) { // convert calibration result to dB
             if (sigma < underFlowFloat) {
                 sigma = -underFlowFloat;
@@ -269,6 +282,10 @@ public class Kompsat5Calibrator extends BaseCalibrator implements Calibrator {
                 }
 
                 double sigma = dn2Mean * calibrationFactor;
+
+                if (highResolutionMode) {
+                    sigma /= pixelArea;
+                }
 
                 if (isComplex && outputImageInComplex) {
                     if (srcBandUnit == Unit.UnitType.REAL) {
