@@ -451,7 +451,13 @@ public class InterferogramOp extends Operator {
             StackUtils.saveSlaveProductBandNames(targetProduct, slvProductName,
                                                  targetBandNames.toArray(new String[targetBandNames.size()]));
         }
-    }
+
+        for(String bandName : sourceProduct.getBandNames()) {
+            if(bandName.startsWith("elevation")) {
+                ProductUtils.copyBand(bandName, sourceProduct, targetProduct, true);
+            }
+        }
+     }
 
     public static String getPolarisationTag(final CplxContainer master) {
         return (master.polarisation == null || master.polarisation.isEmpty()) ? "" : '_' + master.polarisation.toUpperCase();
