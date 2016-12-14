@@ -343,6 +343,10 @@ public final class TOPSARDeburstOp extends Operator {
     }
 
     private boolean containSelectedPolarisations(final String bandName) {
+        String bandNamePol = OperatorUtils.getPolarizationFromBandName(bandName);
+        if(bandNamePol == null)
+            return true;
+
         for (String pol : selectedPolarisations) {
             if (bandName.contains(pol)) {
                 return true;
