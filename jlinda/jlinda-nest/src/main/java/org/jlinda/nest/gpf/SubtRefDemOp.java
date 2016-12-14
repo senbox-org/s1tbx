@@ -420,6 +420,9 @@ public final class SubtRefDemOp extends Operator {
 
             DemTile demTile = getDEMTile(
                     tileWindow, targetMap, dem, demNoDataValue, demSamplingLat, demSamplingLon, tileExtensionPercent);
+            if(demTile == null) {
+                return;
+            }
 
             Band topoPhaseBand, targetBand_I, targetBand_Q, elevBand;
 
@@ -519,6 +522,15 @@ public final class SubtRefDemOp extends Operator {
             int nLatPixels = (int) Math.abs(pixelCorners[1].y - pixelCorners[0].y);
             int nLonPixels = (int) Math.abs(pixelCorners[1].x - pixelCorners[0].x);
 
+            if(!upperLeftGeo.isValid()) {
+                return null;
+            }
+
+            DemTile demTile = new DemTile(upperLeftGeo.lat * org.jlinda.core.Constants.DTOR,
+                                          upperLeftGeo.lon * org.jlinda.core.Constants.DTOR,
+                                          nLatPixels, nLonPixels, Math.abs(demSamplingLat),
+                                          Math.abs(demSamplingLon), (long)demNoDataValue);
+
             int startX = (int) pixelCorners[0].x;
             int endX = startX + nLonPixels;
             int startY = (int) pixelCorners[0].y;
@@ -538,11 +550,6 @@ public final class SubtRefDemOp extends Operator {
                     }
                 }
             }
-
-            DemTile demTile = new DemTile(upperLeftGeo.lat * org.jlinda.core.Constants.DTOR,
-                    upperLeftGeo.lon * org.jlinda.core.Constants.DTOR,
-                    nLatPixels, nLonPixels, Math.abs(demSamplingLat),
-                    Math.abs(demSamplingLon), (long)demNoDataValue);
 
             demTile.setData(elevation);
 
