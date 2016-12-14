@@ -106,7 +106,7 @@ public class ThetaTile {
 
     public void radarCode() throws Exception {
 
-        logger.info("Converting DEM to radar system for this tile.");
+        //logger.info("Converting DEM to radar system for this tile.");
 
         demRadarCode_x = new double[nRows][nCols];
         demRadarCode_y = new double[nRows][nCols];
@@ -115,7 +115,7 @@ public class ThetaTile {
         final int nPoints = nRows * nCols;
 //        final boolean onlyTopoRefPhase = true;
 
-        logger.info("Number of points in DEM: " + nPoints);
+        //logger.info("Number of points in DEM: " + nPoints);
 
         double phi, lambda, height, line, pix, theta;
 

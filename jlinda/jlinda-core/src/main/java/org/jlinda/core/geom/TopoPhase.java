@@ -96,7 +96,7 @@ public class TopoPhase {
 
     public void radarCode() throws Exception {
 
-        logger.info("Converting DEM to radar system for this tile.");
+        //logger.info("Converting DEM to radar system for this tile.");
 
         demRadarCode_x = new double[nRows][nCols];
         demRadarCode_y = new double[nRows][nCols];
@@ -106,7 +106,7 @@ public class TopoPhase {
         final int nPoints = nRows * nCols;
         final boolean onlyTopoRefPhase = true;
 
-        logger.info("Number of points in DEM: " + nPoints);
+        //logger.info("Number of points in DEM: " + nPoints);
 
         double masterMin4piCDivLam = (-4 * Math.PI * Constants.SOL) / masterMeta.getRadarWavelength();
         double slaveMin4piCDivLam = (-4 * Math.PI * Constants.SOL) / slaveMeta.getRadarWavelength();

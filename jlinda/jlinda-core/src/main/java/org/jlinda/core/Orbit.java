@@ -1,6 +1,5 @@
 package org.jlinda.core;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.util.SystemUtils;
@@ -264,8 +263,8 @@ public final class Orbit {
                 break;
 
             } else if (iter >= MAXITER) {
-                logger.warning("line, pix -> x,y,z: maximum iterations ( {"+MAXITER+"} ) reached.");
-                logger.warning("Criterium (m): {"+CRITERPOS+"}  dx,dy,dz = {"+ ArrayUtils.toString(ellipsoidPositionSolution)+"}");
+                //logger.warning("line, pix -> x,y,z: maximum iterations ( {"+MAXITER+"} ) reached.");
+                //logger.warning("Criterium (m): {"+CRITERPOS+"}  dx,dy,dz = {"+ ArrayUtils.toString(ellipsoidPositionSolution)+"}");
 
                 if (MAXITER > 10) {
                     logger.severe("lp2xyz : MAXITER limit reached! lp2xyz() estimation is diverging?!");
@@ -323,8 +322,8 @@ public final class Orbit {
 
         // Check number of iterations
         if (iter >= MAXITER) {
-            logger.warning("x,y,z -> line, pix: maximum iterations ( {"+MAXITER+"} ) reached. ");
-            logger.warning("Criterium (s): {"+CRITERTIM+"} dta (s)= {"+solution+"}");
+            //logger.warning("x,y,z -> line, pix: maximum iterations ( {"+MAXITER+"} ) reached. ");
+            //logger.warning("Criterium (s): {"+CRITERTIM+"} dta (s)= {"+solution+"}");
         }
 
         // Compute range time
@@ -363,8 +362,8 @@ public final class Orbit {
 
         // Check number of iterations
         if (iter >= MAXITER) {
-            logger.warning("x,y,z -> line, pix: maximum iterations ( {"+MAXITER+"} ) reached. ");
-            logger.warning("Criterium (s): {"+CRITERTIM+"} dta (s)= {"+solution+"}");
+            //logger.warning("x,y,z -> line, pix: maximum iterations ( {"+MAXITER+"} ) reached. ");
+            //logger.warning("Criterium (s): {"+CRITERTIM+"} dta (s)= {"+solution+"}");
         }
 
         // Compute range time
