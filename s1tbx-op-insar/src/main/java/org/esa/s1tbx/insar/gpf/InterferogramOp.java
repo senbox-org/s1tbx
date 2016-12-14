@@ -17,9 +17,11 @@ package org.esa.s1tbx.insar.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
-import org.esa.s1tbx.insar.gpf.support.SARUtils;
 import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
-import org.esa.snap.core.datamodel.*;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -449,7 +451,13 @@ public class InterferogramOp extends Operator {
             StackUtils.saveSlaveProductBandNames(targetProduct, slvProductName,
                                                  targetBandNames.toArray(new String[targetBandNames.size()]));
         }
-    }
+
+        for(String bandName : sourceProduct.getBandNames()) {
+            if(bandName.startsWith("elevation")) {
+                ProductUtils.copyBand(bandName, sourceProduct, targetProduct, true);
+            }
+        }
+     }
 
     public static String getPolarisationTag(final CplxContainer master) {
         return (master.polarisation == null || master.polarisation.isEmpty()) ? "" : '_' + master.polarisation.toUpperCase();
