@@ -221,6 +221,12 @@ public final class SubtRefDemOp extends Operator {
                 throw new OperatorException("The DEM '" + demName + "' cannot be properly interpreted.");
             }
         }
+        if(outputElevationBand) {
+            Band elevBand = targetProduct.getBand("elevation");
+            if(elevBand != null) {
+                elevBand.setNoDataValue(demNoDataValue);
+            }
+        }
 
         demDefined = true;
     }
@@ -358,7 +364,8 @@ public final class SubtRefDemOp extends Operator {
                     String topoBandName = "topo_phase" + tag;
                     Band topoBand = targetProduct.addBand(topoBandName, ProductData.TYPE_FLOAT32);
                     container.addBand(Unit.PHASE, topoBand.getName());
-                    topoBand.setNoDataValue(demNoDataValue);
+                    topoBand.setNoDataValueUsed(true);
+                    topoBand.setNoDataValue(0);
                     topoBand.setUnit(Unit.PHASE);
                     topoBand.setDescription("topographic_phase");
                     targetBandNames.add(topoBand.getName());
@@ -388,6 +395,7 @@ public final class SubtRefDemOp extends Operator {
         if (outputElevationBand) {
             Band elevBand = targetProduct.addBand("elevation", ProductData.TYPE_FLOAT32);
             elevBand.setNoDataValue(demNoDataValue);
+            elevBand.setNoDataValueUsed(true);
             elevBand.setUnit(Unit.METERS);
             elevBand.setDescription("elevation");
         }
