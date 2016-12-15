@@ -156,7 +156,16 @@ public final class SceneFactory {
         }
 
         public Product getProduct() {
-            return raster.getProduct();
+            Product product = raster.getProduct();
+            if (product == null) {
+                // product can be null if e.g. raster is a mask and is contained in a group
+                ProductNode owner = raster.getOwner(); // the group which contains the mask
+                if (owner != null) {
+                    product = owner.getProduct();
+                }
+            }
+
+            return product;
         }
     }
 }
