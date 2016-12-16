@@ -17,6 +17,7 @@ package org.esa.s1tbx.sar.gpf.geometric;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
+import org.esa.s1tbx.insar.gpf.support.CRSGeoCodingHandler;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.CrsGeoCoding;
 import org.esa.snap.core.datamodel.GeoCoding;
