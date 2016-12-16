@@ -79,6 +79,9 @@ class HeaderParser {
         if (val.indexOf(' ') > 0) {
             lastDigit = val.indexOf(' ');
         }
+        if (val.indexOf('\t') > 0) {
+            lastDigit = val.indexOf('\t');
+        }
         return val.substring(0, lastDigit);
     }
 
