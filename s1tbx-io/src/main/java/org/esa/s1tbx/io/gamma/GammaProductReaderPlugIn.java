@@ -31,7 +31,7 @@ public class GammaProductReaderPlugIn implements ProductReaderPlugIn {
 
     public final static String DESCRIPTION = "Gamma File Format";
     public final static String[] FORMATS = new String[]{"Gamma"};
-    public final static String[] EXTs = new String[] {".par",".diff_par"};
+    public final static String[] EXTs = new String[]{".par", ".diff_par"};
 
     /**
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
@@ -44,7 +44,7 @@ public class GammaProductReaderPlugIn implements ProductReaderPlugIn {
         final File file = ReaderUtils.getFileFromInput(input);
         if (file != null) {
             final String filename = file.getName().toLowerCase();
-            for(String ext : EXTs) {
+            for (String ext : EXTs) {
                 if (filename.endsWith(ext)) {
                     return DecodeQualification.INTENDED;
                 }
@@ -137,7 +137,7 @@ public class GammaProductReaderPlugIn implements ProductReaderPlugIn {
                     return true;
                 }
                 final String name = file.getName().toLowerCase();
-                for(String ext : EXTs) {
+                for (String ext : EXTs) {
                     if (name.endsWith(ext)) {
                         return true;
                     }

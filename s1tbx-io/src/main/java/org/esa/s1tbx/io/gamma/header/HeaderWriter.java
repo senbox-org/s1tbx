@@ -13,20 +13,16 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.io.gamma;
+package org.esa.s1tbx.io.gamma.header;
 
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.GeoPos;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.PixelPos;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
+import org.esa.s1tbx.io.gamma.GammaProductWriter;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.OrbitStateVector;
-import org.esa.snap.engine_utilities.eo.GeoUtils;
 import org.esa.snap.engine_utilities.eo.Constants;
+import org.esa.snap.engine_utilities.eo.GeoUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -37,22 +33,22 @@ import java.util.Calendar;
 /**
  * Writer par header
  */
-class HeaderWriter {
+public class HeaderWriter {
 
-    private final File outputFile;
-    private final Product srcProduct;
-    private final MetadataElement absRoot;
-    private String baseFileName;
+    protected final File outputFile;
+    protected final Product srcProduct;
+    protected final MetadataElement absRoot;
+    protected String baseFileName;
     private boolean isComplex;
     private boolean isCoregistered;
     private final GammaProductWriter writer;
     private ProductData.UTC dateDay;  // start date to the day
 
-    private final static String sep = ":\t";
-    private final static String tab = "\t";
+    protected final static String sep = ":\t";
+    protected final static String tab = "\t";
     private final static double daysToSeconds = 12 * 60 * 60;
 
-    HeaderWriter(final GammaProductWriter writer, final Product srcProduct, final File userOutputFile) {
+    public HeaderWriter(final GammaProductWriter writer, final Product srcProduct, final File userOutputFile) {
         this.writer = writer;
         this.srcProduct = srcProduct;
         this.isComplex = false;
@@ -70,12 +66,14 @@ class HeaderWriter {
         this.outputFile = createParFile(userOutputFile);
         this.baseFileName = FileUtils.getFilenameWithoutExtension(this.outputFile);
 
-        Calendar cal = srcProduct.getStartTime().getAsCalendar();
-        String dateStr = ""+ cal.get(Calendar.DAY_OF_MONTH) +'-'+ (cal.get(Calendar.MONTH)+1) +'-'+ cal.get(Calendar.YEAR);
-        try {
-            dateDay = ProductData.UTC.parse(dateStr, "dd-MM-yyyy");
-        } catch (Exception e) {
-            dateDay = srcProduct.getStartTime();
+        if (srcProduct.getStartTime() != null) {
+            Calendar cal = srcProduct.getStartTime().getAsCalendar();
+            String dateStr = "" + cal.get(Calendar.DAY_OF_MONTH) + '-' + (cal.get(Calendar.MONTH) + 1) + '-' + cal.get(Calendar.YEAR);
+            try {
+                dateDay = ProductData.UTC.parse(dateStr, "dd-MM-yyyy");
+            } catch (Exception e) {
+                dateDay = srcProduct.getStartTime();
+            }
         }
     }
 
@@ -83,11 +81,11 @@ class HeaderWriter {
         return baseFileName;
     }
 
-    void writeParFile() throws IOException {
+    public void writeParFile() throws IOException {
         final String oldEOL = System.getProperty("line.separator");
         System.setProperty("line.separator", "\n");
         final FileOutputStream out = new FileOutputStream(outputFile);
-        try(final PrintStream p = new PrintStream(out)) {
+        try (final PrintStream p = new PrintStream(out)) {
 
             p.println(GammaConstants.HEADER_KEY_NAME + sep + srcProduct.getName());
             p.println(GammaConstants.HEADER_KEY_SENSOR_TYPE + sep + absRoot.getAttributeString(AbstractMetadata.MISSION));
@@ -105,15 +103,15 @@ class HeaderWriter {
             writeCenterLatLon(p);
             p.println(GammaConstants.HEADER_KEY_RANGE_PIXEL_SPACING + sep + absRoot.getAttributeInt(AbstractMetadata.range_spacing) + tab + "m");
             p.println(GammaConstants.HEADER_KEY_AZIMUTH_PIXEL_SPACING + sep + absRoot.getAttributeInt(AbstractMetadata.azimuth_spacing) + tab + "m");
-            p.println(GammaConstants.HEADER_KEY_RADAR_FREQUENCY + sep + absRoot.getAttributeString(AbstractMetadata.radar_frequency)  + tab + "Hz");
-            p.println(GammaConstants.HEADER_KEY_PRF + sep + absRoot.getAttributeString(AbstractMetadata.pulse_repetition_frequency)  + tab + "Hz");
-            p.println(GammaConstants.HEADER_KEY_AZIMUTH_PROC_BANDWIDTH + sep + absRoot.getAttributeString(AbstractMetadata.azimuth_bandwidth)  + tab + "Hz");
+            p.println(GammaConstants.HEADER_KEY_RADAR_FREQUENCY + sep + (absRoot.getAttributeDouble(AbstractMetadata.radar_frequency) * Constants.oneMillion) + tab + "Hz");
+            p.println(GammaConstants.HEADER_KEY_PRF + sep + absRoot.getAttributeString(AbstractMetadata.pulse_repetition_frequency) + tab + "Hz");
+            p.println(GammaConstants.HEADER_KEY_AZIMUTH_PROC_BANDWIDTH + sep + absRoot.getAttributeString(AbstractMetadata.azimuth_bandwidth) + tab + "Hz");
 
             writeEarthParams(p);
 
-            p.println(GammaConstants.HEADER_KEY_NEAR_RANGE_SLC + sep + absRoot.getAttributeString(AbstractMetadata.slant_range_to_first_pixel)  + tab + "m");
-            p.println(GammaConstants.HEADER_KEY_CENTER_RANGE_SLC + sep + absRoot.getAttributeString(AbstractMetadata.slant_range_to_first_pixel)  + tab + "m");
-            p.println(GammaConstants.HEADER_KEY_FAR_RANGE_SLC + sep + absRoot.getAttributeString(AbstractMetadata.slant_range_to_first_pixel)  + tab + "m");
+            p.println(GammaConstants.HEADER_KEY_NEAR_RANGE_SLC + sep + absRoot.getAttributeString(AbstractMetadata.slant_range_to_first_pixel) + tab + "m");
+            p.println(GammaConstants.HEADER_KEY_CENTER_RANGE_SLC + sep + absRoot.getAttributeString(AbstractMetadata.slant_range_to_first_pixel) + tab + "m");
+            p.println(GammaConstants.HEADER_KEY_FAR_RANGE_SLC + sep + absRoot.getAttributeString(AbstractMetadata.slant_range_to_first_pixel) + tab + "m");
 
             writeOrbitStateVectors(p);
 
@@ -126,31 +124,43 @@ class HeaderWriter {
     }
 
     private String writeDate() {
-        Calendar cal = srcProduct.getStartTime().getAsCalendar();
-        return cal.get(Calendar.YEAR) + "  " + (cal.get(Calendar.MONTH)+1) + "  " + cal.get(Calendar.DAY_OF_MONTH);
+        if (srcProduct.getStartTime() != null) {
+            Calendar cal = srcProduct.getStartTime().getAsCalendar();
+            return cal.get(Calendar.YEAR) + "  " + (cal.get(Calendar.MONTH) + 1) + "  " + cal.get(Calendar.DAY_OF_MONTH);
+        }
+        return "";
     }
 
     private String writeStartTime() {
-        double diff = srcProduct.getStartTime().getMJD() - dateDay.getMJD();
-        double seconds = diff * daysToSeconds;
-        return seconds + tab + "s";
+        if (srcProduct.getStartTime() != null) {
+            double diff = srcProduct.getStartTime().getMJD() - dateDay.getMJD();
+            double seconds = diff * daysToSeconds;
+            return seconds + tab + "s";
+        }
+        return "";
     }
 
     private String writeCenterTime() {
-        double center = (srcProduct.getStartTime().getMJD() +
-                (srcProduct.getEndTime().getMJD() - srcProduct.getStartTime().getMJD())/2.0);
-        double seconds = (center - dateDay.getMJD()) * daysToSeconds;
-        return seconds + tab + "s";
+        if (srcProduct.getStartTime() != null) {
+            double center = (srcProduct.getStartTime().getMJD() +
+                    (srcProduct.getEndTime().getMJD() - srcProduct.getStartTime().getMJD()) / 2.0);
+            double seconds = (center - dateDay.getMJD()) * daysToSeconds;
+            return seconds + tab + "s";
+        }
+        return "";
     }
 
     private String writeEndTime() {
-        double diff = srcProduct.getEndTime().getMJD() - dateDay.getMJD();
-        double seconds = diff * daysToSeconds;
-        return seconds + tab + "s";
+        if (srcProduct.getEndTime() != null) {
+            double diff = srcProduct.getEndTime().getMJD() - dateDay.getMJD();
+            double seconds = diff * daysToSeconds;
+            return seconds + tab + "s";
+        }
+        return "";
     }
 
     private String writeImageGeometry() {
-        if(absRoot.getAttributeString(AbstractMetadata.sample_type).equals("COMPLEX") ||
+        if (absRoot.getAttributeString(AbstractMetadata.sample_type).equals("COMPLEX") ||
                 absRoot.getAttributeInt(AbstractMetadata.srgr_flag, 0) == 0) {
             return "SLANT_RANGE";
         }
@@ -159,13 +169,13 @@ class HeaderWriter {
 
     private void writeCenterLatLon(final PrintStream p) {
         GeoPos geoPos = srcProduct.getSceneGeoCoding().getGeoPos(
-                new PixelPos(srcProduct.getSceneRasterWidth()/2, srcProduct.getSceneRasterHeight()/2), null);
+                new PixelPos(srcProduct.getSceneRasterWidth() / 2, srcProduct.getSceneRasterHeight() / 2), null);
 
         p.println(GammaConstants.HEADER_KEY_CENTER_LATITUDE + sep + geoPos.getLat() + tab + "degrees");
         p.println(GammaConstants.HEADER_KEY_CENTER_LONGITUDE + sep + geoPos.getLon() + tab + "degrees");
 
         GeoPos geoPos2 = srcProduct.getSceneGeoCoding().getGeoPos(
-                new PixelPos(srcProduct.getSceneRasterWidth()/2, (srcProduct.getSceneRasterHeight()/2) + 100), null);
+                new PixelPos(srcProduct.getSceneRasterWidth() / 2, (srcProduct.getSceneRasterHeight() / 2) + 100), null);
         GeoUtils.DistanceHeading heading = GeoUtils.vincenty_inverse(geoPos.lat, geoPos.lon,
                 geoPos2.lat, geoPos2.lon);
         p.println(GammaConstants.HEADER_KEY_HEADING + sep + heading.heading1 + tab + "degrees");
@@ -173,7 +183,7 @@ class HeaderWriter {
 
     private void writeOrbitStateVectors(final PrintStream p) {
         final OrbitStateVector[] osvList = AbstractMetadata.getOrbitStateVectors(absRoot);
-        if(osvList != null && osvList.length > 0) {
+        if (osvList != null && osvList.length > 0) {
             double seconds = (osvList[0].time_mjd - dateDay.getMJD()) * daysToSeconds;
             double seconds2 = (osvList[1].time_mjd - dateDay.getMJD()) * daysToSeconds;
             double interval = seconds2 - seconds;
@@ -183,10 +193,10 @@ class HeaderWriter {
             p.println(GammaConstants.HEADER_KEY_STATE_VECTOR_INTERVAL + sep + interval + tab + "s");
 
             int num = 1;
-            for(OrbitStateVector osv : osvList) {
-                p.println(GammaConstants.HEADER_KEY_STATE_VECTOR_POSITION +'_' + num + sep +
-                    osv.x_pos + tab + osv.y_pos + tab + osv.z_pos + tab + "m   m   m");
-                p.println(GammaConstants.HEADER_KEY_STATE_VECTOR_VELOCITY +'_' + num + sep +
+            for (OrbitStateVector osv : osvList) {
+                p.println(GammaConstants.HEADER_KEY_STATE_VECTOR_POSITION + '_' + num + sep +
+                        osv.x_pos + tab + osv.y_pos + tab + osv.z_pos + tab + "m   m   m");
+                p.println(GammaConstants.HEADER_KEY_STATE_VECTOR_VELOCITY + '_' + num + sep +
                         osv.x_vel + tab + osv.y_vel + tab + osv.z_vel + tab + "m/s m/s m/s");
                 ++num;
             }
@@ -195,10 +205,13 @@ class HeaderWriter {
 
     private void writeEarthParams(final PrintStream p) {
 
+        if (srcProduct.getStartTime() == null) {
+            return;
+        }
         final double startTime = srcProduct.getStartTime().getMJD();
         final OrbitStateVector[] osvList = AbstractMetadata.getOrbitStateVectors(absRoot);
         double sensorToEarth = 0.0;
-        if(osvList != null && osvList.length > 0) {
+        if (osvList != null && osvList.length > 0) {
             // maybe interpolation should be used here, for now we just pick the nearest orbit state vector
             double dtMin = Double.MAX_VALUE;
             int idx = 0;
@@ -212,26 +225,26 @@ class HeaderWriter {
             sensorToEarth = Math.sqrt(osvList[idx].x_pos * osvList[idx].x_pos +
                     osvList[idx].y_pos * osvList[idx].y_pos + osvList[idx].z_pos * osvList[idx].z_pos);
         }
-        p.println(GammaConstants.HEADER_KEY_SAR_TO_EARTH_CENTER + sep + String.valueOf(sensorToEarth)  + tab + "m");
+        p.println(GammaConstants.HEADER_KEY_SAR_TO_EARTH_CENTER + sep + String.valueOf(sensorToEarth) + tab + "m");
 
         GeoPos geoPos = srcProduct.getSceneGeoCoding().getGeoPos(
-                new PixelPos(srcProduct.getSceneRasterWidth()/2, srcProduct.getSceneRasterHeight()/2), null);
+                new PixelPos(srcProduct.getSceneRasterWidth() / 2, srcProduct.getSceneRasterHeight() / 2), null);
         final double lat = geoPos.getLat();
         final double tmp1 = Constants.semiMajorAxis * Constants.semiMajorAxis * Math.cos(lat);
         final double tmp2 = Constants.semiMinorAxis * Constants.semiMinorAxis * Math.sin(lat);
         final double r = Math.sqrt((tmp1 * tmp1 + tmp2 * tmp2) / (tmp1 * Math.cos(lat) + tmp2 * Math.sin(lat)));
 
-        p.println(GammaConstants.HEADER_KEY_EARTH_RADIUS_BELOW_SENSOR + sep + String.valueOf(r)  + tab + "m");
-        p.println(GammaConstants.HEADER_KEY_EARTH_SEMI_MAJOR_AXIS + sep + String.valueOf(Constants.semiMajorAxis)  + tab + "m");
-        p.println(GammaConstants.HEADER_KEY_EARTH_SEMI_MINOR_AXIS + sep + String.valueOf(Constants.semiMinorAxis)  + tab + "m");
+        p.println(GammaConstants.HEADER_KEY_EARTH_RADIUS_BELOW_SENSOR + sep + String.valueOf(r) + tab + "m");
+        p.println(GammaConstants.HEADER_KEY_EARTH_SEMI_MAJOR_AXIS + sep + String.valueOf(Constants.semiMajorAxis) + tab + "m");
+        p.println(GammaConstants.HEADER_KEY_EARTH_SEMI_MINOR_AXIS + sep + String.valueOf(Constants.semiMinorAxis) + tab + "m");
     }
 
-    int getHighestElemSize() {
+    public int getHighestElemSize() {
         int highestElemSize = 0;
-        for(Band band : srcProduct.getBands()) {
-            if(writer.shouldWrite(band)) {
+        for (Band band : srcProduct.getBands()) {
+            if (writer.shouldWrite(band)) {
                 int elemSize = ProductData.getElemSize(band.getDataType());
-                if(elemSize > highestElemSize) {
+                if (elemSize > highestElemSize) {
                     highestElemSize = elemSize;
                 }
             }
@@ -239,10 +252,10 @@ class HeaderWriter {
         return highestElemSize;
     }
 
-    private String getDataType() {
+    protected String getDataType() {
         int highestElemSize = getHighestElemSize();
 
-        if(highestElemSize >= 4) {
+        if (highestElemSize >= 4) {
             return "FCOMPLEX";
         } else {
             return "SCOMPLEX";

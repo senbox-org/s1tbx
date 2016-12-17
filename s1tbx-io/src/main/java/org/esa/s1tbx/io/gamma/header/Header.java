@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.io.gamma;
+package org.esa.s1tbx.io.gamma.header;
 
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.ProductData;
@@ -28,7 +28,7 @@ import java.util.Map;
 
 public class Header {
 
-    static final String UNKNOWN_SENSOR_TYPE = "Unknown Sensor Type";
+    private static final String UNKNOWN_SENSOR_TYPE = "Unknown Sensor Type";
     private final HeaderParser headerParser;
 
     private final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd-SSSSSSSS");
@@ -51,13 +51,13 @@ public class Header {
 
     public int getNumSamples() {
         int val = headerParser.getInt(GammaConstants.HEADER_KEY_SAMPLES, 0);
-        if(val == 0) {
+        if (val == 0) {
             val = headerParser.getInt(GammaConstants.HEADER_KEY_SAMPLES1, 0);
         }
-        if(val == 0) {
+        if (val == 0) {
             val = headerParser.getInt(GammaConstants.HEADER_KEY_WIDTH, 0);
         }
-        if(val == 0) {
+        if (val == 0) {
             val = headerParser.getInt(GammaConstants.HEADER_KEY_NCOLUMNS);
         }
         return val;
@@ -65,13 +65,13 @@ public class Header {
 
     public int getNumLines() {
         int val = headerParser.getInt(GammaConstants.HEADER_KEY_LINES, 0);
-        if(val == 0) {
+        if (val == 0) {
             val = headerParser.getInt(GammaConstants.HEADER_KEY_LINES1, 0);
         }
-        if(val == 0) {
+        if (val == 0) {
             val = headerParser.getInt(GammaConstants.HEADER_KEY_HEIGHT, 0);
         }
-        if(val == 0) {
+        if (val == 0) {
             val = headerParser.getInt(GammaConstants.HEADER_KEY_NLINES);
         }
         return val;
