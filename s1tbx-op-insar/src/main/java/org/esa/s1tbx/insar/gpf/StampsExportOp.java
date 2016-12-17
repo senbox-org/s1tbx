@@ -16,6 +16,7 @@
 package org.esa.s1tbx.insar.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.s1tbx.insar.gpf.support.ProjectedDEM;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.ProductWriter;
 import org.esa.snap.core.datamodel.Band;
@@ -70,15 +71,17 @@ public class StampsExportOp extends Operator {
 
     private static final String formatName = "Gamma";
 
-    private static final String[] folder = {"rslc", "diff0", "geo"};
-    private static final String[] ext = {".rslc", ".diff", "_dem.rdc"};
+    private static final String[] folder = {"rslc", "diff0", "geo", "dem"};
+    private static final String[] ext = {".rslc", ".diff", "_dem.rdc", "_dem"};
+    private enum FOLDERS {RSLC, DIFF, GEO, DEM}
 
     private final DateFormat rawDateFormat = ProductData.UTC.createDateFormat("ddMMMyyyy");
     private final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyyMMdd");
 
-    private enum FOLDERS {RSLC, DIFF, GEO}
-
     private final HashMap<Band, WriterInfo> tgtBandToInfoMap = new HashMap<>();
+    private ProjectedDEM projectedDEM;
+    private WriterInfo projectedDEMInfo;
+    private boolean projectedDEMWritten = false;
 
     public StampsExportOp() {
         setRequiresAllBands(true);
@@ -112,7 +115,6 @@ public class StampsExportOp extends Operator {
 
             if (targetFolder == null) {
                 throw new OperatorException("Please add a target folder");
-                //targetFolder = new File("H:\\PROJECTS\\sentinel\\2016_summer\\stamps\\output_data"); // TODO
             }
             if (!targetFolder.exists()) {
                 if (!targetFolder.mkdirs()) {
@@ -136,7 +138,7 @@ public class StampsExportOp extends Operator {
                         final FOLDERS folderType = srcBandName.startsWith("i_ifg") ? FOLDERS.DIFF : FOLDERS.RSLC;
                         final String targetBandName = "i_" + extractDate(srcBandName, folderType) + ext[folderType.ordinal()];
                         final Band targetBand = ProductUtils.copyBand(srcBandName, aSourceProduct, targetBandName, targetProduct, true);
-                        tgtBandToInfoMap.put(targetBand, new WriterInfo(folder[folderType.ordinal()], targetBandName));
+                        tgtBandToInfoMap.put(targetBand, new WriterInfo(folder[folderType.ordinal()], targetBandName, targetProduct));
 
                         //System.out.println("copy/add " + srcBandName + " to " + targetBand.getName());
                     } else if (srcBandName.startsWith("q_")) {
@@ -150,13 +152,17 @@ public class StampsExportOp extends Operator {
                     } else if (srcBandName.startsWith("elevation")) {
                         final String targetBandName = srcBandName + ext[FOLDERS.GEO.ordinal()];
                         final Band targetBand = ProductUtils.copyBand(srcBandName, aSourceProduct, targetBandName, targetProduct, true);
-                        tgtBandToInfoMap.put(targetBand, new WriterInfo(folder[FOLDERS.GEO.ordinal()], targetBandName));
+                        tgtBandToInfoMap.put(targetBand, new WriterInfo(folder[FOLDERS.GEO.ordinal()], targetBandName, targetProduct));
                         includesElevation = true;
 
                         //System.out.println("copy/add " + srcBandName + " to " + targetBand.getName());
                     }
                 }
             }
+
+            String projectedDEMName = "projected" + ext[FOLDERS.DEM.ordinal()];
+            projectedDEM = new ProjectedDEM(projectedDEMName, sourceProduct[0]);
+            projectedDEMInfo = new WriterInfo(folder[FOLDERS.DEM.ordinal()], projectedDEMName, projectedDEM.getTargetProduct());
 
             if (!includesElevation) {
                 throw new OperatorException("Elevation band required. Please add an elevation band to the interferogram product.");
@@ -213,13 +219,37 @@ public class StampsExportOp extends Operator {
                 }
             }
         }
+
+        if(!projectedDEMWritten) {
+            writeProjectedDEM();
+        }
+    }
+
+    private synchronized void writeProjectedDEM() {
+        if(projectedDEMWritten)
+            return;
+
+        try {
+            writeHeader(projectedDEMInfo);
+
+            final Band elevationBand = projectedDEM.getElevationBand();
+            final Rectangle trgRect = new Rectangle(0, 0, elevationBand.getRasterWidth(), elevationBand.getRasterHeight());
+            projectedDEM.computeTile(trgRect);
+
+            final ProductData rawSamples = elevationBand.getData();
+            projectedDEMInfo.productWriter.writeBandRasterData(elevationBand,
+                    trgRect.x, trgRect.y, trgRect.width, trgRect.height, rawSamples, ProgressMonitor.NULL);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        projectedDEMWritten = true;
     }
 
     private synchronized void writeHeader(final WriterInfo info) throws Exception {
         if (info.written) return;
 
         final File outputFile = targetFolder.toPath().resolve(info.folderName).resolve(info.targetBandName + ".par").toFile();
-        info.productWriter.writeProductNodes(targetProduct, outputFile);
+        info.productWriter.writeProductNodes(info.product, outputFile);
 
         if (info.folderName.equals("diff0")) {
             writeBaselineFile(info);
@@ -242,8 +272,8 @@ public class StampsExportOp extends Operator {
 
         InSARStackOverview.IfgStack[] stackOverview = InSARStackOverview.calculateInSAROverview(sourceProduct[0]);
 
-        String masterDate = info.targetBandName.substring(0, info.targetBandName.indexOf("_"));
-        String slaveDate = info.targetBandName.substring(info.targetBandName.indexOf("_")+1, info.targetBandName.indexOf("."));
+        String masterDate = info.targetBandName.substring(0, info.targetBandName.indexOf('_'));
+        String slaveDate = info.targetBandName.substring(info.targetBandName.indexOf('_')+1, info.targetBandName.indexOf('.'));
 
         // find correct master slave pair
         int mstIndex = 0, slvIndex = 0;
@@ -286,8 +316,8 @@ public class StampsExportOp extends Operator {
         final FileOutputStream out = new FileOutputStream(outputBaselineFile);
         try (final PrintStream p = new PrintStream(out)) {
 
-            p.println("initial_baseline(TCN)" + ":\t" + "0.0000000" + "\t" + bhm + "\t" + bvm + "\t" + "m   m   m");
-            p.println("initial_baseline_rate" + ":\t" + "0.0000000" + "\t" + bhr + "\t" + bvr + "\t" + "m/s   m/s   m/s");
+            p.println("initial_baseline(TCN)" + ":\t" + "0.0000000" + '\t' + bhm + '\t' + bvm + '\t' + "m   m   m");
+            p.println("initial_baseline_rate" + ":\t" + "0.0000000" + '\t' + bhr + '\t' + bvr + '\t' + "m/s   m/s   m/s");
             p.println("precision_baseline(TCN)" + ":\t" + "0.0000000        0.0000000        0.0000000   m   m   m");
             p.println("precision_baseline_rate" + ":\t" + "0.0000000        0.0000000        0.0000000   m/s m/s m/s");
             p.println("unwrap_phase_constant" + ":\t" + "0.00000     radians");
@@ -318,17 +348,18 @@ public class StampsExportOp extends Operator {
     }
 
     private static class WriterInfo {
-        // different bands can share same BaseInfo
         ProductWriter productWriter;
         boolean written = false;
 
         final String folderName;
         final String targetBandName;
+        final Product product;
 
-        WriterInfo(final String folderName, final String targetBandName) {
+        WriterInfo(final String folderName, final String targetBandName, final Product product) {
             this.folderName = folderName;
             this.targetBandName = targetBandName.startsWith("i_") ?
                     targetBandName.substring(2, targetBandName.length()) : targetBandName;
+            this.product = product;
 
             productWriter = ProductIO.getProductWriter(formatName);
             if (productWriter == null) {

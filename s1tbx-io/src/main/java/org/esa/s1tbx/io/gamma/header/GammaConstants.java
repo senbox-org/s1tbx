@@ -13,9 +13,9 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.io.gamma;
+package org.esa.s1tbx.io.gamma.header;
 
-class GammaConstants {
+public class GammaConstants {
 
     static final String HEADER_KEY_NAME = "title";
     static final String HEADER_KEY_SAMPLES = "range_samples";
@@ -28,6 +28,7 @@ class GammaConstants {
     static final String HEADER_KEY_NLINES = "nlines";
     static final String HEADER_KEY_BANDS = "bands";
     static final String HEADER_KEY_HEADER_OFFSET = "line_header_size";
+    static final String HEADER_KEY_DATA_FORMAT = "data_format";
     static final String HEADER_KEY_DATA_TYPE = "image_format";
     static final String HEADER_KEY_SENSOR_TYPE = "sensor";
     static final String HEADER_KEY_BYTE_ORDER = "byte order";
@@ -53,7 +54,7 @@ class GammaConstants {
     static final String HEADER_KEY_AZIMUTH_PROC_BANDWIDTH = "azimuth_proc_bandwidth";
     static final String HEADER_KEY_NEAR_RANGE_SLC = "near_range_slc";
     static final String HEADER_KEY_CENTER_RANGE_SLC = "center_range_slc";
-    static final String HEADER_KEY_FAR_RANGE_SLC= "far_range_slc";
+    static final String HEADER_KEY_FAR_RANGE_SLC = "far_range_slc";
 
     static final String HEADER_KEY_SAR_TO_EARTH_CENTER = "sar_to_earth_center";
     static final String HEADER_KEY_EARTH_RADIUS_BELOW_SENSOR = "earth_radius_below_sensor";
@@ -66,7 +67,45 @@ class GammaConstants {
     static final String HEADER_KEY_STATE_VECTOR_POSITION = "state_vector_position";
     static final String HEADER_KEY_STATE_VECTOR_VELOCITY = "state_vector_velocity";
 
-    final static String SLC_EXTENSION = ".rslc";
+    static final String HEADER_KEY_DEM_PROJECTION = "DEM_projection";
+    static final String HEADER_KEY_DEM_HGT_OFFSET = "DEM_hgt_offset";
+    static final String HEADER_KEY_DEM_SCALE = "DEM_scale";
+    static final String HEADER_KEY_DEM_CORNER_NORTH = "corner_north";
+    static final String HEADER_KEY_DEM_CORNER_EAST = "corner_east";
+    static final String HEADER_KEY_DEM_POST_NORTH = "post_north"; //DEM posting (pixel spacing) North direction; negative numbers indicate that DEM lines are listed from North to South
+    static final String HEADER_KEY_DEM_POST_EAST = "post_east";
+
+    static final String HEADER_KEY_DATUM_NAME = "datum_name";
+    static final String HEADER_KEY_DATUM_SHIFT_DX = "datum_shift_dx";
+    static final String HEADER_KEY_DATUM_SHIFT_DY = "datum_shift_dy";
+    static final String HEADER_KEY_DATUM_SHIFT_DZ = "datum_shift_dz";
+    static final String HEADER_KEY_DATUM_SCALE = "datum_scale_m";
+    static final String HEADER_KEY_DATUM_ROTATION_ALPHA = "datum_rotation_alpha";
+    static final String HEADER_KEY_DATUM_ROTATION_BETA = "datum_rotation_beta";
+    static final String HEADER_KEY_DATUM_ROTATION_GAMMA = "datum_rotation_gamma";
+
+    static final String HEADER_KEY_PROJECTION_NAME = "projection_name";
+    static final String HEADER_KEY_PROJECTION_ZONE = "projection_zone";
+    static final String HEADER_KEY_PROJECTION_FALSE_EASTING = "false_easting";
+    static final String HEADER_KEY_PROJECTION_FALSE_NORTHING = "false_northing";
+    static final String HEADER_KEY_PROJECTION_K0 = "projection_k0";
+    static final String HEADER_KEY_PROJECTION_CENTER_LON = "center_longitude";
+    static final String HEADER_KEY_PROJECTION_CENTER_LAT = "center_latitude";
+
+    static final String PROJECTION_EQA  = "EQA"; // 	Equiangular
+    static final String PROJECTION_UTM  = "UTM"; //  	Universal Transverse Mercator
+    static final String PROJECTION_TM   = "TM";  //  	Transverse Mercator
+    static final String PROJECTION_OMCH = "OMCH"; // 	Oblique Mercator (Switzerland)
+    static final String PROJECTION_LCC  = "LCC"; //  	Lambert Conformal Conic (France)
+    static final String PROJECTION_PS   = "PS";  // 	Polar Stereographic
+    static final String PROJECTION_SCH  = "SCH"; // 	SAR coordinates used at JPL
+    static final String PROJECTION_PC   = "PC";  // 	Polyconic Projection
+    static final String PROJECTION_AEAC = "AEAC"; //  	Albers Equal Area Conic
+    static final String PROJECTION_LCC2 = "LCC2"; //  	Lambert Conformal Conic Projection (Secant solution, Belgium)
+    static final String PROJECTION_OM   = "OM";  // 	Oblique Mercator
+    static final String PROJECTION_HOM  = "HOM"; // 	Hotine Oblique Mercator
+
+    public final static String SLC_EXTENSION = ".rslc";
     final static String PAR_EXTENSION = ".par";
 
     private GammaConstants() {

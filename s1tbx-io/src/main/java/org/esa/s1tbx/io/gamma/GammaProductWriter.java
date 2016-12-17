@@ -18,15 +18,13 @@ package org.esa.s1tbx.io.gamma;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.glevel.MultiLevelImage;
 import org.esa.s1tbx.io.FileImageOutputStreamExtImpl;
+import org.esa.s1tbx.io.gamma.header.GammaConstants;
+import org.esa.s1tbx.io.gamma.header.HeaderDEMWriter;
+import org.esa.s1tbx.io.gamma.header.HeaderDiffWriter;
+import org.esa.s1tbx.io.gamma.header.HeaderWriter;
 import org.esa.snap.core.dataio.AbstractProductWriter;
 import org.esa.snap.core.dataio.ProductWriterPlugIn;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.FilterBand;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.ProductNode;
-import org.esa.snap.core.datamodel.RasterDataNode;
-import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.core.gpf.internal.TileImpl;
 import org.esa.snap.core.util.Guardian;
@@ -74,16 +72,20 @@ public class GammaProductWriter extends AbstractProductWriter {
             outputFile = (File) output;
         }
         outputDir = outputFile.getParentFile();
-        if(!outputDir.exists()) {
+        if (!outputDir.exists()) {
             outputDir.mkdirs();
         }
 
         srcProduct = getSourceProduct();
         srcProduct.setProductWriter(this);
 
-        //System.out.println("outputFile = " + outputFile.getName());
-
-        headerWriter = new HeaderWriter(this, srcProduct, outputFile);
+        if (outputFile.getName().toLowerCase().contains("dem")) {
+            headerWriter = new HeaderDEMWriter(this, srcProduct, outputFile);
+        } else if (outputFile.getName().toLowerCase().contains("diff")) {
+            headerWriter = new HeaderDiffWriter(this, srcProduct, outputFile);
+        } else {
+            headerWriter = new HeaderWriter(this, srcProduct, outputFile);
+        }
         headerWriter.writeParFile();
     }
 
@@ -91,10 +93,6 @@ public class GammaProductWriter extends AbstractProductWriter {
         final ImageOutputStream out = new FileImageOutputStreamExtImpl(getValidImageFile(band));
         out.setByteOrder(ByteOrder.BIG_ENDIAN);
         return out;
-    }
-
-    private String createImageFilename(final Band band) {
-        return headerWriter.getBaseFileName()+"_"+band.getName();
     }
 
     /**
@@ -120,7 +118,7 @@ public class GammaProductWriter extends AbstractProductWriter {
                 final ProductData qSourceBuffer = sourceTile.getRawSamples();
                 int srcCnt = 0;
 
-                if(elemSize >= 4) {
+                if (elemSize >= 4) {
                     final float[] destBuffer = new float[sourceWidth * numInterleaved];
                     for (long y = sourceOffsetY; y < sourceOffsetY + sourceHeight; ++y) {
                         int dstCnt = 0;
@@ -140,8 +138,8 @@ public class GammaProductWriter extends AbstractProductWriter {
                         int dstCnt = 0;
                         for (int x = sourceOffsetX; x < sourceOffsetX + sourceWidth; ++x) {
 
-                            destBuffer[dstCnt++] = (short)sourceBuffer.getElemFloatAt(srcCnt);
-                            destBuffer[dstCnt++] = (short)qSourceBuffer.getElemFloatAt(srcCnt);
+                            destBuffer[dstCnt++] = (short) sourceBuffer.getElemFloatAt(srcCnt);
+                            destBuffer[dstCnt++] = (short) qSourceBuffer.getElemFloatAt(srcCnt);
                             srcCnt++;
                         }
 
@@ -318,8 +316,8 @@ public class GammaProductWriter extends AbstractProductWriter {
     private static void createPhysicalFile(final File file, final long fileSize) throws IOException {
         final File parentDir = file.getParentFile();
         if (parentDir != null) {
-            if(!parentDir.exists() && !parentDir.mkdirs()) {
-                throw new IOException("Unable to create folders in "+parentDir);
+            if (!parentDir.exists() && !parentDir.mkdirs()) {
+                throw new IOException("Unable to create folders in " + parentDir);
             }
         }
         final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
