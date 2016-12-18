@@ -19,9 +19,10 @@ import org.esa.s1tbx.io.gamma.GammaProductWriter;
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.opengis.referencing.ReferenceIdentifier;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import uk.me.jstott.jcoord.LatLng;
+import uk.me.jstott.jcoord.UTMRef;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -32,6 +33,9 @@ import java.io.PrintStream;
  * Writer par header
  */
 public class HeaderDEMWriter extends HeaderWriter {
+
+    private double cornerNorth, cornerEast;
+    private String easting, northing, centralMeridian, latitudeOfOrigin, scaleFactor;
 
     public HeaderDEMWriter(final GammaProductWriter writer, final Product srcProduct, final File userOutputFile) {
         super(writer, srcProduct, userOutputFile);
@@ -51,16 +55,17 @@ public class HeaderDEMWriter extends HeaderWriter {
             p.println(GammaConstants.HEADER_KEY_DATA_FORMAT + sep + getDataType());
 
             final String demProjection = getDEMProjection();
+            getCornerCoords();
 
             p.println(GammaConstants.HEADER_KEY_DEM_PROJECTION + sep + demProjection);
             p.println(GammaConstants.HEADER_KEY_DEM_HGT_OFFSET + sep + "0.0");
             p.println(GammaConstants.HEADER_KEY_DEM_SCALE + sep + "1.0");
-            p.println(GammaConstants.HEADER_KEY_DEM_CORNER_NORTH + sep + "");
-            p.println(GammaConstants.HEADER_KEY_DEM_CORNER_EAST + sep + "");
-            p.println(GammaConstants.HEADER_KEY_DEM_POST_NORTH + sep + "");
-            p.println(GammaConstants.HEADER_KEY_DEM_POST_EAST + sep + "");
+            p.println(GammaConstants.HEADER_KEY_DEM_CORNER_NORTH + sep + cornerNorth);
+            p.println(GammaConstants.HEADER_KEY_DEM_CORNER_EAST + sep + cornerEast);
+            p.println(GammaConstants.HEADER_KEY_DEM_POST_NORTH + sep + "90");
+            p.println(GammaConstants.HEADER_KEY_DEM_POST_EAST + sep + "90");
 
-            p.println(GammaConstants.HEADER_KEY_DATUM_NAME + sep + "");
+            p.println(GammaConstants.HEADER_KEY_DATUM_NAME + sep + "WGS84");
             p.println(GammaConstants.HEADER_KEY_DATUM_SHIFT_DX + sep + "0.0");
             p.println(GammaConstants.HEADER_KEY_DATUM_SHIFT_DY + sep + "0.0");
             p.println(GammaConstants.HEADER_KEY_DATUM_SHIFT_DZ + sep + "0.0");
@@ -72,9 +77,11 @@ public class HeaderDEMWriter extends HeaderWriter {
             p.println(GammaConstants.HEADER_KEY_PROJECTION_NAME + sep + demProjection);
             if(demProjection.equals(GammaConstants.PROJECTION_UTM)) {
                 p.println(GammaConstants.HEADER_KEY_PROJECTION_ZONE + sep + getUTMZone());
-                p.println(GammaConstants.HEADER_KEY_PROJECTION_FALSE_EASTING + sep + "0.0");
-                p.println(GammaConstants.HEADER_KEY_PROJECTION_FALSE_NORTHING + sep + "0.0");
-                p.println(GammaConstants.HEADER_KEY_PROJECTION_K0 + sep + "0.0");
+                p.println(GammaConstants.HEADER_KEY_PROJECTION_FALSE_EASTING + sep + easting);
+                p.println(GammaConstants.HEADER_KEY_PROJECTION_FALSE_NORTHING + sep + northing);
+                p.println(GammaConstants.HEADER_KEY_PROJECTION_CENTER_LON + sep + centralMeridian);
+                p.println(GammaConstants.HEADER_KEY_PROJECTION_CENTER_LAT + sep + latitudeOfOrigin);
+                p.println(GammaConstants.HEADER_KEY_PROJECTION_K0 + sep + scaleFactor);
             }
 
             p.flush();
@@ -85,13 +92,34 @@ public class HeaderDEMWriter extends HeaderWriter {
         }
     }
 
+    private void getCornerCoords() {
+        GeoPos geoPos = srcProduct.getSceneGeoCoding().getGeoPos(new PixelPos(0, 0), null);
+
+        LatLng latLng = new LatLng(geoPos.lat, geoPos.lon);
+        UTMRef utm = latLng.toUTMRef();
+        cornerNorth = utm.getNorthing();
+        cornerEast = utm.getEasting();
+    }
+
     private String getDEMProjection() {
         CoordinateReferenceSystem crs = srcProduct.getSceneCRS();
         ReferenceIdentifier id = crs.getName();
         if(id.getCode().contains(GammaConstants.PROJECTION_UTM)) {
             String wkt = crs.toWKT();
-            //String easting = wkt.substring(wkt.indexOf("false_easting")+14);
+            easting = wkt.substring(wkt.indexOf("false_easting")+15);
+            easting = easting.substring(0, easting.indexOf(']')).trim();
 
+            northing = wkt.substring(wkt.indexOf("false_northing")+16);
+            northing = northing.substring(0, northing.indexOf(']')).trim();
+
+            centralMeridian = wkt.substring(wkt.indexOf("central_meridian")+18);
+            centralMeridian = centralMeridian.substring(0, centralMeridian.indexOf(']')).trim();
+
+            latitudeOfOrigin = wkt.substring(wkt.indexOf("latitude_of_origin")+20);
+            latitudeOfOrigin = latitudeOfOrigin.substring(0, latitudeOfOrigin.indexOf(']')).trim();
+
+            scaleFactor = wkt.substring(wkt.indexOf("scale_factor")+14);
+            scaleFactor = scaleFactor.substring(0, scaleFactor.indexOf(']')).trim();
 
             return GammaConstants.PROJECTION_UTM;
         }
