@@ -1,3 +1,10 @@
+#New since 5.0
+
+no new features
+
+###Bugs fixed
+https://senbox.atlassian.net/secure/ReleaseNote.jspa?projectId=10202&version=11505
+
 #New since SNAP 4.0
 
 ###Bugs fixed 
