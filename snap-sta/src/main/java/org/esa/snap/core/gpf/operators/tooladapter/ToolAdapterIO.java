@@ -78,7 +78,7 @@ public class ToolAdapterIO {
             osFamily = "unsupported";
         }
         typeKey = new Attributes.Name("OpenIDE-Module-Type");
-        excludedClusters = new String[] { "bin", "etc", "platform", "ide" };
+        excludedClusters = new String[] { "bin", "etc", "platform", "ide", "java" };
     }
 
     public static void setAdaptersPath(Path path) {
