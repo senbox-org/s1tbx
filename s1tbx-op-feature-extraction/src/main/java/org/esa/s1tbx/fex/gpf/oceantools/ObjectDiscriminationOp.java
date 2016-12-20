@@ -358,30 +358,30 @@ public class ObjectDiscriminationOp extends Operator {
      */
     private void writeBandClusterListsToFile() throws OperatorException {
 
-        final Element root = new Element("Detection");
-        final Document doc = new Document(root);
-
-        for (String bandName : bandClusterLists.keySet()) {
-            final Element elem = new Element("targetsDetected");
-            elem.setAttribute("bandName", bandName);
-            final List<ShipRecord> clusterList = bandClusterLists.get(bandName);
-            for (ShipRecord rec : clusterList) {
-                final Element subElem = new Element("target");
-                subElem.setAttribute("x", String.valueOf(rec.x));
-                subElem.setAttribute("y", String.valueOf(rec.y));
-                subElem.setAttribute("lat", String.valueOf(rec.lat));
-                subElem.setAttribute("lon", String.valueOf(rec.lon));
-                subElem.setAttribute(ATTRIB_WIDTH, String.valueOf(rec.width));
-                subElem.setAttribute(ATTRIB_LENGTH, String.valueOf(rec.length));
-
-                writeExtraFeatureAttributes(subElem);
-
-                elem.addContent(subElem);
-            }
-            root.addContent(elem);
-        }
-
         try {
+            final Element root = new Element("Detection");
+            final Document doc = new Document(root);
+
+            for (String bandName : bandClusterLists.keySet()) {
+                final Element elem = new Element("targetsDetected");
+                elem.setAttribute("bandName", bandName);
+                final List<ShipRecord> clusterList = bandClusterLists.get(bandName);
+                for (ShipRecord rec : clusterList) {
+                    final Element subElem = new Element("target");
+                    subElem.setAttribute("x", String.valueOf(rec.x));
+                    subElem.setAttribute("y", String.valueOf(rec.y));
+                    subElem.setAttribute("lat", String.valueOf(rec.lat));
+                    subElem.setAttribute("lon", String.valueOf(rec.lon));
+                    subElem.setAttribute(ATTRIB_WIDTH, String.valueOf(rec.width));
+                    subElem.setAttribute(ATTRIB_LENGTH, String.valueOf(rec.length));
+
+                    writeExtraFeatureAttributes(subElem);
+
+                    elem.addContent(subElem);
+                }
+                root.addContent(elem);
+            }
+
             XMLSupport.SaveXML(doc, targetReportFile.getAbsolutePath());
         } catch (IOException e) {
             SystemUtils.LOG.warning("Unable to save target report " + e.getMessage());
@@ -449,6 +449,8 @@ public class ObjectDiscriminationOp extends Operator {
         public final double lon;
         public final double width;
         public final double length;
+        public double corr_lat;
+        public double corr_lon;
 
         public ShipRecord(final int x, final int y,
                           final double lat, final double lon, final double width, final double length) {
@@ -458,6 +460,8 @@ public class ObjectDiscriminationOp extends Operator {
             this.lon = lon;
             this.width = width;
             this.length = length;
+            this.corr_lat = 0.0;
+            this.corr_lon = 0.0;
         }
     }
 
