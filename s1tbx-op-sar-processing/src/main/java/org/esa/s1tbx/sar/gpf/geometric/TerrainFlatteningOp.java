@@ -871,7 +871,7 @@ public final class TerrainFlatteningOp extends Operator {
                             if (simVal != noDataValue && simVal != 0.0) {
                                 simVal /= beta0;
                                 if (isGRD) {
-                                    simVal /= Math.sin(incidenceAngleTPG.getPixelDouble(x, y)*Constants.DTOR);
+                                    simVal /= FastMath.sin(incidenceAngleTPG.getPixelDouble(x, y)*Constants.DTOR);
                                 }
                                 targetData.setElemDoubleAt(tgtIdx, simVal);
                             } else {
@@ -897,7 +897,7 @@ public final class TerrainFlatteningOp extends Operator {
                             if (simVal != noDataValue) {
                                 simVal /= beta0;
                                 if (isGRD) {
-                                    simVal /= Math.sin(incidenceAngleTPG.getPixelDouble(x, y)*Constants.DTOR);
+                                    simVal /= FastMath.sin(incidenceAngleTPG.getPixelDouble(x, y)*Constants.DTOR);
                                 }
 
                                 if (simVal > threshold) {
@@ -951,7 +951,7 @@ public final class TerrainFlatteningOp extends Operator {
                             if (simVal != noDataValue && simVal != 0.0) {
                                 simVal /= beta0;
                                 if (isGRD) {
-                                    simVal /= Math.sin(incidenceAngleTPG.getPixelDouble(x, y)*Constants.DTOR);
+                                    simVal /= FastMath.sin(incidenceAngleTPG.getPixelDouble(x, y)*Constants.DTOR);
                                 }
                                 targetData.setElemDoubleAt(tgtIdx, simVal);
                             } else {
