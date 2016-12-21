@@ -16,6 +16,7 @@
 package org.esa.s1tbx.insar.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.MetadataElement;
@@ -945,7 +946,7 @@ public class CoherenceOp extends Operator {
                 final int x = sourceImageWidth / 2;
                 final int y = sourceImageHeight / 2;
                 final double incidenceAngleAtCentreRangePixel = incidenceAngle.getPixelDouble(x, y);
-                groundRangeSpacing /= Math.sin(incidenceAngleAtCentreRangePixel * Constants.DTOR);
+                groundRangeSpacing /= FastMath.sin(incidenceAngleAtCentreRangePixel * Constants.DTOR);
             }
         }
 

@@ -112,7 +112,7 @@ public class ObjectDetectionLayer extends Layer {
                 final Element targetsDetectedElem = (Element) aChild;
                 if (targetsDetectedElem.getName().equals("targetsDetected")) {
                     final Attribute attrib = targetsDetectedElem.getAttribute("bandName");
-                    if (attrib != null && band.getName().equalsIgnoreCase(attrib.getValue())) {
+                    if (attrib != null ) {
                         final List<Content> content = targetsDetectedElem.getContent();
                         for (Object det : content) {
                             if (det instanceof Element) {
@@ -131,16 +131,25 @@ public class ObjectDetectionLayer extends Layer {
                                     if (width == null) continue;
                                     final Attribute length = targetElem.getAttribute("length");
                                     if (length == null) continue;
-                                    final Attribute intensity = targetElem.getAttribute("intensity");
-                                    if (intensity == null) continue;
 
-                                    targetList.add(new ObjectDiscriminationOp.ShipRecord(
+                                    ObjectDiscriminationOp.ShipRecord shipRecord = new ObjectDiscriminationOp.ShipRecord(
                                             Integer.parseInt(x.getValue()),
                                             Integer.parseInt(y.getValue()),
                                             Double.parseDouble(lat.getValue()),
                                             Double.parseDouble(lon.getValue()),
                                             (Double.parseDouble(width.getValue()) / rangeSpacing) + border,
-                                            (Double.parseDouble(length.getValue()) / azimuthSpacing) + border));
+                                            (Double.parseDouble(length.getValue()) / azimuthSpacing) + border);
+
+                                    final Attribute corr_lat = targetElem.getAttribute("corr_lat");
+                                    if (corr_lat != null) {
+                                        shipRecord.corr_lat = Double.parseDouble(corr_lat.getValue());
+                                    }
+                                    final Attribute corr_lon = targetElem.getAttribute("corr_lon");
+                                    if (corr_lon != null) {
+                                        shipRecord.corr_lon = Double.parseDouble(corr_lon.getValue());
+                                    }
+
+                                    targetList.add(shipRecord);
                                 }
                             }
                         }
@@ -178,6 +187,12 @@ public class ObjectDetectionLayer extends Layer {
                 continue;
 
             Point.Double p = GraphicShape.drawCircle(graphics, screenPixel, pix.getX(), pix.getY(), (int)target.length, Color.RED);
+
+            geo.setLocation(target.corr_lat, target.corr_lon);
+            geoCoding.getPixelPos(geo, pix);
+            if(pix.isValid()) {
+                GraphicShape.drawRect(graphics, screenPixel, pix.getX(), pix.getY(), 8, Color.RED);
+            }
 
             final double targetWidthInMeter = (target.width - border) * rangeSpacing;
             final double targetlengthInMeter = (target.length - border) * azimuthSpacing;
