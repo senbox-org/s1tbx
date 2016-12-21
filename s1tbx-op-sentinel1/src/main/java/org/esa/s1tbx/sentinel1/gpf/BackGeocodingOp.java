@@ -518,10 +518,11 @@ public final class BackGeocodingOp extends Operator {
                 demNoDataValue = externalDEMNoDataValue;
                 demName = externalDEMFile.getPath();
                 try {
-                    demSamplingLat = Math.abs(dem.getGeoPos(new PixelPos(1, 0)).getLat() -
+                    demSamplingLat = Math.abs(dem.getGeoPos(new PixelPos(0, 1)).getLat() -
                             dem.getGeoPos(new PixelPos(0, 0)).getLat());
-                    demSamplingLon = Math.abs(dem.getGeoPos(new PixelPos(0, 1)).getLat() -
-                            dem.getGeoPos(new PixelPos(0, 0)).getLat());
+
+                    demSamplingLon = Math.abs(dem.getGeoPos(new PixelPos(1, 0)).getLon() -
+                            dem.getGeoPos(new PixelPos(0, 0)).getLon());
                 } catch (Exception e) {
                     throw new OperatorException("The DEM '" + demName + "' cannot be properly interpreted.");
                 }
