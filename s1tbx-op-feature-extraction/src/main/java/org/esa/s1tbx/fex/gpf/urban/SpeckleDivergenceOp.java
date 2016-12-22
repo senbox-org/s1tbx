@@ -71,7 +71,7 @@ public class SpeckleDivergenceOp extends Operator {
             label = "Source Bands")
     private String[] sourceBands = null;
 
-    @Parameter(valueSet = {FilterWindow.SIZE_5x5, FilterWindow.SIZE_7x7, FilterWindow.SIZE_9x9,
+    @Parameter(valueSet = {FilterWindow.SIZE_3x3, FilterWindow.SIZE_5x5, FilterWindow.SIZE_7x7, FilterWindow.SIZE_9x9,
             FilterWindow.SIZE_11x11, FilterWindow.SIZE_13x13, FilterWindow.SIZE_15x15, FilterWindow.SIZE_17x17},
             defaultValue = FilterWindow.SIZE_15x15, label = "Window Size")
     private String windowSizeStr = FilterWindow.SIZE_15x15;
