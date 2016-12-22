@@ -15,8 +15,10 @@
  */
 package org.esa.s1tbx.fex.rcp.layersrc;
 
+import org.esa.s1tbx.fex.gpf.oceantools.ObjectDiscriminationOp;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.VectorDataNode;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.ui.layer.AbstractLayerSourceAssistantPage;
 import org.esa.snap.ui.layer.LayerSource;
@@ -33,6 +35,10 @@ public class ObjectDetectionLayerSource implements LayerSource {
     public boolean isApplicable(LayerSourcePageContext pageContext) {
         final Product product = SnapApp.getDefault().getSelectedProductSceneView().getProduct();
 
+        VectorDataNode vectorDataNode = product.getVectorDataGroup().get(ObjectDiscriminationOp.VECTOR_NODE_NAME);
+        if (vectorDataNode != null) {
+            return true;
+        }
         final File targetFile = ObjectDetectionLayer.getTargetFile(product);
         return targetFile != null;
     }

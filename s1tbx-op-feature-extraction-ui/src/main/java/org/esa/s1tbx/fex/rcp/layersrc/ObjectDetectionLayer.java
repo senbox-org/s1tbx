@@ -30,12 +30,15 @@ import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.datamodel.VectorDataNode;
 import org.esa.snap.core.dataop.downloadable.XMLSupport;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.geotools.feature.FeatureIterator;
 import org.jdom2.Attribute;
 import org.jdom2.Content;
 import org.jdom2.Document;
 import org.jdom2.Element;
+import org.opengis.feature.simple.SimpleFeature;
 
 import java.awt.*;
 import java.io.File;
@@ -67,7 +70,7 @@ public class ObjectDetectionLayer extends Layer {
 
         getPixelSize();
 
-        LoadTargets(getTargetFile(product));
+        LoadTargets();
     }
 
     private void getPixelSize() {
@@ -91,7 +94,48 @@ public class ObjectDetectionLayer extends Layer {
         return null;
     }
 
-    private void LoadTargets(final File file) {
+    private void LoadTargets() {
+
+        VectorDataNode vectorDataNode = product.getVectorDataGroup().get(ObjectDiscriminationOp.VECTOR_NODE_NAME);
+        if (vectorDataNode == null) {
+            LoadTargetsFromFile(getTargetFile(product));
+            return;
+        }
+
+        targetList.clear();
+        final FeatureIterator itr = vectorDataNode.getFeatureCollection().features();
+        while (itr.hasNext()) {
+            final SimpleFeature feature = (SimpleFeature) itr.next();
+
+            Integer x = (Integer)feature.getAttribute(ObjectDiscriminationOp.ATTRIB_DETECTED_X);
+            Integer y = (Integer)feature.getAttribute(ObjectDiscriminationOp.ATTRIB_DETECTED_Y);
+            Double lat = (Double)feature.getAttribute(ObjectDiscriminationOp.ATTRIB_DETECTED_LAT);
+            if(lat == null) continue;
+            Double lon = (Double)feature.getAttribute(ObjectDiscriminationOp.ATTRIB_DETECTED_LON);
+            if(lon == null) continue;
+            Double width = (Double)feature.getAttribute(ObjectDiscriminationOp.ATTRIB_DETECTED_WIDTH);
+            if(width == null) continue;
+            Double length = (Double)feature.getAttribute(ObjectDiscriminationOp.ATTRIB_DETECTED_LENGTH);
+            if(length == null) continue;
+
+            ObjectDiscriminationOp.ShipRecord shipRecord = new ObjectDiscriminationOp.ShipRecord(
+                    x, y, lat, lon, (width / rangeSpacing) + border, (length / azimuthSpacing) + border);
+
+            Double corr_lat = (Double)feature.getAttribute(ObjectDiscriminationOp.ATTRIB_CORR_SHIP_LAT);
+            if(corr_lat != null) {
+                shipRecord.corr_lat = corr_lat;
+            }
+            Double corr_lon = (Double)feature.getAttribute(ObjectDiscriminationOp.ATTRIB_CORR_SHIP_LON);
+            if(corr_lon != null) {
+                shipRecord.corr_lon = corr_lon;
+            }
+
+            targetList.add(shipRecord);
+        }
+
+    }
+
+    private void LoadTargetsFromFile(final File file) {
         if (file == null)
             return;
 
@@ -118,18 +162,18 @@ public class ObjectDetectionLayer extends Layer {
                             if (det instanceof Element) {
                                 final Element targetElem = (Element) det;
                                 if (targetElem.getName().equals("target")) {
-                                    Attribute x = targetElem.getAttribute("x");
-                                    if (x == null) x = new Attribute("x", "0");
-                                    Attribute y = targetElem.getAttribute("y");
-                                    if (y == null) y = new Attribute("y", "0");
+                                    Attribute x = targetElem.getAttribute(ObjectDiscriminationOp.ATTRIB_DETECTED_X);
+                                    if (x == null) x = new Attribute(ObjectDiscriminationOp.ATTRIB_DETECTED_X, "0");
+                                    Attribute y = targetElem.getAttribute(ObjectDiscriminationOp.ATTRIB_DETECTED_Y);
+                                    if (y == null) y = new Attribute(ObjectDiscriminationOp.ATTRIB_DETECTED_Y, "0");
 
-                                    final Attribute lat = targetElem.getAttribute("lat");
+                                    final Attribute lat = targetElem.getAttribute(ObjectDiscriminationOp.ATTRIB_DETECTED_LAT);
                                     if (lat == null) continue;
-                                    final Attribute lon = targetElem.getAttribute("lon");
+                                    final Attribute lon = targetElem.getAttribute(ObjectDiscriminationOp.ATTRIB_DETECTED_LON);
                                     if (lon == null) continue;
-                                    final Attribute width = targetElem.getAttribute("width");
+                                    final Attribute width = targetElem.getAttribute(ObjectDiscriminationOp.ATTRIB_DETECTED_WIDTH);
                                     if (width == null) continue;
-                                    final Attribute length = targetElem.getAttribute("length");
+                                    final Attribute length = targetElem.getAttribute(ObjectDiscriminationOp.ATTRIB_DETECTED_LENGTH);
                                     if (length == null) continue;
 
                                     ObjectDiscriminationOp.ShipRecord shipRecord = new ObjectDiscriminationOp.ShipRecord(
@@ -140,11 +184,11 @@ public class ObjectDetectionLayer extends Layer {
                                             (Double.parseDouble(width.getValue()) / rangeSpacing) + border,
                                             (Double.parseDouble(length.getValue()) / azimuthSpacing) + border);
 
-                                    final Attribute corr_lat = targetElem.getAttribute("corr_lat");
+                                    final Attribute corr_lat = targetElem.getAttribute(ObjectDiscriminationOp.ATTRIB_CORR_SHIP_LAT);
                                     if (corr_lat != null) {
                                         shipRecord.corr_lat = Double.parseDouble(corr_lat.getValue());
                                     }
-                                    final Attribute corr_lon = targetElem.getAttribute("corr_lon");
+                                    final Attribute corr_lon = targetElem.getAttribute(ObjectDiscriminationOp.ATTRIB_CORR_SHIP_LON);
                                     if (corr_lon != null) {
                                         shipRecord.corr_lon = Double.parseDouble(corr_lon.getValue());
                                     }

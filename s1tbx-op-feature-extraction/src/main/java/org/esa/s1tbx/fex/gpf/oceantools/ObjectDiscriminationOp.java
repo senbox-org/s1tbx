@@ -98,11 +98,17 @@ public class ObjectDiscriminationOp extends Operator {
     private File targetReportFile = null;
     private SimpleFeatureType shipFeatureType;
 
-    private static final String VECTOR_NODE_NAME = "ShipDetections";
+    public static final String VECTOR_NODE_NAME = "ShipDetections";
     private static final String STYLE_FORMAT = "fill:#ff0000; fill-opacity:0.2; stroke:#ff0000; stroke-opacity:1.0; stroke-width:1.0; symbol:circle";
 
-    private static final String ATTRIB_WIDTH = "width";
-    private static final String ATTRIB_LENGTH = "length";
+    public static final String ATTRIB_DETECTED_X = "Detected_x";
+    public static final String ATTRIB_DETECTED_Y = "Detected_y";
+    public static final String ATTRIB_DETECTED_LAT = "Detected_lat";
+    public static final String ATTRIB_DETECTED_LON = "Detected_lon";
+    public static final String ATTRIB_DETECTED_WIDTH = "Detected_width";
+    public static final String ATTRIB_DETECTED_LENGTH = "Detected_length";
+    public static final String ATTRIB_CORR_SHIP_LAT = "Corr_ship_lat";
+    public static final String ATTRIB_CORR_SHIP_LON = "Corr_ship_lon";
 
     private static final String PRODUCT_SUFFIX = "_SHP";
 
@@ -368,15 +374,12 @@ public class ObjectDiscriminationOp extends Operator {
                 final List<ShipRecord> clusterList = bandClusterLists.get(bandName);
                 for (ShipRecord rec : clusterList) {
                     final Element subElem = new Element("target");
-                    subElem.setAttribute("x", String.valueOf(rec.x));
-                    subElem.setAttribute("y", String.valueOf(rec.y));
-                    subElem.setAttribute("lat", String.valueOf(rec.lat));
-                    subElem.setAttribute("lon", String.valueOf(rec.lon));
-                    subElem.setAttribute(ATTRIB_WIDTH, String.valueOf(rec.width));
-                    subElem.setAttribute(ATTRIB_LENGTH, String.valueOf(rec.length));
-
-                    writeExtraFeatureAttributes(subElem);
-
+                    subElem.setAttribute(ATTRIB_DETECTED_X, String.valueOf(rec.x));
+                    subElem.setAttribute(ATTRIB_DETECTED_Y, String.valueOf(rec.y));
+                    subElem.setAttribute(ATTRIB_DETECTED_LAT, String.valueOf(rec.lat));
+                    subElem.setAttribute(ATTRIB_DETECTED_LON, String.valueOf(rec.lon));
+                    subElem.setAttribute(ATTRIB_DETECTED_WIDTH, String.valueOf(rec.width));
+                    subElem.setAttribute(ATTRIB_DETECTED_LENGTH, String.valueOf(rec.length));
                     elem.addContent(subElem);
                 }
                 root.addContent(elem);
@@ -391,14 +394,12 @@ public class ObjectDiscriminationOp extends Operator {
     private SimpleFeatureType createFeatureType() {
 
         final List<AttributeDescriptor> attributeDescriptors = new ArrayList<>();
-        attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_WIDTH, Double.class));
-        attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_LENGTH, Double.class));
-
-        final List<AttributeInfo> attributeInfoList = getExtraFeatureAttributes();
-        for (AttributeInfo attributeInfo : attributeInfoList) {
-            attributeDescriptors.add(
-                    VectorUtils.createAttribute(attributeInfo.attributeName, attributeInfo.attributeClass));
-        }
+        attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_DETECTED_X, Integer.class));
+        attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_DETECTED_Y, Integer.class));
+        attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_DETECTED_LAT, Double.class));
+        attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_DETECTED_LON, Double.class));
+        attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_DETECTED_WIDTH, Double.class));
+        attributeDescriptors.add(VectorUtils.createAttribute(ATTRIB_DETECTED_LENGTH, Double.class));
 
         return VectorUtils.createFeatureType(targetProduct, VECTOR_NODE_NAME, attributeDescriptors);
     }
@@ -421,25 +422,16 @@ public class ObjectDiscriminationOp extends Operator {
             Point p = geometryFactory.createPoint(new Coordinate(rec.x, rec.y));
 
             final SimpleFeature feature = PlainFeatureFactory.createPlainFeature(shipFeatureType, name, p, STYLE_FORMAT);
-            feature.setAttribute(ATTRIB_WIDTH, rec.width);
-            feature.setAttribute(ATTRIB_LENGTH, rec.length);
-            setExtraFeatureAttributes(feature, rec);
+            feature.setAttribute(ATTRIB_DETECTED_X, rec.x);
+            feature.setAttribute(ATTRIB_DETECTED_Y, rec.y);
+            feature.setAttribute(ATTRIB_DETECTED_LAT, rec.lat);
+            feature.setAttribute(ATTRIB_DETECTED_LON, rec.lon);
+            feature.setAttribute(ATTRIB_DETECTED_WIDTH, rec.width);
+            feature.setAttribute(ATTRIB_DETECTED_LENGTH, rec.length);
 
             collection.add(feature);
             c++;
         }
-    }
-
-    protected List<AttributeInfo> getExtraFeatureAttributes() {
-        return new ArrayList<>();
-    }
-
-    protected void writeExtraFeatureAttributes(final Element subElem) {
-
-    }
-
-    protected void setExtraFeatureAttributes(final SimpleFeature feature, final ShipRecord shipRecord) {
-
     }
 
     public static class ShipRecord {
