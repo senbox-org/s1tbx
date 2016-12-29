@@ -16,9 +16,14 @@
 package org.esa.s1tbx.insar.gpf.ui;
 
 import org.esa.s1tbx.insar.gpf.CoherenceOp;
+import org.esa.snap.core.dataop.dem.ElevationModelDescriptor;
+import org.esa.snap.core.dataop.dem.ElevationModelRegistry;
+import org.esa.snap.dem.dataio.DEMFactory;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
+import org.esa.snap.graphbuilder.gpf.ui.OperatorUIUtils;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
+import org.esa.snap.rcp.util.Dialogs;
 import org.esa.snap.ui.AppContext;
 
 import javax.swing.*;
@@ -27,8 +32,11 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.File;
 import java.util.Map;
 
 /**
@@ -37,6 +45,7 @@ import java.util.Map;
 public class InterferogramOpUI extends BaseOperatorUI {
 
     private final JCheckBox subtractFlatEarthPhaseCheckBox = new JCheckBox("Subtract flat-earth phase");
+    private final JCheckBox subtractTopographicPhaseCheckBox = new JCheckBox("Subtract topographic phase");
     private final JCheckBox includeCoherenceCheckBox = new JCheckBox("Include coherence estimation");
     private final JCheckBox squarePixelCheckBox = new JCheckBox("Square Pixel");
     private final JCheckBox independentWindowSizeCheckBox = new JCheckBox("Independent Window Sizes");
@@ -58,6 +67,20 @@ public class InterferogramOpUI extends BaseOperatorUI {
     private Boolean includeCoherence = true;
     private Boolean squarePixel = true;
     private final CoherenceOp.DerivedParams param = new CoherenceOp.DerivedParams();
+
+    private Boolean subtractTopographicPhase = false;
+    private static final String[] demValueSet = DEMFactory.getDEMNameList();
+    //    private final JTextField orbitDegree = new JTextField("");
+    private final JComboBox<String> demName = new JComboBox<>(demValueSet);
+    private static final String externalDEMStr = "External DEM";
+    private final JTextField externalDEMFile = new JTextField("");
+    private final JTextField externalDEMNoDataValue = new JTextField("");
+    private final JButton externalDEMBrowseButton = new JButton("...");
+    private final JLabel externalDEMFileLabel = new JLabel("External DEM:");
+    private final JLabel externalDEMNoDataValueLabel = new JLabel("DEM No Data Value:");
+    private final DialogUtils.TextAreaKeyListener textAreaKeyListener = new DialogUtils.TextAreaKeyListener();
+    private final JComboBox<String> tileExtensionPercent = new JComboBox<>(new String[]{"20", "40", "60", "80", "100", "150", "200"});
+    private Double extNoDataValue = 0.0;
 
     @Override
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {
@@ -106,7 +129,7 @@ public class InterferogramOpUI extends BaseOperatorUI {
                 squarePixel = (e.getStateChange() == ItemEvent.SELECTED);
                 independentWindowSizeCheckBox.setSelected(!squarePixel);
                 if (squarePixel) {
-                    cohWinAz.setText("");
+                    cohWinAz.setText("2");
                     cohWinAz.setEditable(false);
                 }
                 setCohWinAz();
@@ -125,6 +148,50 @@ public class InterferogramOpUI extends BaseOperatorUI {
                 setCohWinRg();
             }
         });
+
+        subtractTopographicPhaseCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+
+                subtractTopographicPhase = (e.getStateChange() == ItemEvent.SELECTED);
+                if (subtractTopographicPhase) {
+                    demName.setEnabled(true);
+                    tileExtensionPercent.setEnabled(true);
+                } else {
+                    demName.setEnabled(false);
+                    tileExtensionPercent.setEnabled(false);
+                }
+            }
+        });
+
+        demName.addItem(externalDEMStr);
+
+        demName.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent event) {
+                final String item = ((String) demName.getSelectedItem()).replace(DEMFactory.AUTODEM, "");
+                if (item.equals(externalDEMStr)) {
+                    enableExternalDEM(true);
+                } else {
+                    externalDEMFile.setText("");
+                    enableExternalDEM(false);
+                }
+            }
+        });
+        externalDEMFile.setColumns(30);
+        final String demItem = ((String)demName.getSelectedItem()).replace(DEMFactory.AUTODEM, "");
+        enableExternalDEM(demItem.equals(externalDEMStr));
+
+        externalDEMBrowseButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                final File file = Dialogs.requestFileForOpen("External DEM File", false, null, DEMFactory.LAST_EXTERNAL_DEM_DIR_KEY);
+                if (file != null) {
+                    externalDEMFile.setText(file.getAbsolutePath());
+                    extNoDataValue = OperatorUIUtils.getNoDataValue(file);
+                }
+                externalDEMNoDataValue.setText(String.valueOf(extNoDataValue));
+            }
+        });
+
+        externalDEMNoDataValue.addKeyListener(textAreaKeyListener);
 
         return panel;
     }
@@ -148,6 +215,29 @@ public class InterferogramOpUI extends BaseOperatorUI {
             srpNumberPointsStr.setEnabled(true);
             orbitDegreeStr.setEnabled(true);
         }
+        paramVal = (Boolean) paramMap.get("subtractTopographicPhase");
+        if (paramVal != null) {
+            subtractTopographicPhase = paramVal;
+            subtractTopographicPhaseCheckBox.setSelected(subtractTopographicPhase);
+        }
+
+//        orbitDegree.setText(String.valueOf(paramMap.get("orbitDegree")));
+        final String demNameParam = (String) paramMap.get("demName");
+        if (demNameParam != null) {
+            ElevationModelDescriptor descriptor = ElevationModelRegistry.getInstance().getDescriptor(demNameParam);
+            demName.setSelectedItem(DEMFactory.getDEMDisplayName(descriptor));
+        }
+
+        final File extFile = (File)paramMap.get("externalDEMFile");
+        if(extFile != null) {
+            externalDEMFile.setText(extFile.getAbsolutePath());
+            extNoDataValue =  (Double)paramMap.get("externalDEMNoDataValue");
+            if(extNoDataValue != null && !textAreaKeyListener.isChangedByUser()) {
+                externalDEMNoDataValue.setText(String.valueOf(extNoDataValue));
+            }
+        }
+
+        tileExtensionPercent.setSelectedItem(paramMap.get("tileExtensionPercent"));
 
         paramVal = (Boolean) paramMap.get("includeCoherence");
         if (paramVal != null) {
@@ -163,7 +253,7 @@ public class InterferogramOpUI extends BaseOperatorUI {
             squarePixelCheckBox.setSelected(squarePixel);
             independentWindowSizeCheckBox.setSelected(!squarePixel);
             if (squarePixel) {
-                cohWinAz.setText("");
+                cohWinAz.setText("2");
                 cohWinAz.setEditable(false);
             } else {
                 cohWinAz.setEditable(true);
@@ -198,8 +288,19 @@ public class InterferogramOpUI extends BaseOperatorUI {
             paramMap.put("orbitDegree", orbitDegreeStr.getSelectedItem());
         }
 
-        paramMap.put("includeCoherence", includeCoherence);
+        paramMap.put("subtractTopographicPhase", subtractTopographicPhase);
+        if (subtractTopographicPhase) {
+//          paramMap.put("orbitDegree", Integer.parseInt(orbitDegree.getText()));
+            paramMap.put("demName", (DEMFactory.getProperDEMName((String) demName.getSelectedItem())));
+            final String extFileStr = externalDEMFile.getText();
+            if(!extFileStr.isEmpty()) {
+                paramMap.put("externalDEMFile", new File(extFileStr));
+                paramMap.put("externalDEMNoDataValue", Double.parseDouble(externalDEMNoDataValue.getText()));
+            }
+            paramMap.put("tileExtensionPercent", tileExtensionPercent.getSelectedItem());
+        }
 
+        paramMap.put("includeCoherence", includeCoherence);
         if (includeCoherence) {
             final String cohWinRgStr = cohWinRg.getText();
             final String cohWinAzStr = cohWinAz.getText();
@@ -231,6 +332,28 @@ public class InterferogramOpUI extends BaseOperatorUI {
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, orbitDegreeStrLabel, orbitDegreeStr);
         orbitDegreeStr.setEnabled(false);
+
+        gbc.gridy++;
+        contentPane.add(subtractTopographicPhaseCheckBox, gbc);
+
+//        gbc.gridy++;
+//        DialogUtils.addComponent(contentPane, gbc, "Orbit Interpolation Degree:", orbitDegree);
+        gbc.gridy++;
+        DialogUtils.addComponent(contentPane, gbc, "Digital Elevation Model:", demName);
+        gbc.gridy++;
+        DialogUtils.addComponent(contentPane, gbc, externalDEMFileLabel, externalDEMFile);
+        gbc.gridx = 2;
+        contentPane.add(externalDEMBrowseButton, gbc);
+        gbc.gridy++;
+        DialogUtils.addComponent(contentPane, gbc, externalDEMNoDataValueLabel, externalDEMNoDataValue);
+        gbc.gridy++;
+
+        gbc.gridx = 0;
+        gbc.gridy = gbc.gridy + 10;
+        DialogUtils.addComponent(contentPane, gbc, "Tile Extension [%]", tileExtensionPercent);
+
+        demName.setEnabled(false);
+        tileExtensionPercent.setEnabled(false);
 
         gbc.gridy++;
         contentPane.add(includeCoherenceCheckBox, gbc);
@@ -290,5 +413,11 @@ public class InterferogramOpUI extends BaseOperatorUI {
 
             setCohWinAz();
         }
+    }
+
+    private void enableExternalDEM(boolean flag) {
+        DialogUtils.enableComponents(externalDEMFileLabel, externalDEMFile, flag);
+        DialogUtils.enableComponents(externalDEMNoDataValueLabel, externalDEMNoDataValue, flag);
+        externalDEMBrowseButton.setVisible(flag);
     }
 }
