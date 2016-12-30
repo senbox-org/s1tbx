@@ -35,6 +35,8 @@ public interface Decomposition {
      */
     String[] getTargetBandNames();
 
+    String getSuffix();
+
     /**
      * Sets the unit for the new target band
      *

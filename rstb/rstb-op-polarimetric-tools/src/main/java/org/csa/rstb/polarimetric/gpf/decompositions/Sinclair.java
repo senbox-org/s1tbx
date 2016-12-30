@@ -38,6 +38,10 @@ public class Sinclair extends DecompositionBase implements Decomposition {
         super(srcBandList, sourceProductType, windowSize, windowSize, srcImageWidth, srcImageHeight);
     }
 
+    public String getSuffix() {
+        return "_Sinclair";
+    }
+
     /**
      * Return the list of band names for the target product
      *
