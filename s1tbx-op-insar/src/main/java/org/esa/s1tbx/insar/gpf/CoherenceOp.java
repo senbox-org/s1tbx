@@ -18,11 +18,11 @@ package org.esa.s1tbx.insar.gpf;
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.insar.gpf.support.Sentinel1Utils;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.*;
+import org.esa.snap.core.dataop.dem.ElevationModel;
+import org.esa.snap.core.dataop.dem.ElevationModelDescriptor;
+import org.esa.snap.core.dataop.dem.ElevationModelRegistry;
+import org.esa.snap.core.dataop.resamp.Resampling;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -32,6 +32,7 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.dem.dataio.FileElevationModel;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.PosVector;
 import org.esa.snap.engine_utilities.datamodel.Unit;
@@ -47,6 +48,8 @@ import org.jblas.DoubleMatrix;
 import org.jblas.MatrixFunctions;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;
+import org.jlinda.core.geom.DemTile;
+import org.jlinda.core.geom.TopoPhase;
 import org.jlinda.core.SLCImage;
 import org.jlinda.core.utils.PolyUtils;
 import org.jlinda.core.utils.SarUtils;
@@ -57,9 +60,9 @@ import org.jlinda.nest.utils.TileUtilsDoris;
 
 import javax.media.jai.BorderExtender;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 @OperatorMetadata(alias = "Coherence",
         category = "Radar/Interferometric/Products",
@@ -111,6 +114,31 @@ public class CoherenceOp extends Operator {
     @Parameter(description = "Use ground square pixel", defaultValue = "true", label = "Square Pixel")
     private Boolean squarePixel = true;
 
+    @Parameter(defaultValue="false", label="Subtract topographic phase")
+    private boolean subtractTopographicPhase = false;
+    /*
+        @Parameter(interval = "(1, 10]",
+                description = "Degree of orbit interpolation polynomial",
+                defaultValue = "3",
+                label = "Orbit Interpolation Degree")
+        private int orbitDegree = 3;
+    */
+    @Parameter(description = "The digital elevation model.",
+            defaultValue = "SRTM 3Sec",
+            label = "Digital Elevation Model")
+    private String demName = "SRTM 3Sec";
+
+    @Parameter(label = "External DEM")
+    private File externalDEMFile = null;
+
+    @Parameter(label = "DEM No Data Value", defaultValue = "0")
+    private double externalDEMNoDataValue = 0;
+
+    @Parameter(label = "Tile Extension [%]",
+            description = "Define extension of tile for DEM simulation (optimization parameter).",
+            defaultValue = "100")
+    private String tileExtensionPercent = "100";
+
     // source
     private Map<String, CplxContainer> masterMap = new HashMap<>();
     private Map<String, CplxContainer> slaveMap = new HashMap<>();
@@ -133,14 +161,20 @@ public class CoherenceOp extends Operator {
     private MetadataElement mstRoot = null;
     private MetadataElement slvRoot = null;
     private org.jlinda.core.Point[] mstSceneCentreXYZ = null;
-    private double slvSceneCentreAzimuthTime = 0.0;
     private HashMap<String, DoubleMatrix> flatEarthPolyMap = new HashMap<>();
     private int sourceImageWidth;
     private int sourceImageHeight;
 
+    private ElevationModel dem = null;
+    private double demNoDataValue = 0;
+    private double demSamplingLat;
+    private double demSamplingLon;
+
     private static final int ORBIT_DEGREE = 3; // hardcoded
-    private static final String COHERENCE_PHASE = "coherence_phase";
     private static final String PRODUCT_SUFFIX = "_Coh";
+    private static final boolean OUTPUT_PHASE = false;
+    private static final String FLAT_EARTH_PHASE = "flat_earth_phase";
+    private static final String TOPO_PHASE = "topo_phase";
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -161,7 +195,8 @@ public class CoherenceOp extends Operator {
             productTag = "coh";
 
             mstRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
-            final MetadataElement slaveElem = sourceProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT);
+            final MetadataElement slaveElem =
+                    sourceProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT);
             if (slaveElem != null) {
                 slvRoot = slaveElem.getElements()[0];
             }
@@ -182,6 +217,10 @@ public class CoherenceOp extends Operator {
                 } else {
                     constructFlatEarthPolynomials();
                 }
+            }
+
+            if (isComplex && subtractTopographicPhase) {
+                defineDEM();
             }
 
         } catch (Throwable e) {
@@ -339,13 +378,22 @@ public class CoherenceOp extends Operator {
                 coherenceBand.setUnit(Unit.COHERENCE);
                 targetBandNames.add(coherenceBand.getName());
 
-//                if (subtractFlatEarthPhase) {
-//                    final String coherencePhaseBandName = "Phase_" + coherenceBandName;
-//                    final Band coherencePhaseBand = targetProduct.addBand(coherencePhaseBandName, ProductData.TYPE_FLOAT32);
-//                    container.addBand(Unit.PHASE, coherencePhaseBand.getName());
-//                    coherencePhaseBand.setUnit(Unit.PHASE);
-//                    targetBandNames.add(coherencePhaseBand.getName());
-//                }
+
+                if (subtractTopographicPhase && OUTPUT_PHASE) {
+                    final String targetBandTgp = "tgp" + tag;
+                    final Band tgpBand = targetProduct.addBand(targetBandTgp, ProductData.TYPE_FLOAT32);
+                    container.addBand(Unit.PHASE, tgpBand.getName());
+                    tgpBand.setUnit(Unit.PHASE);
+                    targetBandNames.add(tgpBand.getName());
+                }
+
+                if (subtractFlatEarthPhase && OUTPUT_PHASE) {
+                    final String targetBandFep = "fep" + tag;
+                    final Band fepBand = targetProduct.addBand(targetBandFep, ProductData.TYPE_FLOAT32);
+                    container.addBand(Unit.PHASE, fepBand.getName());
+                    fepBand.setUnit(Unit.PHASE);
+                    targetBandNames.add(fepBand.getName());
+                }
 
                 String slvProductName = StackUtils.findOriginalSlaveProductName(sourceProduct, container.sourceSlave.realBand);
                 StackUtils.saveSlaveProductBandNames(targetProduct, slvProductName,
@@ -424,8 +472,6 @@ public class CoherenceOp extends Operator {
         final double firstLineTime = (firstLineTimeInDays - (int) firstLineTimeInDays) * Constants.secondsInDay;
         final double lastLineTimeInDays = slvRoot.getAttributeUTC(AbstractMetadata.last_line_time).getMJD();
         final double lastLineTime = (lastLineTimeInDays - (int) lastLineTimeInDays) * Constants.secondsInDay;
-
-        slvSceneCentreAzimuthTime = 0.5 * (firstLineTime + lastLineTime);
     }
 
     private void constructFlatEarthPolynomialsForTOPSARProduct() throws Exception {
@@ -472,6 +518,49 @@ public class CoherenceOp extends Operator {
         }
     }
 
+    private void defineDEM() throws IOException {
+
+        Resampling resampling = Resampling.BILINEAR_INTERPOLATION;
+        final ElevationModelRegistry elevationModelRegistry;
+        final ElevationModelDescriptor demDescriptor;
+
+        if (externalDEMFile == null) {
+            elevationModelRegistry = ElevationModelRegistry.getInstance();
+            demDescriptor = elevationModelRegistry.getDescriptor(demName);
+
+            if (demDescriptor == null) {
+                throw new OperatorException("The DEM '" + demName + "' is not supported.");
+            }
+
+            dem = demDescriptor.createDem(resampling);
+            if (dem == null) {
+                throw new OperatorException("The DEM '" + demName + "' has not been installed.");
+            }
+
+            demNoDataValue = demDescriptor.getNoDataValue();
+            demSamplingLat = demDescriptor.getTileWidthInDegrees() * (1.0f / demDescriptor.getTileWidth()) *
+                    org.jlinda.core.Constants.DTOR;
+            demSamplingLon = demSamplingLat;
+
+        } else {
+
+            dem = new FileElevationModel(externalDEMFile, resampling.getName(), externalDEMNoDataValue);
+            demName = externalDEMFile.getPath();
+            demNoDataValue = externalDEMNoDataValue;
+
+            try {
+                demSamplingLat =
+                        (dem.getGeoPos(new PixelPos(0, 1)).getLat() - dem.getGeoPos(new PixelPos(0, 0)).getLat()) *
+                                org.jlinda.core.Constants.DTOR;
+                demSamplingLon =
+                        (dem.getGeoPos(new PixelPos(1, 0)).getLon() - dem.getGeoPos(new PixelPos(0, 0)).getLon()) *
+                                org.jlinda.core.Constants.DTOR;
+            } catch (Exception e) {
+                throw new OperatorException("The DEM '" + demName + "' cannot be properly interpreted.");
+            }
+        }
+    }
+
 
     /**
      * Called by the framework in order to compute a tile for the given target band.
@@ -491,7 +580,8 @@ public class CoherenceOp extends Operator {
         } else if (!isComplex) {
             computeTileForDetectedProduct(targetTileMap, targetRectangle, pm);
         } else {
-            computeTileForNormalProduct(targetTileMap, targetRectangle, pm);
+            computeTileForNormalProduct(
+                    targetTileMap, targetRectangle, 0, sourceImageWidth - 1, 0, sourceImageHeight - 1, "", pm);
         }
     }
 
@@ -518,7 +608,8 @@ public class CoherenceOp extends Operator {
                     for (int y = y0; y < maxY; y++) {
                         for (int x = x0; x < maxX; x++) {
                             final int index = srcRaster.getDataBufferIndex(x, y);
-                            targetData.setElemFloatAt(targetTile.getDataBufferIndex(x, y), srcData.getElemFloatAt(index));
+                            targetData.setElemFloatAt(targetTile.getDataBufferIndex(x, y),
+                                                      srcData.getElemFloatAt(index));
                         }
                     }
 
@@ -597,22 +688,40 @@ public class CoherenceOp extends Operator {
     }
 
     private void computeTileForNormalProduct(
-            final Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
+            final Map<Band, Tile> targetTileMap, Rectangle targetRectangle,
+            final int minPixel, final int maxPixel, final int minLine, final int maxLine, final String polyNameTag,
+            ProgressMonitor pm)
             throws OperatorException {
 
         try {
-            final int cohx0 = targetRectangle.x - (cohWinRg - 1) / 2;
-            final int cohy0 = targetRectangle.y - (cohWinAz - 1) / 2;
-            final int cohw = targetRectangle.width + cohWinRg - 1;
-            final int cohh = targetRectangle.height + cohWinAz - 1;
-            final Rectangle extRect = new Rectangle(cohx0, cohy0, cohw, cohh);
-
             final BorderExtender border = BorderExtender.createInstance(BorderExtender.BORDER_ZERO);
 
             final int y0 = targetRectangle.y;
             final int yN = y0 + targetRectangle.height - 1;
             final int x0 = targetRectangle.x;
             final int xN = targetRectangle.x + targetRectangle.width - 1;
+            //System.out.println("x0 = " + x0 +", y0 = " + y0 + ", w = " + targetRectangle.width + ", h = " + targetRectangle.height);
+
+            final int cohx0 = targetRectangle.x - (cohWinRg - 1) / 2;
+            final int cohy0 = targetRectangle.y - (cohWinAz - 1) / 2;
+            final int cohw = targetRectangle.width + cohWinRg - 1;
+            final int cohh = targetRectangle.height + cohWinAz - 1;
+            final int cohxN = cohx0 + cohw - 1;
+            final int cohyN = cohy0 + cohh - 1;
+            final Rectangle extRect = new Rectangle(cohx0, cohy0, cohw, cohh);
+
+            final org.jlinda.core.Window tileWindow = new org.jlinda.core.Window(cohy0, cohyN, cohx0, cohxN);
+
+            DemTile demTile = null;
+            if (subtractTopographicPhase) {
+                demTile = org.jlinda.nest.gpf.SubtRefDemOp.getDEMTile(tileWindow, targetMap, dem, demNoDataValue,
+                        demSamplingLat, demSamplingLon, tileExtensionPercent);
+
+                if (demTile.getData().length < 3 || demTile.getData()[0].length < 3) {
+                    throw new OperatorException("The resolution of the selected DEM is too low, " +
+                            "please select DEM with higher resolution.");
+                }
+            }
 
             for (String cohKey : targetMap.keySet()) {
 
@@ -628,46 +737,142 @@ public class CoherenceOp extends Operator {
                 final ComplexDoubleMatrix dataSlave =
                         TileUtilsDoris.pullComplexDoubleMatrix(tileRealSlave, tileImagSlave);
 
+                if (subtractFlatEarthPhase) {
+                    final DoubleMatrix flatEarthPhase = computeFlatEarthPhase(cohx0, cohxN, cohw, cohy0, cohyN, cohh,
+                            minPixel, maxPixel, minLine, maxLine, product.sourceSlave.name + polyNameTag);
+
+                    final ComplexDoubleMatrix complexReferencePhase = new ComplexDoubleMatrix(
+                            MatrixFunctions.cos(flatEarthPhase), MatrixFunctions.sin(flatEarthPhase));
+
+                    dataSlave.muli(complexReferencePhase);
+
+                    if (OUTPUT_PHASE) {
+                        saveFlatEarthPhase(x0, xN, y0, yN, flatEarthPhase, product, targetTileMap);
+                    }
+                }
+
+                if (subtractTopographicPhase) {
+                    TopoPhase topoPhase = org.jlinda.nest.gpf.SubtRefDemOp.computeTopoPhase(
+                            product, tileWindow, demTile, false);
+
+                    final ComplexDoubleMatrix ComplexTopoPhase = new ComplexDoubleMatrix(
+                            MatrixFunctions.cos(new DoubleMatrix(topoPhase.demPhase)),
+                            MatrixFunctions.sin(new DoubleMatrix(topoPhase.demPhase)));
+
+                    dataSlave.muli(ComplexTopoPhase);
+
+                    if (OUTPUT_PHASE) {
+                        saveTopoPhase(x0, xN, y0, yN, topoPhase.demPhase, product, targetTileMap);
+                    }
+                }
+
                 for (int i = 0; i < dataMaster.length; i++) {
                     double tmp = norm(dataMaster.get(i));
                     dataMaster.put(i, dataMaster.get(i).mul(dataSlave.get(i).conj()));
                     dataSlave.put(i, new ComplexDouble(norm(dataSlave.get(i)), tmp));
                 }
 
-                ComplexDoubleMatrix cohMatrix = SarUtils.cplxCoherence(dataMaster, dataSlave, cohWinAz, cohWinRg);
+                DoubleMatrix cohMatrix = SarUtils.coherence2(dataMaster, dataSlave, cohWinAz, cohWinRg);
 
-                if (subtractFlatEarthPhase) {
-                    DoubleMatrix rangeAxisNormalized = DoubleMatrix.linspace(x0, xN, targetRectangle.width);
-                    rangeAxisNormalized = InterferogramOp.normalizeDoubleMatrix(
-                            rangeAxisNormalized, 0, sourceImageWidth - 1);
-
-                    DoubleMatrix azimuthAxisNormalized = DoubleMatrix.linspace(y0, yN, targetRectangle.height);
-                    azimuthAxisNormalized = InterferogramOp.normalizeDoubleMatrix(
-                            azimuthAxisNormalized, 0, sourceImageHeight - 1);
-
-                    // pull polynomial from the map
-                    final DoubleMatrix polyCoeffs = flatEarthPolyMap.get(product.sourceSlave.name);
-
-                    // estimate the phase on the grid
-                    final DoubleMatrix realReferencePhase =
-                            PolyUtils.polyval(azimuthAxisNormalized, rangeAxisNormalized,
-                                              polyCoeffs, PolyUtils.degreeFromCoefficients(polyCoeffs.length));
-
-                    // compute the reference phase
-                    final ComplexDoubleMatrix complexReferencePhase = new ComplexDoubleMatrix(
-                            MatrixFunctions.cos(realReferencePhase),
-                            MatrixFunctions.sin(realReferencePhase));
-
-                    cohMatrix.muli(complexReferencePhase.conji());
-                }
-
-                saveComplexCoherence(cohMatrix, product, targetTileMap, targetRectangle);
+                saveCoherence(cohMatrix, product, targetTileMap, targetRectangle);
             }
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         } finally {
             pm.done();
+        }
+    }
+
+    private DoubleMatrix computeFlatEarthPhase(final int xMin, final int xMax, final int xSize,
+                                               final int yMin, final int yMax, final int ySize,
+                                               final int minPixel, final int maxPixel,
+                                               final int minLine, final int maxLine,
+                                               final String polynomialName) {
+
+        DoubleMatrix rangeAxisNormalized = DoubleMatrix.linspace(xMin, xMax, xSize);
+        rangeAxisNormalized = InterferogramOp.normalizeDoubleMatrix(rangeAxisNormalized, minPixel, maxPixel);
+
+        DoubleMatrix azimuthAxisNormalized = DoubleMatrix.linspace(yMin, yMax, ySize);
+        azimuthAxisNormalized = InterferogramOp.normalizeDoubleMatrix(azimuthAxisNormalized, minLine, maxLine);
+
+        final DoubleMatrix polyCoeffs = flatEarthPolyMap.get(polynomialName);
+
+        return PolyUtils.polyval(azimuthAxisNormalized, rangeAxisNormalized,
+                polyCoeffs, PolyUtils.degreeFromCoefficients(polyCoeffs.length));
+    }
+
+    private void saveTopoPhase(final int x0, final int xN, final int y0, final int yN, final double[][] topoPhase,
+                               final ProductContainer product, final Map<Band, Tile> targetTileMap) {
+
+        final Band topoPhaseBand = targetProduct.getBand(product.getBandName(TOPO_PHASE));
+        final Tile topoPhaseTile = targetTileMap.get(topoPhaseBand);
+        final ProductData topoPhaseData = topoPhaseTile.getDataBuffer();
+        final TileIndex tgtIndex = new TileIndex(topoPhaseTile);
+
+        for (int y = y0; y <= yN; y++) {
+            tgtIndex.calculateStride(y);
+            final int yy = y - y0 + (cohWinAz - 1) / 2;
+            for (int x = x0; x <= xN; x++) {
+                final int tgtIdx = tgtIndex.getIndex(x);
+                final int xx = x - x0 + (cohWinRg - 1) / 2;
+                topoPhaseData.setElemFloatAt(tgtIdx, (float)topoPhase[yy][xx]);
+            }
+        }
+    }
+
+    private void saveFlatEarthPhase(final int x0, final int xN, final int y0, final int yN, final DoubleMatrix refPhase,
+                                    final ProductContainer product, final Map<Band, Tile> targetTileMap) {
+
+        final Band flatEarthPhaseBand = targetProduct.getBand(product.getBandName(FLAT_EARTH_PHASE));
+        final Tile flatEarthPhaseTile = targetTileMap.get(flatEarthPhaseBand);
+        final ProductData flatEarthPhaseData = flatEarthPhaseTile.getDataBuffer();
+
+        final TileIndex tgtIndex = new TileIndex(flatEarthPhaseTile);
+        for (int y = y0; y <= yN; y++) {
+            tgtIndex.calculateStride(y);
+            final int yy = y - y0 + (cohWinAz - 1) / 2;
+            for (int x = x0; x <= xN; x++) {
+                final int tgtIdx = tgtIndex.getIndex(x);
+                final int xx = x - x0 + (cohWinRg - 1) / 2;
+                flatEarthPhaseData.setElemFloatAt(tgtIdx, (float)refPhase.get(yy, xx));
+            }
+        }
+    }
+
+    private void saveCoherence(final DoubleMatrix cohMatrix, final ProductContainer product,
+                               final Map<Band, Tile> targetTileMap, final Rectangle targetRectangle) {
+
+        final int x0 = targetRectangle.x;
+        final int y0 = targetRectangle.y;
+        final int maxX = x0 + targetRectangle.width;
+        final int maxY = y0 + targetRectangle.height;
+
+        final Band coherenceBand = targetProduct.getBand(product.getBandName(Unit.COHERENCE));
+        final Tile coherenceTile = targetTileMap.get(coherenceBand);
+        final ProductData coherenceData = coherenceTile.getDataBuffer();
+
+        final double srcNoDataValue = product.sourceMaster.realBand.getNoDataValue();
+        final Tile slvTileReal = getSourceTile(product.sourceSlave.realBand, targetRectangle);
+        final ProductData srcSlvData = slvTileReal.getDataBuffer();
+        final TileIndex srcSlvIndex = new TileIndex(slvTileReal);
+
+        final TileIndex tgtIndex = new TileIndex(coherenceTile);
+        for (int y = y0; y < maxY; y++) {
+            tgtIndex.calculateStride(y);
+            srcSlvIndex.calculateStride(y);
+            final int yy = y - y0;
+            for (int x = x0; x < maxX; x++) {
+                final int tgtIdx = tgtIndex.getIndex(x);
+                final int xx = x - x0;
+
+                if (srcSlvData.getElemDoubleAt(srcSlvIndex.getIndex(x)) == srcNoDataValue) {
+                    coherenceData.setElemFloatAt(tgtIdx, (float) srcNoDataValue);
+                } else {
+                    final double coh = cohMatrix.get(yy, xx);
+                    coherenceData.setElemFloatAt(tgtIdx, (float) coh);
+                }
+            }
         }
     }
 
@@ -700,148 +905,20 @@ public class CoherenceOp extends Operator {
                 final Rectangle partialTileRectangle = new Rectangle(ntx0, nty0, ntw, nth);
                 //System.out.println("burst = " + burstIndex + ": ntx0 = " + ntx0 + ", nty0 = " + nty0 + ", ntw = " + ntw + ", nth = " + nth);
 
-                computePartialTile(subSwathIndex, burstIndex, targetTileMap, partialTileRectangle);
+                final int minLine = burstIndex * subSwath[subSwathIndex - 1].linesPerBurst;
+                final int maxLine = minLine + subSwath[subSwathIndex - 1].linesPerBurst - 1;
+                final int minPixel = 0;
+                final int maxPixel = subSwath[subSwathIndex - 1].samplesPerBurst - 1;
+                final String polyNameTag = "_" + (subSwathIndex - 1) + "_" + burstIndex;
+
+                computeTileForNormalProduct(
+                        targetTileMap, partialTileRectangle, minPixel, maxPixel, minLine, maxLine, polyNameTag, pm);
             }
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         } finally {
             pm.done();
-        }
-    }
-
-    private void computePartialTile(final int subSwathIndex, final int burstIndex,
-                                    final Map<Band, Tile> targetTileMap, final Rectangle targetRectangle) {
-
-        try {
-            final int cohx0 = targetRectangle.x - (cohWinRg - 1) / 2;
-            final int cohy0 = targetRectangle.y - (cohWinAz - 1) / 2;
-            final int cohw = targetRectangle.width + cohWinRg - 1;
-            final int cohh = targetRectangle.height + cohWinAz - 1;
-            final Rectangle rect = new Rectangle(cohx0, cohy0, cohw, cohh);
-
-            final long minLine = burstIndex * subSwath[subSwathIndex - 1].linesPerBurst;
-            final long maxLine = minLine + subSwath[subSwathIndex - 1].linesPerBurst - 1;
-            final long minPixel = 0;
-            final long maxPixel = subSwath[subSwathIndex - 1].samplesPerBurst - 1;
-
-            final BorderExtender border = BorderExtender.createInstance(BorderExtender.BORDER_ZERO);
-
-            final int y0 = targetRectangle.y;
-            final int yN = y0 + targetRectangle.height - 1;
-            final int x0 = targetRectangle.x;
-            final int xN = x0 + targetRectangle.width - 1;
-
-            for (String cohKey : targetMap.keySet()) {
-                final ProductContainer product = targetMap.get(cohKey);
-
-                Tile tileRealMaster = getSourceTile(product.sourceMaster.realBand, rect, border);
-                Tile tileImagMaster = getSourceTile(product.sourceMaster.imagBand, rect, border);
-                final ComplexDoubleMatrix dataMaster =
-                        TileUtilsDoris.pullComplexDoubleMatrix(tileRealMaster, tileImagMaster);
-
-                Tile tileRealSlave = getSourceTile(product.sourceSlave.realBand, rect, border);
-                Tile tileImagSlave = getSourceTile(product.sourceSlave.imagBand, rect, border);
-                final ComplexDoubleMatrix dataSlave =
-                        TileUtilsDoris.pullComplexDoubleMatrix(tileRealSlave, tileImagSlave);
-
-                for (int r = 0; r < dataMaster.rows; r++) {
-                    final int y = cohy0 + r;
-                    for (int c = 0; c < dataMaster.columns; c++) {
-                        double tmp = norm(dataMaster.get(r, c));
-                        if (y < minLine || y > maxLine) {
-                            dataMaster.put(r, c, 0.0);
-                        } else {
-                            dataMaster.put(r, c, dataMaster.get(r, c).mul(dataSlave.get(r, c).conj()));
-                        }
-                        dataSlave.put(r, c, new ComplexDouble(norm(dataSlave.get(r, c)), tmp));
-                    }
-                }
-
-                ComplexDoubleMatrix cohMatrix = SarUtils.cplxCoherence(dataMaster, dataSlave, cohWinAz, cohWinRg);
-
-                if (subtractFlatEarthPhase) {
-                    DoubleMatrix rangeAxisNormalized = DoubleMatrix.linspace(x0, xN, targetRectangle.width);
-                    rangeAxisNormalized = InterferogramOp.normalizeDoubleMatrix(
-                            rangeAxisNormalized, minPixel, maxPixel);
-
-                    DoubleMatrix azimuthAxisNormalized = DoubleMatrix.linspace(y0, yN, targetRectangle.height);
-                    azimuthAxisNormalized = InterferogramOp.normalizeDoubleMatrix(
-                            azimuthAxisNormalized, minLine, maxLine);
-
-                    final String polynomialName = product.sourceSlave.name + '_' + (subSwathIndex - 1) + '_' + burstIndex;
-                    final DoubleMatrix polyCoeffs = flatEarthPolyMap.get(polynomialName);
-
-                    final DoubleMatrix realReferencePhase = PolyUtils.polyval(azimuthAxisNormalized, rangeAxisNormalized,
-                                                                              polyCoeffs, PolyUtils.degreeFromCoefficients(polyCoeffs.length));
-
-                    final ComplexDoubleMatrix complexReferencePhase = new ComplexDoubleMatrix(
-                            MatrixFunctions.cos(realReferencePhase),
-                            MatrixFunctions.sin(realReferencePhase));
-
-                    cohMatrix.muli(complexReferencePhase.conji());
-                }
-
-                saveComplexCoherence(cohMatrix, product, targetTileMap, targetRectangle);
-            }
-
-        } catch (Exception e) {
-            throw new OperatorException(e);
-        }
-    }
-
-    private void saveComplexCoherence(final ComplexDoubleMatrix cohMatrix, final ProductContainer product,
-                                      final Map<Band, Tile> targetTileMap, final Rectangle targetRectangle) {
-
-        final int x0 = targetRectangle.x;
-        final int y0 = targetRectangle.y;
-        final int maxX = x0 + targetRectangle.width;
-        final int maxY = y0 + targetRectangle.height;
-
-        final Band coherenceBand = targetProduct.getBand(product.getBandName(Unit.COHERENCE));
-        final Tile coherenceTile = targetTileMap.get(coherenceBand);
-        final ProductData coherenceData = coherenceTile.getDataBuffer();
-
-        /*ProductData coherencePhaseData = null;
-        if (subtractFlatEarthPhase) {
-            final Band coherencePhaseBand = targetProduct.getBand(product.getBandName(COHERENCE_PHASE));
-            final Tile coherencePhaseTile = targetTileMap.get(coherencePhaseBand);
-            coherencePhaseData = coherencePhaseTile.getDataBuffer();
-        }*/
-
-        final DoubleMatrix dataReal = cohMatrix.real();
-        final DoubleMatrix dataImag = cohMatrix.imag();
-
-        final double srcNoDataValue = product.sourceMaster.realBand.getNoDataValue();
-        final Tile slvTileReal = getSourceTile(product.sourceSlave.realBand, targetRectangle);
-        final ProductData srcSlvData = slvTileReal.getDataBuffer();
-        final TileIndex srcSlvIndex = new TileIndex(slvTileReal);
-
-        final TileIndex tgtIndex = new TileIndex(coherenceTile);
-        for (int y = y0; y < maxY; y++) {
-            tgtIndex.calculateStride(y);
-            srcSlvIndex.calculateStride(y);
-            final int yy = y - y0;
-            for (int x = x0; x < maxX; x++) {
-                final int tgtIdx = tgtIndex.getIndex(x);
-                final int xx = x - x0;
-
-                if (srcSlvData.getElemDoubleAt(srcSlvIndex.getIndex(x)) == srcNoDataValue) {
-                    coherenceData.setElemFloatAt(tgtIdx, (float) srcNoDataValue);
-                    /*if (subtractFlatEarthPhase) {
-                        coherencePhaseData.setElemFloatAt(tgtIdx, (float) srcNoDataValue);
-                    }*/
-                } else {
-                    final double cohI = dataReal.get(yy, xx);
-                    final double cohQ = dataImag.get(yy, xx);
-                    final double coh = Math.sqrt(cohI * cohI + cohQ * cohQ);
-                    coherenceData.setElemFloatAt(tgtIdx, (float) coh);
-                    /*if (subtractFlatEarthPhase) {
-                        final double cohPhase = Math.atan2(cohQ, cohI);
-                        coherencePhaseData.setElemFloatAt(tgtIdx, (float) cohPhase);
-                    }*/
-                }
-            }
         }
     }
 
@@ -853,8 +930,8 @@ public class CoherenceOp extends Operator {
         return real * real + imag * imag;
     }
 
-    public static DoubleMatrix coherence(final double[] iMst, final double[] qMst, final double[] iSlv, final double[] qSlv,
-                                         final int winL, final int winP, int w, int h) {
+    public static DoubleMatrix coherence(final double[] iMst, final double[] qMst, final double[] iSlv,
+                                         final double[] qSlv, final int winL, final int winP, int w, int h) {
 
         final ComplexDoubleMatrix input = new ComplexDoubleMatrix(h, w);
         final ComplexDoubleMatrix norms = new ComplexDoubleMatrix(h, w);
@@ -912,8 +989,10 @@ public class CoherenceOp extends Operator {
 
                     int inI = 2 * input.index(i, l);
                     int inWinL = 2 * input.index(iwinL, l);
-                    sum.set(sum.real() + (input.data[inWinL] - input.data[inI]), sum.imag() + (input.data[inWinL + 1] - input.data[inI + 1]));
-                    power.set(power.real() + (norms.data[inWinL] - norms.data[inI]), power.imag() + (norms.data[inWinL + 1] - norms.data[inI + 1]));
+                    sum.set(sum.real() + (input.data[inWinL] - input.data[inI]), sum.imag() +
+                            (input.data[inWinL + 1] - input.data[inI + 1]));
+                    power.set(power.real() + (norms.data[inWinL] - norms.data[inI]),
+                            power.imag() + (norms.data[inWinL + 1] - norms.data[inI + 1]));
                 }
                 result.put(i + 1, j - leadingZeros, coherenceProduct(sum, power));
             }
