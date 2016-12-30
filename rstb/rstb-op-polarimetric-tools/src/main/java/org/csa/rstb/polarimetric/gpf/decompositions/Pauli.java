@@ -38,6 +38,10 @@ public class Pauli extends DecompositionBase implements Decomposition {
         super(srcBandList, sourceProductType, windowSize, windowSize, srcImageWidth, srcImageHeight);
     }
 
+    public String getSuffix() {
+        return "_Pauli";
+    }
+
     /**
      * Return the list of band names for the target product
      *

@@ -58,6 +58,10 @@ public class hAAlpha extends DecompositionBase implements Decomposition {
         this.outputLambda123 = outputLambda123;
     }
 
+    public String getSuffix() {
+        return "_HA";
+    }
+
     /**
      * Return the list of band names for the target product
      *

@@ -38,6 +38,10 @@ public class Cloude extends DecompositionBase implements Decomposition {
         super(srcBandList, sourceProductType, windowSize, windowSize, srcImageWidth, srcImageHeight);
     }
 
+    public String getSuffix() {
+        return "_Cloude";
+    }
+
     /**
      * Return the list of band names for the target product
      *

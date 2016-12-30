@@ -39,6 +39,10 @@ public class FreemanDurden extends DecompositionBase implements Decomposition {
         super(srcBandList, sourceProductType, windowSize, windowSize, srcImageWidth, srcImageHeight);
     }
 
+    public String getSuffix() {
+        return "_FD";
+    }
+
     /**
      * Return the list of band names for the target product
      */

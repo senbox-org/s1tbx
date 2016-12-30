@@ -38,6 +38,10 @@ public class Yamaguchi extends DecompositionBase implements Decomposition {
         super(srcBandList, sourceProductType, windowSize, windowSize, srcImageWidth, srcImageHeight);
     }
 
+    public String getSuffix() {
+        return "_Yamaguchi";
+    }
+
     /**
      * Return the list of band names for the target product
      */

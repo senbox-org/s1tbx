@@ -56,6 +56,10 @@ public class Touzi extends DecompositionBase implements Decomposition {
         this.outputTouziParamSet3 = outputTouziParamSet3;
     }
 
+    public String getSuffix() {
+        return "_Touzi";
+    }
+
     /**
      * Return the list of band names for the target product
      *

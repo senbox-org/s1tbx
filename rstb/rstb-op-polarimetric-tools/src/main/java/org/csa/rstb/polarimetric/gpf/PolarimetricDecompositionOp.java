@@ -266,7 +266,7 @@ public final class PolarimetricDecompositionOp extends Operator {
      */
     private void createTargetProduct() {
 
-        targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
+        targetProduct = new Product(sourceProduct.getName() + polDecomp.getSuffix(),
                 sourceProduct.getProductType(),
                 sourceProduct.getSceneRasterWidth(),
                 sourceProduct.getSceneRasterHeight());

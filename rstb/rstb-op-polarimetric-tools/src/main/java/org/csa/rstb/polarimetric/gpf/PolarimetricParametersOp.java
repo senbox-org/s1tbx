@@ -104,6 +104,7 @@ public final class PolarimetricParametersOp extends Operator {
     private PolBandUtils.PolSourceBand[] srcBandList;
     private Band hhBand = null, hvBand = null, vvBand = null, vhBand = null;
 
+    private final static String PRODUCT_SUFFIX = "_PP";
     private enum BandType { Span, PedestalHeight, RVI, RFDI, CSI, VSI, BMI, ITI, HHVVRatio, HHHVRatio, VVVHRatio }
 
     @Override
@@ -179,7 +180,7 @@ public final class PolarimetricParametersOp extends Operator {
      */
     private void createTargetProduct() {
 
-        targetProduct = new Product(sourceProduct.getName(),
+        targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                                     sourceProduct.getProductType(),
                                     sourceProduct.getSceneRasterWidth(),
                                     sourceProduct.getSceneRasterHeight());

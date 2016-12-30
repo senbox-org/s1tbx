@@ -43,6 +43,10 @@ public class GeneralizedFreemanDurden extends DecompositionBase implements Decom
         this.srcImageHeight = srcImageHeight;
     }
 
+    public String getSuffix() {
+        return "_FD";
+    }
+
     /**
      * Return the list of band names for the target product
      */
