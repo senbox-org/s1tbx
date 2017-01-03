@@ -797,7 +797,7 @@ public class InterferogramOp extends Operator {
      * @throws org.esa.snap.core.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     @Override
-    public synchronized void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
+    public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
             throws OperatorException {
         try {
             if (subtractFlatEarthPhase && !flatEarthEstimated) {
