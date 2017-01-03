@@ -165,7 +165,7 @@ public final class LandCoverMaskOp extends Operator {
      * @throws org.esa.snap.core.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     @Override
-    public synchronized void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
 
         try {
             final Rectangle rect = targetTile.getRectangle();
