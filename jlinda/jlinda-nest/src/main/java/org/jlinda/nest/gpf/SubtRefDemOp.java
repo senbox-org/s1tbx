@@ -568,7 +568,7 @@ public final class SubtRefDemOp extends Operator {
 
             return demTile;
         } catch (Exception e) {
-            throw new OperatorException(e);
+            return null;
         }
     }
 
@@ -630,9 +630,13 @@ public final class SubtRefDemOp extends Operator {
 
         // then for number of extra points
         for (int[] point : points) {
-            Double height = dem.getSample(point[1], point[0]);
-            if (!Double.isNaN(height) && !height.equals(demNoDataValue)) {
-                heights.add(height);
+            try {
+                Double height = dem.getSample(point[1], point[0]);
+                if (!Double.isNaN(height) && !height.equals(demNoDataValue)) {
+                    heights.add(height);
+                }
+            } catch (Exception e) {
+                // don't add height
             }
         }
 
