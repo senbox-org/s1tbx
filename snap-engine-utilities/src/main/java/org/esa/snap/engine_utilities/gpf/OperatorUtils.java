@@ -597,6 +597,10 @@ public final class OperatorUtils {
     public static Rectangle[] getAllTileRectangles(final Product sourceProduct, final Dimension tileSize,
                                                    final int margin) {
 
+        if(tileSize.getHeight() > sourceProduct.getSceneRasterHeight() || tileSize.getWidth() > sourceProduct.getSceneRasterWidth()) {
+            return new Rectangle[] { new Rectangle(0,0, sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight())};
+        }
+
         final int rasterHeight = sourceProduct.getSceneRasterHeight() - margin - margin;
         final int rasterWidth = sourceProduct.getSceneRasterWidth() - margin - margin;
 
