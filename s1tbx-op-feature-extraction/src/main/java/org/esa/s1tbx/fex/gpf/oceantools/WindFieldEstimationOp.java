@@ -150,7 +150,7 @@ public class WindFieldEstimationOp extends Operator {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
             validator.checkIfCalibrated(true);
             validator.checkIfTOPSARBurstProduct(false);
-            validator.checkMission(new String[]{"ERS1", "ERS2", "ENVISAT", "SENTINEL-1", "RS2"});
+            validator.checkMission(new String[]{"ERS", "ENVISAT", "SENTINEL-1", "RS2"});
 
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 

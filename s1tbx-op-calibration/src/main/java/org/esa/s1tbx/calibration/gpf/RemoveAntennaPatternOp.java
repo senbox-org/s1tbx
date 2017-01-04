@@ -79,7 +79,7 @@ public class RemoveAntennaPatternOp extends Operator {
         try {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
             validator.checkIfSARProduct();
-            validator.checkMission(new String[] {"ENVISAT", "ERS-1", "ERS-2"});
+            validator.checkMission(new String[] {"ENVISAT", "ERS"});
 
             getProductType();
 
