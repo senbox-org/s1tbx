@@ -115,9 +115,9 @@ public class InputProductValidator {
     }
 
     public void checkMission(final String[] validMissions) throws OperatorException {
-        final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION, "");
+        final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION, "").toUpperCase();
         for (String validMission : validMissions) {
-            if (mission.equals(validMission))
+            if (mission.startsWith(validMission.toUpperCase()))
                 return;
         }
         throw new OperatorException(mission + " is not a valid mission from: " + StringUtils.arrayToString(validMissions, ","));
