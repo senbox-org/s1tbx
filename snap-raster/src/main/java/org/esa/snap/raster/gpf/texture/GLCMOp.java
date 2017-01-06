@@ -29,6 +29,7 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
@@ -298,11 +299,19 @@ public final class GLCMOp extends Operator {
     private void getSourceBands() {
         final List<String> srcBandNameList = new ArrayList<>();
         if (sourceBandNames != null) {
-            // remove band names specific to another run
-            for (String srcBandName : sourceBandNames) {
-                final Band srcBand = sourceProduct.getBand(srcBandName);
-                if (srcBand != null) {
-                    srcBandNameList.add(srcBand.getName());
+            int cnt = 0;
+            for(String srcBandName : sourceProduct.getBandNames()) {
+                if(StringUtils.contains(sourceBandNames, srcBandName)) {
+                    cnt++;
+                }
+            }
+            if(cnt != sourceProduct.getNumBands()) {
+                // remove band names specific to another run
+                for (String srcBandName : sourceBandNames) {
+                    final Band srcBand = sourceProduct.getBand(srcBandName);
+                    if (srcBand != null) {
+                        srcBandNameList.add(srcBand.getName());
+                    }
                 }
             }
         }
