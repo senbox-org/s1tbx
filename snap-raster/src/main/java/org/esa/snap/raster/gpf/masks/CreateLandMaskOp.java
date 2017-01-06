@@ -230,8 +230,12 @@ public class CreateLandMaskOp extends Operator {
                     if (valid) {
                         final int srcIndex = srcTileIndex.getIndex(x);
                         for (TileData tileData : trgTiles) {
-                            tileData.tileDataBuffer.setElemDoubleAt(trgIndex,
-                                                                    tileData.srcDataBuffer.getElemDoubleAt(srcIndex));
+                            if(tileData.isInt) {
+                                tileData.tileDataBuffer.setElemIntAt(trgIndex, tileData.srcDataBuffer.getElemIntAt(srcIndex));
+                            } else {
+                                tileData.tileDataBuffer.setElemDoubleAt(trgIndex,
+                                                                        tileData.srcDataBuffer.getElemDoubleAt(srcIndex));
+                            }
                         }
                     } else {
                         if (shorelineExtension > 0) {
@@ -241,8 +245,14 @@ public class CreateLandMaskOp extends Operator {
                             for (int ey = eMinY; ey < eMaxY; ++ey) {
                                 for (int ex = eMinX; ex < eMaxX; ++ex) {
                                     int eIndex = targetTile.getDataBufferIndex(ex, ey);
-                                    for (TileData tileData : trgTiles) {
-                                        tileData.tileDataBuffer.setElemDoubleAt(eIndex, tileData.noDataValue);
+                                    if(trgTiles[0].tileDataBuffer.getElemDoubleAt(eIndex) != trgTiles[0].noDataValue) {
+                                        for (TileData tileData : trgTiles) {
+                                            if(tileData.isInt) {
+                                                tileData.tileDataBuffer.setElemIntAt(eIndex, (int)tileData.noDataValue);
+                                            } else {
+                                                tileData.tileDataBuffer.setElemDoubleAt(eIndex, tileData.noDataValue);
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -276,23 +286,29 @@ public class CreateLandMaskOp extends Operator {
         final Set<Band> keySet = targetTiles.keySet();
         for (Band targetBand : keySet) {
 
-            final TileData td = new TileData();
-            td.targetTile = targetTiles.get(targetBand);
-            td.srcTile = getSourceTile(srcProduct.getBand(targetBand.getName()), targetRectangle);
-            td.tileDataBuffer = td.targetTile.getDataBuffer();
-            td.srcDataBuffer = td.srcTile.getDataBuffer();
-            td.noDataValue = targetBand.getNoDataValue();
-            trgTileList.add(td);
+            trgTileList.add(new TileData(targetBand,
+                                             targetTiles.get(targetBand),
+                                             getSourceTile(srcProduct.getBand(targetBand.getName()), targetRectangle)));
         }
         return trgTileList.toArray(new TileData[trgTileList.size()]);
     }
 
     private static class TileData {
-        Tile targetTile = null;
-        Tile srcTile = null;
-        ProductData tileDataBuffer = null;
-        ProductData srcDataBuffer = null;
-        double noDataValue = 0;
+        final Tile targetTile;
+        final Tile srcTile;
+        final ProductData tileDataBuffer;
+        final ProductData srcDataBuffer;
+        final double noDataValue;
+        final boolean isInt;
+
+        TileData(final Band targetBand, final Tile targetTile, final Tile srcTile) {
+            this.targetTile = targetTile;
+            this.srcTile = srcTile;
+            tileDataBuffer = targetTile.getDataBuffer();
+            srcDataBuffer = srcTile.getDataBuffer();
+            noDataValue = targetBand.getNoDataValue();
+            isInt = tileDataBuffer instanceof ProductData.Int;
+        }
     }
 
     /**
