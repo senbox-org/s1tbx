@@ -40,9 +40,7 @@ import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -407,7 +405,9 @@ public class AdaptiveThresholdingOp extends Operator {
         final int maxy = y0 + h;
         final int maxx = x0 + w;
 
-        final List<Double> dataArray = new ArrayList<>(w * h);
+        final double[] dataArray = new double[w * h];
+        int numValues = 0;
+
         for (int y = y0; y < maxy; y++) {
             final int yy = y - (ty - yy0);
             final int yWidth = y * width;
@@ -418,22 +418,23 @@ public class AdaptiveThresholdingOp extends Operator {
                     val = data[yWidth + x];
                     if (noDataValue != val) {// && val < backgroundThreshold) {
                         sum += val;
-                        dataArray.add(val);
+                        dataArray[numValues] = val;
+                        numValues++;
                     }
                 }
             }
         }
-        final double mean = sum / dataArray.size();
+        final double mean = sum / numValues;
 
         // Compute the standard deviation value for pixels in the background window.
         double std = 0.0;
         double tmp;
-        for (double value : dataArray) {
-            tmp = value - mean;
+        for (int i=0; i < numValues; ++i) {
+            tmp = dataArray[i] - mean;
             std += tmp * tmp;
         }
 
-        final double backgroundSTD = Math.sqrt(std / dataArray.size());
+        final double backgroundSTD = Math.sqrt(std / numValues);
 
         return mean + backgroundSTD * t;
     }
