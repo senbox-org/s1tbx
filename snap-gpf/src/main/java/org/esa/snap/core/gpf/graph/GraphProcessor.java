@@ -37,8 +37,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.Raster;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +44,7 @@ import java.util.concurrent.Semaphore;
 import java.util.logging.Logger;
 
 /**
- * The <code>GraphProcessor</code> is responsible for executing processing
+ * The {@code GraphProcessor} is responsible for executing processing
  * graphs.
  *
  * @author Maximilian Aulinger
@@ -66,7 +64,7 @@ public class GraphProcessor {
      * Creates a new instance og {@code GraphProcessor}.
      */
     public GraphProcessor() {
-        observerList = new ArrayList<GraphProcessingObserver>(3);
+        observerList = new ArrayList<>(3);
         logger = SystemUtils.LOG;
     }
 
@@ -89,7 +87,7 @@ public class GraphProcessor {
     }
 
     /**
-     * Adds an observer to this graph propcessor. {@link GraphProcessingObserver}s are informed about
+     * Adds an observer to this graph popcessor. {@link GraphProcessingObserver}s are informed about
      * processing steps of the currently running processing graph.
      *
      * @param processingObserver the observer
@@ -101,7 +99,7 @@ public class GraphProcessor {
     }
 
     /**
-     * Gets all observers currentyl attached to this {@code GraphProcessor}.
+     * Gets all observers currently attached to this {@code GraphProcessor}.
      *
      * @return the observers
      */
@@ -151,15 +149,11 @@ public class GraphProcessor {
         NodeContext[] outputNodeContexts = graphContext.getOutputNodeContexts();
         Map<Dimension, List<NodeContext>> tileDimMap = buildTileDimensionMap(outputNodeContexts);
 
-        List<Dimension> dimList = new ArrayList<Dimension>(tileDimMap.keySet());
-        Collections.sort(dimList, new Comparator<Dimension>() {
-
-            @Override
-            public int compare(Dimension d1, Dimension d2) {
-                Long area1 = (long) (d1.width * d1.height);
-                Long area2 = (long) (d2.width * d2.height);
-                return area1.compareTo(area2);
-            }
+        List<Dimension> dimList = new ArrayList<>(tileDimMap.keySet());
+        dimList.sort((d1, d2) -> {
+            Long area1 = (long) (d1.width * d1.height);
+            Long area2 = (long) (d2.width * d2.height);
+            return area1.compareTo(area2);
         });
 
         int numPmTicks = 0;
@@ -259,18 +253,14 @@ public class GraphProcessor {
 
     private Map<Dimension, List<NodeContext>> buildTileDimensionMap(NodeContext[] outputNodeContexts) {
         final int mapSize = outputNodeContexts.length;
-        Map<Dimension, List<NodeContext>> tileSizeMap = new HashMap<Dimension, List<NodeContext>>(mapSize);
+        Map<Dimension, List<NodeContext>> tileSizeMap = new HashMap<>(mapSize);
         for (NodeContext outputNodeContext : outputNodeContexts) {
             Product targetProduct = outputNodeContext.getTargetProduct();
             Dimension tileSize = targetProduct.getPreferredTileSize();
             final int numXTiles = MathUtils.ceilInt(targetProduct.getSceneRasterWidth() / (double) tileSize.width);
             final int numYTiles = MathUtils.ceilInt(targetProduct.getSceneRasterHeight() / (double) tileSize.height);
             Dimension tileDim = new Dimension(numXTiles, numYTiles);
-            List<NodeContext> nodeContextList = tileSizeMap.get(tileDim);
-            if (nodeContextList == null) {
-                nodeContextList = new ArrayList<NodeContext>(mapSize);
-                tileSizeMap.put(tileDim, nodeContextList);
-            }
+            List<NodeContext> nodeContextList = tileSizeMap.computeIfAbsent(tileDim, k -> new ArrayList<>(mapSize));
             nodeContextList.add(outputNodeContext);
         }
         return tileSizeMap;

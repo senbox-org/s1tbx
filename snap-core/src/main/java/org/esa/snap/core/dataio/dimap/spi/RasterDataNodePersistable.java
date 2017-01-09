@@ -12,6 +12,7 @@ import org.esa.snap.core.datamodel.ProductNodeEvent;
 import org.esa.snap.core.datamodel.ProductNodeListenerAdapter;
 import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.util.StringUtils;
+import org.jdom.Attribute;
 import org.jdom.Element;
 
 import java.awt.geom.AffineTransform;
@@ -70,7 +71,19 @@ public abstract class RasterDataNodePersistable implements DimapPersistable {
     }
 
     protected void setImageToModelTransform(Element element, RasterDataNode rasterDataNode) {
-        final String matrix = element.getChildTextTrim(TAG_IMAGE_TO_MODEL_TRANSFORM);
+        String matrix = element.getChildTextTrim(TAG_IMAGE_TO_MODEL_TRANSFORM); //Old format??
+        if (matrix == null || matrix.length() == 0) {
+            //Try new format
+            Element child = element.getChild(TAG_IMAGE_TO_MODEL_TRANSFORM);
+            if(child == null) {
+                return;
+            }
+            Attribute attribute = child.getAttribute(ATTRIB_VALUE);
+            if(attribute == null) {
+                return;
+            }
+            matrix = attribute.getValue().trim();
+        }
         if (matrix != null && matrix.length() > 0) {
             final AffineTransform transform = new AffineTransform(StringUtils.toDoubleArray(matrix, null));
             rasterDataNode.setImageToModelTransform(transform);
