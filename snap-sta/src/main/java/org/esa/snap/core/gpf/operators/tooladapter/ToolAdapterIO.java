@@ -317,7 +317,11 @@ public class ToolAdapterIO {
         modulesPath.add(getAdaptersPath());
         for (Path path : modulesPath) {
             logger.fine("Scanning for external tools adapters: " + path.toAbsolutePath().toString());
-            modules.addAll(scanForAdapters(path));
+            try {
+                modules.addAll(scanForAdapters(path));
+            } catch (IOException ex) {
+                logger.severe(String.format("Failed to scan %s [reason: %s]", path, ex.getMessage()));
+            }
         }
 
         return modules;
@@ -585,7 +589,7 @@ public class ToolAdapterIO {
         if (Files.isRegularFile(clustersFile)) {
             try {
                 clusterNames = Files.readAllLines(clustersFile).stream()
-                        .filter(name -> !name.trim().isEmpty() && !"java".equals(name))
+                        .filter(name -> !name.trim().isEmpty())
                         .map(installDir::resolve)
                         .collect(Collectors.toSet());
             } catch (IOException e) {
