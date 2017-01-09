@@ -263,6 +263,7 @@ public class WriteOp extends Operator {
         for (int i = 0; i < writableBands.size(); i++) {
             Band writableBand = writableBands.get(i);
             Dimension tileSize = determineTileSize(writableBand);
+
             tileSizes[i] = tileSize;
             int tileCountX = MathUtils.ceilInt(writableBand.getRasterWidth() / (double) tileSize.width);
             tileCountsX[i] = tileCountX;
@@ -273,6 +274,11 @@ public class WriteOp extends Operator {
                 writeEntireTileRows = false;        // don't writeEntireTileRows for multisize bands
             }
         }
+
+        if(writeEntireTileRows && writableBands.size() > 0) {
+            targetProduct.setPreferredTileSize(tileSizes[0]);
+        }
+
     }
 
     private Dimension determineTileSize(Band band) {
