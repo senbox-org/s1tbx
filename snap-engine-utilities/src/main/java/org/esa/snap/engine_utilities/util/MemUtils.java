@@ -33,6 +33,7 @@ public class MemUtils {
      */
     public static void freeAllMemory() {
         JAI.getDefaultInstance().getTileCache().flush();
+        JAI.getDefaultInstance().getTileCache().memoryControl();
         System.gc();
         System.gc();
         System.gc();
