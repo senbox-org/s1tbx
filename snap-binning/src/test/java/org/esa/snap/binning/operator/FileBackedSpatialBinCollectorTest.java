@@ -41,19 +41,18 @@ public class FileBackedSpatialBinCollectorTest {
         DataOutputStream dos = new DataOutputStream(byteStream);
 
         dos.writeLong(23);
-        dos.writeInt(2);
         SpatialBin bin1 = createSpatialBin(23);
         bin1.write(dos);
+        dos.writeLong(23);
         SpatialBin bin2 = createSpatialBin(23);
         bin2.write(dos);
         dos.writeLong(1048);
-        dos.writeInt(1);
         SpatialBin bin3 = createSpatialBin(1048);
         bin3.write(dos);
 
         dos.close();
         ByteArrayInputStream bais = new ByteArrayInputStream(byteStream.toByteArray());
-        TreeMap<Long, List<SpatialBin>> map = new TreeMap<Long, List<SpatialBin>>();
+        TreeMap<Long, List<SpatialBin>> map = new TreeMap<>();
         FileBackedSpatialBinCollector.readFromStream(new DataInputStream(bais), map);
         assertEquals(2, map.size());
         assertTrue(map.containsKey(23L));
@@ -68,18 +67,16 @@ public class FileBackedSpatialBinCollectorTest {
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(byteStream);
 
-        TreeMap<Long, List<SpatialBin>> map = new TreeMap<Long, List<SpatialBin>>();
-        ArrayList<SpatialBin> binList = new ArrayList<SpatialBin>();
+        ArrayList<SpatialBin> binList = new ArrayList<>();
         binList.add(createSpatialBin(42));
         binList.add(createSpatialBin(42));
         binList.add(createSpatialBin(42));
         binList.add(createSpatialBin(42));
-        map.put(42L, binList);
 
-        FileBackedSpatialBinCollector.writeToStream(map, dos);
+        FileBackedSpatialBinCollector.writeToStream(binList, dos);
 
         ByteArrayInputStream bais = new ByteArrayInputStream(byteStream.toByteArray());
-        TreeMap<Long, List<SpatialBin>> newMap = new TreeMap<Long, List<SpatialBin>>();
+        TreeMap<Long, List<SpatialBin>> newMap = new TreeMap<>();
         FileBackedSpatialBinCollector.readFromStream(new DataInputStream(bais), newMap);
 
         assertEquals(1, newMap.size());
@@ -94,7 +91,7 @@ public class FileBackedSpatialBinCollectorTest {
         try {
             BinningContext ctx = Mockito.mock(BinningContext.class);
             for (int i = 0; i < 26; i++) {
-                ArrayList<SpatialBin> spatialBins = new ArrayList<SpatialBin>();
+                ArrayList<SpatialBin> spatialBins = new ArrayList<>();
                 int binIndexOffset = i * 1000;
                 for (int j = 0; j < 1000; j++) {
                     spatialBins.add(new SpatialBin(binIndexOffset + j, 3));
