@@ -150,6 +150,20 @@ public class TileImplTest {
     }
 
     @Test
+    public void testSetSampleBits() {
+        Tile tile = createRawTile(ProductData.TYPE_INT32);
+        assertEquals(1, tile.getSampleInt(0,0));
+
+        tile.setSample(0,0, 2, true);
+        assertEquals(5, tile.getSampleInt(0,0));
+        tile.setSample(0,0, 0, false);
+        assertEquals(4, tile.getSampleInt(0,0));
+        tile.setSample(0,0, 18, true);
+        assertEquals(262148, tile.getSampleInt(0,0));
+
+    }
+
+    @Test
     public void testGetSamplesFloat() {
         Tile tile;
         float[] samples;
