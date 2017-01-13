@@ -65,7 +65,7 @@ public class VirtualStackCoregistrationDialog extends BatchGraphDialog {
             graphExecutorList.add(cloneGraphEx);
 
             // copy UI parameter to clone
-            final List<GraphNode> cloneGraphNodes = cloneGraphEx.GetGraphNodes();
+            final GraphNode[] cloneGraphNodes = cloneGraphEx.GetGraphNodes();
             for (GraphNode cloneNode : cloneGraphNodes) {
                 final GraphNode node = graphEx.getGraphNodeList().findGraphNode(cloneNode.getID());
                 //               if (node != null)
