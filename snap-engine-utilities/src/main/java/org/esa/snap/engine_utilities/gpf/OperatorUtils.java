@@ -331,6 +331,10 @@ public final class OperatorUtils {
                     tiePoints,
                     discontinuity);
 
+            TiePointGrid prevTPG = targetProduct.getTiePointGrid(tgtTPG.getName());
+            if(prevTPG != null) {
+                targetProduct.removeTiePointGrid(prevTPG);
+            }
             targetProduct.addTiePointGrid(tgtTPG);
 
             if (srcTPG.getName().equals(TPG_LATITUDE)) {
