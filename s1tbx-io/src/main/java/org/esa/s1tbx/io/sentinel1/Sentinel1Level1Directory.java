@@ -50,6 +50,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import static org.esa.snap.engine_utilities.datamodel.AbstractMetadata.NO_METADATA_STRING;
+
 /**
  * This class represents a product directory.
  */
@@ -204,7 +206,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
 
     static void addManifestMetadata(final String productName, final MetadataElement absRoot,
                                     final MetadataElement origProdRoot, boolean isOCN) {
-        final String defStr = AbstractMetadata.NO_METADATA_STRING;
+        final String defStr = NO_METADATA_STRING;
         final int defInt = AbstractMetadata.NO_METADATA;
 
         final MetadataElement XFDU = origProdRoot.getElement("XFDU");
@@ -386,7 +388,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
 
                 if (AbstractMetadata.isNoData(absRoot, AbstractMetadata.mds1_tx_rx_polar)) {
                     AbstractMetadata.setAttribute(absRoot, AbstractMetadata.mds1_tx_rx_polar, pol);
-                } else {
+                } else if(!absRoot.getAttributeString(AbstractMetadata.mds1_tx_rx_polar, NO_METADATA_STRING).equals(pol)){
                     AbstractMetadata.setAttribute(absRoot, AbstractMetadata.mds2_tx_rx_polar, pol);
                 }
 
@@ -1007,7 +1009,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
 
     public static ProductData.UTC getTime(final MetadataElement elem, final String tag, final DateFormat sentinelDateFormat) {
 
-        String start = elem.getAttributeString(tag, AbstractMetadata.NO_METADATA_STRING);
+        String start = elem.getAttributeString(tag, NO_METADATA_STRING);
         start = start.replace("T", "_");
 
         return AbstractMetadata.parseUTC(start, sentinelDateFormat);
