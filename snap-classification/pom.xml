@@ -96,6 +96,7 @@
                         <publicPackage>org.esa.snap.*</publicPackage>
                         <publicPackage>net.sf.javaml.*</publicPackage>
                         <publicPackage>be.abeel.*</publicPackage>
+                        <publicPackage>libsvm.*</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>
