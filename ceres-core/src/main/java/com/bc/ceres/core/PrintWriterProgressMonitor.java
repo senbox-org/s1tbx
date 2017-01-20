@@ -30,8 +30,10 @@ public class PrintWriterProgressMonitor implements ProgressMonitor {
     private String subTaskName;
     private double totalWork;
     private double currentWork;
+    private int printMinorStepPercentage;
     private int printStepPercentage;
     private int percentageWorked;
+    private int lastMinorPercentagePrinted;
     private int lastPercentagePrinted;
 
     public PrintWriterProgressMonitor(OutputStream output) {
@@ -41,6 +43,7 @@ public class PrintWriterProgressMonitor implements ProgressMonitor {
     public PrintWriterProgressMonitor(PrintWriter output) {
         Assert.notNull(output, "output");
         printWriter = output;
+        printMinorStepPercentage = 2; // = 2%
         printStepPercentage = 10; // =10%
     }
 
@@ -60,8 +63,16 @@ public class PrintWriterProgressMonitor implements ProgressMonitor {
         this.subTaskName = subTaskName;
     }
 
+    public int getPrintMinorStepPercentage() {
+        return printMinorStepPercentage;
+    }
+
     public int getPrintStepPercentage() {
         return printStepPercentage;
+    }
+
+    public void setPrintMinorStepPercentage(int printMinorStepPercentage) {
+        this.printMinorStepPercentage = printMinorStepPercentage;
     }
 
     public void setPrintStepPercentage(int printStepPercentage) {
@@ -77,6 +88,7 @@ public class PrintWriterProgressMonitor implements ProgressMonitor {
         this.totalWork = totalWork;
         currentWork = 0.0;
         percentageWorked = 0;
+        lastMinorPercentagePrinted = 0;
         lastPercentagePrinted = 0;
         canceled = false;
         printStartMessage(printWriter);
@@ -93,9 +105,14 @@ public class PrintWriterProgressMonitor implements ProgressMonitor {
     public void internalWorked(double work) {
         currentWork += work;
         percentageWorked = (int)(100.0 * currentWork / totalWork);
-        if (percentageWorked - lastPercentagePrinted >= getPrintStepPercentage()) {
-            printWorkedMessage(printWriter);
-            lastPercentagePrinted = percentageWorked;
+        if (percentageWorked - lastMinorPercentagePrinted >= getPrintMinorStepPercentage()) {
+            lastMinorPercentagePrinted = percentageWorked;
+            if (percentageWorked - lastPercentagePrinted >= getPrintStepPercentage()) {
+                printWorkedMessage(printWriter);
+                lastPercentagePrinted = percentageWorked;
+            } else {
+                printMinorWorkedMessage(printWriter);
+            }
         }
     }
 
@@ -116,6 +133,9 @@ public class PrintWriterProgressMonitor implements ProgressMonitor {
 
     protected void printWorkedMessage(PrintWriter pw) {
         pw.println(MessageFormat.format("{0}, {1}% worked", getMessage(), getPercentageWorked()));
+    }
+
+    protected void printMinorWorkedMessage(PrintWriter pw) {
     }
 
     protected void printDoneMessage(PrintWriter pw) {

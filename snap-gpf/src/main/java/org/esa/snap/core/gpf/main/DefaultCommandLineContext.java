@@ -16,6 +16,8 @@
 
 package org.esa.snap.core.gpf.main;
 
+import com.bc.ceres.core.PrintWriterConciseProgressMonitor;
+import com.bc.ceres.core.PrintWriterProgressMonitor;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.dataio.ProductIO;
 import org.esa.snap.core.dataio.ProductReader;
@@ -63,7 +65,7 @@ class DefaultCommandLineContext implements CommandLineContext {
 
     @Override
     public void writeProduct(Product targetProduct, String filePath, String formatName, boolean clearCacheAfterRowWrite) throws IOException {
-        GPF.writeProduct(targetProduct, new File(filePath), formatName, clearCacheAfterRowWrite, false, ProgressMonitor.NULL);
+        GPF.writeProduct(targetProduct, new File(filePath), formatName, clearCacheAfterRowWrite, false, new PrintWriterConciseProgressMonitor(System.out));
     }
 
     @Override
@@ -81,7 +83,7 @@ class DefaultCommandLineContext implements CommandLineContext {
         if (observer != null) {
             processor.addObserver(observer);
         }
-        processor.executeGraph(graph, ProgressMonitor.NULL);
+        processor.executeGraph(graph, new PrintWriterConciseProgressMonitor(System.out));
     }
 
     @Override
