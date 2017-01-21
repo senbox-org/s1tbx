@@ -125,4 +125,46 @@ public class GraphicShape {
 
         return new Point.Double(vpts[0], vpts[1]);
     }
+
+    public static Point.Double drawX(final Graphics2D g, final ScreenPixelConverter screenPixel,
+                                        final double x, final double y, final int size, final Color color) {
+
+        final double[] ipts = new double[6];
+        final double[] vpts = new double[6];
+        final int halfSize = size / 2;
+
+        ipts[0] = x;
+        ipts[1] = y;
+        ipts[2] = x - halfSize;
+        ipts[3] = y - halfSize;
+        ipts[4] = ipts[2] + size;
+        ipts[5] = ipts[3] + size;
+
+        screenPixel.pixelToScreen(ipts, vpts);
+
+        g.setColor(color);
+        g.drawLine((int)vpts[2], (int)vpts[3], (int)vpts[4], (int)vpts[5]);
+        g.drawLine((int)vpts[4], (int)vpts[3], (int)vpts[2], (int)vpts[5]);
+
+        return new Point.Double(vpts[0], vpts[1]);
+    }
+
+    public static Point.Double drawLine(final Graphics2D g, final ScreenPixelConverter screenPixel,
+                                     final double x1, final double y1, final double x2, final double y2, final Color color) {
+
+        final double[] ipts = new double[4];
+        final double[] vpts = new double[4];
+
+        ipts[0] = x1;
+        ipts[1] = y1;
+        ipts[2] = x2;
+        ipts[3] = y2;
+
+        screenPixel.pixelToScreen(ipts, vpts);
+
+        g.setColor(color);
+        g.drawLine((int)vpts[0], (int)vpts[1], (int)vpts[2], (int)vpts[3]);
+
+        return new Point.Double(vpts[0], vpts[1]);
+    }
 }
