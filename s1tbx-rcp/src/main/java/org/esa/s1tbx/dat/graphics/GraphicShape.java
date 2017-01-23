@@ -81,7 +81,7 @@ public class GraphicShape {
 
         final double[] ipts = new double[6];
         final double[] vpts = new double[6];
-        final int halfSize = size / 2;
+        final double halfSize = size / 2.0;
 
         ipts[0] = x;
         ipts[1] = y;
@@ -106,14 +106,14 @@ public class GraphicShape {
 
         final double[] ipts = new double[6];
         final double[] vpts = new double[6];
-        final int halfSize = size / 2;
+        final double halfSize = size / 2.0;
 
         ipts[0] = x;
         ipts[1] = y;
         ipts[2] = x - halfSize;
         ipts[3] = y - halfSize;
-        ipts[4] = ipts[2] + size;
-        ipts[5] = ipts[3] + size;
+        ipts[4] = x + halfSize;
+        ipts[5] = y + halfSize;
 
         screenPixel.pixelToScreen(ipts, vpts);
 
@@ -131,7 +131,7 @@ public class GraphicShape {
 
         final double[] ipts = new double[6];
         final double[] vpts = new double[6];
-        final int halfSize = size / 2;
+        final double halfSize = size / 2.0;
 
         ipts[0] = x;
         ipts[1] = y;
