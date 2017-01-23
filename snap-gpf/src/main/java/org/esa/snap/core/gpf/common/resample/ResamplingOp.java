@@ -261,7 +261,7 @@ public class ResamplingOp extends Operator {
             }
         }
         VectorDataNode targetVDN = new VectorDataNode(sourceVDN.getName(), sourceCollection.getSchema());
-        targetVDN.getFeatureCollection().addAll(targetCollection);
+        targetVDN.getFeatureCollection().addAll((FeatureCollection<?, ?>) targetCollection);
         targetVDN.setDefaultStyleCss(sourceVDN.getDefaultStyleCss());
         targetVDN.setDescription(sourceVDN.getDescription());
         targetVDN.setOwner(targetProduct);

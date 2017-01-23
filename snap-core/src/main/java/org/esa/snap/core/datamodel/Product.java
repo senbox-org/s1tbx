@@ -53,6 +53,7 @@ import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.WildcardMatcher;
 import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.runtime.Config;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultImageCRS;
 import org.geotools.referencing.cs.DefaultCartesianCS;
@@ -3139,7 +3140,7 @@ public class Product extends ProductNode {
             Assert.notNull(vectorDataNode, "node");
             VectorDataNode permanentNode = getPermanentNode(vectorDataNode.getName());
             if (permanentNode != null) {
-                permanentNode.getFeatureCollection().addAll(vectorDataNode.getFeatureCollection());
+                permanentNode.getFeatureCollection().addAll((SimpleFeatureCollection) vectorDataNode.getFeatureCollection());
                 return false;
             }
             return super.add(vectorDataNode);
@@ -3150,7 +3151,7 @@ public class Product extends ProductNode {
             Assert.notNull(vectorDataNode, "node");
             VectorDataNode permanentNode = getPermanentNode(vectorDataNode.getName());
             if (permanentNode != null) {
-                permanentNode.getFeatureCollection().addAll(vectorDataNode.getFeatureCollection());
+                permanentNode.getFeatureCollection().addAll((SimpleFeatureCollection) vectorDataNode.getFeatureCollection());
                 return;
             }
             super.add(index, vectorDataNode);
