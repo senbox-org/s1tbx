@@ -1,3 +1,9 @@
+S1TBX Release Notes
+==================
+
+Update S1TBX 5.0.1 and 5.0.2
+https://senbox.atlassian.net/secure/ReleaseNote.jspa?projectId=10202&version=12203
+
 #New in S1TBX 5.0
 
 ###Bugs fixed 
