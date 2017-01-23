@@ -195,7 +195,6 @@ public class VectorDataNodeReader {
     /**
      * Collects comment lines of the form "# &lt;name&gt; = &lt;value&gt;" until the first non-empty and non-comment line is found.
      *
-     * @throws java.io.IOException
      */
     private void readProperties() throws IOException {
         properties = new OrderRetainingMap();
@@ -453,8 +452,7 @@ public class VectorDataNodeReader {
                 return featureCollection;
             }
 
-            FeatureCollection<SimpleFeatureType, SimpleFeature> vertexCollection =
-                    new DefaultFeatureCollection(featureCollection.getID() + "_vertex", featureType);
+            DefaultFeatureCollection vertexCollection = new DefaultFeatureCollection(featureCollection.getID() + "_vertex", featureType);
             vertexCollection.add(feature);
 
             return vertexCollection;

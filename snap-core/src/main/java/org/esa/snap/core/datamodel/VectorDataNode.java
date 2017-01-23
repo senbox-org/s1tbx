@@ -20,8 +20,9 @@ import com.bc.ceres.core.Assert;
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.ObjectUtils;
-import org.geotools.feature.CollectionEvent;
-import org.geotools.feature.CollectionListener;
+import org.geotools.data.FeatureEvent;
+import org.geotools.data.FeatureListener;
+import org.geotools.data.collection.CollectionFeatureSource;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
@@ -59,14 +60,15 @@ public class VectorDataNode extends ProductNode {
 
 
     private final SimpleFeatureType featureType;
-    private final FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
-    private final CollectionListener featureCollectionListener;
+    private final DefaultFeatureCollection featureCollection;
+    private final FeatureListener featureCollectionListener;
     private final PlacemarkDescriptor placemarkDescriptor;
     private PlacemarkGroup placemarkGroup;
     private String defaultStyleCss;
     private String styleCss;
     private ReferencedEnvelope bounds;
     private boolean permanent;
+    private CollectionFeatureSource featureSource;
 
     /**
      * Constructs a new vector data node for the given feature type.
@@ -101,24 +103,28 @@ public class VectorDataNode extends ProductNode {
     public VectorDataNode(String name, FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection, PlacemarkDescriptor placemarkDescriptor) {
         super(name, "");
         this.featureType = featureCollection.getSchema();
-        this.featureCollection = featureCollection;
-        this.featureCollectionListener = new CollectionListener() {
-            @Override
-            public void collectionChanged(CollectionEvent tce) {
-                if (tce.getEventType() == CollectionEvent.FEATURES_ADDED) {
-                    fireFeaturesAdded(tce.getFeatures());
-                } else if (tce.getEventType() == CollectionEvent.FEATURES_REMOVED) {
-                    fireFeaturesRemoved(tce.getFeatures());
-                } else if (tce.getEventType() == CollectionEvent.FEATURES_CHANGED) {
-                    fireFeaturesChanged(tce.getFeatures());
-                }
-            }
+        this.featureCollection = new DefaultFeatureCollection(featureCollection);
+        featureCollectionListener = featureEvent -> {
+            FeatureCollection<SimpleFeatureType, SimpleFeature> changedFeatureCollections = featureCollection.subCollection(featureEvent.getFilter());
+            SimpleFeature[] changedFeatures = changedFeatureCollections.toArray(new SimpleFeature[0]);
+            fireCollectionEvent(featureEvent, changedFeatures);
         };
-        this.featureCollection.addListener(featureCollectionListener);
+        featureSource = new CollectionFeatureSource(this.featureCollection);
+        featureSource.addFeatureListener(featureCollectionListener);
         this.defaultStyleCss = String.format(DEFAULT_STYLE_FORMAT, FILL_COLORS[(fillColorIndex++) % FILL_COLORS.length]);
         this.placemarkDescriptor = placemarkDescriptor;
         Debug.trace(String.format("VectorDataNode created: name=%s, featureType.typeName=%s, placemarkDescriptor.class=%s",
                                   name, featureType.getTypeName(), placemarkDescriptor.getClass()));
+    }
+
+    private void fireCollectionEvent(FeatureEvent featureEvent, SimpleFeature[] changedFeatures) {
+        if (featureEvent.getType() == FeatureEvent.Type.ADDED) {
+            fireFeaturesAdded(changedFeatures);
+        } else if (featureEvent.getType() == FeatureEvent.Type.REMOVED) {
+            fireFeaturesRemoved(changedFeatures);
+        } else if (featureEvent.getType() == FeatureEvent.Type.CHANGED) {
+            fireFeaturesChanged(changedFeatures);
+        }
     }
 
     /**
@@ -217,7 +223,7 @@ public class VectorDataNode extends ProductNode {
     /**
      * @return The feature collection.
      */
-    public FeatureCollection<SimpleFeatureType, SimpleFeature> getFeatureCollection() {
+    public DefaultFeatureCollection getFeatureCollection() {
         return featureCollection;
     }
 
@@ -231,16 +237,13 @@ public class VectorDataNode extends ProductNode {
         if (bounds == null) {
             bounds = new ReferencedEnvelope(featureType.getCoordinateReferenceSystem());
 
-            FeatureIterator<SimpleFeature> iterator = featureCollection.features();
-            try {
+            try (FeatureIterator<SimpleFeature> iterator = featureCollection.features()) {
                 while (iterator.hasNext()) {
                     BoundingBox geomBounds = iterator.next().getBounds();
                     if (!geomBounds.isEmpty()) {
                         bounds.include(geomBounds);
                     }
                 }
-            } finally {
-                iterator.close();
             }
         }
         return bounds;
@@ -296,18 +299,15 @@ public class VectorDataNode extends ProductNode {
      */
     @Override
     public void dispose() {
-        featureCollection.removeListener(featureCollectionListener);
+        featureSource.removeFeatureListener(featureCollectionListener);
         super.dispose();
     }
 
     private void updateFeatureCollectionByPlacemarkGroup() {
-        final FeatureIterator<SimpleFeature> iterator = featureCollection.features();
-        try {
+        try (FeatureIterator<SimpleFeature> iterator = featureCollection.features()) {
             while (iterator.hasNext()) {
                 generatePlacemarkForFeature(iterator.next());
             }
-        } finally {
-            iterator.close();
         }
     }
 

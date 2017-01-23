@@ -20,6 +20,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
+import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.junit.Before;
@@ -33,7 +34,7 @@ public class PlacemarkGroupTest {
 
     private SimpleFeatureBuilder pinBuilder;
     private PlacemarkGroup placemarkGroup;
-    private FeatureCollection<SimpleFeatureType, SimpleFeature> pinFeatureCollection;
+    private DefaultFeatureCollection pinFeatureCollection;
 
     @Before()
     public void setup() {

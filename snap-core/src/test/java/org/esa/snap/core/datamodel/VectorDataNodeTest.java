@@ -16,9 +16,8 @@
 
 package org.esa.snap.core.datamodel;
 
-import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.DefaultFeatureCollection;
 import org.junit.Test;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
@@ -45,7 +44,7 @@ public class VectorDataNodeTest {
                                                              new PixelPos(10, 10), null, null);
 
         VectorDataNode vectorDataNode = new VectorDataNode("Features", Placemark.createPointFeatureType("feature"));
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = vectorDataNode.getFeatureCollection();
+        DefaultFeatureCollection featureCollection = vectorDataNode.getFeatureCollection();
         vectorDataGroup.add(vectorDataNode);        //Also: Sets the owner of the vectorDataNode
         vectorDataNode.getPlacemarkGroup();         //Also: Creates the PlacemarkGroup (owner has to be set!)
 

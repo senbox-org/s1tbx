@@ -2,7 +2,7 @@ package org.esa.snap.cluster;
 
 import org.ejml.data.DenseMatrix64F;
 import org.ejml.factory.DecompositionFactory;
-import org.ejml.factory.SingularValueDecomposition;
+import org.ejml.interfaces.decomposition.SingularValueDecomposition;
 import org.ejml.ops.CommonOps;
 import org.ejml.ops.NormOps;
 import org.ejml.ops.SingularOps;
@@ -18,7 +18,7 @@ import org.ejml.ops.SingularOps;
  * to maximize information.
  *
  * <p>
- * PCA is typically derived as an eigenvalue problem.  However in this implementation {@link org.ejml.factory.SingularValueDecomposition SVD}
+ * PCA is typically derived as an eigenvalue problem.  However in this implementation {@link SingularValueDecomposition SVD}
  * is used instead because it will produce a more numerically stable solution.  Computation using EVD requires explicitly
  * computing the variance of each sample set. The variance is computed by squaring the residual, which can
  * cause loss of precision.
@@ -142,7 +142,7 @@ public class PrincipalComponentAnalysis {
         DenseMatrix64F s = new DenseMatrix64F(sampleSize, 1, true, sampleData);
         DenseMatrix64F r = new DenseMatrix64F(numComponents, 1);
 
-        CommonOps.sub(s, mean, s);
+        CommonOps.subtract(s, mean, s);
 
         CommonOps.mult(V_t, s, r);
 
