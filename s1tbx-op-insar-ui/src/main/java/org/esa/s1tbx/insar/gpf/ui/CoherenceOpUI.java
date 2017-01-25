@@ -91,17 +91,8 @@ public class CoherenceOpUI extends BaseOperatorUI {
 
         subtractFlatEarthPhaseCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
-
                 subtractFlatEarthPhase = (e.getStateChange() == ItemEvent.SELECTED);
-                if (subtractFlatEarthPhase) {
-                    srpPolynomialDegreeStr.setEnabled(true);
-                    srpNumberPointsStr.setEnabled(true);
-                    orbitDegreeStr.setEnabled(true);
-                } else {
-                    srpPolynomialDegreeStr.setEnabled(false);
-                    srpNumberPointsStr.setEnabled(false);
-                    orbitDegreeStr.setEnabled(false);
-                }
+                enableSubtractFlatEarthPhaseParameters(subtractFlatEarthPhase);
             }
         });
 
@@ -132,15 +123,8 @@ public class CoherenceOpUI extends BaseOperatorUI {
 
         subtractTopographicPhaseCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
-
                 subtractTopographicPhase = (e.getStateChange() == ItemEvent.SELECTED);
-                if (subtractTopographicPhase) {
-                    demName.setEnabled(true);
-                    tileExtensionPercent.setEnabled(true);
-                } else {
-                    demName.setEnabled(false);
-                    tileExtensionPercent.setEnabled(false);
-                }
+                enableSubtractTopographicPhaseParameters(subtractTopographicPhase);
             }
         });
 
@@ -185,6 +169,7 @@ public class CoherenceOpUI extends BaseOperatorUI {
         if (paramVal != null) {
             subtractFlatEarthPhase = paramVal;
             subtractFlatEarthPhaseCheckBox.setSelected(subtractFlatEarthPhase);
+            enableSubtractFlatEarthPhaseParameters(subtractFlatEarthPhase);
         }
 
         srpPolynomialDegreeStr.setSelectedItem(paramMap.get("srpPolynomialDegree"));
@@ -202,6 +187,7 @@ public class CoherenceOpUI extends BaseOperatorUI {
         if (paramVal != null) {
             subtractTopographicPhase = paramVal;
             subtractTopographicPhaseCheckBox.setSelected(subtractTopographicPhase);
+            enableSubtractTopographicPhaseParameters(subtractTopographicPhase);
         }
 
 //        orbitDegree.setText(String.valueOf(paramMap.get("orbitDegree")));
@@ -384,5 +370,16 @@ public class CoherenceOpUI extends BaseOperatorUI {
         DialogUtils.enableComponents(externalDEMFileLabel, externalDEMFile, flag);
         DialogUtils.enableComponents(externalDEMNoDataValueLabel, externalDEMNoDataValue, flag);
         externalDEMBrowseButton.setVisible(flag);
+    }
+
+    private void enableSubtractFlatEarthPhaseParameters(boolean flag) {
+        srpPolynomialDegreeStr.setEnabled(flag);
+        srpNumberPointsStr.setEnabled(flag);
+        orbitDegreeStr.setEnabled(flag);
+    }
+
+    private void enableSubtractTopographicPhaseParameters(boolean flag) {
+        demName.setEnabled(flag);
+        tileExtensionPercent.setEnabled(flag);
     }
 }
