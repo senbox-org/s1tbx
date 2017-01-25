@@ -98,7 +98,7 @@ public class RasterDataNodeNoDataTest extends TestCase {
 
         b.setNoDataValue(12.34);
         b.setNoDataValueUsed(true);
-        assertTrue(b.isPixelValid(-10, -3));
+        assertFalse(b.isPixelValid(-10, -3));
     }
 
     public void testNodeDataChangedEventFired() {
