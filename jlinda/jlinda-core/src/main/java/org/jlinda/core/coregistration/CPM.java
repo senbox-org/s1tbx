@@ -5,8 +5,8 @@ import gnu.trove.list.array.TIntArrayList;
 import org.apache.commons.math3.util.FastMath;
 import org.ejml.data.DenseMatrix64F;
 import org.ejml.data.RowD1Matrix64F;
-import org.ejml.factory.LinearSolver;
 import org.ejml.factory.LinearSolverFactory;
+import org.ejml.interfaces.linsol.LinearSolver;
 import org.ejml.ops.CommonOps;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Placemark;
@@ -522,7 +522,7 @@ public class CPM implements PolynomialModel {
             /** test inversion and check stability: max(abs([N*inv(N) - E)) ?= 0 */
             DenseMatrix64F tempMatrix_1 = new DenseMatrix64F(N.numRows, N.numCols);
             CommonOps.mult(N, Qx_hat, tempMatrix_1);
-            CommonOps.subEquals(tempMatrix_1, CommonOps.identity(tempMatrix_1.numRows, tempMatrix_1.numCols));
+            CommonOps.subtractEquals(tempMatrix_1, CommonOps.identity(tempMatrix_1.numRows, tempMatrix_1.numCols));
             double maxDeviation = CommonOps.elementMaxAbs(tempMatrix_1);
             if (maxDeviation > .01) {
                 logger.severe("COREGPM: maximum deviation N*inv(N) from unity = {}. This is larger than 0.01"+ maxDeviation);
@@ -549,13 +549,13 @@ public class CPM implements PolynomialModel {
             DenseMatrix64F yL_hat = new DenseMatrix64F(numObservations, 1);
             eL_hat = new DenseMatrix64F(numObservations, 1);
             CommonOps.mult(A, rhsL, yL_hat);
-            CommonOps.sub(yL_matrix, yL_hat, eL_hat);
+            CommonOps.subtract(yL_matrix, yL_hat, eL_hat);
 
             // solution: Range
             DenseMatrix64F yP_hat = new DenseMatrix64F(numObservations, 1);
             eP_hat = new DenseMatrix64F(numObservations, 1);
             CommonOps.mult(A, rhsP, yP_hat);
-            CommonOps.sub(yP_matrix, yP_hat, eP_hat);
+            CommonOps.subtract(yP_matrix, yP_hat, eP_hat);
 
             logger.info("TIME FOR DATA preparation for TESTING: {}"+ stopWatch.lap("Testing Setup"));
 
