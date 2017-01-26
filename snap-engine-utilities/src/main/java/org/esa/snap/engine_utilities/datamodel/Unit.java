@@ -46,6 +46,7 @@ public final class Unit {
     // tiepoint grid units
 
     public static final String DEGREES = "deg";
+    public static final String RADIANS = "radians";
     public static final String NANOSECONDS = "ns";
 
     // temporary unit, should be removed later and use bit mask
