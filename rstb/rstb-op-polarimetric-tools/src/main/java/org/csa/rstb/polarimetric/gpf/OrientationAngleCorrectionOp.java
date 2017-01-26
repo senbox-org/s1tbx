@@ -19,6 +19,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.io.PolBandUtils;
 import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.Operator;
@@ -26,6 +27,7 @@ import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.core.gpf.annotations.OperatorMetadata;
+import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
@@ -56,6 +58,9 @@ public final class OrientationAngleCorrectionOp extends Operator {
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
+
+    @Parameter(description = "Output Orientation Angle", defaultValue = "false", label = "Output Orientation Angle")
+    private boolean outputOrientationAngle = false;
 
     private PolBandUtils.PolSourceBand[] srcBandList;
     private PolBandUtils.MATRIX sourceProductType;
@@ -111,7 +116,10 @@ public final class OrientationAngleCorrectionOp extends Operator {
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
-        AbstractMetadata.getAbstractedMetadata(targetProduct).setAttributeInt(AbstractMetadata.polsarData, 1);
+        MetadataElement absMeta = AbstractMetadata.getAbstractedMetadata(targetProduct);
+        if(absMeta != null) {
+            absMeta.setAttributeInt(AbstractMetadata.polsarData, 1);
+        }
     }
 
     private void checkSourceProductType() {
@@ -141,11 +149,17 @@ public final class OrientationAngleCorrectionOp extends Operator {
         targetBandNameList.add("T23_real");
         targetBandNameList.add("T23_imag");
         targetBandNameList.add("T33");
-        //targetBandNameList.add("Ori_Ang");
+
+        if(outputOrientationAngle) {
+            targetBandNameList.add("Ori_Ang");
+        }
 
         final String[] bandNames = targetBandNameList.toArray(new String[targetBandNameList.size()]);
         for (PolBandUtils.PolSourceBand bandList : srcBandList) {
             final Band[] targetBands = OperatorUtils.addBands(targetProduct, bandNames, bandList.suffix);
+            if(outputOrientationAngle) {
+                targetBands[9].setUnit("radians");
+            }
             bandList.addTargetBands(targetBands);
         }
     }
@@ -191,7 +205,7 @@ public final class OrientationAngleCorrectionOp extends Operator {
                 }
                 final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
 
-                final ProductData[] targetDataBuffers = new ProductData[9];
+                final ProductData[] targetDataBuffers = new ProductData[10];
                 for (final Band targetBand : bandList.targetBands) {
                     final String targetBandName = targetBand.getName();
                     final ProductData dataBuffer = targetTiles.get(targetBand).getDataBuffer();
@@ -213,6 +227,8 @@ public final class OrientationAngleCorrectionOp extends Operator {
                         targetDataBuffers[7] = dataBuffer;
                     else if (PolBandUtils.isBandForMatrixElement(targetBandName, "33"))
                         targetDataBuffers[8] = dataBuffer;
+                    else if (PolBandUtils.isBandForMatrixElement(targetBandName, "ri_Ang"))
+                        targetDataBuffers[9] = dataBuffer;
                 }
 
                 final double[][] Tr = new double[3][3];
@@ -270,7 +286,7 @@ public final class OrientationAngleCorrectionOp extends Operator {
                         Ti[1][2] = T3i[1][2];
                         Tr[2][2] = T3r[1][1] * s2 + T3r[2][2] * c2 + 2 * T3r[1][2] * cs;
 
-                        saveT3(Tr, Ti, tgtIdx, targetDataBuffers);
+                        saveT3(Tr, Ti, tgtIdx, theta, targetDataBuffers);
                     }
                 }
             }
@@ -301,8 +317,8 @@ public final class OrientationAngleCorrectionOp extends Operator {
         return theta;
     }
 
-    private static void saveT3(final double[][] Tr, final double[][] Ti,
-                               final int idx, final ProductData[] targetDataBuffers) {
+    private void saveT3(final double[][] Tr, final double[][] Ti,
+                               final int idx, final double theta, final ProductData[] targetDataBuffers) {
 
         targetDataBuffers[0].setElemFloatAt(idx, (float) Tr[0][0]); // T11
         targetDataBuffers[1].setElemFloatAt(idx, (float) Tr[0][1]); // T12_real
@@ -313,6 +329,9 @@ public final class OrientationAngleCorrectionOp extends Operator {
         targetDataBuffers[6].setElemFloatAt(idx, (float) Tr[1][2]); // T23_real
         targetDataBuffers[7].setElemFloatAt(idx, (float) Ti[1][2]); // T23_imag
         targetDataBuffers[8].setElemFloatAt(idx, (float) Tr[2][2]); // T33
+        if(outputOrientationAngle) {
+            targetDataBuffers[9].setElemFloatAt(idx, (float) theta); // Ori_Ang
+        }
     }
 
     /**
