@@ -78,6 +78,19 @@ public class PrivilegedAccessor {
     }
 
     /**
+     * Sets the value of the named static field.
+     *
+     * @param c         the class containing the static field
+     * @param fieldName the name of the field
+     */
+    public static void setStaticValue(Class c, String fieldName, Object value)
+            throws IllegalAccessException, NoSuchFieldException {
+        Field field = getField(c, fieldName);
+        field.setAccessible(true);
+        field.set(null, value);
+    }
+
+    /**
      * Calls a method on the given object instance with the given argument.
      *
      * @param instance      the object instance
