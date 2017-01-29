@@ -43,7 +43,6 @@ import org.esa.snap.engine_utilities.gpf.StackUtils;
 import org.esa.snap.engine_utilities.gpf.ThreadManager;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.esa.snap.engine_utilities.util.VectorUtils;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.*;
 import java.io.File;
@@ -250,9 +249,12 @@ public abstract class BaseClassifier implements SupervisedClassifier {
 
             if (params.trainingVectors == null || params.trainingVectors.length == 0) {
                 final List<String> geometryNames = new ArrayList<>();
-                final String[] nodeNames = maskProduct.getMaskGroup().getNodeNames();
-                for (String name : nodeNames) {
-                    geometryNames.add(name + "::" + maskProduct.getName());
+                final ProductNodeGroup<VectorDataNode> vectorDataNodes = maskProduct.getVectorDataGroup();
+                for(int i=0; i< vectorDataNodes.getNodeCount(); ++i) {
+                    VectorDataNode node = vectorDataNodes.get(i);
+                    if(!node.getFeatureCollection().isEmpty()) {
+                        geometryNames.add(node.getName() + "::" + maskProduct.getName());
+                    }
                 }
                 if (geometryNames.size() < 2) {
                     throw new OperatorException("Cannot train on vectors because source product has less than 2 vectors");
@@ -506,8 +508,6 @@ public abstract class BaseClassifier implements SupervisedClassifier {
 
         for (Integer i : classLabelMap.keySet()) {
             final List<Instance> list = classToInstanceListMap.get(i);
-            final int listLen = list.size();
-            //SystemUtils.LOG.info("classVal = " + i + " has " + listLen + " samples");
 
             // add every other to train or test list
             boolean addToTrainList = true;
@@ -520,10 +520,6 @@ public abstract class BaseClassifier implements SupervisedClassifier {
                     addToTrainList = true;
                 }
             }
-
-            // add first to train and then to test lists
-            //trainList.addAll(list.subList(0, listLen / 2));
-            //testList.addAll(list.subList(listLen / 2, listLen));
         }
     }
 
@@ -676,7 +672,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
         // thread1.start();
     }
 
-    public void saveAndOpenReport(boolean openReport) {
+    private void saveAndOpenReport(boolean openReport) {
         try {
             classifierReport.writeReport();
 
@@ -995,8 +991,6 @@ public abstract class BaseClassifier implements SupervisedClassifier {
         //SystemUtils.LOG.info("getInstanceListFromPolygons #tile rectangles = " + tileRectangles.length);
 
         try {
-            final CoordinateReferenceSystem srcCRS = params.sourceProducts[0].getSceneCRS();
-
             // Loop through each rectangle to see if it intersects with any of the class polygons, if it does, then
             // the intersecting pixel is added to instanceList
             for (int i = 0; i < tileRectangles.length; i++) {
@@ -1037,11 +1031,8 @@ public abstract class BaseClassifier implements SupervisedClassifier {
                             final ProductData virtualBandData = virtualBandTile.getDataBuffer();
 
                             final Tile[] featureTiles = new Tile[featureInfos.length];
-                            final ProductData[] featureBuffers = new ProductData[featureInfos.length];
-
                             for (int j = 0; j < featureInfos.length; j++) {
                                 featureTiles[j] = operator.getSourceTile(featureInfos[j].featureBand, rectangle);
-                                featureBuffers[j] = featureTiles[j].getDataBuffer();
                             }
 
                             for (int y = y0; y < yMax; ++y) {
@@ -1112,7 +1103,6 @@ public abstract class BaseClassifier implements SupervisedClassifier {
         }
 
         final Map<Double, String> labelMap = new HashMap<>();
-        int i = 0;
         for (Integer classIndex : classLabelMap.keySet()) {
             labelMap.put((double) classIndex, classLabelMap.get(classIndex));
         }
@@ -1339,13 +1329,13 @@ public abstract class BaseClassifier implements SupervisedClassifier {
     }
 
     public static class FeatureInfo implements Comparable<FeatureInfo> {
-        public final Band featureBand;
-        public double featureNoDataValue;
-        public final double featureOffsetValue;
-        public final double featureScaleValue;
+        final Band featureBand;
+        double featureNoDataValue;
+        final double featureOffsetValue;
+        final double featureScaleValue;
         private final int id;
 
-        public FeatureInfo(Band featureBand, int id) {
+        FeatureInfo(Band featureBand, int id) {
             this.featureBand = featureBand;
             this.id = id;
 
@@ -1357,7 +1347,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
             featureScaleValue = 1.0 / (featureBand.getStx().getMaximum() - featureOffsetValue);
         }
 
-        public FeatureInfo(Band featureBand, int id, double featureNoDataValue,
+        FeatureInfo(Band featureBand, int id, double featureNoDataValue,
                            double featureOffsetValue, double featureScaleValue) {
             this.featureBand = featureBand;
             this.id = id;
@@ -1388,7 +1378,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
         private int classLevels;
         private double maxClassValue;
 
-        public ClassifierUserInfo(final String classifierFilename, final String classifierType,
+        ClassifierUserInfo(final String classifierFilename, final String classifierType,
                                   final String className, final int numSamples, final double[] sortedClasses,
                                   final int numFeatures,
                                   final String[] trainingBands,
