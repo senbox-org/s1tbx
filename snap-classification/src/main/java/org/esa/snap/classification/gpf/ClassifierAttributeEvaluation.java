@@ -34,13 +34,13 @@ public class ClassifierAttributeEvaluation {
     private final Random rg;
 
     public static class FeatureScore {
-        double tp;
-        double accuracy;
-        double precision;
-        double correlation;
-        double errorRate;
-        double cost;
-        double total;
+        public double tp;
+        public double accuracy;
+        public double precision;
+        public double correlation;
+        public double errorRate;
+        public double cost;
+        public double total;
     }
 
     public ClassifierAttributeEvaluation(final Classifier classifier, final int numPerturbations, final Random rg) {

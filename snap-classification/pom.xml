@@ -97,6 +97,7 @@
                         <publicPackage>net.sf.javaml.*</publicPackage>
                         <publicPackage>be.abeel.*</publicPackage>
                         <publicPackage>libsvm.*</publicPackage>
+                        <publicPackage>com.google.common.*</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>
