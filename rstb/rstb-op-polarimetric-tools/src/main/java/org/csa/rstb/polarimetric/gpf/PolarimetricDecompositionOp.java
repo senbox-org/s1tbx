@@ -116,7 +116,6 @@ public final class PolarimetricDecompositionOp extends Operator {
     private PolBandUtils.PolSourceBand[] srcBandList;
     private PolBandUtils.MATRIX sourceProductType = null;
     private Decomposition polDecomp;
-    private static final String PRODUCT_SUFFIX = "_Decomp";
 
     /**
      * Set decomposition. This function is used by unit test only.
