@@ -29,6 +29,12 @@
         </xsl:element>
     </xsl:template>
 
+    <xsl:template match="org.esa.snap.core.gpf.descriptor.DefaultSourceProductDescriptor">
+        <xsl:element name="org.esa.snap.core.gpf.descriptor.SimpleSourceProductDescriptor">
+            <xsl:element name="name"><xsl:value-of select="./name"/></xsl:element>
+        </xsl:element>
+    </xsl:template>
+    
     <xsl:template match="parameter">
         <xsl:choose>
             <xsl:when test="contains(./parameterType/text(), 'Template')">
