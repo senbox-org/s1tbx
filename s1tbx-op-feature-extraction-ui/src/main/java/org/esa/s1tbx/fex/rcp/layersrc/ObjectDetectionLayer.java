@@ -235,12 +235,13 @@ public class ObjectDetectionLayer extends Layer {
             geo.setLocation(target.corr_lat, target.corr_lon);
             geoCoding.getPixelPos(geo, pix);
             if(pix.isValid()) {
-                GraphicShape.drawRect(graphics, screenPixel, pix.getX(), pix.getY(), 8, Color.RED);
+                GraphicShape.drawX(graphics, screenPixel, pix.getX(), pix.getY(), 8, Color.RED);
             }
 
-            final double targetWidthInMeter = (target.width - border) * rangeSpacing;
-            final double targetlengthInMeter = (target.length - border) * azimuthSpacing;
-            final double size = Math.sqrt(targetWidthInMeter * targetWidthInMeter + targetlengthInMeter * targetlengthInMeter);
+            //final double targetWidthInMeter = (target.width - border) * rangeSpacing;
+            final double targetLengthInMeter = (target.length - border) * azimuthSpacing;
+            //final double size = Math.sqrt(targetWidthInMeter * targetWidthInMeter + targetLengthInMeter * targetLengthInMeter);
+            final double size = targetLengthInMeter;
             graphics.drawString(frmt.format(size) + 'm', (int) p.x, (int) p.y);
         }
     }
