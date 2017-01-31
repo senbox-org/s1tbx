@@ -30,7 +30,7 @@ public class PrintWriterConciseProgressMonitor extends PrintWriterProgressMonito
 
     @Override
     protected void printStartMessage(PrintWriter pw) {
-        pw.print(MessageFormat.format("{0}", getMessage()));
+        pw.println(MessageFormat.format("{0}", getMessage()));
         pw.flush();
     }
 
