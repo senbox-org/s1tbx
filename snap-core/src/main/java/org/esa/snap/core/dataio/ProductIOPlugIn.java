@@ -37,10 +37,11 @@ public interface ProductIOPlugIn {
     /**
      * Gets the default file extensions associated with each of the format names returned
      * by the {@link #getFormatNames} method. <p>The string array returned
-     * shall always have the same length as the array returned by the
+     * shall have the same length as the array returned by the
      * {@link #getFormatNames} method. <p>The extensions returned in the
      * string array also shall always include a leading colon ('.') character,
-     * e.g. <code>".hdf"</code>
+     * e.g. <code>".hdf"</code>. If there is no default files extensions an empty array can
+     * be returned.
      *
      * @return the default file extensions for this product I/O plug-in, never <code>null</code>
      */
