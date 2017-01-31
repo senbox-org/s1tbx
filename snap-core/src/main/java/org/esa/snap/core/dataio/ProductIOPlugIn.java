@@ -21,7 +21,7 @@ import java.util.Locale;
 
 
 /**
- * The <code>ProductIOPlugIn</code> interface is the base for all data product reader or writer plug-ins.
+ * The {@code ProductIOPlugIn} interface is the base for all data product reader or writer plug-ins.
  *
  * @author Norman Fomferra
  */
@@ -30,7 +30,7 @@ public interface ProductIOPlugIn {
     /**
      * Gets the names of the product formats handled by this product I/O plug-in.
      *
-     * @return the names of the product formats handled by this product I/O plug-in, never <code>null</code>
+     * @return the names of the product formats handled by this product I/O plug-in, never {@code null}
      */
     String[] getFormatNames();
 
@@ -40,19 +40,19 @@ public interface ProductIOPlugIn {
      * shall have the same length as the array returned by the
      * {@link #getFormatNames} method. <p>The extensions returned in the
      * string array also shall always include a leading colon ('.') character,
-     * e.g. <code>".hdf"</code>. If there is no default files extensions an empty array can
+     * e.g. {@code ".hdf"}. If there is no default files extensions an empty array can
      * be returned.
      *
-     * @return the default file extensions for this product I/O plug-in, never <code>null</code>
+     * @return the default file extensions for this product I/O plug-in, never {@code null}
      */
     String[] getDefaultFileExtensions();
 
     /**
-     * Gets a short description of this plug-in. If the given locale is set to <code>null</code> the default locale is
+     * Gets a short description of this plug-in. If the given locale is set to {@code null} the default locale is
      * used.
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
-     * @param locale the local for the given decription string, if <code>null</code> the default locale is used
+     * @param locale the local for the given description string, if {@code null} the default locale is used
      *
      * @return a textual description of this product reader/writer
      */
@@ -61,7 +61,7 @@ public interface ProductIOPlugIn {
     /**
      * Gets an instance of {@link SnapFileFilter} for use in a {@link javax.swing.JFileChooser JFileChooser}.
      *
-     * @return a file filter or <code>null</code> if this plugin doesn't support file filter
+     * @return a file filter or {@code null} if this plugin doesn't support file filter
      */
     SnapFileFilter getProductFileFilter();
 }
