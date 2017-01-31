@@ -29,13 +29,13 @@ import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterConstants;
 import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterIO;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.io.FileUtils;
-import org.esa.snap.utils.PrivilegedAccessor;
 
 import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -86,7 +86,7 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
     private boolean isSystem;
     private boolean isHandlingOutputName;
 
-    private DefaultSourceProductDescriptor[] sourceProductDescriptors;
+    private SimpleSourceProductDescriptor[] sourceProductDescriptors;
     private DefaultSourceProductsDescriptor sourceProductsDescriptor;
     private DefaultTargetProductDescriptor targetProductDescriptor;
     private DefaultTargetPropertyDescriptor[] targetPropertyDescriptors;
@@ -99,12 +99,9 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
     private TemplateEngine templateEngine;
 
     ToolAdapterOperatorDescriptor() {
-        this.sourceProductDescriptors = new DefaultSourceProductDescriptor[] { new DefaultSourceProductDescriptor() };
-        try {
-            PrivilegedAccessor.setValue(this.sourceProductDescriptors[0], "name", ToolAdapterConstants.TOOL_SOURCE_PRODUCT_ID);
-        } catch (Exception e) {
-            logger.fine(e.getMessage());
-        }
+        this.sourceProductDescriptors = new SimpleSourceProductDescriptor[] {
+                new SimpleSourceProductDescriptor(ToolAdapterConstants.TOOL_SOURCE_PRODUCT_ID)
+        };
         this.variables = new ArrayList<>();
         this.toolParameterDescriptors = new ArrayList<>();
         this.templateType = TemplateType.VELOCITY;
@@ -166,13 +163,13 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
         List<SystemVariable> variableList = obj.getVariables();
         if (variableList != null) {
             this.variables.addAll(variableList.stream()
-                    .filter(systemVariable -> systemVariable != null)
+                    .filter(Objects::nonNull)
                     .map(SystemVariable::createCopy).collect(Collectors.toList()));
         }
 
-        this.sourceProductDescriptors = new DefaultSourceProductDescriptor[obj.getSourceProductDescriptors().length];
+        this.sourceProductDescriptors = new SimpleSourceProductDescriptor[obj.getSourceProductDescriptors().length];
         for (int i = 0; i < obj.getSourceProductDescriptors().length; i++) {
-            this.sourceProductDescriptors[i] = ((DefaultSourceProductDescriptor) (obj.getSourceProductDescriptors()[i]));
+            this.sourceProductDescriptors[i] = ((SimpleSourceProductDescriptor) (obj.getSourceProductDescriptors()[i]));
         }
 
         this.sourceProductsDescriptor = (DefaultSourceProductsDescriptor) obj.getSourceProductsDescriptor();
@@ -571,18 +568,13 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
     public void setSourceProductCount(int value) {
         numSourceProducts = value;
         if (sourceProductDescriptors == null) {
-            sourceProductDescriptors = new DefaultSourceProductDescriptor[numSourceProducts];
+            sourceProductDescriptors = new SimpleSourceProductDescriptor[numSourceProducts];
         } else {
             sourceProductDescriptors = Arrays.copyOf(sourceProductDescriptors, numSourceProducts);
         }
         for (int i = 0; i < numSourceProducts; i++) {
             if (sourceProductDescriptors[i] == null) {
-                sourceProductDescriptors[i] = new DefaultSourceProductDescriptor();
-                try {
-                    PrivilegedAccessor.setValue(sourceProductDescriptors[i], "name", ToolAdapterConstants.TOOL_SOURCE_PRODUCT_ID + " " + String.valueOf(i+1));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                sourceProductDescriptors[i] = new SimpleSourceProductDescriptor(ToolAdapterConstants.TOOL_SOURCE_PRODUCT_ID + " " + String.valueOf(i+1));
             }
         }
     }

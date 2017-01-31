@@ -15,7 +15,6 @@
  */
 package org.esa.snap.core.gpf.operators.tooladapter;
 
-import com.bc.ceres.binding.Property;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import org.apache.velocity.app.Velocity;
@@ -25,19 +24,14 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.annotations.OperatorMetadata;
-import org.esa.snap.core.gpf.descriptor.SystemVariable;
-import org.esa.snap.core.gpf.descriptor.TemplateParameterDescriptor;
-import org.esa.snap.core.gpf.descriptor.ToolAdapterOperatorDescriptor;
-import org.esa.snap.core.gpf.descriptor.ToolParameterDescriptor;
+import org.esa.snap.core.gpf.descriptor.*;
 import org.esa.snap.core.gpf.descriptor.template.TemplateContext;
 import org.esa.snap.core.gpf.descriptor.template.TemplateException;
 import org.esa.snap.core.gpf.descriptor.template.TemplateFile;
-import org.esa.snap.core.gpf.internal.OperatorContext;
 import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.io.FileUtils;
-import org.esa.snap.utils.PrivilegedAccessor;
 
 import java.io.*;
 import java.text.DateFormat;
@@ -81,11 +75,11 @@ public class ToolAdapterOp extends Operator {
 
     private List<File> intermediateProductFiles;
 
-    private OperatorContext accessibleContext;
-
     private List<String> errorMessages;
 
     private TemplateContext lastPostContext;
+
+    private boolean isInitialised;
 
     /**
      * Constructor.
@@ -94,12 +88,8 @@ public class ToolAdapterOp extends Operator {
         super();
         errorMessages = new ArrayList<>();
         this.consumer = null;
+        isInitialised = false;
         Logger logger = getLogger();
-        try {
-            accessibleContext = (OperatorContext) PrivilegedAccessor.getValue(this, "context");
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
-        }
         Velocity.init();
         intermediateProductFiles = new ArrayList<>();
         logger.addHandler(new Handler() {
@@ -183,7 +173,7 @@ public class ToolAdapterOp extends Operator {
         Date currentTime = new Date();
         try {
             if (descriptor == null) {
-                descriptor = ((ToolAdapterOperatorDescriptor) accessibleContext.getOperatorSpi().getOperatorDescriptor());
+                descriptor = ((ToolAdapterOperatorDescriptor) getSpi().getOperatorDescriptor());
             }
             if (this.progressMonitor != null) {
                 this.progressMonitor.beginTask("Executing " + this.descriptor.getName(), 100);
@@ -214,6 +204,7 @@ public class ToolAdapterOp extends Operator {
                 if (!wasCancelled) {
                     postExecute();
                 }
+                isInitialised = true;
             } finally {
                 if (this.progressMonitor != null) {
                     this.progressMonitor.done();
@@ -226,10 +217,7 @@ public class ToolAdapterOp extends Operator {
         return this.consumer.getProcessOutput();
     }
 
-    public Product getResult() {
-        return accessibleContext.isInitialized() ?
-            accessibleContext.getTargetProduct() : null;
-    }
+    public Product getResult() { return isInitialised ? getTargetProduct() : null; }
 
     /**
      * Verify that the data provided withing the operator descriptor is valid.
@@ -507,27 +495,28 @@ public class ToolAdapterOp extends Operator {
 
     private Map<String, Object> extractParameters(){
         Map<String, Object> parameters = new HashMap<>();
-        Property[] params = accessibleContext.getParameterSet().getProperties();
-        for (Property param : params) {
-            Optional<ToolParameterDescriptor> descriptor = this.descriptor.getToolParameterDescriptors().stream().filter(d -> d.getName().equals(param.getName())).findFirst();
+        //Property[] params = accessibleContext.getParameterSet().getProperties();
+        ParameterDescriptor[] parameterDescriptors = descriptor.getParameterDescriptors();
+        for (ParameterDescriptor param : parameterDescriptors) {
+            String paramName = param.getName();
+            Optional<ToolParameterDescriptor> descriptor = this.descriptor.getToolParameterDescriptors().stream().filter(d -> d.getName().equals(paramName)).findFirst();
             if (!descriptor.isPresent()) {
-                throw new OperatorException("Unexpected parameter: " + param.getName());
+                throw new OperatorException("Unexpected parameter: " + paramName);
             }
             ToolParameterDescriptor paramDescriptor = descriptor.get();
             if (paramDescriptor.isTemplateParameter()) {
                 try {
                     String transformedFile = transformTemplateParameter((TemplateParameterDescriptor) paramDescriptor);
-                    parameters.put(param.getName(), transformedFile);
+                    parameters.put(paramName, transformedFile);
                 } catch (IOException | TemplateException ex) {
                     throw new OperatorException("Error on transforming template for parameter '" + paramDescriptor.getName());
                 }
             } else {
-                String paramName = param.getName();
-                Object paramValue = param.getValue();
+                Object paramValue = getParameter(paramName);
                 if (ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE.equals(paramName)) {
                     paramValue = getNextFileName(this.descriptor.resolveVariables((File) paramValue));
                 }
-                if (param.getType().isArray()) {
+                if (param.getDataType().isArray()) {
                     paramValue = StringUtils.arrayToString(paramValue, "\n");
                 }
                 if (paramDescriptor.isNotEmpty() || paramDescriptor.isNotNull() || (paramValue != null && !paramValue.toString().isEmpty())) {
@@ -553,14 +542,14 @@ public class ToolAdapterOp extends Operator {
 
     private String transformTemplateParameter(TemplateParameterDescriptor parameter) throws IOException, TemplateException {
         Map<String, Object> parameters = new HashMap<>();
-        Property[] params = accessibleContext.getParameterSet().getProperties();
-        for (Property param : params) {
+        ParameterDescriptor[] params = descriptor.getParameterDescriptors();
+        for (ParameterDescriptor param : params) {
             String paramName = param.getName();
-            Object paramValue = param.getValue();
+            Object paramValue = getParameter(paramName);
             if (ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE.equals(paramName)) {
                 paramValue = getNextFileName(this.descriptor.resolveVariables((File) paramValue));
             }
-            if (param.getType().isArray()) {
+            if (param.getDataType().isArray()) {
                 paramValue = StringUtils.arrayToString(paramValue, "\n");
             }
             parameters.put(paramName, paramValue);
