@@ -953,6 +953,10 @@
 
         <plugins>
             <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+
+            <plugin>
                 <artifactId>maven-source-plugin</artifactId>
             </plugin>
 
