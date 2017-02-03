@@ -37,7 +37,7 @@ public class EnviConstants {
     public static final String BSQ_EXTENSION = ".bsq";
     public static final String ZIP_EXTENSION = ".zip";
 
-static final String[] VALID_EXTENSIONS = {HDR_EXTENSION, ZIP_EXTENSION};
+    static final String[] VALID_EXTENSIONS = {HDR_EXTENSION, ZIP_EXTENSION};
     static final String[] IMAGE_EXTENSIONS = {".img", ".dat", ".bin", ".bip", ".bil", ".bsq"};
 
     public static final int TYPE_ID_BYTE = 1;
