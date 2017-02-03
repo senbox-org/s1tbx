@@ -211,11 +211,12 @@ public class TOPSARSplitOpUI extends BaseOperatorUI {
     private GeoPos[] getBox(final int i, final Sentinel1Utils.SubSwathInfo swath) {
         final int numPoints = swath.latitude[0].length - 1;
 
-        final GeoPos[] geoBound = new GeoPos[4];
+        final GeoPos[] geoBound = new GeoPos[5];
         geoBound[0] = new GeoPos(swath.latitude[i][0], swath.longitude[i][0]);
         geoBound[1] = new GeoPos(swath.latitude[i][numPoints], swath.longitude[i][numPoints]);
         geoBound[2] = new GeoPos(swath.latitude[i + 1][numPoints], swath.longitude[i + 1][numPoints]);
         geoBound[3] = new GeoPos(swath.latitude[i + 1][0], swath.longitude[i + 1][0]);
+        geoBound[4] = new GeoPos(swath.latitude[i][0], swath.longitude[i][0]);
         return geoBound;
     }
 }
