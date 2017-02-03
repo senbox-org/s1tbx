@@ -45,6 +45,7 @@ import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -765,6 +766,42 @@ public class ProductUtilsTest {
             fail("Exception expected");
         } catch (IllegalArgumentException iae) {
             assertEquals("dvfgzfj is not part of myProduct", iae.getMessage());
+        }
+    }
+
+    @Test
+    public void testGetSampleAsLong() throws Exception {
+        Band uint8 = createTestBand(ProductData.TYPE_UINT8, new byte[]{0, Byte.MAX_VALUE, (byte) (Math.pow(2, 8) - 1), Byte.MIN_VALUE});
+
+        assertEquals(0, ProductUtils.getGeophysicalSampleAsLong(uint8, 0, 0, 0));
+        assertEquals(127, ProductUtils.getGeophysicalSampleAsLong(uint8, 1, 0, 0));
+        assertEquals(255, ProductUtils.getGeophysicalSampleAsLong(uint8, 2, 0, 0));
+        assertEquals(128, ProductUtils.getGeophysicalSampleAsLong(uint8, 3, 0, 0));
+
+        Band uint16 = createTestBand(ProductData.TYPE_UINT16, new short[]{0, Short.MAX_VALUE, (short) (Math.pow(2, 16) - 1), Short.MIN_VALUE});
+
+        assertEquals(0, ProductUtils.getGeophysicalSampleAsLong(uint16, 0, 0, 0));
+        assertEquals(32767, ProductUtils.getGeophysicalSampleAsLong(uint16, 1, 0, 0));
+        assertEquals(65535, ProductUtils.getGeophysicalSampleAsLong(uint16, 2, 0, 0));
+        assertEquals(32768, ProductUtils.getGeophysicalSampleAsLong(uint16, 3, 0, 0));
+
+        Band uint32 = createTestBand(ProductData.TYPE_UINT32, new int[]{0, Integer.MAX_VALUE, (int) ((long)(Math.pow(2, 32) - 1) & 0xFFFFFFFFL), Integer.MIN_VALUE});
+
+        assertEquals(0, ProductUtils.getGeophysicalSampleAsLong(uint32, 0, 0, 0));
+        assertEquals(2147483647, ProductUtils.getGeophysicalSampleAsLong(uint32, 1, 0, 0));
+        assertEquals(4294967295L, ProductUtils.getGeophysicalSampleAsLong(uint32, 2, 0, 0));
+        assertEquals(2147483648L, ProductUtils.getGeophysicalSampleAsLong(uint32, 3, 0, 0));
+
+    }
+
+    private Band createTestBand(int dataType, Object data) {
+        if (data.getClass().isArray()) {
+            int length = Array.getLength(data);
+            Band band = new Band(ProductData.getTypeString(dataType), dataType, length, 1);
+            band.setData(ProductData.createInstance(dataType, data));
+            return band;
+        } else {
+            throw new RuntimeException("Parameter 'data' must be of type array");
         }
     }
 
