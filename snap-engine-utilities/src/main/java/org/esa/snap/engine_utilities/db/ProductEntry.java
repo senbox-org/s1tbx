@@ -253,7 +253,16 @@ public class ProductEntry {
         if (gc == null)
             return new GeoPos[0];
         final int step = Math.max(30, (product.getSceneRasterWidth() + product.getSceneRasterHeight()) / 10);
-        final GeoPos[] geoPoints = ProductUtils.createGeoBoundary(product, null, step, true);
+        GeoPos[] geoPoints = ProductUtils.createGeoBoundary(product, null, step, true);
+        if(geoPoints.length > 1 && !geoPoints[0].equals(geoPoints[geoPoints.length-1])) {
+            final GeoPos[] newgeoPoints = new GeoPos[geoPoints.length+1];
+            int i=0;
+            for(GeoPos geoPos : geoPoints) {
+                newgeoPoints[i++] = geoPos;
+            }
+            newgeoPoints[i] = new GeoPos(geoPoints[0]);
+            geoPoints = newgeoPoints;
+        }
         ProductUtils.normalizeGeoPolygon(geoPoints);
         return geoPoints;
     }
@@ -406,11 +415,12 @@ public class ProductEntry {
         if (useGeoboundaryForBox && geoboundary != null && geoboundary.length != 0) {
             return geoboundary;
         }
-        final GeoPos[] geoBound = new GeoPos[4];
+        final GeoPos[] geoBound = new GeoPos[5];
         geoBound[0] = getFirstNearGeoPos();
         geoBound[1] = getFirstFarGeoPos();
         geoBound[2] = getLastFarGeoPos();
         geoBound[3] = getLastNearGeoPos();
+        geoBound[4] = getFirstNearGeoPos();
         return geoBound;
     }
 
