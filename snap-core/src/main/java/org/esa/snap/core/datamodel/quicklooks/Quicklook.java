@@ -51,8 +51,6 @@ public class Quicklook extends ProductNode implements Thumbnail {
     private final boolean productCanAppendFiles;
     private final boolean saveWithProduct;
 
-
-
     public Quicklook(final File productFile) {
         this(null, DEFAULT_QUICKLOOK_NAME);
         this.productFile = productFile;
@@ -69,7 +67,7 @@ public class Quicklook extends ProductNode implements Thumbnail {
     }
 
     /**
-     * Constructor when a browseFile is given. The quicklooks is generated from the browse file
+     * Constructor when a browseFile is given. The quicklook is generated from the browse file
      *
      * @param product    the source product
      * @param name       the name of the quicklook
@@ -80,7 +78,7 @@ public class Quicklook extends ProductNode implements Thumbnail {
     }
 
     /**
-     * Constructor when a browseFile is given. The quicklooks is generated from the browse file
+     * Constructor when a browseFile is given. The quicklook is generated from the browse file
      *
      * @param product    the source product
      * @param name       the name of the quicklook
@@ -91,7 +89,7 @@ public class Quicklook extends ProductNode implements Thumbnail {
     }
 
     /**
-     * Constructor when a browseFile is given. The quicklooks is generated from the browse file
+     * Constructor when a browseFile is given. The quicklook is generated from the browse file
      *
      * @param product                the source product
      * @param name                   the name of the quicklook
