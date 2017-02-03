@@ -31,14 +31,13 @@ public class EnviConstants {
     public static final String DATUM_NAME_WGS84 = "WGS-84";
 
     public static final String HDR_EXTENSION = ".hdr";
-    public static final String IMG_EXTENSION = ".img";
-    public static final String BIN_EXTENSION = ".bin";
-    public static final String BIL_EXTENSION = ".bil";
-    public static final String BSQ_EXTENSION = ".bsq";
     public static final String ZIP_EXTENSION = ".zip";
-
     static final String[] VALID_EXTENSIONS = {HDR_EXTENSION, ZIP_EXTENSION};
-    static final String[] IMAGE_EXTENSIONS = {".img", ".dat", ".bin", ".bip", ".bil", ".bsq"};
+
+    // image_extensions in prioritised order
+    // The default from ENVI is right now ".dat", before it was "", we have used ".img"
+    // order only important if there is more than one data file
+    static final String[] IMAGE_EXTENSIONS = {".dat", "", ".img", ".bin", ".bip", ".bil", ".bsq"};
 
     public static final int TYPE_ID_BYTE = 1;
     public static final int TYPE_ID_INT16 = 2;
