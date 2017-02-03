@@ -771,25 +771,25 @@ public class ProductUtilsTest {
 
     @Test
     public void testGetSampleAsLong() throws Exception {
-        Band uint8 = createTestBand(ProductData.TYPE_UINT8, new byte[]{0, Byte.MAX_VALUE, (byte) (Math.pow(2, 8) - 1), Byte.MIN_VALUE});
+        Band uint8 = createTestBand(ProductData.TYPE_UINT8, new byte[]{0, Byte.MAX_VALUE, (byte) (Math.pow(2, 7)), Byte.MIN_VALUE});
 
         assertEquals(0, ProductUtils.getGeophysicalSampleAsLong(uint8, 0, 0, 0));
         assertEquals(127, ProductUtils.getGeophysicalSampleAsLong(uint8, 1, 0, 0));
-        assertEquals(255, ProductUtils.getGeophysicalSampleAsLong(uint8, 2, 0, 0));
+        assertEquals(128L, ProductUtils.getGeophysicalSampleAsLong(uint8, 2, 0, 0));
         assertEquals(128, ProductUtils.getGeophysicalSampleAsLong(uint8, 3, 0, 0));
 
-        Band uint16 = createTestBand(ProductData.TYPE_UINT16, new short[]{0, Short.MAX_VALUE, (short) (Math.pow(2, 16) - 1), Short.MIN_VALUE});
+        Band uint16 = createTestBand(ProductData.TYPE_UINT16, new short[]{0, Short.MAX_VALUE, (short) (Math.pow(2, 15)), Short.MIN_VALUE});
 
         assertEquals(0, ProductUtils.getGeophysicalSampleAsLong(uint16, 0, 0, 0));
         assertEquals(32767, ProductUtils.getGeophysicalSampleAsLong(uint16, 1, 0, 0));
-        assertEquals(65535, ProductUtils.getGeophysicalSampleAsLong(uint16, 2, 0, 0));
+        assertEquals(32768L, ProductUtils.getGeophysicalSampleAsLong(uint16, 2, 0, 0));
         assertEquals(32768, ProductUtils.getGeophysicalSampleAsLong(uint16, 3, 0, 0));
 
-        Band uint32 = createTestBand(ProductData.TYPE_UINT32, new int[]{0, Integer.MAX_VALUE, (int) ((long)(Math.pow(2, 32) - 1) & 0xFFFFFFFFL), Integer.MIN_VALUE});
+        Band uint32 = createTestBand(ProductData.TYPE_UINT32, new int[]{0, Integer.MAX_VALUE, (int) ((long)(Math.pow(2, 31)) & 0xFFFFFFFFL), Integer.MIN_VALUE});
 
         assertEquals(0, ProductUtils.getGeophysicalSampleAsLong(uint32, 0, 0, 0));
         assertEquals(2147483647, ProductUtils.getGeophysicalSampleAsLong(uint32, 1, 0, 0));
-        assertEquals(4294967295L, ProductUtils.getGeophysicalSampleAsLong(uint32, 2, 0, 0));
+        assertEquals(2147483648L, ProductUtils.getGeophysicalSampleAsLong(uint32, 2, 0, 0));
         assertEquals(2147483648L, ProductUtils.getGeophysicalSampleAsLong(uint32, 3, 0, 0));
 
     }
