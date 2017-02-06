@@ -74,10 +74,9 @@ public class NorthArrowComponent implements MapToolsComponent {
 
         // determine distance
         final GeoPos x5Geo = geoCoding.getGeoPos(new PixelPos((int) (margin * 1.5), margin), null);
-        final GeoUtils.DistanceHeading dist = GeoUtils.vincenty_inverse(point1Geo.getLon(), point1Geo.getLat(),
-                x5Geo.getLon(), x5Geo.getLat());
+        final GeoUtils.DistanceHeading dist = GeoUtils.vincenty_inverse(point1Geo, x5Geo);
 
-        GeoUtils.LatLonHeading coord = GeoUtils.vincenty_direct(point1Geo.getLon(), point1Geo.getLat(), dist.distance, angle);
+        GeoUtils.LatLonHeading coord = GeoUtils.vincenty_direct(point1Geo, dist.distance, angle);
         final PixelPos point3 = geoCoding.getPixelPos(new GeoPos(coord.lat, coord.lon), null);
 
         final PixelPos dispTail = point1;

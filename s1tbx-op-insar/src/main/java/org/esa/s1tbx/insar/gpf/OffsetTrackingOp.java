@@ -998,8 +998,7 @@ public class OffsetTrackingOp extends Operator {
                     geoCoding.getGeoPos(new PixelPos(velocityData.mstGCPx[i][j], velocityData.mstGCPy[i][j]), mstGeoPos);
                     geoCoding.getGeoPos(new PixelPos(velocityData.slvGCPx[i][j], velocityData.slvGCPy[i][j]), slvGeoPos);
 
-                    GeoUtils.DistanceHeading heading = GeoUtils.vincenty_inverse(mstGeoPos.lat, mstGeoPos.lon,
-                            slvGeoPos.lat, slvGeoPos.lon);
+                    GeoUtils.DistanceHeading heading = GeoUtils.vincenty_inverse(mstGeoPos, slvGeoPos);
 
                     feature.setAttribute(ATTRIB_MST_LAT, mstGeoPos.lat);
                     feature.setAttribute(ATTRIB_MST_LON, mstGeoPos.lon);
