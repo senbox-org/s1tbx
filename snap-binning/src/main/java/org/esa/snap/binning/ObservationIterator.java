@@ -28,6 +28,10 @@ import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.math.MathUtils;
+import org.geotools.referencing.CRS;
+import org.geotools.referencing.datum.DefaultEllipsoid;
+import org.opengis.referencing.datum.Ellipsoid;
 
 import javax.media.jai.PlanarImage;
 import java.awt.Rectangle;
@@ -36,7 +40,7 @@ import java.awt.image.Raster;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-// todo - nf20131031 - review with marcop/marcoz - this class should be instantiated using a builder so that we can have flexible parameterisation
+// todo - nf20131031 - review with marcop/marcoz - this class should be instantiated using a builder so that we can have flexible parametrisation
 
 /**
  * Abstract implementation of Iterator interface which iterates over {@link org.esa.snap.binning.Observation Observations}.
@@ -57,6 +61,10 @@ abstract class ObservationIterator implements Iterator<Observation> {
     private final DataPeriod dataPeriod;
     private final PreparedGeometry region;
     private final GeometryFactory geometryFactory;
+    private int maxDistanceOnEarth;
+    private double earthRadius;
+    private PixelPos lastRefPP;
+    private GeoPos lastRefGP;
 
     static ObservationIterator create(PlanarImage[] sourceImages, PlanarImage maskImage, Product product,
                                       float[] superSamplingSteps, Rectangle sliceRectangle, BinningContext binningContext) {
@@ -87,7 +95,10 @@ abstract class ObservationIterator implements Iterator<Observation> {
         this.product = product;
         this.productHasTime = product.getStartTime() != null || product.getEndTime() != null;
         this.gc = product.getSceneGeoCoding();
+        Ellipsoid ellipsoid = CRS.getEllipsoid(gc.getMapCRS());
+        earthRadius = ellipsoid != null ? ellipsoid.getSemiMajorAxis() : DefaultEllipsoid.WGS84.getSemiMajorAxis();
         geometryFactory = new GeometryFactory();
+        maxDistanceOnEarth = binningContext.getMaxDistanceOnEarth();
     }
 
     public final SamplePointer getPointer() {
@@ -144,13 +155,25 @@ abstract class ObservationIterator implements Iterator<Observation> {
             }
         }
 
+        if(maxDistanceOnEarth > 0) {
+            PixelPos currentRefPP = new PixelPos(x + 0.5f, y + 0.5f);
+            if(!currentRefPP.equals(lastRefPP)) {
+                lastRefPP = currentRefPP;
+                lastRefGP = getGeoPos(lastRefPP);
+            }
+            double distance = MathUtils.sphereDistanceDeg(earthRadius, geoPos.getLon(), geoPos.getLat(), lastRefGP.getLon(), lastRefGP.getLat());
+
+            if(distance > maxDistanceOnEarth) {
+                return null;
+            }
+        }
+
         final float[] samples = pointer.createSamples();
         return new ObservationImpl(geoPos.lat, geoPos.lon, mjd, samples);
     }
 
     private boolean acceptGeoPos(GeoPos geoPos) {
-        return region == null
-                || region.contains(geometryFactory.createPoint(new Coordinate(geoPos.lon, geoPos.lat)));
+        return region == null || region.contains(geometryFactory.createPoint(new Coordinate(geoPos.lon, geoPos.lat)));
 
     }
 

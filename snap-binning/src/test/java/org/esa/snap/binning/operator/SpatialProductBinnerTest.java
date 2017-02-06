@@ -206,7 +206,7 @@ public class SpatialProductBinnerTest {
                                                new AggregatorAverage(variableContext, "a", 0.0),
                                                new AggregatorAverage(variableContext, "b", 0.0));
 
-        return new BinningContextImpl(planetaryGrid, binManager, CompositingType.BINNING, superSampling, dataPeriod, null);
+        return new BinningContextImpl(planetaryGrid, binManager, CompositingType.BINNING, superSampling, -1, dataPeriod, null);
     }
 
     private static class MySpatialBinConsumer implements SpatialBinConsumer {

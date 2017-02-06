@@ -35,6 +35,7 @@ public class BinningContextImpl implements BinningContext {
     private final PlanetaryGrid planetaryGrid;
     private final BinManager binManager;
     private final int superSampling;
+    private final int maxDistanceOnEarth;
     private final CompositingType compositingType;
     private final DataPeriod dataPeriod;
     private final Geometry region;
@@ -42,17 +43,23 @@ public class BinningContextImpl implements BinningContext {
     @Deprecated
     public BinningContextImpl(PlanetaryGrid planetaryGrid, BinManager binManager, CompositingType compositingType,
                               int superSampling) {
-        this(planetaryGrid, binManager, compositingType, superSampling, null, null);
+        this(planetaryGrid, binManager, compositingType, superSampling, -1, null, null);
     }
 
     @Deprecated
     public BinningContextImpl(PlanetaryGrid planetaryGrid, BinManager binManager, CompositingType compositingType,
                               int superSampling, DataPeriod dataPeriod) {
-        this(planetaryGrid, binManager, compositingType, superSampling, dataPeriod, null);
+        this(planetaryGrid, binManager, compositingType, superSampling, -1, dataPeriod, null);
+    }
+
+    @Deprecated
+    public BinningContextImpl(PlanetaryGrid planetaryGrid, BinManager binManager, CompositingType compositingType,
+                              int superSampling, DataPeriod dataPeriod, Geometry region) {
+        this(planetaryGrid, binManager, compositingType, superSampling, -1, dataPeriod, region);
     }
 
     public BinningContextImpl(PlanetaryGrid planetaryGrid, BinManager binManager, CompositingType compositingType,
-                              int superSampling, DataPeriod dataPeriod, Geometry region) {
+                              int superSampling, int maxDistanceOnEarth, DataPeriod dataPeriod, Geometry region) {
         Assert.notNull(planetaryGrid, "planetaryGrid");
         Assert.notNull(binManager, "binManager");
         Assert.notNull(compositingType, "compositingType");
@@ -60,6 +67,7 @@ public class BinningContextImpl implements BinningContext {
         this.binManager = binManager;
         this.compositingType = compositingType;
         this.superSampling = superSampling;
+        this.maxDistanceOnEarth = maxDistanceOnEarth;
         this.dataPeriod = dataPeriod;
         this.region = region;
     }
@@ -87,6 +95,11 @@ public class BinningContextImpl implements BinningContext {
     @Override
     public Integer getSuperSampling() {
         return superSampling;
+    }
+
+    @Override
+    public Integer getMaxDistanceOnEarth() {
+        return maxDistanceOnEarth;
     }
 
     @Override
