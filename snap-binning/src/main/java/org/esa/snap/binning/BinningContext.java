@@ -51,6 +51,11 @@ public interface BinningContext {
     Integer getSuperSampling();
 
     /**
+     * @return The maximum distance on earth in meter for a sub-pixel coordinate compared to the center of the macro-pixel. A value <=0 disables this check.
+     */
+    Integer getMaxDistanceOnEarth();
+
+    /**
      * @return The definition of a "spatial data-day", or more generally, a spatial data-period used for the binning.
      * May be {@code null}, if not used.
      * @since BEAM 5
