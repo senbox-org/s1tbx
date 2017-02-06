@@ -68,7 +68,7 @@ import java.util.logging.Logger;
  * distortions is the ground elevation of the targets. This operator corrects the topographic distortion
  * in the raw image caused by this factor. The operator implements the Range-Doppler (RD) geocoding method.
  * <p/>
- * The method consis of the following major steps:
+ * The method consists of the following major steps:
  * (1) Get state vectors from the metadata;
  * (2) Compute satellite position and velocity for each azimuth time by interpolating the state vectors;
  * (3) Get corner latitudes and longitudes for the source image;
@@ -135,6 +135,15 @@ public class RangeDopplerGeocodingOp extends Operator {
 
     @Parameter(description = "The coordinate reference system in well known text format", defaultValue = "WGS84(DD)")
     private String mapProjection = "WGS84(DD)";
+
+    @Parameter(description = "Force the image grid to be aligned with a specific point", defaultValue = "false")
+    private boolean alignToStandardGrid = false;
+
+    @Parameter(description = "x-coordinate of the standard grid's origin point", defaultValue = "0")
+    private double standardGridOriginX = 0;
+
+    @Parameter(description = "y-coordinate of the standard grid's origin point", defaultValue = "0")
+    private double standardGridOriginY = 0;
 
     @Parameter(defaultValue = "true", label = "Mask out areas with no elevation", description = "Mask the sea with no data value (faster)")
     private boolean nodataValueAtSea = true;
@@ -527,7 +536,8 @@ public class RangeDopplerGeocodingOp extends Operator {
             delLon = pixelSpacingInDegree;
 
             final CRSGeoCodingHandler crsHandler = new CRSGeoCodingHandler(sourceProduct, mapProjection,
-                    pixelSpacingInDegree, pixelSpacingInMeter);
+                    pixelSpacingInDegree, pixelSpacingInMeter,
+                    alignToStandardGrid, standardGridOriginX, standardGridOriginY);
 
             targetCRS = crsHandler.getTargetCRS();
 

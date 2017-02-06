@@ -137,6 +137,15 @@ public class SARSimTerrainCorrectionOp extends Operator {
     @Parameter(description = "The coordinate reference system in well known text format")
     private String mapProjection;
 
+    @Parameter(description = "Force the image grid to be aligned with a specific point", defaultValue = "false")
+    private boolean alignToStandardGrid = false;
+
+    @Parameter(description = "x-coordinate of the standard grid's origin point", defaultValue = "0")
+    private double standardGridOriginX = 0;
+
+    @Parameter(description = "y-coordinate of the standard grid's origin point", defaultValue = "0")
+    private double standardGridOriginY = 0;
+
     @Parameter(defaultValue = "false", label = "Save DEM as band")
     private boolean saveDEM = false;
 
@@ -532,7 +541,9 @@ public class SARSimTerrainCorrectionOp extends Operator {
         delLon = pixelSpacingInDegree;
 
         final CRSGeoCodingHandler crsHandler = new CRSGeoCodingHandler(sourceProduct, mapProjection,
-                                                                       pixelSpacingInDegree, pixelSpacingInMeter);
+                                                                       pixelSpacingInDegree, pixelSpacingInMeter,
+                                                                       alignToStandardGrid, standardGridOriginX,
+                                                                       standardGridOriginY);
 
         targetCRS = crsHandler.getTargetCRS();
 

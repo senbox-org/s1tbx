@@ -39,6 +39,19 @@ public class CRSGeoCodingHandler {
 
     public CRSGeoCodingHandler(final Product sourceProduct, final String mapProjection,
                                final double pixelSpacingInDegree, final double pixelSpacingInMeter) throws Exception {
+        this(sourceProduct, mapProjection, pixelSpacingInDegree, pixelSpacingInMeter, false);
+    }
+
+    public CRSGeoCodingHandler(final Product sourceProduct, final String mapProjection,
+                               final double pixelSpacingInDegree, final double pixelSpacingInMeter,
+                               final boolean alignToStandardGrid) throws Exception {
+        this(sourceProduct, mapProjection, pixelSpacingInDegree, pixelSpacingInMeter, alignToStandardGrid, 0, 0);
+    }
+
+    public CRSGeoCodingHandler(final Product sourceProduct, final String mapProjection,
+                               final double pixelSpacingInDegree, final double pixelSpacingInMeter,
+                               final boolean alignToStandardGrid, final double standardGridOriginX,
+                               final double standardGridOriginY) throws Exception {
 
         targetCRS = getCRS(sourceProduct, mapProjection);
 
@@ -63,13 +76,26 @@ public class CRSGeoCodingHandler {
         bounds.setFrameFromDiagonal(lonMin, srcImageBoundary.latMin, lonMax, srcImageBoundary.latMax);
         final ReferencedEnvelope boundsEnvelope = new ReferencedEnvelope(bounds, DefaultGeographicCRS.WGS84);
         final ReferencedEnvelope targetEnvelope = boundsEnvelope.transform(targetCRS, true, 200);
-        targetWidth = (int) Math.floor(targetEnvelope.getSpan(0) / pixelSizeX);
-        targetHeight = (int) Math.floor(targetEnvelope.getSpan(1) / pixelSizeY);
+
+        double easting = targetEnvelope.getMinimum(0);
+        double northing = targetEnvelope.getMaximum(1);
+        if (alignToStandardGrid) {
+            // Force pixels to be aligned with a specified origin point (e.g. 0,0) in the output CRS.
+            // This guarantees that the image grids are always aligned when reprojecting or resampling images.
+            easting = Math.floor((easting - standardGridOriginX) / pixelSizeX) * pixelSizeX + standardGridOriginX;
+            northing = Math.ceil((northing - standardGridOriginY) / pixelSizeY) * pixelSizeY + standardGridOriginY;
+            targetWidth = (int) Math.ceil((targetEnvelope.getMaximum(0) - easting) / pixelSizeX);
+            targetHeight = (int) Math.ceil((northing - targetEnvelope.getMinimum(1)) / pixelSizeY);
+        } else {
+            targetWidth = (int) Math.floor(targetEnvelope.getWidth() / pixelSizeX);
+            targetHeight = (int) Math.floor(targetEnvelope.getHeight() / pixelSizeY);
+        }
+
         geoCoding = new CrsGeoCoding(targetCRS,
                 targetWidth,
                 targetHeight,
-                targetEnvelope.getMinimum(0),
-                targetEnvelope.getMaximum(1),
+                easting,
+                northing,
                 pixelSizeX, pixelSizeY);
     }
 
