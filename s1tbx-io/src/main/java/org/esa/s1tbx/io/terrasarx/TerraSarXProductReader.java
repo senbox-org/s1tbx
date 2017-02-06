@@ -99,6 +99,7 @@ public class TerraSarXProductReader extends SARReader {
             product = dataDir.createProduct();
             product.setFileLocation(fileFromInput);
             product.setProductReader(this);
+            addCommonSARMetadata(product);
 
             setQuicklookBandName(product);
             addQuicklooks(product);

@@ -182,8 +182,7 @@ public class HeaderWriter {
 
         GeoPos geoPos2 = srcProduct.getSceneGeoCoding().getGeoPos(
                 new PixelPos(srcProduct.getSceneRasterWidth() / 2, (srcProduct.getSceneRasterHeight() / 2) + 100), null);
-        GeoUtils.DistanceHeading heading = GeoUtils.vincenty_inverse(geoPos.lat, geoPos.lon,
-                                                                     geoPos2.lat, geoPos2.lon);
+        GeoUtils.DistanceHeading heading = GeoUtils.vincenty_inverse(geoPos, geoPos2);
         p.println(GammaConstants.HEADER_KEY_HEADING + sep + heading.heading1 + tab + "degrees");
     }
 
