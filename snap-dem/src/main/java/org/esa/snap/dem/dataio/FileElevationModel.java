@@ -25,6 +25,7 @@ import org.esa.snap.core.dataop.dem.ElevationModel;
 import org.esa.snap.core.dataop.dem.ElevationModelDescriptor;
 import org.esa.snap.core.dataop.resamp.Resampling;
 import org.esa.snap.core.dataop.resamp.ResamplingFactory;
+import org.esa.snap.engine_utilities.db.CommonReaders;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,11 +51,10 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
     }
 
     private void init(final File file, final Resampling resamplingMethod, Double demNoDataValue) throws IOException {
-        final ProductReader productReader = ProductIO.getProductReaderForInput(file);
-        if(productReader == null) {
+        final Product product = CommonReaders.readProduct(file);
+        if(product == null) {
             throw new IOException("No product reader found for "+file.toString());
         }
-        final Product product = productReader.readProductNodes(file, null);
         RASTER_WIDTH = product.getBandAt(0).getRasterWidth();
         RASTER_HEIGHT = product.getBandAt(0).getRasterHeight();
         if (demNoDataValue == null)
