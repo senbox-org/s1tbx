@@ -244,6 +244,41 @@ public class EnviProductReaderTest {
         }
     }
 
+
+    @Test
+    public void testImageDataFileConsideredInRightOrder() throws IOException {
+        File enviImageFile;
+        final File headerFile = new File(TEST_DIR, PRODUCT_NAME + ".hdr");
+
+        new File(TEST_DIR, PRODUCT_NAME + ".bsq").createNewFile();
+        enviImageFile = EnviProductReader.getEnviImageFile(headerFile);
+        assertEquals(".bsq", FileUtils.getExtension(enviImageFile));
+
+        new File(TEST_DIR, PRODUCT_NAME + ".bil").createNewFile();
+        enviImageFile = EnviProductReader.getEnviImageFile(headerFile);
+        assertEquals(".bil", FileUtils.getExtension(enviImageFile));
+
+        new File(TEST_DIR, PRODUCT_NAME + ".bip").createNewFile();
+        enviImageFile = EnviProductReader.getEnviImageFile(headerFile);
+        assertEquals(".bip", FileUtils.getExtension(enviImageFile));
+
+        new File(TEST_DIR, PRODUCT_NAME + ".bin").createNewFile();
+        enviImageFile = EnviProductReader.getEnviImageFile(headerFile);
+        assertEquals(".bin", FileUtils.getExtension(enviImageFile));
+
+        new File(TEST_DIR, PRODUCT_NAME + ".img").createNewFile();
+        enviImageFile = EnviProductReader.getEnviImageFile(headerFile);
+        assertEquals(".img", FileUtils.getExtension(enviImageFile));
+
+        new File(TEST_DIR, PRODUCT_NAME).createNewFile();
+        enviImageFile = EnviProductReader.getEnviImageFile(headerFile);
+        assertEquals(null, FileUtils.getExtension(enviImageFile));
+
+        new File(TEST_DIR, PRODUCT_NAME + ".dat").createNewFile();
+        enviImageFile = EnviProductReader.getEnviImageFile(headerFile);
+        assertEquals(".dat", FileUtils.getExtension(enviImageFile));
+    }
+
     @Test
     public void testMetadata() throws IOException {
         final String headerContent = createHeaderFileContent("");

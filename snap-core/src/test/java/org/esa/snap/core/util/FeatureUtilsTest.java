@@ -47,7 +47,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 
-public class FeatureCollectionClipperTest extends TestCase {
+public class FeatureUtilsTest extends TestCase {
 
     public void testIt() throws IOException {
 

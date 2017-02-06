@@ -115,6 +115,9 @@ public class RGBImageProfile implements ConfigurableExtension {
 
     /**
      * Creates a new RGB profile.
+     * In the pattern you can simply use '*' for a sequence of characters or use '?' for a single character.
+     * For Example:
+     * {@code new String[]{ "MER_*_2*", "MER_*_2*", ""}}
      *
      * @param name The name of the profile
      * @param rgbaExpressions the expressions for the RGBA channels. Only RGB expressions are mandatory, the one for the alpha

@@ -34,7 +34,10 @@
 <h3>Envi Reader</h3>
 
 <p>The reader supports data products in the Envi data format. The products consist of pairs of a header (<i>.hdr</i>) and an
-    image file (<i>.img</i>, <i>.bin</i>, <i>.bil</i> or <i>.bsq</i>). The data can also be read from a zip file.
+    image file. The image file must have the same file name as the the header file. As extension the following extensions are tested in
+    the given order(<i>.dat</i>, <i>'&nbsp;'</i>,<i>.img</i>, <i>.bin</i>, <i>.bip</i>, <i>.bil</i> or <i>.bsq</i>). The file which is first found is used.
+    <br/><br/>
+    The data can also be read from a zip file. The first header file which can be found within the zip file is used.
 </p>
 
 <h3>HICO Reader</h3>

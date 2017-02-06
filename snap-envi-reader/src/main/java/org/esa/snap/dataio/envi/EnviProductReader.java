@@ -39,9 +39,11 @@ import java.io.InputStreamReader;
 import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -327,14 +329,19 @@ public class EnviProductReader extends AbstractProductReader {
         try {
 
             innerHdrZipPath = innerHdrZipPath.substring(0, innerHdrZipPath.length() - 4);
-            String innerImgZipPath = FileUtils.ensureExtension(innerHdrZipPath, EnviConstants.IMG_EXTENSION);
+            List<String> innerZipDataFilePaths = new ArrayList<>();
+            for (int i = 0; i < EnviConstants.IMAGE_EXTENSIONS.length; i++) {
+                innerZipDataFilePaths.add(FileUtils.ensureExtension(innerHdrZipPath, EnviConstants.IMAGE_EXTENSIONS[i]));
+            }
             final Enumeration<? extends ZipEntry> enumeration = productZip.entries();
             // iterating over entries instead of using the path directly in order to compare paths ignoring case
             while (enumeration.hasMoreElements()) {
                 ZipEntry zipEntry = enumeration.nextElement();
-                if (zipEntry.getName().equalsIgnoreCase(innerImgZipPath)) {
-                    InputStream inputStream = productZip.getInputStream(productZip.getEntry(zipEntry.getName()));
-                    return new FileCacheImageInputStream(inputStream, null);
+                for (String innerZipDataFilePath : innerZipDataFilePaths) {
+                    if (zipEntry.getName().equalsIgnoreCase(innerZipDataFilePath)) {
+                        InputStream inputStream = productZip.getInputStream(productZip.getEntry(zipEntry.getName()));
+                        return new FileCacheImageInputStream(inputStream, null);
+                    }
                 }
             }
         } catch (IOException ioe) {
