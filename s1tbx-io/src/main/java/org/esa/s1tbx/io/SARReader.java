@@ -17,17 +17,15 @@ package org.esa.s1tbx.io;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.runtime.RuntimeContext;
+import org.esa.s1tbx.io.gamma.header.GammaConstants;
 import org.esa.snap.core.dataio.AbstractProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.datamodel.quicklooks.Quicklook;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
+import org.esa.snap.engine_utilities.eo.GeoUtils;
 import org.esa.snap.engine_utilities.util.ExceptionLog;
 
 import java.io.File;
@@ -114,6 +112,22 @@ public abstract class SARReader extends AbstractProductReader {
             return "VH";
 
         return null;
+    }
+
+    protected void addCommonSARMetadata(final Product product) {
+        GeoPos geoPos = product.getSceneGeoCoding().getGeoPos(
+                new PixelPos(product.getSceneRasterWidth() / 2, product.getSceneRasterHeight() / 2), null);
+
+        GeoPos geoPos2 = product.getSceneGeoCoding().getGeoPos(
+                new PixelPos(product.getSceneRasterWidth() / 2, (product.getSceneRasterHeight() / 2) + 100), null);
+        GeoUtils.DistanceHeading heading = GeoUtils.vincenty_inverse(geoPos, geoPos2);
+
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        AbstractMetadata.setAttribute(absRoot, "centre_lat", geoPos.getLat());
+        AbstractMetadata.setAttribute(absRoot, "centre_lon", geoPos.getLon());
+        AbstractMetadata.setAttribute(absRoot, "centre_heading", heading.heading1);
+        AbstractMetadata.setAttribute(absRoot, "centre_heading2", heading.heading2);
+
     }
 
     public static void discardUnusedMetadata(final Product product) {
