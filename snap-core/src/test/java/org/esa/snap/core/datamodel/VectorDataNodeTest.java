@@ -16,12 +16,22 @@
 
 package org.esa.snap.core.datamodel;
 
+import org.geotools.feature.CollectionEvent;
+import org.geotools.feature.CollectionListener;
+import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
+
+import java.awt.geom.Point2D;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -147,12 +157,58 @@ public class VectorDataNodeTest {
         assertEquals(defaultStyleCss, vdn.getDefaultStyleCss());
     }
 
+    @Test
+    public void testFireFeatureChanged() throws Exception {
+        SimpleFeatureType type = createFeatureType();
+        SimpleFeatureBuilder fb = new SimpleFeatureBuilder(type);
+
+        DefaultFeatureCollection collection = new DefaultFeatureCollection("Col1", type);
+        SimpleFeature toBeChanged = fb.buildFeature("1");
+        collection.add(toBeChanged);
+        SimpleFeature toBeRemoved = fb.buildFeature("2");
+        collection.add(toBeRemoved);
+        MyCollectionListener listener = new MyCollectionListener();
+        collection.addListener(listener);
+
+        collection.add(fb.buildFeature("3"));
+        collection.remove(toBeRemoved);
+
+        assertEquals(CollectionEvent.FEATURES_ADDED, listener.eventList.get(0).getEventType());
+        assertEquals(CollectionEvent.FEATURES_REMOVED, listener.eventList.get(1).getEventType());
+        assertEquals(2, listener.eventList.size());
+
+        toBeChanged.setDefaultGeometry(new Point2D.Double(12, 45));
+        toBeChanged.setAttribute("height", 345);
+        assertEquals(2, listener.eventList.size());
+        // no change event
+//        assertEquals(CollectionEvent.FEATURES_CHANGED, listener.eventList.get(2).getEventType());
+    }
+
     private static class MyProductNodeListenerAdapter extends ProductNodeListenerAdapter {
         ProductNodeEvent event;
 
         @Override
         public void nodeChanged(ProductNodeEvent event) {
             this.event = event;
+        }
+    }
+
+    private static SimpleFeatureType createFeatureType() throws IOException {
+        SimpleFeatureTypeBuilder ftb = new SimpleFeatureTypeBuilder();
+        ftb.add("height", Integer.class);
+        ftb.setName("my.special.typename");
+        final SimpleFeatureType ft = ftb.buildFeatureType();
+        ft.getUserData().put("trackPoints", "true");
+        return ft;
+    }
+
+    private static class MyCollectionListener implements CollectionListener {
+
+        List<CollectionEvent> eventList = new ArrayList<CollectionEvent>();
+
+        @Override
+        public void collectionChanged(CollectionEvent tce) {
+            eventList.add(tce);
         }
     }
 }
