@@ -204,7 +204,7 @@ public class VectorDataNodeTest {
 
     private static class MyCollectionListener implements CollectionListener {
 
-        List<CollectionEvent> eventList = new ArrayList<CollectionEvent>();
+        List<CollectionEvent> eventList = new ArrayList<>();
 
         @Override
         public void collectionChanged(CollectionEvent tce) {
