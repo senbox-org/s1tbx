@@ -26,10 +26,6 @@ import java.util.Locale;
 
 public class PolsarProProductReaderPlugIn extends EnviProductReaderPlugIn {
 
-    static{
-        registerRGBProfiles();
-    }
-
     public static final String FORMAT_NAME = "PolSARPro";
 
     @Override
@@ -74,37 +70,5 @@ public class PolsarProProductReaderPlugIn extends EnviProductReaderPlugIn {
         }
 
         return DecodeQualification.UNABLE;
-    }
-
-    private static void registerRGBProfiles() {
-        RGBImageProfileManager manager = RGBImageProfileManager.getInstance();
-        manager.addProfile(new RGBImageProfile("T3",
-                                               new String[]{
-                                                       "T11",
-                                                       "T22",
-                                                       "T33"
-                                               }
-        ));
-        manager.addProfile(new RGBImageProfile("C3",
-                                               new String[]{
-                                                       "C11",
-                                                       "C22",
-                                                       "C33"
-                                               }
-        ));
-        manager.addProfile(new RGBImageProfile("T2",
-                                               new String[]{
-                                                       "T11",
-                                                       "T22",
-                                                       "T11/T22"
-                                               }
-        ));
-        manager.addProfile(new RGBImageProfile("C2",
-                                               new String[]{
-                                                       "C11",
-                                                       "C22",
-                                                       "C11/C22"
-                                               }
-        ));
     }
 }
