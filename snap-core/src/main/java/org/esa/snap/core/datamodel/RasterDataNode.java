@@ -716,6 +716,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling, SceneT
      * @return the no-data value. It is returned as a <code>double</code> in order to cover all other numeric types.
      * @see #setNoDataValue(double)
      * @see #isNoDataValueSet()
+     * @see #isNoDataValueUsed()
      */
     public double getNoDataValue() {
         return isNoDataValueSet() ? noData.getElemDouble() : 0.0;
