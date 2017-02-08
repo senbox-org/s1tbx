@@ -111,7 +111,7 @@ public class CommandLineArgs {
                     systemPropertiesMap.put(pair[0], pair[1]);
                 } else if (arg.equals("-h")) {
                     helpRequested = true;
-                } else if (arg.equals("-diag")) {
+                } else if (arg.equals("--diag")) {
                     diagnosticRequested = true;
                 } else if (arg.equals("-x")) {
                     clearCacheAfterRowWrite = true;
