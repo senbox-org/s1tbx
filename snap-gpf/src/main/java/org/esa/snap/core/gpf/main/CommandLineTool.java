@@ -112,8 +112,8 @@ class CommandLineTool implements GraphProcessingObserver {
                 printHelp();
                 return;
             }
-            if (commandLineArgs.isVersionRequested()) {
-                printVersion();
+            if (commandLineArgs.isDiagnosticRequested()) {
+                printDiagnostics();
                 return;
             }
             run();
@@ -139,14 +139,6 @@ class CommandLineTool implements GraphProcessingObserver {
         }
     }
 
-    private void printVersion() {
-        initializeSystemProperties();
-        initializeJAI();
-
-        commandLineContext.print("SNAP Release version " + getReleaseVersion() + '\n');
-        commandLineContext.print(getDiagnostics() + '\n');
-    }
-
     private String getReleaseVersion() {
         String version = null;
         Path versionFile = SystemUtils.getApplicationHomeDir().toPath().resolve("VERSION.txt");
@@ -166,30 +158,32 @@ class CommandLineTool implements GraphProcessingObserver {
         return "[no version info, missing ${SNAP_HOME}/VERSION.txt]";
     }
 
-    private String getDiagnostics() {
-        final StringBuilder str = new StringBuilder();
+    private void printDiagnostics() {
+        initializeSystemProperties();
+        initializeJAI();
         final Runtime runtime = Runtime.getRuntime();
-        
-        str.append("SNAP home: " + System.getProperty("snap.home") + '\n');
-        str.append("SNAP debug: " + System.getProperty("snap.debug") + '\n');
-        str.append("SNAP log level: " + System.getProperty("snap.log.level") + '\n');
 
-        str.append("Java home: " + System.getProperty("java.home") + '\n');
-        str.append("Java version: " + System.getProperty("java.version") + '\n');
+        commandLineContext.print("SNAP Release version " + getReleaseVersion() + '\n');
 
-        str.append("Processors: " + runtime.availableProcessors() + '\n');
-        str.append("Max memory: " + fromBytes(runtime.maxMemory()) + '\n');
+        commandLineContext.print("SNAP home: " + System.getProperty("snap.home") + '\n');
+        commandLineContext.print("SNAP debug: " + System.getProperty("snap.debug") + '\n');
+        commandLineContext.print("SNAP log level: " + System.getProperty("snap.log.level") + '\n');
 
-        str.append("Cache size: " + fromBytes(JAI.getDefaultInstance().getTileCache().getMemoryCapacity()) + '\n');
-        str.append("Tile parallelism: " + JAI.getDefaultInstance().getTileScheduler().getParallelism() + '\n');
-        str.append("Tile size: " + (int)JAI.getDefaultTileSize().getWidth() + " x " + (int)JAI.getDefaultTileSize().getHeight() + " pixels" + '\n');
+        commandLineContext.print("Java home: " + System.getProperty("java.home") + '\n');
+        commandLineContext.print("Java version: " + System.getProperty("java.version") + '\n');
 
-        str.append("\nTo configure your gpt memory usuage:\n");
-        str.append("Edit snap/bin/gpt.vmoptions\n");
-        str.append("\nTo configure your gpt cache size and parallelism:\n");
-        str.append("Edit .snap/etc/snap.properties or gpt -c ${cachesize-in-GB}G -q ${parallelism} \n");
+        commandLineContext.print("Processors: " + runtime.availableProcessors() + '\n');
+        commandLineContext.print("Max memory: " + fromBytes(runtime.maxMemory()) + '\n');
 
-        return str.toString();
+        commandLineContext.print("Cache size: " + fromBytes(JAI.getDefaultInstance().getTileCache().getMemoryCapacity()) + '\n');
+        commandLineContext.print("Tile parallelism: " + JAI.getDefaultInstance().getTileScheduler().getParallelism() + '\n');
+        commandLineContext.print("Tile size: " + (int)JAI.getDefaultTileSize().getWidth() + " x " +
+                (int)JAI.getDefaultTileSize().getHeight() + " pixels" + '\n');
+
+        commandLineContext.print("\nTo configure your gpt memory usuage:\n");
+        commandLineContext.print("Edit snap/bin/gpt.vmoptions\n");
+        commandLineContext.print("\nTo configure your gpt cache size and parallelism:\n");
+        commandLineContext.print("Edit .snap/etc/snap.properties or gpt -c ${cachesize-in-GB}G -q ${parallelism} \n");
     }
 
     private String fromBytes(long bytes) {
