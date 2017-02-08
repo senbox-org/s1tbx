@@ -47,7 +47,7 @@ public class vanZyl extends DecompositionBase implements Decomposition {
      * Return the list of band names for the target product
      */
     public String[] getTargetBandNames() {
-        return new String[]{"vanZyl_dbl_r", "vanZyl_vol_g", "vanZyl_surf_b"};
+        return new String[]{"VanZyl_dbl_r", "VanZyl_vol_g", "VanZyl_surf_b"};
     }
 
     /**
@@ -85,11 +85,11 @@ public class vanZyl extends DecompositionBase implements Decomposition {
             int j = 0;
             for (Band targetBand : bandList.targetBands) {
                 final String targetBandName = targetBand.getName();
-                if (targetBandName.contains("vanZyl_dbl_r")) {
+                if (targetBandName.contains("VanZyl_dbl_r")) {
                     targetInfo[j] = new TargetInfo(targetTiles.get(targetBand), TargetBandColour.R);
-                } else if (targetBandName.contains("vanZyl_vol_g")) {
+                } else if (targetBandName.contains("VanZyl_vol_g")) {
                     targetInfo[j] = new TargetInfo(targetTiles.get(targetBand), TargetBandColour.G);
-                } else if (targetBandName.contains("vanZyl_surf_b")) {
+                } else if (targetBandName.contains("VanZyl_surf_b")) {
                     targetInfo[j] = new TargetInfo(targetTiles.get(targetBand), TargetBandColour.B);
                 }
                 ++j;

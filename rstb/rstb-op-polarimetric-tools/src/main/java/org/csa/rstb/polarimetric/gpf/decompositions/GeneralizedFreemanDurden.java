@@ -51,7 +51,7 @@ public class GeneralizedFreemanDurden extends DecompositionBase implements Decom
      * Return the list of band names for the target product
      */
     public String[] getTargetBandNames() {
-        return new String[]{"Gen_Freeman_dbl_r", "Gen_Freeman_vol_g", "Gen_Freeman_surf_b"};
+        return new String[]{"Freeman_dbl_r", "Freeman_vol_g", "Freeman_surf_b"};
     }
 
     /**
@@ -89,11 +89,11 @@ public class GeneralizedFreemanDurden extends DecompositionBase implements Decom
             int j = 0;
             for (Band targetBand : bandList.targetBands) {
                 final String targetBandName = targetBand.getName();
-                if (targetBandName.contains("Gen_Freeman_dbl_r")) {
+                if (targetBandName.contains("Freeman_dbl_r")) {
                     targetInfo[j] = new TargetInfo(targetTiles.get(targetBand), TargetBandColour.R);
-                } else if (targetBandName.contains("Gen_Freeman_vol_g")) {
+                } else if (targetBandName.contains("Freeman_vol_g")) {
                     targetInfo[j] = new TargetInfo(targetTiles.get(targetBand), TargetBandColour.G);
-                } else if (targetBandName.contains("Gen_Freeman_surf_b")) {
+                } else if (targetBandName.contains("Freeman_surf_b")) {
                     targetInfo[j] = new TargetInfo(targetTiles.get(targetBand), TargetBandColour.B);
                 }
                 ++j;
