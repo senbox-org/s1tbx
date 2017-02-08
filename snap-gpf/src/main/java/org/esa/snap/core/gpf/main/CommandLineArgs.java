@@ -58,7 +58,7 @@ public class CommandLineArgs {
     private String metadataFilePath;
     private String velocityTemplateDirPath;
     private boolean helpRequested;
-    private boolean versionRequested;
+    private boolean diagnosticRequested;
     private boolean stackTraceDump;
     private boolean clearCacheAfterRowWrite;
 
@@ -111,8 +111,8 @@ public class CommandLineArgs {
                     systemPropertiesMap.put(pair[0], pair[1]);
                 } else if (arg.equals("-h")) {
                     helpRequested = true;
-                } else if (arg.equals("-version")) {
-                    versionRequested = true;
+                } else if (arg.equals("-diag")) {
+                    diagnosticRequested = true;
                 } else if (arg.equals("-x")) {
                     clearCacheAfterRowWrite = true;
                 } else if (arg.equals("-e")) {
@@ -162,7 +162,7 @@ public class CommandLineArgs {
             }
         }
 
-        if (operatorName == null && graphFilePath == null && !helpRequested && !versionRequested) {
+        if (operatorName == null && graphFilePath == null && !helpRequested && !diagnosticRequested) {
             throw error("Either operator name or graph XML file must be given");
         }
         if (metadataFilePath != null && metadataFilePath.isEmpty()) {
@@ -250,8 +250,8 @@ public class CommandLineArgs {
         return helpRequested;
     }
 
-    public boolean isVersionRequested() {
-        return versionRequested;
+    public boolean isDiagnosticRequested() {
+        return diagnosticRequested;
     }
 
     public boolean isStackTraceDump() {
