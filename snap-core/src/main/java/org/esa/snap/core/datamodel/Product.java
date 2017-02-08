@@ -1804,6 +1804,9 @@ public class Product extends ProductNode {
      */
     public boolean isCompatibleBandArithmeticExpression(final String expression, Parser parser) {
         Guardian.assertNotNull("expression", expression);
+        if(containsBand(expression)) {
+            return true;
+        }
         if (parser == null) {
             parser = createBandArithmeticParser();
         }
