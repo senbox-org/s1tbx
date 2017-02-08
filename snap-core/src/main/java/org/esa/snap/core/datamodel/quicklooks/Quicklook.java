@@ -194,7 +194,7 @@ public class Quicklook extends ProductNode implements Thumbnail {
                     } else {
                         if(product != null) {
                             if(quicklookBands == null) {
-                                quicklookBands = QuicklookGenerator.findQuicklookBands(product);
+                                quicklookBands = qlGen.findQuicklookBands(product);
                             }
                             image = qlGen.createQuickLookImage(product, quicklookBands, pm);
                         } else {
@@ -202,11 +202,11 @@ public class Quicklook extends ProductNode implements Thumbnail {
                         }
                     }
                     saveQuicklook(image);
-                } catch (IOException e) {
+                    notifyImageUpdated();
+                } catch (Throwable e) {
                     SystemUtils.LOG.severe("Quicklook: Unable to generate quicklook: " + e.getMessage());
                 }
             }
-            notifyImageUpdated();
         }
         return image;
     }
