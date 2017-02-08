@@ -22,7 +22,7 @@ import org.openide.modules.OnStart;
 /**
  * Handle OnStart for module
  */
-public class polarimetricModule {
+public class PolarimetricModule {
 
     @OnStart
     public static class StartOp implements Runnable {
