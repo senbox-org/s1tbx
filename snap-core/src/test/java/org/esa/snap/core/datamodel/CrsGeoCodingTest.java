@@ -30,7 +30,12 @@ import org.opengis.referencing.operation.TransformException;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 public class CrsGeoCodingTest {
 
@@ -164,23 +169,22 @@ public class CrsGeoCodingTest {
     }
 
     @Test
-    public void testCustomSpheroidDatum() throws TransformException, FactoryException {
+    public void testCustomSpheroidDatum() throws TransformException, FactoryException, InterruptedException {
         String wkt = "PROJCS[\"MODIS_Sinusoidal\", \n" +
-                     "  GEOGCS[\"Unknown datum based upon the custom spheroid\", \n" +
-                     "    DATUM[\"Not specified (based on custom spheroid)\", \n" +
-                     "      SPHEROID[\"Custom spheroid\", 6371007.181, 0.0]], \n" +
-                     "    PRIMEM[\"Greenwich\", 0.0], \n" +
-                     "    UNIT[\"degree\", 0.017453292519943295], \n" +
-                     "    AXIS[\"Longitude\", EAST], \n" +
-                     "    AXIS[\"Latitude\", NORTH]], \n" +
-                     "  PROJECTION[\"Sinusoidal\"], \n" +
-                     "  PARAMETER[\"central_meridian\", 0.0], \n" +
-                     "  PARAMETER[\"scale_factor\", 1.0], \n" +
-                     "  PARAMETER[\"false_easting\", 0.0], \n" +
-                     "  PARAMETER[\"false_northing\", 0.0], \n" +
-                     "  UNIT[\"m\", 1.0], \n" +
-                     "  AXIS[\"x\", EAST], \n" +
-                     "  AXIS[\"y\", NORTH]]";
+                "  GEOGCS[\"Unknown datum based upon the custom spheroid\", \n" +
+                "    DATUM[\"Not specified (based on custom spheroid)\", \n" +
+                "      SPHEROID[\"Custom spheroid\", 6371007.181, 0.0]], \n" +
+                "    PRIMEM[\"Greenwich\", 0.0], \n" +
+                "    UNIT[\"degree\", 0.017453292519943295], \n" +
+                "    AXIS[\"Longitude\", EAST], \n" +
+                "    AXIS[\"Latitude\", NORTH]], \n" +
+                "  PROJECTION[\"Sinusoidal\"], \n" +
+                "  PARAMETER[\"central_meridian\", 0.0], \n" +
+                "  PARAMETER[\"false_easting\", 0.0], \n" +
+                "  PARAMETER[\"false_northing\", 0.0], \n" +
+                "  UNIT[\"m\", 1.0], \n" +
+                "  AXIS[\"x\", EAST], \n" +
+                "  AXIS[\"y\", NORTH]]";
         CoordinateReferenceSystem crs = CRS.parseWKT(wkt);
         CrsGeoCoding geoCoding = new CrsGeoCoding(crs, new Rectangle(10, 10, 10, 10), new AffineTransform());
         DefaultGeographicCRS defaultCrs = (DefaultGeographicCRS) geoCoding.getGeoCRS();
@@ -196,15 +200,15 @@ public class CrsGeoCodingTest {
     @Test
     public void testWgs84() throws TransformException, FactoryException {
         String testedWkt = "GEOGCS[\"WGS 84\",\n" +
-                           "    DATUM[\"WGS_1984\",\n" +
-                           "        SPHEROID[\"WGS 84\",6378137,298.257223563,\n" +
-                           "            AUTHORITY[\"EPSG\",\"7030\"]],\n" +
-                           "        AUTHORITY[\"EPSG\",\"6326\"]],\n" +
-                           "    PRIMEM[\"Greenwich\",0,\n" +
-                           "        AUTHORITY[\"EPSG\",\"8901\"]],\n" +
-                           "    UNIT[\"degree\",0.01745329251994328,\n" +
-                           "        AUTHORITY[\"EPSG\",\"9122\"]],\n" +
-                           "    AUTHORITY[\"EPSG\",\"4326\"]]";
+                "    DATUM[\"WGS_1984\",\n" +
+                "        SPHEROID[\"WGS 84\",6378137,298.257223563,\n" +
+                "            AUTHORITY[\"EPSG\",\"7030\"]],\n" +
+                "        AUTHORITY[\"EPSG\",\"6326\"]],\n" +
+                "    PRIMEM[\"Greenwich\",0,\n" +
+                "        AUTHORITY[\"EPSG\",\"8901\"]],\n" +
+                "    UNIT[\"degree\",0.01745329251994328,\n" +
+                "        AUTHORITY[\"EPSG\",\"9122\"]],\n" +
+                "    AUTHORITY[\"EPSG\",\"4326\"]]";
 
         CoordinateReferenceSystem testedCrs = CRS.parseWKT(testedWkt);
         GeoCoding geoCoding = new CrsGeoCoding(testedCrs, new Rectangle(10, 10, 10, 10), new AffineTransform());
