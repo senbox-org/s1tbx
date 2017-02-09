@@ -110,6 +110,7 @@ public class Sentinel1ProductReader extends SARReader {
             if (dataDir instanceof Sentinel1Level2Directory) {
                 ((Sentinel1Level2Directory) dataDir).addGeoCodingToBands(product);
             }
+            addCommonSARMetadata(product);
 
             setQuicklookBandName(product);
             addQuicklook(product, Quicklook.DEFAULT_QUICKLOOK_NAME, getQuicklookFile());

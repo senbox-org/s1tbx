@@ -1011,8 +1011,7 @@ public class WindFieldEstimationOp extends Operator {
             geoCoding.getGeoPos(new PixelPos(rec.x, rec.y), geoPos1);
             geoCoding.getGeoPos(new PixelPos(rec.x + rec.dx, rec.y + rec.dy), geoPos2);
 
-            GeoUtils.DistanceHeading heading = GeoUtils.vincenty_inverse(geoPos1.lat, geoPos1.lon,
-                    geoPos2.lat, geoPos2.lon);
+            GeoUtils.DistanceHeading heading = GeoUtils.vincenty_inverse(geoPos1, geoPos2);
 
             feature.setAttribute(ATTRIB_SPEED, rec.speed);
             feature.setAttribute(ATTRIB_HEADING, heading.heading1);

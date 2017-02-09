@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 OpenIDE-Module-Specification-Version: ${s1tbx.nbmSpecVersion}
 AutoUpdate-Show-In-Client: false
-AutoUpdate-Essential-Module: true
+AutoUpdate-Essential-Module: false
 OpenIDE-Module-Java-Dependencies: Java > 1.8
 OpenIDE-Module-Display-Category: Sentinel-1 Toolbox
 OpenIDE-Module-Long-Description: <p>S1TBX Analysis UI</p><p><b>Vendor:</b> Array Systems Computing Inc</p><p>
