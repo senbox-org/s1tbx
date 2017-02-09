@@ -105,8 +105,7 @@ public class RangeDopplerGeocodingOp extends Operator {
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands",
             rasterDataNodeType = Band.class, label = "Source Bands")
-    private
-    String[] sourceBandNames = null;
+    private String[] sourceBandNames = null;
 
     @Parameter(description = "The digital elevation model.",
             defaultValue = "SRTM 3Sec", label = "Digital Elevation Model")
@@ -121,10 +120,29 @@ public class RangeDopplerGeocodingOp extends Operator {
     @Parameter(label = "External DEM Apply EGM", defaultValue = "true")
     private Boolean externalDEMApplyEGM = true;
 
-    @Parameter(defaultValue = ResamplingFactory.BILINEAR_INTERPOLATION_NAME, label = "DEM Resampling Method")
+    @Parameter(defaultValue = ResamplingFactory.BILINEAR_INTERPOLATION_NAME, label = "DEM Resampling Method",
+            valueSet = {
+                    ResamplingFactory.NEAREST_NEIGHBOUR_NAME,
+                    ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
+                    ResamplingFactory.CUBIC_CONVOLUTION_NAME,
+                    ResamplingFactory.BISINC_5_POINT_INTERPOLATION_NAME,
+                    ResamplingFactory.BISINC_11_POINT_INTERPOLATION_NAME,
+                    ResamplingFactory.BISINC_21_POINT_INTERPOLATION_NAME,
+                    ResamplingFactory.BICUBIC_INTERPOLATION_NAME,
+                    DEMFactory.DELAUNAY_INTERPOLATION
+            })
     private String demResamplingMethod = ResamplingFactory.BILINEAR_INTERPOLATION_NAME;
 
-    @Parameter(defaultValue = ResamplingFactory.BILINEAR_INTERPOLATION_NAME, label = "Image Resampling Method")
+    @Parameter(defaultValue = ResamplingFactory.BILINEAR_INTERPOLATION_NAME, label = "Image Resampling Method",
+            valueSet = {
+                    ResamplingFactory.NEAREST_NEIGHBOUR_NAME,
+                    ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
+                    ResamplingFactory.CUBIC_CONVOLUTION_NAME,
+                    ResamplingFactory.BISINC_5_POINT_INTERPOLATION_NAME,
+                    ResamplingFactory.BISINC_11_POINT_INTERPOLATION_NAME,
+                    ResamplingFactory.BISINC_21_POINT_INTERPOLATION_NAME,
+                    ResamplingFactory.BICUBIC_INTERPOLATION_NAME
+            })
     private String imgResamplingMethod = ResamplingFactory.BILINEAR_INTERPOLATION_NAME;
 
     @Parameter(description = "The pixel spacing in meters", defaultValue = "0", label = "Pixel Spacing (m)")
