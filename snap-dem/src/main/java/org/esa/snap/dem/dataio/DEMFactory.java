@@ -39,7 +39,7 @@ public class DEMFactory {
 
     public static final String LAST_EXTERNAL_DEM_DIR_KEY = "snap.externalDEMDir";
     public static final String AUTODEM = " (Auto Download)";
-    static final String DELAUNAY_INTERPOLATION = "DELAUNAY_INTERPOLATION";
+    public static final String DELAUNAY_INTERPOLATION = "DELAUNAY_INTERPOLATION";
 
     private static final ElevationModelDescriptor[] descriptors = ElevationModelRegistry.getInstance().getAllDescriptors();
     private static final String[] demNameList;
