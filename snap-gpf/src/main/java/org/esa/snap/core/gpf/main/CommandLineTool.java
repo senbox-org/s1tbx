@@ -58,15 +58,17 @@ import org.xmlpull.mxp1.MXParser;
 import javax.media.jai.JAI;
 import java.awt.Rectangle;
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.StringReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -139,31 +141,12 @@ class CommandLineTool implements GraphProcessingObserver {
         }
     }
 
-    private String getReleaseVersion() {
-        String version = null;
-        Path versionFile = SystemUtils.getApplicationHomeDir().toPath().resolve("VERSION.txt");
-        if (Files.exists(versionFile)) {
-            try {
-                List<String> versionInfo = Files.readAllLines(versionFile);
-                if (!versionInfo.isEmpty()) {
-                    version = versionInfo.get(0);
-                }
-            } catch (IOException e) {
-                SystemUtils.LOG.log(Level.WARNING, e.getMessage(), e);
-            }
-        }
-        if (version != null) {
-            return version;
-        }
-        return "[no version info, missing ${SNAP_HOME}/VERSION.txt]";
-    }
-
     private void printDiagnostics() {
         initializeSystemProperties();
         initializeJAI();
         final Runtime runtime = Runtime.getRuntime();
 
-        commandLineContext.print("SNAP Release version " + getReleaseVersion() + '\n');
+        commandLineContext.print("SNAP Release version " + SystemUtils.getReleaseVersion() + '\n');
 
         commandLineContext.print("SNAP home: " + System.getProperty("snap.home") + '\n');
         commandLineContext.print("SNAP debug: " + System.getProperty("snap.debug") + '\n');
@@ -180,7 +163,7 @@ class CommandLineTool implements GraphProcessingObserver {
         commandLineContext.print("Tile size: " + (int)JAI.getDefaultTileSize().getWidth() + " x " +
                 (int)JAI.getDefaultTileSize().getHeight() + " pixels" + '\n');
 
-        commandLineContext.print("\nTo configure your gpt memory usuage:\n");
+        commandLineContext.print("\nTo configure your gpt memory usage:\n");
         commandLineContext.print("Edit snap/bin/gpt.vmoptions\n");
         commandLineContext.print("\nTo configure your gpt cache size and parallelism:\n");
         commandLineContext.print("Edit .snap/etc/snap.properties or gpt -c ${cachesize-in-GB}G -q ${parallelism} \n");
@@ -475,8 +458,7 @@ class CommandLineTool implements GraphProcessingObserver {
     }
 
 
-    private Product addProduct(String sourceFilepath,
-                               Map<File, Product> fileToProductMap) throws IOException {
+    private Product addProduct(String sourceFilepath, Map<File, Product> fileToProductMap) throws IOException {
         File sourceFile = new File(sourceFilepath).getCanonicalFile();
         Product product = fileToProductMap.get(sourceFile);
         if (product == null) {
@@ -501,11 +483,11 @@ class CommandLineTool implements GraphProcessingObserver {
             velocityContext.put("parameters", commandLineArgs.getParameterMap());
 
             Resource parameterFile = metadataResourceEngine.readResource("parameterFile", parameterFilePath);
-            Map<String, String> configFilemap = parameterFile.getMap();
+            Map<String, String> configFileMap = parameterFile.getMap();
             if (!parameterFile.isXml()) {
-                configFilemap.putAll(commandLineArgs.getParameterMap());
+                configFileMap.putAll(commandLineArgs.getParameterMap());
             }
-            parameterMap = configFilemap;
+            parameterMap = configFileMap;
         } else {
             parameterMap = new HashMap<>();
         }
@@ -532,12 +514,7 @@ class CommandLineTool implements GraphProcessingObserver {
     private String addNodeId(String sourceId, String sourceFilePath,
                              Map<File, String> fileToNodeId) throws IOException {
         File sourceFile = new File(sourceFilePath).getCanonicalFile();
-        String nodeId = fileToNodeId.get(sourceFile);
-        if (nodeId == null) {
-            nodeId = READ_OP_ID_PREFIX + sourceId;
-            fileToNodeId.put(sourceFile, nodeId);
-        }
-        return nodeId;
+        return fileToNodeId.computeIfAbsent(sourceFile, k -> READ_OP_ID_PREFIX + sourceId);
     }
 
     Product readProduct(String filePath) throws IOException {
@@ -569,12 +546,7 @@ class CommandLineTool implements GraphProcessingObserver {
             velocityDirPathGiven = false;
         }
 
-        String[] templateNames = velocityDir.list(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith(CommandLineArgs.VELOCITY_TEMPLATE_EXTENSION);
-            }
-        });
+        String[] templateNames = velocityDir.list((dir, name) -> name.toLowerCase().endsWith(CommandLineArgs.VELOCITY_TEMPLATE_EXTENSION));
 
         Logger logger = commandLineContext.getLogger();
 
