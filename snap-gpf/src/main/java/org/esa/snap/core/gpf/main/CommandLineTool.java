@@ -61,15 +61,12 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -115,6 +112,10 @@ class CommandLineTool implements GraphProcessingObserver {
                 printHelp();
                 return;
             }
+            if (commandLineArgs.isDiagnosticRequested()) {
+                printDiagnostics();
+                return;
+            }
             run();
         } catch (Error | RuntimeException e) {
             e.printStackTrace(System.err);
@@ -136,6 +137,64 @@ class CommandLineTool implements GraphProcessingObserver {
         } else {
             commandLineContext.print(CommandLineUsage.getUsageText());
         }
+    }
+
+    private String getReleaseVersion() {
+        String version = null;
+        Path versionFile = SystemUtils.getApplicationHomeDir().toPath().resolve("VERSION.txt");
+        if (Files.exists(versionFile)) {
+            try {
+                List<String> versionInfo = Files.readAllLines(versionFile);
+                if (!versionInfo.isEmpty()) {
+                    version = versionInfo.get(0);
+                }
+            } catch (IOException e) {
+                SystemUtils.LOG.log(Level.WARNING, e.getMessage(), e);
+            }
+        }
+        if (version != null) {
+            return version;
+        }
+        return "[no version info, missing ${SNAP_HOME}/VERSION.txt]";
+    }
+
+    private void printDiagnostics() {
+        initializeSystemProperties();
+        initializeJAI();
+        final Runtime runtime = Runtime.getRuntime();
+
+        commandLineContext.print("SNAP Release version " + getReleaseVersion() + '\n');
+
+        commandLineContext.print("SNAP home: " + System.getProperty("snap.home") + '\n');
+        commandLineContext.print("SNAP debug: " + System.getProperty("snap.debug") + '\n');
+        commandLineContext.print("SNAP log level: " + System.getProperty("snap.log.level") + '\n');
+
+        commandLineContext.print("Java home: " + System.getProperty("java.home") + '\n');
+        commandLineContext.print("Java version: " + System.getProperty("java.version") + '\n');
+
+        commandLineContext.print("Processors: " + runtime.availableProcessors() + '\n');
+        commandLineContext.print("Max memory: " + fromBytes(runtime.maxMemory()) + '\n');
+
+        commandLineContext.print("Cache size: " + fromBytes(JAI.getDefaultInstance().getTileCache().getMemoryCapacity()) + '\n');
+        commandLineContext.print("Tile parallelism: " + JAI.getDefaultInstance().getTileScheduler().getParallelism() + '\n');
+        commandLineContext.print("Tile size: " + (int)JAI.getDefaultTileSize().getWidth() + " x " +
+                (int)JAI.getDefaultTileSize().getHeight() + " pixels" + '\n');
+
+        commandLineContext.print("\nTo configure your gpt memory usuage:\n");
+        commandLineContext.print("Edit snap/bin/gpt.vmoptions\n");
+        commandLineContext.print("\nTo configure your gpt cache size and parallelism:\n");
+        commandLineContext.print("Edit .snap/etc/snap.properties or gpt -c ${cachesize-in-GB}G -q ${parallelism} \n");
+    }
+
+    private String fromBytes(long bytes) {
+        if(bytes > CommandLineArgs.G) {
+            return Math.round(bytes / CommandLineArgs.G) + " GB";
+        } else if(bytes > CommandLineArgs.M) {
+            return Math.round(bytes / CommandLineArgs.M) + " MB";
+        } else if(bytes > CommandLineArgs.K) {
+            return Math.round(bytes / CommandLineArgs.K) + " KB";
+        }
+        return bytes + " B";
     }
 
     private void run() throws Exception {
