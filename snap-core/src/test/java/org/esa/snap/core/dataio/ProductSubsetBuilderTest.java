@@ -172,6 +172,9 @@ public class ProductSubsetBuilderTest {
         product.getGcpGroup().add(gcp2);
         product.getGcpGroup().add(gcp3);
 
+        assertEquals(3, product.getPinGroup().getNodeCount());
+        assertEquals(3, product.getGcpGroup().getNodeCount());
+
         final ProductSubsetDef subsetDef = new ProductSubsetDef();
         subsetDef.setRegion(2, 2, 5, 5);
         final Product product2 = ProductSubsetBuilder.createProductSubset(product, subsetDef, "subset", "");

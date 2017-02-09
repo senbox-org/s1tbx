@@ -17,32 +17,38 @@
 package org.esa.snap.core.dataop.projection;
 
 import org.geotools.parameter.ParameterGroup;
+import org.geotools.referencing.operation.projection.Mollweide;
+import org.junit.Ignore;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.MathTransform;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * This is not testing our implementation of Mollweide projection but the one of geotools.
+ * Our implementation is not use anymore.
  * Test data is taken from General Cartographic Transformation Package (GCTP).
  * It can be retrieved from: ftp://edcftp.cr.usgs.gov/pub/software/gctpc/
  */
-public final class MollweideTest extends AbstractProjectionTest<Mollweide.Provider> {
+@Ignore
+public final class MollweideTest extends AbstractProjectionTest<Mollweide.MollweideProvider> {
 
 
     @Override
-    protected Mollweide.Provider createProvider() {
-        return new Mollweide.Provider();
+    protected Mollweide.MollweideProvider createProvider() {
+        return new Mollweide.MollweideProvider();
     }
 
     @Override
-    public MathTransform createMathTransform(Mollweide.Provider provider) {
+    public MathTransform createMathTransform(Mollweide.MollweideProvider provider) throws FactoryException {
         final ParameterGroup params = new ParameterGroup(provider.getParameters());
         params.parameter("semi_major").setValue(6378206.400);
         params.parameter("semi_minor").setValue(6378206.400);
         params.parameter("central_meridian").setValue(-100.000);
         params.parameter("false_easting").setValue(0.0);
         params.parameter("false_northing").setValue(0.0);
-        return provider.createMathTransform(params);
+        return createParameterizedTransform(params);
     }
 
     @Override

@@ -17,12 +17,17 @@
 package org.esa.snap.core.dataop.projection;
 
 import org.geotools.parameter.ParameterGroup;
+import org.geotools.referencing.operation.projection.Sinusoidal;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.MathTransform;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * This is not testing our implementation of Sinusoidal projection but the one of geotools.
+ * Our implementation is not use anymore.
+ *
  * Test data is taken from General Cartographic Transformation Package (GCTP).
  * It can be retrieved from: ftp://edcftp.cr.usgs.gov/pub/software/gctpc/
  */
@@ -35,14 +40,14 @@ public final class SinusoidalTest extends AbstractProjectionTest<Sinusoidal.Prov
     }
 
     @Override
-    public MathTransform createMathTransform(Sinusoidal.Provider provider) {
+    public MathTransform createMathTransform(Sinusoidal.Provider provider) throws FactoryException {
         final ParameterGroup params = new ParameterGroup(provider.getParameters());
         params.parameter("semi_major").setValue(6370997.0);
         params.parameter("semi_minor").setValue(6370997.0);
         params.parameter("central_meridian").setValue(30.0);
         params.parameter("false_easting").setValue(0.0);
         params.parameter("false_northing").setValue(0.0);
-        return provider.createMathTransform(params);
+        return createParameterizedTransform(params);
     }
 
     @Override

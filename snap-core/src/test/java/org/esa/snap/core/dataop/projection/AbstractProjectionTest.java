@@ -16,16 +16,25 @@
 
 package org.esa.snap.core.dataop.projection;
 
+import org.geotools.factory.FactoryRegistry;
 import org.geotools.geometry.DirectPosition2D;
+import org.geotools.parameter.ParameterGroup;
+import org.geotools.referencing.operation.DefaultMathTransformFactory;
+import org.geotools.referencing.operation.MathTransformProvider;
 import org.geotools.referencing.operation.projection.MapProjection;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.opengis.geometry.DirectPosition;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test data can be found at General Cartographic Transformation Package (GCTP).
@@ -51,7 +60,22 @@ public abstract class AbstractProjectionTest<T extends MapProjection.AbstractPro
     }
 
     @Test
-    public final void testMathTransform() throws TransformException {
+    public final void testOnlyOneProviderRegistered() throws TransformException {
+        FactoryRegistry factoryRegistry = new FactoryRegistry(Collections.singletonList(MathTransformProvider.class));
+        Iterator<MathTransformProvider> serviceProviders = factoryRegistry.getServiceProviders(MathTransformProvider.class, null, null);
+        int count = 0;
+        while (serviceProviders.hasNext()) {
+            MathTransformProvider registeredProvider = serviceProviders.next();
+            if (registeredProvider.nameMatches(this.provider.getName().getCode())) {
+                count++;
+            }
+        }
+        assertEquals("Expecting only one MathTransformProvider for " + this.provider.getName(), 1, count);
+    }
+
+
+    @Test
+    public final void testMathTransform() throws TransformException, FactoryException {
 
         MathTransform transform = createMathTransform(provider);
         for (int i = 0; i < testData.size(); i++) {
@@ -66,9 +90,13 @@ public abstract class AbstractProjectionTest<T extends MapProjection.AbstractPro
 
     protected abstract  T createProvider();
 
-    protected abstract MathTransform createMathTransform(T provider);
+    protected abstract MathTransform createMathTransform(T provider) throws FactoryException;
 
     protected abstract List<ProjTestData> createTestData();
+
+    static MathTransform createParameterizedTransform(ParameterGroup params) throws FactoryException {
+        return new DefaultMathTransformFactory().createParameterizedTransform(params);
+    }
 
     /*
     * Check if two coordinate points are equals, in the limits of the specified
@@ -84,11 +112,11 @@ public abstract class AbstractProjectionTest<T extends MapProjection.AbstractPro
                                              final DirectPosition actual,
                                              final double tolerance, int datasetIndex) {
         final int dimension = actual.getDimension();
-        org.junit.Assert.assertEquals("The coordinate point doesn't have the expected dimension",
+        assertEquals("The coordinate point doesn't have the expected dimension",
                                       expected.getDimension(), dimension);
         for (int i = 0; i < dimension; i++) {
             final String message = String.format("Mismatch for ordinate %d (zero-based) of dataset %d:", i, datasetIndex);
-            org.junit.Assert.assertEquals(message,
+            assertEquals(message,
                                           expected.getOrdinate(i), actual.getOrdinate(i),
                                           tolerance);
         }

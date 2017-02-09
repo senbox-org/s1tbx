@@ -20,16 +20,13 @@ import com.bc.ceres.core.Assert;
 import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.util.Debug;
 import org.esa.snap.core.util.ObjectUtils;
-import org.geotools.data.FeatureEvent;
-import org.geotools.data.FeatureListener;
-import org.geotools.data.collection.CollectionFeatureSource;
+import org.esa.snap.core.util.ObservableFeatureCollection;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.geometry.BoundingBox;
 
 /**
  * A container which allows to store vector data in the BEAM product model.
@@ -56,19 +53,16 @@ public class VectorDataNode extends ProductNode {
             "#aa00ff",
             "#00ffaa",
     };
-    static int fillColorIndex;
+    private static int fillColorIndex;
 
 
     private final SimpleFeatureType featureType;
-    private final DefaultFeatureCollection featureCollection;
-    private final FeatureListener featureCollectionListener;
+    private final ObservableFeatureCollection featureCollection;
     private final PlacemarkDescriptor placemarkDescriptor;
     private PlacemarkGroup placemarkGroup;
     private String defaultStyleCss;
     private String styleCss;
-    private ReferencedEnvelope bounds;
     private boolean permanent;
-    private CollectionFeatureSource featureSource;
 
     /**
      * Constructs a new vector data node for the given feature type.
@@ -85,7 +79,7 @@ public class VectorDataNode extends ProductNode {
      * Constructs a new vector data node for the given feature collection.
      *
      * @param name              The node name.
-     * @param featureCollection A feature collection.
+     * @param featureCollection A feature collection. A copy of this collection will be used. This collection instance is not modified.
      * @throws IllegalArgumentException if the given name is not a valid node identifier
      */
     public VectorDataNode(String name, FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection) {
@@ -96,34 +90,26 @@ public class VectorDataNode extends ProductNode {
      * Constructs a new vector data node for the given feature collection and placemark descriptor.
      *
      * @param name                The node name.
-     * @param featureCollection   A feature collection.
+     * @param featureCollection   A feature collection. A copy of this collection will be used. This collection instance is not modified.
      * @param placemarkDescriptor The placemark descriptor
      * @throws IllegalArgumentException if the given name is not a valid node identifier
      */
     public VectorDataNode(String name, FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection, PlacemarkDescriptor placemarkDescriptor) {
         super(name, "");
         this.featureType = featureCollection.getSchema();
-        this.featureCollection = new DefaultFeatureCollection(featureCollection);
-        featureCollectionListener = featureEvent -> {
-            FeatureCollection<SimpleFeatureType, SimpleFeature> changedFeatureCollections = featureCollection.subCollection(featureEvent.getFilter());
-            SimpleFeature[] changedFeatures = changedFeatureCollections.toArray(new SimpleFeature[0]);
-            fireCollectionEvent(featureEvent, changedFeatures);
-        };
-        featureSource = new CollectionFeatureSource(this.featureCollection);
-        featureSource.addFeatureListener(featureCollectionListener);
+        this.featureCollection = new ObservableFeatureCollection(featureCollection);
+        this.featureCollection.addListener(this::fireCollectionEvent);
         this.defaultStyleCss = String.format(DEFAULT_STYLE_FORMAT, FILL_COLORS[(fillColorIndex++) % FILL_COLORS.length]);
         this.placemarkDescriptor = placemarkDescriptor;
         Debug.trace(String.format("VectorDataNode created: name=%s, featureType.typeName=%s, placemarkDescriptor.class=%s",
                                   name, featureType.getTypeName(), placemarkDescriptor.getClass()));
     }
 
-    private void fireCollectionEvent(FeatureEvent featureEvent, SimpleFeature[] changedFeatures) {
-        if (featureEvent.getType() == FeatureEvent.Type.ADDED) {
-            fireFeaturesAdded(changedFeatures);
-        } else if (featureEvent.getType() == FeatureEvent.Type.REMOVED) {
-            fireFeaturesRemoved(changedFeatures);
-        } else if (featureEvent.getType() == FeatureEvent.Type.CHANGED) {
-            fireFeaturesChanged(changedFeatures);
+    private void fireCollectionEvent(ObservableFeatureCollection.EVENT_TYPE type, SimpleFeature[] changedFeatures) {
+        if (type == ObservableFeatureCollection.EVENT_TYPE.ADDED) {
+            _fireFeaturesAdded(changedFeatures);
+        } else if (type == ObservableFeatureCollection.EVENT_TYPE.REMOVED) {
+            _fireFeaturesRemoved(changedFeatures);
         }
     }
 
@@ -166,54 +152,6 @@ public class VectorDataNode extends ProductNode {
     }
 
     /**
-     * Informs clients which have registered a {@link ProductNodeListener} with the {@link Product}
-     * containing this {@link VectorDataNode}, that one or more OpenGIS {@code SimpleFeature}s have
-     * been added to the underlying {@code FeatureCollection}.
-     * <p>
-     * The method fires a product node property change event, where the {@code propertyName}
-     * is {@link #PROPERTY_NAME_FEATURE_COLLECTION}, the {@code oldValue} is {@code null}, and
-     * the {@code newValue} is the array of features added.
-     *
-     * @param features The feature(s) added.
-     */
-    public void fireFeaturesAdded(SimpleFeature... features) {
-        bounds = null;
-        fireProductNodeChanged(PROPERTY_NAME_FEATURE_COLLECTION, null, features);
-    }
-
-    /**
-     * Informs clients which have registered a {@link ProductNodeListener} with the {@link Product}
-     * containing this {@link VectorDataNode}, that one or more OpenGIS {@code SimpleFeature}s have
-     * been removed from the underlying {@code FeatureCollection}.
-     * <p>
-     * The method fires a product node property change event, where the {@code propertyName}
-     * is {@link #PROPERTY_NAME_FEATURE_COLLECTION}, the {@code oldValue} is the array of features
-     * removed, and the {@code newValue} is {@code null}.
-     *
-     * @param features The feature(s) removed.
-     */
-    public void fireFeaturesRemoved(SimpleFeature... features) {
-        bounds = null;
-        fireProductNodeChanged(PROPERTY_NAME_FEATURE_COLLECTION, features, null);
-    }
-
-    /**
-     * Informs clients which have registered a {@link ProductNodeListener} with the {@link Product}
-     * containing this {@link VectorDataNode}, that one or more OpenGIS {@code SimpleFeature}s from
-     * from the underlying {@code FeatureCollection} have been changed.
-     * <p>
-     * The method fires a product node property change event, where the {@code propertyName}
-     * is {@link #PROPERTY_NAME_FEATURE_COLLECTION}, and both {@code oldValue} and {@code newValue}
-     * are the same array of features changed.
-     *
-     * @param features The feature(s) changed.
-     */
-    public void fireFeaturesChanged(SimpleFeature... features) {
-        bounds = null;
-        fireProductNodeChanged(PROPERTY_NAME_FEATURE_COLLECTION, features, features);
-    }
-
-    /**
      * @return The feature type (= feature source schema).
      */
     public SimpleFeatureType getFeatureType() {
@@ -234,19 +172,7 @@ public class VectorDataNode extends ProductNode {
      *         collection.
      */
     public ReferencedEnvelope getEnvelope() {
-        if (bounds == null) {
-            bounds = new ReferencedEnvelope(featureType.getCoordinateReferenceSystem());
-
-            try (FeatureIterator<SimpleFeature> iterator = featureCollection.features()) {
-                while (iterator.hasNext()) {
-                    BoundingBox geomBounds = iterator.next().getBounds();
-                    if (!geomBounds.isEmpty()) {
-                        bounds.include(geomBounds);
-                    }
-                }
-            }
-        }
-        return bounds;
+        return featureCollection.getBounds();
     }
 
 
@@ -291,17 +217,21 @@ public class VectorDataNode extends ProductNode {
     }
 
     /**
-     * Releases all of the resources used by this object instance and all of its owned children. Its primary use is to
-     * allow the garbage collector to perform a vanilla job.
-     * <p>This method should be called only if it is for sure that this object instance will never be used again. The
-     * results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
-     * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
+     * Internal API. Don't use.
+     * @return If true, prevents this node from being removed.
      */
-    @Override
-    public void dispose() {
-        featureSource.removeFeatureListener(featureCollectionListener);
-        super.dispose();
+    public boolean isPermanent() {
+        return permanent;
     }
+
+    /**
+     * Internal API. Don't use.
+     * @param permanent If true, prevents this node from being removed.
+     */
+    public void setPermanent(boolean permanent) {
+        this.permanent = permanent;
+    }
+
 
     private void updateFeatureCollectionByPlacemarkGroup() {
         try (FeatureIterator<SimpleFeature> iterator = featureCollection.features()) {
@@ -325,6 +255,18 @@ public class VectorDataNode extends ProductNode {
             return new GenericPlacemarkDescriptor(featureType);
         }
         return placemarkDescriptor;
+    }
+
+    private void _fireFeaturesAdded(SimpleFeature[] features) {
+        fireProductNodeChanged(PROPERTY_NAME_FEATURE_COLLECTION, null, features);
+    }
+
+    private void _fireFeaturesRemoved(SimpleFeature[] features) {
+        fireProductNodeChanged(PROPERTY_NAME_FEATURE_COLLECTION, features, null);
+    }
+
+    private void _fireFeaturesChanged(SimpleFeature[] features) {
+        fireProductNodeChanged(PROPERTY_NAME_FEATURE_COLLECTION, features, features);
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -359,19 +301,52 @@ public class VectorDataNode extends ProductNode {
     }
 
     /**
-     * Internal API. Don't use.
-     * @return If true, prevents this node from being removed.
+     * Informs clients which have registered a {@link ProductNodeListener} with the {@link Product}
+     * containing this {@link VectorDataNode}, that one or more OpenGIS {@code SimpleFeature}s have
+     * been added to the underlying {@code FeatureCollection}.
+     * <p>
+     * The method fires a product node property change event, where the {@code propertyName}
+     * is {@link #PROPERTY_NAME_FEATURE_COLLECTION}, the {@code oldValue} is {@code null}, and
+     * the {@code newValue} is the array of features added.
+     *
+     * @param features The feature(s) added.
+     * @deprecated since 6.0, method is public by accident, should only be used internally
      */
-    public boolean isPermanent() {
-        return permanent;
+    public void fireFeaturesAdded(SimpleFeature... features) {
+        _fireFeaturesAdded(features);
     }
 
     /**
-     * Internal API. Don't use.
-     * @param permanent If true, prevents this node from being removed.
+     * Informs clients which have registered a {@link ProductNodeListener} with the {@link Product}
+     * containing this {@link VectorDataNode}, that one or more OpenGIS {@code SimpleFeature}s have
+     * been removed from the underlying {@code FeatureCollection}.
+     * <p>
+     * The method fires a product node property change event, where the {@code propertyName}
+     * is {@link #PROPERTY_NAME_FEATURE_COLLECTION}, the {@code oldValue} is the array of features
+     * removed, and the {@code newValue} is {@code null}.
+     *
+     * @param features The feature(s) removed.
+     * @deprecated since 6.0, method is public by accident, should only be used internally
      */
-    public void setPermanent(boolean permanent) {
-        this.permanent = permanent;
+    public void fireFeaturesRemoved(SimpleFeature... features) {
+        _fireFeaturesRemoved(features);
     }
+
+    /**
+     * Informs clients which have registered a {@link ProductNodeListener} with the {@link Product}
+     * containing this {@link VectorDataNode}, that one or more OpenGIS {@code SimpleFeature}s from
+     * from the underlying {@code FeatureCollection} have been changed.
+     * <p>
+     * The method fires a product node property change event, where the {@code propertyName}
+     * is {@link #PROPERTY_NAME_FEATURE_COLLECTION}, and both {@code oldValue} and {@code newValue}
+     * are the same array of features changed.
+     *
+     * @param features The feature(s) changed.
+     * @deprecated since 6.0, method is public by accident, should only be used internally
+     */
+    public void fireFeaturesChanged(SimpleFeature... features) {
+        _fireFeaturesChanged(features);
+    }
+
 }
 

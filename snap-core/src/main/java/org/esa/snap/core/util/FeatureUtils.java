@@ -59,24 +59,22 @@ import java.util.Map;
  */
 public class FeatureUtils {
 
-    public static FeatureCollection<SimpleFeatureType, SimpleFeature> createFeatureCollection(URL url,
-                                                                                              CoordinateReferenceSystem targetCrs,
-                                                                                              Geometry clipGeometry) throws
-            IOException {
+    public static DefaultFeatureCollection createFeatureCollection(URL url,
+                                                                   CoordinateReferenceSystem targetCrs,
+                                                                   Geometry clipGeometry) throws IOException {
         FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = getFeatureSource(url);
         FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = featureSource.getFeatures();
-        featureCollection = clipCollection(featureCollection,
-                                           DefaultGeographicCRS.WGS84,
-                                           clipGeometry,
-                                           DefaultGeographicCRS.WGS84,
-                                           null,
-                                           targetCrs,
-                                           ProgressMonitor.NULL);
-        return featureCollection;
+        return clipCollection(featureCollection,
+                              DefaultGeographicCRS.WGS84,
+                              clipGeometry,
+                              DefaultGeographicCRS.WGS84,
+                              null,
+                              targetCrs,
+                              ProgressMonitor.NULL);
     }
 
     public static FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(URL url) throws IOException {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put(ShapefileDataStoreFactory.URLP.key, url);
         map.put(ShapefileDataStoreFactory.CREATE_SPATIAL_INDEX.key, Boolean.TRUE);
         DataStore shapefileStore = DataStoreFinder.getDataStore(map);
@@ -84,9 +82,9 @@ public class FeatureUtils {
         return shapefileStore.getFeatureSource(typeName);
     }
 
-    public static FeatureCollection<SimpleFeatureType, SimpleFeature> loadShapefileForProduct(File file,
-                                                                                              Product product,
-                                                                                              FeatureCrsProvider crsProvider, ProgressMonitor pm) throws IOException {
+    public static DefaultFeatureCollection loadShapefileForProduct(File file,
+                                                                   Product product,
+                                                                   FeatureCrsProvider crsProvider, ProgressMonitor pm) throws IOException {
         pm.beginTask("Loading Shapefile", 100);
         try {
             FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = loadFeatureCollectionFromShapefile(file);
@@ -97,7 +95,7 @@ public class FeatureUtils {
         }
     }
 
-    public static FeatureCollection<SimpleFeatureType, SimpleFeature> clipFeatureCollectionToProductBounds(FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection, Product product, FeatureCrsProvider crsProvider, ProgressMonitor pm) {
+    public static DefaultFeatureCollection clipFeatureCollectionToProductBounds(FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection, Product product, FeatureCrsProvider crsProvider, ProgressMonitor pm) {
         final CoordinateReferenceSystem targetCrs = product.getSceneCRS();
         final Geometry clipGeometry = createGeoBoundaryPolygon(product);
         pm.worked(10);
@@ -130,7 +128,7 @@ public class FeatureUtils {
         return "ID" + String.format("%08d", base);
     }
 
-    public static interface FeatureCrsProvider {
+    public interface FeatureCrsProvider {
         CoordinateReferenceSystem getFeatureCrs(Product product);
 
         boolean clipToProductBounds();
@@ -153,7 +151,7 @@ public class FeatureUtils {
      * @throws IllegalStateException if the {@code sourceCollection} has no associated CRS and {@code defaultSourceCrs}
      *                               is {@code null}
      */
-    public static FeatureCollection<SimpleFeatureType, SimpleFeature> clipCollection(
+    public static DefaultFeatureCollection clipCollection(
             FeatureCollection<SimpleFeatureType, SimpleFeature> sourceCollection,
             CoordinateReferenceSystem defaultSourceCrs,
             Geometry clipGeometry, CoordinateReferenceSystem clipCrs,
@@ -203,8 +201,7 @@ public class FeatureUtils {
 
             DefaultFeatureCollection targetCollection = new DefaultFeatureCollection(targetID, targetSchema);
 
-            final FeatureIterator<SimpleFeature> features = sourceCollection.features();
-            try {
+            try (FeatureIterator<SimpleFeature> features = sourceCollection.features()) {
                 while (features.hasNext()) {
                     SimpleFeature sourceFeature = features.next();
 
@@ -226,8 +223,6 @@ public class FeatureUtils {
                         }
                     }
                 }
-            } finally {
-                features.close();
             }
 
             return targetCollection;

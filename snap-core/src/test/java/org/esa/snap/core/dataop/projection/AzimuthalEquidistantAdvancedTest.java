@@ -17,6 +17,7 @@
 package org.esa.snap.core.dataop.projection;
 
 import org.geotools.parameter.ParameterGroup;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.MathTransform;
 
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public final class AzimuthalEquidistantAdvancedTest extends
 
     @Override
     public MathTransform createMathTransform(
-            AzimuthalEquidistant.Provider provider) {
+            AzimuthalEquidistant.Provider provider) throws FactoryException {
         final ParameterGroup params = new ParameterGroup(
                 provider.getParameters());
         params.parameter("semi_major").setValue(6370997.0);
@@ -45,7 +46,7 @@ public final class AzimuthalEquidistantAdvancedTest extends
         params.parameter("latitude_of_origin").setValue(48.3);
         params.parameter("false_easting").setValue(0.0);
         params.parameter("false_northing").setValue(0.0);
-        return provider.createMathTransform(params);
+        return createParameterizedTransform(params);
     }
 
     @Override
