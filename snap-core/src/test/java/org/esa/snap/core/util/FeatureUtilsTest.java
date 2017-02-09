@@ -94,6 +94,7 @@ public class FeatureUtilsTest extends TestCase {
 
         FeatureSource<SimpleFeatureType, SimpleFeature> marcoSource = dataStore.getFeatureSource("MarcoType");
         assertNotNull(marcoSource);
+        assertNotNull(marcoSource.getFeatures().getID());
         assertSame(dataStore, marcoSource.getDataStore());
         assertSame(marcoType, marcoSource.getSchema());
         assertEquals(3, marcoSource.getCount(Query.ALL));
