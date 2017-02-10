@@ -43,7 +43,7 @@ public class AESBEOS2012CropModelDescriptor extends AbstractLandCoverModelDescri
             new File(INSTALL_DIR, "STB-EOS_2012_CI_UTM17_30m_v2.zip"),
             new File(INSTALL_DIR, "STB-EOS_2012_CI_UTM18_30m_v2.zip"),
             new File(INSTALL_DIR, "STB-EOS_2012_CI_UTM19_30m_v2.zip"),
-            new File(INSTALL_DIR, "STB-EOS_2012_CI_UTM20_30m_v2.zip")
+            new File(INSTALL_DIR, "STB-EOS_2012_CI_UTM20_30m_v3.zip")
     };
 
     public AESBEOS2012CropModelDescriptor() {
