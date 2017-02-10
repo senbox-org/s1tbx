@@ -13,11 +13,14 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.snap.landcover.dataio;
+package org.esa.snap.landcover.dataio.MODIS_VCF;
 
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.dataop.resamp.Resampling;
+import org.esa.snap.landcover.dataio.FileLandCoverModel;
+import org.esa.snap.landcover.dataio.FileLandCoverTile;
+import org.esa.snap.landcover.dataio.LandCoverModelDescriptor;
 import uk.me.jstott.jcoord.LatLng;
 
 import java.io.File;
@@ -108,7 +111,7 @@ public class FileLandCoverUTMZoneLatBandModel extends FileLandCoverModel {
         }
     }
 
-    private char getLatBand(final double lat) {
+    private static char getLatBand(final double lat) {
 
         if (lat < -80d || lat > 84d) {
             return ' ';
