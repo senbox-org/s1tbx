@@ -109,6 +109,8 @@ public class ObjectDiscriminationOp extends Operator {
     public static final String ATTRIB_DETECTED_LENGTH = "Detected_length";
     public static final String ATTRIB_CORR_SHIP_LAT = "Corr_ship_lat";
     public static final String ATTRIB_CORR_SHIP_LON = "Corr_ship_lon";
+    public static final String ATTRIB_AIS_MMSI = "AIS_MMSI";
+    public static final String ATTRIB_AIS_SHIP_NAME= "AIS_shipname";
 
     private static final String PRODUCT_SUFFIX = "_SHP";
 
@@ -443,6 +445,8 @@ public class ObjectDiscriminationOp extends Operator {
         public final double length;
         public double corr_lat;
         public double corr_lon;
+        public int mmsi;
+        public String shipName;
 
         public ShipRecord(final int x, final int y,
                           final double lat, final double lon, final double width, final double length) {

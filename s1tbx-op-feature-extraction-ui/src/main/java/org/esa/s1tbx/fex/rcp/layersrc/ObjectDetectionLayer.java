@@ -21,6 +21,7 @@ import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 import org.esa.s1tbx.dat.graphics.GraphicShape;
+import org.esa.s1tbx.dat.graphics.GraphicText;
 import org.esa.s1tbx.dat.layers.ScreenPixelConverter;
 import org.esa.s1tbx.fex.gpf.oceantools.ObjectDiscriminationOp;
 import org.esa.snap.core.datamodel.Band;
@@ -130,9 +131,17 @@ public class ObjectDetectionLayer extends Layer {
                 shipRecord.corr_lon = corr_lon;
             }
 
+            Integer mmsi = (Integer)feature.getAttribute(ObjectDiscriminationOp.ATTRIB_AIS_MMSI);
+            if(mmsi != null) {
+                shipRecord.mmsi = mmsi;
+            }
+            String shipName = (String)feature.getAttribute(ObjectDiscriminationOp.ATTRIB_AIS_SHIP_NAME);
+            if(shipName != null) {
+                shipRecord.shipName = shipName;
+            }
+
             targetList.add(shipRecord);
         }
-
     }
 
     private void LoadTargetsFromFile(final File file) {
@@ -192,6 +201,14 @@ public class ObjectDetectionLayer extends Layer {
                                     if (corr_lon != null) {
                                         shipRecord.corr_lon = Double.parseDouble(corr_lon.getValue());
                                     }
+                                    final Attribute mmsi = targetElem.getAttribute(ObjectDiscriminationOp.ATTRIB_AIS_MMSI);
+                                    if (mmsi != null) {
+                                        shipRecord.mmsi = Integer.parseInt(mmsi.getValue());
+                                    }
+                                    final Attribute shipName = targetElem.getAttribute(ObjectDiscriminationOp.ATTRIB_AIS_SHIP_NAME);
+                                    if (shipName != null) {
+                                        shipRecord.shipName = shipName.getValue();
+                                    }
 
                                     targetList.add(shipRecord);
                                 }
@@ -223,6 +240,7 @@ public class ObjectDetectionLayer extends Layer {
 
         final Graphics2D graphics = rendering.getGraphics();
         graphics.setStroke(new BasicStroke(lineThickness));
+        GraphicText.setHighQuality(graphics);
 
         for (ObjectDiscriminationOp.ShipRecord target : targetList) {
             geo.setLocation(target.lat, target.lon);
@@ -236,6 +254,9 @@ public class ObjectDetectionLayer extends Layer {
             geoCoding.getPixelPos(geo, pix);
             if(pix.isValid()) {
                 GraphicShape.drawX(graphics, screenPixel, pix.getX(), pix.getY(), 8, Color.RED);
+                if(target.shipName != null && !target.shipName.isEmpty()) {
+                    GraphicText.outlineText(graphics, Color.RED, target.shipName, (int) p.x, (int) p.y);
+                }
             }
 
             //final double targetWidthInMeter = (target.width - border) * rangeSpacing;
