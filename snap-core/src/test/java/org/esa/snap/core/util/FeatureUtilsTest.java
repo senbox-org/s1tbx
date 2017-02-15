@@ -94,7 +94,7 @@ public class FeatureUtilsTest extends TestCase {
 
         FeatureSource<SimpleFeatureType, SimpleFeature> marcoSource = dataStore.getFeatureSource("MarcoType");
         assertNotNull(marcoSource);
-        assertNotNull(marcoSource.getFeatures().getID());
+        assertNull(marcoSource.getFeatures().getID());
         assertSame(dataStore, marcoSource.getDataStore());
         assertSame(marcoType, marcoSource.getSchema());
         assertEquals(3, marcoSource.getCount(Query.ALL));
@@ -108,12 +108,12 @@ public class FeatureUtilsTest extends TestCase {
                                                                                                        null,
                                                                                                        clipGeometry,
                                                                                                        DefaultGeographicCRS.WGS84,
-                                                                                                       null,
+                                                                                                       "normansClippedCollection",
                                                                                                        DefaultGeographicCRS.WGS84,
                                                                                                        ProgressMonitor.NULL);
 
         assertNotNull(normanSource);
-//        assertEquals(marcoSource.getFeatures().getID(), normanSource.getID());
+        assertEquals("normansClippedCollection", normanSource.getID());
         assertEquals(marcoType, normanSource.getSchema());
         assertEquals(2, normanSource.size());
         assertEquals(25, normanSource.getBounds().getMinX(), 1.0e-10);
