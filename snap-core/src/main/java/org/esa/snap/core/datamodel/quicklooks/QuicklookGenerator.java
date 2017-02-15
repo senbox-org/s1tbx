@@ -134,8 +134,13 @@ public class QuicklookGenerator {
             quicklookBands = bandList.toArray(new Band[bandList.size()]);
         }
 
-        final ImageInfo imageInfo = ProductUtils.createImageInfo(quicklookBands, true, SubProgressMonitor.create(pm, 20));
-        final BufferedImage image = ProductUtils.createRgbImage(quicklookBands, imageInfo, SubProgressMonitor.create(pm, 80));
+        final BufferedImage image;
+        if(quicklookBands.length < 3 && quicklookBands[0].getIndexCoding() != null) {
+            image = ProductUtils.createColorIndexedImage(quicklookBands[0], ProgressMonitor.NULL);
+        } else {
+            final ImageInfo imageInfo = ProductUtils.createImageInfo(quicklookBands, true, SubProgressMonitor.create(pm, 20));
+            image = ProductUtils.createRgbImage(quicklookBands, imageInfo, SubProgressMonitor.create(pm, 80));
+        }
 
         if (subsample) {
             productSubset.dispose();
