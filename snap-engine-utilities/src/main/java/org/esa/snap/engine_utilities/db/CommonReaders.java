@@ -80,31 +80,45 @@ public class CommonReaders {
     }
 
     /**
+     * Quickly return the product format without testing many readers
+     *
+     * @param file input file
+     * @return the product format or null
+     */
+    public static String findCommonProductFormat(final File file) {
+        final String filename = file.getName().toLowerCase();
+        if (filename.endsWith("dim")) {
+            return "BEAM-DIMAP";
+        } else if (filename.endsWith("n1") || filename.endsWith("e1") || filename.endsWith("e2")) {
+            return "ENVISAT";
+        } else if ((filename.startsWith("tsx") || filename.startsWith("tdx")) && filename.endsWith("xml")) {
+            return "TerraSarX";
+        } else if (filename.endsWith("tif")) {
+            return "GeoTIFF";
+        } else if (filename.endsWith("dbl")) {
+            return "SMOS-DBL";
+        } else if (filename.endsWith("zip")) {
+            if (filename.startsWith("asa")) {
+                return "ENVISAT";
+            } else if (filename.startsWith("s1")) {
+                return "SENTINEL-1";
+            } else if (filename.startsWith("rs2")) {
+                return "RADARSAT-2";
+            }
+        }
+        return null;
+    }
+
+    /**
      * Quickly return the product reader without testing many readers
      *
      * @param file input file
      * @return the product reader or null
      */
     public static ProductReader findCommonProductReader(final File file) {
-        final String filename = file.getName().toLowerCase();
-        if (filename.endsWith("n1") || filename.endsWith("e1") || filename.endsWith("e2")) {
-            return ProductIO.getProductReader("ENVISAT");
-        } else if (filename.endsWith("dim")) {
-            return ProductIO.getProductReader("BEAM-DIMAP");
-        } else if ((filename.startsWith("tsx") || filename.startsWith("tdx")) && filename.endsWith("xml")) {
-            return ProductIO.getProductReader("TerraSarX");
-        } else if (filename.endsWith("tif")) {
-            return ProductIO.getProductReader("GeoTIFF");
-        } else if (filename.endsWith("dbl")) {
-            return ProductIO.getProductReader("SMOS-DBL");
-        } else if (filename.endsWith("zip")) {
-            if (filename.startsWith("asa")) {
-                return ProductIO.getProductReader("ENVISAT");
-            } else if (filename.startsWith("s1")) {
-                return ProductIO.getProductReader("SENTINEL-1");
-            } else if (filename.startsWith("rs2")) {
-                return ProductIO.getProductReader("RADARSAT-2");
-            }
+        final String format = findCommonProductFormat(file);
+        if (format != null) {
+            return ProductIO.getProductReader(format);
         }
         return null;
     }
