@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-class FileLandCoverTile extends DownloadableContentImpl implements Resampling.Raster {
+public class FileLandCoverTile extends DownloadableContentImpl implements Resampling.Raster {
 
     private CachingObjectArray linesCache;
     private Product product = null;

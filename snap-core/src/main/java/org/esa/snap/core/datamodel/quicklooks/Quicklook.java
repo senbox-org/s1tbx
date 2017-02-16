@@ -51,8 +51,6 @@ public class Quicklook extends ProductNode implements Thumbnail {
     private final boolean productCanAppendFiles;
     private final boolean saveWithProduct;
 
-
-
     public Quicklook(final File productFile) {
         this(null, DEFAULT_QUICKLOOK_NAME);
         this.productFile = productFile;
@@ -69,7 +67,7 @@ public class Quicklook extends ProductNode implements Thumbnail {
     }
 
     /**
-     * Constructor when a browseFile is given. The quicklooks is generated from the browse file
+     * Constructor when a browseFile is given. The quicklook is generated from the browse file
      *
      * @param product    the source product
      * @param name       the name of the quicklook
@@ -80,7 +78,7 @@ public class Quicklook extends ProductNode implements Thumbnail {
     }
 
     /**
-     * Constructor when a browseFile is given. The quicklooks is generated from the browse file
+     * Constructor when a browseFile is given. The quicklook is generated from the browse file
      *
      * @param product    the source product
      * @param name       the name of the quicklook
@@ -91,7 +89,7 @@ public class Quicklook extends ProductNode implements Thumbnail {
     }
 
     /**
-     * Constructor when a browseFile is given. The quicklooks is generated from the browse file
+     * Constructor when a browseFile is given. The quicklook is generated from the browse file
      *
      * @param product                the source product
      * @param name                   the name of the quicklook
@@ -196,7 +194,7 @@ public class Quicklook extends ProductNode implements Thumbnail {
                     } else {
                         if(product != null) {
                             if(quicklookBands == null) {
-                                quicklookBands = QuicklookGenerator.findQuicklookBands(product);
+                                quicklookBands = qlGen.findQuicklookBands(product);
                             }
                             image = qlGen.createQuickLookImage(product, quicklookBands, pm);
                         } else {
@@ -204,11 +202,11 @@ public class Quicklook extends ProductNode implements Thumbnail {
                         }
                     }
                     saveQuicklook(image);
-                } catch (IOException e) {
+                    notifyImageUpdated();
+                } catch (Throwable e) {
                     SystemUtils.LOG.severe("Quicklook: Unable to generate quicklook: " + e.getMessage());
                 }
             }
-            notifyImageUpdated();
         }
         return image;
     }

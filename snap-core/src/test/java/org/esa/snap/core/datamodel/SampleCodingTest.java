@@ -23,9 +23,12 @@ public class SampleCodingTest extends TestCase {
         final FlagCoding fc = new FlagCoding("FC");
         fc.addFlag("F1", 0x040, "");
         fc.addFlag("F2", 0x800, "");
-        assertEquals(2, fc.getNumAttributes());
+        fc.addFlag("F3", 0x80000000, "last bit");
+        assertEquals(3, fc.getNumAttributes());
         assertEquals(0x040, fc.getFlagMask("F1"));
         assertEquals(0x800, fc.getFlagMask("F2"));
+        assertEquals(0x80000000, fc.getFlagMask("F3"));
+        assertEquals(0x80000000L, fc.getFlag("F3").getData().getElemUInt());
         testIntValuesAllowedOnly(fc);
         testScalarValuesAllowedOnly(fc);
     }

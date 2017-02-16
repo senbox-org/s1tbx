@@ -117,7 +117,8 @@ public class ObservationIteratorTest {
         PlanarImage maskImage = PlanarImage.wrapRenderedImage(bufferedImage);
 
         BinningContext binningContext = createBinningContext();
-        ObservationIterator iterator = ObservationIterator.create(sourceImages, maskImage, product, new float[]{0.5f}, sourceImages[0].getBounds(),
+        ObservationIterator iterator = ObservationIterator.create(sourceImages, maskImage, product, new float[]{0.5f},
+                                                                  sourceImages[0].getBounds(),
                                                                   binningContext);
 
         assertTrue(iterator.hasNext());
@@ -150,7 +151,8 @@ public class ObservationIteratorTest {
         product.setSceneGeoCoding(gc);
 
         BinningContext binningContext = createBinningContext();
-        ObservationIterator iterator = ObservationIterator.create(sourceImages, null, product, new float[]{0.25f, 0.75f}, sourceImages[0].getBounds(),
+        ObservationIterator iterator = ObservationIterator.create(sourceImages, null, product, new float[]{0.25f, 0.75f},
+                                                                  sourceImages[0].getBounds(),
                                                                   binningContext);
 
         Observation observation = iterate(iterator, 16);
@@ -177,7 +179,7 @@ public class ObservationIteratorTest {
         VariableContextImpl variableContext = new VariableContextImpl();
         PlanetaryGrid planetaryGrid = new SEAGrid(6);
         BinManager binManager = new BinManager(variableContext);
-        return new BinningContextImpl(planetaryGrid, binManager, CompositingType.BINNING, 1, null, null);
+        return new BinningContextImpl(planetaryGrid, binManager, CompositingType.BINNING, 1, -1, null, null);
     }
 
     private static PlanarImage[] createSourceImages(int width, int height) {

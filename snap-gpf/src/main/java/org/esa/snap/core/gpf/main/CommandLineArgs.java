@@ -35,9 +35,9 @@ import java.util.TreeMap;
  */
 public class CommandLineArgs {
 
-    private static final int K = 1024;
-    private static final int M = K * 1024;
-    private static final int G = M * 1024;
+    public static final int K = 1024;
+    public static final int M = K * 1024;
+    public static final int G = M * 1024;
     public static final String DEFAULT_TARGET_FILEPATH = "target.dim";
     public static final String DEFAULT_METADATA_FILEPATH = "metadata.properties";
     public static final String DEFAULT_VELOCITY_TEMPLATE_DIRPATH = ".";
@@ -58,6 +58,7 @@ public class CommandLineArgs {
     private String metadataFilePath;
     private String velocityTemplateDirPath;
     private boolean helpRequested;
+    private boolean diagnosticRequested;
     private boolean stackTraceDump;
     private boolean clearCacheAfterRowWrite;
 
@@ -110,6 +111,8 @@ public class CommandLineArgs {
                     systemPropertiesMap.put(pair[0], pair[1]);
                 } else if (arg.equals("-h")) {
                     helpRequested = true;
+                } else if (arg.equals("--diag")) {
+                    diagnosticRequested = true;
                 } else if (arg.equals("-x")) {
                     clearCacheAfterRowWrite = true;
                 } else if (arg.equals("-e")) {
@@ -159,7 +162,7 @@ public class CommandLineArgs {
             }
         }
 
-        if (operatorName == null && graphFilePath == null && !helpRequested) {
+        if (operatorName == null && graphFilePath == null && !helpRequested && !diagnosticRequested) {
             throw error("Either operator name or graph XML file must be given");
         }
         if (metadataFilePath != null && metadataFilePath.isEmpty()) {
@@ -245,6 +248,10 @@ public class CommandLineArgs {
 
     public boolean isHelpRequested() {
         return helpRequested;
+    }
+
+    public boolean isDiagnosticRequested() {
+        return diagnosticRequested;
     }
 
     public boolean isStackTraceDump() {

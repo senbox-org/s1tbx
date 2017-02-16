@@ -47,7 +47,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 
-public class FeatureCollectionClipperTest extends TestCase {
+public class FeatureUtilsTest extends TestCase {
 
     public void testIt() throws IOException {
 
@@ -94,6 +94,7 @@ public class FeatureCollectionClipperTest extends TestCase {
 
         FeatureSource<SimpleFeatureType, SimpleFeature> marcoSource = dataStore.getFeatureSource("MarcoType");
         assertNotNull(marcoSource);
+        assertNotNull(marcoSource.getFeatures().getID());
         assertSame(dataStore, marcoSource.getDataStore());
         assertSame(marcoType, marcoSource.getSchema());
         assertEquals(3, marcoSource.getCount(Query.ALL));

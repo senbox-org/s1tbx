@@ -173,6 +173,9 @@ public class BinningOp extends Operator {
             defaultValue = "1")
     private Integer superSampling;
 
+    @Parameter(description = "Skips binning of sub-pixel if distance on earth to the center of the main-pixel is larger as this value. A value <=0 disables this check", defaultValue = "-1")
+    private Integer maxDistanceOnEarth;
+
     @Parameter(description = "The band maths expression used to filter input pixels")
     private String maskExpr;
 
@@ -472,6 +475,7 @@ public class BinningOp extends Operator {
         final BinningConfig config = new BinningConfig();
         config.setNumRows(numRows);
         config.setSuperSampling(superSampling);
+        config.setMaxDistanceOnEarth(maxDistanceOnEarth);
         config.setMaskExpr(maskExpr);
         config.setVariableConfigs(variableConfigs);
         config.setAggregatorConfigs(aggregatorConfigs);
