@@ -26,8 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This is not testing our implementation of Mollweide projection but the one of geotools.
- * Our implementation is not use anymore.
  * Test data is taken from General Cartographic Transformation Package (GCTP).
  * It can be retrieved from: ftp://edcftp.cr.usgs.gov/pub/software/gctpc/
  */
