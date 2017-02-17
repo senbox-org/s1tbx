@@ -17,6 +17,7 @@
 package org.esa.snap.core.dataop.projection;
 
 import org.geotools.parameter.ParameterGroup;
+import org.junit.Ignore;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.MathTransform;
 
@@ -27,6 +28,7 @@ import java.util.List;
  * Test data is taken from Proj.4: trac.osgeo.org/proj (version 4.4.6)
  */
 
+@Ignore
 public final class AzimuthalEquidistantAdvancedTest extends
         AbstractProjectionTest<AzimuthalEquidistant.Provider> {
 
