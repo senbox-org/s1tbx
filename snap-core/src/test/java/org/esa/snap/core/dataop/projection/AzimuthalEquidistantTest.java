@@ -19,11 +19,9 @@ package org.esa.snap.core.dataop.projection;
 import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.parameter.ParameterGroup;
 import org.geotools.referencing.NamedIdentifier;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.operation.MathTransformProvider;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.ReferenceIdentifier;
-import org.opengis.referencing.datum.Ellipsoid;
 import org.opengis.referencing.operation.MathTransform;
 
 import java.util.ArrayList;
@@ -43,13 +41,12 @@ public final class AzimuthalEquidistantTest extends AbstractProjectionTest {
     @Override
     public MathTransform createMathTransform(MathTransformProvider provider) throws FactoryException {
         final ParameterGroup params = new ParameterGroup(provider.getParameters());
-        Ellipsoid ellipsoid = DefaultGeographicCRS.WGS84.getDatum().getEllipsoid();
-        params.parameter("semi_major").setValue(ellipsoid.getSemiMajorAxis());
-        params.parameter("semi_minor").setValue(ellipsoid.getSemiMinorAxis());
-        params.parameter("central_meridian").setValue(8.5);
-        params.parameter("latitude_of_origin").setValue(21.5);
-        params.parameter("false_easting").setValue(5621452.01998);
-        params.parameter("false_northing").setValue(5990638.42298);
+        params.parameter("semi_major").setValue(6370997.0);
+        params.parameter("semi_minor").setValue(6370997.0);
+        params.parameter("central_meridian").setValue(0.0);
+        params.parameter("latitude_of_origin").setValue(0.0);
+        params.parameter("false_easting").setValue(0.0);
+        params.parameter("false_northing").setValue(0.0);
         return createParameterizedTransform(params);
     }
 
