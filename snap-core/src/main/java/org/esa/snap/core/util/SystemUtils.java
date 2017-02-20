@@ -44,6 +44,7 @@ import java.util.ServiceLoader;
 import java.util.StringTokenizer;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -390,6 +391,9 @@ public class SystemUtils {
         // Must store EPSG database in application data dir, otherwise it will be deleted from default temp location (Unix!, Windows?)
         File epsgDir = new File(SystemUtils.getApplicationDataDir(true), EPSG_DATABASE_DIR_NAME);
         System.setProperty(HsqlEpsgDatabase.DIRECTORY_KEY, epsgDir.getAbsolutePath());
+
+        // disable unwanted logging messages from hsqldb
+        System.setProperty("hsqldb.db.level", Level.WARNING.getName());
     }
 
     public static void initJAI(Class<?> cls) {
