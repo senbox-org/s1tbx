@@ -19,50 +19,36 @@ import org.esa.snap.core.dataop.resamp.Resampling;
 import org.esa.snap.core.util.ResourceInstaller;
 import org.esa.snap.engine_utilities.util.Settings;
 import org.esa.snap.landcover.dataio.AbstractLandCoverModelDescriptor;
-import org.esa.snap.landcover.dataio.FileLandCoverUTMModel;
+import org.esa.snap.landcover.dataio.FileLandCoverModel;
 import org.esa.snap.landcover.dataio.LandCoverModel;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public class AESBEOS2012CropModelDescriptor extends AbstractLandCoverModelDescriptor {
+public class ACGEO2016CropSMAPVEXModelDescriptor extends AbstractLandCoverModelDescriptor {
 
-    public static final String NAME = "AAFC Canada 2012 Crop";
+    public static final String NAME = "AAFC Canada 2016 Crop SMAPVEX";
 
     private static final File INSTALL_DIR = new File(Settings.instance().getAuxDataFolder().getAbsolutePath(),
-            "LandCover" + File.separator + "AAFC" + File.separator + "AESB_EOS_Crop_2012");
-    private static final File[] fileList = new File[]{
-            new File(INSTALL_DIR, "STB-EOS_2012_CI_UTM10_30m_v2.zip"),
-            new File(INSTALL_DIR, "STB-EOS_2012_CI_UTM11_30m_v3.zip"),
-            new File(INSTALL_DIR, "STB-EOS_2012_CI_UTM12_30m_v3.zip"),
-            new File(INSTALL_DIR, "STB-EOS_2012_CI_UTM13_30m_v2.zip"),
-            new File(INSTALL_DIR, "STB-EOS_2012_CI_UTM14_30m_v2.zip"),
-            new File(INSTALL_DIR, "STB-EOS_2012_CI_UTM15_30m_v2.zip"),
-            new File(INSTALL_DIR, "STB-EOS_2012_CI_UTM16_30m_v2.zip"),
-            new File(INSTALL_DIR, "STB-EOS_2012_CI_UTM17_30m_v2.zip"),
-            new File(INSTALL_DIR, "STB-EOS_2012_CI_UTM18_30m_v2.zip"),
-            new File(INSTALL_DIR, "STB-EOS_2012_CI_UTM19_30m_v2.zip"),
-            new File(INSTALL_DIR, "STB-EOS_2012_CI_UTM20_30m_v3.zip")
-    };
+            "LandCover" + File.separator + "AAFC");
+    private static final File file = new File(INSTALL_DIR, "ACGEO_2016_CI_SMAPVEX_30m_v3.zip");
 
-    public AESBEOS2012CropModelDescriptor() {
-        remotePath = "http://step.esa.int/auxdata/landcover/AAFC/AESB_EOS_Crop_2012/";
+    public ACGEO2016CropSMAPVEXModelDescriptor() {
+        remotePath = "http://step.esa.int/auxdata/landcover/AAFC/AESB_EOS_Crop_2016/";
         name = NAME;
-        NO_DATA_VALUE = -9999d;
         installDir = INSTALL_DIR;
-        metadataFileName = "AAFC_Crop_Mapping_2012_v2_Metadata_EN.xml";
+        NO_DATA_VALUE = -9999d;
         final Path moduleBasePath = ResourceInstaller.findModuleCodeBasePath(this.getClass());
-        metadataSrcPath = moduleBasePath.resolve("org/esa/snap/landcover/auxdata/aafc/AAFC_Crop_Mapping_2012/");
         colourIndexFile = moduleBasePath.resolve("org/esa/snap/landcover/auxdata/aafc/aafc_crop_index.col");
     }
 
     @Override
     public LandCoverModel createLandCoverModel(final Resampling resampling) throws IOException {
-        return new FileLandCoverUTMModel(this, fileList, resampling);
+        return new FileLandCoverModel(this, new File[]{file}, resampling);
     }
 
     public String createTileFilename(final int minLat, final int minLon) {
-        return fileList[0].getName();
+        return file.getName();
     }
 }

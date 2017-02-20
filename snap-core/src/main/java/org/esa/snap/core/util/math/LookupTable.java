@@ -156,6 +156,18 @@ public class LookupTable {
         return dimensions;
     }
 
+    protected int[] getStrides() {
+        return strides;
+    }
+
+    protected int[] getOffsets() {
+        return o;
+    }
+
+    protected Array getValues() {
+        return values;
+    }
+
     /**
      * Returns the the ith dimension associated with the lookup table.
      *

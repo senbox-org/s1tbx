@@ -24,6 +24,7 @@ import org.esa.snap.core.util.DefaultPropertyMap;
 import org.esa.snap.core.util.PropertyMap;
 import org.esa.snap.core.util.ResourceInstaller;
 import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 
 import java.awt.*;
@@ -53,9 +54,8 @@ public abstract class AbstractLandCoverModelDescriptor implements LandCoverModel
     protected Path colourIndexFile = null;
     protected String metadataFileName = null;
     protected Path metadataSrcPath = null;
+    protected boolean isInstalled = false;
     private final List<ColorPaletteDef.Point> colorPalettePoints = new ArrayList<>(50);
-
-    private boolean isInstalled = false;
 
     protected AbstractLandCoverModelDescriptor() {
     }
@@ -155,7 +155,7 @@ public abstract class AbstractLandCoverModelDescriptor implements LandCoverModel
         try {
             prop.load(colourIndexFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            SystemUtils.LOG.warning("Unable to read color file " + colourIndexFile);
             return;
         }
 
@@ -179,7 +179,7 @@ public abstract class AbstractLandCoverModelDescriptor implements LandCoverModel
                 classMap.put(name, new ColorPaletteDef.Point(value, col, name));
 
             } catch (Exception e) {
-                e.printStackTrace();
+                SystemUtils.LOG.warning("Unable to read color file " + colourIndexFile);
             }
         }
 
@@ -200,7 +200,7 @@ public abstract class AbstractLandCoverModelDescriptor implements LandCoverModel
                 resourceInstaller.install(".*", ProgressMonitor.NULL);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            SystemUtils.LOG.warning("Unable to install land cover metadata " + installDir);
         }
     }
 }

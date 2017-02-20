@@ -21,6 +21,7 @@ import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import com.thoughtworks.xstream.io.StreamException;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
+import org.esa.snap.core.gpf.descriptor.dependency.Bundle;
 import org.esa.snap.core.gpf.descriptor.template.TemplateEngine;
 import org.esa.snap.core.gpf.descriptor.template.TemplateException;
 import org.esa.snap.core.gpf.descriptor.template.TemplateFile;
@@ -85,6 +86,7 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
     private String source;
     private boolean isSystem;
     private boolean isHandlingOutputName;
+    private Bundle bundle;
 
     private SimpleSourceProductDescriptor[] sourceProductDescriptors;
     private DefaultSourceProductsDescriptor sourceProductsDescriptor;
@@ -186,6 +188,7 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
         }
 
         this.isHandlingOutputName = obj.isHandlingOutputName;
+        this.bundle = obj.bundle;
     }
 
     /**
@@ -533,6 +536,20 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
     public void setPreprocessTool(Boolean preprocessTool) {
         this.preprocessTool = preprocessTool;
     }
+
+    /**
+     * Returns the bundle holder of this descriptor.
+     */
+    public Bundle getBundle() {
+        return bundle;
+    }
+    /**
+     * Sets the bundle holder of this descriptor.
+     */
+    public void setBundle(Bundle bundle) {
+        this.bundle = bundle;
+    }
+
     /**
      * Gets the list of user-defined system variables
      */

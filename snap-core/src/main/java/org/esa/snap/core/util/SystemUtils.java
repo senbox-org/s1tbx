@@ -39,6 +39,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
 import java.util.StringTokenizer;
@@ -104,6 +105,7 @@ public class SystemUtils {
      * "http://sentinel.esa.int".
      *
      * @return the application homepage url
+     *
      * @since BEAM 4.10
      */
     public static String getApplicationHomepageUrl() {
@@ -114,6 +116,7 @@ public class SystemUtils {
      * Gets the current user's application data directory.
      *
      * @return the current user's application data directory
+     *
      * @since BEAM 4.2
      */
     public static File getApplicationDataDir() {
@@ -124,6 +127,7 @@ public class SystemUtils {
      * Gets the auxdata directory which stores dems, orbits, rgb profiles, etc.
      *
      * @return the auxiliary data directory
+     *
      * @since SNAP 2.0
      */
     public static Path getAuxDataPath() {
@@ -138,6 +142,7 @@ public class SystemUtils {
      * (or Java system property).
      *
      * @return the cache directory
+     *
      * @since SNAP 2
      */
     public static File getCacheDir() {
@@ -152,6 +157,7 @@ public class SystemUtils {
      * Gets the default SNAP cache directory.
      *
      * @return the default cache directory
+     *
      * @see #getCacheDir()
      */
     public static File getDefaultCacheDir() {
@@ -163,6 +169,7 @@ public class SystemUtils {
      *
      * @param force if true, the directory will be created if it didn't exist before
      * @return the current user's application data directory
+     *
      * @since BEAM 4.2
      */
     public static File getApplicationDataDir(boolean force) {
@@ -179,6 +186,7 @@ public class SystemUtils {
      * the string "snap" is used.
      *
      * @return The application context ID.
+     *
      * @since BEAM 4.10
      */
     public static String getApplicationContextId() {
@@ -192,6 +200,7 @@ public class SystemUtils {
      * the string "SNAP" is used.
      *
      * @return The application name.
+     *
      * @see #getApplicationContextId()
      * @since BEAM 4.10
      */
@@ -250,6 +259,7 @@ public class SystemUtils {
      *
      * @param aClass The class.
      * @return the file name of the given class
+     *
      * @throws IllegalArgumentException if the given parameter is <code>null</code>.
      */
     public static String getClassFileName(final Class aClass) {
@@ -270,12 +280,13 @@ public class SystemUtils {
      *
      * @param urlPath an URL path or any other string containing the forward slash '/' as directory separator.
      * @return a path string with all occurrences of '/'
+     *
      * @throws IllegalArgumentException if the given parameter is <code>null</code>.
      */
     public static String convertToLocalPath(String urlPath) {
         Guardian.assertNotNull("urlPath", urlPath);
         if (File.separatorChar != _URL_DIR_SEPARATOR_CHAR
-                && urlPath.indexOf(_URL_DIR_SEPARATOR_CHAR) >= 0) {
+            && urlPath.indexOf(_URL_DIR_SEPARATOR_CHAR) >= 0) {
             return urlPath.replace(_URL_DIR_SEPARATOR_CHAR,
                                    File.separatorChar);
         }
@@ -467,6 +478,30 @@ public class SystemUtils {
         }
     }
 
+    /**
+     * Returns the version string. It'S the version uf the last major release.
+     *
+     * @return the version string
+     */
+    public static String getReleaseVersion() {
+        String version = null;
+        Path versionFile = getApplicationHomeDir().toPath().resolve("VERSION.txt");
+        if (Files.exists(versionFile)) {
+            try {
+                List<String> versionInfo = Files.readAllLines(versionFile);
+                if (!versionInfo.isEmpty()) {
+                    version = versionInfo.get(0);
+                }
+            } catch (IOException e) {
+                LOG.log(Level.WARNING, e.getMessage(), e);
+            }
+        }
+        if (version != null) {
+            return version;
+        }
+        return "[no version info, missing ${SNAP_HOME}/VERSION.txt]";
+    }
+
 
     /**
      * This class is used to hold an image while on the clipboard.
@@ -491,7 +526,7 @@ public class SystemUtils {
 
         // Returns image
         public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException,
-                IOException {
+                                                                IOException {
             if (!DataFlavor.imageFlavor.equals(flavor)) {
                 throw new UnsupportedFlavorException(flavor);
             }
