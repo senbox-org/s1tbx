@@ -37,10 +37,9 @@ public class TemplateFile {
         if (path != null) {
             File file = new File(path);
             String extension = FileUtils.getExtension(file);
-            if (".vm".equalsIgnoreCase(extension)) {
-                template = new TemplateFile(TemplateType.VELOCITY);
-            } else if (".js".equalsIgnoreCase(extension)) {
-                template = new TemplateFile(TemplateType.JAVASCRIPT);
+            TemplateType templateType = getTypeByExtension(extension);
+            if (templateType != null) {
+                template = new TemplateFile(templateType);
             } else {
                 throw new TemplateException("Unsupported template extension");
             }
@@ -113,11 +112,8 @@ public class TemplateFile {
     }
     public void setFileName(String value) {
         String extension = FileUtils.getExtension(value);
-        if (".vm".equalsIgnoreCase(extension)) {
-            type = TemplateType.VELOCITY;
-        } else if (".js".equalsIgnoreCase(extension)) {
-            type = TemplateType.JAVASCRIPT;
-        } else {
+        type = getTypeByExtension(extension);
+        if (type == null) {
             throw new IllegalArgumentException("Unsupported file extension");
         }
         fileName = FileUtils.getFileNameFromPath(value);
@@ -134,7 +130,14 @@ public class TemplateFile {
         return thisPath.toFile();
     }
 
-    public TemplateType getType() { return type; }
+    public TemplateType getType() {
+        if (type == null) {
+            if (fileName != null) {
+                type = getTypeByExtension(FileUtils.getExtension(fileName));
+            }
+        }
+        return type;
+    }
 
     public void setType(TemplateType value) { this.type = value; }
 
@@ -144,11 +147,33 @@ public class TemplateFile {
             case JAVASCRIPT:
                 ext = "js";
                 break;
+            case XSLT:
+                ext = "xsl";
+                break;
             case VELOCITY:
             default:
                 ext = "vm";
         }
         return ext;
+    }
+
+    private static TemplateType getTypeByExtension(String extension) {
+        TemplateType templateType = null;
+        if (extension != null) {
+            extension = extension.toLowerCase();
+            switch (extension) {
+                case ".vm":
+                    templateType = TemplateType.VELOCITY;
+                    break;
+                case ".js":
+                    templateType = TemplateType.JAVASCRIPT;
+                    break;
+                case ".xsl":
+                    templateType = TemplateType.XSLT;
+                    break;
+            }
+        }
+        return templateType;
     }
 
     private String read() throws IOException {

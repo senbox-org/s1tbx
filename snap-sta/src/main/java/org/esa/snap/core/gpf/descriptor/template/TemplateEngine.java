@@ -24,8 +24,17 @@ import org.apache.velocity.runtime.parser.node.SimpleNode;
 import org.esa.snap.core.gpf.descriptor.SystemVariable;
 import org.esa.snap.core.gpf.descriptor.ToolAdapterOperatorDescriptor;
 import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterIO;
+import org.xml.sax.InputSource;
+import org.xml.sax.helpers.DefaultHandler;
 
 import javax.script.*;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -108,6 +117,8 @@ public abstract class TemplateEngine<C> {
         switch (templateType) {
             case JAVASCRIPT:
                 return new JavascriptEngine(descriptor, stateful);
+            case XSLT:
+                return new XsltEngine(descriptor, stateful);
             case VELOCITY:
             default:
                 return new VelocityEngine(descriptor, stateful);
@@ -151,7 +162,7 @@ public abstract class TemplateEngine<C> {
          */
         static class VelocityCtx extends TemplateContext<VelocityContext> {
 
-            public VelocityCtx(VelocityContext wrappedContext) {
+            VelocityCtx(VelocityContext wrappedContext) {
                 super(wrappedContext);
             }
 
@@ -266,7 +277,7 @@ public abstract class TemplateEngine<C> {
          */
         static class JavaScriptCtx extends TemplateContext<ScriptContext> {
 
-            public JavaScriptCtx(ScriptContext wrappedContext) {
+            JavaScriptCtx(ScriptContext wrappedContext) {
                 super(wrappedContext);
             }
 
@@ -321,4 +332,69 @@ public abstract class TemplateEngine<C> {
         }
     }
 
+    static class XsltEngine extends TemplateEngine<Transformer> {
+
+        /**
+         * Implementation wrapper for javax.script.ScriptContext
+         */
+        static class XsltContext extends TemplateContext<Transformer> {
+
+            public XsltContext(Transformer transformer) {
+                super(transformer);
+            }
+
+            @Override
+            public Object getValue(String name) {
+                return this.context != null ? this.context.getParameter(name) : null;
+            }
+        }
+
+        XsltEngine(ToolAdapterOperatorDescriptor descriptor, boolean stateful) {
+            super(descriptor);
+        }
+
+        @Override
+        public void parse(TemplateFile template) throws TemplateException {
+            if (template == null) {
+                throw new TemplateException("null template");
+            }
+            SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+            try {
+                SAXParser saxParser = saxParserFactory.newSAXParser();
+                String templateContents = template.getContents();
+                saxParser.parse(new InputSource(new StringReader(templateContents)), new DefaultHandler());
+            } catch (Exception ex) {
+                throw new TemplateException(ex);
+            }
+        }
+
+        @Override
+        public String execute(TemplateFile template, Map<String, Object> parameters) throws TemplateException {
+            String result;
+            try {
+                this.context = new XsltContext(TransformerFactory.newInstance().newTransformer());
+                Source stringSource = new StreamSource(new StringReader(template.getContents()));
+                Transformer transformContext = this.context.getContext();
+                if (parameters != null) {
+                    for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+                        transformContext.setParameter(entry.getKey(), entry.getValue());
+                    }
+                }
+                transformContext.setOutputProperty("method", "xml");
+                transformContext.setOutputProperty("indent", "yes");
+                StringWriter writer = new StringWriter();
+                transformContext.transform(stringSource, new StreamResult(writer));
+                result = writer.toString();
+                this.lastContext = this.context;
+            } catch (Exception ex) {
+                throw new TemplateException(ex);
+            }
+            return result;
+        }
+
+        @Override
+        public TemplateType getType() {
+            return TemplateType.XSLT;
+        }
+    }
 }

@@ -53,7 +53,7 @@ public class TemplateParameterDescriptor extends ToolParameterDescriptor {
 
     public TemplateParameterDescriptor(String name, Class<?> type){
         super(name, type);
-        setParameterType(ToolAdapterConstants.REGULAR_PARAM_MASK);
+        setParameterType(ToolAdapterConstants.TEMPLATE_PARAM_MASK);
         this.parameterDescriptors = new ArrayList<>();
     }
 

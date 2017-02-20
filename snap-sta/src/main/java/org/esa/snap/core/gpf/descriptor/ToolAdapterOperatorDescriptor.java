@@ -686,10 +686,13 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
             descriptor.getToolParameterDescriptors().stream().filter(ToolParameterDescriptor::isTemplateParameter).forEach(t -> {
                 try {
                     TemplateParameterDescriptor param = (TemplateParameterDescriptor) t;
-                    if (param.getTemplate() != null) {
-                        param.getTemplate().setType(descriptor.getTemplateType());
+                    TemplateFile template = param.getTemplate();
+                    if (template != null) {
+                        //param.getTemplate().setType(descriptor.getTemplateType());
+                        TemplateType templateType = template.getType();
+                        //param.setTemplateEngine(descriptor.getTemplateEngine());
+                        param.setTemplateEngine(TemplateEngine.createInstance(descriptor, templateType));
                     }
-                    param.setTemplateEngine(descriptor.getTemplateEngine());
                 } catch (TemplateException e) {
                     logger.severe(e.getMessage());
                 }

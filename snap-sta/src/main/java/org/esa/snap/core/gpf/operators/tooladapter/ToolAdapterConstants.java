@@ -40,7 +40,7 @@ public interface ToolAdapterConstants {
     String OPERATOR_TEMP_FILES_SEPARATOR = "_";
     String TOOL_VELO_TEMPLATE_SUFIX = "-template.vm";
 
-    String TEMPLATE_PARAM_MASK = "TemplateParamater";
+    String TEMPLATE_PARAM_MASK = "TemplateParameter";
     String TEMPLATE_BEFORE_MASK = "TemplateBeforeExecution";
     String TEMPLATE_AFTER_MASK = "TemplateAfterExecution";
     String REGULAR_PARAM_MASK = "RegularParameter";

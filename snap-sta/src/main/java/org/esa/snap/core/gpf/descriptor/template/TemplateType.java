@@ -13,5 +13,9 @@ public enum TemplateType {
     /**
      * Javascript template
      */
-    JAVASCRIPT;
+    JAVASCRIPT,
+    /**
+     * XSLT template
+     */
+    XSLT;
 }
