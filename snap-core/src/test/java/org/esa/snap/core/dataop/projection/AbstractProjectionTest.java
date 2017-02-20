@@ -21,63 +21,58 @@ import org.geotools.geometry.DirectPosition2D;
 import org.geotools.parameter.ParameterGroup;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.geotools.referencing.operation.MathTransformProvider;
-import org.geotools.referencing.operation.projection.MapProjection;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.ReferenceIdentifier;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import static org.geotools.gml3.v3_2.GML.identifier;
 import static org.junit.Assert.assertEquals;
 
 /**
  * Test data can be found at General Cartographic Transformation Package (GCTP).
  * It can be retrieved from: ftp://edcftp.cr.usgs.gov/pub/software/gctpc/
  */
-public abstract class AbstractProjectionTest<T extends MapProjection.AbstractProvider> {
+public abstract class AbstractProjectionTest {
 
     private static final double TOLERANCE = 1.0E-4;
 
     private List<ProjTestData> testData;
-    private T provider;
+    private FactoryRegistry factoryRegistry;
 
     @Before
     public void setUp() {
+        factoryRegistry = new FactoryRegistry(Collections.singletonList(MathTransformProvider.class));
         testData = createTestData();
-        provider = createProvider();
     }
 
     @After
     public void tearDown() {
         testData.clear();
-        provider = null;
-    }
-
-    @Test
-    public final void testOnlyOneProviderRegistered() throws TransformException {
-        FactoryRegistry factoryRegistry = new FactoryRegistry(Collections.singletonList(MathTransformProvider.class));
-        Iterator<MathTransformProvider> serviceProviders = factoryRegistry.getServiceProviders(MathTransformProvider.class, null, null);
-        int count = 0;
-        while (serviceProviders.hasNext()) {
-            MathTransformProvider registeredProvider = serviceProviders.next();
-            if (registeredProvider.nameMatches(this.provider.getName().getCode())) {
-                count++;
-            }
-        }
-        assertEquals("Expecting only one MathTransformProvider for " + this.provider.getName(), 1, count);
     }
 
 
     @Test
-    public final void testMathTransform() throws TransformException, FactoryException {
+    public void testOnlyOneProviderRegistered() throws TransformException {
+        ReferenceIdentifier projectionIdentifier = getProjectionIdentifier();
+        List<MathTransformProvider> providers = getMatchingProviders(projectionIdentifier);
 
-        MathTransform transform = createMathTransform(provider);
+        assertEquals("Expecting only one MathTransformProvider for " + identifier, 1, providers.size());
+    }
+
+    @Test
+    public void testMathTransform() throws TransformException, FactoryException {
+        MathTransformProvider transformProvider = createTransformProvider();
+        MathTransform transform = createMathTransform(transformProvider);
         for (int i = 0; i < testData.size(); i++) {
             ProjTestData data = testData.get(i);
             final DirectPosition2D geo = new DirectPosition2D(data.getLon(), data.getLat());
@@ -88,11 +83,29 @@ public abstract class AbstractProjectionTest<T extends MapProjection.AbstractPro
         }
     }
 
-    protected abstract  T createProvider();
+    protected abstract ReferenceIdentifier getProjectionIdentifier();
 
-    protected abstract MathTransform createMathTransform(T provider) throws FactoryException;
+    protected abstract MathTransform createMathTransform(MathTransformProvider provider) throws FactoryException;
 
     protected abstract List<ProjTestData> createTestData();
+
+    private MathTransformProvider createTransformProvider() {
+        ReferenceIdentifier projectionIdentifier = getProjectionIdentifier();
+        return getMatchingProviders(projectionIdentifier).get(0);
+    }
+
+    List<MathTransformProvider> getMatchingProviders(ReferenceIdentifier identifier) {
+        Iterator<MathTransformProvider> serviceProviders = factoryRegistry.getServiceProviders(MathTransformProvider.class,
+                                                                                               null, null);
+        List<MathTransformProvider> providerList = new ArrayList<>();
+        while (serviceProviders.hasNext()) {
+            MathTransformProvider registeredProvider = serviceProviders.next();
+            if (registeredProvider.nameMatches(identifier.getCode())) {
+                providerList.add(registeredProvider);
+            }
+        }
+        return providerList;
+    }
 
     static MathTransform createParameterizedTransform(ParameterGroup params) throws FactoryException {
         return new DefaultMathTransformFactory().createParameterizedTransform(params);

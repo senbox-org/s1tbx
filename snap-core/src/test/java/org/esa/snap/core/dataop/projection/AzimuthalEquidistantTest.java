@@ -16,9 +16,14 @@
 
 package org.esa.snap.core.dataop.projection;
 
+import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.parameter.ParameterGroup;
-import org.junit.Ignore;
+import org.geotools.referencing.NamedIdentifier;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.referencing.operation.MathTransformProvider;
 import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.ReferenceIdentifier;
+import org.opengis.referencing.datum.Ellipsoid;
 import org.opengis.referencing.operation.MathTransform;
 
 import java.util.ArrayList;
@@ -27,29 +32,30 @@ import java.util.List;
 /**
  * Test data is taken from Proj.4: trac.osgeo.org/proj (version 4.4.6)
  */
-@Ignore
-public final class AzimuthalEquidistantTest extends AbstractProjectionTest<AzimuthalEquidistant.Provider> {
+public final class AzimuthalEquidistantTest extends AbstractProjectionTest {
+
 
     @Override
-    protected AzimuthalEquidistant.Provider createProvider() {
-        return new AzimuthalEquidistant.Provider();
+    protected ReferenceIdentifier getProjectionIdentifier() {
+        return new NamedIdentifier(Citations.OGC, "Azimuthal_Equidistant");
     }
 
     @Override
-    public MathTransform createMathTransform(AzimuthalEquidistant.Provider provider) throws FactoryException {
+    public MathTransform createMathTransform(MathTransformProvider provider) throws FactoryException {
         final ParameterGroup params = new ParameterGroup(provider.getParameters());
-        params.parameter("semi_major").setValue(6370997.0);
-        params.parameter("semi_minor").setValue(6370997.0);
-        params.parameter("central_meridian").setValue(0.0);
-        params.parameter("latitude_of_origin").setValue(0.0);
-        params.parameter("false_easting").setValue(0.0);
-        params.parameter("false_northing").setValue(0.0);
+        Ellipsoid ellipsoid = DefaultGeographicCRS.WGS84.getDatum().getEllipsoid();
+        params.parameter("semi_major").setValue(ellipsoid.getSemiMajorAxis());
+        params.parameter("semi_minor").setValue(ellipsoid.getSemiMinorAxis());
+        params.parameter("central_meridian").setValue(8.5);
+        params.parameter("latitude_of_origin").setValue(21.5);
+        params.parameter("false_easting").setValue(5621452.01998);
+        params.parameter("false_northing").setValue(5990638.42298);
         return createParameterizedTransform(params);
     }
 
     @Override
     protected List<ProjTestData> createTestData() {
-        List<ProjTestData> dataList = new ArrayList<ProjTestData>(13);
+        List<ProjTestData> dataList = new ArrayList<>(13);
 
         dataList.add(new ProjTestData(0, 0, 0.00, 0.00));
         dataList.add(new ProjTestData(-180, 90, -0.00, 10007538.685621306));

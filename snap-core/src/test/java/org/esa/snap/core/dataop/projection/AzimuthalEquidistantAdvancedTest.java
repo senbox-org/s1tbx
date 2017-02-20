@@ -16,9 +16,12 @@
 
 package org.esa.snap.core.dataop.projection;
 
+import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.parameter.ParameterGroup;
-import org.junit.Ignore;
+import org.geotools.referencing.NamedIdentifier;
+import org.geotools.referencing.operation.MathTransformProvider;
 import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.ReferenceIdentifier;
 import org.opengis.referencing.operation.MathTransform;
 
 import java.util.ArrayList;
@@ -28,20 +31,17 @@ import java.util.List;
  * Test data is taken from Proj.4: trac.osgeo.org/proj (version 4.4.6)
  */
 
-@Ignore
-public final class AzimuthalEquidistantAdvancedTest extends
-        AbstractProjectionTest<AzimuthalEquidistant.Provider> {
+public final class AzimuthalEquidistantAdvancedTest extends AbstractProjectionTest {
 
     @Override
-    protected AzimuthalEquidistant.Provider createProvider() {
-        return new AzimuthalEquidistant.Provider();
+    protected ReferenceIdentifier getProjectionIdentifier() {
+        return new NamedIdentifier(Citations.OGC, "Azimuthal_Equidistant");
     }
 
+
     @Override
-    public MathTransform createMathTransform(
-            AzimuthalEquidistant.Provider provider) throws FactoryException {
-        final ParameterGroup params = new ParameterGroup(
-                provider.getParameters());
+    public MathTransform createMathTransform(MathTransformProvider provider) throws FactoryException {
+        final ParameterGroup params = new ParameterGroup(provider.getParameters());
         params.parameter("semi_major").setValue(6370997.0);
         params.parameter("semi_minor").setValue(6370997.0);
         params.parameter("central_meridian").setValue(-35.2);

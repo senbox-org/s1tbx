@@ -16,10 +16,14 @@
 
 package org.esa.snap.core.dataop.projection;
 
+import org.esa.snap.core.util.SystemUtils;
+import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.parameter.ParameterGroup;
-import org.geotools.referencing.operation.projection.Mollweide;
+import org.geotools.referencing.NamedIdentifier;
+import org.geotools.referencing.operation.MathTransformProvider;
 import org.junit.Ignore;
 import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.ReferenceIdentifier;
 import org.opengis.referencing.operation.MathTransform;
 
 import java.util.ArrayList;
@@ -29,17 +33,22 @@ import java.util.List;
  * Test data is taken from General Cartographic Transformation Package (GCTP).
  * It can be retrieved from: ftp://edcftp.cr.usgs.gov/pub/software/gctpc/
  */
-@Ignore
-public final class MollweideTest extends AbstractProjectionTest<Mollweide.MollweideProvider> {
-
+@Ignore("Currently conflicts with GeoTools impl., which has a bug (https://osgeo-org.atlassian.net/browse/GEOT-5641).")
+public final class MollweideTest extends AbstractProjectionTest {
 
     @Override
-    protected Mollweide.MollweideProvider createProvider() {
-        return new Mollweide.MollweideProvider();
+    public void setUp() {
+        super.setUp();
+        SystemUtils.initGeoTools();
     }
 
     @Override
-    public MathTransform createMathTransform(Mollweide.MollweideProvider provider) throws FactoryException {
+    protected ReferenceIdentifier getProjectionIdentifier() {
+        return new NamedIdentifier(Citations.OGC, "Mollweide");
+    }
+
+    @Override
+    public MathTransform createMathTransform(MathTransformProvider provider) throws FactoryException {
         final ParameterGroup params = new ParameterGroup(provider.getParameters());
         params.parameter("semi_major").setValue(6378206.400);
         params.parameter("semi_minor").setValue(6378206.400);
@@ -49,9 +58,10 @@ public final class MollweideTest extends AbstractProjectionTest<Mollweide.Mollwe
         return createParameterizedTransform(params);
     }
 
+
     @Override
     protected List<ProjTestData> createTestData() {
-        List<ProjTestData> dataList = new ArrayList<ProjTestData>(13);
+        List<ProjTestData> dataList = new ArrayList<>(13);
         dataList.add(new ProjTestData(-180.0, -90, 0.0, -9020145.99445, -100.0, -90.0));
         dataList.add(new ProjTestData(-180.0, -75.0, -3392851.08440, -8172751.64401, 180, -75));
         dataList.add(new ProjTestData(-165.0, 0.0, -6514549.88492, 0.00000));
