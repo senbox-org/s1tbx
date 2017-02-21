@@ -36,7 +36,6 @@
         <rstb.version>7.4.0-SNAPSHOT</rstb.version>
         <jlinda.version>6.0.0-SNAPSHOT</jlinda.version>
         
-		<geotools.version>16.1</geotools.version>
 		<hdf.version>2.7.1</hdf.version>
         <netcdf.version>4.3.22</netcdf.version>	
         <jblas.version>1.2.4</jblas.version>
