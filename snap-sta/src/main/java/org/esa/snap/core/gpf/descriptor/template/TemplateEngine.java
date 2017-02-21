@@ -33,6 +33,7 @@ import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
@@ -372,18 +373,20 @@ public abstract class TemplateEngine<C> {
         public String execute(TemplateFile template, Map<String, Object> parameters) throws TemplateException {
             String result;
             try {
-                this.context = new XsltContext(TransformerFactory.newInstance().newTransformer());
                 Source stringSource = new StreamSource(new StringReader(template.getContents()));
+                this.context = new XsltContext(TransformerFactory.newInstance().newTransformer(stringSource));
                 Transformer transformContext = this.context.getContext();
                 if (parameters != null) {
                     for (Map.Entry<String, Object> entry : parameters.entrySet()) {
-                        transformContext.setParameter(entry.getKey(), entry.getValue());
+                        if (entry.getValue() != null) {
+                            transformContext.setParameter(entry.getKey(), entry.getValue());
+                        }
                     }
                 }
                 transformContext.setOutputProperty("method", "xml");
                 transformContext.setOutputProperty("indent", "yes");
                 StringWriter writer = new StringWriter();
-                transformContext.transform(stringSource, new StreamResult(writer));
+                transformContext.transform(new DOMSource(), new StreamResult(writer));
                 result = writer.toString();
                 this.lastContext = this.context;
             } catch (Exception ex) {
