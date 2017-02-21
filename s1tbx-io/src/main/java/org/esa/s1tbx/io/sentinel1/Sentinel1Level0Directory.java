@@ -44,7 +44,6 @@ import java.util.Map;
  */
 public class Sentinel1Level0Directory extends XMLProductDirectory implements Sentinel1Directory {
 
-    private final DateFormat sentinelDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd_HH:mm:ss");
     private final transient Map<String, String> imgBandMetadataMap = new HashMap<>(4);
     private String acqMode = "";
 
@@ -574,22 +573,6 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
         final Sentinel1Level0Reader reader = new Sentinel1Level0Reader(getBaseDir(),
                                                                        AbstractMetadata.addOriginalProductMetadata(root));
         reader.readData();
-    }
-
-    private MetadataElement getMetadataObject(final MetadataElement origProdRoot, final String metadataObjectName) {
-
-        final MetadataElement metadataSection = origProdRoot.getElement("XFDU").getElement("metadataSection");
-        final MetadataElement[] metadataObjects = metadataSection.getElements();
-
-        for (MetadataElement elem : metadataObjects) {
-
-            if (elem.getAttribute("ID").getData().getElemString().equals(metadataObjectName)) {
-
-                return elem;
-            }
-        }
-
-        return null;
     }
 
     private void addGeoCodingForLevel0Products(final Product product) {
