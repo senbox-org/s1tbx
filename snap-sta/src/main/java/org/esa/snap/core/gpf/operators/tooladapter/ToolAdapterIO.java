@@ -34,6 +34,7 @@ import java.io.*;
 import java.net.URISyntaxException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.PosixFilePermission;
 import java.util.*;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
@@ -43,9 +44,12 @@ import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
+
+import static org.apache.commons.lang.SystemUtils.IS_OS_UNIX;
 
 /**
  * Utility class for performing various operations needed by ToolAdapterOp.
@@ -429,6 +433,62 @@ public class ToolAdapterIO {
         }
     }
 
+    static void fixPermissions(Path path) throws IOException {
+        Stream<Path> files = Files.list(path);
+        files.forEach(p -> {
+            if (Files.isDirectory(p)) {
+                try {
+                    fixPermissions(p);
+                } catch (IOException e) {
+                    SystemUtils.LOG.severe("OpenJPEG configuration error: failed to fix permissions on " + path);
+                }
+            }
+            else {
+                if (IS_OS_UNIX) {
+                    Set<PosixFilePermission> permissions = new HashSet<>(Arrays.asList(
+                            PosixFilePermission.OWNER_READ,
+                            PosixFilePermission.OWNER_WRITE,
+                            PosixFilePermission.OWNER_EXECUTE,
+                            PosixFilePermission.GROUP_READ,
+                            PosixFilePermission.GROUP_EXECUTE,
+                            PosixFilePermission.OTHERS_READ,
+                            PosixFilePermission.OTHERS_EXECUTE));
+                    try {
+                        Files.setPosixFilePermissions(p, permissions);
+                    } catch (IOException e) {
+                        // can't set the permissions for this file, eg. the file was installed as root
+                        // send a warning message, user will have to do that by hand.
+                        SystemUtils.LOG.severe("Can't set execution permissions for executable " + p.toString() +
+                                ". If required, please ask an authorised user to make the file executable.");
+                    }
+                }
+            }
+        });
+    }
+
+    static int runExecutable(Path exePath) throws InterruptedException, IOException {
+        fixPermissions(exePath);
+        ProcessBuilder builder = new ProcessBuilder(exePath.toString());
+        builder.redirectErrorStream(true);
+        builder.environment().putAll(System.getenv());
+        boolean isStopped = false;
+        final Process process = builder.start();
+        try (BufferedReader outReader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+            while (!isStopped) {
+                if (!process.isAlive()) {
+                    isStopped = true;
+                } else {
+                    Thread.yield();
+                }
+                while (outReader.ready()) {
+                    outReader.readLine();
+                }
+            }
+            outReader.close();
+        }
+        return process.exitValue();
+    }
+
     private static List<File> scanForAdapters(Path path) throws IOException {
         if (!Files.exists(path) || !Files.isDirectory(path)) {
             throw new FileNotFoundException(path.toAbsolutePath().toString());
@@ -585,7 +645,7 @@ public class ToolAdapterIO {
         zipStream.closeEntry();
     }
 
-    public static void unzip(Path sourceFile, Path destination) throws IOException {
+    static void unzip(Path sourceFile, Path destination) throws IOException {
         if (sourceFile == null || destination == null) {
             throw new IllegalArgumentException("One of the arguments is null");
         }

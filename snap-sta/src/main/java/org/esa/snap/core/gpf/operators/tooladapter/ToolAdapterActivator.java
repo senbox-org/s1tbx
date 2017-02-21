@@ -91,42 +91,33 @@ public class ToolAdapterActivator implements Activator {
                                     .resolve(descriptorBundle.getEntryPoint());
         switch (descriptorBundle.getBundleType()) {
             case ARCHIVE:
-                executor.submit(new Callable<Void>() {
-                    @Override
-                    public Void call() throws Exception {
-                        try {
-                            uncompress(sourcePath, descriptorBundle);
-                        } finally {
-                            installFinished(descriptor);
-                        }
-                        return null;
+                executor.submit((Callable<Void>) () -> {
+                    try {
+                        uncompress(sourcePath, descriptorBundle);
+                    } finally {
+                        installFinished(descriptor);
                     }
+                    return null;
                 });
                 break;
             case INSTALLER:
-                executor.submit(new Callable<Void>() {
-                    @Override
-                    public Void call() throws Exception {
-                        try {
-                            install(sourcePath, descriptorBundle);
-                        } finally {
-                            installFinished(descriptor);
-                        }
-                        return null;
+                executor.submit((Callable<Void>) () -> {
+                    try {
+                        install(sourcePath, descriptorBundle);
+                    } finally {
+                        installFinished(descriptor);
                     }
+                    return null;
                 });
                 break;
             default:
-                executor.submit(new Callable<Void>() {
-                    @Override
-                    public Void call() throws Exception {
-                        try {
-                            copy(sourcePath, descriptorBundle);
-                        } finally {
-                            installFinished(descriptor);
-                        }
-                        return null;
+                executor.submit((Callable<Void>) () -> {
+                    try {
+                        copy(sourcePath, descriptorBundle);
+                    } finally {
+                        installFinished(descriptor);
                     }
+                    return null;
                 });
                 break;
         }
@@ -168,7 +159,12 @@ public class ToolAdapterActivator implements Activator {
     }
 
     private void install(Path source, Bundle bundle) throws Exception {
-        throw new NoSuchMethodException("Installers are not yet supported");
+        File targetLocation = bundle.getTargetLocation();
+        if (targetLocation == null) {
+            throw new IOException("No target defined");
+        }
+        copy(source, bundle);
+        ToolAdapterIO.runExecutable(targetLocation.toPath().resolve(bundle.getEntryPoint()));
     }
 
     private Map<String, File> getJarAdapters(File fromPath) {

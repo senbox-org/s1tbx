@@ -87,6 +87,7 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
     private boolean isSystem;
     private boolean isHandlingOutputName;
     private Bundle bundle;
+    private String helpID;
 
     private SimpleSourceProductDescriptor[] sourceProductDescriptors;
     private DefaultSourceProductsDescriptor sourceProductsDescriptor;
@@ -189,6 +190,7 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
 
         this.isHandlingOutputName = obj.isHandlingOutputName;
         this.bundle = obj.bundle;
+        this.helpID = obj.helpID;
     }
 
     /**
@@ -376,6 +378,10 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
      * Setter for the isHandlingOutputName member.
      */
     public void setHandlingOutputName(boolean value) { isHandlingOutputName = value; }
+
+    public String getHelpID() { return helpID; }
+
+    public void setHelpID(String value) { helpID = value; }
 
     @Override
     public Class<? extends Operator> getOperatorClass() {
