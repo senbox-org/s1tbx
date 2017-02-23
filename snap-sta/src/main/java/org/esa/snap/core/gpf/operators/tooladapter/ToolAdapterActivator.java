@@ -5,7 +5,6 @@ import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.OperatorSpiRegistry;
 import org.esa.snap.core.gpf.descriptor.ToolAdapterOperatorDescriptor;
 import org.esa.snap.core.gpf.descriptor.dependency.Bundle;
-import org.esa.snap.core.gpf.descriptor.dependency.BundleType;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.runtime.Activator;
 
@@ -21,6 +20,7 @@ import java.util.concurrent.Executors;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -30,7 +30,8 @@ import java.util.stream.Collectors;
  */
 public class ToolAdapterActivator implements Activator {
 
-    private Map<String, Path> bundleMap = new HashMap<>();
+    private static Logger logger = Logger.getLogger(ToolAdapterActivator.class.getName());
+    private static Map<String, Path> bundleMap = new HashMap<>();
     private static final Map<Path, Set<ToolAdapterOperatorDescriptor>> dependentInstallations = Collections.synchronizedMap(new HashMap<>());
     private static final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -66,7 +67,7 @@ public class ToolAdapterActivator implements Activator {
                                 bundleMap.remove(alias);
                                 dependentInstallations.get(target).add(operatorDescriptor);
                                 SystemUtils.LOG.info(String.format("Installing bundle for %s", operatorDescriptor.getAlias()));
-                                installBundle(operatorDescriptor);
+                                installBundle(operatorDescriptor, true);
                             } else if (!bundleMap.containsKey(alias)) {
                                 bundleMap.put(alias, target);
                             }
@@ -83,74 +84,75 @@ public class ToolAdapterActivator implements Activator {
 
     }
 
-    private void installBundle(ToolAdapterOperatorDescriptor descriptor) {
+    public static void installBundle(ToolAdapterOperatorDescriptor descriptor, boolean async) {
         Bundle descriptorBundle = descriptor.getBundle();
         Path sourcePath = SystemUtils.getApplicationDataDir().toPath()
                                     .resolve("modules")
                                     .resolve("lib")
                                     .resolve(descriptorBundle.getEntryPoint());
+        Callable<Void> action;
         switch (descriptorBundle.getBundleType()) {
             case ARCHIVE:
-                executor.submit((Callable<Void>) () -> {
+                action = () -> {
                     try {
                         uncompress(sourcePath, descriptorBundle);
                     } finally {
                         installFinished(descriptor);
                     }
                     return null;
-                });
+                };
+                if (async) {
+                    executor.submit(action);
+                } else {
+                    try {
+                        action.call();
+                    } catch (Exception e) {
+                        logger.warning(e.getMessage());
+                    }
+                }
                 break;
             case INSTALLER:
-                executor.submit((Callable<Void>) () -> {
+                action = () -> {
+                try {
+                    install(sourcePath, descriptorBundle);
+                } finally {
+                    installFinished(descriptor);
+                }
+                return null;
+                };
+                if (async) {
+                    executor.submit(action);
+                } else {
                     try {
-                        install(sourcePath, descriptorBundle);
-                    } finally {
-                        installFinished(descriptor);
+                        action.call();
+                    } catch (Exception e) {
+                        logger.warning(e.getMessage());
                     }
-                    return null;
-                });
+                }
                 break;
             default:
-                executor.submit((Callable<Void>) () -> {
-                    try {
-                        copy(sourcePath, descriptorBundle);
-                    } finally {
-                        installFinished(descriptor);
-                    }
-                    return null;
-                });
                 break;
         }
     }
 
-    private boolean isInstalled(ToolAdapterOperatorDescriptor descriptor) {
+    private static boolean isInstalled(ToolAdapterOperatorDescriptor descriptor) {
         Bundle bundle = descriptor.getBundle();
-        Path target = null;
-        if (bundle != null && bundle.getBundleType() != BundleType.NONE) {
-            if (bundle.getTargetLocation() != null) {
-                target = bundle.getTargetLocation().toPath();
-            }
-        }
-        try {
-            return (target != null && Files.exists(target) && Files.list(target).count() > 0);
-        } catch (IOException e) {
-            return false;
-        }
+        return bundle != null && bundle.isInstalled();
     }
 
-    private void copy(Path source, Bundle bundle) throws IOException {
+    private static void copy(Path source, Bundle bundle) throws IOException {
         File targetLocation = bundle.getTargetLocation();
         if (targetLocation == null) {
             throw new IOException("No target defined");
         }
         Path targetPath = targetLocation.toPath();
         if (!Files.exists(targetPath)) {
-            Files.createDirectory(targetPath);
+            Files.createDirectories(targetPath);
         }
-        ToolAdapterIO.copy(source, targetPath);
+        Files.copy(source, targetPath.resolve(source.getFileName()));
     }
 
-    private void uncompress(Path source, Bundle bundle) throws IOException {
+    private static void uncompress(Path source, Bundle bundle) throws IOException {
         File targetLocation = bundle.getTargetLocation();
         if (targetLocation == null) {
             throw new IOException("No target defined");
@@ -158,16 +160,27 @@ public class ToolAdapterActivator implements Activator {
         ToolAdapterIO.unzip(source, targetLocation.toPath());
     }
 
-    private void install(Path source, Bundle bundle) throws Exception {
+    private static void install(Path source, Bundle bundle) throws IOException {
+        int exit = -16;
         File targetLocation = bundle.getTargetLocation();
         if (targetLocation == null) {
             throw new IOException("No target defined");
         }
-        copy(source, bundle);
-        ToolAdapterIO.runExecutable(targetLocation.toPath().resolve(bundle.getEntryPoint()));
+        try {
+            copy(source, bundle);
+            final Path exePath = targetLocation.toPath().resolve(bundle.getEntryPoint());
+            exit = ToolAdapterIO.runExecutable(exePath, bundle.getArguments());
+            Files.deleteIfExists(exePath);
+        } catch (Exception ex) {
+            logger.severe(ex.getMessage());
+            throw new IOException(ex);
+        }
+        if (exit != 0) {
+            throw new RuntimeException(String.format("Not successfully installed [exit code = %s]", exit));
+        }
     }
 
-    private Map<String, File> getJarAdapters(File fromPath) {
+    private static Map<String, File> getJarAdapters(File fromPath) {
         Map<String, File> output = new HashMap<>();
         if (fromPath != null && fromPath.exists()) {
             String descriptionKeyName = "OpenIDE-Module-Short-Description";
@@ -191,7 +204,7 @@ public class ToolAdapterActivator implements Activator {
         return output;
     }
 
-    private void saveMap() {
+    private static void saveMap() {
         Path path = ToolAdapterIO.getAdaptersPath().resolve("bundles.dat");
         StringBuilder builder = new StringBuilder();
         for (Map.Entry<String, Path> entry : bundleMap.entrySet()) {
@@ -203,11 +216,11 @@ public class ToolAdapterActivator implements Activator {
         try {
             Files.write(path, builder.toString().getBytes());
         } catch (IOException e) {
-            SystemUtils.LOG.severe(String.format("ToolAdapterIO: %s", e.getMessage()));
+            logger.severe(String.format("ToolAdapterIO: %s", e.getMessage()));
         }
     }
 
-    private void readMap() {
+    private static void readMap() {
         Path path = ToolAdapterIO.getAdaptersPath().resolve("bundles.dat");
         bundleMap.clear();
         try {
@@ -219,11 +232,11 @@ public class ToolAdapterActivator implements Activator {
                 }
             }
         } catch (IOException e) {
-            SystemUtils.LOG.severe(String.format("ToolAdapterIO: %s", e.getMessage()));
+            logger.severe(String.format("ToolAdapterIO: %s", e.getMessage()));
         }
     }
 
-    private void installFinished(ToolAdapterOperatorDescriptor descriptor) {
+    private static void installFinished(ToolAdapterOperatorDescriptor descriptor) {
         String alias = descriptor.getAlias();
         if (isInstalled(descriptor)) {
             Bundle bundle = descriptor.getBundle();
@@ -234,9 +247,9 @@ public class ToolAdapterActivator implements Activator {
             }
             saveMap();
             dependentInstallations.remove(entryPoint);
-            SystemUtils.LOG.info(String.format("Installation of bundle for %s completed", alias));
+            logger.info(String.format("Installation of bundle for %s completed", alias));
         } else {
-            SystemUtils.LOG.severe(String.format("Bundle for %s has not been installed", alias));
+            logger.severe(String.format("Bundle for %s has not been installed", alias));
         }
     }
 }

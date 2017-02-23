@@ -434,59 +434,68 @@ public class ToolAdapterIO {
     }
 
     static void fixPermissions(Path path) throws IOException {
-        Stream<Path> files = Files.list(path);
-        files.forEach(p -> {
-            if (Files.isDirectory(p)) {
+        if (Files.isDirectory(path)) {
+            Stream<Path> files = Files.list(path);
+            files.forEach(p -> {
                 try {
                     fixPermissions(p);
                 } catch (IOException e) {
                     SystemUtils.LOG.severe("OpenJPEG configuration error: failed to fix permissions on " + path);
                 }
-            }
-            else {
-                if (IS_OS_UNIX) {
-                    Set<PosixFilePermission> permissions = new HashSet<>(Arrays.asList(
-                            PosixFilePermission.OWNER_READ,
-                            PosixFilePermission.OWNER_WRITE,
-                            PosixFilePermission.OWNER_EXECUTE,
-                            PosixFilePermission.GROUP_READ,
-                            PosixFilePermission.GROUP_EXECUTE,
-                            PosixFilePermission.OTHERS_READ,
-                            PosixFilePermission.OTHERS_EXECUTE));
-                    try {
-                        Files.setPosixFilePermissions(p, permissions);
-                    } catch (IOException e) {
-                        // can't set the permissions for this file, eg. the file was installed as root
-                        // send a warning message, user will have to do that by hand.
-                        SystemUtils.LOG.severe("Can't set execution permissions for executable " + p.toString() +
-                                ". If required, please ask an authorised user to make the file executable.");
-                    }
+            });
+        } else {
+            if (IS_OS_UNIX) {
+                Set<PosixFilePermission> permissions = new HashSet<>(Arrays.asList(
+                        PosixFilePermission.OWNER_READ,
+                        PosixFilePermission.OWNER_WRITE,
+                        PosixFilePermission.OWNER_EXECUTE,
+                        PosixFilePermission.GROUP_READ,
+                        PosixFilePermission.GROUP_EXECUTE,
+                        PosixFilePermission.OTHERS_READ,
+                        PosixFilePermission.OTHERS_EXECUTE));
+                try {
+                    Files.setPosixFilePermissions(path, permissions);
+                } catch (IOException e) {
+                    // can't set the permissions for this file, eg. the file was installed as root
+                    // send a warning message, user will have to do that by hand.
+                    SystemUtils.LOG.severe("Can't set execution permissions for executable " + path.toString() +
+                            ". If required, please ask an authorised user to make the file executable.");
                 }
             }
-        });
+        }
     }
 
-    static int runExecutable(Path exePath) throws InterruptedException, IOException {
-        fixPermissions(exePath);
-        ProcessBuilder builder = new ProcessBuilder(exePath.toString());
-        builder.redirectErrorStream(true);
-        builder.environment().putAll(System.getenv());
-        boolean isStopped = false;
-        final Process process = builder.start();
-        try (BufferedReader outReader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-            while (!isStopped) {
-                if (!process.isAlive()) {
-                    isStopped = true;
-                } else {
-                    Thread.yield();
-                }
-                while (outReader.ready()) {
-                    outReader.readLine();
-                }
+    static int runExecutable(Path exePath, String args) throws IOException {
+        try {
+            fixPermissions(exePath);
+            List<String> arguments = new ArrayList<>();
+            arguments.add(exePath.toString());
+            if (args != null) {
+                Collections.addAll(arguments, args.split(" "));
             }
-            outReader.close();
+            ProcessBuilder builder = new ProcessBuilder(arguments.toArray(new String[arguments.size()]));
+            builder.redirectErrorStream(true);
+            builder.environment().putAll(System.getenv());
+            boolean isStopped = false;
+            final Process process = builder.start();
+            try (BufferedReader outReader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                while (!isStopped) {
+                    if (!process.isAlive()) {
+                        isStopped = true;
+                    } else {
+                        Thread.yield();
+                    }
+                    while (outReader.ready()) {
+                        outReader.readLine();
+                    }
+                }
+                outReader.close();
+            }
+            return process.exitValue();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return -1;
         }
-        return process.exitValue();
     }
 
     private static List<File> scanForAdapters(Path path) throws IOException {

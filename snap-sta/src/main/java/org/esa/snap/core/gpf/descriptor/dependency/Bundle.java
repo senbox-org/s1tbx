@@ -5,6 +5,7 @@ import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import org.esa.snap.core.gpf.descriptor.annotations.Folder;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 
 /**
@@ -28,6 +29,7 @@ public class Bundle {
     @Folder
     private File targetLocation;
     private String entryPoint;
+    private String arguments;
 
     public Bundle() {
         this.bundleType = BundleType.NONE;
@@ -101,6 +103,17 @@ public class Bundle {
         }
     }
 
+    public boolean isInstalled() {
+        boolean installed = false;
+        if (this.bundleType != BundleType.NONE) {
+            try {
+                installed = this.targetLocation != null &&
+                        Files.exists(this.targetLocation.toPath()) &&
+                        Files.list(this.targetLocation.toPath()).count() > 0;
+            } catch (IOException ignored) { }
+        }
+        return installed;
+    }
     /**
      * Returns the entry point of the bundle.
      */
@@ -112,6 +125,17 @@ public class Bundle {
      */
     private void setEntryPoint(String entryPoint) {
         this.entryPoint = entryPoint;
+    }
+
+    /**
+     * Returns the command line arguments for an installer, if any
+     */
+    public String getArguments() {
+        return this.arguments;
+    }
+
+    public void setArguments(String value) {
+        this.arguments = value;
     }
 
     private boolean isFile(String file) {
