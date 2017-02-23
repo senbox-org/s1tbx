@@ -35,7 +35,7 @@ newCollection.add(wktFeature)
 
 productFeatures = FeatureUtils.clipFeatureCollectionToProductBounds(newCollection, product, None, ProgressMonitor.NULL)
 
-node = VectorDataNode('shape', wktFeatureType)
+node = VectorDataNode('shape', productFeatures)
 print ('Num feratures = ', node.getFeatureCollection().size())
 
 product.getVectorDataGroup().add(node)
