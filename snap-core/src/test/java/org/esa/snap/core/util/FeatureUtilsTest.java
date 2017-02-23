@@ -49,31 +49,21 @@ import java.util.Arrays;
 
 public class FeatureUtilsTest extends TestCase {
 
-    public void testIt() throws IOException {
+    public void testCollectionClipping() throws IOException {
 
-        GeometryType gt1 = new GeometryTypeImpl(new NameImpl("geometry"), Polygon.class,
-                                                DefaultGeographicCRS.WGS84,
+        GeometryType gt1 = new GeometryTypeImpl(new NameImpl("geometry"), Polygon.class,DefaultGeographicCRS.WGS84,
                                                 false, false, null, null, null);
 
         AttributeType at2 = new AttributeTypeImpl(new NameImpl("label"), String.class,
                                                   false, false, null, null, null);
 
-        GeometryDescriptor gd1 = new GeometryDescriptorImpl(gt1,
-                                                            new NameImpl("geometry"),
-                                                            0, 1,
-                                                            false,
-                                                            null);
+        GeometryDescriptor gd1 = new GeometryDescriptorImpl(gt1, new NameImpl("geometry"),
+                                                            0, 1,false, null);
 
-        AttributeDescriptor ad2 = new AttributeDescriptorImpl(at2,
-                                                              new NameImpl("LABEL"),
-                                                              0, 1,
-                                                              false,
-                                                              null);
+        AttributeDescriptor ad2 = new AttributeDescriptorImpl(at2,new NameImpl("LABEL"),
+                                                              0, 1,false,null);
 
-
-        SimpleFeatureType marcoType = new SimpleFeatureTypeImpl(new NameImpl("MarcoType"),
-                                                                Arrays.asList(gd1, ad2),
-                                                                gd1,
+        SimpleFeatureType marcoType = new SimpleFeatureTypeImpl(new NameImpl("MarcoType"), Arrays.asList(gd1, ad2), gd1,
                                                                 false, null, null, null);
 
 

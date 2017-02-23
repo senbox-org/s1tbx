@@ -95,6 +95,7 @@ public class NdviOp extends Operator {
         int targetHeight = band1.getRasterHeight();
 
         targetProduct = new Product("ndvi", sourceProduct.getProductType() + "_NDVI", targetWidth, targetHeight);
+        ProductUtils.copyTimeInformation(sourceProduct, targetProduct);
 
         Band ndviOutputBand = new Band(NDVI_BAND_NAME, ProductData.TYPE_FLOAT32, targetWidth, targetHeight);
         targetProduct.addBand(ndviOutputBand);
