@@ -50,6 +50,9 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProducts;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.gpf.common.SubsetOp;
+import org.esa.snap.core.gpf.graph.Graph;
+import org.esa.snap.core.gpf.graph.GraphContext;
+import org.esa.snap.core.gpf.graph.GraphIO;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.StopWatch;
 import org.esa.snap.core.util.converters.JtsGeometryConverter;
@@ -59,6 +62,7 @@ import org.geotools.geometry.jts.JTS;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.HashMap;
@@ -135,6 +139,12 @@ public class BinningOp extends Operator {
                              "Try \"NetCDF-CF\", \"GeoTIFF\", \"BEAM-DIMAP\", or \"ENVISAT\", etc.",
             defaultValue = "")
     private String sourceProductFormat;
+
+    @Parameter(description = "A comma-separated list of file paths specifying the source graphs.\n" +
+            "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
+            "'*' (matches any character sequence in path names) and\n" +
+            "'?' (matches any single character).")
+    String[] sourceGraphPaths;
 
     @Parameter(converter = JtsGeometryConverter.class,
             description = "The considered geographical region as a geometry in well-known text format (WKT).\n" +
@@ -509,8 +519,10 @@ public class BinningOp extends Operator {
         if (timeFilterMethod == TimeFilterMethod.SPATIOTEMPORAL_DATA_DAY && minDataHour == null) {
             throw new OperatorException("If SPATIOTEMPORAL_DATADAY filtering is used the parameters 'minDataHour' must be given");
         }
-        if (sourceProducts == null && (sourceProductPaths == null || sourceProductPaths.length == 0)) {
-            String msg = "Either source products must be given or parameter 'sourceProductPaths' must be specified";
+        if (sourceProducts == null
+                && (sourceProductPaths == null || sourceProductPaths.length == 0)
+                && (sourceGraphPaths == null || sourceGraphPaths.length == 0)) {
+            String msg = "Either source products must be given or parameter 'sourceProductPaths' or parameter 'sourceGraphPaths' must be specified";
             throw new OperatorException(msg);
         }
         if (numRows < 2 || numRows % 2 != 0) {
@@ -615,7 +627,7 @@ public class BinningOp extends Operator {
             if (fileSet.isEmpty()) {
                 getLogger().warning("The given source file patterns did not match any files");
             } else {
-                getLogger().info("found " + fileSet.size() + " files.");
+                getLogger().info("found " + fileSet.size() + " product files.");
                 for (File file : fileSet) {
                     getLogger().info(file.getCanonicalPath());
                 }
@@ -646,6 +658,57 @@ public class BinningOp extends Operator {
                 } else {
                     String msgPattern = "Failed to read file '%s' (not a data product or reader missing)";
                     getLogger().severe(String.format(msgPattern, file));
+                }
+            }
+        }
+        if (sourceGraphPaths != null) {
+            getLogger().info("expanding sourceGraphPaths wildcards.");
+            SortedSet<File> fileSet = new TreeSet<>();
+            for (String filePattern : sourceGraphPaths) {
+                WildcardMatcher.glob(filePattern, fileSet);
+            }
+            if (fileSet.isEmpty()) {
+                getLogger().warning("The given graph file patterns did not match any files");
+            } else {
+                getLogger().info("found " + fileSet.size() + " graph files.");
+                for (File file : fileSet) {
+                    getLogger().info(file.getCanonicalPath());
+                }
+            }
+            for (File file : fileSet) {
+                Product sourceProduct = null;
+                GraphContext graphContext = null;
+                try {
+                    Graph graph = GraphIO.read(new FileReader(file));
+                    graphContext = new GraphContext(graph);
+                    Product[] outputProducts = graphContext.getOutputProducts();
+                    if (outputProducts.length != 1) {
+                        getLogger().warning("Filtered out graph '" + file + "'");
+                        getLogger().warning("            reason: graph has more than one 'outputNode'.");
+                    } else {
+                        sourceProduct = outputProducts[0];
+                    }
+                } catch (Exception e) {
+                    String msgPattern = "Failed to execute graph from file '%s'. %s: %s";
+                    getLogger().severe(String.format(msgPattern, file, e.getClass().getSimpleName(), e.getMessage()));
+                }
+                if (sourceProduct != null) {
+                    try {
+                        if (productFilter.accept(sourceProduct)) {
+                            processSource(sourceProduct, spatialBinner);
+                        } else {
+                            getLogger().warning("Filtered out result of graph '" + file + "'");
+                            getLogger().warning("                      reason: " + productFilter.getReason());
+                        }
+                    } finally {
+                        sourceProduct.dispose();
+                    }
+                } else {
+                    String msgPattern = "Failed to use graph '%s'";
+                    getLogger().severe(String.format(msgPattern, file));
+                }
+                if (graphContext != null) {
+                    graphContext.dispose();
                 }
             }
         }
