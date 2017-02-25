@@ -210,13 +210,18 @@ public final class SubtRefDemOp extends Operator {
 
         if (externalDEMFile != null) { // if external DEM file is specified by user
             dem = new FileElevationModel(externalDEMFile, resampling.getName(), externalDEMNoDataValue);
+            //((FileElevationModel)dem).applyEarthGravitionalModel(true);
             demName = externalDEMFile.getPath();
             demNoDataValue = externalDEMNoDataValue;
 
             // assume the same sampling in X and Y direction?
             try {
-                demSamplingLat = (dem.getGeoPos(new PixelPos(1, 0)).getLat() - dem.getGeoPos(new PixelPos(0, 0)).getLat()) * Constants.DTOR;
-                demSamplingLon = (dem.getGeoPos(new PixelPos(0, 1)).getLat() - dem.getGeoPos(new PixelPos(0, 0)).getLat()) * Constants.DTOR;
+                demSamplingLat = (dem.getGeoPos(new PixelPos(0, 1)).getLat() -
+                        dem.getGeoPos(new PixelPos(0, 0)).getLat()) * Constants.DTOR;
+
+                demSamplingLon = (dem.getGeoPos(new PixelPos(1, 0)).getLon() -
+                        dem.getGeoPos(new PixelPos(0, 0)).getLon()) * Constants.DTOR;
+
             } catch (Exception e) {
                 throw new OperatorException("The DEM '" + demName + "' cannot be properly interpreted.");
             }
