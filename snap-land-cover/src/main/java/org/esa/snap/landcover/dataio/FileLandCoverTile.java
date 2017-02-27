@@ -21,8 +21,8 @@ import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.dataop.resamp.Resampling;
 import org.esa.snap.core.util.CachingObjectArray;
-import org.esa.snap.engine_utilities.datamodel.DownloadableContentImpl;
-import org.esa.snap.engine_utilities.datamodel.DownloadableFile;
+import org.esa.snap.engine_utilities.download.downloadablecontent.DownloadableContentImpl;
+import org.esa.snap.engine_utilities.download.downloadablecontent.DownloadableFile;
 
 import java.awt.*;
 import java.io.File;

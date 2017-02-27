@@ -13,12 +13,18 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.snap.engine_utilities.datamodel;
+package org.esa.snap.engine_utilities.download.downloadablecontent;
+
+import java.io.IOException;
 
 /**
- * Interface for downloaded files
+ * Interface for DownloadableContent
  */
-public interface DownloadableFile {
+public interface DownloadableContent {
 
     void dispose();
+
+    DownloadableFile getContentFile() throws IOException;
+
+    String getFileName();
 }
