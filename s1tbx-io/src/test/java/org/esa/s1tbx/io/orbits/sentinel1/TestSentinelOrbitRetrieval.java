@@ -17,7 +17,7 @@ package org.esa.s1tbx.io.orbits.sentinel1;
 
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.FileUtils;
-import org.esa.snap.engine_utilities.datamodel.DownloadableContentImpl;
+import org.esa.snap.engine_utilities.download.downloadablecontent.DownloadableContentImpl;
 import org.esa.snap.engine_utilities.util.ZipUtils;
 import org.junit.Ignore;
 import org.junit.Test;
