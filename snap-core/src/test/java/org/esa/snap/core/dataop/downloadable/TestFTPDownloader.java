@@ -16,12 +16,13 @@
 package org.esa.snap.core.dataop.downloadable;
 
 import org.esa.snap.core.util.SystemUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 /**
  * FTPDownloaderTester.
@@ -31,6 +32,7 @@ import static org.junit.Assert.*;
 public class TestFTPDownloader {
 
     @Test
+    @Ignore
     public void testConnect() throws Exception {
         final String server = "speedtest.tele2.net";
         final String remotePath = "";
