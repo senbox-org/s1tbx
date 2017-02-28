@@ -29,7 +29,6 @@ import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.common.WriteOp;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
-import org.esa.snap.engine_utilities.db.CommonReaders;
 import org.esa.snap.engine_utilities.util.MemUtils;
 import org.esa.snap.engine_utilities.util.ProductFunctions;
 import org.esa.snap.engine_utilities.util.TestUtils;
