@@ -26,7 +26,7 @@ import org.esa.snap.core.datamodel.ProductNodeList;
 import org.esa.snap.core.dataop.downloadable.XMLSupport;
 import org.esa.snap.core.util.io.FileUtils;
 import org.esa.snap.core.util.io.SnapFileFilter;
-import org.esa.snap.engine_utilities.db.CommonReaders;
+import org.esa.snap.engine_utilities.gpf.CommonReaders;
 import org.esa.snap.engine_utilities.util.ProductFunctions;
 import org.esa.snap.engine_utilities.util.ResourceUtils;
 import org.esa.snap.graphbuilder.rcp.dialogs.GraphBuilderDialog;

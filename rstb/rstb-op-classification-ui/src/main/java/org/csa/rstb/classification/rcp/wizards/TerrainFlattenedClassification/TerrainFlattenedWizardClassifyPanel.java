@@ -17,7 +17,7 @@ package org.csa.rstb.classification.rcp.wizards.TerrainFlattenedClassification;
 
 import org.esa.snap.graphbuilder.rcp.wizards.WizardPanel;
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.engine_utilities.db.CommonReaders;
+import org.esa.snap.engine_utilities.gpf.CommonReaders;
 import org.esa.snap.graphbuilder.rcp.dialogs.GraphBuilderDialog;
 import org.esa.snap.rcp.SnapApp;
 
