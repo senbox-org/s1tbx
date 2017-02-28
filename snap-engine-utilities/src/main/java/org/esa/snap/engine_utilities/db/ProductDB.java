@@ -255,7 +255,7 @@ public class ProductDB extends DAO {
     }
 
     public String[] getProductTypes(final String[] missions) throws SQLException {
-        return productTable.getProductTypes(missions);
+        return missions == null ? productTable.getAllProductTypes() : productTable.getProductTypes(missions);
     }
 
     public String[] getAllAcquisitionModes() throws SQLException {
@@ -263,7 +263,7 @@ public class ProductDB extends DAO {
     }
 
     public String[] getAcquisitionModes(final String[] missions) throws SQLException {
-        return productTable.getAcquisitionModes(missions);
+        return missions == null ? productTable.getAllAcquisitionModes() : productTable.getAcquisitionModes(missions);
     }
 
     public String[] getMetadataNames() {
