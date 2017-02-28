@@ -22,13 +22,7 @@ import org.esa.s1tbx.io.SARReader;
 import org.esa.s1tbx.io.XMLProductDirectory;
 import org.esa.s1tbx.io.imageio.ImageIOFile;
 import org.esa.s1tbx.io.sunraster.SunRasterReader;
-import org.esa.snap.core.datamodel.Band;
-import org.esa.snap.core.datamodel.MetadataAttribute;
-import org.esa.snap.core.datamodel.MetadataElement;
-import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.datamodel.TiePointGeoCoding;
-import org.esa.snap.core.datamodel.TiePointGrid;
+import org.esa.snap.core.datamodel.*;
 import org.esa.snap.core.dataop.downloadable.XMLSupport;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.SystemUtils;
@@ -47,17 +41,10 @@ import org.jdom2.Element;
 
 import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * This class represents a product directory.
@@ -83,11 +70,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     private final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
 
     // For TDM CoSSC products only
-    private String masterSatellite = null;
-    private String slaveSatellite = null;
     private String masterProductName = null;
     private String slaveProductName = null;
-    private int numMasterBands = 0;
     private boolean isTanDEMX = false;
 
     public TerraSarXProductDirectory(final File inputFile) {
@@ -121,9 +105,9 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         final String inSARmasterID = mainRootElement.getChild("commonAcquisitionInfo")
                 .getChild("inSARmasterID").getText().toLowerCase();
         final String inSARslaveID = inSARmasterID.endsWith("1") ? "sat2" : "sat1";
-        masterSatellite = mainRootElement.getChild("commonAcquisitionInfo")
+        final String masterSatellite = mainRootElement.getChild("commonAcquisitionInfo")
                 .getChild("satelliteID" + inSARmasterID).getText();
-        slaveSatellite = mainRootElement.getChild("commonAcquisitionInfo")
+        final String slaveSatellite = mainRootElement.getChild("commonAcquisitionInfo")
                 .getChild("satelliteID" + inSARslaveID).getText();
 
         final List<Element> componentList = mainRootElement.getChild("productComponents").getChildren("component");
@@ -180,10 +164,6 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
         // Change the name from Abstracted_Metadata to the slave product name
         slaveAbstractedMetadataElem.setName(slaveProductName);
-
-        // Remove Original_Product_Data from Slave_Metadata
-        slaveRoot.removeElement(slaveRoot.getElement("Original_Product_Metadata"));
-
 
         // Use the master's annotation to build the Abstracted_Metadata and Original_Product_Metadata.
 
@@ -242,7 +222,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                     return pathname.getName().toLowerCase().endsWith(".xml");
                 }
             });
-            if(files != null && files.length > 0) {
+            if (files != null && files.length > 0) {
                 return slaveProductName + '/' + files[0].getName();
             }
         }
@@ -304,16 +284,16 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         productType = productVariantInfo.getAttributeString("productType", defStr).replace("_____", "_").replace("__", "_");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, productType);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR,
-                                      generalHeader.getAttributeString("itemName", defStr));
+                generalHeader.getAttributeString("itemName", defStr));
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, "TSX");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME,
-                                      ReaderUtils.getTime(generalHeader, "generationTime", standardDateFormat));
+                ReaderUtils.getTime(generalHeader, "generationTime", standardDateFormat));
 
         MetadataElement elem = generalHeader.getElement("generationSystem");
         if (elem != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier,
-                                          elem.getAttributeString("generationSystem", defStr));
+                    elem.getAttributeString("generationSystem", defStr));
         }
 
         if (missionInfo != null) {
@@ -331,7 +311,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             final String lookDirection = acquisitionInfo.getAttributeString("lookDirection", defStr);
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, lookDirection);
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.BEAMS,
-                                          acquisitionInfo.getAttributeString("elevationBeamConfiguration", defStr));
+                    acquisitionInfo.getAttributeString("elevationBeamConfiguration", defStr));
             productDescription = productType + ' ' + imagingMode;
 
             if (missionInfo == null) {
@@ -347,13 +327,13 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
         final MetadataElement imageRaster = imageDataInfo.getElement("imageRaster");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
-                                      imageRaster.getAttributeDouble("azimuthLooks", defInt));
+                imageRaster.getAttributeDouble("azimuthLooks", defInt));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks,
-                                      imageRaster.getAttributeDouble("rangeLooks", defInt));
+                imageRaster.getAttributeDouble("rangeLooks", defInt));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line,
-                                      imageRaster.getAttributeInt("numberOfColumns", defInt));
+                imageRaster.getAttributeInt("numberOfColumns", defInt));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
-                                      imageRaster.getAttributeInt("numberOfRows", defInt));
+                imageRaster.getAttributeInt("numberOfRows", defInt));
 
         if (sceneInfo != null) {
             setStartStopTime(absRoot, sceneInfo, imageRaster.getAttributeInt("numberOfRows", defInt));
@@ -361,7 +341,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             getCornerCoords(sceneInfo, geocodedImageInfo);
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.avg_scene_height,
-                                          sceneInfo.getAttributeDouble("sceneAverageHeight", defInt));
+                    sceneInfo.getAttributeDouble("sceneAverageHeight", defInt));
         } else if (acquisitionInfo != null) {
             setStartStopTime(absRoot, acquisitionInfo, imageRaster.getAttributeInt("numberOfRows", defInt));
         }
@@ -380,16 +360,16 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         final String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE);
         if (sampleType.contains("COMPLEX") && complexImageInfo != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
-                                          complexImageInfo.getAttributeDouble("projectedSpacingAzimuth", defInt));
+                    complexImageInfo.getAttributeDouble("projectedSpacingAzimuth", defInt));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing,
-                                          complexImageInfo.getElement("projectedSpacingRange").getAttributeDouble("slantRange", defInt));
+                    complexImageInfo.getElement("projectedSpacingRange").getAttributeDouble("slantRange", defInt));
         } else {
             final MetadataElement rowSpacing = imageDataInfo.getElement("imageRaster").getElement("rowSpacing");
             final MetadataElement colSpacing = imageDataInfo.getElement("imageRaster").getElement("columnSpacing");
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
-                                          rowSpacing.getAttributeDouble("rowSpacing", defInt));
+                    rowSpacing.getAttributeDouble("rowSpacing", defInt));
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_spacing,
-                                          colSpacing.getAttributeDouble("columnSpacing", defInt));
+                    colSpacing.getAttributeDouble("columnSpacing", defInt));
         }
 
         if (instrument != null) {
@@ -397,13 +377,13 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             final MetadataElement settingRecord = settings.getElement("settingRecord");
             final MetadataElement PRF = settingRecord.getElement("PRF");
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency,
-                                          PRF.getAttributeDouble("PRF", defInt));
+                    PRF.getAttributeDouble("PRF", defInt));
             final MetadataElement RSF = settings.getElement("RSF");
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_sampling_rate,
-                                          RSF.getAttributeDouble("RSF", defInt) / Constants.oneMillion);
+                    RSF.getAttributeDouble("RSF", defInt) / Constants.oneMillion);
             final MetadataElement radarParameters = instrument.getElement("radarParameters");
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency,
-                                          radarParameters.getAttributeDouble("centerFrequency", defInt) / Constants.oneMillion);
+                    radarParameters.getAttributeDouble("centerFrequency", defInt) / Constants.oneMillion);
         }
 
         int srgr = 1;
@@ -435,7 +415,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
-                                      (Math.min(slantRangeCorners[0], slantRangeCorners[2]) / Constants.oneBillion) * Constants.halfLightSpeed);
+                (Math.min(slantRangeCorners[0], slantRangeCorners[2]) / Constants.oneBillion) * Constants.halfLightSpeed);
         // Note: Here we use the minimum of the slant range times of two corners because the original way cause
         //       problem for stripmap product when the two slant range times are different.
 
@@ -443,7 +423,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         if (calibration != null) {
             final MetadataElement calibrationConstant = calibration.getElement("calibrationConstant");
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.calibration_factor,
-                                          calibrationConstant.getAttributeDouble("calFactor", defInt));
+                    calibrationConstant.getAttributeDouble("calFactor", defInt));
         }
 
         if (platform != null) {
@@ -484,8 +464,6 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         String parentPath = masterProductName + '/' + getRelativePathToImageFolder();
         findImages(parentPath, newRoot);
 
-        numMasterBands = cosarFileList.size();
-
         parentPath = slaveProductName + '/' + getRelativePathToImageFolder();
         findImages(parentPath, newRoot);
     }
@@ -509,7 +487,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
-                                      ReaderUtils.getLineTimeInterval(startTime, stopTime, height));
+                ReaderUtils.getLineTimeInterval(startTime, stopTime, height));
     }
 
     private static String getAcquisitionMode(final String mode) {
@@ -543,10 +521,10 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 final int refCol = child.getAttributeInt("refColumn", 0);
 
                 coordList.add(new CornerCoord(refRow, refCol,
-                                              child.getAttributeDouble("lat", 0),
-                                              child.getAttributeDouble("lon", 0),
-                                              child.getAttributeDouble("rangeTime", 0) * Constants.oneBillion,
-                                              child.getAttributeDouble("incidenceAngle", 0)));
+                        child.getAttributeDouble("lat", 0),
+                        child.getAttributeDouble("lon", 0),
+                        child.getAttributeDouble("rangeTime", 0) * Constants.oneBillion,
+                        child.getAttributeDouble("incidenceAngle", 0)));
 
                 if (refRow > maxRow) maxRow = refRow;
                 if (refCol > maxCol) maxCol = refCol;
@@ -640,7 +618,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                     throw new IOException("Unable to open " + imgPath);
 
                 final ImageIOFile img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream),
-                                                        1, 1, ProductData.TYPE_UINT16, productInputFile);
+                        1, 1, ProductData.TYPE_UINT16, productInputFile);
                 bandImageFileMap.put(img.getName(), img);
             }
         }
@@ -658,24 +636,24 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             final File level1ProductDir = getBaseDir();
             final File shiftFile = new File(level1ProductDir,
                     "COMMON_AUXRASTER" + File.separator + fileName);
-            if(shiftFile.exists()) {
+            if (shiftFile.exists()) {
                 final SunRasterReader sunRasterReader = new SunRasterReader();
                 final Product shiftProduct = sunRasterReader.readProductNodes(shiftFile, null);
                 final Band band = shiftProduct.getBandAt(0);
                 band.readRasterDataFully(ProgressMonitor.NULL);
 
                 final int gridWidth = band.getRasterWidth();
-                final int gridHeight =  band.getRasterHeight();
+                final int gridHeight = band.getRasterHeight();
                 final float subSamplingX = product.getSceneRasterWidth() / (float) (gridWidth - 1);
                 final float subSamplingY = product.getSceneRasterHeight() / (float) (gridHeight - 1);
 
                 final TiePointGrid azShiftGrid = new TiePointGrid(fileName,
                         gridWidth, gridHeight, 0.5f, 0.5f,
-                        subSamplingX, subSamplingY, (float[])band.getData().getElems());
+                        subSamplingX, subSamplingY, (float[]) band.getData().getElems());
                 product.addTiePointGrid(azShiftGrid);
             }
         } catch (Exception e) {
-            SystemUtils.LOG.severe("Unable to add "+fileName +" shift file " + e.getMessage());
+            SystemUtils.LOG.severe("Unable to add " + fileName + " shift file " + e.getMessage());
         }
     }
 
@@ -817,13 +795,13 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
         if (regridNeeded) {
             getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, col, row, latList,
-                                      newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLatList);
+                    newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLatList);
 
             getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, col, row, lonList,
-                                      newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLonList);
+                    newGridWidth, newGridHeight, subSamplingX, subSamplingY, newLonList);
 
             getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, col, row, incList,
-                                      newGridWidth, newGridHeight, subSamplingX, subSamplingY, newIncList);
+                    newGridWidth, newGridHeight, subSamplingX, subSamplingY, newIncList);
         } else {
             for (int m = 0; m < newLatList.length; ++m) {
                 newLatList[m] = (float) latList[m];
@@ -833,17 +811,17 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
 
         final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE,
-                                                      newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLatList);
+                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLatList);
         latGrid.setUnit(Unit.DEGREES);
         product.addTiePointGrid(latGrid);
 
         final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE,
-                                                      newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLonList, TiePointGrid.DISCONT_AT_180);
+                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLonList, TiePointGrid.DISCONT_AT_180);
         lonGrid.setUnit(Unit.DEGREES);
         product.addTiePointGrid(lonGrid);
 
         final TiePointGrid incidentAngleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE,
-                                                                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newIncList);
+                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newIncList);
         incidentAngleGrid.setUnit(Unit.DEGREES);
         product.addTiePointGrid(incidentAngleGrid);
 
@@ -913,10 +891,10 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 final double wi = (newX - oldX0) / (oldX1 - oldX0);
 
                 targetPointList[k++] = (float) MathUtils.interpolate2D(wi, wj,
-                                                                       sourcePointList[i0 + j0 * sourceGridWidth],
-                                                                       sourcePointList[i1 + j0 * sourceGridWidth],
-                                                                       sourcePointList[i0 + j1 * sourceGridWidth],
-                                                                       sourcePointList[i1 + j1 * sourceGridWidth]);
+                        sourcePointList[i0 + j0 * sourceGridWidth],
+                        sourcePointList[i1 + j0 * sourceGridWidth],
+                        sourcePointList[i0 + j1 * sourceGridWidth],
+                        sourcePointList[i1 + j1 * sourceGridWidth]);
             }
         }
     }
@@ -940,7 +918,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, flippedIncidenceCorners, fineAngles);
 
             final TiePointGrid incidentAngleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE, gridWidth, gridHeight, 0, 0,
-                                                                    subSamplingX, subSamplingY, fineAngles);
+                    subSamplingX, subSamplingY, fineAngles);
             incidentAngleGrid.setUnit(Unit.DEGREES);
             product.addTiePointGrid(incidentAngleGrid);
         }
@@ -949,7 +927,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, flippedSlantRangeCorners, fineSlantRange);
 
         final TiePointGrid slantRangeGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME, gridWidth, gridHeight, 0, 0,
-                                                             subSamplingX, subSamplingY, fineSlantRange);
+                subSamplingX, subSamplingY, fineSlantRange);
         slantRangeGrid.setUnit(Unit.NANOSECONDS);
         product.addTiePointGrid(slantRangeGrid);
 
@@ -1133,29 +1111,29 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 equalElems(AbstractMetadata.NO_METADATA_UTC)) {
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME,
-                                          ReaderUtils.getTime(stateVectorElems[1], "timeUTC", standardDateFormat));
+                    ReaderUtils.getTime(stateVectorElems[1], "timeUTC", standardDateFormat));
         }
     }
 
     private void addVector(String name, MetadataElement orbitVectorListElem,
-                                  MetadataElement srcElem, int num) {
+                           MetadataElement srcElem, int num) {
         final MetadataElement orbitVectorElem = new MetadataElement(name + num);
 
         orbitVectorElem.setAttributeUTC(AbstractMetadata.orbit_vector_time,
-                                        ReaderUtils.getTime(srcElem, "timeUTC", standardDateFormat));
+                ReaderUtils.getTime(srcElem, "timeUTC", standardDateFormat));
 
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_x_pos,
-                                           srcElem.getAttributeDouble("posX", 0));
+                srcElem.getAttributeDouble("posX", 0));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_y_pos,
-                                           srcElem.getAttributeDouble("posY", 0));
+                srcElem.getAttributeDouble("posY", 0));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_z_pos,
-                                           srcElem.getAttributeDouble("posZ", 0));
+                srcElem.getAttributeDouble("posZ", 0));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_x_vel,
-                                           srcElem.getAttributeDouble("velX", 0));
+                srcElem.getAttributeDouble("velX", 0));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_y_vel,
-                                           srcElem.getAttributeDouble("velY", 0));
+                srcElem.getAttributeDouble("velY", 0));
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_z_vel,
-                                           srcElem.getAttributeDouble("velZ", 0));
+                srcElem.getAttributeDouble("velZ", 0));
 
         orbitVectorListElem.addElement(orbitVectorElem);
     }
@@ -1235,14 +1213,14 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         final ProductData.UTC utcTime = absRoot.getAttributeUTC(AbstractMetadata.first_line_time, AbstractMetadata.NO_METADATA_UTC);
         srgrListElem.setAttributeUTC(AbstractMetadata.srgr_coef_time, utcTime);
         AbstractMetadata.addAbstractedAttribute(srgrListElem, AbstractMetadata.ground_range_origin,
-                                                ProductData.TYPE_FLOAT64, "m", "Ground Range Origin");
+                ProductData.TYPE_FLOAT64, "m", "Ground Range Origin");
         AbstractMetadata.setAttribute(srgrListElem, AbstractMetadata.ground_range_origin, 0.0);
 
         for (int i = 0; i <= m; i++) {
             final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + (i + 1));
             srgrListElem.addElement(coefElem);
             AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.srgr_coef,
-                                                    ProductData.TYPE_FLOAT64, "", "SRGR Coefficient");
+                    ProductData.TYPE_FLOAT64, "", "SRGR Coefficient");
             AbstractMetadata.setAttribute(coefElem, AbstractMetadata.srgr_coef, g2sCoef[i]);
         }
     }
@@ -1282,7 +1260,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                     ++cnt;
 
                     AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.dop_coef,
-                                                            ProductData.TYPE_FLOAT64, "", "Doppler Centroid Coefficient");
+                            ProductData.TYPE_FLOAT64, "", "Doppler Centroid Coefficient");
                     AbstractMetadata.setAttribute(coefElem, AbstractMetadata.dop_coef, coefValue);
                 }
             }
