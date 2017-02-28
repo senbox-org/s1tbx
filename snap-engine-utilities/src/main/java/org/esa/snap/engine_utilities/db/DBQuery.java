@@ -105,8 +105,9 @@ public class DBQuery {
     }
 
     public void setSelectedAcquisitionMode(final String mode) {
-        if (mode != null)
+        if (mode != null) {
             selectedAcquisitionMode = mode;
+        }
     }
 
     public String getSelectedAcquisitionMode() {
@@ -114,8 +115,9 @@ public class DBQuery {
     }
 
     public void setSelectedPass(final String pass) {
-        if (pass != null)
+        if (pass != null) {
             selectedPass = pass;
+        }
     }
 
     public String getSelectedPass() {
@@ -123,13 +125,15 @@ public class DBQuery {
     }
 
     public void setSelectedName(final String name) {
-        if (name != null)
+        if (name != null) {
             selectedName = name;
+        }
     }
 
     public void setSelectedTrack(final String track) {
-        if (track != null)
+        if (track != null) {
             selectedTrack = track;
+        }
     }
 
     public String getSelectedTrack() {
@@ -137,8 +141,9 @@ public class DBQuery {
     }
 
     public void setSelectedSampleType(final String sampleType) {
-        if (sampleType != null)
+        if (sampleType != null) {
             selectedSampleType = sampleType;
+        }
     }
 
     public String getSelectedSampleType() {
@@ -146,8 +151,9 @@ public class DBQuery {
     }
 
     public void setSelectedPolarization(final String pol) {
-        if (pol != null)
+        if (pol != null) {
             selectedPolarization = pol;
+        }
     }
 
     public String getSelectedPolarization() {
@@ -155,8 +161,9 @@ public class DBQuery {
     }
 
     public void setSelectedCalibration(final String calib) {
-        if (calib != null)
+        if (calib != null) {
             selectedCalibration = calib;
+        }
     }
 
     public String getSelectedCalibration() {
@@ -164,8 +171,9 @@ public class DBQuery {
     }
 
     public void setSelectedOrbitCorrection(final String orbitCor) {
-        if (orbitCor != null)
+        if (orbitCor != null) {
             selectedOrbitCorrection = orbitCor;
+        }
     }
 
     public String getSelectedOrbitCorrection() {
@@ -225,10 +233,12 @@ public class DBQuery {
 
     public ProductEntry[] queryDatabase(final ProductDB db) throws SQLException {
 
-        if (StringUtils.contains(selectedMissions, ALL_MISSIONS))
+        if (StringUtils.contains(selectedMissions, ALL_MISSIONS)) {
             selectedMissions = new String[]{};
-        if (StringUtils.contains(selectedProductTypes, ALL_PRODUCT_TYPES))
+        }
+        if (StringUtils.contains(selectedProductTypes, ALL_PRODUCT_TYPES)) {
             selectedProductTypes = new String[]{};
+        }
 
         final StringBuilder queryStr = new StringBuilder(1000);
         if (selectedMissions.length > 0) {
@@ -299,7 +309,7 @@ public class DBQuery {
                     monthSelectionStr.append("MONTH(" + ProductTable.TABLE + '.' + AbstractMetadata.first_line_time + ") = " + (m + 1));
                 }
             }
-            queryStr.append("NOT (" + monthSelectionStr + ")");
+            queryStr.append("NOT (" + monthSelectionStr + ')');
         }
 
         final Set<String> metadataNames = metadataQueryMap.keySet();
@@ -363,28 +373,28 @@ public class DBQuery {
                 queryStr.append("( " +
                         MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "!='"+NoData+"' AND " +
                         MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "!='"+NoData+"' AND " +
-                        " ( " + MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "=" + "'HH'" + " OR " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "=" + "'VV'" + " ) " + " AND " +
-                        " ( " + MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "=" + "'HH'" + " OR " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "=" + "'VV'" + " ) )");
+                        " ( " + MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + '=' + "'HH'" + " OR " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + '=' + "'VV'" + " ) " + " AND " +
+                        " ( " + MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + '=' + "'HH'" + " OR " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + '=' + "'VV'" + " ) )");
                 break;
             case HHHV:
                 queryStr.append("( " +
                         MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "!='"+NoData+"' AND " +
                         MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "!='"+NoData+"' AND " +
-                        " ( " + MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "=" + "'HH'" + " OR " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "=" + "'HV'" + " ) " + " AND " +
-                        " ( " + MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "=" + "'HH'" + " OR " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "=" + "'HV'" + " ) )");
+                        " ( " + MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + '=' + "'HH'" + " OR " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + '=' + "'HV'" + " ) " + " AND " +
+                        " ( " + MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + '=' + "'HH'" + " OR " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + '=' + "'HV'" + " ) )");
                 break;
             case VVVH:
                 queryStr.append("( " +
                         MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "!='"+NoData+"' AND " +
                         MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "!='"+NoData+"' AND " +
-                        " ( " + MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "=" + "'VV'" + " OR " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "=" + "'VH'" + " ) " + " AND " +
-                        " ( " + MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "=" + "'VV'" + " OR " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "=" + "'VH'" + " ) )");
+                        " ( " + MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + '=' + "'VV'" + " OR " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + '=' + "'VH'" + " ) " + " AND " +
+                        " ( " + MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + '=' + "'VV'" + " OR " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + '=' + "'VH'" + " ) )");
                 break;
             case DUALPOL:
                 queryStr.append("( " +
@@ -412,8 +422,9 @@ public class DBQuery {
 
     private boolean monthSelectionMade() {
         for (boolean b : selectedMonths) {
-            if (b == false)
+            if (b == false) {
                 return true;
+            }
         }
         return false;
     }
@@ -428,8 +439,9 @@ public class DBQuery {
 
     private ProductEntry[] intersectMapSelection(final ProductEntry[] resultsList, final boolean returnAllIfNoIntersection) {
 
-        if (selectionRectangle == null)
+        if (selectionRectangle == null) {
             return resultsList;
+        }
 
         final List<ProductEntry> intersectList = new ArrayList<>(resultsList.length);
         final int mult = 100000; //float to integer
@@ -472,8 +484,9 @@ public class DBQuery {
                         break;
                     }
                 }
-                if (allPoints)
+                if (allPoints) {
                     intersectList.add(entry);
+                }
             } else if (singlePointSelection) {
                 if (p.contains(selRect.x, selRect.y)) {
                     intersectList.add(entry);
@@ -490,15 +503,17 @@ public class DBQuery {
                             break;
                         }
                     }
-                    if (allPoints)
+                    if (allPoints) {
                         intersectList.add(entry);
+                    }
                 }
             }
         }
 
         // if nothing selected then return all
-        if (singlePointSelection && returnAllIfNoIntersection && intersectList.isEmpty())
+        if (singlePointSelection && returnAllIfNoIntersection && intersectList.isEmpty()) {
             return resultsList;
+        }
 
         return intersectList.toArray(new ProductEntry[intersectList.size()]);
     }
