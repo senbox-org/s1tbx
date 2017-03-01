@@ -54,7 +54,11 @@ public class CopernicusProductQuery implements ProductQueryInterface {
         return true;
     }
 
-    public void query(final DBQuery dbQuery) throws Exception {
+    public boolean partialQuery(final DBQuery dbQuery) throws Exception {
+        return false;
+    }
+
+    public boolean fullQuery(final DBQuery dbQuery) throws Exception {
         final OpenSearch openSearch = new OpenSearch(COPERNICUS_HOST);
         OpenSearch.Result result = openSearch.getPages(searchURL);
 
@@ -65,6 +69,8 @@ public class CopernicusProductQuery implements ProductQueryInterface {
             resultList.add(new ProductEntry(-1, id, null));
         }
         productEntryList = resultList.toArray(new ProductEntry[resultList.size()]);
+
+        return productEntryList.length > 0;
     }
 
     public ProductEntry[] getProductEntryList() {

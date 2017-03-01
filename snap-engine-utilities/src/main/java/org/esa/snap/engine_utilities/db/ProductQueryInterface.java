@@ -22,7 +22,21 @@ public interface ProductQueryInterface {
 
     boolean isReady();
 
-    void query(final DBQuery dbQuery) throws Exception;
+    /**
+     * Quickly query with current user requests
+     * @param dbQuery
+     * @return true if results exists
+     * @throws Exception
+     */
+    boolean partialQuery(final DBQuery dbQuery) throws Exception;
+
+    /**
+     * Full query
+     * @param dbQuery
+     * @return true if results exists
+     * @throws Exception
+     */
+    boolean fullQuery(final DBQuery dbQuery) throws Exception;
 
     ProductEntry[] getProductEntryList();
 

@@ -49,7 +49,11 @@ public class DBProductQuery implements ProductQueryInterface {
         return db;
     }
 
-    public void query(final DBQuery dbQuery) throws Exception {
+    public boolean partialQuery(final DBQuery dbQuery) throws Exception {
+        return fullQuery(dbQuery);
+    }
+
+    public boolean fullQuery(final DBQuery dbQuery) throws Exception {
         if (db == null) {
             db = ProductDB.instance();
         }
@@ -59,7 +63,9 @@ public class DBProductQuery implements ProductQueryInterface {
         }
         if (db.isReady()) {
             productEntryList = dbQuery.queryDatabase(db);
+            return true;
         }
+        return false;
     }
 
     public ProductEntry[] getProductEntryList() {
