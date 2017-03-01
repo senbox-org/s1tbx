@@ -24,7 +24,9 @@ import org.apache.abdera.protocol.Response;
 import org.apache.abdera.protocol.client.AbderaClient;
 import org.apache.abdera.protocol.client.ClientResponse;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Credentials;
 
 import javax.xml.namespace.QName;
@@ -32,6 +34,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,13 +51,13 @@ public class OpenSearch {
         this.host = host;
     }
 
-    public Result getPages(String searchURL) throws IOException {
+    public PageResult getPages(String searchURL) throws IOException {
         this.searchURL = searchURL;
-        final Feed feed = connect(searchURL, null);
+        final Feed feed = connect(searchURL, "&start=" + 0 + "&rows=" + numRows);
         if (feed == null) {
             return null;
         }
-        final Result result = new Result(feed);
+        final PageResult result = new PageResult(feed);
 
         SystemUtils.LOG.info("OpenSearch: " + result.totalResults + " total results on " + result.pages + " pages.");
 
@@ -63,26 +66,25 @@ public class OpenSearch {
         return result;
     }
 
-    public String[] getProductIDs(final Result result) {
-        final List<String> uuidLst = new ArrayList<>();
+    public ProductResult[] getProductResults(final PageResult result) {
+        final List<ProductResult> productResultList = new ArrayList<>();
 
-        for (int item = 0; item < result.totalResults; item++) {
+        for (int item = 0; item < result.totalResults; item += numRows) {
             try {
                 final Feed feed = connect(searchURL, "&start=" + item + "&rows=" + numRows);
 
-                SystemUtils.LOG.info("Paging results: \t " + item + "/" + result.totalResults + " - \t UUID collected: " + uuidLst.size() + "\r");
-
-                dumpFeed(feed);
+                //SystemUtils.LOG.info("Paging results: \t " + (item+1) + '/' + result.pages);
+                //dumpFeed(feed);
 
                 final List<Entry> entries = feed.getEntries();
                 for (Entry entry : entries) {
-                    if (!uuidLst.contains(entry.getId().toString())) uuidLst.add(entry.getId().toString());
+                    productResultList.add(new ProductResult(entry));
                 }
             } catch (Exception e) {
-
+                SystemUtils.LOG.severe("Error retrieving product results " + e.getMessage());
             }
         }
-        return uuidLst.toArray(new String[uuidLst.size()]);
+        return productResultList.toArray(new ProductResult[productResultList.size()]);
     }
 
     private Feed connect(String searchURL, final String compl) throws IOException {
@@ -99,7 +101,7 @@ public class OpenSearch {
             AbderaClient.registerTrustManager();
 
             if (compl != null) {
-                searchURL = searchURL + " " + compl;
+                searchURL = searchURL + ' ' + compl;
             }
 
             int end = searchURL.indexOf("search") + 9;
@@ -120,7 +122,7 @@ public class OpenSearch {
                 Document<Feed> doc = resp.getDocument();
                 feed = doc.getRoot();
             } else {
-                throw new IOException("Error in OpenSearch query: " + resp.getType() + " [" + resp.getStatus() + "]");
+                throw new IOException("Error in OpenSearch query: " + resp.getType() + " [" + resp.getStatus() + ']');
             }
         } catch (URISyntaxException e) {
             throw new IOException(e);
@@ -145,12 +147,12 @@ public class OpenSearch {
             System.out.println(entry.getSummary());
             System.out.println(entry.getTitle());
 
-            List<Link> links = entry.getLinks();
+            final List<Link> links = entry.getLinks();
             for (Link link : links) {
                 System.out.println("link: " + link.toString());
             }
 
-            List<QName> attrib = entry.getAttributes();
+            final List<QName> attrib = entry.getAttributes();
             for (QName qName : attrib) {
                 System.out.println("Atrib: " + qName.toString());
             }
@@ -158,17 +160,93 @@ public class OpenSearch {
         }
     }
 
-    public static class Result {
+    public static class PageResult {
         public final int totalResults;
         public final int itemsPerPage;
         public final int pages;
 
-        public Result(final Feed feed) {
-            QName trQn = new QName("http://a9.com/-/spec/opensearch/1.1/", "totalResults");
-            QName ippQn = new QName("http://a9.com/-/spec/opensearch/1.1/", "itemsPerPage");
+        private static final QName trQn = new QName("http://a9.com/-/spec/opensearch/1.1/", "totalResults");
+        private static final QName ippQn = new QName("http://a9.com/-/spec/opensearch/1.1/", "itemsPerPage");
+
+        public PageResult(final Feed feed) {
             totalResults = Integer.parseInt(feed.getExtension(trQn).getText());
             itemsPerPage = Integer.parseInt(feed.getExtension(ippQn).getText());
-            pages = totalResults / itemsPerPage;
+            pages = (totalResults / itemsPerPage) + 1;
+        }
+    }
+
+    public static class ProductResult {
+        public final String id;
+        public final String name;
+        public final String size;
+        public final String mode;
+        public final String mission;
+        public final ProductData.UTC utc;
+        public String productLink;
+        public String quicklookLink;
+
+        private static final String SIZE = "Size:";
+        private static final String SATELLITE = "Satellite:";
+        private static final String DATE = "Date:";
+        private static final String MODE = "Mode:";
+        public final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyy-MM-dd HH:mm:ss");
+
+        public ProductResult(final Entry entry) {
+            this.id = (entry.getId().toString());
+            this.name = entry.getTitle();
+
+            final String summary = entry.getSummary();
+
+            this.mission = getMission(summary);
+            this.utc = AbstractMetadata.parseUTC(getDate(summary), dateFormat);
+            this.size = getSize(summary);
+            this.mode = getMode(summary);
+
+            final List<Link> links = entry.getLinks();
+            for (Link link : links) {
+
+                if(link.getRel() == null) {
+                    productLink = link.getHref().toString();
+                } else if(link.getRel().equals("icon")) {
+                    quicklookLink = link.getHref().toString();
+                }
+            }
+        }
+
+        private static String getDate(final String text) {
+            int start = text.indexOf(DATE);
+            if(start >= 0) {
+                int end = text.indexOf(',', start);
+                return text.substring(start + DATE.length(), end < 0 ? text.length() : end).trim().replace("T", " ").replace("Z", "");
+            }
+            return "";
+        }
+
+        private static String getMission(final String text) {
+            int start = text.indexOf(SATELLITE);
+            if(start >= 0) {
+                int end = text.indexOf(',', start);
+                return text.substring(start + SATELLITE.length(), end < 0 ? text.length() : end).trim();
+            }
+            return "";
+        }
+
+        private static String getSize(final String text) {
+            int start = text.indexOf(SIZE);
+            if(start >= 0) {
+                int end = text.indexOf(',', start);
+                return text.substring(start + SIZE.length(), end < 0 ? text.length() : end).trim();
+            }
+            return "";
+        }
+
+        private static String getMode(final String text) {
+            int start = text.indexOf(MODE);
+            if(start >= 0) {
+                int end = text.indexOf(',', start);
+                return text.substring(start + MODE.length(), end < 0 ? text.length() : end).trim();
+            }
+            return "";
         }
     }
 }

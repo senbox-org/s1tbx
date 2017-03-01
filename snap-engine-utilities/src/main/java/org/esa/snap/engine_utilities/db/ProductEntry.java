@@ -25,7 +25,9 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.quicklooks.Quicklook;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
+import org.esa.snap.engine_utilities.download.opensearch.OpenSearch;
 import org.esa.snap.engine_utilities.gpf.CommonReaders;
 import org.esa.snap.engine_utilities.util.ProductFunctions;
 
@@ -158,6 +160,14 @@ public class ProductEntry {
         }
     }
 
+    public ProductEntry(OpenSearch.ProductResult productResult) {
+
+        this.id = -1;
+        this.name = productResult.name;
+        this.mission = productResult.mission;
+        this.firstLineTime = productResult.utc;
+    }
+
     public void dispose() {
         if (absRoot != null)
             absRoot.dispose();
@@ -245,7 +255,7 @@ public class ProductEntry {
                 geoPoints.add(geoPoints2.get(i));
             }
         } catch (Exception e) {
-            System.out.println("Error reading SMOS " + e.getMessage());
+            SystemUtils.LOG.severe("Error reading SMOS " + e.getMessage());
         }
         return geoPoints.toArray(new GeoPos[geoPoints.size()]);
     }
@@ -376,7 +386,7 @@ public class ProductEntry {
             try {
                 absRoot = ProductDB.instance().getProductMetadata(id);
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+                SystemUtils.LOG.severe(e.getMessage());
             }
         }
         return absRoot;

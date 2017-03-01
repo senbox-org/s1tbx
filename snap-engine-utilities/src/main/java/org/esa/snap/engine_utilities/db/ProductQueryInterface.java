@@ -15,6 +15,8 @@
  */
 package org.esa.snap.engine_utilities.db;
 
+import com.bc.ceres.core.ProgressMonitor;
+
 /**
  * Common search interface for Products from either a database or repository
  */
@@ -24,7 +26,7 @@ public interface ProductQueryInterface {
 
     /**
      * Quickly query with current user requests
-     * @param dbQuery
+     * @param dbQuery query data
      * @return true if results exists
      * @throws Exception
      */
@@ -32,11 +34,12 @@ public interface ProductQueryInterface {
 
     /**
      * Full query
-     * @param dbQuery
+     * @param dbQuery query data
+     * @param pm progress monitor
      * @return true if results exists
      * @throws Exception
      */
-    boolean fullQuery(final DBQuery dbQuery) throws Exception;
+    boolean fullQuery(final DBQuery dbQuery, final ProgressMonitor pm) throws Exception;
 
     ProductEntry[] getProductEntryList();
 

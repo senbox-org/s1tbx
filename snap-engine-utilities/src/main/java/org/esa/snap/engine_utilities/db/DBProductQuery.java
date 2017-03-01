@@ -15,6 +15,7 @@
  */
 package org.esa.snap.engine_utilities.db;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.util.SystemUtils;
 
 import java.sql.SQLException;
@@ -50,10 +51,10 @@ public class DBProductQuery implements ProductQueryInterface {
     }
 
     public boolean partialQuery(final DBQuery dbQuery) throws Exception {
-        return fullQuery(dbQuery);
+        return fullQuery(dbQuery, ProgressMonitor.NULL);
     }
 
-    public boolean fullQuery(final DBQuery dbQuery) throws Exception {
+    public boolean fullQuery(final DBQuery dbQuery, final ProgressMonitor pm) throws Exception {
         if (db == null) {
             db = ProductDB.instance();
         }

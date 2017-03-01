@@ -38,19 +38,19 @@ public class TestCopernicusOpenSearch {
     @Ignore
     public void testConnect() throws IOException {
         final OpenSearch openSearch = new OpenSearch(COPERNICUS_HOST);
-        OpenSearch.Result result = openSearch.getPages(searchURL);
+        OpenSearch.PageResult pageResult = openSearch.getPages(searchURL);
 
-        final String[] productIds = openSearch.getProductIDs(result);
+        final OpenSearch.ProductResult[] productResults = openSearch.getProductResults(pageResult);
 
         System.out.println("Retrieved Product Ids");
-        for(String id : productIds) {
-            System.out.println("id: " + id);
+        for(OpenSearch.ProductResult result : productResults) {
+            System.out.println("id: " + result.id);
         }
 
         final OpenData openData = new OpenData(COPERNICUS_HOST);
-        for(String id : productIds){
+        for(OpenSearch.ProductResult result : productResults){
             try {
-                openData.getProductByID(id, COPERNICUS_ODATA_METALINK, COPERNICUS_ODATA_ROOT, outputFolder);
+                openData.getProductByID(result.id, COPERNICUS_ODATA_METALINK, COPERNICUS_ODATA_ROOT, outputFolder);
             } catch (IOException e) {
                 throw e;
             }

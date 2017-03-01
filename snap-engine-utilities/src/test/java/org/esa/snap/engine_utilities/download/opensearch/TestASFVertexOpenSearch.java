@@ -34,19 +34,19 @@ public class TestASFVertexOpenSearch {
     @Ignore
     public void testConnect() throws IOException {
         final OpenSearch openSearch = new OpenSearch(ASF_VERTEX_HOST);
-        OpenSearch.Result result = openSearch.getPages(searchURL);
+        OpenSearch.PageResult pageResult = openSearch.getPages(searchURL);
 
-        final String[] productIds = openSearch.getProductIDs(result);
+        final OpenSearch.ProductResult[] productResults = openSearch.getProductResults(pageResult);
 
         System.out.println("Retrieved Product Ids");
-        for(String id : productIds) {
-            System.out.println("id: " + id);
+        for(OpenSearch.ProductResult result : productResults) {
+            System.out.println("id: " + result.id);
         }
 
         final OpenData openData = new OpenData(ASF_VERTEX_HOST);
-        for(String id : productIds){
+        for(OpenSearch.ProductResult result : productResults){
             try {
-                openData.getProductByID(id, "", "", "");
+                openData.getProductByID(result.id, "", "", "");
             } catch (IOException e) {
                 throw e;
             }
