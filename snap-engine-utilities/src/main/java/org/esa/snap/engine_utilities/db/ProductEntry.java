@@ -78,8 +78,9 @@ public class ProductEntry {
 
     private Quicklook quicklook = null;
 
-    public ProductEntry(final int id, final File file) {
+    public ProductEntry(final int id, final String name, final File file) {
         this.id = id;
+        this.name = name;
         this.file = file;
     }
 
