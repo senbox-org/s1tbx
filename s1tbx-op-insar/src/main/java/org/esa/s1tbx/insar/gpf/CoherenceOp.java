@@ -238,7 +238,9 @@ public class CoherenceOp extends Operator {
         }
         MetadataElement[] slaveRoot = slaveElem.getElements();
         for (MetadataElement meta : slaveRoot) {
-            metaMapPut(slaveTag, meta, sourceProduct, slaveMap);
+            if(!meta.getName().contains(AbstractMetadata.ORIGINAL_PRODUCT_METADATA)) {
+                metaMapPut(slaveTag, meta, sourceProduct, slaveMap);
+            }
         }
     }
 
