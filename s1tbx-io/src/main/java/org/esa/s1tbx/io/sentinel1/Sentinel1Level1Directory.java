@@ -61,7 +61,6 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
     private final transient Map<String, String> imgBandMetadataMap = new HashMap<>(4);
     private String acqMode = "";
 
-    private final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
     private final static Double NoDataValue = 0.0;//-9999.0;
 
     public Sentinel1Level1Directory(final File inputFile) {
@@ -576,7 +575,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 equalElems(AbstractMetadata.NO_METADATA_UTC)) {
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME,
-                                          ReaderUtils.getTime(stateVectorElems[0], "time", standardDateFormat));
+                                          ReaderUtils.getTime(stateVectorElems[0], "time", sentinelDateFormat));
         }
     }
 
@@ -588,7 +587,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         final MetadataElement velocityElem = orbitElem.getElement("velocity");
 
         orbitVectorElem.setAttributeUTC(AbstractMetadata.orbit_vector_time,
-                                        ReaderUtils.getTime(orbitElem, "time", standardDateFormat));
+                                        ReaderUtils.getTime(orbitElem, "time", sentinelDateFormat));
 
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_x_pos,
                                            positionElem.getAttributeDouble("x", 0));
@@ -619,7 +618,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
             srgrCoefficientsElem.addElement(srgrListElem);
             ++listCnt;
 
-            final ProductData.UTC utcTime = ReaderUtils.getTime(elem, "azimuthTime", standardDateFormat);
+            final ProductData.UTC utcTime = ReaderUtils.getTime(elem, "azimuthTime", sentinelDateFormat);
             srgrListElem.setAttributeUTC(AbstractMetadata.srgr_coef_time, utcTime);
 
             final double grOrigin = elem.getAttributeDouble("gr0", 0);
@@ -659,7 +658,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
             dopplerCentroidCoefficientsElem.addElement(dopplerListElem);
             ++listCnt;
 
-            final ProductData.UTC utcTime = ReaderUtils.getTime(elem, "azimuthTime", standardDateFormat);
+            final ProductData.UTC utcTime = ReaderUtils.getTime(elem, "azimuthTime", sentinelDateFormat);
             dopplerListElem.setAttributeUTC(AbstractMetadata.dop_coef_time, utcTime);
 
             final double refTime = elem.getAttributeDouble("t0", 0) * 1e9; // s to ns
