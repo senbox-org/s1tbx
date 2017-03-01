@@ -104,6 +104,8 @@ public class OpenSearch {
                 searchURL = searchURL + ' ' + compl;
             }
 
+            SystemUtils.LOG.info("OpenSearch: " + searchURL);
+
             int end = searchURL.indexOf("search") + 9;
             String init = searchURL.substring(0, end);
             String last = searchURL.substring(end);
@@ -113,8 +115,6 @@ public class OpenSearch {
             } catch (UnsupportedEncodingException e) {
                 throw new IOException(e);
             }
-
-            SystemUtils.LOG.info("OpenSearch: " + searchURL);
 
             ClientResponse resp = client.get(searchURL);
 
