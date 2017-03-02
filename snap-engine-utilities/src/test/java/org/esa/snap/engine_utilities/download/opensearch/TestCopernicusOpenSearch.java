@@ -15,8 +15,8 @@
  */
 package org.esa.snap.engine_utilities.download.opensearch;
 
+import org.esa.snap.engine_utilities.datamodel.Credentials;
 import org.esa.snap.engine_utilities.download.opendata.OpenData;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -35,22 +35,23 @@ public class TestCopernicusOpenSearch {
     private static final String outputFolder = "e:\\tmp\\";
 
     @Test
-    @Ignore
     public void testConnect() throws IOException {
-        final OpenSearch openSearch = new OpenSearch(COPERNICUS_HOST);
-        OpenSearch.PageResult pageResult = openSearch.getPages(searchURL);
+
+        final Credentials.CredentialInfo credentialInfo = Credentials.instance().get(COPERNICUS_HOST);
+        final OpenSearch openSearch = new OpenSearch(COPERNICUS_HOST, credentialInfo);
+        final OpenSearch.PageResult pageResult = openSearch.getPages(searchURL);
 
         final OpenSearch.ProductResult[] productResults = openSearch.getProductResults(pageResult);
 
-        System.out.println("Retrieved Product Ids");
+        //System.out.println("Retrieved Product Ids");
         for(OpenSearch.ProductResult result : productResults) {
-            System.out.println("id: " + result.id);
+            //System.out.println("id: " + result.id);
         }
 
         final OpenData openData = new OpenData(COPERNICUS_HOST);
         for(OpenSearch.ProductResult result : productResults){
             try {
-                openData.getProductByID(result.id, COPERNICUS_ODATA_METALINK, COPERNICUS_ODATA_ROOT, outputFolder);
+                openData.getManifestByID(result.id, COPERNICUS_ODATA_METALINK, COPERNICUS_ODATA_ROOT, outputFolder);
             } catch (IOException e) {
                 throw e;
             }

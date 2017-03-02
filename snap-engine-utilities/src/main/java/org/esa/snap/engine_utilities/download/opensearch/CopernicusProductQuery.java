@@ -17,10 +17,12 @@ package org.esa.snap.engine_utilities.download.opensearch;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.engine_utilities.datamodel.Credentials;
 import org.esa.snap.engine_utilities.db.DBQuery;
 import org.esa.snap.engine_utilities.db.ProductEntry;
 import org.esa.snap.engine_utilities.db.ProductQueryInterface;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,10 +34,10 @@ public class CopernicusProductQuery implements ProductQueryInterface {
 
     private static CopernicusProductQuery instance;
 
-    private static final String NAME = "ESA SciHub";
-    private static final String COPERNICUS_HOST = "https://scihub.copernicus.eu";
-
     private ProductEntry[] productEntryList = null;
+
+    public static final String NAME = "ESA SciHub";
+    public static final String COPERNICUS_HOST = "https://scihub.copernicus.eu";
 
     private static final String[] emptyStringList = new String[]{};
     private static final String[] COPERNICUS_MISSIONS = new String[]{"Sentinel-1", "Sentinel-2", "Sentinel-3"};
@@ -71,7 +73,7 @@ public class CopernicusProductQuery implements ProductQueryInterface {
         try {
             pm.worked(1);
 
-            final OpenSearch openSearch = new OpenSearch(COPERNICUS_HOST);
+            final OpenSearch openSearch = new OpenSearch(COPERNICUS_HOST, getCredentialInfo());
             final CopernicusQueryBuilder queryBuilder = new CopernicusQueryBuilder(dbQuery);
             final OpenSearch.PageResult pageResult = openSearch.getPages(queryBuilder.getSearchURL());
             pm.worked(1);
@@ -88,6 +90,14 @@ public class CopernicusProductQuery implements ProductQueryInterface {
         } finally {
             pm.done();
         }
+    }
+
+    private static Credentials.CredentialInfo getCredentials(final String host) throws IOException {
+        Credentials.CredentialInfo credentialInfo = Credentials.instance().get(host);
+        if (credentialInfo == null) {
+            throw new IOException("Credentials for " + host + " not found.");
+        }
+        return credentialInfo;
     }
 
     public ProductEntry[] getProductEntryList() {
@@ -133,5 +143,13 @@ public class CopernicusProductQuery implements ProductQueryInterface {
             modesList.addAll(Arrays.asList(S3_MODES));
         }
         return modesList.toArray(new String[modesList.size()]);
+    }
+
+    private static Credentials.CredentialInfo getCredentialInfo() throws IOException {
+        Credentials.CredentialInfo credentialInfo = Credentials.instance().get(COPERNICUS_HOST);
+        if (credentialInfo == null) {
+            throw new IOException("Credentials for "+ COPERNICUS_HOST +"not set");
+        }
+        return credentialInfo;
     }
 }

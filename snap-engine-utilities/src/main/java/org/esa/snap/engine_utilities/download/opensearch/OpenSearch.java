@@ -43,12 +43,24 @@ import java.util.List;
  */
 public class OpenSearch {
     private final String host;
+    private final AbderaClient client;
     private String searchURL;
 
     private final static int numRows = 100;
 
-    public OpenSearch(final String host) {
+    public OpenSearch(final String host, final Credentials.CredentialInfo credentialInfo) throws IOException {
         this.host = host;
+
+        try {
+            client = new AbderaClient(new Abdera());
+            client.usePreemptiveAuthentication(true);
+
+            client.addCredentials(host, null, null,
+                                  new UsernamePasswordCredentials(credentialInfo.getUser(), credentialInfo.getPassword()));
+            AbderaClient.registerTrustManager();
+        } catch (URISyntaxException e) {
+            throw new IOException(e);
+        }
     }
 
     public PageResult getPages(String searchURL) throws IOException {
@@ -89,16 +101,8 @@ public class OpenSearch {
 
     private Feed connect(String searchURL, final String compl) throws IOException {
         Feed feed;
-        try {
-            final Abdera abdera = new Abdera();
-            final AbderaClient client = new AbderaClient(abdera);
-            client.usePreemptiveAuthentication(true);
+        //try {
 
-            final Credentials.CredentialInfo credentialInfo = getCredentials();
-
-            client.addCredentials(host, null, null,
-                    new UsernamePasswordCredentials(credentialInfo.getUser(), credentialInfo.getPassword()));
-            AbderaClient.registerTrustManager();
 
             if (compl != null) {
                 searchURL = searchURL + ' ' + compl;
@@ -124,18 +128,8 @@ public class OpenSearch {
             } else {
                 throw new IOException("Error in OpenSearch query: " + resp.getType() + " [" + resp.getStatus() + ']');
             }
-        } catch (URISyntaxException e) {
-            throw new IOException(e);
-        }
-        return feed;
-    }
 
-    private Credentials.CredentialInfo getCredentials() throws IOException {
-        Credentials.CredentialInfo credentialInfo = Credentials.instance().get(host);
-        if (credentialInfo == null) {
-            throw new IOException("Credentials for " + host + " not found.");
-        }
-        return credentialInfo;
+        return feed;
     }
 
     private static void dumpFeed(final Feed feed) {

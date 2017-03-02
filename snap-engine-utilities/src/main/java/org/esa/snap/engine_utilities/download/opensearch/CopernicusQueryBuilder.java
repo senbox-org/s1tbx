@@ -46,7 +46,8 @@ public class CopernicusQueryBuilder {
         //str.append(getFootprint());
         str.append(FOOTPRINT);
         str.append(" AND ");
-        str.append(getDate());
+        //str.append(getDate());
+        str.append(DATE);
 
         str.append(getMission());
         str.append(getProductType());
