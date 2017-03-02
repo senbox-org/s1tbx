@@ -353,14 +353,18 @@ public class Project extends Observable {
     }
 
     public void createNewFolder(final ProjectSubFolder subFolder) {
-        final PromptDialog dlg = new PromptDialog("New Folder", "Name", "", false);
+        final PromptDialog dlg = new PromptDialog("New Folder", "Name", "", PromptDialog.TYPE.TEXTFIELD);
         dlg.show();
         if (dlg.IsOK()) {
-            final ProjectSubFolder newFolder = subFolder.addSubFolder(dlg.getValue());
-            newFolder.setCreatedByUser(true);
-            if (subFolder == projectSubFolders || subFolder.isPhysical())
-                newFolder.setPhysical(true);
-            notifyEvent(SAVE_PROJECT);
+            try {
+                final ProjectSubFolder newFolder = subFolder.addSubFolder(dlg.getValue("Name"));
+                newFolder.setCreatedByUser(true);
+                if (subFolder == projectSubFolders || subFolder.isPhysical())
+                    newFolder.setPhysical(true);
+                notifyEvent(SAVE_PROJECT);
+            } catch (Exception ex) {
+                Dialogs.showError(ex.getMessage());
+            }
         }
     }
 
@@ -550,11 +554,15 @@ public class Project extends Observable {
     }
 
     public void renameFolder(final ProjectSubFolder subFolder) {
-        final PromptDialog dlg = new PromptDialog("Rename Folder", "Name", "", false);
+        final PromptDialog dlg = new PromptDialog("Rename Folder", "Name", "", PromptDialog.TYPE.TEXTFIELD);
         dlg.show();
         if (dlg.IsOK()) {
-            subFolder.renameTo(dlg.getValue());
-            notifyEvent(SAVE_PROJECT);
+            try {
+                subFolder.renameTo(dlg.getValue("Name"));
+                notifyEvent(SAVE_PROJECT);
+            } catch (Exception ex) {
+                Dialogs.showError(ex.getMessage());
+            }
         }
     }
 
