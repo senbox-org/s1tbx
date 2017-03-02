@@ -20,6 +20,7 @@ import org.esa.snap.graphbuilder.rcp.dialogs.PromptDialog;
 import org.esa.snap.graphbuilder.rcp.dialogs.support.FileModel;
 import org.esa.snap.graphbuilder.rcp.dialogs.support.FileTable;
 import org.esa.snap.graphbuilder.rcp.utils.DialogUtils;
+import org.esa.snap.rcp.util.Dialogs;
 import org.esa.snap.ui.AppContext;
 import org.esa.snap.ui.color.ColorComboBox;
 
@@ -55,10 +56,14 @@ public class GraphProductSetPanel extends ProductSetPanel {
         final JButton renameBtn = DialogUtils.createButton("renameBtn", "Rename", null, panel, DialogUtils.ButtonStyle.Text);
         renameBtn.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
-                final PromptDialog dlg = new PromptDialog("Rename", "Name", panel.getTitle(), false);
+                final PromptDialog dlg = new PromptDialog("Rename", "Name", panel.getTitle(), PromptDialog.TYPE.TEXTFIELD);
                 dlg.show();
                 if (dlg.IsOK()) {
-                    panel.setTitle(dlg.getValue());
+                    try {
+                        panel.setTitle(dlg.getValue("Name"));
+                    } catch (Exception ex) {
+                        Dialogs.showError(ex.getMessage());
+                    }
                 }
             }
         });
