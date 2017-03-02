@@ -16,8 +16,6 @@
 package org.esa.snap.engine_utilities.download.opensearch;
 
 
-import org.esa.snap.engine_utilities.datamodel.Credentials;
-import org.esa.snap.engine_utilities.download.opendata.OpenData;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -34,8 +32,7 @@ public class TestASFVertexOpenSearch {
     @Test
     @Ignore
     public void testConnect() throws IOException {
-        final Credentials.CredentialInfo credentialInfo = Credentials.instance().get(ASF_VERTEX_HOST);
-        final OpenSearch openSearch = new OpenSearch(ASF_VERTEX_HOST, credentialInfo);
+        final OpenSearch openSearch = new OpenSearch(ASF_VERTEX_HOST);
         final OpenSearch.PageResult pageResult = openSearch.getPages(searchURL);
 
         final OpenSearch.ProductResult[] productResults = openSearch.getProductResults(pageResult);
@@ -45,13 +42,13 @@ public class TestASFVertexOpenSearch {
             System.out.println("id: " + result.id);
         }
 
-        final OpenData openData = new OpenData(ASF_VERTEX_HOST);
-        for(OpenSearch.ProductResult result : productResults){
-            try {
-                openData.getProductByID(result.id, "", "", "");
-            } catch (IOException e) {
-                throw e;
-            }
-        }
+//        final OpenData openData = new OpenData(ASF_VERTEX_HOST);
+//        for(OpenSearch.ProductResult result : productResults){
+//            try {
+//                openData.getProductByID(result.id, "", "", "");
+//            } catch (IOException e) {
+//                throw e;
+//            }
+//        }
     }
 }

@@ -90,7 +90,7 @@ class HTTPDownloader {
                 if (downloadedFileSize < completeFileSize) {
                     SystemUtils.LOG.info("Incomplete download. Resuming.");
 
-                    connection.setRequestProperty("Range", "bytes=" + downloadedFileSize + "-");
+                    connection.setRequestProperty("Range", "bytes=" + downloadedFileSize + '-');
 
                     connection.connect();
                     try {
@@ -134,7 +134,7 @@ class HTTPDownloader {
                     checkStatus(connection);
                     if (!tChecker.isAlive()) tChecker.start();
                 } catch (IOException e) {
-                    System.err.println(e.getMessage());
+                    SystemUtils.LOG.severe(e.getMessage());
                     return null;
                 }
 
@@ -208,7 +208,7 @@ class HTTPDownloader {
         return new EntryFileProperty(outputFileNamePath, bytesToHex(md5CheksumFromFilePath(outputFileNamePath)), null, downloadedFileSize);
     }
 
-    private byte[] md5CheksumFromFilePath(String source){
+    private static byte[] md5CheksumFromFilePath(String source){
 
         final File fSource = new File(source);
         byte[] byteArrayChecksum = null;
@@ -249,35 +249,35 @@ class HTTPDownloader {
         return new String(hexChars);
     }
 
-    private void printDownloadedProgress(long completeFileSize, long downloadedFileSize) {
+    private static void printDownloadedProgress(long completeFileSize, long downloadedFileSize) {
 
-		System.out.print(formatDownloadedProgress(completeFileSize, downloadedFileSize)+"\r");
+        SystemUtils.LOG.info(formatDownloadedProgress(completeFileSize, downloadedFileSize)+'\r');
 	}
 
-    private String formatDownloadedProgress(long completeFileSize, long downloadedFileSize) {
+    private static String formatDownloadedProgress(long completeFileSize, long downloadedFileSize) {
 		DecimalFormat dfa = new DecimalFormat("000.0");
 		DecimalFormat dfb = new DecimalFormat("###,###,###,###");
 		double currentProgress = ((((double)downloadedFileSize) * 100) / ((double)completeFileSize));
 		return dfa.format(currentProgress)+"% "+dfb.format(downloadedFileSize) + " bytes";
 	}
 
-	private String formatDownloadedProgressOnlyNumber(long completeFileSize, long downloadedFileSize) {
+	private static String formatDownloadedProgressOnlyNumber(long completeFileSize, long downloadedFileSize) {
 		DecimalFormat dfa = new DecimalFormat("000.0");
 		double currentProgress = ((((double)downloadedFileSize) * 100) / ((double)completeFileSize));
 		return dfa.format(currentProgress);
 	}
 
-    private void checkStatus(final HttpURLConnection connection) throws IOException {
+    private static void checkStatus(final HttpURLConnection connection) throws IOException {
         final HttpStatusCodes httpStatusCode = HttpStatusCodes.fromStatusCode(connection.getResponseCode());
 
         if (400 <= httpStatusCode.getStatusCode() && httpStatusCode.getStatusCode() <= 599) {
             throw new IOException("Http Connection failed with status " + httpStatusCode.getStatusCode() + " " + httpStatusCode.toString() + " " + connection.getURL().toString());
         } else {
-            System.out.println("HTTP Response Code: " + httpStatusCode);
+            SystemUtils.LOG.finer("HTTP Response Code: " + httpStatusCode);
         }
     }
 
-    private HttpURLConnection initializeConnection(String absolutUri, String contentType, String httpMethod, String user, String password) throws IOException {
+    private static HttpURLConnection initializeConnection(String absolutUri, String contentType, String httpMethod, String user, String password) throws IOException {
 
         Authenticator.setDefault(new SeHttpAuthenticator(user, password));
         HttpURLConnection connection = null;
@@ -354,7 +354,7 @@ class HTTPDownloader {
         }
     }
 
-    private class DownloaderThreadChecker extends Thread {
+    private static class DownloaderThreadChecker extends Thread {
 
         private String outputFileNamePath = null;
         private long len = -1l;

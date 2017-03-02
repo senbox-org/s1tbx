@@ -48,13 +48,14 @@ public class OpenSearch {
 
     private final static int numRows = 100;
 
-    public OpenSearch(final String host, final Credentials.CredentialInfo credentialInfo) throws IOException {
+    public OpenSearch(final String host) throws IOException {
         this.host = host;
 
         try {
             client = new AbderaClient(new Abdera());
             client.usePreemptiveAuthentication(true);
 
+            final Credentials.CredentialInfo credentialInfo = getCredentialInfo();
             client.addCredentials(host, null, null,
                                   new UsernamePasswordCredentials(credentialInfo.getUser(), credentialInfo.getPassword()));
             AbderaClient.registerTrustManager();
@@ -100,36 +101,31 @@ public class OpenSearch {
     }
 
     private Feed connect(String searchURL, final String compl) throws IOException {
-        Feed feed;
-        //try {
 
+        if (compl != null) {
+            searchURL = searchURL + ' ' + compl;
+        }
 
-            if (compl != null) {
-                searchURL = searchURL + ' ' + compl;
-            }
+        SystemUtils.LOG.info("OpenSearch: " + searchURL);
 
-            SystemUtils.LOG.info("OpenSearch: " + searchURL);
+        int end = searchURL.indexOf("search") + 9;
+        String init = searchURL.substring(0, end);
+        String last = searchURL.substring(end);
 
-            int end = searchURL.indexOf("search") + 9;
-            String init = searchURL.substring(0, end);
-            String last = searchURL.substring(end);
+        try {
+            searchURL = init + URLEncoder.encode(last, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new IOException(e);
+        }
 
-            try {
-                searchURL = init + URLEncoder.encode(last, "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                throw new IOException(e);
-            }
+        final ClientResponse resp = client.get(searchURL);
 
-            ClientResponse resp = client.get(searchURL);
-
-            if (resp.getType() == Response.ResponseType.SUCCESS) {
-                Document<Feed> doc = resp.getDocument();
-                feed = doc.getRoot();
-            } else {
-                throw new IOException("Error in OpenSearch query: " + resp.getType() + " [" + resp.getStatus() + ']');
-            }
-
-        return feed;
+        if (resp.getType() == Response.ResponseType.SUCCESS) {
+            Document<Feed> doc = resp.getDocument();
+            return doc.getRoot();
+        } else {
+            throw new IOException("Error in OpenSearch query: " + resp.getType() + " [" + resp.getStatus() + ']');
+        }
     }
 
     private static void dumpFeed(final Feed feed) {
@@ -152,6 +148,14 @@ public class OpenSearch {
             }
             ++i;
         }
+    }
+
+    private Credentials.CredentialInfo getCredentialInfo() throws IOException {
+        Credentials.CredentialInfo credentialInfo = Credentials.instance().get(host);
+        if (credentialInfo == null) {
+            throw new IOException("Credentials for "+ host +"not set");
+        }
+        return credentialInfo;
     }
 
     public static class PageResult {
@@ -199,9 +203,9 @@ public class OpenSearch {
             final List<Link> links = entry.getLinks();
             for (Link link : links) {
 
-                if(link.getRel() == null) {
+                if (link.getRel() == null) {
                     productLink = link.getHref().toString();
-                } else if(link.getRel().equals("icon")) {
+                } else if (link.getRel().equals("icon")) {
                     quicklookLink = link.getHref().toString();
                 }
             }
@@ -209,7 +213,7 @@ public class OpenSearch {
 
         private static String getDate(final String text) {
             int start = text.indexOf(DATE);
-            if(start >= 0) {
+            if (start >= 0) {
                 int end = text.indexOf(',', start);
                 return text.substring(start + DATE.length(), end < 0 ? text.length() : end).trim().replace("T", " ").replace("Z", "");
             }
@@ -218,7 +222,7 @@ public class OpenSearch {
 
         private static String getMission(final String text) {
             int start = text.indexOf(SATELLITE);
-            if(start >= 0) {
+            if (start >= 0) {
                 int end = text.indexOf(',', start);
                 return text.substring(start + SATELLITE.length(), end < 0 ? text.length() : end).trim();
             }
@@ -227,7 +231,7 @@ public class OpenSearch {
 
         private static String getSize(final String text) {
             int start = text.indexOf(SIZE);
-            if(start >= 0) {
+            if (start >= 0) {
                 int end = text.indexOf(',', start);
                 return text.substring(start + SIZE.length(), end < 0 ? text.length() : end).trim();
             }
@@ -236,7 +240,7 @@ public class OpenSearch {
 
         private static String getMode(final String text) {
             int start = text.indexOf(MODE);
-            if(start >= 0) {
+            if (start >= 0) {
                 int end = text.indexOf(',', start);
                 return text.substring(start + MODE.length(), end < 0 ? text.length() : end).trim();
             }

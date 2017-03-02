@@ -15,7 +15,7 @@
  */
 package org.esa.snap.engine_utilities.download.opensearch;
 
-import org.esa.snap.engine_utilities.datamodel.Credentials;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.download.opendata.OpenData;
 import org.junit.Test;
 
@@ -36,22 +36,22 @@ public class TestCopernicusOpenSearch {
 
     @Test
     public void testConnect() throws IOException {
-
-        final Credentials.CredentialInfo credentialInfo = Credentials.instance().get(COPERNICUS_HOST);
-        final OpenSearch openSearch = new OpenSearch(COPERNICUS_HOST, credentialInfo);
+        final OpenSearch openSearch = new OpenSearch(COPERNICUS_HOST);
         final OpenSearch.PageResult pageResult = openSearch.getPages(searchURL);
 
         final OpenSearch.ProductResult[] productResults = openSearch.getProductResults(pageResult);
 
-        //System.out.println("Retrieved Product Ids");
+        SystemUtils.LOG.info("Retrieved "+ productResults.length +" Product Ids");
         for(OpenSearch.ProductResult result : productResults) {
             //System.out.println("id: " + result.id);
         }
 
-        final OpenData openData = new OpenData(COPERNICUS_HOST);
+        final OpenData openData = new OpenData(COPERNICUS_HOST, COPERNICUS_ODATA_METALINK);
         for(OpenSearch.ProductResult result : productResults){
             try {
-                openData.getManifestByID(result.id, COPERNICUS_ODATA_METALINK, COPERNICUS_ODATA_ROOT, outputFolder);
+                OpenData.Entry entry = openData.getEntryByID(result.id, COPERNICUS_ODATA_ROOT);
+                SystemUtils.LOG.info(entry.fileName);
+
             } catch (IOException e) {
                 throw e;
             }

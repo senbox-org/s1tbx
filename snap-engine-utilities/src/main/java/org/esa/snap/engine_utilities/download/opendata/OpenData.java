@@ -15,19 +15,22 @@
  */
 package org.esa.snap.engine_utilities.download.opendata;
 
-import org.esa.snap.engine_utilities.datamodel.Credentials;
 import org.apache.olingo.odata2.api.edm.Edm;
 import org.apache.olingo.odata2.api.edm.EdmEntityContainer;
 import org.apache.olingo.odata2.api.ep.EntityProvider;
 import org.apache.olingo.odata2.api.ep.EntityProviderReadProperties;
 import org.apache.olingo.odata2.api.ep.entry.ODataEntry;
-import org.apache.olingo.odata2.api.exception.ODataException;
+import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.util.SystemUtils;
+import org.esa.snap.engine_utilities.datamodel.Credentials;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * OpenData interface for downloading
@@ -35,67 +38,49 @@ import java.util.Map;
 public class OpenData {
 
     private final String host;
+    private final Credentials.CredentialInfo credentialInfo;
+    private final HTTPDownloader downloader;
+    private final Edm edm;
 
     private static final String APPLICATION_XML = "application/xml";
     private static final int MAX_DOWNLOAD_TRIES = 5;
 
-    public OpenData(final String host) {
+    public OpenData(final String host, final String odataMetaLink) throws IOException {
         this.host = host;
-    }
-
-    public void getManifestByID(final String id, final String odataMetaLink, final String odataRoot, final String outputFolder) throws IOException {
-
-        final Credentials.CredentialInfo credentialInfo = getCredentialInfo();
-        final HTTPDownloader downloader = new HTTPDownloader();
-
-        HTTPDownloader.EntryFileProperty entryFp = null;
-        String hexChecksum;
-        Long contentLength;
-        String fileName;
-        String name;
-        String contentType;
+        this.credentialInfo = getCredentialInfo();
+        this.downloader = new HTTPDownloader();
 
         try {
             final InputStream content = downloader.connect(odataMetaLink, APPLICATION_XML, HTTPDownloader.HTTP_METHOD_GET,
                                                            credentialInfo.getUser(), credentialInfo.getPassword());
 
-            final Edm edm = EntityProvider.readMetadata(content, false);
+            edm = EntityProvider.readMetadata(content, false);
             if (content != null) {
                 content.close();
             }
-
-            ODataEntry entry = readEntry(downloader, edm, odataRoot, APPLICATION_XML, "Products", id, "?",
-                                         credentialInfo.getUser(), credentialInfo.getPassword());
-
-            final Map<String, Object> propMap = entry.getProperties();
-
-            contentLength = Long.parseLong(propMap.get("ContentLength").toString());
-            contentType = propMap.get("ContentType").toString();
-
-            name = propMap.get("Name").toString();
-            fileName = propMap.get("Name") + ".zip";
-            HashMap<String, Object> checksum = (HashMap<String, Object>) propMap.get("Checksum");
-            hexChecksum = checksum.get("Value").toString();
-
-            SystemUtils.LOG.info("Id: " + id);
-            SystemUtils.LOG.info("Checksum: " + hexChecksum);
-            SystemUtils.LOG.info("Filename: " + fileName);
-            SystemUtils.LOG.info("ContentLength: " + contentLength);
-            SystemUtils.LOG.info("ContentType: " + contentType);
-
         } catch (Exception e) {
             throw new IOException(e);
         }
+    }
+
+    public Entry getEntryByID(final String id, final String odataRoot) throws IOException {
+        return readEntry(downloader, edm, odataRoot, APPLICATION_XML, "Products", id, "?", credentialInfo);
+    }
+
+    public void getManifestByID(final String id, final String odataRoot, final String outputFolder) throws IOException {
+
+        Entry entry = readEntry(downloader, edm, odataRoot, APPLICATION_XML, "Products", id, "?", credentialInfo);
 
         int tries = 1;
-        while ((entryFp == null || entryFp.getSize() != contentLength)) {
+        HTTPDownloader.EntryFileProperty entryFp = null;
+        while ((entryFp == null || entryFp.getSize() != entry.contentLength)) {
 
-            String manifest = "/Nodes('"+name+".SAFE')/Nodes('manifest.safe')/\\";
+            String manifest = "/Nodes('" + entry.name + ".SAFE')/Nodes('manifest.safe')/\\";
 
-            entryFp = downloader.getEntryFilePropertyFromUrlString("https://scihub.copernicus.eu/dhus/odata/v1/Products('"+id+"')"+manifest+"$value?",
-                                                                   fileName, contentLength, contentType, outputFolder, credentialInfo.getUser(), credentialInfo.getPassword());
+            entryFp = downloader.getEntryFilePropertyFromUrlString("https://scihub.copernicus.eu/dhus/odata/v1/Products('" + id + "')" + manifest + "$value?",
+                                                                   entry.fileName, entry.contentLength, entry.contentType, outputFolder, credentialInfo.getUser(), credentialInfo.getPassword());
 
-            if (entryFp != null && entryFp.getSize() == contentLength) {
+            if (entryFp != null && entryFp.getSize() == entry.contentLength) {
                 break;
             } else {
 
@@ -105,7 +90,7 @@ public class OpenData {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                if (tries > MAX_DOWNLOAD_TRIES && (entryFp == null || entryFp.getSize() != contentLength)) {
+                if (tries > MAX_DOWNLOAD_TRIES && (entryFp == null || entryFp.getSize() != entry.contentLength)) {
                     SystemUtils.LOG.info("Skiping...");
                     break;
                 }
@@ -114,65 +99,28 @@ public class OpenData {
         }
 
         if (tries > MAX_DOWNLOAD_TRIES) {
-            SystemUtils.LOG.warning("Resuming tries for file " + fileName + " did not work.");
+            SystemUtils.LOG.warning("Resuming tries for file " + entry.fileName + " did not work.");
         } else {
-            if (entryFp.getMd5Checksum().equalsIgnoreCase(hexChecksum)) {
-                SystemUtils.LOG.info("Filename: " + fileName + " downloaded and checked " + hexChecksum);
+            if (entryFp.getMd5Checksum().equalsIgnoreCase(entry.hexChecksum)) {
+                SystemUtils.LOG.info("Filename: " + entry.fileName + " downloaded and checked " + entry.hexChecksum);
             } else {
-                SystemUtils.LOG.severe("Filename: " + fileName + " downloaded [INVALID CHECKSUM]");
+                SystemUtils.LOG.severe("Filename: " + entry.fileName + " downloaded [INVALID CHECKSUM]");
             }
         }
     }
 
     public void getProductByID(final String id, final String odataMetaLink, final String odataRoot, final String outputFolder) throws IOException {
 
-        final Credentials.CredentialInfo credentialInfo = getCredentialInfo();
-        final HTTPDownloader downloader = new HTTPDownloader();
-
-        HTTPDownloader.EntryFileProperty entryFp = null;
-        String hexChecksum;
-        Long contentLength;
-        String fileName;
-        String contentType;
-
-        try {
-            final InputStream content = downloader.connect(odataMetaLink, APPLICATION_XML, HTTPDownloader.HTTP_METHOD_GET,
-                    credentialInfo.getUser(), credentialInfo.getPassword());
-
-            final Edm edm = EntityProvider.readMetadata(content, false);
-            if (content != null) {
-                content.close();
-            }
-
-            ODataEntry entry = readEntry(downloader, edm, odataRoot, APPLICATION_XML, "Products", id, "?",
-                    credentialInfo.getUser(), credentialInfo.getPassword());
-
-            final Map<String, Object> propMap = entry.getProperties();
-
-            contentLength = Long.parseLong(propMap.get("ContentLength").toString());
-            contentType = propMap.get("ContentType").toString();
-
-            fileName = propMap.get("Name") + ".zip";
-            HashMap<String, Object> checksum = (HashMap<String, Object>) propMap.get("Checksum");
-            hexChecksum = checksum.get("Value").toString();
-
-            SystemUtils.LOG.info("Id: " + id);
-            SystemUtils.LOG.info("Checksum: " + hexChecksum);
-            SystemUtils.LOG.info("Filename: " + fileName);
-            SystemUtils.LOG.info("ContentLength: " + contentLength);
-            SystemUtils.LOG.info("ContentType: " + contentType);
-
-        } catch (Exception e) {
-            throw new IOException(e);
-        }
+        Entry entry = readEntry(downloader, edm, odataRoot, APPLICATION_XML, "Products", id, "?", credentialInfo);
 
         int tries = 1;
-        while ((entryFp == null || entryFp.getSize() != contentLength)) {
+        HTTPDownloader.EntryFileProperty entryFp = null;
+        while ((entryFp == null || entryFp.getSize() != entry.contentLength)) {
 
-            entryFp = downloader.getEntryFilePropertyFromUrlString("https://scihub.copernicus.eu/dhus/odata/v1/Products('"+id+"')/$value?",
-                    fileName, contentLength, contentType, outputFolder, credentialInfo.getUser(), credentialInfo.getPassword());
+            entryFp = downloader.getEntryFilePropertyFromUrlString("https://scihub.copernicus.eu/dhus/odata/v1/Products('" + id + "')/$value?",
+                                                                   entry.fileName, entry.contentLength, entry.contentType, outputFolder, credentialInfo.getUser(), credentialInfo.getPassword());
 
-            if (entryFp != null && entryFp.getSize() == contentLength) {
+            if (entryFp != null && entryFp.getSize() == entry.contentLength) {
                 break;
             } else {
 
@@ -182,7 +130,7 @@ public class OpenData {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                if (tries > MAX_DOWNLOAD_TRIES && (entryFp == null || entryFp.getSize() != contentLength)) {
+                if (tries > MAX_DOWNLOAD_TRIES && (entryFp == null || entryFp.getSize() != entry.contentLength)) {
                     SystemUtils.LOG.info("Skiping...");
                     break;
                 }
@@ -191,32 +139,85 @@ public class OpenData {
         }
 
         if (tries > MAX_DOWNLOAD_TRIES) {
-            SystemUtils.LOG.warning("Resuming tries for file " + fileName + " did not work.");
+            SystemUtils.LOG.warning("Resuming tries for file " + entry.fileName + " did not work.");
         } else {
-            if (entryFp.getMd5Checksum().equalsIgnoreCase(hexChecksum)) {
-                SystemUtils.LOG.info("Filename: " + fileName + " downloaded and checked " + hexChecksum);
+            if (entryFp.getMd5Checksum().equalsIgnoreCase(entry.hexChecksum)) {
+                SystemUtils.LOG.info("Filename: " + entry.fileName + " downloaded and checked " + entry.hexChecksum);
             } else {
-                SystemUtils.LOG.severe("Filename: " + fileName + " downloaded [INVALID CHECKSUM]");
+                SystemUtils.LOG.severe("Filename: " + entry.fileName + " downloaded [INVALID CHECKSUM]");
             }
         }
     }
 
-    private static ODataEntry readEntry(final HTTPDownloader downloader, final Edm edm, final String serviceUri, final String contentType,
-                                 final String entitySetName, final String keyValue, final String params,
-                                 final String user, final String password) throws IOException, ODataException {
+    private static Entry readEntry(final HTTPDownloader downloader, final Edm edm, final String serviceUri,
+                                   final String contentType, final String entitySetName, final String keyValue,
+                                   final String params, final Credentials.CredentialInfo credentialInfo)
+            throws IOException {
+        try {
+            final EdmEntityContainer entityContainer = edm.getDefaultEntityContainer();
 
-        final EdmEntityContainer entityContainer = edm.getDefaultEntityContainer();
+            final InputStream content = downloader.connect(serviceUri + entitySetName + "('" + keyValue + "')" + params,
+                                                           contentType, HTTPDownloader.HTTP_METHOD_GET,
+                                                           credentialInfo.getUser(), credentialInfo.getPassword());
+            final ODataEntry oDataEntry = EntityProvider.readEntry(contentType, entityContainer.getEntitySet(entitySetName),
+                                                                   content, EntityProviderReadProperties.init().build());
 
-        InputStream content = downloader.connect(serviceUri + entitySetName + "('" + keyValue + "')" + params, contentType,
-                HTTPDownloader.HTTP_METHOD_GET, user, password);
-        return EntityProvider.readEntry(contentType, entityContainer.getEntitySet(entitySetName), content, EntityProviderReadProperties.init().build());
+            return new Entry(oDataEntry);
+        } catch (Exception e) {
+            throw new IOException(e);
+        }
     }
 
     private Credentials.CredentialInfo getCredentialInfo() throws IOException {
         Credentials.CredentialInfo credentialInfo = Credentials.instance().get(host);
         if (credentialInfo == null) {
-            throw new IOException("Credentials for "+ host +" not set");
+            throw new IOException("Credentials for " + host + " not set");
         }
         return credentialInfo;
+    }
+
+    public static class Entry {
+        public final String hexChecksum;
+        public final Long contentLength;
+        public final String fileName;
+        public final String name;
+        public final String contentType;
+        public final GeoPos[] footprint;
+
+        private static final String gmlCoordStart = "<gml:coordinates>";
+        private static final String gmlCoordEnd = "</gml:coordinates>";
+
+        public Entry(final ODataEntry oDataEntry) {
+            final Map<String, Object> propMap = oDataEntry.getProperties();
+
+            contentLength = Long.parseLong(propMap.get("ContentLength").toString());
+            contentType = propMap.get("ContentType").toString();
+
+            name = propMap.get("Name").toString();
+            fileName = propMap.get("Name") + ".zip";
+
+            final HashMap<String, Object> checksum = (HashMap<String, Object>) propMap.get("Checksum");
+            hexChecksum = checksum.get("Value").toString();
+
+            footprint = getCoordinates((String)propMap.get("ContentGeometry"));
+        }
+
+        private static GeoPos[] getCoordinates(final String geomStr) {
+            String values = geomStr.substring(geomStr.indexOf(gmlCoordStart)+gmlCoordStart.length(),
+                                                    geomStr.indexOf(gmlCoordEnd)).trim();
+            values = values.replace(' ', ',');
+
+            final List<GeoPos> geoPosList = new ArrayList<>();
+            final StringTokenizer st = new StringTokenizer(values, ",");
+            while (st.hasMoreTokens()) {
+                final String latStr = st.nextToken();
+                final String lonStr = st.nextToken();
+
+                geoPosList.add(new GeoPos(Double.parseDouble(latStr), Double.parseDouble(lonStr)));
+            }
+            geoPosList.add(geoPosList.get(0));
+
+            return geoPosList.toArray(new GeoPos[geoPosList.size()]);
+        }
     }
 }

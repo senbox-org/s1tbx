@@ -73,7 +73,7 @@ public class CopernicusProductQuery implements ProductQueryInterface {
         try {
             pm.worked(1);
 
-            final OpenSearch openSearch = new OpenSearch(COPERNICUS_HOST, getCredentialInfo());
+            final OpenSearch openSearch = new OpenSearch(COPERNICUS_HOST);
             final CopernicusQueryBuilder queryBuilder = new CopernicusQueryBuilder(dbQuery);
             final OpenSearch.PageResult pageResult = openSearch.getPages(queryBuilder.getSearchURL());
             pm.worked(1);
@@ -143,13 +143,5 @@ public class CopernicusProductQuery implements ProductQueryInterface {
             modesList.addAll(Arrays.asList(S3_MODES));
         }
         return modesList.toArray(new String[modesList.size()]);
-    }
-
-    private static Credentials.CredentialInfo getCredentialInfo() throws IOException {
-        Credentials.CredentialInfo credentialInfo = Credentials.instance().get(COPERNICUS_HOST);
-        if (credentialInfo == null) {
-            throw new IOException("Credentials for "+ COPERNICUS_HOST +"not set");
-        }
-        return credentialInfo;
     }
 }
