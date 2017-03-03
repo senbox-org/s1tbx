@@ -46,7 +46,7 @@ class HTTPDownloader {
 
     }
 
-    InputStream connect(final String relativeUri, final String contentType, final String httpMethod,
+    public static InputStream connect(final String relativeUri, final String contentType, final String httpMethod,
                         final String user, final String password) throws IOException {
 
         final HttpURLConnection connection = initializeConnection(relativeUri, contentType, httpMethod, user, password);
@@ -56,7 +56,7 @@ class HTTPDownloader {
         return connection.getInputStream();
     }
 
-    public EntryFileProperty getEntryFilePropertyFromUrlString(String urlStr, String fileName, long completeFileSize, String contentType,
+    public static EntryFileProperty getEntryFilePropertyFromUrlString(String urlStr, String fileName, long completeFileSize, String contentType,
                                                                String outputFolder, String user, String password) throws IOException {
 
         final String outputFileNamePath = outputFolder + fileName;
@@ -239,7 +239,8 @@ class HTTPDownloader {
     }
 
     private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
-    private String bytesToHex(byte[] bytes) {
+
+    private static String bytesToHex(byte[] bytes) {
         final char[] hexChars = new char[bytes.length * 2];
         for ( int j = 0; j < bytes.length; j++ ) {
             int v = bytes[j] & 0xFF;
@@ -271,7 +272,7 @@ class HTTPDownloader {
         final HttpStatusCodes httpStatusCode = HttpStatusCodes.fromStatusCode(connection.getResponseCode());
 
         if (400 <= httpStatusCode.getStatusCode() && httpStatusCode.getStatusCode() <= 599) {
-            throw new IOException("Http Connection failed with status " + httpStatusCode.getStatusCode() + " " + httpStatusCode.toString() + " " + connection.getURL().toString());
+            throw new IOException("Http Connection failed with status " + httpStatusCode.getStatusCode() + ' ' + httpStatusCode.toString() + ' ' + connection.getURL().toString());
         } else {
             SystemUtils.LOG.finer("HTTP Response Code: " + httpStatusCode);
         }

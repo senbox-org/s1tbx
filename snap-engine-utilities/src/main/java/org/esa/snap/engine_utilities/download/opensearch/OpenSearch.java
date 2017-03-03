@@ -15,6 +15,7 @@
  */
 package org.esa.snap.engine_utilities.download.opensearch;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.apache.abdera.Abdera;
 import org.apache.abdera.model.Document;
 import org.apache.abdera.model.Entry;
@@ -79,9 +80,10 @@ public class OpenSearch {
         return result;
     }
 
-    public ProductResult[] getProductResults(final PageResult result) {
+    public ProductResult[] getProductResults(final PageResult result, final ProgressMonitor pm) {
         final List<ProductResult> productResultList = new ArrayList<>();
 
+        pm.beginTask("Searching...", result.totalResults/numRows);
         for (int item = 0; item < result.totalResults; item += numRows) {
             try {
                 final Feed feed = connect(searchURL, "&start=" + item + "&rows=" + numRows);
@@ -96,7 +98,10 @@ public class OpenSearch {
             } catch (Exception e) {
                 SystemUtils.LOG.severe("Error retrieving product results " + e.getMessage());
             }
+            pm.worked(1);
         }
+        pm.done();
+
         return productResultList.toArray(new ProductResult[productResultList.size()]);
     }
 

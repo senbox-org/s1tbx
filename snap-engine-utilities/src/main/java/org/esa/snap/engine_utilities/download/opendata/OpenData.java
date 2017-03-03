@@ -38,6 +38,7 @@ import java.util.StringTokenizer;
 public class OpenData {
 
     private final String host;
+    private final String odataRoot;
     private final Credentials.CredentialInfo credentialInfo;
     private final HTTPDownloader downloader;
     private final Edm edm;
@@ -45,8 +46,9 @@ public class OpenData {
     private static final String APPLICATION_XML = "application/xml";
     private static final int MAX_DOWNLOAD_TRIES = 5;
 
-    public OpenData(final String host, final String odataMetaLink) throws IOException {
+    public OpenData(final String host, final String odataMetaLink, final String odataRoot) throws IOException {
         this.host = host;
+        this.odataRoot = odataRoot;
         this.credentialInfo = getCredentialInfo();
         this.downloader = new HTTPDownloader();
 
@@ -63,22 +65,24 @@ public class OpenData {
         }
     }
 
-    public Entry getEntryByID(final String id, final String odataRoot) throws IOException {
-        return readEntry(downloader, edm, odataRoot, APPLICATION_XML, "Products", id, "?", credentialInfo);
+    public Entry getEntryByID(final String id) throws IOException {
+        return readEntry(odataRoot, APPLICATION_XML, "Products", id, "?");
     }
 
-    public void getManifestByID(final String id, final String odataRoot, final String outputFolder) throws IOException {
-
-        Entry entry = readEntry(downloader, edm, odataRoot, APPLICATION_XML, "Products", id, "?", credentialInfo);
+    public void getManifest(final String id, final Entry entry, final String outputFolder) throws IOException {
 
         int tries = 1;
         HTTPDownloader.EntryFileProperty entryFp = null;
         while ((entryFp == null || entryFp.getSize() != entry.contentLength)) {
 
-            String manifest = "/Nodes('" + entry.name + ".SAFE')/Nodes('manifest.safe')/\\";
+            final String manifest = "/Nodes('" + entry.name + ".SAFE')/Nodes('manifest.safe')/\\";
+            final String downloadURL = odataRoot+"Products('" + id + "')" + manifest + "$value?";
 
-            entryFp = downloader.getEntryFilePropertyFromUrlString("https://scihub.copernicus.eu/dhus/odata/v1/Products('" + id + "')" + manifest + "$value?",
-                                                                   entry.fileName, entry.contentLength, entry.contentType, outputFolder, credentialInfo.getUser(), credentialInfo.getPassword());
+            SystemUtils.LOG.info(downloadURL);
+
+            entryFp = downloader.getEntryFilePropertyFromUrlString(downloadURL,
+                                                                   entry.fileName, entry.contentLength, entry.contentType,
+                                                                   outputFolder, credentialInfo.getUser(), credentialInfo.getPassword());
 
             if (entryFp != null && entryFp.getSize() == entry.contentLength) {
                 break;
@@ -109,16 +113,15 @@ public class OpenData {
         }
     }
 
-    public void getProductByID(final String id, final String odataMetaLink, final String odataRoot, final String outputFolder) throws IOException {
-
-        Entry entry = readEntry(downloader, edm, odataRoot, APPLICATION_XML, "Products", id, "?", credentialInfo);
+    public void getProduct(final String id, final Entry entry, final String outputFolder) throws IOException {
 
         int tries = 1;
         HTTPDownloader.EntryFileProperty entryFp = null;
         while ((entryFp == null || entryFp.getSize() != entry.contentLength)) {
 
             entryFp = downloader.getEntryFilePropertyFromUrlString("https://scihub.copernicus.eu/dhus/odata/v1/Products('" + id + "')/$value?",
-                                                                   entry.fileName, entry.contentLength, entry.contentType, outputFolder, credentialInfo.getUser(), credentialInfo.getPassword());
+                                                                   entry.fileName, entry.contentLength, entry.contentType,
+                                                                   outputFolder, credentialInfo.getUser(), credentialInfo.getPassword());
 
             if (entryFp != null && entryFp.getSize() == entry.contentLength) {
                 break;
@@ -149,9 +152,8 @@ public class OpenData {
         }
     }
 
-    private static Entry readEntry(final HTTPDownloader downloader, final Edm edm, final String serviceUri,
-                                   final String contentType, final String entitySetName, final String keyValue,
-                                   final String params, final Credentials.CredentialInfo credentialInfo)
+    private Entry readEntry(final String serviceUri, final String contentType, final String entitySetName,
+                            final String keyValue, final String params)
             throws IOException {
         try {
             final EdmEntityContainer entityContainer = edm.getDefaultEntityContainer();

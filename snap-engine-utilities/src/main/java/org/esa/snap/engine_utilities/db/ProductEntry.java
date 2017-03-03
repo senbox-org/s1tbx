@@ -357,6 +357,10 @@ public class ProductEntry {
         return geoboundary;
     }
 
+    public void setGeoBoundary(final GeoPos[] geo) {
+        this.geoboundary = geo;
+    }
+
     public ProductData.UTC getFirstLineTime() {
         return firstLineTime;
     }

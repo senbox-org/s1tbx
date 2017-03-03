@@ -16,11 +16,13 @@
 package org.esa.snap.engine_utilities.download.opensearch;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.engine_utilities.datamodel.Credentials;
 import org.esa.snap.engine_utilities.db.DBQuery;
 import org.esa.snap.engine_utilities.db.ProductEntry;
 import org.esa.snap.engine_utilities.db.ProductQueryInterface;
+import org.esa.snap.engine_utilities.download.opendata.OpenData;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,6 +40,8 @@ public class CopernicusProductQuery implements ProductQueryInterface {
 
     public static final String NAME = "ESA SciHub";
     public static final String COPERNICUS_HOST = "https://scihub.copernicus.eu";
+    private static final String COPERNICUS_ODATA_METALINK = "https://scihub.copernicus.eu/dhus/odata/v1/$metadata";
+    private static final String COPERNICUS_ODATA_ROOT = "https://scihub.copernicus.eu/dhus/odata/v1/";
 
     private static final String[] emptyStringList = new String[]{};
     private static final String[] COPERNICUS_MISSIONS = new String[]{"Sentinel-1", "Sentinel-2", "Sentinel-3"};
@@ -69,7 +73,7 @@ public class CopernicusProductQuery implements ProductQueryInterface {
     }
 
     public boolean fullQuery(final DBQuery dbQuery, final ProgressMonitor pm) throws Exception {
-        pm.beginTask("Searching " + NAME + "...", 3);
+        pm.beginTask("Searching " + NAME + "...", 10);
         try {
             pm.worked(1);
 
@@ -78,13 +82,25 @@ public class CopernicusProductQuery implements ProductQueryInterface {
             final OpenSearch.PageResult pageResult = openSearch.getPages(queryBuilder.getSearchURL());
             pm.worked(1);
 
-            final OpenSearch.ProductResult[] productResults = openSearch.getProductResults(pageResult);
-            pm.worked(1);
+            final OpenSearch.ProductResult[] productResults = openSearch.getProductResults(pageResult, SubProgressMonitor.create(pm, 3));
+
+            final ProgressMonitor pm2 = SubProgressMonitor.create(pm, 5);
+            pm2.beginTask("Retieving entry information...", productResults.length);
+
+            final OpenData openData = new OpenData(COPERNICUS_HOST, COPERNICUS_ODATA_METALINK, COPERNICUS_ODATA_ROOT);
 
             final List<ProductEntry> resultList = new ArrayList<>();
             for (OpenSearch.ProductResult result : productResults) {
-                resultList.add(new ProductEntry(result));
+                final ProductEntry productEntry = new ProductEntry(result);
+
+                final OpenData.Entry entry = openData.getEntryByID(result.id);
+                productEntry.setGeoBoundary(entry.footprint);
+
+                resultList.add(productEntry);
+                pm2.worked(1);
             }
+            pm2.done();
+
             productEntryList = resultList.toArray(new ProductEntry[resultList.size()]);
             return true;
         } finally {

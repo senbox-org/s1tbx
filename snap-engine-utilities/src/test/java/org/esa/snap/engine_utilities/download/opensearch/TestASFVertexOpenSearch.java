@@ -16,6 +16,7 @@
 package org.esa.snap.engine_utilities.download.opensearch;
 
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -35,7 +36,7 @@ public class TestASFVertexOpenSearch {
         final OpenSearch openSearch = new OpenSearch(ASF_VERTEX_HOST);
         final OpenSearch.PageResult pageResult = openSearch.getPages(searchURL);
 
-        final OpenSearch.ProductResult[] productResults = openSearch.getProductResults(pageResult);
+        final OpenSearch.ProductResult[] productResults = openSearch.getProductResults(pageResult, ProgressMonitor.NULL);
 
         System.out.println("Retrieved Product Ids");
         for(OpenSearch.ProductResult result : productResults) {

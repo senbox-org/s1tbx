@@ -15,6 +15,7 @@
  */
 package org.esa.snap.engine_utilities.download.opensearch;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.download.opendata.OpenData;
 import org.junit.Test;
@@ -39,18 +40,22 @@ public class TestCopernicusOpenSearch {
         final OpenSearch openSearch = new OpenSearch(COPERNICUS_HOST);
         final OpenSearch.PageResult pageResult = openSearch.getPages(searchURL);
 
-        final OpenSearch.ProductResult[] productResults = openSearch.getProductResults(pageResult);
+        final OpenSearch.ProductResult[] productResults = openSearch.getProductResults(pageResult, ProgressMonitor.NULL);
 
         SystemUtils.LOG.info("Retrieved "+ productResults.length +" Product Ids");
         for(OpenSearch.ProductResult result : productResults) {
             //System.out.println("id: " + result.id);
         }
 
-        final OpenData openData = new OpenData(COPERNICUS_HOST, COPERNICUS_ODATA_METALINK);
+        final OpenData openData = new OpenData(COPERNICUS_HOST, COPERNICUS_ODATA_METALINK, COPERNICUS_ODATA_ROOT);
         for(OpenSearch.ProductResult result : productResults){
             try {
-                OpenData.Entry entry = openData.getEntryByID(result.id, COPERNICUS_ODATA_ROOT);
+                OpenData.Entry entry = openData.getEntryByID(result.id);
                 SystemUtils.LOG.info(entry.fileName);
+
+                //openData.getManifest(result.id, entry, outputFolder);
+
+                //openData.getProduct(result.id, entry, outputFolder);
 
             } catch (IOException e) {
                 throw e;
