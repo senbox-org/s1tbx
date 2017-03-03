@@ -24,6 +24,7 @@ public interface Activator {
 
     /**
      * The start level of the activator which defaults to zero.
+     * Activators with a lower level are started before and stopped after those with a higher level.
      *
      * @return The start level of the activator.
      */

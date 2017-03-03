@@ -16,104 +16,181 @@
 package org.esa.snap.core.util;
 
 import com.bc.ceres.core.runtime.Version;
+import org.esa.snap.runtime.EngineConfig;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
+
 
 public class VersionChecker {
 
-    private String remoteVersionUrlString;
-    private File localVersionFile;
-    private static final String VERSION_PREFIX = "VERSION ";
-    private String localVersionStr = null;
-    private String remoteVersionStr = null;
+    public static final String PK_CHECK_INTERVAL = "snap.versionCheck.interval";
+    private static final String PK_LAST_DATE = "snap.versionCheck.lastDate";
+    private static final String VERSION_FILE_NAME = "VERSION.txt";
+    private static final String REMOTE_VERSION_FILE_URL = "http://step.esa.int/downloads/" + VERSION_FILE_NAME;
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_DATE_TIME;
 
-    // todo - use application.properties with version ID set by Maven (resource Filter!)
-    public VersionChecker() {
-        this(new File(SystemUtils.getApplicationHomeDir(), "VERSION.txt"),
-             SystemUtils.getApplicationRemoteVersionUrl());
+    private static VersionChecker instance = new VersionChecker();
+
+    private final InputStream localVersionStream;
+    private final InputStream remoteVersionStream;
+
+    private final AtomicReference<Version> localVersion = new AtomicReference<>();
+    private final AtomicReference<Version> remoteVersion = new AtomicReference<>();
+    private final Preferences preferences;
+
+    public static VersionChecker getInstance() {
+        return instance;
     }
 
-    public VersionChecker(File localVersionFile, String remoteVersionUrlString) {
-        this.localVersionFile = localVersionFile;
-        this.remoteVersionUrlString = remoteVersionUrlString;
+    private VersionChecker() {
+        this(null, null);
     }
 
-    public String getRemoteVersionUrlString() {
-        return remoteVersionUrlString;
+    // constructor used for tests
+    VersionChecker(InputStream localVersionStream, InputStream remoteVersionStream) {
+        this.localVersionStream = localVersionStream;
+        this.remoteVersionStream = remoteVersionStream;
+        EngineConfig config = EngineConfig.instance().load();
+        preferences = config.preferences();
     }
 
-    public void setRemoteVersionUrlString(String remoteVersionUrlString) {
-        this.remoteVersionUrlString = remoteVersionUrlString;
+    public boolean mustCheck() {
+        String dateText = preferences.get(VersionChecker.PK_LAST_DATE, null);
+        return mustCheck(
+                CHECK.valueOf(preferences.get(VersionChecker.PK_CHECK_INTERVAL, CHECK.WEEKLY.name())),
+                dateText != null ? LocalDateTime.parse(dateText, DATE_FORMATTER) : null);
+
     }
 
-    public File getLocalVersionFile() {
-        return localVersionFile;
-    }
-
-    public void setLocalVersionFile(File localVersionFile) {
-        this.localVersionFile = localVersionFile;
-    }
-
-    public void setLocalVersion(final String ver) {
-        localVersionStr = ver;
-    }
-
-    public int compareVersions() throws IOException {
-        final String remoteVersion = getRemoteVersion();
-        if (localVersionStr == null) {
-            localVersionStr = getLocalVersion();
-        }
-        return compareVersions(localVersionStr, remoteVersion);
-    }
-
-    static int compareVersions(String localVersion, String remoteVersion) {
-        if (localVersion.startsWith(VERSION_PREFIX) && remoteVersion.startsWith(VERSION_PREFIX)) {
-            Version v1 = Version.parseVersion(localVersion.substring(VERSION_PREFIX.length()));
-            Version v2 = Version.parseVersion(remoteVersion.substring(VERSION_PREFIX.length()));
-            return v1.compareTo(v2);
-        }
-        return localVersion.compareTo(remoteVersion);
-    }
-
-    public String getLocalVersion() throws IOException {
-        try {
-            if (localVersionStr == null) {
-                return getVersion(getLocalVersionFile().toURI().toURL());
+    public boolean checkForNewRelease() {
+        boolean newRelease = false;
+            try {
+                Version localVersion = getLocalVersion();
+                if (localVersion == null) {
+                    SystemUtils.LOG.log(Level.WARNING, "Not able to check for new SNAP version. Local version could not be retrieved.");
+                    return false;
+                }
+                Version remoteVersion = getRemoteVersion();
+                if (remoteVersion == null) {
+                    SystemUtils.LOG.log(Level.WARNING, "Not able to check for new SNAP version. Remote version could not be retrieved.");
+                    return false;
+                }
+                newRelease = compareVersions();
+            } catch (IOException e) {
+                SystemUtils.LOG.log(Level.WARNING, "Not able to check for new SNAP version.", e);
             }
-            return localVersionStr;
-        } catch (MalformedURLException e) {
-            throw new IllegalStateException(e.getMessage());
-        }
+        return newRelease;
     }
 
-    public String getRemoteVersion() throws IOException {
+    public void setChecked() {
+        preferences.put(VersionChecker.PK_LAST_DATE, LocalDateTime.now().format(VersionChecker.DATE_FORMATTER));
         try {
-            if (remoteVersionStr == null) {
-                remoteVersionStr = getVersion(new URL(getRemoteVersionUrlString()));
-            }
-            return remoteVersionStr;
-        } catch (MalformedURLException e) {
-            throw new IllegalStateException(e.getMessage());
+            preferences.flush();
+        } catch (BackingStoreException e) {
+            SystemUtils.LOG.log(Level.WARNING, "Not able to store preferences.", e);
         }
     }
 
-    private static String getVersion(final URL url) throws IOException {
-        String versionString = null;
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()))) {
-            String line = reader.readLine();
+    /**
+     * Returns the local version, or {@code null} if no version could be found
+     *
+     * @return the local version, or {@code null} if no version could be found
+     */
+    public Version getLocalVersion()  {
+        if (localVersion.get() == null) {
+            Path versionFile = SystemUtils.getApplicationHomeDir().toPath().resolve(VersionChecker.VERSION_FILE_NAME);
+            try {
+                localVersion.set(readVersionFromStream(localVersionStream == null ? Files.newInputStream(versionFile) : localVersionStream));
+            } catch (IOException e) {
+                SystemUtils.LOG.log(Level.WARNING, "Not able to check for new SNAP version. Local version could not be retrieved.", e);
+                return null;
+            }
+        }
+        return localVersion.get();
+    }
+
+    /**
+     * Returns the remote version, or {@code null} if no version could be found
+     *
+     * @return the remote version, or {@code null} if no version could be found
+     *
+     */
+    public Version getRemoteVersion()  {
+        if (remoteVersion.get() == null) {
+            try {
+                remoteVersion.set(readVersionFromStream(
+                        remoteVersionStream == null ? new URL(VersionChecker.REMOTE_VERSION_FILE_URL).openStream() : remoteVersionStream));
+            } catch (IOException e) {
+                SystemUtils.LOG.log(Level.WARNING, "Not able to check for new SNAP version. Remote version could not be retrieved.", e);
+                return null;
+            }
+        }
+        return remoteVersion.get();
+    }
+
+    static boolean mustCheck(CHECK checkInterval, LocalDateTime lastDate) {
+        if (CHECK.NEVER.equals(checkInterval)) {
+            return false;
+        }
+        if (CHECK.ON_START.equals(checkInterval)) {
+            return true;
+        }
+
+        if (lastDate == null) { // no checked yet, so do it now
+            return true;
+        } else {
+            Duration duration = Duration.between(LocalDateTime.now(), lastDate);
+            long daysAgo = duration.toDays();
+            return checkInterval.exceedsInterval(daysAgo);
+        }
+    }
+
+    private boolean compareVersions() throws IOException {
+        final Version remoteVersion = getRemoteVersion();
+        final Version localVersion = getLocalVersion();
+        return remoteVersion.compareTo(localVersion) > 0;
+    }
+
+    private static Version readVersionFromStream(InputStream inputStream) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            String line;
+            line = reader.readLine();
             if (line != null) {
-                versionString = line.toUpperCase();
+                return Version.parseVersion(line.toUpperCase());
             }
         }
-        if (versionString == null || !versionString.startsWith(VERSION_PREFIX)) {
-            throw new IOException("unexpected version file format");
-        }
-        return versionString;
+        return null;
     }
 
+    public enum CHECK {
+        ON_START(0),
+        DAILY(1),
+        WEEKLY(7),
+        MONTHLY(30),
+        NEVER(-1);
+
+        private final int days;
+
+        CHECK(int days) {
+            this.days = days;
+        }
+
+        boolean exceedsInterval(long daysAgo) {
+            return Math.abs(daysAgo) > this.days;
+        }
+
+    }
 }
