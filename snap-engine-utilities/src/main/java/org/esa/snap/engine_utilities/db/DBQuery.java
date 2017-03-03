@@ -88,6 +88,10 @@ public class DBQuery {
         Arrays.fill(selectedMonths, true);
     }
 
+    public String getSelectedName() {
+        return selectedName;
+    }
+
     public void setSelectedMissions(final String[] missions) {
         selectedMissions = missions;
     }

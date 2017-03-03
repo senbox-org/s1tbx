@@ -46,13 +46,14 @@ public class OpenData {
     private static final String APPLICATION_XML = "application/xml";
     private static final int MAX_DOWNLOAD_TRIES = 5;
 
-    public OpenData(final String host, final String odataMetaLink, final String odataRoot) throws IOException {
+    public OpenData(final String host, final String odataRoot) throws IOException {
         this.host = host;
         this.odataRoot = odataRoot;
         this.credentialInfo = getCredentialInfo();
         this.downloader = new HTTPDownloader();
 
         try {
+            final String odataMetaLink = odataRoot + "$metadata";
             final InputStream content = downloader.connect(odataMetaLink, APPLICATION_XML, HTTPDownloader.HTTP_METHOD_GET,
                                                            credentialInfo.getUser(), credentialInfo.getPassword());
 
@@ -119,7 +120,9 @@ public class OpenData {
         HTTPDownloader.EntryFileProperty entryFp = null;
         while ((entryFp == null || entryFp.getSize() != entry.contentLength)) {
 
-            entryFp = downloader.getEntryFilePropertyFromUrlString("https://scihub.copernicus.eu/dhus/odata/v1/Products('" + id + "')/$value?",
+            final String downloadURL = odataRoot+"Products('" + id + "')" + "/$value?";
+
+            entryFp = downloader.getEntryFilePropertyFromUrlString(downloadURL,
                                                                    entry.fileName, entry.contentLength, entry.contentType,
                                                                    outputFolder, credentialInfo.getUser(), credentialInfo.getPassword());
 

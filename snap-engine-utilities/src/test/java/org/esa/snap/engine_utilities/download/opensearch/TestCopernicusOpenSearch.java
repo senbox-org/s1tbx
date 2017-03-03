@@ -30,7 +30,6 @@ public class TestCopernicusOpenSearch {
     private static final String COPERNICUS_HOST = "https://scihub.copernicus.eu";
     private static final String searchURL = "https://scihub.copernicus.eu/dhus/search?q=( footprint:\"Intersects(POLYGON((-74.24323771090575 -34.81331346157173,-31.2668365052604 -34.81331346157173,-31.2668365052604 5.647318588641241,-74.24323771090575 5.647318588641241,-74.24323771090575 -34.81331346157173)))\" ) AND ( beginPosition:[2016-01-25T00:00:00.000Z TO 2016-01-25T23:59:59.999Z] AND endPosition:[2016-01-25T00:00:00.000Z TO 2016-01-25T23:59:59.999Z] ) AND (platformname:Sentinel-1 AND producttype:GRD)";
 
-    private static final String COPERNICUS_ODATA_METALINK = "https://scihub.copernicus.eu/dhus/odata/v1/$metadata";
     private static final String COPERNICUS_ODATA_ROOT = "https://scihub.copernicus.eu/dhus/odata/v1/";
 
     private static final String outputFolder = "e:\\tmp\\";
@@ -47,7 +46,7 @@ public class TestCopernicusOpenSearch {
             //System.out.println("id: " + result.id);
         }
 
-        final OpenData openData = new OpenData(COPERNICUS_HOST, COPERNICUS_ODATA_METALINK, COPERNICUS_ODATA_ROOT);
+        final OpenData openData = new OpenData(COPERNICUS_HOST, COPERNICUS_ODATA_ROOT);
         for(OpenSearch.ProductResult result : productResults){
             try {
                 OpenData.Entry entry = openData.getEntryByID(result.id);

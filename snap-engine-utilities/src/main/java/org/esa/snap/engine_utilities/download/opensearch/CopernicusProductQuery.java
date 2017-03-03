@@ -40,7 +40,6 @@ public class CopernicusProductQuery implements ProductQueryInterface {
 
     public static final String NAME = "ESA SciHub";
     public static final String COPERNICUS_HOST = "https://scihub.copernicus.eu";
-    private static final String COPERNICUS_ODATA_METALINK = "https://scihub.copernicus.eu/dhus/odata/v1/$metadata";
     private static final String COPERNICUS_ODATA_ROOT = "https://scihub.copernicus.eu/dhus/odata/v1/";
 
     private static final String[] emptyStringList = new String[]{};
@@ -75,19 +74,20 @@ public class CopernicusProductQuery implements ProductQueryInterface {
     public boolean fullQuery(final DBQuery dbQuery, final ProgressMonitor pm) throws Exception {
         pm.beginTask("Searching " + NAME + "...", 10);
         try {
+            final OpenSearch openSearch = new OpenSearch(COPERNICUS_HOST);
             pm.worked(1);
 
-            final OpenSearch openSearch = new OpenSearch(COPERNICUS_HOST);
             final CopernicusQueryBuilder queryBuilder = new CopernicusQueryBuilder(dbQuery);
             final OpenSearch.PageResult pageResult = openSearch.getPages(queryBuilder.getSearchURL());
             pm.worked(1);
 
-            final OpenSearch.ProductResult[] productResults = openSearch.getProductResults(pageResult, SubProgressMonitor.create(pm, 3));
+            final OpenSearch.ProductResult[] productResults = openSearch.getProductResults(pageResult, SubProgressMonitor.create(pm, 2));
+
+            final OpenData openData = new OpenData(COPERNICUS_HOST, COPERNICUS_ODATA_ROOT);
+            pm.worked(1);
 
             final ProgressMonitor pm2 = SubProgressMonitor.create(pm, 5);
             pm2.beginTask("Retieving entry information...", productResults.length);
-
-            final OpenData openData = new OpenData(COPERNICUS_HOST, COPERNICUS_ODATA_METALINK, COPERNICUS_ODATA_ROOT);
 
             final List<ProductEntry> resultList = new ArrayList<>();
             for (OpenSearch.ProductResult result : productResults) {
@@ -102,6 +102,8 @@ public class CopernicusProductQuery implements ProductQueryInterface {
             pm2.done();
 
             productEntryList = resultList.toArray(new ProductEntry[resultList.size()]);
+            pm.worked(1);
+            
             return true;
         } finally {
             pm.done();
