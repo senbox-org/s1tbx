@@ -17,16 +17,20 @@ package org.esa.s1tbx.io;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.runtime.RuntimeContext;
-import org.esa.s1tbx.io.gamma.header.GammaConstants;
 import org.esa.snap.core.dataio.AbstractProductReader;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
-import org.esa.snap.core.datamodel.*;
+import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.MetadataElement;
+import org.esa.snap.core.datamodel.PixelPos;
+import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.datamodel.quicklooks.Quicklook;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.eo.GeoUtils;
-import org.esa.snap.engine_utilities.util.ExceptionLog;
 
 import java.io.File;
 import java.io.IOException;
@@ -164,10 +168,6 @@ public abstract class SARReader extends AbstractProductReader {
             message += e.getMessage();
         else
             message += e.toString();
-
-        if (Boolean.getBoolean("sendErrorOnException")) {
-            ExceptionLog.log(message);
-        }
 
         SystemUtils.LOG.severe(message);
         throw new IOException(message);
