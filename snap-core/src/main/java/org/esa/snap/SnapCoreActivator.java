@@ -17,7 +17,6 @@ package org.esa.snap;
 
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.ServiceRegistry;
-import com.bc.ceres.core.ServiceRegistryManager;
 import com.bc.ceres.core.runtime.Activator;
 import com.bc.ceres.core.runtime.ConfigurationElement;
 import com.bc.ceres.core.runtime.Extension;
@@ -26,9 +25,6 @@ import com.bc.ceres.core.runtime.ModuleContext;
 import org.esa.snap.core.datamodel.RGBImageProfile;
 import org.esa.snap.core.datamodel.RGBImageProfileManager;
 import org.esa.snap.core.util.SystemUtils;
-import org.geotools.factory.FactoryIteratorProvider;
-import org.geotools.factory.GeoTools;
-import org.geotools.referencing.operation.MathTransformProvider;
 
 import java.util.Iterator;
 import java.util.ServiceConfigurationError;
@@ -43,8 +39,6 @@ import java.util.logging.Level;
  * @author Marco Peters
  */
 public class SnapCoreActivator implements Activator {
-
-    private FactoryIteratorProvider geotoolsFactoryIteratorProvider;
 
     public static boolean isStarted() {
         return false;
@@ -66,29 +60,13 @@ public class SnapCoreActivator implements Activator {
 
     @Override
     public void start(ModuleContext moduleContext) throws CoreException {
-        SystemUtils.init3rdPartyLibs(moduleContext.getModule().getClass());
         registerRGBProfiles(moduleContext);
-        registerGeotoolsServices();
     }
 
     @Override
     public void stop(ModuleContext moduleContext) throws CoreException {
-        deregisterGeotoolsServices();
-    }
 
-    private void registerGeotoolsServices() {
-        final ServiceRegistry<MathTransformProvider> serviceRegistry = ServiceRegistryManager.getInstance().getServiceRegistry(MathTransformProvider.class);
-        loadServices(serviceRegistry);
-        geotoolsFactoryIteratorProvider = new GeotoolsFactoryIteratorProvider(serviceRegistry);
-        GeoTools.addFactoryIteratorProvider(geotoolsFactoryIteratorProvider);
     }
-
-    private void deregisterGeotoolsServices() {
-        if (geotoolsFactoryIteratorProvider != null) {
-            GeoTools.removeFactoryIteratorProvider(geotoolsFactoryIteratorProvider);
-        }
-    }
-
 
     private static void registerRGBProfiles(ModuleContext moduleContext) throws CoreException {
         ExtensionPoint rgbExtensionPoint = moduleContext.getModule().getExtensionPoint("rgbProfiles");
@@ -101,23 +79,6 @@ public class SnapCoreActivator implements Activator {
                 RGBImageProfile rgbImageProfile = new RGBImageProfile();
                 rgbImageProfile.configure(rgbElement);
                 profileManager.addProfile(rgbImageProfile);
-            }
-        }
-    }
-
-    private static final class GeotoolsFactoryIteratorProvider implements FactoryIteratorProvider {
-        private final ServiceRegistry<MathTransformProvider> serviceRegistry;
-
-        private GeotoolsFactoryIteratorProvider(ServiceRegistry<MathTransformProvider> serviceRegistry) {
-            this.serviceRegistry = serviceRegistry;
-        }
-
-        @Override
-        public <T> Iterator<T> iterator(Class<T> category) {
-            if (category.equals(serviceRegistry.getServiceType())) {
-                return (Iterator<T>) serviceRegistry.getServices().iterator();
-            } else {
-                return null;
             }
         }
     }
