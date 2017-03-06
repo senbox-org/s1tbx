@@ -791,6 +791,9 @@ public class AdaptiveThresholdingOp extends Operator {
                 /*System.out.println("tx = " + tx + " ty = " + ty + " : leftT = " + leftT
                         + "; rightT = " + rightT + "; leftVal = " + leftVal + "; rightVal = " + rightVal
                         + " T = " + newT);*/
+                if (Math.abs(evaluateProbability(pdf, newT) - oneMinusPFA) > DESIRED_ACCURACY) {
+                    System.out.println("ERROR2: tx = " + tx + " ty = " + ty + ": " + getParamsString(pdf));
+                }
                 return newT;
             }
             double newVal = evaluateProbability(pdf, newT);
@@ -803,6 +806,9 @@ public class AdaptiveThresholdingOp extends Operator {
                 rightT = newT;
             } else {
                 //System.out.println("tx = " + tx + " ty = " + ty + " : newVal = " + newVal + "; T = newT = " + newT);
+                if (Math.abs(evaluateProbability(pdf, newT) - oneMinusPFA) > DESIRED_ACCURACY) {
+                    System.out.println("ERROR3: tx = " + tx + " ty = " + ty + ": " + getParamsString(pdf));
+                }
                 return newT;
             }
         }
