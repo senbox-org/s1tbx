@@ -3,6 +3,7 @@ package org.esa.snap.core.gpf.descriptor.dependency;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import org.esa.snap.core.gpf.descriptor.annotations.Folder;
+import org.esa.snap.core.gpf.descriptor.annotations.ReadOnly;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +28,7 @@ public class Bundle {
     @XStreamOmitField
     private File source;
     @Folder
+    @ReadOnly
     private File targetLocation;
     private String entryPoint;
     private String arguments;
