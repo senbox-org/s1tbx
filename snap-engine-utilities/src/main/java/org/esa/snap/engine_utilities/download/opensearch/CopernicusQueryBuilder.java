@@ -66,29 +66,29 @@ public class CopernicusQueryBuilder {
             final StringBuilder str = new StringBuilder();
             str.append("( footprint:\"Intersects(POLYGON((");
 
-            str.append(rect.x); // lon
-            str.append(' ');
             str.append(rect.y); // lat
+            str.append(' ');
+            str.append(rect.x); // lon
             str.append(", ");
 
-            str.append(rect.x + rect.width);
-            str.append(' ');
             str.append(rect.y);
+            str.append(' ');
+            str.append(rect.x  + rect.width);
             str.append(", ");
 
+            str.append(rect.y + rect.height);
+            str.append(' ');
             str.append(rect.x + rect.width);
-            str.append(' ');
-            str.append(rect.y + rect.height);
             str.append(", ");
 
-            str.append(rect.x);
-            str.append(' ');
             str.append(rect.y + rect.height);
+            str.append(' ');
+            str.append(rect.x);
             str.append(", ");
 
-            str.append(rect.x);
-            str.append(' ');
             str.append(rect.y);
+            str.append(' ');
+            str.append(rect.x);
 
             str.append(")))\" )");
             return str.toString();

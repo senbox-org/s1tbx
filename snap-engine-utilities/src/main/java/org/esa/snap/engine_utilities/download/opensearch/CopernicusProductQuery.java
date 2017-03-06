@@ -72,7 +72,7 @@ public class CopernicusProductQuery implements ProductQueryInterface {
     }
 
     public boolean fullQuery(final DBQuery dbQuery, final ProgressMonitor pm) throws Exception {
-        pm.beginTask("Searching " + NAME + "...", 10);
+        pm.beginTask("Searching " + NAME + "...", 20);
         try {
             final OpenSearch openSearch = new OpenSearch(COPERNICUS_HOST);
             pm.worked(1);
@@ -81,12 +81,12 @@ public class CopernicusProductQuery implements ProductQueryInterface {
             final OpenSearch.PageResult pageResult = openSearch.getPages(queryBuilder.getSearchURL());
             pm.worked(1);
 
-            final OpenSearch.ProductResult[] productResults = openSearch.getProductResults(pageResult, SubProgressMonitor.create(pm, 2));
+            final OpenSearch.ProductResult[] productResults = openSearch.getProductResults(pageResult, SubProgressMonitor.create(pm, 7));
 
             final OpenData openData = new OpenData(COPERNICUS_HOST, COPERNICUS_ODATA_ROOT);
             pm.worked(1);
 
-            final ProgressMonitor pm2 = SubProgressMonitor.create(pm, 5);
+            final ProgressMonitor pm2 = SubProgressMonitor.create(pm, 10);
             pm2.beginTask("Retieving entry information...", productResults.length);
 
             final List<ProductEntry> resultList = new ArrayList<>();
