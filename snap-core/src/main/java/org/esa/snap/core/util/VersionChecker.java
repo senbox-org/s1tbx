@@ -33,7 +33,6 @@ import java.util.logging.Level;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-import static org.esa.snap.core.util.SystemUtils.*;
 
 public class VersionChecker {
 
@@ -115,7 +114,7 @@ public class VersionChecker {
      */
     public Version getLocalVersion()  {
         if (localVersion.get() == null) {
-            Path versionFile = getApplicationHomeDir().toPath().resolve(VersionChecker.VERSION_FILE_NAME);
+            Path versionFile = SystemUtils.getApplicationHomeDir().toPath().resolve(VersionChecker.VERSION_FILE_NAME);
             try {
                 localVersion.set(readVersionFromStream(localVersionStream == null ? Files.newInputStream(versionFile) : localVersionStream));
             } catch (IOException e) {
