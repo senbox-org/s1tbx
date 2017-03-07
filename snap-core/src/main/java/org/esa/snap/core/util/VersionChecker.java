@@ -143,20 +143,6 @@ public class VersionChecker {
         return remoteVersion.get();
     }
 
-    /**
-     * compares the local and the remote version and returns {@code true} if the remote version is greater than the local version, otherwise {@code false}
-     *
-     * @return {@code true} if the remote version is greater than the local version, otherwise {@code false}
-     *
-     * @throws IOException is thrown if one of the versions could not be retrieved
-     */
-    public boolean compareVersions() throws IOException {
-        final Version remoteVersion = getRemoteVersion();
-        final Version localVersion = getLocalVersion();
-        return remoteVersion.compareTo(localVersion) > 0;
-    }
-
-
     static boolean mustCheck(CHECK checkInterval, LocalDateTime lastDate) {
         if (CHECK.NEVER.equals(checkInterval)) {
             return false;
@@ -172,6 +158,12 @@ public class VersionChecker {
             long daysAgo = duration.toDays();
             return checkInterval.exceedsInterval(daysAgo);
         }
+    }
+
+    private boolean compareVersions() throws IOException {
+        final Version remoteVersion = getRemoteVersion();
+        final Version localVersion = getLocalVersion();
+        return remoteVersion.compareTo(localVersion) > 0;
     }
 
     private static Version readVersionFromStream(InputStream inputStream) throws IOException {
