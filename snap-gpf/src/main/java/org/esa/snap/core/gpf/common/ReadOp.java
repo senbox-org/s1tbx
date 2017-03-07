@@ -78,7 +78,7 @@ public class ReadOp extends Operator {
             throw new OperatorException("The 'file' parameter is not set");
         }
         if (!file.exists()) {
-            throw new OperatorException("Specified 'file' does not exist");
+            throw new OperatorException(String.format("Specified 'file' [%s] does not exist.", file));
         }
 
         try {
