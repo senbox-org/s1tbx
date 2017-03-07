@@ -37,7 +37,7 @@ import static org.esa.snap.core.util.SystemUtils.*;
 
 public class VersionChecker {
 
-    static final String PK_CHECK_INTERVAL = "snap.versionCheck.interval";
+    public static final String PK_CHECK_INTERVAL = "snap.versionCheck.interval";
     static final String PK_LAST_DATE = "snap.versionCheck.lastDate";
     private static final String VERSION_FILE_NAME = "VERSION.txt";
     private static final String REMOTE_VERSION_FILE_URL = "http://step.esa.int/downloads/" + VERSION_FILE_NAME;
