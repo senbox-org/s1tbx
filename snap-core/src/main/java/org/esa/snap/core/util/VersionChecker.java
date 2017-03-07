@@ -55,7 +55,6 @@ public class VersionChecker {
         return instance;
     }
 
-    // todo - use application.properties with version ID set by Maven (resource Filter!)
     private VersionChecker() {
         this(null, null);
     }
