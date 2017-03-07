@@ -368,8 +368,9 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
             final String text = Double.toString(azimuthPixelSpacing) + "(m) x " + Double.toString(rangePixelSpacing) + "(m)";
             sourcePixelSpacingsLabelPart2.setText(text);
 
-            if(savedAzimuthPixelSpacing != 0 && savedRangePixelSpacing != 0) {
-                if(savedAzimuthPixelSpacing != azimuthPixelSpacing || savedRangePixelSpacing != rangePixelSpacing) {
+            if(savedAzimuthPixelSpacing.compareTo(0.0) != 0 && savedRangePixelSpacing.compareTo(0.0) != 0) {
+                if(savedAzimuthPixelSpacing.compareTo(azimuthPixelSpacing) != 0 ||
+                        savedRangePixelSpacing.compareTo(rangePixelSpacing) != 0) {
                     pixDSaved = null;
                 }
             }
