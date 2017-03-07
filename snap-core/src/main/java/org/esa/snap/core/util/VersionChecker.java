@@ -37,7 +37,7 @@ import java.util.prefs.Preferences;
 public class VersionChecker {
 
     public static final String PK_CHECK_INTERVAL = "snap.versionCheck.interval";
-    static final String PK_LAST_DATE = "snap.versionCheck.lastDate";
+    private static final String PK_LAST_DATE = "snap.versionCheck.lastDate";
     private static final String VERSION_FILE_NAME = "VERSION.txt";
     private static final String REMOTE_VERSION_FILE_URL = "http://step.esa.int/downloads/" + VERSION_FILE_NAME;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_DATE_TIME;
