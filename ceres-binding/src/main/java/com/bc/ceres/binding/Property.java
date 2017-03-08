@@ -49,6 +49,15 @@ public class Property {
         PRIMITIVE_ZERO_VALUES.put(Long.TYPE, (long) 0);
         PRIMITIVE_ZERO_VALUES.put(Float.TYPE, (float) 0);
         PRIMITIVE_ZERO_VALUES.put(Double.TYPE, (double) 0);
+        /* SNAP-402 (JIRA) issue */
+        PRIMITIVE_ZERO_VALUES.put(Boolean.class,false);
+        PRIMITIVE_ZERO_VALUES.put(Character.class, (char) 0);
+        PRIMITIVE_ZERO_VALUES.put(Byte.class, (byte) 0);
+        PRIMITIVE_ZERO_VALUES.put(Short.class, (short) 0);
+        PRIMITIVE_ZERO_VALUES.put(Integer.class, 0);
+        PRIMITIVE_ZERO_VALUES.put(Long.class, (long) 0);
+        PRIMITIVE_ZERO_VALUES.put(Float.class, (float) 0);
+        PRIMITIVE_ZERO_VALUES.put(Double.class, (double) 0);
     }
 
     private final PropertyDescriptor descriptor;
