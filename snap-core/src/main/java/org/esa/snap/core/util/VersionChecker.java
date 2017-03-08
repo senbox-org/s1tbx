@@ -78,23 +78,17 @@ public class VersionChecker {
     }
 
     public boolean checkForNewRelease() {
-        boolean newRelease = false;
-            try {
-                Version localVersion = getLocalVersion();
-                if (localVersion == null) {
-                    SystemUtils.LOG.log(Level.WARNING, "Not able to check for new SNAP version. Local version could not be retrieved.");
-                    return false;
-                }
-                Version remoteVersion = getRemoteVersion();
-                if (remoteVersion == null) {
-                    SystemUtils.LOG.log(Level.WARNING, "Not able to check for new SNAP version. Remote version could not be retrieved.");
-                    return false;
-                }
-                newRelease = compareVersions();
-            } catch (IOException e) {
-                SystemUtils.LOG.log(Level.WARNING, "Not able to check for new SNAP version.", e);
-            }
-        return newRelease;
+        Version localVersion = getLocalVersion();
+        if (localVersion == null) {
+            SystemUtils.LOG.log(Level.WARNING, "Not able to check for new SNAP version. Local version could not be retrieved.");
+            return false;
+        }
+        Version remoteVersion = getRemoteVersion();
+        if (remoteVersion == null) {
+            SystemUtils.LOG.log(Level.WARNING, "Not able to check for new SNAP version. Remote version could not be retrieved.");
+            return false;
+        }
+        return compareVersions();
     }
 
     public void setChecked() {
@@ -111,13 +105,12 @@ public class VersionChecker {
      *
      * @return the local version, or {@code null} if no version could be found
      */
-    public Version getLocalVersion()  {
+    public Version getLocalVersion() {
         if (localVersion.get() == null) {
             Path versionFile = SystemUtils.getApplicationHomeDir().toPath().resolve(VersionChecker.VERSION_FILE_NAME);
             try {
                 localVersion.set(readVersionFromStream(localVersionStream == null ? Files.newInputStream(versionFile) : localVersionStream));
             } catch (IOException e) {
-                SystemUtils.LOG.log(Level.WARNING, "Not able to check for new SNAP version. Local version could not be retrieved.", e);
                 return null;
             }
         }
@@ -128,15 +121,13 @@ public class VersionChecker {
      * Returns the remote version, or {@code null} if no version could be found
      *
      * @return the remote version, or {@code null} if no version could be found
-     *
      */
-    public Version getRemoteVersion()  {
+    public Version getRemoteVersion() {
         if (remoteVersion.get() == null) {
             try {
                 remoteVersion.set(readVersionFromStream(
                         remoteVersionStream == null ? new URL(VersionChecker.REMOTE_VERSION_FILE_URL).openStream() : remoteVersionStream));
             } catch (IOException e) {
-                SystemUtils.LOG.log(Level.WARNING, "Not able to check for new SNAP version. Remote version could not be retrieved.", e);
                 return null;
             }
         }
@@ -160,10 +151,15 @@ public class VersionChecker {
         }
     }
 
-    private boolean compareVersions() throws IOException {
+    /**
+     * Compares the remote and the local version and return true if the remote version is greater.
+     *
+     * @return {@code true} if the remote version is greater, otherwise {@code false}
+     */
+    private boolean compareVersions() {
         final Version remoteVersion = getRemoteVersion();
         final Version localVersion = getLocalVersion();
-        return remoteVersion.compareTo(localVersion) > 0;
+        return remoteVersion != null && localVersion != null && remoteVersion.compareTo(localVersion) > 0;
     }
 
     private static Version readVersionFromStream(InputStream inputStream) throws IOException {
