@@ -8,7 +8,7 @@
     <parent>
         <artifactId>snap-engine</artifactId>
         <groupId>org.esa.snap</groupId>
-        <version>3.0.5-SNAPSHOT</version>
+        <version>3.0.5</version>
     </parent>
 
     <artifactId>snap-runtime</artifactId>

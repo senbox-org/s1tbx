@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.esa.snap</groupId>
         <artifactId>snap-engine</artifactId>
-        <version>3.0.5-SNAPSHOT</version>
+        <version>3.0.5</version>
     </parent>
 
     <artifactId>snap-land-cover</artifactId>
