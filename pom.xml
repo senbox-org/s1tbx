@@ -22,7 +22,7 @@
 
     <groupId>org.esa.snap</groupId>
     <artifactId>snap-engine</artifactId>
-    <version>5.0.3</version>
+    <version>5.0.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>SNAP Engine Project</name>
