@@ -34,7 +34,9 @@ import org.esa.snap.core.util.math.Histogram;
 import org.esa.snap.core.util.math.Range;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Format-Change
@@ -76,6 +78,9 @@ public class ConvertDataTypeOp extends Operator {
             defaultValue = SCALING_LINEAR_CLIPPED, label = "Scaling")
     private String targetScalingStr = SCALING_LINEAR_CLIPPED;
 
+    @Parameter(label = "Target no data value", defaultValue = "0")
+    private Double targetNoDataValue = 0D;
+
     public final static String SCALING_TRUNCATE = "Truncate";
     public final static String SCALING_LINEAR = "Linear (slope and intercept)";
     public final static String SCALING_LINEAR_CLIPPED = "Linear (between 95% clipped histogram)";
@@ -85,6 +90,8 @@ public class ConvertDataTypeOp extends Operator {
     public enum ScalingType {NONE, TRUNC, LINEAR, LINEAR_CLIPPED, LINEAR_PEAK_CLIPPED, LOGARITHMIC}
 
     private ScalingType targetScaling = ScalingType.LINEAR_CLIPPED;
+
+    private final Map<Band, Stx> stxMap = new HashMap<>();
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -112,6 +119,10 @@ public class ConvertDataTypeOp extends Operator {
 
             dataType = ProductData.getType(targetDataType);
             targetScaling = getScaling(targetScalingStr);
+
+            if(targetNoDataValue == null) {
+                targetNoDataValue = 0D;
+            }
 
             addSelectedBands();
 
@@ -175,9 +186,18 @@ public class ConvertDataTypeOp extends Operator {
             final Band targetBand = new Band(srcBand.getName(), dataType,
                     sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
             targetBand.setUnit(srcBand.getUnit());
+            targetBand.setNoDataValue(targetNoDataValue);
+            targetBand.setNoDataValueUsed(srcBand.isNoDataValueUsed());
             targetBand.setDescription(srcBand.getDescription());
             targetProduct.addBand(targetBand);
         }
+    }
+
+    private synchronized void calculateStatistics(final Band sourceBand) {
+        if(stxMap.get(sourceBand) != null)
+            return;
+
+        stxMap.put(sourceBand, sourceBand.getStx());
     }
 
     /**
@@ -196,7 +216,11 @@ public class ConvertDataTypeOp extends Operator {
             final Band sourceBand = sourceProduct.getBand(targetBand.getName());
             final Tile srcTile = getSourceTile(sourceBand, targetTile.getRectangle());
 
-            final Stx stx = sourceBand.getStx();
+            if(stxMap.get(sourceBand) == null) {
+                calculateStatistics(sourceBand);
+            }
+
+            final Stx stx = stxMap.get(sourceBand);
             double origMin = stx.getMinimum();
             double origMax = stx.getMaximum();
             ScalingType scaling = verifyScaling(targetScaling, dataType);
@@ -205,14 +229,15 @@ public class ConvertDataTypeOp extends Operator {
             final double newMax = getMax(dataType);
             final double newRange = newMax - newMin;
 
-            if (origMax <= newMax && origMin >= newMin && sourceBand.getDataType() < ProductData.TYPE_FLOAT32)
+            if (origMax <= newMax && origMin >= newMin && sourceBand.getDataType() < ProductData.TYPE_FLOAT32) {
                 scaling = ScalingType.NONE;
+            }
 
             final ProductData srcData = srcTile.getRawSamples();
             final ProductData dstData = targetTile.getRawSamples();
 
-            final double srcNoDataValue = sourceBand.getNoDataValue();
-            final double destNoDataValue = targetBand.getNoDataValue();
+            final Double srcNoDataValue = sourceBand.getNoDataValue();
+            final Double destNoDataValue = targetBand.getNoDataValue();
 
             if (scaling == ScalingType.LINEAR_PEAK_CLIPPED) {
                 final Histogram histogram = new Histogram(stx.getHistogramBins(), origMin, origMax);
@@ -239,14 +264,14 @@ public class ConvertDataTypeOp extends Operator {
             double srcValue;
             for (int i = 0; i < numElem; ++i) {
                 srcValue = srcData.getElemDoubleAt(i);
-                if (srcValue == srcNoDataValue) {
+                if (srcNoDataValue.equals(srcValue)) {
                     dstData.setElemDoubleAt(i, destNoDataValue);
                 } else {
-                    if (scaling == ScalingType.NONE)
+                    if (ScalingType.NONE.equals(scaling))
                         dstData.setElemDoubleAt(i, srcValue);
-                    else if (scaling == ScalingType.TRUNC)
+                    else if (ScalingType.TRUNC.equals(scaling))
                         dstData.setElemDoubleAt(i, truncate(srcValue, newMin, newMax));
-                    else if (scaling == ScalingType.LOGARITHMIC)
+                    else if (ScalingType.LOGARITHMIC.equals(scaling))
                         dstData.setElemDoubleAt(i, logScale(srcValue, origMin, newMin, origRange, newRange));
                     else {
                         if (srcValue > origMax)

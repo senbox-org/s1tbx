@@ -34,9 +34,9 @@ import org.esa.snap.core.util.math.MathUtils;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.Unit;
 import org.esa.snap.engine_utilities.db.DBQuery;
-import org.esa.snap.engine_utilities.util.ExceptionLog;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -415,10 +415,6 @@ public final class OperatorUtils {
             if (e.getCause() != null) {
                 message += " due to " + e.getCause().toString();
             }
-        }
-
-        if (Boolean.getBoolean("sendErrorOnException")) {
-            ExceptionLog.log(message);
         }
 
         System.out.println(message);
