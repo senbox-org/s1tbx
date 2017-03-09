@@ -118,6 +118,9 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
         validator.checkIfSentinel1Product();
         validator.checkAcquisitionMode(new String[]{"IW", "EW", "SM"});
         validator.checkProductType(new String[]{"SLC", "GRD"});
+        if(validator.isTOPSARProduct() && validator.isComplex() && validator.isDebursted()) {
+            throw new OperatorException("Calibration should be applied before deburst");
+        }
 
         isMultiSwath = validator.isMultiSwath();
     }
@@ -548,6 +551,9 @@ public final class Sentinel1Calibrator extends BaseCalibrator implements Calibra
             final int maxX = x0 + w;
 
             final CalibrationInfo calInfo = targetBandToCalInfo.get(targetBandName);
+            if(calInfo == null) {
+                throw new OperatorException("Calibration information not found.");
+            }
             final CALTYPE calType = getCalibrationType(targetBandName);
 
             double dn = 0.0, i, q, muX, lutVal, retroLutVal = 1.0, calValue, calibrationFactor, phaseTerm = 0.0;
