@@ -115,6 +115,7 @@ public class vanZyl extends DecompositionBase implements Decomposition {
             final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
 
             double alpha, mu, rhoRe, rhoIm, rho2, eta, delta, lambda1, lambda2, lambda3, fs, fd, fv, tmp1, tmp2;
+            double Alpha2, Beta2, Ps, Pd, Pv;
             for (int y = y0; y < maxY; ++y) {
                 trgIndex.calculateStride(y);
                 for (int x = x0; x < maxX; ++x) {
@@ -142,33 +143,39 @@ public class vanZyl extends DecompositionBase implements Decomposition {
                     rhoIm = Ci[0][2] / Cr[0][0];
                     rho2 = rhoRe * rhoRe + rhoIm * rhoIm;
 
-                    delta = Math.sqrt((1 - mu) * (1 - mu) + 4 * rho2);
-                    lambda1 = 0.5 * alpha * (1 + mu + delta);
-                    lambda2 = 0.5 * alpha * (1 + mu - delta);
+                    delta = Math.sqrt((1.0 - mu) * (1.0 - mu) + 4.0 * rho2);
+                    lambda1 = 0.5 * alpha * (1.0 + mu + delta);
+                    lambda2 = 0.5 * alpha * (1.0 + mu - delta);
                     lambda3 = alpha * eta;
 
-                    tmp1 = (mu - 1 + delta) * (mu - 1 + delta);
-                    tmp2 = tmp1 + 4 * rho2;
+                    tmp1 = (mu - 1.0 + delta) * (mu - 1.0 + delta);
+                    tmp2 = tmp1 + 4.0 * rho2;
                     fs = lambda1 * tmp1 / tmp2;
+                    Alpha2 = 4.0 * rho2 / tmp1;
+                    Ps = fs * (1.0 + Alpha2);
 
-                    tmp1 = (mu - 1 - delta) * (mu - 1 - delta);
-                    tmp2 = tmp1 + 4 * rho2;
+                    tmp1 = (mu - 1.0 - delta) * (mu - 1.0 - delta);
+                    tmp2 = tmp1 + 4.0 * rho2;
                     fd = lambda2 * tmp1 / tmp2;
+                    Beta2 = 4.0 * rho2 / tmp1;
+                    Pd = fd * (1.0 + Beta2);
+
                     fv = lambda3;
+                    Pv = fv;
 
-                    fs = scaleDb(fs, bandList.spanMin, bandList.spanMax);
-                    fd = scaleDb(fd, bandList.spanMin, bandList.spanMax);
-                    fv = scaleDb(fv, bandList.spanMin, bandList.spanMax);
+                    Ps = scaleDb(Ps, bandList.spanMin, bandList.spanMax);
+                    Pd = scaleDb(Pd, bandList.spanMin, bandList.spanMax);
+                    Pv = scaleDb(Pv, bandList.spanMin, bandList.spanMax);
 
-                    // save fd as red, fv as green and fs as blue
+                    // save Pd as red, Pv as green and Ps as blue
                     for (TargetInfo target : targetInfo) {
 
                         if (target.colour == TargetBandColour.R) {
-                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) fd);
+                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) Pd);
                         } else if (target.colour == TargetBandColour.G) {
-                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) fv);
+                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) Pv);
                         } else if (target.colour == TargetBandColour.B) {
-                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) fs);
+                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) Ps);
                         }
                     }
                 }
