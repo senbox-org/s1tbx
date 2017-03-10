@@ -23,20 +23,19 @@ Building S1TBX from the source
 	
 4. CD into SNAP/snap-engine:
 
-   mvn install
+   mvn clean install
 
 5. CD into SNAP/snap-desktop:
 
-   mvn install
+   mvn clean install
 
 6. CD into SNAP/s1tbx:
 
-   mvn install
+   mvn clean install
    
 7. If unit tests are failing, you can use the following to skip the tests
    
-   mvn clean
-   mvn install -Dmaven.test.skip=true
+   mvn clean install -Dmaven.test.skip=true
 	
 Setting up IntelliJ IDEA
 
