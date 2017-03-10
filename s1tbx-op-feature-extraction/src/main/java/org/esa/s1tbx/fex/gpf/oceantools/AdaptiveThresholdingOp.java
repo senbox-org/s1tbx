@@ -260,7 +260,7 @@ public class AdaptiveThresholdingOp extends Operator {
                                                      sourceImageHeight);
 
                 targetBandMask.setUnit(Unit.AMPLITUDE);
-                targetBandMask.setNoDataValue(-1);
+                targetBandMask.setNoDataValue(0);
                 targetBandMask.setNoDataValueUsed(true);
                 targetProduct.addBand(targetBandMask);
             }
@@ -326,7 +326,7 @@ public class AdaptiveThresholdingOp extends Operator {
                     //System.out.println("ty = " + ty + " tx = " + tx);
                     final double targetMean = computeTargetMean(tx, ty, data, x0, y0, w, h, noDataValue);
                     if (noDataValue == targetMean) {
-                        trgData.setElemIntAt(trgIndex.getIndex(tx), -1);
+                        trgData.setElemIntAt(trgIndex.getIndex(tx), 0);
                         continue;
                     }
 
