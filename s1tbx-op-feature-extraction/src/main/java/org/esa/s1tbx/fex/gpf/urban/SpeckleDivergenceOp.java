@@ -69,7 +69,7 @@ public class SpeckleDivergenceOp extends Operator {
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands",
             label = "Source Bands")
-    private String[] sourceBandNames = null;
+    private String[] sourceBands = null;
 
     @Parameter(valueSet = {FilterWindow.SIZE_5x5, FilterWindow.SIZE_7x7, FilterWindow.SIZE_9x9,
             FilterWindow.SIZE_11x11, FilterWindow.SIZE_13x13, FilterWindow.SIZE_15x15, FilterWindow.SIZE_17x17},
@@ -85,6 +85,7 @@ public class SpeckleDivergenceOp extends Operator {
     private final HashMap<String, String> targetBandNameToSourceBandName = new HashMap<>();
 
     public static final String SPECKLE_DIVERGENCE_MASK_NAME = "_speckle_divergence";
+    public static final String PRODUCT_SUFFIX = "_SpkDiv";
 
     @Override
     public void initialize() throws OperatorException {
@@ -126,7 +127,7 @@ public class SpeckleDivergenceOp extends Operator {
      */
     private void createTargetProduct() throws Exception {
 
-        targetProduct = new Product(sourceProduct.getName(),
+        targetProduct = new Product(sourceProduct.getName() + PRODUCT_SUFFIX,
                 sourceProduct.getProductType(),
                 sourceImageWidth,
                 sourceImageHeight);
@@ -143,17 +144,17 @@ public class SpeckleDivergenceOp extends Operator {
      */
     private void addSelectedBands() throws OperatorException {
 
-        if(sourceBandNames != null) {
+        if(sourceBands != null) {
             // remove band names specific to another run
-            for(String srcBandName : sourceBandNames) {
+            for(String srcBandName : sourceBands) {
                 if (sourceProduct.getBand(srcBandName) == null) {
-                    sourceBandNames = null;
+                    sourceBands = null;
                     break;
                 }
             }
         }
 
-        if (sourceBandNames == null || sourceBandNames.length == 0) { // if user did not select any band
+        if (sourceBands == null || sourceBands.length == 0) { // if user did not select any band
             final List<String> srcBandNameList = new ArrayList<>();
             final Band[] bands = sourceProduct.getBands();
             for (Band band : bands) {
@@ -161,24 +162,24 @@ public class SpeckleDivergenceOp extends Operator {
                     srcBandNameList.add(band.getName());
                 }
             }
-            sourceBandNames = srcBandNameList.toArray(new String[srcBandNameList.size()]);
+            sourceBands = srcBandNameList.toArray(new String[srcBandNameList.size()]);
         }
 
-        final Band[] sourceBands = new Band[sourceBandNames.length];
-        for (int i = 0; i < sourceBandNames.length; i++) {
-            final String sourceBandName = sourceBandNames[i];
+        final Band[] srcBands = new Band[sourceBands.length];
+        for (int i = 0; i < sourceBands.length; i++) {
+            final String sourceBandName = sourceBands[i];
             final Band sourceBand = sourceProduct.getBand(sourceBandName);
             if (sourceBand == null) {
                 throw new OperatorException("Source band not found: " + sourceBandName);
             }
-            sourceBands[i] = sourceBand;
+            srcBands[i] = sourceBand;
         }
 
-        if(sourceBands.length == 0) {
+        if(srcBands.length == 0) {
             throw new OperatorException("No intensity bands found");
         }
 
-        for (Band srcBand : sourceBands) {
+        for (Band srcBand : srcBands) {
             final String srcBandNames = srcBand.getName();
             final String unit = srcBand.getUnit();
             if (unit == null) {
