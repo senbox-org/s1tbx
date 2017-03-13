@@ -109,10 +109,7 @@ public class Yamaguchi extends DecompositionBase implements Decomposition {
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
             final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h);
-            for (int i = 0; i < bandList.srcBands.length; ++i) {
-                sourceTiles[i] = op.getSourceTile(bandList.srcBands[i], sourceRectangle);
-                dataBuffers[i] = sourceTiles[i].getDataBuffer();
-            }
+            PolOpUtils.getDataBuffer(op, bandList.srcBands, sourceRectangle, sourceProductType, sourceTiles, dataBuffers);
 
             double ratio, d, cR, cI, c0, s, pd, pv, ps, pc, span, k1, k2, k3;
             for (int y = y0; y < maxY; ++y) {
