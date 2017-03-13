@@ -108,10 +108,7 @@ public class vanZyl extends DecompositionBase implements Decomposition {
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
             final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h);
-            for (int i = 0; i < bandList.srcBands.length; ++i) {
-                sourceTiles[i] = op.getSourceTile(bandList.srcBands[i], sourceRectangle);
-                dataBuffers[i] = sourceTiles[i].getDataBuffer();
-            }
+            PolOpUtils.getDataBuffer(op, bandList.srcBands, sourceRectangle, sourceProductType, sourceTiles, dataBuffers);
             final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
 
             double alpha, mu, rhoRe, rhoIm, rho2, eta, delta, lambda1, lambda2, lambda3, fs, fd, fv, tmp1, tmp2;
@@ -125,8 +122,6 @@ public class vanZyl extends DecompositionBase implements Decomposition {
 
                         PolOpUtils.getMeanCovarianceMatrix(x, y, halfWindowSizeX, halfWindowSizeY,
                                 sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
-
-                        PolOpUtils.c3ToT3(Cr, Ci, Tr, Ti);
 
                     } else if (sourceProductType == MATRIX.T3) {
 
