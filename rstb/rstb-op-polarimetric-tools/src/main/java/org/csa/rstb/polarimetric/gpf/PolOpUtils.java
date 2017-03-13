@@ -19,11 +19,15 @@ import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.s1tbx.io.PolBandUtils;
+import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.engine_utilities.eo.Constants;
 import org.esa.snap.engine_utilities.gpf.TileIndex;
 import org.jblas.DoubleMatrix;
+
+import java.awt.*;
 
 /*
 import Jama.Matrix;
@@ -40,6 +44,210 @@ public final class PolOpUtils {
 
     private static final double sqrt2 = Math.sqrt(2);
     public static final double EPS = Constants.EPS;
+
+    public static void getDataBuffer(final Operator op, final Band[] srcBands, final Rectangle sourceRectangle,
+                                     final PolBandUtils.MATRIX sourceProductType,
+                                     final Tile[] sourceTiles, final ProductData[] dataBuffers) {
+
+        for (Band band : srcBands) {
+            final String bandName = band.getName();
+
+            if (sourceProductType == PolBandUtils.MATRIX.FULL) {
+
+                if (bandName.contains("i_HH")) {
+                    sourceTiles[0] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[0] = sourceTiles[0].getDataBuffer();
+                } else if (bandName.contains("q_HH")) {
+                    sourceTiles[1] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[1] = sourceTiles[1].getDataBuffer();
+                } else if (bandName.contains("i_HV")) {
+                    sourceTiles[2] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[2] = sourceTiles[2].getDataBuffer();
+                } else if (bandName.contains("q_HV")) {
+                    sourceTiles[3] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[3] = sourceTiles[3].getDataBuffer();
+                } else if (bandName.contains("i_VH")) {
+                    sourceTiles[4] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[4] = sourceTiles[4].getDataBuffer();
+                } else if (bandName.contains("q_VH")) {
+                    sourceTiles[5] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[5] = sourceTiles[5].getDataBuffer();
+                } else if (bandName.contains("i_VV")) {
+                    sourceTiles[6] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[6] = sourceTiles[6].getDataBuffer();
+                } else if (bandName.contains("q_VV")) {
+                    sourceTiles[7] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[7] = sourceTiles[7].getDataBuffer();
+                }
+
+            } else if (sourceProductType == PolBandUtils.MATRIX.C3) {
+
+                if (bandName.contains("C11")) {
+                    sourceTiles[0] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[0] = sourceTiles[0].getDataBuffer();
+                } else if (bandName.contains("C12_real")) {
+                    sourceTiles[1] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[1] = sourceTiles[1].getDataBuffer();
+                } else if (bandName.contains("C12_imag")) {
+                    sourceTiles[2] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[2] = sourceTiles[2].getDataBuffer();
+                } else if (bandName.contains("C13_real")) {
+                    sourceTiles[3] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[3] = sourceTiles[3].getDataBuffer();
+                } else if (bandName.contains("C13_imag")) {
+                    sourceTiles[4] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[4] = sourceTiles[4].getDataBuffer();
+                } else if (bandName.contains("C22")) {
+                    sourceTiles[5] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[5] = sourceTiles[5].getDataBuffer();
+                } else if (bandName.contains("C23_real")) {
+                    sourceTiles[6] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[6] = sourceTiles[6].getDataBuffer();
+                } else if (bandName.contains("C23_imag")) {
+                    sourceTiles[7] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[7] = sourceTiles[7].getDataBuffer();
+                } else if (bandName.contains("C33")) {
+                    sourceTiles[8] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[8] = sourceTiles[8].getDataBuffer();
+                }
+
+            } else if (sourceProductType == PolBandUtils.MATRIX.T3) {
+
+                if (bandName.contains("T11")) {
+                    sourceTiles[0] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[0] = sourceTiles[0].getDataBuffer();
+                } else if (bandName.contains("T12_real")) {
+                    sourceTiles[1] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[1] = sourceTiles[1].getDataBuffer();
+                } else if (bandName.contains("T12_imag")) {
+                    sourceTiles[2] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[2] = sourceTiles[2].getDataBuffer();
+                } else if (bandName.contains("T13_real")) {
+                    sourceTiles[3] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[3] = sourceTiles[3].getDataBuffer();
+                } else if (bandName.contains("T13_imag")) {
+                    sourceTiles[4] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[4] = sourceTiles[4].getDataBuffer();
+                } else if (bandName.contains("T22")) {
+                    sourceTiles[5] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[5] = sourceTiles[5].getDataBuffer();
+                } else if (bandName.contains("T23_real")) {
+                    sourceTiles[6] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[6] = sourceTiles[6].getDataBuffer();
+                } else if (bandName.contains("T23_imag")) {
+                    sourceTiles[7] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[7] = sourceTiles[7].getDataBuffer();
+                } else if (bandName.contains("T33")) {
+                    sourceTiles[8] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[8] = sourceTiles[8].getDataBuffer();
+                }
+
+            } else if (sourceProductType == PolBandUtils.MATRIX.C4) {
+
+                if (bandName.contains("C11")) {
+                    sourceTiles[0] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[0] = sourceTiles[0].getDataBuffer();
+                } else if (bandName.contains("C12_real")) {
+                    sourceTiles[1] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[1] = sourceTiles[1].getDataBuffer();
+                } else if (bandName.contains("C12_imag")) {
+                    sourceTiles[2] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[2] = sourceTiles[2].getDataBuffer();
+                } else if (bandName.contains("C13_real")) {
+                    sourceTiles[3] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[3] = sourceTiles[3].getDataBuffer();
+                } else if (bandName.contains("C13_imag")) {
+                    sourceTiles[4] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[4] = sourceTiles[4].getDataBuffer();
+                } else if (bandName.contains("C14_real")) {
+                    sourceTiles[5] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[5] = sourceTiles[5].getDataBuffer();
+                } else if (bandName.contains("C14_imag")) {
+                    sourceTiles[6] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[6] = sourceTiles[6].getDataBuffer();
+                } else if (bandName.contains("C22")) {
+                    sourceTiles[7] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[7] = sourceTiles[7].getDataBuffer();
+                } else if (bandName.contains("C23_real")) {
+                    sourceTiles[8] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[8] = sourceTiles[8].getDataBuffer();
+                } else if (bandName.contains("C23_imag")) {
+                    sourceTiles[9] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[9] = sourceTiles[9].getDataBuffer();
+                } else if (bandName.contains("C24_real")) {
+                    sourceTiles[10] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[10] = sourceTiles[10].getDataBuffer();
+                } else if (bandName.contains("C24_imag")) {
+                    sourceTiles[11] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[11] = sourceTiles[11].getDataBuffer();
+                } else if (bandName.contains("C33")) {
+                    sourceTiles[12] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[12] = sourceTiles[12].getDataBuffer();
+                } else if (bandName.contains("C34_real")) {
+                    sourceTiles[13] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[13] = sourceTiles[13].getDataBuffer();
+                } else if (bandName.contains("C34_imag")) {
+                    sourceTiles[14] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[14] = sourceTiles[14].getDataBuffer();
+                } else if (bandName.contains("C44")) {
+                    sourceTiles[15] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[15] = sourceTiles[15].getDataBuffer();
+                }
+
+            } else if (sourceProductType == PolBandUtils.MATRIX.T4) {
+
+                if (bandName.contains("T11")) {
+                    sourceTiles[0] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[0] = sourceTiles[0].getDataBuffer();
+                } else if (bandName.contains("T12_real")) {
+                    sourceTiles[1] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[1] = sourceTiles[1].getDataBuffer();
+                } else if (bandName.contains("T12_imag")) {
+                    sourceTiles[2] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[2] = sourceTiles[2].getDataBuffer();
+                } else if (bandName.contains("T13_real")) {
+                    sourceTiles[3] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[3] = sourceTiles[3].getDataBuffer();
+                } else if (bandName.contains("T13_imag")) {
+                    sourceTiles[4] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[4] = sourceTiles[4].getDataBuffer();
+                } else if (bandName.contains("T14_real")) {
+                    sourceTiles[5] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[5] = sourceTiles[5].getDataBuffer();
+                } else if (bandName.contains("T14_imag")) {
+                    sourceTiles[6] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[6] = sourceTiles[6].getDataBuffer();
+                } else if (bandName.contains("T22")) {
+                    sourceTiles[7] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[7] = sourceTiles[7].getDataBuffer();
+                } else if (bandName.contains("T23_real")) {
+                    sourceTiles[8] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[8] = sourceTiles[8].getDataBuffer();
+                } else if (bandName.contains("T23_imag")) {
+                    sourceTiles[9] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[9] = sourceTiles[9].getDataBuffer();
+                } else if (bandName.contains("T24_real")) {
+                    sourceTiles[10] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[10] = sourceTiles[10].getDataBuffer();
+                } else if (bandName.contains("T24_imag")) {
+                    sourceTiles[11] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[11] = sourceTiles[11].getDataBuffer();
+                } else if (bandName.contains("T33")) {
+                    sourceTiles[12] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[12] = sourceTiles[12].getDataBuffer();
+                } else if (bandName.contains("T34_real")) {
+                    sourceTiles[13] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[13] = sourceTiles[13].getDataBuffer();
+                } else if (bandName.contains("T34_imag")) {
+                    sourceTiles[14] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[14] = sourceTiles[14].getDataBuffer();
+                } else if (bandName.contains("T44")) {
+                    sourceTiles[15] = op.getSourceTile(band, sourceRectangle);
+                    dataBuffers[15] = sourceTiles[15].getDataBuffer();
+                }
+            }
+        }
+    }
 
     /**
      * Get scatter matrix for given pixel.
