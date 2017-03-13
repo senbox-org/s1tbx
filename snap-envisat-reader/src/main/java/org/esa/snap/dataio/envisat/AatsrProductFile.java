@@ -37,7 +37,6 @@ import java.util.Map;
  * AATSR data products.
  *
  * @author Norman Fomferra
- * @version $Revision$ $Date$
  * @see org.esa.snap.dataio.envisat.MerisProductFile
  */
 public class AatsrProductFile extends ProductFile {
@@ -98,8 +97,7 @@ public class AatsrProductFile extends ProductFile {
 
 
     /**
-     * Constructs a <code>MerisProductFile</code> for the given seekable data input stream. Attaches the
-     * <code>LogSink</code> passed in to the object created. The <code>LogSink</code> can might be null.
+     * Constructs a <code>MerisProductFile</code> for the given seekable data input stream.
      *
      * @param file            the abstract file path representation.
      * @param dataInputStream the seekable data input stream which will be used to read data from the product file.
