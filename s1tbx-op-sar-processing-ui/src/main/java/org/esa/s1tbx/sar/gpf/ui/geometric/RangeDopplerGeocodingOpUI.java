@@ -368,25 +368,37 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
             final String text = Double.toString(azimuthPixelSpacing) + "(m) x " + Double.toString(rangePixelSpacing) + "(m)";
             sourcePixelSpacingsLabelPart2.setText(text);
 
-            if(savedAzimuthPixelSpacing != 0 && savedRangePixelSpacing != 0) {
-                if(savedAzimuthPixelSpacing != azimuthPixelSpacing || savedRangePixelSpacing != rangePixelSpacing) {
+            if(savedAzimuthPixelSpacing.compareTo(0.0) != 0 && savedRangePixelSpacing.compareTo(0.0) != 0) {
+                if(savedAzimuthPixelSpacing.compareTo(azimuthPixelSpacing) != 0 ||
+                        savedRangePixelSpacing.compareTo(rangePixelSpacing) != 0) {
                     pixDSaved = null;
                 }
             }
 
-            if (pixDSaved == null || pixDSaved == 0.0) {
-                Double pixM, pixD;
+            if (pixDSaved == null || pixDSaved.equals(0.0)) {
                 try {
-                    pixM = Math.max(azimuthPixelSpacing, rangePixelSpacing);
-                    pixD = SARGeocoding.getPixelSpacingInDegree(pixM);
+                    if(pixMSaved == null || pixMSaved.equals(0.0)) {
+                        pixMSaved = Math.max(azimuthPixelSpacing, rangePixelSpacing);
+                    }
+                    pixDSaved = SARGeocoding.getPixelSpacingInDegree(pixMSaved);
                 } catch (Exception e) {
-                    pixM = 0.0;
-                    pixD = 0.0;
+                    pixMSaved = 0.0;
+                    pixDSaved = 0.0;
                 }
-                pixelSpacingInMeter.setText(String.valueOf(pixM));
-                pixelSpacingInDegree.setText(String.valueOf(pixD));
-                pixMSaved = pixM;
-                pixDSaved = pixD;
+                pixelSpacingInMeter.setText(String.valueOf(pixMSaved));
+                pixelSpacingInDegree.setText(String.valueOf(pixDSaved));
+                savedAzimuthPixelSpacing = azimuthPixelSpacing;
+                savedRangePixelSpacing = rangePixelSpacing;
+            }
+            if (pixMSaved == null || pixMSaved.equals(0.0)) {
+                try {
+                    pixMSaved = SARGeocoding.getPixelSpacingInMeter(pixDSaved);
+                } catch (Exception e) {
+                    pixMSaved = 0.0;
+                    pixDSaved = 0.0;
+                }
+                pixelSpacingInMeter.setText(String.valueOf(pixMSaved));
+                pixelSpacingInDegree.setText(String.valueOf(pixDSaved));
                 savedAzimuthPixelSpacing = azimuthPixelSpacing;
                 savedRangePixelSpacing = rangePixelSpacing;
             }

@@ -192,24 +192,16 @@ public final class PolarimetricMatricesOp extends Operator {
             throw new OperatorException("Input should be a polarimetric product");
         }
 
-        switch (matrix) {
-            case C2:
-                if (sourceProductType != PolBandUtils.MATRIX.DUAL_HH_HV &&
-                        sourceProductType != PolBandUtils.MATRIX.DUAL_VH_VV &&
-                        sourceProductType != PolBandUtils.MATRIX.DUAL_HH_VV) {
-                    throw new OperatorException("C2 cannot be generated for this product");
-                }
-                break;
-            case C3:
-            case C4:
-            case T3:
-            case T4:
-                if (PolBandUtils.isDualPol(sourceProductType)) {
-                    throw new OperatorException("Only C2 can be generated for dual pol");
-                }
-                break;
-            default:
-                throw new OperatorException("Unknown matrix type: " + matrix);
+        if (matrix.equals(C2)) {
+            if (sourceProductType != PolBandUtils.MATRIX.DUAL_HH_HV &&
+                    sourceProductType != PolBandUtils.MATRIX.DUAL_VH_VV &&
+                    sourceProductType != PolBandUtils.MATRIX.DUAL_HH_VV) {
+                throw new OperatorException("C2 cannot be generated for this product");
+            }
+        } else {
+            if (sourceProductType != PolBandUtils.MATRIX.FULL) {
+                throw new OperatorException("Full-pol polarimetric product is expected");
+            }
         }
     }
 

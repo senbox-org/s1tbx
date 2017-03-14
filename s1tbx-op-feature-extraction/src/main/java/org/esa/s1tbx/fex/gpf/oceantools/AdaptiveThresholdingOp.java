@@ -110,8 +110,8 @@ public class AdaptiveThresholdingOp extends Operator {
     // For K-Distribution
     private final static boolean doKDistribution = false;
     private int numLooks;
-    private IterativeLegendreGaussIntegrator integrator = null;
     private double oneMinusPFA;
+    private final static int NUM_INTEGRATION_PTS = 100; // TODO: fine tune?
     private final static double MAX_SOURCE_VALUE = 2.0; // TODO: fine tune?
     private final static int MAX_EVAL = 2000; // TODO: fine tune?
     private final static double DESIRED_ACCURACY = 1.0e-15; // TODO: This should depend on pfa
@@ -155,8 +155,6 @@ public class AdaptiveThresholdingOp extends Operator {
                 final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
                 final double rangeLooks = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_looks);
                 numLooks = (int) rangeLooks;
-                //integrator = new IterativeLegendreGaussIntegrator(100, 1e-4, 1e-8); // TODO fine tune?
-                integrator = new IterativeLegendreGaussIntegrator(100, DESIRED_ACCURACY, sq(DESIRED_ACCURACY));
                 oneMinusPFA = 1.0 - Math.pow(10.0, -pfa);
 
                 System.out.println("numLooks = " + numLooks + "; (1 - pfa) = " + oneMinusPFA + "; backgroundWindowSize = " + backgroundWindowSize);
@@ -344,7 +342,7 @@ public class AdaptiveThresholdingOp extends Operator {
                         double oldT = computeBackgroundThreshold(tx, ty, data, x0, y0, w, h, noDataValue);
                         System.out.println("DEBUG: tx = " + tx + " ty = " + ty + ": backgroundThreshold = " + backgroundThreshold
                                 + " oldT = " + oldT + " targetMean = " + targetMean);
-                                */
+                        */
                         // ...DEBUG
                     }
                     if (targetMean > backgroundThreshold) {
@@ -652,6 +650,8 @@ public class AdaptiveThresholdingOp extends Operator {
         double result;
 
         try {
+            final IterativeLegendreGaussIntegrator integrator =
+                    new IterativeLegendreGaussIntegrator(NUM_INTEGRATION_PTS, DESIRED_ACCURACY, sq(DESIRED_ACCURACY));
             result = integrator.integrate(MAX_EVAL, pdf, 0.0, x);
         } catch (Exception e) {
             //System.out.println(e.getMessage() + " x = " + x);
@@ -668,6 +668,8 @@ public class AdaptiveThresholdingOp extends Operator {
         double result;
 
         try {
+            final IterativeLegendreGaussIntegrator integrator =
+                    new IterativeLegendreGaussIntegrator(NUM_INTEGRATION_PTS, DESIRED_ACCURACY, sq(DESIRED_ACCURACY));
             result = integrator.integrate(MAX_EVAL, mpdf, 0.0, Math.PI / 2.0);
         } catch (Exception e) {
             result = -999;
@@ -789,6 +791,9 @@ public class AdaptiveThresholdingOp extends Operator {
                 /*System.out.println("tx = " + tx + " ty = " + ty + " : leftT = " + leftT
                         + "; rightT = " + rightT + "; leftVal = " + leftVal + "; rightVal = " + rightVal
                         + " T = " + newT);*/
+                if (Math.abs(evaluateProbability(pdf, newT) - oneMinusPFA) > DESIRED_ACCURACY) {
+                    System.out.println("ERROR2: tx = " + tx + " ty = " + ty + ": " + getParamsString(pdf));
+                }
                 return newT;
             }
             double newVal = evaluateProbability(pdf, newT);
@@ -801,6 +806,9 @@ public class AdaptiveThresholdingOp extends Operator {
                 rightT = newT;
             } else {
                 //System.out.println("tx = " + tx + " ty = " + ty + " : newVal = " + newVal + "; T = newT = " + newT);
+                if (Math.abs(evaluateProbability(pdf, newT) - oneMinusPFA) > DESIRED_ACCURACY) {
+                    System.out.println("ERROR3: tx = " + tx + " ty = " + ty + ": " + getParamsString(pdf));
+                }
                 return newT;
             }
         }
@@ -1025,6 +1033,8 @@ public class AdaptiveThresholdingOp extends Operator {
         double result;
 
         try {
+            final IterativeLegendreGaussIntegrator integrator =
+                    new IterativeLegendreGaussIntegrator(NUM_INTEGRATION_PTS, DESIRED_ACCURACY, sq(DESIRED_ACCURACY));
             result = integrator.integrate(MAX_EVAL, mpdf, -Math.PI / 2.0, Math.PI / 2.0);
         } catch (Exception e) {
             result = -999;
