@@ -558,12 +558,12 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
      */
     public void setBundle(Bundle bundle) {
         this.bundle = bundle;
-        if (this.bundle != null) {
+        /*if (this.bundle != null) {
             final File targetLocation = this.bundle.getTargetLocation();
             if (targetLocation != null) {
                 this.mainToolFileLocation = new File(targetLocation, this.mainToolFileLocation.getName());
             }
-        }
+        }*/
     }
 
     /**

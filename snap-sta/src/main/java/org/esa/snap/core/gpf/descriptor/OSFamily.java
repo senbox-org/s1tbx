@@ -16,19 +16,15 @@
  *
  */
 
-package org.esa.snap.core.gpf.descriptor.annotations;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package org.esa.snap.core.gpf.descriptor;
 
 /**
- * Marker for an UI read-only field
- *
- * @author Cosmin Cara
+ * @author kraftek
+ * @date 3/9/2017
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
-public @interface ReadOnly {
+public enum OSFamily {
+    windows,
+    linux,
+    macosx,
+    unsupported
 }

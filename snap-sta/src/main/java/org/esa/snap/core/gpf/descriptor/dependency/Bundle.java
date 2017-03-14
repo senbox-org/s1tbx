@@ -2,12 +2,16 @@ package org.esa.snap.core.gpf.descriptor.dependency;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
-import org.esa.snap.core.gpf.descriptor.annotations.Folder;
-import org.esa.snap.core.gpf.descriptor.annotations.ReadOnly;
+import org.esa.snap.core.gpf.descriptor.OSFamily;
+import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterIO;
+import org.esa.snap.core.util.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Descriptor class for a dependency bundle.
@@ -16,31 +20,37 @@ import java.nio.file.Files;
  * It is mandatory to specify the location where the bundle will be installed/extracted.
  * A bundle must have an entry point. In the case of an installer/executable, it is the name of the executable.
  * In the case of an archive, it will be the name of the archive.
- * In the case of an uncompressed bundle, it will be the name of the bundle folder.
+ * The source of the bundle can be either local (i.e. from the local filesystem)
+ * or remote (i.e. from an URL)
  *
  * @author  Cosmin Cara
- * @since   5.0.0
  */
 @XStreamAlias("dependencyBundle")
 public class Bundle {
 
     private BundleType bundleType;
+    private BundleLocation bundleLocation;
+    private String windowsURL;
+    private String linuxURL;
+    private String macosxURL;
     @XStreamOmitField
     private File source;
-    @Folder
-    @ReadOnly
+    private String arguments;
     private File targetLocation;
     private String entryPoint;
-    private String arguments;
+    private String updateVariable;
+    @XStreamOmitField
+    private OSFamily currentOS;
 
     public Bundle() {
         this.bundleType = BundleType.NONE;
+        setCurrentOS();
     }
 
-    public Bundle(BundleType bundleType, File targetLocation, File source) {
+    public Bundle(BundleType bundleType, File targetLocation) {
         setBundleType(bundleType);
         setTargetLocation(targetLocation);
-        setSource(source);
+        setCurrentOS();
     }
 
     /**
@@ -57,6 +67,33 @@ public class Bundle {
     public void setBundleType(BundleType bundleType) {
         this.bundleType = bundleType;
     }
+
+    /**
+     * Returns the type of the bundle location.
+     */
+    public BundleLocation getLocation() { return this.bundleLocation; }
+
+    /**
+     * Sets the type of the bundle location
+     * @param value     The bundle location type
+     */
+    public void setLocation(BundleLocation value) { this.bundleLocation = value; }
+
+    /**
+     * Returns the local source of the bundle
+     */
+    public File getSource() { return this.source; }
+
+    /**
+     * Sets the local source of the bundle
+     * @param value     The file representing an archive or an installer
+     */
+    public void setSource(File value) {
+        this.source = value;
+        if (value != null) {
+            setEntryPoint(value.getName());
+        }
+    }
     /**
      * Returns the target location of the bundle (i.e. the location where the bundle is supposed to be
      * either extracted or installed).
@@ -72,46 +109,81 @@ public class Bundle {
         checkEmpty(targetLocation, "targetLocation");
         this.targetLocation = targetLocation;
     }
-
     /**
-     * Returns the source file for this bundle.
+     * Returns the download URL for this bundle.
      */
-    public File getSource() {
-        return this.source;
-    }
-
-    /**
-     * Sets the source for this bundle.
-     */
-    public void setSource(File source) {
-        checkEmpty(source, "source");
-        switch (this.bundleType) {
-            case ARCHIVE:
-                if (!source.isFile() || !source.getName().endsWith(".zip")) {
-                    throw new IllegalArgumentException("For achive bundles, the source must be a zip file");
-                }
-                break;
-            case INSTALLER:
-                if (!source.isFile()) {
-                    throw new IllegalArgumentException("For installer bundles, the source must be a file");
-                }
-                break;
+    public String getDownloadURL() {
+        switch (getCurrentOS()) {
+            case windows:
+                return this.windowsURL;
+            case linux:
+                return this.linuxURL;
+            case macosx:
+                return this.macosxURL;
             default:
-                break;
+                throw new IllegalArgumentException("OS not supported");
         }
-        this.source = source;
-        if (this.source != null) {
-            setEntryPoint(this.source.getName());
+    }
+    /**
+     * Sets the download URL for this bundle and for the specified operating system family.
+     */
+    public void setDownloadURL(OSFamily osFamily, String url) {
+        switch (osFamily) {
+            case windows:
+                this.windowsURL = url;
+                break;
+            case linux:
+                this.linuxURL = url;
+                break;
+            case macosx:
+                this.macosxURL = url;
+                break;
+            case unsupported:
+            default:
+                throw new IllegalArgumentException("OS not supported");
         }
     }
 
+    /**
+     * Sets the URL for the bundle Windows distribution
+     */
+    public void setWindowsURL(String url) {
+        this.windowsURL = url;
+        setEntryPoint(lastSegmentFromUrl(url));
+    }
+    /**
+     * Sets the URL for the bundle Linux distribution
+     */
+    public void setLinuxURL(String url) {
+        this.linuxURL = url;
+        setEntryPoint(lastSegmentFromUrl(url));
+    }
+    /**
+     * Sets the URL for the bundle MacOSX distribution
+     */
+    public void setMacosxURL(String url) {
+        this.macosxURL = url;
+        setEntryPoint(lastSegmentFromUrl(url));
+    }
+
+    /**
+     * Checks if the bundle location is local or remote.
+     */
+    public boolean isLocal() {
+        return this.bundleLocation == BundleLocation.LOCAL;
+    }
+
+    /**
+     * Checks if the bundle binaries have been installed.
+     */
     public boolean isInstalled() {
         boolean installed = false;
         if (this.bundleType != BundleType.NONE) {
             try {
-                installed = this.targetLocation != null &&
-                        Files.exists(this.targetLocation.toPath()) &&
-                        Files.list(this.targetLocation.toPath()).count() > 0;
+                if (this.targetLocation != null && this.entryPoint != null) {
+                    Path path = this.targetLocation.toPath().resolve(FileUtils.getFilenameWithoutExtension(this.entryPoint));
+                    installed = Files.exists(path) && Files.list(path).count() > 0;
+                }
             } catch (IOException ignored) { }
         }
         return installed;
@@ -128,7 +200,6 @@ public class Bundle {
     private void setEntryPoint(String entryPoint) {
         this.entryPoint = entryPoint;
     }
-
     /**
      * Returns the command line arguments for an installer, if any
      */
@@ -136,24 +207,43 @@ public class Bundle {
         return this.arguments;
     }
 
+    /**
+     * Sets the command line arguments for an installer
+     */
     public void setArguments(String value) {
         this.arguments = value;
     }
 
-    private boolean isFile(String file) {
-        return (this.source != null &&
-                file != null &&
-                Files.isRegularFile(this.source.isDirectory() ?
-                        this.source.toPath().resolve(file) :
-                        this.source.getParentFile().toPath().resolve(file)));
+    /**
+     * Gets the name of the System Variable to be updated after bundle installation.
+     * This variable will have as value the location in which the bundle was installed.
+     */
+    public String getUpdateVariable() { return this.updateVariable; }
+
+    /**
+     * Sets the name of the System Variable to be updated after bundle installation.
+     */
+    public void setUpdateVariable(String name) { this.updateVariable = name; }
+
+    private String lastSegmentFromUrl(String url) {
+        URI uri = URI.create(url);
+        Path urlPath = Paths.get(uri.getPath());
+        return urlPath.getFileName().toString();
     }
 
-    private boolean isFolder(String file) {
-        return (this.source != null &&
-                file != null &&
-                Files.isDirectory(this.source.isDirectory() ?
-                        this.source.toPath().resolve(file) :
-                        this.source.getParentFile().toPath().resolve(file)));
+    private OSFamily getCurrentOS() {
+        if (currentOS == null) {
+            setCurrentOS();
+        }
+        return currentOS;
+    }
+
+    private void setCurrentOS() {
+        try {
+            currentOS = Enum.valueOf(OSFamily.class, ToolAdapterIO.getOsFamily());
+        } catch (IllegalArgumentException ignored) {
+            currentOS = OSFamily.unsupported;
+        }
     }
 
     private void checkEmpty(Object value, String property) {
