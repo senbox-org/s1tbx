@@ -18,9 +18,9 @@ package org.esa.snap.core.gpf.internal;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryListener;
-import org.esa.snap.SnapCoreActivator;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.OperatorSpiRegistry;
+import org.esa.snap.core.util.ServiceLoader;
 import org.esa.snap.core.util.SystemUtils;
 
 import java.util.HashSet;
@@ -74,7 +74,7 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
      */
     @Override
     public void loadOperatorSpis() {
-        SnapCoreActivator.loadServices(getServiceRegistry());
+        ServiceLoader.loadServices(getServiceRegistry());
     }
 
     /**

@@ -17,8 +17,8 @@ package org.esa.snap.core.datamodel;
 
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
-import org.esa.snap.SnapCoreActivator;
 import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.ServiceLoader;
 
 import java.util.Set;
 
@@ -29,7 +29,7 @@ public class PointingFactoryRegistry {
     private PointingFactoryRegistry() {
         ServiceRegistryManager serviceRegistryManager = ServiceRegistryManager.getInstance();
         typeToFactoryMap = serviceRegistryManager.getServiceRegistry(PointingFactory.class);
-        SnapCoreActivator.loadServices(typeToFactoryMap);
+        ServiceLoader.loadServices(typeToFactoryMap);
     }
 
     public static PointingFactoryRegistry getInstance() {

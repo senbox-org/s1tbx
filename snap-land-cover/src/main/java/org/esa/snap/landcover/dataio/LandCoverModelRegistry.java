@@ -17,8 +17,8 @@ package org.esa.snap.landcover.dataio;
 
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
-import org.esa.snap.SnapCoreActivator;
 import org.esa.snap.core.util.Guardian;
+import org.esa.snap.core.util.ServiceLoader;
 
 import java.util.Set;
 
@@ -32,7 +32,7 @@ public class LandCoverModelRegistry {
 
     private LandCoverModelRegistry() {
         descriptors = ServiceRegistryManager.getInstance().getServiceRegistry(LandCoverModelDescriptor.class);
-        SnapCoreActivator.loadServices(descriptors);
+        ServiceLoader.loadServices(descriptors);
     }
 
     public static LandCoverModelRegistry getInstance() {
