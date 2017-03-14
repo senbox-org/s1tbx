@@ -74,7 +74,7 @@ public final class GLCMOp extends Operator {
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands",
             label = "Source Bands")
-    private String[] sourceBandNames = null;
+    private String[] sourceBands = null;
 
     @Parameter(valueSet = {FilterWindow.SIZE_5x5, FilterWindow.SIZE_7x7, FilterWindow.SIZE_9x9, FilterWindow.SIZE_11x11},
             defaultValue = FilterWindow.SIZE_9x9, label = "Window Size")
@@ -298,16 +298,16 @@ public final class GLCMOp extends Operator {
 
     private void getSourceBands() {
         final List<String> srcBandNameList = new ArrayList<>();
-        if (sourceBandNames != null) {
+        if (sourceBands != null) {
             int cnt = 0;
             for(String srcBandName : sourceProduct.getBandNames()) {
-                if(StringUtils.contains(sourceBandNames, srcBandName)) {
+                if(StringUtils.contains(sourceBands, srcBandName)) {
                     cnt++;
                 }
             }
             if(cnt != sourceProduct.getNumBands()) {
                 // remove band names specific to another run
-                for (String srcBandName : sourceBandNames) {
+                for (String srcBandName : sourceBands) {
                     final Band srcBand = sourceProduct.getBand(srcBandName);
                     if (srcBand != null) {
                         srcBandNameList.add(srcBand.getName());
@@ -330,7 +330,7 @@ public final class GLCMOp extends Operator {
                 srcBandNameList.add(sourceProduct.getBandAt(0).getName());
             }
         }
-        sourceBandNames = srcBandNameList.toArray(new String[srcBandNameList.size()]);
+        sourceBands = srcBandNameList.toArray(new String[srcBandNameList.size()]);
     }
 
     /**
@@ -352,7 +352,7 @@ public final class GLCMOp extends Operator {
     private String[] getTargetBandNames() {
 
         final List<String> trgBandNames = new ArrayList<>();
-        for (String srcBandName : sourceBandNames) {
+        for (String srcBandName : sourceBands) {
             if (outputContrast) {
                 trgBandNames.add(srcBandName + '_' + GLCM_TYPES.Contrast.toString());
             }
@@ -394,7 +394,7 @@ public final class GLCMOp extends Operator {
             return;
         }
 
-        final Band srcBand = sourceProduct.getBand(sourceBandNames[0]);
+        final Band srcBand = sourceProduct.getBand(sourceBands[0]);
         if (useProbabilisticQuantizer) {
             quantizer = new ProbabilityQuantizer(srcBand, numQuantLevels);
         } else {
@@ -432,10 +432,10 @@ public final class GLCMOp extends Operator {
             final TileIndex trgIndex = new TileIndex(targetTiles.get(targetTiles.keySet().iterator().next()));
             final Rectangle sourceTileRectangle = window.getSourceTileRectangle(tx0, ty0, tw, th,
                                                                                 sourceImageWidth, sourceImageHeight);
-            final SrcInfo[] srcInfoList = new SrcInfo[sourceBandNames.length];
+            final SrcInfo[] srcInfoList = new SrcInfo[sourceBands.length];
 
             int cnt = 0;
-            for (String srcBandName : sourceBandNames) {
+            for (String srcBandName : sourceBands) {
                 final Band sourceBand = sourceProduct.getBand(srcBandName);
                 srcInfoList[cnt] = new SrcInfo(numQuantLevels, sourceBand, getSourceTile(sourceBand, sourceTileRectangle));
 
