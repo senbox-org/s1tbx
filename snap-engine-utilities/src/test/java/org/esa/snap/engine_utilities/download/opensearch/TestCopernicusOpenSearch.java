@@ -18,6 +18,7 @@ package org.esa.snap.engine_utilities.download.opensearch;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.engine_utilities.download.opendata.OpenData;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -35,6 +36,7 @@ public class TestCopernicusOpenSearch {
     private static final String outputFolder = "e:\\tmp\\";
 
     @Test
+    @Ignore
     public void testConnect() throws IOException {
         final OpenSearch openSearch = new OpenSearch(COPERNICUS_HOST);
         final OpenSearch.PageResult pageResult = openSearch.getPages(searchURL);
