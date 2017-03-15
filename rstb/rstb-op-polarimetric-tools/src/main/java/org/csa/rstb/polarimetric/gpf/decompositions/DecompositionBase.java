@@ -85,6 +85,7 @@ public class DecompositionBase {
      */
     public MinMax computeSpanMinMax(final Operator op, final PolBandUtils.PolSourceBand bandList)
             throws OperatorException {
+
         final MinMax minMaxValue = new MinMax();
         final Dimension tileSize = new Dimension(256, 256);
         final Rectangle[] tileRectangles = OperatorUtils.getAllTileRectangles(op.getSourceProduct(), tileSize, 25);
@@ -116,13 +117,8 @@ public class DecompositionBase {
                     public void run() {
                         try {
 
-                            for (int i = 0; i < sourceTiles.length; ++i) {
-                                sourceTiles[i] = op.getSourceTile(bandList.srcBands[i], rectangle);
-                                dataBuffers[i] = sourceTiles[i].getDataBuffer();
-                            }
-
-                            //final MeanCovariance covariance = new MeanCovariance(sourceProductType, sourceTiles,
-                            //        dataBuffers, halfWindowSizeX, halfWindowSizeY);
+                            PolOpUtils.getDataBuffer(
+                                    op, bandList.srcBands, rectangle, sourceProductType, sourceTiles, dataBuffers);
 
                             for (int y = rectangle.y; y < yMax; ++y) {
 
@@ -130,7 +126,6 @@ public class DecompositionBase {
 
                                     PolOpUtils.getMeanCovarianceMatrix(x, y, halfWindowSizeX, halfWindowSizeX,
                                             sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
-                                    //covariance.getMeanCovarianceMatrix(x, y, Cr, Ci);
 
                                     span = Cr[0][0] + Cr[1][1] + Cr[2][2];
 
