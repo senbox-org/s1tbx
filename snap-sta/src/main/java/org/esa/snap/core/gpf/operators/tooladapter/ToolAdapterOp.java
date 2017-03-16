@@ -18,13 +18,21 @@ package org.esa.snap.core.gpf.operators.tooladapter;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import org.apache.velocity.app.Velocity;
-import org.esa.snap.core.dataio.*;
+import org.esa.snap.core.dataio.ProductIO;
+import org.esa.snap.core.dataio.ProductIOPlugInManager;
+import org.esa.snap.core.dataio.ProductReader;
+import org.esa.snap.core.dataio.ProductReaderPlugIn;
+import org.esa.snap.core.dataio.ProductWriterPlugIn;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.annotations.OperatorMetadata;
-import org.esa.snap.core.gpf.descriptor.*;
+import org.esa.snap.core.gpf.descriptor.ParameterDescriptor;
+import org.esa.snap.core.gpf.descriptor.SystemVariable;
+import org.esa.snap.core.gpf.descriptor.TemplateParameterDescriptor;
+import org.esa.snap.core.gpf.descriptor.ToolAdapterOperatorDescriptor;
+import org.esa.snap.core.gpf.descriptor.ToolParameterDescriptor;
 import org.esa.snap.core.gpf.descriptor.template.TemplateContext;
 import org.esa.snap.core.gpf.descriptor.template.TemplateException;
 import org.esa.snap.core.gpf.descriptor.template.TemplateFile;
@@ -33,9 +41,19 @@ import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.io.FileUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.text.DateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -80,6 +98,8 @@ public class ToolAdapterOp extends Operator {
     private TemplateContext lastPostContext;
 
     private boolean isInitialised;
+
+    private ProcessExecutor executor;
 
     /**
      * Constructor.
@@ -130,18 +150,9 @@ public class ToolAdapterOp extends Operator {
      */
     public void stop() {
         this.isStopped = true;
-    }
-
-    /**
-     * Check if a isStopped command was issued.
-     * <p>
-     * This method is synchronized.
-     * </p>
-     *
-     * @return true if the execution of the tool must be stopped.
-     */
-    private boolean isStopped() {
-        return this.isStopped;
+        if (this.executor != null) {
+            this.executor.stop();
+        }
     }
 
     public void setAdapterFolder(File folder) {
@@ -309,74 +320,23 @@ public class ToolAdapterOp extends Operator {
      * @throws OperatorException in case of an error.
      */
     private int execute() throws OperatorException {
-        Process process = null;
-        BufferedReader outReader = null;
         int ret = -1;
         try {
+            if (this.executor == null) {
+                this.executor = new ProcessExecutor();
+            }
+            this.executor.setConsumer(this.consumer);
             reportProgress("Starting tool execution");
             List<String> cmdLine = getCommandLineTokens();
             logCommandLine(cmdLine);
-            ProcessBuilder pb = new ProcessBuilder(cmdLine);
-            //redirect the error of the tool to the standard output
-            pb.redirectErrorStream(true);
-            //set the working directory
-            pb.directory(descriptor.resolveVariables(descriptor.getWorkingDir()));
-            pb.environment().putAll(descriptor.getVariables()
-                                                .stream()
-                                                .collect(Collectors.toMap(
-                                                        SystemVariable::getKey,
-                                                        SystemVariable::getValue))
-            );
-            //start the process
-            process = pb.start();
-            //get the process output
-            outReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            while (!isStopped()) {
-                while (!isStopped && outReader.ready()) {
-                    //read the process output line by line
-                    String line = outReader.readLine();
-                    //consume the line if possible
-                    if (line != null && !"".equals(line.trim())) {
-                        this.consumer.consumeOutput(line);
-                    }
-                }
-                // check if the project finished execution
-                if (!process.isAlive()) {
-                    //isStopped the loop
-                    stop();
-                } else {
-                    //yield the control to other threads
-                    Thread.yield();
-                }
-            }
-            ret = process.exitValue();
+            ret = this.executor.execute(cmdLine,
+                                        this.descriptor.getVariables().stream()
+                                            .collect(Collectors.toMap(SystemVariable::getKey,SystemVariable::getValue)),
+                                        this.descriptor.resolveVariables(this.descriptor.getWorkingDir()));
         } catch (IOException e) {
-            wasCancelled = true;
+            this.wasCancelled = true;
             throw new OperatorException(String.format("%s execution was interrupted [%s]",descriptor.getName(), e));
-        } finally {
-            if (process != null) {
-                // if the process is still running, force it to isStopped
-                if (process.isAlive()) {
-                    //destroy the process
-                    process.destroyForcibly();
-                }
-                try {
-                    //wait for the project to end.
-                    ret = process.waitFor();
-                } catch (InterruptedException e) {
-                    //noinspection ThrowFromFinallyBlock
-                    throw new OperatorException(String.format("Error stopping %s [%s]", descriptor.getName(), e));
-                }
-
-                //close the reader
-                closeStream(outReader);
-                //close all streams
-                closeStream(process.getErrorStream());
-                closeStream(process.getInputStream());
-                closeStream(process.getOutputStream());
-            }
         }
-
         return ret;
     }
 
@@ -433,21 +393,6 @@ public class ToolAdapterOp extends Operator {
         }
         if (this.consumer != null && this.consumer instanceof DefaultOutputConsumer) {
             ((DefaultOutputConsumer) this.consumer).close();
-        }
-    }
-
-    /**
-     * Close any stream without triggering exceptions.
-     *
-     * @param stream input or output stream.
-     */
-    private void closeStream(Closeable stream) {
-        if (stream != null) {
-            try {
-                stream.close();
-            } catch (IOException e) {
-                //nothing to do.
-            }
         }
     }
 

@@ -15,6 +15,7 @@
  */
 package org.esa.snap.core.gpf.operators.tooladapter;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.dataio.ProductIOPlugInManager;
 import org.esa.snap.core.dataio.ProductReaderPlugIn;
 import org.esa.snap.core.gpf.Operator;
@@ -30,12 +31,41 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.URISyntaxException;
-import java.nio.file.*;
+import java.nio.file.CopyOption;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.FileVisitOption;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -433,7 +463,13 @@ public class ToolAdapterIO {
         }
     }
 
-    static void fixPermissions(Path path) throws IOException {
+    /**
+     * Ensure that the given path has all the permissions set.
+     * This is especially useful for Linux/MacOsX executables.
+     *
+     * @param path  The path to fix permissions for.
+     */
+    public static void fixPermissions(Path path) throws IOException {
         if (Files.isDirectory(path)) {
             Stream<Path> files = Files.list(path);
             files.forEach(p -> {
@@ -462,39 +498,6 @@ public class ToolAdapterIO {
                             ". If required, please ask an authorised user to make the file executable.");
                 }
             }
-        }
-    }
-
-    static int runExecutable(Path exePath, String args) throws IOException {
-        try {
-            fixPermissions(exePath);
-            List<String> arguments = new ArrayList<>();
-            arguments.add(exePath.toString());
-            if (args != null) {
-                Collections.addAll(arguments, args.split(" "));
-            }
-            ProcessBuilder builder = new ProcessBuilder(arguments.toArray(new String[arguments.size()]));
-            builder.redirectErrorStream(true);
-            builder.environment().putAll(System.getenv());
-            boolean isStopped = false;
-            final Process process = builder.start();
-            try (BufferedReader outReader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                while (!isStopped) {
-                    if (!process.isAlive()) {
-                        isStopped = true;
-                    } else {
-                        Thread.yield();
-                    }
-                    while (outReader.ready()) {
-                        outReader.readLine();
-                    }
-                }
-                outReader.close();
-            }
-            return process.exitValue();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return -1;
         }
     }
 
@@ -654,7 +657,13 @@ public class ToolAdapterIO {
         zipStream.closeEntry();
     }
 
-    static void unzip(Path sourceFile, Path destination) throws IOException {
+    /**
+     * Uncompress the source zip file into the destination path.
+     *
+     * @param sourceFile    The zip file
+     * @param destination   The destination directory
+     */
+    public static void unzip(Path sourceFile, Path destination, ProgressMonitor progressMonitor, int totalTasks) throws IOException {
         if (sourceFile == null || destination == null) {
             throw new IllegalArgumentException("One of the arguments is null");
         }
@@ -664,6 +673,11 @@ public class ToolAdapterIO {
         byte[] buffer;
         try (ZipFile zipFile = new ZipFile(sourceFile.toFile())) {
             ZipEntry entry;
+            progressMonitor.setSubTaskName(String.format("Extracting %s...", zipFile.getName()));
+            int size = zipFile.size();
+            int workUnits = 100 / totalTasks;
+            int count = 0;
+            int progress;
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
             while (entries.hasMoreElements()) {
                 entry = entries.nextElement();
@@ -684,6 +698,8 @@ public class ToolAdapterIO {
                         }
                     }
                 }
+                progress = 100 - workUnits + (int) ((double)count++ / (double)size * (double)workUnits);
+                progressMonitor.worked(progress);
             }
         }
     }

@@ -31,7 +31,11 @@ import org.esa.snap.core.gpf.operators.tooladapter.ToolAdapterIO;
 import org.esa.snap.core.util.StringUtils;
 import org.esa.snap.core.util.io.FileUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -554,6 +558,12 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
      */
     public void setBundle(Bundle bundle) {
         this.bundle = bundle;
+        /*if (this.bundle != null) {
+            final File targetLocation = this.bundle.getTargetLocation();
+            if (targetLocation != null) {
+                this.mainToolFileLocation = new File(targetLocation, this.mainToolFileLocation.getName());
+            }
+        }*/
     }
 
     /**
