@@ -1049,7 +1049,11 @@ public abstract class ProductFile {
         if (productTypeUC.startsWith("ME")) {
             productFile = new MerisProductFile(file, dataInputStream, lineInterleaved);
         } else if (productTypeUC.startsWith("AT")) {
-            productFile = new AatsrProductFile(file, dataInputStream);
+            if (productType.startsWith("ATS_NL__0")) {
+                productFile = new AatsrL0ProductFile(file, dataInputStream);
+            }else {
+                productFile = new AatsrProductFile(file, dataInputStream);
+            }
         } else if (productTypeUC.startsWith("AS") || productTypeUC.startsWith("SA")) {
             if (productTypeUC.startsWith("ASA_XCA")) {
                 productFile = new AsarXCAProductFile(file, dataInputStream);

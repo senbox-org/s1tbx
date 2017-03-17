@@ -202,8 +202,6 @@ public class EnvisatProductReader extends AbstractProductReader {
 
     private Product createProduct() throws IOException {
         Debug.assertNotNull(getProductFile());
-        Debug.assertTrue(getSceneRasterWidth() > 0);
-        Debug.assertTrue(getSceneRasterHeight() > 0);
 
         File file = getProductFile().getFile();
         String productName;
@@ -214,10 +212,11 @@ public class EnvisatProductReader extends AbstractProductReader {
         }
         productName = FileUtils.createValidFilename(productName);
 
+        int sceneRasterHeight = getSceneRasterHeight();
         Product product = new Product(productName,
                                       getProductFile().getProductType(),
                                       getSceneRasterWidth(),
-                                      getSceneRasterHeight(),
+                                      sceneRasterHeight,
                                       this);
 
         product.setFileLocation(getProductFile().getFile());
@@ -226,8 +225,8 @@ public class EnvisatProductReader extends AbstractProductReader {
         final ProductData.UTC endTime = getProductFile().getSceneRasterStopTime();
         product.setStartTime(startTime);
         product.setEndTime(endTime);
-        if (startTime != null && endTime != null) {
-            product.setSceneTimeCoding(new LineTimeCoding(getSceneRasterHeight(), startTime.getMJD(), endTime.getMJD()));
+        if (startTime != null && endTime != null && sceneRasterHeight > 0) {
+            product.setSceneTimeCoding(new LineTimeCoding(sceneRasterHeight, startTime.getMJD(), endTime.getMJD()));
         }
         product.setAutoGrouping(getProductFile().getAutoGroupingPattern());
 
