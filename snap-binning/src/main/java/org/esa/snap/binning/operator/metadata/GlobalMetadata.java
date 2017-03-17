@@ -221,6 +221,10 @@ public class GlobalMetadata {
             for (final VariableConfig variableConfig : variableConfigs) {
                 metaProperties.put("variable_config." + Integer.toString(index) + ":name", variableConfig.getName());
                 metaProperties.put("variable_config." + Integer.toString(index) + ":expr", variableConfig.getExpr());
+                String validExpr = variableConfig.getValidExpr();
+                if (validExpr != null) {
+                    metaProperties.put("variable_config." + Integer.toString(index) + ":validExpr", validExpr);
+                }
                 ++index;
             }
         }

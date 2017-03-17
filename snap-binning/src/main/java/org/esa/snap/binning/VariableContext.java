@@ -54,6 +54,17 @@ public interface VariableContext {
     String getVariableExpression(int index);
 
     /**
+     * The valid-pixel expression of a variable at the given index.
+     * If non-{@code null}, the expression is used to compute where variable samples are valid.
+     * If {@code null}, valid-pixel expression will be the combination of the valid-pixel
+     * expressions of all variables used in the expression itself.
+     *
+     * @param index The index.
+     * @return The valid-pixel expression. May be {@code null}.
+     */
+    String getVariableValidExpression(int index);
+
+    /**
      * A Boolean band-maths expression identifying valid source samples.
      *
      * @return The valid-mask expression. May be {@code null}.

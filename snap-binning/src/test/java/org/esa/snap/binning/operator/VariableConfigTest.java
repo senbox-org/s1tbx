@@ -97,12 +97,4 @@ public class VariableConfigTest {
 
         assertTrue(config.equals(other));
     }
-
-    @Test
-    public void testHashCode() {
-        config.setExpr("huhu");
-        config.setName("Anna");
-
-        assertEquals(66628634, config.hashCode());
-    }
 }

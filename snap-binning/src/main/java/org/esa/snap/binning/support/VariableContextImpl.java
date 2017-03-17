@@ -19,6 +19,8 @@ package org.esa.snap.binning.support;
 import org.esa.snap.binning.VariableContext;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This is the variable context for all variables referenced
@@ -32,27 +34,28 @@ import java.util.ArrayList;
  */
 public class VariableContextImpl implements VariableContext {
     private final ArrayList<String> names;
-    private final ArrayList<String> exprs;
+    private final Map<String, Definition> entries;
     private String maskExpr;
 
     public VariableContextImpl() {
-        this.names = new ArrayList<String>();
-        this.exprs = new ArrayList<String>();
+        this.names = new ArrayList<>();
+        this.entries = new HashMap<>();
     }
 
     public void defineVariable(String name) {
-        defineVariable(name, null);
+        defineVariable(name, null, null);
     }
 
     public void defineVariable(String name, String expr) {
-        final int index = names.indexOf(name);
-        if (index >= 0) {
-            if (expr != null) {
-                exprs.set(index, expr);
-            }
-        } else {
+        defineVariable(name, expr, null);
+    }
+
+    public void defineVariable(String name, String expr, String validExpr) {
+        if (!names.contains(name)) {
             names.add(name);
-            exprs.add(expr);
+        }
+        if (expr != null) {
+            entries.put(name, new Definition(expr, validExpr));
         }
     }
 
@@ -77,11 +80,28 @@ public class VariableContextImpl implements VariableContext {
 
     @Override
     public String getVariableExpression(int i) {
-        return exprs.get(i);
+        Definition definition = entries.get(names.get(i));
+        return definition != null ? definition.expr : null;
+    }
+
+    @Override
+    public String getVariableValidExpression(int i) {
+        Definition definition = entries.get(names.get(i));
+        return definition != null ? definition.validExpr : null;
     }
 
     @Override
     public int getVariableIndex(String name) {
         return names.indexOf(name);
+    }
+
+    private static class Definition {
+        private String expr;
+        private String validExpr;
+
+        private Definition(String expr, String validExpr) {
+            this.expr = expr;
+            this.validExpr = validExpr;
+        }
     }
 }
