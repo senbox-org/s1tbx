@@ -23,6 +23,7 @@ import org.esa.snap.core.dataop.dem.ElevationModel;
 import org.esa.snap.core.dataop.dem.ElevationModelDescriptor;
 import org.esa.snap.core.dataop.dem.ElevationModelRegistry;
 import org.esa.snap.core.dataop.resamp.Resampling;
+import org.esa.snap.core.dataop.resamp.ResamplingFactory;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -32,6 +33,7 @@ import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.dem.dataio.DEMFactory;
 import org.esa.snap.dem.dataio.FileElevationModel;
 import org.esa.snap.engine_utilities.datamodel.AbstractMetadata;
 import org.esa.snap.engine_utilities.datamodel.PosVector;
@@ -133,6 +135,9 @@ public class CoherenceOp extends Operator {
 
     @Parameter(label = "DEM No Data Value", defaultValue = "0")
     private double externalDEMNoDataValue = 0;
+
+    @Parameter(label = "External DEM Apply EGM", defaultValue = "true")
+    private Boolean externalDEMApplyEGM = true;
 
     @Parameter(label = "Tile Extension [%]",
             description = "Define extension of tile for DEM simulation (optimization parameter).",
@@ -522,33 +527,22 @@ public class CoherenceOp extends Operator {
 
     private void defineDEM() throws IOException {
 
-        Resampling resampling = Resampling.BILINEAR_INTERPOLATION;
-        final ElevationModelRegistry elevationModelRegistry;
-        final ElevationModelDescriptor demDescriptor;
+        String demResamplingMethod = ResamplingFactory.BILINEAR_INTERPOLATION_NAME;
 
         if (externalDEMFile == null) {
-            elevationModelRegistry = ElevationModelRegistry.getInstance();
-            demDescriptor = elevationModelRegistry.getDescriptor(demName);
+            dem = DEMFactory.createElevationModel(demName, demResamplingMethod);
+            demNoDataValue = dem.getDescriptor().getNoDataValue();
+            demSamplingLat = dem.getDescriptor().getTileWidthInDegrees() * (1.0f /
+                    dem.getDescriptor().getTileWidth()) * org.jlinda.core.Constants.DTOR;
 
-            if (demDescriptor == null) {
-                throw new OperatorException("The DEM '" + demName + "' is not supported.");
-            }
-
-            dem = demDescriptor.createDem(resampling);
-            if (dem == null) {
-                throw new OperatorException("The DEM '" + demName + "' has not been installed.");
-            }
-
-            demNoDataValue = demDescriptor.getNoDataValue();
-            demSamplingLat = demDescriptor.getTileWidthInDegrees() * (1.0f / demDescriptor.getTileWidth()) *
-                    org.jlinda.core.Constants.DTOR;
             demSamplingLon = demSamplingLat;
 
         } else {
 
-            dem = new FileElevationModel(externalDEMFile, resampling.getName(), externalDEMNoDataValue);
-            demName = externalDEMFile.getPath();
+            dem = new FileElevationModel(externalDEMFile, demResamplingMethod, externalDEMNoDataValue);
+            ((FileElevationModel) dem).applyEarthGravitionalModel(externalDEMApplyEGM);
             demNoDataValue = externalDEMNoDataValue;
+            demName = externalDEMFile.getName();
 
             try {
                 demSamplingLat =
