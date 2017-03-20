@@ -1008,6 +1008,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
                                                                                          params.sourceProducts[0].getSceneGeoCoding(),
                                                                                          polygonVectorDataNodes);
                 if (polygons.length == 0) {
+                    status.worked(1);
                     continue;
                 }
 
