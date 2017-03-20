@@ -346,7 +346,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
 
         ProductUtils.copyProductNodes(params.sourceProducts[0], targetProduct);
 
-        final int dataType = (params.trainOnRaster) ? ProductData.TYPE_FLOAT32 : ProductData.TYPE_INT16;
+        final int dataType = (params.trainOnRaster) ? trainingSetMaskBand.getDataType() : ProductData.TYPE_INT16;
         labelBand = new Band(
                 LabelBandName,
                 dataType,
@@ -355,7 +355,7 @@ public abstract class BaseClassifier implements SupervisedClassifier {
 
         final String unit = (params.trainOnRaster && trainingSetMaskBand != null ? trainingSetMaskBand.getUnit() : "discrete classes");
         labelBand.setUnit(unit);
-        final double noDataVal = params.trainOnRaster ? DOUBLE_NO_DATA_VALUE : INT_NO_DATA_VALUE;
+        final double noDataVal = params.trainOnRaster ? trainingSetMaskBand.getNoDataValue() : INT_NO_DATA_VALUE;
         labelBand.setNoDataValue(noDataVal);
         labelBand.setNoDataValueUsed(true);
         labelBand.setValidPixelExpression(ConfidenceBandName + " >= 0.5");
@@ -376,6 +376,12 @@ public abstract class BaseClassifier implements SupervisedClassifier {
             final ProductNodeGroup<VectorDataNode> vectorDataGroup = targetProduct.getVectorDataGroup();
             for (String vector : params.trainingVectors) {
                 vectorDataGroup.remove(vectorDataGroup.get(createClassLabel(vector)));
+            }
+        } else {
+            IndexCoding indexCoding = trainingSetMaskBand.getIndexCoding();
+            if(indexCoding != null) {
+                IndexCoding icCopy = ProductUtils.copyIndexCoding(indexCoding, targetProduct);
+                labelBand.setSampleCoding(icCopy);
             }
         }
         targetProduct.addBand(labelBand);
