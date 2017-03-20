@@ -210,8 +210,12 @@ public class Evaluator {
         }
         for (Instance i : instanceList) {
             final Object o = i.classValue();
-            final int oldCnt = cnt.get(o);
-            cnt.put(o, oldCnt + 1);
+            final Integer oldCnt = cnt.get(o);
+            if(oldCnt != null) {
+                cnt.put(o, oldCnt + 1);
+            } else {
+                cnt.put(o, 1);
+            }
         }
         return cnt;
     }
