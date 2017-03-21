@@ -254,7 +254,8 @@ public final class SubtRefDemOp extends Operator {
         // plug sourceSlave metadata into slaveMap
         MetadataElement[] slaveRoot = sourceProduct.getMetadataRoot().getElement(slaveMetadataRoot).getElements();
         for (MetadataElement meta : slaveRoot) {
-            metaMapPut(slaveTag, meta, sourceProduct, slaveMap);
+            if (!meta.getName().equals(AbstractMetadata.ORIGINAL_PRODUCT_METADATA))
+                metaMapPut(slaveTag, meta, sourceProduct, slaveMap);
         }
     }
 
