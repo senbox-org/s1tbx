@@ -1,0 +1,6 @@
+ATS_BRW_AX|Browse LUT Data file|
+#
+MPH                        |@/records/MPH.dd                     |1247                       |Main Product Header
+SPH                        |@/records/SPH.dd       				 |*                          |AATSR Browse LUT Data SPH
+DSD                        |@/records/DSD.dd                     |*                          |Data Set Descriptor array
+Browse_Day_Colour_LUT_GADS |@/records/aatsr/ATS_BRW_AX_GADS.dd	 |Browse Day Colour LUT GADS |Browse Day Colour LUT GADS
