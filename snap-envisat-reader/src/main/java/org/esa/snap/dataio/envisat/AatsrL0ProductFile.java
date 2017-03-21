@@ -21,12 +21,15 @@ import org.esa.snap.core.datamodel.MetadataAttribute;
 import org.esa.snap.core.datamodel.MetadataElement;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.util.Debug;
 
 import javax.imageio.stream.ImageInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+
+import static org.esa.snap.dataio.envisat.EnvisatProductReader.createDatasetTable;
+import static org.esa.snap.dataio.envisat.EnvisatProductReader.createMetadataElement;
+import static org.esa.snap.dataio.envisat.EnvisatProductReader.createMetadataTableGroup;
 
 
 /**
@@ -37,7 +40,7 @@ import java.util.Map;
  */
 public class AatsrL0ProductFile extends ProductFile {
     private static final String PARSE_SPH_ERR_MSG = "Failed to parse main header parameter '%s': %s";
-    public static final String DS_NAME_AATSR_SOURCE_PACKETS = "AATSR_SOURCE_PACKETS";
+    private static final String DS_NAME_AATSR_SOURCE_PACKETS = "AATSR_SOURCE_PACKETS";
 
     /**
      * Constructs a <code>AatsrL0ProductFile</code> for the given seekable data input stream.
@@ -152,69 +155,10 @@ public class AatsrL0ProductFile extends ProductFile {
 
     @Override
     protected void addCustomMetadata(Product product) throws IOException {
-
         MetadataElement root = product.getMetadataRoot();
-//        DSD dsd = getDSD(DS_NAME_AATSR_SOURCE_PACKETS);
-        final RecordReader recordReader = getRecordReader(DS_NAME_AATSR_SOURCE_PACKETS);
-        int numRecords = recordReader.getNumRecords();
-        if (numRecords > 1) {
-            final MetadataElement group = createMetadataTableGroup(DS_NAME_AATSR_SOURCE_PACKETS, recordReader);
-            root.addElement(group);
-        } else if (numRecords == 1) {
-            final MetadataElement table = createDatasetTable(DS_NAME_AATSR_SOURCE_PACKETS, recordReader);
-            root.addElement(table);
-        }
-
-    }
-
-    // todo - taken from EnvisatProductReader
-    private MetadataElement createDatasetTable(String name, RecordReader recordReader) throws IOException {
-        Record record = recordReader.readRecord();
-        return createMetadataGroup(name, record);
-    }
-
-    // todo - taken from EnvisatProductReader
-    private MetadataElement createMetadataTableGroup(String name, RecordReader recordReader) throws IOException {
-        MetadataElement metadataTableGroup = new MetadataElement(name);
-        StringBuilder sb = new StringBuilder(16);
-        for (int i = 0; i < recordReader.getNumRecords(); i++) {
-            Record record = recordReader.readRecord(i);
-            sb.setLength(0);
-            sb.append(name);
-            sb.append('.');
-            sb.append(i + 1);
-            metadataTableGroup.addElement(createMetadataGroup(sb.toString(), record));
-        }
-
-        return metadataTableGroup;
-    }
-
-    // todo - taken from EnvisatProductReader
-    private static MetadataElement createMetadataGroup(String name, Record record) {
-        MetadataElement metadataGroup = new MetadataElement(name);
-
-        for (int i = 0; i < record.getNumFields(); i++) {
-            Field field = record.getFieldAt(i);
-
-            String description = field.getInfo().getDescription();
-            if (description != null) {
-                if ("Spare".equalsIgnoreCase(description)) {
-                    continue;
-                }
-            }
-
-            MetadataAttribute attribute = new MetadataAttribute(field.getName(), field.getData(), true);
-            if (field.getInfo().getPhysicalUnit() != null) {
-                attribute.setUnit(field.getInfo().getPhysicalUnit());
-            }
-            if (description != null) {
-                attribute.setDescription(field.getInfo().getDescription());
-            }
-
-            metadataGroup.addAttribute(attribute);
-        }
-
-        return metadataGroup;
+        String datasetName = DS_NAME_AATSR_SOURCE_PACKETS;
+        final RecordReader recordReader = getRecordReader(datasetName);
+        root.addElement(createMetadataElement(datasetName,recordReader));
     }
 
 }

@@ -481,16 +481,20 @@ public class EnvisatProductReader extends AbstractProductReader {
             if (dsdType == EnvisatConstants.DS_TYPE_ANNOTATION
                     || dsdType == EnvisatConstants.DS_TYPE_GLOBAL_ANNOTATION) {
                 final RecordReader recordReader = productFile.getRecordReader(datasetName);
-                final int numRecords = recordReader.getNumRecords();
-                if (numRecords > 1) {
-                    final MetadataElement group = createMetadataTableGroup(datasetName, recordReader);
-                    metaRoot.addElement(group);
-                } else if (numRecords == 1) {
-                    final MetadataElement table = createDatasetTable(datasetName, recordReader);
-                    metaRoot.addElement(table);
-                }
+                MetadataElement element = createMetadataElement(datasetName, recordReader);
+                metaRoot.addElement(element);
             }
         }
+    }
+
+    static MetadataElement createMetadataElement(String datasetName, RecordReader recordReader) throws IOException {
+        final int numRecords = recordReader.getNumRecords();
+        if (numRecords > 1) {
+            return createMetadataTableGroup(datasetName, recordReader);
+        } else if (numRecords == 1) {
+            return createDatasetTable(datasetName, recordReader);
+        }
+        return null;
     }
 
     private TiePointGrid createTiePointGrid(BandLineReader bandLineReader) throws IOException {
@@ -594,8 +598,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         return tiePointGrid;
     }
 
-    private MetadataElement createDatasetTable(String name, RecordReader recordReader) throws IOException {
-        Debug.assertTrue(productFile != null);
+    static MetadataElement createDatasetTable(String name, RecordReader recordReader) throws IOException {
         Debug.assertTrue(name != null);
         Debug.assertTrue(recordReader != null);
 
@@ -603,8 +606,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         return createMetadataGroup(name, record);
     }
 
-    private MetadataElement createMetadataTableGroup(String name, RecordReader recordReader) throws IOException {
-        Debug.assertTrue(productFile != null);
+    static MetadataElement createMetadataTableGroup(String name, RecordReader recordReader) throws IOException {
         Debug.assertTrue(name != null);
         Debug.assertTrue(recordReader != null);
 

@@ -5,7 +5,7 @@ GROUND_STATION_REFERENCE_TIME |@/types/UTC.dd |MJD        |12 |1   |* |Ground st
 ISP_LENGTH                    |UShort         |bytes      |2  |1   |* |Length of the ISP                                                    |3  |
 CRC_ERRS                      |UShort         |VCDU       |2  |1   |* |Number of VCDUs in the ISP with a CRC error                          |4  |
 RS_ERR_CORRECTION             |UShort         |VCDU       |2  |1   |* |Number of VCDUs in the ISP for which as RS correction was performed  |5  |
-spare                         |UByte          |-          |1  |2   |* |Spare                                                                |6  |
+spare                         |UChar          |-          |1  |2   |* |Spare                                                                |6  |
 PACKET_ID                     |UShort         |-          |2  |1   |* |Packet ID                                                            |7  |
 PACKET_SEQUENCE_COUNT         |UShort         |-          |2  |1   |* |Packet Sequence Count                                                |8  |
 PACKET_LENGTH                 |UShort         |-          |2  |1   |* |Packet Length                                                        |9  |
