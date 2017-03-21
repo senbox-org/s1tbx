@@ -274,7 +274,8 @@ public class DInSAROp extends Operator {
         // pug sourceSlave metadata into slaveDefoMap
         slaveRoot = defoProduct.getMetadataRoot().getElement(slaveMetadataRoot).getElements();
         for (MetadataElement meta : slaveRoot) {
-            metaMapPut(slaveTag, meta, defoProduct, slaveDefoMap);
+            if (!meta.getName().equals(AbstractMetadata.ORIGINAL_PRODUCT_METADATA))
+                metaMapPut(slaveTag, meta, defoProduct, slaveDefoMap);
         }
 
         /** --- TOPO PRODUCT -----*/
