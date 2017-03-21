@@ -1,0 +1,23 @@
+ATS_PC2_AX_GP|Configuration Data |*
+#
+thresh_10_nad      |SLong |-        |4|1 |*|Threshold for ABT flag, 10 arcmin cell nadir view|
+thresh_10_for      |SLong |-        |4|1 |*|Threshold for ABT flag, 10 arcmin cell forward view |
+thresh_30_nad      |SLong |-        |4|1 |*|Threshold for ABT flag, 30 arcmin cell nadir view |
+thresh_30_for      |SLong |-        |4|1 |*|Threshold for ABT flag, 30 arcmin cell forward view |
+thresh_17_nad      |SLong |-        |4|1 |*|Threshold for ABT flag, 17 km cell nadir view|
+thresh_17_for      |SLong |-        |4|1 |*|Threshold for ABT flag, 17 km cell forward view |
+thresh_50_nad      |SLong |-        |4|1 |*|Threshold for ABT flag, 50 km cell nadir view |
+thresh_50_for      |SLong |-        |4|1 |*|Threshold for ABT flag, 50 km cell forward view |
+ngrid_size         |SLong |-        |4|1 |*|NGRID or NGRANULE Granule Size|
+cell_dim           |SLong |-        |4|1 |*|AST Cell dimension|
+trop_indx          |Float |degrees  |4|1 |*|TROPICAL_INDEX |
+temp_ind           |Float |degrees  |4|1 |*|TEMPERATE_INDEX|
+pol_indx           |Float |degrees  |4|1 |*|POLAR_INDEX |
+nad_pix_thresh     |Float |-        |4|1 |*|NADIR-PIXELS_THRESH|
+for_pix_thresh     |Float |-        |4|1 |*|FRWRD_PIXELS_THRESH |
+ir37_thresh        |Float |-        |4|1 |*|IR37_THRESH|
+sm_scale_fac       |SShort|-        |2|1 |*|Smoothing scaling factor |
+max_cells_x        |SShort|-        |2|1 |*|MAX_CELLS_X (number of 50 km cells across track) |
+max_cells_y        |SShort|-        |2|1 |*|MAX_CELLS_Y (number of 50 km cells along track) |
+mx                 |SLong |-        |4|1 |*|MX: across track origin of 50 km cells|
+spare_1            |UChar |-        |1|12|*|Spare|
