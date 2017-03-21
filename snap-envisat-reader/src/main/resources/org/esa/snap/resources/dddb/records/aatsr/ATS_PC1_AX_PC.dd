@@ -1,4 +1,4 @@
-ATS_GC1_AX_GP|Processor configuration|*
+ATS_PC1_AX_GP|Processor configuration|*
 #
 pulse_cal                |SLong |-        |4|1|*|blanking pulse calibration code: blanking_pulse_calibration_flag|
 scan_cal                 |SLong |-        |4|1|*|Number of scans in calibration period|
