@@ -1,0 +1,7 @@
+ATS_INS_AX_MUT|Master Unpacking Definition Table|*
+#
+aux_tot        |SLong |-         |4 |1 |*|aux_tot: Total number of auxiliary data items in MUDT |
+aux_val_tot    |SLong |-         |4 |1 |*|aux_val_tot: Total number of sets of auxiliary limits data items |
+n_conv         |SLong |-         |4 |1 |*|n_conv: Total number of auxiliary items for conversion |
+s_surv         |SLong |-         |4 |1 |*|n_surv_tot: Total number of surveillance limit specifications |
+spare_1        |Uchar |-         |1 |12|*|Spare

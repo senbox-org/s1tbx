@@ -1,0 +1,9 @@
+ATS_INS_AX_SPLC|Specialised limit checks |*
+#
+prt_mean_difference     |Double  |Deg K            |8 |1  |*|prt_mean_difference    |
+max_hbb_prt_mean_diff   |Double  |Deg K            |8 |1  |*|max_hbb_prt_mean_diff  |
+max_cbb_prt_mean_diff   |Double  |Deg K            |8 |1  |*|max_cbb_prt_mean_diff  |
+scp2_6_temp_diff        |Double  |Deg K            |8 |1  |*|scp2_6_temp_diff       |
+scp7_10_temp_diff       |Double  |Deg K            |8 |1  |*|scp7_10_temp_diff      |
+prt8_fixed_val          |SShort  |Digitised Counts |2 |1  |*|prt8_fixed_val         |
+prt8_variance           |SShort  |Digitised Counts |2 |1  |*|prt8_variance          |
