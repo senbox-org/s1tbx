@@ -1,0 +1,5 @@
+ATS_CL1_AX_TCCLUT|Thin Cirrus Test LUT GADS
+#
+nad_thresh          |SShort |K/100 |2|1|*|nadir_threshold[i][j]   |1|
+for_thresh          |SShort |K/100 |2|1|*|frwrd_threshold[i][j]   |2|
+
