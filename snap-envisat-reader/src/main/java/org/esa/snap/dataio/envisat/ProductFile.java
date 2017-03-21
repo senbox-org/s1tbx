@@ -1042,6 +1042,7 @@ public abstract class ProductFile {
             throw new ProductIOException("not an ENVISAT product or ENVISAT product type not supported");
         }
         // We use only the first 9 characters for comparision, since the 10th can be either 'P' or 'C'
+        // and for auxiliary data it is 'A'
         String productTypeUC = productType.toUpperCase().substring(0, 9);
 
         ProductFile productFile = null;
@@ -1049,8 +1050,10 @@ public abstract class ProductFile {
         if (productTypeUC.startsWith("ME")) {
             productFile = new MerisProductFile(file, dataInputStream, lineInterleaved);
         } else if (productTypeUC.startsWith("AT")) {
-            if (productType.startsWith("ATS_NL__0")) {
+            if (productTypeUC.startsWith("ATS_NL__0")) {
                 productFile = new AatsrL0ProductFile(file, dataInputStream);
+            }else if (productTypeUC.matches("ATS_..._A")) {
+                productFile = new AatsrAuxProductFile(file, dataInputStream);
             }else {
                 productFile = new AatsrProductFile(file, dataInputStream);
             }
