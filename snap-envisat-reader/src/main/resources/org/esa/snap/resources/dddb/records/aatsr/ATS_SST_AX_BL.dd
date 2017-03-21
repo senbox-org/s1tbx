@@ -1,0 +1,4 @@
+ATS_SST_AX_BL|Across-track Band Mapping Look-up Table
+#
+pixel_index          |SShort  |- |2|1|*|Pixel index (j)                       |1|
+actrk_band_index     |SShort  |- |2|1|*|Across-track band index (map index)  |2|

@@ -1,0 +1,21 @@
+ATS_SST_AX_ARC|Average SST Retrieval Coefficients GADS
+#
+a0          |Float |K/100 |4|1|*|a[i][j][0] |
+a1          |Float |-     |4|1|*|a[i][j][1] |
+a2          |Float |-     |4|1|*|a[i][j][2] |
+b0          |Float |K/100 |4|1|*|b[i][j][0] |
+b1          |Float |-     |4|1|*|b[i][j][1] |
+b2          |Float |-     |4|1|*|b[i][j][2] |
+b3          |Float |-     |4|1|*|b[i][j][3] |
+c0          |Float |K/100 |4|1|*|c[i][j][0] |
+c1          |Float |-     |4|1|*|c[i][j][1] |
+c2          |Float |-     |4|1|*|c[i][j][2] |
+c3          |Float |-     |4|1|*|c[i][j][3] |
+c4          |Float |-     |4|1|*|c[i][j][4] |
+d0          |Float |K/100 |4|1|*|d[i][j][0] |
+d1          |Float |-     |4|1|*|d[i][j][1] |
+d2          |Float |-     |4|1|*|d[i][j][2] |
+d3          |Float |-     |4|1|*|d[i][j][3] |
+d4          |Float |-     |4|1|*|d[i][j][4] |
+d5          |Float |-     |4|1|*|d[i][j][5] |
+d6          |Float |-     |4|1|*|d[i][j][6] |
