@@ -1,0 +1,9 @@
+ATS_GC1_AX|General Calibration data|
+#
+MPH                                     |@/records/MPH.dd                        |1247                          |Main Product Header
+SPH                                     |@/records/SPH.dd       				 |*                             |AATSR Browse LUT Data SPH
+DSD                                     |@/records/DSD.dd                        |*                             |Data Set Descriptor array
+General_Parameters                      |@/records/aatsr/ATS_GC1_AX_GP.dd	     |General parameters for IR     |General Parameters GADS
+Temperature_To_Radiance_LUT             |@/records/aatsr/ATS_GC1_AX_TTR.dd       |Temperature to radiance LUT   |Temperature to Radiance LUT GADS
+Radiance_To_Brightness_Temperature_LUT  |@/records/aatsr/ATS_GC1_AX_RTBT.dd      |Radiance to temperature LUT   |Radiance to Brightness Temperature LUT GADS
+16_Micron_Non-Linearity_Correction_LUT  |@/records/aatsr/ATS_GC1_AX_MNLC.dd      |1.6 micron LUT                |1.6 micron Non-Linearity Correction LUT GADS

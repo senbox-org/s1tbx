@@ -1,0 +1,6 @@
+ATS_GC1_AX_TTR|Temperature to Radiance LUT|*
+#
+temp              |Double|K          |8 |1|*|temperature |
+rad_lut_12        |Double|Wcm-2 sr-1 |8 |1|*|radiance_lut [12 micron] |
+rad_lut_11        |Double|Wcm-2 sr-1 |8 |1|*|radiance_lut [11 micron] |
+rad_lut_37        |Double|Wcm-2 sr-1 |8 |1|*|radiance_lut [3.7 micron]|
