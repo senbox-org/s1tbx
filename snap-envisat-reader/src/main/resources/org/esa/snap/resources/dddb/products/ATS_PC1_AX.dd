@@ -1,0 +1,6 @@
+ATS_PC1_AX|Level-1B Processing configuration data|
+#
+MPH                       |@/records/MPH.dd                      |1247                          |Main Product Header
+SPH                       |@/records/SPH.dd       				 |*                             |AATSR Browse LUT Data SPH
+DSD                       |@/records/DSD.dd                      |*                             |Data Set Descriptor array
+Processor_Configuration   |@/records/aatsr/ATS_PC1_AX_PC.dd	     |Processor config data         |Processor configuration
