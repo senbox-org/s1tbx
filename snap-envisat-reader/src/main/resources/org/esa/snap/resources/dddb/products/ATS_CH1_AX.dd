@@ -1,0 +1,6 @@
+ATS_CH1_AX|Level-1B Characterisation data|
+#
+MPH                        |@/records/MPH.dd                     |1247                       |Main Product Header
+SPH                        |@/records/SPH.dd       				 |*                          |AATSR Browse LUT Data SPH
+DSD                        |@/records/DSD.dd                     |*                          |Data Set Descriptor array
+Characterisation_Table      |@/records/aatsr/ATS_CH1_AX_GADS.dd	 |Characterisation Table     |Level 1b Characterisation Data GADS
