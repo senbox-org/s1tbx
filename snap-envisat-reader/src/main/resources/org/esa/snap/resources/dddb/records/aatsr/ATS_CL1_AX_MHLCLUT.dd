@@ -1,0 +1,5 @@
+ATS_CL1_AX_TCCLUT|Medium/High Level Test LUT GADS
+#
+nad_thresh          |SShort |K/100 |2|1|*|med_high_level_threshold[i], nadir      |1|
+for_thresh          |SShort |K/100 |2|1|*|med_high_level_threshold[i], forward    |2|
+

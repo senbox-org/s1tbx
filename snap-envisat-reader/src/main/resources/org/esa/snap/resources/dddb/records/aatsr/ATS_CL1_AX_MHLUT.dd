@@ -1,0 +1,19 @@
+ATS_CL1_AX_MHLUT|1.6 Micron Histogram Test LUT GADS
+#
+v16_sprd_nad   |Float   |%       |4|1 |*|Nadir view histogram spread parameter           |1|
+v16_sprd_for   |Float   |%       |4|1 |*|Forward view histogram spread parameter         |2|
+v16_pk_nad     |SShort  |-       |2|1 |*|Auxiliary peak height parameter, nadir view     |3|
+v16_pk_for     |SShort  |-       |2|1 |*|Auxiliary peak height parameter, forward view   |4|
+min_v16_hist   |SShort  |-       |2|1 |*|Minimum pixels for a valid histogram            |5|
+tilt_thresh    |Float   |degrees |4|1 |*|Sunglint threshold                              |6|
+thresh_3       |Float   |-       |4|1 |*|threshold_3                                     |7|
+nr_glt_rang    |Float   |degrees |4|1 |*|Near glint threshold                            |8|
+min_for_pass   |SShort  |-       |2|1 |*|min_for_passed                                  |9|
+rang_pk        |Float   |%       |4|1 |*|search_range_for_peak                           |10|
+wt_limt        |Float   |degrees |4|1 |*|tilt_weight_limit                               |11|
+r_wt_limt      |Float   |degrees |4|1 |*|range_weight_limit                              |12|
+wt_fac         |Float   |-       |4|1 |*|tilt_weight_factor                              |13|
+min_pk_val     |SShort  |-       |2|1 |*|min_peak_value                                  |14|
+min_for_detr   |SShort  |-       |2|1 |*|min_for_detrend                                 |15|
+max_glt_thresh |Float   |%       |4|1 |*|max_glint_threshold                             |16|
+spare_1        |SChar   |-       |1|20|*|Spare                                           |17|

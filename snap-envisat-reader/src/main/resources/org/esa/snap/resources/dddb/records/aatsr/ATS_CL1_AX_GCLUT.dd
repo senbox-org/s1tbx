@@ -1,0 +1,4 @@
+ATS_CL1_AX_GCLUT|12 Micron Gross Cloud Test LUT
+#
+thresh_nad           |SShort |K/100 |2|1|*|12 micron threshold nadir  |1|
+thresh_for           |SShort |K/100 |2|1|*|12 micron threshold forward|2|
