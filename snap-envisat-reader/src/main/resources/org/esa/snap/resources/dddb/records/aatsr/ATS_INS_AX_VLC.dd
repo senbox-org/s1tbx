@@ -1,0 +1,5 @@
+ATS_INS_AX_VLC|Validation limit checks |*
+#
+aux_id_limt       |UChar  |-         |1 |5  |*|auxiliary identifier limits   |
+aux_val_low_limt  |UShort |-         |2 |1  |*|aux validation lower limit    |
+aux_val_up_limt   |UShort |-         |2 |1  |*|aux validation upper limit    |
