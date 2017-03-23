@@ -17,15 +17,16 @@
 package org.esa.snap.core.dataio.geometry;
 
 import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.TestCase;
 import org.esa.snap.core.datamodel.GeometryDescriptor;
-import org.esa.snap.core.datamodel.PlacemarkDescriptor;
 import org.esa.snap.core.datamodel.PlacemarkDescriptorRegistry;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.VectorDataNode;
 import org.esa.snap.core.util.FeatureUtils;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -36,7 +37,7 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-public class VectorDataNodeWriterTest extends TestCase {
+public class VectorDataNodeWriterTest {
 
     private static final String INPUT_1 =
             "# This is a test comment\n" +
@@ -56,16 +57,12 @@ public class VectorDataNodeWriterTest extends TestCase {
 
     private VectorDataNodeReader.PlacemarkDescriptorProvider placemarkDescriptorProvider;
 
-    @Override
+    @Before
     public void setUp() throws Exception {
-        placemarkDescriptorProvider = new VectorDataNodeReader.PlacemarkDescriptorProvider() {
-            @Override
-            public PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType simpleFeatureType) {
-                return PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(GeometryDescriptor.class);
-            }
-        };
+        placemarkDescriptorProvider = simpleFeatureType -> PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(GeometryDescriptor.class);
     }
 
+    @Test
     public void testOutput1() throws IOException {
         testInputOutput(INPUT_1,
                         new String[]{
@@ -80,6 +77,7 @@ public class VectorDataNodeWriterTest extends TestCase {
                         + "ID67\tmark3\tPOINT (23.4 56.7)\t2\tThis is mark3.\n");
     }
 
+    @Test
     public void testOutput2() throws IOException {
         testInputOutput(INPUT_2,
                         new String[]{
@@ -118,9 +116,9 @@ public class VectorDataNodeWriterTest extends TestCase {
 
         String writtenVDN = writer.toString();
         for (String expectedProperty : expectedProperties) {
-            assertTrue(writtenVDN.contains(expectedProperty));
+            Assert.assertTrue(writtenVDN.contains(expectedProperty));
         }
-        assertTrue(writtenVDN.endsWith(expectedContent));
+        Assert.assertTrue(writtenVDN.endsWith(expectedContent));
     }
 
     private static Product createDummyProduct() {
