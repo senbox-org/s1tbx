@@ -97,14 +97,13 @@ public class VectorDataNodeWriterTest {
         StringWriter writer = new StringWriter();
         vectorDataNodeWriter.writeNodeProperties(vectorNode, writer);
         String nodeProperties = writer.getBuffer().toString();
-        System.out.println(nodeProperties);
-        assertEquals("#placemarkDescriptor=org.esa.snap.core.datamodel.GeometryDescriptor\n" +
+        //default fill color is not constant, it depends how often a VDN has already been created
+        assertTrue(nodeProperties.matches("#placemarkDescriptor=org.esa.snap.core.datamodel.GeometryDescriptor\n" +
                      "#defaultGeometry=geom\n" +
                      "#separator=TAB\n" +
                      "#styleCss=color:0,0,255\n" +
                      "#description=Some text explaining the content.\n" +
-                     "#defaultCSS=fill:#0000ff; fill-opacity:0.5; stroke:#ffffff; stroke-opacity:1.0; stroke-width:1.0; symbol:cross\n",
-                     nodeProperties);
+                     "#defaultCSS=fill:#......; fill-opacity:0.5; stroke:#ffffff; stroke-opacity:1.0; stroke-width:1.0; symbol:cross\n"));
     }
 
     private void testInputOutput(String input, String[] expectedProperties, String expectedContent) throws IOException {
