@@ -48,12 +48,9 @@ public class VectorDataNodeWriter {
     private static long id = System.nanoTime();
 
     public void write(VectorDataNode vectorDataNode, File file) throws IOException {
-        FileWriter writer = new FileWriter(file);
-        try {
+        try (FileWriter writer = new FileWriter(file)) {
             writeNodeProperties(vectorDataNode, writer);
             writeFeatures(vectorDataNode.getFeatureCollection(), writer);
-        } finally {
-            writer.close();
         }
     }
 
