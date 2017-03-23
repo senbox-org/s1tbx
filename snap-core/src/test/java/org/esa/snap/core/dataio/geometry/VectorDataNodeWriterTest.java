@@ -37,6 +37,8 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.Assert.*;
+
 public class VectorDataNodeWriterTest {
 
     private static final String INPUT_1 =
@@ -87,21 +89,26 @@ public class VectorDataNodeWriterTest {
                         "org.esa.snap.FT2\tname:String\tgeom:Point\tweight:Float\nID65\tmark1\tPOINT (12.3 45.6)\t0.4\n");
     }
 
-    private void testInputOutput(String input, String[] expectedProperties, String expectedContent) throws IOException {
-        final FeatureUtils.FeatureCrsProvider featureCrsProvider = new FeatureUtils.FeatureCrsProvider() {
-            @Override
-            public CoordinateReferenceSystem getFeatureCrs(Product product) {
-                return DefaultGeographicCRS.WGS84;
-            }
+    @Test
+    public void testWriteNodeProperties() throws IOException {
+        final VectorDataNode vectorNode = readVectorDataNode(INPUT_1);
+        vectorNode.setDescription("Some text explaining the content.");
+        VectorDataNodeWriter vectorDataNodeWriter = new VectorDataNodeWriter();
+        StringWriter writer = new StringWriter();
+        vectorDataNodeWriter.writeNodeProperties(vectorNode, writer);
+        String nodeProperties = writer.getBuffer().toString();
+        System.out.println(nodeProperties);
+        assertEquals("#placemarkDescriptor=org.esa.snap.core.datamodel.GeometryDescriptor\n" +
+                     "#defaultGeometry=geom\n" +
+                     "#separator=TAB\n" +
+                     "#styleCss=color:0,0,255\n" +
+                     "#description=Some text explaining the content.\n" +
+                     "#defaultCSS=fill:#0000ff; fill-opacity:0.5; stroke:#ffffff; stroke-opacity:1.0; stroke-width:1.0; symbol:cross\n",
+                     nodeProperties);
+    }
 
-            @Override
-            public boolean clipToProductBounds() {
-                return true;
-            }
-        };
-        final VectorDataNode dataNode = VectorDataNodeReader.read("mem", new StringReader(input), createDummyProduct(),
-                                                                  featureCrsProvider, placemarkDescriptorProvider, DefaultGeographicCRS.WGS84,
-                                                                  VectorDataNodeIO.DEFAULT_DELIMITER_CHAR, ProgressMonitor.NULL);
+    private void testInputOutput(String input, String[] expectedProperties, String expectedContent) throws IOException {
+        final VectorDataNode dataNode = readVectorDataNode(input);
         Map<String, String> properties = new HashMap<>();
         for (Map.Entry<Object, Object> entry : dataNode.getFeatureType().getUserData().entrySet()) {
             properties.put(entry.getKey().toString(), entry.getValue().toString());
@@ -119,6 +126,23 @@ public class VectorDataNodeWriterTest {
             Assert.assertTrue(writtenVDN.contains(expectedProperty));
         }
         Assert.assertTrue(writtenVDN.endsWith(expectedContent));
+    }
+
+    private VectorDataNode readVectorDataNode(String vectorString) throws IOException {
+        final FeatureUtils.FeatureCrsProvider featureCrsProvider = new FeatureUtils.FeatureCrsProvider() {
+            @Override
+            public CoordinateReferenceSystem getFeatureCrs(Product product) {
+                return DefaultGeographicCRS.WGS84;
+            }
+
+            @Override
+            public boolean clipToProductBounds() {
+                return true;
+            }
+        };
+        return VectorDataNodeReader.read("mem", new StringReader(vectorString), createDummyProduct(),
+                                         featureCrsProvider, placemarkDescriptorProvider, DefaultGeographicCRS.WGS84,
+                                         VectorDataNodeIO.DEFAULT_DELIMITER_CHAR, ProgressMonitor.NULL);
     }
 
     private static Product createDummyProduct() {
