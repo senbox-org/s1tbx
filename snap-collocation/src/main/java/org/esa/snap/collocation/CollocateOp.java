@@ -237,6 +237,12 @@ public class CollocateOp extends Operator {
         // Add master masks
         copyMasks(masterProduct, renameMasterComponents, masterComponentPattern, originalMasterNames, masterRasters);
 
+        int collocationCount = 0;
+        String collocationFlagsBandName = "collocationFlags";
+        while (targetProduct.containsBand(collocationFlagsBandName)) {
+            collocationFlagsBandName = "collocationFlags" + ++collocationCount;
+        }
+
         // Add slave bands
         for (Band sourceBand : slaveProduct.getBands()) {
             String targetBandName = sourceBand.getName();
@@ -250,13 +256,13 @@ public class CollocateOp extends Operator {
             originalSlaveNames.put(targetBand.getName(), sourceBand.getName());
             slaveRasters.add(targetBand);
             // add present flag
-            String validPixelExpression = targetBand.getValidPixelExpression();
-            if (validPixelExpression == null || validPixelExpression.isEmpty()) {
-                validPixelExpression = "collocation_flags.SLAVE_PRESENT";
-            } else {
-                validPixelExpression = String.format("(%s) && collocation_flags.SLAVE_PRESENT", validPixelExpression);
-            }
-            targetBand.setValidPixelExpression(validPixelExpression);
+//            String validPixelExpression = targetBand.getValidPixelExpression();
+//            if (validPixelExpression == null || validPixelExpression.isEmpty()) {
+//                validPixelExpression = collocationFlagsBandName + ".SLAVE_PRESENT";
+//            } else {
+//                validPixelExpression = String.format("(%s) && " + collocationFlagsBandName + ".SLAVE_PRESENT", validPixelExpression);
+//            }
+//            targetBand.setValidPixelExpression(validPixelExpression);
         }
 
         // Add slave tie-point grids as bands
@@ -272,17 +278,17 @@ public class CollocateOp extends Operator {
             originalSlaveNames.put(targetBand.getName(), sourceGrid.getName());
             slaveRasters.add(targetBand);
             // add present flag
-            String validPixelExpression = targetBand.getValidPixelExpression();
-            if (validPixelExpression == null || validPixelExpression.isEmpty()) {
-                validPixelExpression = "collocation_flags.SLAVE_PRESENT";
-            } else {
-                validPixelExpression = String.format("(%s) && collocation_flags.SLAVE_PRESENT", validPixelExpression);
-            }
-            targetBand.setValidPixelExpression(validPixelExpression);
+//            String validPixelExpression = targetBand.getValidPixelExpression();
+//            if (validPixelExpression == null || validPixelExpression.isEmpty()) {
+//                validPixelExpression = collocationFlagsBandName + ".SLAVE_PRESENT";
+//            } else {
+//                validPixelExpression = String.format("(%s) && " + collocationFlagsBandName + ".SLAVE_PRESENT", validPixelExpression);
+//            }
+//            targetBand.setValidPixelExpression(validPixelExpression);
         }
 
-        collocationFlagBand = targetProduct.addBand("collocation_flags", ProductData.TYPE_INT8);
-        FlagCoding collocationFlagCoding = new FlagCoding("collocation_flags");
+        collocationFlagBand = targetProduct.addBand(collocationFlagsBandName, ProductData.TYPE_INT8);
+        FlagCoding collocationFlagCoding = new FlagCoding(collocationFlagsBandName);
         collocationFlagCoding.addFlag("SLAVE_PRESENT", 1, "Data for the slave is present.");
         collocationFlagBand.setSampleCoding(collocationFlagCoding);
         targetProduct.getFlagCodingGroup().add(collocationFlagCoding);
@@ -478,21 +484,23 @@ public class CollocateOp extends Operator {
         ProductNodeGroup<Mask> maskGroup = sourceProduct.getMaskGroup();
         Mask[] sourceMasks = maskGroup.toArray(new Mask[maskGroup.getNodeCount()]);
         for (Mask sourceMask : sourceMasks) {
-            Mask.ImageType imageType = sourceMask.getImageType();
-            Mask targetMask = new Mask(sourceMask.getName(),
-                                       targetProduct.getSceneRasterWidth(),
-                                       targetProduct.getSceneRasterHeight(),
-                                       imageType);
-            targetMask.setDescription(sourceMask.getDescription());
-            for (Property property : sourceMask.getImageConfig().getProperties()) {
-                targetMask.getImageConfig().setValue(property.getDescriptor().getName(), property.getValue());
+            if (! targetProduct.getMaskGroup().contains(sourceMask.getName())) {
+                Mask.ImageType imageType = sourceMask.getImageType();
+                Mask targetMask = new Mask(sourceMask.getName(),
+                                           targetProduct.getSceneRasterWidth(),
+                                           targetProduct.getSceneRasterHeight(),
+                                           imageType);
+                targetMask.setDescription(sourceMask.getDescription());
+                for (Property property : sourceMask.getImageConfig().getProperties()) {
+                    targetMask.getImageConfig().setValue(property.getDescriptor().getName(), property.getValue());
+                }
+                if (rename) {
+                    targetMask.setName(pattern.replace(SOURCE_NAME_REFERENCE, sourceMask.getName()));
+                }
+                targetProduct.getMaskGroup().add(targetMask);
+                originalNames.put(targetMask.getName(), sourceMask.getName());
+                rasters.add(targetMask);
             }
-            if (rename) {
-                targetMask.setName(pattern.replace(SOURCE_NAME_REFERENCE, sourceMask.getName()));
-            }
-            targetProduct.getMaskGroup().add(targetMask);
-            originalNames.put(targetMask.getName(), sourceMask.getName());
-            rasters.add(targetMask);
         }
     }
 
