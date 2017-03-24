@@ -76,10 +76,8 @@ public class Evaluator {
         if (doCrossValidation) {
             final CrossValidation cv = new CrossValidation(mlClassifier);
             try {
-                final Map<Object, PerformanceMeasure> cvPerfMeasure = cv.crossValidation(dataset, 5, new Random());
-
                 score.crossValidationPercent = printEvaluation("Cross Validation", labelMap, dataset, datasetType,
-                                                               classDistribution, cvPerfMeasure);
+                                                               classDistribution, cv);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -115,18 +113,20 @@ public class Evaluator {
     private double printEvaluation(final String title,
                                    final Map<Double, String> labelMap, final Dataset dataset,
                                    final String datasetType, final Map<Object, Integer> classDistribution,
-                                   final Map<Object, PerformanceMeasure> performanceMeasureMap) {
+                                   final CrossValidation cv) {
         final StringBuilder log = new StringBuilder(512);
 
+        final Map<Object, PerformanceMeasure> cvPerfMeasure = cv.crossValidation(dataset, 5, new Random());
+
         log.append(title + '\n');
-        log.append("Number of classes = " + performanceMeasureMap.size() + '\n');
+        log.append("Number of classes = " + cvPerfMeasure.size() + '\n');
 
         int sum = 0;
         int totalTP = 0;
         int totalSamples = 0;
-        final Object[] sortedClassValues = ClassifierAttributeEvaluation.getSortedObjects(performanceMeasureMap.keySet());
+        final Object[] sortedClassValues = ClassifierAttributeEvaluation.getSortedObjects(cvPerfMeasure.keySet());
         for (Object o : sortedClassValues) {
-            final PerformanceMeasure perMea = performanceMeasureMap.get(o);
+            final PerformanceMeasure perMea = cvPerfMeasure.get(o);
             totalTP += perMea.tp;
             totalSamples += (perMea.tp + perMea.fn);
             final int cntVal = classDistribution.get(o);
@@ -147,6 +147,8 @@ public class Evaluator {
         final double tpPct = (double) totalTP / (double) dataset.size();
         log.append("\nUsing " + datasetType + " dataset, % correct predictions = " + f(tpPct * 100.0) + '\n');
         log.append("Total samples = " + sum + '\n');
+        log.append("RMSE = " + cv.getRMSE() + '\n');
+        log.append("Bias = " + cv.getBias() + '\n');
 
         classifierReport.addClassifierEvaluation(log.toString());
 
