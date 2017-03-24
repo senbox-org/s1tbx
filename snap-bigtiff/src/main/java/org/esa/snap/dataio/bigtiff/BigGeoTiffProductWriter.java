@@ -11,8 +11,11 @@ import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageMetadata;
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageWriter;
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFLZWCompressor;
 import org.esa.snap.core.dataio.AbstractProductWriter;
+import org.esa.snap.core.dataio.ProductIO;
+import org.esa.snap.core.dataio.ProductWriter;
 import org.esa.snap.core.dataio.ProductWriterPlugIn;
 import org.esa.snap.core.dataio.dimap.DimapHeaderWriter;
+import org.esa.snap.core.dataio.dimap.DimapProductWriterPlugIn;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.FilterBand;
 import org.esa.snap.core.datamodel.Product;
@@ -22,6 +25,7 @@ import org.esa.snap.core.datamodel.VirtualBand;
 import org.esa.snap.core.image.ImageManager;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.core.util.StringUtils;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.geotiff.GeoTIFF;
 import org.esa.snap.core.util.geotiff.GeoTIFFMetadata;
 import org.esa.snap.core.util.io.FileUtils;
@@ -42,11 +46,14 @@ import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.awt.image.renderable.ParameterBlock;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 
 class BigGeoTiffProductWriter extends AbstractProductWriter {
@@ -60,17 +67,26 @@ class BigGeoTiffProductWriter extends AbstractProductWriter {
     private static String PARAM_TILING_HEIGHT = "snap.dataio.bigtiff.tiling.height";   // integer value
 
     private static String PARAM_FORCE_BIGTIFF = "snap.dataio.bigtiff.force.bigtiff";   // boolean
+    public static String PARAM_PUSH_PROCESSING = "snap.dataio.bigtiff.support.pushprocessing";   // boolean
+    private static String PARAM_ARCGIS_AUX = "snap.dataio.bigtiff.write.arcgisaux";   // boolean
 
     private File outputFile;
     private TIFFImageWriter imageWriter;
     private boolean isWritten;
     private FileImageOutputStream outputStream;
     private TIFFImageWriteParam writeParam;
+    private boolean withIntermediate;
+    private File intermediateFile = null;
+    private ProductWriter intermediateWriter = null;
+    private List<String> bandNames = new ArrayList<>();
 
     public BigGeoTiffProductWriter(ProductWriterPlugIn writerPlugIn) {
         super(writerPlugIn);
-
         createWriterParams();
+        withIntermediate = Config.instance().preferences().getBoolean(PARAM_PUSH_PROCESSING, false);
+        if (withIntermediate) {
+            intermediateWriter = new DimapProductWriterPlugIn().createWriterInstance();
+        }
     }
 
     private void createWriterParams() {
@@ -108,6 +124,24 @@ class BigGeoTiffProductWriter extends AbstractProductWriter {
 
     @Override
     protected void writeProductNodesImpl() throws IOException {
+        updateTilingParameter();
+        for (Band band : getSourceProduct().getBands()) {
+            bandNames.add(band.getName());
+        }
+        if (withIntermediate) {
+            if (getOutput() instanceof String) {
+                intermediateFile = new File(System.getProperty("java.io.tmpdir"), getOutput() + ".tmp.dim");
+            } else {
+                intermediateFile = new File(System.getProperty("java.io.tmpdir"), ((File) getOutput()).getName() + ".tmp.dim");
+            }
+            SystemUtils.LOG.info("writing to intermediate file " + intermediateFile.getPath());
+            intermediateWriter.writeProductNodes(getSourceProduct(), intermediateFile);
+        } else {
+            _writeProductNodesImpl();
+        }
+    }
+
+    private void _writeProductNodesImpl() throws IOException {
         outputFile = null;
 
         final File file;
@@ -118,10 +152,10 @@ class BigGeoTiffProductWriter extends AbstractProductWriter {
         }
 
         outputFile = FileUtils.ensureExtension(file, Constants.FILE_EXTENSIONS[0]);
+        SystemUtils.LOG.info("writing to output file " + outputFile.getPath());
 
         deleteOutput();
         updateProductName();
-        updateTilingParameter();
 
         imageWriter = getTiffImageWriter();
 
@@ -154,12 +188,19 @@ class BigGeoTiffProductWriter extends AbstractProductWriter {
 
     @Override
     public void writeBandRasterData(Band sourceBand, int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight, ProductData sourceBuffer, ProgressMonitor pm) throws IOException {
-        if (isWritten) {
-            return;
+        if (withIntermediate) {
+            intermediateWriter.writeBandRasterData(sourceBand, sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight, sourceBuffer, pm);
+        } else {
+            if (isWritten) {
+                return;
+            }
+            final Product sourceProduct = sourceBand.getProduct();
+            _writeBandRasterData(sourceProduct);
+            isWritten = true;
         }
+    }
 
-        final Product sourceProduct = sourceBand.getProduct();
-
+    private void _writeBandRasterData(Product sourceProduct) throws IOException {
         final int targetDataType = getTargetDataType(sourceProduct);
         final ArrayList<Band> bandsToExport = getBandsToExport(sourceProduct);
 
@@ -193,8 +234,6 @@ class BigGeoTiffProductWriter extends AbstractProductWriter {
 
         final IIOImage iioImage = new IIOImage(writeImage, null, iioMetadata);
         imageWriter.write(null, iioImage, writeParam);
-
-        isWritten = true;
     }
 
     private ArrayList<Band> getBandsToExport(Product sourceProduct) {
@@ -250,6 +289,33 @@ class BigGeoTiffProductWriter extends AbstractProductWriter {
 
     @Override
     public void close() throws IOException {
+        if (withIntermediate) {
+            if (intermediateWriter != null) {
+                intermediateWriter.flush();
+                intermediateWriter.close();
+                _writeProductNodesImpl();
+                Product product = ProductIO.readProduct(intermediateFile, "BEAM-DIMAP");
+                product.setName(FileUtils.getFilenameWithoutExtension(outputFile));
+                _writeBandRasterData(product);
+                intermediateWriter.deleteOutput();
+                intermediateWriter = null;
+            }
+        }
+
+        if (outputStream != null && Config.instance().preferences().getBoolean(PARAM_ARCGIS_AUX, false)) {
+            File auxFile = new File(outputFile.getParent(), outputFile.getName() + ".aux.xml");
+            SystemUtils.LOG.info("writing band names to ArcGIS aux " + auxFile.getPath());
+            try (BufferedWriter auxWriter = new BufferedWriter(new FileWriter(auxFile))) {
+                auxWriter.write("<PAMDataset>\n  <Metadata>\n    <MDI key='Band_0'>dummy</MDI>\n");
+                int i=0;
+                for (String bandName : bandNames) {
+                    auxWriter.write("    <MDI key='Band_" + (++i) + "'>");
+                    auxWriter.write(bandName);
+                    auxWriter.write("</MDI>\n");
+                }
+                auxWriter.write("  </Metadata>\n</PAMDataset>\n");
+            }
+        }
 
         if (outputStream != null) {
             outputStream.flush();

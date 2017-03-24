@@ -7,7 +7,10 @@ import org.esa.snap.core.datamodel.CrsGeoCoding;
 import org.esa.snap.core.datamodel.GeoCoding;
 import org.esa.snap.core.datamodel.MapGeoCoding;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.RasterDataNode;
+import org.esa.snap.core.util.SystemUtils;
 import org.esa.snap.core.util.io.SnapFileFilter;
+import org.esa.snap.runtime.Config;
 
 import java.io.File;
 import java.util.Locale;
@@ -27,7 +30,10 @@ public class BigGeoTiffProductWriterPlugIn implements ProductWriterPlugIn {
         } else if (!(geoCoding instanceof MapGeoCoding) && !(geoCoding instanceof CrsGeoCoding)) {
             return new EncodeQualification(EncodeQualification.Preservation.PARTIAL,
                                            "The product is geo-coded but seems not rectified. Geo-coding information may not be properly preserved.");
-        } else if (product.isMultiSize()) {
+        } else if (product.isMultiSize() && ! Config.instance().preferences().getBoolean(BigGeoTiffProductWriter.PARAM_PUSH_PROCESSING, false)) {
+            for (RasterDataNode node : product.getRasterDataNodes()) {
+                SystemUtils.LOG.warning(node.getName() + " width=" + node.getRasterWidth() + " height=" + node.getRasterHeight());
+            }
             return new EncodeQualification(EncodeQualification.Preservation.UNABLE,
                                            "Cannot write multisize products. Consider resampling the product first.");
         } else {
