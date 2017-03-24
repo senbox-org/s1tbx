@@ -18,7 +18,6 @@ package org.esa.snap.classification.gpf;
 import be.abeel.util.Pair;
 import com.bc.ceres.core.ProgressMonitor;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import com.thoughtworks.xstream.XStream;
 import net.sf.javaml.classification.Classifier;
 import net.sf.javaml.core.Dataset;
@@ -111,8 +110,8 @@ public abstract class BaseClassifier implements SupervisedClassifier {
     public final static String CLASSIFIER_USER_INFO_FILE_EXTENSION = ".xml";
     public final static String CLASSIFIER_ROOT_FOLDER = "classifiers";
 
-    private final static int minPowerSetSize = 1;
-    private final static int maxPowerSetSize = 30;
+    private final static int minPowerSetSize = 2;
+    private final static int maxPowerSetSize = 5;
     private double topClassifierPercent = 0;
     private String topClassifierName;
     private FeatureInfo[] topFeatureInfoList;
@@ -741,11 +740,11 @@ public abstract class BaseClassifier implements SupervisedClassifier {
 
         try {
             // get the power set of all features
-            Set<Set<FeatureInfo>> featurePowerSet = Sets.powerSet(ImmutableSet.copyOf(Arrays.asList(completeFeatureInfoList)));
+            final PowerSet<FeatureInfo> featurePowerSet = new PowerSet<>(ImmutableSet.copyOf(Arrays.asList(completeFeatureInfoList)),
+                    minPowerSetSize, maxPowerSetSize);
+
             List<Set<FeatureInfo>> featureSetList = new ArrayList<>();
             for (Set<FeatureInfo> featureSet : featurePowerSet) {
-                if (featureSet.size() < minPowerSetSize || featureSet.size() > maxPowerSetSize)
-                    continue;
                 featureSetList.add(featureSet);
             }
             pm.beginTask("Evaluating feature power set", featureSetList.size());
@@ -761,12 +760,12 @@ public abstract class BaseClassifier implements SupervisedClassifier {
                 Classifier setClassifier = createMLClassifier(featureInfos);
 
                 // create subset of labeledInstances
-               // LabeledInstances subsetLabeledInstances = createSubsetLabeledInstances(featureInfos, allLabeledInstances);
+                LabeledInstances subsetLabeledInstances = createSubsetLabeledInstances(featureInfos, allLabeledInstances);
 
-                final LabeledInstances allLabeledInstances2 = getLabeledInstances(operator, params.numTrainSamples * 2,
-                                                                                  featureInfoList);
+                //final LabeledInstances allLabeledInstances2 = getLabeledInstances(operator, params.numTrainSamples * 2,
+                //                                                                 featureInfoList);
 
-                trainClassifier(setClassifier, getClassifierName() + '.' + cnt, allLabeledInstances2,
+                trainClassifier(setClassifier, getClassifierName() + '.' + cnt, subsetLabeledInstances,
                                 featureInfos, true);
                 ++cnt;
                 pm.worked(1);
