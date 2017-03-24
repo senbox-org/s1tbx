@@ -175,6 +175,39 @@ public class MergeOp extends Operator {
         }
         return map;
     }
+        if (!(excludes == null || excludes.length == 0)) {
+            throw new OperatorException("Defining excludes is not supported yet.");
+        }
+        // make sure all sourceImages of the master product are created
+        Band[] bands = masterProduct.getBands();
+        for (Band band : bands) {
+            // trigger creation
+            band.getSourceImage();
+        }
+        Set<Product> allSrcProducts = new HashSet<Product>();
+        for (NodeDescriptor nodeDescriptor : includes) {
+            Product srcProduct = getSourceProduct(nodeDescriptor.productId);
+            if (srcProduct == targetProduct) {
+                continue;
+            }
+            if (StringUtils.isNotNullAndNotEmpty(nodeDescriptor.name)) {
+                if (StringUtils.isNotNullAndNotEmpty(nodeDescriptor.newName)) {
+                    copyBandWithFeatures(srcProduct, nodeDescriptor.name, nodeDescriptor.newName);
+                } else {
+                    copyBandWithFeatures(srcProduct, nodeDescriptor.name, nodeDescriptor.name);
+                }
+                allSrcProducts.add(srcProduct);
+            } else if (StringUtils.isNotNullAndNotEmpty(nodeDescriptor.namePattern)) {
+                Pattern pattern = Pattern.compile(nodeDescriptor.namePattern);
+                for (String bandName : srcProduct.getBandNames()) {
+                    Matcher matcher = pattern.matcher(bandName);
+                    if (matcher.matches()) {
+                        copyBandWithFeatures(srcProduct, bandName, bandName);
+                        allSrcProducts.add(srcProduct);
+                    }
+                }
+            }
+        }
 
     private void validateNodeDescriptor(NodeDescriptor nd) {
         if (StringUtils.isNullOrEmpty(nd.productId)) {
