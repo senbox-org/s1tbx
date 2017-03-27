@@ -69,6 +69,9 @@ public final class LandCoverMaskOp extends Operator {
     @Parameter(description = "Land cover classes to include", label = "Valid land cover classes")
     private int[] validLandCoverClasses = null;
 
+    @Parameter(description = "Valid pixel expression", label = "Valid pixel expression")
+    private String validPixelExpression = null;
+
     @Parameter(description = "Add other bands unmasked", defaultValue = "false", label = "Include all other bands")
     private boolean includeOtherBands = false;
 
@@ -119,6 +122,9 @@ public final class LandCoverMaskOp extends Operator {
 
         final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
         for (Band srcBand : sourceBands) {
+            if(srcBand.getName().startsWith("land_cover_")) {
+                continue;
+            }
             final String targetBandName = srcBand.getName() + "_masked";
             final Band targetBand = new Band(targetBandName,
                     srcBand.getDataType(),
@@ -137,7 +143,7 @@ public final class LandCoverMaskOp extends Operator {
 
     private String createExpression(final Band srcBand) {
         final StringBuilder str = new StringBuilder("");
-        if (validLandCoverClasses != null) {
+        if (validLandCoverClasses != null && validLandCoverClasses.length > 0) {
             for (int c : validLandCoverClasses) {
                 if (str.length() == 0) {
                     str.append("( ");
@@ -150,6 +156,8 @@ public final class LandCoverMaskOp extends Operator {
             str.append(srcBand.getName());
             str.append("' : ");
             str.append(srcBand.getNoDataValue());
+        } else if(validPixelExpression != null && !validPixelExpression.isEmpty()){
+            return validPixelExpression;
         }
         return str.toString();
     }
@@ -171,6 +179,9 @@ public final class LandCoverMaskOp extends Operator {
             final RasterDataEvalEnv env = new RasterDataEvalEnv(rect.x, rect.y, rect.width, rect.height);
 
             final String expression = expressionMap.get(targetBand);
+            if(expression == null || expression.isEmpty()) {
+                return;
+            }
             final Term term = createTerm(expression);
 
             final RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
