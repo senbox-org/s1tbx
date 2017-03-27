@@ -290,34 +290,32 @@ public class ResamplingOp extends Operator {
 
     private void resampleTiePointGrids() {
         final ProductNodeGroup<TiePointGrid> tiePointGridGroup = sourceProduct.getTiePointGridGroup();
-        double scaledReferenceOffsetX = referenceImageToModelTransform.getTranslateX() / referenceImageToModelTransform.getScaleX();
-        double scaledReferenceOffsetY = referenceImageToModelTransform.getTranslateY() / referenceImageToModelTransform.getScaleY();
+        AffineTransform targetImageToModelTransform;
+        double scaledReferenceOffsetX;
+        double scaledReferenceOffsetY;
+        if (sourceProduct.getSceneGeoCoding() instanceof CrsGeoCoding) {
+            targetImageToModelTransform = referenceImageToModelTransform;
+            scaledReferenceOffsetX = 0;
+            scaledReferenceOffsetY = 0;
+        } else {
+            targetImageToModelTransform = new AffineTransform();
+            scaledReferenceOffsetX = referenceImageToModelTransform.getTranslateX() / referenceImageToModelTransform.getScaleX();
+            scaledReferenceOffsetY = referenceImageToModelTransform.getTranslateY() / referenceImageToModelTransform.getScaleY();
+        }
+        AffineTransform transform;
         for (int i = 0; i < tiePointGridGroup.getNodeCount(); i++) {
-            final TiePointGrid grid = tiePointGridGroup.get(i);
-            AffineTransform transform;
             try {
                 transform = new AffineTransform(referenceImageToModelTransform.createInverse());
             } catch (NoninvertibleTransformException e) {
                 throw new OperatorException("Cannot resample: " + e.getMessage());
             }
+            final TiePointGrid grid = tiePointGridGroup.get(i);
             final AffineTransform gridTransform = grid.getImageToModelTransform();
             transform.concatenate(gridTransform);
-            double subSamplingX = grid.getSubSamplingX();
-            if (Math.abs(transform.getScaleX() - 1.0) > 1e-8) {
-                subSamplingX = grid.getSubSamplingX() * transform.getScaleX();
-            }
-            double subSamplingY = grid.getSubSamplingY();
-            if (Math.abs(transform.getScaleY() - 1.0) > 1e-8) {
-                subSamplingY = grid.getSubSamplingY() * transform.getScaleY();
-            }
-            double offsetX = grid.getOffsetX();
-            if (Math.abs(transform.getTranslateX()) > 1e-8) {
-                offsetX = (grid.getOffsetX() * transform.getScaleX()) - scaledReferenceOffsetX;
-            }
-            double offsetY = grid.getOffsetY();
-            if (Math.abs(transform.getTranslateY()) > 1e-8) {
-                offsetY = (grid.getOffsetY() * transform.getScaleY()) - scaledReferenceOffsetY;
-            }
+            double subSamplingX = grid.getSubSamplingX() * transform.getScaleX();
+            double subSamplingY = grid.getSubSamplingY() * transform.getScaleY();
+            double offsetX = (grid.getOffsetX() * transform.getScaleX()) - scaledReferenceOffsetX;
+            double offsetY = (grid.getOffsetY() * transform.getScaleY()) - scaledReferenceOffsetY;
             final float[] srcTiePoints = grid.getTiePoints();
             final float[] destTiePoints = new float[srcTiePoints.length];
             System.arraycopy(srcTiePoints, 0, destTiePoints, 0, srcTiePoints.length);
@@ -326,6 +324,7 @@ public class ResamplingOp extends Operator {
                                                                 subSamplingX, subSamplingY, destTiePoints,
                                                                 grid.getDiscontinuity());
             ProductUtils.copyRasterDataNodeProperties(grid, resampledGrid);
+            resampledGrid.setImageToModelTransform(targetImageToModelTransform);
             targetProduct.addTiePointGrid(resampledGrid);
         }
     }
