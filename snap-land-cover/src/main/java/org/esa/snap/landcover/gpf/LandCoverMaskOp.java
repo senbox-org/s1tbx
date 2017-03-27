@@ -63,8 +63,7 @@ public final class LandCoverMaskOp extends Operator {
             rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames = null;
 
-    @Parameter(description = "Land cover band",
-            rasterDataNodeType = Band.class, label = "Land Cover Band")
+    @Parameter(description = "Land cover band", label = "Land Cover Band")
     private String landCoverBand = null;
 
     @Parameter(description = "Land cover classes to include", label = "Valid land cover classes")
