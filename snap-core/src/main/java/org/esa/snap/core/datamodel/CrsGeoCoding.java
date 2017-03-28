@@ -266,8 +266,32 @@ public class CrsGeoCoding extends AbstractGeoCoding {
         }
     }
 
+    private void getPixelsOneByOne(final int x1, final int y1, final int w, final int h,
+                                 final float[] latPixels, final float[] lonPixels) {
+        final DirectPosition2D directPixPos = new DirectPosition2D();
+        final DirectPosition directGeoPos = new GeneralDirectPosition(0,0);
+        final int x2 = x1 + w;
+        final int y2 = y1 + h;
+        int pos = 0;
+        for (int y = y1; y < y2; ++y) {
+            final double yp = y + 0.5;
+            for (int x = x1; x < x2; ++x) {
+                try {
+                    directPixPos.setLocation(x + 0.5, yp);
+                    imageToGeo.transform(directPixPos, directGeoPos);
+                    latPixels[pos] = (float) directGeoPos.getOrdinate(1);
+                    lonPixels[pos] = (float) directGeoPos.getOrdinate(0);
+                } catch (Exception ignored) {
+                    latPixels[pos] = Float.NaN;
+                    lonPixels[pos] = Float.NaN;
+                }
+                ++pos;
+            }
+        }
+    }
+
     public final void getPixels(final int x1, final int y1, final int w, final int h,
-                                final double[] latPixels, final double[] lonPixels) {
+                                final float[] latPixels, final float[] lonPixels) {
         final int x2 = x1 + w;
         final int y2 = y1 + h;
         int pos = 0;
@@ -290,7 +314,32 @@ public class CrsGeoCoding extends AbstractGeoCoding {
         } catch (TransformException e) {
             getPixelsOneByOne(x1, y1, w, h, latPixels, lonPixels);
         }
+    }
 
+    public final void getPixels(final int x1, final int y1, final int w, final int h,
+                                final double[] latPixels, final double[] lonPixels) {
+        final int x2 = x1 + w;
+        final int y2 = y1 + h;
+        int pos = 0;
+        int numPixels = w * h;
+        double[] srcPixels = new double[numPixels * 2];
+        double[] latLonPixels = new double[numPixels * 2];
+        for (int y = y1; y < y2; ++y) {
+            final float yp = y + 0.5f;
+            for (int x = x1; x < x2; ++x) {
+                srcPixels[pos++] = yp;
+                srcPixels[pos++] = x + 0.5f;
+            }
+        }
+        try {
+            imageToGeo.transform(srcPixels, 0, latLonPixels, 0, numPixels);
+            for (int i = 0; i < numPixels; i++) {
+                latPixels[i] = latLonPixels[2 * i];
+                lonPixels[i] = latLonPixels[(2 * i) + 1];
+            }
+        } catch (TransformException e) {
+            getPixelsOneByOne(x1, y1, w, h, latPixels, lonPixels);
+        }
     }
 
     @Override
