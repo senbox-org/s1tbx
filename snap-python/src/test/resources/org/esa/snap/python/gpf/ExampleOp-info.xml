@@ -1,0 +1,52 @@
+<operator>
+    <name>org.esa.snap.ExampleOp</name>
+    <alias>ExampleOp</alias>
+    <label>Special Test Example Operator</label>
+    <operatorClass>org.esa.snap.python.gpf.PyOperator</operatorClass>
+    <internal>true</internal>
+    <autoWriteSuppressed>true</autoWriteSuppressed>
+
+    <version>0.10</version>
+    <authors>SNAP Devs</authors>
+    <copyright>2017 ESA</copyright>
+
+    <description>Description text.</description>
+
+    <namedSourceProducts>
+        <sourceProduct>
+            <name>source</name>
+        </sourceProduct>
+    </namedSourceProducts>
+
+    <parameters>
+        <parameter>
+            <name>algorithm</name>
+            <label>Algorithm</label>
+            <description>Algorithm to be used</description>
+            <dataType>String</dataType>
+            <defaultValue>split</defaultValue>
+            <valueSet>split,mono</valueSet>
+        </parameter>
+        <parameter>
+            <name>band_names</name>
+            <label>Band names</label>
+            <description>Bands to be used</description>
+            <dataType>String[]</dataType>
+            <rasterDataNodeClass>org.esa.snap.core.datamodel.Band</rasterDataNodeClass>
+        </parameter>
+        <parameter>
+            <name>enable_switch</name>
+            <description>switch to enable/disable something</description>
+            <dataType>boolean</dataType>
+            <defaultValue>True</defaultValue>
+        </parameter>
+        <parameter>
+            <name>range</name>
+            <description>Allowed range</description>
+            <dataType>int</dataType>
+            <defaultValue>12</defaultValue>
+            <interval>[10,20)</interval>
+        </parameter>
+    </parameters>
+
+</operator>
