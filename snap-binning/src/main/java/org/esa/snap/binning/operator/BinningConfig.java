@@ -373,8 +373,8 @@ public class BinningConfig {
         // define declared variables
         //
         if (variableConfigs != null) {
-            for (VariableConfig variableConfig : variableConfigs) {
-                variableContext.defineVariable(variableConfig.getName(), variableConfig.getExpr());
+            for (VariableConfig varConfig : variableConfigs) {
+                variableContext.defineVariable(varConfig.getName(), varConfig.getExpr(), varConfig.getValidExpr());
             }
         }
 

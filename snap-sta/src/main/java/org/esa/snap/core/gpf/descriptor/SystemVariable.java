@@ -101,14 +101,12 @@ public class SystemVariable {
     }
 
     protected String resolve() {
-        String existingValue = System.getenv(this.key);
-        if (existingValue == null || existingValue.isEmpty()) {
-            existingValue = ToolAdapterIO.getVariableValue(this.key, this.value, this.isShared);
-        } else {
-            if (this.isShared) {
-                ToolAdapterIO.saveVariable(this.key, existingValue);
-            }
+        if (this.value == null || this.value.isEmpty()) {
+            this.value = System.getenv(this.key);
         }
-        return existingValue;
+        if (this.value == null) {
+            this.value = ToolAdapterIO.getVariableValue(this.key, null, this.isShared);
+        }
+        return this.value;
     }
 }

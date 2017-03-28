@@ -271,10 +271,8 @@ public class CfBandPart extends ProfilePartIO {
             return workarounds.getRasterDataType(variable.getFullName(), variable.getDataType());
         }
         int rasterDataType = DataTypeUtils.getRasterDataType(variable);
-        if (rasterDataType == -1) {
-            if (variable.getDataType() == DataType.LONG) {
-                rasterDataType = variable.isUnsigned() ? ProductData.TYPE_UINT32 : ProductData.TYPE_INT32;
-            }
+        if (variable.getDataType() == DataType.LONG) {
+            rasterDataType = variable.isUnsigned() ? ProductData.TYPE_UINT32 : ProductData.TYPE_INT32;
         }
         return rasterDataType;
     }
@@ -299,7 +297,7 @@ public class CfBandPart extends ProfilePartIO {
         if (flagMasks != null) {
             if (!p.getFlagCodingGroup().contains(sampleCodingName)) {
                 final FlagCoding flagCoding = new FlagCoding(sampleCodingName);
-                if(flagValues != null) {
+                if (flagValues != null) {
                     addSamples(flagCoding, flagMeanings, flagMasks, flagValues, msb);
                 } else {
                     addSamples(flagCoding, flagMeanings, flagMasks, msb);
@@ -367,7 +365,7 @@ public class CfBandPart extends ProfilePartIO {
                 case BYTE:
                     int[] byteValues = {DataType.unsignedByteToShort(sampleMasks.getNumericValue(i).byteValue()),
                             DataType.unsignedByteToShort(sampleValues.getNumericValue(i).byteValue())};
-                    if(byteValues[0] == byteValues[1]) {
+                    if (byteValues[0] == byteValues[1]) {
                         sampleCoding.addSample(sampleName, byteValues[0], null);
                     } else {
                         sampleCoding.addSamples(sampleName, byteValues, null);
@@ -376,7 +374,7 @@ public class CfBandPart extends ProfilePartIO {
                 case SHORT:
                     int[] shortValues = {DataType.unsignedShortToInt(sampleMasks.getNumericValue(i).shortValue()),
                             DataType.unsignedShortToInt(sampleValues.getNumericValue(i).shortValue())};
-                    if(shortValues[0] == shortValues[1]) {
+                    if (shortValues[0] == shortValues[1]) {
                         sampleCoding.addSample(sampleName, shortValues[0], null);
                     } else {
                         sampleCoding.addSamples(sampleName, shortValues, null);
@@ -385,7 +383,7 @@ public class CfBandPart extends ProfilePartIO {
                 case INT:
                     int[] intValues = {sampleMasks.getNumericValue(i).intValue(),
                             sampleValues.getNumericValue(i).intValue()};
-                    if(intValues[0] == intValues[1]) {
+                    if (intValues[0] == intValues[1]) {
                         sampleCoding.addSample(sampleName, intValues[0], null);
                     } else {
                         sampleCoding.addSamples(sampleName, intValues, null);
@@ -397,9 +395,9 @@ public class CfBandPart extends ProfilePartIO {
                             sampleValues.getNumericValue(i).longValue()};
                     if (msb) {
                         int[] intLongValues =
-                                {(int)(longValues[0] >>> 32), (int)(longValues[1] >>> 32)};
+                                {(int) (longValues[0] >>> 32), (int) (longValues[1] >>> 32)};
                         if (longValues[0] > 0) {
-                            if(intLongValues[0] == intLongValues[1]) {
+                            if (intLongValues[0] == intLongValues[1]) {
                                 sampleCoding.addSample(sampleName, intLongValues[0], null);
                             } else {
                                 sampleCoding.addSamples(sampleName, intLongValues, null);
@@ -407,9 +405,9 @@ public class CfBandPart extends ProfilePartIO {
                         }
                     } else {
                         int[] intLongValues =
-                                {(int)(longValues[0] & 0x00000000FFFFFFFFL), (int)(longValues[1] & 0x00000000FFFFFFFFL)};
+                                {(int) (longValues[0] & 0x00000000FFFFFFFFL), (int) (longValues[1] & 0x00000000FFFFFFFFL)};
                         if (intLongValues[0] > 0 || longValues[0] == 0L) {
-                            if(intLongValues[0] == intLongValues[1]) {
+                            if (intLongValues[0] == intLongValues[1]) {
                                 sampleCoding.addSample(sampleName, intLongValues[0], null);
                             } else {
                                 sampleCoding.addSamples(sampleName, intLongValues, null);

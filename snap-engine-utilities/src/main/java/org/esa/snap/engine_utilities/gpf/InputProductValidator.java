@@ -249,14 +249,13 @@ public class InputProductValidator {
         }
     }
 
-    public static boolean isCalibrated(final Product product) {
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+    public boolean isCalibrated() {
         return (absRoot != null &&
                 absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().getElemBoolean());
     }
 
     public void checkIfCalibrated(final boolean shouldBe) throws OperatorException {
-        final boolean isCalibrated = isCalibrated(product);
+        final boolean isCalibrated = isCalibrated();
         if (!shouldBe && isCalibrated) {
             throw new OperatorException(SHOULD_NOT_BE_CALIBRATED);
         } else if (shouldBe && !isCalibrated) {

@@ -58,7 +58,9 @@ public class GlobalMetadataTest {
         config.setNumRows(12);
         config.setSuperSampling(13);
         config.setMaskExpr("14");
-        config.setVariableConfigs(new VariableConfig("var_name", "var_expr"));
+        config.setVariableConfigs(
+                new VariableConfig("var_name0", "var_expr0"),
+                new VariableConfig("var_name1", "var_expr1", "var_mask1"));
         config.setAggregatorConfigs(new AggregatorAverage.Config("variable", "target", 2.076, false, true));
         // @todo 3 tb/** add check for PostProcessorConfig 2014-10-17
         config.setMinDataHour(15.0);
@@ -72,12 +74,18 @@ public class GlobalMetadataTest {
 
         final SortedMap<String, String> metaProperties = metadata.asSortedMap();
         assertNotNull(metaProperties);
+        assertEquals(20, metaProperties.size());
 
         assertEquals("12", metaProperties.get("num_rows"));
         assertEquals("13", metaProperties.get("super_sampling"));
         assertEquals("14", metaProperties.get("mask_expression"));
-        assertEquals("var_name", metaProperties.get("variable_config.0:name"));
-        assertEquals("var_expr", metaProperties.get("variable_config.0:expr"));
+
+        assertEquals("var_name0", metaProperties.get("variable_config.0:name"));
+        assertEquals("var_expr0", metaProperties.get("variable_config.0:expr"));
+        assertEquals("var_name1", metaProperties.get("variable_config.1:name"));
+        assertEquals("var_expr1", metaProperties.get("variable_config.1:expr"));
+        assertEquals("var_mask1", metaProperties.get("variable_config.1:validExpr"));
+
         assertEquals("AVG", metaProperties.get("aggregator_config.0:type"));
         assertEquals("false", metaProperties.get("aggregator_config.0:outputCounts"));
         assertEquals("true", metaProperties.get("aggregator_config.0:outputSums"));

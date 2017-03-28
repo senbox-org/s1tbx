@@ -15,20 +15,13 @@ import java.util.Map;
 @XStreamAlias("osvariable")
 public class SystemDependentVariable extends SystemVariable {
     @XStreamOmitField
-    private volatile Map<OS, String> values;
+    private volatile Map<OSFamily, String> values;
     @XStreamOmitField
-    private OS currentOS;
+    private OSFamily currentOS;
     String windows;
     String linux;
     String macosx;
     private boolean isTransient;
-
-    enum OS {
-        windows,
-        linux,
-        macosx,
-        unsupported
-    }
 
     public SystemDependentVariable() {
         super();
@@ -81,13 +74,13 @@ public class SystemDependentVariable extends SystemVariable {
     /**
      * Gets the property value for Windows
      */
-    public String getWindows() { return windows == null ? values.get(OS.windows) : windows; }
+    public String getWindows() { return windows == null ? values.get(OSFamily.windows) : windows; }
     /**
      * Sets the property value for Windows
      */
     public void setWindows(String value) {
         this.windows = value;
-        if (currentOS == OS.windows) {
+        if (currentOS == OSFamily.windows) {
             setValue(value);
         }
     }
@@ -95,27 +88,27 @@ public class SystemDependentVariable extends SystemVariable {
      * Gets the property value for Linux
      */
     public String getLinux() {
-        return linux == null ? values.get(OS.linux) : linux;
+        return linux == null ? values.get(OSFamily.linux) : linux;
     }
     /**
      * Sets the property value for Linux
      */
     public void setLinux(String value) {
         this.linux = value;
-        if (currentOS == OS.linux) {
+        if (currentOS == OSFamily.linux) {
             setValue(value);
         }
     }
     /**
      * Gets the property value for MacOSX
      */
-    public String getMacosx() { return macosx == null ? values.get(OS.macosx) : macosx; }
+    public String getMacosx() { return macosx == null ? values.get(OSFamily.macosx) : macosx; }
     /**
      * Sets the property value for MacOSX
      */
     public void setMacosx(String value) {
         this.macosx = value;
-        if (currentOS == OS.macosx) {
+        if (currentOS == OSFamily.macosx) {
             setValue(value);
         }
     }
@@ -125,9 +118,9 @@ public class SystemDependentVariable extends SystemVariable {
     private void initialize() {
         values = new HashMap<>();
         try {
-            currentOS = Enum.valueOf(OS.class, ToolAdapterIO.getOsFamily());
+            currentOS = Enum.valueOf(OSFamily.class, ToolAdapterIO.getOsFamily());
         } catch (IllegalArgumentException ignored) {
-            currentOS = OS.unsupported;
+            currentOS = OSFamily.unsupported;
         }
         values.keySet().stream().filter(key -> key != currentOS).forEach(key -> {
             switch (key) {

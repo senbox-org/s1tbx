@@ -25,7 +25,6 @@ import org.esa.snap.core.dataio.ProductSubsetDef;
 import org.esa.snap.core.datamodel.AbstractGeoCoding;
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.PixelPos;
-import org.esa.snap.core.datamodel.PlacemarkDescriptor;
 import org.esa.snap.core.datamodel.PlacemarkDescriptorRegistry;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.Scene;
@@ -77,12 +76,7 @@ public class VectorDataNodeReaderTest {
                 return true;
             }
         };
-        placemarkDescriptorProvider = new VectorDataNodeReader.PlacemarkDescriptorProvider() {
-            @Override
-            public PlacemarkDescriptor getPlacemarkDescriptor(SimpleFeatureType simpleFeatureType) {
-                return PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(org.esa.snap.core.datamodel.GeometryDescriptor.class);
-            }
-        };
+        placemarkDescriptorProvider = simpleFeatureType -> PlacemarkDescriptorRegistry.getInstance().getPlacemarkDescriptor(org.esa.snap.core.datamodel.GeometryDescriptor.class);
     }
 
     @Test
@@ -291,7 +285,7 @@ public class VectorDataNodeReaderTest {
 
     @Test
     public void testIsClosedPolygon() throws Exception {
-        List<Coordinate> coordList = new ArrayList<Coordinate>(5);
+        List<Coordinate> coordList = new ArrayList<>(5);
         coordList.add(new Coordinate(1.0, 2.0));
         coordList.add(new Coordinate(2.0, 3.0));
         coordList.add(new Coordinate(3.0, 4.0));
@@ -408,7 +402,7 @@ public class VectorDataNodeReaderTest {
         FeatureIterator<SimpleFeature> features = featureCollection.features();
         assertEquals(6, featureCollection.size());
 
-        List<SimpleFeature> simpleFeatures = new ArrayList<SimpleFeature>();
+        List<SimpleFeature> simpleFeatures = new ArrayList<>();
 
         while (features.hasNext()) {
             simpleFeatures.add(features.next());
