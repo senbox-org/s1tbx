@@ -242,7 +242,7 @@ public class CrsGeoCoding extends AbstractGeoCoding {
         return pixelPos;
     }
 
-    public final void getPixels(final int x1, final int y1, final int w, final int h,
+    final void getPixelsOneByOne(final int x1, final int y1, final int w, final int h,
                                 final double[] latPixels, final double[] lonPixels) {
         final DirectPosition2D directPixPos = new DirectPosition2D();
         final DirectPosition directGeoPos = new GeneralDirectPosition(0,0);
@@ -264,6 +264,33 @@ public class CrsGeoCoding extends AbstractGeoCoding {
                 ++pos;
             }
         }
+    }
+
+    public final void getPixels(final int x1, final int y1, final int w, final int h,
+                                final double[] latPixels, final double[] lonPixels) {
+        final int x2 = x1 + w;
+        final int y2 = y1 + h;
+        int pos = 0;
+        int numPixels = w * h;
+        float[] srcPixels = new float[numPixels * 2];
+        float[] latLonPixels = new float[numPixels * 2];
+        for (int y = y1; y < y2; ++y) {
+            final float yp = y + 0.5f;
+            for (int x = x1; x < x2; ++x) {
+                srcPixels[pos++] = yp;
+                srcPixels[pos++] = x + 0.5f;
+            }
+        }
+        try {
+            imageToGeo.transform(srcPixels, 0, latLonPixels, 0, numPixels);
+            for (int i = 0; i < numPixels; i++) {
+                latPixels[i] = latLonPixels[2 * i];
+                lonPixels[i] = latLonPixels[(2 * i) + 1];
+            }
+        } catch (TransformException e) {
+            getPixelsOneByOne(x1, y1, w, h, latPixels, lonPixels);
+        }
+
     }
 
     @Override
