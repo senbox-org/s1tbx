@@ -32,9 +32,9 @@ import static junit.framework.TestCase.assertEquals;
  * Test Sentinel-1 QC Scrapping of orbit files
  */
 public class TestSentinelOrbitRetrieval {
-    private static final int STARTYEARS1A = 2016;//2014;
-    private static final int STARTYEARS1B = 2016;//2015;
-    private static final int ENDYEAR = 2017;
+    private static final int STARTYEARS1A = 2017; //2014;
+    private static final int STARTYEARS1B = 2017; //2015;
+    private static final int ENDYEAR = 2018;
     private static final String S1A = "S1A";
     private static final String S1B = "S1B";
 
@@ -60,7 +60,8 @@ public class TestSentinelOrbitRetrieval {
 
     private void retrieveMission(final String missionPrefix, final String orbitType,
                                 final int startYear, final int endYear) throws IOException {
-        SentinelPODOrbitFile.disableSSLCertificateCheck();
+        final SSLUtil ssl = new SSLUtil();
+        ssl.disableSSLCertificateCheck();
 
         for(int year=startYear; year < endYear; ++year) {
             for(int month=1; month <= 12; ++month) {
@@ -68,7 +69,7 @@ public class TestSentinelOrbitRetrieval {
             }
         }
 
-        SentinelPODOrbitFile.enableSSLCertificateCheck();
+        ssl.enableSSLCertificateCheck();
     }
 
     private void retrieveFolder(final String missionPrefix, final String orbitType, final int year, final int month)
