@@ -107,38 +107,22 @@ public class VectorUtils {
         return attributeNames.toArray(new String[attributeNames.size()]);
     }
 
-    private static Rectangle2D convertRect(final Rectangle r, final GeoCoding geoCoding) {
-        PixelPos p1 = new PixelPos(r.x, r.y);
-        PixelPos p2 = new PixelPos(r.x + r.width, r.y);
-        PixelPos p3 = new PixelPos(r.x + r.width, r.y + r.height);
-        PixelPos p4 = new PixelPos(r.x, r.y + r.height);
-
-        GeoPos g1 = geoCoding.getGeoPos(p1, null);
-        GeoPos g2 = geoCoding.getGeoPos(p2, null);
-        GeoPos g3 = geoCoding.getGeoPos(p3, null);
-        GeoPos g4 = geoCoding.getGeoPos(p4, null);
-
-        // not handling curve
-        return new Rectangle2D.Double(g1.getLon(), g1.getLat(), g3.getLon() - g1.getLon(), g3.getLat() - g1.getLat());
-    }
-
     public static VectorDataNode[] getPolygonsForOneRectangle(final Rectangle rectangle,
                                                               final GeoCoding geoCoding,
                                                               final VectorDataNode[] polygonVectorDataNodes) {
 
         final ArrayList<VectorDataNode> list = new ArrayList<>();
-        final CoordinateReferenceSystem crs = geoCoding.getMapCRS();
-
-        Rectangle2D refRect = rectangle;
-        if(geoCoding instanceof CrsGeoCoding) {
-            refRect = convertRect(rectangle, geoCoding);
-        }
-        final Envelope recEnv = new ReferencedEnvelope(refRect, crs);
+        final Envelope recEnv = new ReferencedEnvelope(rectangle, geoCoding.getImageCRS());
 
         for (VectorDataNode node : polygonVectorDataNodes) {
-            final ReferencedEnvelope nodeEnv = node.getEnvelope();
-            if (recEnv.intersects(nodeEnv)) {
-                list.add(node);
+            try {
+                final ReferencedEnvelope nodeEnv = node.getEnvelope().transform(geoCoding.getImageCRS(), true);
+                if (recEnv.intersects(nodeEnv)) {
+                    list.add(node);
+                }
+            } catch (Exception e) {
+                // log error but continue
+                SystemUtils.LOG.severe("Unable to transform vector coordinates: " + e.getMessage());
             }
         }
 
