@@ -1,4 +1,4 @@
-ATS_GC1_AX|General Calibration data|
+ATS_INS_AX|Instrument characterization file|
 #
 MPH                       |@/records/MPH.dd                      |1247                          |Main Product Header
 SPH                       |@/records/SPH.dd       				 |*                             |AATSR Browse LUT Data SPH
